@@ -11,14 +11,22 @@
     "react-dom": "^16.12.0",
     "react-scripts": "3.3.0"
   },
+  "build": {
+    "appId": "com.jenasoft.dbgate",
+    "mac": {
+      "category": "database"
+    }
+  },
   "homepage": "./",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "dev": "nf start -p 3000"
+    "react-start": "cross-env BROWSER=none react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
+    "electron-dist": "electron-builder",
+    "start": "nf start",
+    "postinstall": "electron-builder install-app-deps"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -35,9 +43,10 @@
       "last 1 safari version"
     ]
   },
-  "main": "src/electron-starter.js",
+  "main": "src/electron.js",
   "devDependencies": {
     "electron": "^7.1.7",
+    "electron-builder": "^21.2.0",
     "foreman": "^3.0.1"
   }
 }
