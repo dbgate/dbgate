@@ -30,6 +30,7 @@
     "electron-dist": "electron-builder",
     "start": "nf start",
     "serve": "node src/api/index.js",
+    "wait-electron": "node src/app/electron-wait-react",
     "postinstall": "electron-builder install-app-deps"
   },
   "eslintConfig": {
@@ -47,7 +48,7 @@
       "last 1 safari version"
     ]
   },
-  "main": "src/electron.js",
+  "main": "src/app/electron.js",
   "devDependencies": {
     "electron": "^7.1.7",
     "electron-builder": "^21.2.0",
