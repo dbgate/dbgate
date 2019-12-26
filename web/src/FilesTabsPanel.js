@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import theme from "./theme";
 
 const files = [
   { name: "app.js" },
@@ -15,9 +16,10 @@ const FileTabItem = styled.div`
   align-items: center;
   cursor: pointer;
   &:hover {
-    color: #338;
+    color: ${theme.tabsPanel.hoverFont};
   }
-  background-color: ${props => (props.selected ? "#eee" : "inherit")};
+  background-color: ${props =>
+    props.selected ? theme.mainArea.background : "inherit"};
 `;
 
 export default function FilesTabsPanel() {

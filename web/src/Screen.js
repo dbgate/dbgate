@@ -6,10 +6,10 @@ import FilesTabsPanel from "./FilesTabsPanel";
 const BodyDiv = styled.div`
   position: fixed;
   top: ${theme.tabsPanel.height}px;
-  left: ${theme.widgetMenu.iconSize + theme.widgetMenu.panelWidth}px;
+  left: ${theme.widgetMenu.iconSize + theme.leftPanel.width}px;
   bottom: ${theme.statusBar.height}px;
   right: 0;
-  background-color: #eee;
+  background-color: ${theme.mainArea.background};
 `;
 
 const IconBar = styled.div`
@@ -18,26 +18,26 @@ const IconBar = styled.div`
   left: 0;
   bottom: ${theme.statusBar.height}px;
   width: ${theme.widgetMenu.iconSize}px;
-  background-color: #222;
+  background-color: ${theme.widgetMenu.background};
 `;
 
-const LeftMenu = styled.div`
+const LeftPanel = styled.div`
   position: fixed;
   top: 0;
   left: ${theme.widgetMenu.iconSize}px;
   bottom: ${theme.statusBar.height}px;
-  width: ${theme.widgetMenu.panelWidth}px;
-  background-color: #ccc;
+  width: ${theme.leftPanel.width}px;
+  background-color: ${theme.leftPanel.background};
 `;
 
 const TabsPanel = styled.div`
   display: flex;
   position: fixed;
   top: 0;
-  left: ${theme.widgetMenu.iconSize + theme.widgetMenu.panelWidth}px;
+  left: ${theme.widgetMenu.iconSize + theme.leftPanel.width}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
-  background-color: #ddd;
+  background-color: ${theme.tabsPanel.background};
 `;
 
 const StausBar = styled.div`
@@ -46,15 +46,17 @@ const StausBar = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #00c;
+  background-color: ${theme.statusBar.background};
 `;
 
 export default function Screen({ children }) {
   return (
     <>
       <IconBar></IconBar>
-      <LeftMenu></LeftMenu>
-      <TabsPanel><FilesTabsPanel></FilesTabsPanel></TabsPanel>
+      <LeftPanel></LeftPanel>
+      <TabsPanel>
+        <FilesTabsPanel></FilesTabsPanel>
+      </TabsPanel>
       <BodyDiv>{children}</BodyDiv>
       <StausBar></StausBar>
     </>
