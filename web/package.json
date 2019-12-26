@@ -10,7 +10,8 @@
     "cross-env": "^6.0.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0"
+    "react-scripts": "3.3.0",
+    "styled-components": "^4.4.1"
   },
   "scripts": {
     "start": "cross-env PORT=5000 react-scripts start",
