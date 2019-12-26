@@ -3,6 +3,10 @@ import theme from "./theme";
 import styled from "styled-components";
 import FilesTabsPanel from "./FilesTabsPanel";
 
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTable } from '@fortawesome/free-solid-svg-icons'
+
 const BodyDiv = styled.div`
   position: fixed;
   top: ${theme.tabsPanel.height}px;
@@ -52,7 +56,7 @@ const StausBar = styled.div`
 export default function Screen({ children }) {
   return (
     <>
-      <IconBar></IconBar>
+      <IconBar><FontAwesomeIcon icon={faTable} color='gray' size='2x'/></IconBar>
       <LeftPanel></LeftPanel>
       <TabsPanel>
         <FilesTabsPanel></FilesTabsPanel>

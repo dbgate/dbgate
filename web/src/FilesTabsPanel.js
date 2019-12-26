@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import theme from "./theme";
 
+import { TableIcon } from "./icons";
+
 const files = [
   { name: "app.js" },
   { name: "BranchCategory", type: "table", selected: true },
@@ -22,6 +24,14 @@ const FileTabItem = styled.div`
     props.selected ? theme.mainArea.background : "inherit"};
 `;
 
+const FileNameWrapper = styled.span`
+  margin-left: 5px;
+`;
+
 export default function FilesTabsPanel() {
-  return files.map(file => <FileTabItem {...file}>{file.name}</FileTabItem>);
+  return files.map(file => (
+    <FileTabItem {...file}>
+      <TableIcon /><FileNameWrapper>{file.name}</FileNameWrapper>
+    </FileTabItem>
+  ));
 }
