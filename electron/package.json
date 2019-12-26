@@ -1,0 +1,26 @@
+{
+  "name": "dbgate",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "cross-env": "^6.0.3"
+  },
+  "build": {
+    "appId": "com.jenasoft.dbgate",
+    "mac": {
+      "category": "database"
+    }
+  },
+  "homepage": "./",
+  "scripts": {
+    "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
+    "dist": "electron-builder",
+    "wait-electron": "node src/electron-wait-react",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "main": "src/electron.js",
+  "devDependencies": {
+    "electron": "^7.1.7",
+    "electron-builder": "^21.2.0"
+  }
+}

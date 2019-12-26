@@ -2,56 +2,13 @@
   "name": "dbgate",
   "version": "0.1.0",
   "private": true,
-  "dependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "axios": "^0.19.0",
-    "cors": "^2.8.5",
-    "cross-env": "^6.0.3",
-    "express": "^4.17.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0"
-  },
-  "build": {
-    "appId": "com.jenasoft.dbgate",
-    "mac": {
-      "category": "database"
-    }
-  },
-  "homepage": "./",
   "scripts": {
-    "react-start": "cross-env BROWSER=none react-scripts start",
-    "react-build": "react-scripts build",
-    "react-test": "react-scripts test",
-    "react-eject": "react-scripts eject",
-    "electron": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
-    "electron-dist": "electron-builder",
+    "electron": "cross-env ELECTRON_START_URL=http://localhost:5000 electron ./electron",
     "start": "nf start",
     "serve": "node src/api/index.js",
-    "wait-electron": "node src/app/electron-wait-react",
-    "postinstall": "electron-builder install-app-deps"
+    "wait-electron": "node electron/src/electron-wait-react"
   },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "main": "src/app/electron.js",
   "devDependencies": {
-    "electron": "^7.1.7",
-    "electron-builder": "^21.2.0",
     "foreman": "^3.0.1"
   }
 }
