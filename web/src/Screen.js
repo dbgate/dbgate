@@ -2,10 +2,7 @@ import React from "react";
 import theme from "./theme";
 import styled from "styled-components";
 import FilesTabsPanel from "./FilesTabsPanel";
-
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTable } from '@fortawesome/free-solid-svg-icons'
+import SideIconPanel from "./SideIconPanel";
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -56,7 +53,9 @@ const StausBar = styled.div`
 export default function Screen({ children }) {
   return (
     <>
-      <IconBar><FontAwesomeIcon icon={faTable} color='gray' size='2x'/></IconBar>
+      <IconBar>
+        <SideIconPanel />
+      </IconBar>
       <LeftPanel></LeftPanel>
       <TabsPanel>
         <FilesTabsPanel></FilesTabsPanel>
