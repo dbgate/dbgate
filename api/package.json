@@ -6,12 +6,11 @@
     "axios": "^0.19.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
+    "eslint": "^6.8.0",
     "express": "^4.17.1"
   },
   "scripts": {
     "start": "node src/index.js"
   },
-  "devDependencies": {
-    "eslint": "^6.8.0"
-  }
+  "devDependencies": {}
 }
