@@ -2,7 +2,7 @@ import React from "react";
 import theme from "./theme";
 import styled from "styled-components";
 import FilesTabsPanel from "./FilesTabsPanel";
-import SideIconPanel from "./SideIconPanel";
+import WidgetIconPanel from "./widgets/WidgetIconPanel";
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -54,7 +54,7 @@ export default function Screen({ children }) {
   return (
     <>
       <IconBar>
-        <SideIconPanel />
+        <WidgetIconPanel />
       </IconBar>
       <LeftPanel></LeftPanel>
       <TabsPanel>
