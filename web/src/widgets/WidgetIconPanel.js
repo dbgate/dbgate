@@ -45,7 +45,11 @@ export default function WidgetIconPanel() {
   const setCurrentWidget = useSetCurrentWidget();
 
   return widgets.map(({ icon, name }) => (
-    <IconWrapper key={icon} isSelected={name === currentWidget} onClick={() => setCurrentWidget(name)}>
+    <IconWrapper
+      key={icon}
+      isSelected={name === currentWidget}
+      onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
+    >
       <FontIcon name={icon} />
     </IconWrapper>
   ));

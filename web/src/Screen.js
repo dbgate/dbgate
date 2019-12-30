@@ -1,13 +1,14 @@
-import React from "react";
-import theme from "./theme";
-import styled from "styled-components";
-import FilesTabsPanel from "./FilesTabsPanel";
-import WidgetIconPanel from "./widgets/WidgetIconPanel";
+import React from 'react';
+import theme from './theme';
+import styled from 'styled-components';
+import FilesTabsPanel from './FilesTabsPanel';
+import WidgetIconPanel from './widgets/WidgetIconPanel';
+import useCurrentWidget from './widgets/useCurrentWidget';
 
 const BodyDiv = styled.div`
   position: fixed;
   top: ${theme.tabsPanel.height}px;
-  left: ${theme.widgetMenu.iconSize + theme.leftPanel.width}px;
+  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   bottom: ${theme.statusBar.height}px;
   right: 0;
   background-color: ${theme.mainArea.background};
@@ -35,7 +36,7 @@ const TabsPanel = styled.div`
   display: flex;
   position: fixed;
   top: 0;
-  left: ${theme.widgetMenu.iconSize + theme.leftPanel.width}px;
+  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
@@ -51,16 +52,18 @@ const StausBar = styled.div`
 `;
 
 export default function Screen({ children }) {
+  const currentWidget = useCurrentWidget();
+  const leftPanelWidth = currentWidget ? theme.leftPanel.width : 0;
   return (
     <>
       <IconBar>
         <WidgetIconPanel />
       </IconBar>
-      <LeftPanel></LeftPanel>
-      <TabsPanel>
+      {!!currentWidget && <LeftPanel></LeftPanel>}
+      <TabsPanel leftPanelWidth={leftPanelWidth}>
         <FilesTabsPanel></FilesTabsPanel>
       </TabsPanel>
-      <BodyDiv>{children}</BodyDiv>
+      <BodyDiv leftPanelWidth={leftPanelWidth}>{children}</BodyDiv>
       <StausBar></StausBar>
     </>
   );
