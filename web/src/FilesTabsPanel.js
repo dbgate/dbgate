@@ -31,7 +31,8 @@ const FileNameWrapper = styled.span`
 export default function FilesTabsPanel() {
   return files.map(file => (
     <FileTabItem {...file}>
-      <TableIcon /><FileNameWrapper>{file.name}</FileNameWrapper>
+      <TableIcon />
+      <FileNameWrapper>{file.name}</FileNameWrapper>
     </FileTabItem>
   ));
 }

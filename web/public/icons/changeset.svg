@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!-- Generator: Adobe Illustrator 19.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 512 512" style="enable-background:new 0 0 512 512;" xml:space="preserve">
+<rect x="10.667" style="fill:#B7E4F8;" width="380" height="512"/>
+<rect x="202.67" style="fill:#6FC8F1;" width="188" height="512"/>
+<path style="fill:#265D77;" d="M318,185.667H83.334v-30H318V185.667z M254,81H147.333v30H254V81z M330.667,219.667H83.334v30
+	h247.333V219.667z M318,283.667H83.334v30H318V283.667z M246.875,420.333h18.792v-30h-27.875l-21.641,14.427l-23.541-47.082
+	l-29.593,32.654h-27.351v30h40.649l9.074-10.013l19.126,38.252L246.875,420.333z"/>
+<g>
+	<rect x="202.67" y="81" style="fill:#132F3B;" width="51.33" height="30"/>
+	<rect x="202.67" y="155.67" style="fill:#132F3B;" width="115.33" height="30"/>
+	<rect x="202.67" y="283.67" style="fill:#132F3B;" width="115.33" height="30"/>
+	<polygon style="fill:#132F3B;" points="216.151,404.76 202.667,377.793 202.667,444.874 204.516,448.573 246.875,420.333 
+		265.667,420.333 265.667,390.333 237.792,390.333 	"/>
+	<rect x="202.67" y="219.67" style="fill:#132F3B;" width="128" height="30"/>
+</g>
+<polygon style="fill:#FFDB2D;" points="450.141,66.77 264.491,314.199 270.882,359 315.683,352.609 501.333,105.181 "/>
+<polygon style="fill:#FF7B00;" points="264.491,314.199 270.882,359 315.683,352.609 "/>
+<polygon style="fill:#FF4F19;" points="421.913,211.03 501.333,105.181 450.141,66.77 370.72,172.621 421.911,211.031 "/>
+</svg>
