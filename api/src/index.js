@@ -1,12 +1,16 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const  bodyParser = require('body-parser');
+const cors = require('cors');
+const connection = require('./connection');
 const app = express();
 
 app.use(cors());
+app.use(bodyParser.json());
 
-app.get("/", function(req, res) {
-  //  res.json({msg: 'This is CORS-enabled for all origins!'})
-  res.send("Hello World");
+app.get('/', (req, res) => {
+  res.send('DbGate API');
 });
+
+app.use('/connection', connection);
 
 app.listen(3000);
