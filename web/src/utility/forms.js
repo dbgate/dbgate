@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TextField } from './inputs';
+import { TextField, SelectField } from './inputs';
 import { Field } from 'formik';
 
 export const FormRow = styled.div`
@@ -26,10 +26,23 @@ export function FormTextField({ label, ...other }) {
   );
 }
 
-export function FormSubmit({text}) {
+export function FormSelectField({ label, children, ...other }) {
   return (
     <FormRow>
-      <input type="submit" value={text}/>
+      <FormLabel>{label}</FormLabel>
+      <FormValue>
+        <Field {...other} as={SelectField}>
+          {children}
+        </Field>
+      </FormValue>
+    </FormRow>
+  );
+}
+
+export function FormSubmit({ text }) {
+  return (
+    <FormRow>
+      <input type="submit" value={text} />
     </FormRow>
   );
 }

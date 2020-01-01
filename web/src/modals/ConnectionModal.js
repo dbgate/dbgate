@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import ModalBase from './ModalBase';
-import { FormRow, FormLabel, FormValue, FormTextField, FormSubmit } from '../utility/forms';
+import { FormRow, FormLabel, FormValue, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
 import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
 // import FormikForm from '../utility/FormikForm';
@@ -21,8 +21,13 @@ export default function ConnectionModal({ modalState }) {
   return (
     <ModalBase modalState={modalState}>
       <h2>Add connection</h2>
-      <Formik onSubmit={handleSubmit} initialValues={{ server: 'localhost' }}>
+      <Formik onSubmit={handleSubmit} initialValues={{ server: 'localhost', engine: 'mssql' }}>
         <Form>
+          <FormSelectField label="Database engine" name="engine">
+            <option value="mssql">Microsoft SQL Server</option>
+            <option value="mysql">MySQL</option>
+            <option value="postgre">Postgre SQL</option>
+          </FormSelectField>
           <FormTextField label="Server" name="server" />
           <FormTextField label="Port" name="port" />
           <FormTextField label="User" name="user" />
