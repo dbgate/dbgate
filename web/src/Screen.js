@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import FilesTabsPanel from './FilesTabsPanel';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
 import useCurrentWidget from './widgets/useCurrentWidget';
+import WidgetContainer from './widgets/WidgetContainer';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -59,7 +60,11 @@ export default function Screen({ children }) {
       <IconBar>
         <WidgetIconPanel />
       </IconBar>
-      {!!currentWidget && <LeftPanel></LeftPanel>}
+      {!!currentWidget && (
+        <LeftPanel>
+          <WidgetContainer />
+        </LeftPanel>
+      )}
       <TabsPanel leftPanelWidth={leftPanelWidth}>
         <FilesTabsPanel></FilesTabsPanel>
       </TabsPanel>
