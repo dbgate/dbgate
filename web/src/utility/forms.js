@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { TextField, SelectField } from './inputs';
-import { Field } from 'formik';
+import { Field, useFormikContext } from 'formik';
 
 export const FormRow = styled.div`
   display: flex;
@@ -40,9 +40,10 @@ export function FormSelectField({ label, children, ...other }) {
 }
 
 export function FormSubmit({ text }) {
-  return (
-    <FormRow>
-      <input type="submit" value={text} />
-    </FormRow>
-  );
+  return <input type="submit" value={text} />;
+}
+
+export function FormButton({ text, onClick, ...other }) {
+  const { values } = useFormikContext();
+  return <input type="button" value={text} onClick={() => onClick(values)} {...other} />;
 }
