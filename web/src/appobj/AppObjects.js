@@ -3,7 +3,11 @@ import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
 
 const AppObjectDiv = styled.div`
-  margin: 5px;
+  padding: 5px;
+  &:hover {
+    background-color: lightblue;
+  };
+  cursor: pointer;
 `;
 
 const IconWrap = styled.span`

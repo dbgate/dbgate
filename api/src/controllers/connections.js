@@ -1,8 +1,4 @@
-const os = require('os');
 const path = require('path');
-const fs = require('fs-extra');
-const express = require('express');
-const router = express.Router();
 const { fork } = require('child_process');
 const _ = require('lodash');
 const nedb = require('nedb-promises');
@@ -12,6 +8,8 @@ const socket = require('../utility/socket');
 
 module.exports = {
   datastore: null,
+  opened: [],
+
   async _init() {
     const dir = await datadir();
     this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
@@ -27,7 +25,7 @@ module.exports = {
     raw: true,
   },
   test(req, res) {
-    const subprocess = fork(`${__dirname}/../connectProcess.js`);
+    const subprocess = fork(`${__dirname}/../proc/connectProcess.js`);
     subprocess.send(req.body);
     subprocess.on('message', resp => res.json(resp));
   },
@@ -46,8 +44,14 @@ module.exports = {
 
   delete_meta: 'post',
   async delete(connection) {
-    let res = await this.datastore.remove(_.pick(connection, '_id'));
+    const res = await this.datastore.remove(_.pick(connection, '_id'));
     socket.emit('connection-list-changed');
+    return res;
+  },
+
+  get_meta: 'get',
+  async get({ id }) {
+    const res = await this.datastore.find({ _id: id });
     return res;
   },
 };
