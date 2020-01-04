@@ -1,11 +1,12 @@
 import React from 'react';
-import axios from 'axios'
+import axios from './axios';
 
 export default function useFetch(url, defValue) {
   const [value, setValue] = React.useState(defValue);
 
   async function loadValue() {
-    setValue(await axios.get(url));
+    const resp = await axios.get(url);
+    setValue(resp.data);
   }
   React.useEffect(() => {
     loadValue();

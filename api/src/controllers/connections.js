@@ -14,7 +14,7 @@ module.exports = {
     const dir = await datadir();
     this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
   },
-  
+
   list_meta: 'get',
   async list() {
     return this.datastore.find();
@@ -32,7 +32,15 @@ module.exports = {
 
   save_meta: 'post',
   async save(connection) {
-    const res = await this.datastore.insert(connection);
-    return res;
+    if (connection._id) {
+      return await this.datastore.update(_.pick(connection, '_id'), connection);
+    } else {
+      return await this.datastore.insert(connection);
+    }
+  },
+
+  delete_meta: 'post',
+  async delete(connection) {
+    return await this.datastore.remove(_.pick(connection, '_id'));
   },
 };
