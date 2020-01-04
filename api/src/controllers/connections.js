@@ -26,8 +26,8 @@ module.exports = {
   },
   test(req, res) {
     const subprocess = fork(`${__dirname}/../proc/connectProcess.js`);
-    subprocess.send(req.body);
     subprocess.on('message', resp => res.json(resp));
+    subprocess.send(req.body);
   },
 
   save_meta: 'post',
@@ -52,6 +52,6 @@ module.exports = {
   get_meta: 'get',
   async get({ id }) {
     const res = await this.datastore.find({ _id: id });
-    return res;
+    return res[0];
   },
 };

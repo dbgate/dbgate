@@ -1,20 +1,32 @@
-function handleConnect() {}
+let systemConnection;
+let storedConnection;
+
+async function handleRefreshDatabases() {
+  const driver = require(`../engines/${storedConnection.engine}/index`);
+  const databases = await driver.listDatabases(systemConnection);
+  process.send({ msgtype: 'databases', databases });
+}
+
+async function handleConnect(connection) {
+  storedConnection = connection;
+  const driver = require(`../engines/${storedConnection.engine}/index`);
+  systemConnection = await driver.connect(storedConnection);
+  setInterval(handleRefreshDatabases, 30 * 1000);
+}
 
 const messageHandlers = {
   connect: handleConnect,
 };
 
-function handleMessage({ type, ...other }) {
-  const handler = messageHandlers[type];
-  handler(other);
+async function handleMessage({ msgtype, ...other }) {
+  const handler = messageHandlers[msgtype];
+  await handler(other);
 }
 
-process.on('message', async connection => {
+process.on('message', async message => {
   try {
-    const connectFunc = require(`../engines/${connection.engine}/connect`);
-    const res = await connectFunc(connection);
-    process.send(res);
+    await handleMessage(message);
   } catch (e) {
-    process.send({ error: e.message });
+    process.send({ msgtype: 'error', error: e.message });
   }
 });

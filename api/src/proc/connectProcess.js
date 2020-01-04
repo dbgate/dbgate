@@ -6,6 +6,6 @@ process.on('message', async connection => {
     process.send(res);
   } catch (e) {
     console.log(e);
-    process.send({ error: e.message });
+    process.send({ msgtype: 'error', error: e.message });
   }
 });
