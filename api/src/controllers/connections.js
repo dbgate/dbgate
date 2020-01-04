@@ -14,10 +14,12 @@ module.exports = {
     const dir = await datadir();
     this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
   },
+  
   list_meta: 'get',
   async list() {
     return this.datastore.find();
   },
+
   test_meta: {
     method: 'post',
     raw: true,

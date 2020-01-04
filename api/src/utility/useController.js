@@ -33,7 +33,7 @@ module.exports = function useController(app, route, controller) {
           controller._init_called = true;
         }
         try {
-          let params = [{ ...req.body }];
+          let params = [{ ...req.body, ...req.query }];
           if (rawParams) params = [req, res];
           const data = await controller[key](...params);
           res.json(data);
