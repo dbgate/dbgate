@@ -1,16 +1,33 @@
 import React from 'react';
 import axios from './axios';
+import useSocket from './SocketProvider';
 
-export default function useFetch(url, defValue) {
-  const [value, setValue] = React.useState(defValue);
+export default function useFetch({ defaultValue, reloadTrigger, url, ...config }) {
+  const [value, setValue] = React.useState(defaultValue);
+  const [loadCounter, setLoadCounter] = React.useState(0);
+  const socket = useSocket();
+
+  const handleReload = () => {
+    setLoadCounter(loadCounter + 1);
+  };
 
   async function loadValue() {
-    const resp = await axios.get(url);
+    const resp = await axios.request({
+      method: 'get',
+      url,
+      ...config,
+    });
     setValue(resp.data);
   }
   React.useEffect(() => {
     loadValue();
-  }, [url]);
+    if (reloadTrigger && socket) {
+      socket.on(reloadTrigger, handleReload);
+      return () => {
+        socket.off(reloadTrigger, handleReload);
+      };
+    }
+  }, [url, socket, loadCounter]);
 
   return value;
 }

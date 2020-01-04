@@ -7,8 +7,10 @@ import connectionAppObject from '../appobj/connectionAppObject';
 
 export default function DatabaseWidget() {
   const modalState = useModalState();
-  const connections = useFetch('connections/list', []);
-  console.log(connections);
+  const connections = useFetch({
+    url: 'connections/list',
+    reloadTrigger: 'connection-list-changed',
+  });
   return (
     <>
       <ConnectionModal modalState={modalState} />

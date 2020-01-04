@@ -5,8 +5,10 @@ const express = require('express');
 const router = express.Router();
 const { fork } = require('child_process');
 const _ = require('lodash');
-const datadir = require('../utility/datadir');
 const nedb = require('nedb-promises');
+
+const datadir = require('../utility/datadir');
+const socket = require('../utility/socket');
 
 module.exports = {
   datastore: null,
@@ -32,15 +34,20 @@ module.exports = {
 
   save_meta: 'post',
   async save(connection) {
+    let res;
     if (connection._id) {
-      return await this.datastore.update(_.pick(connection, '_id'), connection);
+      res = await this.datastore.update(_.pick(connection, '_id'), connection);
     } else {
-      return await this.datastore.insert(connection);
+      res = await this.datastore.insert(connection);
     }
+    socket.emit('connection-list-changed');
+    return res;
   },
 
   delete_meta: 'post',
   async delete(connection) {
-    return await this.datastore.remove(_.pick(connection, '_id'));
+    let res = await this.datastore.remove(_.pick(connection, '_id'));
+    socket.emit('connection-list-changed');
+    return res;
   },
 };

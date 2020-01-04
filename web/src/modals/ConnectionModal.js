@@ -11,18 +11,15 @@ export default function ConnectionModal({ modalState, connection }) {
 
   const handleTest = async values => {
     const resp = await axios.post('connections/test', values);
-    console.log('resp.data', resp.data);
     const { error, version } = resp.data;
 
     setSqlConnectResult(error || version);
-
-    // modalState.close();
   };
 
   const handleSubmit = async values => {
     const resp = await axios.post('connections/save', values);
 
-    // modalState.close();
+    modalState.close();
   };
   return (
     <ModalBase modalState={modalState}>
