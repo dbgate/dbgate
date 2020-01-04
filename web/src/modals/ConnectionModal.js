@@ -10,7 +10,7 @@ export default function ConnectionModal({ modalState }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState('Not connected');
 
   const handleTest = async values => {
-    const resp = await axios.post('http://localhost:3000/connection/test', values);
+    const resp = await axios.post('http://localhost:3000/connections/test', values);
     console.log('resp.data', resp.data);
     const { error, version } = resp.data;
 
@@ -20,7 +20,7 @@ export default function ConnectionModal({ modalState }) {
   };
 
   const handleSubmit = async values => {
-    const resp = await axios.post('http://localhost:3000/connection/save', values);
+    const resp = await axios.post('http://localhost:3000/connections/save', values);
     console.log('resp.data', resp.data);
 
     // modalState.close();

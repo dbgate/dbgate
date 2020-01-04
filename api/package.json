@@ -12,6 +12,7 @@
     "fs-extra": "^8.1.0",
     "mssql": "^6.0.1",
     "mysql": "^2.17.1",
+    "nedb-promises": "^4.0.1",
     "pg": "^7.17.0"
   },
   "scripts": {
