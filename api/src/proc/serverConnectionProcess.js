@@ -1,8 +1,10 @@
+const engines = require('../engines');
+
 let systemConnection;
 let storedConnection;
 
 async function handleRefreshDatabases() {
-  const driver = require(`../engines/${storedConnection.engine}/index`);
+  const driver = engines(storedConnection);
   const databases = await driver.listDatabases(systemConnection);
   process.send({ msgtype: 'databases', databases });
 }

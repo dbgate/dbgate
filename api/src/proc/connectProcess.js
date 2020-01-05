@@ -1,6 +1,8 @@
+const engines = require('../engines');
+
 process.on('message', async connection => {
   try {
-    const driver = require(`../engines/${connection.engine}/index`);
+    const driver = engines(connection);
     const conn = await driver.connect(connection);
     const res = await driver.getVersion(conn);
     process.send(res);
