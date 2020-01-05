@@ -1,5 +1,5 @@
 import React from 'react';
-import useCurrentWidget from './useCurrentWidget';
+import { useCurrentWidget } from '../utility/globalState';
 import DatabaseWidget from './DatabaseWidget';
 
 export default function WidgetContainer() {

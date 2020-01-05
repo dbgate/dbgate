@@ -1,5 +1,5 @@
 import React from 'react';
-import { MicrosoftIcon, SqliteIcon, PostgreSqlIcon, MySqlIcon, ServerIcon, DatabaseIcon } from '../icons';
+import { DatabaseIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import showModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';

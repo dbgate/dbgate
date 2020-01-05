@@ -1,15 +1,17 @@
 import React from 'react';
 import './index.css';
 import Screen from './Screen';
-import { CurrentWidgetProvider } from './widgets/useCurrentWidget';
+import { CurrentWidgetProvider, CurrentDatabaseProvider } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 
 function App() {
   return (
     <CurrentWidgetProvider>
-      <SocketProvider>
-        <Screen />
-      </SocketProvider>
+      <CurrentDatabaseProvider>
+        <SocketProvider>
+          <Screen />
+        </SocketProvider>
+      </CurrentDatabaseProvider>
     </CurrentWidgetProvider>
   );
 }

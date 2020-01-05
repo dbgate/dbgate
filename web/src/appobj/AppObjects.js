@@ -6,7 +6,7 @@ const AppObjectDiv = styled.div`
   padding: 5px;
   &:hover {
     background-color: lightblue;
-  };
+  }
   cursor: pointer;
 `;
 
@@ -14,7 +14,7 @@ const IconWrap = styled.span`
   margin-right: 10px;
 `;
 
-export function AppObjectCore({ title, Icon, Menu, data, makeAppObj }) {
+export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick }) {
   const handleContextMenu = event => {
     if (!Menu) return;
 
@@ -23,7 +23,7 @@ export function AppObjectCore({ title, Icon, Menu, data, makeAppObj }) {
   };
 
   return (
-    <AppObjectDiv onContextMenu={handleContextMenu}>
+    <AppObjectDiv onContextMenu={handleContextMenu} onClick={onClick ? () => onClick(data) : undefined}>
       <IconWrap>
         <Icon />
       </IconWrap>

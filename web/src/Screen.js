@@ -3,7 +3,7 @@ import theme from './theme';
 import styled from 'styled-components';
 import FilesTabsPanel from './FilesTabsPanel';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
-import useCurrentWidget from './widgets/useCurrentWidget';
+import { useCurrentWidget } from './utility/globalState';
 import WidgetContainer from './widgets/WidgetContainer';
 
 const BodyDiv = styled.div`
@@ -31,6 +31,7 @@ const LeftPanel = styled.div`
   bottom: ${theme.statusBar.height}px;
   width: ${theme.leftPanel.width}px;
   background-color: ${theme.leftPanel.background};
+  display: flex;
 `;
 
 const TabsPanel = styled.div`

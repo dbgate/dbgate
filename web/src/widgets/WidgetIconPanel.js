@@ -2,7 +2,7 @@ import React from 'react';
 import theme from '../theme';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
-import useCurrentWidget, { useSetCurrentWidget } from './useCurrentWidget';
+import { useCurrentWidget, useSetCurrentWidget } from '../utility/globalState';
 
 const IconWrapper = styled.div`
   color: ${theme.widgetMenu.iconFontColor};
