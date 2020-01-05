@@ -15,7 +15,7 @@ async function handleConnect(connection) {
   const driver = engines(storedConnection);
   systemConnection = await driver.connect(storedConnection);
   handleRefreshDatabases();
-  // setInterval(handleRefreshDatabases, 30 * 1000);
+  setInterval(handleRefreshDatabases, 30 * 1000);
 }
 
 const messageHandlers = {
