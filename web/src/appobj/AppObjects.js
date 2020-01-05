@@ -36,10 +36,3 @@ export function AppObjectControl({ data, makeAppObj }) {
   const appobj = makeAppObj(data);
   return <AppObjectCore {...appobj} data={data} makeAppObj={makeAppObj} />;
 }
-
-export function AppObjectList({ list, makeAppObj }) {
-  return (list || []).map(x => {
-    const appobj = makeAppObj(x);
-    return <AppObjectCore key={appobj.key} {...appobj} data={x} makeAppObj={makeAppObj} />;
-  });
-}

@@ -6,21 +6,25 @@ module.exports = {
   opened: [],
 
   handle_databases(id, { databases }) {
-    const existing = this.opened.find(x => x.connection.id == id);
+    const existing = this.opened.find(x => x.id == id);
     if (!existing) return;
     existing.databases = databases;
     socket.emit(`database-list-changed-${id}`);
   },
+  handle_error(id, { error }) {
+    console.log(error);
+  },
 
   async ensureOpened(id) {
-    const existing = this.opened.find(x => x.connection.id == id);
+    const existing = this.opened.find(x => x.id == id);
     if (existing) return existing;
-    const connection = await connections.get(id);
+    const connection = await connections.get({ id });
     const subprocess = fork(`${__dirname}/../proc/serverConnectionProcess.js`);
     const newOpened = {
       id,
       subprocess,
       databases: [],
+      connection,
     };
     this.opened.push(newOpened);
     subprocess.on('message', ({ msgtype, ...message }) => {
