@@ -1,4 +1,3 @@
-// @ts-check
 
 class DatabaseAnalyser {
   /**

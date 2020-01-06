@@ -1,6 +1,3 @@
-// @ts-check
-
-// @ts-ignore
 const _ = require('lodash');
 const express = require('express');
 

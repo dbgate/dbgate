@@ -1,5 +1,3 @@
-// @ts-check
-
 let socket = null;
 
 module.exports = {

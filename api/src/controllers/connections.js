@@ -1,8 +1,6 @@
-// @ts-check
 
 const path = require('path');
 const { fork } = require('child_process');
-// @ts-ignore
 const _ = require('lodash');
 const nedb = require('nedb-promises');
 

@@ -1,4 +1,5 @@
 const mssql = require('mssql');
+const MsSqlAnalyser = require('./MsSqlAnalyser');
 
 module.exports = {
   async connect({ server, port, user, password }) {

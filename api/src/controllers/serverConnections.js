@@ -1,3 +1,4 @@
+
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -27,6 +28,7 @@ module.exports = {
       connection,
     };
     this.opened.push(newOpened);
+    // @ts-ignore
     subprocess.on('message', ({ msgtype, ...message }) => {
       this[`handle_${msgtype}`](id, message);
     });

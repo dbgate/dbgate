@@ -19,7 +19,7 @@
   },
   "scripts": {
     "start": "nodemon src/index.js",
-    "tscheck": "tsc --allowJs --noEmit src/index.js"
+    "ts": "tsc"
   },
   "devDependencies": {
     "nodemon": "^2.0.2",
