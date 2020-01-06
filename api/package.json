@@ -18,9 +18,11 @@
     "socket.io": "^2.3.0"
   },
   "scripts": {
-    "start": "nodemon src/index.js"
+    "start": "nodemon src/index.js",
+    "tscheck": "tsc --allowJs --noEmit src/index.js"
   },
   "devDependencies": {
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "typescript": "^3.7.4"
   }
 }

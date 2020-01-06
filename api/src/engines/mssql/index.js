@@ -17,4 +17,10 @@ module.exports = {
     const res = await this.query(pool, 'SELECT name FROM sys.databases order by name');
     return res;
   },
+  async analyseFull(pool) {
+
+  },
+  async analyseIncremental(pool) {
+
+  },
 };

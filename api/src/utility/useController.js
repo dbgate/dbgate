@@ -1,6 +1,12 @@
+// @ts-check
+
+// @ts-ignore
 const _ = require('lodash');
 const express = require('express');
 
+/**
+ * @param {string} route
+ */
 module.exports = function useController(app, route, controller) {
   const router = express.Router();
 
