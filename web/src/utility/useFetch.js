@@ -2,7 +2,7 @@ import React from 'react';
 import axios from './axios';
 import useSocket from './SocketProvider';
 
-export default function useFetch({ defaultValue, reloadTrigger, url, ...config }) {
+export default function useFetch({ url, defaultValue = undefined, reloadTrigger = undefined, ...config }) {
   const [value, setValue] = React.useState(defaultValue);
   const [loadCounter, setLoadCounter] = React.useState(0);
   const socket = useSocket();

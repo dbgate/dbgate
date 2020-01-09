@@ -6,7 +6,7 @@ import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
 // import FormikForm from '../utility/FormikForm';
 
-export default function ConnectionModal({ modalState, connection }) {
+export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState('Not connected');
 
   const handleTest = async values => {

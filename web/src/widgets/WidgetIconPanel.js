@@ -11,7 +11,9 @@ const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props => (props.isSelected ? theme.widgetMenu.backgroundSelected : 'inherit')};
+  background-color: ${props =>
+    // @ts-ignore
+    props.isSelected ? theme.widgetMenu.backgroundSelected : 'inherit'};
   &:hover {
     background-color: ${theme.widgetMenu.backgroundHover};
   }
@@ -44,13 +46,18 @@ export default function WidgetIconPanel() {
   const currentWidget = useCurrentWidget();
   const setCurrentWidget = useSetCurrentWidget();
 
-  return widgets.map(({ icon, name }) => (
-    <IconWrapper
-      key={icon}
-      isSelected={name === currentWidget}
-      onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
-    >
-      <FontIcon name={icon} />
-    </IconWrapper>
-  ));
+  return (
+    <>
+      {widgets.map(({ icon, name }) => (
+        <IconWrapper
+          key={icon}
+          // @ts-ignore
+          isSelected={name === currentWidget}
+          onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
+        >
+          <FontIcon name={icon} />
+        </IconWrapper>
+      ))}
+    </>
+  );
 }

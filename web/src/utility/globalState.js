@@ -1,7 +1,7 @@
 import React from 'react';
 
 function createGlobalState(defaultValue) {
-  const Context = React.createContext();
+  const Context = React.createContext(null);
 
   function Provider({ children }) {
     const [currentvalue, setCurrentValue] = React.useState(defaultValue);

@@ -5,10 +5,7 @@
         "checkJs": true,
         "noEmit": true
     },
-    "files": [
-        "src/index.js",
-        "src/engines/mssql/index.js",
-        "src/engines/mysql/index.js",
-        "src/engines/postgres/index.js"
+    "include": [
+        "src"
     ]
 }

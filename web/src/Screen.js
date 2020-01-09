@@ -9,7 +9,10 @@ import WidgetContainer from './widgets/WidgetContainer';
 const BodyDiv = styled.div`
   position: fixed;
   top: ${theme.tabsPanel.height}px;
-  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
+  left: ${props =>
+    theme.widgetMenu.iconSize +
+    // @ts-ignore
+    props.leftPanelWidth}px;
   bottom: ${theme.statusBar.height}px;
   right: 0;
   background-color: ${theme.mainArea.background};
@@ -38,7 +41,10 @@ const TabsPanel = styled.div`
   display: flex;
   position: fixed;
   top: 0;
-  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
+  left: ${props =>
+    theme.widgetMenu.iconSize +
+    // @ts-ignore
+    props.leftPanelWidth}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
@@ -53,7 +59,7 @@ const StausBar = styled.div`
   background-color: ${theme.statusBar.background};
 `;
 
-export default function Screen({ children }) {
+export default function Screen({ children = undefined }) {
   const currentWidget = useCurrentWidget();
   const leftPanelWidth = currentWidget ? theme.leftPanel.width : 0;
   return (
@@ -66,10 +72,18 @@ export default function Screen({ children }) {
           <WidgetContainer />
         </LeftPanel>
       )}
-      <TabsPanel leftPanelWidth={leftPanelWidth}>
+      <TabsPanel
+        // @ts-ignore
+        leftPanelWidth={leftPanelWidth}
+      >
         <FilesTabsPanel></FilesTabsPanel>
       </TabsPanel>
-      <BodyDiv leftPanelWidth={leftPanelWidth}>{children}</BodyDiv>
+      <BodyDiv
+        // @ts-ignore
+        leftPanelWidth={leftPanelWidth}
+      >
+        {children}
+      </BodyDiv>
       <StausBar></StausBar>
     </>
   );

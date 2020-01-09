@@ -39,7 +39,7 @@ const StyledLink = styled.a`
   }
 `;
 
-export function DropDownMenuItem({ children, keyText, onClick }) {
+export function DropDownMenuItem({ children, keyText = undefined, onClick }) {
   const handleMouseEnter = () => {
     // if (this.context.parentMenu) this.context.parentMenu.closeSubmenu();
   };
@@ -212,7 +212,7 @@ function showMenuCore(left, top, contentHolder, closeCallback = null) {
   };
   document.body.appendChild(container);
   ReactDOM.render(
-    <ContextMenu left={left} top={top} container={container} closeCallback={closeCallback}>
+    <ContextMenu left={left} top={top}>
       {contentHolder}
     </ContextMenu>,
     container

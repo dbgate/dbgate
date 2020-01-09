@@ -1,13 +1,13 @@
-import React from "react";
-import styled from "styled-components";
-import theme from "./theme";
+import React from 'react';
+import styled from 'styled-components';
+import theme from './theme';
 
-import { TableIcon } from "./icons";
+import { TableIcon } from './icons';
 
 const files = [
-  { name: "app.js" },
-  { name: "BranchCategory", type: "table", selected: true },
-  { name: "ApplicationList" }
+  { name: 'app.js' },
+  { name: 'BranchCategory', type: 'table', selected: true },
+  { name: 'ApplicationList' },
 ];
 
 const FileTabItem = styled.div`
@@ -21,7 +21,8 @@ const FileTabItem = styled.div`
     color: ${theme.tabsPanel.hoverFont};
   }
   background-color: ${props =>
-    props.selected ? theme.mainArea.background : "inherit"};
+    // @ts-ignore
+    props.selected ? theme.mainArea.background : 'inherit'};
 `;
 
 const FileNameWrapper = styled.span`
@@ -29,10 +30,14 @@ const FileNameWrapper = styled.span`
 `;
 
 export default function FilesTabsPanel() {
-  return files.map(file => (
-    <FileTabItem {...file} key={file.name}>
-      <TableIcon />
-      <FileNameWrapper>{file.name}</FileNameWrapper>
-    </FileTabItem>
-  ));
+  return (
+    <>
+      {files.map(file => (
+        <FileTabItem {...file} key={file.name}>
+          <TableIcon />
+          <FileNameWrapper>{file.name}</FileNameWrapper>
+        </FileTabItem>
+      ))}
+    </>
+  );
 }
