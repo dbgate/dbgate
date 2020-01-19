@@ -6,15 +6,14 @@ let storedConnection;
 async function handleFullRefresh() {
   const driver = engines(storedConnection);
   const structure = await driver.analyseFull(systemConnection);
-  console.log('SENDING STRUCTURE', structure);
   process.send({ msgtype: 'structure', structure });
 }
 
-async function handleConnect(connection, database) {
+async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = engines(storedConnection);
-  systemConnection = await driver.connect({ ...storedConnection, database });
+  systemConnection = await driver.connect(storedConnection);
   handleFullRefresh();
   setInterval(handleFullRefresh, 30 * 1000);
 }
@@ -23,9 +22,9 @@ const messageHandlers = {
   connect: handleConnect,
 };
 
-async function handleMessage({ msgtype, database, ...other }) {
+async function handleMessage({ msgtype, ...other }) {
   const handler = messageHandlers[msgtype];
-  await handler(other, database);
+  await handler(other);
 }
 
 process.on('message', async message => {

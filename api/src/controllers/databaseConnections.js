@@ -35,7 +35,7 @@ module.exports = {
     subprocess.on('message', ({ msgtype, ...message }) => {
       this[`handle_${msgtype}`](id, database, message);
     });
-    subprocess.send({ msgtype: 'connect', ...connection });
+    subprocess.send({ msgtype: 'connect', ...connection, database });
     return newOpened;
   },
 
