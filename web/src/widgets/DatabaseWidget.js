@@ -37,21 +37,56 @@ function SubDatabaseList({ data }) {
   return <AppObjectList list={databases} makeAppObj={databaseAppObject} onObjectClick={handleDatabaseClick} />;
 }
 
-export default function DatabaseWidget() {
-  const db = useCurrentDatabase();
+function ConnectionList() {
   const modalState = useModalState();
   const connections = useFetch({
     url: 'connections/list',
     reloadTrigger: 'connection-list-changed',
   });
   return (
+    <>
+      <ConnectionModal modalState={modalState} />
+      <button onClick={modalState.open}>Add connection</button>
+      <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
+    </>
+  );
+}
+
+function SqlObjectList({ id, database }) {
+  const tables =
+    useFetch({
+      url: `database-connections/list-tables?id=${id}&database=${database}`,
+      reloadTrigger: `database-structure-changed-${id}-${database}`,
+    }) || [];
+  return (
+    <>
+      {tables.map(({ tableName, schemaName }) => (
+        <div key={`${schemaName}.${tableName}`}>{tableName}</div>
+      ))}
+    </>
+  );
+}
+
+function SqlObjectListWrapper() {
+  const db = useCurrentDatabase();
+
+  if (!db) return <div>(Choose database)</div>;
+  const { name, connection } = db;
+
+  return <SqlObjectList id={connection._id} database={name} />;
+  // return <div>tables of {db && db.name}</div>
+  // return <div>tables of {JSON.stringify(db)}</div>
+}
+
+export default function DatabaseWidget() {
+  return (
     <MainContainer>
       <InnerContainer>
-        <ConnectionModal modalState={modalState} />
-        <button onClick={modalState.open}>Add connection</button>
-        <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
+        <ConnectionList />
       </InnerContainer>
-      <InnerContainer>tables of {db && db.name}</InnerContainer>
+      <InnerContainer>
+        <SqlObjectListWrapper />
+      </InnerContainer>
     </MainContainer>
   );
 }

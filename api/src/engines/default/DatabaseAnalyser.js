@@ -1,14 +1,19 @@
-
 class DatabaseAnalyser {
   /**
    *
-   * @param {import('../default/types').EngineDriver} driver
+   * @param {import('../../types').EngineDriver} driver
    */
   constructor(pool, driver) {
     this.pool = pool;
     this.driver = driver;
+    this.result = DatabaseAnalyser.createEmptyStructure();
   }
-  runAnalysis() {}
+  async runAnalysis() {}
 }
+
+/** @returns {import('../../types').DatabaseInfo} */
+DatabaseAnalyser.createEmptyStructure = () => ({
+  tables: [],
+});
 
 module.exports = DatabaseAnalyser;

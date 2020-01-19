@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React from 'react';
 import theme from './theme';
 import styled from 'styled-components';
@@ -9,10 +11,7 @@ import WidgetContainer from './widgets/WidgetContainer';
 const BodyDiv = styled.div`
   position: fixed;
   top: ${theme.tabsPanel.height}px;
-  left: ${props =>
-    theme.widgetMenu.iconSize +
-    // @ts-ignore
-    props.leftPanelWidth}px;
+  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   bottom: ${theme.statusBar.height}px;
   right: 0;
   background-color: ${theme.mainArea.background};
@@ -41,10 +40,7 @@ const TabsPanel = styled.div`
   display: flex;
   position: fixed;
   top: 0;
-  left: ${props =>
-    theme.widgetMenu.iconSize +
-    // @ts-ignore
-    props.leftPanelWidth}px;
+  left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
@@ -72,18 +68,10 @@ export default function Screen({ children = undefined }) {
           <WidgetContainer />
         </LeftPanel>
       )}
-      <TabsPanel
-        // @ts-ignore
-        leftPanelWidth={leftPanelWidth}
-      >
+      <TabsPanel leftPanelWidth={leftPanelWidth}>
         <FilesTabsPanel></FilesTabsPanel>
       </TabsPanel>
-      <BodyDiv
-        // @ts-ignore
-        leftPanelWidth={leftPanelWidth}
-      >
-        {children}
-      </BodyDiv>
+      <BodyDiv leftPanelWidth={leftPanelWidth}>{children}</BodyDiv>
       <StausBar></StausBar>
     </>
   );

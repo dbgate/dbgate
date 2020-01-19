@@ -1,8 +1,8 @@
 const mysql = require('mysql');
 
 module.exports = {
-  async connect({ server, port, user, password }) {
-    const connection = mysql.createConnection({ host: server, port, user, password });
+  async connect({ server, port, user, password, database }) {
+    const connection = mysql.createConnection({ host: server, port, user, password, database });
     return connection;
   },
   async query(connection, sql) {

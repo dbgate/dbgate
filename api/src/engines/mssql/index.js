@@ -2,8 +2,8 @@ const mssql = require('mssql');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
 
 module.exports = {
-  async connect({ server, port, user, password }) {
-    const pool = await mssql.connect({ server, port, user, password });
+  async connect({ server, port, user, password, database }) {
+    const pool = await mssql.connect({ server, port, user, password, database });
     return pool;
   },
   async query(pool, sql) {
@@ -19,9 +19,9 @@ module.exports = {
     return res;
   },
   async analyseFull(pool) {
-
+    const analyser = new MsSqlAnalyser(pool, this);
+    await analyser.runAnalysis();
+    return analyser.result;
   },
-  async analyseIncremental(pool) {
-
-  },
+  async analyseIncremental(pool) {},
 };
