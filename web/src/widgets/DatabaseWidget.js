@@ -8,6 +8,8 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
 import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
+import tableAppObject from '../appobj/tableAppObject';
+import theme from '../theme';
 
 const MainContainer = styled.div`
   position: relative;
@@ -19,6 +21,7 @@ const MainContainer = styled.div`
 const InnerContainer = styled.div`
   flex: 1 0;
   overflow: scroll;
+  width: ${theme.leftPanel.width}px;
 `;
 
 function SubDatabaseList({ data }) {
@@ -53,16 +56,14 @@ function ConnectionList() {
 }
 
 function SqlObjectList({ id, database }) {
-  const tables =
-    useFetch({
-      url: `database-connections/list-tables?id=${id}&database=${database}`,
-      reloadTrigger: `database-structure-changed-${id}-${database}`,
-    }) || [];
+  const objects = useFetch({
+    url: `database-connections/list-objects?id=${id}&database=${database}`,
+    reloadTrigger: `database-structure-changed-${id}-${database}`,
+  });
+  const { tables } = objects || {};
   return (
     <>
-      {tables.map(({ tableName, schemaName }) => (
-        <div key={`${schemaName}.${tableName}`}>{tableName}</div>
-      ))}
+      <AppObjectList list={tables} makeAppObj={tableAppObject} />
     </>
   );
 }

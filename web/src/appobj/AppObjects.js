@@ -8,6 +8,7 @@ const AppObjectDiv = styled.div`
     background-color: lightblue;
   }
   cursor: pointer;
+  white-space: nowrap;
 `;
 
 const IconWrap = styled.span`

@@ -1,8 +1,8 @@
-const fp = require('lodash/fp');
+const _ = require('lodash');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const DatabaseAnalyser = require('../engines/default/DatabaseAnalyser')
+const DatabaseAnalyser = require('../engines/default/DatabaseAnalyser');
 
 module.exports = {
   /** @type {import('../types').OpenedDatabaseConnection[]} */
@@ -39,9 +39,12 @@ module.exports = {
     return newOpened;
   },
 
-  listTables_meta: 'get',
-  async listTables({ id, database }) {
+  listObjects_meta: 'get',
+  async listObjects({ id, database }) {
     const opened = await this.ensureOpened(id, database);
-    return opened.structure.tables; // .map(fp.pick(['tableName', 'schemaName']));
+    const { tables } = opened.structure;
+    return {
+      tables: _.sortBy(tables, x => `${x.schemaName}.${x.pureName}`),
+    }; // .map(fp.pick(['tableName', 'schemaName']));
   },
 };

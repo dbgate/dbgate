@@ -7,15 +7,12 @@ export interface EngineDriver {
   analyseIncremental(pool): Promise<void>;
 }
 
-// export interface NameWithSchema {
-//   schema: string;  
-//   name: string;
-// }  
-
-export interface TableInfo {
-  // name: NameWithSchema;
-  tableName: string;
+export interface NamedObjectInfo {
+  pureName: string;
   schemaName: string;
+}  
+
+export interface TableInfo extends NamedObjectInfo {
 }
 
 export interface DatabaseInfo {
