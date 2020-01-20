@@ -1,4 +1,5 @@
 import React from 'react';
+import uuidv1 from 'uuid/v1';
 import { TableIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import showModal from '../modals/showModal';
@@ -20,10 +21,14 @@ function Menu({ data, makeAppObj }) {
   );
 }
 
-export default function tableAppObject({ pureName, schemaName }) {
+export default function tableAppObject({ pureName, schemaName }, { setOpenedFiles }) {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
   const Icon = TableIcon;
+  const onClick = ({ schemaName, pureName }) => {
+    const id = uuidv1();
+    setOpenedFiles(files => [...files, { id, name: pureName }]);
+  };
 
-  return { title, key, Icon, Menu };
+  return { title, key, Icon, Menu, onClick };
 }
