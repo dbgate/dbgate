@@ -10,7 +10,7 @@ Part of this software is also port of [DbShell](https://github.com/dbshell/dbshe
     * Frontend - React, styled-components, socket.io
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * Pure JavaScript is used (TypeScript is used only as type checker, not as compiler, so it is not mandatory part of pipeline)
-* Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linx, Windows and Mac
+* Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 ## How to run development environment
 
