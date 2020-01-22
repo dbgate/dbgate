@@ -3,7 +3,7 @@
 import React from 'react';
 import theme from './theme';
 import styled from 'styled-components';
-import FilesTabsPanel from './FilesTabsPanel';
+import TabsPanel from './TabsPanel';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
 import { useCurrentWidget } from './utility/globalState';
 import WidgetContainer from './widgets/WidgetContainer';
@@ -36,7 +36,7 @@ const LeftPanel = styled.div`
   display: flex;
 `;
 
-const TabsPanel = styled.div`
+const TabsPanelContainer = styled.div`
   display: flex;
   position: fixed;
   top: 0;
@@ -68,9 +68,9 @@ export default function Screen({ children = undefined }) {
           <WidgetContainer />
         </LeftPanel>
       )}
-      <TabsPanel leftPanelWidth={leftPanelWidth}>
-        <FilesTabsPanel></FilesTabsPanel>
-      </TabsPanel>
+      <TabsPanelContainer leftPanelWidth={leftPanelWidth}>
+        <TabsPanel></TabsPanel>
+      </TabsPanelContainer>
       <BodyDiv leftPanelWidth={leftPanelWidth}>{children}</BodyDiv>
       <StausBar></StausBar>
     </>

@@ -30,7 +30,7 @@ const FileNameWrapper = styled.span`
   margin-left: 5px;
 `;
 
-export default function FilesTabsPanel() {
+export default function TabsPanel() {
   const files = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
 
