@@ -45,5 +45,5 @@ export { CurrentWidgetProvider, useCurrentWidget, useSetCurrentWidget };
 const [CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabase] = createGlobalState(null);
 export { CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabase };
 
-const [OpenedFilesProvider, useOpenedFiles, useSetOpenedFiles] = createStorageState('openedFiles', []);
-export { OpenedFilesProvider, useOpenedFiles, useSetOpenedFiles };
+const [OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs] = createStorageState('openedTabs', []);
+export { OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs };

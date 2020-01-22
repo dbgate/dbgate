@@ -21,13 +21,13 @@ function Menu({ data, makeAppObj }) {
   );
 }
 
-export default function tableAppObject({ pureName, schemaName }, { setOpenedFiles }) {
+export default function tableAppObject({ pureName, schemaName }, { setOpenedTabs }) {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
   const Icon = TableIcon;
   const onClick = ({ schemaName, pureName }) => {
     const id = uuidv1();
-    setOpenedFiles(files => [...files, { id, name: pureName }]);
+    setOpenedTabs(files => [...files, { id, name: pureName }]);
   };
 
   return { title, key, Icon, Menu, onClick };

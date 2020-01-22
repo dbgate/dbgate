@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import theme from './theme';
 
 import { TableIcon } from './icons';
-import { useOpenedFiles, useSetOpenedFiles } from './utility/globalState';
+import { useOpenedTabs, useSetOpenedTabs } from './utility/globalState';
 
 // const files = [
 //   { name: 'app.js' },
@@ -31,11 +31,11 @@ const FileNameWrapper = styled.span`
 `;
 
 export default function FilesTabsPanel() {
-  const files = useOpenedFiles();
-  const setOpenedFiles = useSetOpenedFiles();
+  const files = useOpenedTabs();
+  const setOpenedTabs = useSetOpenedTabs();
 
   const handleTabClick = id => {
-    setOpenedFiles(files =>
+    setOpenedTabs(files =>
       files.map(x => ({
         ...x,
         selected: x.id == id,
@@ -44,7 +44,7 @@ export default function FilesTabsPanel() {
   };
   const handleMouseUp = (e, id) => {
     if (e.button == 1) {
-      setOpenedFiles(files => files.filter(x => x.id != id));
+      setOpenedTabs(files => files.filter(x => x.id != id));
     }
   };
   return (

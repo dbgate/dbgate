@@ -1,7 +1,7 @@
 import React from 'react';
 import './index.css';
 import Screen from './Screen';
-import { CurrentWidgetProvider, CurrentDatabaseProvider, OpenedFilesProvider } from './utility/globalState';
+import { CurrentWidgetProvider, CurrentDatabaseProvider, OpenedTabsProvider } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 
 function App() {
@@ -9,9 +9,9 @@ function App() {
     <CurrentWidgetProvider>
       <CurrentDatabaseProvider>
         <SocketProvider>
-          <OpenedFilesProvider>
+          <OpenedTabsProvider>
             <Screen />
-          </OpenedFilesProvider>
+          </OpenedTabsProvider>
         </SocketProvider>
       </CurrentDatabaseProvider>
     </CurrentWidgetProvider>

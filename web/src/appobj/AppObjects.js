@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
-import { useSetOpenedFiles } from '../utility/globalState';
+import { useSetOpenedTabs } from '../utility/globalState';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
@@ -35,7 +35,7 @@ export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick }) 
 }
 
 export function AppObjectControl({ data, makeAppObj }) {
-  const setOpenedFiles = useSetOpenedFiles();
-  const appobj = makeAppObj(data, { setOpenedFiles });
+  const setOpenedTabs = useSetOpenedTabs();
+  const appobj = makeAppObj(data, { setOpenedTabs });
   return <AppObjectCore {...appobj} data={data} makeAppObj={makeAppObj} />;
 }
