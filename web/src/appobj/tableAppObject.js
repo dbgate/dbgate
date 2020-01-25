@@ -26,11 +26,11 @@ export default function tableAppObject({ pureName, schemaName }, { setOpenedTabs
   const key = title;
   const Icon = TableIcon;
   const onClick = ({ schemaName, pureName }) => {
-    const id = uuidv1();
+    const tabid = uuidv1();
     setOpenedTabs(files => [
       ...files,
       {
-        id,
+        tabid,
         title: pureName,
         icon: 'table2.svg',
         tabComponent: 'TableDataTab',

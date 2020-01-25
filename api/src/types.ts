@@ -22,7 +22,7 @@ export interface DatabaseInfo {
 }  
 
 export interface OpenedDatabaseConnection {
-  id: string;
+  conid: string;
   database: string;
   structure: DatabaseInfo;
   subprocess: ChildProcess;

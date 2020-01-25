@@ -34,17 +34,17 @@ export default function TabsPanel() {
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
 
-  const handleTabClick = id => {
+  const handleTabClick = tabid => {
     setOpenedTabs(files =>
       files.map(x => ({
         ...x,
-        selected: x.id == id,
+        selected: x.tabid == tabid,
       }))
     );
   };
-  const handleMouseUp = (e, id) => {
+  const handleMouseUp = (e, tabid) => {
     if (e.button == 1) {
-      setOpenedTabs(files => files.filter(x => x.id != id));
+      setOpenedTabs(files => files.filter(x => x.tabid != tabid));
     }
   };
   return (
@@ -52,9 +52,9 @@ export default function TabsPanel() {
       {tabs.map(tab => (
         <FileTabItem
           {...tab}
-          key={tab.id}
-          onClick={() => handleTabClick(tab.id)}
-          onMouseUp={e => handleMouseUp(e, tab.id)}
+          key={tab.tabid}
+          onClick={() => handleTabClick(tab.tabid)}
+          onMouseUp={e => handleMouseUp(e, tab.tabid)}
         >
           {getIconImage(tab.icon)}
           <FileNameWrapper>{tab.title}</FileNameWrapper>

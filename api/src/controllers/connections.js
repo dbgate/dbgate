@@ -52,8 +52,8 @@ module.exports = {
   },
 
   get_meta: 'get',
-  async get({ id }) {
-    const res = await this.datastore.find({ _id: id });
+  async get({ conid }) {
+    const res = await this.datastore.find({ _id: conid });
     return res[0];
   },
 };

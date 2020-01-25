@@ -10,28 +10,28 @@ module.exports = {
   opened: [],
   requests: {},
 
-  handle_structure(id, database, { structure }) {
-    const existing = this.opened.find(x => x.id == id && x.database == database);
+  handle_structure(conid, database, { structure }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
-    existing.structure = structure;
-    socket.emit(`database-structure-changed-${id}-${database}`);
+    existing.structure = structure;conid
+    socket.emit(`database-structure-changed-${conid}-${database}`);
   },
-  handle_error(id, { error }) {
+  handle_error(conid, { error }) {
     console.log(error);
   },
-  handle_response(id, database, { msgid, ...response }) {
+  handle_response(conid, database, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];
     resolve(response);
     delete this.requests[msgid];
   },
 
-  async ensureOpened(id, database) {
-    const existing = this.opened.find(x => x.id == id && x.database == database);
+  async ensureOpened(conid, database) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
-    const connection = await connections.get({ id });
+    const connection = await connections.get({ conid });
     const subprocess = fork(`${__dirname}/../proc/databaseConnectionProcess.js`);
     const newOpened = {
-      id,
+      conid,
       database,
       subprocess,
       structure: DatabaseAnalyser.createEmptyStructure(),
@@ -40,7 +40,7 @@ module.exports = {
     this.opened.push(newOpened);
     // @ts-ignore
     subprocess.on('message', ({ msgtype, ...message }) => {
-      this[`handle_${msgtype}`](id, database, message);
+      this[`handle_${msgtype}`](conid, database, message);
     });
     subprocess.send({ msgtype: 'connect', ...connection, database });
     return newOpened;
@@ -57,8 +57,8 @@ module.exports = {
   },
 
   listObjects_meta: 'get',
-  async listObjects({ id, database }) {
-    const opened = await this.ensureOpened(id, database);
+  async listObjects({ conid, database }) {
+    const opened = await this.ensureOpened(conid, database);
     const { tables } = opened.structure;
     return {
       tables: _.sortBy(tables, x => `${x.schemaName}.${x.pureName}`),

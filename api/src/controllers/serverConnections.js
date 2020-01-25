@@ -6,23 +6,23 @@ const { fork } = require('child_process');
 module.exports = {
   opened: [],
 
-  handle_databases(id, { databases }) {
-    const existing = this.opened.find(x => x.id == id);
+  handle_databases(conid, { databases }) {
+    const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.databases = databases;
-    socket.emit(`database-list-changed-${id}`);
+    socket.emit(`database-list-changed-${conid}`);
   },
-  handle_error(id, { error }) {
+  handle_error(conid, { error }) {
     console.log(error);
   },
 
-  async ensureOpened(id) {
-    const existing = this.opened.find(x => x.id == id);
+  async ensureOpened(conid) {
+    const existing = this.opened.find(x => x.conid == conid);
     if (existing) return existing;
-    const connection = await connections.get({ id });
+    const connection = await connections.get({ conid });
     const subprocess = fork(`${__dirname}/../proc/serverConnectionProcess.js`);
     const newOpened = {
-      id,
+      conid,
       subprocess,
       databases: [],
       connection,
@@ -30,15 +30,15 @@ module.exports = {
     this.opened.push(newOpened);
     // @ts-ignore
     subprocess.on('message', ({ msgtype, ...message }) => {
-      this[`handle_${msgtype}`](id, message);
+      this[`handle_${msgtype}`](conid, message);
     });
     subprocess.send({ msgtype: 'connect', ...connection });
     return newOpened;
   },
 
   listDatabases_meta: 'get',
-  async listDatabases({ id }) {
-    const opened = await this.ensureOpened(id);
+  async listDatabases({ conid }) {
+    const opened = await this.ensureOpened(conid);
     return opened.databases;
   },
 };

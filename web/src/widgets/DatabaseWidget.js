@@ -34,7 +34,7 @@ function SubDatabaseList({ data }) {
   };
   const { _id } = data;
   const databases = useFetch({
-    url: `server-connections/list-databases?id=${_id}`,
+    url: `server-connections/list-databases?conid=${_id}`,
     reloadTrigger: `database-list-changed-${_id}`,
   });
   return <AppObjectList list={databases} makeAppObj={databaseAppObject} onObjectClick={handleDatabaseClick} />;
@@ -55,15 +55,15 @@ function ConnectionList() {
   );
 }
 
-function SqlObjectList({ id, database }) {
+function SqlObjectList({ conid, database }) {
   const objects = useFetch({
-    url: `database-connections/list-objects?id=${id}&database=${database}`,
-    reloadTrigger: `database-structure-changed-${id}-${database}`,
+    url: `database-connections/list-objects?conid=${conid}&database=${database}`,
+    reloadTrigger: `database-structure-changed-${conid}-${database}`,
   });
   const { tables } = objects || {};
   return (
     <>
-      <AppObjectList list={(tables || []).map(x => ({ ...x, id, database }))} makeAppObj={tableAppObject} />
+      <AppObjectList list={(tables || []).map(x => ({ ...x, conid, database }))} makeAppObj={tableAppObject} />
     </>
   );
 }
@@ -74,7 +74,7 @@ function SqlObjectListWrapper() {
   if (!db) return <div>(Choose database)</div>;
   const { name, connection } = db;
 
-  return <SqlObjectList id={connection._id} database={name} />;
+  return <SqlObjectList conid={connection._id} database={name} />;
   // return <div>tables of {db && db.name}</div>
   // return <div>tables of {JSON.stringify(db)}</div>
 }
