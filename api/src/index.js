@@ -8,6 +8,7 @@ const useController = require('./utility/useController');
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
+const tables = require('./controllers/tables');
 const socket = require('./utility/socket');
 
 const app = express();
@@ -25,5 +26,6 @@ app.get('/', (req, res) => {
 useController(app, '/connections', connections);
 useController(app, '/server-connections', serverConnections);
 useController(app, '/database-connections', databaseConnections);
+useController(app, '/tables', tables);
 
 server.listen(3000);

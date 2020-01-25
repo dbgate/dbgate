@@ -32,3 +32,4 @@ Open http://localhost:5000 in your browser
 
 [![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJLMGV9DXYFCE)
 
+<!-- https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif -->

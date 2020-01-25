@@ -1,3 +1,5 @@
+import { ChildProcess } from 'child_process';
+
 export interface EngineDriver {
   connect({ server, port, user, password });
   query(pool, sql: string): Promise<any[]>;
@@ -23,4 +25,5 @@ export interface OpenedDatabaseConnection {
   id: string;
   database: string;
   structure: DatabaseInfo;
+  subprocess: ChildProcess;
 }

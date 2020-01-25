@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -7,6 +8,7 @@ const DatabaseAnalyser = require('../engines/default/DatabaseAnalyser');
 module.exports = {
   /** @type {import('../types').OpenedDatabaseConnection[]} */
   opened: [],
+  requests: {},
 
   handle_structure(id, database, { structure }) {
     const existing = this.opened.find(x => x.id == id && x.database == database);
@@ -16,6 +18,11 @@ module.exports = {
   },
   handle_error(id, { error }) {
     console.log(error);
+  },
+  handle_response(id, database, { msgid, ...response }) {
+    const [resolve, reject] = this.requests[msgid];
+    resolve(response);
+    delete this.requests[msgid];
   },
 
   async ensureOpened(id, database) {
@@ -37,6 +44,16 @@ module.exports = {
     });
     subprocess.send({ msgtype: 'connect', ...connection, database });
     return newOpened;
+  },
+
+  /** @param {import('../types').OpenedDatabaseConnection} conn */
+  async sendRequest(conn, message) {
+    const msgid = uuidv1();
+    const promise = new Promise((resolve, reject) => {
+      this.requests[msgid] = [resolve, reject];
+      conn.subprocess.send({ msgid, ...message });
+    });
+    return promise;
   },
 
   listObjects_meta: 'get',

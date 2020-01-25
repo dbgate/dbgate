@@ -63,7 +63,7 @@ function SqlObjectList({ id, database }) {
   const { tables } = objects || {};
   return (
     <>
-      <AppObjectList list={tables} makeAppObj={tableAppObject} />
+      <AppObjectList list={(tables || []).map(x => ({ ...x, id, database }))} makeAppObj={tableAppObject} />
     </>
   );
 }

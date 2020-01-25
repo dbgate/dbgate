@@ -2,8 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import theme from './theme';
 
-import { TableIcon } from './icons';
 import { useOpenedTabs, useSetOpenedTabs } from './utility/globalState';
+import { getIconImage } from './icons';
 
 // const files = [
 //   { name: 'app.js' },
@@ -31,7 +31,7 @@ const FileNameWrapper = styled.span`
 `;
 
 export default function TabsPanel() {
-  const files = useOpenedTabs();
+  const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
 
   const handleTabClick = id => {
@@ -49,15 +49,15 @@ export default function TabsPanel() {
   };
   return (
     <>
-      {files.map(file => (
+      {tabs.map(tab => (
         <FileTabItem
-          {...file}
-          key={file.id}
-          onClick={() => handleTabClick(file.id)}
-          onMouseUp={e => handleMouseUp(e, file.id)}
+          {...tab}
+          key={tab.id}
+          onClick={() => handleTabClick(tab.id)}
+          onMouseUp={e => handleMouseUp(e, tab.id)}
         >
-          <TableIcon />
-          <FileNameWrapper>{file.name}</FileNameWrapper>
+          {getIconImage(tab.icon)}
+          <FileNameWrapper>{tab.title}</FileNameWrapper>
         </FileTabItem>
       ))}
     </>

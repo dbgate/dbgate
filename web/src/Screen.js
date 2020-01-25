@@ -4,6 +4,7 @@ import React from 'react';
 import theme from './theme';
 import styled from 'styled-components';
 import TabsPanel from './TabsPanel';
+import TabContent from './TabContent';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
 import { useCurrentWidget } from './utility/globalState';
 import WidgetContainer from './widgets/WidgetContainer';
@@ -55,7 +56,7 @@ const StausBar = styled.div`
   background-color: ${theme.statusBar.background};
 `;
 
-export default function Screen({ children = undefined }) {
+export default function Screen() {
   const currentWidget = useCurrentWidget();
   const leftPanelWidth = currentWidget ? theme.leftPanel.width : 0;
   return (
@@ -71,7 +72,7 @@ export default function Screen({ children = undefined }) {
       <TabsPanelContainer leftPanelWidth={leftPanelWidth}>
         <TabsPanel></TabsPanel>
       </TabsPanelContainer>
-      <BodyDiv leftPanelWidth={leftPanelWidth}>{children}</BodyDiv>
+      <BodyDiv leftPanelWidth={leftPanelWidth}><TabContent/></BodyDiv>
       <StausBar></StausBar>
     </>
   );

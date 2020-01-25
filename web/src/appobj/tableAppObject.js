@@ -27,7 +27,19 @@ export default function tableAppObject({ pureName, schemaName }, { setOpenedTabs
   const Icon = TableIcon;
   const onClick = ({ schemaName, pureName }) => {
     const id = uuidv1();
-    setOpenedTabs(files => [...files, { id, name: pureName }]);
+    setOpenedTabs(files => [
+      ...files,
+      {
+        id,
+        title: pureName,
+        icon: 'table2.svg',
+        tabComponent: 'TableDataTab',
+        props: {
+          schemaName,
+          pureName,
+        },
+      },
+    ]);
   };
 
   return { title, key, Icon, Menu, onClick };

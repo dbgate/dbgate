@@ -18,8 +18,15 @@ async function handleConnect(connection) {
   setInterval(handleFullRefresh, 30 * 1000);
 }
 
+async function handleTableData({ msgid, schemaName, pureName }) {
+  const driver = engines(storedConnection);
+  const res = await driver.query(systemConnection, `SELECT TOP(100) FROM ${pureName}`);
+  process.send({ msgtype: 'response', msgid, rows: res });
+}
+
 const messageHandlers = {
   connect: handleConnect,
+  tableData: handleTableData,
 };
 
 async function handleMessage({ msgtype, ...other }) {
