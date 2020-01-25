@@ -33,7 +33,7 @@ class MsSqlAnalyser extends DatabaseAnalayser {
     //     name: table.tableName,
     //   };
     // }
-    this.result.tables = tables;
+    this.result.tables = tables.rows;
   }
 }
 

@@ -9,17 +9,17 @@ module.exports = {
     return new Promise((resolve, reject) => {
       connection.query(sql, function(error, results, fields) {
         if (error) reject(error);
-        resolve(results);
+        resolve({ rows: results });
       });
     });
   },
   async getVersion(connection) {
-    const rows = await this.query(connection, "show variables like 'version'");
+    const { rows } = await this.query(connection, "show variables like 'version'");
     const version = rows[0].Value;
     return { version };
   },
   async listDatabases(connection) {
-    const res = await this.query(connection, 'show databases');
-    return res.map(x => ({ name: x.Database }));
+    const { rows } = await this.query(connection, 'show databases');
+    return rows.map(x => ({ name: x.Database }));
   },
 };

@@ -2,7 +2,13 @@ import React from 'react';
 import axios from './axios';
 import useSocket from './SocketProvider';
 
-export default function useFetch({ url, defaultValue = undefined, reloadTrigger = undefined, ...config }) {
+export default function useFetch({
+  url,
+  params = undefined,
+  defaultValue = undefined,
+  reloadTrigger = undefined,
+  ...config
+}) {
   const [value, setValue] = React.useState(defaultValue);
   const [loadCounter, setLoadCounter] = React.useState(0);
   const socket = useSocket();
@@ -14,6 +20,7 @@ export default function useFetch({ url, defaultValue = undefined, reloadTrigger 
   async function loadValue() {
     const resp = await axios.request({
       method: 'get',
+      params,
       url,
       ...config,
     });
@@ -27,7 +34,7 @@ export default function useFetch({ url, defaultValue = undefined, reloadTrigger 
         socket.off(reloadTrigger, handleReload);
       };
     }
-  }, [url, socket, loadCounter]);
+  }, [url, params, socket, loadCounter]);
 
   return value;
 }

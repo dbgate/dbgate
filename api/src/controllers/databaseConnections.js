@@ -13,11 +13,13 @@ module.exports = {
   handle_structure(conid, database, { structure }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
-    existing.structure = structure;conid
+    existing.structure = structure;
+    conid;
     socket.emit(`database-structure-changed-${conid}-${database}`);
   },
-  handle_error(conid, { error }) {
-    console.log(error);
+  handle_error(conid, database, props) {
+    const { error } = props;
+    console.log(`Error in database connection ${conid}, database ${database}: ${error}`);
   },
   handle_response(conid, database, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];

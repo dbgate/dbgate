@@ -1,8 +1,12 @@
 import { ChildProcess } from 'child_process';
 
+export interface QueryResult {
+  rows: any[];
+}
+
 export interface EngineDriver {
   connect({ server, port, user, password });
-  query(pool, sql: string): Promise<any[]>;
+  query(pool, sql: string): Promise<QueryResult>;
   getVersion(pool): Promise<string>;
   listDatabases(pool): Promise<{ name: string }[]>;
   analyseFull(pool): Promise<void>;

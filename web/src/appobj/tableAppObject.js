@@ -1,10 +1,10 @@
 import React from 'react';
-import uuidv1 from 'uuid/v1';
 import { TableIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import showModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
+import { openNewTab } from '../utility/common';
 
 function Menu({ data, makeAppObj }) {
   const handleEdit = () => {
@@ -21,25 +21,22 @@ function Menu({ data, makeAppObj }) {
   );
 }
 
-export default function tableAppObject({ pureName, schemaName }, { setOpenedTabs }) {
+export default function tableAppObject({ conid, database, pureName, schemaName }, { setOpenedTabs }) {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
   const Icon = TableIcon;
   const onClick = ({ schemaName, pureName }) => {
-    const tabid = uuidv1();
-    setOpenedTabs(files => [
-      ...files,
-      {
-        tabid,
-        title: pureName,
-        icon: 'table2.svg',
-        tabComponent: 'TableDataTab',
-        props: {
-          schemaName,
-          pureName,
-        },
+    openNewTab(setOpenedTabs, {
+      title: pureName,
+      icon: 'table2.svg',
+      tabComponent: 'TableDataTab',
+      props: {
+        schemaName,
+        pureName,
+        conid,
+        database,
       },
-    ]);
+    });
   };
 
   return { title, key, Icon, Menu, onClick };

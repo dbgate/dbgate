@@ -13,7 +13,7 @@ module.exports = {
     socket.emit(`database-list-changed-${conid}`);
   },
   handle_error(conid, { error }) {
-    console.log(error);
+    console.log(`Error in server connection ${conid}: ${error}`);
   },
 
   async ensureOpened(conid) {
