@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from './axios';
 import useSocket from './SocketProvider';
+import stableStringify from 'json-stable-stringify';
 
 export default function useFetch({
   url,
@@ -34,7 +35,7 @@ export default function useFetch({
         socket.off(reloadTrigger, handleReload);
       };
     }
-  }, [url, params, socket, loadCounter]);
+  }, [url, stableStringify(params), socket, loadCounter]);
 
   return value;
 }
