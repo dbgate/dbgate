@@ -1,3 +1,6 @@
+[![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/JanProchazkaCz)
+
 # DbGate - database administration tool
 
 DbGate is complete rewrite of JenaSoft [DbGate](http://www.jenasoft.com/dbgate). It uses only JavaScript (original DbGate was written in C# and TypeScript). 
@@ -29,7 +32,3 @@ yarn start
 ```
 
 Open http://localhost:5000 in your browser
-
-[![](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NJLMGV9DXYFCE)
-
-<!-- https://www.paypalobjects.com/en_GB/i/btn/btn_donate_SM.gif -->
