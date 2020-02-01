@@ -37,13 +37,13 @@ export function HorizontalScrollBar({
   maximum,
   viewportRatio = 0.5,
 }) {
-  const [ref, { width }] = useDimensions();
+  const [ref, { width }, node] = useDimensions();
   const contentSize = Math.round(width / viewportRatio);
 
   React.useEffect(() => {
     const position01 = (valueToSet - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - width);
-    if (ref.current) ref.current.scrollLeft = Math.floor(position);
+    if (node) node.scrollLeft = Math.floor(position);
   }, [valueToSetDate]);
 
   return (
@@ -61,17 +61,17 @@ export function VerticalScrollBar({
   maximum,
   viewportRatio = 0.5,
 }) {
-  const [ref, { height }] = useDimensions();
+  const [ref, { height }, node] = useDimensions();
   const contentSize = Math.round(height / viewportRatio);
 
   React.useEffect(() => {
     const position01 = (valueToSet - minimum) / (maximum - minimum + 1);
     const position = position01 * (contentSize - height);
-    if (ref.current) ref.current.scrollTop = Math.floor(position);
+    if (node) node.scrollTop = Math.floor(position);
   }, [valueToSetDate]);
 
   const handleScroll = () => {
-    const position = ref.current.scrollTop;
+    const position = node.scrollTop;
     const ratio = position / (contentSize - height);
     if (ratio < 0) return 0;
     let res = ratio * (maximum - minimum + 1) + minimum;
