@@ -1,4 +1,4 @@
-import { ChildProcess } from 'child_process';
+import { ChildProcess } from "child_process";
 
 export interface QueryResult {
   rows: any[];
@@ -16,18 +16,21 @@ export interface EngineDriver {
 export interface NamedObjectInfo {
   pureName: string;
   schemaName: string;
-}  
-
-export interface TableInfo extends NamedObjectInfo {
 }
+
+export interface TableInfo extends NamedObjectInfo {}
 
 export interface DatabaseInfo {
   tables: TableInfo[];
-}  
+}
 
 export interface OpenedDatabaseConnection {
   conid: string;
   database: string;
   structure: DatabaseInfo;
   subprocess: ChildProcess;
+}
+
+export function sum(a: number, b: number) {
+  return a + b;
 }

@@ -46,6 +46,9 @@
     esutils "^2.0.2"
     js-tokens "^4.0.0"
 
+"@dbgate/lib@file:../lib":
+  version "0.1.0"
+
 "@types/lodash@^4.14.149":
   version "4.14.149"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.149.tgz#1342d63d948c6062838fbf961012f74d4e638440"

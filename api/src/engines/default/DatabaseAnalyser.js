@@ -1,7 +1,7 @@
 class DatabaseAnalyser {
   /**
    *
-   * @param {import('../../types').EngineDriver} driver
+   * @param {import('@dbgate/lib').EngineDriver} driver
    */
   constructor(pool, driver) {
     this.pool = pool;
@@ -11,7 +11,7 @@ class DatabaseAnalyser {
   async runAnalysis() {}
 }
 
-/** @returns {import('../../types').DatabaseInfo} */
+/** @returns {import('@dbgate/lib').DatabaseInfo} */
 DatabaseAnalyser.createEmptyStructure = () => ({
   tables: [],
 });
