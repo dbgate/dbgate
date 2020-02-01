@@ -95,6 +95,10 @@ export default function DataGrid({ params }) {
     setFirstVisibleRowScrollIndex(value);
   };
 
+  const handleColumnScroll = value => {
+    setFirstVisibleColumnScrollIndex(value);
+  };
+
   function countColumnSizes() {
     let canvas = document.createElement('canvas');
     let context = canvas.getContext('2d');
@@ -111,22 +115,23 @@ export default function DataGrid({ params }) {
     // columnSizes.setExtraordinaryIndexes(this.getHiddenColumnIndexes(), this.getFrozenColumnIndexes());
     columnSizes.setExtraordinaryIndexes([], []);
 
-    // for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-    //     //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
-    //     let column = columns[colIndex];
+    for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+        //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
+        let column = columns[colIndex];
 
-    //     if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
-    //     else context.font = "14px Helvetica";
+        // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
+        // else context.font = "14px Helvetica";
+        context.font = "bold 14px Helvetica";
 
-    //     let text = column.headerText;
-    //     let headerWidth = context.measureText(text).width + 32;
+        let text = column.name;
+        let headerWidth = context.measureText(text).width + 32;
 
-    //     if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
-    //     if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
-    //     if (this.getSortOrder(column.uniquePath)) headerWidth += 16;
+        // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
+        // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
+        // if (this.getSortOrder(column.uniquePath)) headerWidth += 16;
 
-    //     this.columnSizes.putSizeOverride(colIndex, headerWidth);
-    // }
+        columnSizes.putSizeOverride(colIndex, headerWidth);
+    }
 
     // let headerWidth = this.rowHeaderWidthDefault;
     // if (this.rowCount) headerWidth = context.measureText(this.rowCount.toString()).width + 8;
@@ -234,6 +239,7 @@ export default function DataGrid({ params }) {
         minimum={0}
         maximum={columns.length - 1}
         viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
+        onScroll={handleColumnScroll}
       />
       <VerticalScrollBar
         minimum={0}

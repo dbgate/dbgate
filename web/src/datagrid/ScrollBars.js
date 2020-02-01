@@ -46,8 +46,16 @@ export function HorizontalScrollBar({
     if (node) node.scrollLeft = Math.floor(position);
   }, [valueToSetDate]);
 
+  const handleScroll = () => {
+    const position = node.scrollLeft;
+    const ratio = position / (contentSize - width);
+    if (ratio < 0) return 0;
+    let res = ratio * (maximum - minimum + 1) + minimum;
+    onScroll(Math.floor(res + 0.3));
+  };
+
   return (
-    <StyledHorizontalScrollBar ref={ref}>
+    <StyledHorizontalScrollBar ref={ref} onScroll={handleScroll}>
       <StyledHorizontalScrollContent style={{ width: `${contentSize}px` }}>&nbsp;</StyledHorizontalScrollContent>
     </StyledHorizontalScrollBar>
   );
