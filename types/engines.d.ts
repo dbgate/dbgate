@@ -10,12 +10,6 @@ export interface EngineDriver {
     user,
     password,
     database
-  }: {
-    server: any;
-    port: any;
-    user: any;
-    password: any;
-    database: any;
   }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   getVersion(pool: any): Promise<{ version: string }>;

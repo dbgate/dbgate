@@ -41,7 +41,6 @@ async function handleTableData({ msgid, schemaName, pureName }) {
   select.from = { schemaName, pureName };
   select.selectAll = true;
   const sql = select.toSql(driver);
-  console.log('SQL', sql);
   const res = await driver.query(systemConnection, sql);
 
   process.send({ msgtype: 'response', msgid, ...res });

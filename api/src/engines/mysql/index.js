@@ -21,7 +21,7 @@ const driver = {
     return new Promise((resolve, reject) => {
       connection.query(sql, function(error, results, fields) {
         if (error) reject(error);
-        resolve({ rows: results });
+        resolve({ rows: results, columns: fields });
       });
     });
   },

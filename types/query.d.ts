@@ -3,6 +3,11 @@ export interface RangeDefinition {
   limit: number;
 }
 
+export interface QueryResultColumn {
+  name: string;
+}
+
 export interface QueryResult {
   rows: any[];
+  columns: QueryResultColumn[];
 }

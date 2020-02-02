@@ -23,7 +23,6 @@ class MySqlAnalyser extends DatabaseAnalayser {
     functions = false,
     triggers = false
   ) {
-    console.log('DB', this.pool._database_name);
     let res = await loadQuery(resFileName);
     res = res.replace('=[OBJECT_NAME_CONDITION]', ' is not null');
     res = res.replace('#DATABASE#', this.pool._database_name);
