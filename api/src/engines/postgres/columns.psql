@@ -1,8 +1,8 @@
 select 
-	table_schema as schemaName, 
-	table_name as pureName, 
-	column_name as columnName,
-	is_nullable as isNullable,
+	table_schema as "schemaName", 
+	table_name as "pureName", 
+	column_name as "columnName",
+	is_nullable as "isNullable",
 	data_type as dataType,
 	character_maximum_length,
 	numeric_precision,
