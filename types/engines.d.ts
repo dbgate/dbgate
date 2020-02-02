@@ -1,18 +1,24 @@
 import { QueryResult } from "./query";
+import { SqlDialect } from "./dialect";
+import { SqlDumper } from "./dumper";
+import { DatabaseInfo } from "./dbinfo";
+
 export interface EngineDriver {
   connect({
     server,
     port,
     user,
-    password
+    password,
+    database
   }: {
     server: any;
     port: any;
     user: any;
     password: any;
+    database: any;
   }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
-  getVersion(pool: any): Promise<string>;
+  getVersion(pool: any): Promise<{ version: string }>;
   listDatabases(
     pool: any
   ): Promise<
@@ -20,6 +26,8 @@ export interface EngineDriver {
       name: string;
     }[]
   >;
-  analyseFull(pool: any): Promise<void>;
-  analyseIncremental(pool: any): Promise<void>;
+  analyseFull(pool: any): Promise<DatabaseInfo>;
+  // analyseIncremental(pool: any): Promise<void>;
+  dialect: SqlDialect;
+  createDumper(): SqlDumper;
 }

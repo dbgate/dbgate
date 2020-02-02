@@ -9,3 +9,5 @@ export interface OpenedDatabaseConnection {
 export * from "./engines";
 export * from "./dbinfo";
 export * from "./query";
+export * from "./dialect";
+export * from "./dumper";

@@ -1,4 +1,5 @@
 const engines = require('../engines');
+const Select = require('../dmlf/select');
 
 let systemConnection;
 let storedConnection;
@@ -33,7 +34,16 @@ function waitConnected() {
 async function handleTableData({ msgid, schemaName, pureName }) {
   await waitConnected();
   const driver = engines(storedConnection);
-  const res = await driver.query(systemConnection, `SELECT TOP(100) * FROM ${pureName}`);
+
+  const select = new Select();
+  if (driver.dialect.limitSelect) select.topRecords = 100;
+  if (driver.dialect.rangeSelect) select.range = { offset: 0, limit: 100 };
+  select.from = { schemaName, pureName };
+  select.selectAll = true;
+  const sql = select.toSql(driver);
+  console.log('SQL', sql);
+  const res = await driver.query(systemConnection, sql);
+
   process.send({ msgtype: 'response', msgid, ...res });
 }
 

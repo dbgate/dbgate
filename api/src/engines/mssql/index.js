@@ -1,8 +1,18 @@
 const _ = require('lodash');
 const mssql = require('mssql');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
+const MsSqlDumper = require('./MsSqlDumper');
 
-module.exports = {
+/** @type {import('dbgate').SqlDialect} */
+const dialect = {
+  limitSelect: true,
+  quoteIdentifier(s) {
+    return `[${s}]`;
+  },
+};
+
+/** @type {import('dbgate').EngineDriver} */
+const driver = {
   async connect({ server, port, user, password, database }) {
     const pool = await mssql.connect({ server, port, user, password, database });
     return pool;
@@ -26,5 +36,11 @@ module.exports = {
     await analyser.runAnalysis();
     return analyser.result;
   },
-  async analyseIncremental(pool) {},
+  // async analyseIncremental(pool) {},
+  createDumper() {
+    return new MsSqlDumper(this);
+  },
+  dialect,
 };
+
+module.exports = driver;

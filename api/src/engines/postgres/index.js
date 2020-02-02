@@ -1,5 +1,13 @@
 const { Client } = require('pg');
 
+/** @type {import('dbgate').SqlDialect} */
+const dialect = {
+  rangeSelect: true,
+  quoteIdentifier(s) {
+    return '"' + s + '"';
+  },
+};
+
 module.exports = {
   async connect({ server, port, user, password, database }) {
     const client = new Client({ host: server, port, user, password, database: database || 'postgres' });
@@ -19,4 +27,5 @@ module.exports = {
     const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
+  dialect,
 };
