@@ -5,10 +5,6 @@
         "checkJs": true,
         "noEmit": true,
         "moduleResolution": "node",
-        // doesn't work
-        "types": [
-            "dbgate"
-        ]
     },
     "include": [
         "src"

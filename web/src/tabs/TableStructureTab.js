@@ -1,9 +1,12 @@
 import React from 'react';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
+import _ from 'lodash';
 import theme from '../theme';
+import useFetch from '../utility/useFetch';
 import ObjectListControl from '../utility/ObjectListControl';
 import { TableColumn } from '../utility/TableControl';
+import columnAppObject from '../appobj/columnAppObject';
+import constraintAppObject from '../appobj/constraintAppObject';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -21,10 +24,12 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
     params: { conid, database, schemaName, pureName },
   });
   if (!tableInfo) return null;
+  const { columns, primaryKey, foreignKeys } = tableInfo;
   return (
     <WhitePage>
       <ObjectListControl
-        collection={tableInfo.columns.map((x, index) => ({ ...x, ordinal: index + 1 }))}
+        collection={columns.map((x, index) => ({ ...x, ordinal: index + 1 }))}
+        makeAppObj={columnAppObject}
         title="Columns"
       >
         <TableColumn
@@ -72,6 +77,30 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
             </span>
           )}
         /> */}
+      </ObjectListControl>
+
+      <ObjectListControl collection={_.compact([primaryKey])} makeAppObj={constraintAppObject} title="Primary key">
+        <TableColumn
+          fieldName="columns"
+          header="Columns"
+          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+        />
+      </ObjectListControl>
+
+      <ObjectListControl collection={foreignKeys} makeAppObj={constraintAppObject} title="Foreign keys">
+        <TableColumn
+          fieldName="baseColumns"
+          header="Base columns"
+          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+        />
+        <TableColumn fieldName="refTable" header="Referenced table" formatter={row => row.refTableName} />
+        <TableColumn
+          fieldName="refColumns"
+          header="Referenced columns"
+          formatter={row => row.columns.map(x => x.refColumnName).join(', ')}
+        />
+        <TableColumn fieldName="updateAction" header="ON UPDATE" />
+        <TableColumn fieldName="deleteAction" header="ON DELETE" />
       </ObjectListControl>
     </WhitePage>
   );

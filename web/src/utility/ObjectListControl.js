@@ -27,7 +27,7 @@ const ObjectListBody = styled.div`
   //   margin-top: 3px;
 `;
 
-export default function ObjectListControl({ collection = [], title, showIfEmpty = false, children }) {
+export default function ObjectListControl({ collection = [], title, showIfEmpty = false, makeAppObj, children }) {
   if (collection.length == 0 && !showIfEmpty) return null;
 
   return (
@@ -40,7 +40,7 @@ export default function ObjectListControl({ collection = [], title, showIfEmpty 
           <TableColumn
             fieldName="displayName"
             header="Name"
-            formatter={col => <AppObjectControl data={col} makeAppObj={columnAppObject} component="span" />}
+            formatter={col => <AppObjectControl data={col} makeAppObj={makeAppObj} component="span" />}
           />
           {children}
         </TableControl>
