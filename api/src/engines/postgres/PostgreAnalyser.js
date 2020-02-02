@@ -24,24 +24,22 @@ class MySqlAnalyser extends DatabaseAnalayser {
     triggers = false
   ) {
     let res = await loadQuery(resFileName);
-    res = res.replace('=[OBJECT_NAME_CONDITION]', ' is not null');
-    res = res.replace('#DATABASE#', this.pool._database_name);
+    res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
     return res;
   }
   async runAnalysis() {
-    const tables = await this.driver.query(this.pool, await this.createQuery('tables.sql'));
-    const columns = await this.driver.query(this.pool, await this.createQuery('columns.sql'));
+    const tables = await this.driver.query(this.pool, await this.createQuery('table_modifications.psql'));
+    const columns = await this.driver.query(this.pool, await this.createQuery('columns.psql'));
     //   const pkColumns = await this.driver.query(this.pool, await this.createQuery('primary_keys.sql'));
     //   const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreign_keys.sql'));
 
     this.result.tables = tables.rows.map(table => ({
       ...table,
       columns: columns.rows
-        .filter(col => col.pureName == table.pureName)
-        .map(({ isNullable, extra, ...col }) => ({
+        .filter(col => col.pureName == table.pureName && col.schemaName == table.schemaName)
+        .map(({ isNullable, ...col }) => ({
           ...col,
           notNull: !isNullable,
-          autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
         })),
       foreignKeys: [],
       // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
