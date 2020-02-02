@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
+const _ = require('lodash');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
 
@@ -27,13 +28,18 @@ class MsSqlAnalyser extends DatabaseAnalayser {
   }
   async runAnalysis() {
     const tables = await this.driver.query(this.pool, await this.createQuery('tables.sql'));
-    // for (const table of tables) {
-    //   table.name = {
-    //     schema: table.schemaName,
-    //     name: table.tableName,
-    //   };
-    // }
-    this.result.tables = tables.rows;
+    const columns = await this.driver.query(this.pool, await this.createQuery('columns.sql'));
+
+    this.result.tables = tables.rows.map(table => ({
+      ...table,
+      columns: columns.rows
+        .filter(col => col.objectId == table.objectId)
+        .map(({ isNullable, isIdentity, ...col }) => ({
+          ...col,
+          notNull: isNullable != 'True',
+          autoIncrement: isIdentity == 'True',
+        })),
+    }));
   }
 }
 

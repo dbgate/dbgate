@@ -17,11 +17,13 @@ const IconWrap = styled.span`
 `;
 
 export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick }) {
+  const setOpenedTabs = useSetOpenedTabs();
+
   const handleContextMenu = event => {
     if (!Menu) return;
 
     event.preventDefault();
-    showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} />);
+    showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} setOpenedTabs={setOpenedTabs} />);
   };
 
   return (

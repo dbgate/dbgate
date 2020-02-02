@@ -19,6 +19,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "socket.io-client": "^2.3.0",
     "styled-components": "^4.4.1",
+    "@dbgate/lib": "file:../lib",
     "uuid": "^3.4.0"
   },
   "scripts": {

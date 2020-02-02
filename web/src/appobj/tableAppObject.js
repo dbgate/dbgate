@@ -5,18 +5,33 @@ import showModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { openNewTab } from '../utility/common';
+import { useSetOpenedTabs } from '../utility/globalState';
 
-function Menu({ data, makeAppObj }) {
-  const handleEdit = () => {
-    showModal(modalState => <ConnectionModal modalState={modalState} connection={data} />);
+function openTableDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
+  openNewTab(setOpenedTabs, {
+    title: pureName,
+    icon: 'table2.svg',
+    tabComponent,
+    props: {
+      schemaName,
+      pureName,
+      conid,
+      database,
+    },
+  });
+}
+
+function Menu({ data, makeAppObj, setOpenedTabs }) {
+  const handleOpenData = () => {
+    openTableDetail(setOpenedTabs, 'TableDataTab', data);
   };
-  const handleDelete = () => {
-    axios.post('connections/delete', data);
+  const handleOpenStructure = () => {
+    openTableDetail(setOpenedTabs, 'TableStructureTab', data);
   };
   return (
     <>
-      <DropDownMenuItem onClick={handleEdit}>Edit</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenStructure}>Open structure</DropDownMenuItem>
     </>
   );
 }
@@ -26,16 +41,11 @@ export default function tableAppObject({ conid, database, pureName, schemaName }
   const key = title;
   const Icon = TableIcon;
   const onClick = ({ schemaName, pureName }) => {
-    openNewTab(setOpenedTabs, {
-      title: pureName,
-      icon: 'table2.svg',
-      tabComponent: 'TableDataTab',
-      props: {
-        schemaName,
-        pureName,
-        conid,
-        database,
-      },
+    openTableDetail(setOpenedTabs, 'TableDataTab', {
+      schemaName,
+      pureName,
+      conid,
+      database,
     });
   };
 
