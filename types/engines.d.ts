@@ -4,13 +4,7 @@ import { SqlDumper } from "./dumper";
 import { DatabaseInfo } from "./dbinfo";
 
 export interface EngineDriver {
-  connect({
-    server,
-    port,
-    user,
-    password,
-    database
-  }): any;
+  connect(driverModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   getVersion(pool: any): Promise<{ version: string }>;
   listDatabases(

@@ -1,0 +1,16 @@
+{
+  "name": "@dbgate/engines",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "devDependencies": {
+    "@types/dbgate": "file:../../types",
+    "@types/lodash": "^4.14.149",
+    "nodemon": "^2.0.2",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "lodash": "^4.17.15"
+  }
+}

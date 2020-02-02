@@ -1,5 +1,6 @@
-const engines = require('../engines');
+const engines = require('@dbgate/engines');
 const Select = require('../dmlf/select');
+const driverConnect = require('../utility/driverConnect')
 
 let systemConnection;
 let storedConnection;
@@ -15,7 +16,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = engines(storedConnection);
-  systemConnection = await driver.connect(storedConnection);
+  systemConnection = await driverConnect(driver, storedConnection);
   handleFullRefresh();
   setInterval(handleFullRefresh, 30 * 1000);
   for (const [resolve, reject] of afterConnectCallbacks) {

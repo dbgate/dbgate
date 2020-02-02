@@ -1,4 +1,5 @@
-const engines = require('../engines');
+const engines = require('@dbgate/engines');
+const driverConnect = require('../utility/driverConnect')
 
 let systemConnection;
 let storedConnection;
@@ -13,7 +14,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = engines(storedConnection);
-  systemConnection = await driver.connect(storedConnection);
+  systemConnection = await driverConnect(driver, storedConnection);
   handleRefreshDatabases();
   setInterval(handleRefreshDatabases, 30 * 1000);
 }

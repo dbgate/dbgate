@@ -1,9 +1,10 @@
-const engines = require('../engines');
+const engines = require('@dbgate/engines');
+const driverConnect = require('../utility/driverConnect')
 
 process.on('message', async connection => {
   try {
     const driver = engines(connection);
-    const conn = await driver.connect(connection);
+    const conn = await driverConnect(driver, connection);
     const res = await driver.getVersion(conn);
     process.send(res);
   } catch (e) {
