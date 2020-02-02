@@ -16,7 +16,6 @@
     "nedb-promises": "^4.0.1",
     "pg": "^7.17.0",
     "socket.io": "^2.3.0",
-    "@dbgate/lib": "file:../lib",
     "uuid": "^3.4.0"
   },
   "scripts": {
@@ -26,6 +25,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.149",
     "nodemon": "^2.0.2",
-    "typescript": "^3.7.4"
+    "typescript": "^3.7.4",
+    "@types/dbgate": "file:../lib"
   }
 }

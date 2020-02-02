@@ -15,7 +15,7 @@ const WhitePage = styled.div`
 `;
 
 export default function TableStructureTab({ conid, database, schemaName, pureName }) {
-  /** @type {import('@dbgate/lib').TableInfo} */
+  /** @type {import('dbgate').TableInfo} */
   const tableInfo = useFetch({
     url: 'tables/table-info',
     params: { conid, database, schemaName, pureName },
