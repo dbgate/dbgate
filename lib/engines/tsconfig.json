@@ -5,6 +5,11 @@
         "checkJs": true,
         "noEmit": true,
         "moduleResolution": "node",
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext"
+          ],
     },
     "include": [
         "src"
