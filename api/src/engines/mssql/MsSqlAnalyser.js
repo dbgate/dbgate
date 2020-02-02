@@ -36,8 +36,8 @@ class MsSqlAnalyser extends DatabaseAnalayser {
         .filter(col => col.objectId == table.objectId)
         .map(({ isNullable, isIdentity, ...col }) => ({
           ...col,
-          notNull: isNullable != 'True',
-          autoIncrement: isIdentity == 'True',
+          notNull: !isNullable,
+          autoIncrement: !!isIdentity,
         })),
     }));
   }

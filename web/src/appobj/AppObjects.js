@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React from 'react';
 import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
@@ -12,11 +14,16 @@ const AppObjectDiv = styled.div`
   white-space: nowrap;
 `;
 
+const AppObjectSpan = styled.span`
+  white-space: nowrap;
+  font-weight: ${props => (props.isBold ? 'bold' : 'normal')};
+`;
+
 const IconWrap = styled.span`
   margin-right: 10px;
 `;
 
-export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick }) {
+export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick, isBold, component = 'div' }) {
   const setOpenedTabs = useSetOpenedTabs();
 
   const handleContextMenu = event => {
@@ -26,18 +33,20 @@ export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick }) 
     showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} setOpenedTabs={setOpenedTabs} />);
   };
 
+  const Component = component == 'div' ? AppObjectDiv : AppObjectSpan;
+
   return (
-    <AppObjectDiv onContextMenu={handleContextMenu} onClick={onClick ? () => onClick(data) : undefined}>
+    <Component onContextMenu={handleContextMenu} onClick={onClick ? () => onClick(data) : undefined} isBold={isBold}>
       <IconWrap>
         <Icon />
       </IconWrap>
       {title}
-    </AppObjectDiv>
+    </Component>
   );
 }
 
-export function AppObjectControl({ data, makeAppObj }) {
+export function AppObjectControl({ data, makeAppObj, component = 'div' }) {
   const setOpenedTabs = useSetOpenedTabs();
   const appobj = makeAppObj(data, { setOpenedTabs });
-  return <AppObjectCore {...appobj} data={data} makeAppObj={makeAppObj} />;
+  return <AppObjectCore {...appobj} data={data} makeAppObj={makeAppObj} component={component} />;
 }

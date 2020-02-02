@@ -2,7 +2,9 @@ import React from 'react';
 import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
 import theme from '../theme';
-import TableControl from './TableControl';
+import TableControl, { TableColumn } from './TableControl';
+import { AppObjectControl } from '../appobj/AppObjects';
+import columnAppObject from '../appobj/columnAppObject';
 
 const ObjectListWrapper = styled.div`
   margin-bottom: 20px;
@@ -34,7 +36,14 @@ export default function ObjectListControl({ collection = [], title, showIfEmpty 
         <ObjectListHeaderTitle>{title}</ObjectListHeaderTitle>
       </ObjectListHeader>
       <ObjectListBody>
-        <TableControl rows={collection}>{children}</TableControl>
+        <TableControl rows={collection}>
+          <TableColumn
+            fieldName="displayName"
+            header="Name"
+            formatter={col => <AppObjectControl data={col} makeAppObj={columnAppObject} component="span" />}
+          />
+          {children}
+        </TableControl>
       </ObjectListBody>
     </ObjectListWrapper>
   );

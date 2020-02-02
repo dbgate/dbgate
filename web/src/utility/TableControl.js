@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
 import theme from '../theme';
@@ -21,7 +22,7 @@ const TableBodyCell = styled.td`
   padding: 5px;
 `;
 
-export function TableColumn({ fieldName, header, sortable, formatter = undefined }) {
+export function TableColumn({ fieldName, header, sortable = false, formatter = undefined }) {
   return <></>;
 }
 
@@ -32,8 +33,10 @@ function format(row, col) {
 }
 
 export default function TableControl({ rows = [], children }) {
-  const columns = (children instanceof Array ? children : [children])
-    .filter(child => child != null)
+  console.log('children', children);
+
+  const columns = (children instanceof Array ? _.flatten(children) : [children])
+    .filter(child => child && child.props && child.props.fieldName)
     .map(child => child.props);
 
   return (
