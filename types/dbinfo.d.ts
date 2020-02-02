@@ -8,7 +8,7 @@ export interface ColumnReference {
   refColumnName?: string;
 }
 
-export interface ConstraintInfo {
+export interface ConstraintInfo extends NamedObjectInfo {
   constraintName: string;
   constraintType: string;
 }
@@ -44,6 +44,7 @@ export interface TableInfo extends NamedObjectInfo {
   columns: ColumnInfo[];
   primaryKey?: PrimaryKeyInfo;
   foreignKeys: ForeignKeyInfo[];
+  dependencies?: ForeignKeyInfo[];
 }
 export interface DatabaseInfo {
   tables: TableInfo[];

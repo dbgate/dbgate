@@ -16,7 +16,7 @@ function extractPrimaryKeys(table, pkColumns) {
   const filtered = pkColumns.filter(byTableFilter(table));
   if (filtered.length == 0) return undefined;
   return {
-    constraintName: filtered[0].constraintName,
+    ..._.pick(filtered[0], ['constraintName', 'schemaName', 'pureName']),
     constraintType: 'primaryKey',
     columns: filtered.map(fp.pick('columnName')),
   };
@@ -27,7 +27,15 @@ function extractForeignKeys(table, fkColumns) {
   return _.keys(grouped).map(constraintName => ({
     constraintName,
     constraintType: 'foreignKey',
-    ..._.pick(fkColumns[0], ['refSchemaName', 'refTableName', 'updateAction', 'deleteAction']),
+    ..._.pick(grouped[constraintName][0], [
+      'constraintName',
+      'schemaName',
+      'pureName',
+      'refSchemaName',
+      'refTableName',
+      'updateAction',
+      'deleteAction',
+    ]),
     columns: grouped[constraintName].map(fp.pick(['columnName', 'refColumnName'])),
   }));
 }

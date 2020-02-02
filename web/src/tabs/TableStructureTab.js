@@ -24,7 +24,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
     params: { conid, database, schemaName, pureName },
   });
   if (!tableInfo) return null;
-  const { columns, primaryKey, foreignKeys } = tableInfo;
+  const { columns, primaryKey, foreignKeys, dependencies } = tableInfo;
   return (
     <WhitePage>
       <ObjectListControl
@@ -94,6 +94,22 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
           formatter={row => row.columns.map(x => x.columnName).join(', ')}
         />
         <TableColumn fieldName="refTable" header="Referenced table" formatter={row => row.refTableName} />
+        <TableColumn
+          fieldName="refColumns"
+          header="Referenced columns"
+          formatter={row => row.columns.map(x => x.refColumnName).join(', ')}
+        />
+        <TableColumn fieldName="updateAction" header="ON UPDATE" />
+        <TableColumn fieldName="deleteAction" header="ON DELETE" />
+      </ObjectListControl>
+
+      <ObjectListControl collection={dependencies} makeAppObj={constraintAppObject} title="Dependencies">
+        <TableColumn
+          fieldName="baseColumns"
+          header="Base columns"
+          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+        />
+        <TableColumn fieldName="baseTable" header="Base table" formatter={row => row.pureName} />
         <TableColumn
           fieldName="refColumns"
           header="Referenced columns"

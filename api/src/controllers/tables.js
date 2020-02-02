@@ -13,6 +13,10 @@ module.exports = {
   async tableInfo({ conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const table = opened.structure.tables.find(x => x.pureName == pureName && x.schemaName == schemaName);
-    return table;
+    const allForeignKeys = _.flatten(opened.structure.tables.map(x => x.foreignKeys));
+    return {
+      ...table,
+      dependencies: allForeignKeys.filter(x => x.refSchemaName == schemaName && x.refTableName == pureName),
+    };
   },
 };
