@@ -28,10 +28,14 @@ function Menu({ data, makeAppObj, setOpenedTabs }) {
   const handleOpenStructure = () => {
     openTableDetail(setOpenedTabs, 'TableStructureTab', data);
   };
+  const handleOpenCreateScript = () => {
+    openTableDetail(setOpenedTabs, 'TableCreateScriptTab', data);
+  };
   return (
     <>
       <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
       <DropDownMenuItem onClick={handleOpenStructure}>Open structure</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenCreateScript}>Create SQL</DropDownMenuItem>
     </>
   );
 }
