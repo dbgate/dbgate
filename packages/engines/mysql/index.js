@@ -11,8 +11,8 @@ const dialect = {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
-  async connect({ mysql }, { server, port, user, password, database }) {
-    const connection = mysql.createConnection({
+  async connect(nativeModules, { server, port, user, password, database }) {
+    const connection = nativeModules.mysql.createConnection({
       host: server,
       port,
       user,
@@ -20,6 +20,7 @@ const driver = {
       database
     });
     connection._database_name = database;
+    connection._nativeModules = nativeModules;
     return connection;
   },
   async query(connection, sql) {

@@ -12,14 +12,15 @@ const dialect = {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
-  async connect({ mssql }, { server, port, user, password, database }) {
-    const pool = await mssql.connect({
+  async connect(nativeModules, { server, port, user, password, database }) {
+    const pool = await nativeModules.mssql.connect({
       server,
       port,
       user,
       password,
       database
     });
+    pool._nativeModules = nativeModules;
     return pool;
   },
   async query(pool, sql) {

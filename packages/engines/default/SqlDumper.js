@@ -8,8 +8,8 @@ class SqlDumper {
   putRaw(text) {
     this.s += text;
   }
-  putCmd(text) {
-    this.putRaw(text);
+  putCmd(format, ...args) {
+    this.put(format, ...args);
     this.putRaw(';\n');
   }
   putFormattedValue(c, value) {

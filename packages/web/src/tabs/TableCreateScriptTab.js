@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import theme from '../theme';
 import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
+import engines from '@dbgate/engines';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -23,6 +24,11 @@ export default function TableCreateScriptTab({ conid, database, schemaName, pure
     params: { conid, database, schemaName, pureName },
   });
 
+  /** @type {import('@dbgate/types').EngineDriver} */
+  const driver = engines('mssql');
+  const dumper = driver.createDumper();
+  dumper.putCmd('^select * ^from %f', { schemaName, pureName });
+
   return (
     <Wrapper ref={containerRef}>
       <AceEditor
@@ -31,7 +37,7 @@ export default function TableCreateScriptTab({ conid, database, schemaName, pure
         // onChange={onChange}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{ $blockScrolling: true }}
-        value={sql}
+        value={dumper.s}
         readOnly
         fontSize="11pt"
         width={`${width}px`}

@@ -11,9 +11,10 @@ const dialect = {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
-  async connect({pg}, { server, port, user, password, database }) {
-    const client = new pg.Client({ host: server, port, user, password, database: database || 'postgres' });
+  async connect(nativeModules, { server, port, user, password, database }) {
+    const client = new nativeModules.pg.Client({ host: server, port, user, password, database: database || 'postgres' });
     await client.connect();
+    client._nativeModules = nativeModules;
     return client;
   },
   async query(client, sql) {

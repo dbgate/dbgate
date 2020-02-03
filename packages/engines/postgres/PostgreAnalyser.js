@@ -1,13 +1,14 @@
-const fs = require('fs-extra');
-const fp = require('lodash/fp');
-const path = require('path');
-const _ = require('lodash');
+const fp = require("lodash/fp");
+const _ = require("lodash");
 
-const DatabaseAnalayser = require('../default/DatabaseAnalyser');
+const DatabaseAnalayser = require("../default/DatabaseAnalyser");
 
 /** @returns {Promise<string>} */
-async function loadQuery(name) {
-  return await fs.readFile(path.join(__dirname, name), 'utf-8');
+async function loadQuery(pool, name) {
+  return await pool._nativeModules.fs.readFile(
+    pool._nativeModules.path.join(__dirname, name),
+    "utf-8"
+  );
 }
 
 class MySqlAnalyser extends DatabaseAnalayser {
@@ -23,25 +24,34 @@ class MySqlAnalyser extends DatabaseAnalayser {
     functions = false,
     triggers = false
   ) {
-    let res = await loadQuery(resFileName);
-    res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
+    let res = await loadQuery(this.pool, resFileName);
+    res = res.replace("=[OBJECT_ID_CONDITION]", " is not null");
     return res;
   }
   async runAnalysis() {
-    const tables = await this.driver.query(this.pool, await this.createQuery('table_modifications.psql'));
-    const columns = await this.driver.query(this.pool, await this.createQuery('columns.psql'));
+    const tables = await this.driver.query(
+      this.pool,
+      await this.createQuery("table_modifications.psql")
+    );
+    const columns = await this.driver.query(
+      this.pool,
+      await this.createQuery("columns.psql")
+    );
     //   const pkColumns = await this.driver.query(this.pool, await this.createQuery('primary_keys.sql'));
     //   const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreign_keys.sql'));
 
     this.result.tables = tables.rows.map(table => ({
       ...table,
       columns: columns.rows
-        .filter(col => col.pureName == table.pureName && col.schemaName == table.schemaName)
+        .filter(
+          col =>
+            col.pureName == table.pureName && col.schemaName == table.schemaName
+        )
         .map(({ isNullable, ...col }) => ({
           ...col,
-          notNull: !isNullable,
+          notNull: !isNullable
         })),
-      foreignKeys: [],
+      foreignKeys: []
       // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
       // foreignKeys: extractForeignKeys(table, fkColumns.rows),
     }));

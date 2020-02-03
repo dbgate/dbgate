@@ -10,8 +10,6 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "fs-extra": "^8.1.0",
-    "lodash": "^4.17.15",
-    "path": "^0.12.7"
+    "lodash": "^4.17.15"
   }
 }

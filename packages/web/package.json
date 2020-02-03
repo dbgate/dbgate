@@ -21,7 +21,8 @@
     "resize-observer-polyfill": "^1.5.1",
     "socket.io-client": "^2.3.0",
     "styled-components": "^4.4.1",
-    "uuid": "^3.4.0"
+    "uuid": "^3.4.0",
+    "@dbgate/engines": "^0.1.0"
   },
   "scripts": {
     "start": "cross-env PORT=5000 react-scripts start",
