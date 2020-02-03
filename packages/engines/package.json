@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
+  "typings": "./index.d.ts",
   "devDependencies": {
     "@dbgate/types": "^0.1.0",
     "@types/lodash": "^4.14.149",
