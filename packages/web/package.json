@@ -1,5 +1,5 @@
 {
-  "name": "dbgate-web",
+  "name": "@dbgate/web",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
-    "@types/dbgate": "file:../types",
+    "@dbgate/types": "^0.1.0",
     "@types/react": "^16.9.17",
     "@types/styled-components": "^4.4.2",
     "typescript": "^3.7.4"

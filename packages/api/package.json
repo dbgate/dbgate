@@ -1,5 +1,5 @@
 {
-  "name": "dbgate-api",
+  "name": "@dbgate/api",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -17,7 +17,7 @@
     "pg": "^7.17.0",
     "socket.io": "^2.3.0",
     "uuid": "^3.4.0",
-    "@dbgate/engines": "file:../lib/engines"
+    "@dbgate/engines": "^0.1.0"
   },
   "scripts": {
     "start": "nodemon src/index.js",
@@ -27,6 +27,6 @@
     "@types/lodash": "^4.14.149",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.4",
-    "@types/dbgate": "file:../types"
+    "@dbgate/types": "^0.1.0"
   }
 }

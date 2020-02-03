@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "@types/dbgate",
+  "name": "@dbgate/types",
   "types": "index.d.ts",
   "main": "",
   "typeScriptVersion": "2.8"
