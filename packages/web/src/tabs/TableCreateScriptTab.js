@@ -17,7 +17,7 @@ export default function TableCreateScriptTab({ conid, database, schemaName, pure
   const sql = `SELECT * FROM MOJE`;
   const [containerRef, { height, width }] = useDimensions();
 
-  /** @type {import('dbgate').TableInfo} */
+  /** @type {import('@dbgate/types').TableInfo} */
   const tableInfo = useFetch({
     url: 'tables/table-info',
     params: { conid, database, schemaName, pureName },

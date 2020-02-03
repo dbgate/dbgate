@@ -7,13 +7,13 @@ import axios from '../utility/axios';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
 
-/** @param columnProps {import('dbgate').ColumnInfo} */
+/** @param columnProps {import('@dbgate/types').ColumnInfo} */
 function getColumnIcon(columnProps) {
   if (columnProps.autoIncrement) return SequenceIcon;
   return ColumnIcon;
 }
 
-/** @param columnProps {import('dbgate').ColumnInfo} */
+/** @param columnProps {import('@dbgate/types').ColumnInfo} */
 export default function columnAppObject(columnProps, { setOpenedTabs }) {
   const title = columnProps.columnName;
   const key = title;

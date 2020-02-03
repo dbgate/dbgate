@@ -1,7 +1,7 @@
 const MySqlAnalyser = require("./MySqlAnalyser");
 const MySqlDumper = require("./MySqlDumper");
 
-/** @type {import('dbgate').SqlDialect} */
+/** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
   quoteIdentifier(s) {
@@ -9,7 +9,7 @@ const dialect = {
   }
 };
 
-/** @type {import('dbgate').EngineDriver} */
+/** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
   async connect({ mysql }, { server, port, user, password, database }) {
     const connection = mysql.createConnection({

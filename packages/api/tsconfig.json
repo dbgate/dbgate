@@ -5,6 +5,7 @@
         "checkJs": true,
         "noEmit": true,
         "moduleResolution": "node",
+        "skipLibCheck": true,
     },
     "include": [
         "src"

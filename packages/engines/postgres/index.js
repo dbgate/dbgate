@@ -1,7 +1,7 @@
 const PostgreAnalyser = require('./PostgreAnalyser');
 const PostgreDumper = require('./PostgreDumper');
 
-/** @type {import('dbgate').SqlDialect} */
+/** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
   quoteIdentifier(s) {
@@ -9,7 +9,7 @@ const dialect = {
   },
 };
 
-/** @type {import('dbgate').EngineDriver} */
+/** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
   async connect({pg}, { server, port, user, password, database }) {
     const client = new pg.Client({ host: server, port, user, password, database: database || 'postgres' });

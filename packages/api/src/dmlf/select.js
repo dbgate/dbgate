@@ -5,15 +5,15 @@ class Select extends Command {
     super();
     /** @type {number} */
     this.topRecords = undefined;
-    /** @type {import('dbgate').NamedObjectInfo} */
+    /** @type {import('@dbgate/types').NamedObjectInfo} */
     this.from = undefined;
-    /** @type {import('dbgate').RangeDefinition} */
+    /** @type {import('@dbgate/types').RangeDefinition} */
     this.range = undefined;
     this.distinct = false;
     this.selectAll = false;
   }
 
-  /** @param dumper {import('dbgate').SqlDumper}  */
+  /** @param dumper {import('@dbgate/types').SqlDumper}  */
   dumpSql(dumper) {
     dumper.put('^select ');
     if (this.topRecords) {

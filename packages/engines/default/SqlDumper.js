@@ -1,5 +1,5 @@
 class SqlDumper {
-  /** @param driver {import('dbgate').EngineDriver} */
+  /** @param driver {import('@dbgate/types').EngineDriver} */
   constructor(driver) {
     this.s = '';
     this.driver = driver;

@@ -2,7 +2,7 @@ const _ = require("lodash");
 const MsSqlAnalyser = require("./MsSqlAnalyser");
 const MsSqlDumper = require("./MsSqlDumper");
 
-/** @type {import('dbgate').SqlDialect} */
+/** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   limitSelect: true,
   quoteIdentifier(s) {
@@ -10,7 +10,7 @@ const dialect = {
   }
 };
 
-/** @type {import('dbgate').EngineDriver} */
+/** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
   async connect({ mssql }, { server, port, user, password, database }) {
     const pool = await mssql.connect({

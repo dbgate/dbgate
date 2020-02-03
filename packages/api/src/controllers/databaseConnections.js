@@ -6,7 +6,7 @@ const { fork } = require('child_process');
 const DatabaseAnalyser = require('@dbgate/engines/default/DatabaseAnalyser');
 
 module.exports = {
-  /** @type {import('dbgate').OpenedDatabaseConnection[]} */
+  /** @type {import('@dbgate/types').OpenedDatabaseConnection[]} */
   opened: [],
   requests: {},
 
@@ -48,7 +48,7 @@ module.exports = {
     return newOpened;
   },
 
-  /** @param {import('dbgate').OpenedDatabaseConnection} conn */
+  /** @param {import('@dbgate/types').OpenedDatabaseConnection} conn */
   async sendRequest(conn, message) {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {

@@ -21,10 +21,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    // doesn't work
-    "types": [
-      "dbgate"
-    ]
   },
   "include": [
     "src"
