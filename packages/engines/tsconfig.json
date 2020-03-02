@@ -4,7 +4,9 @@
         "allowJs": true,
         "checkJs": true,
         "noEmit": true,
-        "moduleResolution": "node",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+            "moduleResolution": "node",
         "lib": [
             "dom",
             "dom.iterable",

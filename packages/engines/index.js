@@ -9,7 +9,6 @@ const drivers = {
   postgres
 };
 
-/** @type {import('@dbgate/types').EngineDriver} */
 function getDriver(connection) {
   if (_.isString(connection)) {
     return drivers[connection];
