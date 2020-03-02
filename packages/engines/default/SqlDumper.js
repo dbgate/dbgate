@@ -40,6 +40,11 @@ class SqlDumper {
         break;
     }
   }
+  putFormattedList(c, collection) {
+    this.putCollection(", ", collection, item =>
+      this.putFormattedValue(c, item)
+    );
+  }
   /** @param format {string} */
   put(format, ...args) {
     let i = 0;
@@ -58,7 +63,20 @@ class SqlDumper {
         case "%":
           c = format[i];
           i++;
-          this.putFormattedValue(c, args[argIndex]);
+          switch (c) {
+            case "%":
+              this.putRaw("%");
+              break;
+            case ",":
+              c = format[i];
+              i++;
+              this.putFormattedList(c, args[argIndex]);
+              break;
+            default:
+              this.putFormattedValue(c, args[argIndex]);
+              break;
+          }
+
           argIndex++;
           break;
         case "&":
@@ -156,29 +174,20 @@ class SqlDumper {
   /** @param table {import('@dbgate/types').TableInfo} */
   createTable(table) {
     this.put("^create ^table %f ( &>&n", table);
-    this.putCollection(", &n", table.columns, col => {
+    this.putCollection(",&n", table.columns, col => {
       this.put("%i", col.columnName);
       this.columnDefinition(col);
     });
-    // bool first = true;
-    // _primaryKeyWrittenInCreateTable = false;
-    // foreach (var col in table.Columns)
-    // {
-    //     if (!first) Put(", &n");
-    //     first = false;
-    //     Put("%i ", col.Name);
-    //     ColumnDefinition(col, true, true, true);
-    // }
-    // if (table.PrimaryKey != null && !_primaryKeyWrittenInCreateTable)
-    // {
-    //     if (!first) Put(", &n");
-    //     first = false;
-    //     if (table.PrimaryKey.ConstraintName != null)
-    //     {
-    //         Put("^constraint %i", table.PrimaryKey.ConstraintName);
-    //     }
-    //     Put(" ^primary ^key (%,i)", table.PrimaryKey.Columns);
-    // }
+    if (table.primaryKey) {
+      this.put(",&n");
+      if (table.primaryKey.constraintName) {
+        this.put("^constraint %i", table.primaryKey.constraintName);
+      }
+      this.put(
+        " ^primary ^key (%,i)",
+        table.primaryKey.columns.map(x => x.columnName)
+      );
+    }
     // foreach (var cnt in table.ForeignKeys)
     // {
     //     if (!first) Put(", &n");

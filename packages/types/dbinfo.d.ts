@@ -14,7 +14,7 @@ export interface ConstraintInfo extends NamedObjectInfo {
 }
 
 export interface ColumnsConstraintInfo extends ConstraintInfo {
-  columns: ConstraintInfo[];
+  columns: ColumnReference[];
 }
 
 export interface PrimaryKeyInfo extends ColumnsConstraintInfo {}
