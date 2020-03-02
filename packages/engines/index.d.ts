@@ -1,5 +1,7 @@
 import types from "@dbgate/types";
 
-export default function getDriver(
+declare function getDriver(
   connection: string | { engine: string }
 ): types.EngineDriver;
+
+export = getDriver;
