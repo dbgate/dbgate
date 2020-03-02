@@ -7,6 +7,7 @@ import ObjectListControl from '../utility/ObjectListControl';
 import { TableColumn } from '../utility/TableControl';
 import columnAppObject from '../appobj/columnAppObject';
 import constraintAppObject from '../appobj/constraintAppObject';
+import useTableInfo from '../utility/useTableInfo';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -18,11 +19,7 @@ const WhitePage = styled.div`
 `;
 
 export default function TableStructureTab({ conid, database, schemaName, pureName }) {
-  /** @type {import('@dbgate/types').TableInfo} */
-  const tableInfo = useFetch({
-    url: 'tables/table-info',
-    params: { conid, database, schemaName, pureName },
-  });
+  const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   if (!tableInfo) return null;
   const { columns, primaryKey, foreignKeys, dependencies } = tableInfo;
   return (
