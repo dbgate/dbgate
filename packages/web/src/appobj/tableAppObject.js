@@ -6,10 +6,16 @@ import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
+import getConnectionInfo from '../utility/getConnectionInfo';
+import fullDisplayName from '../utility/fullDisplayName';
 
-function openTableDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
+async function openTableDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
+  const connection = await getConnectionInfo(conid);
+  const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({schemaName, pureName})}`;
+
   openNewTab(setOpenedTabs, {
     title: pureName,
+    tooltip,
     icon: 'table2.svg',
     tabComponent,
     props: {

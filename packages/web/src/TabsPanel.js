@@ -47,11 +47,17 @@ export default function TabsPanel() {
       setOpenedTabs(files => files.filter(x => x.tabid != tabid));
     }
   };
+  console.log(
+    't',
+    tabs.map(x => x.tooltip)
+  );
+
   return (
     <>
       {tabs.map(tab => (
         <FileTabItem
           {...tab}
+          title={tab.tooltip}
           key={tab.tabid}
           onClick={() => handleTabClick(tab.tabid)}
           onMouseUp={e => handleMouseUp(e, tab.tabid)}

@@ -6,6 +6,16 @@ export interface OpenedDatabaseConnection {
   structure: DatabaseInfo;
   subprocess: ChildProcess;
 }
+
+export interface StoredConnection {
+  engine: string;
+  server: string;
+  port?: number;
+  user: string;
+  password: string;
+  displayName: string;
+}
+
 export * from "./engines";
 export * from "./dbinfo";
 export * from "./query";
