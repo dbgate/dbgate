@@ -28,6 +28,11 @@ class SqlDumper {
           this.putRaw(this.dialect.quoteIdentifier(value));
         }
         break;
+      case "k":
+        {
+          this.putRaw(value.toUpperCase());
+        }
+        break;
       case "f":
         {
           const { schemaName, pureName } = value;
@@ -188,21 +193,19 @@ class SqlDumper {
         table.primaryKey.columns.map(x => x.columnName)
       );
     }
-    // foreach (var cnt in table.ForeignKeys)
-    // {
-    //     if (!first) Put(", &n");
-    //     first = false;
-    //     CreateForeignKeyCore(cnt);
-    // }
+    table.foreignKeys.forEach(fk => {
+      this.put(",&n");
+      this.createForeignKeyFore(fk);
+    });
     // foreach (var cnt in table.Uniques)
     // {
-    //     if (!first) Put(", &n");
+    //     if (!first) this.put(", &n");
     //     first = false;
     //     CreateUniqueCore(cnt);
     // }
     // foreach (var cnt in table.Checks)
     // {
-    //     if (!first) Put(", &n");
+    //     if (!first) this.put(", &n");
     //     first = false;
     //     CreateCheckCore(cnt);
     // }
@@ -212,6 +215,20 @@ class SqlDumper {
     // {
     //     CreateIndex(ix);
     // }
+  }
+
+  /** @param fk {import('@dbgate/types').ForeignKeyInfo} */
+  createForeignKeyFore(fk) {
+    if (fk.constraintName != null)
+      this.put("^constraint %i ", fk.constraintName);
+    this.put(
+      "^foreign ^key (%,i) ^references %f (%,i)",
+      fk.columns.map(x => x.columnName),
+      { schemaName: fk.refSchemaName, pureName: fk.refTableName },
+      fk.columns.map(x => x.refColumnName)
+    );
+    if (fk.deleteAction) this.put(" ^on ^delete %k", fk.deleteAction);
+    if (fk.updateAction) this.put(" ^on ^update %k", fk.updateAction);
   }
 }
 
