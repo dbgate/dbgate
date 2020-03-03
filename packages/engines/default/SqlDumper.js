@@ -130,7 +130,7 @@ class SqlDumper {
       if (column.isPersisted) this.put(" ^persisted");
       return;
     }
-    this.put("%k", column.dataType);
+    if (column.dataType) this.put("%k", column.dataType);
     if (column.autoIncrement) {
       this.autoIncrement();
     }
@@ -180,7 +180,7 @@ class SqlDumper {
   createTable(table) {
     this.put("^create ^table %f ( &>&n", table);
     this.putCollection(",&n", table.columns, col => {
-      this.put("%i", col.columnName);
+      this.put("%i ", col.columnName);
       this.columnDefinition(col);
     });
     if (table.primaryKey) {
