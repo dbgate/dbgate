@@ -1,7 +1,7 @@
-import Command from "./Command";
+import { Command } from "./Command";
 import { NamedObjectInfo, RangeDefinition, SqlDumper } from "@dbgate/types";
 
-class Select extends Command {
+export class Select extends Command {
   topRecords: number;
   from: NamedObjectInfo;
   range: RangeDefinition;
@@ -27,5 +27,3 @@ class Select extends Command {
     }
   }
 }
-
-export default Select;

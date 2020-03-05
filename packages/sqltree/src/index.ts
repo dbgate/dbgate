@@ -1,2 +1,2 @@
-export { default as Select } from "./Select";
-export { default as Command } from "./Command";
+export { Select } from "./Select";
+export { Command } from "./Command";

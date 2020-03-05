@@ -10,9 +10,10 @@ import engines from '@dbgate/engines';
 
 export default function TableDataTab({ conid, database, schemaName, pureName }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
+  const [config, setConfig] = React.useState({ hiddenColumns: [] });
   const connection = useConnectionInfo(conid);
   if (!tableInfo || !connection) return null;
-  const display = new TableGridDisplay(tableInfo, engines(connection));
+  const display = new TableGridDisplay(tableInfo, engines(connection), config, setConfig);
   return (
     <DataGrid
       // key={`${conid}, ${database}, ${schemaName}, ${pureName}`}

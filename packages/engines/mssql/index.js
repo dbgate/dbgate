@@ -18,7 +18,10 @@ const driver = {
       port,
       user,
       password,
-      database
+      database,
+      options: {
+        enableArithAbort: true
+      }
     });
     pool._nativeModules = nativeModules;
     return pool;

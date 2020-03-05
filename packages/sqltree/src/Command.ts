@@ -1,6 +1,6 @@
 import { EngineDriver, SqlDumper } from "@dbgate/types";
 
-class Command {
+export class Command {
   toSql(driver: EngineDriver) {
     const dumper = driver.createDumper();
     this.dumpSql(dumper);
@@ -9,5 +9,3 @@ class Command {
 
   dumpSql(dumper: SqlDumper) {}
 }
-
-export default Command;
