@@ -5,6 +5,8 @@ const MsSqlDumper = require("./MsSqlDumper");
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   limitSelect: true,
+  rangeSelect: true,
+  offsetFetchRangeSyntax: true,
   quoteIdentifier(s) {
     return `[${s}]`;
   }

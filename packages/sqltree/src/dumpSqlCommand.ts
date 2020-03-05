@@ -18,15 +18,32 @@ export function dumpSqlSelect(dmp: SqlDumper, select: Select) {
     if (select.selectAll) dmp.put('&n,');
     dmp.put('&>&n');
     dmp.putCollection(',&n', select.columns, fld => {
-      dumpSqlExpression(dmp, fld.expr);
+      dumpSqlExpression(dmp, fld);
       if (fld.alias) dmp.put(' %i', fld.alias);
     });
     dmp.put('&n&<');
   }
   dmp.put('^from ');
   dumpSqlFromDefinition(dmp, select.from);
+  if (select.groupBy) {
+    dmp.put('&ngroup ^by ');
+    dmp.putCollection(', ', select.groupBy, expr => dumpSqlExpression(dmp, expr));
+    dmp.put('&n');
+  }
+  if (select.orderBy) {
+    dmp.put('&n^order ^by ');
+    dmp.putCollection(', ', select.orderBy, expr => {
+      dumpSqlExpression(dmp, expr);
+      dmp.put(' %k', expr.direction);
+    });
+    dmp.put('&n');
+  }
   if (select.range) {
-    dmp.put('^limit %s ^offset %s ', select.range.limit, select.range.offset);
+    if (dmp.dialect.offsetFetchRangeSyntax) {
+      dmp.put('^offset %s ^rows ^fetch ^next %s ^rows ^only', select.range.offset, select.range.limit);
+    } else {
+      dmp.put('^limit %s ^offset %s ', select.range.limit, select.range.offset);
+    }
   }
 }
 

@@ -41,7 +41,7 @@ export function dumpSqlSourceRef(dmp: SqlDumper, source: Source) {
 
 export function dumpSqlRelation(dmp: SqlDumper, from: Relation) {
   dmp.put('&n %k ', from.joinType);
-  dumpSqlSourceDef(dmp, from.source);
+  dumpSqlSourceDef(dmp, from);
   if (from.conditions) {
     dmp.put(' ^on ');
     dmp.putCollection(' ^and ', from.conditions, cond => dumpSqlCondition(dmp, cond));
@@ -49,7 +49,7 @@ export function dumpSqlRelation(dmp: SqlDumper, from: Relation) {
 }
 
 export function dumpSqlFromDefinition(dmp: SqlDumper, from: FromDefinition) {
-  dumpSqlSourceDef(dmp, from.source);
+  dumpSqlSourceDef(dmp, from);
   dmp.put(' ');
   if (from.relations) from.relations.forEach(rel => dumpSqlRelation(dmp, rel));
 }

@@ -13,6 +13,8 @@ export interface Select {
   range?: RangeDefinition;
   distinct?: boolean;
   selectAll?: boolean;
+  orderBy?: OrderByExpression[];
+  groupBy?: Expression[];
 }
 
 export type Command = Select;
@@ -47,16 +49,11 @@ export interface Source {
 
 export type JoinType = 'LEFT JOIN' | 'INNER JOIN' | 'RIGHT JOIN';
 
-export interface Relation {
-  source: Source;
+export type Relation = Source & {
   conditions: Condition[];
   joinType: JoinType;
-}
-
-export interface FromDefinition {
-  source: Source;
-  relations?: Relation[];
-}
+};
+export type FromDefinition = Source & { relations?: Relation[] };
 
 // export interface Expression {
 //   exprType: "column" | "value" | "string" | "literal" | "count";
@@ -74,8 +71,6 @@ export interface ValueExpression {
 }
 
 export type Expression = ColumnRefExpression | ValueExpression;
+export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
-export interface ResultField {
-  expr: ValueExpression | ColumnRefExpression;
-  alias?: string;
-}
+export type ResultField = Expression & { alias?: string };

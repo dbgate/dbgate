@@ -1,5 +1,5 @@
 import GridDisplay from './GridDisplay';
-import { Select, treeToSql, dumpSqlSelect, createColumnResultField } from '@dbgate/sqltree';
+import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
 import GridConfig from './GridConfig';
 
@@ -15,20 +15,26 @@ export default class TableGridDisplay extends GridDisplay {
   }
 
   createSelect() {
+    const orderColumnName = this.table.columns[0].columnName;
     const select: Select = {
       commandType: 'select',
-      from: {
-        source: { name: this.table },
-      },
-      columns: this.table.columns.map(col => createColumnResultField(col.columnName)),
+      from: { name: this.table },
+      columns: this.table.columns.map(col => ({ exprType: 'column', ...col })),
+      orderBy: [
+        {
+          exprType: 'column',
+          columnName: orderColumnName,
+          direction: 'ASC',
+        },
+      ],
     };
     return select;
   }
 
   getPageQuery(offset: number, count: number) {
     const select = this.createSelect();
-    if (this.driver.dialect.limitSelect) select.topRecords = count;
     if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
+    else if (this.driver.dialect.limitSelect) select.topRecords = count;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }
