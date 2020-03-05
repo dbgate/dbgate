@@ -1,6 +1,7 @@
-import { Source } from "./types";
+import { Source, FromDefinition, Relation } from "./types";
 import { SqlDumper } from "@dbgate/types";
 import { dumpSqlSelect } from "./dumpSqlCommand";
+import { dumpSqlCondition } from "./dumpSqlCondition";
 
 export function dumpSqlSourceDef(dmp: SqlDumper, source: Source) {
   let sources = 0;
@@ -37,4 +38,21 @@ export function dumpSqlSourceRef(dmp: SqlDumper, source: Source) {
     return true;
   }
   return false;
+}
+
+export function dumpSqlRelation(dmp: SqlDumper, from: Relation) {
+  dmp.put("&n %k ", from.joinType);
+  dumpSqlSourceDef(dmp, from.source);
+  if (from.conditions) {
+    dmp.put(" ^on ");
+    dmp.putCollection(" ^and ", from.conditions, cond =>
+      dumpSqlCondition(dmp, cond)
+    );
+  }
+}
+
+export function dumpSqlFromDefinition(dmp: SqlDumper, from: FromDefinition) {
+  dumpSqlSourceDef(dmp, from.source);
+  dmp.put(" ");
+  if (from.relations) from.relations.forEach(rel => dumpSqlRelation(dmp, rel));
 }

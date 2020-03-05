@@ -16,8 +16,15 @@ export default class TableGridDisplay extends GridDisplay {
   createSelect() {
     const select: Select = {
       commandType: "select",
-      from: this.table,
-      selectAll: true
+      from: {
+        source: { name: this.table }
+      },
+      columns: this.table.columns.map(col => ({
+        expr: {
+          exprType: "column",
+          columnName: col.columnName
+        }
+      }))
     };
     return select;
   }

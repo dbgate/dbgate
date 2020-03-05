@@ -1,27 +1,33 @@
 import { NamedObjectInfo, RangeDefinition } from "@dbgate/types";
 
-export interface Command {
+// export interface Command {
+// }
+
+export interface Select {
   commandType: "select";
-}
 
-export interface Select extends Command {
-  from: NamedObjectInfo;
+  from: FromDefinition;
 
+  columns?: ResultField[];
   topRecords?: number;
   range?: RangeDefinition;
   distinct?: boolean;
   selectAll?: boolean;
 }
 
-export interface Condition {
-  conditionType: "eq" | "not";
-}
+export type Command = Select;
 
-export interface UnaryCondition extends Condition {
+// export interface Condition {
+//   conditionType: "eq" | "not" | "binary";
+// }
+
+export interface UnaryCondition {
   expr: Expression;
 }
 
-export interface BinaryCondition extends Condition {
+export interface BinaryCondition {
+  operator: "=" | "!=" | "<" | ">" | ">=" | "<=";
+  conditionType: "binary";
   left: Expression;
   right: Expression;
 }
@@ -30,11 +36,13 @@ export interface NotCondition extends UnaryCondition {
   conditionType: "not";
 }
 
+export type Condition = BinaryCondition | NotCondition;
+
 export interface Source {
-  name: NamedObjectInfo;
-  alias: string;
-  subQuery: Select;
-  subQueryString: string;
+  name?: NamedObjectInfo;
+  alias?: string;
+  subQuery?: Select;
+  subQueryString?: string;
 }
 
 export type JoinType = "LEFT JOIN" | "INNER JOIN" | "RIGHT JOIN";
@@ -45,18 +53,29 @@ export interface Relation {
   joinType: JoinType;
 }
 
-export interface Expression {
-  exprType: "column" | "value" | "string" | "literal" | "count";
+export interface FromDefinition {
+  source: Source;
+  relations?: Relation[];
 }
 
-export interface ColumnRefExpression extends Expression {
+// export interface Expression {
+//   exprType: "column" | "value" | "string" | "literal" | "count";
+// }
+
+export interface ColumnRefExpression {
   exprType: "column";
   columnName: string;
-  source: Source;
+  source?: Source;
 }
 
-export interface ValueExpression extends Expression {
+export interface ValueExpression {
   exprType: "value";
   value: any;
 }
 
+export type Expression = ColumnRefExpression | ValueExpression;
+
+export interface ResultField {
+  expr: ValueExpression | ColumnRefExpression;
+  alias?: string;
+}
