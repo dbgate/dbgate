@@ -1,10 +1,10 @@
-import { NamedObjectInfo, RangeDefinition } from "@dbgate/types";
+import { NamedObjectInfo, RangeDefinition } from '@dbgate/types';
 
 // export interface Command {
 // }
 
 export interface Select {
-  commandType: "select";
+  commandType: 'select';
 
   from: FromDefinition;
 
@@ -26,14 +26,14 @@ export interface UnaryCondition {
 }
 
 export interface BinaryCondition {
-  operator: "=" | "!=" | "<" | ">" | ">=" | "<=";
-  conditionType: "binary";
+  operator: '=' | '!=' | '<' | '>' | '>=' | '<=';
+  conditionType: 'binary';
   left: Expression;
   right: Expression;
 }
 
 export interface NotCondition extends UnaryCondition {
-  conditionType: "not";
+  conditionType: 'not';
 }
 
 export type Condition = BinaryCondition | NotCondition;
@@ -45,7 +45,7 @@ export interface Source {
   subQueryString?: string;
 }
 
-export type JoinType = "LEFT JOIN" | "INNER JOIN" | "RIGHT JOIN";
+export type JoinType = 'LEFT JOIN' | 'INNER JOIN' | 'RIGHT JOIN';
 
 export interface Relation {
   source: Source;
@@ -63,13 +63,13 @@ export interface FromDefinition {
 // }
 
 export interface ColumnRefExpression {
-  exprType: "column";
+  exprType: 'column';
   columnName: string;
   source?: Source;
 }
 
 export interface ValueExpression {
-  exprType: "value";
+  exprType: 'value';
   value: any;
 }
 

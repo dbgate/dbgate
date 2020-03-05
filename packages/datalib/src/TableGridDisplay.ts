@@ -1,5 +1,10 @@
 import GridDisplay from "./GridDisplay";
-import { Select, treeToSql, dumpSqlSelect } from "@dbgate/sqltree";
+import {
+  Select,
+  treeToSql,
+  dumpSqlSelect,
+  createColumnResultField
+} from "@dbgate/sqltree";
 import { TableInfo, EngineDriver } from "@dbgate/types";
 import GridConfig from "./GridConfig";
 
@@ -19,12 +24,9 @@ export default class TableGridDisplay extends GridDisplay {
       from: {
         source: { name: this.table }
       },
-      columns: this.table.columns.map(col => ({
-        expr: {
-          exprType: "column",
-          columnName: col.columnName
-        }
-      }))
+      columns: this.table.columns.map(col =>
+        createColumnResultField(col.columnName)
+      )
     };
     return select;
   }
