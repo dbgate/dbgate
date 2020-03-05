@@ -1,12 +1,7 @@
-import GridDisplay from "./GridDisplay";
-import {
-  Select,
-  treeToSql,
-  dumpSqlSelect,
-  createColumnResultField
-} from "@dbgate/sqltree";
-import { TableInfo, EngineDriver } from "@dbgate/types";
-import GridConfig from "./GridConfig";
+import GridDisplay from './GridDisplay';
+import { Select, treeToSql, dumpSqlSelect, createColumnResultField } from '@dbgate/sqltree';
+import { TableInfo, EngineDriver } from '@dbgate/types';
+import GridConfig from './GridConfig';
 
 export default class TableGridDisplay extends GridDisplay {
   constructor(
@@ -16,17 +11,16 @@ export default class TableGridDisplay extends GridDisplay {
     setConfig: (configh: GridConfig) => void
   ) {
     super(config, setConfig);
+    this.columns = table.columns;
   }
 
   createSelect() {
     const select: Select = {
-      commandType: "select",
+      commandType: 'select',
       from: {
-        source: { name: this.table }
+        source: { name: this.table },
       },
-      columns: this.table.columns.map(col =>
-        createColumnResultField(col.columnName)
-      )
+      columns: this.table.columns.map(col => createColumnResultField(col.columnName)),
     };
     return select;
   }
@@ -34,8 +28,7 @@ export default class TableGridDisplay extends GridDisplay {
   getPageQuery(offset: number, count: number) {
     const select = this.createSelect();
     if (this.driver.dialect.limitSelect) select.topRecords = count;
-    if (this.driver.dialect.rangeSelect)
-      select.range = { offset: offset, limit: count };
+    if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }

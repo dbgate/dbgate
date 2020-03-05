@@ -5,6 +5,7 @@ import theme from '../theme';
 import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
 import useDimensions from '../utility/useDimensions';
 import { SeriesSizes } from './SeriesSizes';
+import axios from '../utility/axios';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -71,20 +72,71 @@ const TableBodyCell = styled.td`
  */
 export default function DataGrid(props) {
   const { conid, database, display } = props;
-  const sql = display.getPageQuery(0, 100);
+  const columns = display.columns;
 
-  console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
-
-  const data = useFetch({
-    url: 'database-connections/query-data',
-    method: 'post',
-    params: {
-      conid,
-      database,
-    },
-    data: { sql },
+  // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
+  const [loadProps, setLoadProps] = React.useState({
+    isLoading: false,
+    loadedRows: [],
+    isLoadedAll: false,
+    loadedTime: new Date().getTime(),
   });
-  const { rows, columns } = data || {};
+  const { isLoading, loadedRows, isLoadedAll, loadedTime } = loadProps;
+
+  const loadedTimeRef = React.useRef(0);
+
+  const loadNextData = async () => {
+    if (isLoading) return;
+    setLoadProps({
+      ...loadProps,
+      isLoading: true,
+    });
+    const loadStart = new Date().getTime();
+    loadedTimeRef.current = loadStart;
+
+    const sql = display.getPageQuery(loadedRows.length, 100);
+
+    let response = await axios.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql },
+    });
+    if (loadedTimeRef.current !== loadStart) {
+      // new load was dispatched
+      return;
+    }
+    // if (!_.isArray(nextRows)) {
+    //   console.log('Error loading data from server', nextRows);
+    //   nextRows = [];
+    // }
+    const { rows: nextRows } = response.data;
+    console.log('nextRows',nextRows)
+    const loadedInfo = {
+      loadedRows: [...loadedRows, ...nextRows],
+      loadedTime,
+      isLoadedAll: nextRows.length === 0,
+    };
+    setLoadProps({
+      ...loadProps,
+      isLoading: false,
+      ...loadedInfo,
+    });
+  };
+
+  // const data = useFetch({
+  //   url: 'database-connections/query-data',
+  //   method: 'post',
+  //   params: {
+  //     conid,
+  //     database,
+  //   },
+  //   data: { sql },
+  // });
+  // const { rows, columns } = data || {};
   const [firstVisibleRowScrollIndex, setFirstVisibleRowScrollIndex] = React.useState(0);
   const [firstVisibleColumnScrollIndex, setFirstVisibleColumnScrollIndex] = React.useState(0);
 
@@ -92,7 +144,7 @@ export default function DataGrid(props) {
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
 
-  const columnSizes = React.useMemo(() => countColumnSizes(), [data, containerWidth]);
+  const columnSizes = React.useMemo(() => countColumnSizes(), [loadedRows, containerWidth]);
 
   console.log('containerWidth', containerWidth);
 
@@ -104,8 +156,14 @@ export default function DataGrid(props) {
   //   const visibleRowCountUpperBound = 20;
   //   const visibleRowCountLowerBound = 20;
 
-  if (!columns || !rows) return null;
-  const rowCountNewIncluded = rows.length;
+  React.useEffect(() => {
+    if (!isLoadedAll && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length) {
+      loadNextData();
+    }
+  });
+
+  if (!loadedRows || !columns) return null;
+  const rowCountNewIncluded = loadedRows.length;
 
   const handleRowScroll = value => {
     setFirstVisibleRowScrollIndex(value);
@@ -121,9 +179,9 @@ export default function DataGrid(props) {
 
     //return this.context.measureText(txt).width;
     const columnSizes = new SeriesSizes();
-    if (!rows || !columns) return columnSizes;
+    if (!loadedRows || !columns) return columnSizes;
 
-    console.log('countColumnSizes', rows.length, containerWidth);
+    console.log('countColumnSizes', loadedRows.length, containerWidth);
 
     columnSizes.maxSize = (containerWidth * 2) / 3;
     columnSizes.count = columns.length;
@@ -139,7 +197,7 @@ export default function DataGrid(props) {
       // else context.font = "14px Helvetica";
       context.font = 'bold 14px Helvetica';
 
-      let text = column.name;
+      let text = column.columnName;
       let headerWidth = context.measureText(text).width + 32;
 
       // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
@@ -155,9 +213,9 @@ export default function DataGrid(props) {
     // if (headerWidth > this.rowHeaderWidth) this.rowHeaderWidth = headerWidth;
 
     context.font = '14px Helvetica';
-    for (let row of data.rows) {
+    for (let row of loadedRows) {
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        let colName = columns[colIndex].name;
+        let colName = columns[colIndex].columnName;
         let text = row[colName];
         let width = context.measureText(text).width + 8;
         // console.log('colName', colName, text, width);
@@ -188,6 +246,7 @@ export default function DataGrid(props) {
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
+  /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string})[]} */
   const realColumns = [];
 
   // frozen columns
@@ -226,25 +285,25 @@ export default function DataGrid(props) {
           <TableHeaderRow ref={headerRowRef}>
             {realColumns.map(col => (
               <TableHeaderCell
-                key={col.name}
+                key={col.columnName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
-                {col.name}
+                {col.columnName}
               </TableHeaderCell>
             ))}
           </TableHeaderRow>
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {rows
+          {loadedRows
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
               <TableBodyRow key={firstVisibleRowScrollIndex + index}>
                 {realColumns.map(col => (
                   <TableBodyCell
-                    key={col.name}
+                    key={col.columnName}
                     style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
                   >
-                    {row[col.name]}
+                    {row[col.columnName]}
                   </TableBodyCell>
                 ))}
               </TableBodyRow>
