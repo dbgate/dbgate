@@ -66,4 +66,12 @@ module.exports = {
       tables: _.sortBy(tables, x => `${x.schemaName}.${x.pureName}`),
     }; // .map(fp.pick(['tableName', 'schemaName']));
   },
+
+  queryData_meta: 'post',
+  async queryData({ conid, database, sql }) {
+    console.log(`Processing query, conid=${conid}, database=${database}, sql=${sql}`);
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
+    return res;
+  },
 };

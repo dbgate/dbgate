@@ -30,7 +30,9 @@ class SqlDumper {
         break;
       case "k":
         {
-          this.putRaw(value.toUpperCase());
+          if (value) {
+            this.putRaw(value.toUpperCase());
+          }
         }
         break;
       case "f":
@@ -46,6 +48,7 @@ class SqlDumper {
     }
   }
   putFormattedList(c, collection) {
+    if (!collection) return;
     this.putCollection(", ", collection, item =>
       this.putFormattedValue(c, item)
     );
@@ -130,7 +133,7 @@ class SqlDumper {
       if (column.isPersisted) this.put(" ^persisted");
       return;
     }
-    if (column.dataType) this.put("%k", column.dataType);
+    this.put("%k", column.dataType);
     if (column.autoIncrement) {
       this.autoIncrement();
     }

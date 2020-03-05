@@ -22,6 +22,8 @@
     "socket.io-client": "^2.3.0",
     "styled-components": "^4.4.1",
     "uuid": "^3.4.0",
+    "@dbgate/sqltree": "^0.1.0",
+    "@dbgate/datalib": "^0.1.0",
     "@dbgate/engines": "^0.1.0"
   },
   "scripts": {

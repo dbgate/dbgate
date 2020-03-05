@@ -63,10 +63,26 @@ const TableBodyCell = styled.td`
   overflow: hidden;
 `;
 
-export default function DataGrid({ params }) {
+/**
+ * @param {object} props
+ * @param {number} props.conid
+ * @param {string} props.database
+ * @param {import('@dbgate/datalib').GridDisplay} props.display
+ */
+export default function DataGrid(props) {
+  const { conid, database, display } = props;
+  const sql = display.getPageQuery(0, 100);
+
+  console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
+
   const data = useFetch({
-    url: 'tables/table-data',
-    params,
+    url: 'database-connections/query-data',
+    method: 'post',
+    params: {
+      conid,
+      database,
+    },
+    data: { sql },
   });
   const { rows, columns } = data || {};
   const [firstVisibleRowScrollIndex, setFirstVisibleRowScrollIndex] = React.useState(0);
@@ -116,21 +132,21 @@ export default function DataGrid({ params }) {
     columnSizes.setExtraordinaryIndexes([], []);
 
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
-        let column = columns[colIndex];
+      //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
+      let column = columns[colIndex];
 
-        // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
-        // else context.font = "14px Helvetica";
-        context.font = "bold 14px Helvetica";
+      // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
+      // else context.font = "14px Helvetica";
+      context.font = 'bold 14px Helvetica';
 
-        let text = column.name;
-        let headerWidth = context.measureText(text).width + 32;
+      let text = column.name;
+      let headerWidth = context.measureText(text).width + 32;
 
-        // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
-        // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
-        // if (this.getSortOrder(column.uniquePath)) headerWidth += 16;
+      // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
+      // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
+      // if (this.getSortOrder(column.uniquePath)) headerWidth += 16;
 
-        columnSizes.putSizeOverride(colIndex, headerWidth);
+      columnSizes.putSizeOverride(colIndex, headerWidth);
     }
 
     // let headerWidth = this.rowHeaderWidthDefault;

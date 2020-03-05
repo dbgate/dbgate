@@ -32,24 +32,23 @@ function waitConnected() {
   });
 }
 
-async function handleTableData({ msgid, schemaName, pureName }) {
+async function handleQueryData({ msgid, sql }) {
+  // const select = new Select();
+  // if (driver.dialect.limitSelect) select.topRecords = 100;
+  // if (driver.dialect.rangeSelect) select.range = { offset: 0, limit: 100 };
+  // select.from = { schemaName, pureName };
+  // select.selectAll = true;
+  // const sql = select.toSql(driver);
+
   await waitConnected();
   const driver = engines(storedConnection);
-
-  const select = new Select();
-  if (driver.dialect.limitSelect) select.topRecords = 100;
-  if (driver.dialect.rangeSelect) select.range = { offset: 0, limit: 100 };
-  select.from = { schemaName, pureName };
-  select.selectAll = true;
-  const sql = select.toSql(driver);
   const res = await driver.query(systemConnection, sql);
-
   process.send({ msgtype: 'response', msgid, ...res });
 }
 
 const messageHandlers = {
   connect: handleConnect,
-  tableData: handleTableData,
+  queryData: handleQueryData,
 };
 
 async function handleMessage({ msgtype, ...other }) {
