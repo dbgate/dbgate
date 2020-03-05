@@ -7,6 +7,7 @@
     "scripts": {
         "start:api": "yarn workspace @dbgate/api start",
         "start:web": "yarn workspace @dbgate/web start",
+        "start:sqltree": "yarn workspace @dbgate/sqltree start",
         "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
 
         "ts:api": "yarn workspace @dbgate/api ts",

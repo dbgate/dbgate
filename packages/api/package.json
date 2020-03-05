@@ -17,7 +17,8 @@
     "pg": "^7.17.0",
     "socket.io": "^2.3.0",
     "uuid": "^3.4.0",
-    "@dbgate/engines": "^0.1.0"
+    "@dbgate/engines": "^0.1.0",
+    "@dbgate/sqltree": "^0.1.0"
   },
   "scripts": {
     "start": "nodemon src/index.js",

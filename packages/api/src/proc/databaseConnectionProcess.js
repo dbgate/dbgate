@@ -1,6 +1,6 @@
 const engines = require('@dbgate/engines');
-const Select = require('../dmlf/select');
-const driverConnect = require('../utility/driverConnect')
+const { Select } = require('@dbgate/sqltree');
+const driverConnect = require('../utility/driverConnect');
 
 let systemConnection;
 let storedConnection;
