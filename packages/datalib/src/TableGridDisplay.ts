@@ -1,5 +1,5 @@
 import GridDisplay from "./GridDisplay";
-import { Select } from "@dbgate/sqltree";
+import { Select, treeToSql, dumpSqlSelect } from "@dbgate/sqltree";
 import { TableInfo, EngineDriver } from "@dbgate/types";
 import GridConfig from "./GridConfig";
 
@@ -14,9 +14,11 @@ export default class TableGridDisplay extends GridDisplay {
   }
 
   createSelect() {
-    const select = new Select();
-    select.from = this.table;
-    select.selectAll = true;
+    const select: Select = {
+      commandType: "select",
+      from: this.table,
+      selectAll: true
+    };
     return select;
   }
 
@@ -25,7 +27,7 @@ export default class TableGridDisplay extends GridDisplay {
     if (this.driver.dialect.limitSelect) select.topRecords = count;
     if (this.driver.dialect.rangeSelect)
       select.range = { offset: offset, limit: count };
-    const sql = select.toSql(this.driver);
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }
 }

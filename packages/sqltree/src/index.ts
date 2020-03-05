@@ -1,2 +1,3 @@
-export { Select } from "./Select";
-export { Command } from "./Command";
+export * from "./types";
+export * from "./dumpSqlCommand";
+export * from "./treeToSql";
