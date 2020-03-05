@@ -172,6 +172,7 @@ class SqlDumper {
    * @param {(col: T) => void} lambda
    */
   putCollection(delimiter, collection, lambda) {
+    if (!collection) return;
     let first = true;
     for (const item of collection) {
       if (!first) this.put(delimiter);
@@ -196,10 +197,12 @@ class SqlDumper {
         table.primaryKey.columns.map(x => x.columnName)
       );
     }
-    table.foreignKeys.forEach(fk => {
-      this.put(",&n");
-      this.createForeignKeyFore(fk);
-    });
+    if (table.foreignKeys) {
+      table.foreignKeys.forEach(fk => {
+        this.put(",&n");
+        this.createForeignKeyFore(fk);
+      });
+    }
     // foreach (var cnt in table.Uniques)
     // {
     //     if (!first) this.put(", &n");
