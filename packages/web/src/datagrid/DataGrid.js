@@ -14,7 +14,7 @@ const MainContainer = styled.div`
 
 const ColumnManagerContainer = styled.div`
   background-color: white;
-  padding-top: 5px;
+  overflow-y: scroll;
 `;
 
 const DataGridContainer = styled.div`

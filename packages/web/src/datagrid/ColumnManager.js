@@ -1,6 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
+import { filterName } from '@dbgate/datalib';
+
+const Wrapper = styled.div``;
 
 const Row = styled.div`
   margin-left: 5px;
@@ -11,21 +14,43 @@ const Row = styled.div`
   }
 `;
 
+const SearchBoxWrapper = styled.div`
+  display: flex;
+  margin-bottom: 5px;
+`;
+
+const Button = styled.button`
+  width: 50px;
+`;
+
+const Input = styled.input`
+  flex: 1;
+  width: 80px;
+`;
+
 /** @param props {import('./types').DataGridProps} */
 export default function ColumnManager(props) {
   const { display } = props;
+  const [columnFilter, setColumnFilter] = React.useState('');
   return (
-    <div>
-      {display.columns.map(item => (
-        <Row key={item.columnName}>
-          <input
-            type="checkbox"
-            checked={item.isChecked}
-            onChange={() => display.setColumnVisibility(item.uniqueName, !item.isChecked)}
-          ></input>
-          <ColumnLabel {...item} />
-        </Row>
-      ))}
-    </div>
+    <Wrapper>
+      <SearchBoxWrapper>
+        <Input type="text" placeholder="Search" value={columnFilter} onChange={e => setColumnFilter(e.target.value)} />
+        <Button onClick={() => display.hideAllColumns()}>Hide</Button>
+        <Button onClick={() => display.showAllColumns()}>Show</Button>
+      </SearchBoxWrapper>
+      {display.columns
+        .filter(col => filterName(columnFilter, col.columnName))
+        .map(col => (
+          <Row key={col.columnName}>
+            <input
+              type="checkbox"
+              checked={col.isChecked}
+              onChange={() => display.setColumnVisibility(col.uniqueName, !col.isChecked)}
+            ></input>
+            <ColumnLabel {...col} />
+          </Row>
+        ))}
+    </Wrapper>
   );
 }

@@ -1,9 +1,9 @@
-import GridDisplay from './GridDisplay';
+import { GridDisplay } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
-import GridConfig from './GridConfig';
+import { GridConfig } from './GridConfig';
 
-export default class TableGridDisplay extends GridDisplay {
+export class TableGridDisplay extends GridDisplay {
   constructor(
     public table: TableInfo,
     public driver: EngineDriver,

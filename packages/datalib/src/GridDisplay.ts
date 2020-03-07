@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import GridConfig from './GridConfig';
+import { GridConfig } from './GridConfig';
 import { ForeignKeyInfo } from '@dbgate/types';
 
 export interface DisplayColumn {
@@ -14,7 +14,7 @@ export interface DisplayColumn {
   isChecked: boolean;
 }
 
-export default abstract class GridDisplay {
+export abstract class GridDisplay {
   constructor(public config: GridConfig, protected setConfig: (config: GridConfig) => void) {}
   abstract getPageQuery(offset: number, count: number): string;
   columns: DisplayColumn[];
@@ -30,6 +30,20 @@ export default abstract class GridDisplay {
         hiddenColumns: [...(this.config.hiddenColumns || []), uniqueName],
       });
     }
+  }
+
+  showAllColumns() {
+    this.setConfig({
+      ...this.config,
+      hiddenColumns: [],
+    });
+  }
+
+  hideAllColumns() {
+    this.setConfig({
+      ...this.config,
+      hiddenColumns: this.columns.map(x => x.uniqueName),
+    });
   }
 
   get hiddenColumnIndexes() {
