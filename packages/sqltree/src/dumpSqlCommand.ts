@@ -19,7 +19,7 @@ export function dumpSqlSelect(dmp: SqlDumper, select: Select) {
     dmp.put('&>&n');
     dmp.putCollection(',&n', select.columns, fld => {
       dumpSqlExpression(dmp, fld);
-      if (fld.alias) dmp.put(' %i', fld.alias);
+      if (fld.alias) dmp.put(' ^as %i', fld.alias);
     });
     dmp.put('&n&<');
   }

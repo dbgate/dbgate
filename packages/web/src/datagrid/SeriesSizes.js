@@ -219,12 +219,12 @@ export class SeriesSizes {
     let index = firstVisibleIndex;
     let count = 0;
     while (res < viewportSize && index <= this.scrollCount) {
-      console.log('this.getSizeByScrollIndex(index)', this.getSizeByScrollIndex(index));
+      // console.log('this.getSizeByScrollIndex(index)', this.getSizeByScrollIndex(index));
       res += this.getSizeByScrollIndex(index);
       index++;
       count++;
     }
-    console.log('getVisibleScrollCount', firstVisibleIndex, viewportSize, count);
+    // console.log('getVisibleScrollCount', firstVisibleIndex, viewportSize, count);
     return count;
   }
   getVisibleScrollCountReversed(lastVisibleIndex, viewportSize) {

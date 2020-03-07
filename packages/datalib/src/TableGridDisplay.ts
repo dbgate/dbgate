@@ -8,10 +8,19 @@ export default class TableGridDisplay extends GridDisplay {
     public table: TableInfo,
     public driver: EngineDriver,
     config: GridConfig,
-    setConfig: (configh: GridConfig) => void
+    setConfig: (config: GridConfig) => void
   ) {
     super(config, setConfig);
-    this.columns = table.columns;
+    this.columns = table.columns.map(col => ({
+      ...col,
+      headerText: col.columnName,
+      uniqueName: col.columnName,
+      uniquePath: [col.columnName],
+      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
+      foreignKey:
+        table.foreignKeys && table.foreignKeys.find(fk => fk.columns.find(x => x.columnName == col.columnName)),
+      isChecked: !(config.hiddenColumns && config.hiddenColumns.includes(col.columnName)),
+    }));
   }
 
   createSelect() {
@@ -19,7 +28,7 @@ export default class TableGridDisplay extends GridDisplay {
     const select: Select = {
       commandType: 'select',
       from: { name: this.table },
-      columns: this.table.columns.map(col => ({ exprType: 'column', ...col })),
+      columns: this.table.columns.map(col => ({ exprType: 'column', alias: col.columnName, ...col })),
       orderBy: [
         {
           exprType: 'column',

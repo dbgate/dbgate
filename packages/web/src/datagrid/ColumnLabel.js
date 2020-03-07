@@ -1,0 +1,20 @@
+//@ts-nocheck
+
+import React from 'react';
+import styled from 'styled-components';
+import { SequenceIcon } from '../icons';
+
+const Label = styled.span`
+  font-weight: ${props => (props.notNull ? 'bold' : 'normal')};
+`;
+
+/** @param column {import('@dbgate/datalib').DisplayColumn|import('@dbgate/types').ColumnInfo} */
+export default function ColumnLabel(column) {
+  let Icon = null;
+  if (column.autoIncrement) Icon = SequenceIcon;
+  return (
+    <Label {...column}>
+      {Icon ? <Icon /> : null} {column.headerText || column.columnName}
+    </Label>
+  );
+}

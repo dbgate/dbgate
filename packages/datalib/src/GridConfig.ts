@@ -1,4 +1,4 @@
 
 export default interface GridConfig {
-    hiddenColumns: number[];
+    hiddenColumns: string[];
 }
