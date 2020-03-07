@@ -1,7 +1,6 @@
 import React from 'react';
 import theme from '../theme';
 import styled from 'styled-components';
-import { FontIcon } from '../icons';
 import { useCurrentWidget, useSetCurrentWidget } from '../utility/globalState';
 
 const IconWrapper = styled.div`
@@ -55,7 +54,7 @@ export default function WidgetIconPanel() {
           isSelected={name === currentWidget}
           onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
         >
-          <FontIcon name={icon} />
+          <i className={`fas ${icon}`}/>
         </IconWrapper>
       ))}
     </>

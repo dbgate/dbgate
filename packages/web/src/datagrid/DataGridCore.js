@@ -110,7 +110,7 @@ export default function DataGridCore(props) {
     //   nextRows = [];
     // }
     const { rows: nextRows } = response.data;
-    console.log('nextRows', nextRows);
+    // console.log('nextRows', nextRows);
     const loadedInfo = {
       loadedRows: [...loadedRows, ...nextRows],
       loadedTime,
@@ -142,7 +142,7 @@ export default function DataGridCore(props) {
 
   const columnSizes = React.useMemo(() => countColumnSizes(), [loadedRows, containerWidth, display]);
 
-  console.log('containerWidth', containerWidth);
+  // console.log('containerWidth', containerWidth);
 
   const gridScrollAreaHeight = containerHeight - 2 * rowHeight;
   const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize;
@@ -177,13 +177,13 @@ export default function DataGridCore(props) {
     const columnSizes = new SeriesSizes();
     if (!loadedRows || !columns) return columnSizes;
 
-    console.log('countColumnSizes', loadedRows.length, containerWidth);
+    // console.log('countColumnSizes', loadedRows.length, containerWidth);
 
     columnSizes.maxSize = (containerWidth * 2) / 3;
     columnSizes.count = columns.length;
 
     // columnSizes.setExtraordinaryIndexes(this.getHiddenColumnIndexes(), this.getFrozenColumnIndexes());
-    console.log('display.hiddenColumnIndexes', display.hiddenColumnIndexes)
+    // console.log('display.hiddenColumnIndexes', display.hiddenColumnIndexes)
 
     columnSizes.setExtraordinaryIndexes(display.hiddenColumnIndexes, []);
 
@@ -240,7 +240,7 @@ export default function DataGridCore(props) {
   //   console.log('containerHeight', containerHeight);
 
   const visibleColumnCount = columnSizes.getVisibleScrollCount(firstVisibleColumnScrollIndex, gridScrollAreaWidth);
-  console.log('visibleColumnCount', visibleColumnCount);
+  // console.log('visibleColumnCount', visibleColumnCount);
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
@@ -274,7 +274,7 @@ export default function DataGridCore(props) {
     });
   }
 
-  console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
+  // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
 
   return (
     <GridContainer ref={containerRef}>

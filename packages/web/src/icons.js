@@ -15,28 +15,29 @@ export function getIconImage(src, props) {
   return <img width={size} height={size} src={src} style={style} className={className} title={title} />;
 }
 
-export function getFontIcon(fontIconSpec, props = {}) {
-  let iconClass = fontIconSpec;
+export function FontIcon({ icon, ...props }) {
+  let iconClass = icon;
   if (!iconClass) return null;
-  var parts = iconClass.split(' ');
-  var name = parts[0];
-  parts = parts.slice(1);
+  let parts = iconClass.split(' ');
+  const type = parts[0];
+  const name = parts[1];
+  parts = parts.slice(2);
 
-  var className = props.className || '';
+  let className = props.className || '';
 
   // if (_.startsWith(name, 'bs-')) className += ` glyphicon glyphicon-${name.substr(3)}`;
-  if (_.startsWith(name, 'fa-')) className += ` fas fa-${name.substr(3)}`;
+  if (type == 'fas' || type == 'far') className += `${type} ${name}`;
 
   if (_.includes(parts, 'spin')) className += ' fa-spin';
 
-  var style = props.style || {};
+  const style = props.style || {};
 
-  var last = parts[parts.length - 1];
+  const last = parts[parts.length - 1];
   if (last && last != 'spin') {
     style['color'] = last;
   }
 
-  return <i className={className} style={style} title={props.title} />;
+  return <i {...props} className={className} style={style} title={props.title} />;
 }
 
 export const TableIcon = props => getIconImage('table2.svg', props);
@@ -85,13 +86,11 @@ export const LinkedServerIcon = props => getIconImage('linkedserver.svg', props)
 
 export const EmptyIcon = props => getIconImage('data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=', props);
 
-export const TimesRedIcon = props => getFontIcon('fa-times red', props);
-export const TimesGreenCircleIcon = props => getFontIcon('fa-times-circle green', props);
-export const GrayFilterIcon = props => getFontIcon('fa-filter lightgray', props);
-export const ExclamationTriangleIcon = props => getFontIcon('fa-exclamation-triangle', props);
-export const HourGlassIcon = props => getFontIcon('fa-hourglass', props);
-export const InfoBlueCircleIcon = props => getFontIcon('fa-info-circle blue', props);
+export const TimesRedIcon = props => <FontIcon name='fas fa-times red' {...props} />;
+export const TimesGreenCircleIcon = props => <FontIcon icon='fas fa-times-circle green' {...props} />;
+export const GrayFilterIcon = props => <FontIcon icon='fas fa-filter lightgray' {...props} />;
+export const ExclamationTriangleIcon = props => <FontIcon icon='fas fa-exclamation-triangle' {...props} />;
+export const HourGlassIcon = props => <FontIcon icon='fas fa-hourglass' {...props} />;
+export const InfoBlueCircleIcon = props => <FontIcon icon='fas fa-info-circle blue' {...props} />;
 
-export const SpinnerIcon = props => getFontIcon('fa-spinner spin', props);
-
-export const FontIcon = ({ name }) => <i className={`fas ${name}`}></i>;
+export const SpinnerIcon = props => <FontIcon icon='fas fa-spinner spin' {...props} />;

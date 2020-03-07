@@ -1,26 +1,20 @@
 import { GridDisplay } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
-import { GridConfig } from './GridConfig';
+import { GridConfig, GridCache } from './GridConfig';
 
 export class TableGridDisplay extends GridDisplay {
   constructor(
     public table: TableInfo,
     public driver: EngineDriver,
     config: GridConfig,
-    setConfig: (config: GridConfig) => void
+    setConfig: (config: GridConfig) => void,
+    cache: GridCache,
+    setCache: (config: GridCache) => void,
+    getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
   ) {
-    super(config, setConfig);
-    this.columns = table.columns.map(col => ({
-      ...col,
-      headerText: col.columnName,
-      uniqueName: col.columnName,
-      uniquePath: [col.columnName],
-      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
-      foreignKey:
-        table.foreignKeys && table.foreignKeys.find(fk => fk.columns.find(x => x.columnName == col.columnName)),
-      isChecked: !(config.hiddenColumns && config.hiddenColumns.includes(col.columnName)),
-    }));
+    super(config, setConfig, cache, setCache, getTableInfo);
+    this.columns = this.getDisplayColumns(table, []);
   }
 
   createSelect() {

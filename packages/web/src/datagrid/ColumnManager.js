@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import { filterName } from '@dbgate/datalib';
+import { FontIcon } from '../icons';
 
 const Wrapper = styled.div``;
 
@@ -28,6 +29,45 @@ const Input = styled.input`
   width: 80px;
 `;
 
+function ExpandIcon({ display, column, isHover, ...other }) {
+  if (column.foreignKey) {
+    return (
+      <FontIcon
+        icon={`far ${display.isExpandedColumn(column.uniqueName) ? 'fa-minus-square' : 'fa-plus-square'} `}
+        {...other}
+      />
+    );
+  }
+  return <FontIcon icon={`fas fa-square ${isHover ? 'lightblue' : 'white'}`} {...other} />;
+}
+
+/**
+ * @param {object} props
+ * @param {import('@dbgate/datalib').GridDisplay} props.display
+ * @param {import('@dbgate/datalib').DisplayColumn} props.column
+ */
+function ColumnManagerRow(props) {
+  const { display, column } = props;
+  const [isHover, setIsHover] = React.useState(false);
+  return (
+    <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+      <ExpandIcon
+        display={display}
+        column={column}
+        isHover={isHover}
+        onClick={() => display.toggleExpandedColumn(column.uniqueName)}
+      />
+      <input
+        type="checkbox"
+        style={{ marginLeft: `${5 + (column.uniquePath.length - 1) * 10}px` }}
+        checked={column.isChecked}
+        onChange={() => display.setColumnVisibility(column.uniqueName, !column.isChecked)}
+      ></input>
+      <ColumnLabel {...column} />
+    </Row>
+  );
+}
+
 /** @param props {import('./types').DataGridProps} */
 export default function ColumnManager(props) {
   const { display } = props;
@@ -39,17 +79,11 @@ export default function ColumnManager(props) {
         <Button onClick={() => display.hideAllColumns()}>Hide</Button>
         <Button onClick={() => display.showAllColumns()}>Show</Button>
       </SearchBoxWrapper>
-      {display.columns
-        .filter(col => filterName(columnFilter, col.columnName))
-        .map(col => (
-          <Row key={col.columnName}>
-            <input
-              type="checkbox"
-              checked={col.isChecked}
-              onChange={() => display.setColumnVisibility(col.uniqueName, !col.isChecked)}
-            ></input>
-            <ColumnLabel {...col} />
-          </Row>
+      {display
+        .getColumns(columnFilter)
+        .filter(column => filterName(columnFilter, column.columnName))
+        .map(column => (
+          <ColumnManagerRow key={column.uniqueName} display={display} column={column} />
         ))}
     </Wrapper>
   );
