@@ -1,4 +1,4 @@
-import { GridDisplay } from './GridDisplay';
+import { GridDisplay, combineReferenceActions } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
 import { GridConfig, GridCache } from './GridConfig';
@@ -36,12 +36,19 @@ export class TableGridDisplay extends GridDisplay {
         },
       ],
     };
-    this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl');
+    const action = combineReferenceActions(
+      this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl'),
+      this.addHintsToSelect(select)
+    );
+    if (action == 'loadRequired') {
+      return null;
+    }
     return select;
   }
 
   getPageQuery(offset: number, count: number) {
     const select = this.createSelect();
+    if (!select) return null;
     if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
     else if (this.driver.dialect.limitSelect) select.topRecords = count;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);

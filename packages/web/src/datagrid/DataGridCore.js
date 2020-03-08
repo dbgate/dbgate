@@ -64,6 +64,10 @@ const TableBodyCell = styled.td`
   white-space: nowrap;
   overflow: hidden;
 `;
+const HintSpan = styled.span`
+  color: gray;
+  margin-left: 5px;
+`;
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
@@ -163,7 +167,8 @@ export default function DataGridCore(props) {
 
   React.useEffect(() => {
     if (!isLoadedAll && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length) {
-      loadNextData();
+      const sql = display.getPageQuery(0, 1);
+      if (sql) loadNextData();
     }
     if (display.cache.refreshTime > loadedTime) {
       reload();
@@ -314,6 +319,7 @@ export default function DataGridCore(props) {
                     style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
                   >
                     {row[col.columnName]}
+                    {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
                   </TableBodyCell>
                 ))}
               </TableBodyRow>

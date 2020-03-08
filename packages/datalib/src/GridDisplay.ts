@@ -16,6 +16,15 @@ export interface DisplayColumn {
   isPrimaryKey: boolean;
   foreignKey: ForeignKeyInfo;
   isChecked?: boolean;
+  hintColumnName?: string;
+}
+
+export type ReferenceActionResult = 'noAction' | 'loadRequired' | 'refAdded';
+
+export function combineReferenceActions(a: ReferenceActionResult, b: ReferenceActionResult): ReferenceActionResult {
+  if (a == 'loadRequired' || b == 'loadRequired') return 'loadRequired';
+  if (a == 'refAdded' || b == 'refAdded') return 'refAdded';
+  return 'noAction';
 }
 
 export abstract class GridDisplay {
@@ -81,29 +90,33 @@ export abstract class GridDisplay {
     const res = [];
     for (const item of list) {
       res.push(item);
-      if (this.isExpandedColumn(item.uniqueName)) res.push(...this.getExpandedColumns(item, item.uniqueName));
+      if (this.isExpandedColumn(item.uniqueName)) res.push(...this.getExpandedColumns(item));
     }
     return res;
   }
 
-  getExpandedColumns(column: DisplayColumn, uniqueName: string) {
-    const table = this.cache.tables[uniqueName];
+  getExpandedColumns(column: DisplayColumn) {
+    const table = this.cache.tables[column.uniqueName];
     if (table) {
       return this.enrichExpandedColumns(this.getDisplayColumns(table, column.uniquePath));
     } else {
       // load expanded columns
-      const { foreignKey } = column;
-      this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then(table => {
-        this.setCache({
-          ...this.cache,
-          tables: {
-            ...this.cache.tables,
-            [uniqueName]: table,
-          },
-        });
-      });
+      this.requireFkTarget(column);
     }
     return [];
+  }
+
+  requireFkTarget(column: DisplayColumn) {
+    const { uniqueName, foreignKey } = column;
+    this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then(table => {
+      this.setCache({
+        ...this.cache,
+        tables: {
+          ...this.cache.tables,
+          [uniqueName]: table,
+        },
+      });
+    });
   }
 
   isColumnChecked(column: DisplayColumn) {
@@ -130,8 +143,8 @@ export abstract class GridDisplay {
     };
   }
 
-  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[], parentAlias: string) {
-    let res = false;
+  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[], parentAlias: string): ReferenceActionResult {
+    let res: ReferenceActionResult = 'noAction';
     for (const column of columns) {
       if (this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push({
@@ -139,52 +152,35 @@ export abstract class GridDisplay {
           columnName: column.columnName,
           source: { name: column, alias: parentAlias },
         });
-        res = true;
+        res = 'refAdded';
       }
     }
     return res;
   }
 
-  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string) {
-    let res = false;
+  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string): ReferenceActionResult {
+    let res: ReferenceActionResult = 'noAction';
     for (const column of columns) {
       if (this.isExpandedColumn(column.uniqueName)) {
         const table = this.cache.tables[column.uniqueName];
         if (table) {
           const childAlias = `${column.uniqueName}_ref`;
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
-          const usedTable =
-            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias) ||
-            this.addAddedColumnsToSelect(select, subcolumns, childAlias);
+          const tableAction = combineReferenceActions(
+            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias),
+            this.addAddedColumnsToSelect(select, subcolumns, childAlias)
+          );
 
-          if (usedTable) {
-            select.from.relations = [
-              ...(select.from.relations || []),
-              {
-                joinType: 'LEFT JOIN',
-                name: table,
-                alias: childAlias,
-                conditions: [
-                  {
-                    conditionType: 'binary',
-                    operator: '=',
-                    left: {
-                      exprType: 'column',
-                      columnName: column.columnName,
-                      source: { name: column, alias: parentAlias },
-                    },
-                    right: {
-                      exprType: 'column',
-                      columnName: table.primaryKey.columns[0].columnName,
-                      source: { name: table, alias: childAlias },
-                    },
-                  },
-                ],
-              },
-            ];
-
-            res = true;
+          if (tableAction == 'refAdded') {
+            this.addReferenceToSelect(select, parentAlias, column);
+            res = 'refAdded';
           }
+          if (tableAction == 'loadRequired') {
+            return 'loadRequired';
+          }
+        } else {
+          this.requireFkTarget(column);
+          res = 'loadRequired';
         }
       }
     }
@@ -192,10 +188,72 @@ export abstract class GridDisplay {
     // const addedColumns = this.getGridColumns().filter(x=>x.)
   }
 
+  addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
+    const childAlias = `${column.uniqueName}_ref`;
+    if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
+    const table = this.cache.tables[column.uniqueName];
+    select.from.relations = [
+      ...(select.from.relations || []),
+      {
+        joinType: 'LEFT JOIN',
+        name: table,
+        alias: childAlias,
+        conditions: [
+          {
+            conditionType: 'binary',
+            operator: '=',
+            left: {
+              exprType: 'column',
+              columnName: column.columnName,
+              source: { name: column, alias: parentAlias },
+            },
+            right: {
+              exprType: 'column',
+              columnName: table.primaryKey.columns[0].columnName,
+              source: { name: table, alias: childAlias },
+            },
+          },
+        ],
+      },
+    ];
+  }
+
+  addHintsToSelect(select: Select): ReferenceActionResult {
+    let res: ReferenceActionResult = 'noAction';
+    for (const column of this.getGridColumns()) {
+      if (column.foreignKey) {
+        const table = this.cache.tables[column.uniqueName];
+        if (table) {
+          const hintColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
+          if (hintColumn) {
+            const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
+            this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
+            const childAlias = `${column.uniqueName}_ref`;
+            select.columns.push({
+              exprType: 'column',
+              columnName: hintColumn.columnName,
+              alias: `hint_${column.columnName}`,
+              source: { alias: childAlias },
+            });
+            res = 'refAdded';
+          }
+        } else {
+          this.requireFkTarget(column);
+          res = 'loadRequired';
+        }
+      }
+    }
+    return res;
+  }
+
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
     return table?.columns
       ?.map(col => this.getDisplayColumn(table, col, parentPath))
-      ?.map(col => ({ ...col, isChecked: this.isColumnChecked(col) }));
+      ?.map(col => ({
+        ...col,
+        isChecked: this.isColumnChecked(col),
+        hintColumnName: col.foreignKey ? `hint_${col.columnName}` : null,
+      }));
   }
 
   getColumns(columnFilter) {
