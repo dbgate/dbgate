@@ -150,6 +150,7 @@ export abstract class GridDisplay {
         select.columns.push({
           exprType: 'column',
           columnName: column.columnName,
+          alias: column.uniqueName,
           source: { name: column, alias: parentAlias },
         });
         res = 'refAdded';
@@ -232,7 +233,7 @@ export abstract class GridDisplay {
             select.columns.push({
               exprType: 'column',
               columnName: hintColumn.columnName,
-              alias: `hint_${column.columnName}`,
+              alias: `hint_${column.uniqueName}`,
               source: { alias: childAlias },
             });
             res = 'refAdded';
@@ -252,7 +253,7 @@ export abstract class GridDisplay {
       ?.map(col => ({
         ...col,
         isChecked: this.isColumnChecked(col),
-        hintColumnName: col.foreignKey ? `hint_${col.columnName}` : null,
+        hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
       }));
   }
 

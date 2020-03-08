@@ -168,6 +168,7 @@ export default function DataGridCore(props) {
   React.useEffect(() => {
     if (!isLoadedAll && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length) {
       const sql = display.getPageQuery(0, 1);
+      // try to get SQL, if success, load page. If not, callbacks to load missing metadata are dispatched
       if (sql) loadNextData();
     }
     if (display.cache.refreshTime > loadedTime) {
@@ -300,7 +301,7 @@ export default function DataGridCore(props) {
           <TableHeaderRow ref={headerRowRef}>
             {realColumns.map(col => (
               <TableHeaderCell
-                key={col.columnName}
+                key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
                 <ColumnLabel {...col} />
@@ -315,10 +316,10 @@ export default function DataGridCore(props) {
               <TableBodyRow key={firstVisibleRowScrollIndex + index}>
                 {realColumns.map(col => (
                   <TableBodyCell
-                    key={col.columnName}
+                    key={col.uniqueName}
                     style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
                   >
-                    {row[col.columnName]}
+                    {row[col.uniqueName]}
                     {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
                   </TableBodyCell>
                 ))}
