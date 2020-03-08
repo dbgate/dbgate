@@ -21,8 +21,13 @@ export class TableGridDisplay extends GridDisplay {
     const orderColumnName = this.table.columns[0].columnName;
     const select: Select = {
       commandType: 'select',
-      from: { name: this.table },
-      columns: this.table.columns.map(col => ({ exprType: 'column', alias: col.columnName, ...col })),
+      from: { name: this.table, alias: 'basetbl' },
+      columns: this.table.columns.map(col => ({
+        exprType: 'column',
+        alias: col.columnName,
+        source: { alias: 'basetbl' },
+        ...col,
+      })),
       orderBy: [
         {
           exprType: 'column',
@@ -31,6 +36,7 @@ export class TableGridDisplay extends GridDisplay {
         },
       ],
     };
+    this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl');
     return select;
   }
 

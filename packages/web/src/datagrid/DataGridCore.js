@@ -152,9 +152,21 @@ export default function DataGridCore(props) {
   //   const visibleRowCountUpperBound = 20;
   //   const visibleRowCountLowerBound = 20;
 
+  const reload = () => {
+    setLoadProps({
+      isLoading: false,
+      loadedRows: [],
+      isLoadedAll: false,
+      loadedTime: new Date().getTime(),
+    });
+  };
+
   React.useEffect(() => {
     if (!isLoadedAll && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length) {
       loadNextData();
+    }
+    if (display.cache.refreshTime > loadedTime) {
+      reload();
     }
   });
 

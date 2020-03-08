@@ -22,7 +22,7 @@ export abstract class GridDisplay {
   constructor(
     public config: GridConfig,
     protected setConfig: (config: GridConfig) => void,
-    protected cache: GridCache,
+    public cache: GridCache,
     protected setCache: (config: GridCache) => void,
     protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
   ) {}
@@ -34,7 +34,15 @@ export abstract class GridDisplay {
       this.includeInColumnSet('hiddenColumns', uniqueName, !isVisible);
     } else {
       this.includeInColumnSet('addedColumns', uniqueName, isVisible);
+      this.reload();
     }
+  }
+
+  reload() {
+    this.setCache({
+      ...this.cache,
+      refreshTime: new Date().getTime(),
+    });
   }
 
   includeInColumnSet(field: keyof GridConfig, uniqueName: string, isIncluded: boolean) {
@@ -79,18 +87,18 @@ export abstract class GridDisplay {
   }
 
   getExpandedColumns(column: DisplayColumn, uniqueName: string) {
-    const list = this.cache.subcolumns[uniqueName];
-    if (list) {
-      return this.enrichExpandedColumns(list).map(col => ({ ...col, isChecked: this.isColumnChecked(col) }));
+    const table = this.cache.tables[uniqueName];
+    if (table) {
+      return this.enrichExpandedColumns(this.getDisplayColumns(table, column.uniquePath));
     } else {
       // load expanded columns
       const { foreignKey } = column;
       this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then(table => {
         this.setCache({
           ...this.cache,
-          subcolumns: {
-            ...this.cache.subcolumns,
-            [uniqueName]: this.getDisplayColumns(table, column.uniquePath),
+          tables: {
+            ...this.cache.tables,
+            [uniqueName]: table,
           },
         });
       });
@@ -122,12 +130,65 @@ export abstract class GridDisplay {
     };
   }
 
-  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[]) {
-    for(const column of columns) {
-      if (this.isExpandedColumn(column.uniqueName)) {
-        
+  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[], parentAlias: string) {
+    let res = false;
+    for (const column of columns) {
+      if (this.config.addedColumns.includes(column.uniqueName)) {
+        select.columns.push({
+          exprType: 'column',
+          columnName: column.columnName,
+          source: { name: column, alias: parentAlias },
+        });
+        res = true;
       }
     }
+    return res;
+  }
+
+  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string) {
+    let res = false;
+    for (const column of columns) {
+      if (this.isExpandedColumn(column.uniqueName)) {
+        const table = this.cache.tables[column.uniqueName];
+        if (table) {
+          const childAlias = `${column.uniqueName}_ref`;
+          const subcolumns = this.getDisplayColumns(table, column.uniquePath);
+          const usedTable =
+            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias) ||
+            this.addAddedColumnsToSelect(select, subcolumns, childAlias);
+
+          if (usedTable) {
+            select.from.relations = [
+              ...(select.from.relations || []),
+              {
+                joinType: 'LEFT JOIN',
+                name: table,
+                alias: childAlias,
+                conditions: [
+                  {
+                    conditionType: 'binary',
+                    operator: '=',
+                    left: {
+                      exprType: 'column',
+                      columnName: column.columnName,
+                      source: { name: column, alias: parentAlias },
+                    },
+                    right: {
+                      exprType: 'column',
+                      columnName: table.primaryKey.columns[0].columnName,
+                      source: { name: table, alias: childAlias },
+                    },
+                  },
+                ],
+              },
+            ];
+
+            res = true;
+          }
+        }
+      }
+    }
+    return res;
     // const addedColumns = this.getGridColumns().filter(x=>x.)
   }
 

@@ -1,4 +1,5 @@
 import { DisplayColumn } from './GridDisplay';
+import { TableInfo } from '@dbgate/types';
 
 export interface GridConfig {
   hiddenColumns: string[];
@@ -7,7 +8,8 @@ export interface GridConfig {
 }
 
 export interface GridCache {
-  subcolumns: { [column: string]: DisplayColumn[] };
+  tables: { [uniqueName: string]: TableInfo };
+  refreshTime: number;
 }
 
 export function createGridConfig(): GridConfig {
@@ -20,6 +22,7 @@ export function createGridConfig(): GridConfig {
 
 export function createGridCache(): GridCache {
   return {
-    subcolumns: {},
+    tables: {},
+    refreshTime: new Date().getTime(),
   };
 }

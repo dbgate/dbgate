@@ -24,7 +24,7 @@ export function dumpSqlSourceDef(dmp: SqlDumper, source: Source) {
     dmp.put(')');
   }
   if (source.alias) {
-    dmp.put(' %i', this.alias);
+    dmp.put(' %i', source.alias);
   }
 }
 
