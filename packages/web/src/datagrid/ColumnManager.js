@@ -61,7 +61,7 @@ function ColumnManagerRow(props) {
         type="checkbox"
         style={{ marginLeft: `${5 + (column.uniquePath.length - 1) * 10}px` }}
         checked={column.isChecked}
-        onChange={() => display.setColumnVisibility(column.uniqueName, !column.isChecked)}
+        onChange={() => display.setColumnVisibility(column.uniquePath, !column.isChecked)}
       ></input>
       <ColumnLabel {...column} />
     </Row>

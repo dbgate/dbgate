@@ -3,6 +3,7 @@ import { DisplayColumn } from './GridDisplay';
 export interface GridConfig {
   hiddenColumns: string[];
   expandedColumns: string[];
+  addedColumns: string[];
 }
 
 export interface GridCache {
@@ -13,6 +14,7 @@ export function createGridConfig(): GridConfig {
   return {
     hiddenColumns: [],
     expandedColumns: [],
+    addedColumns: [],
   };
 }
 

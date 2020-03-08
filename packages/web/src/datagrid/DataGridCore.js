@@ -68,7 +68,7 @@ const TableBodyCell = styled.td`
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const { conid, database, display } = props;
-  const columns = display.columns;
+  const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
   const [loadProps, setLoadProps] = React.useState({

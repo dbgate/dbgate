@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import { GridConfig, GridCache } from './GridConfig';
-import { ForeignKeyInfo, TableInfo } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo } from '@dbgate/types';
 import { filterName } from './filterName';
+import { Select } from '@dbgate/sqltree';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -14,7 +15,7 @@ export interface DisplayColumn {
   autoIncrement: boolean;
   isPrimaryKey: boolean;
   foreignKey: ForeignKeyInfo;
-  isChecked: boolean;
+  isChecked?: boolean;
 }
 
 export abstract class GridDisplay {
@@ -27,16 +28,25 @@ export abstract class GridDisplay {
   ) {}
   abstract getPageQuery(offset: number, count: number): string;
   columns: DisplayColumn[];
-  setColumnVisibility(uniqueName, isVisible) {
-    if (isVisible) {
+  setColumnVisibility(uniquePath: string[], isVisible: boolean) {
+    const uniqueName = uniquePath.join('.');
+    if (uniquePath.length == 1) {
+      this.includeInColumnSet('hiddenColumns', uniqueName, !isVisible);
+    } else {
+      this.includeInColumnSet('addedColumns', uniqueName, isVisible);
+    }
+  }
+
+  includeInColumnSet(field: keyof GridConfig, uniqueName: string, isIncluded: boolean) {
+    if (isIncluded) {
       this.setConfig({
         ...this.config,
-        hiddenColumns: (this.config.hiddenColumns || []).filter(x => x != uniqueName),
+        [field]: [...(this.config[field] || []), uniqueName],
       });
     } else {
       this.setConfig({
         ...this.config,
-        hiddenColumns: [...(this.config.hiddenColumns || []), uniqueName],
+        [field]: (this.config[field] || []).filter(x => x != uniqueName),
       });
     }
   }
@@ -71,7 +81,7 @@ export abstract class GridDisplay {
   getExpandedColumns(column: DisplayColumn, uniqueName: string) {
     const list = this.cache.subcolumns[uniqueName];
     if (list) {
-      return this.enrichExpandedColumns(list);
+      return this.enrichExpandedColumns(list).map(col => ({ ...col, isChecked: this.isColumnChecked(col) }));
     } else {
       // load expanded columns
       const { foreignKey } = column;
@@ -88,24 +98,51 @@ export abstract class GridDisplay {
     return [];
   }
 
-  getDisplayColumns(table: TableInfo, parentPath: string[]) {
-    return table.columns.map(col => ({
+  isColumnChecked(column: DisplayColumn) {
+    return column.uniquePath.length == 1
+      ? !this.config.hiddenColumns.includes(column.uniqueName)
+      : this.config.addedColumns.includes(column.uniqueName);
+  }
+
+  getDisplayColumn(table: TableInfo, col: ColumnInfo, parentPath: string[]) {
+    const uniquePath = [...parentPath, col.columnName];
+    const uniqueName = uniquePath.join('.');
+    console.log('this.config.addedColumns', this.config.addedColumns, uniquePath);
+    return {
       ...col,
       pureName: table.pureName,
       schemaName: table.schemaName,
-      headerText: col.columnName,
-      uniqueName: [...parentPath, col.columnName].join(','),
-      uniquePath: [...parentPath, col.columnName],
+      headerText: uniquePath.length == 1 ? col.columnName : `${table.pureName}.${col.columnName}`,
+      uniqueName,
+      uniquePath,
       isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
       foreignKey:
         table.foreignKeys &&
         table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
-      isChecked: !(this.config.hiddenColumns && this.config.hiddenColumns.includes(col.columnName)),
-    }));
+    };
+  }
+
+  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[]) {
+    for(const column of columns) {
+      if (this.isExpandedColumn(column.uniqueName)) {
+        
+      }
+    }
+    // const addedColumns = this.getGridColumns().filter(x=>x.)
+  }
+
+  getDisplayColumns(table: TableInfo, parentPath: string[]) {
+    return table?.columns
+      ?.map(col => this.getDisplayColumn(table, col, parentPath))
+      ?.map(col => ({ ...col, isChecked: this.isColumnChecked(col) }));
   }
 
   getColumns(columnFilter) {
     return this.enrichExpandedColumns(this.columns.filter(col => filterName(columnFilter, col.columnName)));
+  }
+
+  getGridColumns() {
+    return this.getColumns(null).filter(x => this.isColumnChecked(x));
   }
 
   isExpandedColumn(uniqueName: string) {
@@ -113,16 +150,6 @@ export abstract class GridDisplay {
   }
 
   toggleExpandedColumn(uniqueName: string) {
-    if (this.isExpandedColumn(uniqueName)) {
-      this.setConfig({
-        ...this.config,
-        expandedColumns: (this.config.expandedColumns || []).filter(x => x != uniqueName),
-      });
-    } else {
-      this.setConfig({
-        ...this.config,
-        expandedColumns: [...this.config.expandedColumns, uniqueName],
-      });
-    }
+    this.includeInColumnSet('expandedColumns', uniqueName, !this.isExpandedColumn(uniqueName));
   }
 }
