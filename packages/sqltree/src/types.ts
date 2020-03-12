@@ -34,11 +34,21 @@ export interface BinaryCondition {
   right: Expression;
 }
 
-export interface NotCondition extends UnaryCondition {
+export interface NotCondition {
   conditionType: 'not';
+  condition: Condition;
 }
 
-export type Condition = BinaryCondition | NotCondition;
+export interface TestCondition extends UnaryCondition {
+  conditionType: 'isNull' | 'isNotNull' | 'isEmpty' | 'isNotEmpty';
+}
+
+export interface CompoudCondition {
+  conditionType: 'and' | 'or';
+  conditions: Condition[];
+}
+
+export type Condition = BinaryCondition | NotCondition | TestCondition | CompoudCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

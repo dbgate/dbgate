@@ -52,6 +52,29 @@ const compoudCondition = conditionType => conditions => {
   };
 };
 
+const unaryCondition = conditionType => () => {
+  return {
+    conditionType,
+    expr: {
+      exprType: 'placeholder',
+    },
+  };
+};
+
+const binaryFixedValueCondition = value => () => {
+  return {
+    conditionType: 'binary',
+    operator: '=',
+    left: {
+      exprType: 'placeholder',
+    },
+    right: {
+      exprType: 'value',
+      value,
+    },
+  };
+};
+
 const parser = P.createLanguage({
   string1: () =>
     token(P.regexp(/"((?:\\.|.)*?)"/, 1))
@@ -72,16 +95,33 @@ const parser = P.createLanguage({
       .desc('number'),
 
   noQuotedString: () =>
-    P.regexp(/[^\s]+/)
+    P.regexp(/[^\s^,^'^"]+/)
       .desc('string unquoted')
       .map(binaryCondition('=')),
 
   comma: () => word(','),
   not: () => word('NOT'),
-  notNull: r => r.not.then(r.null).map(() => 'NOT_NULL'),
-  null: () => word('NULL'),
+  notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
+  null: () => word('NULL').map(unaryCondition('isNull')),
+  empty: () => word('EMPTY').map(unaryCondition('isEmpty')),
+  notEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
+  true: () => word('TRUE').map(binaryFixedValueCondition(1)),
+  false: () => word('FALSE').map(binaryFixedValueCondition(0)),
 
-  element: r => P.alt(r.string1, r.string2, r.null, r.notNull, r.number, r.noQuotedString).trim(whitespace),
+  element: r =>
+    P.alt(
+      r.string1,
+      r.string2,
+      r.null,
+      r.notNull,
+      r.number,
+      r.empty,
+      r.notEmpty,
+      r.true,
+      r.false,
+      // must be last
+      r.noQuotedString
+    ).trim(whitespace),
   factor: r => r.element.sepBy(whitespace).map(compoudCondition('and')),
   list: r => r.factor.sepBy(r.comma).map(compoudCondition('or')),
 });
