@@ -4,6 +4,7 @@ const MySqlDumper = require("./MySqlDumper");
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
+  stringEscapeChar: "\\",
   quoteIdentifier(s) {
     return "`" + s + "`";
   }

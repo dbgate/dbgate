@@ -1,3 +1,7 @@
-import parserFilter, { parseFilter } from './parseFilter';
+import { parseFilter } from './parseFilter';
 
-test('parse string', parseFilter('"123"', 'string'));
+test('parse string', () => {
+  const ast = parseFilter('"123"', 'string');
+  console.log(JSON.stringify(ast));
+  expect(ast).toBe(3);
+});

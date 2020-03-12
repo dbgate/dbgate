@@ -70,7 +70,11 @@ export interface ValueExpression {
   value: any;
 }
 
-export type Expression = ColumnRefExpression | ValueExpression;
+export interface PlaceholderExpression {
+  exprType: 'placeholder';
+}
+
+export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };

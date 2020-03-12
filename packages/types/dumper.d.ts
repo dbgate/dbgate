@@ -8,6 +8,7 @@ export interface SqlDumper {
   putRaw(s: string);
   put(format: string, ...args);
   putCmd(format: string, ...args);
+  putValue(value: string | number | Date);
   putCollection<T>(
     delimiter: string,
     collection: T[],

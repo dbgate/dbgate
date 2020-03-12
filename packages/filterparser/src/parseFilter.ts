@@ -7,6 +7,10 @@ function token(parser) {
   return parser.skip(whitespace);
 }
 
+function word(str) {
+  return P.string(str).thru(token);
+}
+
 function interpretEscapes(str) {
   let escapes = {
     b: '\b',
@@ -28,17 +32,61 @@ function interpretEscapes(str) {
   });
 }
 
-const parser = P.createLanguage({
-  expr: r => P.alt(r.string),
+const binaryCondition = operator => value => ({
+  conditionType: 'binary',
+  operator,
+  left: {
+    exprType: 'placeholder',
+  },
+  right: {
+    exprType: 'value',
+    value,
+  },
+});
 
-  string: () =>
+const compoudCondition = conditionType => conditions => {
+  if (conditions.length == 1) return conditions[0];
+  return {
+    conditionType,
+    conditions,
+  };
+};
+
+const parser = P.createLanguage({
+  string1: () =>
     token(P.regexp(/"((?:\\.|.)*?)"/, 1))
       .map(interpretEscapes)
-      .desc('string'),
+      .map(binaryCondition('='))
+      .desc('string quoted'),
+
+  string2: () =>
+    token(P.regexp(/'((?:\\.|.)*?)'/, 1))
+      .map(interpretEscapes)
+      .map(binaryCondition('='))
+      .desc('string quoted'),
+
+  number: () =>
+    token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
+      .map(Number)
+      .map(binaryCondition('='))
+      .desc('number'),
+
+  noQuotedString: () =>
+    P.regexp(/[^\s]+/)
+      .desc('string unquoted')
+      .map(binaryCondition('=')),
+
+  comma: () => word(','),
+  not: () => word('NOT'),
+  notNull: r => r.not.then(r.null).map(() => 'NOT_NULL'),
+  null: () => word('NULL'),
+
+  element: r => P.alt(r.string1, r.string2, r.null, r.notNull, r.number, r.noQuotedString).trim(whitespace),
+  factor: r => r.element.sepBy(whitespace).map(compoudCondition('and')),
+  list: r => r.factor.sepBy(r.comma).map(compoudCondition('or')),
 });
 
 export function parseFilter(value: string, filterType: FilterType) {
-  const ast = parser.expr.tryParse(value);
-  console.log(ast);
+  const ast = parser.list.tryParse(value);
   return ast;
 }

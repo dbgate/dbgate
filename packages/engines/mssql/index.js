@@ -7,6 +7,7 @@ const dialect = {
   limitSelect: true,
   rangeSelect: true,
   offsetFetchRangeSyntax: true,
+  stringEscapeChar: "'",
   quoteIdentifier(s) {
     return `[${s}]`;
   }

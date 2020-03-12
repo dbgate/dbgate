@@ -4,6 +4,7 @@ const PostgreDumper = require('./PostgreDumper');
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
+  stringEscapeChar: "\\",
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
