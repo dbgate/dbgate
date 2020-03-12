@@ -28,8 +28,14 @@ export interface UnaryCondition {
 }
 
 export interface BinaryCondition {
-  operator: '=' | '!=' | '<' | '>' | '>=' | '<=';
   conditionType: 'binary';
+  operator: '=' | '!=' | '<' | '>' | '>=' | '<=';
+  left: Expression;
+  right: Expression;
+}
+
+export interface LikeCondition {
+  conditionType: 'like' | 'notLike';
   left: Expression;
   right: Expression;
 }
@@ -48,7 +54,7 @@ export interface CompoudCondition {
   conditions: Condition[];
 }
 
-export type Condition = BinaryCondition | NotCondition | TestCondition | CompoudCondition;
+export type Condition = BinaryCondition | NotCondition | TestCondition | CompoudCondition | LikeCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

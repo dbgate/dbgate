@@ -1,6 +1,7 @@
 import { SqlDumper } from '@dbgate/types';
 import { Condition, BinaryCondition } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
+import { link } from 'fs';
 
 export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
   switch (condition.conditionType) {
@@ -34,5 +35,21 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
         dumpSqlCondition(dmp, cond);
         dmp.putRaw(')');
       });
+      break;
+    case 'like':
+      dumpSqlExpression(dmp, condition.left);
+      dmp.put(' ^like ');
+      dumpSqlExpression(dmp, condition.right);
+      break;
+    case 'notLike':
+      dumpSqlExpression(dmp, condition.left);
+      dmp.put(' ^not ^like ');
+      dumpSqlExpression(dmp, condition.right);
+      break;
+    case 'not':
+      dmp.put('^not (');
+      dumpSqlCondition(dmp, condition.condition);
+      dmp.put(')');
+      break;
   }
 }
