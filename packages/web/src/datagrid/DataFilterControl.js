@@ -207,7 +207,8 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
 
   React.useEffect(() => {
     editorRef.current.value = filter || '';
-  }, []);
+    updateFilterState();
+  }, [filter]);
 
   const handleShowMenu = () => {
     const rect = buttonRef.current.getBoundingClientRect();

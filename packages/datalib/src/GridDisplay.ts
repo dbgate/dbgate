@@ -338,4 +338,16 @@ export abstract class GridDisplay {
     });
     this.reload();
   }
+
+  get filterCount() {
+    return _.compact(_.values(this.config.filters)).length;
+  }
+
+  clearFilters() {
+    this.setConfig({
+      ...this.config,
+      filters: {},
+    });
+    this.reload();
+  }
 }

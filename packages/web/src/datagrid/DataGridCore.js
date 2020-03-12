@@ -312,12 +312,20 @@ export default function DataGridCore(props) {
     });
   }
 
+  const hederColwidthPx = '40px';
+  const filterCount = display.filterCount;
+
+  const handleClearFilters = () => {
+    display.clearFilters();
+  };
+
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
   return (
     <GridContainer ref={containerRef}>
       <Table>
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
+            <TableHeaderCell />
             {realColumns.map(col => (
               <TableHeaderCell
                 key={col.uniqueName}
@@ -328,6 +336,13 @@ export default function DataGridCore(props) {
             ))}
           </TableHeaderRow>
           <TableHeaderRow>
+            <TableHeaderCell style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}>
+              {filterCount > 0 && (
+                <button onClick={handleClearFilters}>
+                  <i className="fas fa-times" />
+                </button>
+              )}
+            </TableHeaderCell>
             {realColumns.map(col => (
               <TableFilterCell
                 key={col.uniqueName}
@@ -347,6 +362,7 @@ export default function DataGridCore(props) {
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
               <TableBodyRow key={firstVisibleRowScrollIndex + index}>
+                <TableHeaderCell>{firstVisibleRowScrollIndex + index + 1}</TableHeaderCell>
                 {realColumns.map(col => (
                   <TableBodyCell
                     key={col.uniqueName}
