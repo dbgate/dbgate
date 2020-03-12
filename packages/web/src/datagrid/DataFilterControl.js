@@ -1,7 +1,9 @@
+// @ts-nocheck
 import React from 'react';
 import { DropDownMenuItem, DropDownMenuDivider, showMenu } from '../modals/DropDownMenu';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
+import { parseFilter } from '@dbgate/filterparser';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -33,6 +35,7 @@ const FilterDiv = styled.div`
 const FilterInput = styled.input`
   flex: 1;
   width: 10px;
+  background-color: ${props => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
 `;
 const FilterButton = styled.button`
   color: gray;
@@ -160,11 +163,14 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
 }
 
 export default function DataFilterControl({ isReadOnly = false, filterType, filter, setFilter }) {
+  const [filterState, setFilterState] = React.useState('empty');
   const setFilterText = filter => {
     setFilter(filter);
     editorRef.current.value = filter || '';
+    updateFilterState();
   };
   const applyFilter = () => {
+    if ((filter || '') == (editorRef.current.value || '')) return;
     setFilter(editorRef.current.value);
   };
   const filterMultipleValues = () => {};
@@ -183,6 +189,20 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
     // if (ev.keyCode == KeyCodes.DownArrow || ev.keyCode == KeyCodes.UpArrow) {
     //     if (this.props.onControlKey) this.props.onControlKey(ev.keyCode);
     // }
+  };
+
+  const updateFilterState = () => {
+    const value = editorRef.current.value;
+    try {
+      if (value) {
+        parseFilter(value, filterType);
+        setFilterState('ok');
+      } else {
+        setFilterState('empty');
+      }
+    } catch (err) {
+      setFilterState('error');
+    }
   };
 
   React.useEffect(() => {
@@ -205,7 +225,15 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
 
   return (
     <FilterDiv>
-      <FilterInput ref={editorRef} onKeyDown={handleKeyDown} type="text" readOnly={isReadOnly} />
+      <FilterInput
+        ref={editorRef}
+        onKeyDown={handleKeyDown}
+        type="text"
+        readOnly={isReadOnly}
+        onChange={updateFilterState}
+        state={filterState}
+        onBlur={applyFilter}
+      />
       <FilterButton ref={buttonRef} onClick={handleShowMenu}>
         <i className="fas fa-filter" />
       </FilterButton>

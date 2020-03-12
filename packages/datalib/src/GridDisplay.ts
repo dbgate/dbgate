@@ -277,16 +277,21 @@ export abstract class GridDisplay {
       if (!filter) continue;
       const column = displayedColumnInfo[uniqueName];
       if (!column) continue;
-      const condition = parseFilter(filter, getFilterType(column.commonType?.typeCode));
-      if (condition) {
-        select.where = _.cloneDeepWith(condition, (expr: Expression) => {
-          if (expr.exprType == 'placeholder')
-            return {
-              exprType: 'column',
-              columnName: column.columnName,
-              source: { alias: column.sourceAlias },
-            };
-        });
+      try {
+        const condition = parseFilter(filter, getFilterType(column.commonType?.typeCode));
+        if (condition) {
+          select.where = _.cloneDeepWith(condition, (expr: Expression) => {
+            if (expr.exprType == 'placeholder')
+              return {
+                exprType: 'column',
+                columnName: column.columnName,
+                source: { alias: column.sourceAlias },
+              };
+          });
+        }
+      } catch (err) {
+        console.warn(err.message);
+        continue;
       }
     }
   }
