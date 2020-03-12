@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "name": "@dbgate/filterparser",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "prepare": "yarn build",
+    "build": "tsc",
+    "start": "tsc --watch",
+    "test": "jest"
+  },
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
+    "@dbgate/types": "^0.1.0",
+    "@types/node": "^13.7.0",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "@types/parsimmon": "^1.10.1",
+    "lodash": "^4.17.15",
+    "parsimmon": "^1.13.0"
+  }
+}

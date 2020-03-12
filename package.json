@@ -9,9 +9,10 @@
         "start:web": "yarn workspace @dbgate/web start",
         "start:sqltree": "yarn workspace @dbgate/sqltree start",
         "start:datalib": "yarn workspace @dbgate/datalib start",
+        "start:filterparser": "yarn workspace @dbgate/filterparser start",
         "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
 
-        "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:datalib\"",
+        "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:datalib\" \"yarn start:filterparser\"",
 
         "ts:api": "yarn workspace @dbgate/api ts",
         "ts:web": "yarn workspace @dbgate/web ts",
