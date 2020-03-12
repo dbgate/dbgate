@@ -1,10 +1,14 @@
 import { DisplayColumn } from './GridDisplay';
 import { TableInfo } from '@dbgate/types';
 
-export interface GridConfig {
+export interface GridConfigColumns {
   hiddenColumns: string[];
   expandedColumns: string[];
   addedColumns: string[];
+}
+
+export interface GridConfig extends GridConfigColumns {
+  filters: { [uniqueName: string]: string };
 }
 
 export interface GridCache {
@@ -17,6 +21,7 @@ export function createGridConfig(): GridConfig {
     hiddenColumns: [],
     expandedColumns: [],
     addedColumns: [],
+    filters: {},
   };
 }
 

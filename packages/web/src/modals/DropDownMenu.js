@@ -39,6 +39,12 @@ const StyledLink = styled.a`
   }
 `;
 
+export const DropDownMenuDivider = styled.li`
+  margin: 9px 0px 9px 0px;
+  border-top: 1px solid #f2f2f2;
+  border-bottom: 1px solid #fff;
+`;
+
 export function DropDownMenuItem({ children, keyText = undefined, onClick }) {
   const handleMouseEnter = () => {
     // if (this.context.parentMenu) this.context.parentMenu.closeSubmenu();
@@ -90,7 +96,7 @@ export function DropDownMenuItem({ children, keyText = undefined, onClick }) {
 // // }
 
 // export function DropDownMenuDivider(props: {}) {
-//     return <li className="dropdown-divider"></li>;
+//   return <li className="dropdown-divider"></li>;
 // }
 
 // export class DropDownSubmenuItem extends React.Component<IDropDownSubmenuItemProps> {

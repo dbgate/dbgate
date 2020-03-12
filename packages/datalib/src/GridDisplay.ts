@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridConfig, GridCache } from './GridConfig';
+import { GridConfig, GridCache, GridConfigColumns } from './GridConfig';
 import { ForeignKeyInfo, TableInfo, ColumnInfo } from '@dbgate/types';
 import { filterName } from './filterName';
 import { Select } from '@dbgate/sqltree';
@@ -54,7 +54,7 @@ export abstract class GridDisplay {
     });
   }
 
-  includeInColumnSet(field: keyof GridConfig, uniqueName: string, isIncluded: boolean) {
+  includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
     if (isIncluded) {
       this.setConfig({
         ...this.config,
@@ -248,13 +248,15 @@ export abstract class GridDisplay {
   }
 
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
-    return table?.columns
-      ?.map(col => this.getDisplayColumn(table, col, parentPath))
-      ?.map(col => ({
-        ...col,
-        isChecked: this.isColumnChecked(col),
-        hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
-      }));
+    return (
+      table?.columns
+        ?.map(col => this.getDisplayColumn(table, col, parentPath))
+        ?.map(col => ({
+          ...col,
+          isChecked: this.isColumnChecked(col),
+          hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
+        })) || []
+    );
   }
 
   getColumns(columnFilter) {
@@ -271,5 +273,20 @@ export abstract class GridDisplay {
 
   toggleExpandedColumn(uniqueName: string) {
     this.includeInColumnSet('expandedColumns', uniqueName, !this.isExpandedColumn(uniqueName));
+  }
+
+  getFilter(uniqueName: string) {
+    return this.config.filters[uniqueName];
+  }
+
+  setFilter(uniqueName, value) {
+    this.setConfig({
+      ...this.config,
+      filters: {
+        ...this.config.filters,
+        [uniqueName]: value,
+      },
+    });
+    this.reload();
   }
 }

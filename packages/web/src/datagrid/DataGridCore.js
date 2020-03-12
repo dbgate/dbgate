@@ -7,6 +7,7 @@ import useDimensions from '../utility/useDimensions';
 import { SeriesSizes } from './SeriesSizes';
 import axios from '../utility/axios';
 import ColumnLabel from './ColumnLabel';
+import DataFilterControl from './DataFilterControl';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -40,10 +41,10 @@ const TableHeaderRow = styled.tr`
 const TableBodyRow = styled.tr`
   // height: 35px;
   background-color: #ffffff;
-  &:nth-child(6n + 4) {
+  &:nth-child(6n + 3) {
     background-color: #ebebeb;
   }
-  &:nth-child(6n + 7) {
+  &:nth-child(6n + 6) {
     background-color: #ebf5ff;
   }
 `;
@@ -55,6 +56,12 @@ const TableHeaderCell = styled.td`
   padding: 2px;
   background-color: #f6f7f9;
   overflow: hidden;
+`;
+const TableFilterCell = styled.td`
+  text-align: left;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
 `;
 const TableBodyCell = styled.td`
   font-weight: normal;
@@ -306,6 +313,20 @@ export default function DataGridCore(props) {
               >
                 <ColumnLabel {...col} />
               </TableHeaderCell>
+            ))}
+          </TableHeaderRow>
+          <TableHeaderRow>
+            {realColumns.map(col => (
+              <TableFilterCell
+                key={col.uniqueName}
+                style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+              >
+                <DataFilterControl
+                  filterType="string"
+                  filter={display.getFilter(col.uniqueName)}
+                  setFilter={value => display.setFilter(col.uniqueName, value)}
+                />
+              </TableFilterCell>
             ))}
           </TableHeaderRow>
         </TableHead>

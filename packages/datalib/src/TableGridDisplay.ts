@@ -18,6 +18,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   createSelect() {
+    if (!this.table.columns) return null;
     const orderColumnName = this.table.columns[0].columnName;
     const select: Select = {
       commandType: 'select',
