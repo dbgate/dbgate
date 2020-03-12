@@ -15,6 +15,7 @@ export interface Select {
   selectAll?: boolean;
   orderBy?: OrderByExpression[];
   groupBy?: Expression[];
+  where?: Condition;
 }
 
 export type Command = Select;

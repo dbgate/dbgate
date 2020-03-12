@@ -16,7 +16,7 @@
     "@dbgate/types": "^0.1.0",
     "@types/jest": "^25.1.4",
     "@types/node": "^13.7.0",
-    "jest": "^25.1.0",
+    "jest": "^24.9.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.7.5"
   },

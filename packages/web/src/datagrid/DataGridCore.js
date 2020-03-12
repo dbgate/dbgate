@@ -1,3 +1,5 @@
+import moment from 'moment';
+import _ from 'lodash';
 import React from 'react';
 import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
@@ -8,6 +10,7 @@ import { SeriesSizes } from './SeriesSizes';
 import axios from '../utility/axios';
 import ColumnLabel from './ColumnLabel';
 import DataFilterControl from './DataFilterControl';
+import { getFilterType } from '@dbgate/filterparser';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -75,6 +78,16 @@ const HintSpan = styled.span`
   color: gray;
   margin-left: 5px;
 `;
+const NullSpan = styled.span`
+  color: gray;
+  font-style: italic;
+`;
+
+function CellFormattedValue({ value }) {
+  if (value == null) return <NullSpan>(NULL)</NullSpan>;
+  if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  return value;
+}
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
@@ -300,7 +313,6 @@ export default function DataGridCore(props) {
   }
 
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
-
   return (
     <GridContainer ref={containerRef}>
       <Table>
@@ -322,7 +334,7 @@ export default function DataGridCore(props) {
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
                 <DataFilterControl
-                  filterType="string"
+                  filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
                 />
@@ -340,7 +352,7 @@ export default function DataGridCore(props) {
                     key={col.uniqueName}
                     style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
                   >
-                    {row[col.uniqueName]}
+                    <CellFormattedValue value={row[col.uniqueName]} />
                     {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
                   </TableBodyCell>
                 ))}

@@ -2,6 +2,7 @@ import { SqlDumper } from '@dbgate/types';
 import { Command, Select } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
 import { dumpSqlFromDefinition } from './dumpSqlSource';
+import { dumpSqlCondition } from './dumpSqlCondition';
 
 export function dumpSqlSelect(dmp: SqlDumper, select: Select) {
   dmp.put('^select ');
@@ -25,8 +26,13 @@ export function dumpSqlSelect(dmp: SqlDumper, select: Select) {
   }
   dmp.put('^from ');
   dumpSqlFromDefinition(dmp, select.from);
+  if (select.where) {
+    dmp.put('&n^where');
+    dumpSqlCondition(dmp, select.where);
+    dmp.put('&n');
+  }
   if (select.groupBy) {
-    dmp.put('&ngroup ^by ');
+    dmp.put('&n^group ^by ');
     dmp.putCollection(', ', select.groupBy, expr => dumpSqlExpression(dmp, expr));
     dmp.put('&n');
   }

@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { GridDisplay, combineReferenceActions } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
@@ -37,10 +38,15 @@ export class TableGridDisplay extends GridDisplay {
         },
       ],
     };
+    const displayedColumnInfo = _.keyBy(
+      this.columns.map(col => ({ ...col, sourceAlias: 'basetbl' })),
+      'uniqueName'
+    );
     const action = combineReferenceActions(
-      this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl'),
+      this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo),
       this.addHintsToSelect(select)
     );
+    this.applyFilterOnSelect(select, displayedColumnInfo);
     if (action == 'loadRequired') {
       return null;
     }

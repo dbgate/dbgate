@@ -1,3 +1,5 @@
+import { DbType } from './DbType';
+
 export interface NamedObjectInfo {
   pureName: string;
   schemaName: string;
@@ -39,6 +41,7 @@ export interface ColumnInfo {
   isSparse: boolean;
   defaultValue: string;
   defaultConstraint: string;
+  commonType?: DbType;
 }
 export interface TableInfo extends NamedObjectInfo {
   columns: ColumnInfo[];

@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType } from '@dbgate/types';
+import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
-import { Select } from '@dbgate/sqltree';
+import { Select, Expression } from '@dbgate/sqltree';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -17,6 +18,15 @@ export interface DisplayColumn {
   foreignKey: ForeignKeyInfo;
   isChecked?: boolean;
   hintColumnName?: string;
+  commonType?: DbType;
+}
+
+export interface DisplayedColumnEx extends DisplayColumn {
+  sourceAlias: string;
+}
+
+export interface DisplayedColumnInfo {
+  [uniqueName: string]: DisplayedColumnEx;
 }
 
 export type ReferenceActionResult = 'noAction' | 'loadRequired' | 'refAdded';
@@ -143,7 +153,12 @@ export abstract class GridDisplay {
     };
   }
 
-  addAddedColumnsToSelect(select: Select, columns: DisplayColumn[], parentAlias: string): ReferenceActionResult {
+  addAddedColumnsToSelect(
+    select: Select,
+    columns: DisplayColumn[],
+    parentAlias: string,
+    displayedColumnInfo: DisplayedColumnInfo
+  ): ReferenceActionResult {
     let res: ReferenceActionResult = 'noAction';
     for (const column of columns) {
       if (this.config.addedColumns.includes(column.uniqueName)) {
@@ -153,13 +168,22 @@ export abstract class GridDisplay {
           alias: column.uniqueName,
           source: { name: column, alias: parentAlias },
         });
+        displayedColumnInfo[column.uniqueName] = {
+          ...column,
+          sourceAlias: parentAlias,
+        };
         res = 'refAdded';
       }
     }
     return res;
   }
 
-  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string): ReferenceActionResult {
+  addJoinsFromExpandedColumns(
+    select: Select,
+    columns: DisplayColumn[],
+    parentAlias: string,
+    columnSources
+  ): ReferenceActionResult {
     let res: ReferenceActionResult = 'noAction';
     for (const column of columns) {
       if (this.isExpandedColumn(column.uniqueName)) {
@@ -168,8 +192,8 @@ export abstract class GridDisplay {
           const childAlias = `${column.uniqueName}_ref`;
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
           const tableAction = combineReferenceActions(
-            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias),
-            this.addAddedColumnsToSelect(select, subcolumns, childAlias)
+            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources),
+            this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)
           );
 
           if (tableAction == 'refAdded') {
@@ -245,6 +269,26 @@ export abstract class GridDisplay {
       }
     }
     return res;
+  }
+
+  applyFilterOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+    for (const uniqueName in this.config.filters) {
+      const filter = this.config.filters[uniqueName];
+      if (!filter) continue;
+      const column = displayedColumnInfo[uniqueName];
+      if (!column) continue;
+      const condition = parseFilter(filter, getFilterType(column.commonType?.typeCode));
+      if (condition) {
+        select.where = _.cloneDeepWith(condition, (expr: Expression) => {
+          if (expr.exprType == 'placeholder')
+            return {
+              exprType: 'column',
+              columnName: column.columnName,
+              source: { alias: column.sourceAlias },
+            };
+        });
+      }
+    }
   }
 
   getDisplayColumns(table: TableInfo, parentPath: string[]) {

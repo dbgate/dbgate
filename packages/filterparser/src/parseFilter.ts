@@ -1,5 +1,6 @@
 import P from 'parsimmon';
 import { FilterType } from './types';
+import { Condition } from '@dbgate/sqltree';
 
 const whitespace = P.regexp(/\s*/m);
 
@@ -214,7 +215,7 @@ const parsers = {
   logical: createParser('logical'),
 };
 
-export function parseFilter(value: string, filterType: FilterType) {
+export function parseFilter(value: string, filterType: FilterType): Condition {
   const ast = parsers[filterType].list.tryParse(value);
   return ast;
 }
