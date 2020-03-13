@@ -2,14 +2,29 @@
     "private": true,
     "name": "@dbgate/all",
     "workspaces": [
-        "packages/*"
+        "packages/api",
+        "packages/datalib",
+        "packages/engines",
+        "packages/filterparser",
+        "packages/sqltree",
+        "packages/types",
+        "packages/web"
     ],
     "scripts": {
         "start:api": "yarn workspace @dbgate/api start",
         "start:web": "yarn workspace @dbgate/web start",
+
         "start:sqltree": "yarn workspace @dbgate/sqltree start",
         "start:datalib": "yarn workspace @dbgate/datalib start",
         "start:filterparser": "yarn workspace @dbgate/filterparser start",
+
+        "build:sqltree": "yarn workspace @dbgate/sqltree build",
+        "build:datalib": "yarn workspace @dbgate/datalib build",
+        "build:filterparser": "yarn workspace @dbgate/filterparser build",
+        "build:lib": "yarn build:sqltree && yarn build:datalib && yarn build:filterparser",
+
+        "prepare": "yarn build:lib",
+        
         "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
 
         "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:datalib\" \"yarn start:filterparser\"",

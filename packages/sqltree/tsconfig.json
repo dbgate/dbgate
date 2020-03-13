@@ -5,7 +5,8 @@
       "declaration": true,
       "skipLibCheck": true,
       "outDir": "lib",
-      "preserveWatchOutput": true
+      "preserveWatchOutput": true,
+      "esModuleInterop": true
     },
     "include": [
       "src/**/*"
