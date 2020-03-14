@@ -14,7 +14,7 @@
     "build:datalib": "yarn workspace @dbgate/datalib build",
     "build:filterparser": "yarn workspace @dbgate/filterparser build",
     "build:lib": "yarn build:sqltree && yarn build:filterparser && yarn build:datalib",
-    "build:app": "cd app && yarn build",
+    "build:app": "cd app && yarn install && yarn build",
     "prepare": "yarn build:lib",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
     "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\"",
