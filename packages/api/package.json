@@ -22,17 +22,12 @@
   "scripts": {
     "start": "nodemon src/index.js",
     "ts": "tsc",
-    "build": "rollup --config",
-    "build2": "webpack"
+    "build": "webpack"
   },
   "devDependencies": {
     "@dbgate/types": "^0.1.0",
-    "@rollup/plugin-commonjs": "^11.0.2",
-    "@rollup/plugin-json": "^4.0.2",
-    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/lodash": "^4.14.149",
     "nodemon": "^2.0.2",
-    "rollup": "^2.0.6",
     "typescript": "^3.7.4",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
