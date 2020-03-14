@@ -3,6 +3,14 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const cors = require('cors');
 const io = require('socket.io');
+require('./deps');
+// require('socket.io-client');
+
+// "socket.io-client": "^2.3.0",
+// "utf-8-validate": "^5.0.2",
+// "uuid": "^3.4.0",
+// "uws": "10.148.1"
+
 
 const useController = require('./utility/useController');
 const connections = require('./controllers/connections');

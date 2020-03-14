@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dbgate/engines": "^0.1.0",
+    "@dbgate/sqltree": "^0.1.0",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
+    "bufferutil": "^4.0.1",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "eslint": "^6.8.0",
@@ -14,20 +17,24 @@
     "mssql": "^6.0.1",
     "mysql": "^2.17.1",
     "nedb-promises": "^4.0.1",
-    "pg": "^7.17.0",
-    "socket.io": "^2.3.0",
-    "uuid": "^3.4.0",
-    "@dbgate/engines": "^0.1.0",
-    "@dbgate/sqltree": "^0.1.0"
+    "pg": "^7.17.0"
   },
   "scripts": {
     "start": "nodemon src/index.js",
-    "ts": "tsc"
+    "ts": "tsc",
+    "build": "rollup --config",
+    "build2": "webpack"
   },
   "devDependencies": {
+    "@dbgate/types": "^0.1.0",
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/lodash": "^4.14.149",
     "nodemon": "^2.0.2",
+    "rollup": "^2.0.6",
     "typescript": "^3.7.4",
-    "@dbgate/types": "^0.1.0"
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
   }
 }

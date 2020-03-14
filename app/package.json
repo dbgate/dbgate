@@ -1,7 +1,8 @@
 {
-  "name": "@dbgate/electron",
+  "name": "dbgate",
   "version": "0.1.0",
   "private": true,
+  "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "dependencies": {
   },
   "build": {
@@ -9,6 +10,15 @@
     "mac": {
       "category": "database"
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },    
+    "win": {
+      "target": "squirrel"
+    },    
     "files": ["api", "build", "src"]
   },
   "homepage": "./",
@@ -20,8 +30,8 @@
   },
   "main": "src/electron.js",
   "devDependencies": {
-    "electron": "7.1.7",
-    "electron-builder": "21.2.0",
+    "electron": "8.1.1",
+    "electron-builder": "22.4.1",
     "cross-env": "^6.0.3"
   }
 }
