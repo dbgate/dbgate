@@ -1,0 +1,46 @@
+name: Electron CD
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macOS-10.14, windows-2016, ubuntu-18.04]
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: yarn install
+        run: |
+          yarn install
+      - name: Publish
+        run: |
+          yarn run dist
+      - name: Cleanup artifacts
+        run: |
+          npx rimraf "app/dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os }}
+          path: app/dist
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "app/dist/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
