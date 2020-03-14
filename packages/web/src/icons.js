@@ -5,7 +5,8 @@ export function getIconImage(src, props) {
   const { size = 16, style = {}, className, title } = props || {};
   if (!src) return null;
   if (src.endsWith('.svg')) {
-    src = '/icons/' + src;
+    // eslint-disable-next-line    
+    src = `${process.env.PUBLIC_URL}/icons/${src}`;
   }
   //   if (props.alignToLine) {
   //     style["position"] = "relative";

@@ -11,8 +11,7 @@
     },
     "linux": {
       "target": [
-        "AppImage",
-        "deb"
+        "AppImage"
       ]
     },
     "win": {
@@ -27,9 +26,10 @@
   "scripts": {
     "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
     "dist": "electron-builder",
+    "build": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn dist",
     "wait-electron": "node src/electron-wait-react",
     "postinstall": "electron-builder install-app-deps",
-    "predist": "copyfiles ../packages/api/dist/* packages -f && copyfiles \"../packages/web/build/*\" packages -f && copyfiles \"../packages/web/build/**/*\" packages -f "
+    "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/build/*\" packages && copyfiles \"../packages/web/build/**/*\" packages"
   },
   "main": "src/electron.js",
   "devDependencies": {
