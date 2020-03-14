@@ -12,7 +12,8 @@
     "lib"
   ],
   "dependencies": {
-    "@dbgate/sqltree": "^0.1.0"
+    "@dbgate/sqltree": "^0.1.0",
+    "@dbgate/filterparser": "^0.1.0"
   },
   "devDependencies": {
     "@dbgate/types": "^0.1.0",
