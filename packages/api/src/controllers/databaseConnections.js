@@ -31,7 +31,7 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
     const connection = await connections.get({ conid });
-    const subprocess = fork(`${__dirname}/../proc/databaseConnectionProcess.js`);
+    const subprocess = fork(process.argv[1], ['databaseConnectionProcess']);
     const newOpened = {
       conid,
       database,

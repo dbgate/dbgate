@@ -56,10 +56,14 @@ async function handleMessage({ msgtype, ...other }) {
   await handler(other);
 }
 
-process.on('message', async message => {
-  try {
-    await handleMessage(message);
-  } catch (e) {
-    process.send({ msgtype: 'error', error: e.message });
-  }
-});
+function start() {
+  process.on('message', async message => {
+    try {
+      await handleMessage(message);
+    } catch (e) {
+      process.send({ msgtype: 'error', error: e.message });
+    }
+  });
+}
+
+module.exports = { start };

@@ -27,7 +27,7 @@ module.exports = {
     raw: true,
   },
   test(req, res) {
-    const subprocess = fork(`${__dirname}/../proc/connectProcess.js`);
+    const subprocess = fork(process.argv[1], ['connectProcess']);
     subprocess.on('message', resp => res.json(resp));
     subprocess.send(req.body);
   },

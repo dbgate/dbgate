@@ -1,4 +1,3 @@
-
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -20,7 +19,7 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid);
     if (existing) return existing;
     const connection = await connections.get({ conid });
-    const subprocess = fork(`${__dirname}/../proc/serverConnectionProcess.js`);
+    const subprocess = fork(process.argv[1], ['serverConnectionProcess']);
     const newOpened = {
       conid,
       subprocess,

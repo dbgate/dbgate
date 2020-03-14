@@ -1,5 +1,5 @@
 const engines = require('@dbgate/engines');
-const driverConnect = require('../utility/driverConnect')
+const driverConnect = require('../utility/driverConnect');
 
 let systemConnection;
 let storedConnection;
@@ -28,10 +28,14 @@ async function handleMessage({ msgtype, ...other }) {
   await handler(other);
 }
 
-process.on('message', async message => {
-  try {
-    await handleMessage(message);
-  } catch (e) {
-    process.send({ msgtype: 'error', error: e.message });
-  }
-});
+function start() {
+  process.on('message', async message => {
+    try {
+      await handleMessage(message);
+    } catch (e) {
+      process.send({ msgtype: 'error', error: e.message });
+    }
+  });
+}
+
+module.exports = { start };
