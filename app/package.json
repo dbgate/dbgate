@@ -3,8 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
-  "dependencies": {
-  },
+  "dependencies": {},
   "build": {
     "appId": "com.jenasoft.dbgate",
     "mac": {
@@ -15,23 +14,28 @@
         "AppImage",
         "deb"
       ]
-    },    
+    },
     "win": {
       "target": "squirrel"
-    },    
-    "files": ["api", "build", "src"]
+    },
+    "files": [
+      "packages",
+      "src"
+    ]
   },
   "homepage": "./",
   "scripts": {
     "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
     "dist": "electron-builder",
     "wait-electron": "node src/electron-wait-react",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "predist": "copyfiles ../packages/api/dist/* packages -f && copyfiles \"../packages/web/build/*\" packages -f && copyfiles \"../packages/web/build/**/*\" packages -f "
   },
   "main": "src/electron.js",
   "devDependencies": {
+    "copyfiles": "^2.2.0",
+    "cross-env": "^6.0.3",
     "electron": "8.1.1",
-    "electron-builder": "22.4.1",
-    "cross-env": "^6.0.3"
+    "electron-builder": "22.4.1"
   }
 }
