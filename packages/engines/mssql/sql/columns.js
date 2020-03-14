@@ -1,3 +1,4 @@
+module.exports = `
 select c.name as columnName, t.name as dataType, c.object_id as objectId, c.is_identity as isIdentity,
 	c.max_length as maxLength, c.precision, c.scale, c.is_nullable as isNullable,
 	d.definition as defaultValue, d.name as defaultConstraint,
@@ -11,3 +12,4 @@ left join sys.default_constraints d on c.default_object_id = d.object_id
 left join sys.computed_columns m on m.object_id = c.object_id and m.column_id = c.column_id
 where o.type = 'U' and o.object_id =[OBJECT_ID_CONDITION]
 order by c.column_id
+`;

@@ -1,12 +1,8 @@
 const fp = require('lodash/fp');
 const _ = require('lodash');
+const sql = require('./sql')
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
-
-/** @returns {Promise<string>} */
-async function loadQuery(pool, name) {
-  return await pool._nativeModules.fs.readFile(pool._nativeModules.path.join(__dirname, name), 'utf-8');
-}
 
 const byTableFilter = table => x => x.pureName == table.pureName && x.schemaName == x.schemaName;
 
@@ -184,15 +180,15 @@ class MsSqlAnalyser extends DatabaseAnalayser {
     functions = false,
     triggers = false
   ) {
-    let res = await loadQuery(this.pool, resFileName);
+    let res = sql[resFileName];
     res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
     return res;
   }
   async runAnalysis() {
-    const tables = await this.driver.query(this.pool, await this.createQuery('tables.sql'));
-    const columns = await this.driver.query(this.pool, await this.createQuery('columns.sql'));
-    const pkColumns = await this.driver.query(this.pool, await this.createQuery('primary_keys.sql'));
-    const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreign_keys.sql'));
+    const tables = await this.driver.query(this.pool, await this.createQuery('tables'));
+    const columns = await this.driver.query(this.pool, await this.createQuery('columns'));
+    const pkColumns = await this.driver.query(this.pool, await this.createQuery('primaryKeys'));
+    const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreignKeys'));
 
     this.result.tables = tables.rows.map(table => ({
       ...table,

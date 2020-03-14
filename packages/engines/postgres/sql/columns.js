@@ -1,3 +1,4 @@
+module.exports = `
 select 
 	table_schema as "schemaName", 
 	table_name as "pureName", 
@@ -15,3 +16,4 @@ where
 		and table_schema !~ '^pg_toast' 
 		and 'table:' || table_schema || '.' || table_name =[OBJECT_ID_CONDITION]
 order by ordinal_position
+`;

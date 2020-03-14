@@ -1,15 +1,8 @@
-const fp = require("lodash/fp");
-const _ = require("lodash");
+const fp = require('lodash/fp');
+const _ = require('lodash');
+const sql = require('./sql');
 
-const DatabaseAnalayser = require("../default/DatabaseAnalyser");
-
-/** @returns {Promise<string>} */
-async function loadQuery(pool, name) {
-  return await pool._nativeModules.fs.readFile(
-    pool._nativeModules.path.join(__dirname, name),
-    "utf-8"
-  );
-}
+const DatabaseAnalayser = require('../default/DatabaseAnalyser');
 
 class MySqlAnalyser extends DatabaseAnalayser {
   constructor(pool, driver) {
@@ -24,20 +17,14 @@ class MySqlAnalyser extends DatabaseAnalayser {
     functions = false,
     triggers = false
   ) {
-    let res = await loadQuery(this.pool, resFileName);
-    res = res.replace("=[OBJECT_NAME_CONDITION]", " is not null");
-    res = res.replace("#DATABASE#", this.pool._database_name);
+    let res = sql[resFileName];
+    res = res.replace('=[OBJECT_NAME_CONDITION]', ' is not null');
+    res = res.replace('#DATABASE#', this.pool._database_name);
     return res;
   }
   async runAnalysis() {
-    const tables = await this.driver.query(
-      this.pool,
-      await this.createQuery("tables.sql")
-    );
-    const columns = await this.driver.query(
-      this.pool,
-      await this.createQuery("columns.sql")
-    );
+    const tables = await this.driver.query(this.pool, await this.createQuery('tables'));
+    const columns = await this.driver.query(this.pool, await this.createQuery('columns'));
     //   const pkColumns = await this.driver.query(this.pool, await this.createQuery('primary_keys.sql'));
     //   const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreign_keys.sql'));
 
@@ -48,9 +35,9 @@ class MySqlAnalyser extends DatabaseAnalayser {
         .map(({ isNullable, extra, ...col }) => ({
           ...col,
           notNull: !isNullable,
-          autoIncrement: extra && extra.toLowerCase().includes("auto_increment")
+          autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
         })),
-      foreignKeys: []
+      foreignKeys: [],
       // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
       // foreignKeys: extractForeignKeys(table, fkColumns.rows),
     }));

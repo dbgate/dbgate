@@ -1,6 +1,7 @@
+module.exports = `
 with pkey as
 (
-    select cc.conrelid, format(E'create constraint %I primary key(%s);\n', cc.conname,
+    select cc.conrelid, format(E'create constraint %I primary key(%s);\\n', cc.conname,
         string_agg(a.attname, ', ' 
             order by array_position(cc.conkey, a.attnum))) pkey
     from pg_catalog.pg_constraint cc
@@ -13,13 +14,13 @@ with pkey as
 
 
 SELECT oid as "objectId", nspname as "schemaName", relname as "pureName",
-  md5('CREATE TABLE ' || nspname || '.' || relname || E'\n(\n' ||
+  md5('CREATE TABLE ' || nspname || '.' || relname || E'\\n(\\n' ||
   array_to_string(
     array_agg(
       '    ' || column_name || ' ' ||  type || ' '|| not_null
     )
-    , E',\n'
-  ) || E'\n);\n' || (select pkey from pkey where pkey.conrelid = oid)) as "hash"
+    , E',\\n'
+  ) || E'\\n);\\n' || (select pkey from pkey where pkey.conrelid = oid)) as "hash"
 from
 (
   SELECT 
@@ -48,3 +49,4 @@ from
 ) as tabledefinition
 where 'table:' || nspname || '.' ||  relname =[OBJECT_ID_CONDITION]
 group by relname, nspname, oid
+`;

@@ -1,3 +1,4 @@
+module.exports = `
 select o.object_id, pureName = t.Table_Name, schemaName = t.Table_Schema, columnName = c.Column_Name, constraintName=t.constraint_name from 
     INFORMATION_SCHEMA.TABLE_CONSTRAINTS t,
     sys.objects o,
@@ -10,3 +11,4 @@ where
     and c.Table_Name = t.Table_Name
     and Constraint_Type = 'PRIMARY KEY'
 	and o.object_id =[OBJECT_ID_CONDITION]
+`;
