@@ -15,7 +15,7 @@
       ]
     },
     "win": {
-      "target": "squirrel"
+      "target": "nsis"
     },
     "files": [
       "packages",

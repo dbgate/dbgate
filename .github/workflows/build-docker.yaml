@@ -1,11 +1,11 @@
 name: Docker image
 
-on: [push]
+# on: [push]
 
-# on:
-#   push:
-#     branches:
-#       - production
+on:
+  push:
+    branches:
+      - production
 
 jobs:
   build:
