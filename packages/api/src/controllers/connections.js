@@ -12,7 +12,7 @@ module.exports = {
   opened: [],
 
   async _init() {
-    const dir = await datadir();
+    const dir = datadir();
     // @ts-ignore
     this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
   },

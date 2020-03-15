@@ -7,6 +7,16 @@ const express = require('express');
 module.exports = function useController(app, route, controller) {
   const router = express.Router();
 
+  if (controller._init) {
+    console.log(`Calling init controller for controller ${route}`);
+    try {
+      controller._init();
+    } catch (err) {
+      console.log(`Error initializing controller, exiting application`, err);
+      process.exit(1);
+    }
+  }
+
   for (const key of _.keys(controller)) {
     const obj = controller[key];
     if (!_.isFunction(obj)) continue;
@@ -31,10 +41,10 @@ module.exports = function useController(app, route, controller) {
       router[method](route, controller[key]);
     } else {
       router[method](route, async (req, res) => {
-        if (controller._init && !controller._init_called) {
-          await controller._init();
-          controller._init_called = true;
-        }
+        // if (controller._init && !controller._init_called) {
+        //   await controller._init();
+        //   controller._init_called = true;
+        // }
         try {
           let params = [{ ...req.body, ...req.query }];
           if (rawParams) params = [req, res];

@@ -1,17 +1,9 @@
-# base image
-FROM node:10
+FROM node:12-alpine
 
-# set working directory
-WORKDIR /home/jenasoft/dbgate
+WORKDIR /home/dbgate-docker
 
 COPY . .
 
-RUN yarn
-RUN yarn build:api
-RUN yarn build:web
-
-# start app
-WORKDIR /home/jenasoft/raftcz-frontend/build
-EXPOSE 5000
-# CMD yarn start
-CMD serve -s
+WORKDIR /home/dbgate-docker
+EXPOSE 3000
+CMD node bundle.js

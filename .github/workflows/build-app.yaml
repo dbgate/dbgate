@@ -1,11 +1,11 @@
-name: Docker image
 
-on: [push]
 
-# on:
-#   push:
-#     branches:
-#       - production
+name: Electron app
+
+on:
+  push:
+    branches:
+      - production
 
 jobs:
   build:
@@ -32,9 +32,21 @@ jobs:
       - name: yarn install
         run: |
           yarn install
-      - name: Prepare docker image
+      - name: Publish
         run: |
-          yarn run prepare:docker
-      - name: Build docker image
+          yarn run build:app
+      - name: Cleanup artifacts
         run: |
-          docker build ./docker
+          npx rimraf "app/dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.os }}
+          path: app/dist
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: "app/dist/**"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

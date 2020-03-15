@@ -28,8 +28,9 @@ function start() {
   useController(app, '/database-connections', databaseConnections);
   useController(app, '/tables', tables);
 
-  if (fs.existsSync(`${__dirname}/build`)) {
-    app.use(express.static(`${__dirname}/build`));
+  if (fs.existsSync('/home/dbgate-docker/build')) {
+    // server static files inside docker container
+    app.use(express.static('/home/dbgate-docker/build'));
   } else {
     app.get('/', (req, res) => {
       res.send('DbGate API');

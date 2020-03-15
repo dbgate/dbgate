@@ -1,9 +1,11 @@
-name: Electron app
+name: Docker image
 
-on:
-  push:
-    branches:
-      - production
+on: [push]
+
+# on:
+#   push:
+#     branches:
+#       - production
 
 jobs:
   build:
@@ -30,21 +32,14 @@ jobs:
       - name: yarn install
         run: |
           yarn install
-      - name: Publish
+      - name: Prepare docker image
         run: |
-          yarn run build:app
-      - name: Cleanup artifacts
+          yarn run prepare:docker
+      - name: Build docker image
         run: |
-          npx rimraf "app/dist/!(*.exe|*.deb|*.AppImage|*.dmg)"
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v1
-        with:
-          name: ${{ matrix.os }}
-          path: app/dist
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: "app/dist/**"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          docker build ./docker -t dbgate:future
+      - name: Push docker image
+        run: |
+          docker tag dbgate:future dbgate/dbgate:future
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push dbgate/dbgate:future

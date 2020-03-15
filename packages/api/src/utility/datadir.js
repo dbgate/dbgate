@@ -1,15 +1,15 @@
 const os = require('os');
 const path = require('path');
-const fs = require('fs-extra');
+const fs = require('fs');
 
 let created = false;
 
-module.exports = async function datadir() {
+module.exports = function datadir() {
   const dir = path.join(os.homedir(), 'dbgate-data');
   if (!created) {
-    const stat = await fs.stat(dir);
-    if (!stat.isDirectory) {
-      await fs.mkdir(dir);
+    if (!fs.existsSync(dir)) {
+      console.log(`Creating data directory ${dir}`)
+      fs.mkdirSync(dir);
     }
     created = true;
   }
