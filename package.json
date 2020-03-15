@@ -15,6 +15,12 @@
     "build:filterparser": "yarn workspace @dbgate/filterparser build",
     "build:lib": "yarn build:sqltree && yarn build:filterparser && yarn build:datalib",
     "build:app": "cd app && yarn install && yarn build",
+    "build:api": "yarn workspace @dbgate/api build",
+    "build:web": "yarn workspace @dbgate/web build",
+
+    "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/build/* docker -u 2 && copyfiles \"packages/web/build/**/*\" docker -u 2",
+    "prepare:docker": "yarn build:web && yarn build:api && yarn copy:docker:build",
+
     "prepare": "yarn build:lib",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
     "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\"",
@@ -27,5 +33,8 @@
     "concurrently": "^5.1.0",
     "patch-package": "^6.2.1",
     "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "copyfiles": "^2.2.0"
   }
 }

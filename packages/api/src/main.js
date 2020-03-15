@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const http = require('http');
 const cors = require('cors');
 const io = require('socket.io');
+const fs = require('fs');
 
 const useController = require('./utility/useController');
 const connections = require('./controllers/connections');
@@ -22,14 +23,18 @@ function start() {
   app.use(cors());
   app.use(bodyParser.json());
 
-  app.get('/', (req, res) => {
-    res.send('DbGate API');
-  });
-
   useController(app, '/connections', connections);
   useController(app, '/server-connections', serverConnections);
   useController(app, '/database-connections', databaseConnections);
   useController(app, '/tables', tables);
+
+  if (fs.existsSync(`${__dirname}/build`)) {
+    app.use(express.static(`${__dirname}/build`));
+  } else {
+    app.get('/', (req, res) => {
+      res.send('DbGate API');
+    });
+  }
 
   server.listen(3000);
 }

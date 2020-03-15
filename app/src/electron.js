@@ -17,7 +17,6 @@ function createWindow() {
   mainWindow = new BrowserWindow({ width: 800, height: 600 });
 
   const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'));
-  console.log('API PROCESS', apiProcess);
 
   const startUrl =
     process.env.ELECTRON_START_URL ||
