@@ -34,12 +34,14 @@ jobs:
         run: |
           yarn run build:app
 
-      - name: Cleanup artifacts
+      - name: Copy artifacts Linux, MacOs
         if: matrix.os != 'windows-2016'
         run: |
           mkdir artifacts
-          mv "app/dist/(*.exe,*.deb,*.AppImage,*.dmg)" artifacts || true
-      - name: Cleanup artifacts Win
+          mv app/dist/*.deb artifacts || true
+          mv app/dist/*.AppImage artifacts || true
+          mv app/dist/*.dmg artifacts || true
+      - name: Copy artifacts Win
         if: matrix.os == 'windows-2016'
         run: |
           mkdir artifacts
