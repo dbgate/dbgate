@@ -138,7 +138,7 @@ export abstract class GridDisplay {
   getDisplayColumn(table: TableInfo, col: ColumnInfo, parentPath: string[]) {
     const uniquePath = [...parentPath, col.columnName];
     const uniqueName = uniquePath.join('.');
-    console.log('this.config.addedColumns', this.config.addedColumns, uniquePath);
+    // console.log('this.config.addedColumns', this.config.addedColumns, uniquePath);
     return {
       ...col,
       pureName: table.pureName,

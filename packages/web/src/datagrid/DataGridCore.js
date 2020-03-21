@@ -310,7 +310,7 @@ export default function DataGridCore(props) {
     setCurrentCell(cell);
     setSelectedCells(getCellRange(cell, cell));
     setDragStartCell(cell);
-    console.log('START', cell);
+    // console.log('START', cell);
   }
 
   function handleGridMouseMove(event) {
