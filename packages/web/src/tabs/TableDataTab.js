@@ -9,7 +9,7 @@ import useConnectionInfo from '../utility/useConnectionInfo';
 import engines from '@dbgate/engines';
 import getTableInfo from '../utility/getTableInfo';
 
-export default function TableDataTab({ conid, database, schemaName, pureName }) {
+export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const [config, setConfig] = React.useState(createGridConfig());
   const [cache, setCache] = React.useState(createGridCache());
@@ -24,7 +24,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName }) 
       conid={conid}
       database={database}
       display={display}
-      isMainGrid
+      tabVisible={tabVisible}
     />
   );
 }

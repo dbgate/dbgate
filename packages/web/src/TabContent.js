@@ -48,10 +48,11 @@ export default function TabContent() {
 
   return _.keys(mountedTabs).map(tabid => {
     const { TabComponent, props } = mountedTabs[tabid];
+    const tabVisible = tabid == (selectedTab && selectedTab.tabid);
     return (
       // @ts-ignore
-      <TabContainer key={tabid} tabVisible={tabid == (selectedTab && selectedTab.tabid)}>
-        <TabComponent {...props} />
+      <TabContainer key={tabid} tabVisible={tabVisible}>
+        <TabComponent {...props} tabVisible={tabVisible} />
       </TabContainer>
     );
   });

@@ -110,7 +110,7 @@ function CellFormattedValue({ value }) {
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display, isMainGrid } = props;
+  const { conid, database, display, tabVisible } = props;
   const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
@@ -123,6 +123,12 @@ export default function DataGridCore(props) {
   const { isLoading, loadedRows, isLoadedAll, loadedTime } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
+
+  const [vScrollValueToSet, setvScrollValueToSet] = React.useState();
+  const [vScrollValueToSetDate, setvScrollValueToSetDate] = React.useState(new Date());
+
+  const [hScrollValueToSet, sethScrollValueToSet] = React.useState();
+  const [hScrollValueToSetDate, sethScrollValueToSetDate] = React.useState(new Date());
 
   const [currentCell, setCurrentCell] = React.useState(topLeftCell);
   const [selectedCells, setSelectedCells] = React.useState(emptyCellArray);
@@ -186,19 +192,23 @@ export default function DataGridCore(props) {
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  const tableRef = React.useRef();
+  const [tableRef, { height: tableHeight, width: tableWidth }, tableElement] = useDimensions();
 
   const columnSizes = React.useMemo(() => countColumnSizes(), [loadedRows, containerWidth, display]);
+  const headerColWidth = 40;
 
   // console.log('containerWidth', containerWidth);
 
   const gridScrollAreaHeight = containerHeight - 2 * rowHeight;
-  const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize;
+  const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth;
 
   const visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(rowHeight));
   const visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(rowHeight));
   //   const visibleRowCountUpperBound = 20;
   //   const visibleRowCountLowerBound = 20;
+  // console.log('containerHeight', containerHeight);
+  // console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
+  // console.log('rowHeight', rowHeight);
 
   const reload = () => {
     setLoadProps({
@@ -221,11 +231,11 @@ export default function DataGridCore(props) {
   });
 
   React.useEffect(() => {
-    if (isMainGrid) {
+    if (tabVisible) {
       // @ts-ignore
-      if (tableRef.current) tableRef.current.focus();
+      if (tableElement) tableElement.focus();
     }
-  }, []);
+  }, [tabVisible, tableElement]);
 
   if (!loadedRows || !columns) return null;
   const rowCountNewIncluded = loadedRows.length;
@@ -280,7 +290,7 @@ export default function DataGridCore(props) {
     // if (headerWidth > this.rowHeaderWidth) this.rowHeaderWidth = headerWidth;
 
     context.font = '14px Helvetica';
-    for (let row of loadedRows) {
+    for (let row of loadedRows.slice(0, 20)) {
       for (let colIndex = 0; colIndex < columns.length; colIndex++) {
         let uqName = columns[colIndex].uniqueName;
         let text = row[uqName];
@@ -397,14 +407,57 @@ export default function DataGridCore(props) {
     if (col < 0) col = 0;
     if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
     setCurrentCell([row, col]);
-    if (!event.shiftKey) {
-      setSelectedCells([]);
-    }
+    setSelectedCells([...(event.ctrlKey ? selectedCells : []), [row, col]]);
+    scrollIntoView([row, col]);
     // this.selectedCells.push(this.currentCell);
     // this.scrollIntoView(this.currentCell);
 
     if (event) event.preventDefault();
     return true;
+  }
+
+  function scrollIntoView(cell) {
+    const [row, col] = cell;
+
+    if (row != null) {
+      let newRow = null;
+      const rowCount = rowCountNewIncluded;
+
+      if (row < firstVisibleRowScrollIndex) newRow = row;
+      else if (row + 1 >= firstVisibleRowScrollIndex + visibleRowCountLowerBound)
+        newRow = row - visibleRowCountLowerBound + 2;
+
+      if (newRow < 0) newRow = 0;
+      if (newRow >= rowCount) newRow = rowCount - 1;
+
+      if (newRow != null) {
+        setFirstVisibleRowScrollIndex(newRow);
+        // firstVisibleRowScrollIndex = newRow;
+        setvScrollValueToSet(newRow);
+        setvScrollValueToSetDate(new Date());
+        // vscroll.value = newRow;
+      }
+      //int newRow = _rowSizes.ScrollInView(FirstVisibleRowScrollIndex, cell.Row.Value - _rowSizes.FrozenCount, GridScrollAreaHeight);
+      //ScrollContent(newRow, FirstVisibleColumnScrollIndex);
+    }
+
+    if (col != null) {
+      if (col >= columnSizes.frozenCount) {
+        let newColumn = columnSizes.scrollInView(
+          firstVisibleColumnScrollIndex,
+          col - columnSizes.frozenCount,
+          gridScrollAreaWidth
+        );
+        setFirstVisibleColumnScrollIndex(newColumn);
+
+        // @ts-ignore
+        sethScrollValueToSet(newColumn);
+        sethScrollValueToSetDate(new Date());
+
+        // firstVisibleColumnScrollIndex = newColumn;
+        // hscroll.value = newColumn;
+      }
+    }
   }
 
   function cellIsSelected(row, col) {
@@ -424,7 +477,8 @@ export default function DataGridCore(props) {
   //   console.log('containerHeight', containerHeight);
 
   const visibleColumnCount = columnSizes.getVisibleScrollCount(firstVisibleColumnScrollIndex, gridScrollAreaWidth);
-  // console.log('visibleColumnCount', visibleColumnCount);
+  console.log('visibleColumnCount', visibleColumnCount);
+  console.log('gridScrollAreaWidth', gridScrollAreaWidth);
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
@@ -459,7 +513,7 @@ export default function DataGridCore(props) {
     });
   }
 
-  const hederColwidthPx = '40px';
+  const hederColwidthPx = `${headerColWidth}px`;
   const filterCount = display.filterCount;
 
   const handleClearFilters = () => {
@@ -467,6 +521,12 @@ export default function DataGridCore(props) {
   };
 
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
+  console.log(
+    'gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()',
+    gridScrollAreaWidth,
+    columnSizes.getVisibleScrollSizeSum()
+  );
+
   return (
     <GridContainer ref={containerRef}>
       <Table
@@ -524,14 +584,18 @@ export default function DataGridCore(props) {
           {loadedRows
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
-              <TableBodyRow key={firstVisibleRowScrollIndex + index}>
+              <TableBodyRow key={firstVisibleRowScrollIndex + index} style={{ height: `${rowHeight}px` }}>
                 <TableHeaderCell data-row={firstVisibleRowScrollIndex + index} data-col="header">
                   {firstVisibleRowScrollIndex + index + 1}
                 </TableHeaderCell>
                 {realColumns.map(col => (
                   <TableBodyCell
                     key={col.uniqueName}
-                    style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+                    style={{
+                      width: col.widthPx,
+                      minWidth: col.widthPx,
+                      maxWidth: col.widthPx,
+                    }}
                     data-row={firstVisibleRowScrollIndex + index}
                     data-col={col.colIndex}
                     // @ts-ignore
@@ -546,12 +610,16 @@ export default function DataGridCore(props) {
         </TableBody>
       </Table>
       <HorizontalScrollBar
+        valueToSet={hScrollValueToSet}
+        valueToSetDate={hScrollValueToSetDate}
         minimum={0}
         maximum={columns.length - 1}
         viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
         onScroll={handleColumnScroll}
       />
       <VerticalScrollBar
+        valueToSet={vScrollValueToSet}
+        valueToSetDate={vScrollValueToSetDate}
         minimum={0}
         maximum={rowCountNewIncluded - visibleRowCountUpperBound + 2}
         onScroll={handleRowScroll}

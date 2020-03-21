@@ -4,5 +4,5 @@ export interface DataGridProps {
   conid: number;
   database: string;
   display: GridDisplay;
-  isMainGrid?: boolean;
+  tabVisible?: boolean;
 }
