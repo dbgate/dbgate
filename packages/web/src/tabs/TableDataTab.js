@@ -24,6 +24,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName }) 
       conid={conid}
       database={database}
       display={display}
+      isMainGrid
     />
   );
 }

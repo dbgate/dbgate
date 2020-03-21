@@ -11,7 +11,16 @@ import axios from '../utility/axios';
 import ColumnLabel from './ColumnLabel';
 import DataFilterControl from './DataFilterControl';
 import { getFilterType } from '@dbgate/filterparser';
-import { convertCellAddress, cellFromEvent, getCellRange } from './selection';
+import {
+  convertCellAddress,
+  cellFromEvent,
+  getCellRange,
+  topLeftCell,
+  isRegularCell,
+  nullCell,
+  emptyCellArray,
+} from './selection';
+import keycodes from '../utility/keycodes';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -30,6 +39,7 @@ const Table = styled.table`
   right: 20px;
   overflow: scroll;
   border-collapse: collapse;
+  outline: none;
 `;
 const TableHead = styled.thead`
   // display: block;
@@ -100,7 +110,7 @@ function CellFormattedValue({ value }) {
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display } = props;
+  const { conid, database, display, isMainGrid } = props;
   const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
@@ -114,9 +124,9 @@ export default function DataGridCore(props) {
 
   const loadedTimeRef = React.useRef(0);
 
-  const [currentCell, setCurrentCell] = React.useState([undefined, undefined]);
-  const [selectedCells, setSelectedCells] = React.useState([]);
-  const [dragStartCell, setDragStartCell] = React.useState(null);
+  const [currentCell, setCurrentCell] = React.useState(topLeftCell);
+  const [selectedCells, setSelectedCells] = React.useState(emptyCellArray);
+  const [dragStartCell, setDragStartCell] = React.useState(nullCell);
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -176,6 +186,7 @@ export default function DataGridCore(props) {
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
+  const tableRef = React.useRef();
 
   const columnSizes = React.useMemo(() => countColumnSizes(), [loadedRows, containerWidth, display]);
 
@@ -208,6 +219,13 @@ export default function DataGridCore(props) {
       reload();
     }
   });
+
+  React.useEffect(() => {
+    if (isMainGrid) {
+      // @ts-ignore
+      if (tableRef.current) tableRef.current.focus();
+    }
+  }, []);
 
   if (!loadedRows || !columns) return null;
   const rowCountNewIncluded = loadedRows.length;
@@ -287,11 +305,12 @@ export default function DataGridCore(props) {
   }
 
   function handleGridMouseDown(event) {
+    event.target.closest('table').focus();
     const cell = cellFromEvent(event);
     setCurrentCell(cell);
     setSelectedCells(getCellRange(cell, cell));
     setDragStartCell(cell);
-    console.log('START',cell);
+    console.log('START', cell);
   }
 
   function handleGridMouseMove(event) {
@@ -311,6 +330,83 @@ export default function DataGridCore(props) {
     }
   }
 
+  function handleGridKeyDown(event) {
+    handleCursorMove(event);
+  }
+
+  function handleCursorMove(event) {
+    if (!isRegularCell(currentCell)) return false;
+    let rowCount = rowCountNewIncluded;
+    if (event.ctrlKey) {
+      switch (event.keyCode) {
+        case keycodes.upArrow:
+        case keycodes.pageUp:
+          return moveCurrentCell(0, currentCell[1], event);
+        case keycodes.downArrow:
+        case keycodes.pageDown:
+          return moveCurrentCell(rowCount - 1, currentCell[1], event);
+        case keycodes.leftArrow:
+          return moveCurrentCell(currentCell[0], 0, event);
+        case keycodes.rightArrow:
+          return moveCurrentCell(currentCell[0], columnSizes.realCount - 1, event);
+        case keycodes.home:
+          return moveCurrentCell(0, 0, event);
+        case keycodes.end:
+          return moveCurrentCell(rowCount - 1, columnSizes.realCount - 1, event);
+        case keycodes.a:
+          setSelectedCells([['header', 'header']]);
+          event.preventDefault();
+          return true;
+      }
+    } else {
+      switch (event.keyCode) {
+        case keycodes.upArrow:
+          if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
+          return moveCurrentCell(currentCell[0] - 1, currentCell[1], event);
+        case keycodes.downArrow:
+        case keycodes.enter:
+          return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+        case keycodes.leftArrow:
+          return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+        case keycodes.rightArrow:
+          return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+        case keycodes.home:
+          return moveCurrentCell(currentCell[0], 0, event);
+        case keycodes.end:
+          return moveCurrentCell(currentCell[0], columnSizes.realCount - 1, event);
+        case keycodes.pageUp:
+          return moveCurrentCell(currentCell[0] - visibleRowCountLowerBound, currentCell[1], event);
+        case keycodes.pageDown:
+          return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
+      }
+    }
+    return false;
+  }
+
+  function focusFilterEditor(columnRealIndex) {
+    // let modelIndex = this.columnSizes.realToModel(columnRealIndex);
+    // this.headerFilters[this.columns[modelIndex].uniquePath].focus();
+    return true;
+  }
+
+  function moveCurrentCell(row, col, event) {
+    let rowCount = rowCountNewIncluded;
+
+    if (row < 0) row = 0;
+    if (row >= rowCount) row = rowCount - 1;
+    if (col < 0) col = 0;
+    if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
+    setCurrentCell([row, col]);
+    if (!event.shiftKey) {
+      setSelectedCells([]);
+    }
+    // this.selectedCells.push(this.currentCell);
+    // this.scrollIntoView(this.currentCell);
+
+    if (event) event.preventDefault();
+    return true;
+  }
+
   function cellIsSelected(row, col) {
     const [currentRow, currentCol] = currentCell;
     if (row == currentRow && col == currentCol) return true;
@@ -318,6 +414,7 @@ export default function DataGridCore(props) {
       if (row == selectedRow && col == selectedCol) return true;
       if (selectedRow == 'header' && col == selectedCol) return true;
       if (row == selectedRow && selectedCol == 'header') return true;
+      if (selectedRow == 'header' && selectedCol == 'header') return true;
     }
     return false;
   }
@@ -372,7 +469,15 @@ export default function DataGridCore(props) {
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
   return (
     <GridContainer ref={containerRef}>
-      <Table onMouseDown={handleGridMouseDown} onMouseMove={handleGridMouseMove} onMouseUp={handleGridMouseUp}>
+      <Table
+        onMouseDown={handleGridMouseDown}
+        onMouseMove={handleGridMouseMove}
+        onMouseUp={handleGridMouseUp}
+        onKeyDown={handleGridKeyDown}
+        // table can be focused
+        tabIndex={-1}
+        ref={tableRef}
+      >
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
             <TableHeaderCell data-row="header" data-col="header" />

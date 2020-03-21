@@ -1,5 +1,16 @@
 import _ from 'lodash';
 export type CellAddress = [number | 'header' | 'filter' | undefined, number | 'header' | undefined];
+export type RegularCellAddress = [number, number];
+
+export const topLeftCell: CellAddress = [0, 0];
+export const undefinedCell: CellAddress = [undefined, undefined];
+export const nullCell: CellAddress = null;
+export const emptyCellArray: CellAddress[] = [];
+
+export function isRegularCell(cell: CellAddress): cell is RegularCellAddress {
+  const [row, col] = cell;
+  return _.isNumber(row) && _.isNumber(col);
+}
 
 export function getCellRange(a: CellAddress, b: CellAddress): CellAddress[] {
   const [rowA, colA] = a;
@@ -36,6 +47,9 @@ export function getCellRange(a: CellAddress, b: CellAddress): CellAddress[] {
     }
     return res;
   }
+  if (colA == 'header' && colB == 'header' && rowA == 'header' && rowB == 'header') {
+    return [['header', 'header']];
+  }
   return [];
 }
 
@@ -47,6 +61,7 @@ export function convertCellAddress(row, col): CellAddress {
 
 export function cellFromEvent(event): CellAddress {
   const cell = event.target.closest('td');
+  if (!cell) return undefinedCell;
   const col = cell.getAttribute('data-col');
   const row = cell.getAttribute('data-row');
   return convertCellAddress(row, col);

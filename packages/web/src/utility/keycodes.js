@@ -13,7 +13,7 @@ export default {
   end: 35,
   home: 36,
   leftArrow: 37,
-  ppArrow: 38,
+  upArrow: 38,
   rightArrow: 39,
   downArrow: 40,
   insert: 45,
