@@ -11,6 +11,7 @@ import axios from '../utility/axios';
 import ColumnLabel from './ColumnLabel';
 import DataFilterControl from './DataFilterControl';
 import { getFilterType } from '@dbgate/filterparser';
+import { convertCellAddress, cellFromEvent, getCellRange } from './selection';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -18,6 +19,7 @@ const GridContainer = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
+  user-select: none;
 `;
 
 const Table = styled.table`
@@ -73,6 +75,13 @@ const TableBodyCell = styled.td`
   padding: 2px;
   white-space: nowrap;
   overflow: hidden;
+  ${props =>
+    // @ts-ignore
+    props.isSelected &&
+    `
+    background: initial;
+    background-color: deepskyblue;
+    color: white;`}
 `;
 const HintSpan = styled.span`
   color: gray;
@@ -104,6 +113,10 @@ export default function DataGridCore(props) {
   const { isLoading, loadedRows, isLoadedAll, loadedTime } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
+
+  const [currentCell, setCurrentCell] = React.useState([undefined, undefined]);
+  const [selectedCells, setSelectedCells] = React.useState([]);
+  const [dragStartCell, setDragStartCell] = React.useState(null);
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -273,6 +286,42 @@ export default function DataGridCore(props) {
     return columnSizes;
   }
 
+  function handleGridMouseDown(event) {
+    const cell = cellFromEvent(event);
+    setCurrentCell(cell);
+    setSelectedCells(getCellRange(cell, cell));
+    setDragStartCell(cell);
+    console.log('START',cell);
+  }
+
+  function handleGridMouseMove(event) {
+    if (dragStartCell) {
+      const cell = cellFromEvent(event);
+      setCurrentCell(cell);
+      setSelectedCells(getCellRange(dragStartCell, cell));
+    }
+  }
+
+  function handleGridMouseUp(event) {
+    if (dragStartCell) {
+      const cell = cellFromEvent(event);
+      setCurrentCell(cell);
+      setSelectedCells(getCellRange(dragStartCell, cell));
+      setDragStartCell(null);
+    }
+  }
+
+  function cellIsSelected(row, col) {
+    const [currentRow, currentCol] = currentCell;
+    if (row == currentRow && col == currentCol) return true;
+    for (const [selectedRow, selectedCol] of selectedCells) {
+      if (row == selectedRow && col == selectedCol) return true;
+      if (selectedRow == 'header' && col == selectedCol) return true;
+      if (row == selectedRow && selectedCol == 'header') return true;
+    }
+    return false;
+  }
+
   //   console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
   //   console.log('gridScrollAreaHeight', gridScrollAreaHeight);
   //   console.log('containerHeight', containerHeight);
@@ -282,7 +331,7 @@ export default function DataGridCore(props) {
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
-  /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string})[]} */
+  /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
   const realColumns = [];
 
   // frozen columns
@@ -308,6 +357,7 @@ export default function DataGridCore(props) {
     const widthNumber = columnSizes.getSizeByRealIndex(colIndex);
     realColumns.push({
       ...col,
+      colIndex,
       widthPx: `${widthNumber}px`,
     });
   }
@@ -322,12 +372,14 @@ export default function DataGridCore(props) {
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
   return (
     <GridContainer ref={containerRef}>
-      <Table>
+      <Table onMouseDown={handleGridMouseDown} onMouseMove={handleGridMouseMove} onMouseUp={handleGridMouseUp}>
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
-            <TableHeaderCell />
+            <TableHeaderCell data-row="header" data-col="header" />
             {realColumns.map(col => (
               <TableHeaderCell
+                data-row="header"
+                data-col={col.colIndex}
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
@@ -336,7 +388,11 @@ export default function DataGridCore(props) {
             ))}
           </TableHeaderRow>
           <TableHeaderRow>
-            <TableHeaderCell style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}>
+            <TableHeaderCell
+              style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}
+              data-row="filter"
+              data-col="header"
+            >
               {filterCount > 0 && (
                 <button onClick={handleClearFilters}>
                   <i className="fas fa-times" />
@@ -347,6 +403,8 @@ export default function DataGridCore(props) {
               <TableFilterCell
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+                data-row="filter"
+                data-col={col.colIndex}
               >
                 <DataFilterControl
                   filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
@@ -362,11 +420,17 @@ export default function DataGridCore(props) {
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
               <TableBodyRow key={firstVisibleRowScrollIndex + index}>
-                <TableHeaderCell>{firstVisibleRowScrollIndex + index + 1}</TableHeaderCell>
+                <TableHeaderCell data-row={firstVisibleRowScrollIndex + index} data-col="header">
+                  {firstVisibleRowScrollIndex + index + 1}
+                </TableHeaderCell>
                 {realColumns.map(col => (
                   <TableBodyCell
                     key={col.uniqueName}
                     style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+                    data-row={firstVisibleRowScrollIndex + index}
+                    data-col={col.colIndex}
+                    // @ts-ignore
+                    isSelected={cellIsSelected(firstVisibleRowScrollIndex + index, col.colIndex)}
                   >
                     <CellFormattedValue value={row[col.uniqueName]} />
                     {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
