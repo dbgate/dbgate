@@ -8,6 +8,7 @@ export const nullCell: CellAddress = null;
 export const emptyCellArray: CellAddress[] = [];
 
 export function isRegularCell(cell: CellAddress): cell is RegularCellAddress {
+  if (!cell) return false;
   const [row, col] = cell;
   return _.isNumber(row) && _.isNumber(col);
 }

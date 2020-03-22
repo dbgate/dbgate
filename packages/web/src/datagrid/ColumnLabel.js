@@ -15,7 +15,7 @@ export default function ColumnLabel(column) {
   if (column.foreignKey) Icon = ForeignKeyIcon;
   return (
     <Label {...column}>
-      {Icon ? <Icon /> : null} {column.headerText || column.columnName}
+      {Icon ? <Icon size={12} /> : null} {column.headerText || column.columnName}
     </Label>
   );
 }

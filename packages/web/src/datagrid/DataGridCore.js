@@ -102,6 +102,8 @@ const NullSpan = styled.span`
   font-style: italic;
 `;
 
+const wheelRowCount = 5;
+
 function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
@@ -133,6 +135,7 @@ export default function DataGridCore(props) {
   const [currentCell, setCurrentCell] = React.useState(topLeftCell);
   const [selectedCells, setSelectedCells] = React.useState(emptyCellArray);
   const [dragStartCell, setDragStartCell] = React.useState(nullCell);
+  const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -200,7 +203,7 @@ export default function DataGridCore(props) {
   // console.log('containerWidth', containerWidth);
 
   const gridScrollAreaHeight = containerHeight - 2 * rowHeight;
-  const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth;
+  const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
   const visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(rowHeight));
   const visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(rowHeight));
@@ -340,12 +343,50 @@ export default function DataGridCore(props) {
     }
   }
 
+  function handleGridWheel(event) {
+    console.log('WHEEL', event, event.deltaY);
+
+    // let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
+    if (event.deltaY > 0) {
+      newFirstVisibleRowScrollIndex += wheelRowCount;
+    }
+    if (event.deltaY < 0) {
+      newFirstVisibleRowScrollIndex -= wheelRowCount;
+    }
+    let rowCount = rowCountNewIncluded;
+    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
+      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
+    }
+    if (newFirstVisibleRowScrollIndex < 0) {
+      newFirstVisibleRowScrollIndex = 0;
+    }
+    setFirstVisibleRowScrollIndex(newFirstVisibleRowScrollIndex);
+    // @ts-ignore
+    setvScrollValueToSet(newFirstVisibleRowScrollIndex);
+    setvScrollValueToSetDate(new Date());
+  }
+
   function handleGridKeyDown(event) {
     handleCursorMove(event);
+
+    if (event.shiftKey) {
+      if (!isRegularCell(shiftDragStartCell)) {
+        setShiftDragStartCell(currentCell);
+      }
+    } else {
+      setShiftDragStartCell(nullCell);
+    }
+
+    const newCell = handleCursorMove(event);
+    if (event.shiftKey && newCell) {
+      // @ts-ignore
+      setSelectedCells(getCellRange(shiftDragStartCell, newCell));
+    }
   }
 
   function handleCursorMove(event) {
-    if (!isRegularCell(currentCell)) return false;
+    if (!isRegularCell(currentCell)) return null;
     let rowCount = rowCountNewIncluded;
     if (event.ctrlKey) {
       switch (event.keyCode) {
@@ -366,7 +407,7 @@ export default function DataGridCore(props) {
         case keycodes.a:
           setSelectedCells([['header', 'header']]);
           event.preventDefault();
-          return true;
+          return ['header', 'header'];
       }
     } else {
       switch (event.keyCode) {
@@ -390,30 +431,31 @@ export default function DataGridCore(props) {
           return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
       }
     }
-    return false;
+    return null;
   }
 
   function focusFilterEditor(columnRealIndex) {
     // let modelIndex = this.columnSizes.realToModel(columnRealIndex);
     // this.headerFilters[this.columns[modelIndex].uniquePath].focus();
-    return true;
+    return ['filter', columnRealIndex];
   }
 
   function moveCurrentCell(row, col, event) {
-    let rowCount = rowCountNewIncluded;
+    const rowCount = rowCountNewIncluded;
 
     if (row < 0) row = 0;
     if (row >= rowCount) row = rowCount - 1;
     if (col < 0) col = 0;
     if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
     setCurrentCell([row, col]);
-    setSelectedCells([...(event.ctrlKey ? selectedCells : []), [row, col]]);
+    // setSelectedCells([...(event.ctrlKey ? selectedCells : []), [row, col]]);
+    setSelectedCells([[row, col]]);
     scrollIntoView([row, col]);
     // this.selectedCells.push(this.currentCell);
     // this.scrollIntoView(this.currentCell);
 
     if (event) event.preventDefault();
-    return true;
+    return [row, col];
   }
 
   function scrollIntoView(cell) {
@@ -534,6 +576,7 @@ export default function DataGridCore(props) {
         onMouseMove={handleGridMouseMove}
         onMouseUp={handleGridMouseUp}
         onKeyDown={handleGridKeyDown}
+        onWheel={handleGridWheel}
         // table can be focused
         tabIndex={-1}
         ref={tableRef}

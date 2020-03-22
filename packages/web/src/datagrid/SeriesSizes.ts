@@ -259,16 +259,25 @@ export class SeriesSizes {
     if (scrollIndex < firstVisibleIndex) {
       return scrollIndex;
     }
-    let res: number = 0;
-    let testedIndex: number = scrollIndex;
-    while (res < viewportSize && testedIndex >= 0) {
-      let size: number = this.getSizeByScrollIndex(testedIndex);
-      if (res + size > viewportSize) return testedIndex + 1;
-      testedIndex--;
-      res += size;
+    let testedIndex = firstVisibleIndex + 1;
+    while (testedIndex < this.scrollCount) {
+      if (this.isWholeInView(testedIndex, scrollIndex, viewportSize)) {
+        return testedIndex;
+      }
+      testedIndex++;
     }
-    if (res >= viewportSize && testedIndex < scrollIndex) return testedIndex + 1;
-    return firstVisibleIndex;
+    return this.scrollCount - 1;
+
+    // let res: number = 0;
+    // let testedIndex: number = scrollIndex;
+    // while (res < viewportSize && testedIndex >= 0) {
+    //   let size: number = this.getSizeByScrollIndex(testedIndex);
+    //   if (res + size > viewportSize) return testedIndex + 1;
+    //   testedIndex--;
+    //   res += size;
+    // }
+    // if (res >= viewportSize && testedIndex < scrollIndex) return testedIndex + 1;
+    // return firstVisibleIndex;
   }
   public resize(realIndex: number, newSize: number): void {
     if (realIndex < 0) return;
