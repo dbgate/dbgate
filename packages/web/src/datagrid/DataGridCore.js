@@ -22,6 +22,7 @@ import {
 } from './selection';
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
+import DataGridRow from './DataGridRow';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -54,16 +55,6 @@ const TableBody = styled.tbody`
 const TableHeaderRow = styled.tr`
   // height: 35px;
 `;
-const TableBodyRow = styled.tr`
-  // height: 35px;
-  background-color: #ffffff;
-  &:nth-child(6n + 3) {
-    background-color: #ebebeb;
-  }
-  &:nth-child(6n + 6) {
-    background-color: #ebf5ff;
-  }
-`;
 const TableHeaderCell = styled.td`
   // font-weight: bold;
   border: 1px solid #c0c0c0;
@@ -79,40 +70,11 @@ const TableFilterCell = styled.td`
   margin: 0;
   padding: 0;
 `;
-const TableBodyCell = styled.td`
-  font-weight: normal;
-  border: 1px solid #c0c0c0;
-  // border-collapse: collapse;
-  padding: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  ${props =>
-    // @ts-ignore
-    props.isSelected &&
-    `
-    background: initial;
-    background-color: deepskyblue;
-    color: white;`}
-`;
-const HintSpan = styled.span`
-  color: gray;
-  margin-left: 5px;
-`;
-const NullSpan = styled.span`
-  color: gray;
-  font-style: italic;
-`;
 const wheelRowCount = 5;
-
-function CellFormattedValue({ value }) {
-  if (value == null) return <NullSpan>(NULL)</NullSpan>;
-  if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
-  return value;
-}
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display, changeSet, tabVisible } = props;
+  const { conid, database, display, changeSet, setChangeSet, tabVisible } = props;
   const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
@@ -529,7 +491,7 @@ export default function DataGridCore(props) {
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
   /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
-  const realColumns = [];
+  const visibleRealColumns = [];
 
   // frozen columns
   for (let colIndex = 0; colIndex < columnSizes.frozenCount; colIndex++) {
@@ -552,7 +514,7 @@ export default function DataGridCore(props) {
     let col = columns[modelColumnIndex];
     if (!col) continue;
     const widthNumber = columnSizes.getSizeByRealIndex(colIndex);
-    realColumns.push({
+    visibleRealColumns.push({
       ...col,
       colIndex,
       widthPx: `${widthNumber}px`,
@@ -588,7 +550,7 @@ export default function DataGridCore(props) {
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
             <TableHeaderCell data-row="header" data-col="header" />
-            {realColumns.map(col => (
+            {visibleRealColumns.map(col => (
               <TableHeaderCell
                 data-row="header"
                 data-col={col.colIndex}
@@ -611,7 +573,7 @@ export default function DataGridCore(props) {
                 </button>
               )}
             </TableHeaderCell>
-            {realColumns.map(col => (
+            {visibleRealColumns.map(col => (
               <TableFilterCell
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
@@ -631,42 +593,18 @@ export default function DataGridCore(props) {
           {loadedRows
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
-              <TableBodyRow key={firstVisibleRowScrollIndex + index} style={{ height: `${rowHeight}px` }}>
-                <TableHeaderCell data-row={firstVisibleRowScrollIndex + index} data-col="header">
-                  {firstVisibleRowScrollIndex + index + 1}
-                </TableHeaderCell>
-                {realColumns.map(col => (
-                  <TableBodyCell
-                    key={col.uniqueName}
-                    style={{
-                      width: col.widthPx,
-                      minWidth: col.widthPx,
-                      maxWidth: col.widthPx,
-                    }}
-                    data-row={firstVisibleRowScrollIndex + index}
-                    data-col={col.colIndex}
-                    // @ts-ignore
-                    isSelected={cellIsSelected(firstVisibleRowScrollIndex + index, col.colIndex)}
-                  >
-                    {inplaceEditorCell &&
-                    firstVisibleRowScrollIndex + index == inplaceEditorCell[0] &&
-                    col.colIndex == inplaceEditorCell[1] ? (
-                      <InplaceEditor
-                        widthPx={col.widthPx}
-                        value={row[col.uniqueName]}
-                        changeSet={changeSet}
-                        setChangeSet={props.setChangeSet}
-                        definition={display.getChangeSetField(row, col.uniqueName)}
-                      />
-                    ) : (
-                      <>
-                        <CellFormattedValue value={row[col.uniqueName]} />
-                        {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
-                      </>
-                    )}
-                  </TableBodyCell>
-                ))}
-              </TableBodyRow>
+              <DataGridRow
+                key={firstVisibleRowScrollIndex + index}
+                rowIndex={firstVisibleRowScrollIndex + index}
+                rowHeight={rowHeight}
+                visibleRealColumns={visibleRealColumns}
+                inplaceEditorCell={inplaceEditorCell}
+                cellIsSelected={cellIsSelected}
+                changeSet={changeSet}
+                setChangeSet={setChangeSet}
+                display={display}
+                row={row}
+              />
             ))}
         </TableBody>
       </Table>
