@@ -4,7 +4,7 @@ import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { Select, Expression } from '@dbgate/sqltree';
-import { ChangeSetFieldDefinition } from './ChangeSet';
+import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -369,6 +369,15 @@ export abstract class GridDisplay {
       schemaName: col.schemaName,
       uniqueName: uniqueName,
       columnName: col.columnName,
+      condition: this.getChangeSetCondition(row),
+    };
+  }
+
+  getChangeSetRow(row): ChangeSetRowDefinition {
+    if (!this.baseTable) return null;
+    return {
+      pureName: this.baseTable.pureName,
+      schemaName: this.baseTable.schemaName,
       condition: this.getChangeSetCondition(row),
     };
   }

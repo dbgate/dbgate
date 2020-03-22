@@ -100,6 +100,7 @@ export default function DataGridCore(props) {
   const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
 
   const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
+  const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -291,7 +292,7 @@ export default function DataGridCore(props) {
     if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorCell) && _.isEqual(cell, currentCell)) {
       setInplaceEditorCell(cell);
     } else if (!_.isEqual(cell, inplaceEditorCell)) {
-      setInplaceEditorCell(null);
+      handleCloseInplaceEditor();
     }
   }
 
@@ -334,14 +335,28 @@ export default function DataGridCore(props) {
   }
 
   function handleGridKeyDown(event) {
-    handleCursorMove(event);
+    if (
+      !event.ctrlKey &&
+      !event.altKey &&
+      ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+        (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        event.keyCode == keycodes.dash)
+    ) {
+      setInplaceEditorInitText(event.nativeEvent.key);
+      setInplaceEditorCell(currentCell);
+      // console.log('event', event.nativeEvent);
+    }
 
-    if (event.shiftKey) {
-      if (!isRegularCell(shiftDragStartCell)) {
-        setShiftDragStartCell(currentCell);
+    const moved = handleCursorMove(event);
+
+    if (moved) {
+      if (event.shiftKey) {
+        if (!isRegularCell(shiftDragStartCell)) {
+          setShiftDragStartCell(currentCell);
+        }
+      } else {
+        setShiftDragStartCell(nullCell);
       }
-    } else {
-      setShiftDragStartCell(nullCell);
     }
 
     const newCell = handleCursorMove(event);
@@ -480,6 +495,11 @@ export default function DataGridCore(props) {
     return false;
   }
 
+  function handleCloseInplaceEditor() {
+    setInplaceEditorCell(null);
+    setInplaceEditorInitText(null);
+  }
+
   //   console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
   //   console.log('gridScrollAreaHeight', gridScrollAreaHeight);
   //   console.log('containerHeight', containerHeight);
@@ -599,6 +619,8 @@ export default function DataGridCore(props) {
                 rowHeight={rowHeight}
                 visibleRealColumns={visibleRealColumns}
                 inplaceEditorCell={inplaceEditorCell}
+                inplaceEditorInitText={inplaceEditorInitText}
+                onCloseInplaceEditor={handleCloseInplaceEditor}
                 cellIsSelected={cellIsSelected}
                 changeSet={changeSet}
                 setChangeSet={setChangeSet}

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
@@ -12,23 +14,38 @@ const StyledInput = styled.input`
   padding: 0px;
 `;
 
-export default function InplaceEditor({ widthPx, value, definition, changeSet, setChangeSet }) {
+export default function InplaceEditor({ widthPx, value, definition, changeSet, setChangeSet, onClose, selectAll }) {
   const editorRef = React.useRef();
+  const isChangedRef = React.createRef();
   React.useEffect(() => {
     const editor = editorRef.current;
     editor.value = value;
     editor.focus();
-    editor.select();
+    if (selectAll) {
+      editor.select();
+    }
   }, []);
   function handleBlur() {
-    const editor = editorRef.current;
-    setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+    if (isChangedRef.current) {
+      const editor = editorRef.current;
+      setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+    }
+  }
+  function handleKeyDown(event) {
+    switch (event.keyCode) {
+      case keycodes.escape:
+        isChangedRef.current = false;
+        onClose();
+        break;
+    }
   }
   return (
     <StyledInput
       onBlur={handleBlur}
       ref={editorRef}
       type="text"
+      onChange={() => (isChangedRef.current = true)}
+      onKeyDown={handleKeyDown}
       style={{
         width: widthPx,
         minWidth: widthPx,

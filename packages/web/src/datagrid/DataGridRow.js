@@ -1,3 +1,4 @@
+// @ts-nocheck
 import moment from 'moment';
 import _ from 'lodash';
 import React from 'react';
@@ -11,15 +12,7 @@ import axios from '../utility/axios';
 import ColumnLabel from './ColumnLabel';
 import DataFilterControl from './DataFilterControl';
 import { getFilterType } from '@dbgate/filterparser';
-import {
-  convertCellAddress,
-  cellFromEvent,
-  getCellRange,
-  topLeftCell,
-  isRegularCell,
-  nullCell,
-  emptyCellArray,
-} from './selection';
+import { findExistingChangeSetItem } from '@dbgate/datalib';
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 
@@ -31,13 +24,23 @@ const TableBodyCell = styled.td`
   white-space: nowrap;
   overflow: hidden;
   ${props =>
-    // @ts-ignore
     props.isSelected &&
     `
     background: initial;
     background-color: deepskyblue;
     color: white;`}
-`;
+  ${props =>
+    props.isModifiedRow &&
+    !props.isSelected &&
+    !props.isModifiedCell &&
+    `
+    background-color: #FFFFDB;`}
+    ${props =>
+      !props.isSelected &&
+      props.isModifiedCell &&
+      `
+        background-color: bisque;`}
+    `;
 const HintSpan = styled.span`
   color: gray;
   margin-left: 5px;
@@ -77,12 +80,17 @@ export default function DataGridRow({
   rowIndex,
   visibleRealColumns,
   inplaceEditorCell,
+  inplaceEditorInitText,
+  onCloseInplaceEditor,
   cellIsSelected,
   row,
   display,
   changeSet,
   setChangeSet,
 }) {
+  const rowDefinition = display.getChangeSetRow(row);
+  const [_fld, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
+  const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }}>
       <TableHeaderCell data-row={rowIndex} data-col="header">
@@ -100,19 +108,25 @@ export default function DataGridRow({
           data-col={col.colIndex}
           // @ts-ignore
           isSelected={cellIsSelected(rowIndex, col.colIndex)}
+          isModifiedRow={!!matchedChangeSetItem}
+          isModifiedCell={matchedChangeSetItem && col.uniqueName in matchedChangeSetItem.fields}
         >
           {inplaceEditorCell && rowIndex == inplaceEditorCell[0] && col.colIndex == inplaceEditorCell[1] ? (
             <InplaceEditor
               widthPx={col.widthPx}
-              value={row[col.uniqueName]}
+              value={inplaceEditorInitText || rowUpdated[col.uniqueName]}
+              selectAll={!inplaceEditorInitText}
               changeSet={changeSet}
               setChangeSet={setChangeSet}
               definition={display.getChangeSetField(row, col.uniqueName)}
+              onClose={onCloseInplaceEditor}
             />
           ) : (
             <>
-              <CellFormattedValue value={row[col.uniqueName]} />
-              {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
+              <CellFormattedValue value={rowUpdated[col.uniqueName]} />
+              {(!matchedChangeSetItem || !(col.uniqueName in matchedChangeSetItem.fields)) && col.hintColumnName && (
+                <HintSpan>{row[col.hintColumnName]}</HintSpan>
+              )}
             </>
           )}
         </TableBodyCell>

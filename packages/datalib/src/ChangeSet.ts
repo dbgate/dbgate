@@ -22,18 +22,21 @@ export function createChangeSet(): ChangeSet {
   };
 }
 
-export interface ChangeSetFieldDefinition {
+export interface ChangeSetRowDefinition {
   pureName: string;
   schemaName: string;
-  uniqueName: string;
-  columnName: string;
   insertedRowIndex?: number;
   condition?: { [column: string]: string };
 }
 
-function findExistingChangeSetItem(
+export interface ChangeSetFieldDefinition extends ChangeSetRowDefinition {
+  uniqueName: string;
+  columnName: string;
+}
+
+export function findExistingChangeSetItem(
   changeSet: ChangeSet,
-  definition: ChangeSetFieldDefinition
+  definition: ChangeSetRowDefinition
 ): [keyof ChangeSet, ChangeSetItem] {
   if (definition.insertedRowIndex != null) {
     return [
