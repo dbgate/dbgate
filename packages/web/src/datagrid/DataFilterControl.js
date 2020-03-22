@@ -34,7 +34,7 @@ const FilterDiv = styled.div`
 `;
 const FilterInput = styled.input`
   flex: 1;
-  width: 10px;
+  min-width: 10px;
   background-color: ${props => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
 `;
 const FilterButton = styled.button`

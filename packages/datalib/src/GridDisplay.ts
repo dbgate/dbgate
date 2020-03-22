@@ -4,6 +4,7 @@ import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { Select, Expression } from '@dbgate/sqltree';
+import { ChangeSetFieldDefinition } from './ChangeSet';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -47,6 +48,8 @@ export abstract class GridDisplay {
   ) {}
   abstract getPageQuery(offset: number, count: number): string;
   columns: DisplayColumn[];
+  baseTable?: TableInfo;
+  changeSetKeyFields: string[] = null;
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
     if (uniquePath.length == 1) {
@@ -349,5 +352,24 @@ export abstract class GridDisplay {
       filters: {},
     });
     this.reload();
+  }
+
+  getChangeSetCondition(row) {
+    if (!this.changeSetKeyFields) return null;
+    return _.pick(row, this.changeSetKeyFields);
+  }
+
+  getChangeSetField(row, uniqueName): ChangeSetFieldDefinition {
+    const col = this.columns.find(x => x.uniqueName == uniqueName);
+    if (!col) return null;
+    if (!this.baseTable) return null;
+    if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;
+    return {
+      pureName: col.pureName,
+      schemaName: col.schemaName,
+      uniqueName: uniqueName,
+      columnName: col.columnName,
+      condition: this.getChangeSetCondition(row),
+    };
   }
 }

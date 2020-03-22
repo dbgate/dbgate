@@ -21,12 +21,15 @@ const SearchBoxWrapper = styled.div`
 `;
 
 const Button = styled.button`
-  width: 50px;
+// -webkit-appearance: none;
+// -moz-appearance: none;
+// appearance: none;
+  // width: 50px;
 `;
 
 const Input = styled.input`
   flex: 1;
-  width: 80px;
+  min-width: 90px;
 `;
 
 function ExpandIcon({ display, column, isHover, ...other }) {

@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash';
 import { GridDisplay, combineReferenceActions } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
@@ -16,6 +16,10 @@ export class TableGridDisplay extends GridDisplay {
   ) {
     super(config, setConfig, cache, setCache, getTableInfo);
     this.columns = this.getDisplayColumns(table, []);
+    this.baseTable = table;
+    this.changeSetKeyFields = table.primaryKey
+      ? table.primaryKey.columns.map(x => x.columnName)
+      : table.columns.map(x => x.columnName);
   }
 
   createSelect() {

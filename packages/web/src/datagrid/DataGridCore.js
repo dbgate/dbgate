@@ -21,6 +21,7 @@ import {
   emptyCellArray,
 } from './selection';
 import keycodes from '../utility/keycodes';
+import InplaceEditor from './InplaceEditor';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -101,7 +102,6 @@ const NullSpan = styled.span`
   color: gray;
   font-style: italic;
 `;
-
 const wheelRowCount = 5;
 
 function CellFormattedValue({ value }) {
@@ -112,7 +112,7 @@ function CellFormattedValue({ value }) {
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display, tabVisible } = props;
+  const { conid, database, display, changeSet, tabVisible } = props;
   const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
@@ -136,6 +136,8 @@ export default function DataGridCore(props) {
   const [selectedCells, setSelectedCells] = React.useState(emptyCellArray);
   const [dragStartCell, setDragStartCell] = React.useState(nullCell);
   const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
+
+  const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -323,7 +325,12 @@ export default function DataGridCore(props) {
     setCurrentCell(cell);
     setSelectedCells(getCellRange(cell, cell));
     setDragStartCell(cell);
-    // console.log('START', cell);
+
+    if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorCell) && _.isEqual(cell, currentCell)) {
+      setInplaceEditorCell(cell);
+    } else if (!_.isEqual(cell, inplaceEditorCell)) {
+      setInplaceEditorCell(null);
+    }
   }
 
   function handleGridMouseMove(event) {
@@ -641,8 +648,22 @@ export default function DataGridCore(props) {
                     // @ts-ignore
                     isSelected={cellIsSelected(firstVisibleRowScrollIndex + index, col.colIndex)}
                   >
-                    <CellFormattedValue value={row[col.uniqueName]} />
-                    {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
+                    {inplaceEditorCell &&
+                    firstVisibleRowScrollIndex + index == inplaceEditorCell[0] &&
+                    col.colIndex == inplaceEditorCell[1] ? (
+                      <InplaceEditor
+                        widthPx={col.widthPx}
+                        value={row[col.uniqueName]}
+                        changeSet={changeSet}
+                        setChangeSet={props.setChangeSet}
+                        definition={display.getChangeSetField(row, col.uniqueName)}
+                      />
+                    ) : (
+                      <>
+                        <CellFormattedValue value={row[col.uniqueName]} />
+                        {col.hintColumnName && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
+                      </>
+                    )}
                   </TableBodyCell>
                 ))}
               </TableBodyRow>

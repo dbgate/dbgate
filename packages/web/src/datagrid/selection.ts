@@ -67,3 +67,4 @@ export function cellFromEvent(event): CellAddress {
   const row = cell.getAttribute('data-row');
   return convertCellAddress(row, col);
 }
+
