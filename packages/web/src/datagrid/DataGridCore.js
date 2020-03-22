@@ -344,9 +344,6 @@ export default function DataGridCore(props) {
   }
 
   function handleGridWheel(event) {
-    console.log('WHEEL', event, event.deltaY);
-
-    // let delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
     let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
     if (event.deltaY > 0) {
       newFirstVisibleRowScrollIndex += wheelRowCount;
