@@ -18,10 +18,18 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   console.log('changeSet', changeSet);
 
   const connection = useConnectionInfo(conid);
-  if (!tableInfo || !connection) return null;
-  const display = new TableGridDisplay(tableInfo, engines(connection), config, setConfig, cache, setCache, name =>
-    getTableInfo({ conid, database, ...name })
+  const display = React.useMemo(
+    () =>
+      tableInfo && connection
+        ? new TableGridDisplay(tableInfo, engines(connection), config, setConfig, cache, setCache, name =>
+            getTableInfo({ conid, database, ...name })
+          )
+        : null,
+    [tableInfo, connection, config, cache]
   );
+
+  if (!display) return null;
+
   return (
     <DataGrid
       // key={`${conid}, ${database}, ${schemaName}, ${pureName}`}

@@ -88,6 +88,7 @@ export default function DataGridRow({
   changeSet,
   setChangeSet,
 }) {
+  // console.log('RENDER ROW', rowIndex);
   const rowDefinition = display.getChangeSetRow(row);
   const [_fld, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;

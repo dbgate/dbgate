@@ -23,6 +23,7 @@ import {
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 import DataGridRow from './DataGridRow';
+import { countColumnSizes, countVisibleRealColumns } from './gridutil';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -162,7 +163,12 @@ export default function DataGridCore(props) {
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
   const [tableRef, { height: tableHeight, width: tableWidth }, tableElement] = useDimensions();
 
-  const columnSizes = React.useMemo(() => countColumnSizes(), [loadedRows, containerWidth, display]);
+  const columnSizes = React.useMemo(() => countColumnSizes(loadedRows, columns, containerWidth, display), [
+    loadedRows,
+    columns,
+    containerWidth,
+    display,
+  ]);
   const headerColWidth = 40;
 
   // console.log('containerWidth', containerWidth);
@@ -205,6 +211,29 @@ export default function DataGridCore(props) {
     }
   }, [tabVisible, tableElement]);
 
+  const handleCloseInplaceEditor = React.useCallback(() => {
+    setInplaceEditorCell(null);
+    setInplaceEditorInitText(null);
+  }, []);
+
+  const visibleRealColumns = React.useMemo(
+    () => countVisibleRealColumns(columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns),
+    [columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns]
+  );
+
+  const cellIsSelected = React.useCallback((row, col) => {
+    const [currentRow, currentCol] = currentCell;
+    if (row == currentRow && col == currentCol) return true;
+    for (const [selectedRow, selectedCol] of selectedCells) {
+      if (row == selectedRow && col == selectedCol) return true;
+      if (selectedRow == 'header' && col == selectedCol) return true;
+      if (row == selectedRow && selectedCol == 'header') return true;
+      if (selectedRow == 'header' && selectedCol == 'header') return true;
+    }
+    return false;
+  }, [currentCell, selectedCells]);
+
+
   if (!loadedRows || !columns) return null;
   const rowCountNewIncluded = loadedRows.length;
 
@@ -215,72 +244,6 @@ export default function DataGridCore(props) {
   const handleColumnScroll = value => {
     setFirstVisibleColumnScrollIndex(value);
   };
-
-  function countColumnSizes() {
-    let canvas = document.createElement('canvas');
-    let context = canvas.getContext('2d');
-
-    //return this.context.measureText(txt).width;
-    const columnSizes = new SeriesSizes();
-    if (!loadedRows || !columns) return columnSizes;
-
-    // console.log('countColumnSizes', loadedRows.length, containerWidth);
-
-    columnSizes.maxSize = (containerWidth * 2) / 3;
-    columnSizes.count = columns.length;
-
-    // columnSizes.setExtraordinaryIndexes(this.getHiddenColumnIndexes(), this.getFrozenColumnIndexes());
-    // console.log('display.hiddenColumnIndexes', display.hiddenColumnIndexes)
-
-    columnSizes.setExtraordinaryIndexes(display.hiddenColumnIndexes, []);
-
-    for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-      //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
-      const column = columns[colIndex];
-
-      // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
-      // else context.font = "14px Helvetica";
-      context.font = 'bold 14px Helvetica';
-
-      let text = column.headerText;
-      let headerWidth = context.measureText(text).width + 32;
-
-      // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
-      // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
-      // if (this.getSortOrder(column.uniquePath)) headerWidth += 16;
-
-      columnSizes.putSizeOverride(colIndex, headerWidth);
-    }
-
-    // let headerWidth = this.rowHeaderWidthDefault;
-    // if (this.rowCount) headerWidth = context.measureText(this.rowCount.toString()).width + 8;
-    // this.rowHeaderWidth = this.rowHeaderWidthDefault;
-    // if (headerWidth > this.rowHeaderWidth) this.rowHeaderWidth = headerWidth;
-
-    context.font = '14px Helvetica';
-    for (let row of loadedRows.slice(0, 20)) {
-      for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-        let uqName = columns[colIndex].uniqueName;
-        let text = row[uqName];
-        let width = context.measureText(text).width + 8;
-        // console.log('colName', colName, text, width);
-        columnSizes.putSizeOverride(colIndex, width);
-        // let colName = this.columns[colIndex].uniquePath;
-        // let text: string = row[colName].gridText;
-        // let width = context.measureText(text).width + 8;
-        // if (row[colName].dataPrefix) width += context.measureText(row[colName].dataPrefix).width + 3;
-        // this.columnSizes.putSizeOverride(colIndex, width);
-      }
-    }
-
-    // for (let modelIndex = 0; modelIndex < this.columns.length; modelIndex++) {
-    //     let width = getHashValue(this.widthHashPrefix + this.columns[modelIndex].uniquePath);
-    //     if (width) this.columnSizes.putSizeOverride(modelIndex, _.toNumber(width), true);
-    // }
-
-    columnSizes.buildIndex();
-    return columnSizes;
-  }
 
   function handleGridMouseDown(event) {
     event.target.closest('table').focus();
@@ -483,63 +446,9 @@ export default function DataGridCore(props) {
     }
   }
 
-  function cellIsSelected(row, col) {
-    const [currentRow, currentCol] = currentCell;
-    if (row == currentRow && col == currentCol) return true;
-    for (const [selectedRow, selectedCol] of selectedCells) {
-      if (row == selectedRow && col == selectedCol) return true;
-      if (selectedRow == 'header' && col == selectedCol) return true;
-      if (row == selectedRow && selectedCol == 'header') return true;
-      if (selectedRow == 'header' && selectedCol == 'header') return true;
-    }
-    return false;
-  }
-
-  function handleCloseInplaceEditor() {
-    setInplaceEditorCell(null);
-    setInplaceEditorInitText(null);
-  }
-
   //   console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
   //   console.log('gridScrollAreaHeight', gridScrollAreaHeight);
   //   console.log('containerHeight', containerHeight);
-
-  const visibleColumnCount = columnSizes.getVisibleScrollCount(firstVisibleColumnScrollIndex, gridScrollAreaWidth);
-  console.log('visibleColumnCount', visibleColumnCount);
-  console.log('gridScrollAreaWidth', gridScrollAreaWidth);
-
-  const visibleRealColumnIndexes = [];
-  const modelIndexes = {};
-  /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
-  const visibleRealColumns = [];
-
-  // frozen columns
-  for (let colIndex = 0; colIndex < columnSizes.frozenCount; colIndex++) {
-    visibleRealColumnIndexes.push(colIndex);
-  }
-  // scroll columns
-  for (
-    let colIndex = firstVisibleColumnScrollIndex;
-    colIndex < firstVisibleColumnScrollIndex + visibleColumnCount;
-    colIndex++
-  ) {
-    visibleRealColumnIndexes.push(colIndex + columnSizes.frozenCount);
-  }
-
-  // real columns
-  for (let colIndex of visibleRealColumnIndexes) {
-    let modelColumnIndex = columnSizes.realToModel(colIndex);
-    modelIndexes[colIndex] = modelColumnIndex;
-
-    let col = columns[modelColumnIndex];
-    if (!col) continue;
-    const widthNumber = columnSizes.getSizeByRealIndex(colIndex);
-    visibleRealColumns.push({
-      ...col,
-      colIndex,
-      widthPx: `${widthNumber}px`,
-    });
-  }
 
   const hederColwidthPx = `${headerColWidth}px`;
   const filterCount = display.filterCount;
