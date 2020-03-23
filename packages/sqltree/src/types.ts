@@ -18,7 +18,31 @@ export interface Select {
   where?: Condition;
 }
 
-export type Command = Select;
+export type UpdateField = Expression & { targetColumn: string };
+
+export interface Update {
+  commandType: 'update';
+  fields: UpdateField[];
+  from: FromDefinition;
+  where?: Condition;
+}
+
+export interface Delete {
+  commandType: 'delete';
+  from: FromDefinition;
+  where?: Condition;
+}
+
+export interface Insert {
+  commandType: 'insert';
+  fields: UpdateField[];
+  targetTable: {
+    schemaName: string;
+    pureName: string;
+  };
+}
+
+export type Command = Select | Update | Delete | Insert;
 
 // export interface Condition {
 //   conditionType: "eq" | "not" | "binary";

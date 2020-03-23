@@ -4,6 +4,7 @@ import { SqlDumper } from "./dumper";
 import { DatabaseInfo } from "./dbinfo";
 
 export interface EngineDriver {
+  engine: string;
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   getVersion(pool: any): Promise<{ version: string }>;

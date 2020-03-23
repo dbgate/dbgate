@@ -52,7 +52,8 @@ const driver = {
   createDumper() {
     return new MySqlDumper(this);
   },
-  dialect
+  dialect,
+  engine: 'mysql',
 };
 
 module.exports = driver;

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Command, Insert, Update, Delete, UpdateField, Condition } from '@dbgate/sqltree';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -99,4 +100,82 @@ export function setChangeSetValue(
       },
     ],
   };
+}
+
+function extractFields(item: ChangeSetItem): UpdateField[] {
+  return _.keys(item.fields).map(targetColumn => ({
+    targetColumn,
+    exprType: 'value',
+    value: item.fields[targetColumn],
+  }));
+}
+
+function insertToSql(item: ChangeSetItem): Insert {
+  return {
+    targetTable: {
+      pureName: item.pureName,
+      schemaName: item.schemaName,
+    },
+    commandType: 'insert',
+    fields: extractFields(item),
+  };
+}
+
+function extractCondition(item: ChangeSetItem): Condition {
+  return {
+    conditionType: 'and',
+    conditions: _.keys(item.condition).map(columnName => ({
+      conditionType: 'binary',
+      operator: '=',
+      left: {
+        exprType: 'column',
+        columnName,
+        source: {
+          name: {
+            pureName: item.pureName,
+            schemaName: item.schemaName,
+          },
+        },
+      },
+      right: {
+        exprType: 'value',
+        value: item.condition[columnName],
+      },
+    })),
+  };
+}
+
+function updateToSql(item: ChangeSetItem): Update {
+  return {
+    from: {
+      name: {
+        pureName: item.pureName,
+        schemaName: item.schemaName,
+      },
+    },
+    commandType: 'update',
+    fields: extractFields(item),
+    where: extractCondition(item),
+  };
+}
+
+function deleteToSql(item: ChangeSetItem): Delete {
+  return {
+    from: {
+      name: {
+        pureName: item.pureName,
+        schemaName: item.schemaName,
+      },
+    },
+    commandType: 'delete',
+    where: extractCondition(item),
+  };
+}
+
+export function changeSetToSql(changeSet: ChangeSet): Command[] {
+  return [
+    ...changeSet.inserts.map(insertToSql),
+    ...changeSet.updates.map(updateToSql),
+    ...changeSet.deletes.map(deleteToSql),
+  ];
 }

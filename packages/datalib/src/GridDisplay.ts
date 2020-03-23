@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { Select, Expression } from '@dbgate/sqltree';
@@ -44,12 +44,14 @@ export abstract class GridDisplay {
     protected setConfig: (config: GridConfig) => void,
     public cache: GridCache,
     protected setCache: (config: GridCache) => void,
-    protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
+    protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>,
+    public driver: EngineDriver
   ) {}
   abstract getPageQuery(offset: number, count: number): string;
   columns: DisplayColumn[];
   baseTable?: TableInfo;
   changeSetKeyFields: string[] = null;
+
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
     if (uniquePath.length == 1) {
@@ -58,6 +60,10 @@ export abstract class GridDisplay {
       this.includeInColumnSet('addedColumns', uniqueName, isVisible);
       this.reload();
     }
+  }
+
+  get engine() {
+    return this.driver.engine;
   }
 
   reload() {

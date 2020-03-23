@@ -40,6 +40,7 @@ const driver = {
     return rows;
   },
   dialect,
+  engine: 'postgres',
 };
 
 module.exports = driver;

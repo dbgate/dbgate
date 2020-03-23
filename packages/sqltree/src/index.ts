@@ -1,5 +1,5 @@
 export * from './types';
 export * from './dumpSqlCommand';
-export * from './treeToSql';
+export * from './utility';
 export * from './dumpSqlSource';
 export * from './dumpSqlCondition';

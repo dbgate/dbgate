@@ -1,62 +1,111 @@
 import { SqlDumper } from '@dbgate/types';
-import { Command, Select } from './types';
+import { Command, Select, Update, Delete, Insert } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
-import { dumpSqlFromDefinition } from './dumpSqlSource';
+import { dumpSqlFromDefinition, dumpSqlSourceRef } from './dumpSqlSource';
 import { dumpSqlCondition } from './dumpSqlCondition';
 
-export function dumpSqlSelect(dmp: SqlDumper, select: Select) {
+export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   dmp.put('^select ');
-  if (select.topRecords) {
-    dmp.put('^top %s ', select.topRecords);
+  if (cmd.topRecords) {
+    dmp.put('^top %s ', cmd.topRecords);
   }
-  if (select.distinct) {
+  if (cmd.distinct) {
     dmp.put('^distinct ');
   }
-  if (select.selectAll) {
+  if (cmd.selectAll) {
     dmp.put('* ');
   }
-  if (select.columns) {
-    if (select.selectAll) dmp.put('&n,');
+  if (cmd.columns) {
+    if (cmd.selectAll) dmp.put('&n,');
     dmp.put('&>&n');
-    dmp.putCollection(',&n', select.columns, fld => {
+    dmp.putCollection(',&n', cmd.columns, fld => {
       dumpSqlExpression(dmp, fld);
       if (fld.alias) dmp.put(' ^as %i', fld.alias);
     });
     dmp.put('&n&<');
   }
   dmp.put('^from ');
-  dumpSqlFromDefinition(dmp, select.from);
-  if (select.where) {
+  dumpSqlFromDefinition(dmp, cmd.from);
+  if (cmd.where) {
     dmp.put('&n^where ');
-    dumpSqlCondition(dmp, select.where);
+    dumpSqlCondition(dmp, cmd.where);
     dmp.put('&n');
   }
-  if (select.groupBy) {
+  if (cmd.groupBy) {
     dmp.put('&n^group ^by ');
-    dmp.putCollection(', ', select.groupBy, expr => dumpSqlExpression(dmp, expr));
+    dmp.putCollection(', ', cmd.groupBy, expr => dumpSqlExpression(dmp, expr));
     dmp.put('&n');
   }
-  if (select.orderBy) {
+  if (cmd.orderBy) {
     dmp.put('&n^order ^by ');
-    dmp.putCollection(', ', select.orderBy, expr => {
+    dmp.putCollection(', ', cmd.orderBy, expr => {
       dumpSqlExpression(dmp, expr);
       dmp.put(' %k', expr.direction);
     });
     dmp.put('&n');
   }
-  if (select.range) {
+  if (cmd.range) {
     if (dmp.dialect.offsetFetchRangeSyntax) {
-      dmp.put('^offset %s ^rows ^fetch ^next %s ^rows ^only', select.range.offset, select.range.limit);
+      dmp.put('^offset %s ^rows ^fetch ^next %s ^rows ^only', cmd.range.offset, cmd.range.limit);
     } else {
-      dmp.put('^limit %s ^offset %s ', select.range.limit, select.range.offset);
+      dmp.put('^limit %s ^offset %s ', cmd.range.limit, cmd.range.offset);
     }
   }
 }
 
-export function dumpSqlCommand(dmp: SqlDumper, command: Command) {
-  switch (command.commandType) {
+export function dumpSqlUpdate(dmp: SqlDumper, cmd: Update) {
+  dmp.put('^update ');
+  dumpSqlSourceRef(dmp, cmd.from);
+
+  dmp.put('&n^set ');
+  dmp.put('&>');
+  dmp.putCollection(', ', cmd.fields, col => {
+    dmp.put('%i=', col.targetColumn);
+    dumpSqlExpression(dmp, col);
+  });
+  dmp.put('&<');
+
+  if (cmd.where) {
+    dmp.put('&n^where ');
+    dumpSqlCondition(dmp, cmd.where);
+    dmp.put('&n');
+  }
+}
+
+export function dumpSqlDelete(dmp: SqlDumper, cmd: Delete) {
+  dmp.put('^delete ');
+  dumpSqlSourceRef(dmp, cmd.from);
+
+  if (cmd.where) {
+    dmp.put('&n^where ');
+    dumpSqlCondition(dmp, cmd.where);
+    dmp.put('&n');
+  }
+}
+
+export function dumpSqlInsert(dmp: SqlDumper, cmd: Insert) {
+  dmp.put(
+    '^insert ^into %f (%,i) ^values (',
+    cmd.targetTable,
+    cmd.fields.map(x => x.targetColumn)
+  );
+  dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
+  dmp.put(')');
+}
+
+export function dumpSqlCommand(dmp: SqlDumper, cmd: Command) {
+  switch (cmd.commandType) {
     case 'select':
-      dumpSqlSelect(dmp, command);
+      dumpSqlSelect(dmp, cmd);
+      break;
+    case 'update':
+      dumpSqlUpdate(dmp, cmd);
+      break;
+    case 'delete':
+      dumpSqlDelete(dmp, cmd);
+      break;
+    case 'insert':
+      dumpSqlInsert(dmp, cmd);
       break;
   }
 }

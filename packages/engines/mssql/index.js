@@ -57,7 +57,8 @@ const driver = {
   createDumper() {
     return new MsSqlDumper(this);
   },
-  dialect
+  dialect,
+  engine: 'mssql',
 };
 
 module.exports = driver;

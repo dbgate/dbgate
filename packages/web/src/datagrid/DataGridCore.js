@@ -24,6 +24,10 @@ import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 import DataGridRow from './DataGridRow';
 import { countColumnSizes, countVisibleRealColumns } from './gridutil';
+import useModalState from '../modals/useModalState';
+import ConfirmSqlModal from '../modals/ConfirmSqlModal';
+import { changeSetToSql } from '@dbgate/datalib';
+import { scriptToSql } from '@dbgate/sqltree';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -162,6 +166,8 @@ export default function DataGridCore(props) {
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
   const [tableRef, { height: tableHeight, width: tableWidth }, tableElement] = useDimensions();
+  const confirmSqlModalState = useModalState();
+  const [confirmSql, setConfirmSql] = React.useState('');
 
   const columnSizes = React.useMemo(() => countColumnSizes(loadedRows, columns, containerWidth, display), [
     loadedRows,
@@ -221,18 +227,20 @@ export default function DataGridCore(props) {
     [columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns]
   );
 
-  const cellIsSelected = React.useCallback((row, col) => {
-    const [currentRow, currentCol] = currentCell;
-    if (row == currentRow && col == currentCol) return true;
-    for (const [selectedRow, selectedCol] of selectedCells) {
-      if (row == selectedRow && col == selectedCol) return true;
-      if (selectedRow == 'header' && col == selectedCol) return true;
-      if (row == selectedRow && selectedCol == 'header') return true;
-      if (selectedRow == 'header' && selectedCol == 'header') return true;
-    }
-    return false;
-  }, [currentCell, selectedCells]);
-
+  const cellIsSelected = React.useCallback(
+    (row, col) => {
+      const [currentRow, currentCol] = currentCell;
+      if (row == currentRow && col == currentCol) return true;
+      for (const [selectedRow, selectedCol] of selectedCells) {
+        if (row == selectedRow && col == selectedCol) return true;
+        if (selectedRow == 'header' && col == selectedCol) return true;
+        if (row == selectedRow && selectedCol == 'header') return true;
+        if (selectedRow == 'header' && selectedCol == 'header') return true;
+      }
+      return false;
+    },
+    [currentCell, selectedCells]
+  );
 
   if (!loadedRows || !columns) return null;
   const rowCountNewIncluded = loadedRows.length;
@@ -297,6 +305,13 @@ export default function DataGridCore(props) {
     setvScrollValueToSetDate(new Date());
   }
 
+  function handleSave() {
+    const script = changeSetToSql(changeSet);
+    const sql = scriptToSql(display.driver, script);
+    setConfirmSql(sql);
+    confirmSqlModalState.open();
+  }
+
   function handleGridKeyDown(event) {
     if (
       !event.ctrlKey &&
@@ -308,6 +323,12 @@ export default function DataGridCore(props) {
       setInplaceEditorInitText(event.nativeEvent.key);
       setInplaceEditorCell(currentCell);
       // console.log('event', event.nativeEvent);
+    }
+
+    if (event.keyCode == keycodes.s && event.ctrlKey) {
+      event.preventDefault();
+      handleSave();
+      // this.saveAndFocus();
     }
 
     const moved = handleCursorMove(event);
@@ -555,6 +576,7 @@ export default function DataGridCore(props) {
         onScroll={handleRowScroll}
         viewportRatio={visibleRowCountUpperBound / rowCountNewIncluded}
       />
+      <ConfirmSqlModal modalState={confirmSqlModalState} sql={confirmSql} engine={display.engine} />
     </GridContainer>
   );
 }

@@ -7,19 +7,21 @@ import { GridConfig, GridCache } from './GridConfig';
 export class TableGridDisplay extends GridDisplay {
   constructor(
     public table: TableInfo,
-    public driver: EngineDriver,
+    driver: EngineDriver,
     config: GridConfig,
     setConfig: (config: GridConfig) => void,
     cache: GridCache,
     setCache: (config: GridCache) => void,
     getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
   ) {
-    super(config, setConfig, cache, setCache, getTableInfo);
+    super(config, setConfig, cache, setCache, getTableInfo, driver);
     this.columns = this.getDisplayColumns(table, []);
     this.baseTable = table;
-    this.changeSetKeyFields = table.primaryKey
-      ? table.primaryKey.columns.map(x => x.columnName)
-      : table.columns.map(x => x.columnName);
+    if (table && table.columns) {
+      this.changeSetKeyFields = table.primaryKey
+        ? table.primaryKey.columns.map(x => x.columnName)
+        : table.columns.map(x => x.columnName);
+    }
   }
 
   createSelect() {
