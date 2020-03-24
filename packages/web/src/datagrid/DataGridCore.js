@@ -26,7 +26,7 @@ import DataGridRow from './DataGridRow';
 import { countColumnSizes, countVisibleRealColumns } from './gridutil';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
-import { changeSetToSql } from '@dbgate/datalib';
+import { changeSetToSql, createChangeSet } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 
 const GridContainer = styled.div`
@@ -118,7 +118,7 @@ export default function DataGridCore(props) {
 
     const sql = display.getPageQuery(loadedRows.length, 100);
 
-    let response = await axios.request({
+    const response = await axios.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -310,6 +310,22 @@ export default function DataGridCore(props) {
     const sql = scriptToSql(display.driver, script);
     setConfirmSql(sql);
     confirmSqlModalState.open();
+  }
+
+  async function handleConfirmSql() {
+    const response = await axios.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql: confirmSql },
+    });
+
+    setChangeSet(createChangeSet());
+    setConfirmSql(null);
+    display.reload();
   }
 
   function handleGridKeyDown(event) {
@@ -576,7 +592,7 @@ export default function DataGridCore(props) {
         onScroll={handleRowScroll}
         viewportRatio={visibleRowCountUpperBound / rowCountNewIncluded}
       />
-      <ConfirmSqlModal modalState={confirmSqlModalState} sql={confirmSql} engine={display.engine} />
+      <ConfirmSqlModal modalState={confirmSqlModalState} sql={confirmSql} engine={display.engine} onConfirm={handleConfirmSql} />
     </GridContainer>
   );
 }

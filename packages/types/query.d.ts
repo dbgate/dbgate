@@ -8,6 +8,7 @@ export interface QueryResultColumn {
 }
 
 export interface QueryResult {
-  rows: any[];
-  columns: QueryResultColumn[];
+  rows?: any[];
+  columns?: QueryResultColumn[];
+  rowsAffected?: number;
 }

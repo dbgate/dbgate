@@ -1,6 +1,6 @@
-const _ = require("lodash");
-const MsSqlAnalyser = require("./MsSqlAnalyser");
-const MsSqlDumper = require("./MsSqlDumper");
+const _ = require('lodash');
+const MsSqlAnalyser = require('./MsSqlAnalyser');
+const MsSqlDumper = require('./MsSqlDumper');
 
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
@@ -10,7 +10,7 @@ const dialect = {
   stringEscapeChar: "'",
   quoteIdentifier(s) {
     return `[${s}]`;
-  }
+  },
 };
 
 /** @type {import('@dbgate/types').EngineDriver} */
@@ -23,8 +23,8 @@ const driver = {
       password,
       database,
       options: {
-        enableArithAbort: true
-      }
+        enableArithAbort: true,
+      },
     });
     pool._nativeModules = nativeModules;
     return pool;
@@ -32,20 +32,24 @@ const driver = {
   async query(pool, sql) {
     const resp = await pool.request().query(sql);
     // console.log(Object.keys(resp.recordset));
-    const columns = _.sortBy(_.values(resp.recordset.columns), "index");
-    return { rows: resp.recordset, columns };
+    // console.log(resp);
+    const res = {};
+
+    if (resp.recordset) {
+      res.columns = _.sortBy(_.values(resp.recordset.columns), 'index');
+      res.rows = resp.recordset;
+    }
+    if (resp.rowsAffected) {
+      res.rowsAffected = _.sum(resp.rowsAffected);
+    }
+    return res;
   },
   async getVersion(pool) {
-    const { version } = (
-      await this.query(pool, "SELECT @@VERSION AS version")
-    ).rows[0];
+    const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
     return { version };
   },
   async listDatabases(pool) {
-    const { rows } = await this.query(
-      pool,
-      "SELECT name FROM sys.databases order by name"
-    );
+    const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
     return rows;
   },
   async analyseFull(pool) {

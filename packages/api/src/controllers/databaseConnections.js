@@ -74,4 +74,12 @@ module.exports = {
     const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
     return res;
   },
+
+  // runCommand_meta: 'post',
+  // async runCommand({ conid, database, sql }) {
+  //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);
+  //   const opened = await this.ensureOpened(conid, database);
+  //   const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
+  //   return res;
+  // },
 };

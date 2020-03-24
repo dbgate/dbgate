@@ -14,7 +14,7 @@ const SqlWrapper = styled.div`
   width: 40vw;
 `;
 
-export default function ConfirmSqlModal({ modalState, sql, engine }) {
+export default function ConfirmSqlModal({ modalState, sql, engine, onConfirm }) {
   return (
     <ModalBase modalState={modalState}>
       <h2>Save changes</h2>
@@ -23,7 +23,14 @@ export default function ConfirmSqlModal({ modalState, sql, engine }) {
       </SqlWrapper>
 
       <FormRow>
-        <input type="button" value="OK" onClick={modalState.close} />
+        <input
+          type="button"
+          value="OK"
+          onClick={() => {
+            modalState.close();
+            onConfirm();
+          }}
+        />
         <input type="button" value="Close" onClick={modalState.close} />
       </FormRow>
     </ModalBase>
