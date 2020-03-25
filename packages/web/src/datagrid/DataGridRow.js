@@ -81,6 +81,7 @@ export default function DataGridRow({
   visibleRealColumns,
   inplaceEditorCell,
   inplaceEditorInitText,
+  inplaceEditorShouldSave,
   onCloseInplaceEditor,
   cellIsSelected,
   row,
@@ -121,6 +122,7 @@ export default function DataGridRow({
               setChangeSet={setChangeSet}
               definition={display.getChangeSetField(row, col.uniqueName)}
               onClose={onCloseInplaceEditor}
+              shouldSave={inplaceEditorShouldSave}
             />
           ) : (
             <>

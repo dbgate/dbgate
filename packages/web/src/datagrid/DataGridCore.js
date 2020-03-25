@@ -28,6 +28,7 @@ import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
 import { changeSetToSql, createChangeSet } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
+import { sleep } from '../utility/common';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -106,6 +107,11 @@ export default function DataGridCore(props) {
 
   const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
   const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
+  const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
+  const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
+  const changeSetRef = React.useRef(changeSet);
+
+  changeSetRef.current = changeSet;
 
   const loadNextData = async () => {
     if (isLoading) return;
@@ -217,10 +223,19 @@ export default function DataGridCore(props) {
     }
   }, [tabVisible, tableElement]);
 
-  const handleCloseInplaceEditor = React.useCallback(() => {
-    setInplaceEditorCell(null);
-    setInplaceEditorInitText(null);
-  }, []);
+  const handleCloseInplaceEditor = React.useCallback(
+    mode => {
+      const [row, col] = currentCell || [];
+      setInplaceEditorCell(null);
+      setInplaceEditorInitText(null);
+      setInplaceEditorShouldSave(false);
+      if (tableElement) tableElement.focus();
+      // @ts-ignore
+      if (mode == 'enter' && row) moveCurrentCell(row + 1, col);
+      if (mode == 'save') setTimeout(handleSave, 1);
+    },
+    [tableElement, currentCell]
+  );
 
   const visibleRealColumns = React.useMemo(
     () => countVisibleRealColumns(columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns),
@@ -261,6 +276,7 @@ export default function DataGridCore(props) {
     setDragStartCell(cell);
 
     if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorCell) && _.isEqual(cell, currentCell)) {
+      setInplaceEditorShouldSave(false);
       setInplaceEditorCell(cell);
     } else if (!_.isEqual(cell, inplaceEditorCell)) {
       handleCloseInplaceEditor();
@@ -305,8 +321,18 @@ export default function DataGridCore(props) {
     setvScrollValueToSetDate(new Date());
   }
 
-  function handleSave() {
-    const script = changeSetToSql(changeSet);
+  // async function blurEditorAndSave() {
+  //   setInplaceEditorCell(null);
+  //   setInplaceEditorInitText(null);
+  //   await sleep(1);
+  // }
+
+   function handleSave() {
+    if (inplaceEditorCell) {
+      setInplaceEditorShouldSave(true);
+      return;
+    }
+    const script = changeSetToSql(changeSetRef.current);
     const sql = scriptToSql(display.driver, script);
     setConfirmSql(sql);
     confirmSqlModalState.open();
@@ -329,6 +355,20 @@ export default function DataGridCore(props) {
   }
 
   function handleGridKeyDown(event) {
+    if (event.keyCode == keycodes.s && event.ctrlKey) {
+      event.preventDefault();
+      handleSave();
+      // this.saveAndFocus();
+    }
+
+    if (event.keyCode == keycodes.r && event.ctrlKey) {
+      event.preventDefault();
+      // revertRowChanges();
+      // this.saveAndFocus();
+    }
+
+    if (inplaceEditorCell) return;
+
     if (
       !event.ctrlKey &&
       !event.altKey &&
@@ -337,14 +377,14 @@ export default function DataGridCore(props) {
         event.keyCode == keycodes.dash)
     ) {
       setInplaceEditorInitText(event.nativeEvent.key);
+      setInplaceEditorShouldSave(false);
       setInplaceEditorCell(currentCell);
       // console.log('event', event.nativeEvent);
     }
 
-    if (event.keyCode == keycodes.s && event.ctrlKey) {
-      event.preventDefault();
-      handleSave();
-      // this.saveAndFocus();
+    if (event.keyCode == keycodes.f2) {
+      setInplaceEditorShouldSave(false);
+      setInplaceEditorCell(currentCell);
     }
 
     const moved = handleCursorMove(event);
@@ -421,7 +461,7 @@ export default function DataGridCore(props) {
     return ['filter', columnRealIndex];
   }
 
-  function moveCurrentCell(row, col, event) {
+  function moveCurrentCell(row, col, event = null) {
     const rowCount = rowCountNewIncluded;
 
     if (row < 0) row = 0;
@@ -495,11 +535,11 @@ export default function DataGridCore(props) {
   };
 
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
-  console.log(
-    'gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()',
-    gridScrollAreaWidth,
-    columnSizes.getVisibleScrollSizeSum()
-  );
+  // console.log(
+  //   'gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()',
+  //   gridScrollAreaWidth,
+  //   columnSizes.getVisibleScrollSizeSum()
+  // );
 
   return (
     <GridContainer ref={containerRef}>
@@ -566,6 +606,7 @@ export default function DataGridCore(props) {
                 visibleRealColumns={visibleRealColumns}
                 inplaceEditorCell={inplaceEditorCell}
                 inplaceEditorInitText={inplaceEditorInitText}
+                inplaceEditorShouldSave={inplaceEditorShouldSave}
                 onCloseInplaceEditor={handleCloseInplaceEditor}
                 cellIsSelected={cellIsSelected}
                 changeSet={changeSet}
@@ -592,7 +633,12 @@ export default function DataGridCore(props) {
         onScroll={handleRowScroll}
         viewportRatio={visibleRowCountUpperBound / rowCountNewIncluded}
       />
-      <ConfirmSqlModal modalState={confirmSqlModalState} sql={confirmSql} engine={display.engine} onConfirm={handleConfirmSql} />
+      <ConfirmSqlModal
+        modalState={confirmSqlModalState}
+        sql={confirmSql}
+        engine={display.engine}
+        onConfirm={handleConfirmSql}
+      />
     </GridContainer>
   );
 }

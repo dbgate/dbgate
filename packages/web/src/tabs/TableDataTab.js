@@ -15,7 +15,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   const [cache, setCache] = React.useState(createGridCache());
   const [changeSet, setChangeSet] = React.useState(createChangeSet());
 
-  console.log('changeSet', changeSet);
+  // console.log('changeSet', changeSet);
 
   const connection = useConnectionInfo(conid);
   const display = React.useMemo(

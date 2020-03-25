@@ -14,9 +14,19 @@ const StyledInput = styled.input`
   padding: 0px;
 `;
 
-export default function InplaceEditor({ widthPx, value, definition, changeSet, setChangeSet, onClose, selectAll }) {
+export default function InplaceEditor({
+  widthPx,
+  value,
+  definition,
+  changeSet,
+  setChangeSet,
+  onClose,
+  selectAll,
+  shouldSave,
+  changedOnCreate,
+}) {
   const editorRef = React.useRef();
-  const isChangedRef = React.createRef();
+  const isChangedRef = React.createRef(changedOnCreate);
   React.useEffect(() => {
     const editor = editorRef.current;
     editor.value = value;
@@ -30,12 +40,25 @@ export default function InplaceEditor({ widthPx, value, definition, changeSet, s
       const editor = editorRef.current;
       setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
     }
+    onClose();
+  }
+  if (shouldSave) {
+    const editor = editorRef.current;
+    setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+    editor.blur();
+    onClose('save');
   }
   function handleKeyDown(event) {
+    const editor = editorRef.current;
     switch (event.keyCode) {
       case keycodes.escape:
         isChangedRef.current = false;
         onClose();
+        break;
+      case keycodes.enter:
+        setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+        editor.blur();
+        onClose('enter');
         break;
     }
   }

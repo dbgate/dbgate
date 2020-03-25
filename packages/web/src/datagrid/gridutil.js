@@ -68,8 +68,8 @@ export function countColumnSizes(loadedRows, columns, containerWidth, display) {
 
 export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns) {
   const visibleColumnCount = columnSizes.getVisibleScrollCount(firstVisibleColumnScrollIndex, gridScrollAreaWidth);
-  console.log('visibleColumnCount', visibleColumnCount);
-  console.log('gridScrollAreaWidth', gridScrollAreaWidth);
+  // console.log('visibleColumnCount', visibleColumnCount);
+  // console.log('gridScrollAreaWidth', gridScrollAreaWidth);
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
