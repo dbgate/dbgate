@@ -179,3 +179,13 @@ export function changeSetToSql(changeSet: ChangeSet): Command[] {
     ...changeSet.deletes.map(deleteToSql),
   ];
 }
+
+export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
+  const [field, item] = findExistingChangeSetItem(changeSet, definition);
+  if (item)
+    return {
+      ...changeSet,
+      [field]: changeSet[field].filter(x => x != item),
+    };
+  return changeSet;
+}

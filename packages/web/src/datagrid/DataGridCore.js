@@ -26,7 +26,7 @@ import DataGridRow from './DataGridRow';
 import { countColumnSizes, countVisibleRealColumns } from './gridutil';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
-import { changeSetToSql, createChangeSet } from '@dbgate/datalib';
+import { changeSetToSql, createChangeSet, revertChangeSetRowChanges } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
 
@@ -327,6 +327,12 @@ export default function DataGridCore(props) {
     }
   }
 
+  function revertRowChanges() {
+    if (loadedRows && currentCell && loadedRows[currentCell[0]]) {
+      setChangeSet(revertChangeSetRowChanges(changeSet, display.getChangeSetRow(loadedRows[currentCell[0]])));
+    }
+  }
+
   function handleGridWheel(event) {
     let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
     if (event.deltaY > 0) {
@@ -391,7 +397,7 @@ export default function DataGridCore(props) {
 
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
-      // revertRowChanges();
+      revertRowChanges();
       // this.saveAndFocus();
     }
 
