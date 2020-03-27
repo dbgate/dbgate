@@ -105,10 +105,11 @@ export default function DataGridCore(props) {
   const [dragStartCell, setDragStartCell] = React.useState(nullCell);
   const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
 
-  const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
-  const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
-  const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
-  const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
+  // const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
+  // const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
+  // const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
+  // const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
+
   const changeSetRef = React.useRef(changeSet);
 
   changeSetRef.current = changeSet;
@@ -175,6 +176,31 @@ export default function DataGridCore(props) {
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
 
+  const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
+    switch (action.type) {
+      case 'show':
+        return {
+          cell: action.cell,
+          text: action.text,
+        };
+      case 'close': {
+        const [row, col] = currentCell || [];
+        if (tableElement) tableElement.focus();
+        // @ts-ignore
+        if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
+        if (action.mode == 'save') setTimeout(handleSave, 0);
+        return {};
+      }
+      case 'shouldSave': {
+        return {
+          ...state,
+          shouldSave: true,
+        };
+      }
+    }
+    return {};
+  }, {});
+
   const columnSizes = React.useMemo(() => countColumnSizes(loadedRows, columns, containerWidth, display), [
     loadedRows,
     columns,
@@ -223,19 +249,19 @@ export default function DataGridCore(props) {
     }
   }, [tabVisible, tableElement]);
 
-  const handleCloseInplaceEditor = React.useCallback(
-    mode => {
-      const [row, col] = currentCell || [];
-      setInplaceEditorCell(null);
-      setInplaceEditorInitText(null);
-      setInplaceEditorShouldSave(false);
-      if (tableElement) tableElement.focus();
-      // @ts-ignore
-      if (mode == 'enter' && row) moveCurrentCell(row + 1, col);
-      if (mode == 'save') setTimeout(handleSave, 1);
-    },
-    [tableElement, currentCell]
-  );
+  // const handleCloseInplaceEditor = React.useCallback(
+  //   mode => {
+  //     const [row, col] = currentCell || [];
+  //     setInplaceEditorCell(null);
+  //     setInplaceEditorInitText(null);
+  //     setInplaceEditorShouldSave(false);
+  //     if (tableElement) tableElement.focus();
+  //     // @ts-ignore
+  //     if (mode == 'enter' && row) moveCurrentCell(row + 1, col);
+  //     if (mode == 'save') setTimeout(handleSave, 1);
+  //   },
+  //   [tableElement, currentCell]
+  // );
 
   const visibleRealColumns = React.useMemo(
     () => countVisibleRealColumns(columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns),
@@ -275,11 +301,12 @@ export default function DataGridCore(props) {
     setSelectedCells(getCellRange(cell, cell));
     setDragStartCell(cell);
 
-    if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorCell) && _.isEqual(cell, currentCell)) {
-      setInplaceEditorShouldSave(false);
-      setInplaceEditorCell(cell);
-    } else if (!_.isEqual(cell, inplaceEditorCell)) {
-      handleCloseInplaceEditor();
+    if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', cell });
+    } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'close' });
     }
   }
 
@@ -327,9 +354,10 @@ export default function DataGridCore(props) {
   //   await sleep(1);
   // }
 
-   function handleSave() {
-    if (inplaceEditorCell) {
-      setInplaceEditorShouldSave(true);
+  function handleSave() {
+    if (inplaceEditorState.cell) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'shouldSave' });
       return;
     }
     const script = changeSetToSql(changeSetRef.current);
@@ -367,7 +395,7 @@ export default function DataGridCore(props) {
       // this.saveAndFocus();
     }
 
-    if (inplaceEditorCell) return;
+    if (inplaceEditorState.cell) return;
 
     if (
       !event.ctrlKey &&
@@ -376,15 +404,14 @@ export default function DataGridCore(props) {
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
         event.keyCode == keycodes.dash)
     ) {
-      setInplaceEditorInitText(event.nativeEvent.key);
-      setInplaceEditorShouldSave(false);
-      setInplaceEditorCell(currentCell);
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', text: event.nativeEvent.key, cell: currentCell });
       // console.log('event', event.nativeEvent);
     }
 
     if (event.keyCode == keycodes.f2) {
-      setInplaceEditorShouldSave(false);
-      setInplaceEditorCell(currentCell);
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', cell: currentCell });
     }
 
     const moved = handleCursorMove(event);
@@ -604,10 +631,8 @@ export default function DataGridCore(props) {
                 rowIndex={firstVisibleRowScrollIndex + index}
                 rowHeight={rowHeight}
                 visibleRealColumns={visibleRealColumns}
-                inplaceEditorCell={inplaceEditorCell}
-                inplaceEditorInitText={inplaceEditorInitText}
-                inplaceEditorShouldSave={inplaceEditorShouldSave}
-                onCloseInplaceEditor={handleCloseInplaceEditor}
+                inplaceEditorState={inplaceEditorState}
+                dispatchInsplaceEditor={dispatchInsplaceEditor}
                 cellIsSelected={cellIsSelected}
                 changeSet={changeSet}
                 setChangeSet={setChangeSet}

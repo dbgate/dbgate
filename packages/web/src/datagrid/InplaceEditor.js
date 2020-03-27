@@ -16,22 +16,20 @@ const StyledInput = styled.input`
 
 export default function InplaceEditor({
   widthPx,
-  value,
   definition,
   changeSet,
   setChangeSet,
-  onClose,
-  selectAll,
-  shouldSave,
-  changedOnCreate,
+  cellValue,
+  inplaceEditorState,
+  dispatchInsplaceEditor,
 }) {
   const editorRef = React.useRef();
-  const isChangedRef = React.createRef(changedOnCreate);
+  const isChangedRef = React.useRef(!!inplaceEditorState.text);
   React.useEffect(() => {
     const editor = editorRef.current;
-    editor.value = value;
+    editor.value = inplaceEditorState.text || cellValue;
     editor.focus();
-    if (selectAll) {
+    if (inplaceEditorState.selectAll) {
       editor.select();
     }
   }, []);
@@ -40,25 +38,25 @@ export default function InplaceEditor({
       const editor = editorRef.current;
       setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
     }
-    onClose();
+    dispatchInsplaceEditor({ type: 'close' });
   }
-  if (shouldSave) {
+  if (inplaceEditorState.shouldSave) {
     const editor = editorRef.current;
     setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
     editor.blur();
-    onClose('save');
+    dispatchInsplaceEditor({ type: 'close', mode: 'save' });
   }
   function handleKeyDown(event) {
     const editor = editorRef.current;
     switch (event.keyCode) {
       case keycodes.escape:
         isChangedRef.current = false;
-        onClose();
+        dispatchInsplaceEditor({ type: 'close' });
         break;
       case keycodes.enter:
         setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
         editor.blur();
-        onClose('enter');
+        dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;
     }
   }

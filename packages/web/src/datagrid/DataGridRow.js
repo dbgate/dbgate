@@ -79,10 +79,8 @@ export default function DataGridRow({
   rowHeight,
   rowIndex,
   visibleRealColumns,
-  inplaceEditorCell,
-  inplaceEditorInitText,
-  inplaceEditorShouldSave,
-  onCloseInplaceEditor,
+  inplaceEditorState,
+  dispatchInsplaceEditor,
   cellIsSelected,
   row,
   display,
@@ -113,17 +111,16 @@ export default function DataGridRow({
           isModifiedRow={!!matchedChangeSetItem}
           isModifiedCell={matchedChangeSetItem && col.uniqueName in matchedChangeSetItem.fields}
         >
-          {inplaceEditorCell && rowIndex == inplaceEditorCell[0] && col.colIndex == inplaceEditorCell[1] ? (
+          {inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] ? (
             <InplaceEditor
               widthPx={col.widthPx}
-              value={inplaceEditorInitText || rowUpdated[col.uniqueName]}
-              selectAll={!inplaceEditorInitText}
+              inplaceEditorState={inplaceEditorState}
+              dispatchInsplaceEditor={dispatchInsplaceEditor}
+              cellValue={rowUpdated[col.uniqueName]}
               changeSet={changeSet}
               setChangeSet={setChangeSet}
               definition={display.getChangeSetField(row, col.uniqueName)}
-              onClose={onCloseInplaceEditor}
-              shouldSave={inplaceEditorShouldSave}
-            />
+          />
           ) : (
             <>
               <CellFormattedValue value={rowUpdated[col.uniqueName]} />
