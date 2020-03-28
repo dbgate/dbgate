@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Command, Insert, Update, Delete, UpdateField, Condition } from '@dbgate/sqltree';
+import { NamedObjectInfo } from '@dbgate/types';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -188,4 +189,32 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
       [field]: changeSet[field].filter(x => x != item),
     };
   return changeSet;
+}
+
+export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjectInfo) {
+  if (!name) return [];
+  if (!changeSet) return [];
+  const rows = changeSet.inserts.filter(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+  const maxIndex = _.maxBy(rows, x => x.insertedRowIndex)?.insertedRowIndex;
+  if (maxIndex == null) return [];
+  const res = Array(maxIndex + 1).fill({});
+  for (const row of rows) {
+    res[row.insertedRowIndex] = row.fields;
+  }
+  return res;
+}
+
+export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectInfo): ChangeSet {
+  const insertedRows = getChangeSetInsertedRows(changeSet, name);
+  return {
+    ...changeSet,
+    inserts: [
+      ...changeSet.inserts,
+      {
+        ...name,
+        insertedRowIndex: insertedRows.length,
+        fields: {},
+      },
+    ],
+  };
 }

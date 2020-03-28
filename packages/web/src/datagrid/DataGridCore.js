@@ -26,7 +26,13 @@ import DataGridRow from './DataGridRow';
 import { countColumnSizes, countVisibleRealColumns } from './gridutil';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
-import { changeSetToSql, createChangeSet, revertChangeSetRowChanges } from '@dbgate/datalib';
+import {
+  changeSetToSql,
+  createChangeSet,
+  revertChangeSetRowChanges,
+  getChangeSetInsertedRows,
+  changeSetInsertNewRow,
+} from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
 
@@ -232,7 +238,11 @@ export default function DataGridCore(props) {
   };
 
   React.useEffect(() => {
-    if (!isLoadedAll && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length) {
+    if (
+      !isLoadedAll &&
+      firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length &&
+      insertedRows.length == 0
+    ) {
       const sql = display.getPageQuery(0, 1);
       // try to get SQL, if success, load page. If not, callbacks to load missing metadata are dispatched
       if (sql) loadNextData();
@@ -284,7 +294,8 @@ export default function DataGridCore(props) {
   );
 
   if (!loadedRows || !columns) return null;
-  const rowCountNewIncluded = loadedRows.length;
+  const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
+  const rowCountNewIncluded = loadedRows.length + insertedRows.length;
 
   const handleRowScroll = value => {
     setFirstVisibleRowScrollIndex(value);
@@ -398,6 +409,18 @@ export default function DataGridCore(props) {
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
       revertRowChanges();
+      // this.saveAndFocus();
+    }
+
+    if (event.keyCode == keycodes.insert) {
+      event.preventDefault();
+      if (display.baseTable) {
+        setChangeSet(changeSetInsertNewRow(changeSet, display.baseTable));
+        const cell = [rowCountNewIncluded, (currentCell && currentCell[1]) || 0];
+        // @ts-ignore
+        setCurrentCell(cell);
+        scrollIntoView(cell);
+      }
       // this.saveAndFocus();
     }
 
@@ -574,6 +597,8 @@ export default function DataGridCore(props) {
   //   columnSizes.getVisibleScrollSizeSum()
   // );
 
+  const loadedAndInsertedRows = [...loadedRows, ...insertedRows];
+
   return (
     <GridContainer ref={containerRef}>
       <Table
@@ -629,7 +654,7 @@ export default function DataGridCore(props) {
           </TableHeaderRow>
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {loadedRows
+          {loadedAndInsertedRows
             .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((row, index) => (
               <DataGridRow
@@ -640,6 +665,11 @@ export default function DataGridCore(props) {
                 inplaceEditorState={inplaceEditorState}
                 dispatchInsplaceEditor={dispatchInsplaceEditor}
                 cellIsSelected={cellIsSelected}
+                insertedRowIndex={
+                  firstVisibleRowScrollIndex + index >= loadedRows.length
+                    ? firstVisibleRowScrollIndex + index - loadedRows.length
+                    : null
+                }
                 changeSet={changeSet}
                 setChangeSet={setChangeSet}
                 display={display}

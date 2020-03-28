@@ -31,15 +31,24 @@ const TableBodyCell = styled.td`
     color: white;`}
   ${props =>
     props.isModifiedRow &&
+    !props.isInsertedRow &&
     !props.isSelected &&
     !props.isModifiedCell &&
     `
     background-color: #FFFFDB;`}
     ${props =>
       !props.isSelected &&
+      !props.isInsertedRow &&
       props.isModifiedCell &&
       `
         background-color: bisque;`}
+
+    ${props =>
+      !props.isSelected &&
+      props.isInsertedRow &&
+      `
+        background-color: #DBFFDB;`}
+    
     `;
 const HintSpan = styled.span`
   color: gray;
@@ -86,6 +95,7 @@ export default function DataGridRow({
   display,
   changeSet,
   setChangeSet,
+  insertedRowIndex,
 }) {
   // console.log('RENDER ROW', rowIndex);
   const rowDefinition = display.getChangeSetRow(row);
@@ -110,8 +120,11 @@ export default function DataGridRow({
           isSelected={cellIsSelected(rowIndex, col.colIndex)}
           isModifiedRow={!!matchedChangeSetItem}
           isModifiedCell={matchedChangeSetItem && col.uniqueName in matchedChangeSetItem.fields}
+          isInsertedRow={insertedRowIndex != null}
         >
-          {inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1] ? (
+          {inplaceEditorState.cell &&
+          rowIndex == inplaceEditorState.cell[0] &&
+          col.colIndex == inplaceEditorState.cell[1] ? (
             <InplaceEditor
               widthPx={col.widthPx}
               inplaceEditorState={inplaceEditorState}
@@ -119,8 +132,9 @@ export default function DataGridRow({
               cellValue={rowUpdated[col.uniqueName]}
               changeSet={changeSet}
               setChangeSet={setChangeSet}
-              definition={display.getChangeSetField(row, col.uniqueName)}
-          />
+              insertedRowIndex={insertedRowIndex}
+              definition={display.getChangeSetField(row, col.uniqueName, insertedRowIndex)}
+            />
           ) : (
             <>
               <CellFormattedValue value={rowUpdated[col.uniqueName]} />

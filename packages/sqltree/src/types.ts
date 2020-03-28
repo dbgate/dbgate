@@ -36,10 +36,7 @@ export interface Delete {
 export interface Insert {
   commandType: 'insert';
   fields: UpdateField[];
-  targetTable: {
-    schemaName: string;
-    pureName: string;
-  };
+  targetTable: NamedObjectInfo;
 }
 
 export type Command = Select | Update | Delete | Insert;

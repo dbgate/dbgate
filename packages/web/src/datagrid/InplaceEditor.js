@@ -22,6 +22,7 @@ export default function InplaceEditor({
   cellValue,
   inplaceEditorState,
   dispatchInsplaceEditor,
+  isInsertedRow,
 }) {
   const editorRef = React.useRef();
   const isChangedRef = React.useRef(!!inplaceEditorState.text);

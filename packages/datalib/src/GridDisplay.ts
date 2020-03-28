@@ -365,7 +365,7 @@ export abstract class GridDisplay {
     return _.pick(row, this.changeSetKeyFields);
   }
 
-  getChangeSetField(row, uniqueName): ChangeSetFieldDefinition {
+  getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
     const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
     if (!this.baseTable) return null;
@@ -375,7 +375,8 @@ export abstract class GridDisplay {
       schemaName: col.schemaName,
       uniqueName: uniqueName,
       columnName: col.columnName,
-      condition: this.getChangeSetCondition(row),
+      insertedRowIndex,
+      condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
   }
 
