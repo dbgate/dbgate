@@ -365,6 +365,7 @@ export default function DataGridCore(props) {
 
       setAutofillDragStartCell(null);
       setAutofillSelectedCells([]);
+      setSelectedCells(autofillSelectedCells);
     }
   }
 
