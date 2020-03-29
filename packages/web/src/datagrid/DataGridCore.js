@@ -189,6 +189,7 @@ export default function DataGridCore(props) {
         return {
           cell: action.cell,
           text: action.text,
+          selectAll: action.selectAll,
         };
       case 'close': {
         const [row, col] = currentCell || [];
@@ -315,7 +316,7 @@ export default function DataGridCore(props) {
 
     if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
       // @ts-ignore
-      dispatchInsplaceEditor({ type: 'show', cell });
+      dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
     } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
       // @ts-ignore
       dispatchInsplaceEditor({ type: 'close' });
@@ -451,6 +452,8 @@ export default function DataGridCore(props) {
         const cell = [rowCountNewIncluded, (currentCell && currentCell[1]) || 0];
         // @ts-ignore
         setCurrentCell(cell);
+        // @ts-ignore
+        setSelectedCells([cell]);
         scrollIntoView(cell);
       }
       // this.saveAndFocus();
@@ -472,7 +475,7 @@ export default function DataGridCore(props) {
 
     if (event.keyCode == keycodes.f2) {
       // @ts-ignore
-      dispatchInsplaceEditor({ type: 'show', cell: currentCell });
+      dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
     }
 
     const moved = handleCursorMove(event);
@@ -490,7 +493,7 @@ export default function DataGridCore(props) {
     const newCell = handleCursorMove(event);
     if (event.shiftKey && newCell) {
       // @ts-ignore
-      setSelectedCells(getCellRange(shiftDragStartCell, newCell));
+      setSelectedCells(getCellRange(shiftDragStartCell || currentCell, newCell));
     }
   }
 
