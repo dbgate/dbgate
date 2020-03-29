@@ -38,12 +38,16 @@ export default function InplaceEditor({
     if (isChangedRef.current) {
       const editor = editorRef.current;
       setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+      isChangedRef.current = false;
     }
     dispatchInsplaceEditor({ type: 'close' });
   }
   if (inplaceEditorState.shouldSave) {
     const editor = editorRef.current;
-    setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+    if (isChangedRef.current) {
+      setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+      isChangedRef.current = false;
+    }
     editor.blur();
     dispatchInsplaceEditor({ type: 'close', mode: 'save' });
   }
@@ -55,7 +59,10 @@ export default function InplaceEditor({
         dispatchInsplaceEditor({ type: 'close' });
         break;
       case keycodes.enter:
-        setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+        if (isChangedRef.current) {
+          setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+          isChangedRef.current = false;
+        }
         editor.blur();
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;

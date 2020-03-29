@@ -5,6 +5,6 @@ export interface DataGridProps {
   database: string;
   display: GridDisplay;
   tabVisible?: boolean;
-  changeSet?: ChangeSet;
-  setChangeSet?: Function;
+  changeSetState: { value: ChangeSet };
+  dispatchChangeSet: Function;
 }

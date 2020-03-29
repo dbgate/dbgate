@@ -96,7 +96,7 @@ const FocusField = styled.input`
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display, changeSet, setChangeSet, tabVisible } = props;
+  const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
   const columns = display.getGridColumns();
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
@@ -128,6 +128,9 @@ export default function DataGridCore(props) {
   // const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
   // const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
   // const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
+
+  const changeSet = changeSetState.value;
+  const setChangeSet = value => dispatchChangeSet({ type: 'set', value });
 
   const changeSetRef = React.useRef(changeSet);
 
@@ -537,6 +540,13 @@ export default function DataGridCore(props) {
   //   await sleep(1);
   // }
 
+  function undo() {
+    dispatchChangeSet({ type: 'undo' });
+  }
+  function redo() {
+    dispatchChangeSet({ type: 'redo' });
+  }
+
   function handleSave() {
     if (inplaceEditorState.cell) {
       // @ts-ignore
@@ -560,7 +570,7 @@ export default function DataGridCore(props) {
       data: { sql: confirmSql },
     });
 
-    setChangeSet(createChangeSet());
+    dispatchChangeSet({ type: 'reset', value: createChangeSet() });
     setConfirmSql(null);
     display.reload();
   }
@@ -575,6 +585,16 @@ export default function DataGridCore(props) {
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
       revertRowChanges();
+    }
+
+    if (event.keyCode == keycodes.z && event.ctrlKey) {
+      event.preventDefault();
+      undo();
+    }
+
+    if (event.keyCode == keycodes.y && event.ctrlKey) {
+      event.preventDefault();
+      redo();
     }
 
     if (event.keyCode == keycodes.c && event.ctrlKey) {
