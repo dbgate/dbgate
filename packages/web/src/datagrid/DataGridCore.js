@@ -86,6 +86,12 @@ const TableFilterCell = styled.td`
   padding: 0;
 `;
 const wheelRowCount = 5;
+const FocusField = styled.input`
+  // visibility: hidden
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+`;
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
@@ -102,6 +108,7 @@ export default function DataGridCore(props) {
   const { isLoading, loadedRows, isLoadedAll, loadedTime } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
+  const focusFieldRef = React.useRef();
 
   const [vScrollValueToSet, setvScrollValueToSet] = React.useState();
   const [vScrollValueToSetDate, setvScrollValueToSetDate] = React.useState(new Date());
@@ -110,7 +117,7 @@ export default function DataGridCore(props) {
   const [hScrollValueToSetDate, sethScrollValueToSetDate] = React.useState(new Date());
 
   const [currentCell, setCurrentCell] = React.useState(topLeftCell);
-  const [selectedCells, setSelectedCells] = React.useState(emptyCellArray);
+  const [selectedCells, setSelectedCells] = React.useState([topLeftCell]);
   const [dragStartCell, setDragStartCell] = React.useState(nullCell);
   const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
   const [autofillDragStartCell, setAutofillDragStartCell] = React.useState(nullCell);
@@ -191,7 +198,7 @@ export default function DataGridCore(props) {
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  const [tableRef, { height: tableHeight, width: tableWidth }, tableElement] = useDimensions();
+  const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
 
@@ -205,7 +212,8 @@ export default function DataGridCore(props) {
         };
       case 'close': {
         const [row, col] = currentCell || [];
-        if (tableElement) tableElement.focus();
+        // @ts-ignore
+        if (focusFieldRef.current) focusFieldRef.current.focus();
         // @ts-ignore
         if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
         if (action.mode == 'save') setTimeout(handleSave, 0);
@@ -269,9 +277,9 @@ export default function DataGridCore(props) {
   React.useEffect(() => {
     if (tabVisible) {
       // @ts-ignore
-      if (tableElement) tableElement.focus();
+      if (focusFieldRef.current) focusFieldRef.current.focus();
     }
-  }, [tabVisible, tableElement]);
+  }, [tabVisible, focusFieldRef.current]);
 
   // const handleCloseInplaceEditor = React.useCallback(
   //   mode => {
@@ -305,7 +313,10 @@ export default function DataGridCore(props) {
   };
 
   function handleGridMouseDown(event) {
-    event.target.closest('table').focus();
+    // event.target.closest('table').focus();
+    event.preventDefault();
+    // @ts-ignore
+    if (focusFieldRef.current) focusFieldRef.current.focus();
     const cell = cellFromEvent(event);
     const autofill = event.target.closest('div.autofillHandleMarker');
     if (autofill) {
@@ -331,9 +342,18 @@ export default function DataGridCore(props) {
     copyToClipboard();
   }
 
-  // function handlePaste(event) {
-  //   console.log('PASTE', event);
-  // }
+  function handlePaste(event) {
+    var pastedText = undefined;
+    // @ts-ignore
+    if (window.clipboardData && window.clipboardData.getData) { // IE
+    // @ts-ignore
+    pastedText = window.clipboardData.getData('Text');
+    } else if (event.clipboardData && event.clipboardData.getData) {
+      pastedText = event.clipboardData.getData('text/plain');
+    }
+    event.preventDefault();
+    console.log(pastedText); // Process and handle text...
+  }
 
   function copyToClipboard() {
     const rowIndexes = _.uniq(selectedCells.map(x => x[0])).sort();
@@ -698,18 +718,16 @@ export default function DataGridCore(props) {
 
   const loadedAndInsertedRows = [...loadedRows, ...insertedRows];
 
+  // console.log('focusFieldRef.current', focusFieldRef.current);
+
   return (
     <GridContainer ref={containerRef}>
+      <FocusField type="text" ref={focusFieldRef} onKeyDown={handleGridKeyDown} onCopy={handleCopy} onPaste={handlePaste} />
       <Table
         onMouseDown={handleGridMouseDown}
         onMouseMove={handleGridMouseMove}
         onMouseUp={handleGridMouseUp}
-        onKeyDown={handleGridKeyDown}
         onWheel={handleGridWheel}
-        onCopy={handleCopy}
-        // onPasteCapture={handlePaste}
-        // table can be focused
-        tabIndex={-1}
         ref={tableRef}
       >
         <TableHead>
