@@ -359,22 +359,24 @@ export default function DataGridCore(props) {
       pastedText = event.clipboardData.getData('text/plain');
     }
     event.preventDefault();
-    const rows = pastedText.replace(/\r/g, '').split('\n');
+    const pasteRows = pastedText
+      .replace(/\r/g, '')
+      .split('\n')
+      .map(row => row.split('\t'));
     let chs = changeSet;
     let allRows = loadedAndInsertedRows;
 
     if (selectedCells.length <= 1) {
       if (isRegularCell(currentCell)) {
         let rowIndex = currentCell[0];
-        for (const rowData of rows) {
+        for (const rowData of pasteRows) {
           if (rowIndex >= allRows.length) {
             chs = changeSetInsertNewRow(chs, display.baseTable);
             allRows = [...loadedRows, ...getChangeSetInsertedRows(chs, display.baseTable)];
           }
           let colIndex = currentCell[1];
-          const cells = rowData.split('\t');
           const row = allRows[rowIndex];
-          for (const cell of cells) {
+          for (const cell of rowData) {
             chs = setChangeSetValue(
               chs,
               display.getChangeSetField(
@@ -388,6 +390,28 @@ export default function DataGridCore(props) {
           }
           rowIndex += 1;
         }
+      }
+    }
+    if (selectedCells.length > 1) {
+      const regularSelected = selectedCells.filter(isRegularCell);
+      const startRow = _.min(regularSelected.map(x => x[0]));
+      const startCol = _.min(regularSelected.map(x => x[1]));
+      for (const cell of regularSelected) {
+        const [rowIndex, colIndex] = cell;
+        const selectionRow = rowIndex - startRow;
+        const selectionCol = colIndex - startCol;
+        const row = allRows[rowIndex];
+        const pasteRow = pasteRows[selectionRow % pasteRows.length];
+        const pasteCell = pasteRow[selectionCol % pasteRow.length];
+        chs = setChangeSetValue(
+          chs,
+          display.getChangeSetField(
+            row,
+            realColumnUniqueNames[colIndex],
+            rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
+          ),
+          pasteCell
+        );
       }
     }
 
