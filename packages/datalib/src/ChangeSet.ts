@@ -115,6 +115,54 @@ export function setChangeSetValue(
   };
 }
 
+// export function batchUpdateChangeSet(
+//   changeSet: ChangeSet,
+//   rowDefinitions: ChangeSetRowDefinition[],
+//   dataRows: []
+// ): ChangeSet {
+//   const res = {
+//     updates: [...changeSet.updates],
+//     deletes: [...changeSet.deletes],
+//     inserts: [...changeSet.inserts],
+//   };
+//   const rowItems: ChangeSetItem[] = rowDefinitions.map(definition => {
+//     let [field, item] = findExistingChangeSetItem(res, definition);
+//     let createUpdate = false;
+//     if (field == 'deletes') {
+//       res.deletes = res.deletes.filter(x => x != item);
+//       createUpdate = true;
+//     }
+//     if (field == 'updates' && item == null) {
+//       item = {
+//         ...definition,
+//         fields: {},
+//       };
+//       res.updates.push(item);
+//     }
+//     return item;
+//   });
+//   for (const tuple in _.zip(rowItems, dataRows)) {
+//     const [definition, dataRow] = tuple;
+//     for
+//   }
+//   return res;
+// }
+
+export function batchUpdateChangeSet(
+  changeSet: ChangeSet,
+  rowDefinitions: ChangeSetRowDefinition[],
+  dataRows: []
+): ChangeSet {
+  // console.log('batchUpdateChangeSet', changeSet, rowDefinitions, dataRows);
+  for (const tuple of _.zip(rowDefinitions, dataRows)) {
+    const [definition, dataRow] = tuple;
+    for (const key of _.keys(dataRow)) {
+      changeSet = setChangeSetValue(changeSet, { ...definition, columnName: key, uniqueName: key }, dataRow[key]);
+    }
+  }
+  return changeSet;
+}
+
 function extractFields(item: ChangeSetItem): UpdateField[] {
   return _.keys(item.fields).map(targetColumn => ({
     targetColumn,
@@ -194,9 +242,9 @@ export function changeSetToSql(changeSet: ChangeSet): Command[] {
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
-  console.log('definition', definition)
+  console.log('definition', definition);
   const [field, item] = findExistingChangeSetItem(changeSet, definition);
-  console.log('field, item', field, item)
+  console.log('field, item', field, item);
   if (item)
     return {
       ...changeSet,

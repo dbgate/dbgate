@@ -22,22 +22,34 @@ const TableBodyCell = styled.td`
   // border-collapse: collapse;
   padding: 2px;
   white-space: nowrap;
+  position: relative;
   overflow: hidden;
   ${props =>
     props.isSelected &&
+    !props.isAutofillSelected &&
     `
     background: initial;
     background-color: deepskyblue;
     color: white;`}
+
   ${props =>
+    props.isAutofillSelected &&
+    `
+    background: initial;
+    background-color: magenta;
+    color: white;`}
+
+    ${props =>
     props.isModifiedRow &&
     !props.isInsertedRow &&
     !props.isSelected &&
+    !props.isAutofillSelected &&
     !props.isModifiedCell &&
     `
   background-color: #FFFFDB;`}
   ${props =>
     !props.isSelected &&
+    !props.isAutofillSelected &&
     !props.isInsertedRow &&
     props.isModifiedCell &&
     `
@@ -45,20 +57,27 @@ const TableBodyCell = styled.td`
 
   ${props =>
     !props.isSelected &&
+    !props.isAutofillSelected &&
     props.isInsertedRow &&
     `
       background-color: #DBFFDB;`}
 
     ${props =>
       !props.isSelected &&
+      !props.isAutofillSelected &&
       props.isDeletedRow &&
       `
       background-color: #FFDBFF;
+  `}
+
+    ${props =>
+      props.isDeletedRow &&
+      `
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
       // from http://www.patternify.com/
       background-repeat: repeat-x;
       background-position: 50% 50%;`}
-          
+        
   `;
 
 const HintSpan = styled.span`
@@ -89,10 +108,31 @@ const TableHeaderCell = styled.td`
   overflow: hidden;
 `;
 
+const AutoFillPoint = styled.div`
+  width: 8px;
+  height: 8px;
+  background-color: #1a73e8;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  overflow: visible;
+  cursor: crosshair;
+`;
+
 function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   return value;
+}
+
+function cellIsSelected(row, col, selectedCells) {
+  for (const [selectedRow, selectedCol] of selectedCells) {
+    if (row == selectedRow && col == selectedCol) return true;
+    if (selectedRow == 'header' && col == selectedCol) return true;
+    if (row == selectedRow && selectedCol == 'header') return true;
+    if (selectedRow == 'header' && selectedCol == 'header') return true;
+  }
+  return false;
 }
 
 export default function DataGridRow({
@@ -101,12 +141,14 @@ export default function DataGridRow({
   visibleRealColumns,
   inplaceEditorState,
   dispatchInsplaceEditor,
-  cellIsSelected,
   row,
   display,
   changeSet,
   setChangeSet,
   insertedRowIndex,
+  autofillMarkerCell,
+  selectedCells,
+  autofillSelectedCells,
 }) {
   // console.log('RENDER ROW', rowIndex);
   const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
@@ -120,6 +162,7 @@ export default function DataGridRow({
       return true;
     })
     .map(col => col.uniqueName);
+
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }}>
       <TableHeaderCell data-row={rowIndex} data-col="header">
@@ -135,8 +178,8 @@ export default function DataGridRow({
           }}
           data-row={rowIndex}
           data-col={col.colIndex}
-          // @ts-ignore
-          isSelected={cellIsSelected(rowIndex, col.colIndex)}
+          isSelected={cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+          isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
           isModifiedRow={!!matchedChangeSetItem}
           isModifiedCell={
             matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields
@@ -162,6 +205,9 @@ export default function DataGridRow({
               <CellFormattedValue value={rowUpdated[col.uniqueName]} />
               {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
             </>
+          )}
+          {autofillMarkerCell && autofillMarkerCell[1] == col.colIndex && autofillMarkerCell[0] == rowIndex && (
+            <AutoFillPoint className="autofillHandleMarker"></AutoFillPoint>
           )}
         </TableBodyCell>
       ))}
