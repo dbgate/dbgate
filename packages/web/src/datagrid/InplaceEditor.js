@@ -66,6 +66,16 @@ export default function InplaceEditor({
         editor.blur();
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;
+      case keycodes.s:
+        if (event.ctrlKey) {
+          if (isChangedRef.current) {
+            setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+            isChangedRef.current = false;
+          }
+          event.preventDefault();
+          dispatchInsplaceEditor({ type: 'close', mode: 'save' });
+        }
+        break;
     }
   }
   return (
