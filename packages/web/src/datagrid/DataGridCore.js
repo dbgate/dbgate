@@ -34,6 +34,7 @@ import {
   changeSetInsertNewRow,
   deleteChangeSetRows,
   batchUpdateChangeSet,
+  setChangeSetValue,
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
@@ -300,6 +301,11 @@ export default function DataGridCore(props) {
     [columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns]
   );
 
+  const realColumnUniqueNames = React.useMemo(
+    () => _.range(columnSizes.realCount).map(realIndex => columns[columnSizes.realToModel(realIndex)].uniqueName),
+    [columnSizes, columns]
+  );
+
   if (!loadedRows || !columns) return null;
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
@@ -345,14 +351,47 @@ export default function DataGridCore(props) {
   function handlePaste(event) {
     var pastedText = undefined;
     // @ts-ignore
-    if (window.clipboardData && window.clipboardData.getData) { // IE
-    // @ts-ignore
-    pastedText = window.clipboardData.getData('Text');
+    if (window.clipboardData && window.clipboardData.getData) {
+      // IE
+      // @ts-ignore
+      pastedText = window.clipboardData.getData('Text');
     } else if (event.clipboardData && event.clipboardData.getData) {
       pastedText = event.clipboardData.getData('text/plain');
     }
     event.preventDefault();
-    console.log(pastedText); // Process and handle text...
+    const rows = pastedText.replace(/\r/g, '').split('\n');
+    let chs = changeSet;
+    let allRows = loadedAndInsertedRows;
+
+    if (selectedCells.length <= 1) {
+      if (isRegularCell(currentCell)) {
+        let rowIndex = currentCell[0];
+        for (const rowData of rows) {
+          if (rowIndex >= allRows.length) {
+            chs = changeSetInsertNewRow(chs, display.baseTable);
+            allRows = [...loadedRows, ...getChangeSetInsertedRows(chs, display.baseTable)];
+          }
+          let colIndex = currentCell[1];
+          const cells = rowData.split('\t');
+          const row = allRows[rowIndex];
+          for (const cell of cells) {
+            chs = setChangeSetValue(
+              chs,
+              display.getChangeSetField(
+                row,
+                realColumnUniqueNames[colIndex],
+                rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
+              ),
+              cell
+            );
+            colIndex += 1;
+          }
+          rowIndex += 1;
+        }
+      }
+    }
+
+    setChangeSet(chs);
   }
 
   function copyToClipboard() {
@@ -364,7 +403,7 @@ export default function DataGridCore(props) {
         .sort();
       const rowData = loadedAndInsertedRows[rowIndex];
       const line = colIndexes
-        .map(columnUniqueName)
+        .map(col => realColumnUniqueNames[col])
         .map(col => (rowData[col] == null ? '' : rowData[col]))
         .join('\t');
       return line;
@@ -388,10 +427,6 @@ export default function DataGridCore(props) {
     }
   }
 
-  function columnUniqueName(columnIndex) {
-    return columns[columnSizes.realToModel(columnIndex)].uniqueName;
-  }
-
   function handleGridMouseUp(event) {
     if (dragStartCell) {
       const cell = cellFromEvent(event);
@@ -404,7 +439,7 @@ export default function DataGridCore(props) {
       if (_.isNumber(currentRowNumber)) {
         const rowIndexes = _.uniq((autofillSelectedCells || []).map(x => x[0])).filter(x => x != currentRowNumber);
         // @ts-ignore
-        const colNames = selectedCells.map(cell => columnUniqueName(cell[1]));
+        const colNames = selectedCells.map(cell => realColumnUniqueNames[cell[1]]);
         const changeObject = _.pick(loadedAndInsertedRows[currentRowNumber], colNames);
         setChangeSet(
           batchUpdateChangeSet(
@@ -722,7 +757,13 @@ export default function DataGridCore(props) {
 
   return (
     <GridContainer ref={containerRef}>
-      <FocusField type="text" ref={focusFieldRef} onKeyDown={handleGridKeyDown} onCopy={handleCopy} onPaste={handlePaste} />
+      <FocusField
+        type="text"
+        ref={focusFieldRef}
+        onKeyDown={handleGridKeyDown}
+        onCopy={handleCopy}
+        onPaste={handlePaste}
+      />
       <Table
         onMouseDown={handleGridMouseDown}
         onMouseMove={handleGridMouseMove}
