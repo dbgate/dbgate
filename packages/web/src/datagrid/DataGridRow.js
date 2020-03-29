@@ -109,7 +109,7 @@ export default function DataGridRow({
   insertedRowIndex,
 }) {
   // console.log('RENDER ROW', rowIndex);
-  const rowDefinition = display.getChangeSetRow(row);
+  const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
   const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
   const hintFieldsAllowed = visibleRealColumns

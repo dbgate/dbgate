@@ -371,21 +371,19 @@ export abstract class GridDisplay {
     if (!this.baseTable) return null;
     if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;
     return {
-      pureName: col.pureName,
-      schemaName: col.schemaName,
+      ...this.getChangeSetRow(row, insertedRowIndex),
       uniqueName: uniqueName,
       columnName: col.columnName,
-      insertedRowIndex,
-      condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
   }
 
-  getChangeSetRow(row): ChangeSetRowDefinition {
+  getChangeSetRow(row, insertedRowIndex): ChangeSetRowDefinition {
     if (!this.baseTable) return null;
     return {
       pureName: this.baseTable.pureName,
       schemaName: this.baseTable.schemaName,
-      condition: this.getChangeSetCondition(row),
+      insertedRowIndex,
+      condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
   }
 }

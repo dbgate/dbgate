@@ -194,7 +194,9 @@ export function changeSetToSql(changeSet: ChangeSet): Command[] {
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
+  console.log('definition', definition)
   const [field, item] = findExistingChangeSetItem(changeSet, definition);
+  console.log('field, item', field, item)
   if (item)
     return {
       ...changeSet,

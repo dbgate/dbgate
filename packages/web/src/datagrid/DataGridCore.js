@@ -339,16 +339,36 @@ export default function DataGridCore(props) {
     }
   }
 
-  function revertRowChanges() {
-    if (loadedRows && currentCell && loadedRows[currentCell[0]]) {
-      setChangeSet(revertChangeSetRowChanges(changeSet, display.getChangeSetRow(loadedRows[currentCell[0]])));
+  function getSelectedRowDefinitions() {
+    const res = [];
+    if (!loadedAndInsertedRows) return res;
+    const rowIndexes = _.uniq((selectedCells || []).map(x => x[0]));
+    for (const index of rowIndexes) {
+      if (loadedAndInsertedRows[index] && _.isNumber(index)) {
+        const insertedRowIndex =
+          firstVisibleRowScrollIndex + index >= loadedRows.length
+            ? firstVisibleRowScrollIndex + index - loadedRows.length
+            : null;
+        res.push(display.getChangeSetRow(loadedAndInsertedRows[index], insertedRowIndex));
+      }
     }
+    return res;
+  }
+
+  function revertRowChanges() {
+    const updatedChangeSet = getSelectedRowDefinitions().reduce(
+      (chs, row) => revertChangeSetRowChanges(chs, row),
+      changeSet
+    );
+    setChangeSet(updatedChangeSet);
   }
 
   function deleteCurrentRow() {
-    if (loadedRows && currentCell && loadedRows[currentCell[0]]) {
-      setChangeSet(deleteChangeSetRows(changeSet, display.getChangeSetRow(loadedRows[currentCell[0]])));
-    }
+    const updatedChangeSet = getSelectedRowDefinitions().reduce(
+      (chs, row) => deleteChangeSetRows(chs, row),
+      changeSet
+    );
+    setChangeSet(updatedChangeSet);
   }
 
   function handleGridWheel(event) {
