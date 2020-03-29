@@ -51,15 +51,23 @@ export function findExistingChangeSetItem(
       ),
     ];
   } else {
-    return [
-      'updates',
-      changeSet.updates.find(
-        x =>
-          x.pureName == definition.pureName &&
-          x.schemaName == definition.schemaName &&
-          _.isEqual(x.condition, definition.condition)
-      ),
-    ];
+    const inUpdates = changeSet.updates.find(
+      x =>
+        x.pureName == definition.pureName &&
+        x.schemaName == definition.schemaName &&
+        _.isEqual(x.condition, definition.condition)
+    );
+    if (inUpdates) return ['updates', inUpdates];
+
+    const inDeletes = changeSet.deletes.find(
+      x =>
+        x.pureName == definition.pureName &&
+        x.schemaName == definition.schemaName &&
+        _.isEqual(x.condition, definition.condition)
+    );
+    if (inDeletes) return ['deletes', inDeletes];
+
+    return ['updates', null];
   }
 }
 
@@ -68,7 +76,11 @@ export function setChangeSetValue(
   definition: ChangeSetFieldDefinition,
   value: string
 ): ChangeSet {
-  const [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  if (fieldName == 'deletes') {
+    changeSet = revertChangeSetRowChanges(changeSet, definition);
+    [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  }
   if (existingItem) {
     return {
       ...changeSet,
@@ -189,6 +201,30 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
       [field]: changeSet[field].filter(x => x != item),
     };
   return changeSet;
+}
+
+export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
+  let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  if (fieldName == 'updates') {
+    changeSet = revertChangeSetRowChanges(changeSet, definition);
+    [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  }
+  if (fieldName == 'inserts') {
+    return revertChangeSetRowChanges(changeSet, definition);
+  } else {
+    if (existingItem && fieldName == 'deletes') return changeSet;
+    return {
+      ...changeSet,
+      deletes: [
+        ...changeSet.deletes,
+        {
+          pureName: definition.pureName,
+          schemaName: definition.schemaName,
+          condition: definition.condition,
+        },
+      ],
+    };
+  }
 }
 
 export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjectInfo) {

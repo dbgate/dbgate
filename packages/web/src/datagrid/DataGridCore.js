@@ -32,6 +32,7 @@ import {
   revertChangeSetRowChanges,
   getChangeSetInsertedRows,
   changeSetInsertNewRow,
+  deleteChangeSetRows,
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
@@ -344,6 +345,12 @@ export default function DataGridCore(props) {
     }
   }
 
+  function deleteCurrentRow() {
+    if (loadedRows && currentCell && loadedRows[currentCell[0]]) {
+      setChangeSet(deleteChangeSetRows(changeSet, display.getChangeSetRow(loadedRows[currentCell[0]])));
+    }
+  }
+
   function handleGridWheel(event) {
     let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
     if (event.deltaY > 0) {
@@ -409,10 +416,15 @@ export default function DataGridCore(props) {
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
       revertRowChanges();
+    }
+
+    if (event.keyCode == keycodes.delete && event.ctrlKey) {
+      event.preventDefault();
+      deleteCurrentRow();
       // this.saveAndFocus();
     }
 
-    if (event.keyCode == keycodes.insert) {
+    if (event.keyCode == keycodes.insert && !event.ctrlKey) {
       event.preventDefault();
       if (display.baseTable) {
         setChangeSet(changeSetInsertNewRow(changeSet, display.baseTable));

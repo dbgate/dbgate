@@ -35,21 +35,32 @@ const TableBodyCell = styled.td`
     !props.isSelected &&
     !props.isModifiedCell &&
     `
-    background-color: #FFFFDB;`}
-    ${props =>
-      !props.isSelected &&
-      !props.isInsertedRow &&
-      props.isModifiedCell &&
-      `
-        background-color: bisque;`}
+  background-color: #FFFFDB;`}
+  ${props =>
+    !props.isSelected &&
+    !props.isInsertedRow &&
+    props.isModifiedCell &&
+    `
+      background-color: bisque;`}
+
+  ${props =>
+    !props.isSelected &&
+    props.isInsertedRow &&
+    `
+      background-color: #DBFFDB;`}
 
     ${props =>
       !props.isSelected &&
-      props.isInsertedRow &&
+      props.isDeletedRow &&
       `
-        background-color: #DBFFDB;`}
-    
-    `;
+      background-color: #FFDBFF;
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
+      // from http://www.patternify.com/
+      background-repeat: repeat-x;
+      background-position: 50% 50%;`}
+          
+  `;
+
 const HintSpan = styled.span`
   color: gray;
   margin-left: 5px;
@@ -99,8 +110,16 @@ export default function DataGridRow({
 }) {
   // console.log('RENDER ROW', rowIndex);
   const rowDefinition = display.getChangeSetRow(row);
-  const [_fld, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
+  const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
+  const hintFieldsAllowed = visibleRealColumns
+    .filter(col => {
+      if (!col.hintColumnName) return false;
+      if (matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields)
+        return false;
+      return true;
+    })
+    .map(col => col.uniqueName);
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }}>
       <TableHeaderCell data-row={rowIndex} data-col="header">
@@ -119,8 +138,11 @@ export default function DataGridRow({
           // @ts-ignore
           isSelected={cellIsSelected(rowIndex, col.colIndex)}
           isModifiedRow={!!matchedChangeSetItem}
-          isModifiedCell={matchedChangeSetItem && col.uniqueName in matchedChangeSetItem.fields}
+          isModifiedCell={
+            matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields
+          }
           isInsertedRow={insertedRowIndex != null}
+          isDeletedRow={matchedField == 'deletes'}
         >
           {inplaceEditorState.cell &&
           rowIndex == inplaceEditorState.cell[0] &&
@@ -138,9 +160,7 @@ export default function DataGridRow({
           ) : (
             <>
               <CellFormattedValue value={rowUpdated[col.uniqueName]} />
-              {(!matchedChangeSetItem || !(col.uniqueName in matchedChangeSetItem.fields)) && col.hintColumnName && (
-                <HintSpan>{row[col.hintColumnName]}</HintSpan>
-              )}
+              {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
             </>
           )}
         </TableBodyCell>
