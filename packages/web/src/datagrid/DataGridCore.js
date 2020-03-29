@@ -37,6 +37,7 @@ import {
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
+import { copyTextToClipboard } from '../utility/clipboard';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -324,6 +325,34 @@ export default function DataGridCore(props) {
     }
   }
 
+  function handleCopy(event) {
+    if (event && event.target.localName == 'input') return;
+    if (event) event.preventDefault();
+    copyToClipboard();
+  }
+
+  // function handlePaste(event) {
+  //   console.log('PASTE', event);
+  // }
+
+  function copyToClipboard() {
+    const rowIndexes = _.uniq(selectedCells.map(x => x[0])).sort();
+    const lines = rowIndexes.map(rowIndex => {
+      const colIndexes = selectedCells
+        .filter(x => x[0] == rowIndex)
+        .map(x => x[1])
+        .sort();
+      const rowData = loadedAndInsertedRows[rowIndex];
+      const line = colIndexes
+        .map(columnUniqueName)
+        .map(col => (rowData[col] == null ? '' : rowData[col]))
+        .join('\t');
+      return line;
+    });
+    const text = lines.join('\r\n');
+    copyTextToClipboard(text);
+  }
+
   function handleGridMouseMove(event) {
     if (autofillDragStartCell) {
       const cell = cellFromEvent(event);
@@ -339,6 +368,10 @@ export default function DataGridCore(props) {
     }
   }
 
+  function columnUniqueName(columnIndex) {
+    return columns[columnSizes.realToModel(columnIndex)].uniqueName;
+  }
+
   function handleGridMouseUp(event) {
     if (dragStartCell) {
       const cell = cellFromEvent(event);
@@ -351,7 +384,7 @@ export default function DataGridCore(props) {
       if (_.isNumber(currentRowNumber)) {
         const rowIndexes = _.uniq((autofillSelectedCells || []).map(x => x[0])).filter(x => x != currentRowNumber);
         // @ts-ignore
-        const colNames = selectedCells.map(cell => columns[columnSizes.realToModel(cell[1])].uniqueName);
+        const colNames = selectedCells.map(cell => columnUniqueName(cell[1]));
         const changeObject = _.pick(loadedAndInsertedRows[currentRowNumber], colNames);
         setChangeSet(
           batchUpdateChangeSet(
@@ -463,6 +496,11 @@ export default function DataGridCore(props) {
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
       revertRowChanges();
+    }
+
+    if (event.keyCode == keycodes.c && event.ctrlKey) {
+      event.preventDefault();
+      copyToClipboard();
     }
 
     if (event.keyCode == keycodes.delete && event.ctrlKey) {
@@ -668,6 +706,8 @@ export default function DataGridCore(props) {
         onMouseUp={handleGridMouseUp}
         onKeyDown={handleGridKeyDown}
         onWheel={handleGridWheel}
+        onCopy={handleCopy}
+        // onPasteCapture={handlePaste}
         // table can be focused
         tabIndex={-1}
         ref={tableRef}
