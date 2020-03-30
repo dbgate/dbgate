@@ -510,6 +510,10 @@ export default function DataGridCore(props) {
     setChangeSet(updatedChangeSet);
   }
 
+  function revertAllChanges() {
+    setChangeSet(createChangeSet());
+  }
+
   function deleteCurrentRow() {
     const updatedChangeSet = getSelectedRowDefinitions().reduce((chs, row) => deleteChangeSetRows(chs, row), changeSet);
     setChangeSet(updatedChangeSet);
@@ -910,7 +914,16 @@ export default function DataGridCore(props) {
       />
       {props.toolbarPortalRef &&
         tabVisible &&
-        ReactDOM.createPortal(<DataGridToolbar reload={reload} />, props.toolbarPortalRef.current)}
+        ReactDOM.createPortal(
+          <DataGridToolbar
+            reload={reload}
+            save={handleSave}
+            changeSetState={changeSetState}
+            dispatchChangeSet={dispatchChangeSet}
+            revert={revertAllChanges}
+          />,
+          props.toolbarPortalRef.current
+        )}
     </GridContainer>
   );
 }

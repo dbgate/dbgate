@@ -8,6 +8,8 @@ function reducer(state, action) {
         history: [...state.history.slice(0, state.current + 1), action.value],
         current: state.current + 1,
         value: action.value,
+        canUndo: true,
+        canRedo: false,
       };
     case 'undo':
       if (state.current > 0)
@@ -15,6 +17,8 @@ function reducer(state, action) {
           history: state.history,
           current: state.current - 1,
           value: state.history[state.current - 1],
+          canUndo: state.current > 1,
+          canRedo: true,
         };
       return state;
     case 'redo':
@@ -23,6 +27,8 @@ function reducer(state, action) {
           history: state.history,
           current: state.current + 1,
           value: state.history[state.current + 1],
+          canUndo: true,
+          canRedo: state.current < state.history.length - 2,
         };
       return state;
     case 'reset':

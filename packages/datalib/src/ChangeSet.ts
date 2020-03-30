@@ -304,3 +304,7 @@ export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectIn
     ],
   };
 }
+
+export function changeSetContainsChanges(changeSet: ChangeSet) {
+  return changeSet.deletes.length > 0 || changeSet.updates.length > 0 || changeSet.inserts.length > 0;
+}
