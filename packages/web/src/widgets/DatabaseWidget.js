@@ -1,8 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import useModalState from '../modals/useModalState';
-import ConnectionModal from '../modals/ConnectionModal';
 import useFetch from '../utility/useFetch';
 import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
@@ -41,15 +39,12 @@ function SubDatabaseList({ data }) {
 }
 
 function ConnectionList() {
-  const modalState = useModalState();
   const connections = useFetch({
     url: 'connections/list',
     reloadTrigger: 'connection-list-changed',
   });
   return (
     <>
-      <ConnectionModal modalState={modalState} />
-      <button onClick={modalState.open}>Add connection</button>
       <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
     </>
   );

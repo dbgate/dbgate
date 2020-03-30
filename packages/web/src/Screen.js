@@ -8,19 +8,29 @@ import TabContent from './TabContent';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
 import { useCurrentWidget } from './utility/globalState';
 import WidgetContainer from './widgets/WidgetContainer';
+import ToolBar from './widgets/Toolbar';
 
 const BodyDiv = styled.div`
   position: fixed;
-  top: ${theme.tabsPanel.height}px;
+  top: ${theme.tabsPanel.height + theme.toolBar.height}px;
   left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   bottom: ${theme.statusBar.height}px;
   right: 0;
   background-color: ${theme.mainArea.background};
 `;
 
-const IconBar = styled.div`
+const ToolBarDiv = styled.div`
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  background-color: ${theme.toolBar.background};
+  height: ${theme.toolBar.height}px;
+`;
+
+const IconBar = styled.div`
+  position: fixed;
+  top: ${theme.toolBar.height}px;
   left: 0;
   bottom: ${theme.statusBar.height}px;
   width: ${theme.widgetMenu.iconSize}px;
@@ -29,7 +39,7 @@ const IconBar = styled.div`
 
 const LeftPanel = styled.div`
   position: fixed;
-  top: 0;
+  top: ${theme.toolBar.height}px;
   left: ${theme.widgetMenu.iconSize}px;
   bottom: ${theme.statusBar.height}px;
   width: ${theme.leftPanel.width}px;
@@ -40,7 +50,7 @@ const LeftPanel = styled.div`
 const TabsPanelContainer = styled.div`
   display: flex;
   position: fixed;
-  top: 0;
+  top: ${theme.toolBar.height}px;
   left: ${props => theme.widgetMenu.iconSize + props.leftPanelWidth}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
@@ -61,6 +71,9 @@ export default function Screen() {
   const leftPanelWidth = currentWidget ? theme.leftPanel.width : 0;
   return (
     <>
+      <ToolBarDiv>
+        <ToolBar />
+      </ToolBarDiv>
       <IconBar>
         <WidgetIconPanel />
       </IconBar>
@@ -72,7 +85,9 @@ export default function Screen() {
       <TabsPanelContainer leftPanelWidth={leftPanelWidth}>
         <TabsPanel></TabsPanel>
       </TabsPanelContainer>
-      <BodyDiv leftPanelWidth={leftPanelWidth}><TabContent/></BodyDiv>
+      <BodyDiv leftPanelWidth={leftPanelWidth}>
+        <TabContent />
+      </BodyDiv>
       <StausBar></StausBar>
     </>
   );

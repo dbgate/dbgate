@@ -20,6 +20,10 @@ export default {
     height: 20,
     background: "#00c"
   },
+  toolBar: {
+    height: 30,
+    background: "#eee",
+  },
   mainArea: {
     background: "#eee"
   }
