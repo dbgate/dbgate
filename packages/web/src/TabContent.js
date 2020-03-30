@@ -26,7 +26,7 @@ function createTabComponent(selectedTab) {
   return null;
 }
 
-export default function TabContent() {
+export default function TabContent({ toolbarPortalRef }) {
   const files = useOpenedTabs();
 
   const [mountedTabs, setMountedTabs] = React.useState({});
@@ -52,7 +52,7 @@ export default function TabContent() {
     return (
       // @ts-ignore
       <TabContainer key={tabid} tabVisible={tabVisible}>
-        <TabComponent {...props} tabVisible={tabVisible} />
+        <TabComponent {...props} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
       </TabContainer>
     );
   });

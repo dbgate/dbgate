@@ -1,6 +1,7 @@
 import moment from 'moment';
 import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
 import theme from '../theme';
@@ -39,6 +40,7 @@ import {
 import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
 import { copyTextToClipboard } from '../utility/clipboard';
+import DataGridToolbar from './DataGridToolbar';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -906,6 +908,9 @@ export default function DataGridCore(props) {
         engine={display.engine}
         onConfirm={handleConfirmSql}
       />
+      {props.toolbarPortalRef &&
+        tabVisible &&
+        ReactDOM.createPortal(<DataGridToolbar reload={reload} />, props.toolbarPortalRef.current)}
     </GridContainer>
   );
 }

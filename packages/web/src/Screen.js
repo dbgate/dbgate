@@ -69,10 +69,11 @@ const StausBar = styled.div`
 export default function Screen() {
   const currentWidget = useCurrentWidget();
   const leftPanelWidth = currentWidget ? theme.leftPanel.width : 0;
+  const toolbarPortalRef = React.useRef();
   return (
     <>
       <ToolBarDiv>
-        <ToolBar />
+        <ToolBar toolbarPortalRef={toolbarPortalRef} />
       </ToolBarDiv>
       <IconBar>
         <WidgetIconPanel />
@@ -86,7 +87,7 @@ export default function Screen() {
         <TabsPanel></TabsPanel>
       </TabsPanelContainer>
       <BodyDiv leftPanelWidth={leftPanelWidth}>
-        <TabContent />
+        <TabContent toolbarPortalRef={toolbarPortalRef} />
       </BodyDiv>
       <StausBar></StausBar>
     </>

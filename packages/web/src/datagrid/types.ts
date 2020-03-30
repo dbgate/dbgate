@@ -7,4 +7,5 @@ export interface DataGridProps {
   tabVisible?: boolean;
   changeSetState: { value: ChangeSet };
   dispatchChangeSet: Function;
+  toolbarPortalRef: any;
 }

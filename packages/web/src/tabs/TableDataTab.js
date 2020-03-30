@@ -10,7 +10,7 @@ import engines from '@dbgate/engines';
 import getTableInfo from '../utility/getTableInfo';
 import useUndoReducer from '../utility/useUndoReducer';
 
-export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible }) {
+export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const [config, setConfig] = React.useState(createGridConfig());
   const [cache, setCache] = React.useState(createGridCache());
@@ -40,6 +40,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
       tabVisible={tabVisible}
       changeSetState={changeSetState}
       dispatchChangeSet={dispatchChangeSet}
+      toolbarPortalRef={toolbarPortalRef}
     />
   );
 }
