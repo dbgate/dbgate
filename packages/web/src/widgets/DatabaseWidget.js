@@ -9,17 +9,45 @@ import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalStat
 import tableAppObject from '../appobj/tableAppObject';
 import theme from '../theme';
 
+const SearchBoxWrapper = styled.div`
+  display: flex;
+  margin-bottom: 5px;
+`;
+
 const MainContainer = styled.div`
   position: relative;
   display: flex;
   flex-flow: column wrap;
   flex: 1;
+  flex-direction: column;
+`;
+
+const OuterContainer = styled.div`
+  flex: 1 1 0;
+  // min-height: 10px;
+  overflow: hidden;
+  width: ${theme.leftPanel.width}px;
+  position: relative;
+  flex-direction: column;
+  display: flex;
 `;
 
 const InnerContainer = styled.div`
-  flex: 1 0;
+  flex: 1 1;
   overflow: scroll;
   width: ${theme.leftPanel.width}px;
+`;
+
+const Button = styled.button`
+  // -webkit-appearance: none;
+  // -moz-appearance: none;
+  // appearance: none;
+  // width: 50px;
+`;
+
+const Input = styled.input`
+  flex: 1;
+  min-width: 90px;
 `;
 
 function SubDatabaseList({ data }) {
@@ -45,7 +73,15 @@ function ConnectionList() {
   });
   return (
     <>
-      <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
+      <SearchBoxWrapper>
+        <Input type="text" placeholder="Search" />
+        <Button>Hide</Button>
+        <Button>Show</Button>
+      </SearchBoxWrapper>
+
+      <InnerContainer>
+        <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
+      </InnerContainer>
     </>
   );
 }
@@ -77,12 +113,12 @@ function SqlObjectListWrapper() {
 export default function DatabaseWidget() {
   return (
     <MainContainer>
-      <InnerContainer>
+      <OuterContainer>
         <ConnectionList />
-      </InnerContainer>
-      <InnerContainer>
+      </OuterContainer>
+      <OuterContainer>
         <SqlObjectListWrapper />
-      </InnerContainer>
+      </OuterContainer>
     </MainContainer>
   );
 }
