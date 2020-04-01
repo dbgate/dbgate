@@ -9,23 +9,25 @@ const SubItemsDiv = styled.div`
   margin-left: 16px;
 `;
 
-const ExpandIconHolder = styled.span`
+const ExpandIconHolder2 = styled.span`
   margin-right: 5px;
   position: relative;
   top: -3px;
 `;
 
-// function ExpandIcon({ isBlank, isExpanded, isHover }) {
-//   if (column.foreignKey) {
-//     return (
-//       <FontIcon
-//         icon={`far ${isExpanded ? 'fa-minus-square' : 'fa-plus-square'} `}
-//         {...other}
-//       />
-//     );
-//   }
-//   return <FontIcon icon={`fas fa-square ${isHover ? 'lightblue' : 'white'}`} {...other} />;
-// }
+const ExpandIconHolder = styled.span`
+  margin-right: 5px;
+`;
+
+const GroupDiv = styled.div`
+  padding: 5px;
+  &:hover {
+    background-color: lightblue;
+  }
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: bold;
+`;
 
 function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, SubItems }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
@@ -47,9 +49,9 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
       onMouseLeave={() => setIsHover(false)}
       prefix={
         SubItems ? (
-          <ExpandIconHolder>
+          <ExpandIconHolder2>
             <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
-          </ExpandIconHolder>
+          </ExpandIconHolder2>
         ) : null
       }
     />
@@ -67,26 +69,64 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
   return res;
 }
 
+function AppObjectGroup({ group, items }) {
+  const [isExpanded, setIsExpanded] = React.useState(true);
+  const [isHover, setIsHover] = React.useState(false);
+  return (
+    <>
+      <GroupDiv
+        onMouseEnter={() => setIsHover(true)}
+        onMouseLeave={() => setIsHover(false)}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <ExpandIconHolder>
+          <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
+        </ExpandIconHolder>
+        {group} {items && `(${items.length})`}
+      </GroupDiv>
+      {isExpanded && items.map(x => x.component)}
+    </>
+  );
+}
+
 export function AppObjectList({
   list,
   makeAppObj,
   SubItems = undefined,
   onObjectClick = undefined,
   filter = undefined,
+  groupFunc = undefined,
+  groupOrdered = undefined,
 }) {
   const setOpenedTabs = useSetOpenedTabs();
+
+  const createComponent = (data, appobj) => (
+    <AppObjectListItem
+      key={appobj.key}
+      appobj={appobj}
+      makeAppObj={makeAppObj}
+      data={data}
+      filter={filter}
+      onObjectClick={onObjectClick}
+      SubItems={SubItems}
+    />
+  );
+
+  if (groupFunc) {
+    const listGrouped = (list || []).map(data => {
+      const appobj = makeAppObj(data, { setOpenedTabs });
+      const component = createComponent(data, appobj);
+      const group = groupFunc(appobj);
+      return { group, appobj, component };
+    });
+    const groups = _.groupBy(listGrouped, 'group');
+    return (groupOrdered || _.keys(groups)).map(group => (
+      <AppObjectGroup key={group} group={group} items={groups[group]} />
+    ));
+  }
+
   return (list || []).map(data => {
     const appobj = makeAppObj(data, { setOpenedTabs });
-    return (
-      <AppObjectListItem
-        key={appobj.key}
-        appobj={appobj}
-        makeAppObj={makeAppObj}
-        data={data}
-        filter={filter}
-        onObjectClick={onObjectClick}
-        SubItems={SubItems}
-      />
-    );
+    return createComponent(data, appobj);
   });
 }

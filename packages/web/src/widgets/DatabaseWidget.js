@@ -91,9 +91,21 @@ function SqlObjectList({ conid, database }) {
     reloadTrigger: `database-structure-changed-${conid}-${database}`,
   });
   const { tables } = objects || {};
+  const [filter, setFilter] = React.useState('');
   return (
     <>
-      <AppObjectList list={(tables || []).map(x => ({ ...x, conid, database }))} makeAppObj={tableAppObject} />
+      <SearchBoxWrapper>
+        <Input type="text" placeholder="Search tables or objects" value={filter} onChange={e => setFilter(e.target.value)} />
+        <Button>Refresh</Button>
+      </SearchBoxWrapper>
+      <InnerContainer>
+        <AppObjectList
+          list={(tables || []).map(x => ({ ...x, conid, database }))}
+          makeAppObj={tableAppObject}
+          groupFunc={appobj => 'Tables'}
+          filter={filter}
+        />
+      </InnerContainer>
     </>
   );
 }

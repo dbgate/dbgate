@@ -4,10 +4,14 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import getConnectionInfo from '../utility/getConnectionInfo';
 import fullDisplayName from '../utility/fullDisplayName';
+import { filterName } from '@dbgate/datalib';
 
 async function openTableDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
   const connection = await getConnectionInfo(conid);
-  const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({schemaName, pureName})}`;
+  const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
+    schemaName,
+    pureName,
+  })}`;
 
   openNewTab(setOpenedTabs, {
     title: pureName,
@@ -54,6 +58,7 @@ export default function tableAppObject({ conid, database, pureName, schemaName }
       database,
     });
   };
+  const matcher = filter => filterName(filter, pureName);
 
-  return { title, key, Icon, Menu, onClick };
+  return { title, key, Icon, Menu, onClick, matcher };
 }
