@@ -20,6 +20,7 @@ const ExpandIconHolder = styled.span`
 `;
 
 const GroupDiv = styled.div`
+  user-select: none;
   padding: 5px;
   &:hover {
     background-color: lightblue;
@@ -33,8 +34,8 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isHover, setIsHover] = React.useState(false);
 
-  const { matcher } = appobj;
-  if (matcher && !matcher(filter)) return null;
+  // const { matcher } = appobj;
+  // if (matcher && !matcher(filter)) return null;
   if (onObjectClick) appobj.onClick = onObjectClick;
   if (SubItems) {
     appobj.onClick = () => setIsExpanded(!isExpanded);
@@ -82,7 +83,7 @@ function AppObjectGroup({ group, items }) {
         <ExpandIconHolder>
           <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
         </ExpandIconHolder>
-        {group} {items && `(${items.length})`}
+        {group} {items && `(${items.filter(x => x.component).length})`}
       </GroupDiv>
       {isExpanded && items.map(x => x.component)}
     </>
@@ -113,12 +114,16 @@ export function AppObjectList({
   );
 
   if (groupFunc) {
-    const listGrouped = (list || []).map(data => {
-      const appobj = makeAppObj(data, { setOpenedTabs });
-      const component = createComponent(data, appobj);
-      const group = groupFunc(appobj);
-      return { group, appobj, component };
-    });
+    const listGrouped = _.compact(
+      (list || []).map(data => {
+        const appobj = makeAppObj(data, { setOpenedTabs });
+        const { matcher } = appobj;
+        if (matcher && !matcher(filter)) return null;
+        const component = createComponent(data, appobj);
+        const group = groupFunc(appobj);
+        return { group, appobj, component };
+      })
+    );
     const groups = _.groupBy(listGrouped, 'group');
     return (groupOrdered || _.keys(groups)).map(group => (
       <AppObjectGroup key={group} group={group} items={groups[group]} />
@@ -127,6 +132,8 @@ export function AppObjectList({
 
   return (list || []).map(data => {
     const appobj = makeAppObj(data, { setOpenedTabs });
+    const { matcher } = appobj;
+    if (matcher && !matcher(filter)) return null;
     return createComponent(data, appobj);
   });
 }

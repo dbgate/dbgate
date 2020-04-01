@@ -20,6 +20,7 @@ const MainContainer = styled.div`
   flex-flow: column wrap;
   flex: 1;
   flex-direction: column;
+  user-select: none;
 `;
 
 const OuterContainer = styled.div`
@@ -95,7 +96,12 @@ function SqlObjectList({ conid, database }) {
   return (
     <>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search tables or objects" value={filter} onChange={e => setFilter(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="Search tables or objects"
+          value={filter}
+          onChange={e => setFilter(e.target.value)}
+        />
         <Button>Refresh</Button>
       </SearchBoxWrapper>
       <InnerContainer>
