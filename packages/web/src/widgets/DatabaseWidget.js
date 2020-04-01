@@ -24,7 +24,6 @@ const MainContainer = styled.div`
 
 const OuterContainer = styled.div`
   flex: 1 1 0;
-  // min-height: 10px;
   overflow: hidden;
   width: ${theme.leftPanel.width}px;
   position: relative;
@@ -71,16 +70,16 @@ function ConnectionList() {
     url: 'connections/list',
     reloadTrigger: 'connection-list-changed',
   });
+  const [filter, setFilter] = React.useState('');
   return (
     <>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search" />
-        <Button>Hide</Button>
-        <Button>Show</Button>
+        <Input type="text" placeholder="Search connection" value={filter} onChange={e => setFilter(e.target.value)} />
+        <Button>Refresh</Button>
       </SearchBoxWrapper>
 
       <InnerContainer>
-        <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} />
+        <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} filter={filter} />
       </InnerContainer>
     </>
   );

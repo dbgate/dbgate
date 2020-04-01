@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import { filterName } from '@dbgate/datalib';
-import { FontIcon } from '../icons';
+import { ExpandIcon } from '../icons';
 
 const Wrapper = styled.div``;
 
@@ -21,9 +21,9 @@ const SearchBoxWrapper = styled.div`
 `;
 
 const Button = styled.button`
-// -webkit-appearance: none;
-// -moz-appearance: none;
-// appearance: none;
+  // -webkit-appearance: none;
+  // -moz-appearance: none;
+  // appearance: none;
   // width: 50px;
 `;
 
@@ -32,17 +32,17 @@ const Input = styled.input`
   min-width: 90px;
 `;
 
-function ExpandIcon({ display, column, isHover, ...other }) {
-  if (column.foreignKey) {
-    return (
-      <FontIcon
-        icon={`far ${display.isExpandedColumn(column.uniqueName) ? 'fa-minus-square' : 'fa-plus-square'} `}
-        {...other}
-      />
-    );
-  }
-  return <FontIcon icon={`fas fa-square ${isHover ? 'lightblue' : 'white'}`} {...other} />;
-}
+// function ExpandIcon({ display, column, isHover, ...other }) {
+//   if (column.foreignKey) {
+//     return (
+//       <FontIcon
+//         icon={`far ${display.isExpandedColumn(column.uniqueName) ? 'fa-minus-square' : 'fa-plus-square'} `}
+//         {...other}
+//       />
+//     );
+//   }
+//   return <FontIcon icon={`fas fa-square ${isHover ? 'lightblue' : 'white'}`} {...other} />;
+// }
 
 /**
  * @param {object} props
@@ -55,9 +55,9 @@ function ColumnManagerRow(props) {
   return (
     <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       <ExpandIcon
-        display={display}
-        column={column}
-        isHover={isHover}
+        isBlank={!column.foreignKey}
+        isExpanded={column.foreignKey && display.isExpandedColumn(column.uniqueName)}
+        isSelected={isHover}
         onClick={() => display.toggleExpandedColumn(column.uniqueName)}
       />
       <input

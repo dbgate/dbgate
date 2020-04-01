@@ -4,6 +4,7 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import showModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
+import { filterName } from '@dbgate/datalib';
 
 function getIcon(engine) {
   switch (engine) {
@@ -38,6 +39,7 @@ export default function connectionAppObject({ _id, server, displayName, engine }
   const title = displayName || server;
   const key = _id;
   const Icon = getIcon(engine);
+  const matcher = filter => filterName(filter, displayName, server);
 
-  return { title, key, Icon, Menu };
+  return { title, key, Icon, Menu, matcher };
 }

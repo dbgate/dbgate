@@ -23,7 +23,18 @@ const IconWrap = styled.span`
   margin-right: 10px;
 `;
 
-export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick, isBold, component = 'div' }) {
+export function AppObjectCore({
+  title,
+  Icon,
+  Menu,
+  data,
+  makeAppObj,
+  onClick,
+  isBold,
+  component = 'div',
+  prefix = null,
+  ...other
+}) {
   const setOpenedTabs = useSetOpenedTabs();
 
   const handleContextMenu = event => {
@@ -36,7 +47,13 @@ export function AppObjectCore({ title, Icon, Menu, data, makeAppObj, onClick, is
   const Component = component == 'div' ? AppObjectDiv : AppObjectSpan;
 
   return (
-    <Component onContextMenu={handleContextMenu} onClick={onClick ? () => onClick(data) : undefined} isBold={isBold}>
+    <Component
+      onContextMenu={handleContextMenu}
+      onClick={onClick ? () => onClick(data) : undefined}
+      isBold={isBold}
+      {...other}
+    >
+      {prefix}
       <IconWrap>
         <Icon />
       </IconWrap>
