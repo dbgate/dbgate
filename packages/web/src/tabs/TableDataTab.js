@@ -9,6 +9,7 @@ import useConnectionInfo from '../utility/useConnectionInfo';
 import engines from '@dbgate/engines';
 import getTableInfo from '../utility/getTableInfo';
 import useUndoReducer from '../utility/useUndoReducer';
+import usePropsCompare from '../utility/usePropsCompare';
 
 export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
@@ -19,6 +20,9 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   // console.log('changeSet', changeSet);
 
   const connection = useConnectionInfo(conid);
+
+  // usePropsCompare({ tableInfo, connection, config, cache });
+
   const display = React.useMemo(
     () =>
       tableInfo && connection

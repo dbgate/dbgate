@@ -38,12 +38,14 @@ export function combineReferenceActions(a: ReferenceActionResult, b: ReferenceAc
   return 'noAction';
 }
 
+export type ChangeCacheFunc = (changeFunc: (config: GridCache) => GridCache) => void;
+
 export abstract class GridDisplay {
   constructor(
     public config: GridConfig,
     protected setConfig: (config: GridConfig) => void,
     public cache: GridCache,
-    protected setCache: (config: GridCache) => void,
+    protected setCache: ChangeCacheFunc,
     protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>,
     public driver: EngineDriver
   ) {}
@@ -67,10 +69,10 @@ export abstract class GridDisplay {
   }
 
   reload() {
-    this.setCache({
-      ...this.cache,
+    this.setCache(cache => ({
+      ...cache,
       refreshTime: new Date().getTime(),
-    });
+    }));
   }
 
   includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
@@ -128,13 +130,13 @@ export abstract class GridDisplay {
   requireFkTarget(column: DisplayColumn) {
     const { uniqueName, foreignKey } = column;
     this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then(table => {
-      this.setCache({
-        ...this.cache,
+      this.setCache(cache => ({
+        ...cache,
         tables: {
-          ...this.cache.tables,
+          ...cache.tables,
           [uniqueName]: table,
         },
-      });
+      }));
     });
   }
 

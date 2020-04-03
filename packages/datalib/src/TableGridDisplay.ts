@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridDisplay, combineReferenceActions } from './GridDisplay';
+import { GridDisplay, combineReferenceActions, ChangeCacheFunc } from './GridDisplay';
 import { Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { TableInfo, EngineDriver } from '@dbgate/types';
 import { GridConfig, GridCache } from './GridConfig';
@@ -11,7 +11,7 @@ export class TableGridDisplay extends GridDisplay {
     config: GridConfig,
     setConfig: (config: GridConfig) => void,
     cache: GridCache,
-    setCache: (config: GridCache) => void,
+    setCache: ChangeCacheFunc,
     getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
   ) {
     super(config, setConfig, cache, setCache, getTableInfo, driver);

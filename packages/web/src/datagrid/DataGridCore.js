@@ -41,6 +41,7 @@ import { scriptToSql } from '@dbgate/sqltree';
 import { sleep } from '../utility/common';
 import { copyTextToClipboard } from '../utility/clipboard';
 import DataGridToolbar from './DataGridToolbar';
+import usePropsCompare from '../utility/usePropsCompare';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -100,6 +101,8 @@ const FocusField = styled.input`
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
   const columns = display.getGridColumns();
+
+  // usePropsCompare(props);
 
   // console.log(`GRID, conid=${conid}, database=${database}, sql=${sql}`);
   const [loadProps, setLoadProps] = React.useState({
