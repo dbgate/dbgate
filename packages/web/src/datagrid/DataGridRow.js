@@ -15,6 +15,7 @@ import { getFilterType } from '@dbgate/filterparser';
 import { findExistingChangeSetItem } from '@dbgate/datalib';
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
+import usePropsCompare from '../utility/usePropsCompare';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
@@ -40,12 +41,12 @@ const TableBodyCell = styled.td`
     color: white;`}
 
     ${props =>
-    props.isModifiedRow &&
-    !props.isInsertedRow &&
-    !props.isSelected &&
-    !props.isAutofillSelected &&
-    !props.isModifiedCell &&
-    `
+      props.isModifiedRow &&
+      !props.isInsertedRow &&
+      !props.isSelected &&
+      !props.isAutofillSelected &&
+      !props.isModifiedCell &&
+      `
   background-color: #FFFFDB;`}
   ${props =>
     !props.isSelected &&
@@ -126,6 +127,7 @@ function CellFormattedValue({ value }) {
 }
 
 function cellIsSelected(row, col, selectedCells) {
+  if (!selectedCells) return false;
   for (const [selectedRow, selectedCol] of selectedCells) {
     if (row == selectedRow && col == selectedCol) return true;
     if (selectedRow == 'header' && col == selectedCol) return true;
@@ -135,7 +137,7 @@ function cellIsSelected(row, col, selectedCells) {
   return false;
 }
 
-export default function DataGridRow({
+function DataGridRow({
   rowHeight,
   rowIndex,
   visibleRealColumns,
@@ -150,7 +152,24 @@ export default function DataGridRow({
   selectedCells,
   autofillSelectedCells,
 }) {
+  // usePropsCompare({
+  //   rowHeight,
+  //   rowIndex,
+  //   visibleRealColumns,
+  //   inplaceEditorState,
+  //   dispatchInsplaceEditor,
+  //   row,
+  //   display,
+  //   changeSet,
+  //   setChangeSet,
+  //   insertedRowIndex,
+  //   autofillMarkerCell,
+  //   selectedCells,
+  //   autofillSelectedCells,
+  // });
+
   // console.log('RENDER ROW', rowIndex);
+  
   const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
   const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
@@ -214,3 +233,5 @@ export default function DataGridRow({
     </TableBodyRow>
   );
 }
+
+export default React.memo(DataGridRow);

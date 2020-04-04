@@ -1,4 +1,5 @@
 import { SeriesSizes } from './SeriesSizes';
+import { CellAddress } from './selection';
 
 export function countColumnSizes(loadedRows, columns, containerWidth, display) {
   let canvas = document.createElement('canvas');
@@ -104,4 +105,13 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
     });
   }
   return realColumns;
+}
+
+export function filterCellForRow(cell, row: number): CellAddress | null {
+  return cell && cell[0] == row ? cell : null;
+}
+
+export function filterCellsForRow(cells, row: number): CellAddress[] | null {
+  const res = (cells || []).filter(x => x[0] == row);
+  return res.length > 0 ? res : null;
 }

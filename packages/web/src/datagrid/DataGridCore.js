@@ -24,7 +24,7 @@ import {
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 import DataGridRow from './DataGridRow';
-import { countColumnSizes, countVisibleRealColumns } from './gridutil';
+import { countColumnSizes, countVisibleRealColumns, filterCellForRow, filterCellsForRow } from './gridutil';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
 import {
@@ -100,7 +100,7 @@ const FocusField = styled.input`
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
-  const columns = display.getGridColumns();
+  const columns = React.useMemo(() => display.getGridColumns(), [display]);
 
   // usePropsCompare(props);
 
@@ -135,7 +135,7 @@ export default function DataGridCore(props) {
   // const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
 
   const changeSet = changeSetState.value;
-  const setChangeSet = value => dispatchChangeSet({ type: 'set', value });
+  const setChangeSet = React.useCallback(value => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
 
   const changeSetRef = React.useRef(changeSet);
 
@@ -238,6 +238,8 @@ export default function DataGridCore(props) {
     return {};
   }, {});
 
+  // usePropsCompare({ loadedRows, columns, containerWidth, display });
+
   const columnSizes = React.useMemo(() => countColumnSizes(loadedRows, columns, containerWidth, display), [
     loadedRows,
     columns,
@@ -303,6 +305,8 @@ export default function DataGridCore(props) {
   //   },
   //   [tableElement, currentCell]
   // );
+
+  // usePropsCompare({ columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns });
 
   const visibleRealColumns = React.useMemo(
     () => countVisibleRealColumns(columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns),
@@ -878,13 +882,13 @@ export default function DataGridCore(props) {
                 inplaceEditorState={inplaceEditorState}
                 dispatchInsplaceEditor={dispatchInsplaceEditor}
                 autofillSelectedCells={autofillSelectedCells}
-                selectedCells={selectedCells}
+                selectedCells={filterCellsForRow(selectedCells, firstVisibleRowScrollIndex + index)}
                 insertedRowIndex={
                   firstVisibleRowScrollIndex + index >= loadedRows.length
                     ? firstVisibleRowScrollIndex + index - loadedRows.length
                     : null
                 }
-                autofillMarkerCell={autofillMarkerCell}
+                autofillMarkerCell={filterCellForRow(autofillMarkerCell, firstVisibleRowScrollIndex + index)}
                 changeSet={changeSet}
                 setChangeSet={setChangeSet}
                 display={display}
