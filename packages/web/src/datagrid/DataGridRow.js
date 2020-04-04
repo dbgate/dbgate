@@ -16,6 +16,7 @@ import { findExistingChangeSetItem } from '@dbgate/datalib';
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 import usePropsCompare from '../utility/usePropsCompare';
+import { cellIsSelected } from './gridutil';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
@@ -124,17 +125,6 @@ function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   return value;
-}
-
-function cellIsSelected(row, col, selectedCells) {
-  if (!selectedCells) return false;
-  for (const [selectedRow, selectedCol] of selectedCells) {
-    if (row == selectedRow && col == selectedCol) return true;
-    if (selectedRow == 'header' && col == selectedCol) return true;
-    if (row == selectedRow && selectedCol == 'header') return true;
-    if (selectedRow == 'header' && selectedCol == 'header') return true;
-  }
-  return false;
 }
 
 function DataGridRow({

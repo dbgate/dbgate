@@ -116,3 +116,14 @@ export function filterCellsForRow(cells, row: number): CellAddress[] | null {
   const res = (cells || []).filter(x => x[0] == row || _.isString(x[0]));
   return res.length > 0 ? res : null;
 }
+
+export function cellIsSelected(row, col, selectedCells) {
+  if (!selectedCells) return false;
+  for (const [selectedRow, selectedCol] of selectedCells) {
+    if (row == selectedRow && col == selectedCol) return true;
+    if (selectedRow == 'header' && col == selectedCol) return true;
+    if (row == selectedRow && selectedCol == 'header') return true;
+    if (selectedRow == 'header' && selectedCol == 'header') return true;
+  }
+  return false;
+}

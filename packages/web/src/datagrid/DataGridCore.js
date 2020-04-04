@@ -24,7 +24,13 @@ import {
 import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
 import DataGridRow from './DataGridRow';
-import { countColumnSizes, countVisibleRealColumns, filterCellForRow, filterCellsForRow } from './gridutil';
+import {
+  countColumnSizes,
+  countVisibleRealColumns,
+  filterCellForRow,
+  filterCellsForRow,
+  cellIsSelected,
+} from './gridutil';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
 import {
@@ -44,6 +50,8 @@ import DataGridToolbar from './DataGridToolbar';
 import usePropsCompare from '../utility/usePropsCompare';
 import ColumnHeaderControl from './ColumnHeaderControl';
 import InlineButton from '../widgets/InlineButton';
+import { showMenu } from '../modals/DropDownMenu';
+import DataGridContextMenu from './DataGridContextMenu';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -335,6 +343,21 @@ export default function DataGridCore(props) {
     setFirstVisibleColumnScrollIndex(value);
   };
 
+  const handleContextMenu = event => {
+    event.preventDefault();
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <DataGridContextMenu
+        copy={handleCopy}
+        revertRowChanges={revertRowChanges}
+        deleteSelectedRows={deleteSelectedRows}
+        insertNewRow={insertNewRow}
+        reload={reload}
+      />
+    );
+  };
+
   function handleGridMouseDown(event) {
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('input')) return;
@@ -343,6 +366,9 @@ export default function DataGridCore(props) {
     // @ts-ignore
     if (focusFieldRef.current) focusFieldRef.current.focus();
     const cell = cellFromEvent(event);
+
+    if (event.button == 2 && cell && cellIsSelected(cell[0], cell[1], selectedCells)) return;
+
     const autofill = event.target.closest('div.autofillHandleMarker');
     if (autofill) {
       setAutofillDragStartCell(cell);
@@ -528,7 +554,7 @@ export default function DataGridCore(props) {
     setChangeSet(createChangeSet());
   }
 
-  function deleteCurrentRow() {
+  function deleteSelectedRows() {
     const updatedChangeSet = getSelectedRowDefinitions().reduce((chs, row) => deleteChangeSetRows(chs, row), changeSet);
     setChangeSet(updatedChangeSet);
   }
@@ -595,7 +621,24 @@ export default function DataGridCore(props) {
     display.reload();
   }
 
+  const insertNewRow = () => {
+    if (display.baseTable) {
+      setChangeSet(changeSetInsertNewRow(changeSet, display.baseTable));
+      const cell = [rowCountNewIncluded, (currentCell && currentCell[1]) || 0];
+      // @ts-ignore
+      setCurrentCell(cell);
+      // @ts-ignore
+      setSelectedCells([cell]);
+      scrollIntoView(cell);
+    }
+  };
+
   function handleGridKeyDown(event) {
+    if (event.keyCode == keycodes.f5) {
+      event.preventDefault();
+      reload();
+    }
+
     if (event.keyCode == keycodes.s && event.ctrlKey) {
       event.preventDefault();
       handleSave();
@@ -624,21 +667,13 @@ export default function DataGridCore(props) {
 
     if (event.keyCode == keycodes.delete && event.ctrlKey) {
       event.preventDefault();
-      deleteCurrentRow();
+      deleteSelectedRows();
       // this.saveAndFocus();
     }
 
     if (event.keyCode == keycodes.insert && !event.ctrlKey) {
       event.preventDefault();
-      if (display.baseTable) {
-        setChangeSet(changeSetInsertNewRow(changeSet, display.baseTable));
-        const cell = [rowCountNewIncluded, (currentCell && currentCell[1]) || 0];
-        // @ts-ignore
-        setCurrentCell(cell);
-        // @ts-ignore
-        setSelectedCells([cell]);
-        scrollIntoView(cell);
-      }
+      insertNewRow();
       // this.saveAndFocus();
     }
 
@@ -834,6 +869,7 @@ export default function DataGridCore(props) {
         onMouseUp={handleGridMouseUp}
         onWheel={handleGridWheel}
         ref={tableRef}
+        onContextMenu={handleContextMenu}
       >
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
