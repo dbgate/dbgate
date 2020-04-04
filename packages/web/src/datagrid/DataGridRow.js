@@ -169,7 +169,7 @@ function DataGridRow({
   // });
 
   // console.log('RENDER ROW', rowIndex);
-  
+
   const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
   const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;

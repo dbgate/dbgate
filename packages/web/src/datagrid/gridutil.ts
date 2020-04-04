@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { SeriesSizes } from './SeriesSizes';
 import { CellAddress } from './selection';
 
@@ -108,10 +109,10 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
 }
 
 export function filterCellForRow(cell, row: number): CellAddress | null {
-  return cell && cell[0] == row ? cell : null;
+  return cell && cell[0] == row && _.isString(cell[0]) ? cell : null;
 }
 
 export function filterCellsForRow(cells, row: number): CellAddress[] | null {
-  const res = (cells || []).filter(x => x[0] == row);
+  const res = (cells || []).filter(x => x[0] == row || _.isString(x[0]));
   return res.length > 0 ? res : null;
 }
