@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { FontIcon } from '../icons';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -15,15 +16,29 @@ const LabelDiv = styled.div`
   margin: auto;
 `;
 
-export default function ColumnHeaderControl({ column }) {
+const IconWrapper = styled.span`
+  margin-left: 3px;
+`;
+
+export default function ColumnHeaderControl({ column, setSort, order }) {
   return (
     <HeaderDiv>
       <LabelDiv>
         <ColumnLabel {...column} />
+        {order == 'ASC' && (
+          <IconWrapper>
+            <FontIcon icon="fas fa-sort-alpha-down green" />
+          </IconWrapper>
+        )}
+        {order == 'DESC' && (
+          <IconWrapper>
+            <FontIcon icon="fas fa-sort-alpha-down-alt green" />
+          </IconWrapper>
+        )}
       </LabelDiv>
       <DropDownButton>
-        <DropDownMenuItem onClick={() => {}}>Sort ascending</DropDownMenuItem>
-        <DropDownMenuItem onClick={() => {}}>Sort descending</DropDownMenuItem>
+        <DropDownMenuItem onClick={() => setSort('ASC')}>Sort ascending</DropDownMenuItem>
+        <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
       </DropDownButton>
     </HeaderDiv>
   );

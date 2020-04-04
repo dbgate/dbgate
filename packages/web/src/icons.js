@@ -31,7 +31,7 @@ export function FontIcon({ icon, ...props }) {
 
   if (_.includes(parts, 'spin')) className += ' fa-spin';
 
-  const style = props.style || {};
+  const style = { ...props.style };
 
   const last = parts[parts.length - 1];
   if (last && last != 'spin') {

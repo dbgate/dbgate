@@ -53,6 +53,7 @@ export class TableGridDisplay extends GridDisplay {
       this.addHintsToSelect(select)
     );
     this.applyFilterOnSelect(select, displayedColumnInfo);
+    this.applySortOnSelect(select, displayedColumnInfo);
     if (action == 'loadRequired') {
       return null;
     }

@@ -307,6 +307,20 @@ export abstract class GridDisplay {
     }
   }
 
+  applySortOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+    if (this.config.sort?.length > 0) {
+      select.orderBy = this.config.sort
+        .map(col => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
+        .filter(col => col.dispInfo)
+        .map(col => ({
+          exprType: 'column',
+          columnName: col.dispInfo.columnName,
+          direction: col.order,
+          source: { alias: col.dispInfo.sourceAlias },
+        }));
+    }
+  }
+
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
     return (
       table?.columns
@@ -348,6 +362,18 @@ export abstract class GridDisplay {
       },
     });
     this.reload();
+  }
+
+  setSort(uniqueName, order) {
+    this.setConfig({
+      ...this.config,
+      sort: [{ uniqueName, order }],
+    });
+    this.reload();
+  }
+
+  getSortOrder(uniqueName) {
+    return this.config.sort.find(x => x.uniqueName == uniqueName)?.order;
   }
 
   get filterCount() {

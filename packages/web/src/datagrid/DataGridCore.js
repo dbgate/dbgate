@@ -845,7 +845,11 @@ export default function DataGridCore(props) {
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
-                <ColumnHeaderControl column={col} />
+                <ColumnHeaderControl
+                  column={col}
+                  setSort={order => display.setSort(col.uniqueName, order)}
+                  order={display.getSortOrder(col.uniqueName)}
+                />
               </TableHeaderCell>
             ))}
           </TableHeaderRow>

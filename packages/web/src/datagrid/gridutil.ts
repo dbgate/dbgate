@@ -29,7 +29,7 @@ export function countColumnSizes(loadedRows, columns, containerWidth, display) {
     context.font = 'bold 14px Helvetica';
 
     let text = column.headerText;
-    let headerWidth = context.measureText(text).width + 50;
+    let headerWidth = context.measureText(text).width + 64;
 
     // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
     // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;

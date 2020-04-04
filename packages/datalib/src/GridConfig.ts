@@ -9,6 +9,10 @@ export interface GridConfigColumns {
 
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
+  sort: {
+    uniqueName: string;
+    order: 'ASC' | 'DESC';
+  }[];
 }
 
 export interface GridCache {
@@ -22,6 +26,7 @@ export function createGridConfig(): GridConfig {
     expandedColumns: [],
     addedColumns: [],
     filters: {},
+    sort: [],
   };
 }
 
