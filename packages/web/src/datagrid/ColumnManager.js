@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import { filterName } from '@dbgate/datalib';
 import { ExpandIcon } from '../icons';
+import InlineButton from '../widgets/InlineButton';
 
 const Wrapper = styled.div``;
 
@@ -79,8 +80,8 @@ export default function ColumnManager(props) {
     <Wrapper>
       <SearchBoxWrapper>
         <Input type="text" placeholder="Search" value={columnFilter} onChange={e => setColumnFilter(e.target.value)} />
-        <Button onClick={() => display.hideAllColumns()}>Hide</Button>
-        <Button onClick={() => display.showAllColumns()}>Show</Button>
+        <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
+        <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>
       {display
         .getColumns(columnFilter)

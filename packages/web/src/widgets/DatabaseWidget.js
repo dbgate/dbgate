@@ -8,6 +8,7 @@ import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
 import tableAppObject from '../appobj/tableAppObject';
 import theme from '../theme';
+import InlineButton from './InlineButton';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -36,13 +37,6 @@ const InnerContainer = styled.div`
   flex: 1 1;
   overflow: scroll;
   width: ${theme.leftPanel.width}px;
-`;
-
-const Button = styled.button`
-  // -webkit-appearance: none;
-  // -moz-appearance: none;
-  // appearance: none;
-  // width: 50px;
 `;
 
 const Input = styled.input`
@@ -76,7 +70,7 @@ function ConnectionList() {
     <>
       <SearchBoxWrapper>
         <Input type="text" placeholder="Search connection" value={filter} onChange={e => setFilter(e.target.value)} />
-        <Button>Refresh</Button>
+        <InlineButton>Refresh</InlineButton>
       </SearchBoxWrapper>
 
       <InnerContainer>
@@ -102,7 +96,7 @@ function SqlObjectList({ conid, database }) {
           value={filter}
           onChange={e => setFilter(e.target.value)}
         />
-        <Button>Refresh</Button>
+        <InlineButton>Refresh</InlineButton>
       </SearchBoxWrapper>
       <InnerContainer>
         <AppObjectList

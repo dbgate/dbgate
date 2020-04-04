@@ -4,6 +4,7 @@ import { DropDownMenuItem, DropDownMenuDivider, showMenu } from '../modals/DropD
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
 import { parseFilter } from '@dbgate/filterparser';
+import InlineButton from '../widgets/InlineButton';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -37,9 +38,9 @@ const FilterInput = styled.input`
   min-width: 10px;
   background-color: ${props => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
 `;
-const FilterButton = styled.button`
-  color: gray;
-`;
+// const FilterButton = styled.button`
+//   color: gray;
+// `;
 
 function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilterWindow }) {
   switch (filterType) {
@@ -175,8 +176,8 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
   };
   const filterMultipleValues = () => {};
   const openFilterWindow = operator => {};
-  const buttonRef = React.createRef();
-  const editorRef = React.createRef();
+  const buttonRef = React.useRef();
+  const editorRef = React.useRef();
 
   const handleKeyDown = ev => {
     if (isReadOnly) return;
@@ -235,9 +236,9 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
         state={filterState}
         onBlur={applyFilter}
       />
-      <FilterButton ref={buttonRef} onClick={handleShowMenu}>
+      <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
         <i className="fas fa-filter" />
-      </FilterButton>
+      </InlineButton>
     </FilterDiv>
   );
 }

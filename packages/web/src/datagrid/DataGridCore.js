@@ -42,6 +42,8 @@ import { sleep } from '../utility/common';
 import { copyTextToClipboard } from '../utility/clipboard';
 import DataGridToolbar from './DataGridToolbar';
 import usePropsCompare from '../utility/usePropsCompare';
+import ColumnHeaderControl from './ColumnHeaderControl';
+import InlineButton from '../widgets/InlineButton';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -79,7 +81,8 @@ const TableHeaderCell = styled.td`
   border: 1px solid #c0c0c0;
   // border-collapse: collapse;
   text-align: left;
-  padding: 2px;
+  padding: 0;
+  margin: 0;
   background-color: #f6f7f9;
   overflow: hidden;
 `;
@@ -100,6 +103,7 @@ const FocusField = styled.input`
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
+  // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.getGridColumns(), [display]);
 
   // usePropsCompare(props);
@@ -314,7 +318,8 @@ export default function DataGridCore(props) {
   );
 
   const realColumnUniqueNames = React.useMemo(
-    () => _.range(columnSizes.realCount).map(realIndex => columns[columnSizes.realToModel(realIndex)].uniqueName),
+    () =>
+      _.range(columnSizes.realCount).map(realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName),
     [columnSizes, columns]
   );
 
@@ -331,6 +336,8 @@ export default function DataGridCore(props) {
   };
 
   function handleGridMouseDown(event) {
+    if (event.target.closest('.buttonLike')) return;
+    if (event.target.closest('input')) return;
     // event.target.closest('table').focus();
     event.preventDefault();
     // @ts-ignore
@@ -838,7 +845,7 @@ export default function DataGridCore(props) {
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
               >
-                <ColumnLabel {...col} />
+                <ColumnHeaderControl column={col} />
               </TableHeaderCell>
             ))}
           </TableHeaderRow>
@@ -849,9 +856,9 @@ export default function DataGridCore(props) {
               data-col="header"
             >
               {filterCount > 0 && (
-                <button onClick={handleClearFilters}>
+                <InlineButton onClick={handleClearFilters} square>
                   <i className="fas fa-times" />
-                </button>
+                </InlineButton>
               )}
             </TableHeaderCell>
             {visibleRealColumns.map(col => (

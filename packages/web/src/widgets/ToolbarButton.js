@@ -1,11 +1,7 @@
 // @ts-nocheck
-import ReactDOM from 'react-dom';
 import React from 'react';
-import useModalState from '../modals/useModalState';
-import ConnectionModal from '../modals/ConnectionModal';
 import styled from 'styled-components';
 import theme from '../theme';
-import { useOpenedTabs } from '../utility/globalState';
 
 const ButtonDiv = styled.div`
   // height: ${theme.toolBar.height - 5}px;
