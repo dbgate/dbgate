@@ -33,8 +33,7 @@ export default function SqlEditor({
   const editorRef = React.useRef(null);
 
   React.useEffect(() => {
-    console.log('editorRef.current', editorRef.current);
-    if (tabVisible) editorRef.current.editor.focus();
+    if (tabVisible && editorRef.current && editorRef.current.editor) editorRef.current.editor.focus();
   }, [tabVisible]);
   return (
     <Wrapper ref={containerRef}>

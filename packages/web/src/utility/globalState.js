@@ -65,8 +65,10 @@ export { OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs };
 export function useUpdateDatabaseForTab(tabVisible, conid, database) {
   const connection = useConnectionInfo(conid);
   const setDb = useSetCurrentDatabase();
-
   const previousTabVisible = usePrevious(!!(tabVisible && connection));
+
+  if (!conid || !database) return;
+
   if (!previousTabVisible && tabVisible && connection) {
     setDb({
       name: database,

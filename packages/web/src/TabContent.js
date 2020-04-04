@@ -52,7 +52,7 @@ export default function TabContent({ toolbarPortalRef }) {
     return (
       // @ts-ignore
       <TabContainer key={tabid} tabVisible={tabVisible}>
-        <TabComponent {...props} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
+        <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
       </TabContainer>
     );
   });
