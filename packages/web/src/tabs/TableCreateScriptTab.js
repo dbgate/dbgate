@@ -14,5 +14,5 @@ export default function TableCreateScriptTab({ conid, database, schemaName, pure
   const dmp = driver.createDumper();
   if (tableInfo) dmp.createTable(tableInfo);
 
-  return <SqlEditor engine={connnection && connnection.engine} value={dmp.s} />;
+  return <SqlEditor engine={connnection && connnection.engine} value={dmp.s} readOnly />;
 }

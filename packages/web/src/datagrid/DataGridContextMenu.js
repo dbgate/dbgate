@@ -1,5 +1,5 @@
 import React from 'react';
-import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 
 export default function DataGridContextMenu({ copy, revertRowChanges, deleteSelectedRows, insertNewRow, reload }) {
   return (
@@ -7,6 +7,7 @@ export default function DataGridContextMenu({ copy, revertRowChanges, deleteSele
       <DropDownMenuItem onClick={reload} keyText="F5">
         Reload
       </DropDownMenuItem>
+      <DropDownMenuDivider />
       <DropDownMenuItem onClick={copy} keyText="Ctrl+C">
         Copy
       </DropDownMenuItem>

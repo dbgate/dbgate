@@ -19,7 +19,7 @@ export default function ConfirmSqlModal({ modalState, sql, engine, onConfirm }) 
     <ModalBase modalState={modalState}>
       <h2>Save changes</h2>
       <SqlWrapper>
-        <SqlEditor value={sql} engine={engine} />
+        <SqlEditor value={sql} engine={engine} readOnly />
       </SqlWrapper>
 
       <FormRow>

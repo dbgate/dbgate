@@ -1,5 +1,7 @@
+import _ from 'lodash';
 import React from 'react';
 import useStorage from './useStorage';
+import useConnectionInfo from './useConnectionInfo';
 
 function createGlobalState(defaultValue) {
   const Context = React.createContext(null);
@@ -42,8 +44,30 @@ function createStorageState(storageKey, defaultValue) {
 const [CurrentWidgetProvider, useCurrentWidget, useSetCurrentWidget] = createGlobalState('database');
 export { CurrentWidgetProvider, useCurrentWidget, useSetCurrentWidget };
 
-const [CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabase] = createGlobalState(null);
+const [CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabaseCore] = createGlobalState(null);
+
+function useSetCurrentDatabase() {
+  const setDb = useSetCurrentDatabaseCore();
+  const db = useCurrentDatabase();
+  return value => {
+    if (_.get(db, 'name') !== _.get(value, 'name') || _.get(db, 'connection._id') != _.get(value, 'connection._id')) {
+      setDb(value);
+    }
+  };
+}
+
 export { CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabase };
 
 const [OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs] = createStorageState('openedTabs', []);
 export { OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs };
+
+export function useUpdateDatabaseForTab(tabVisible, conid, database) {
+  const connection = useConnectionInfo(conid);
+  const setDb = useSetCurrentDatabase();
+  if (tabVisible && connection) {
+    setDb({
+      name: database,
+      connection,
+    });
+  }
+}

@@ -22,19 +22,31 @@ const engineToMode = {
   postgre: 'pgsql',
 };
 
-export default function SqlEditor({ value, engine }) {
+export default function SqlEditor({
+  value = undefined,
+  engine = undefined,
+  readOnly = false,
+  onChange = undefined,
+  tabVisible = false,
+}) {
   const [containerRef, { height, width }] = useDimensions();
+  const editorRef = React.useRef(null);
 
+  React.useEffect(() => {
+    console.log('editorRef.current', editorRef.current);
+    if (tabVisible) editorRef.current.editor.focus();
+  }, [tabVisible]);
   return (
     <Wrapper ref={containerRef}>
       <AceEditor
+        ref={editorRef}
         mode={engineToMode[engine] || 'sql'}
         theme="github"
-        // onChange={onChange}
+        onChange={onChange}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{ $blockScrolling: true }}
         value={value}
-        readOnly
+        readOnly={readOnly}
         fontSize="11pt"
         width={`${width}px`}
         height={`${height}px`}

@@ -9,6 +9,7 @@ import WidgetIconPanel from './widgets/WidgetIconPanel';
 import { useCurrentWidget } from './utility/globalState';
 import WidgetContainer from './widgets/WidgetContainer';
 import ToolBar from './widgets/Toolbar';
+import StatusBar from './widgets/StatusBar';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -57,7 +58,7 @@ const TabsPanelContainer = styled.div`
   background-color: ${theme.tabsPanel.background};
 `;
 
-const StausBar = styled.div`
+const StausBarContainer = styled.div`
   position: fixed;
   height: ${theme.statusBar.height}px;
   left: 0;
@@ -89,7 +90,9 @@ export default function Screen() {
       <BodyDiv leftPanelWidth={leftPanelWidth}>
         <TabContent toolbarPortalRef={toolbarPortalRef} />
       </BodyDiv>
-      <StausBar></StausBar>
+      <StausBarContainer>
+        <StatusBar />
+      </StausBarContainer>
     </>
   );
 }

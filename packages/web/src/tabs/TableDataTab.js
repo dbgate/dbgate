@@ -10,6 +10,7 @@ import engines from '@dbgate/engines';
 import getTableInfo from '../utility/getTableInfo';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
+import { useUpdateDatabaseForTab } from '../utility/globalState';
 
 export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
@@ -17,8 +18,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   const [cache, setCache] = React.useState(createGridCache());
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
 
-  // console.log('changeSet', changeSet);
-
+  useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo(conid);
 
   // usePropsCompare({ tableInfo, connection, config, cache });

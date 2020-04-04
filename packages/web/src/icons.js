@@ -102,3 +102,17 @@ export const HourGlassIcon = props => <FontIcon icon="fas fa-hourglass" {...prop
 export const InfoBlueCircleIcon = props => <FontIcon icon="fas fa-info-circle blue" {...props} />;
 
 export const SpinnerIcon = props => <FontIcon icon="fas fa-spinner spin" {...props} />;
+
+export function getEngineIcon(engine) {
+  switch (engine) {
+    case 'mssql':
+      return MicrosoftIcon;
+    case 'sqlite':
+      return SqliteIcon;
+    case 'postgres':
+      return PostgreSqlIcon;
+    case 'mysql':
+      return MySqlIcon;
+  }
+  return ServerIcon;
+}
