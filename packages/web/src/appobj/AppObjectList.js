@@ -1,7 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import { AppObjectCore } from './AppObjects';
-import { useSetOpenedTabs } from '../utility/globalState';
+import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 import styled from 'styled-components';
 import { ExpandIcon } from '../icons';
 
@@ -99,7 +99,7 @@ export function AppObjectList({
   groupFunc = undefined,
   groupOrdered = undefined,
 }) {
-  const setOpenedTabs = useSetOpenedTabs();
+  const appObjectParams = useAppObjectParams();
 
   const createComponent = (data, appobj) => (
     <AppObjectListItem
@@ -116,7 +116,7 @@ export function AppObjectList({
   if (groupFunc) {
     const listGrouped = _.compact(
       (list || []).map(data => {
-        const appobj = makeAppObj(data, { setOpenedTabs });
+        const appobj = makeAppObj(data, appObjectParams);
         const { matcher } = appobj;
         if (matcher && !matcher(filter)) return null;
         const component = createComponent(data, appobj);
@@ -131,7 +131,7 @@ export function AppObjectList({
   }
 
   return (list || []).map(data => {
-    const appobj = makeAppObj(data, { setOpenedTabs });
+    const appobj = makeAppObj(data, appObjectParams);
     const { matcher } = appobj;
     if (matcher && !matcher(filter)) return null;
     return createComponent(data, appobj);

@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import useStorage from './useStorage';
 import useConnectionInfo from './useConnectionInfo';
+import usePrevious from './usePrevious';
 
 function createGlobalState(defaultValue) {
   const Context = React.createContext(null);
@@ -64,10 +65,21 @@ export { OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs };
 export function useUpdateDatabaseForTab(tabVisible, conid, database) {
   const connection = useConnectionInfo(conid);
   const setDb = useSetCurrentDatabase();
-  if (tabVisible && connection) {
+
+  const previousTabVisible = usePrevious(!!(tabVisible && connection));
+  if (!previousTabVisible && tabVisible && connection) {
     setDb({
       name: database,
       connection,
     });
   }
+}
+
+export function useAppObjectParams() {
+  const setOpenedTabs = useSetOpenedTabs();
+  const currentDatabase = useCurrentDatabase();
+  return {
+    setOpenedTabs,
+    currentDatabase,
+  };
 }

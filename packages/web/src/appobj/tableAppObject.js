@@ -46,7 +46,7 @@ function Menu({ data, makeAppObj, setOpenedTabs }) {
   );
 }
 
-export default function tableAppObject({ conid, database, pureName, schemaName }, { setOpenedTabs }) {
+const tableAppObject = () => ({ conid, database, pureName, schemaName }, { setOpenedTabs }) => {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
   const Icon = TableIcon;
@@ -61,4 +61,6 @@ export default function tableAppObject({ conid, database, pureName, schemaName }
   const matcher = filter => filterName(filter, pureName);
 
   return { title, key, Icon, Menu, onClick, matcher };
-}
+};
+
+export default tableAppObject;

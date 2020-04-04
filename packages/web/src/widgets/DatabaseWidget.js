@@ -57,7 +57,13 @@ function SubDatabaseList({ data }) {
     url: `server-connections/list-databases?conid=${_id}`,
     reloadTrigger: `database-list-changed-${_id}`,
   });
-  return <AppObjectList list={databases} makeAppObj={databaseAppObject} onObjectClick={handleDatabaseClick} />;
+  return (
+    <AppObjectList
+      list={(databases || []).map(db => ({ ...db, connection: data }))}
+      makeAppObj={databaseAppObject({ boldCurrentDatabase: true })}
+      onObjectClick={handleDatabaseClick}
+    />
+  );
 }
 
 function ConnectionList() {
@@ -74,7 +80,12 @@ function ConnectionList() {
       </SearchBoxWrapper>
 
       <InnerContainer>
-        <AppObjectList list={connections} makeAppObj={connectionAppObject} SubItems={SubDatabaseList} filter={filter} />
+        <AppObjectList
+          list={connections}
+          makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
+          SubItems={SubDatabaseList}
+          filter={filter}
+        />
       </InnerContainer>
     </>
   );
@@ -101,7 +112,7 @@ function SqlObjectList({ conid, database }) {
       <InnerContainer>
         <AppObjectList
           list={(tables || []).map(x => ({ ...x, conid, database }))}
-          makeAppObj={tableAppObject}
+          makeAppObj={tableAppObject()}
           groupFunc={appobj => 'Tables'}
           filter={filter}
         />

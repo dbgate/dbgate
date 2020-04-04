@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import { getEngineIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
@@ -21,11 +22,19 @@ function Menu({ data, makeAppObj }) {
   );
 }
 
-export default function connectionAppObject({ _id, server, displayName, engine }) {
+const connectionAppObject = flags => ({ _id, server, displayName, engine }) => {
   const title = displayName || server;
   const key = _id;
   const Icon = getEngineIcon(engine);
   const matcher = filter => filterName(filter, displayName, server);
+  const { boldCurrentDatabase } = flags || {};
+  const isBold = boldCurrentDatabase
+    ? ({ currentDatabase }) => {
+        return _.get(currentDatabase, 'connection._id') == _id;
+      }
+    : null;
 
-  return { title, key, Icon, Menu, matcher };
-}
+  return { title, key, Icon, Menu, matcher, isBold };
+};
+
+export default connectionAppObject;
