@@ -7,6 +7,13 @@ export interface OpenedDatabaseConnection {
   subprocess: ChildProcess;
 }
 
+export interface OpenedSession {
+  sesid: string;
+  conid: string;
+  database: string;
+  subprocess: ChildProcess;
+}
+
 export interface StoredConnection {
   engine: string;
   server: string;

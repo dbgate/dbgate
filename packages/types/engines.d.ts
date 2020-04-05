@@ -1,12 +1,21 @@
-import { QueryResult } from "./query";
-import { SqlDialect } from "./dialect";
-import { SqlDumper } from "./dumper";
-import { DatabaseInfo } from "./dbinfo";
+import { QueryResult } from './query';
+import { SqlDialect } from './dialect';
+import { SqlDumper } from './dumper';
+import { DatabaseInfo } from './dbinfo';
+
+export interface StreamOptions {
+  recordset: (columns) => void;
+  row: (row) => void;
+  error: (error) => void;
+  done: (result) => void;
+  info: (info) => void;
+}
 
 export interface EngineDriver {
   engine: string;
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
+  stream(pool: any, sql: string, options: StreamOptions);
   getVersion(pool: any): Promise<{ version: string }>;
   listDatabases(
     pool: any

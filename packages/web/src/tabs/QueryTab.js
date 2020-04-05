@@ -1,17 +1,30 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
+import axios from '../utility/axios';
 import engines from '@dbgate/engines';
 import useTableInfo from '../utility/useTableInfo';
 import useConnectionInfo from '../utility/useConnectionInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
+import styled from 'styled-components';
+import SessionMessagesView from '../query/SessionMessagesView';
+
+const MainContainer = styled.div``;
+
+const EditorContainer = styled.div`
+  height: 600px;
+  position: relative;
+`;
+
+const MessagesContainer = styled.div``;
 
 export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef }) {
   const localStorageKey = `sql_${tabid}`;
   const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || '');
   const queryTextRef = React.useRef(queryText);
+  const [sessionId, setSessionId] = React.useState(null);
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
     localStorageKey,
@@ -22,26 +35,57 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   React.useEffect(() => {
     window.addEventListener('beforeunload', saveToStorage);
     return () => {
+      saveToStorage();
       window.removeEventListener('beforeunload', saveToStorage);
     };
   }, []);
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
+  const connection = useConnectionInfo(conid);
 
-  const handleChange = text => {
+  const handleChange = (text) => {
     if (text != null) queryTextRef.current = text;
     setQueryText(text);
     saveToStorageDebounced();
   };
 
-  return (
-    <>
-      <SqlEditor value={queryText} onChange={handleChange} tabVisible={tabVisible} />
+  const handleExecute = async () => {
+    let sesid = sessionId;
+    if (!sesid) {
+      const resp = await axios.post('sessions/create', {
+        conid,
+        database,
+      });
+      sesid = resp.data.sesid;
+      setSessionId(sesid);
+    }
+    const resp2 = await axios.post('sessions/execute-query', {
+      sesid,
+      sql: queryText,
+    });
+  };
 
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(<QueryToolbar />, toolbarPortalRef.current)}
-    </>
+  return (
+    <MainContainer>
+      <EditorContainer>
+        <SqlEditor
+          value={queryText}
+          onChange={handleChange}
+          tabVisible={tabVisible}
+          engine={connection && connection.engine}
+        />
+
+        {toolbarPortalRef &&
+          toolbarPortalRef.current &&
+          tabVisible &&
+          ReactDOM.createPortal(
+            <QueryToolbar isDatabaseDefined={conid && database} execute={handleExecute} />,
+            toolbarPortalRef.current
+          )}
+      </EditorContainer>
+      <MessagesContainer>
+        <SessionMessagesView sessionId={sessionId} />
+      </MessagesContainer>
+    </MainContainer>
   );
 }

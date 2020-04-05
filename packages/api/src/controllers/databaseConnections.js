@@ -49,7 +49,7 @@ module.exports = {
   },
 
   /** @param {import('@dbgate/types').OpenedDatabaseConnection} conn */
-  async sendRequest(conn, message) {
+  sendRequest(conn, message) {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];

@@ -44,6 +44,35 @@ const driver = {
     }
     return res;
   },
+  async stream(pool, sql, options) {
+    const request = await pool.request();
+
+    const handleInfo = (info) => {
+      const { message, lineNumber, procName } = info;
+      options.info({
+        message,
+        line: lineNumber,
+        procedure: procName,
+        time: new Date(),
+      });
+    };
+
+    const handleDone = (result) => {
+      console.log('RESULT', result);
+    };
+
+    const handleRow = (row) => {
+      console.log('ROW', row);
+    };
+
+    request.stream = true;
+    request.on('recordset', options.recordset);
+    request.on('row', handleRow);
+    request.on('error', options.error);
+    request.on('done', handleDone);
+    request.on('info', handleInfo);
+    request.query(sql);
+  },
   async getVersion(pool) {
     const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
     return { version };

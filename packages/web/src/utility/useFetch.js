@@ -16,9 +16,9 @@ export default function useFetch({
   const [loadCounter, setLoadCounter] = React.useState(0);
   const socket = useSocket();
 
-  const handleReload = () => {
-    setLoadCounter(loadCounter + 1);
-  };
+  const handleReload = React.useCallback(() => {
+    setLoadCounter((counter) => counter + 1);
+  }, []);
 
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter];
 
@@ -32,15 +32,29 @@ export default function useFetch({
     });
     setValue([resp.data, loadedIndicators]);
   }
+
+  // React.useEffect(() => {
+  //   loadValue(indicators);
+  //   if (reloadTrigger && socket) {
+  //     socket.on(reloadTrigger, handleReload);
+  //     return () => {
+  //       socket.off(reloadTrigger, handleReload);
+  //     };
+  //   }
+  // }, [...indicators, socket]);
+
   React.useEffect(() => {
     loadValue(indicators);
+  }, [...indicators]);
+
+  React.useEffect(() => {
     if (reloadTrigger && socket) {
       socket.on(reloadTrigger, handleReload);
       return () => {
         socket.off(reloadTrigger, handleReload);
       };
     }
-  }, [...indicators, socket]);
+  }, [socket, reloadTrigger]);
 
   const [returnValue, loadedIndicators] = value;
   if (_.isEqual(indicators, loadedIndicators)) return returnValue;
