@@ -24,6 +24,15 @@ module.exports = {
     socket.emit(`session-info-${sesid}`, info);
   },
 
+  handle_done(sesid) {
+    socket.emit(`session-done-${sesid}`);
+  },
+
+  handle_recordset(sesid, props) {
+    const { jslid } = props;
+    socket.emit(`session-recordset-${sesid}`, { jslid });
+  },
+
   create_meta: 'post',
   async create({ conid, database }) {
     const sesid = uuidv1();

@@ -10,6 +10,9 @@ import { useUpdateDatabaseForTab } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
 import styled from 'styled-components';
 import SessionMessagesView from '../query/SessionMessagesView';
+import { TabPage, TabControl } from '../widgets/TabControl';
+import getResultTabs from '../sqleditor/ResultTabs';
+import ResultTabs from '../sqleditor/ResultTabs';
 
 const MainContainer = styled.div``;
 
@@ -65,6 +68,8 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
     });
   };
 
+  const handleKeyDown = (e) => {};
+
   return (
     <MainContainer>
       <EditorContainer>
@@ -73,6 +78,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           onChange={handleChange}
           tabVisible={tabVisible}
           engine={connection && connection.engine}
+          onKeyDown={handleKeyDown}
         />
 
         {toolbarPortalRef &&
@@ -84,7 +90,11 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           )}
       </EditorContainer>
       <MessagesContainer>
-        <SessionMessagesView sessionId={sessionId} />
+        <ResultTabs sessionId={sessionId}>
+          <TabPage label="Messages">
+            <SessionMessagesView sessionId={sessionId} />
+          </TabPage>
+        </ResultTabs>
       </MessagesContainer>
     </MainContainer>
   );

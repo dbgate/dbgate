@@ -28,6 +28,7 @@ export default function SqlEditor({
   readOnly = false,
   onChange = undefined,
   tabVisible = false,
+  onKeyDown = undefined,
 }) {
   const [containerRef, { height, width }] = useDimensions();
   const editorRef = React.useRef(null);
@@ -35,6 +36,16 @@ export default function SqlEditor({
   React.useEffect(() => {
     if (tabVisible && editorRef.current && editorRef.current.editor) editorRef.current.editor.focus();
   }, [tabVisible]);
+
+  React.useEffect(() => {
+    if (onKeyDown && editorRef.current) {
+      editorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
+    }
+    return () => {
+      editorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
+    };
+  }, [onKeyDown]);
+
   return (
     <Wrapper ref={containerRef}>
       <AceEditor

@@ -1,10 +1,9 @@
-
 const path = require('path');
 const { fork } = require('child_process');
 const _ = require('lodash');
 const nedb = require('nedb-promises');
 
-const datadir = require('../utility/datadir');
+const { datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 
 module.exports = {
@@ -28,7 +27,7 @@ module.exports = {
   },
   test(req, res) {
     const subprocess = fork(process.argv[1], ['connectProcess']);
-    subprocess.on('message', resp => res.json(resp));
+    subprocess.on('message', (resp) => res.json(resp));
     subprocess.send(req.body);
   },
 

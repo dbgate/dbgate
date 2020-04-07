@@ -13,6 +13,10 @@ const dialect = {
   },
 };
 
+function extractColumns(columns) {
+  return _.sortBy(_.values(columns), 'index')
+}
+
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
   async connect(nativeModules, { server, port, user, password, database }) {
@@ -36,7 +40,7 @@ const driver = {
     const res = {};
 
     if (resp.recordset) {
-      res.columns = _.sortBy(_.values(resp.recordset.columns), 'index');
+      res.columns = extractColumns(resp.recordset.columns);
       res.rows = resp.recordset;
     }
     if (resp.rowsAffected) {
@@ -58,15 +62,20 @@ const driver = {
     };
 
     const handleDone = (result) => {
-      console.log('RESULT', result);
+      // console.log('RESULT', result);
+      options.done(result);
     };
 
     const handleRow = (row) => {
-      console.log('ROW', row);
+      options.row(row);
+    };
+
+    const handleRecordset = (columns) => {
+      options.recordset(extractColumns(columns));
     };
 
     request.stream = true;
-    request.on('recordset', options.recordset);
+    request.on('recordset', handleRecordset);
     request.on('row', handleRow);
     request.on('error', options.error);
     request.on('done', handleDone);
