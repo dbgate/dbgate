@@ -1,5 +1,6 @@
 const electron = require('electron');
 const { fork } = require('child_process');
+const Store = require('electron-store');
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -7,6 +8,8 @@ const BrowserWindow = electron.BrowserWindow;
 
 const path = require('path');
 const url = require('url');
+
+const store = new Store();
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -22,10 +25,11 @@ function hideSplash() {
 }
 
 function createWindow() {
-  // Create the browser window.
+  const bounds = store.get('winBounds');
   mainWindow = new BrowserWindow({
-    // width: 800,
-    // height: 600,
+    width: 1200,
+    height: 800,
+    ...bounds,
     show: false,
     webPreferences: {
       nodeIntegration: true,
@@ -42,6 +46,9 @@ function createWindow() {
       });
     mainWindow.webContents.on('did-finish-load', function () {
       hideSplash();
+    });
+    mainWindow.on('close', () => {
+      store.set('winBounds', mainWindow.getBounds());
     });
     mainWindow.loadURL(startUrl);
   }
