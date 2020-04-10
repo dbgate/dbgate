@@ -8,6 +8,7 @@ module.exports = {
     return socket;
   },
   emit(message, data) {
+    console.log('EMIT:', message, data);
     socket.emit(message, data);
   },
 };

@@ -14,7 +14,6 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
-    conid;
     socket.emit(`database-structure-changed-${conid}-${database}`);
   },
   handle_error(conid, database, props) {

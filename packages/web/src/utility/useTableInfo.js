@@ -5,6 +5,7 @@ export default function useTableInfo({ conid, database, schemaName, pureName }) 
   const tableInfo = useFetch({
     url: 'tables/table-info',
     params: { conid, database, schemaName, pureName },
+    reloadTrigger: `database-structure-changed-${conid}-${database}`,
   });
   return tableInfo;
 }
