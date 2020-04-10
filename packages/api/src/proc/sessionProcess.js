@@ -14,7 +14,7 @@ class StreamHandler {
   constructor() {
     this.recordset = this.recordset.bind(this);
     this.row = this.row.bind(this);
-    this.error = this.error.bind(this);
+    // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
     this.info = this.info.bind(this);
   }
@@ -38,9 +38,9 @@ class StreamHandler {
     // console.log('ACCEPT ROW', row);
     this.currentStream.write(JSON.stringify(row) + '\n');
   }
-  error(error) {
-    process.send({ msgtype: 'error', error });
-  }
+  // error(error) {
+  //   process.send({ msgtype: 'error', error });
+  // }
   done(result) {
     this.closeCurrentStream();
     process.send({ msgtype: 'done', result });
@@ -91,7 +91,14 @@ function start() {
     try {
       await handleMessage(message);
     } catch (e) {
-      process.send({ msgtype: 'error', error: e.message });
+      process.send({
+        msgtype: 'info',
+        info: {
+          message: e.message,
+          severity: 'error',
+        },
+      });
+      //process.send({ msgtype: 'error', error: e.message });
     }
   });
 }

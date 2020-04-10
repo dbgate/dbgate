@@ -63,6 +63,7 @@ const driver = {
         line: lineNumber,
         procedure: procName,
         time: new Date(),
+        severity: 'info',
       });
     };
 
@@ -79,10 +80,21 @@ const driver = {
       options.recordset(extractColumns(columns));
     };
 
+    const handleError = (error) => {
+      const { message, lineNumber, procName } = error;
+      options.info({
+        message,
+        line: lineNumber,
+        procedure: procName,
+        time: new Date(),
+        severity: 'error',
+      });
+    };
+
     request.stream = true;
     request.on('recordset', handleRecordset);
     request.on('row', handleRow);
-    request.on('error', options.error);
+    request.on('error', handleError);
     request.on('done', handleDone);
     request.on('info', handleInfo);
     request.query(sql);

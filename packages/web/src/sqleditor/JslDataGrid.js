@@ -14,6 +14,8 @@ export default function JslDataGrid({ jslid }) {
   const display = React.useMemo(() => new JslGridDisplay(jslid, columns, config, setConfig, cache, setCache), [
     jslid,
     columns,
+    config,
+    cache,
   ]);
 
   return <DataGrid display={display} jslid={jslid} />;

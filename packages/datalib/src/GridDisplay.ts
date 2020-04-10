@@ -74,13 +74,14 @@ export abstract class GridDisplay {
   }
 
   reload() {
-    this.setCache(cache => ({
+    this.setCache((cache) => ({
       ...cache,
       refreshTime: new Date().getTime(),
     }));
   }
 
   includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
+    // console.log('includeInColumnSet', field, uniqueName, isIncluded);
     if (isIncluded) {
       this.setConfig({
         ...this.config,
@@ -89,7 +90,7 @@ export abstract class GridDisplay {
     } else {
       this.setConfig({
         ...this.config,
-        [field]: (this.config[field] || []).filter(x => x != uniqueName),
+        [field]: (this.config[field] || []).filter((x) => x != uniqueName),
       });
     }
   }
@@ -104,12 +105,12 @@ export abstract class GridDisplay {
   hideAllColumns() {
     this.setConfig({
       ...this.config,
-      hiddenColumns: this.columns.map(x => x.uniqueName),
+      hiddenColumns: this.columns.map((x) => x.uniqueName),
     });
   }
 
   get hiddenColumnIndexes() {
-    return (this.config.hiddenColumns || []).map(x => _.findIndex(this.columns, y => y.uniqueName == x));
+    return (this.config.hiddenColumns || []).map((x) => _.findIndex(this.columns, (y) => y.uniqueName == x));
   }
 
   enrichExpandedColumns(list: DisplayColumn[]): DisplayColumn[] {
@@ -134,8 +135,8 @@ export abstract class GridDisplay {
 
   requireFkTarget(column: DisplayColumn) {
     const { uniqueName, foreignKey } = column;
-    this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then(table => {
-      this.setCache(cache => ({
+    this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then((table) => {
+      this.setCache((cache) => ({
         ...cache,
         tables: {
           ...cache.tables,
@@ -146,6 +147,7 @@ export abstract class GridDisplay {
   }
 
   isColumnChecked(column: DisplayColumn) {
+    // console.log('isColumnChecked', column, this.config.hiddenColumns);
     return column.uniquePath.length == 1
       ? !this.config.hiddenColumns.includes(column.uniqueName)
       : this.config.addedColumns.includes(column.uniqueName);
@@ -162,10 +164,10 @@ export abstract class GridDisplay {
       headerText: uniquePath.length == 1 ? col.columnName : `${table.pureName}.${col.columnName}`,
       uniqueName,
       uniquePath,
-      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
+      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find((x) => x.columnName == col.columnName),
       foreignKey:
         table.foreignKeys &&
-        table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
+        table.foreignKeys.find((fk) => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
     };
   }
 
@@ -231,7 +233,7 @@ export abstract class GridDisplay {
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
     const childAlias = `${column.uniqueName}_ref`;
-    if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
+    if ((select.from.relations || []).find((x) => x.alias == childAlias)) return;
     const table = this.cache.tables[column.uniqueName];
     select.from.relations = [
       ...(select.from.relations || []),
@@ -265,7 +267,7 @@ export abstract class GridDisplay {
       if (column.foreignKey) {
         const table = this.cache.tables[column.uniqueName];
         if (table) {
-          const hintColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
+          const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
           if (hintColumn) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
             this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
@@ -315,9 +317,9 @@ export abstract class GridDisplay {
   applySortOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
     if (this.config.sort?.length > 0) {
       select.orderBy = this.config.sort
-        .map(col => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
-        .filter(col => col.dispInfo)
-        .map(col => ({
+        .map((col) => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
+        .filter((col) => col.dispInfo)
+        .map((col) => ({
           exprType: 'column',
           columnName: col.dispInfo.columnName,
           direction: col.order,
@@ -329,8 +331,8 @@ export abstract class GridDisplay {
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
     return (
       table?.columns
-        ?.map(col => this.getDisplayColumn(table, col, parentPath))
-        ?.map(col => ({
+        ?.map((col) => this.getDisplayColumn(table, col, parentPath))
+        ?.map((col) => ({
           ...col,
           isChecked: this.isColumnChecked(col),
           hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
@@ -339,11 +341,11 @@ export abstract class GridDisplay {
   }
 
   getColumns(columnFilter) {
-    return this.enrichExpandedColumns(this.columns.filter(col => filterName(columnFilter, col.columnName)));
+    return this.enrichExpandedColumns(this.columns.filter((col) => filterName(columnFilter, col.columnName)));
   }
 
   getGridColumns() {
-    return this.getColumns(null).filter(x => this.isColumnChecked(x));
+    return this.getColumns(null).filter((x) => this.isColumnChecked(x));
   }
 
   isExpandedColumn(uniqueName: string) {
@@ -378,7 +380,7 @@ export abstract class GridDisplay {
   }
 
   getSortOrder(uniqueName) {
-    return this.config.sort.find(x => x.uniqueName == uniqueName)?.order;
+    return this.config.sort.find((x) => x.uniqueName == uniqueName)?.order;
   }
 
   get filterCount() {
@@ -399,7 +401,7 @@ export abstract class GridDisplay {
   }
 
   getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
-    const col = this.columns.find(x => x.uniqueName == uniqueName);
+    const col = this.columns.find((x) => x.uniqueName == uniqueName);
     if (!col) return null;
     if (!this.baseTable) return null;
     if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;

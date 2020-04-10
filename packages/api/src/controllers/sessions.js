@@ -9,23 +9,44 @@ module.exports = {
   /** @type {import('@dbgate/types').OpenedSession[]} */
   opened: [],
 
-  handle_error(sesid, props) {
-    const { error } = props;
-    console.log(`Error in database session ${sesid}: ${error}`);
-  },
+  // handle_error(sesid, props) {
+  //   const { error } = props;
+  //   console.log(`Error in database session ${sesid}`, error);
+  //   this.dispatchMessage(sesid, {
+  //     severity: 'error',
+  //     message: error && error.toString(),
+  //   });
+  // },
 
   // handle_row(sesid, props) {
   //   const { row } = props;
   //   socket.emit('sessionRow', row);
   // },
+  dispatchMessage(sesid, message) {
+    if (_.isString(message)) {
+      socket.emit(`session-info-${sesid}`, {
+        message,
+        time: new Date(),
+        severity: 'info',
+      });
+    }
+    if (_.isPlainObject(message)) {
+      socket.emit(`session-info-${sesid}`, {
+        time: new Date(),
+        severity: 'info',
+        ...message,
+      });
+    }
+  },
 
   handle_info(sesid, props) {
     const { info } = props;
-    socket.emit(`session-info-${sesid}`, info);
+    this.dispatchMessage(sesid, info);
   },
 
   handle_done(sesid) {
     socket.emit(`session-done-${sesid}`);
+    this.dispatchMessage(sesid, 'Query execution finished');
   },
 
   handle_recordset(sesid, props) {
@@ -62,6 +83,7 @@ module.exports = {
     }
 
     console.log(`Processing query, sesid=${sesid}, sql=${sql}`);
+    this.dispatchMessage(sesid, 'Query execution started');
     session.subprocess.send({ msgtype: 'executeQuery', sql });
 
     return { state: 'ok' };
