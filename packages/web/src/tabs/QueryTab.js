@@ -84,7 +84,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           onKeyDown={handleKeyDown}
         />
         <ResultTabs sessionId={sessionId}>
-          <TabPage label="Messages">
+          <TabPage label="Messages" key="messages">
             <SessionMessagesView sessionId={sessionId} />
           </TabPage>
         </ResultTabs>

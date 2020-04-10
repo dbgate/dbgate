@@ -8,12 +8,13 @@ module.exports = {
   openedReaders: {},
 
   closeReader(jslid) {
+    // console.log('CLOSING READER');
     if (!this.openedReaders[jslid]) return Promise.resolve();
     return new Promise((resolve, reject) => {
       this.openedReaders[jslid].reader.close((err) => {
         if (err) reject(err);
-        resolve();
         delete this.openedReaders[jslid];
+        resolve();
       });
     });
   },
@@ -32,6 +33,7 @@ module.exports = {
   },
 
   openReader(jslid) {
+    // console.log('OPENING READER');
     const file = path.join(jsldir(), `${jslid}.jsonl`);
     return new Promise((resolve, reject) =>
       lineReader.open(file, (err, reader) => {
@@ -47,7 +49,7 @@ module.exports = {
 
   async ensureReader(jslid, offset) {
     if (this.openedReaders[jslid] && this.openedReaders[jslid].readedCount > offset) {
-      await this.closeReader();
+      await this.closeReader(jslid);
     }
     if (!this.openedReaders[jslid]) {
       await this.openReader(jslid);
@@ -65,6 +67,7 @@ module.exports = {
 
   getRows_meta: 'get',
   async getRows({ jslid, offset, limit }) {
+    // console.log('GET ROWS', offset, limit);
     await this.ensureReader(jslid, offset);
     const res = [];
     for (let i = 0; i < limit; i += 1) {
