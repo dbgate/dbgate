@@ -1,28 +1,14 @@
-import moment from 'moment';
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
-import theme from '../theme';
 import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
 import useDimensions from '../utility/useDimensions';
-import { SeriesSizes } from './SeriesSizes';
 import axios from '../utility/axios';
-import ColumnLabel from './ColumnLabel';
 import DataFilterControl from './DataFilterControl';
 import { getFilterType } from '@dbgate/filterparser';
-import {
-  convertCellAddress,
-  cellFromEvent,
-  getCellRange,
-  topLeftCell,
-  isRegularCell,
-  nullCell,
-  emptyCellArray,
-} from './selection';
+import { cellFromEvent, getCellRange, topLeftCell, isRegularCell, nullCell, emptyCellArray } from './selection';
 import keycodes from '../utility/keycodes';
-import InplaceEditor from './InplaceEditor';
 import DataGridRow from './DataGridRow';
 import {
   countColumnSizes,
@@ -44,10 +30,9 @@ import {
   setChangeSetValue,
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
-import { sleep } from '../utility/common';
 import { copyTextToClipboard } from '../utility/clipboard';
 import DataGridToolbar from './DataGridToolbar';
-import usePropsCompare from '../utility/usePropsCompare';
+// import usePropsCompare from '../utility/usePropsCompare';
 import ColumnHeaderControl from './ColumnHeaderControl';
 import InlineButton from '../widgets/InlineButton';
 import { showMenu } from '../modals/DropDownMenu';
@@ -142,7 +127,7 @@ async function loadDataPage(props, offset, limit) {
 }
 
 function dataPageAvailable(props) {
-  const { display, conid, database, jslid } = props;
+  const { display, jslid } = props;
   if (jslid) return true;
   const sql = display.getPageQuery(0, 1);
   return !!sql;
@@ -248,7 +233,7 @@ export default function DataGridCore(props) {
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
+  // const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
 
@@ -637,7 +622,7 @@ export default function DataGridCore(props) {
   }
 
   async function handleConfirmSql() {
-    const response = await axios.request({
+    await axios.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -899,7 +884,7 @@ export default function DataGridCore(props) {
         onMouseMove={handleGridMouseMove}
         onMouseUp={handleGridMouseUp}
         onWheel={handleGridWheel}
-        ref={tableRef}
+        // ref={tableRef}
         onContextMenu={handleContextMenu}
       >
         <TableHead>

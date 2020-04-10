@@ -1,12 +1,7 @@
 import React from 'react';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
-import theme from '../theme';
 import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
-import engines from '@dbgate/engines';
-import useTableInfo from '../utility/useTableInfo';
-import useConnectionInfo from '../utility/useConnectionInfo';
 
 const Wrapper = styled.div`
   position: absolute;

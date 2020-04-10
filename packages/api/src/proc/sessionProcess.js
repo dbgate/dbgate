@@ -55,7 +55,7 @@ async function handleConnect(connection) {
 
   const driver = engines(storedConnection);
   systemConnection = await driverConnect(driver, storedConnection);
-  for (const [resolve, reject] of afterConnectCallbacks) {
+  for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
   afterConnectCallbacks = [];

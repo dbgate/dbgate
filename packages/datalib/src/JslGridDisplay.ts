@@ -12,7 +12,7 @@ export class JslGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc
   ) {
     super(config, setConfig, cache, setCache, null, null);
-    
+
     this.columns = columns
       .map((col) => ({
         columnName: col.columnName,
@@ -21,6 +21,8 @@ export class JslGridDisplay extends GridDisplay {
         uniquePath: [col.columnName],
         notNull: col.notNull,
         autoIncrement: col.autoIncrement,
+        pureName: null,
+        schemaName: null,
       }))
       ?.map((col) => ({
         ...col,

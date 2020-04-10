@@ -7,8 +7,8 @@ import { Select, Expression } from '@dbgate/sqltree';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 
 export interface DisplayColumn {
-  schemaName?: string;
-  pureName?: string;
+  schemaName: string;
+  pureName: string;
   columnName: string;
   headerText: string;
   uniqueName: string;

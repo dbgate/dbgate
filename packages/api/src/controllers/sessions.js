@@ -3,7 +3,6 @@ const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const DatabaseAnalyser = require('@dbgate/engines/default/DatabaseAnalyser');
 
 module.exports = {
   /** @type {import('@dbgate/types').OpenedSession[]} */

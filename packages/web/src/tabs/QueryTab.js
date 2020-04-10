@@ -2,16 +2,12 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import axios from '../utility/axios';
-import engines from '@dbgate/engines';
-import useTableInfo from '../utility/useTableInfo';
 import useConnectionInfo from '../utility/useConnectionInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
-import styled from 'styled-components';
 import SessionMessagesView from '../query/SessionMessagesView';
-import { TabPage, TabControl } from '../widgets/TabControl';
-import getResultTabs from '../sqleditor/ResultTabs';
+import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
 import { VerticalSplitter } from '../widgets/Splitter';
 
@@ -67,13 +63,13 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
       sesid = resp.data.sesid;
       setSessionId(sesid);
     }
-    const resp2 = await axios.post('sessions/execute-query', {
+    await axios.post('sessions/execute-query', {
       sesid,
       sql: queryText,
     });
   };
 
-  const handleKeyDown = (e) => {};
+  const handleKeyDown = () => {};
 
   const handleMesageClick = (message) => {
     // console.log('EDITOR', editorRef.current.editor);

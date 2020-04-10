@@ -1,5 +1,4 @@
 const engines = require('@dbgate/engines');
-const { Select } = require('@dbgate/sqltree');
 const driverConnect = require('../utility/driverConnect');
 
 let systemConnection;
@@ -19,7 +18,7 @@ async function handleConnect(connection) {
   systemConnection = await driverConnect(driver, storedConnection);
   handleFullRefresh();
   setInterval(handleFullRefresh, 30 * 1000);
-  for (const [resolve, reject] of afterConnectCallbacks) {
+  for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
   afterConnectCallbacks = [];

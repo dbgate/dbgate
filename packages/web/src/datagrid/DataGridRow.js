@@ -2,20 +2,9 @@
 import moment from 'moment';
 import _ from 'lodash';
 import React from 'react';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
-import theme from '../theme';
-import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
-import useDimensions from '../utility/useDimensions';
-import { SeriesSizes } from './SeriesSizes';
-import axios from '../utility/axios';
-import ColumnLabel from './ColumnLabel';
-import DataFilterControl from './DataFilterControl';
-import { getFilterType } from '@dbgate/filterparser';
 import { findExistingChangeSetItem } from '@dbgate/datalib';
-import keycodes from '../utility/keycodes';
 import InplaceEditor from './InplaceEditor';
-import usePropsCompare from '../utility/usePropsCompare';
 import { cellIsSelected } from './gridutil';
 
 const TableBodyCell = styled.td`
