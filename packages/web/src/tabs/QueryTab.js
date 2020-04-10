@@ -46,6 +46,8 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
     };
   }, []);
 
+  const editorRef = React.useRef(null);
+
   useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo(conid);
 
@@ -73,6 +75,13 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
 
   const handleKeyDown = (e) => {};
 
+  const handleMesageClick = (message) => {
+    // console.log('EDITOR', editorRef.current.editor);
+    if (editorRef.current && editorRef.current.editor) {
+      editorRef.current.editor.gotoLine(message.line);
+    }
+  };
+
   return (
     <>
       <VerticalSplitter>
@@ -82,10 +91,11 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           tabVisible={tabVisible}
           engine={connection && connection.engine}
           onKeyDown={handleKeyDown}
+          editorRef={editorRef}
         />
         <ResultTabs sessionId={sessionId}>
           <TabPage label="Messages" key="messages">
-            <SessionMessagesView sessionId={sessionId} />
+            <SessionMessagesView sessionId={sessionId} onMessageClick={handleMesageClick} />
           </TabPage>
         </ResultTabs>
       </VerticalSplitter>

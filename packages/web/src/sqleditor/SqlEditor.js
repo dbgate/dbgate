@@ -29,27 +29,30 @@ export default function SqlEditor({
   onChange = undefined,
   tabVisible = false,
   onKeyDown = undefined,
+  editorRef = undefined,
 }) {
   const [containerRef, { height, width }] = useDimensions();
-  const editorRef = React.useRef(null);
+  const ownEditorRef = React.useRef(null);
+
+  const currentEditorRef = editorRef || ownEditorRef;
 
   React.useEffect(() => {
-    if (tabVisible && editorRef.current && editorRef.current.editor) editorRef.current.editor.focus();
+    if (tabVisible && currentEditorRef.current && currentEditorRef.current.editor) currentEditorRef.current.editor.focus();
   }, [tabVisible]);
 
   React.useEffect(() => {
-    if (onKeyDown && editorRef.current) {
-      editorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
+    if (onKeyDown && currentEditorRef.current) {
+      currentEditorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
     }
     return () => {
-      editorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
+      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
     };
   }, [onKeyDown]);
 
   return (
     <Wrapper ref={containerRef}>
       <AceEditor
-        ref={editorRef}
+        ref={currentEditorRef}
         mode={engineToMode[engine] || 'sql'}
         theme="github"
         onChange={onChange}

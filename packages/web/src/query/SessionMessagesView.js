@@ -2,7 +2,7 @@ import React from 'react';
 import MessagesView from './MessagesView';
 import useSocket from '../utility/SocketProvider';
 
-export default function SessionMessagesView({ sessionId }) {
+export default function SessionMessagesView({ sessionId, onMessageClick }) {
   const [messages, setMessages] = React.useState([]);
   const socket = useSocket();
 
@@ -17,5 +17,5 @@ export default function SessionMessagesView({ sessionId }) {
     }
   }, [sessionId, socket]);
 
-  return <MessagesView items={messages} />;
+  return <MessagesView items={messages} onMessageClick={onMessageClick} />;
 }
