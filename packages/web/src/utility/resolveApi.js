@@ -4,7 +4,9 @@ export default function resolveApi() {
 
     if (electron) {
       const port = electron.remote.getGlobal('port');
-      return `http://localhost:${port}`;
+      if (port) {
+        return `http://localhost:${port}`;
+      }
     }
   }
 

@@ -11,12 +11,22 @@ const url = require('url');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let splashWindow;
+
+function hideSplash() {
+  if (splashWindow) {
+    splashWindow.destroy();
+    splashWindow = null;
+  }
+  mainWindow.show();
+}
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    // width: 800,
+    // height: 600,
+    show: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -30,8 +40,25 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
       });
+    mainWindow.webContents.on('did-finish-load', function () {
+      hideSplash();
+    });
     mainWindow.loadURL(startUrl);
   }
+
+  splashWindow = new BrowserWindow({
+    width: 300,
+    height: 120,
+    transparent: true,
+    frame: false,
+  });
+  splashWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, '../packages/web/build/splash.html'),
+      protocol: 'file:',
+      slashes: true,
+    })
+  );
 
   if (process.env.ELECTRON_START_URL) {
     loadMainWindow();
