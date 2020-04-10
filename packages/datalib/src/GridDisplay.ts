@@ -7,16 +7,16 @@ import { Select, Expression } from '@dbgate/sqltree';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 
 export interface DisplayColumn {
-  schemaName: string;
-  pureName: string;
+  schemaName?: string;
+  pureName?: string;
   columnName: string;
   headerText: string;
   uniqueName: string;
   uniquePath: string[];
   notNull: boolean;
-  autoIncrement: boolean;
-  isPrimaryKey: boolean;
-  foreignKey: ForeignKeyInfo;
+  autoIncrement?: boolean;
+  isPrimaryKey?: boolean;
+  foreignKey?: ForeignKeyInfo;
   isChecked?: boolean;
   hintColumnName?: string;
   commonType?: DbType;
@@ -47,9 +47,11 @@ export abstract class GridDisplay {
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
     protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>,
-    public driver: EngineDriver
+    public driver?: EngineDriver
   ) {}
-  abstract getPageQuery(offset: number, count: number): string;
+  getPageQuery(offset: number, count: number): string {
+    return null;
+  }
   columns: DisplayColumn[];
   baseTable?: TableInfo;
   changeSetKeyFields: string[] = null;
@@ -65,7 +67,7 @@ export abstract class GridDisplay {
   }
 
   get engine() {
-    return this.driver.engine;
+    return this.driver?.engine;
   }
 
   reload() {

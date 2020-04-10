@@ -14,7 +14,12 @@ const dialect = {
 };
 
 function extractColumns(columns) {
-  return _.sortBy(_.values(columns), 'index')
+  return _.sortBy(_.values(columns), 'index').map((col) => ({
+    ...col,
+    columnName: col.name,
+    notNull: !col.nullable,
+    autoIncrement: !!col.identity,
+  }));
 }
 
 /** @type {import('@dbgate/types').EngineDriver} */

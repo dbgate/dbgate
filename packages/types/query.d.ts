@@ -4,7 +4,9 @@ export interface RangeDefinition {
 }
 
 export interface QueryResultColumn {
-  name: string;
+  columnName: string;
+  notNull: boolean;
+  autoIncrement?: boolean;
 }
 
 export interface QueryResult {

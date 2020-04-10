@@ -109,6 +109,47 @@ const FocusField = styled.input`
 `;
 
 /** @param props {import('./types').DataGridProps} */
+async function loadDataPage(props, offset, limit) {
+  const { display, conid, database, jslid } = props;
+
+  console.log('LOAD PAGE', jslid);
+
+  if (jslid) {
+    const response = await axios.request({
+      url: 'jsldata/get-rows',
+      method: 'post',
+      params: {
+        jslid,
+        offset,
+        limit,
+      },
+    });
+    return response.data;
+  }
+
+  const sql = display.getPageQuery(offset, limit);
+
+  const response = await axios.request({
+    url: 'database-connections/query-data',
+    method: 'post',
+    params: {
+      conid,
+      database,
+    },
+    data: { sql },
+  });
+
+  return response.data.rows;
+}
+
+function dataPageAvailable(props) {
+  const { display, conid, database, jslid } = props;
+  if (jslid) return true;
+  const sql = display.getPageQuery(0, 1);
+  return !!sql;
+}
+
+/** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
@@ -146,8 +187,8 @@ export default function DataGridCore(props) {
   // const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
   // const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
 
-  const changeSet = changeSetState.value;
-  const setChangeSet = React.useCallback(value => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
+  const changeSet = changeSetState && changeSetState.value;
+  const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
 
   const changeSetRef = React.useRef(changeSet);
 
@@ -155,8 +196,8 @@ export default function DataGridCore(props) {
 
   const autofillMarkerCell = React.useMemo(
     () =>
-      selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
-        ? [_.max(selectedCells.map(x => x[0])), _.max(selectedCells.map(x => x[1]))]
+      selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map((x) => x[0])).length == 1
+        ? [_.max(selectedCells.map((x) => x[0])), _.max(selectedCells.map((x) => x[1]))]
         : null,
     [selectedCells]
   );
@@ -170,17 +211,7 @@ export default function DataGridCore(props) {
     const loadStart = new Date().getTime();
     loadedTimeRef.current = loadStart;
 
-    const sql = display.getPageQuery(loadedRows.length, 100);
-
-    const response = await axios.request({
-      url: 'database-connections/query-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
-    });
+    const nextRows = await loadDataPage(props, loadedRows.length, 100);
     if (loadedTimeRef.current !== loadStart) {
       // new load was dispatched
       return;
@@ -189,7 +220,6 @@ export default function DataGridCore(props) {
     //   console.log('Error loading data from server', nextRows);
     //   nextRows = [];
     // }
-    const { rows: nextRows } = response.data;
     // console.log('nextRows', nextRows);
     const loadedInfo = {
       loadedRows: [...loadedRows, ...nextRows],
@@ -288,9 +318,10 @@ export default function DataGridCore(props) {
       firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length &&
       insertedRows.length == 0
     ) {
-      const sql = display.getPageQuery(0, 1);
-      // try to get SQL, if success, load page. If not, callbacks to load missing metadata are dispatched
-      if (sql) loadNextData();
+      if (dataPageAvailable(props)) {
+        // If not, callbacks to load missing metadata are dispatched
+        loadNextData();
+      }
     }
     if (display.cache.refreshTime > loadedTime) {
       reload();
@@ -327,7 +358,7 @@ export default function DataGridCore(props) {
 
   const realColumnUniqueNames = React.useMemo(
     () =>
-      _.range(columnSizes.realCount).map(realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName),
+      _.range(columnSizes.realCount).map((realIndex) => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName),
     [columnSizes, columns]
   );
 
@@ -335,15 +366,15 @@ export default function DataGridCore(props) {
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
 
-  const handleRowScroll = value => {
+  const handleRowScroll = (value) => {
     setFirstVisibleRowScrollIndex(value);
   };
 
-  const handleColumnScroll = value => {
+  const handleColumnScroll = (value) => {
     setFirstVisibleColumnScrollIndex(value);
   };
 
-  const handleContextMenu = event => {
+  const handleContextMenu = (event) => {
     event.preventDefault();
     showMenu(
       event.pageX,
@@ -407,7 +438,7 @@ export default function DataGridCore(props) {
     const pasteRows = pastedText
       .replace(/\r/g, '')
       .split('\n')
-      .map(row => row.split('\t'));
+      .map((row) => row.split('\t'));
     let chs = changeSet;
     let allRows = loadedAndInsertedRows;
 
@@ -439,8 +470,8 @@ export default function DataGridCore(props) {
     }
     if (selectedCells.length > 1) {
       const regularSelected = selectedCells.filter(isRegularCell);
-      const startRow = _.min(regularSelected.map(x => x[0]));
-      const startCol = _.min(regularSelected.map(x => x[1]));
+      const startRow = _.min(regularSelected.map((x) => x[0]));
+      const startCol = _.min(regularSelected.map((x) => x[1]));
       for (const cell of regularSelected) {
         const [rowIndex, colIndex] = cell;
         const selectionRow = rowIndex - startRow;
@@ -464,16 +495,16 @@ export default function DataGridCore(props) {
   }
 
   function copyToClipboard() {
-    const rowIndexes = _.uniq(selectedCells.map(x => x[0])).sort();
-    const lines = rowIndexes.map(rowIndex => {
+    const rowIndexes = _.uniq(selectedCells.map((x) => x[0])).sort();
+    const lines = rowIndexes.map((rowIndex) => {
       const colIndexes = selectedCells
-        .filter(x => x[0] == rowIndex)
-        .map(x => x[1])
+        .filter((x) => x[0] == rowIndex)
+        .map((x) => x[1])
         .sort();
       const rowData = loadedAndInsertedRows[rowIndex];
       const line = colIndexes
-        .map(col => realColumnUniqueNames[col])
-        .map(col => (rowData[col] == null ? '' : rowData[col]))
+        .map((col) => realColumnUniqueNames[col])
+        .map((col) => (rowData[col] == null ? '' : rowData[col]))
         .join('\t');
       return line;
     });
@@ -485,7 +516,7 @@ export default function DataGridCore(props) {
     if (autofillDragStartCell) {
       const cell = cellFromEvent(event);
       if (isRegularCell(cell) && (cell[0] == autofillDragStartCell[0] || cell[1] == autofillDragStartCell[1])) {
-        const autoFillStart = [selectedCells[0][0], _.min(selectedCells.map(x => x[1]))];
+        const autoFillStart = [selectedCells[0][0], _.min(selectedCells.map((x) => x[1]))];
         // @ts-ignore
         setAutofillSelectedCells(getCellRange(autoFillStart, cell));
       }
@@ -506,9 +537,9 @@ export default function DataGridCore(props) {
     if (autofillDragStartCell) {
       const currentRowNumber = currentCell[0];
       if (_.isNumber(currentRowNumber)) {
-        const rowIndexes = _.uniq((autofillSelectedCells || []).map(x => x[0])).filter(x => x != currentRowNumber);
+        const rowIndexes = _.uniq((autofillSelectedCells || []).map((x) => x[0])).filter((x) => x != currentRowNumber);
         // @ts-ignore
-        const colNames = selectedCells.map(cell => realColumnUniqueNames[cell[1]]);
+        const colNames = selectedCells.map((cell) => realColumnUniqueNames[cell[1]]);
         const changeObject = _.pick(loadedAndInsertedRows[currentRowNumber], colNames);
         setChangeSet(
           batchUpdateChangeSet(
@@ -539,7 +570,7 @@ export default function DataGridCore(props) {
   }
 
   function getSelectedRowDefinitions() {
-    return getRowDefinitions(_.uniq((selectedCells || []).map(x => x[0])));
+    return getRowDefinitions(_.uniq((selectedCells || []).map((x) => x[0])));
   }
 
   function revertRowChanges() {
@@ -874,7 +905,7 @@ export default function DataGridCore(props) {
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
             <TableHeaderCell data-row="header" data-col="header" />
-            {visibleRealColumns.map(col => (
+            {visibleRealColumns.map((col) => (
               <TableHeaderCell
                 data-row="header"
                 data-col={col.colIndex}
@@ -883,7 +914,7 @@ export default function DataGridCore(props) {
               >
                 <ColumnHeaderControl
                   column={col}
-                  setSort={order => display.setSort(col.uniqueName, order)}
+                  setSort={(order) => display.setSort(col.uniqueName, order)}
                   order={display.getSortOrder(col.uniqueName)}
                 />
               </TableHeaderCell>
@@ -901,7 +932,7 @@ export default function DataGridCore(props) {
                 </InlineButton>
               )}
             </TableHeaderCell>
-            {visibleRealColumns.map(col => (
+            {visibleRealColumns.map((col) => (
               <TableFilterCell
                 key={col.uniqueName}
                 style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
@@ -911,7 +942,7 @@ export default function DataGridCore(props) {
                 <DataFilterControl
                   filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
                   filter={display.getFilter(col.uniqueName)}
-                  setFilter={value => display.setFilter(col.uniqueName, value)}
+                  setFilter={(value) => display.setFilter(col.uniqueName, value)}
                 />
               </TableFilterCell>
             ))}

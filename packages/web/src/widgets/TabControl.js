@@ -22,13 +22,21 @@ const TabNameWrapper = styled.span`
   margin-left: 5px;
 `;
 
-const TabContainer = styled.div``;
+const TabContainer = styled.div`
+  position: relative;
+  flex-grow: 1;
+`;
 
 const TabsContainer = styled.div`
   display: flex;
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
+`;
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: column;
 `;
 
 export function TabPage({ label = undefined, children }) {
@@ -39,7 +47,7 @@ export function TabControl({ children }) {
   const [value, setValue] = React.useState(0);
   const childrenArray = (_.isArray(children) ? _.flatten(children) : [children]).filter((x) => x);
   return (
-    <div>
+    <MainContainer>
       <TabsContainer>
         {childrenArray
           .filter((x) => x.props)
@@ -51,6 +59,6 @@ export function TabControl({ children }) {
           ))}
       </TabsContainer>
       {<TabContainer key={value}>{childrenArray[value] && childrenArray[value].props.children}</TabContainer>}
-    </div>
+    </MainContainer>
   );
 }

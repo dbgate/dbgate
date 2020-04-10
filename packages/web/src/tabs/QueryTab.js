@@ -21,7 +21,9 @@ const EditorContainer = styled.div`
   position: relative;
 `;
 
-const MessagesContainer = styled.div``;
+const MessagesContainer = styled.div`
+  height: 200px;
+`;
 
 export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef }) {
   const localStorageKey = `sql_${tabid}`;

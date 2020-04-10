@@ -6,12 +6,14 @@ const io = require('socket.io');
 const fs = require('fs');
 
 const useController = require('./utility/useController');
+const socket = require('./utility/socket');
+
 const connections = require('./controllers/connections');
 const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
 const tables = require('./controllers/tables');
 const sessions = require('./controllers/sessions');
-const socket = require('./utility/socket');
+const jsldata = require('./controllers/jsldata');
 
 function start() {
   console.log('process.argv', process.argv);
@@ -29,6 +31,7 @@ function start() {
   useController(app, '/database-connections', databaseConnections);
   useController(app, '/tables', tables);
   useController(app, '/sessions', sessions);
+  useController(app, '/jsldata', jsldata);
 
   if (fs.existsSync('/home/dbgate-docker/build')) {
     // server static files inside docker container

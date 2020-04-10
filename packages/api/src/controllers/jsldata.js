@@ -58,13 +58,13 @@ module.exports = {
   },
 
   getInfo_meta: 'get',
-  getInfo(jslid) {
+  getInfo({ jslid }) {
     const file = path.join(jsldir(), `${jslid}.jsonl.info`);
     return JSON.parse(fs.readFileSync(file, 'utf-8'));
   },
 
   getRows_meta: 'get',
-  async getRows(jslid, offset, limit) {
+  async getRows({ jslid, offset, limit }) {
     await this.ensureReader(jslid, offset);
     const res = [];
     for (let i = 0; i < limit; i += 1) {
