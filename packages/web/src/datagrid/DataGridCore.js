@@ -90,6 +90,7 @@ const TableHeaderCell = styled.td`
   // border-collapse: collapse;
   text-align: left;
   padding: 0;
+  // padding: 2px;
   margin: 0;
   background-color: #f6f7f9;
   overflow: hidden;
@@ -112,12 +113,10 @@ const FocusField = styled.input`
 async function loadDataPage(props, offset, limit) {
   const { display, conid, database, jslid } = props;
 
-  console.log('LOAD PAGE', jslid);
-
   if (jslid) {
     const response = await axios.request({
       url: 'jsldata/get-rows',
-      method: 'post',
+      method: 'get',
       params: {
         jslid,
         offset,
@@ -256,6 +255,7 @@ export default function DataGridCore(props) {
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
       case 'show':
+        if (!display.editable) return {};
         return {
           cell: action.cell,
           text: action.text,
@@ -914,39 +914,41 @@ export default function DataGridCore(props) {
               >
                 <ColumnHeaderControl
                   column={col}
-                  setSort={(order) => display.setSort(col.uniqueName, order)}
+                  setSort={display.sortable ? (order) => display.setSort(col.uniqueName, order) : null}
                   order={display.getSortOrder(col.uniqueName)}
                 />
               </TableHeaderCell>
             ))}
           </TableHeaderRow>
-          <TableHeaderRow>
-            <TableHeaderCell
-              style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}
-              data-row="filter"
-              data-col="header"
-            >
-              {filterCount > 0 && (
-                <InlineButton onClick={handleClearFilters} square>
-                  <i className="fas fa-times" />
-                </InlineButton>
-              )}
-            </TableHeaderCell>
-            {visibleRealColumns.map((col) => (
-              <TableFilterCell
-                key={col.uniqueName}
-                style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+          {display.filterable && (
+            <TableHeaderRow>
+              <TableHeaderCell
+                style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}
                 data-row="filter"
-                data-col={col.colIndex}
+                data-col="header"
               >
-                <DataFilterControl
-                  filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
-                  filter={display.getFilter(col.uniqueName)}
-                  setFilter={(value) => display.setFilter(col.uniqueName, value)}
-                />
-              </TableFilterCell>
-            ))}
-          </TableHeaderRow>
+                {filterCount > 0 && (
+                  <InlineButton onClick={handleClearFilters} square>
+                    <i className="fas fa-times" />
+                  </InlineButton>
+                )}
+              </TableHeaderCell>
+              {visibleRealColumns.map((col) => (
+                <TableFilterCell
+                  key={col.uniqueName}
+                  style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
+                  data-row="filter"
+                  data-col={col.colIndex}
+                >
+                  <DataFilterControl
+                    filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
+                    filter={display.getFilter(col.uniqueName)}
+                    setFilter={(value) => display.setFilter(col.uniqueName, value)}
+                  />
+                </TableFilterCell>
+              ))}
+            </TableHeaderRow>
+          )}
         </TableHead>
         <TableBody ref={tableBodyRef}>
           {loadedAndInsertedRows

@@ -40,11 +40,12 @@ export function findExistingChangeSetItem(
   changeSet: ChangeSet,
   definition: ChangeSetRowDefinition
 ): [keyof ChangeSet, ChangeSetItem] {
+  if (!changeSet) return ['updates', null];
   if (definition.insertedRowIndex != null) {
     return [
       'inserts',
       changeSet.inserts.find(
-        x =>
+        (x) =>
           x.pureName == definition.pureName &&
           x.schemaName == definition.schemaName &&
           x.insertedRowIndex == definition.insertedRowIndex
@@ -52,7 +53,7 @@ export function findExistingChangeSetItem(
     ];
   } else {
     const inUpdates = changeSet.updates.find(
-      x =>
+      (x) =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         _.isEqual(x.condition, definition.condition)
@@ -60,7 +61,7 @@ export function findExistingChangeSetItem(
     if (inUpdates) return ['updates', inUpdates];
 
     const inDeletes = changeSet.deletes.find(
-      x =>
+      (x) =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         _.isEqual(x.condition, definition.condition)
@@ -84,7 +85,7 @@ export function setChangeSetValue(
   if (existingItem) {
     return {
       ...changeSet,
-      [fieldName]: changeSet[fieldName].map(item =>
+      [fieldName]: changeSet[fieldName].map((item) =>
         item == existingItem
           ? {
               ...item,
@@ -164,7 +165,7 @@ export function batchUpdateChangeSet(
 }
 
 function extractFields(item: ChangeSetItem): UpdateField[] {
-  return _.keys(item.fields).map(targetColumn => ({
+  return _.keys(item.fields).map((targetColumn) => ({
     targetColumn,
     exprType: 'value',
     value: item.fields[targetColumn],
@@ -185,7 +186,7 @@ function insertToSql(item: ChangeSetItem): Insert {
 function extractCondition(item: ChangeSetItem): Condition {
   return {
     conditionType: 'and',
-    conditions: _.keys(item.condition).map(columnName => ({
+    conditions: _.keys(item.condition).map((columnName) => ({
       conditionType: 'binary',
       operator: '=',
       left: {
@@ -248,7 +249,7 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
   if (item)
     return {
       ...changeSet,
-      [field]: changeSet[field].filter(x => x != item),
+      [field]: changeSet[field].filter((x) => x != item),
     };
   return changeSet;
 }
@@ -280,8 +281,8 @@ export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetR
 export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjectInfo) {
   if (!name) return [];
   if (!changeSet) return [];
-  const rows = changeSet.inserts.filter(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
-  const maxIndex = _.maxBy(rows, x => x.insertedRowIndex)?.insertedRowIndex;
+  const rows = changeSet.inserts.filter((x) => x.pureName == name.pureName && x.schemaName == name.schemaName);
+  const maxIndex = _.maxBy(rows, (x) => x.insertedRowIndex)?.insertedRowIndex;
   if (maxIndex == null) return [];
   const res = Array(maxIndex + 1).fill({});
   for (const row of rows) {

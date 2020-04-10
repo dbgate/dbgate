@@ -1,8 +1,13 @@
 import React from 'react';
+import styled from 'styled-components';
+
+const StyledTable = styled.table`
+  flex: 1;
+`;
 
 export default function MessagesView({ items }) {
   return (
-    <table>
+    <StyledTable>
       <tr>
         <th>Number</th>
         <th>Message</th>
@@ -19,6 +24,6 @@ export default function MessagesView({ items }) {
           <td>{row.line}</td>
         </tr>
       ))}
-    </table>
+    </StyledTable>
   );
 }

@@ -10,6 +10,7 @@ const TabContainer = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
+  display: flex;
   visibility: ${props =>
     // @ts-ignore
     props.tabVisible ? 'visible' : 'hidden'};

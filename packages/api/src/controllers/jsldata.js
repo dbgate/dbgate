@@ -34,7 +34,7 @@ module.exports = {
   openReader(jslid) {
     const file = path.join(jsldir(), `${jslid}.jsonl`);
     return new Promise((resolve, reject) =>
-      lineReader.open(file, function (err, reader) {
+      lineReader.open(file, (err, reader) => {
         if (err) reject(err);
         resolve();
         this.openedReaders[jslid] = {
@@ -50,7 +50,7 @@ module.exports = {
       await this.closeReader();
     }
     if (!this.openedReaders[jslid]) {
-      await this.openReader();
+      await this.openReader(jslid);
     }
     while (this.openedReaders[jslid].readedCount < offset) {
       await this.readLine(jslid);

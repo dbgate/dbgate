@@ -12,7 +12,8 @@ const HeaderDiv = styled.div`
 const LabelDiv = styled.div`
   flex: 1;
   min-width: 10px;
-  padding-left: 2px;
+  // padding-left: 2px;
+  padding: 2px;
   margin: auto;
 `;
 
@@ -36,10 +37,12 @@ export default function ColumnHeaderControl({ column, setSort, order }) {
           </IconWrapper>
         )}
       </LabelDiv>
-      <DropDownButton>
-        <DropDownMenuItem onClick={() => setSort('ASC')}>Sort ascending</DropDownMenuItem>
-        <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
-      </DropDownButton>
+      {setSort && (
+        <DropDownButton>
+          <DropDownMenuItem onClick={() => setSort('ASC')}>Sort ascending</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
+        </DropDownButton>
+      )}
     </HeaderDiv>
   );
 }

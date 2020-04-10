@@ -13,17 +13,18 @@ import SessionMessagesView from '../query/SessionMessagesView';
 import { TabPage, TabControl } from '../widgets/TabControl';
 import getResultTabs from '../sqleditor/ResultTabs';
 import ResultTabs from '../sqleditor/ResultTabs';
+import { VerticalSplitter } from '../widgets/Splitter';
 
-const MainContainer = styled.div``;
+// const MainContainer = styled.div``;
 
-const EditorContainer = styled.div`
-  height: 600px;
-  position: relative;
-`;
+// const EditorContainer = styled.div`
+//   height: 600px;
+//   position: relative;
+// `;
 
-const MessagesContainer = styled.div`
-  height: 200px;
-`;
+// const MessagesContainer = styled.div`
+//   height: 200px;
+// `;
 
 export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef }) {
   const localStorageKey = `sql_${tabid}`;
@@ -73,8 +74,8 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   const handleKeyDown = (e) => {};
 
   return (
-    <MainContainer>
-      <EditorContainer>
+    <>
+      <VerticalSplitter>
         <SqlEditor
           value={queryText}
           onChange={handleChange}
@@ -82,22 +83,19 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           engine={connection && connection.engine}
           onKeyDown={handleKeyDown}
         />
-
-        {toolbarPortalRef &&
-          toolbarPortalRef.current &&
-          tabVisible &&
-          ReactDOM.createPortal(
-            <QueryToolbar isDatabaseDefined={conid && database} execute={handleExecute} />,
-            toolbarPortalRef.current
-          )}
-      </EditorContainer>
-      <MessagesContainer>
         <ResultTabs sessionId={sessionId}>
           <TabPage label="Messages">
             <SessionMessagesView sessionId={sessionId} />
           </TabPage>
         </ResultTabs>
-      </MessagesContainer>
-    </MainContainer>
+      </VerticalSplitter>
+      {toolbarPortalRef &&
+        toolbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(
+          <QueryToolbar isDatabaseDefined={conid && database} execute={handleExecute} />,
+          toolbarPortalRef.current
+        )}
+    </>
   );
 }

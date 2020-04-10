@@ -16,11 +16,14 @@ export class TableGridDisplay extends GridDisplay {
   ) {
     super(config, setConfig, cache, setCache, getTableInfo, driver);
     this.columns = this.getDisplayColumns(table, []);
+    this.filterable = true;
+    this.sortable = true;
+    this.editable = true;
     this.baseTable = table;
     if (table && table.columns) {
       this.changeSetKeyFields = table.primaryKey
-        ? table.primaryKey.columns.map(x => x.columnName)
-        : table.columns.map(x => x.columnName);
+        ? table.primaryKey.columns.map((x) => x.columnName)
+        : table.columns.map((x) => x.columnName);
     }
   }
 
@@ -30,7 +33,7 @@ export class TableGridDisplay extends GridDisplay {
     const select: Select = {
       commandType: 'select',
       from: { name: this.table, alias: 'basetbl' },
-      columns: this.table.columns.map(col => ({
+      columns: this.table.columns.map((col) => ({
         exprType: 'column',
         alias: col.columnName,
         source: { alias: 'basetbl' },
@@ -45,7 +48,7 @@ export class TableGridDisplay extends GridDisplay {
       ],
     };
     const displayedColumnInfo = _.keyBy(
-      this.columns.map(col => ({ ...col, sourceAlias: 'basetbl' })),
+      this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
       'uniqueName'
     );
     const action = combineReferenceActions(

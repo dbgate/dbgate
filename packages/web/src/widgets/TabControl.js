@@ -24,6 +24,7 @@ const TabNameWrapper = styled.span`
 
 const TabContainer = styled.div`
   position: relative;
+  display: flex;
   flex-grow: 1;
 `;
 
@@ -36,6 +37,7 @@ const TabsContainer = styled.div`
 
 const MainContainer = styled.div`
   display: flex;
+  flex: 1;
   flex-direction: column;
 `;
 
