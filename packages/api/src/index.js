@@ -5,14 +5,14 @@
 // "uuid": "^3.4.0",
 // "uws": "10.148.1"
 
-const processName = process.argv[2];
-if (processName && processName.endsWith('Process')) {
+const argument = process.argv[2];
+if (argument && argument.endsWith('Process')) {
   const proc = require('./proc');
 
-  const module = proc[processName];
+  const module = proc[argument];
   module.start();
 } else {
   const main = require('./main');
   
-  main.start();
+  main.start(argument);
 }

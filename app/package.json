@@ -25,9 +25,10 @@
   "homepage": "./",
   "scripts": {
     "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
+    "start:local": "cross-env electron .",
     "dist": "electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn dist",
-    "wait-electron": "node src/electron-wait-react",
+    "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn predist",
     "postinstall": "electron-builder install-app-deps",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/build/*\" packages && copyfiles \"../packages/web/build/**/*\" packages"
   },

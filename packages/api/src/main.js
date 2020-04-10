@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 const io = require('socket.io');
 const fs = require('fs');
+const findFreePort = require('find-free-port');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -15,7 +16,7 @@ const tables = require('./controllers/tables');
 const sessions = require('./controllers/sessions');
 const jsldata = require('./controllers/jsldata');
 
-function start() {
+function start(argument = null) {
   console.log('process.argv', process.argv);
 
   const app = express();
@@ -42,7 +43,16 @@ function start() {
     });
   }
 
-  server.listen(3000);
+  if (argument == '--dynport') {
+    findFreePort(53911, function (err, port) {
+      server.listen(port, () => {
+        console.log(`DbGate API listening on port ${port}`);
+        process.send({ msgtype: 'listening', port });
+      });
+    });
+  } else {
+    server.listen(3000);
+  }
 }
 
 module.exports = { start };
