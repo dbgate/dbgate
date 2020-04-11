@@ -4,11 +4,21 @@ const driverConnect = require('../utility/driverConnect');
 let systemConnection;
 let storedConnection;
 let afterConnectCallbacks = [];
+let analysedStructure = null;
 
 async function handleFullRefresh() {
   const driver = engines(storedConnection);
-  const structure = await driver.analyseFull(systemConnection);
-  process.send({ msgtype: 'structure', structure });
+  analysedStructure = await driver.analyseFull(systemConnection);
+  process.send({ msgtype: 'structure', structure: analysedStructure });
+}
+
+async function handleIncrementalRefresh() {
+  const driver = engines(storedConnection);
+  const newStructure = await driver.analyseIncremental(systemConnection, analysedStructure);
+  if (newStructure != null) {
+    analysedStructure = newStructure;
+    process.send({ msgtype: 'structure', structure: analysedStructure });
+  }
 }
 
 async function handleConnect(connection) {
@@ -17,7 +27,7 @@ async function handleConnect(connection) {
   const driver = engines(storedConnection);
   systemConnection = await driverConnect(driver, storedConnection);
   handleFullRefresh();
-  setInterval(handleFullRefresh, 30 * 1000);
+  setInterval(handleIncrementalRefresh, 10 * 1000);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
@@ -57,7 +67,7 @@ async function handleMessage({ msgtype, ...other }) {
 }
 
 function start() {
-  process.on('message', async message => {
+  process.on('message', async (message) => {
     try {
       await handleMessage(message);
     } catch (e) {

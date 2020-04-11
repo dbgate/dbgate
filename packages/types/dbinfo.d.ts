@@ -43,12 +43,36 @@ export interface ColumnInfo {
   defaultConstraint: string;
   commonType?: DbType;
 }
-export interface TableInfo extends NamedObjectInfo {
+
+export interface DatabaseObjectInfo extends NamedObjectInfo {
+  objectId?: string;
+  createDate?: string;
+  modifyDate?: string;
+}
+
+export interface SqlObjectInfo extends DatabaseObjectInfo {
+  createSql?: string;
+}
+
+export interface TableInfo extends DatabaseObjectInfo {
   columns: ColumnInfo[];
   primaryKey?: PrimaryKeyInfo;
   foreignKeys: ForeignKeyInfo[];
   dependencies?: ForeignKeyInfo[];
 }
+
+export interface ViewInfo extends SqlObjectInfo {}
+
+export interface ProcedureInfo extends SqlObjectInfo {}
+
+export interface FunctionInfo extends SqlObjectInfo {}
+
+export interface TriggerInfo extends SqlObjectInfo {}
+
 export interface DatabaseInfo {
   tables: TableInfo[];
+  views: ViewInfo[];
+  procedures: ProcedureInfo[];
+  functions: FunctionInfo[];
+  triggers: TriggerInfo[];
 }

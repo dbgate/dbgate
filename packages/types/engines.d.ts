@@ -1,7 +1,7 @@
 import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
-import { DatabaseInfo } from './dbinfo';
+import { DatabaseInfo, NamedObjectInfo } from './dbinfo';
 
 export interface StreamOptions {
   recordset: (columns) => void;
@@ -25,7 +25,15 @@ export interface EngineDriver {
     }[]
   >;
   analyseFull(pool: any): Promise<DatabaseInfo>;
-  // analyseIncremental(pool: any): Promise<void>;
+  analyseIncremental(pool: any, structure: DatabaseInfo): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   createDumper(): SqlDumper;
+}
+
+export interface DatabaseModification {
+  oldName?: NamedObjectInfo;
+  newName?: NamedObjectInfo;
+  objectId: string;
+  action: 'add' | 'remove' | 'change';
+  objectTypeField: keyof DatabaseInfo;
 }

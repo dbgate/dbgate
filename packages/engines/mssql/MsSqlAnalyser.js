@@ -1,10 +1,10 @@
 const fp = require('lodash/fp');
 const _ = require('lodash');
-const sql = require('./sql')
+const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
 
-const byTableFilter = table => x => x.pureName == table.pureName && x.schemaName == x.schemaName;
+const byTableFilter = (table) => (x) => x.pureName == table.pureName && x.schemaName == x.schemaName;
 
 function extractPrimaryKeys(table, pkColumns) {
   const filtered = pkColumns.filter(byTableFilter(table));
@@ -18,7 +18,7 @@ function extractPrimaryKeys(table, pkColumns) {
 
 function extractForeignKeys(table, fkColumns) {
   const grouped = _.groupBy(fkColumns.filter(byTableFilter(table)), 'constraintName');
-  return _.keys(grouped).map(constraintName => ({
+  return _.keys(grouped).map((constraintName) => ({
     constraintName,
     constraintType: 'foreignKey',
     ..._.pick(grouped[constraintName][0], [
@@ -32,6 +32,25 @@ function extractForeignKeys(table, fkColumns) {
     ]),
     columns: grouped[constraintName].map(fp.pick(['columnName', 'refColumnName'])),
   }));
+}
+
+function objectTypeToField(type) {
+  switch (type.trim()) {
+    case 'U':
+      return 'tables';
+    case 'V':
+      return 'views';
+    case 'P':
+      return 'procedures';
+    case 'IF':
+    case 'FN':
+    case 'TF':
+      return 'functions';
+    case 'TR':
+      return 'triggers';
+    default:
+      return null;
+  }
 }
 
 /** @returns {import('@dbgate/types').DbType} */
@@ -172,37 +191,102 @@ class MsSqlAnalyser extends DatabaseAnalayser {
     super(pool, driver);
   }
 
-  async createQuery(
-    resFileName,
-    tables = false,
-    views = false,
-    procedures = false,
-    functions = false,
-    triggers = false
-  ) {
+  createQuery(resFileName, filterIdObjects) {
     let res = sql[resFileName];
-    res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
+    if (!this.modifications || !filterIdObjects || this.modifications.length == 0) {
+      res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
+    } else {
+      const filterIds = this.modifications
+        .filter((x) => filterIdObjects.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
+        .map((x) => x.objectId);
+      if (filterIds.length == 0) {
+        res = res.replace('=[OBJECT_ID_CONDITION]', ' = 0');
+      } else {
+        res = res.replace('=[OBJECT_ID_CONDITION]', ` in (${filterIds.join(',')})`);
+      }
+    }
     return res;
   }
-  async runAnalysis() {
-    const tables = await this.driver.query(this.pool, await this.createQuery('tables'));
-    const columns = await this.driver.query(this.pool, await this.createQuery('columns'));
-    const pkColumns = await this.driver.query(this.pool, await this.createQuery('primaryKeys'));
-    const fkColumns = await this.driver.query(this.pool, await this.createQuery('foreignKeys'));
+  async _runAnalysis() {
+    const tables = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
+    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
 
-    this.result.tables = tables.rows.map(table => ({
-      ...table,
-      columns: columns.rows
-        .filter(col => col.objectId == table.objectId)
-        .map(({ isNullable, isIdentity, ...col }) => ({
-          ...col,
-          notNull: !isNullable,
-          autoIncrement: !!isIdentity,
-          commonType: detectType(col),
-        })),
-      primaryKey: extractPrimaryKeys(table, pkColumns.rows),
-      foreignKeys: extractForeignKeys(table, fkColumns.rows),
-    }));
+    return this.mergeAnalyseResult({
+      tables: tables.rows.map((table) => ({
+        ...table,
+        columns: columns.rows
+          .filter((col) => col.objectId == table.objectId)
+          .map(({ isNullable, isIdentity, ...col }) => ({
+            ...col,
+            notNull: !isNullable,
+            autoIncrement: !!isIdentity,
+            commonType: detectType(col),
+          })),
+        primaryKey: extractPrimaryKeys(table, pkColumns.rows),
+        foreignKeys: extractForeignKeys(table, fkColumns.rows),
+      })),
+    });
+  }
+
+  getDeletedObjectsForField(idArray, objectTypeField) {
+    return this.structure[objectTypeField]
+      .filter((x) => !idArray.includes(x.objectId))
+      .map((x) => ({
+        oldName: _.pick(x, ['schemaName', 'pureName']),
+        objectId: x.objectId,
+        action: 'remove',
+        objectTypeField,
+      }));
+  }
+
+  getDeletedObjects(idArray) {
+    return [
+      ...this.getDeletedObjectsForField(idArray, 'tables'),
+      ...this.getDeletedObjectsForField(idArray, 'views'),
+      ...this.getDeletedObjectsForField(idArray, 'procedures'),
+      ...this.getDeletedObjectsForField(idArray, 'functions'),
+      ...this.getDeletedObjectsForField(idArray, 'triggers'),
+    ];
+  }
+
+  async getModifications() {
+    const modificationsQueryData = await this.driver.query(this.pool, this.createQuery('modifications'));
+    // console.log('MOD - SRC', modifications);
+    // console.log(
+    //   'MODs',
+    //   this.structure.tables.map((x) => x.modifyDate)
+    // );
+    const modifications = modificationsQueryData.rows.map((x) => {
+      const { type, objectId, modifyDate, schemaName, pureName } = x;
+      const field = objectTypeToField(type);
+      if (!this.structure[field]) return null;
+      // @ts-ignore
+      const obj = this.structure[field].find((x) => x.objectId == objectId);
+
+      // object not modified
+      if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
+
+      /** @type {import('@dbgate/types').DatabaseModification} */
+      const action = obj
+        ? {
+            newName: { schemaName, pureName },
+            oldName: _.pick(obj, ['schemaName', 'pureName']),
+            action: 'change',
+            objectTypeField: field,
+            objectId,
+          }
+        : {
+            newName: { schemaName, pureName },
+            action: 'add',
+            objectTypeField: field,
+            objectId,
+          };
+      return action;
+    });
+
+    return [..._.compact(modifications), ...this.getDeletedObjects(modificationsQueryData.rows.map((x) => x.objectId))];
   }
 }
 
