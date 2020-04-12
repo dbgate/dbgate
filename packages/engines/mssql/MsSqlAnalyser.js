@@ -208,25 +208,64 @@ class MsSqlAnalyser extends DatabaseAnalayser {
     return res;
   }
   async _runAnalysis() {
-    const tables = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
-    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
-    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    const tablesRows = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
+    const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const fkColumnsRows = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+
+    const sqlCodeRows = await this.driver.query(
+      this.pool,
+      this.createQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers'])
+    );
+    const getCreateSql = (row) =>
+      sqlCodeRows.rows
+        .filter((x) => x.pureName == row.pureName && x.schemaName == row.schemaName)
+        .map((x) => x.codeText)
+        .join('');
+    const viewsRows = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const programmableRows = await this.driver.query(
+      this.pool,
+      this.createQuery('programmables', ['procedures', 'functions'])
+    );
+
+    const tables = tablesRows.rows.map((row) => ({
+      ...row,
+      columns: columnsRows.rows
+        .filter((col) => col.objectId == row.objectId)
+        .map(({ isNullable, isIdentity, ...col }) => ({
+          ...col,
+          notNull: !isNullable,
+          autoIncrement: !!isIdentity,
+          commonType: detectType(col),
+        })),
+      primaryKey: extractPrimaryKeys(row, pkColumnsRows.rows),
+      foreignKeys: extractForeignKeys(row, fkColumnsRows.rows),
+    }));
+
+    const views = viewsRows.rows.map((row) => ({
+      ...row,
+      createSql: getCreateSql(row),
+    }));
+
+    const procedures = programmableRows.rows
+      .filter((x) => x.sqlObjectType.trim() == 'P')
+      .map((row) => ({
+        ...row,
+        createSql: getCreateSql(row),
+      }));
+
+    const functions = programmableRows.rows
+      .filter((x) => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
+      .map((row) => ({
+        ...row,
+        createSql: getCreateSql(row),
+      }));
 
     return this.mergeAnalyseResult({
-      tables: tables.rows.map((table) => ({
-        ...table,
-        columns: columns.rows
-          .filter((col) => col.objectId == table.objectId)
-          .map(({ isNullable, isIdentity, ...col }) => ({
-            ...col,
-            notNull: !isNullable,
-            autoIncrement: !!isIdentity,
-            commonType: detectType(col),
-          })),
-        primaryKey: extractPrimaryKeys(table, pkColumns.rows),
-        foreignKeys: extractForeignKeys(table, fkColumns.rows),
-      })),
+      tables,
+      views,
+      procedures,
+      functions,
     });
   }
 

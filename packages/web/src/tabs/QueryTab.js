@@ -57,6 +57,8 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
 
   const handleExecute = async () => {
     setExecuteNumber((num) => num + 1);
+    const selectedText = editorRef.current.editor.getSelectedText();
+
     let sesid = sessionId;
     if (!sesid) {
       const resp = await axios.post('sessions/create', {
@@ -68,7 +70,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
     }
     await axios.post('sessions/execute-query', {
       sesid,
-      sql: queryText,
+      sql: selectedText || queryText,
     });
   };
 
@@ -99,7 +101,11 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
         />
         <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
           <TabPage label="Messages" key="messages">
-            <SessionMessagesView sessionId={sessionId} onMessageClick={handleMesageClick} executeNumber={executeNumber} />
+            <SessionMessagesView
+              sessionId={sessionId}
+              onMessageClick={handleMesageClick}
+              executeNumber={executeNumber}
+            />
           </TabPage>
         </ResultTabs>
       </VerticalSplitter>

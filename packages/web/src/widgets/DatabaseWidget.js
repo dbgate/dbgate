@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 import useFetch from '../utility/useFetch';
 import { AppObjectList } from '../appobj/AppObjectList';
@@ -9,6 +10,7 @@ import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalStat
 import tableAppObject from '../appobj/tableAppObject';
 import theme from '../theme';
 import InlineButton from './InlineButton';
+import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -46,7 +48,7 @@ const Input = styled.input`
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
-  const handleDatabaseClick = database => {
+  const handleDatabaseClick = (database) => {
     setDb({
       ...database,
       connection: data,
@@ -59,7 +61,7 @@ function SubDatabaseList({ data }) {
   });
   return (
     <AppObjectList
-      list={(databases || []).map(db => ({ ...db, connection: data }))}
+      list={(databases || []).map((db) => ({ ...db, connection: data }))}
       makeAppObj={databaseAppObject({ boldCurrentDatabase: true })}
       onObjectClick={handleDatabaseClick}
     />
@@ -75,7 +77,7 @@ function ConnectionList() {
   return (
     <>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search connection" value={filter} onChange={e => setFilter(e.target.value)} />
+        <Input type="text" placeholder="Search connection" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <InlineButton>Refresh</InlineButton>
       </SearchBoxWrapper>
 
@@ -96,8 +98,13 @@ function SqlObjectList({ conid, database }) {
     url: `database-connections/list-objects?conid=${conid}&database=${database}`,
     reloadTrigger: `database-structure-changed-${conid}-${database}`,
   });
-  const { tables } = objects || {};
+
   const [filter, setFilter] = React.useState('');
+  const objectList = _.flatten(
+    ['tables', 'views'].map((objectTypeField) =>
+      ((objects || {})[objectTypeField] || []).map((obj) => ({ ...obj, objectTypeField }))
+    )
+  );
   return (
     <>
       <SearchBoxWrapper>
@@ -105,15 +112,15 @@ function SqlObjectList({ conid, database }) {
           type="text"
           placeholder="Search tables or objects"
           value={filter}
-          onChange={e => setFilter(e.target.value)}
+          onChange={(e) => setFilter(e.target.value)}
         />
         <InlineButton>Refresh</InlineButton>
       </SearchBoxWrapper>
       <InnerContainer>
         <AppObjectList
-          list={(tables || []).map(x => ({ ...x, conid, database }))}
-          makeAppObj={tableAppObject()}
-          groupFunc={appobj => 'Tables'}
+          list={objectList.map((x) => ({ ...x, conid, database }))}
+          makeAppObj={databaseObjectAppObject()}
+          groupFunc={(appobj) => appobj.groupTitle}
           filter={filter}
         />
       </InnerContainer>

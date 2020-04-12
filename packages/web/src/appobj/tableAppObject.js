@@ -58,9 +58,10 @@ const tableAppObject = () => ({ conid, database, pureName, schemaName }, { setOp
       database,
     });
   };
-  const matcher = filter => filterName(filter, pureName);
+  const matcher = (filter) => filterName(filter, pureName);
+  const groupTitle = 'Tables';
 
-  return { title, key, Icon, Menu, onClick, matcher };
+  return { title, key, Icon, Menu, onClick, matcher, groupTitle };
 };
 
 export default tableAppObject;
