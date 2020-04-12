@@ -109,11 +109,11 @@ const driver = {
   },
   async analyseFull(pool) {
     const analyser = new MsSqlAnalyser(pool, this);
-    return await analyser.fullAnalysis();
+    return analyser.fullAnalysis();
   },
   async analyseIncremental(pool, structure) {
     const analyser = new MsSqlAnalyser(pool, this);
-    return await analyser.incrementalAnalysis(structure);
+    return analyser.incrementalAnalysis(structure);
   },
   createDumper() {
     return new MsSqlDumper(this);

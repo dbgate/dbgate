@@ -15,25 +15,27 @@ class MySqlAnalyser extends DatabaseAnalayser {
     res = res.replace('#DATABASE#', this.pool._database_name);
     return res;
   }
-  async runAnalysis() {
+  async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tables'));
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
     //   const pkColumns = await this.driver.query(this.pool, this.createQuery('primary_keys.sql'));
     //   const fkColumns = await this.driver.query(this.pool, this.createQuery('foreign_keys.sql'));
 
-    this.result.tables = tables.rows.map((table) => ({
-      ...table,
-      columns: columns.rows
-        .filter((col) => col.pureName == table.pureName)
-        .map(({ isNullable, extra, ...col }) => ({
-          ...col,
-          notNull: !isNullable,
-          autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
-        })),
-      foreignKeys: [],
-      // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
-      // foreignKeys: extractForeignKeys(table, fkColumns.rows),
-    }));
+    return this.mergeAnalyseResult({
+      tables: tables.rows.map((table) => ({
+        ...table,
+        columns: columns.rows
+          .filter((col) => col.pureName == table.pureName)
+          .map(({ isNullable, extra, ...col }) => ({
+            ...col,
+            notNull: !isNullable,
+            autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
+          })),
+        foreignKeys: [],
+        // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
+        // foreignKeys: extractForeignKeys(table, fkColumns.rows),
+      })),
+    });
   }
 }
 

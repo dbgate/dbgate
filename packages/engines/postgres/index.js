@@ -29,8 +29,11 @@ const driver = {
   },
   async analyseFull(pool) {
     const analyser = new PostgreAnalyser(pool, this);
-    await analyser.runAnalysis();
-    return analyser.result;
+    return analyser.fullAnalysis();
+  },
+  async analyseIncremental(pool, structure) {
+    const analyser = new PostgreAnalyser(pool, this);
+    return analyser.incrementalAnalysis(structure);
   },
   createDumper() {
     return new PostgreDumper(this);

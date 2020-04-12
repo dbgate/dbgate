@@ -1,4 +1,4 @@
-import { DbType } from './DbType';
+import { DbType } from './dbtypes';
 
 export interface NamedObjectInfo {
   pureName: string;

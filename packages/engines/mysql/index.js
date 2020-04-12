@@ -42,8 +42,11 @@ const driver = {
   },
   async analyseFull(pool) {
     const analyser = new MySqlAnalyser(pool, this);
-    await analyser.runAnalysis();
-    return analyser.result;
+    return analyser.fullAnalysis();
+  },
+  async analyseIncremental(pool, structure) {
+    const analyser = new MySqlAnalyser(pool, this);
+    return analyser.incrementalAnalysis(structure);
   },
   async listDatabases(connection) {
     const { rows } = await this.query(connection, "show databases");

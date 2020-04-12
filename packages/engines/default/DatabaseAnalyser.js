@@ -21,9 +21,9 @@ class DatabaseAnalyser {
 
   /** @returns {Promise<import('@dbgate/types').DatabaseModification[]>} */
   async getModifications() {
-    if (this.structure != null) throw new Error('DatabaseAnalyse.getModifications - structure must not be filled');
+    if (this.structure == null) throw new Error('DatabaseAnalyse.getModifications - structure must be filled');
 
-    return [];
+    return null;
   }
 
   async fullAnalysis() {
@@ -34,6 +34,11 @@ class DatabaseAnalyser {
     this.structure = structure;
 
     this.modifications = await this.getModifications();
+    if (this.modifications == null) {
+      // modifications not implemented, perform full analysis
+      this.structure = null;
+      return this._runAnalysis();
+    }
     if (this.modifications.length == 0) return null;
     console.log('DB modifications detected:', this.modifications);
     return this._runAnalysis();
