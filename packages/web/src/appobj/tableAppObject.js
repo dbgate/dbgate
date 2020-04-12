@@ -2,7 +2,7 @@ import React from 'react';
 import { TableIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
-import getConnectionInfo from '../utility/getConnectionInfo';
+import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from '@dbgate/datalib';
 

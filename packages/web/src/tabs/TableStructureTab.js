@@ -1,13 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import theme from '../theme';
-import useFetch from '../utility/useFetch';
 import ObjectListControl from '../utility/ObjectListControl';
 import { TableColumn } from '../utility/TableControl';
 import columnAppObject from '../appobj/columnAppObject';
 import constraintAppObject from '../appobj/constraintAppObject';
-import useTableInfo from '../utility/useTableInfo';
+import { useTableInfo } from '../utility/metadataLoaders';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -33,7 +31,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
           fieldName="notNull"
           header="Not NULL"
           sortable={true}
-          formatter={row => (row.notNull ? 'YES' : 'NO')}
+          formatter={(row) => (row.notNull ? 'YES' : 'NO')}
         />
         <TableColumn fieldName="dataType" header="Data Type" sortable={true} />
         <TableColumn fieldName="defaultValue" header="Default value" sortable={true} />
@@ -41,14 +39,14 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
           fieldName="isSparse"
           header="Is Sparse"
           sortable={true}
-          formatter={row => (row.isSparse ? 'YES' : 'NO')}
+          formatter={(row) => (row.isSparse ? 'YES' : 'NO')}
         />
         <TableColumn fieldName="computedExpression" header="Computed Expression" sortable={true} />
         <TableColumn
           fieldName="isPersisted"
           header="Is Persisted"
           sortable={true}
-          formatter={row => (row.isPersisted ? 'YES' : 'NO')}
+          formatter={(row) => (row.isPersisted ? 'YES' : 'NO')}
         />
         {/* {_.includes(dbCaps.columnListOptionalColumns, 'referencedTableNamesFormatted') && (
           <TableColumn fieldName="referencedTableNamesFormatted" header="References" sortable={true} />
@@ -80,7 +78,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         <TableColumn
           fieldName="columns"
           header="Columns"
-          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+          formatter={(row) => row.columns.map((x) => x.columnName).join(', ')}
         />
       </ObjectListControl>
 
@@ -88,13 +86,13 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         <TableColumn
           fieldName="baseColumns"
           header="Base columns"
-          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+          formatter={(row) => row.columns.map((x) => x.columnName).join(', ')}
         />
-        <TableColumn fieldName="refTable" header="Referenced table" formatter={row => row.refTableName} />
+        <TableColumn fieldName="refTable" header="Referenced table" formatter={(row) => row.refTableName} />
         <TableColumn
           fieldName="refColumns"
           header="Referenced columns"
-          formatter={row => row.columns.map(x => x.refColumnName).join(', ')}
+          formatter={(row) => row.columns.map((x) => x.refColumnName).join(', ')}
         />
         <TableColumn fieldName="updateAction" header="ON UPDATE" />
         <TableColumn fieldName="deleteAction" header="ON DELETE" />
@@ -104,13 +102,13 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         <TableColumn
           fieldName="baseColumns"
           header="Base columns"
-          formatter={row => row.columns.map(x => x.columnName).join(', ')}
+          formatter={(row) => row.columns.map((x) => x.columnName).join(', ')}
         />
-        <TableColumn fieldName="baseTable" header="Base table" formatter={row => row.pureName} />
+        <TableColumn fieldName="baseTable" header="Base table" formatter={(row) => row.pureName} />
         <TableColumn
           fieldName="refColumns"
           header="Referenced columns"
-          formatter={row => row.columns.map(x => x.refColumnName).join(', ')}
+          formatter={(row) => row.columns.map((x) => x.refColumnName).join(', ')}
         />
         <TableColumn fieldName="updateAction" header="ON UPDATE" />
         <TableColumn fieldName="deleteAction" header="ON DELETE" />

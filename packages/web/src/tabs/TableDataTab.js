@@ -4,10 +4,8 @@ import styled from 'styled-components';
 import theme from '../theme';
 import DataGrid from '../datagrid/DataGrid';
 import { TableGridDisplay, createGridConfig, createGridCache, createChangeSet } from '@dbgate/datalib';
-import useTableInfo from '../utility/useTableInfo';
-import useConnectionInfo from '../utility/useConnectionInfo';
+import { useTableInfo, useConnectionInfo, getTableInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
-import getTableInfo from '../utility/getTableInfo';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
@@ -26,7 +24,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   const display = React.useMemo(
     () =>
       tableInfo && connection
-        ? new TableGridDisplay(tableInfo, engines(connection), config, setConfig, cache, setCache, name =>
+        ? new TableGridDisplay(tableInfo, engines(connection), config, setConfig, cache, setCache, (name) =>
             getTableInfo({ conid, database, ...name })
           )
         : null,

@@ -1,7 +1,6 @@
 import React from 'react';
 import engines from '@dbgate/engines';
-import useTableInfo from '../utility/useTableInfo';
-import useConnectionInfo from '../utility/useConnectionInfo';
+import { useTableInfo, useConnectionInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 
 export default function TableCreateScriptTab({ conid, database, schemaName, pureName }) {

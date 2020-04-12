@@ -4,14 +4,11 @@ import styled from 'styled-components';
 import theme from '../theme';
 import DataGrid from '../datagrid/DataGrid';
 import { ViewGridDisplay, createGridConfig, createGridCache, createChangeSet } from '@dbgate/datalib';
-import useTableInfo from '../utility/useTableInfo';
-import useConnectionInfo from '../utility/useConnectionInfo';
+import { useConnectionInfo, useViewInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
-import getTableInfo from '../utility/getTableInfo';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
-import useViewInfo from '../utility/useViewInfo';
 
 export default function ViewDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
@@ -26,9 +23,8 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
 
   const display = React.useMemo(
     () =>
-    viewInfo && connection
-        ? new ViewGridDisplay(viewInfo, engines(connection), config, setConfig, cache, setCache,
-          )
+      viewInfo && connection
+        ? new ViewGridDisplay(viewInfo, engines(connection), config, setConfig, cache, setCache)
         : null,
     [viewInfo, connection, config, cache]
   );

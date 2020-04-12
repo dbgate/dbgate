@@ -1,7 +1,6 @@
 import React from 'react';
-import useConnectionInfo from '../utility/useConnectionInfo';
+import { useConnectionInfo, useViewInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
-import useViewInfo from '../utility/useViewInfo';
 
 export default function ViewCreateScriptTab({ conid, database, schemaName, pureName }) {
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });

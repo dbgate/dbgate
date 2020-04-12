@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import axios from '../utility/axios';
-import useConnectionInfo from '../utility/useConnectionInfo';
+import { useConnectionInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';

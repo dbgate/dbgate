@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import useStorage from './useStorage';
-import useConnectionInfo from './useConnectionInfo';
+import { useConnectionInfo } from './metadataLoaders';
 import usePrevious from './usePrevious';
 
 function createGlobalState(defaultValue) {
@@ -50,7 +50,7 @@ const [CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabaseCore] =
 function useSetCurrentDatabase() {
   const setDb = useSetCurrentDatabaseCore();
   const db = useCurrentDatabase();
-  return value => {
+  return (value) => {
     if (_.get(db, 'name') !== _.get(value, 'name') || _.get(db, 'connection._id') != _.get(value, 'connection._id')) {
       setDb(value);
     }
