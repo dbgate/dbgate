@@ -12,6 +12,7 @@ export function cacheSet(key, value, reloadTrigger) {
     cachedKeysByReloadTrigger[reloadTrigger] = [];
   }
   cachedKeysByReloadTrigger[reloadTrigger].push(key);
+  delete cachedPromisesByKey[key];
 }
 
 export function cacheClean(reloadTrigger) {
