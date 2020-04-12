@@ -39,14 +39,14 @@ module.exports = {
     } else {
       res = await this.datastore.insert(connection);
     }
-    socket.emit('connection-list-changed');
+    socket.emitChanged('connection-list-changed');
     return res;
   },
 
   delete_meta: 'post',
   async delete(connection) {
     const res = await this.datastore.remove(_.pick(connection, '_id'));
-    socket.emit('connection-list-changed');
+    socket.emitChanged('connection-list-changed');
     return res;
   },
 

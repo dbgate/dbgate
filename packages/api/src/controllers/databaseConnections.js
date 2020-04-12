@@ -13,7 +13,7 @@ module.exports = {
     const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
-    socket.emit(`database-structure-changed-${conid}-${database}`);
+    socket.emitChanged(`database-structure-changed-${conid}-${database}`);
   },
   handle_error(conid, database, props) {
     const { error } = props;

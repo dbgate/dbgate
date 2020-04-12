@@ -11,4 +11,9 @@ module.exports = {
     console.log('EMIT:', message, data);
     socket.emit(message, data);
   },
+  emitChanged(key) {
+    console.log('EMIT_CHANGED:', key);
+    socket.emit(key);
+    socket.emit('clean-cache', key);
+  }
 };

@@ -1,5 +1,7 @@
 import useFetch from './useFetch';
 import axios from './axios';
+import { cacheGet, cacheSet, getCachedPromise } from './cache';
+import stableStringify from 'json-stable-stringify';
 
 const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
   url: 'metadata/table-info',
@@ -9,21 +11,34 @@ const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
 
 async function getCore(loader, args) {
   const { url, params, reloadTrigger } = loader(args);
-  const resp = await axios.request({
-    method: 'get',
-    url,
-    params,
-  });
-  return resp.data;
+  const key = stableStringify({ url, ...params });
+
+  async function doLoad() {
+    const resp = await axios.request({
+      method: 'get',
+      url,
+      params,
+    });
+    return resp.data;
+  }
+
+  const fromCache = cacheGet(key);
+  if (fromCache) return fromCache;
+  const res = getCachedPromise(key, doLoad);
+
+  cacheSet(key, res, reloadTrigger);
+  return res;
 }
 
 function useCore(loader, args) {
   const { url, params, reloadTrigger } = loader(args);
+  const cacheKey = stableStringify({ url, ...params });
 
   const res = useFetch({
     url,
     params,
     reloadTrigger,
+    cacheKey,
   });
 
   return res;

@@ -9,7 +9,7 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.databases = databases;
-    socket.emit(`database-list-changed-${conid}`);
+    socket.emitChanged(`database-list-changed-${conid}`);
   },
   handle_error(conid, { error }) {
     console.log(`Error in server connection ${conid}: ${error}`);

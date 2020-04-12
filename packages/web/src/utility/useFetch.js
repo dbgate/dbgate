@@ -3,6 +3,7 @@ import _ from 'lodash';
 import axios from './axios';
 import useSocket from './SocketProvider';
 import stableStringify from 'json-stable-stringify';
+import { getCachedPromise, cacheGet, cacheSet } from './cache';
 
 export default function useFetch({
   url,
@@ -10,6 +11,7 @@ export default function useFetch({
   params = undefined,
   defaultValue = undefined,
   reloadTrigger = undefined,
+  cacheKey = undefined,
   ...config
 }) {
   const [value, setValue] = React.useState([defaultValue, []]);
@@ -23,14 +25,27 @@ export default function useFetch({
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter];
 
   async function loadValue(loadedIndicators) {
-    const resp = await axios.request({
-      method: 'get',
-      params,
-      url,
-      data,
-      ...config,
-    });
-    setValue([resp.data, loadedIndicators]);
+    async function doLoad() {
+      const resp = await axios.request({
+        method: 'get',
+        params,
+        url,
+        data,
+        ...config,
+      });
+      return resp.data;
+    }
+
+    if (cacheKey) {
+      const fromCache = cacheGet(cacheKey);
+      if (fromCache) return fromCache;
+      const res = await getCachedPromise(cacheKey, doLoad);
+      setValue([res, loadedIndicators]);
+      cacheSet(cacheKey, res, reloadTrigger);
+    } else {
+      const res = await doLoad();
+      setValue([res, loadedIndicators]);
+    }
   }
 
   // React.useEffect(() => {
