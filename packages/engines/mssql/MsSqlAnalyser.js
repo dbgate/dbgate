@@ -227,6 +227,7 @@ class MsSqlAnalyser extends DatabaseAnalayser {
       this.pool,
       this.createQuery('programmables', ['procedures', 'functions'])
     );
+    const viewColumnRows = await this.driver.query(this.pool, this.createQuery('viewColumns', ['views']));
 
     const tables = tablesRows.rows.map((row) => ({
       ...row,
@@ -245,6 +246,14 @@ class MsSqlAnalyser extends DatabaseAnalayser {
     const views = viewsRows.rows.map((row) => ({
       ...row,
       createSql: getCreateSql(row),
+      columns: viewColumnRows.rows
+        .filter((col) => (col.objectId = row.objectId))
+        .map(({ isNullable, isIdentity, ...col }) => ({
+          ...col,
+          notNull: !isNullable,
+          autoIncrement: !!isIdentity,
+          commonType: detectType(col),
+        })),
     }));
 
     const procedures = programmableRows.rows

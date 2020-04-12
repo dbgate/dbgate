@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver, NamedObjectInfo } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
-import { Select, Expression } from '@dbgate/sqltree';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
+import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -46,12 +46,8 @@ export abstract class GridDisplay {
     protected setConfig: (config: GridConfig) => void,
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
-    protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>,
     public driver?: EngineDriver
   ) {}
-  getPageQuery(offset: number, count: number): string {
-    return null;
-  }
   columns: DisplayColumn[];
   baseTable?: TableInfo;
   changeSetKeyFields: string[] = null;
@@ -113,180 +109,11 @@ export abstract class GridDisplay {
     return (this.config.hiddenColumns || []).map((x) => _.findIndex(this.columns, (y) => y.uniqueName == x));
   }
 
-  enrichExpandedColumns(list: DisplayColumn[]): DisplayColumn[] {
-    const res = [];
-    for (const item of list) {
-      res.push(item);
-      if (this.isExpandedColumn(item.uniqueName)) res.push(...this.getExpandedColumns(item));
-    }
-    return res;
-  }
-
-  getExpandedColumns(column: DisplayColumn) {
-    const table = this.cache.tables[column.uniqueName];
-    if (table) {
-      return this.enrichExpandedColumns(this.getDisplayColumns(table, column.uniquePath));
-    } else {
-      // load expanded columns
-      this.requireFkTarget(column);
-    }
-    return [];
-  }
-
-  requireFkTarget(column: DisplayColumn) {
-    const { uniqueName, foreignKey } = column;
-    this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then((table) => {
-      this.setCache((cache) => ({
-        ...cache,
-        tables: {
-          ...cache.tables,
-          [uniqueName]: table,
-        },
-      }));
-    });
-  }
-
   isColumnChecked(column: DisplayColumn) {
     // console.log('isColumnChecked', column, this.config.hiddenColumns);
     return column.uniquePath.length == 1
       ? !this.config.hiddenColumns.includes(column.uniqueName)
       : this.config.addedColumns.includes(column.uniqueName);
-  }
-
-  getDisplayColumn(table: TableInfo, col: ColumnInfo, parentPath: string[]) {
-    const uniquePath = [...parentPath, col.columnName];
-    const uniqueName = uniquePath.join('.');
-    // console.log('this.config.addedColumns', this.config.addedColumns, uniquePath);
-    return {
-      ...col,
-      pureName: table.pureName,
-      schemaName: table.schemaName,
-      headerText: uniquePath.length == 1 ? col.columnName : `${table.pureName}.${col.columnName}`,
-      uniqueName,
-      uniquePath,
-      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find((x) => x.columnName == col.columnName),
-      foreignKey:
-        table.foreignKeys &&
-        table.foreignKeys.find((fk) => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
-    };
-  }
-
-  addAddedColumnsToSelect(
-    select: Select,
-    columns: DisplayColumn[],
-    parentAlias: string,
-    displayedColumnInfo: DisplayedColumnInfo
-  ): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
-    for (const column of columns) {
-      if (this.config.addedColumns.includes(column.uniqueName)) {
-        select.columns.push({
-          exprType: 'column',
-          columnName: column.columnName,
-          alias: column.uniqueName,
-          source: { name: column, alias: parentAlias },
-        });
-        displayedColumnInfo[column.uniqueName] = {
-          ...column,
-          sourceAlias: parentAlias,
-        };
-        res = 'refAdded';
-      }
-    }
-    return res;
-  }
-
-  addJoinsFromExpandedColumns(
-    select: Select,
-    columns: DisplayColumn[],
-    parentAlias: string,
-    columnSources
-  ): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
-    for (const column of columns) {
-      if (this.isExpandedColumn(column.uniqueName)) {
-        const table = this.cache.tables[column.uniqueName];
-        if (table) {
-          const childAlias = `${column.uniqueName}_ref`;
-          const subcolumns = this.getDisplayColumns(table, column.uniquePath);
-          const tableAction = combineReferenceActions(
-            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources),
-            this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)
-          );
-
-          if (tableAction == 'refAdded') {
-            this.addReferenceToSelect(select, parentAlias, column);
-            res = 'refAdded';
-          }
-          if (tableAction == 'loadRequired') {
-            return 'loadRequired';
-          }
-        } else {
-          this.requireFkTarget(column);
-          res = 'loadRequired';
-        }
-      }
-    }
-    return res;
-    // const addedColumns = this.getGridColumns().filter(x=>x.)
-  }
-
-  addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
-    const childAlias = `${column.uniqueName}_ref`;
-    if ((select.from.relations || []).find((x) => x.alias == childAlias)) return;
-    const table = this.cache.tables[column.uniqueName];
-    select.from.relations = [
-      ...(select.from.relations || []),
-      {
-        joinType: 'LEFT JOIN',
-        name: table,
-        alias: childAlias,
-        conditions: [
-          {
-            conditionType: 'binary',
-            operator: '=',
-            left: {
-              exprType: 'column',
-              columnName: column.columnName,
-              source: { name: column, alias: parentAlias },
-            },
-            right: {
-              exprType: 'column',
-              columnName: table.primaryKey.columns[0].columnName,
-              source: { name: table, alias: childAlias },
-            },
-          },
-        ],
-      },
-    ];
-  }
-
-  addHintsToSelect(select: Select): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
-    for (const column of this.getGridColumns()) {
-      if (column.foreignKey) {
-        const table = this.cache.tables[column.uniqueName];
-        if (table) {
-          const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
-          if (hintColumn) {
-            const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
-            this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
-            const childAlias = `${column.uniqueName}_ref`;
-            select.columns.push({
-              exprType: 'column',
-              columnName: hintColumn.columnName,
-              alias: `hint_${column.uniqueName}`,
-              source: { alias: childAlias },
-            });
-            res = 'refAdded';
-          }
-        } else {
-          this.requireFkTarget(column);
-          res = 'loadRequired';
-        }
-      }
-    }
-    return res;
   }
 
   applyFilterOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
@@ -328,20 +155,8 @@ export abstract class GridDisplay {
     }
   }
 
-  getDisplayColumns(table: TableInfo, parentPath: string[]) {
-    return (
-      table?.columns
-        ?.map((col) => this.getDisplayColumn(table, col, parentPath))
-        ?.map((col) => ({
-          ...col,
-          isChecked: this.isColumnChecked(col),
-          hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
-        })) || []
-    );
-  }
-
   getColumns(columnFilter) {
-    return this.enrichExpandedColumns(this.columns.filter((col) => filterName(columnFilter, col.columnName)));
+    return this.columns.filter((col) => filterName(columnFilter, col.columnName));
   }
 
   getGridColumns() {
@@ -420,5 +235,55 @@ export abstract class GridDisplay {
       insertedRowIndex,
       condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
+  }
+
+  createSelect(): Select {
+    return null;
+  }
+
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): ReferenceActionResult {
+    return 'noAction';
+  }
+
+  createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[]) {
+    if (!columns) return null;
+    const orderColumnName = columns[0].columnName;
+    const select: Select = {
+      commandType: 'select',
+      from: { name, alias: 'basetbl' },
+      columns: columns.map((col) => ({
+        exprType: 'column',
+        alias: col.columnName,
+        source: { alias: 'basetbl' },
+        ...col,
+      })),
+      orderBy: [
+        {
+          exprType: 'column',
+          columnName: orderColumnName,
+          direction: 'ASC',
+        },
+      ],
+    };
+    const displayedColumnInfo = _.keyBy(
+      this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
+      'uniqueName'
+    );
+    const action = this.processReferences(select, displayedColumnInfo)
+    this.applyFilterOnSelect(select, displayedColumnInfo);
+    this.applySortOnSelect(select, displayedColumnInfo);
+    if (action == 'loadRequired') {
+      return null;
+    }
+    return select;
+  }
+
+  getPageQuery(offset: number, count: number) {
+    const select = this.createSelect();
+    if (!select) return null;
+    if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
+    else if (this.driver.dialect.limitSelect) select.topRecords = count;
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
   }
 }

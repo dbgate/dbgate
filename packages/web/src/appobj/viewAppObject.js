@@ -6,58 +6,54 @@ import getConnectionInfo from '../utility/getConnectionInfo';
 import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from '@dbgate/datalib';
 
-// async function openTableDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
-//   const connection = await getConnectionInfo(conid);
-//   const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
-//     schemaName,
-//     pureName,
-//   })}`;
+async function openViewDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
+  const connection = await getConnectionInfo(conid);
+  const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
+    schemaName,
+    pureName,
+  })}`;
 
-//   openNewTab(setOpenedTabs, {
-//     title: pureName,
-//     tooltip,
-//     icon: 'table2.svg',
-//     tabComponent,
-//     props: {
-//       schemaName,
-//       pureName,
-//       conid,
-//       database,
-//     },
-//   });
-// }
+  openNewTab(setOpenedTabs, {
+    title: pureName,
+    tooltip,
+    icon: 'view2.svg',
+    tabComponent,
+    props: {
+      schemaName,
+      pureName,
+      conid,
+      database,
+    },
+  });
+}
 
-// function Menu({ data, makeAppObj, setOpenedTabs }) {
-//   const handleOpenData = () => {
-//     openTableDetail(setOpenedTabs, 'TableDataTab', data);
-//   };
-//   const handleOpenStructure = () => {
-//     openTableDetail(setOpenedTabs, 'TableStructureTab', data);
-//   };
-//   const handleOpenCreateScript = () => {
-//     openTableDetail(setOpenedTabs, 'TableCreateScriptTab', data);
-//   };
-//   return (
-//     <>
-//       <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
-//       <DropDownMenuItem onClick={handleOpenStructure}>Open structure</DropDownMenuItem>
-//       <DropDownMenuItem onClick={handleOpenCreateScript}>Create SQL</DropDownMenuItem>
-//     </>
-//   );
-// }
+function Menu({ data, makeAppObj, setOpenedTabs }) {
+  const handleOpenData = () => {
+    openViewDetail(setOpenedTabs, 'TableDataTab', data);
+  };
+  const handleOpenCreateScript = () => {
+    openViewDetail(setOpenedTabs, 'TableCreateScriptTab', data);
+  };
+  return (
+    <>
+      <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenCreateScript}>Create SQL</DropDownMenuItem>
+    </>
+  );
+}
 
 const viewAppObject = () => ({ conid, database, pureName, schemaName }, { setOpenedTabs }) => {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
   const Icon = ViewIcon;
-  // const onClick = ({ schemaName, pureName }) => {
-  //   openTableDetail(setOpenedTabs, 'TableDataTab', {
-  //     schemaName,
-  //     pureName,
-  //     conid,
-  //     database,
-  //   });
-  // };
+  const onClick = ({ schemaName, pureName }) => {
+    openViewDetail(setOpenedTabs, 'ViewDataTab', {
+      schemaName,
+      pureName,
+      conid,
+      database,
+    });
+  };
   const matcher = (filter) => filterName(filter, pureName);
   const groupTitle = 'Views';
 
@@ -65,7 +61,8 @@ const viewAppObject = () => ({ conid, database, pureName, schemaName }, { setOpe
     title,
     key,
     Icon,
-    // Menu, onClick,
+    Menu,
+    onClick,
     matcher,
     groupTitle,
   };

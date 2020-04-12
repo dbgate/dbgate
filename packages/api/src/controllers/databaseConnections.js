@@ -1,14 +1,8 @@
-const _ = require('lodash');
-const fp = require('lodash/fp');
 const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const DatabaseAnalyser = require('@dbgate/engines/default/DatabaseAnalyser');
-
-function pickObjectNames(array) {
-  return _.sortBy(array, (x) => `${x.schemaName}.${x.pureName}`).map(fp.pick(['pureName', 'schemaName']));
-}
 
 module.exports = {
   /** @type {import('@dbgate/types').OpenedDatabaseConnection[]} */
@@ -60,19 +54,6 @@ module.exports = {
       conn.subprocess.send({ msgid, ...message });
     });
     return promise;
-  },
-
-  listObjects_meta: 'get',
-  async listObjects({ conid, database }) {
-    const opened = await this.ensureOpened(conid, database);
-    const types = ['tables', 'views', 'procedures', 'functions', 'triggers'];
-    return types.reduce(
-      (res, type) => ({
-        ...res,
-        [type]: pickObjectNames(opened.structure[type]),
-      }),
-      {}
-    );
   },
 
   queryData_meta: 'post',

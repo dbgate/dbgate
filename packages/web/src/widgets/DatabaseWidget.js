@@ -95,7 +95,7 @@ function ConnectionList() {
 
 function SqlObjectList({ conid, database }) {
   const objects = useFetch({
-    url: `database-connections/list-objects?conid=${conid}&database=${database}`,
+    url: `metadata/list-objects?conid=${conid}&database=${database}`,
     reloadTrigger: `database-structure-changed-${conid}-${database}`,
   });
 

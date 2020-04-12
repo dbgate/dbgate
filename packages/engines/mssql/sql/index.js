@@ -6,6 +6,7 @@ const modifications = require('./modifications');
 const loadSqlCode = require('./loadSqlCode');
 const views = require('./views');
 const programmables = require('./programmables');
+const viewColumns = require('./viewColumns');
 
 module.exports = {
   columns,
@@ -16,4 +17,5 @@ module.exports = {
   loadSqlCode,
   views,
   programmables,
+  viewColumns,
 };

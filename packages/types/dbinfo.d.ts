@@ -61,7 +61,9 @@ export interface TableInfo extends DatabaseObjectInfo {
   dependencies?: ForeignKeyInfo[];
 }
 
-export interface ViewInfo extends SqlObjectInfo {}
+export interface ViewInfo extends SqlObjectInfo {
+  columns: ColumnInfo[];
+}
 
 export interface ProcedureInfo extends SqlObjectInfo {}
 

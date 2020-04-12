@@ -40,7 +40,7 @@ export function findExistingChangeSetItem(
   changeSet: ChangeSet,
   definition: ChangeSetRowDefinition
 ): [keyof ChangeSet, ChangeSetItem] {
-  if (!changeSet) return ['updates', null];
+  if (!changeSet || !definition) return ['updates', null];
   if (definition.insertedRowIndex != null) {
     return [
       'inserts',
