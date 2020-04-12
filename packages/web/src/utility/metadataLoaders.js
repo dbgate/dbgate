@@ -1,66 +1,65 @@
 import useFetch from './useFetch';
 import axios from './axios';
 
-// /** @returns {import('@dbgate/types').TableInfo} */
-// function makeTableInfo(x) {
-//   return x;
-// }
+const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
+  url: 'metadata/table-info',
+  params: { conid, database, schemaName, pureName },
+  reloadTrigger: `database-structure-changed-${conid}-${database}`,
+});
 
-// const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
-//   url: 'metadata/table-info',
-//   params: { conid, database, schemaName, pureName },
-//   reloadTrigger: `database-structure-changed-${conid}-${database}`,
-//   type: makeTableInfo,
-// });
-
-// function createGet(loader) {
-//   return async (args) => {
-//     const { url, params, reloadTrigger, type } = loader(args);
-//     const resp = await axios.request({
-//       method: 'get',
-//       url,
-//       params,
-//     });
-//     return type(resp.data);
-//   };
-// }
-
-// function createUse(loader) {
-//   return async (args) => {
-//     const { url, params, reloadTrigger, type } = loader(args);
-
-//     const res = useFetch({
-//       url,
-//       params,
-//       reloadTrigger,
-//     });
-//     return type(res);
-//   };
-// }
-
-// export const getTableInfo = createGet(tableInfoLoader);
-// export const useTableInfo = createUse(tableInfoLoader);
-
-export async function getTableInfo({ conid, database, schemaName, pureName }) {
+async function getCore(loader, args) {
+  const { url, params, reloadTrigger } = loader(args);
   const resp = await axios.request({
     method: 'get',
-    url: 'metadata/table-info',
-    params: { conid, database, schemaName, pureName },
+    url,
+    params,
   });
-  /** @type {import('@dbgate/types').TableInfo} */
-  const res = resp.data;
+  return resp.data;
+}
+
+function useCore(loader, args) {
+  const { url, params, reloadTrigger } = loader(args);
+
+  const res = useFetch({
+    url,
+    params,
+    reloadTrigger,
+  });
+
   return res;
 }
 
-export function useTableInfo({ conid, database, schemaName, pureName }) {
-  /** @type {import('@dbgate/types').TableInfo} */
-  const tableInfo = useFetch({
-    url: 'metadata/table-info',
-    params: { conid, database, schemaName, pureName },
-    reloadTrigger: `database-structure-changed-${conid}-${database}`,
-  });
-  return tableInfo;
+/** @returns {Promise<import('@dbgate/types').TableInfo>} */
+export function getTableInfo(args) {
+  return getCore(tableInfoLoader, args);
 }
+
+/** @returns {import('@dbgate/types').TableInfo} */
+export function useTableInfo(args) {
+  return useCore(tableInfoLoader, args);
+}
+// export const useTableInfo = createUse(tableInfoLoader);
+
+// export async function getTableInfo({ conid, database, schemaName, pureName }) {
+//   const resp = await axios.request({
+//     method: 'get',
+//     url: 'metadata/table-info',
+//     params: { conid, database, schemaName, pureName },
+//   });
+//   /** @type {import('@dbgate/types').TableInfo} */
+//   const res = resp.data;
+//   return res;
+// }
+
+// export function useTableInfo({ conid, database, schemaName, pureName }) {
+//   /** @type {import('@dbgate/types').TableInfo} */
+//   const tableInfo = useFetch({
+//     url: 'metadata/table-info',
+//     params: { conid, database, schemaName, pureName },
+//     reloadTrigger: `database-structure-changed-${conid}-${database}`,
+//   });
+//   return tableInfo;
+// }
 
 export function useViewInfo({ conid, database, schemaName, pureName }) {
   /** @type {import('@dbgate/types').ViewInfo} */
