@@ -27,7 +27,7 @@ async function handleConnect(connection) {
   const driver = engines(storedConnection);
   systemConnection = await driverConnect(driver, storedConnection);
   handleFullRefresh();
-  setInterval(handleIncrementalRefresh, 10 * 1000);
+  setInterval(handleIncrementalRefresh, 30 * 1000);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }

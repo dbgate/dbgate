@@ -22,7 +22,10 @@ module.exports = {
     if (!this.openedReaders[jslid]) return Promise.reject();
     return new Promise((resolve, reject) => {
       const { reader } = this.openedReaders[jslid];
-      if (!reader.hasNextLine()) return Promise.resolve(null);
+      if (!reader.hasNextLine()) {
+        resolve(null);
+        return;
+      }
       reader.nextLine((err, line) => {
         this.openedReaders[jslid].readedCount += 1;
         if (err) reject(err);
@@ -66,7 +69,6 @@ module.exports = {
 
   getRows_meta: 'get',
   async getRows({ jslid, offset, limit }) {
-    // console.log('GET ROWS', offset, limit);
     await this.ensureReader(jslid, offset);
     const res = [];
     for (let i = 0; i < limit; i += 1) {

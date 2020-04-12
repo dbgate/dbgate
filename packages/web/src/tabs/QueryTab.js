@@ -10,6 +10,7 @@ import SessionMessagesView from '../query/SessionMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
 import { VerticalSplitter } from '../widgets/Splitter';
+import keycodes from '../utility/keycodes';
 
 // const MainContainer = styled.div``;
 
@@ -27,6 +28,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || '');
   const queryTextRef = React.useRef(queryText);
   const [sessionId, setSessionId] = React.useState(null);
+  const [executeNumber, setExecuteNumber] = React.useState(0);
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
     localStorageKey,
@@ -54,6 +56,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   };
 
   const handleExecute = async () => {
+    setExecuteNumber((num) => num + 1);
     let sesid = sessionId;
     if (!sesid) {
       const resp = await axios.post('sessions/create', {
@@ -69,7 +72,12 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
     });
   };
 
-  const handleKeyDown = () => {};
+  const handleKeyDown = (data, hash, keyString, keyCode, event) => {
+    if (keyCode == keycodes.f5) {
+      event.preventDefault();
+      handleExecute();
+    }
+  };
 
   const handleMesageClick = (message) => {
     // console.log('EDITOR', editorRef.current.editor);
@@ -89,9 +97,9 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
         />
-        <ResultTabs sessionId={sessionId}>
+        <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
           <TabPage label="Messages" key="messages">
-            <SessionMessagesView sessionId={sessionId} onMessageClick={handleMesageClick} />
+            <SessionMessagesView sessionId={sessionId} onMessageClick={handleMesageClick} executeNumber={executeNumber} />
           </TabPage>
         </ResultTabs>
       </VerticalSplitter>

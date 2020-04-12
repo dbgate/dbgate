@@ -75,6 +75,7 @@ export default function MessagesView({ items, onMessageClick }) {
           <StyledHeader>Message</StyledHeader>
           <StyledHeader>Time</StyledHeader>
           <StyledHeader>Delta</StyledHeader>
+          <StyledHeader>Duration</StyledHeader>
           <StyledHeader>Procedure</StyledHeader>
           <StyledHeader>Line</StyledHeader>
         </tr>
@@ -85,6 +86,11 @@ export default function MessagesView({ items, onMessageClick }) {
             <StyledCell>{row.message}</StyledCell>
             <StyledCell>{moment(row.time).format('HH:mm:ss')}</StyledCell>
             <StyledCell>{formatDuration(new Date(row.time).getTime() - time0)}</StyledCell>
+            <StyledCell>
+              {index > 0
+                ? formatDuration(new Date(row.time).getTime() - new Date(items[index - 1].time).getTime())
+                : 'n/a'}
+            </StyledCell>
             <StyledCell>{row.procedure}</StyledCell>
             <StyledCell>{row.line}</StyledCell>
           </StyledRow>

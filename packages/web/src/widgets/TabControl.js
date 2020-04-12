@@ -61,12 +61,16 @@ export function TabPage({ key, label, children }) {
   return children;
 }
 
-export function TabControl({ children }) {
+export function TabControl({ children, activePageIndex = undefined }) {
   const [value, setValue] = React.useState(0);
 
   // const [mountedTabs, setMountedTabs] = React.useState({});
 
   const childrenArray = (_.isArray(children) ? _.flatten(children) : [children]).filter((x) => x);
+
+  React.useEffect(() => {
+    if (activePageIndex != null) setValue(activePageIndex);
+  }, [activePageIndex]);
 
   // // cleanup closed tabs
   // if (_.difference(_.keys(mountedTabs), _.map(childrenArray, 'props.key')).length > 0) {

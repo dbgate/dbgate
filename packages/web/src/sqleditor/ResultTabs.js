@@ -3,7 +3,7 @@ import { TabPage, TabControl } from '../widgets/TabControl';
 import useSocket from '../utility/SocketProvider';
 import JslDataGrid from './JslDataGrid';
 
-export default function ResultTabs({ children, sessionId }) {
+export default function ResultTabs({ children, sessionId, executeNumber }) {
   const socket = useSocket();
   const [resultIds, setResultIds] = React.useState([]);
 
@@ -11,6 +11,10 @@ export default function ResultTabs({ children, sessionId }) {
     const { jslid } = props;
     setResultIds((ids) => [...ids, jslid]);
   };
+
+  React.useEffect(() => {
+    setResultIds([]);
+  }, [executeNumber]);
 
   React.useEffect(() => {
     if (sessionId && socket) {
@@ -22,7 +26,7 @@ export default function ResultTabs({ children, sessionId }) {
   }, [sessionId, socket]);
 
   return (
-    <TabControl>
+    <TabControl activePageIndex={resultIds.length > 0 ? 1 : 0}>
       {children}
       {resultIds.map((jslid, index) => (
         <TabPage label={`Result ${index + 1}`} key={index}>
