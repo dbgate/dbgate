@@ -47,7 +47,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   const editorRef = React.useRef(null);
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
-  const connection = useConnectionInfo(conid);
+  const connection = useConnectionInfo({ conid });
 
   const handleChange = (text) => {
     if (text != null) queryTextRef.current = text;

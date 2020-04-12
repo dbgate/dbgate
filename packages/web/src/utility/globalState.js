@@ -63,7 +63,7 @@ const [OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs] = createStorageState
 export { OpenedTabsProvider, useOpenedTabs, useSetOpenedTabs };
 
 export function useUpdateDatabaseForTab(tabVisible, conid, database) {
-  const connection = useConnectionInfo(conid);
+  const connection = useConnectionInfo({ conid });
   const setDb = useSetCurrentDatabase();
   const previousTabVisible = usePrevious(!!(tabVisible && connection));
 

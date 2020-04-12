@@ -17,7 +17,8 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
-  const connection = useConnectionInfo(conid);
+  const connection = useConnectionInfo({ conid });
+  console.log('GOT CONNECTION', connection);
 
   // usePropsCompare({ tableInfo, connection, config, cache });
 

@@ -17,7 +17,7 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
-  const connection = useConnectionInfo(conid);
+  const connection = useConnectionInfo({ conid });
 
   // usePropsCompare({ tableInfo, connection, config, cache });
 

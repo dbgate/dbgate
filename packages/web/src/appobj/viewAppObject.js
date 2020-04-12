@@ -7,7 +7,7 @@ import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from '@dbgate/datalib';
 
 async function openViewDetail(setOpenedTabs, tabComponent, { schemaName, pureName, conid, database }) {
-  const connection = await getConnectionInfo(conid);
+  const connection = await getConnectionInfo({ conid });
   const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
     schemaName,
     pureName,

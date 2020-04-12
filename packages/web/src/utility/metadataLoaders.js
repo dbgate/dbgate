@@ -9,6 +9,18 @@ const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
 });
 
+const viewInfoLoader = ({ conid, database, schemaName, pureName }) => ({
+  url: 'metadata/view-info',
+  params: { conid, database, schemaName, pureName },
+  reloadTrigger: `database-structure-changed-${conid}-${database}`,
+});
+
+const connectionInfoLoader = ({ conid }) => ({
+  url: 'connections/get',
+  params: { conid },
+  reloadTrigger: 'connection-list-changed',
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -53,55 +65,42 @@ export function getTableInfo(args) {
 export function useTableInfo(args) {
   return useCore(tableInfoLoader, args);
 }
-// export const useTableInfo = createUse(tableInfoLoader);
 
-// export async function getTableInfo({ conid, database, schemaName, pureName }) {
+/** @returns {Promise<import('@dbgate/types').ViewInfo>} */
+export function getViewInfo(args) {
+  return getCore(viewInfoLoader, args);
+}
+
+/** @returns {import('@dbgate/types').ViewInfo} */
+export function useViewInfo(args) {
+  return useCore(viewInfoLoader, args);
+}
+
+/** @returns {Promise<import('@dbgate/types').StoredConnection>} */
+export function getConnectionInfo(args) {
+  return getCore(connectionInfoLoader, args);
+}
+
+/** @returns {import('@dbgate/types').StoredConnection} */
+export function useConnectionInfo(args) {
+  return useCore(connectionInfoLoader, args);
+}
+
+// export function useConnectionInfo(conid) {
+//   /** @type {import('@dbgate/types').StoredConnection} */
+//   const connection = useFetch({
+//     params: { conid },
+//     url: 'connections/get',
+//   });
+//   return connection;
+// }
+// export async function getConnectionInfo(conid) {
 //   const resp = await axios.request({
 //     method: 'get',
-//     url: 'metadata/table-info',
-//     params: { conid, database, schemaName, pureName },
+//     params: { conid },
+//     url: 'connections/get',
 //   });
-//   /** @type {import('@dbgate/types').TableInfo} */
+//   /** @type {import('@dbgate/types').StoredConnection} */
 //   const res = resp.data;
 //   return res;
 // }
-
-// export function useTableInfo({ conid, database, schemaName, pureName }) {
-//   /** @type {import('@dbgate/types').TableInfo} */
-//   const tableInfo = useFetch({
-//     url: 'metadata/table-info',
-//     params: { conid, database, schemaName, pureName },
-//     reloadTrigger: `database-structure-changed-${conid}-${database}`,
-//   });
-//   return tableInfo;
-// }
-
-export function useViewInfo({ conid, database, schemaName, pureName }) {
-  /** @type {import('@dbgate/types').ViewInfo} */
-  const viewInfo = useFetch({
-    url: 'metadata/view-info',
-    params: { conid, database, schemaName, pureName },
-    reloadTrigger: `database-structure-changed-${conid}-${database}`,
-  });
-  return viewInfo;
-}
-
-export function useConnectionInfo(conid) {
-  /** @type {import('@dbgate/types').StoredConnection} */
-  const connection = useFetch({
-    params: { conid },
-    url: 'connections/get',
-  });
-  return connection;
-}
-
-export async function getConnectionInfo(conid) {
-  const resp = await axios.request({
-    method: 'get',
-    params: { conid },
-    url: 'connections/get',
-  });
-  /** @type {import('@dbgate/types').StoredConnection} */
-  const res = resp.data;
-  return res;
-}

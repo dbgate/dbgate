@@ -5,7 +5,7 @@ import SqlEditor from '../sqleditor/SqlEditor';
 
 export default function TableCreateScriptTab({ conid, database, schemaName, pureName }) {
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
-  const connnection = useConnectionInfo(conid);
+  const connnection = useConnectionInfo({ conid });
   if (!connnection || !tableInfo) return null;
   // console.log(tableInfo);
 

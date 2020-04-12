@@ -38,25 +38,18 @@ export default function useFetch({
 
     if (cacheKey) {
       const fromCache = cacheGet(cacheKey);
-      if (fromCache) return fromCache;
-      const res = await getCachedPromise(cacheKey, doLoad);
-      setValue([res, loadedIndicators]);
-      cacheSet(cacheKey, res, reloadTrigger);
+      if (fromCache) {
+        setValue([fromCache, loadedIndicators]);
+      } else {
+        const res = await getCachedPromise(cacheKey, doLoad);
+        cacheSet(cacheKey, res, reloadTrigger);
+        setValue([res, loadedIndicators]);
+      }
     } else {
       const res = await doLoad();
       setValue([res, loadedIndicators]);
     }
   }
-
-  // React.useEffect(() => {
-  //   loadValue(indicators);
-  //   if (reloadTrigger && socket) {
-  //     socket.on(reloadTrigger, handleReload);
-  //     return () => {
-  //       socket.off(reloadTrigger, handleReload);
-  //     };
-  //   }
-  // }, [...indicators, socket]);
 
   React.useEffect(() => {
     loadValue(indicators);
