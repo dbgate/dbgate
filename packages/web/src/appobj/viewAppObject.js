@@ -32,12 +32,12 @@ function Menu({ data, makeAppObj, setOpenedTabs }) {
     openViewDetail(setOpenedTabs, 'TableDataTab', data);
   };
   const handleOpenCreateScript = () => {
-    openViewDetail(setOpenedTabs, 'TableCreateScriptTab', data);
+    openViewDetail(setOpenedTabs, 'ViewCreateScriptTab', data);
   };
   return (
     <>
       <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleOpenCreateScript}>Create SQL</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenCreateScript}>Show CREATE VIEW script</DropDownMenuItem>
     </>
   );
 }

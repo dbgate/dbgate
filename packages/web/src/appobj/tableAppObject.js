@@ -41,7 +41,7 @@ function Menu({ data, makeAppObj, setOpenedTabs }) {
     <>
       <DropDownMenuItem onClick={handleOpenData}>Open data</DropDownMenuItem>
       <DropDownMenuItem onClick={handleOpenStructure}>Open structure</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleOpenCreateScript}>Create SQL</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleOpenCreateScript}>Show CREATE TABLE script</DropDownMenuItem>
     </>
   );
 }

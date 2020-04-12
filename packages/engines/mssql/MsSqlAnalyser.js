@@ -247,7 +247,7 @@ class MsSqlAnalyser extends DatabaseAnalayser {
       ...row,
       createSql: getCreateSql(row),
       columns: viewColumnRows.rows
-        .filter((col) => (col.objectId = row.objectId))
+        .filter((col) => col.objectId == row.objectId)
         .map(({ isNullable, isIdentity, ...col }) => ({
           ...col,
           notNull: !isNullable,
