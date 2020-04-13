@@ -7,10 +7,10 @@ export default function ResultTabs({ children, sessionId, executeNumber }) {
   const socket = useSocket();
   const [resultIds, setResultIds] = React.useState([]);
 
-  const handleResultSet = (props) => {
+  const handleResultSet = React.useCallback((props) => {
     const { jslid } = props;
     setResultIds((ids) => [...ids, jslid]);
-  };
+  }, []);
 
   React.useEffect(() => {
     setResultIds([]);

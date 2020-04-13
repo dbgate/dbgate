@@ -9,6 +9,7 @@ const { jsldir } = require('../utility/directories');
 let systemConnection;
 let storedConnection;
 let afterConnectCallbacks = [];
+let currentHandlers = [];
 
 class StreamHandler {
   constructor() {
@@ -17,6 +18,9 @@ class StreamHandler {
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
     this.info = this.info.bind(this);
+    // use this for cancelling
+    this.stream = null;
+    currentHandlers = [...currentHandlers, this];
   }
 
   closeCurrentStream() {
@@ -44,6 +48,7 @@ class StreamHandler {
   done(result) {
     this.closeCurrentStream();
     process.send({ msgtype: 'done', result });
+    currentHandlers = currentHandlers.filter((x) => x != this);
   }
   info(info) {
     process.send({ msgtype: 'info', info });
@@ -61,6 +66,12 @@ async function handleConnect(connection) {
   afterConnectCallbacks = [];
 }
 
+function handleCancel() {
+  for (const handler of currentHandlers) {
+    if (handler.stream) handler.stream.cancel();
+  }
+}
+
 function waitConnected() {
   if (systemConnection) return Promise.resolve();
   return new Promise((resolve, reject) => {
@@ -73,12 +84,14 @@ async function handleExecuteQuery({ sql }) {
   const driver = engines(storedConnection);
 
   const handler = new StreamHandler();
-  await driver.stream(systemConnection, sql, handler);
+  const stream = await driver.stream(systemConnection, sql, handler);
+  handler.stream = stream;
 }
 
 const messageHandlers = {
   connect: handleConnect,
   executeQuery: handleExecuteQuery,
+  cancel: handleCancel,
 };
 
 async function handleMessage({ msgtype, ...other }) {

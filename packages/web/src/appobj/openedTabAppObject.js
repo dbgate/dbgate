@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import { getIconImage } from '../icons';
 
-const openedTabAppObject = () => ({ tabid, props, selected, icon, title }, { setOpenedTabs }) => {
+const openedTabAppObject = () => ({ tabid, props, selected, icon, title, busy }, { setOpenedTabs }) => {
   const key = tabid;
   const Icon = (props) => getIconImage(icon, props);
   const isBold = !!selected;
@@ -16,7 +16,7 @@ const openedTabAppObject = () => ({ tabid, props, selected, icon, title }, { set
     );
   };
 
-  return { title, key, Icon, isBold, onClick };
+  return { title, key, Icon, isBold, onClick, isBusy: busy };
 };
 
 export default openedTabAppObject;

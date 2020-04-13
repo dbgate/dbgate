@@ -91,7 +91,7 @@ export default function TabsPanel() {
           onClick={(e) => handleTabClick(e, tab.tabid)}
           onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
         >
-          {getIconImage(tab.icon)}
+          {tab.busy ? <i className="fas fa-spinner fa-spin"></i> : getIconImage(tab.icon)}
           <FileNameWrapper>{tab.title}</FileNameWrapper>
           <CloseButton
             className="fas fa-times tabCloseButton"

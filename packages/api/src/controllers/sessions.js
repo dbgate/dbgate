@@ -88,6 +88,16 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  cancel_meta: 'post',
+  async cancel({ sesid }) {
+    const session = this.opened.find((x) => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    session.subprocess.send({ msgtype: 'cancel' });
+    return { state: 'ok' };
+  },
+
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);

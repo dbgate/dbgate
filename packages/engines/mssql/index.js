@@ -58,6 +58,7 @@ const driver = {
       user,
       password,
       database,
+      requestTimeout: 1000 * 3600,
       options: {
         enableArithAbort: true,
       },
@@ -150,6 +151,8 @@ const driver = {
     request.on('done', handleDone);
     request.on('info', handleInfo);
     request.query(sql);
+
+    return request;
   },
   async getVersion(pool) {
     const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];

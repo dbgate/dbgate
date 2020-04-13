@@ -4,24 +4,15 @@ import _ from 'lodash';
 import axios from '../utility/axios';
 import { useConnectionInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
-import { useUpdateDatabaseForTab } from '../utility/globalState';
+import { useUpdateDatabaseForTab, useSetOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
 import SessionMessagesView from '../query/SessionMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
 import { VerticalSplitter } from '../widgets/Splitter';
 import keycodes from '../utility/keycodes';
-
-// const MainContainer = styled.div``;
-
-// const EditorContainer = styled.div`
-//   height: 600px;
-//   position: relative;
-// `;
-
-// const MessagesContainer = styled.div`
-//   height: 200px;
-// `;
+import { changeTab } from '../utility/common';
+import useSocket from '../utility/SocketProvider';
 
 export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript }) {
   const localStorageKey = `sql_${tabid}`;
@@ -29,6 +20,9 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   const queryTextRef = React.useRef(queryText);
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);
+  const setOpenedTabs = useSetOpenedTabs();
+  const socket = useSocket();
+  const [busy, setBusy] = React.useState(false);
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
     localStorageKey,
@@ -43,6 +37,23 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
       window.removeEventListener('beforeunload', saveToStorage);
     };
   }, []);
+
+  const handleSessionDone = React.useCallback(() => {
+    setBusy(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (sessionId && socket) {
+      socket.on(`session-done-${sessionId}`, handleSessionDone);
+      return () => {
+        socket.off(`session-done-${sessionId}`, handleSessionDone);
+      };
+    }
+  }, [sessionId, socket]);
+
+  React.useEffect(() => {
+    changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
+  }, [busy]);
 
   const editorRef = React.useRef(null);
 
@@ -68,9 +79,16 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
       sesid = resp.data.sesid;
       setSessionId(sesid);
     }
+    setBusy(true);
     await axios.post('sessions/execute-query', {
       sesid,
       sql: selectedText || queryText,
+    });
+  };
+
+  const handleCancel = () => {
+    axios.post('sessions/cancel', {
+      sesid: sessionId,
     });
   };
 
@@ -113,7 +131,12 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <QueryToolbar isDatabaseDefined={conid && database} execute={handleExecute} />,
+          <QueryToolbar
+            isDatabaseDefined={conid && database}
+            execute={handleExecute}
+            busy={busy}
+            cancel={handleCancel}
+          />,
           toolbarPortalRef.current
         )}
     </>

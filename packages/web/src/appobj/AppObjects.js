@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import _ from 'lodash'
+import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
@@ -13,12 +13,12 @@ const AppObjectDiv = styled.div`
   }
   cursor: pointer;
   white-space: nowrap;
-  font-weight: ${props => (props.isBold ? 'bold' : 'normal')};
+  font-weight: ${(props) => (props.isBold ? 'bold' : 'normal')};
 `;
 
 const AppObjectSpan = styled.span`
   white-space: nowrap;
-  font-weight: ${props => (props.isBold ? 'bold' : 'normal')};
+  font-weight: ${(props) => (props.isBold ? 'bold' : 'normal')};
 `;
 
 const IconWrap = styled.span`
@@ -33,13 +33,14 @@ export function AppObjectCore({
   makeAppObj,
   onClick,
   isBold,
+  isBusy,
   component = 'div',
   prefix = null,
   ...other
 }) {
   const appObjectParams = useAppObjectParams();
 
-  const handleContextMenu = event => {
+  const handleContextMenu = (event) => {
     if (!Menu) return;
 
     event.preventDefault();
@@ -60,9 +61,7 @@ export function AppObjectCore({
       {...other}
     >
       {prefix}
-      <IconWrap>
-        <Icon />
-      </IconWrap>
+      <IconWrap>{isBusy ? <i className="fas fa-spinner fa-spin"></i> : <Icon />}</IconWrap>
       {title}
     </Component>
   );
