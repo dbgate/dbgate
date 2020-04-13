@@ -77,6 +77,7 @@ export function setChangeSetValue(
   definition: ChangeSetFieldDefinition,
   value: string
 ): ChangeSet {
+  if (!changeSet || !definition) return changeSet;
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'deletes') {
     changeSet = revertChangeSetRowChanges(changeSet, definition);

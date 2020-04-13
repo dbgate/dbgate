@@ -18,7 +18,7 @@ export default function ToolBar({ toolbarPortalRef }) {
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
       <ToolbarButton onClick={modalState.open}>Add connection</ToolbarButton>
-      <ToolbarButton onClick={newQuery}>Query</ToolbarButton>
+      <ToolbarButton onClick={newQuery}>New Query</ToolbarButton>
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>
     </ToolbarContainer>
   );
