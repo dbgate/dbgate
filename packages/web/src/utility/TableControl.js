@@ -1,8 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
-import theme from '../theme';
 
 const Table = styled.table`
   border-collapse: collapse;

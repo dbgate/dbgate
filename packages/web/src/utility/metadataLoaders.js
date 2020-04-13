@@ -21,6 +21,24 @@ const connectionInfoLoader = ({ conid }) => ({
   reloadTrigger: 'connection-list-changed',
 });
 
+const sqlObjectListLoader = ({ conid, database }) => ({
+  url: 'metadata/list-objects',
+  params: { conid, database },
+  reloadTrigger: `database-structure-changed-${conid}-${database}`,
+});
+
+const databaseListLoader = ({ conid }) => ({
+  url: 'server-connections/list-databases',
+  params: { conid },
+  reloadTrigger: `database-list-changed-${conid}`,
+});
+
+const connectionListLoader = () => ({
+  url: 'connections/list',
+  params: {},
+  reloadTrigger: `connection-list-changed`,
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -86,21 +104,23 @@ export function useConnectionInfo(args) {
   return useCore(connectionInfoLoader, args);
 }
 
-// export function useConnectionInfo(conid) {
-//   /** @type {import('@dbgate/types').StoredConnection} */
-//   const connection = useFetch({
-//     params: { conid },
-//     url: 'connections/get',
-//   });
-//   return connection;
-// }
-// export async function getConnectionInfo(conid) {
-//   const resp = await axios.request({
-//     method: 'get',
-//     params: { conid },
-//     url: 'connections/get',
-//   });
-//   /** @type {import('@dbgate/types').StoredConnection} */
-//   const res = resp.data;
-//   return res;
-// }
+export function getSqlObjectList(args) {
+  return getCore(sqlObjectListLoader, args);
+}
+export function useSqlObjectList(args) {
+  return useCore(sqlObjectListLoader, args);
+}
+
+export function getDatabaseList(args) {
+  return getCore(databaseListLoader, args);
+}
+export function useDatabaseList(args) {
+  return useCore(databaseListLoader, args);
+}
+
+export function getConnectionList() {
+  return getCore(connectionListLoader, {});
+}
+export function useConnectionList() {
+  return useCore(connectionListLoader, {});
+}

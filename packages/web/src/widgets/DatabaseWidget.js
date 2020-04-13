@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import useFetch from '../utility/useFetch';
 import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
 import databaseAppObject from '../appobj/databaseAppObject';
@@ -11,6 +10,7 @@ import tableAppObject from '../appobj/tableAppObject';
 import theme from '../theme';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
+import { useSqlObjectList, useDatabaseList, useConnectionList } from '../utility/metadataLoaders';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -55,10 +55,7 @@ function SubDatabaseList({ data }) {
     });
   };
   const { _id } = data;
-  const databases = useFetch({
-    url: `server-connections/list-databases?conid=${_id}`,
-    reloadTrigger: `database-list-changed-${_id}`,
-  });
+  const databases = useDatabaseList({ conid: _id });
   return (
     <AppObjectList
       list={(databases || []).map((db) => ({ ...db, connection: data }))}
@@ -69,10 +66,8 @@ function SubDatabaseList({ data }) {
 }
 
 function ConnectionList() {
-  const connections = useFetch({
-    url: 'connections/list',
-    reloadTrigger: 'connection-list-changed',
-  });
+  const connections = useConnectionList();
+
   const [filter, setFilter] = React.useState('');
   return (
     <>
@@ -94,10 +89,7 @@ function ConnectionList() {
 }
 
 function SqlObjectList({ conid, database }) {
-  const objects = useFetch({
-    url: `metadata/list-objects?conid=${conid}&database=${database}`,
-    reloadTrigger: `database-structure-changed-${conid}-${database}`,
-  });
+  const objects = useSqlObjectList({ conid, database });
 
   const [filter, setFilter] = React.useState('');
   const objectList = _.flatten(

@@ -1,10 +1,7 @@
 import React from 'react';
-import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
-import theme from '../theme';
 import TableControl, { TableColumn } from './TableControl';
 import { AppObjectControl } from '../appobj/AppObjects';
-import columnAppObject from '../appobj/columnAppObject';
 
 const ObjectListWrapper = styled.div`
   margin-bottom: 20px;
