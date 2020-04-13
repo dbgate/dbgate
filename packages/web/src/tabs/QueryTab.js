@@ -23,9 +23,9 @@ import keycodes from '../utility/keycodes';
 //   height: 200px;
 // `;
 
-export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef }) {
+export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript }) {
   const localStorageKey = `sql_${tabid}`;
-  const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || '');
+  const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
   const queryTextRef = React.useRef(queryText);
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);

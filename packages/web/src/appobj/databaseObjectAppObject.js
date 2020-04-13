@@ -44,6 +44,10 @@ const menus = {
       label: 'Show CREATE PROCEDURE script',
       tab: 'SqlObjectCreateScriptTab',
     },
+    {
+      label: 'Show EXECUTE script',
+      tab: 'ExecuteProcedureTab',
+    },
   ],
   functions: [
     {

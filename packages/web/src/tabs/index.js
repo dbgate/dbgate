@@ -4,6 +4,7 @@ import TableStructureTab from './TableStructureTab';
 import TableCreateScriptTab from './TableCreateScriptTab';
 import SqlObjectCreateScriptTab from './SqlObjectCreateScriptTab';
 import QueryTab from './QueryTab';
+import ExecuteProcedureTab from './ExecuteProcedureTab';
 
 export default {
   TableDataTab,
@@ -12,4 +13,5 @@ export default {
   TableCreateScriptTab,
   QueryTab,
   SqlObjectCreateScriptTab,
+  ExecuteProcedureTab,
 };
