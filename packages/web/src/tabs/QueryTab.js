@@ -4,7 +4,7 @@ import _ from 'lodash';
 import axios from '../utility/axios';
 import { useConnectionInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
-import { useUpdateDatabaseForTab, useSetOpenedTabs } from '../utility/globalState';
+import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
 import SessionMessagesView from '../query/SessionMessagesView';
 import { TabPage } from '../widgets/TabControl';
@@ -13,16 +13,20 @@ import { VerticalSplitter } from '../widgets/Splitter';
 import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
+import SaveSqlFileModal from '../modals/SaveSqlFileModal';
+import useModalState from '../modals/useModalState';
 
-export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript }) {
-  const localStorageKey = `sql_${tabid}`;
+export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript, storageKey }) {
+  const localStorageKey = storageKey || `sql_${tabid}`;
   const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
   const queryTextRef = React.useRef(queryText);
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
+  const openedTabs = useOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
+  const saveSqlFileModalState = useModalState();
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
     localStorageKey,
@@ -50,6 +54,17 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
       };
     }
   }, [sessionId, socket]);
+
+  React.useEffect(() => {
+    if (!storageKey)
+      changeTab(tabid, setOpenedTabs, (tab) => ({
+        ...tab,
+        props: {
+          ...tab.props,
+          storageKey: localStorageKey,
+        },
+      }));
+  }, [storageKey]);
 
   React.useEffect(() => {
     changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
@@ -136,9 +151,16 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
             execute={handleExecute}
             busy={busy}
             cancel={handleCancel}
+            save={saveSqlFileModalState.open}
           />,
           toolbarPortalRef.current
         )}
+      <SaveSqlFileModal
+        modalState={saveSqlFileModalState}
+        storageKey={localStorageKey}
+        name={openedTabs.find((x) => x.tabid == tabid).title}
+        onSave={(name) => changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, title: name }))}
+      />
     </>
   );
 }

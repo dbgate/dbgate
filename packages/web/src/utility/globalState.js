@@ -3,6 +3,7 @@ import React from 'react';
 import useStorage from './useStorage';
 import { useConnectionInfo } from './metadataLoaders';
 import usePrevious from './usePrevious';
+import useNewQuery from '../query/useNewQuery';
 
 function createGlobalState(defaultValue) {
   const Context = React.createContext(null);
@@ -80,8 +81,16 @@ export function useUpdateDatabaseForTab(tabVisible, conid, database) {
 export function useAppObjectParams() {
   const setOpenedTabs = useSetOpenedTabs();
   const currentDatabase = useCurrentDatabase();
+  const newQuery = useNewQuery();
+  const openedTabs = useOpenedTabs();
+  
   return {
     setOpenedTabs,
     currentDatabase,
+    newQuery,
+    openedTabs,
   };
 }
+
+const [SavedSqlFilesProvider, useSavedSqlFiles, useSetSavedSqlFiles] = createStorageState('savedSqlFiles', []);
+export { SavedSqlFilesProvider, useSavedSqlFiles, useSetSavedSqlFiles };
