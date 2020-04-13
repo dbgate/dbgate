@@ -3,17 +3,36 @@
 
 # DbGate - database administration tool
 
-DbGate is complete rewrite of JenaSoft [DbGate](http://www.jenasoft.com/dbgate). It uses JavaScript and TypeScript (original DbGate was written in C# and TypeScript). 
+DbGate is fast and efficiend database administration tool. It uses JavaScript and TypeScript. 
 
-Part of this software is also port of [DbShell](https://github.com/dbshell/dbshell) from C# to JavaScript
+## Currently implemented features
+* Browsing objects - tables, views, procedures, functions
+* Support for Microsoft SQL Server, Postgre SQL, MySQL
+* Table data browsing - filtering, sorting, adding related columns using foreign keys
+* Table data editing, with SQL change script preview
+* SQL editor, execute SQL script
+
+![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
 
 ## Design goals
-* Application simplicity - DbGate takes the best and only the best from old DbGate, [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) . First will be implemented the most used features from this software.
+* Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) . First will be implemented the most used features from this software.
 * Minimal dependencies - so that the software can be developed in future without problems with obsolete libraries
     * Frontend - React, styled-components, socket.io
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
 * Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
+
+## How Can I Contribute?
+You're welcome to contribute to this project! Especially with these topics:
+
+* Mac support. App is build using electron, without native modules, so it should be very easy to build app for Mac
+* Styles, graphics
+* Better MySQL, Postgre SQL support
+* Github actions for publishing releases
+
+Any help is appreciated!
+
+Feel free to report issues and open merge requests.
 
 ## How to run development environment
 
@@ -29,6 +48,30 @@ yarn lib
 
 Open http://localhost:5000 in your browser
 
+You could run electron app, using this server:
+```sh
+cd app
+yarn
+yarn start
+```
+
+## How to run built electron app locally
+This mode is very similar to production run of electron app. Electron app forks process with API on dynamically alocated port, works with compiled javascript files.
+
+```sh
+cd app
+yarn
+```
+
+```sh
+yarn
+yarn build:app:local
+yarn start:app:local
+```
+
+
+## How to run build electron app locally
+
 ## Packages
 * api - backend, Javascript, ExpressJS
 * datalib - TypeScript library for utility classes
@@ -38,6 +81,3 @@ Open http://localhost:5000 in your browser
 * sqltree - JSON representation of SQL query, functions converting to SQL (TypeScript)
 * types - common TypeScript definitions
 * web - frontend in React (JavaScript)
-
-![Screenshot]
-(https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
