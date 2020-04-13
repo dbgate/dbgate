@@ -3,7 +3,7 @@
 
 # DbGate - database administration tool
 
-DbGate is fast and efficiend database administration tool. It uses JavaScript and TypeScript. 
+DbGate is fast and efficient database administration tool. It uses JavaScript and TypeScript. 
 
 ## Currently implemented features
 * Browsing objects - tables, views, procedures, functions
