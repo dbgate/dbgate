@@ -11,6 +11,7 @@ DbGate is fast and efficiend database administration tool. It uses JavaScript an
 * Table data browsing - filtering, sorting, adding related columns using foreign keys
 * Table data editing, with SQL change script preview
 * SQL editor, execute SQL script
+* Runs as application for Windows and Linux. (in future possibly on Mac - colaborators needed)
 
 ![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
 
