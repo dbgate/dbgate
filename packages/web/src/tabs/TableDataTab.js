@@ -18,7 +18,7 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo({ conid });
-  console.log('GOT CONNECTION', connection);
+  // console.log('GOT CONNECTION', connection);
 
   // usePropsCompare({ tableInfo, connection, config, cache });
 

@@ -47,10 +47,10 @@ export default function TabsPanel() {
       setOpenedTabs(files => files.filter(x => x.tabid != tabid));
     }
   };
-  console.log(
-    't',
-    tabs.map(x => x.tooltip)
-  );
+  // console.log(
+  //   't',
+  //   tabs.map(x => x.tooltip)
+  // );
 
   return (
     <>

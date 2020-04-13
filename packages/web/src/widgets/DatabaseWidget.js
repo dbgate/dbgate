@@ -92,7 +92,7 @@ function SqlObjectList({ conid, database }) {
 
   const [filter, setFilter] = React.useState('');
   const objectList = _.flatten(
-    ['tables', 'views'].map((objectTypeField) =>
+    ['tables', 'views', 'procedures', 'functions'].map((objectTypeField) =>
       ((objects || {})[objectTypeField] || []).map((obj) => ({ ...obj, objectTypeField }))
     )
   );

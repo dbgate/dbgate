@@ -38,10 +38,10 @@ module.exports = {
     };
   },
 
-  viewInfo_meta: 'get',
-  async viewInfo({ conid, database, schemaName, pureName }) {
+  sqlObjectInfo_meta: 'get',
+  async sqlObjectInfo({ objectTypeField, conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
-    const view = opened.structure.views.find((x) => x.pureName == pureName && x.schemaName == schemaName);
-    return view;
+    const res = opened.structure[objectTypeField].find((x) => x.pureName == pureName && x.schemaName == schemaName);
+    return res;
   },
 };

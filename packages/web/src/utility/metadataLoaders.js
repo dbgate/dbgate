@@ -9,9 +9,9 @@ const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
 });
 
-const viewInfoLoader = ({ conid, database, schemaName, pureName }) => ({
-  url: 'metadata/view-info',
-  params: { conid, database, schemaName, pureName },
+const sqlObjectInfoLoader = ({ objectTypeField, conid, database, schemaName, pureName }) => ({
+  url: 'metadata/sql-object-info',
+  params: { objectTypeField, conid, database, schemaName, pureName },
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
 });
 
@@ -86,12 +86,20 @@ export function useTableInfo(args) {
 
 /** @returns {Promise<import('@dbgate/types').ViewInfo>} */
 export function getViewInfo(args) {
-  return getCore(viewInfoLoader, args);
+  return getCore(sqlObjectInfoLoader, { ...args, objectTypeField: 'views' });
 }
 
 /** @returns {import('@dbgate/types').ViewInfo} */
 export function useViewInfo(args) {
-  return useCore(viewInfoLoader, args);
+  return useCore(sqlObjectInfoLoader, { ...args, objectTypeField: 'views' });
+}
+
+export function getSqlObjectInfo(args) {
+  return getCore(sqlObjectInfoLoader, args);
+}
+
+export function useSqlObjectInfo(args) {
+  return useCore(sqlObjectInfoLoader, args);
 }
 
 /** @returns {Promise<import('@dbgate/types').StoredConnection>} */

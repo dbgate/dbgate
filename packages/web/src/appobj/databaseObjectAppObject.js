@@ -10,6 +10,8 @@ import { filterName } from '@dbgate/datalib';
 const icons = {
   tables: 'table2.svg',
   views: 'view2.svg',
+  procedures: 'procedure2.svg',
+  functions: 'function.svg',
 };
 
 const menus = {
@@ -34,7 +36,19 @@ const menus = {
     },
     {
       label: 'Show CREATE VIEW script',
-      tab: 'ViewCreateScriptTab',
+      tab: 'SqlObjectCreateScriptTab',
+    },
+  ],
+  procedures: [
+    {
+      label: 'Show CREATE PROCEDURE script',
+      tab: 'SqlObjectCreateScriptTab',
+    },
+  ],
+  functions: [
+    {
+      label: 'Show CREATE FUNCTION script',
+      tab: 'SqlObjectCreateScriptTab',
     },
   ],
 };
@@ -42,6 +56,8 @@ const menus = {
 const defaultTabs = {
   tables: 'TableDataTab',
   views: 'ViewDataTab',
+  procedures: 'SqlObjectCreateScriptTab',
+  functions: 'SqlObjectCreateScriptTab',
 };
 
 async function openObjectDetail(
@@ -65,6 +81,7 @@ async function openObjectDetail(
       pureName,
       conid,
       database,
+      objectTypeField,
     },
   });
 }
