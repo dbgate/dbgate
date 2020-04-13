@@ -56,7 +56,7 @@ yarn start
 ```
 
 ## How to run built electron app locally
-This mode is very similar to production run of electron app. Electron app forks process with API on dynamically alocated port, works with compiled javascript files.
+This mode is very similar to production run of electron app. Electron app forks process with API on dynamically allocated port, works with compiled javascript files.
 
 ```sh
 cd app
@@ -68,9 +68,6 @@ yarn
 yarn build:app:local
 yarn start:app:local
 ```
-
-
-## How to run build electron app locally
 
 ## Packages
 * api - backend, Javascript, ExpressJS
