@@ -38,3 +38,6 @@ Open http://localhost:5000 in your browser
 * sqltree - JSON representation of SQL query, functions converting to SQL (TypeScript)
 * types - common TypeScript definitions
 * web - frontend in React (JavaScript)
+
+![Screenshot]
+(https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
