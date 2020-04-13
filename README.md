@@ -11,7 +11,7 @@ DbGate is fast and efficiend database administration tool. It uses JavaScript an
 * Table data browsing - filtering, sorting, adding related columns using foreign keys
 * Table data editing, with SQL change script preview
 * SQL editor, execute SQL script
-* Runs as application for Windows and Linux. (in future possibly on Mac - colaborators needed)
+* Runs as application for Windows and Linux. Or in Docker container on server and in web Browser on client. (in future possibly on Mac - colaborators needed)
 
 ![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
 
@@ -21,6 +21,8 @@ DbGate is fast and efficiend database administration tool. It uses JavaScript an
     * Frontend - React, styled-components, socket.io
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
+    * App - electron
+    * There is plan to incorporate SQLite to support work with local datasets
 * Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 ## How Can I Contribute?
