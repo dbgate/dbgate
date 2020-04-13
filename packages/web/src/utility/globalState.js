@@ -83,12 +83,14 @@ export function useAppObjectParams() {
   const currentDatabase = useCurrentDatabase();
   const newQuery = useNewQuery();
   const openedTabs = useOpenedTabs();
+  const setSavedSqlFiles = useSetSavedSqlFiles();
   
   return {
     setOpenedTabs,
     currentDatabase,
     newQuery,
     openedTabs,
+    setSavedSqlFiles,
   };
 }
 

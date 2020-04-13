@@ -2,6 +2,19 @@ import React from 'react';
 import _ from 'lodash';
 import { SqlIcon } from '../icons';
 import { openNewTab } from '../utility/common';
+import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { useSetSavedSqlFiles } from '../utility/globalState';
+
+function Menu({ data, setSavedSqlFiles }) {
+  const handleDelete = () => {
+    setSavedSqlFiles((files) => files.filter((x) => x.storageKey != data.storageKey));
+  };
+  return (
+    <>
+      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+    </>
+  );
+}
 
 const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQuery, openedTabs }) => {
   const key = storageKey;
@@ -18,8 +31,6 @@ const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQ
         }))
       );
     } else {
-      console.log('OPENING QUERY', title, storageKey);
-
       newQuery({
         title,
         storageKey,
@@ -27,7 +38,7 @@ const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQ
     }
   };
 
-  return { title, key, Icon, onClick };
+  return { title, key, Icon, onClick, Menu };
 };
 
 export default savedSqlFileAppObject;
