@@ -11,7 +11,7 @@ export class JslGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc
   ) {
-    super(config, setConfig, cache, setCache, null, null);
+    super(config, setConfig, cache, setCache, null);
 
     this.columns = columns
       .map((col) => ({
