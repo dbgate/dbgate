@@ -54,7 +54,7 @@ async function getCore(loader, args) {
 
   const fromCache = cacheGet(key);
   if (fromCache) return fromCache;
-  const res = getCachedPromise(key, doLoad);
+  const res = await getCachedPromise(key, doLoad);
 
   cacheSet(key, res, reloadTrigger);
   return res;
