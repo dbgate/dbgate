@@ -1,49 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
 import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
-import theme from '../theme';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
 import { useSqlObjectList, useDatabaseList, useConnectionList } from '../utility/metadataLoaders';
-
-const SearchBoxWrapper = styled.div`
-  display: flex;
-  margin-bottom: 5px;
-`;
-
-const MainContainer = styled.div`
-  position: relative;
-  display: flex;
-  flex-flow: column wrap;
-  flex: 1;
-  flex-direction: column;
-  user-select: none;
-`;
-
-const OuterContainer = styled.div`
-  flex: 1 1 0;
-  overflow: hidden;
-  width: ${theme.leftPanel.width}px;
-  position: relative;
-  flex-direction: column;
-  display: flex;
-`;
-
-const InnerContainer = styled.div`
-  flex: 1 1;
-  overflow: scroll;
-  width: ${theme.leftPanel.width}px;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  min-width: 90px;
-`;
+import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -70,6 +35,7 @@ function ConnectionList() {
   const [filter, setFilter] = React.useState('');
   return (
     <>
+      <WidgetTitle>Connections</WidgetTitle>
       <SearchBoxWrapper>
         <Input type="text" placeholder="Search connection" value={filter} onChange={(e) => setFilter(e.target.value)} />
         <InlineButton>Refresh</InlineButton>
@@ -98,6 +64,7 @@ function SqlObjectList({ conid, database }) {
   );
   return (
     <>
+      <WidgetTitle>Tables, views, functions</WidgetTitle>
       <SearchBoxWrapper>
         <Input
           type="text"

@@ -24,18 +24,18 @@ export default function WidgetIconPanel() {
       icon: 'fa-database',
       name: 'database',
     },
-    {
-      icon: 'fa-table',
-      name: 'table',
-    },
+    // {
+    //   icon: 'fa-table',
+    //   name: 'table',
+    // },
     {
       icon: 'fa-file-alt',
       name: 'file',
     },
-    {
-      icon: 'fa-cog',
-      name: 'settings',
-    },
+    // {
+    //   icon: 'fa-cog',
+    //   name: 'settings',
+    // },
     // {
     //   icon: 'fa-check',
     //   name: 'settings',
