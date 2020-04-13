@@ -6,7 +6,6 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
 import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
-import tableAppObject from '../appobj/tableAppObject';
 import theme from '../theme';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
