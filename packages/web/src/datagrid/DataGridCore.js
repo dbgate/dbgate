@@ -37,6 +37,7 @@ import ColumnHeaderControl from './ColumnHeaderControl';
 import InlineButton from '../widgets/InlineButton';
 import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
+import useSocket from '../utility/SocketProvider';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -143,6 +144,18 @@ function dataPageAvailable(props) {
 /** @param props {import('./types').DataGridProps} */
 async function loadRowCount(props) {
   const { display, conid, database, jslid } = props;
+
+  if (jslid) {
+    const response = await axios.request({
+      url: 'jsldata/get-stats',
+      method: 'get',
+      params: {
+        jslid,
+      },
+    });
+    return response.data.rowCount;
+  }
+
   const sql = display.getCountQuery();
 
   const response = await axios.request({
@@ -160,7 +173,7 @@ async function loadRowCount(props) {
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
-  const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
+  const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible, jslid } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.getGridColumns(), [display]);
 
@@ -225,7 +238,6 @@ export default function DataGridCore(props) {
     setLoadProps((oldLoadProps) => ({
       ...oldLoadProps,
       isLoading: true,
-      allRowCount: null,
     }));
     const loadStart = new Date().getTime();
     loadedTimeRef.current = loadStart;
@@ -265,6 +277,7 @@ export default function DataGridCore(props) {
   // const { rows, columns } = data || {};
   const [firstVisibleRowScrollIndex, setFirstVisibleRowScrollIndex] = React.useState(0);
   const [firstVisibleColumnScrollIndex, setFirstVisibleColumnScrollIndex] = React.useState(0);
+  const socket = useSocket();
 
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
@@ -356,6 +369,23 @@ export default function DataGridCore(props) {
       if (focusFieldRef.current) focusFieldRef.current.focus();
     }
   }, [tabVisible, focusFieldRef.current]);
+
+  const handleJslDataStats = React.useCallback((stats) => {
+    setLoadProps((oldProps) => ({
+      ...oldProps,
+      allRowCount: stats.rowCount,
+      isLoadedAll: false,
+    }));
+  }, []);
+
+  React.useEffect(() => {
+    if (jslid && socket) {
+      socket.on(`jsldata-stats-${jslid}`, handleJslDataStats);
+      return () => {
+        socket.off(`jsldata-stats-${jslid}`, handleJslDataStats);
+      };
+    }
+  }, [jslid]);
 
   // const handleCloseInplaceEditor = React.useCallback(
   //   mode => {

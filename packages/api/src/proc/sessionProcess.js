@@ -2,6 +2,7 @@ const engines = require('@dbgate/engines');
 const uuidv1 = require('uuid/v1');
 const path = require('path');
 const fs = require('fs');
+const _ = require('lodash');
 
 const driverConnect = require('../utility/driverConnect');
 const { jsldir } = require('../utility/directories');
@@ -26,7 +27,27 @@ class StreamHandler {
   closeCurrentStream() {
     if (this.currentStream) {
       this.currentStream.end();
+      this.writeCurrentStats(true, true);
+
       this.currentStream = null;
+      this.jslid = null;
+      this.currentFile = null;
+      this.currentRowCount = null;
+      this.currentChangeIndex = null;
+    }
+  }
+
+  writeCurrentStats(isFinished = false, emitEvent = false) {
+    const stats = {
+      rowCount: this.currentRowCount,
+      changeIndex: this.currentChangeIndex,
+      isFinished,
+      jslid: this.jslid,
+    };
+    fs.writeFileSync(`${this.currentFile}.stats`, JSON.stringify(stats));
+    this.currentChangeIndex += 1;
+    if (emitEvent) {
+      process.send({ msgtype: 'stats', ...stats });
     }
   }
 
@@ -35,12 +56,23 @@ class StreamHandler {
     this.jslid = uuidv1();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     this.currentStream = fs.createWriteStream(this.currentFile);
+    this.currentRowCount = 0;
+    this.currentChangeIndex = 0;
     fs.writeFileSync(`${this.currentFile}.info`, JSON.stringify(columns));
     process.send({ msgtype: 'recordset', jslid: this.jslid });
+    this.writeCurrentStats();
+
+    this.onRow = _.throttle((jslid) => {
+      if (jslid == this.jslid) {
+        this.writeCurrentStats(false, true);
+      }
+    }, 500);
   }
   row(row) {
     // console.log('ACCEPT ROW', row);
     this.currentStream.write(JSON.stringify(row) + '\n');
+    this.currentRowCount += 1;
+    this.onRow(this.jslid);
   }
   // error(error) {
   //   process.send({ msgtype: 'error', error });

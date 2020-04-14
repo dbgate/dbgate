@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const lineReader = require('line-reader');
 const { jsldir } = require('../utility/directories');
+const socket = require('../utility/socket');
 
 module.exports = {
   openedReaders: {},
@@ -77,5 +78,16 @@ module.exports = {
       res.push(JSON.parse(line));
     }
     return res;
+  },
+
+  getStats_meta: 'get',
+  getStats({ jslid }) {
+    const file = path.join(jsldir(), `${jslid}.jsonl.stats`);
+    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+  },
+
+  async notifyChangedStats(stats) {
+    await this.closeReader(stats.jslid);
+    socket.emit(`jsldata-stats-${stats.jslid}`, stats);
   },
 };

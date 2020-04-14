@@ -3,6 +3,7 @@ const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
+const jsldata = require('./jsldata');
 
 module.exports = {
   /** @type {import('@dbgate/types').OpenedSession[]} */
@@ -51,6 +52,10 @@ module.exports = {
   handle_recordset(sesid, props) {
     const { jslid } = props;
     socket.emit(`session-recordset-${sesid}`, { jslid });
+  },
+
+  handle_stats(sesid, stats) {
+    jsldata.notifyChangedStats(stats);
   },
 
   create_meta: 'post',
