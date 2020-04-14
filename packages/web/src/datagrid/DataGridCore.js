@@ -214,19 +214,19 @@ export default function DataGridCore(props) {
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount(props);
-    setLoadProps({
-      ...loadProps,
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
       allRowCount: rowCount,
-    });
+    }));
   };
 
   const loadNextData = async () => {
     if (isLoading) return;
-    setLoadProps({
-      ...loadProps,
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
       isLoading: true,
       allRowCount: null,
-    });
+    }));
     const loadStart = new Date().getTime();
     loadedTimeRef.current = loadStart;
 
@@ -246,11 +246,11 @@ export default function DataGridCore(props) {
       loadedTime,
       isLoadedAll: nextRows.length === 0,
     };
-    setLoadProps({
-      ...loadProps,
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
       isLoading: false,
       ...loadedInfo,
-    });
+    }));
   };
 
   // const data = useFetch({
