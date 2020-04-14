@@ -94,6 +94,13 @@ const FocusField = styled.input`
   top: -1000px;
 `;
 
+const RowCountLabel = styled.div`
+  position: absolute;
+  background-color: lightgoldenrodyellow;
+  right: 40px;
+  bottom: 20px;
+`;
+
 /** @param props {import('./types').DataGridProps} */
 async function loadDataPage(props, offset, limit) {
   const { display, conid, database, jslid } = props;
@@ -134,6 +141,24 @@ function dataPageAvailable(props) {
 }
 
 /** @param props {import('./types').DataGridProps} */
+async function loadRowCount(props) {
+  const { display, conid, database, jslid } = props;
+  const sql = display.getCountQuery();
+
+  const response = await axios.request({
+    url: 'database-connections/query-data',
+    method: 'post',
+    params: {
+      conid,
+      database,
+    },
+    data: { sql },
+  });
+
+  return parseInt(response.data.rows[0].count);
+}
+
+/** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
@@ -147,8 +172,9 @@ export default function DataGridCore(props) {
     loadedRows: [],
     isLoadedAll: false,
     loadedTime: new Date().getTime(),
+    allRowCount: null,
   });
-  const { isLoading, loadedRows, isLoadedAll, loadedTime } = loadProps;
+  const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
   const focusFieldRef = React.useRef();
@@ -186,11 +212,20 @@ export default function DataGridCore(props) {
     [selectedCells]
   );
 
+  const handleLoadRowCount = async () => {
+    const rowCount = await loadRowCount(props);
+    setLoadProps({
+      ...loadProps,
+      allRowCount: rowCount,
+    });
+  };
+
   const loadNextData = async () => {
     if (isLoading) return;
     setLoadProps({
       ...loadProps,
       isLoading: true,
+      allRowCount: null,
     });
     const loadStart = new Date().getTime();
     loadedTimeRef.current = loadStart;
@@ -205,6 +240,7 @@ export default function DataGridCore(props) {
     //   nextRows = [];
     // }
     // console.log('nextRows', nextRows);
+    if (allRowCount == null) handleLoadRowCount();
     const loadedInfo = {
       loadedRows: [...loadedRows, ...nextRows],
       loadedTime,
@@ -290,6 +326,7 @@ export default function DataGridCore(props) {
 
   const reload = () => {
     setLoadProps({
+      allRowCount: null,
       isLoading: false,
       loadedRows: [],
       isLoadedAll: false,
@@ -984,6 +1021,7 @@ export default function DataGridCore(props) {
         engine={display.engine}
         onConfirm={handleConfirmSql}
       />
+      {allRowCount && <RowCountLabel>Rows: {allRowCount.toLocaleString()}</RowCountLabel>}
       {props.toolbarPortalRef &&
         tabVisible &&
         ReactDOM.createPortal(

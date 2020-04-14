@@ -269,7 +269,7 @@ export abstract class GridDisplay {
       this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
       'uniqueName'
     );
-    const action = this.processReferences(select, displayedColumnInfo)
+    const action = this.processReferences(select, displayedColumnInfo);
     this.applyFilterOnSelect(select, displayedColumnInfo);
     this.applySortOnSelect(select, displayedColumnInfo);
     if (action == 'loadRequired') {
@@ -283,6 +283,20 @@ export abstract class GridDisplay {
     if (!select) return null;
     if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
     else if (this.driver.dialect.limitSelect) select.topRecords = count;
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
+  }
+
+  getCountQuery() {
+    const select = this.createSelect();
+    select.columns = [
+      {
+        exprType: 'raw',
+        sql: 'COUNT(*)',
+        alias: 'count',
+      },
+    ];
+    select.orderBy = null;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }

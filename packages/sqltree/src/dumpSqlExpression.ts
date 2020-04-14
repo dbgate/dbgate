@@ -23,5 +23,9 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
     case 'value':
       dmp.put('%v', expr.value);
       break;
+
+    case 'raw':
+      dmp.put('%s', expr.sql);
+      break;
   }
 }

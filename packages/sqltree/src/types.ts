@@ -112,7 +112,12 @@ export interface PlaceholderExpression {
   exprType: 'placeholder';
 }
 
-export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression;
+export interface RawExpression {
+  exprType: 'raw';
+  sql: string;
+}
+
+export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression | RawExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };
