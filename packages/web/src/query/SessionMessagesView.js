@@ -1,15 +1,29 @@
+import _ from 'lodash';
 import React from 'react';
 import MessagesView from './MessagesView';
 import useSocket from '../utility/SocketProvider';
 
 export default function SessionMessagesView({ sessionId, onMessageClick, executeNumber }) {
-  const [messages, setMessages] = React.useState([]);
+  const [displayedMessages, setDisplayedMessages] = React.useState([]);
+  const cachedMessagesRef = React.useRef([]);
   const socket = useSocket();
 
-  const handleInfo = React.useCallback((info) => setMessages((items) => [...items, info]), []);
+  const displayCachedMessages = React.useMemo(
+    () =>
+      _.throttle(() => {
+        setDisplayedMessages([...cachedMessagesRef.current]);
+      }, 500),
+    []
+  );
+
+  const handleInfo = React.useCallback((info) => {
+    cachedMessagesRef.current.push(info);
+    displayCachedMessages();
+  }, []);
 
   React.useEffect(() => {
-    setMessages([]);
+    setDisplayedMessages([]);
+    cachedMessagesRef.current = [];
   }, [executeNumber]);
 
   React.useEffect(() => {
@@ -21,5 +35,5 @@ export default function SessionMessagesView({ sessionId, onMessageClick, execute
     }
   }, [sessionId, socket]);
 
-  return <MessagesView items={messages} onMessageClick={onMessageClick} />;
+  return <MessagesView items={displayedMessages} onMessageClick={onMessageClick} />;
 }

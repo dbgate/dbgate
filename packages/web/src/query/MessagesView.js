@@ -51,7 +51,7 @@ function formatDuration(duration) {
   return `${Math.round(duration / 1000)} s`;
 }
 
-export default function MessagesView({ items, onMessageClick }) {
+function MessagesView({ items, onMessageClick }) {
   const handleClick = (row) => {
     if (onMessageClick) onMessageClick(row);
   };
@@ -99,3 +99,5 @@ export default function MessagesView({ items, onMessageClick }) {
     </MainContainer>
   );
 }
+
+export default React.memo(MessagesView);
