@@ -117,6 +117,7 @@ export abstract class GridDisplay {
   }
 
   applyFilterOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+    const conditions = [];
     for (const uniqueName in this.config.filters) {
       const filter = this.config.filters[uniqueName];
       if (!filter) continue;
@@ -125,19 +126,28 @@ export abstract class GridDisplay {
       try {
         const condition = parseFilter(filter, getFilterType(column.commonType?.typeCode));
         if (condition) {
-          select.where = _.cloneDeepWith(condition, (expr: Expression) => {
-            if (expr.exprType == 'placeholder')
-              return {
-                exprType: 'column',
-                columnName: column.columnName,
-                source: { alias: column.sourceAlias },
-              };
-          });
+          conditions.push(
+            _.cloneDeepWith(condition, (expr: Expression) => {
+              if (expr.exprType == 'placeholder')
+                return {
+                  exprType: 'column',
+                  columnName: column.columnName,
+                  source: { alias: column.sourceAlias },
+                };
+            })
+          );
         }
       } catch (err) {
         console.warn(err.message);
         continue;
       }
+    }
+    
+    if (conditions.length > 0) {
+      select.where = {
+        conditionType: 'and',
+        conditions,
+      };
     }
   }
 
