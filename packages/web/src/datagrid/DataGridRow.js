@@ -15,7 +15,7 @@ const TableBodyCell = styled.td`
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-  ${props =>
+  ${(props) =>
     props.isSelected &&
     !props.isAutofillSelected &&
     `
@@ -23,14 +23,14 @@ const TableBodyCell = styled.td`
     background-color: deepskyblue;
     color: white;`}
 
-  ${props =>
+  ${(props) =>
     props.isAutofillSelected &&
     `
     background: initial;
     background-color: magenta;
     color: white;`}
 
-    ${props =>
+    ${(props) =>
       props.isModifiedRow &&
       !props.isInsertedRow &&
       !props.isSelected &&
@@ -38,7 +38,7 @@ const TableBodyCell = styled.td`
       !props.isModifiedCell &&
       `
   background-color: #FFFFDB;`}
-  ${props =>
+  ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isInsertedRow &&
@@ -46,14 +46,14 @@ const TableBodyCell = styled.td`
     `
       background-color: bisque;`}
 
-  ${props =>
+  ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     props.isInsertedRow &&
     `
       background-color: #DBFFDB;`}
 
-    ${props =>
+    ${(props) =>
       !props.isSelected &&
       !props.isAutofillSelected &&
       props.isDeletedRow &&
@@ -61,7 +61,7 @@ const TableBodyCell = styled.td`
       background-color: #FFDBFF;
   `}
 
-    ${props =>
+    ${(props) =>
       props.isDeletedRow &&
       `
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
@@ -113,6 +113,8 @@ const AutoFillPoint = styled.div`
 function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  if (value === true) return '1';
+  if (value === false) return '0';
   return value;
 }
 
@@ -153,20 +155,20 @@ function DataGridRow({
   const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
   const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
   const hintFieldsAllowed = visibleRealColumns
-    .filter(col => {
+    .filter((col) => {
       if (!col.hintColumnName) return false;
       if (matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields)
         return false;
       return true;
     })
-    .map(col => col.uniqueName);
+    .map((col) => col.uniqueName);
 
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }}>
       <TableHeaderCell data-row={rowIndex} data-col="header">
         {rowIndex + 1}
       </TableHeaderCell>
-      {visibleRealColumns.map(col => (
+      {visibleRealColumns.map((col) => (
         <TableBodyCell
           key={col.uniqueName}
           style={{
