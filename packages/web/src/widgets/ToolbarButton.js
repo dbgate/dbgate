@@ -35,6 +35,11 @@ const StyledIconSpan = styled.span`
   color: ${(props) => (props.disabled ? 'gray' : 'blue')};
 `;
 
+const ButtonDivInner = styled.div`
+  position: relative;
+  top: 2px;
+`;
+
 export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined }) {
   const Icon = icon;
   return (
@@ -44,12 +49,14 @@ export default function ToolbarButton({ children, onClick, icon = undefined, dis
       }}
       disabled={disabled}
     >
-      {Icon && (
-        <StyledIconSpan disabled={disabled}>
-          <i className={icon} />
-        </StyledIconSpan>
-      )}
-      {children}
+      <ButtonDivInner>
+        {Icon && (
+          <StyledIconSpan disabled={disabled}>
+            <i className={icon} />
+          </StyledIconSpan>
+        )}
+        {children}
+      </ButtonDivInner>
     </ButtonDiv>
   );
 }
