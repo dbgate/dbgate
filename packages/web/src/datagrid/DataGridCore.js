@@ -370,6 +370,11 @@ export default function DataGridCore(props) {
     }
   }, [tabVisible, focusFieldRef.current]);
 
+  const maxScrollColumn = React.useMemo(() => {
+    let newColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
+    return newColumn;
+  }, [columnSizes, gridScrollAreaWidth]);
+
   const handleJslDataStats = React.useCallback((stats) => {
     setLoadProps((oldProps) => ({
       ...oldProps,
@@ -419,7 +424,7 @@ export default function DataGridCore(props) {
       const invMap = _.invert(realColumnUniqueNames);
       const colIndex = invMap[display.focusedColumn];
       if (colIndex) {
-        scrollIntoView([currentCell[0], colIndex]);
+        scrollIntoView([null, colIndex]);
       }
     }
   }, [display && display.focusedColumn]);
@@ -1046,7 +1051,7 @@ export default function DataGridCore(props) {
         valueToSet={hScrollValueToSet}
         valueToSetDate={hScrollValueToSetDate}
         minimum={0}
-        maximum={columns.length - 1}
+        maximum={maxScrollColumn}
         viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
         onScroll={handleColumnScroll}
       />
