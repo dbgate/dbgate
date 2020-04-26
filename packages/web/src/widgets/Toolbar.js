@@ -17,8 +17,12 @@ export default function ToolBar({ toolbarPortalRef }) {
   return (
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
-      <ToolbarButton onClick={modalState.open}>Add connection</ToolbarButton>
-      <ToolbarButton onClick={newQuery}>New Query</ToolbarButton>
+      <ToolbarButton onClick={modalState.open} icon="fas fa-database">
+        Add connection
+      </ToolbarButton>
+      <ToolbarButton onClick={newQuery} icon="fas fa-file-alt">
+        New Query
+      </ToolbarButton>
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>
     </ToolbarContainer>
   );

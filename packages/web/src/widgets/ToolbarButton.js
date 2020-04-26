@@ -4,37 +4,39 @@ import styled from 'styled-components';
 import theme from '../theme';
 
 const ButtonDiv = styled.div`
-  // height: ${theme.toolBar.height - 5}px;
-  // border: 1px solid gray;
-  padding: 5px;
-  margin: 2px;
-  //background-color: #777;
-  background-color: #337ab7;
-  border-color: #2e6da4;  color: white;
-  border-radius: 2px;
+  padding: 5px 15px;
+  // margin: 2px;
+  color: black;
+  border: 0;
+  border-right: 1px solid #ccc;
+  height: ${theme.toolBar.height}px;
 
-  ${props =>
+  ${(props) =>
     !props.disabled &&
     `
   &:hover {
-    background-color: #286090;
+    background-color: #CCC;
   }
 
   &:active:hover {
-    background-color: #204d74;
+    background-color: #AAA;
   }
   `}
 
-  ${props =>
+  ${(props) =>
     props.disabled &&
     `
-    background-color: #ccc;
     color: gray;
   `}
-  
 `;
 
-export default function ToolbarButton({ children, onClick, disabled = undefined }) {
+const StyledIconSpan = styled.span`
+  margin-right: 5px;
+  color: ${(props) => (props.disabled ? 'gray' : 'blue')};
+`;
+
+export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined }) {
+  const Icon = icon;
   return (
     <ButtonDiv
       onClick={() => {
@@ -42,6 +44,11 @@ export default function ToolbarButton({ children, onClick, disabled = undefined 
       }}
       disabled={disabled}
     >
+      {Icon && (
+        <StyledIconSpan disabled={disabled}>
+          <i className={icon} />
+        </StyledIconSpan>
+      )}
       {children}
     </ButtonDiv>
   );
