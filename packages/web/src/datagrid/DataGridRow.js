@@ -18,6 +18,7 @@ const TableBodyCell = styled.td`
   ${(props) =>
     props.isSelected &&
     !props.isAutofillSelected &&
+    !props.isFocusedColumn &&
     `
     background: initial;
     background-color: deepskyblue;
@@ -25,6 +26,7 @@ const TableBodyCell = styled.td`
 
   ${(props) =>
     props.isAutofillSelected &&
+    !props.isFocusedColumn &&
     `
     background: initial;
     background-color: magenta;
@@ -36,12 +38,14 @@ const TableBodyCell = styled.td`
       !props.isSelected &&
       !props.isAutofillSelected &&
       !props.isModifiedCell &&
+      !props.isFocusedColumn &&
       `
   background-color: #FFFFDB;`}
   ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isInsertedRow &&
+    !props.isFocusedColumn &&
     props.isModifiedCell &&
     `
       background-color: bisque;`}
@@ -49,6 +53,7 @@ const TableBodyCell = styled.td`
   ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
+    !props.isFocusedColumn &&
     props.isInsertedRow &&
     `
       background-color: #DBFFDB;`}
@@ -56,11 +61,19 @@ const TableBodyCell = styled.td`
     ${(props) =>
       !props.isSelected &&
       !props.isAutofillSelected &&
+      !props.isFocusedColumn &&
       props.isDeletedRow &&
       `
       background-color: #FFDBFF;
   `}
 
+  ${(props) =>
+    props.isFocusedColumn
+     &&
+    `
+    background-color: lightgoldenrodyellow;
+  `}
+  
     ${(props) =>
       props.isDeletedRow &&
       `
@@ -132,6 +145,7 @@ function DataGridRow({
   autofillMarkerCell,
   selectedCells,
   autofillSelectedCells,
+  focusedColumn,
 }) {
   // usePropsCompare({
   //   rowHeight,
@@ -181,6 +195,7 @@ function DataGridRow({
           isSelected={cellIsSelected(rowIndex, col.colIndex, selectedCells)}
           isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
           isModifiedRow={!!matchedChangeSetItem}
+          isFocusedColumn={col.uniqueName == focusedColumn}
           isModifiedCell={
             matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields
           }

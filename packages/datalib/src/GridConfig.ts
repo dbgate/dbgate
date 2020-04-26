@@ -5,6 +5,7 @@ export interface GridConfigColumns {
   hiddenColumns: string[];
   expandedColumns: string[];
   addedColumns: string[];
+  focusedColumn?: string;
 }
 
 export interface GridConfig extends GridConfigColumns {
@@ -27,6 +28,7 @@ export function createGridConfig(): GridConfig {
     addedColumns: [],
     filters: {},
     sort: [],
+    focusedColumn: null,
   };
 }
 

@@ -54,7 +54,11 @@ function ColumnManagerRow(props) {
   const { display, column } = props;
   const [isHover, setIsHover] = React.useState(false);
   return (
-    <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+    <Row
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      onClick={() => display.focusColumn(column.uniqueName)}
+    >
       <ExpandIcon
         isBlank={!column.foreignKey}
         isExpanded={column.foreignKey && display.isExpandedColumn(column.uniqueName)}
@@ -79,14 +83,19 @@ export default function ColumnManager(props) {
   return (
     <Wrapper>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search" value={columnFilter} onChange={e => setColumnFilter(e.target.value)} />
+        <Input
+          type="text"
+          placeholder="Search"
+          value={columnFilter}
+          onChange={(e) => setColumnFilter(e.target.value)}
+        />
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>
       {display
         .getColumns(columnFilter)
-        .filter(column => filterName(columnFilter, column.columnName))
-        .map(column => (
+        .filter((column) => filterName(columnFilter, column.columnName))
+        .map((column) => (
           <ColumnManagerRow key={column.uniqueName} display={display} column={column} />
         ))}
     </Wrapper>

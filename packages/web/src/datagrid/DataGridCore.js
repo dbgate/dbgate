@@ -414,6 +414,16 @@ export default function DataGridCore(props) {
     [columnSizes, columns]
   );
 
+  React.useEffect(() => {
+    if (display && display.focusedColumn) {
+      const invMap = _.invert(realColumnUniqueNames);
+      const colIndex = invMap[display.focusedColumn];
+      if (colIndex) {
+        scrollIntoView([currentCell[0], colIndex]);
+      }
+    }
+  }, [display && display.focusedColumn]);
+
   if (!loadedRows || !columns) return null;
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
@@ -468,6 +478,8 @@ export default function DataGridCore(props) {
         dispatchInsplaceEditor({ type: 'close' });
       }
     }
+
+    if (display.focusedColumn) display.focusColumn(null);
   }
 
   function handleCopy(event) {
@@ -1025,6 +1037,7 @@ export default function DataGridCore(props) {
                 setChangeSet={setChangeSet}
                 display={display}
                 row={row}
+                focusedColumn={display.focusedColumn}
               />
             ))}
         </TableBody>

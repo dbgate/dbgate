@@ -65,6 +65,17 @@ export abstract class GridDisplay {
     }
   }
 
+  focusColumn(uniqueName: string) {
+    this.setConfig({
+      ...this.config,
+      focusedColumn: uniqueName,
+    });
+  }
+
+  get focusedColumn() {
+    return this.config.focusedColumn;
+  }
+
   get engine() {
     return this.driver?.engine;
   }
@@ -142,7 +153,7 @@ export abstract class GridDisplay {
         continue;
       }
     }
-    
+
     if (conditions.length > 0) {
       select.where = {
         conditionType: 'and',
