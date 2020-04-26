@@ -175,7 +175,7 @@ async function loadRowCount(props) {
 export default function DataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible, jslid } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
-  const columns = React.useMemo(() => display.getGridColumns(), [display]);
+  const columns = React.useMemo(() => display.allColumns, [display]);
 
   // usePropsCompare(props);
 

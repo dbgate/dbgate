@@ -3,12 +3,13 @@ import { SeriesSizes } from './SeriesSizes';
 import { CellAddress } from './selection';
 
 export function countColumnSizes(loadedRows, columns, containerWidth, display) {
+  const columnSizes = new SeriesSizes();
+  if (!loadedRows || !columns) return columnSizes;
+
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');
 
   //return this.context.measureText(txt).width;
-  const columnSizes = new SeriesSizes();
-  if (!loadedRows || !columns) return columnSizes;
 
   // console.log('countColumnSizes', loadedRows.length, containerWidth);
 
@@ -113,7 +114,7 @@ export function filterCellForRow(cell, row: number): CellAddress | null {
 }
 
 export function filterCellsForRow(cells, row: number): CellAddress[] | null {
-  const res = (cells || []).filter(x => x[0] == row || _.isString(x[0]));
+  const res = (cells || []).filter((x) => x[0] == row || _.isString(x[0]));
   return res.length > 0 ? res : null;
 }
 

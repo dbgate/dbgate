@@ -31,7 +31,7 @@ export class SeriesSizes {
     return this.frozenModelIndexes != null ? this.frozenModelIndexes.length : 0;
   }
   public get frozenSize(): number {
-    return _.sumBy(this.frozenItems, x => x.size);
+    return _.sumBy(this.frozenItems, (x) => x.size);
   }
   public get realCount(): number {
     return this.frozenCount + this.scrollCount;
@@ -63,13 +63,13 @@ export class SeriesSizes {
   public buildIndex(): void {
     this.scrollItems = [];
     this.scrollIndexes = _.filter(
-      _.map(this.intKeys(this.sizeOverridesByModelIndex), x => this.modelToReal(x) - this.frozenCount),
-      x => x >= 0
+      _.map(_.range(this.count), (x) => this.modelToReal(x) - this.frozenCount),
+      (x) => x >= 0
     );
     this.scrollIndexes.sort();
     let lastScrollIndex: number = -1;
     let lastEndPosition: number = 0;
-    this.scrollIndexes.forEach(scrollIndex => {
+    this.scrollIndexes.forEach((scrollIndex) => {
       let modelIndex: number = this.realToModel(scrollIndex + this.frozenCount);
       let size: number = this.sizeOverridesByModelIndex[modelIndex];
       let item = new SeriesSizeItem();
@@ -81,7 +81,7 @@ export class SeriesSizes {
       lastScrollIndex = scrollIndex;
       lastEndPosition = item.endPosition;
     });
-    this.positions = _.map(this.scrollItems, x => x.position);
+    this.positions = _.map(this.scrollItems, (x) => x.position);
     this.frozenItems = [];
     let lastpos: number = 0;
     for (let i: number = 0; i < this.frozenCount; i++) {
@@ -108,7 +108,7 @@ export class SeriesSizes {
     );
   }
   public getFrozenIndexOnPosition(position: number): number {
-    this.frozenItems.forEach(function(item) {
+    this.frozenItems.forEach(function (item) {
       if (position >= item.position && position <= item.endPosition) return item.frozenIndex;
     });
     return -1;
@@ -156,11 +156,11 @@ export class SeriesSizes {
   public getScroll(sourceScrollIndex: number, targetScrollIndex: number): number {
     if (sourceScrollIndex < targetScrollIndex) {
       return -_.sum(
-        _.map(_.range(sourceScrollIndex, targetScrollIndex - sourceScrollIndex), x => this.getSizeByScrollIndex(x))
+        _.map(_.range(sourceScrollIndex, targetScrollIndex - sourceScrollIndex), (x) => this.getSizeByScrollIndex(x))
       );
     } else {
       return _.sum(
-        _.map(_.range(targetScrollIndex, sourceScrollIndex - targetScrollIndex), x => this.getSizeByScrollIndex(x))
+        _.map(_.range(targetScrollIndex, sourceScrollIndex - targetScrollIndex), (x) => this.getSizeByScrollIndex(x))
       );
     }
   }
@@ -170,15 +170,15 @@ export class SeriesSizes {
   }
   public getTotalScrollSizeSum(): number {
     let scrollSizeOverrides = _.map(
-      _.filter(this.intKeys(this.sizeOverridesByModelIndex), x => this.modelIndexIsInScrollArea(x)),
-      x => this.sizeOverridesByModelIndex[x]
+      _.filter(this.intKeys(this.sizeOverridesByModelIndex), (x) => this.modelIndexIsInScrollArea(x)),
+      (x) => this.sizeOverridesByModelIndex[x]
     );
     return _.sum(scrollSizeOverrides) + (this.count - scrollSizeOverrides.length) * this.defaultSize;
   }
   public getVisibleScrollSizeSum(): number {
     let scrollSizeOverrides = _.map(
-      _.filter(this.intKeys(this.sizeOverridesByModelIndex), x => !_.includes(this.hiddenAndFrozenModelIndexes, x)),
-      x => this.sizeOverridesByModelIndex[x]
+      _.filter(this.intKeys(this.sizeOverridesByModelIndex), (x) => !_.includes(this.hiddenAndFrozenModelIndexes, x)),
+      (x) => this.sizeOverridesByModelIndex[x]
     );
     return (
       _.sum(scrollSizeOverrides) +
@@ -186,7 +186,7 @@ export class SeriesSizes {
     );
   }
   private intKeys(value): number[] {
-    return _.keys(value).map(x => _.parseInt(x));
+    return _.keys(value).map((x) => _.parseInt(x));
   }
   public getPositionByRealIndex(realIndex: number): number {
     if (realIndex < 0) return 0;
@@ -288,13 +288,13 @@ export class SeriesSizes {
   }
   public setExtraordinaryIndexes(hidden: number[], frozen: number[]): void {
     //this._hiddenAndFrozenModelIndexes = _.clone(hidden);
-    hidden = hidden.filter(x => x >= 0);
-    frozen = frozen.filter(x => x >= 0);
+    hidden = hidden.filter((x) => x >= 0);
+    frozen = frozen.filter((x) => x >= 0);
 
     hidden.sort((a, b) => a - b);
     frozen.sort((a, b) => a - b);
-    this.frozenModelIndexes = _.filter(frozen, x => !_.includes(hidden, x));
-    this.hiddenModelIndexes = _.filter(hidden, x => !_.includes(frozen, x));
+    this.frozenModelIndexes = _.filter(frozen, (x) => !_.includes(hidden, x));
+    this.hiddenModelIndexes = _.filter(hidden, (x) => !_.includes(frozen, x));
     this.hiddenAndFrozenModelIndexes = _.concat(hidden, this.frozenModelIndexes);
     this.frozenModelIndexes.sort((a, b) => a - b);
     if (this.hiddenAndFrozenModelIndexes.length == 0) this.hiddenAndFrozenModelIndexes = null;

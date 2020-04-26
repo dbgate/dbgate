@@ -80,6 +80,10 @@ export abstract class GridDisplay {
     return this.driver?.engine;
   }
 
+  get allColumns() {
+    return this.columns;
+  }
+
   reload() {
     this.setCache((cache) => ({
       ...cache,
