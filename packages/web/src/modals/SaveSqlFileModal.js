@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
+import { FormButtonRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
 import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
 import { useSetSavedSqlFiles } from '../utility/globalState';
@@ -28,9 +28,9 @@ export default function SaveSqlFileModal({ storageKey, modalState, name, onSave 
         <Form>
           <FormTextField label="File name" name="name" />
 
-          <FormRow>
+          <FormButtonRow>
             <FormSubmit text="Save" />
-          </FormRow>
+          </FormButtonRow>
         </Form>
       </Formik>
     </ModalBase>

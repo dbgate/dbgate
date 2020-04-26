@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
+import { FormButtonRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
 import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
 // import FormikForm from '../utility/FormikForm';
@@ -37,10 +37,10 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
           <FormTextField label="Password" name="password" />
           <FormTextField label="Display name" name="displayName" />
 
-          <FormRow>
+          <FormButtonRow>
             <FormButton text="Test" onClick={handleTest} />
             <FormSubmit text="Save" />
-          </FormRow>
+          </FormButtonRow>
         </Form>
       </Formik>
       <div>Connect result: {sqlConnectResult}</div>

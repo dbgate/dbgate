@@ -25,6 +25,7 @@ export default function SqlEditor({
   tabVisible = false,
   onKeyDown = undefined,
   editorRef = undefined,
+  focusOnCreate = false,
 }) {
   const [containerRef, { height, width }] = useDimensions();
   const ownEditorRef = React.useRef(null);
@@ -32,8 +33,9 @@ export default function SqlEditor({
   const currentEditorRef = editorRef || ownEditorRef;
 
   React.useEffect(() => {
-    if (tabVisible && currentEditorRef.current && currentEditorRef.current.editor) currentEditorRef.current.editor.focus();
-  }, [tabVisible]);
+    if ((tabVisible || focusOnCreate) && currentEditorRef.current && currentEditorRef.current.editor)
+      currentEditorRef.current.editor.focus();
+  }, [tabVisible, focusOnCreate]);
 
   React.useEffect(() => {
     if (onKeyDown && currentEditorRef.current) {

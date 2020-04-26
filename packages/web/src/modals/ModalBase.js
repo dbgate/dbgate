@@ -27,6 +27,7 @@ const StyledModal = styled(Modal)`
   padding: 20px;
 
   width: 50%;
+  max-width: 900px;
   margin: auto;
   margin-top: 15vh;
 `;

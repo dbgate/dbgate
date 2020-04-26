@@ -2,9 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { TextField, SelectField } from './inputs';
 import { Field, useFormikContext } from 'formik';
+import FormStyledButton from '../widgets/FormStyledButton';
 
 export const FormRow = styled.div`
   display: flex;
+  margin: 10px;
+`;
+
+export const FormButtonRow = styled.div`
+  display: flex;
+  // justify-content: flex-end;
   margin: 10px;
 `;
 
@@ -40,10 +47,10 @@ export function FormSelectField({ label, children, ...other }) {
 }
 
 export function FormSubmit({ text }) {
-  return <input type="submit" value={text} />;
+  return <FormStyledButton type="submit" value={text} />;
 }
 
 export function FormButton({ text, onClick, ...other }) {
   const { values } = useFormikContext();
-  return <input type="button" value={text} onClick={() => onClick(values)} {...other} />;
+  return <FormStyledButton type="button" value={text} onClick={() => onClick(values)} {...other} />;
 }
