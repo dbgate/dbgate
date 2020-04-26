@@ -56,6 +56,7 @@ const TabsPanelContainer = styled.div`
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
+  border-top: 1px solid #CCC;
 `;
 
 const StausBarContainer = styled.div`
