@@ -15,6 +15,7 @@ import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
 import SaveSqlFileModal from '../modals/SaveSqlFileModal';
 import useModalState from '../modals/useModalState';
+import sqlFormatter from 'sql-formatter';
 
 export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript, storageKey }) {
   const localStorageKey = storageKey || `sql_${tabid}`;
@@ -121,6 +122,11 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
     }
   };
 
+  const handleFormatCode = () => {
+    editorRef.current.editor.setValue(sqlFormatter.format(editorRef.current.editor.getValue()));
+    editorRef.current.editor.clearSelection();
+  };
+
   return (
     <>
       <VerticalSplitter>
@@ -151,6 +157,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
             execute={handleExecute}
             busy={busy}
             cancel={handleCancel}
+            format={handleFormatCode}
             save={saveSqlFileModalState.open}
           />,
           toolbarPortalRef.current

@@ -23,6 +23,7 @@
     "react-scripts": "3.3.0",
     "resize-observer-polyfill": "^1.5.1",
     "socket.io-client": "^2.3.0",
+    "sql-formatter": "^2.3.3",
     "styled-components": "^4.4.1",
     "uuid": "^3.4.0"
   },
