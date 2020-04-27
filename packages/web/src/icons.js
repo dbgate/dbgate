@@ -27,7 +27,7 @@ export function FontIcon({ icon, ...props }) {
   let className = props.className || '';
 
   // if (_.startsWith(name, 'bs-')) className += ` glyphicon glyphicon-${name.substr(3)}`;
-  if (type == 'fas' || type == 'far') className += `${type} ${name}`;
+  if (type == 'fas' || type == 'far') className += ` ${type} ${name}`;
 
   if (_.includes(parts, 'spin')) className += ' fa-spin';
 
