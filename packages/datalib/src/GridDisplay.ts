@@ -81,7 +81,7 @@ export abstract class GridDisplay {
   }
 
   get allColumns() {
-    return this.columns;
+    return this.getColumns(null).filter((col) => col.isChecked || col.uniquePath.length == 1);
   }
 
   reload() {

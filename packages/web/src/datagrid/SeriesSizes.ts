@@ -64,6 +64,7 @@ export class SeriesSizes {
     this.scrollItems = [];
     this.scrollIndexes = _.filter(
       _.map(_.range(this.count), (x) => this.modelToReal(x) - this.frozenCount),
+      // _.map(this.intKeys(_.keys(this.sizeOverridesByModelIndex)), (x) => this.modelToReal(x) - this.frozenCount),
       (x) => x >= 0
     );
     this.scrollIndexes.sort();

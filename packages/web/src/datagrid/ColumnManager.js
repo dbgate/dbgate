@@ -54,12 +54,9 @@ function ColumnManagerRow(props) {
   const { display, column } = props;
   const [isHover, setIsHover] = React.useState(false);
   return (
-    <Row
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
-      onClick={() => display.focusColumn(column.uniqueName)}
-    >
+    <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       <ExpandIcon
+        // className="expandColumnIcon"
         isBlank={!column.foreignKey}
         isExpanded={column.foreignKey && display.isExpandedColumn(column.uniqueName)}
         isSelected={isHover}
@@ -71,7 +68,11 @@ function ColumnManagerRow(props) {
         checked={column.isChecked}
         onChange={() => display.setColumnVisibility(column.uniquePath, !column.isChecked)}
       ></input>
-      <ColumnLabel {...column} />
+      <ColumnLabel
+        {...column}
+        // @ts-ignore
+        onClick={() => display.focusColumn(column.uniqueName)}
+      />
     </Row>
   );
 }

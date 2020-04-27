@@ -5,11 +5,11 @@ export interface GridConfigColumns {
   hiddenColumns: string[];
   expandedColumns: string[];
   addedColumns: string[];
-  focusedColumn?: string;
 }
 
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
+  focusedColumn?: string;
   sort: {
     uniqueName: string;
     order: 'ASC' | 'DESC';
