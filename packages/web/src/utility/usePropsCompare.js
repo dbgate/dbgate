@@ -6,7 +6,7 @@ export default function usePropsCompare(props) {
   if (!prevProps) return;
   for (const key of _.union(_.keys(props), _.keys(prevProps))) {
     if (props[key] !== prevProps[key]) {
-      console.log(`Different prop value found: prop=${key}, old=${prevProps[key]}, new=${prevProps[key]}`);
+      console.log(`Different prop value found: prop=${key}, old, new`, prevProps[key], prevProps[key]);
     }
   }
 }

@@ -162,9 +162,20 @@ export class TableGridDisplay extends GridDisplay {
 
   requireFkTarget(column: DisplayColumn) {
     const { uniqueName, foreignKey } = column;
-    this.getTableInfo({ schemaName: foreignKey.refSchemaName, pureName: foreignKey.refTableName }).then((table) => {
+    const pureName = foreignKey.refTableName;
+    const schemaName = foreignKey.refSchemaName;
+    if (this.cache.loadingTables.find((x) => x.pureName == pureName && x.schemaName == schemaName)) return;
+
+    this.setCache((cache) => ({
+      ...cache,
+      loadingTables: [...cache.loadingTables, { schemaName, pureName }],
+    }));
+
+    this.getTableInfo({ schemaName, pureName }).then((table) => {
+      console.log('Loading table info', schemaName, pureName);
       this.setCache((cache) => ({
         ...cache,
+        loadingTables: cache.loadingTables.filter((x) => x.schemaName != schemaName || x.pureName != pureName),
         tables: {
           ...cache.tables,
           [uniqueName]: table,
@@ -172,7 +183,6 @@ export class TableGridDisplay extends GridDisplay {
       }));
     });
   }
-
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): ReferenceActionResult {
     const action = combineReferenceActions(
