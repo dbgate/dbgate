@@ -446,7 +446,15 @@ export default function DataGridCore(props) {
     }
   }, [display && display.focusedColumn]);
 
-  if (!loadedRows || !columns) return null;
+  if (!loadedRows || !columns || columns.length == 0)
+    return (
+      <LoadingInfoWrapper>
+        <LoadingInfoBox>
+          <LoadingInfo message="Waiting for structure" />
+        </LoadingInfoBox>
+      </LoadingInfoWrapper>
+    );
+
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
 

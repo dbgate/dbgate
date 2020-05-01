@@ -22,7 +22,6 @@ module.exports = {
       (res, type) => ({
         ...res,
         [type]: pickObjectNames(opened.structure[type]),
-        status: opened.status,
       }),
       {}
     );

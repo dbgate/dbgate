@@ -7,7 +7,7 @@ import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase, useOpenedConnections } from '../utility/globalState';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
-import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
+import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus, useDatabaseStatus } from '../utility/metadataLoaders';
 import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
 import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
@@ -69,7 +69,7 @@ function ConnectionList() {
 
 function SqlObjectList({ conid, database }) {
   const objects = useSqlObjectList({ conid, database });
-  const { status } = objects || {};
+  const status = useDatabaseStatus({ conid, database });
 
   const handleRefreshDatabase = () => {
     axios.post('database-connections/refresh', { conid, database });
