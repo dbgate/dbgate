@@ -5,6 +5,7 @@ const cors = require('cors');
 const io = require('socket.io');
 const fs = require('fs');
 const findFreePort = require('find-free-port');
+const childProcessChecker = require('./utility/childProcessChecker');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -44,6 +45,8 @@ function start(argument = null) {
   }
 
   if (argument == '--dynport') {
+    childProcessChecker();
+        
     findFreePort(53911, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
