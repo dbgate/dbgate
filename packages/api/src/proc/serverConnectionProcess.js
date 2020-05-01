@@ -1,27 +1,67 @@
 const engines = require('@dbgate/engines');
 const driverConnect = require('../utility/driverConnect');
 const childProcessChecker = require('../utility/childProcessChecker');
+const stableStringify = require('json-stable-stringify');
 
 let systemConnection;
 let storedConnection;
+let lastDatabases = null;
+let lastStatus = null;
+let lastPing = null;
 
-async function handleRefreshDatabases() {
+async function handleRefresh() {
   const driver = engines(storedConnection);
-  const databases = await driver.listDatabases(systemConnection);
-  process.send({ msgtype: 'databases', databases });
+  try {
+    const databases = await driver.listDatabases(systemConnection);
+    setStatusName('ok');
+    const databasesString = stableStringify(databases);
+    if (lastDatabases != databasesString) {
+      process.send({ msgtype: 'databases', databases });
+      lastDatabases = databasesString;
+    }
+  } catch (err) {
+    setStatusName('error');
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+function setStatus(status) {
+  const statusString = stableStringify(status);
+  if (lastStatus != statusString) {
+    process.send({ msgtype: 'status', status });
+    lastStatus = statusString;
+  }
+}
+
+function setStatusName(name) {
+  setStatus({ name });
 }
 
 async function handleConnect(connection) {
   storedConnection = connection;
+  setStatusName('pending');
+  lastPing = new Date().getTime();
 
   const driver = engines(storedConnection);
-  systemConnection = await driverConnect(driver, storedConnection);
-  handleRefreshDatabases();
-  setInterval(handleRefreshDatabases, 30 * 1000);
+  try {
+    systemConnection = await driverConnect(driver, storedConnection);
+    handleRefresh();
+    setInterval(handleRefresh, 30 * 1000);
+  } catch (err) {
+    setStatusName('error');
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+function handlePing() {
+  lastPing = new Date().getTime();
 }
 
 const messageHandlers = {
   connect: handleConnect,
+  ping: handlePing,
 };
 
 async function handleMessage({ msgtype, ...other }) {
@@ -31,6 +71,14 @@ async function handleMessage({ msgtype, ...other }) {
 
 function start() {
   childProcessChecker();
+
+  setInterval(() => {
+    const time = new Date().getTime();
+    if (time - lastPing > 60 * 1000) {
+      process.exit(0);
+    }
+  }, 60 * 1000);
+
   process.on('message', async (message) => {
     try {
       await handleMessage(message);

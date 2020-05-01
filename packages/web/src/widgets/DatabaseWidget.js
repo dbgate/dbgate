@@ -7,7 +7,7 @@ import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
-import { useSqlObjectList, useDatabaseList, useConnectionList } from '../utility/metadataLoaders';
+import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
 import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
 
 function SubDatabaseList({ data }) {
@@ -31,6 +31,9 @@ function SubDatabaseList({ data }) {
 
 function ConnectionList() {
   const connections = useConnectionList();
+  const serverStatus = useServerStatus();
+  const connectionsWithStatus =
+    connections && serverStatus && connections.map((conn) => ({ ...conn, status: serverStatus[conn._id] }));
 
   const [filter, setFilter] = React.useState('');
   return (
@@ -43,7 +46,7 @@ function ConnectionList() {
 
       <InnerContainer>
         <AppObjectList
-          list={connections}
+          list={connectionsWithStatus}
           makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
           SubItems={SubDatabaseList}
           filter={filter}

@@ -84,15 +84,23 @@ export function useAppObjectParams() {
   const newQuery = useNewQuery();
   const openedTabs = useOpenedTabs();
   const setSavedSqlFiles = useSetSavedSqlFiles();
-  
+  const openedConnections = useOpenedConnections();
+  const setOpenedConnections = useSetOpenedConnections();
+
   return {
     setOpenedTabs,
     currentDatabase,
     newQuery,
     openedTabs,
     setSavedSqlFiles,
+    openedConnections,
+    setOpenedConnections,
   };
 }
 
 const [SavedSqlFilesProvider, useSavedSqlFiles, useSetSavedSqlFiles] = createStorageState('savedSqlFiles', []);
 export { SavedSqlFilesProvider, useSavedSqlFiles, useSetSavedSqlFiles };
+
+const [OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnections] = createGlobalState([]);
+
+export { OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnections };

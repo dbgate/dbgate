@@ -38,7 +38,11 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
   // if (matcher && !matcher(filter)) return null;
   if (onObjectClick) appobj.onClick = onObjectClick;
   if (SubItems) {
-    appobj.onClick = () => setIsExpanded(!isExpanded);
+    const oldClick = appobj.onClick;
+    appobj.onClick = () => {
+      if (oldClick) oldClick();
+      setIsExpanded(!isExpanded);
+    };
   }
 
   let res = (
@@ -51,7 +55,11 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
       prefix={
         SubItems ? (
           <ExpandIconHolder2>
-            <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
+            {appobj.isExpandable ? (
+              <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
+            ) : (
+              <ExpandIcon isSelected={isHover} isBlank blankColor="#ccc" />
+            )}
           </ExpandIconHolder2>
         ) : null
       }
@@ -83,9 +91,9 @@ function AppObjectGroup({ group, items }) {
         <ExpandIconHolder>
           <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
         </ExpandIconHolder>
-        {group} {items && `(${items.filter(x => x.component).length})`}
+        {group} {items && `(${items.filter((x) => x.component).length})`}
       </GroupDiv>
-      {isExpanded && items.map(x => x.component)}
+      {isExpanded && items.map((x) => x.component)}
     </>
   );
 }
@@ -115,7 +123,7 @@ export function AppObjectList({
 
   if (groupFunc) {
     const listGrouped = _.compact(
-      (list || []).map(data => {
+      (list || []).map((data) => {
         const appobj = makeAppObj(data, appObjectParams);
         const { matcher } = appobj;
         if (matcher && !matcher(filter)) return null;
@@ -125,12 +133,12 @@ export function AppObjectList({
       })
     );
     const groups = _.groupBy(listGrouped, 'group');
-    return (groupOrdered || _.keys(groups)).map(group => (
+    return (groupOrdered || _.keys(groups)).map((group) => (
       <AppObjectGroup key={group} group={group} items={groups[group]} />
     ));
   }
 
-  return (list || []).map(data => {
+  return (list || []).map((data) => {
     const appobj = makeAppObj(data, appObjectParams);
     const { matcher } = appobj;
     if (matcher && !matcher(filter)) return null;

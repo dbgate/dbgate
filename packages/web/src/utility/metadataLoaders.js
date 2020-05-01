@@ -33,6 +33,12 @@ const databaseListLoader = ({ conid }) => ({
   reloadTrigger: `database-list-changed-${conid}`,
 });
 
+const serverStatusLoader = () => ({
+  url: 'server-connections/server-status',
+  params: {},
+  reloadTrigger: `server-status-changed`,
+});
+
 const connectionListLoader = () => ({
   url: 'connections/list',
   params: {},
@@ -124,6 +130,13 @@ export function getDatabaseList(args) {
 }
 export function useDatabaseList(args) {
   return useCore(databaseListLoader, args);
+}
+
+export function getServerStatus() {
+  return getCore(serverStatusLoader, {});
+}
+export function useServerStatus() {
+  return useCore(serverStatusLoader, {});
 }
 
 export function getConnectionList() {

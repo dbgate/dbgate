@@ -5,6 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
+import { FontIcon } from '../icons';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
@@ -25,6 +26,10 @@ const IconWrap = styled.span`
   margin-right: 10px;
 `;
 
+const StatusIconWrap = styled.span`
+  margin-left: 5px;
+`;
+
 export function AppObjectCore({
   title,
   Icon,
@@ -36,6 +41,7 @@ export function AppObjectCore({
   isBusy,
   component = 'div',
   prefix = null,
+  statusIcon,
   ...other
 }) {
   const appObjectParams = useAppObjectParams();
@@ -63,6 +69,11 @@ export function AppObjectCore({
       {prefix}
       <IconWrap>{isBusy ? <i className="fas fa-spinner fa-spin"></i> : <Icon />}</IconWrap>
       {title}
+      {statusIcon && (
+        <StatusIconWrap>
+          <FontIcon icon={statusIcon} />
+        </StatusIconWrap>
+      )}
     </Component>
   );
 }
