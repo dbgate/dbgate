@@ -38,6 +38,7 @@ import InlineButton from '../widgets/InlineButton';
 import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
 import useSocket from '../utility/SocketProvider';
+import LoadingInfo from '../widgets/LoadingInfo';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -100,6 +101,22 @@ const RowCountLabel = styled.div`
   background-color: lightgoldenrodyellow;
   right: 40px;
   bottom: 20px;
+`;
+
+const LoadingInfoWrapper = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+`;
+const LoadingInfoBox = styled.div`
+  background-color: #ccc;
+  padding: 10px;
+  border: 1px solid gray;
 `;
 
 /** @param props {import('./types').DataGridProps} */
@@ -1082,6 +1099,13 @@ export default function DataGridCore(props) {
           />,
           props.toolbarPortalRef.current
         )}
+      {isLoading && (
+        <LoadingInfoWrapper>
+          <LoadingInfoBox>
+            <LoadingInfo message="Loading data" />
+          </LoadingInfoBox>
+        </LoadingInfoWrapper>
+      )}
     </GridContainer>
   );
 }
