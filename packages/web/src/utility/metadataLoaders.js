@@ -24,7 +24,7 @@ const connectionInfoLoader = ({ conid }) => ({
 const sqlObjectListLoader = ({ conid, database }) => ({
   url: 'metadata/list-objects',
   params: { conid, database },
-  reloadTrigger: `database-structure-changed-${conid}-${database}`,
+  reloadTrigger: [`database-structure-changed-${conid}-${database}`, `database-status-changed-${conid}-${database}`],
 });
 
 const databaseListLoader = ({ conid }) => ({

@@ -1,3 +1,5 @@
+import getAsArray from './getAsArray';
+
 let cachedByKey = {};
 let cachedPromisesByKey = {};
 const cachedKeysByReloadTrigger = {};
@@ -8,22 +10,26 @@ export function cacheGet(key) {
 
 export function cacheSet(key, value, reloadTrigger) {
   cachedByKey[key] = value;
-  if (!(reloadTrigger in cachedKeysByReloadTrigger)) {
-    cachedKeysByReloadTrigger[reloadTrigger] = [];
+  for (const item of getAsArray(reloadTrigger)) {
+    if (!(item in cachedKeysByReloadTrigger)) {
+      cachedKeysByReloadTrigger[item] = [];
+    }
+    cachedKeysByReloadTrigger[item].push(key);
   }
-  cachedKeysByReloadTrigger[reloadTrigger].push(key);
   delete cachedPromisesByKey[key];
 }
 
 export function cacheClean(reloadTrigger) {
-  const keys = cachedKeysByReloadTrigger[reloadTrigger];
-  if (keys) {
-    for (const key of keys) {
-      delete cachedByKey[key];
-      delete cachedPromisesByKey[key];
+  for (const item of getAsArray(reloadTrigger)) {
+    const keys = cachedKeysByReloadTrigger[item];
+    if (keys) {
+      for (const key of keys) {
+        delete cachedByKey[key];
+        delete cachedPromisesByKey[key];
+      }
     }
+    delete cachedKeysByReloadTrigger[item];
   }
-  delete cachedKeysByReloadTrigger[reloadTrigger];
 }
 
 export function getCachedPromise(key, func) {

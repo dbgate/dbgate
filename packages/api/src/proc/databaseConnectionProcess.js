@@ -42,10 +42,16 @@ async function handleConnect({ connection, structure }) {
   storedConnection = connection;
   lastPing = new Date().getTime();
 
-  setStatusName('pending');
+  if (!structure) setStatusName('pending');
+  else setStatusName('ok');
   const driver = engines(storedConnection);
   systemConnection = await driverConnect(driver, storedConnection);
-  handleFullRefresh();
+  if (structure) {
+    analysedStructure = structure;
+    handleIncrementalRefresh();
+  } else {
+    handleFullRefresh();
+  }
   setInterval(handleIncrementalRefresh, 30 * 1000);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();

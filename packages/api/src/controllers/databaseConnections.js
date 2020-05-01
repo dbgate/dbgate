@@ -30,7 +30,6 @@ module.exports = {
     if (!existing) return;
     existing.status = status;
     socket.emitChanged(`database-status-changed-${conid}-${database}`);
-    socket.emitChanged(`database-structure-changed-${conid}-${database}`);
   },
 
   handle_ping() {},
@@ -117,7 +116,6 @@ module.exports = {
         structure: existing.structure,
       };
       socket.emitChanged(`database-status-changed-${conid}-${database}`);
-      socket.emitChanged(`database-structure-changed-${conid}-${database}`);
     }
   },
 

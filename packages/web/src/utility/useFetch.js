@@ -4,6 +4,7 @@ import axios from './axios';
 import useSocket from './SocketProvider';
 import stableStringify from 'json-stable-stringify';
 import { getCachedPromise, cacheGet, cacheSet } from './cache';
+import getAsArray from './getAsArray';
 
 export default function useFetch({
   url,
@@ -57,9 +58,13 @@ export default function useFetch({
 
   React.useEffect(() => {
     if (reloadTrigger && socket) {
-      socket.on(reloadTrigger, handleReload);
+      for (const item of getAsArray(reloadTrigger)) {
+        socket.on(item, handleReload);
+      }
       return () => {
-        socket.off(reloadTrigger, handleReload);
+        for (const item of getAsArray(reloadTrigger)) {
+          socket.off(item, handleReload);
+        }
       };
     }
   }, [socket, reloadTrigger]);
