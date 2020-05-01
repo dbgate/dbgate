@@ -1,10 +1,15 @@
-import { ChildProcess } from "child_process";
-import { DatabaseInfo } from "./dbinfo";
+import { ChildProcess } from 'child_process';
+import { DatabaseInfo } from './dbinfo';
 export interface OpenedDatabaseConnection {
   conid: string;
   database: string;
   structure: DatabaseInfo;
   subprocess: ChildProcess;
+  disconnected?: boolean;
+  status?: {
+    name: string;
+    message?: string;
+  };
 }
 
 export interface OpenedSession {
@@ -23,9 +28,9 @@ export interface StoredConnection {
   displayName: string;
 }
 
-export * from "./engines";
-export * from "./dbinfo";
-export * from "./query";
-export * from "./dialect";
-export * from "./dumper";
-export * from "./dbtypes";
+export * from './engines';
+export * from './dbinfo';
+export * from './query';
+export * from './dialect';
+export * from './dumper';
+export * from './dbtypes';

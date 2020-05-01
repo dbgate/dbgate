@@ -60,10 +60,9 @@ module.exports = {
     if (existing) {
       existing.disconnected = true;
       if (kill) existing.subprocess.kill();
-      const last = this.opened.find((x) => x.conid == conid);
       this.opened = this.opened.filter((x) => x.conid != conid);
       this.closed[conid] = {
-        ...(last && last.status),
+        ...existing.status,
         name: 'error',
       };
       socket.emitChanged(`server-status-changed`);

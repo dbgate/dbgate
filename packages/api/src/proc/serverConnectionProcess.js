@@ -1,7 +1,7 @@
 const engines = require('@dbgate/engines');
+const stableStringify = require('json-stable-stringify');
 const driverConnect = require('../utility/driverConnect');
 const childProcessChecker = require('../utility/childProcessChecker');
-const stableStringify = require('json-stable-stringify');
 
 let systemConnection;
 let storedConnection;

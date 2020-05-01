@@ -9,7 +9,7 @@ import {
   OpenedConnectionsProvider,
 } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
-import OpenedConnectionsPinger from './utility/OpnedConnectionsPinger';
+import ConnectionsPinger from './utility/ConnectionsPinger';
 
 function App() {
   return (
@@ -19,9 +19,9 @@ function App() {
           <OpenedTabsProvider>
             <SavedSqlFilesProvider>
               <OpenedConnectionsProvider>
-                <OpenedConnectionsPinger>
+                <ConnectionsPinger>
                   <Screen />
-                </OpenedConnectionsPinger>
+                </ConnectionsPinger>
               </OpenedConnectionsProvider>
             </SavedSqlFilesProvider>
           </OpenedTabsProvider>

@@ -7,6 +7,7 @@ const DatabaseAnalyser = require('@dbgate/engines/default/DatabaseAnalyser');
 module.exports = {
   /** @type {import('@dbgate/types').OpenedDatabaseConnection[]} */
   opened: [],
+  closed: [],
   requests: {},
 
   handle_structure(conid, database, { structure }) {
@@ -24,6 +25,14 @@ module.exports = {
     resolve(response);
     delete this.requests[msgid];
   },
+  handle_status(conid, database, { status }) {
+    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    if (!existing) return;
+    existing.status = status;
+    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    socket.emitChanged(`database-structure-changed-${conid}-${database}`);
+  },
+
   handle_ping() {},
 
   async ensureOpened(conid, database) {
@@ -31,19 +40,31 @@ module.exports = {
     if (existing) return existing;
     const connection = await connections.get({ conid });
     const subprocess = fork(process.argv[1], ['databaseConnectionProcess']);
+    const lastClosed = this.closed.find((x) => x.conid == conid && x.database == database);
     const newOpened = {
       conid,
       database,
       subprocess,
-      structure: DatabaseAnalyser.createEmptyStructure(),
+      structure: lastClosed ? lastClosed.structure : DatabaseAnalyser.createEmptyStructure(),
       connection,
+      status: { name: 'pending' },
     };
     this.opened.push(newOpened);
     // @ts-ignore
     subprocess.on('message', ({ msgtype, ...message }) => {
+      if (newOpened.disconnected) return;
       this[`handle_${msgtype}`](conid, database, message);
     });
-    subprocess.send({ msgtype: 'connect', ...connection, database });
+    subprocess.on('exit', () => {
+      if (newOpened.disconnected) return;
+      this.close(conid, database, false);
+    });
+
+    subprocess.send({
+      msgtype: 'connect',
+      connection: { ...connection, database },
+      structure: lastClosed ? lastClosed.structure : null,
+    });
     return newOpened;
   },
 
@@ -63,6 +84,41 @@ module.exports = {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
     return res;
+  },
+
+  ping_meta: 'post',
+  async ping({ conid, database }) {
+    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    if (existing) {
+      existing.subprocess.send({ msgtype: 'ping' });
+    }
+    return { status: 'ok' };
+  },
+
+  refresh_meta: 'post',
+  async refresh({ conid, database }) {
+    this.close(conid, database);
+
+    await this.ensureOpened(conid, database);
+    return { status: 'ok' };
+  },
+
+  close(conid, database, kill = true) {
+    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    if (existing) {
+      existing.disconnected = true;
+      if (kill) existing.subprocess.kill();
+      this.opened = this.opened.filter((x) => x.conid != conid || x.database != database);
+      this.closed[conid] = {
+        status: {
+          ...existing.status,
+          name: 'error',
+        },
+        structure: existing.structure,
+      };
+      socket.emitChanged(`database-status-changed-${conid}-${database}`);
+      socket.emitChanged(`database-structure-changed-${conid}-${database}`);
+    }
   },
 
   // runCommand_meta: 'post',

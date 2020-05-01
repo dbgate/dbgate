@@ -1,4 +1,5 @@
 const engines = require('@dbgate/engines');
+const stableStringify = require('json-stable-stringify');
 const driverConnect = require('../utility/driverConnect');
 const childProcessChecker = require('../utility/childProcessChecker');
 
@@ -6,11 +7,14 @@ let systemConnection;
 let storedConnection;
 let afterConnectCallbacks = [];
 let analysedStructure = null;
+let lastPing = null;
+let lastStatus = null;
 
 async function handleFullRefresh() {
   const driver = engines(storedConnection);
   analysedStructure = await driver.analyseFull(systemConnection);
   process.send({ msgtype: 'structure', structure: analysedStructure });
+  setStatusName('ok');
 }
 
 async function handleIncrementalRefresh() {
@@ -22,9 +26,23 @@ async function handleIncrementalRefresh() {
   }
 }
 
-async function handleConnect(connection) {
-  storedConnection = connection;
+function setStatus(status) {
+  const statusString = stableStringify(status);
+  if (lastStatus != statusString) {
+    process.send({ msgtype: 'status', status });
+    lastStatus = statusString;
+  }
+}
 
+function setStatusName(name) {
+  setStatus({ name });
+}
+
+async function handleConnect({ connection, structure }) {
+  storedConnection = connection;
+  lastPing = new Date().getTime();
+
+  setStatusName('pending');
   const driver = engines(storedConnection);
   systemConnection = await driverConnect(driver, storedConnection);
   handleFullRefresh();
@@ -56,9 +74,14 @@ async function handleQueryData({ msgid, sql }) {
 //   process.send({ msgtype: 'response', msgid, ...res });
 // }
 
+function handlePing() {
+  lastPing = new Date().getTime();
+}
+
 const messageHandlers = {
   connect: handleConnect,
   queryData: handleQueryData,
+  ping: handlePing,
   // runCommand: handleRunCommand,
 };
 
@@ -69,6 +92,14 @@ async function handleMessage({ msgtype, ...other }) {
 
 function start() {
   childProcessChecker();
+
+  setInterval(() => {
+    const time = new Date().getTime();
+    if (time - lastPing > 60 * 1000) {
+      process.exit(0);
+    }
+  }, 60 * 1000);
+
   process.on('message', async (message) => {
     try {
       await handleMessage(message);

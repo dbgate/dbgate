@@ -10,6 +10,7 @@ import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
 import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
 import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
 import axios from '../utility/axios';
+import LoadingInfo from './LoadingInfo';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -68,6 +69,11 @@ function ConnectionList() {
 
 function SqlObjectList({ conid, database }) {
   const objects = useSqlObjectList({ conid, database });
+  const { status } = objects || {};
+
+  const handleRefreshDatabase = () => {
+    axios.post('database-connections/refresh', { conid, database });
+  };
 
   const [filter, setFilter] = React.useState('');
   const objectList = _.flatten(
@@ -85,15 +91,19 @@ function SqlObjectList({ conid, database }) {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
-        <InlineButton>Refresh</InlineButton>
+        <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <InnerContainer>
-        <AppObjectList
-          list={objectList.map((x) => ({ ...x, conid, database }))}
-          makeAppObj={databaseObjectAppObject()}
-          groupFunc={(appobj) => appobj.groupTitle}
-          filter={filter}
-        />
+        {status && status.name == 'pending' ? (
+          <LoadingInfo message="Loading database structure" />
+        ) : (
+          <AppObjectList
+            list={objectList.map((x) => ({ ...x, conid, database }))}
+            makeAppObj={databaseObjectAppObject()}
+            groupFunc={(appobj) => appobj.groupTitle}
+            filter={filter}
+          />
+        )}
       </InnerContainer>
     </>
   );
