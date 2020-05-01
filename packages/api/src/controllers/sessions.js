@@ -58,6 +58,8 @@ module.exports = {
     jsldata.notifyChangedStats(stats);
   },
 
+  handle_ping() {},
+
   create_meta: 'post',
   async create({ conid, database }) {
     const sesid = uuidv1();

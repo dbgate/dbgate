@@ -24,6 +24,7 @@ module.exports = {
     resolve(response);
     delete this.requests[msgid];
   },
+  handle_ping() {},
 
   async ensureOpened(conid, database) {
     const existing = this.opened.find((x) => x.conid == conid && x.database == database);

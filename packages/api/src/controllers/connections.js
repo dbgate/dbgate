@@ -27,7 +27,12 @@ module.exports = {
   },
   test(req, res) {
     const subprocess = fork(process.argv[1], ['connectProcess']);
-    subprocess.on('message', (resp) => res.json(resp));
+    subprocess.on('message', (resp) => {
+      const { msgtype } = res;
+      if (msgtype == 'connected' || msgtype == 'error') {
+        res.json(resp);
+      }
+    });
     subprocess.send(req.body);
   },
 

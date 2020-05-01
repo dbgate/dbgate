@@ -1,13 +1,15 @@
 const engines = require('@dbgate/engines');
 const driverConnect = require('../utility/driverConnect');
+const childProcessChecker = require('../utility/childProcessChecker');
 
 function start() {
-  process.on('message', async connection => {
+  childProcessChecker();
+  process.on('message', async (connection) => {
     try {
       const driver = engines(connection);
       const conn = await driverConnect(driver, connection);
       const res = await driver.getVersion(conn);
-      process.send(res);
+      process.send({ msgtype: 'connected', ...res });
     } catch (e) {
       console.log(e);
       process.send({ msgtype: 'error', error: e.message });

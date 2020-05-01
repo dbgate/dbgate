@@ -3,6 +3,7 @@ const uuidv1 = require('uuid/v1');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
+const childProcessChecker = require('../utility/childProcessChecker');
 
 const driverConnect = require('../utility/driverConnect');
 const { jsldir } = require('../utility/directories');
@@ -132,6 +133,7 @@ async function handleMessage({ msgtype, ...other }) {
 }
 
 function start() {
+  childProcessChecker();
   process.on('message', async (message) => {
     try {
       await handleMessage(message);

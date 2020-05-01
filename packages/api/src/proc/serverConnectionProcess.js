@@ -1,5 +1,6 @@
 const engines = require('@dbgate/engines');
 const driverConnect = require('../utility/driverConnect');
+const childProcessChecker = require('../utility/childProcessChecker');
 
 let systemConnection;
 let storedConnection;
@@ -29,7 +30,8 @@ async function handleMessage({ msgtype, ...other }) {
 }
 
 function start() {
-  process.on('message', async message => {
+  childProcessChecker();
+  process.on('message', async (message) => {
     try {
       await handleMessage(message);
     } catch (e) {
