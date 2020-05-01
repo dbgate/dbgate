@@ -27,6 +27,12 @@ const sqlObjectListLoader = ({ conid, database }) => ({
   reloadTrigger: [`database-structure-changed-${conid}-${database}`, `database-status-changed-${conid}-${database}`],
 });
 
+const databaseStatusLoader = ({ conid, database }) => ({
+  url: 'database-connections/status',
+  params: { conid, database },
+  reloadTrigger: `database-status-changed-${conid}-${database}`,
+});
+
 const databaseListLoader = ({ conid }) => ({
   url: 'server-connections/list-databases',
   params: { conid },
@@ -123,6 +129,13 @@ export function getSqlObjectList(args) {
 }
 export function useSqlObjectList(args) {
   return useCore(sqlObjectListLoader, args);
+}
+
+export function getDatabaseStatus(args) {
+  return getCore(databaseStatusLoader, args);
+}
+export function useDatabaseStatus(args) {
+  return useCore(databaseStatusLoader, args);
 }
 
 export function getDatabaseList(args) {

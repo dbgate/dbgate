@@ -10,16 +10,31 @@ let analysedStructure = null;
 let lastPing = null;
 let lastStatus = null;
 
+async function checkedAsyncCall(promise) {
+  try {
+    const res = await promise;
+    return res;
+  } catch (err) {
+    setStatus({
+      name: 'error',
+      message: err.message,
+    });
+    // console.error(err);
+    setTimeout(() => process.exit(1), 1000);
+    throw err;
+  }
+}
+
 async function handleFullRefresh() {
   const driver = engines(storedConnection);
-  analysedStructure = await driver.analyseFull(systemConnection);
+  analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection));
   process.send({ msgtype: 'structure', structure: analysedStructure });
   setStatusName('ok');
 }
 
 async function handleIncrementalRefresh() {
   const driver = engines(storedConnection);
-  const newStructure = await driver.analyseIncremental(systemConnection, analysedStructure);
+  const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure));
   if (newStructure != null) {
     analysedStructure = newStructure;
     process.send({ msgtype: 'structure', structure: analysedStructure });
@@ -43,9 +58,8 @@ async function handleConnect({ connection, structure }) {
   lastPing = new Date().getTime();
 
   if (!structure) setStatusName('pending');
-  else setStatusName('ok');
   const driver = engines(storedConnection);
-  systemConnection = await driverConnect(driver, storedConnection);
+  systemConnection = await checkedAsyncCall(driverConnect(driver, storedConnection));
   if (structure) {
     analysedStructure = structure;
     handleIncrementalRefresh();

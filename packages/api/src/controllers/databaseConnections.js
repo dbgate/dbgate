@@ -85,6 +85,16 @@ module.exports = {
     return res;
   },
 
+  status_meta: 'get',
+  async status({ conid, database }) {
+    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    if (existing) return existing.status;
+    return {
+      name: 'error',
+      message: 'Not connected',
+    };
+  },
+
   ping_meta: 'post',
   async ping({ conid, database }) {
     const existing = this.opened.find((x) => x.conid == conid && x.database == database);
