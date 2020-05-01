@@ -4,11 +4,12 @@ import _ from 'lodash';
 import { AppObjectList } from '../appobj/AppObjectList';
 import connectionAppObject from '../appobj/connectionAppObject';
 import databaseAppObject from '../appobj/databaseAppObject';
-import { useSetCurrentDatabase, useCurrentDatabase } from '../utility/globalState';
+import { useSetCurrentDatabase, useCurrentDatabase, useOpenedConnections } from '../utility/globalState';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
 import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
 import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
+import axios from '../utility/axios';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -32,8 +33,17 @@ function SubDatabaseList({ data }) {
 function ConnectionList() {
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
+  const openedConnections = useOpenedConnections();
   const connectionsWithStatus =
-    connections && serverStatus && connections.map((conn) => ({ ...conn, status: serverStatus[conn._id] }));
+    connections && serverStatus
+      ? connections.map((conn) => ({ ...conn, status: serverStatus[conn._id] }))
+      : connections;
+
+  const handleRefreshConnections = () => {
+    for (const conid of openedConnections) {
+      axios.post('server-connections/refresh', { conid });
+    }
+  };
 
   const [filter, setFilter] = React.useState('');
   return (
@@ -41,7 +51,7 @@ function ConnectionList() {
       <WidgetTitle>Connections</WidgetTitle>
       <SearchBoxWrapper>
         <Input type="text" placeholder="Search connection" value={filter} onChange={(e) => setFilter(e.target.value)} />
-        <InlineButton>Refresh</InlineButton>
+        <InlineButton onClick={handleRefreshConnections}>Refresh</InlineButton>
       </SearchBoxWrapper>
 
       <InnerContainer>

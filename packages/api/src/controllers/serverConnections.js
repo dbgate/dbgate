@@ -5,7 +5,7 @@ const _ = require('lodash');
 
 module.exports = {
   opened: [],
-  closed: [],
+  closed: {},
 
   handle_databases(conid, { databases }) {
     const existing = this.opened.find((x) => x.conid == conid);
@@ -40,7 +40,7 @@ module.exports = {
       disconnected: false,
     };
     this.opened.push(newOpened);
-    this.closed = this.closed.filter((x) => x != conid);
+    delete this.closed[conid];
     socket.emitChanged(`server-status-changed`);
     // @ts-ignore
     subprocess.on('message', ({ msgtype, ...message }) => {
@@ -49,21 +49,24 @@ module.exports = {
     });
     subprocess.on('exit', () => {
       if (newOpened.disconnected) return;
-      this.opened = this.opened.filter((x) => x.conid != conid);
-      this.closed.push(conid);
-      socket.emitChanged(`server-status-changed`);
+      this.close(conid, false);
     });
     subprocess.send({ msgtype: 'connect', ...connection });
     return newOpened;
   },
 
-  close(conid) {
+  close(conid, kill = true) {
     const existing = this.opened.find((x) => x.conid == conid);
     if (existing) {
       existing.disconnected = true;
-      existing.subprocess.kill();
+      if (kill) existing.subprocess.kill();
+      const last = this.opened.find((x) => x.conid == conid);
       this.opened = this.opened.filter((x) => x.conid != conid);
-      this.closed.push(conid);
+      this.closed[conid] = {
+        ...(last && last.status),
+        name: 'error',
+      };
+      socket.emitChanged(`server-status-changed`);
     }
   },
 
@@ -76,15 +79,7 @@ module.exports = {
   serverStatus_meta: 'get',
   async serverStatus() {
     return {
-      ...this.closed.reduce(
-        (res, conid) => ({
-          ...res,
-          [conid]: {
-            name: 'error',
-          },
-        }),
-        {}
-      ),
+      ...this.closed,
       ..._.mapValues(_.keyBy(this.opened, 'conid'), 'status'),
     };
   },

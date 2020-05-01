@@ -42,6 +42,7 @@ export function AppObjectCore({
   component = 'div',
   prefix = null,
   statusIcon,
+  statusTitle,
   ...other
 }) {
   const appObjectParams = useAppObjectParams();
@@ -71,7 +72,7 @@ export function AppObjectCore({
       {title}
       {statusIcon && (
         <StatusIconWrap>
-          <FontIcon icon={statusIcon} />
+          <FontIcon icon={statusIcon} title={statusTitle} />
         </StatusIconWrap>
       )}
     </Component>

@@ -20,9 +20,12 @@ async function handleRefresh() {
       lastDatabases = databasesString;
     }
   } catch (err) {
-    setStatusName('error');
-    console.error(err);
-    process.exit(1);
+    setStatus({
+      name: 'error',
+      message: err.message,
+    });
+    // console.error(err);
+    setTimeout(() => process.exit(1), 1000);
   }
 }
 
@@ -49,9 +52,12 @@ async function handleConnect(connection) {
     handleRefresh();
     setInterval(handleRefresh, 30 * 1000);
   } catch (err) {
-    setStatusName('error');
-    console.error(err);
-    process.exit(1);
+    setStatus({
+      name: 'error',
+      message: err.message,
+    });
+    // console.error(err);
+    setTimeout(() => process.exit(1), 1000);
   }
 }
 

@@ -34,14 +34,30 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
   const [isExpanded, setIsExpanded] = React.useState(false);
   const [isHover, setIsHover] = React.useState(false);
 
+  React.useEffect(() => {
+    if (!appobj.isExpandable) {
+      // if (data._id == '6pOY2iFY8Gsq7mk6') console.log('COLLAPSE1');
+      setIsExpanded(false);
+    }
+  }, [appobj && appobj.isExpandable]);
+
   // const { matcher } = appobj;
   // if (matcher && !matcher(filter)) return null;
-  if (onObjectClick) appobj.onClick = onObjectClick;
+
+  if (onObjectClick)
+    appobj = {
+      ...appobj,
+      onClick: onObjectClick,
+    };
   if (SubItems) {
     const oldClick = appobj.onClick;
-    appobj.onClick = () => {
-      if (oldClick) oldClick();
-      setIsExpanded(!isExpanded);
+    appobj = {
+      ...appobj,
+      onClick: () => {
+        if (oldClick) oldClick();
+        // if (data._id == '6pOY2iFY8Gsq7mk6') console.log('COLLAPSE2');
+        setIsExpanded((v) => !v);
+      },
     };
   }
 

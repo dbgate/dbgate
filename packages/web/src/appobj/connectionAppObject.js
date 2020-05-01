@@ -7,7 +7,7 @@ import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
 
-function Menu({ data, setOpenedConnections }) {
+function Menu({ data, setOpenedConnections, openedConnections }) {
   const handleEdit = () => {
     showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
   };
@@ -24,8 +24,12 @@ function Menu({ data, setOpenedConnections }) {
     <>
       <DropDownMenuItem onClick={handleEdit}>Edit</DropDownMenuItem>
       <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleRefresh}>Refresh</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleDisconnect}>Disconnect</DropDownMenuItem>
+      {openedConnections.includes(data._id) && data.status && (
+        <DropDownMenuItem onClick={handleRefresh}>Refresh</DropDownMenuItem>
+      )}
+      {openedConnections.includes(data._id) && (
+        <DropDownMenuItem onClick={handleDisconnect}>Disconnect</DropDownMenuItem>
+      )}
     </>
   );
 }
@@ -47,13 +51,16 @@ const connectionAppObject = (flags) => (
     : null;
   const onClick = () => setOpenedConnections((c) => [...c, _id]);
 
-  // let isBusy = false;
   let statusIcon = null;
+  let statusTitle = null;
   if (openedConnections.includes(_id)) {
     if (!status) statusIcon = 'fas fa-spinner fa-spin';
     else if (status.name == 'pending') statusIcon = 'fas fa-spinner fa-spin';
     else if (status.name == 'ok') statusIcon = 'fas fa-check-circle green';
     else statusIcon = 'fas fa-times-circle red';
+    if (status && status.name == 'error') {
+      statusTitle = status.message;
+    }
   }
 
   return {
@@ -65,8 +72,8 @@ const connectionAppObject = (flags) => (
     isBold,
     isExpandable,
     onClick,
-    // isBusy,
     statusIcon,
+    statusTitle,
   };
 };
 
