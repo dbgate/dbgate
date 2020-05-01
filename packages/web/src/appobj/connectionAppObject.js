@@ -6,13 +6,20 @@ import showModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
+import ConfirmModal from '../modals/ConfirmModal';
 
 function Menu({ data, setOpenedConnections, openedConnections }) {
   const handleEdit = () => {
     showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
   };
   const handleDelete = () => {
-    axios.post('connections/delete', data);
+    showModal((modalState) => (
+      <ConfirmModal
+        modalState={modalState}
+        message={`Really delete connection ${data.displayName || data.server}?`}
+        onConfirm={() => axios.post('connections/delete', data)}
+      />
+    ));
   };
   const handleRefresh = () => {
     axios.post('server-connections/refresh', { conid: data._id });

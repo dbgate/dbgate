@@ -1,12 +1,8 @@
 import React from 'react';
-import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormRow, FormButtonRow, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
+import { FormButtonRow } from '../utility/forms';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { TextField } from '../utility/inputs';
-import { Formik, Form } from 'formik';
 import SqlEditor from '../sqleditor/SqlEditor';
-// import FormikForm from '../utility/FormikForm';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
 

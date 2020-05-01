@@ -11,7 +11,7 @@ function start() {
       const res = await driver.getVersion(conn);
       process.send({ msgtype: 'connected', ...res });
     } catch (e) {
-      console.log(e);
+      console.error(e);
       process.send({ msgtype: 'error', error: e.message });
     }
   });
