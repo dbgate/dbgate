@@ -189,6 +189,7 @@ export class TableGridDisplay extends GridDisplay {
       this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo),
       this.addHintsToSelect(select)
     );
+    if (select.from.relations) select.from.relations.reverse();
     return action;
   }
 
