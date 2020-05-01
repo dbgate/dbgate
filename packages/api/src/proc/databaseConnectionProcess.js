@@ -83,8 +83,12 @@ function waitConnected() {
 async function handleQueryData({ msgid, sql }) {
   await waitConnected();
   const driver = engines(storedConnection);
-  const res = await driver.query(systemConnection, sql);
-  process.send({ msgtype: 'response', msgid, ...res });
+  try {
+    const res = await driver.query(systemConnection, sql);
+    process.send({ msgtype: 'response', msgid, ...res });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
 }
 
 // async function handleRunCommand({ msgid, sql }) {

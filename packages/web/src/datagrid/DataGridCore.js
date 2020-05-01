@@ -39,6 +39,7 @@ import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
 import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
+import ErrorInfo from '../widgets/ErrorInfo';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -148,6 +149,7 @@ async function loadDataPage(props, offset, limit) {
     data: { sql },
   });
 
+  if (response.data.errorMessage) return response.data;
   return response.data.rows;
 }
 
@@ -203,8 +205,9 @@ export default function DataGridCore(props) {
     isLoadedAll: false,
     loadedTime: new Date().getTime(),
     allRowCount: null,
+    errorMessage: null,
   });
-  const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount } = loadProps;
+  const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
   const focusFieldRef = React.useRef();
@@ -269,17 +272,25 @@ export default function DataGridCore(props) {
     //   nextRows = [];
     // }
     // console.log('nextRows', nextRows);
-    if (allRowCount == null) handleLoadRowCount();
-    const loadedInfo = {
-      loadedRows: [...loadedRows, ...nextRows],
-      loadedTime,
-      isLoadedAll: nextRows.length === 0,
-    };
-    setLoadProps((oldLoadProps) => ({
-      ...oldLoadProps,
-      isLoading: false,
-      ...loadedInfo,
-    }));
+    if (nextRows.errorMessage) {
+      setLoadProps((oldLoadProps) => ({
+        ...oldLoadProps,
+        isLoading: false,
+        errorMessage: nextRows.errorMessage,
+      }));
+    } else {
+      if (allRowCount == null) handleLoadRowCount();
+      const loadedInfo = {
+        loadedRows: [...loadedRows, ...nextRows],
+        loadedTime,
+        isLoadedAll: nextRows.length === 0,
+      };
+      setLoadProps((oldLoadProps) => ({
+        ...oldLoadProps,
+        isLoading: false,
+        ...loadedInfo,
+      }));
+    }
   };
 
   // const data = useFetch({
@@ -361,12 +372,14 @@ export default function DataGridCore(props) {
       loadedRows: [],
       isLoadedAll: false,
       loadedTime: new Date().getTime(),
+      errorMessage: null,
     });
   };
 
   React.useEffect(() => {
     if (
       !isLoadedAll &&
+      !errorMessage &&
       firstVisibleRowScrollIndex + visibleRowCountUpperBound >= loadedRows.length &&
       insertedRows.length == 0
     ) {
@@ -454,6 +467,10 @@ export default function DataGridCore(props) {
         </LoadingInfoBox>
       </LoadingInfoWrapper>
     );
+
+  if (errorMessage) {
+    return <ErrorInfo message={errorMessage} />;
+  }
 
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
