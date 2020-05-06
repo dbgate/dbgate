@@ -7,14 +7,16 @@ import {
   ReferenceActionResult,
   DisplayedColumnInfo,
 } from './GridDisplay';
-import { TableInfo, EngineDriver, ViewInfo, ColumnInfo } from '@dbgate/types';
-import { GridConfig, GridCache } from './GridConfig';
+import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo } from '@dbgate/types';
+import { GridConfig, GridCache, createGridCache } from './GridConfig';
 import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { filterName } from './filterName';
 
 export class TableGridDisplay extends GridDisplay {
+  public table: TableInfo;
+
   constructor(
-    public table: TableInfo,
+    public tableName: NamedObjectInfo,
     driver: EngineDriver,
     config: GridConfig,
     setConfig: (config: GridConfig) => void,
@@ -23,15 +25,21 @@ export class TableGridDisplay extends GridDisplay {
     protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
   ) {
     super(config, setConfig, cache, setCache, driver);
-    this.columns = this.getDisplayColumns(table, []);
+
+    this.table = this.cache.tables.basetbl;
+    if (!this.table) {
+      this.loadTableIntoCache('basetbl', tableName);
+    }
+
+    this.columns = this.getDisplayColumns(this.table, []);
     this.filterable = true;
     this.sortable = true;
     this.editable = true;
-    this.baseTable = table;
-    if (table && table.columns) {
-      this.changeSetKeyFields = table.primaryKey
-        ? table.primaryKey.columns.map((x) => x.columnName)
-        : table.columns.map((x) => x.columnName);
+    this.baseTable = this.table;
+    if (this.table && this.table.columns) {
+      this.changeSetKeyFields = this.table.primaryKey
+        ? this.table.primaryKey.columns.map((x) => x.columnName)
+        : this.table.columns.map((x) => x.columnName);
     }
   }
 
@@ -160,10 +168,7 @@ export class TableGridDisplay extends GridDisplay {
     return [];
   }
 
-  requireFkTarget(column: DisplayColumn) {
-    const { uniqueName, foreignKey } = column;
-    const pureName = foreignKey.refTableName;
-    const schemaName = foreignKey.refSchemaName;
+  loadTableIntoCache(key, { pureName, schemaName }) {
     if (this.cache.loadingTables.find((x) => x.pureName == pureName && x.schemaName == schemaName)) return;
 
     this.setCache((cache) => ({
@@ -178,10 +183,17 @@ export class TableGridDisplay extends GridDisplay {
         loadingTables: cache.loadingTables.filter((x) => x.schemaName != schemaName || x.pureName != pureName),
         tables: {
           ...cache.tables,
-          [uniqueName]: table,
+          [key]: table,
         },
       }));
     });
+  }
+
+  requireFkTarget(column: DisplayColumn) {
+    const { uniqueName, foreignKey } = column;
+    const pureName = foreignKey.refTableName;
+    const schemaName = foreignKey.refSchemaName;
+    this.loadTableIntoCache(uniqueName, { pureName, schemaName });
   }
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): ReferenceActionResult {
@@ -194,6 +206,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   createSelect() {
+    if (!this.table) return null;
     const select = this.createSelectBase(this.table, this.table.columns);
     return select;
   }

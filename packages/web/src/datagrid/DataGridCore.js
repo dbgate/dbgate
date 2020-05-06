@@ -376,6 +376,9 @@ export default function DataGridCore(props) {
     });
   };
 
+  const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
+  const rowCountNewIncluded = loadedRows.length + insertedRows.length;
+
   React.useEffect(() => {
     if (
       !isLoadedAll &&
@@ -472,9 +475,6 @@ export default function DataGridCore(props) {
     return <ErrorInfo message={errorMessage} />;
   }
 
-  const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
-  const rowCountNewIncluded = loadedRows.length + insertedRows.length;
-
   const handleRowScroll = (value) => {
     setFirstVisibleRowScrollIndex(value);
   };
@@ -493,7 +493,7 @@ export default function DataGridCore(props) {
         revertRowChanges={revertRowChanges}
         deleteSelectedRows={deleteSelectedRows}
         insertNewRow={insertNewRow}
-        reload={reload}
+        reload={() => display.reload()}
       />
     );
   };
@@ -778,7 +778,7 @@ export default function DataGridCore(props) {
   function handleGridKeyDown(event) {
     if (event.keyCode == keycodes.f5) {
       event.preventDefault();
-      reload();
+      display.reload();
     }
 
     if (event.keyCode == keycodes.s && event.ctrlKey) {
@@ -1116,7 +1116,7 @@ export default function DataGridCore(props) {
         tabVisible &&
         ReactDOM.createPortal(
           <DataGridToolbar
-            reload={reload}
+            reload={() => display.reload()}
             save={handleSave}
             changeSetState={changeSetState}
             dispatchChangeSet={dispatchChangeSet}

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridConfig, GridCache, GridConfigColumns } from './GridConfig';
+import { GridConfig, GridCache, GridConfigColumns, createGridCache } from './GridConfig';
 import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver, NamedObjectInfo } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
@@ -86,7 +86,8 @@ export abstract class GridDisplay {
 
   reload() {
     this.setCache((cache) => ({
-      ...cache,
+      // ...cache,
+      ...createGridCache(),
       refreshTime: new Date().getTime(),
     }));
   }
