@@ -26,7 +26,7 @@ const menus = {
     },
     {
       label: 'Show CREATE TABLE script',
-      tab: 'TableCreateScriptTab',
+      sqlTemplate: 'CREATE TABLE',
     },
   ],
   views: [
@@ -36,23 +36,23 @@ const menus = {
     },
     {
       label: 'Show CREATE VIEW script',
-      tab: 'SqlObjectCreateScriptTab',
+      sqlTemplate: 'CREATE OBJECT',
     },
   ],
   procedures: [
     {
       label: 'Show CREATE PROCEDURE script',
-      tab: 'SqlObjectCreateScriptTab',
+      sqlTemplate: 'CREATE OBJECT',
     },
     {
       label: 'Show EXECUTE script',
-      tab: 'ExecuteProcedureTab',
+      sqlTemplate: 'EXECUTE PROCEDURE',
     },
   ],
   functions: [
     {
       label: 'Show CREATE FUNCTION script',
-      tab: 'SqlObjectCreateScriptTab',
+      sqlTemplate: 'CREATE OBJECT',
     },
   ],
 };
@@ -60,13 +60,12 @@ const menus = {
 const defaultTabs = {
   tables: 'TableDataTab',
   views: 'ViewDataTab',
-  procedures: 'SqlObjectCreateScriptTab',
-  functions: 'SqlObjectCreateScriptTab',
 };
 
 async function openObjectDetail(
   setOpenedTabs,
   tabComponent,
+  sqlTemplate,
   { schemaName, pureName, conid, database, objectTypeField }
 ) {
   const connection = await getConnectionInfo({ conid });
@@ -78,14 +77,15 @@ async function openObjectDetail(
   openNewTab(setOpenedTabs, {
     title: pureName,
     tooltip,
-    icon: icons[objectTypeField],
-    tabComponent,
+    icon: sqlTemplate ? 'sql.svg' : icons[objectTypeField],
+    tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
     props: {
       schemaName,
       pureName,
       conid,
       database,
       objectTypeField,
+      initialArgs: sqlTemplate ? { sqlTemplate } : null,
     },
   });
 }
@@ -97,7 +97,7 @@ function Menu({ data, makeAppObj, setOpenedTabs }) {
         <DropDownMenuItem
           key={menu.label}
           onClick={() => {
-            openObjectDetail(setOpenedTabs, menu.tab, data);
+            openObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
           }}
         >
           {menu.label}
@@ -115,13 +115,18 @@ const databaseObjectAppObject = () => (
   const key = title;
   const Icon = (props) => getIconImage(icons[objectTypeField], props);
   const onClick = ({ schemaName, pureName }) => {
-    openObjectDetail(setOpenedTabs, defaultTabs[objectTypeField], {
-      schemaName,
-      pureName,
-      conid,
-      database,
-      objectTypeField,
-    });
+    openObjectDetail(
+      setOpenedTabs,
+      defaultTabs[objectTypeField],
+      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
+      {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField,
+      }
+    );
   };
   const matcher = (filter) => filterName(filter, pureName);
   const groupTitle = _.startCase(objectTypeField);

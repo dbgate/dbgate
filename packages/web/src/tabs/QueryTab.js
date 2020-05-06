@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import axios from '../utility/axios';
-import { useConnectionInfo } from '../utility/metadataLoaders';
+import engines from '@dbgate/engines';
+
+import { useConnectionInfo, getTableInfo, getConnectionInfo, getSqlObjectInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
@@ -17,9 +19,59 @@ import SaveSqlFileModal from '../modals/SaveSqlFileModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 
-export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPortalRef, initialScript, storageKey }) {
+function useSqlTemplate(sqlTemplate, props) {
+  const [sql, setSql] = React.useState('');
+
+  async function loadTemplate() {
+    if (sqlTemplate == 'CREATE TABLE') {
+      const tableInfo = await getTableInfo(props);
+      const connection = await getConnectionInfo(props);
+      const driver = engines(connection.engine);
+      const dmp = driver.createDumper();
+      if (tableInfo) dmp.createTable(tableInfo);
+      setSql(dmp.s);
+    }
+    if (sqlTemplate == 'CREATE OBJECT') {
+      const objectInfo = await getSqlObjectInfo(props);
+      setSql(objectInfo.createSql);
+    }
+    if (sqlTemplate == 'EXECUTE PROCEDURE') {
+      const procedureInfo = await getSqlObjectInfo(props);
+      const connection = await getConnectionInfo(props);
+
+      const driver = engines(connection.engine);
+      const dmp = driver.createDumper();
+      if (procedureInfo) dmp.put('^execute %f', procedureInfo);
+      setSql(dmp.s);
+    }
+  }
+
+  React.useEffect(() => {
+    if (sqlTemplate) {
+      loadTemplate();
+    }
+  }, []);
+
+  return sql;
+}
+
+export default function QueryTab({
+  tabid,
+  conid,
+  database,
+  initialArgs,
+  tabVisible,
+  toolbarPortalRef,
+  initialScript,
+  storageKey,
+  ...other
+}) {
+  const loadingText = 'Loading SQL template...';
   const localStorageKey = storageKey || `sql_${tabid}`;
-  const [queryText, setQueryText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
+  const { sqlTemplate } = initialArgs || {};
+  const [queryText, setQueryText] = React.useState(
+    () => localStorage.getItem(localStorageKey) || initialScript || (sqlTemplate ? loadingText : '')
+  );
   const queryTextRef = React.useRef(queryText);
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);
@@ -28,6 +80,14 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
   const saveSqlFileModalState = useModalState();
+
+  const sqlFromTemplate = useSqlTemplate(sqlTemplate, { conid, database, ...other });
+  React.useEffect(() => {
+    if (sqlFromTemplate && queryText == loadingText) {
+      editorRef.current.editor.setValue(sqlFromTemplate);
+      editorRef.current.editor.clearSelection();
+    }
+  }, [sqlFromTemplate]);
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
     localStorageKey,
@@ -137,6 +197,7 @@ export default function QueryTab({ tabid, conid, database, tabVisible, toolbarPo
           engine={connection && connection.engine}
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
+          readOnly={queryText == loadingText}
         />
         <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
           <TabPage label="Messages" key="messages">
