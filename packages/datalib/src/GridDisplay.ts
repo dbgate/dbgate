@@ -54,6 +54,7 @@ export abstract class GridDisplay {
   sortable = false;
   filterable = false;
   editable = false;
+  isLoadedCorrectly = true;
 
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');

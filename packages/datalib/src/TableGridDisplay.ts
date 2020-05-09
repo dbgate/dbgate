@@ -29,6 +29,11 @@ export class TableGridDisplay extends GridDisplay {
     this.table = this.cache.tables.basetbl;
     if (!this.table) {
       this.loadTableIntoCache('basetbl', tableName);
+      this.isLoadedCorrectly = false;
+    } else {
+      if (!this.table.columns || this.table.columns.length == 0) {
+        this.isLoadedCorrectly = false;
+      }
     }
 
     this.columns = this.getDisplayColumns(this.table, []);
