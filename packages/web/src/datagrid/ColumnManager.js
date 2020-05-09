@@ -4,6 +4,7 @@ import ColumnLabel from './ColumnLabel';
 import { filterName } from '@dbgate/datalib';
 import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
+import { ManagerInnerContainer } from './ManagerStyles';
 
 const Wrapper = styled.div``;
 
@@ -86,7 +87,7 @@ export default function ColumnManager(props) {
   const { display } = props;
   const [columnFilter, setColumnFilter] = React.useState('');
   return (
-    <Wrapper>
+    <>
       <SearchBoxWrapper>
         <Input
           type="text"
@@ -97,12 +98,14 @@ export default function ColumnManager(props) {
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>
-      {display
-        .getColumns(columnFilter)
-        .filter((column) => filterName(columnFilter, column.columnName))
-        .map((column) => (
-          <ColumnManagerRow key={column.uniqueName} display={display} column={column} />
-        ))}
-    </Wrapper>
+      <ManagerInnerContainer>
+        {display
+          .getColumns(columnFilter)
+          .filter((column) => filterName(columnFilter, column.columnName))
+          .map((column) => (
+            <ColumnManagerRow key={column.uniqueName} display={display} column={column} />
+          ))}
+      </ManagerInnerContainer>
+    </>
   );
 }

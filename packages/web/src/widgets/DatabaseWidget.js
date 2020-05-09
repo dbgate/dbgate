@@ -7,8 +7,21 @@ import databaseAppObject from '../appobj/databaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase, useOpenedConnections } from '../utility/globalState';
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
-import { useSqlObjectList, useDatabaseList, useConnectionList, useServerStatus, useDatabaseStatus } from '../utility/metadataLoaders';
-import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
+import {
+  useSqlObjectList,
+  useDatabaseList,
+  useConnectionList,
+  useServerStatus,
+  useDatabaseStatus,
+} from '../utility/metadataLoaders';
+import {
+  SearchBoxWrapper,
+  WidgetsInnerContainer,
+  Input,
+  WidgetsMainContainer,
+  WidgetsOuterContainer,
+  WidgetTitle,
+} from './WidgetStyles';
 import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
 
@@ -55,14 +68,14 @@ function ConnectionList() {
         <InlineButton onClick={handleRefreshConnections}>Refresh</InlineButton>
       </SearchBoxWrapper>
 
-      <InnerContainer>
+      <WidgetsInnerContainer>
         <AppObjectList
           list={connectionsWithStatus}
           makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
           SubItems={SubDatabaseList}
           filter={filter}
         />
-      </InnerContainer>
+      </WidgetsInnerContainer>
     </>
   );
 }
@@ -93,7 +106,7 @@ function SqlObjectList({ conid, database }) {
         />
         <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
       </SearchBoxWrapper>
-      <InnerContainer>
+      <WidgetsInnerContainer>
         {status && status.name == 'pending' ? (
           <LoadingInfo message="Loading database structure" />
         ) : (
@@ -104,7 +117,7 @@ function SqlObjectList({ conid, database }) {
             filter={filter}
           />
         )}
-      </InnerContainer>
+      </WidgetsInnerContainer>
     </>
   );
 }
@@ -122,13 +135,13 @@ function SqlObjectListWrapper() {
 
 export default function DatabaseWidget() {
   return (
-    <MainContainer>
-      <OuterContainer>
+    <WidgetsMainContainer>
+      <WidgetsOuterContainer>
         <ConnectionList />
-      </OuterContainer>
-      <OuterContainer>
+      </WidgetsOuterContainer>
+      <WidgetsOuterContainer>
         <SqlObjectListWrapper />
-      </OuterContainer>
-    </MainContainer>
+      </WidgetsOuterContainer>
+    </WidgetsMainContainer>
   );
 }

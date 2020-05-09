@@ -5,7 +5,14 @@ import _ from 'lodash';
 import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs, useSavedSqlFiles } from '../utility/globalState';
 import openedTabAppObject from '../appobj/openedTabAppObject';
-import { SearchBoxWrapper, InnerContainer, Input, MainContainer, OuterContainer, WidgetTitle } from './WidgetStyles';
+import {
+  SearchBoxWrapper,
+  WidgetsInnerContainer,
+  Input,
+  WidgetsMainContainer,
+  WidgetsOuterContainer,
+  WidgetTitle,
+} from './WidgetStyles';
 import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
 
 function OpenedTabsList() {
@@ -14,9 +21,9 @@ function OpenedTabsList() {
   return (
     <>
       <WidgetTitle>Opened tabs</WidgetTitle>
-      <InnerContainer>
+      <WidgetsInnerContainer>
         <AppObjectList list={tabs} makeAppObj={openedTabAppObject()} />
-      </InnerContainer>
+      </WidgetsInnerContainer>
     </>
   );
 }
@@ -27,22 +34,22 @@ function SavedSqlFilesList() {
   return (
     <>
       <WidgetTitle>Saved SQL files</WidgetTitle>
-      <InnerContainer>
+      <WidgetsInnerContainer>
         <AppObjectList list={files} makeAppObj={savedSqlFileAppObject()} />
-      </InnerContainer>
+      </WidgetsInnerContainer>
     </>
   );
 }
 
 export default function FilesWidget() {
   return (
-    <MainContainer>
-      <OuterContainer>
+    <WidgetsMainContainer>
+      <WidgetsOuterContainer>
         <OpenedTabsList />
-      </OuterContainer>
-      <OuterContainer>
+      </WidgetsOuterContainer>
+      <WidgetsOuterContainer>
         <SavedSqlFilesList />
-      </OuterContainer>
-    </MainContainer>
+      </WidgetsOuterContainer>
+    </WidgetsMainContainer>
   );
 }

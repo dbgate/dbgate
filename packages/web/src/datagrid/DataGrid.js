@@ -3,6 +3,17 @@ import styled from 'styled-components';
 import DataGridCore from './DataGridCore';
 import ColumnManager from './ColumnManager';
 
+import {
+  // SearchBoxWrapper,
+  // WidgetsInnerContainer,
+  // Input,
+  ManagerMainContainer,
+  ManagerOuterContainer1,
+  ManagerOuterContainer2,
+  WidgetTitle,
+} from './ManagerStyles';
+import ReferenceManager from './ReferenceManager';
+
 const MainContainer = styled.div`
   position: absolute;
   left: 0;
@@ -17,6 +28,11 @@ const ColumnManagerContainer = styled.div`
   overflow-y: scroll;
 `;
 
+const LeftContainer = styled.div`
+  background-color: white;
+  display: flex;
+`;
+
 const DataGridContainer = styled.div`
   position: relative;
   flex-grow: 1;
@@ -26,9 +42,22 @@ const DataGridContainer = styled.div`
 export default function DataGrid(props) {
   return (
     <MainContainer>
-      <ColumnManagerContainer>
+      <LeftContainer>
+        <ManagerMainContainer>
+          <ManagerOuterContainer1>
+            <WidgetTitle>Columns</WidgetTitle>
+            <ColumnManager {...props} />
+          </ManagerOuterContainer1>
+          <ManagerOuterContainer2>
+            <WidgetTitle>References</WidgetTitle>
+            <ReferenceManager {...props} />
+          </ManagerOuterContainer2>
+        </ManagerMainContainer>
+      </LeftContainer>
+
+      {/* <ColumnManagerContainer>
         <ColumnManager {...props} />
-      </ColumnManagerContainer>
+      </ColumnManagerContainer> */}
       <DataGridContainer>
         <DataGridCore {...props} />
       </DataGridContainer>

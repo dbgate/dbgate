@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 import theme from '../theme';
 
-export const SearchBoxWrapper = styled.div`
-  display: flex;
-  margin-bottom: 5px;
-`;
+// export const SearchBoxWrapper = styled.div`
+//   display: flex;
+//   margin-bottom: 5px;
+// `;
 
-export const WidgetsMainContainer = styled.div`
+export const ManagerMainContainer = styled.div`
   position: relative;
   display: flex;
   flex-flow: column wrap;
@@ -15,19 +15,25 @@ export const WidgetsMainContainer = styled.div`
   user-select: none;
 `;
 
-export const WidgetsOuterContainer = styled.div`
+export const ManagerOuterContainer = styled.div`
   flex: 1 1 0;
   overflow: hidden;
-  width: ${theme.leftPanel.width}px;
   position: relative;
   flex-direction: column;
   display: flex;
 `;
 
-export const WidgetsInnerContainer = styled.div`
+export const ManagerOuterContainer1 = styled(ManagerOuterContainer)`
+  flex: 0 0 60%;
+`;
+
+export const ManagerOuterContainer2 = styled(ManagerOuterContainer)`
+  flex: 0 0 40%;
+`;
+
+export const ManagerInnerContainer = styled.div`
   flex: 1 1;
-  overflow: scroll;
-  width: ${theme.leftPanel.width}px;
+  overflow-y: scroll;
 `;
 
 export const Input = styled.input`
