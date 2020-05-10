@@ -10,6 +10,7 @@ const Container = styled.div`
   align-items: center;
   background: #ddeeee;
   height: ${theme.toolBar.height}px;
+  min-height: ${theme.toolBar.height}px;
   overflow: hidden;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;

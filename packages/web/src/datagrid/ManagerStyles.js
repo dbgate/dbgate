@@ -41,10 +41,10 @@ export const ManagerInnerContainer = styled.div`
   overflow-x: auto;
 `;
 
-export const Input = styled.input`
-  flex: 1;
-  min-width: 90px;
-`;
+// export const Input = styled.input`
+//   flex: 1;
+//   min-width: 90px;
+// `;
 
 export const WidgetTitle = styled.div`
   padding: 5px;
