@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
+import theme from '../theme';
 
 const MainContainer = styled.div`
   flex: 1;
@@ -9,10 +10,17 @@ const MainContainer = styled.div`
   flex-direction: column;
 `;
 
-const VerticalSplitHandle = styled.div`
+export const VerticalSplitHandle = styled.div`
   background-color: #ccc;
-  height: 4px;
+  height: ${theme.splitter.thickness}px;
   cursor: row-resize;
+  z-index: 1;
+`;
+
+export const HorizontalSplitHandle = styled.div`
+  background-color: #ccc;
+  width: ${theme.splitter.thickness}px;
+  cursor: col-resize;
   z-index: 1;
 `;
 
@@ -33,27 +41,16 @@ const ChildContainer2 = styled.div`
   position: relative;
 `;
 
-export function VerticalSplitter({ children }) {
-  const childrenArray = _.isArray(children) ? children : [children];
-  if (childrenArray.length !== 1 && childrenArray.length != 2) {
-    throw new Error('Splitter must have 1 or 2 children');
-  }
-  const [refNode, dimensions] = useDimensions();
-  const [height1, setHeight1] = React.useState(0);
-
-  React.useEffect(() => {
-    setHeight1(dimensions.height / 2);
-  }, [dimensions]);
-
+export function useSplitterDrag(axes, onResize) {
   const [resizeStart, setResizeStart] = React.useState(null);
 
   React.useEffect(() => {
     if (resizeStart != null) {
       const handleResizeMove = (e) => {
         e.preventDefault();
-        let diff = e.clientY - resizeStart;
-        setResizeStart(e.clientY);
-        setHeight1((v) => v + diff);
+        let diff = e[axes] - resizeStart;
+        setResizeStart(e[axes]);
+        onResize(diff);
       };
       const handleResizeEnd = (e) => {
         e.preventDefault();
@@ -71,8 +68,25 @@ export function VerticalSplitter({ children }) {
   }, [resizeStart]);
 
   const handleResizeDown = (e) => {
-    setResizeStart(e.clientY);
+    setResizeStart(e[axes]);
   };
+
+  return handleResizeDown;
+}
+
+export function VerticalSplitter({ children }) {
+  const childrenArray = _.isArray(children) ? children : [children];
+  if (childrenArray.length !== 1 && childrenArray.length != 2) {
+    throw new Error('Splitter must have 1 or 2 children');
+  }
+  const [refNode, dimensions] = useDimensions();
+  const [height1, setHeight1] = React.useState(0);
+
+  React.useEffect(() => {
+    setHeight1(dimensions.height / 2);
+  }, [dimensions]);
+
+  const handleResizeDown = useSplitterDrag('clientY', (diff) => setHeight1((v) => v + diff));
 
   const isSplitter = !!childrenArray[1];
 

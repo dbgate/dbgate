@@ -104,3 +104,7 @@ export { SavedSqlFilesProvider, useSavedSqlFiles, useSetSavedSqlFiles };
 const [OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnections] = createGlobalState([]);
 
 export { OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnections };
+
+const [LeftPanelWidthProvider, useLeftPanelWidth, useSetLeftPanelWidth] = createGlobalState(300);
+
+export { LeftPanelWidthProvider, useLeftPanelWidth, useSetLeftPanelWidth };

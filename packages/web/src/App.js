@@ -7,6 +7,7 @@ import {
   OpenedTabsProvider,
   SavedSqlFilesProvider,
   OpenedConnectionsProvider,
+  LeftPanelWidthProvider,
 } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
@@ -19,9 +20,11 @@ function App() {
           <OpenedTabsProvider>
             <SavedSqlFilesProvider>
               <OpenedConnectionsProvider>
-                <ConnectionsPinger>
-                  <Screen />
-                </ConnectionsPinger>
+                <LeftPanelWidthProvider>
+                  <ConnectionsPinger>
+                    <Screen />
+                  </ConnectionsPinger>
+                </LeftPanelWidthProvider>
               </OpenedConnectionsProvider>
             </SavedSqlFilesProvider>
           </OpenedTabsProvider>

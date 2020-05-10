@@ -1,5 +1,8 @@
+// @ts-nocheck
+import React from 'react';
 import styled from 'styled-components';
 import theme from '../theme';
+import { useLeftPanelWidth } from '../utility/globalState';
 
 export const SearchBoxWrapper = styled.div`
   display: flex;
@@ -15,20 +18,30 @@ export const WidgetsMainContainer = styled.div`
   user-select: none;
 `;
 
-export const WidgetsOuterContainer = styled.div`
+const StyledWidgetsOuterContainer = styled.div`
   flex: 1 1 0;
   overflow: hidden;
-  width: ${theme.leftPanel.width}px;
+  width: ${(props) => props.leftPanelWidth}px;
   position: relative;
   flex-direction: column;
   display: flex;
 `;
 
-export const WidgetsInnerContainer = styled.div`
+export function WidgetsOuterContainer({ children }) {
+  const leftPanelWidth = useLeftPanelWidth();
+  return <StyledWidgetsOuterContainer leftPanelWidth={leftPanelWidth}>{children}</StyledWidgetsOuterContainer>;
+}
+
+export const StyledWidgetsInnerContainer = styled.div`
   flex: 1 1;
   overflow: scroll;
-  width: ${theme.leftPanel.width}px;
+  width: ${(props) => props.leftPanelWidth}px;
 `;
+
+export function WidgetsInnerContainer({ children }) {
+  const leftPanelWidth = useLeftPanelWidth();
+  return <StyledWidgetsInnerContainer leftPanelWidth={leftPanelWidth}>{children}</StyledWidgetsInnerContainer>;
+}
 
 export const Input = styled.input`
   flex: 1;
