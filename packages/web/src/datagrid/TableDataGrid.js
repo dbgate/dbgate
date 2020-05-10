@@ -94,7 +94,7 @@ export default function TableDataGrid({
       setMyLoadedTime(loadedTime);
       if (!reference) return;
       const filters = {
-        ...(config || myConfig).filters,
+        ...childConfig.filters,
         ..._.fromPairs(
           reference.columns.map((col) => [
             col.refName,
@@ -102,7 +102,7 @@ export default function TableDataGrid({
           ])
         ),
       };
-      if (stableStringify(filters) != stableStringify((config || childConfig).filters)) {
+      if (stableStringify(filters) != stableStringify(childConfig.filters)) {
         setChildConfig((cfg) => ({
           ...cfg,
           filters,
@@ -113,7 +113,7 @@ export default function TableDataGrid({
         }));
       }
     },
-    [config || childConfig, reference]
+    [childConfig, reference]
   );
 
   const handleCloseReference = () => {
