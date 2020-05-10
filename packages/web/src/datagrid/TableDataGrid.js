@@ -1,6 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
 import DataGrid from './DataGrid';
+import styled from 'styled-components';
 import { TableGridDisplay, createGridConfig, createGridCache } from '@dbgate/datalib';
 import { getFilterValueExpression } from '@dbgate/filterparser';
 import { useConnectionInfo, getTableInfo } from '../utility/metadataLoaders';
@@ -8,6 +9,23 @@ import engines from '@dbgate/engines';
 import useSocket from '../utility/SocketProvider';
 import { VerticalSplitter } from '../widgets/Splitter';
 import stableStringify from 'json-stable-stringify';
+import ReferenceHeader from './ReferenceHeader';
+
+const ReferenceContainer = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+`;
+
+const ReferenceGridWrapper = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+`;
 
 export default function TableDataGrid({
   conid,
@@ -98,6 +116,10 @@ export default function TableDataGrid({
     [config || childConfig, reference]
   );
 
+  const handleCloseReference = () => {
+    setReference(null);
+  };
+
   if (!display) return null;
 
   return (
@@ -118,22 +140,27 @@ export default function TableDataGrid({
         masterLoadedTime={masterLoadedTime}
       />
       {reference && (
-        <TableDataGrid
-          key={`${reference.schemaName}.${reference.pureName}`}
-          conid={conid}
-          database={database}
-          pureName={reference.pureName}
-          schemaName={reference.schemaName}
-          changeSetState={changeSetState}
-          dispatchChangeSet={dispatchChangeSet}
-          toolbarPortalRef={toolbarPortalRef}
-          tabVisible={false}
-          config={childConfig}
-          setConfig={setChildConfig}
-          cache={childCache}
-          setCache={setChildCache}
-          masterLoadedTime={myLoadedTime}
-        />
+        <ReferenceContainer>
+          <ReferenceHeader reference={reference} onClose={handleCloseReference} />
+          <ReferenceGridWrapper>
+            <TableDataGrid
+              key={`${reference.schemaName}.${reference.pureName}`}
+              conid={conid}
+              database={database}
+              pureName={reference.pureName}
+              schemaName={reference.schemaName}
+              changeSetState={changeSetState}
+              dispatchChangeSet={dispatchChangeSet}
+              toolbarPortalRef={toolbarPortalRef}
+              tabVisible={false}
+              config={childConfig}
+              setConfig={setChildConfig}
+              cache={childCache}
+              setCache={setChildCache}
+              masterLoadedTime={myLoadedTime}
+            />
+          </ReferenceGridWrapper>
+        </ReferenceContainer>
       )}
     </VerticalSplitter>
   );

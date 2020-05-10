@@ -37,10 +37,10 @@ const StyledIconSpan = styled.span`
 
 const ButtonDivInner = styled.div`
   position: relative;
-  top: 2px;
+  top: ${(props) => props.patchY}px;
 `;
 
-export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined }) {
+export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined, patchY = 2 }) {
   const Icon = icon;
   return (
     <ButtonDiv
@@ -49,7 +49,7 @@ export default function ToolbarButton({ children, onClick, icon = undefined, dis
       }}
       disabled={disabled}
     >
-      <ButtonDivInner>
+      <ButtonDivInner patchY={patchY}>
         {Icon && (
           <StyledIconSpan disabled={disabled}>
             <i className={icon} />
