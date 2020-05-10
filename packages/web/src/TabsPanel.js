@@ -2,9 +2,11 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import theme from './theme';
+import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 
 import { useOpenedTabs, useSetOpenedTabs } from './utility/globalState';
 import { getIconImage } from './icons';
+import { showMenu } from './modals/DropDownMenu';
 
 // const files = [
 //   { name: 'app.js' },
@@ -43,6 +45,21 @@ const CloseButton = styled.i`
   }
 `;
 
+function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, props }) {
+  const { database } = props || {};
+  const { conid } = props || {};
+  return (
+    <>
+      <DropDownMenuItem onClick={close}>Close</DropDownMenuItem>
+      <DropDownMenuItem onClick={closeAll}>Close all</DropDownMenuItem>
+      <DropDownMenuItem onClick={closeOthers}>Close others</DropDownMenuItem>
+      {conid && database && (
+        <DropDownMenuItem onClick={closeWithSameDb}>Close with same DB - {database}</DropDownMenuItem>
+      )}
+    </>
+  );
+}
+
 export default function TabsPanel() {
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
@@ -64,9 +81,39 @@ export default function TabsPanel() {
       const newFiles = files.filter((x) => x.tabid != tabid);
 
       if (!newFiles.find((x) => x.selected)) {
-        if (index >= newFiles.length) index -= 1;
+        while (index >= newFiles.length) index -= 1;
         if (index >= 0) newFiles[index].selected = true;
       }
+
+      return newFiles;
+    });
+  };
+  const closeAll = () => {
+    setOpenedTabs([]);
+  };
+  const closeWithSameDb = (tabid) => {
+    setOpenedTabs((files) => {
+      const closed = files.find((x) => x.tabid == tabid);
+      let index = _.findIndex(files, (x) => x.tabid == tabid);
+      const newFiles = files.filter(
+        (x) =>
+          _.get(x, 'props.conid') != _.get(closed, 'props.conid') ||
+          _.get(x, 'props.database') != _.get(closed, 'props.database')
+      );
+
+      if (!newFiles.find((x) => x.selected)) {
+        while (index >= newFiles.length) index -= 1;
+        if (index >= 0) newFiles[index].selected = true;
+      }
+
+      return newFiles;
+    });
+  };
+  const closeOthers = (tabid) => {
+    setOpenedTabs((files) => {
+      const newFiles = files.filter((x) => x.tabid == tabid);
+
+      if (newFiles[0]) newFiles[0].selected = true;
 
       return newFiles;
     });
@@ -76,6 +123,21 @@ export default function TabsPanel() {
       closeTab(tabid);
     }
   };
+  const handleContextMenu = (event, tabid, props) => {
+    event.preventDefault();
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <TabContextMenu
+        close={() => closeTab(tabid)}
+        closeAll={closeAll}
+        closeOthers={() => closeOthers(tabid)}
+        closeWithSameDb={() => closeWithSameDb(tabid)}
+        props={props}
+      />
+    );
+  };
+
   // console.log(
   //   't',
   //   tabs.map(x => x.tooltip)
@@ -90,6 +152,7 @@ export default function TabsPanel() {
           key={tab.tabid}
           onClick={(e) => handleTabClick(e, tab.tabid)}
           onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
+          onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
         >
           {tab.busy ? <i className="fas fa-spinner fa-spin"></i> : getIconImage(tab.icon)}
           <FileNameWrapper>{tab.title}</FileNameWrapper>
