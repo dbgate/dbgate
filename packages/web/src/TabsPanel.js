@@ -45,7 +45,7 @@ const CloseButton = styled.i`
   }
 `;
 
-function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, props }) {
+function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, closeWithOtherDb, props }) {
   const { database } = props || {};
   const { conid } = props || {};
   return (
@@ -55,6 +55,9 @@ function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, props }
       <DropDownMenuItem onClick={closeOthers}>Close others</DropDownMenuItem>
       {conid && database && (
         <DropDownMenuItem onClick={closeWithSameDb}>Close with same DB - {database}</DropDownMenuItem>
+      )}
+      {conid && database && (
+        <DropDownMenuItem onClick={closeWithOtherDb}>Close with other DB than {database}</DropDownMenuItem>
       )}
     </>
   );
@@ -75,10 +78,12 @@ export default function TabsPanel() {
       }))
     );
   };
-  const closeTab = (tabid) => {
+  const closeTabFunc = (closeCondition) => (tabid) => {
     setOpenedTabs((files) => {
+      const active = files.find((x) => x.tabid == tabid);
+      if (!active) return files;
       let index = _.findIndex(files, (x) => x.tabid == tabid);
-      const newFiles = files.filter((x) => x.tabid != tabid);
+      const newFiles = files.filter((x) => !closeCondition(x, active));
 
       if (!newFiles.find((x) => x.selected)) {
         while (index >= newFiles.length) index -= 1;
@@ -88,36 +93,22 @@ export default function TabsPanel() {
       return newFiles;
     });
   };
+
+  const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = () => {
     setOpenedTabs([]);
   };
-  const closeWithSameDb = (tabid) => {
-    setOpenedTabs((files) => {
-      const closed = files.find((x) => x.tabid == tabid);
-      let index = _.findIndex(files, (x) => x.tabid == tabid);
-      const newFiles = files.filter(
-        (x) =>
-          _.get(x, 'props.conid') != _.get(closed, 'props.conid') ||
-          _.get(x, 'props.database') != _.get(closed, 'props.database')
-      );
-
-      if (!newFiles.find((x) => x.selected)) {
-        while (index >= newFiles.length) index -= 1;
-        if (index >= 0) newFiles[index].selected = true;
-      }
-
-      return newFiles;
-    });
-  };
-  const closeOthers = (tabid) => {
-    setOpenedTabs((files) => {
-      const newFiles = files.filter((x) => x.tabid == tabid);
-
-      if (newFiles[0]) newFiles[0].selected = true;
-
-      return newFiles;
-    });
-  };
+  const closeWithSameDb = closeTabFunc(
+    (x, active) =>
+      _.get(x, 'props.conid') == _.get(active, 'props.conid') &&
+      _.get(x, 'props.database') == _.get(active, 'props.database')
+  );
+  const closeWithOtherDb = closeTabFunc(
+    (x, active) =>
+      _.get(x, 'props.conid') != _.get(active, 'props.conid') ||
+      _.get(x, 'props.database') != _.get(active, 'props.database')
+  );
+  const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
   const handleMouseUp = (e, tabid) => {
     if (e.button == 1) {
       closeTab(tabid);
@@ -133,6 +124,7 @@ export default function TabsPanel() {
         closeAll={closeAll}
         closeOthers={() => closeOthers(tabid)}
         closeWithSameDb={() => closeWithSameDb(tabid)}
+        closeWithOtherDb={() => closeWithOtherDb(tabid)}
         props={props}
       />
     );
