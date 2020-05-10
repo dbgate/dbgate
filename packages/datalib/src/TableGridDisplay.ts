@@ -26,9 +26,10 @@ export class TableGridDisplay extends GridDisplay {
   ) {
     super(config, setConfig, cache, setCache, driver);
 
-    this.table = this.cache.tables.basetbl;
+    const baseTblCacheKey = `basetbl_${tableName.schemaName}_${tableName.pureName}`;
+    this.table = this.cache.tables[baseTblCacheKey];
     if (!this.table) {
-      this.loadTableIntoCache('basetbl', tableName);
+      this.loadTableIntoCache(baseTblCacheKey, tableName);
       this.isLoadedCorrectly = false;
     } else {
       if (!this.table.columns || this.table.columns.length == 0) {
