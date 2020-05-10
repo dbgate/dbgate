@@ -429,8 +429,8 @@ export default function DataGridCore(props) {
   }, [jslid]);
 
   React.useEffect(() => {
-    if (props.onRefSourceRowsChanged && ((loadedRows && loadedRows.length > 0) || isLoadedAll)) {
-      props.onRefSourceRowsChanged(getSelectedRowData(), loadedTime);
+    if (props.onReferenceSourceChanged && ((loadedRows && loadedRows.length > 0) || isLoadedAll)) {
+      props.onReferenceSourceChanged(getSelectedRowData(), loadedTime);
     }
   }, [selectedCells, props.refReloadToken, loadedRows && loadedRows[0]]);
 

@@ -11,7 +11,7 @@ export interface DataGridProps {
   jslid?: string;
   showReferences?: boolean;
   onReferenceClick?: (def: GridReferenceDefinition) => void;
-  onRefSourceRowsChanged?: Function;
+  onReferenceSourceChanged?: Function;
   refReloadToken?: string;
   masterLoadedTime?: number
 }

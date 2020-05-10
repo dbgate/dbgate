@@ -71,7 +71,7 @@ export default function TableDataGrid({
     }
   }, [conid, database, display]);
 
-  const handleRefSourcedRowsChanged = React.useCallback(
+  const handleReferenceSourceChanged = React.useCallback(
     (selectedRows, loadedTime) => {
       setMyLoadedTime(loadedTime);
       if (!reference) return;
@@ -113,7 +113,7 @@ export default function TableDataGrid({
         toolbarPortalRef={toolbarPortalRef}
         showReferences
         onReferenceClick={setReference}
-        onRefSourceRowsChanged={reference ? handleRefSourcedRowsChanged : null}
+        onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}
       />
