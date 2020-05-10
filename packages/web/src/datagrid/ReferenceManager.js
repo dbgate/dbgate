@@ -13,6 +13,7 @@ const SearchBoxWrapper = styled.div`
 
 const Header = styled.div`
   font-weight: bold;
+  white-space: nowrap;
 `;
 
 const LinkContainer = styled.div`

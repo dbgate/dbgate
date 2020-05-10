@@ -4,7 +4,8 @@ import keycodes from '../utility/keycodes';
 
 const StyledInput = styled.input`
   flex: 1;
-  min-width: 90px;
+  min-width: 10px;
+  width: 10px;
 `;
 
 export default function SearchInput({ placeholder, filter, setFilter, inputRef = undefined }) {
