@@ -22,12 +22,14 @@ export default function TableDataGrid({
   setConfig = undefined,
   cache = undefined,
   setCache = undefined,
+  masterLoadedTime = undefined,
 }) {
   const [myConfig, setMyConfig] = React.useState(createGridConfig());
   const [childConfig, setChildConfig] = React.useState(createGridConfig());
   const [myCache, setMyCache] = React.useState(createGridCache());
   const [childCache, setChildCache] = React.useState(createGridCache());
   const [refReloadToken, setRefReloadToken] = React.useState(0);
+  const [myLoadedTime, setMyLoadedTime] = React.useState(0);
 
   const connection = useConnectionInfo({ conid });
   const [reference, setReference] = React.useState(null);
@@ -70,7 +72,8 @@ export default function TableDataGrid({
   }, [conid, database, display]);
 
   const handleRefSourcedRowsChanged = React.useCallback(
-    (selectedRows) => {
+    (selectedRows, loadedTime) => {
+      setMyLoadedTime(loadedTime);
       if (!reference) return;
       const filters = {
         ...(config || myConfig).filters,
@@ -112,6 +115,7 @@ export default function TableDataGrid({
         onReferenceClick={setReference}
         onRefSourceRowsChanged={reference ? handleRefSourcedRowsChanged : null}
         refReloadToken={refReloadToken.toString()}
+        masterLoadedTime={masterLoadedTime}
       />
       {reference && (
         <TableDataGrid
@@ -128,6 +132,7 @@ export default function TableDataGrid({
           setConfig={setChildConfig}
           cache={childCache}
           setCache={setChildCache}
+          masterLoadedTime={myLoadedTime}
         />
       )}
     </VerticalSplitter>

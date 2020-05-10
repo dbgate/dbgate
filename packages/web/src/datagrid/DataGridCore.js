@@ -391,6 +391,9 @@ export default function DataGridCore(props) {
         loadNextData();
       }
     }
+    if (props.masterLoadedTime && props.masterLoadedTime > loadedTime) {
+      display.reload();
+    }
     if (display.cache.refreshTime > loadedTime) {
       reload();
     }
@@ -426,10 +429,10 @@ export default function DataGridCore(props) {
   }, [jslid]);
 
   React.useEffect(() => {
-    if (props.onRefSourceRowsChanged) {
-      props.onRefSourceRowsChanged(getSelectedRowData());
+    if (props.onRefSourceRowsChanged && ((loadedRows && loadedRows.length > 0) || isLoadedAll)) {
+      props.onRefSourceRowsChanged(getSelectedRowData(), loadedTime);
     }
-  }, [selectedCells, props.refReloadToken]);
+  }, [selectedCells, props.refReloadToken, loadedRows && loadedRows[0]]);
 
   // const handleCloseInplaceEditor = React.useCallback(
   //   mode => {

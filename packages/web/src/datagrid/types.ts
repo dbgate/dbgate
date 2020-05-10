@@ -13,4 +13,5 @@ export interface DataGridProps {
   onReferenceClick?: (def: GridReferenceDefinition) => void;
   onRefSourceRowsChanged?: Function;
   refReloadToken?: string;
+  masterLoadedTime?: number
 }
