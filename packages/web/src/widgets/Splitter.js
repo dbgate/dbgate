@@ -4,10 +4,15 @@ import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
 import theme from '../theme';
 
-const MainContainer = styled.div`
+const VerticalMainContainer = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
+`;
+
+const HorizontalMainContainer = styled.div`
+  flex: 1;
+  display: flex;
 `;
 
 export const VerticalSplitHandle = styled.div`
@@ -74,27 +79,72 @@ export function useSplitterDrag(axes, onResize) {
   return handleResizeDown;
 }
 
-export function VerticalSplitter({ children }) {
+function SplitterCore({
+  children,
+  eventField,
+  dimensionField,
+  styleField,
+  Handle,
+  Main,
+  initialValue = undefined,
+  size = undefined,
+  setSize = undefined,
+}) {
   const childrenArray = _.isArray(children) ? children : [children];
   if (childrenArray.length !== 1 && childrenArray.length != 2) {
     throw new Error('Splitter must have 1 or 2 children');
   }
   const [refNode, dimensions] = useDimensions();
-  const [height1, setHeight1] = React.useState(0);
+  const [mySize, setMySize] = React.useState(0);
+  const size1 = size === undefined ? mySize : size;
+  const setSize1 = setSize === undefined ? setMySize : setSize;
 
   React.useEffect(() => {
-    setHeight1(dimensions.height / 2);
+    if (_.isString(initialValue) && initialValue.endsWith('px')) setSize1(parseInt(initialValue.slice(0, -2)));
+    else if (_.isString(initialValue) && initialValue.endsWith('%'))
+      setSize1((dimensions[dimensionField] * parseFloat(initialValue.slice(0, -1))) / 100);
+    else setSize1(dimensions[dimensionField] / 2);
   }, [dimensions]);
 
-  const handleResizeDown = useSplitterDrag('clientY', (diff) => setHeight1((v) => v + diff));
+  const handleResizeDown = useSplitterDrag(eventField, (diff) => setSize1((v) => v + diff));
 
   const isSplitter = !!childrenArray[1];
 
   return (
-    <MainContainer ref={refNode}>
-      <ChildContainer1 style={isSplitter ? { height: height1 } : { flex: '1' }}>{childrenArray[0]}</ChildContainer1>
-      {isSplitter && <VerticalSplitHandle onMouseDown={handleResizeDown} />}
+    <Main ref={refNode}>
+      <ChildContainer1 style={isSplitter ? { [styleField]: size1 } : { flex: '1' }}>{childrenArray[0]}</ChildContainer1>
+      {isSplitter && <Handle onMouseDown={handleResizeDown} />}
       {isSplitter && <ChildContainer2>{childrenArray[1]}</ChildContainer2>}
-    </MainContainer>
+    </Main>
+  );
+}
+
+export function VerticalSplitter({ children, ...other }) {
+  return (
+    <SplitterCore
+      eventField="clientY"
+      dimensionField="height"
+      styleField="height"
+      Handle={VerticalSplitHandle}
+      Main={VerticalMainContainer}
+      {...other}
+    >
+      {children}
+    </SplitterCore>
+  );
+}
+
+export function HorizontalSplitter({ children, ...other }) {
+  return (
+    <SplitterCore
+      eventField="clientX"
+      dimensionField="width"
+      styleField="width"
+      Handle={HorizontalSplitHandle}
+      Main={HorizontalMainContainer}
+      {...other}
+    >
+      {children}
+    </SplitterCore>
   );
 }

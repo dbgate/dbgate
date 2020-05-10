@@ -23,10 +23,12 @@ const LinkContainer = styled.div`
   }
   cursor: pointer;
   display: flex;
+  flex-wrap: nowrap;
 `;
 
 const NameContainer = styled.div`
   margin-left: 5px;
+  white-space: nowrap;
 `;
 
 function ManagerRow({ tableName, columns, Icon, onClick }) {
@@ -55,7 +57,7 @@ export default function ReferenceManager(props) {
       <SearchBoxWrapper>
         <SearchInput placeholder="Search references" filter={filter} setFilter={setFilter} inputRef={inputRef} />
       </SearchBoxWrapper>
-      <ManagerInnerContainer>
+      <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
         {foreignKeys && foreignKeys.length > 0 && (
           <>
             <Header>References tables ({foreignKeys.length})</Header>

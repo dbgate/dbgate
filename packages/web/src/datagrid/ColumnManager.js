@@ -14,6 +14,7 @@ const Row = styled.div`
   margin-left: 5px;
   margin-right: 5px;
   cursor: pointer;
+  white-space: nowrap;
   &:hover {
     background-color: lightblue;
   }
@@ -103,7 +104,7 @@ export default function ColumnManager(props) {
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>
-      <ManagerInnerContainer>
+      <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
         {display
           .getColumns(columnFilter)
           .filter((column) => filterName(columnFilter, column.columnName))

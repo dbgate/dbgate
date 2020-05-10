@@ -37,7 +37,8 @@ export const ManagerOuterContainerFull = styled(ManagerOuterContainer)`
 
 export const ManagerInnerContainer = styled.div`
   flex: 1 1;
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: auto;
 `;
 
 export const Input = styled.input`

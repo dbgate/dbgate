@@ -14,6 +14,7 @@ import {
   WidgetTitle,
 } from './ManagerStyles';
 import ReferenceManager from './ReferenceManager';
+import { HorizontalSplitter } from '../widgets/Splitter';
 
 const MainContainer = styled.div`
   position: absolute;
@@ -32,6 +33,7 @@ const ColumnManagerContainer = styled.div`
 const LeftContainer = styled.div`
   background-color: white;
   display: flex;
+  flex: 1;
 `;
 
 const DataGridContainer = styled.div`
@@ -42,27 +44,47 @@ const DataGridContainer = styled.div`
 /** @param props {import('./types').DataGridProps} */
 export default function DataGrid(props) {
   const Container1 = props.showReferences ? ManagerOuterContainer1 : ManagerOuterContainerFull;
+  const [managerSize, setManagerSize] = React.useState(0);
   return (
-    <MainContainer>
+    <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
         <ManagerMainContainer>
           <Container1>
-            <ColumnManager {...props} />
+            <ColumnManager {...props} managerSize={managerSize}/>
           </Container1>
           {props.showReferences && (
             <ManagerOuterContainer2>
-              <ReferenceManager {...props} />
+              <ReferenceManager {...props} managerSize={managerSize}/>
             </ManagerOuterContainer2>
           )}
         </ManagerMainContainer>
       </LeftContainer>
 
-      {/* <ColumnManagerContainer>
-        <ColumnManager {...props} />
-      </ColumnManagerContainer> */}
       <DataGridContainer>
         <DataGridCore {...props} />
       </DataGridContainer>
-    </MainContainer>
+    </HorizontalSplitter>
+
+    // <MainContainer>
+    //   <LeftContainer style={{ width: 300 }}>
+    //     <ManagerMainContainer>
+    //       <Container1>
+    //         <ColumnManager {...props} />
+    //       </Container1>
+    //       {props.showReferences && (
+    //         <ManagerOuterContainer2>
+    //           <ReferenceManager {...props} />
+    //         </ManagerOuterContainer2>
+    //       )}
+    //     </ManagerMainContainer>
+    //   </LeftContainer>
+
+    //   {/* <ColumnManagerContainer>
+    //     <ColumnManager {...props} />
+    //   </ColumnManagerContainer> */}
+    //   <DataGridContainer>
+    //     <DataGridCore {...props} />
+    //   </DataGridContainer>
+    // </MainContainer>
   );
 }
