@@ -17,13 +17,13 @@ import {
 import {
   SearchBoxWrapper,
   WidgetsInnerContainer,
-  Input,
   WidgetsMainContainer,
   WidgetsOuterContainer,
   WidgetTitle,
 } from './WidgetStyles';
 import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
+import SearchInput from './SearchInput';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -64,7 +64,7 @@ function ConnectionList() {
     <>
       <WidgetTitle>Connections</WidgetTitle>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search connection" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <SearchInput placeholder="Search connection" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshConnections}>Refresh</InlineButton>
       </SearchBoxWrapper>
 
@@ -98,12 +98,7 @@ function SqlObjectList({ conid, database }) {
     <>
       <WidgetTitle>Tables, views, functions</WidgetTitle>
       <SearchBoxWrapper>
-        <Input
-          type="text"
-          placeholder="Search tables or objects"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-        />
+        <SearchInput placeholder="Search tables or objects" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <WidgetsInnerContainer>

@@ -2,15 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import { ManagerInnerContainer } from './ManagerStyles';
 import { LinkIcon, ReferenceIcon } from '../icons';
+import SearchInput from '../widgets/SearchInput';
+import { filterName } from '@dbgate/datalib';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
   margin-bottom: 5px;
-`;
-
-const Input = styled.input`
-  flex: 1;
-  min-width: 90px;
 `;
 
 const Header = styled.div`
@@ -53,53 +50,57 @@ export default function ReferenceManager(props) {
   return (
     <>
       <SearchBoxWrapper>
-        <Input type="text" placeholder="Search" value={filter} onChange={(e) => setFilter(e.target.value)} />
+        <SearchInput placeholder="Search" filter={filter} setFilter={setFilter} />
       </SearchBoxWrapper>
       <ManagerInnerContainer>
         {foreignKeys && foreignKeys.length > 0 && (
           <>
             <Header>References tables ({foreignKeys.length})</Header>
-            {foreignKeys.map((fk) => (
-              <ManagerRow
-                key={fk.constraintName}
-                Icon={LinkIcon}
-                tableName={fk.refTableName}
-                columns={fk.columns}
-                onClick={() =>
-                  props.onReferenceClick({
-                    schemaName: fk.refSchemaName,
-                    pureName: fk.refTableName,
-                    columns: fk.columns.map((col) => ({
-                      baseName: col.columnName,
-                      refName: col.refColumnName,
-                    })),
-                  })
-                }
-              />
-            ))}
+            {foreignKeys
+              .filter((fk) => filterName(filter, fk.refTableName))
+              .map((fk) => (
+                <ManagerRow
+                  key={fk.constraintName}
+                  Icon={LinkIcon}
+                  tableName={fk.refTableName}
+                  columns={fk.columns}
+                  onClick={() =>
+                    props.onReferenceClick({
+                      schemaName: fk.refSchemaName,
+                      pureName: fk.refTableName,
+                      columns: fk.columns.map((col) => ({
+                        baseName: col.columnName,
+                        refName: col.refColumnName,
+                      })),
+                    })
+                  }
+                />
+              ))}
           </>
         )}
         {dependencies && dependencies.length > 0 && (
           <>
             <Header>Dependend tables ({dependencies.length})</Header>
-            {dependencies.map((fk) => (
-              <ManagerRow
-                key={fk.constraintName}
-                Icon={ReferenceIcon}
-                tableName={fk.pureName}
-                columns={fk.columns}
-                onClick={() =>
-                  props.onReferenceClick({
-                    schemaName: fk.schemaName,
-                    pureName: fk.pureName,
-                    columns: fk.columns.map((col) => ({
-                      baseName: col.refColumnName,
-                      refName: col.columnName,
-                    })),
-                  })
-                }
-              />
-            ))}
+            {dependencies
+              .filter((fk) => filterName(filter, fk.pureName))
+              .map((fk) => (
+                <ManagerRow
+                  key={fk.constraintName}
+                  Icon={ReferenceIcon}
+                  tableName={fk.pureName}
+                  columns={fk.columns}
+                  onClick={() =>
+                    props.onReferenceClick({
+                      schemaName: fk.schemaName,
+                      pureName: fk.pureName,
+                      columns: fk.columns.map((col) => ({
+                        baseName: col.refColumnName,
+                        refName: col.columnName,
+                      })),
+                    })
+                  }
+                />
+              ))}
           </>
         )}
       </ManagerInnerContainer>

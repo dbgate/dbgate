@@ -8,7 +8,6 @@ import openedTabAppObject from '../appobj/openedTabAppObject';
 import {
   SearchBoxWrapper,
   WidgetsInnerContainer,
-  Input,
   WidgetsMainContainer,
   WidgetsOuterContainer,
   WidgetTitle,

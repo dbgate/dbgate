@@ -5,6 +5,7 @@ import { filterName } from '@dbgate/datalib';
 import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from './ManagerStyles';
+import SearchInput from '../widgets/SearchInput';
 
 const Wrapper = styled.div``;
 
@@ -29,10 +30,10 @@ const Button = styled.button`
   // width: 50px;
 `;
 
-const Input = styled.input`
-  flex: 1;
-  min-width: 90px;
-`;
+// const Input = styled.input`
+//   flex: 1;
+//   min-width: 90px;
+// `;
 
 // function ExpandIcon({ display, column, isHover, ...other }) {
 //   if (column.foreignKey) {
@@ -89,12 +90,7 @@ export default function ColumnManager(props) {
   return (
     <>
       <SearchBoxWrapper>
-        <Input
-          type="text"
-          placeholder="Search"
-          value={columnFilter}
-          onChange={(e) => setColumnFilter(e.target.value)}
-        />
+        <SearchInput placeholder="Search" filter={columnFilter} setFilter={setColumnFilter} />
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>
