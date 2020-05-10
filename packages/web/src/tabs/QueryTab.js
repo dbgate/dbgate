@@ -199,15 +199,17 @@ export default function QueryTab({
           editorRef={editorRef}
           readOnly={queryText == loadingText}
         />
-        <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
-          <TabPage label="Messages" key="messages">
-            <SessionMessagesView
-              sessionId={sessionId}
-              onMessageClick={handleMesageClick}
-              executeNumber={executeNumber}
-            />
-          </TabPage>
-        </ResultTabs>
+        {sessionId && (
+          <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
+            <TabPage label="Messages" key="messages">
+              <SessionMessagesView
+                sessionId={sessionId}
+                onMessageClick={handleMesageClick}
+                executeNumber={executeNumber}
+              />
+            </TabPage>
+          </ResultTabs>
+        )}
       </VerticalSplitter>
       {toolbarPortalRef &&
         toolbarPortalRef.current &&
