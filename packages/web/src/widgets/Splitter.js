@@ -11,20 +11,21 @@ const MainContainer = styled.div`
 const ChildContainer = styled.div`
   flex: 1;
   // flex: 0 0 50%;
-//   flex-basis: 100px;
-//   flex-grow: 1;
+  //   flex-basis: 100px;
+  //   flex-grow: 1;
   display: flex;
   position: relative;
 `;
 
 export function VerticalSplitter({ children }) {
-  if (!_.isArray(children) || children.length !== 2) {
-    throw new Error('Splitter must have exactly 2 children');
+  const childrenArray = _.isArray(children) ? children : [children];
+  if (childrenArray.length !== 1 && childrenArray.length != 2) {
+    throw new Error('Splitter must have 1 or 2 children');
   }
   return (
     <MainContainer>
-      <ChildContainer>{children[0]}</ChildContainer>
-      <ChildContainer>{children[1]}</ChildContainer>
+      <ChildContainer>{childrenArray[0]}</ChildContainer>
+      {childrenArray[1] && <ChildContainer>{childrenArray[1]}</ChildContainer>}
     </MainContainer>
   );
 }

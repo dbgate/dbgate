@@ -31,9 +31,9 @@ const NameContainer = styled.div`
   margin-left: 5px;
 `;
 
-function ManagerRow({ tableName, columns, Icon }) {
+function ManagerRow({ tableName, columns, Icon, onClick }) {
   return (
-    <LinkContainer>
+    <LinkContainer onClick={onClick}>
       <Icon />
       <NameContainer>
         {tableName} ({columns.map((x) => x.columnName).join(', ')})
@@ -60,7 +60,22 @@ export default function ReferenceManager(props) {
           <>
             <Header>References tables ({foreignKeys.length})</Header>
             {foreignKeys.map((fk) => (
-              <ManagerRow key={fk.constraintName} Icon={LinkIcon} tableName={fk.refTableName} columns={fk.columns} />
+              <ManagerRow
+                key={fk.constraintName}
+                Icon={LinkIcon}
+                tableName={fk.refTableName}
+                columns={fk.columns}
+                onClick={() =>
+                  props.onReferenceClick({
+                    schemaName: fk.refSchemaName,
+                    pureName: fk.refTableName,
+                    columns: fk.columns.map((col) => ({
+                      baseName: col.columnName,
+                      refName: col.refColumnName,
+                    })),
+                  })
+                }
+              />
             ))}
           </>
         )}
@@ -68,7 +83,22 @@ export default function ReferenceManager(props) {
           <>
             <Header>Dependend tables ({dependencies.length})</Header>
             {dependencies.map((fk) => (
-              <ManagerRow key={fk.constraintName} Icon={ReferenceIcon} tableName={fk.pureName} columns={fk.columns} />
+              <ManagerRow
+                key={fk.constraintName}
+                Icon={ReferenceIcon}
+                tableName={fk.pureName}
+                columns={fk.columns}
+                onClick={() =>
+                  props.onReferenceClick({
+                    schemaName: fk.schemaName,
+                    pureName: fk.pureName,
+                    columns: fk.columns.map((col) => ({
+                      baseName: col.refColumnName,
+                      refName: col.columnName,
+                    })),
+                  })
+                }
+              />
             ))}
           </>
         )}

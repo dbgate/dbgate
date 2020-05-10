@@ -1,4 +1,4 @@
-import { GridDisplay, ChangeSet } from '@dbgate/datalib';
+import { GridDisplay, ChangeSet, GridReferenceDefinition } from '@dbgate/datalib';
 
 export interface DataGridProps {
   conid?: string;
@@ -9,4 +9,7 @@ export interface DataGridProps {
   dispatchChangeSet?: Function;
   toolbarPortalRef?: any;
   jslid?: string;
+  showReferences?: boolean;
+  onReferenceClick?: (def: GridReferenceDefinition) => void;
+  onSelectedRowsChanged?: Function;
 }

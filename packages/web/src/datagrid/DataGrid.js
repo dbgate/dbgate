@@ -10,6 +10,7 @@ import {
   ManagerMainContainer,
   ManagerOuterContainer1,
   ManagerOuterContainer2,
+  ManagerOuterContainerFull,
   WidgetTitle,
 } from './ManagerStyles';
 import ReferenceManager from './ReferenceManager';
@@ -40,18 +41,21 @@ const DataGridContainer = styled.div`
 
 /** @param props {import('./types').DataGridProps} */
 export default function DataGrid(props) {
+  const Container1 = props.showReferences ? ManagerOuterContainer1 : ManagerOuterContainerFull;
   return (
     <MainContainer>
       <LeftContainer>
         <ManagerMainContainer>
-          <ManagerOuterContainer1>
+          <Container1>
             <WidgetTitle>Columns</WidgetTitle>
             <ColumnManager {...props} />
-          </ManagerOuterContainer1>
-          <ManagerOuterContainer2>
-            <WidgetTitle>References</WidgetTitle>
-            <ReferenceManager {...props} />
-          </ManagerOuterContainer2>
+          </Container1>
+          {props.showReferences && (
+            <ManagerOuterContainer2>
+              <WidgetTitle>References</WidgetTitle>
+              <ReferenceManager {...props} />
+            </ManagerOuterContainer2>
+          )}
         </ManagerMainContainer>
       </LeftContainer>
 

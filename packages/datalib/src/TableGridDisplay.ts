@@ -131,7 +131,7 @@ export class TableGridDisplay extends GridDisplay {
     for (const column of this.getGridColumns()) {
       if (column.foreignKey) {
         const table = this.cache.tables[column.uniqueName];
-        if (table) {
+        if (table && table.columns && table.columns.length > 0) {
           const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
           if (hintColumn) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
@@ -147,6 +147,7 @@ export class TableGridDisplay extends GridDisplay {
           }
         } else {
           this.requireFkTarget(column);
+          this.isLoadedCorrectly = false;
           res = 'loadRequired';
         }
       }

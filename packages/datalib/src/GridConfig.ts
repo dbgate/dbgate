@@ -7,6 +7,15 @@ export interface GridConfigColumns {
   addedColumns: string[];
 }
 
+export interface GridReferenceDefinition {
+  schemaName: string;
+  pureName: string;
+  columns: {
+    baseName: string;
+    refName: string;
+  }[];
+}
+
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
   focusedColumn?: string;

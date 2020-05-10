@@ -31,6 +31,10 @@ export const ManagerOuterContainer2 = styled(ManagerOuterContainer)`
   flex: 0 0 40%;
 `;
 
+export const ManagerOuterContainerFull = styled(ManagerOuterContainer)`
+  flex: 1;
+`;
+
 export const ManagerInnerContainer = styled.div`
   flex: 1 1;
   overflow-y: scroll;

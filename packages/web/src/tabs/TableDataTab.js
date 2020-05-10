@@ -6,7 +6,6 @@ import { useUpdateDatabaseForTab } from '../utility/globalState';
 import TableDataGrid from '../datagrid/TableDataGrid';
 
 export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
-  const [cache, setCache] = React.useState(createGridCache());
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
   useUpdateDatabaseForTab(tabVisible, conid, database);
 
@@ -18,8 +17,6 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
       pureName={pureName}
       tabVisible={tabVisible}
       toolbarPortalRef={toolbarPortalRef}
-      cache={cache}
-      setCache={setCache}
       changeSetState={changeSetState}
       dispatchChangeSet={dispatchChangeSet}
     />

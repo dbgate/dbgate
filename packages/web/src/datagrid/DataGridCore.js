@@ -425,6 +425,10 @@ export default function DataGridCore(props) {
     }
   }, [jslid]);
 
+  React.useEffect(() => {
+    if (props.onSelectedRowsChanged) props.onSelectedRowsChanged(getSelectedRowData())
+  }, [selectedCells]);
+
   // const handleCloseInplaceEditor = React.useCallback(
   //   mode => {
   //     const [row, col] = currentCell || [];
@@ -680,8 +684,16 @@ export default function DataGridCore(props) {
     return res;
   }
 
+  function getSelectedRowIndexes() {
+    return _.uniq((selectedCells || []).map((x) => x[0]));
+  }
+
   function getSelectedRowDefinitions() {
-    return getRowDefinitions(_.uniq((selectedCells || []).map((x) => x[0])));
+    return getRowDefinitions(getSelectedRowIndexes());
+  }
+
+  function getSelectedRowData() {
+    return _.compact(getSelectedRowIndexes().map((index) => loadedRows && loadedRows[index]));
   }
 
   function revertRowChanges() {
