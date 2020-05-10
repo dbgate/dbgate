@@ -27,9 +27,14 @@ export default function TableDataGrid({
   const [childConfig, setChildConfig] = React.useState(createGridConfig());
   const [myCache, setMyCache] = React.useState(createGridCache());
   const [childCache, setChildCache] = React.useState(createGridCache());
+  const [refReloadToken, setRefReloadToken] = React.useState(0);
 
   const connection = useConnectionInfo({ conid });
   const [reference, setReference] = React.useState(null);
+
+  React.useEffect(() => {
+    setRefReloadToken((v) => v + 1);
+  }, [reference]);
 
   const display = React.useMemo(
     () =>
@@ -64,27 +69,31 @@ export default function TableDataGrid({
     }
   }, [conid, database, display]);
 
-  const handleSelectedRowsChanged = (selectedRows) => {
-    const filters = {
-      ...(config || myConfig).filters,
-      ..._.fromPairs(
-        reference.columns.map((col) => [
-          col.refName,
-          selectedRows.map((x) => getFilterValueExpression(x[col.baseName])).join(','),
-        ])
-      ),
-    };
-    if (stableStringify(filters) != stableStringify((config || myConfig).filters)) {
-      setChildConfig((cfg) => ({
-        ...cfg,
-        filters,
-      }));
-      setChildCache((ca) => ({
-        ...ca,
-        refreshTime: new Date().getTime(),
-      }));
-    }
-  };
+  const handleRefSourcedRowsChanged = React.useCallback(
+    (selectedRows) => {
+      if (!reference) return;
+      const filters = {
+        ...(config || myConfig).filters,
+        ..._.fromPairs(
+          reference.columns.map((col) => [
+            col.refName,
+            selectedRows.map((x) => getFilterValueExpression(x[col.baseName])).join(','),
+          ])
+        ),
+      };
+      if (stableStringify(filters) != stableStringify((config || childConfig).filters)) {
+        setChildConfig((cfg) => ({
+          ...cfg,
+          filters,
+        }));
+        setChildCache((ca) => ({
+          ...ca,
+          refreshTime: new Date().getTime(),
+        }));
+      }
+    },
+    [config || childConfig, reference]
+  );
 
   if (!display) return null;
 
@@ -101,7 +110,8 @@ export default function TableDataGrid({
         toolbarPortalRef={toolbarPortalRef}
         showReferences
         onReferenceClick={setReference}
-        onSelectedRowsChanged={reference ? handleSelectedRowsChanged : null}
+        onRefSourceRowsChanged={reference ? handleRefSourcedRowsChanged : null}
+        refReloadToken={refReloadToken.toString()}
       />
       {reference && (
         <TableDataGrid

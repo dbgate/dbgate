@@ -33,7 +33,7 @@ function interpretEscapes(str) {
   });
 }
 
-const binaryCondition = operator => value => ({
+const binaryCondition = (operator) => (value) => ({
   conditionType: 'binary',
   operator,
   left: {
@@ -45,7 +45,7 @@ const binaryCondition = operator => value => ({
   },
 });
 
-const likeCondition = (conditionType, likeString) => value => ({
+const likeCondition = (conditionType, likeString) => (value) => ({
   conditionType,
   left: {
     exprType: 'placeholder',
@@ -56,7 +56,7 @@ const likeCondition = (conditionType, likeString) => value => ({
   },
 });
 
-const compoudCondition = conditionType => conditions => {
+const compoudCondition = (conditionType) => (conditions) => {
   if (conditions.length == 1) return conditions[0];
   return {
     conditionType,
@@ -64,7 +64,7 @@ const compoudCondition = conditionType => conditions => {
   };
 };
 
-const unaryCondition = conditionType => () => {
+const unaryCondition = (conditionType) => () => {
   return {
     conditionType,
     expr: {
@@ -73,7 +73,7 @@ const unaryCondition = conditionType => () => {
   };
 };
 
-const binaryFixedValueCondition = value => () => {
+const binaryFixedValueCondition = (value) => () => {
   return {
     conditionType: 'binary',
     operator: '=',
@@ -87,7 +87,7 @@ const binaryFixedValueCondition = value => () => {
   };
 };
 
-const negateCondition = condition => {
+const negateCondition = (condition) => {
   return {
     conditionType: 'not',
     condition,
@@ -106,6 +106,16 @@ const createParser = (filterType: FilterType) => {
         .map(interpretEscapes)
         .desc('string quoted'),
 
+    string1Num: () =>
+      token(P.regexp(/"-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?"/, 1))
+        .map(Number)
+        .desc('numer quoted'),
+
+    string2Num: () =>
+      token(P.regexp(/'-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?'/, 1))
+        .map(Number)
+        .desc('numer quoted'),
+
     number: () =>
       token(P.regexp(/-?(0|[1-9][0-9]*)([.][0-9]+)?([eE][+-]?[0-9]+)?/))
         .map(Number)
@@ -113,78 +123,39 @@ const createParser = (filterType: FilterType) => {
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
 
-    value: r => P.alt(...allowedValues.map(x => r[x])),
-    valueTestEq: r => r.value.map(binaryCondition('=')),
-    valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
+    value: (r) => P.alt(...allowedValues.map((x) => r[x])),
+    valueTestEq: (r) => r.value.map(binaryCondition('=')),
+    valueTestStr: (r) => r.value.map(likeCondition('like', '%#VALUE#%')),
 
     comma: () => word(','),
     not: () => word('NOT'),
-    notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
+    notNull: (r) => r.not.then(r.null).map(unaryCondition('isNotNull')),
     null: () => word('NULL').map(unaryCondition('isNull')),
     empty: () => word('EMPTY').map(unaryCondition('isEmpty')),
-    notEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
+    notEmpty: (r) => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
     true: () => word('TRUE').map(binaryFixedValueCondition(1)),
     false: () => word('FALSE').map(binaryFixedValueCondition(0)),
-    eq: r =>
-      word('=')
-        .then(r.value)
-        .map(binaryCondition('=')),
-    ne: r =>
-      word('!=')
-        .then(r.value)
-        .map(binaryCondition('<>')),
-    lt: r =>
-      word('<')
-        .then(r.value)
-        .map(binaryCondition('<')),
-    gt: r =>
-      word('>')
-        .then(r.value)
-        .map(binaryCondition('>')),
-    le: r =>
-      word('<=')
-        .then(r.value)
-        .map(binaryCondition('<=')),
-    ge: r =>
-      word('>=')
-        .then(r.value)
-        .map(binaryCondition('>=')),
-    startsWith: r =>
-      word('^')
-        .then(r.value)
-        .map(likeCondition('like', '#VALUE#%')),
-    endsWith: r =>
-      word('$')
-        .then(r.value)
-        .map(likeCondition('like', '%#VALUE#')),
-    contains: r =>
-      word('+')
-        .then(r.value)
-        .map(likeCondition('like', '%#VALUE#%')),
-    startsWithNot: r =>
-      word('!^')
-        .then(r.value)
-        .map(likeCondition('like', '#VALUE#%'))
-        .map(negateCondition),
-    endsWithNot: r =>
-      word('!$')
-        .then(r.value)
-        .map(likeCondition('like', '%#VALUE#'))
-        .map(negateCondition),
-    containsNot: r =>
-      word('~')
-        .then(r.value)
-        .map(likeCondition('like', '%#VALUE#%'))
-        .map(negateCondition),
+    eq: (r) => word('=').then(r.value).map(binaryCondition('=')),
+    ne: (r) => word('!=').then(r.value).map(binaryCondition('<>')),
+    lt: (r) => word('<').then(r.value).map(binaryCondition('<')),
+    gt: (r) => word('>').then(r.value).map(binaryCondition('>')),
+    le: (r) => word('<=').then(r.value).map(binaryCondition('<=')),
+    ge: (r) => word('>=').then(r.value).map(binaryCondition('>=')),
+    startsWith: (r) => word('^').then(r.value).map(likeCondition('like', '#VALUE#%')),
+    endsWith: (r) => word('$').then(r.value).map(likeCondition('like', '%#VALUE#')),
+    contains: (r) => word('+').then(r.value).map(likeCondition('like', '%#VALUE#%')),
+    startsWithNot: (r) => word('!^').then(r.value).map(likeCondition('like', '#VALUE#%')).map(negateCondition),
+    endsWithNot: (r) => word('!$').then(r.value).map(likeCondition('like', '%#VALUE#')).map(negateCondition),
+    containsNot: (r) => word('~').then(r.value).map(likeCondition('like', '%#VALUE#%')).map(negateCondition),
 
-    element: r => P.alt(...allowedElements.map(x => r[x])).trim(whitespace),
-    factor: r => r.element.sepBy(whitespace).map(compoudCondition('and')),
-    list: r => r.factor.sepBy(r.comma).map(compoudCondition('or')),
+    element: (r) => P.alt(...allowedElements.map((x) => r[x])).trim(whitespace),
+    factor: (r) => r.element.sepBy(whitespace).map(compoudCondition('and')),
+    list: (r) => r.factor.sepBy(r.comma).map(compoudCondition('or')),
   };
 
   const allowedValues = []; // 'string1', 'string2', 'number', 'noQuotedString'];
   if (filterType == 'string') allowedValues.push('string1', 'string2', 'noQuotedString');
-  if (filterType == 'number') allowedValues.push('number');
+  if (filterType == 'number') allowedValues.push('string1Num', 'string2Num', 'number');
 
   const allowedElements = ['null', 'notNull', 'eq', 'ne'];
   if (filterType == 'number' || filterType == 'datetime') allowedElements.push('lt', 'gt', 'le', 'ge');

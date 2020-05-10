@@ -426,8 +426,10 @@ export default function DataGridCore(props) {
   }, [jslid]);
 
   React.useEffect(() => {
-    if (props.onSelectedRowsChanged) props.onSelectedRowsChanged(getSelectedRowData())
-  }, [selectedCells]);
+    if (props.onRefSourceRowsChanged) {
+      props.onRefSourceRowsChanged(getSelectedRowData());
+    }
+  }, [selectedCells, props.refReloadToken]);
 
   // const handleCloseInplaceEditor = React.useCallback(
   //   mode => {
