@@ -47,12 +47,10 @@ export default function DataGrid(props) {
       <LeftContainer>
         <ManagerMainContainer>
           <Container1>
-            <WidgetTitle>Columns</WidgetTitle>
             <ColumnManager {...props} />
           </Container1>
           {props.showReferences && (
             <ManagerOuterContainer2>
-              <WidgetTitle>References</WidgetTitle>
               <ReferenceManager {...props} />
             </ManagerOuterContainer2>
           )}

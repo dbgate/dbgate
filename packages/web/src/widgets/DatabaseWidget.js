@@ -58,13 +58,14 @@ function ConnectionList() {
       axios.post('server-connections/refresh', { conid });
     }
   };
+  const inputRef = React.useRef(null);
 
   const [filter, setFilter] = React.useState('');
   return (
     <>
-      <WidgetTitle>Connections</WidgetTitle>
+      <WidgetTitle inputRef={inputRef}>Connections</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search connection" filter={filter} setFilter={setFilter} />
+        <SearchInput placeholder="Search connection" filter={filter} setFilter={setFilter} inputRef={inputRef} />
         <InlineButton onClick={handleRefreshConnections}>Refresh</InlineButton>
       </SearchBoxWrapper>
 
@@ -94,11 +95,12 @@ function SqlObjectList({ conid, database }) {
       ((objects || {})[objectTypeField] || []).map((obj) => ({ ...obj, objectTypeField }))
     )
   );
+  const inputRef = React.useRef(null);
   return (
     <>
-      <WidgetTitle>Tables, views, functions</WidgetTitle>
+      <WidgetTitle inputRef={inputRef}>Tables, views, functions</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search tables or objects" filter={filter} setFilter={setFilter} />
+        <SearchInput inputRef={inputRef} placeholder="Search tables or objects" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <WidgetsInnerContainer>

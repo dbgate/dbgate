@@ -4,6 +4,7 @@ import { ManagerInnerContainer } from './ManagerStyles';
 import { LinkIcon, ReferenceIcon } from '../icons';
 import SearchInput from '../widgets/SearchInput';
 import { filterName } from '@dbgate/datalib';
+import { WidgetTitle } from '../widgets/WidgetStyles';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -46,11 +47,13 @@ export default function ReferenceManager(props) {
   const { baseTable } = display || {};
   const { foreignKeys } = baseTable || {};
   const { dependencies } = baseTable || {};
+  const inputRef = React.useRef(null);
 
   return (
     <>
+      <WidgetTitle inputRef={inputRef}>References</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search" filter={filter} setFilter={setFilter} />
+        <SearchInput placeholder="Search references" filter={filter} setFilter={setFilter} inputRef={inputRef} />
       </SearchBoxWrapper>
       <ManagerInnerContainer>
         {foreignKeys && foreignKeys.length > 0 && (

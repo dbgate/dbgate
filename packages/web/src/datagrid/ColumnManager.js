@@ -6,6 +6,7 @@ import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
+import { WidgetTitle } from '../widgets/WidgetStyles';
 
 const Wrapper = styled.div``;
 
@@ -87,10 +88,18 @@ function ColumnManagerRow(props) {
 export default function ColumnManager(props) {
   const { display } = props;
   const [columnFilter, setColumnFilter] = React.useState('');
+  const inputRef = React.useRef(null);
+
   return (
     <>
+      <WidgetTitle inputRef={inputRef}>Columns</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search" filter={columnFilter} setFilter={setColumnFilter} />
+        <SearchInput
+          placeholder="Search columns"
+          filter={columnFilter}
+          setFilter={setColumnFilter}
+          inputRef={inputRef}
+        />
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>

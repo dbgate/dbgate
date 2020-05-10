@@ -48,10 +48,22 @@ export function WidgetsInnerContainer({ children }) {
 //   min-width: 90px;
 // `;
 
-export const WidgetTitle = styled.div`
+const StyledWidgetTitle = styled.div`
   padding: 5px;
   font-weight: bold;
   text-transform: uppercase;
   background-color: gray;
   // background-color: #CEC;
 `;
+
+export function WidgetTitle({ children, inputRef = undefined }) {
+  return (
+    <StyledWidgetTitle
+      onClick={() => {
+        if (inputRef && inputRef.current) inputRef.current.focus();
+      }}
+    >
+      {children}
+    </StyledWidgetTitle>
+  );
+}

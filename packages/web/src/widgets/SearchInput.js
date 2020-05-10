@@ -7,7 +7,7 @@ const StyledInput = styled.input`
   min-width: 90px;
 `;
 
-export default function SearchInput({ placeholder, filter, setFilter }) {
+export default function SearchInput({ placeholder, filter, setFilter, inputRef = undefined }) {
   const handleKeyDown = (ev) => {
     if (ev.keyCode == keycodes.escape) {
       setFilter('');
@@ -15,6 +15,7 @@ export default function SearchInput({ placeholder, filter, setFilter }) {
   };
   return (
     <StyledInput
+      ref={inputRef}
       type="text"
       placeholder={placeholder}
       value={filter}
