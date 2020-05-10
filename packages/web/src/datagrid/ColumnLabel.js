@@ -6,6 +6,7 @@ import { SequenceIcon, ForeignKeyIcon } from '../icons';
 
 const Label = styled.span`
   font-weight: ${props => (props.notNull ? 'bold' : 'normal')};
+  white-space: nowrap;
 `;
 
 /** @param column {import('@dbgate/datalib').DisplayColumn|import('@dbgate/types').ColumnInfo} */

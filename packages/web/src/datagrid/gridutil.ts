@@ -1,8 +1,9 @@
 import _ from 'lodash';
 import { SeriesSizes } from './SeriesSizes';
 import { CellAddress } from './selection';
+import { GridDisplay } from '@dbgate/datalib';
 
-export function countColumnSizes(loadedRows, columns, containerWidth, display) {
+export function countColumnSizes(loadedRows, columns, containerWidth, display: GridDisplay) {
   const columnSizes = new SeriesSizes();
   if (!loadedRows || !columns) return columnSizes;
 
@@ -25,12 +26,17 @@ export function countColumnSizes(loadedRows, columns, containerWidth, display) {
     //this.columnSizes.PutSizeOverride(col, this.columns[col].Name.length * 8);
     const column = columns[colIndex];
 
+    if (display.config.columnWidths[column.uniqueName]) {
+      columnSizes.putSizeOverride(colIndex, display.config.columnWidths[column.uniqueName]);
+      continue;
+    }
+
     // if (column.columnClientObject != null && column.columnClientObject.notNull) context.font = "bold 14px Helvetica";
     // else context.font = "14px Helvetica";
     context.font = 'bold 14px Helvetica';
 
-    let text = column.headerText;
-    let headerWidth = context.measureText(text).width + 64;
+    const text = column.headerText;
+    const headerWidth = context.measureText(text).width + 64;
 
     // if (column.columnClientObject != null && column.columnClientObject.icon != null) headerWidth += 16;
     // if (this.getFilterOnColumn(column.uniquePath)) headerWidth += 16;
@@ -47,9 +53,14 @@ export function countColumnSizes(loadedRows, columns, containerWidth, display) {
   context.font = '14px Helvetica';
   for (let row of loadedRows.slice(0, 20)) {
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-      let uqName = columns[colIndex].uniqueName;
-      let text = row[uqName];
-      let width = context.measureText(text).width + 8;
+      const uqName = columns[colIndex].uniqueName;
+
+      if (display.config.columnWidths[uqName]) {
+        continue;
+      }
+  
+      const text = row[uqName];
+      const width = context.measureText(text).width + 8;
       // console.log('colName', colName, text, width);
       columnSizes.putSizeOverride(colIndex, width);
       // let colName = this.columns[colIndex].uniquePath;
@@ -103,6 +114,7 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
     realColumns.push({
       ...col,
       colIndex,
+      widthNumber,
       widthPx: `${widthNumber}px`,
     });
   }

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridDisplay, ChangeCacheFunc } from './GridDisplay';
+import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { EngineDriver, ViewInfo, ColumnInfo } from '@dbgate/types';
 import { GridConfig, GridCache } from './GridConfig';
 
@@ -8,7 +8,7 @@ export class ViewGridDisplay extends GridDisplay {
     public view: ViewInfo,
     driver: EngineDriver,
     config: GridConfig,
-    setConfig: (config: GridConfig) => void,
+    setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc
   ) {

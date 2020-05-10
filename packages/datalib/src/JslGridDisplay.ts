@@ -1,4 +1,4 @@
-import { GridDisplay, ChangeCacheFunc } from './GridDisplay';
+import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { QueryResultColumn } from '@dbgate/types';
 import { GridConfig, GridCache } from './GridConfig';
 
@@ -7,7 +7,7 @@ export class JslGridDisplay extends GridDisplay {
     jslid,
     columns: QueryResultColumn[],
     config: GridConfig,
-    setConfig: (config: GridConfig) => void,
+    setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc
   ) {

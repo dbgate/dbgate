@@ -38,12 +38,13 @@ export function combineReferenceActions(a: ReferenceActionResult, b: ReferenceAc
   return 'noAction';
 }
 
-export type ChangeCacheFunc = (changeFunc: (config: GridCache) => GridCache) => void;
+export type ChangeCacheFunc = (changeFunc: (cache: GridCache) => GridCache) => void;
+export type ChangeConfigFunc = (changeFunc: (config: GridConfig) => GridConfig) => void;
 
 export abstract class GridDisplay {
   constructor(
     public config: GridConfig,
-    protected setConfig: (config: GridConfig) => void,
+    protected setConfig: ChangeConfigFunc,
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
     public driver?: EngineDriver
@@ -67,10 +68,10 @@ export abstract class GridDisplay {
   }
 
   focusColumn(uniqueName: string) {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       focusedColumn: uniqueName,
-    });
+    }));
   }
 
   get focusedColumn() {
@@ -96,30 +97,30 @@ export abstract class GridDisplay {
   includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
     // console.log('includeInColumnSet', field, uniqueName, isIncluded);
     if (isIncluded) {
-      this.setConfig({
-        ...this.config,
-        [field]: [...(this.config[field] || []), uniqueName],
-      });
+      this.setConfig((cfg) => ({
+        ...cfg,
+        [field]: [...(cfg[field] || []), uniqueName],
+      }));
     } else {
-      this.setConfig({
-        ...this.config,
-        [field]: (this.config[field] || []).filter((x) => x != uniqueName),
-      });
+      this.setConfig((cfg) => ({
+        ...cfg,
+        [field]: (cfg[field] || []).filter((x) => x != uniqueName),
+      }));
     }
   }
 
   showAllColumns() {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       hiddenColumns: [],
-    });
+    }));
   }
 
   hideAllColumns() {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       hiddenColumns: this.columns.map((x) => x.uniqueName),
-    });
+    }));
   }
 
   get hiddenColumnIndexes() {
@@ -203,21 +204,21 @@ export abstract class GridDisplay {
   }
 
   setFilter(uniqueName, value) {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       filters: {
-        ...this.config.filters,
+        ...cfg.filters,
         [uniqueName]: value,
       },
-    });
+    }));
     this.reload();
   }
 
   setSort(uniqueName, order) {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       sort: [{ uniqueName, order }],
-    });
+    }));
     this.reload();
   }
 
@@ -230,10 +231,10 @@ export abstract class GridDisplay {
   }
 
   clearFilters() {
-    this.setConfig({
-      ...this.config,
+    this.setConfig((cfg) => ({
+      ...cfg,
       filters: {},
-    });
+    }));
     this.reload();
   }
 
@@ -312,6 +313,23 @@ export abstract class GridDisplay {
     else if (this.driver.dialect.limitSelect) select.topRecords = count;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
+  }
+
+  resizeColumn(uniqueName: string, computedSize: number, diff: number) {
+    this.setConfig((cfg) => {
+      const columnWidths = {
+        ...cfg.columnWidths,
+      };
+      if (columnWidths[uniqueName]) {
+        columnWidths[uniqueName] += diff;
+      } else {
+        columnWidths[uniqueName] = computedSize + diff;
+      }
+      return {
+        ...cfg,
+        columnWidths,
+      };
+    });
   }
 
   getCountQuery() {

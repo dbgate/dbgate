@@ -509,7 +509,9 @@ export default function DataGridCore(props) {
 
   function handleGridMouseDown(event) {
     if (event.target.closest('.buttonLike')) return;
+    if (event.target.closest('.resizeHandleControl')) return;
     if (event.target.closest('input')) return;
+
     // event.target.closest('table').focus();
     event.preventDefault();
     // @ts-ignore
@@ -1044,6 +1046,7 @@ export default function DataGridCore(props) {
                   column={col}
                   setSort={display.sortable ? (order) => display.setSort(col.uniqueName, order) : null}
                   order={display.getSortOrder(col.uniqueName)}
+                  onResize={(diff) => display.resizeColumn(col.uniqueName, col.widthNumber, diff)}
                 />
               </TableHeaderCell>
             ))}

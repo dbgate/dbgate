@@ -19,6 +19,7 @@ export interface GridReferenceDefinition {
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
   focusedColumn?: string;
+  columnWidths: { [uniqueName: string]: number };
   sort: {
     uniqueName: string;
     order: 'ASC' | 'DESC';
@@ -37,6 +38,7 @@ export function createGridConfig(): GridConfig {
     expandedColumns: [],
     addedColumns: [],
     filters: {},
+    columnWidths: {},
     sort: [],
     focusedColumn: null,
   };

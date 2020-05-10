@@ -6,6 +6,7 @@ import {
   DisplayColumn,
   ReferenceActionResult,
   DisplayedColumnInfo,
+  ChangeConfigFunc,
 } from './GridDisplay';
 import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo } from '@dbgate/types';
 import { GridConfig, GridCache, createGridCache } from './GridConfig';
@@ -19,7 +20,7 @@ export class TableGridDisplay extends GridDisplay {
     public tableName: NamedObjectInfo,
     driver: EngineDriver,
     config: GridConfig,
-    setConfig: (config: GridConfig) => void,
+    setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
     protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>

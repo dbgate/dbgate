@@ -3,10 +3,12 @@ import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { useSplitterDrag } from '../widgets/Splitter';
 import { FontIcon } from '../icons';
 
 const HeaderDiv = styled.div`
   display: flex;
+  flex-wrap: nowrap;
 `;
 
 const LabelDiv = styled.div`
@@ -15,13 +17,22 @@ const LabelDiv = styled.div`
   // padding-left: 2px;
   padding: 2px;
   margin: auto;
+  white-space: nowrap;
 `;
 
 const IconWrapper = styled.span`
   margin-left: 3px;
 `;
 
-export default function ColumnHeaderControl({ column, setSort, order }) {
+const ResizeHandle = styled.div`
+  background-color: #ccc;
+  width: 2px;
+  cursor: col-resize;
+  z-index: 1;
+`;
+
+export default function ColumnHeaderControl({ column, setSort, onResize, order }) {
+  const onResizeDown = useSplitterDrag('clientX', onResize);
   return (
     <HeaderDiv>
       <LabelDiv>
@@ -43,6 +54,7 @@ export default function ColumnHeaderControl({ column, setSort, order }) {
           <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
         </DropDownButton>
       )}
+      <ResizeHandle className="resizeHandleControl" onMouseDown={onResizeDown} />
     </HeaderDiv>
   );
 }
