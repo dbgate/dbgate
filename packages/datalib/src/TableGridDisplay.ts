@@ -1,14 +1,6 @@
 import _ from 'lodash';
-import {
-  GridDisplay,
-  combineReferenceActions,
-  ChangeCacheFunc,
-  DisplayColumn,
-  ReferenceActionResult,
-  DisplayedColumnInfo,
-  ChangeConfigFunc,
-} from './GridDisplay';
-import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo } from '@dbgate/types';
+import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
+import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 import { GridConfig, GridCache, createGridCache } from './GridConfig';
 import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
 import { filterName } from './filterName';
@@ -23,14 +15,12 @@ export class TableGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    protected getTableInfo: ({ schemaName, pureName }) => Promise<TableInfo>
+    protected dbinfo: DatabaseInfo
   ) {
     super(config, setConfig, cache, setCache, driver);
 
-    const baseTblCacheKey = `basetbl_${tableName.schemaName}_${tableName.pureName}`;
-    this.table = this.cache.tables[baseTblCacheKey];
+    this.table = this.findTable(tableName);
     if (!this.table) {
-      this.loadTableIntoCache(baseTblCacheKey, tableName);
       this.isLoadedCorrectly = false;
     } else {
       if (!this.table.columns || this.table.columns.length == 0) {
@@ -50,6 +40,14 @@ export class TableGridDisplay extends GridDisplay {
     }
   }
 
+  findTable({ schemaName, pureName }) {
+    return (
+      this.dbinfo &&
+      this.dbinfo.tables &&
+      this.dbinfo.tables.find((x) => x.pureName == pureName && x.schemaName == schemaName)
+    );
+  }
+
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
     return (
       table?.columns
@@ -62,34 +60,23 @@ export class TableGridDisplay extends GridDisplay {
     );
   }
 
-  addJoinsFromExpandedColumns(
-    select: Select,
-    columns: DisplayColumn[],
-    parentAlias: string,
-    columnSources
-  ): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
+  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string, columnSources): boolean {
+    let res = false;
     for (const column of columns) {
       if (this.isExpandedColumn(column.uniqueName)) {
-        const table = this.cache.tables[column.uniqueName];
+        const table = this.getFkTarget(column);
         if (table) {
           const childAlias = `${column.uniqueName}_ref`;
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
-          const tableAction = combineReferenceActions(
-            this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources),
-            this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)
-          );
 
-          if (tableAction == 'refAdded') {
+          let added = false;
+          if (this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources)) added = true;
+          if (this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)) added = true;
+
+          if (added) {
             this.addReferenceToSelect(select, parentAlias, column);
-            res = 'refAdded';
+            res = true;
           }
-          if (tableAction == 'loadRequired') {
-            return 'loadRequired';
-          }
-        } else {
-          this.requireFkTarget(column);
-          res = 'loadRequired';
         }
       }
     }
@@ -100,38 +87,40 @@ export class TableGridDisplay extends GridDisplay {
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
     const childAlias = `${column.uniqueName}_ref`;
     if ((select.from.relations || []).find((x) => x.alias == childAlias)) return;
-    const table = this.cache.tables[column.uniqueName];
-    select.from.relations = [
-      ...(select.from.relations || []),
-      {
-        joinType: 'LEFT JOIN',
-        name: table,
-        alias: childAlias,
-        conditions: [
-          {
-            conditionType: 'binary',
-            operator: '=',
-            left: {
-              exprType: 'column',
-              columnName: column.columnName,
-              source: { name: column, alias: parentAlias },
+    const table = this.getFkTarget(column);
+    if (table) {
+      select.from.relations = [
+        ...(select.from.relations || []),
+        {
+          joinType: 'LEFT JOIN',
+          name: table,
+          alias: childAlias,
+          conditions: [
+            {
+              conditionType: 'binary',
+              operator: '=',
+              left: {
+                exprType: 'column',
+                columnName: column.columnName,
+                source: { name: column, alias: parentAlias },
+              },
+              right: {
+                exprType: 'column',
+                columnName: table.primaryKey.columns[0].columnName,
+                source: { name: table, alias: childAlias },
+              },
             },
-            right: {
-              exprType: 'column',
-              columnName: table.primaryKey.columns[0].columnName,
-              source: { name: table, alias: childAlias },
-            },
-          },
-        ],
-      },
-    ];
+          ],
+        },
+      ];
+    }
   }
 
-  addHintsToSelect(select: Select): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
+  addHintsToSelect(select: Select): boolean {
+    let res = false;
     for (const column of this.getGridColumns()) {
       if (column.foreignKey) {
-        const table = this.cache.tables[column.uniqueName];
+        const table = this.getFkTarget(column);
         if (table && table.columns && table.columns.length > 0) {
           const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
           if (hintColumn) {
@@ -144,12 +133,8 @@ export class TableGridDisplay extends GridDisplay {
               alias: `hint_${column.uniqueName}`,
               source: { alias: childAlias },
             });
-            res = 'refAdded';
+            res = true;
           }
-        } else {
-          this.requireFkTarget(column);
-          this.isLoadedCorrectly = false;
-          res = 'loadRequired';
         }
       }
     }
@@ -166,51 +151,26 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   getExpandedColumns(column: DisplayColumn) {
-    const table = this.cache.tables[column.uniqueName];
+    const table = this.getFkTarget(column);
     if (table) {
       return this.enrichExpandedColumns(this.getDisplayColumns(table, column.uniquePath));
-    } else {
-      // load expanded columns
-      this.requireFkTarget(column);
     }
     return [];
   }
 
-  loadTableIntoCache(key, { pureName, schemaName }) {
-    if (this.cache.loadingTables.find((x) => x.pureName == pureName && x.schemaName == schemaName)) return;
-
-    this.setCache((cache) => ({
-      ...cache,
-      loadingTables: [...cache.loadingTables, { schemaName, pureName }],
-    }));
-
-    this.getTableInfo({ schemaName, pureName }).then((table) => {
-      console.log('Loading table info', schemaName, pureName);
-      this.setCache((cache) => ({
-        ...cache,
-        loadingTables: cache.loadingTables.filter((x) => x.schemaName != schemaName || x.pureName != pureName),
-        tables: {
-          ...cache.tables,
-          [key]: table,
-        },
-      }));
-    });
-  }
-
-  requireFkTarget(column: DisplayColumn) {
+  getFkTarget(column: DisplayColumn) {
     const { uniqueName, foreignKey } = column;
     const pureName = foreignKey.refTableName;
     const schemaName = foreignKey.refSchemaName;
-    this.loadTableIntoCache(uniqueName, { pureName, schemaName });
+    return this.findTable({ schemaName, pureName });
   }
 
-  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): ReferenceActionResult {
-    const action = combineReferenceActions(
-      this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo),
-      this.addHintsToSelect(select)
-    );
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): boolean {
+    let res = false;
+    if (this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo)) res = true;
+    if (this.addHintsToSelect(select)) res = true;
     if (select.from.relations) select.from.relations.reverse();
-    return action;
+    return res;
   }
 
   createSelect() {
@@ -246,8 +206,8 @@ export class TableGridDisplay extends GridDisplay {
     columns: DisplayColumn[],
     parentAlias: string,
     displayedColumnInfo: DisplayedColumnInfo
-  ): ReferenceActionResult {
-    let res: ReferenceActionResult = 'noAction';
+  ): boolean {
+    let res = false;
     for (const column of columns) {
       if (this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push({
@@ -260,7 +220,7 @@ export class TableGridDisplay extends GridDisplay {
           ...column,
           sourceAlias: parentAlias,
         };
-        res = 'refAdded';
+        res = true;
       }
     }
     return res;

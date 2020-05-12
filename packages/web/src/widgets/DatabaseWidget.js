@@ -8,11 +8,12 @@ import { useSetCurrentDatabase, useCurrentDatabase, useOpenedConnections } from 
 import InlineButton from './InlineButton';
 import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
 import {
-  useSqlObjectList,
+  // useSqlObjectList,
   useDatabaseList,
   useConnectionList,
   useServerStatus,
   useDatabaseStatus,
+  useDatabaseInfo,
 } from '../utility/metadataLoaders';
 import {
   SearchBoxWrapper,
@@ -82,7 +83,7 @@ function ConnectionList() {
 }
 
 function SqlObjectList({ conid, database }) {
-  const objects = useSqlObjectList({ conid, database });
+  const objects = useDatabaseInfo({ conid, database });
   const status = useDatabaseStatus({ conid, database });
 
   const handleRefreshDatabase = () => {

@@ -4,7 +4,7 @@ import DataGrid from './DataGrid';
 import styled from 'styled-components';
 import { TableGridDisplay, createGridConfig, createGridCache } from '@dbgate/datalib';
 import { getFilterValueExpression } from '@dbgate/filterparser';
-import { useConnectionInfo, getTableInfo } from '../utility/metadataLoaders';
+import { useConnectionInfo, getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
 import useSocket from '../utility/SocketProvider';
 import { VerticalSplitter } from '../widgets/Splitter';
@@ -50,6 +50,7 @@ export default function TableDataGrid({
   const [myLoadedTime, setMyLoadedTime] = React.useState(0);
 
   const connection = useConnectionInfo({ conid });
+  const dbinfo = useDatabaseInfo({ conid, database });
   const [reference, setReference] = React.useState(null);
 
   React.useEffect(() => {
@@ -66,10 +67,10 @@ export default function TableDataGrid({
             setConfig || setMyConfig,
             cache || myCache,
             setCache || setMyCache,
-            (name) => getTableInfo({ conid, database, ...name })
+            dbinfo
           )
         : null,
-    [connection, config || myConfig, cache || myCache, conid, database, schemaName, pureName]
+    [connection, config || myConfig, cache || myCache, conid, database, schemaName, pureName, dbinfo]
   );
 
   const handleDatabaseStructureChanged = React.useCallback(() => {

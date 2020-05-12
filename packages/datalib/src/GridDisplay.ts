@@ -30,13 +30,13 @@ export interface DisplayedColumnInfo {
   [uniqueName: string]: DisplayedColumnEx;
 }
 
-export type ReferenceActionResult = 'noAction' | 'loadRequired' | 'refAdded';
+// export type ReferenceActionResult = 'noAction' | 'loadRequired' | 'refAdded';
 
-export function combineReferenceActions(a: ReferenceActionResult, b: ReferenceActionResult): ReferenceActionResult {
-  if (a == 'loadRequired' || b == 'loadRequired') return 'loadRequired';
-  if (a == 'refAdded' || b == 'refAdded') return 'refAdded';
-  return 'noAction';
-}
+// export function combineReferenceActions(a: ReferenceActionResult, b: ReferenceActionResult): ReferenceActionResult {
+//   if (a == 'loadRequired' || b == 'loadRequired') return 'loadRequired';
+//   if (a == 'refAdded' || b == 'refAdded') return 'refAdded';
+//   return 'noAction';
+// }
 
 export type ChangeCacheFunc = (changeFunc: (cache: GridCache) => GridCache) => void;
 export type ChangeConfigFunc = (changeFunc: (config: GridConfig) => GridConfig) => void;
@@ -269,9 +269,7 @@ export abstract class GridDisplay {
     return null;
   }
 
-  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): ReferenceActionResult {
-    return 'noAction';
-  }
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo) {}
 
   createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[]) {
     if (!columns) return null;
@@ -297,12 +295,9 @@ export abstract class GridDisplay {
       this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
       'uniqueName'
     );
-    const action = this.processReferences(select, displayedColumnInfo);
+    this.processReferences(select, displayedColumnInfo);
     this.applyFilterOnSelect(select, displayedColumnInfo);
     this.applySortOnSelect(select, displayedColumnInfo);
-    if (action == 'loadRequired') {
-      return null;
-    }
     return select;
   }
 

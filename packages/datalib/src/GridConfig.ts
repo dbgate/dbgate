@@ -27,8 +27,6 @@ export interface GridConfig extends GridConfigColumns {
 }
 
 export interface GridCache {
-  tables: { [uniqueName: string]: TableInfo };
-  loadingTables: { schemaName: string; pureName: string }[];
   refreshTime: number;
 }
 
@@ -46,8 +44,6 @@ export function createGridConfig(): GridConfig {
 
 export function createGridCache(): GridCache {
   return {
-    tables: {},
-    loadingTables: [],
     refreshTime: new Date().getTime(),
   };
 }

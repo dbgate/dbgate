@@ -3,17 +3,23 @@ import axios from './axios';
 import { cacheGet, cacheSet, getCachedPromise } from './cache';
 import stableStringify from 'json-stable-stringify';
 
-const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
-  url: 'metadata/table-info',
-  params: { conid, database, schemaName, pureName },
+const databaseInfoLoader = ({ conid, database }) => ({
+  url: 'database-connections/structure',
+  params: { conid, database },
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
 });
 
-const sqlObjectInfoLoader = ({ objectTypeField, conid, database, schemaName, pureName }) => ({
-  url: 'metadata/sql-object-info',
-  params: { objectTypeField, conid, database, schemaName, pureName },
-  reloadTrigger: `database-structure-changed-${conid}-${database}`,
-});
+// const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
+//   url: 'metadata/table-info',
+//   params: { conid, database, schemaName, pureName },
+//   reloadTrigger: `database-structure-changed-${conid}-${database}`,
+// });
+
+// const sqlObjectInfoLoader = ({ objectTypeField, conid, database, schemaName, pureName }) => ({
+//   url: 'metadata/sql-object-info',
+//   params: { objectTypeField, conid, database, schemaName, pureName },
+//   reloadTrigger: `database-structure-changed-${conid}-${database}`,
+// });
 
 const connectionInfoLoader = ({ conid }) => ({
   url: 'connections/get',
@@ -21,11 +27,11 @@ const connectionInfoLoader = ({ conid }) => ({
   reloadTrigger: 'connection-list-changed',
 });
 
-const sqlObjectListLoader = ({ conid, database }) => ({
-  url: 'metadata/list-objects',
-  params: { conid, database },
-  reloadTrigger: `database-structure-changed-${conid}-${database}`,
-});
+// const sqlObjectListLoader = ({ conid, database }) => ({
+//   url: 'metadata/list-objects',
+//   params: { conid, database },
+//   reloadTrigger: `database-structure-changed-${conid}-${database}`,
+// });
 
 const databaseStatusLoader = ({ conid, database }) => ({
   url: 'database-connections/status',
@@ -86,32 +92,56 @@ function useCore(loader, args) {
   return res;
 }
 
+/** @returns {Promise<import('@dbgate/types').DatabaseInfo>} */
+export function getDatabaseInfo(args) {
+  return getCore(databaseInfoLoader, args);
+}
+
+/** @returns {import('@dbgate/types').DatabaseInfo} */
+export function useDatabaseInfo(args) {
+  return useCore(databaseInfoLoader, args);
+}
+
+async function getDbCore(args, objectTypeField = undefined) {
+  const db = await getDatabaseInfo(args);
+  return db[objectTypeField || args.objectTypeField].find(
+    (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
+  );
+}
+
+export function useDbCore(args, objectTypeField = undefined) {
+  const db = useDatabaseInfo(args);
+  return db[objectTypeField || args.objectTypeField].find(
+    (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
+  );
+}
+
 /** @returns {Promise<import('@dbgate/types').TableInfo>} */
 export function getTableInfo(args) {
-  return getCore(tableInfoLoader, args);
+  return getDbCore(args, 'tables');
 }
 
 /** @returns {import('@dbgate/types').TableInfo} */
 export function useTableInfo(args) {
-  return useCore(tableInfoLoader, args);
+  return useDbCore(args, 'tables');
 }
 
 /** @returns {Promise<import('@dbgate/types').ViewInfo>} */
 export function getViewInfo(args) {
-  return getCore(sqlObjectInfoLoader, { ...args, objectTypeField: 'views' });
+  return getDbCore(args, 'views');
 }
 
 /** @returns {import('@dbgate/types').ViewInfo} */
 export function useViewInfo(args) {
-  return useCore(sqlObjectInfoLoader, { ...args, objectTypeField: 'views' });
+  return useDbCore(args, 'views');
 }
 
 export function getSqlObjectInfo(args) {
-  return getCore(sqlObjectInfoLoader, args);
+  return getDbCore(args);
 }
 
 export function useSqlObjectInfo(args) {
-  return useCore(sqlObjectInfoLoader, args);
+  return useDbCore(args);
 }
 
 /** @returns {Promise<import('@dbgate/types').StoredConnection>} */
@@ -124,12 +154,12 @@ export function useConnectionInfo(args) {
   return useCore(connectionInfoLoader, args);
 }
 
-export function getSqlObjectList(args) {
-  return getCore(sqlObjectListLoader, args);
-}
-export function useSqlObjectList(args) {
-  return useCore(sqlObjectListLoader, args);
-}
+// export function getSqlObjectList(args) {
+//   return getCore(sqlObjectListLoader, args);
+// }
+// export function useSqlObjectList(args) {
+//   return useCore(sqlObjectListLoader, args);
+// }
 
 export function getDatabaseStatus(args) {
   return getCore(databaseStatusLoader, args);

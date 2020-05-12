@@ -129,6 +129,18 @@ module.exports = {
     }
   },
 
+  structure_meta: 'get',
+  async structure({ conid, database }) {
+    const opened = await this.ensureOpened(conid, database);
+    return opened.structure;
+    // const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    // if (existing) return existing.status;
+    // return {
+    //   name: 'error',
+    //   message: 'Not connected',
+    // };
+  },
+
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);
