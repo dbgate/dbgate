@@ -4,13 +4,23 @@ import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
 import theme from '../theme';
 
-const VerticalMainContainer = styled.div`
+const SplitterMainBase = styled.div`
+  flex: 1;
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+`;
+
+const VerticalMainContainer = styled(SplitterMainBase)`
   flex: 1;
   display: flex;
   flex-direction: column;
 `;
 
-const HorizontalMainContainer = styled.div`
+const HorizontalMainContainer = styled(SplitterMainBase)`
   flex: 1;
   display: flex;
 `;
