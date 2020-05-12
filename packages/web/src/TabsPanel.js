@@ -4,15 +4,41 @@ import styled from 'styled-components';
 import theme from './theme';
 import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 
-import { useOpenedTabs, useSetOpenedTabs } from './utility/globalState';
+import { useOpenedTabs, useSetOpenedTabs, useCurrentDatabase, useSetCurrentDatabase } from './utility/globalState';
 import { getIconImage } from './icons';
 import { showMenu } from './modals/DropDownMenu';
+import { getConnectionInfo } from './utility/metadataLoaders';
 
 // const files = [
 //   { name: 'app.js' },
 //   { name: 'BranchCategory', type: 'table', selected: true },
 //   { name: 'ApplicationList' },
 // ];
+
+const DbGroupHandler = styled.div`
+  display: flex;
+  flex: 1;
+`;
+
+const DbWrapperHandler = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const DbNameWrapper = styled.div`
+  text-align: center;
+  font-size: 8pt;
+  border-top: 1px solid #ccc;
+  border-right: 1px solid white;
+  cursor: pointer;
+  user-select: none;
+  &:hover {
+    background-color: #aaa;
+  }
+  background-color: ${(props) =>
+    // @ts-ignore
+    props.selected ? theme.mainArea.background : 'inherit'};
+`;
 
 const FileTabItem = styled.div`
   border-right: 1px solid white;
@@ -64,8 +90,16 @@ function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, closeWi
 }
 
 export default function TabsPanel() {
+  const noDbKey = '_no';
+  const formatDbKey = (conid, database) => `${database}-${conid}`;
+
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
+  const currentDb = useCurrentDatabase();
+  const setCurrentDb = useSetCurrentDatabase();
+
+  const { name, connection } = currentDb || {};
+  const currentDbKey = name && connection ? formatDbKey(connection._id, name) : noDbKey;
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -134,28 +168,61 @@ export default function TabsPanel() {
   //   't',
   //   tabs.map(x => x.tooltip)
   // );
+  const tabsWithDb = tabs.map((tab) => ({
+    ...tab,
+    tabDbName: tab.props && tab.props.conid && tab.props.database ? tab.props.database : '(no DB)',
+    tabDbKey:
+      tab.props && tab.props.conid && tab.props.database ? formatDbKey(tab.props.conid, tab.props.database) : noDbKey,
+  }));
+  const tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
+  const dbKeys = _.keys(tabsByDb).sort();
+
+  const handleSetDb = async (props) => {
+    const { conid, database } = props || {};
+    if (conid) {
+      const connection = await getConnectionInfo({ conid, database });
+      if (connection) {
+        setCurrentDb({ connection, name: database });
+        return;
+      }
+    }
+    setCurrentDb(null);
+  };
 
   return (
     <>
-      {tabs.map((tab) => (
-        <FileTabItem
-          {...tab}
-          title={tab.tooltip}
-          key={tab.tabid}
-          onClick={(e) => handleTabClick(e, tab.tabid)}
-          onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
-          onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
-        >
-          {tab.busy ? <i className="fas fa-spinner fa-spin"></i> : getIconImage(tab.icon)}
-          <FileNameWrapper>{tab.title}</FileNameWrapper>
-          <CloseButton
-            className="fas fa-times tabCloseButton"
-            onClick={(e) => {
-              e.preventDefault();
-              closeTab(tab.tabid);
-            }}
-          />
-        </FileTabItem>
+      {dbKeys.map((dbKey) => (
+        <DbWrapperHandler key={dbKey}>
+          <DbGroupHandler>
+            {tabsByDb[dbKey].map((tab) => (
+              <FileTabItem
+                {...tab}
+                title={tab.tooltip}
+                key={tab.tabid}
+                onClick={(e) => handleTabClick(e, tab.tabid)}
+                onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
+                onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
+              >
+                {tab.busy ? <i className="fas fa-spinner fa-spin"></i> : getIconImage(tab.icon)}
+                <FileNameWrapper>{tab.title}</FileNameWrapper>
+                <CloseButton
+                  className="fas fa-times tabCloseButton"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    closeTab(tab.tabid);
+                  }}
+                />
+              </FileTabItem>
+            ))}
+          </DbGroupHandler>
+          <DbNameWrapper
+            // @ts-ignore
+            selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
+            onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
+          >
+            <i className="fas fa-database" /> {tabsByDb[dbKey][0].tabDbName}
+          </DbNameWrapper>
+        </DbWrapperHandler>
       ))}
     </>
   );
