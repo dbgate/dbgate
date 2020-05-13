@@ -58,7 +58,7 @@ export function countColumnSizes(loadedRows, columns, containerWidth, display: G
       if (display.config.columnWidths[uqName]) {
         continue;
       }
-  
+
       const text = row[uqName];
       const width = context.measureText(text).width + 8;
       // console.log('colName', colName, text, width);
@@ -122,7 +122,7 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
 }
 
 export function filterCellForRow(cell, row: number): CellAddress | null {
-  return cell && cell[0] == row && _.isString(cell[0]) ? cell : null;
+  return cell && (cell[0] == row || _.isString(cell[0])) ? cell : null;
 }
 
 export function filterCellsForRow(cells, row: number): CellAddress[] | null {
