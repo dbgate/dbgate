@@ -40,6 +40,8 @@ import DataGridContextMenu from './DataGridContextMenu';
 import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
+import showModal from '../modals/showModal';
+import ErrorMessageModal from '../modals/ErrorMessageModal';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -817,7 +819,7 @@ export default function DataGridCore(props) {
   }
 
   async function handleConfirmSql() {
-    await axios.request({
+    const resp = await axios.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -827,9 +829,14 @@ export default function DataGridCore(props) {
       data: { sql: confirmSql },
     });
 
-    dispatchChangeSet({ type: 'reset', value: createChangeSet() });
-    setConfirmSql(null);
-    display.reload();
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal((modalState) => <ErrorMessageModal modalState={modalState} message={errorMessage} title='Error when saving' />);
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      setConfirmSql(null);
+      display.reload();
+    }
   }
 
   const insertNewRow = () => {
