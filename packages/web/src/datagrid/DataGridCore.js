@@ -471,6 +471,33 @@ export default function DataGridCore(props) {
     }
   }, [display && display.focusedColumn]);
 
+  const rowCountInfo = React.useMemo(() => {
+    if (selectedCells.length > 1 && selectedCells.every((x) => _.isNumber(x[0]) && _.isNumber(x[1]))) {
+      let sum = _.sumBy(selectedCells, (cell) => {
+        const row = loadedRows[cell[0]];
+        if (row) {
+          const colName = realColumnUniqueNames[cell[1]];
+          if (colName) {
+            const data = row[colName];
+            if (!data) return 0;
+            let num = +data;
+            if (_.isNaN(num)) return 0;
+            return num;
+          }
+        }
+        return 0;
+      });
+      let count = selectedCells.length;
+      let rowCount = getSelectedRowData().length;
+      return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
+    }
+    if (allRowCount == null) return 'Loading row count...';
+    return `Rows: ${allRowCount.toLocaleString()}`;
+    // if (this.isLoadingFirstPage) return "Loading first page...";
+    // if (this.isFirstPageError) return "Error loading first page";
+    // return `Rows: ${this.rowCount.toLocaleString()}`;
+  }, [selectedCells, allRowCount, loadedRows, visibleRealColumns]);
+
   if (!loadedRows || !columns || columns.length == 0)
     return (
       <LoadingInfoWrapper>
@@ -525,15 +552,26 @@ export default function DataGridCore(props) {
       setAutofillDragStartCell(cell);
     } else {
       setCurrentCell(cell);
-      setSelectedCells(getCellRange(cell, cell));
-      setDragStartCell(cell);
 
-      if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
-        // @ts-ignore
-        dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
-      } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
-        // @ts-ignore
-        dispatchInsplaceEditor({ type: 'close' });
+      if (event.ctrlKey) {
+        if (isRegularCell(cell)) {
+          if (selectedCells.find((x) => x[0] == cell[0] && x[1] == cell[1])) {
+            setSelectedCells(selectedCells.filter((x) => x[0] != cell[0] || x[1] != cell[1]));
+          } else {
+            setSelectedCells([...selectedCells, cell]);
+          }
+        }
+      } else {
+        setSelectedCells(getCellRange(cell, cell));
+        setDragStartCell(cell);
+
+        if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
+          // @ts-ignore
+          dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+        } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+          // @ts-ignore
+          dispatchInsplaceEditor({ type: 'close' });
+        }
       }
     }
 
@@ -1131,7 +1169,7 @@ export default function DataGridCore(props) {
         engine={display.engine}
         onConfirm={handleConfirmSql}
       />
-      {allRowCount && <RowCountLabel>Rows: {allRowCount.toLocaleString()}</RowCountLabel>}
+      {allRowCount && <RowCountLabel>{rowCountInfo}</RowCountLabel>}
       {props.toolbarPortalRef &&
         tabVisible &&
         ReactDOM.createPortal(

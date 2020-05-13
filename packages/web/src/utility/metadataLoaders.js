@@ -118,6 +118,7 @@ export function useDatabaseInfo(args) {
 
 async function getDbCore(args, objectTypeField = undefined) {
   const db = await getDatabaseInfo(args);
+  if (!db) return null;
   return db[objectTypeField || args.objectTypeField].find(
     (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
   );
@@ -125,6 +126,7 @@ async function getDbCore(args, objectTypeField = undefined) {
 
 export function useDbCore(args, objectTypeField = undefined) {
   const db = useDatabaseInfo(args);
+  if (!db) return null;
   return db[objectTypeField || args.objectTypeField].find(
     (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
   );

@@ -69,14 +69,16 @@ export class TableGridDisplay extends GridDisplay {
           const childAlias = `${column.uniqueName}_ref`;
           const subcolumns = this.getDisplayColumns(table, column.uniquePath);
 
+          this.addReferenceToSelect(select, parentAlias, column);
+
           let added = false;
           if (this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources)) added = true;
           if (this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)) added = true;
 
-          if (added) {
-            this.addReferenceToSelect(select, parentAlias, column);
-            res = true;
-          }
+          // if (added) {
+          //   this.addReferenceToSelect(select, parentAlias, column);
+          //   res = true;
+          // }
         }
       }
     }
@@ -169,7 +171,7 @@ export class TableGridDisplay extends GridDisplay {
     let res = false;
     if (this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo)) res = true;
     if (this.addHintsToSelect(select)) res = true;
-    if (select.from.relations) select.from.relations.reverse();
+    // if (select.from.relations) select.from.relations.reverse();
     return res;
   }
 
