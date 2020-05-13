@@ -24,17 +24,34 @@ const StyledModal = styled(Modal)`
   webkitoverflowscrolling: touch;
   borderradius: 4px;
   outline: none;
-  padding: 20px;
 
   width: 50%;
   max-width: 900px;
   margin: auto;
   margin-top: 15vh;
+
+  // z-index:1200;
+`;
+
+const ModalContent = styled.div`
+  padding: 20px;
 `;
 
 export default function ModalBase({ modalState, children }) {
   return (
-    <StyledModal isOpen={modalState.isOpen} onRequestClose={modalState.close}>
+    <StyledModal
+      isOpen={modalState.isOpen}
+      onRequestClose={modalState.close}
+      overlayClassName="RactModalOverlay"
+      // style={{
+      //   overlay: {
+      //     backgroundColor: '#000',
+      //     opacity: 0.5,
+      //     zIndex: 1000,
+      //   },
+      //   zIndex: 1200,
+      // }}
+    >
       {children}
     </StyledModal>
   );

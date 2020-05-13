@@ -5,6 +5,9 @@ import FormStyledButton from '../widgets/FormStyledButton';
 import SqlEditor from '../sqleditor/SqlEditor';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
+import ModalHeader from './ModalHeader';
+import ModalContent from './ModalContent';
+import ModalFooter from './ModalFooter';
 
 const SqlWrapper = styled.div`
   position: relative;
@@ -22,12 +25,14 @@ export default function ConfirmSqlModal({ modalState, sql, engine, onConfirm }) 
   };
   return (
     <ModalBase modalState={modalState}>
-      <h2>Save changes</h2>
-      <SqlWrapper>
-        <SqlEditor value={sql} engine={engine} focusOnCreate onKeyDown={handleKeyDown} readOnly />
-      </SqlWrapper>
+      <ModalHeader modalState={modalState}>Save changes</ModalHeader>
+      <ModalContent>
+        <SqlWrapper>
+          <SqlEditor value={sql} engine={engine} focusOnCreate onKeyDown={handleKeyDown} readOnly />
+        </SqlWrapper>
+      </ModalContent>
 
-      <FormButtonRow>
+      <ModalFooter>
         <FormStyledButton
           value="OK"
           onClick={() => {
@@ -36,7 +41,7 @@ export default function ConfirmSqlModal({ modalState, sql, engine, onConfirm }) 
           }}
         />
         <FormStyledButton type="button" value="Close" onClick={modalState.close} />
-      </FormButtonRow>
+      </ModalFooter>
     </ModalBase>
   );
 }

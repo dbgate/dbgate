@@ -1,19 +1,15 @@
 import React from 'react';
 import ModalBase from './ModalBase';
-import { FormButtonRow } from '../utility/forms';
 import FormStyledButton from '../widgets/FormStyledButton';
-import styled from 'styled-components';
-
-const MessageWrapper = styled.div`
-  margin: 20px;
-`;
+import ModalFooter from './ModalFooter';
+import ModalContent from './ModalContent';
 
 export default function ConfirmModal({ message, modalState, onConfirm }) {
   return (
     <ModalBase modalState={modalState}>
-      <MessageWrapper>{message}</MessageWrapper>
+      <ModalContent>{message}</ModalContent>
 
-      <FormButtonRow>
+      <ModalFooter>
         <FormStyledButton
           value="OK"
           onClick={() => {
@@ -22,7 +18,7 @@ export default function ConfirmModal({ message, modalState, onConfirm }) {
           }}
         />
         <FormStyledButton type="button" value="Close" onClick={modalState.close} />
-      </FormButtonRow>
+      </ModalFooter>
     </ModalBase>
   );
 }

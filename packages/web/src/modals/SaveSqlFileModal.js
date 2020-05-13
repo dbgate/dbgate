@@ -5,6 +5,9 @@ import { FormButtonRow, FormButton, FormTextField, FormSelectField, FormSubmit }
 import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
 import { useSetSavedSqlFiles } from '../utility/globalState';
+import ModalHeader from './ModalHeader';
+import ModalContent from './ModalContent';
+import ModalFooter from './ModalFooter';
 // import FormikForm from '../utility/FormikForm';
 
 export default function SaveSqlFileModal({ storageKey, modalState, name, onSave = undefined }) {
@@ -23,14 +26,15 @@ export default function SaveSqlFileModal({ storageKey, modalState, name, onSave 
   };
   return (
     <ModalBase modalState={modalState}>
-      <h2>Save SQL file</h2>
+      <ModalHeader modalState={modalState}>Save SQL file</ModalHeader>
       <Formik onSubmit={handleSubmit} initialValues={{ name }}>
         <Form>
-          <FormTextField label="File name" name="name" />
-
-          <FormButtonRow>
+          <ModalContent>
+            <FormTextField label="File name" name="name" />
+          </ModalContent>
+          <ModalFooter>
             <FormSubmit text="Save" />
-          </FormButtonRow>
+          </ModalFooter>
         </Form>
       </Formik>
     </ModalBase>

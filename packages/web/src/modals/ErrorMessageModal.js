@@ -4,6 +4,9 @@ import FormStyledButton from '../widgets/FormStyledButton';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
 import { FormButtonRow } from '../utility/forms';
+import ModalHeader from './ModalHeader';
+import ModalFooter from './ModalFooter';
+import ModalContent from './ModalContent';
 
 const Wrapper = styled.div`
 display:flex
@@ -18,16 +21,18 @@ const IconWrapper = styled.div`
 export default function ErrorMessageModal({ modalState, title = 'Error', message }) {
   return (
     <ModalBase modalState={modalState}>
-      <h2>{title}</h2>
-      <Wrapper>
-        <IconWrapper>
-          <FontIcon icon="fas fa-times-circle red" />
-        </IconWrapper>
-        {message}
-      </Wrapper>
-      <FormButtonRow>
+      <ModalHeader modalState={modalState}>{title}</ModalHeader>
+      <ModalContent>
+        <Wrapper>
+          <IconWrapper>
+            <FontIcon icon="fas fa-times-circle red" />
+          </IconWrapper>
+          {message}
+        </Wrapper>
+      </ModalContent>
+      <ModalFooter>
         <FormStyledButton type="button" value="Close" onClick={modalState.close} />
-      </FormButtonRow>
+      </ModalFooter>
     </ModalBase>
   );
 }
