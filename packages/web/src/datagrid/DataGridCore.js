@@ -585,6 +585,18 @@ export default function DataGridCore(props) {
     copyToClipboard();
   }
 
+  function setCellValue(chs, cell, value) {
+    return setChangeSetValue(
+      chs,
+      display.getChangeSetField(
+        loadedAndInsertedRows[cell[0]],
+        realColumnUniqueNames[cell[1]],
+        cell[0] >= loadedRows.length ? cell[0] - loadedRows.length : null
+      ),
+      value
+    );
+  }
+
   function handlePaste(event) {
     var pastedText = undefined;
     // @ts-ignore
@@ -637,18 +649,9 @@ export default function DataGridCore(props) {
         const [rowIndex, colIndex] = cell;
         const selectionRow = rowIndex - startRow;
         const selectionCol = colIndex - startCol;
-        const row = allRows[rowIndex];
         const pasteRow = pasteRows[selectionRow % pasteRows.length];
         const pasteCell = pasteRow[selectionCol % pasteRow.length];
-        chs = setChangeSetValue(
-          chs,
-          display.getChangeSetField(
-            row,
-            realColumnUniqueNames[colIndex],
-            rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
-          ),
-          pasteCell
-        );
+        chs = setCellValue(chs, cell, pasteCell);
       }
     }
 
@@ -658,15 +661,7 @@ export default function DataGridCore(props) {
   function setNull() {
     let chs = changeSet;
     selectedCells.filter(isRegularCell).forEach((cell) => {
-      chs = setChangeSetValue(
-        chs,
-        display.getChangeSetField(
-          loadedAndInsertedRows[cell[0]],
-          realColumnUniqueNames[cell[1]],
-          cell[0] >= loadedRows.length ? cell[0] - loadedRows.length : null
-        ),
-        null
-      );
+      chs = setCellValue(chs, cell, null);
     });
     setChangeSet(chs);
   }
