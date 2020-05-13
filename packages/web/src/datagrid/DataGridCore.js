@@ -530,6 +530,7 @@ export default function DataGridCore(props) {
         deleteSelectedRows={deleteSelectedRows}
         insertNewRow={insertNewRow}
         reload={() => display.reload()}
+        setNull={setNull}
       />
     );
   };
@@ -651,6 +652,22 @@ export default function DataGridCore(props) {
       }
     }
 
+    setChangeSet(chs);
+  }
+
+  function setNull() {
+    let chs = changeSet;
+    selectedCells.filter(isRegularCell).forEach((cell) => {
+      chs = setChangeSetValue(
+        chs,
+        display.getChangeSetField(
+          loadedAndInsertedRows[cell[0]],
+          realColumnUniqueNames[cell[1]],
+          cell[0] >= loadedRows.length ? cell[0] - loadedRows.length : null
+        ),
+        null
+      );
+    });
     setChangeSet(chs);
   }
 
@@ -842,6 +859,11 @@ export default function DataGridCore(props) {
       event.preventDefault();
       handleSave();
       // this.saveAndFocus();
+    }
+
+    if (event.keyCode == keycodes.n0 && event.ctrlKey) {
+      event.preventDefault();
+      setNull();
     }
 
     if (event.keyCode == keycodes.r && event.ctrlKey) {

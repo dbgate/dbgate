@@ -38,6 +38,7 @@ const StyledIconSpan = styled.span`
 const ButtonDivInner = styled.div`
   position: relative;
   top: ${(props) => props.patchY}px;
+  white-space: nowrap;
 `;
 
 export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined, patchY = 2 }) {

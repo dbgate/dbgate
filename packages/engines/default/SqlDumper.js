@@ -33,9 +33,12 @@ class SqlDumper {
     this.putRaw("'");
   }
   putValue(value) {
-    if (_.isString(value)) this.putStringValue(value);
-    if (_.isNumber(value)) this.putRaw(value.toString());
-    if (_.isDate(value)) this.putStringValue(moment(value).toISOString());
+    if (value === null) this.putRaw('NULL');
+    if (value === true) this.putRaw('1');
+    if (value === false) this.putRaw('0');
+    else if (_.isString(value)) this.putStringValue(value);
+    else if (_.isNumber(value)) this.putRaw(value.toString());
+    else if (_.isDate(value)) this.putStringValue(moment(value).toISOString());
   }
   putCmd(format, ...args) {
     this.put(format, ...args);
@@ -77,7 +80,7 @@ class SqlDumper {
   }
   putFormattedList(c, collection) {
     if (!collection) return;
-    this.putCollection(', ', collection, item => this.putFormattedValue(c, item));
+    this.putCollection(', ', collection, (item) => this.putFormattedValue(c, item));
   }
   /** @param format {string} */
   put(format, ...args) {
@@ -198,7 +201,7 @@ class SqlDumper {
   /** @param table {import('@dbgate/types').TableInfo} */
   createTable(table) {
     this.put('^create ^table %f ( &>&n', table);
-    this.putCollection(',&n', table.columns, col => {
+    this.putCollection(',&n', table.columns, (col) => {
       this.put('%i ', col.columnName);
       this.columnDefinition(col);
     });
@@ -209,11 +212,11 @@ class SqlDumper {
       }
       this.put(
         ' ^primary ^key (%,i)',
-        table.primaryKey.columns.map(x => x.columnName)
+        table.primaryKey.columns.map((x) => x.columnName)
       );
     }
     if (table.foreignKeys) {
-      table.foreignKeys.forEach(fk => {
+      table.foreignKeys.forEach((fk) => {
         this.put(',&n');
         this.createForeignKeyFore(fk);
       });
@@ -243,9 +246,9 @@ class SqlDumper {
     if (fk.constraintName != null) this.put('^constraint %i ', fk.constraintName);
     this.put(
       '^foreign ^key (%,i) ^references %f (%,i)',
-      fk.columns.map(x => x.columnName),
+      fk.columns.map((x) => x.columnName),
       { schemaName: fk.refSchemaName, pureName: fk.refTableName },
-      fk.columns.map(x => x.refColumnName)
+      fk.columns.map((x) => x.refColumnName)
     );
     if (fk.deleteAction) this.put(' ^on ^delete %k', fk.deleteAction);
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);

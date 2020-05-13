@@ -68,8 +68,7 @@ const TableBodyCell = styled.td`
   `}
 
   ${(props) =>
-    props.isFocusedColumn
-     &&
+    props.isFocusedColumn &&
     `
     background-color: lightgoldenrodyellow;
   `}
@@ -123,11 +122,31 @@ const AutoFillPoint = styled.div`
   cursor: crosshair;
 `;
 
+function makeBulletString(value) {
+  return _.pad('', value.length, '•');
+}
+
+function highlightSpecialCharacters(value) {
+  value = value.replace(/\n/g, '↲');
+  value = value.replace(/\r/g, '');
+  value = value.replace(/^(\s+)/, makeBulletString);
+  value = value.replace(/(\s+)$/, makeBulletString);
+  value = value.replace(/(\s\s+)/g, makeBulletString);
+  return value;
+}
+
+const dateTimeRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?/;
+
 function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';
   if (value === false) return '0';
+  if (_.isNumber(value)) return value.toLocaleString();
+  if (_.isString(value)) {
+    if (dateTimeRegex.test(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
+    return highlightSpecialCharacters(value);
+  }
   return value;
 }
 

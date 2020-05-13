@@ -29,14 +29,18 @@ export const VerticalSplitHandle = styled.div`
   background-color: #ccc;
   height: ${theme.splitter.thickness}px;
   cursor: row-resize;
-  z-index: 1;
+  &:hover {
+    background-color: #AAA;
+  }
 `;
 
 export const HorizontalSplitHandle = styled.div`
   background-color: #ccc;
   width: ${theme.splitter.thickness}px;
   cursor: col-resize;
-  z-index: 1;
+  &:hover {
+    background-color: #AAA;
+  }
 `;
 
 const ChildContainer1 = styled.div`
@@ -45,6 +49,7 @@ const ChildContainer1 = styled.div`
   //   flex-grow: 1;
   display: flex;
   position: relative;
+  overflow: hidden;
 `;
 
 const ChildContainer2 = styled.div`
@@ -54,6 +59,7 @@ const ChildContainer2 = styled.div`
   //   flex-grow: 1;
   display: flex;
   position: relative;
+  overflow: hidden;
 `;
 
 export function useSplitterDrag(axes, onResize) {
