@@ -51,13 +51,33 @@ const LeftPanel = styled.div`
 const TabsPanelContainer = styled.div`
   display: flex;
   position: fixed;
-  overflow-x: auto;
   top: ${theme.toolBar.height}px;
   left: ${(props) => props.contentLeft}px;
   height: ${theme.tabsPanel.height}px;
   right: 0;
   background-color: ${theme.tabsPanel.background};
   border-top: 1px solid #ccc;
+
+  overflow-x: auto;
+
+  ::-webkit-scrollbar {
+    height: 7px;
+  }
+  ::-webkit-scrollbar-track {
+    // -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.3); 
+    border-radius: 1px;
+    background-color: #ddd;
+  }
+ 
+  ::-webkit-scrollbar-thumb {
+    border-radius: 1px;
+    // -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.5); 
+    background-color: #aaa;
+    &:hover {
+      background-color: #99c;
+    }
+  }  
+}
 `;
 
 const StausBarContainer = styled.div`
