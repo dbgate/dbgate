@@ -13,6 +13,7 @@ export default function useFetch({
   defaultValue = undefined,
   reloadTrigger = undefined,
   cacheKey = undefined,
+  transform = (x) => x,
   ...config
 }) {
   const [value, setValue] = React.useState([defaultValue, []]);
@@ -34,7 +35,7 @@ export default function useFetch({
         data,
         ...config,
       });
-      return resp.data;
+      return transform(resp.data);
     }
 
     if (cacheKey) {

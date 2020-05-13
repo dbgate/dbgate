@@ -1,5 +1,6 @@
 import useFetch from './useFetch';
 import axios from './axios';
+import _ from 'lodash';
 import { cacheGet, cacheSet, getCachedPromise } from './cache';
 import stableStringify from 'json-stable-stringify';
 
@@ -7,6 +8,18 @@ const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
   params: { conid, database },
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
+  transform: (db) => {
+    const allForeignKeys = _.flatten(db.tables.map((x) => x.foreignKeys));
+    return {
+      ...db,
+      tables: db.tables.map((table) => ({
+        ...table,
+        dependencies: allForeignKeys.filter(
+          (x) => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
+        ),
+      })),
+    };
+  },
 });
 
 // const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({
@@ -58,7 +71,7 @@ const connectionListLoader = () => ({
 });
 
 async function getCore(loader, args) {
-  const { url, params, reloadTrigger } = loader(args);
+  const { url, params, reloadTrigger, transform } = loader(args);
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
@@ -67,7 +80,7 @@ async function getCore(loader, args) {
       url,
       params,
     });
-    return resp.data;
+    return (transform || ((x) => x))(resp.data);
   }
 
   const fromCache = cacheGet(key);
@@ -79,7 +92,7 @@ async function getCore(loader, args) {
 }
 
 function useCore(loader, args) {
-  const { url, params, reloadTrigger } = loader(args);
+  const { url, params, reloadTrigger, transform } = loader(args);
   const cacheKey = stableStringify({ url, ...params });
 
   const res = useFetch({
@@ -87,6 +100,7 @@ function useCore(loader, args) {
     params,
     reloadTrigger,
     cacheKey,
+    transform,
   });
 
   return res;
