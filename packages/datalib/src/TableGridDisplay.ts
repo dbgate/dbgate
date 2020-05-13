@@ -60,8 +60,7 @@ export class TableGridDisplay extends GridDisplay {
     );
   }
 
-  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string, columnSources): boolean {
-    let res = false;
+  addJoinsFromExpandedColumns(select: Select, columns: DisplayColumn[], parentAlias: string, columnSources) {
     for (const column of columns) {
       if (this.isExpandedColumn(column.uniqueName)) {
         const table = this.getFkTarget(column);
@@ -71,19 +70,11 @@ export class TableGridDisplay extends GridDisplay {
 
           this.addReferenceToSelect(select, parentAlias, column);
 
-          let added = false;
-          if (this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources)) added = true;
-          if (this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)) added = true;
-
-          // if (added) {
-          //   this.addReferenceToSelect(select, parentAlias, column);
-          //   res = true;
-          // }
+          this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources)
+          this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)
         }
       }
     }
-    return res;
-    // const addedColumns = this.getGridColumns().filter(x=>x.)
   }
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
@@ -167,12 +158,9 @@ export class TableGridDisplay extends GridDisplay {
     return this.findTable({ schemaName, pureName });
   }
 
-  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo): boolean {
-    let res = false;
-    if (this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo)) res = true;
-    if (this.addHintsToSelect(select)) res = true;
-    // if (select.from.relations) select.from.relations.reverse();
-    return res;
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+    this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
+    this.addHintsToSelect(select);
   }
 
   createSelect() {
@@ -208,8 +196,7 @@ export class TableGridDisplay extends GridDisplay {
     columns: DisplayColumn[],
     parentAlias: string,
     displayedColumnInfo: DisplayedColumnInfo
-  ): boolean {
-    let res = false;
+  ) {
     for (const column of columns) {
       if (this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push({
@@ -222,9 +209,7 @@ export class TableGridDisplay extends GridDisplay {
           ...column,
           sourceAlias: parentAlias,
         };
-        res = true;
       }
     }
-    return res;
   }
 }
