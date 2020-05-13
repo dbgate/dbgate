@@ -51,6 +51,7 @@ const LeftPanel = styled.div`
 const TabsPanelContainer = styled.div`
   display: flex;
   position: fixed;
+  overflow-x: auto;
   top: ${theme.toolBar.height}px;
   left: ${(props) => props.contentLeft}px;
   height: ${theme.tabsPanel.height}px;

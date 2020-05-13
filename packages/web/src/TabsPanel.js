@@ -18,20 +18,30 @@ import { getConnectionInfo } from './utility/metadataLoaders';
 const DbGroupHandler = styled.div`
   display: flex;
   flex: 1;
+  align-content: stretch;
 `;
 
 const DbWrapperHandler = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: stretch;
 `;
 
 const DbNameWrapper = styled.div`
   text-align: center;
   font-size: 8pt;
-  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
   border-right: 1px solid white;
   cursor: pointer;
   user-select: none;
+  padding: 1px;
+  position: relative;
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  // height: 15px;
+
   &:hover {
     background-color: #aaa;
   }
@@ -40,12 +50,17 @@ const DbNameWrapper = styled.div`
     props.selected ? theme.mainArea.background : 'inherit'};
 `;
 
+// const DbNameWrapperInner = styled.div`
+//   position: absolute;
+//   white-space: nowrap;
+// `;
+
 const FileTabItem = styled.div`
   border-right: 1px solid white;
   padding-left: 15px;
   padding-right: 15px;
   flex-shrink: 1;
-  flex-grow: 0;
+  flex-grow: 1;
   min-width: 10px;
   display: flex;
   align-items: center;
@@ -193,8 +208,15 @@ export default function TabsPanel() {
     <>
       {dbKeys.map((dbKey) => (
         <DbWrapperHandler key={dbKey}>
+          <DbNameWrapper
+            // @ts-ignore
+            selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
+            onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
+          >
+            <i className="fas fa-database" /> {tabsByDb[dbKey][0].tabDbName}
+          </DbNameWrapper>
           <DbGroupHandler>
-            {tabsByDb[dbKey].map((tab) => (
+            {_.sortBy(tabsByDb[dbKey], 'title').map((tab) => (
               <FileTabItem
                 {...tab}
                 title={tab.tooltip}
@@ -215,13 +237,6 @@ export default function TabsPanel() {
               </FileTabItem>
             ))}
           </DbGroupHandler>
-          <DbNameWrapper
-            // @ts-ignore
-            selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
-            onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
-          >
-            <i className="fas fa-database" /> {tabsByDb[dbKey][0].tabDbName}
-          </DbNameWrapper>
         </DbWrapperHandler>
       ))}
     </>

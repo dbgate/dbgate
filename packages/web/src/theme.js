@@ -12,7 +12,7 @@ export default {
     background: '#ccc',
   },
   tabsPanel: {
-    height: 45,
+    height: 53,
     background: '#ddd',
     hoverFont: '#338',
   },
