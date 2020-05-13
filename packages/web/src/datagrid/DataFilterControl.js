@@ -234,6 +234,22 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
     );
   };
 
+  function handlePaste(event) {
+    var pastedText = undefined;
+    // @ts-ignore
+    if (window.clipboardData && window.clipboardData.getData) {
+      // IE
+      // @ts-ignore
+      pastedText = window.clipboardData.getData('Text');
+    } else if (event.clipboardData && event.clipboardData.getData) {
+      pastedText = event.clipboardData.getData('text/plain');
+    }
+    if (pastedText && pastedText.includes('\n')) {
+      event.preventDefault();
+      setFilterText(createMultiLineFilter('is', pastedText));
+    }
+  }
+
   return (
     <FilterDiv>
       <FilterInput
@@ -244,6 +260,7 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
         onChange={updateFilterState}
         state={filterState}
         onBlur={applyFilter}
+        onPaste={handlePaste}
       />
       <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
         <i className="fas fa-filter" />
