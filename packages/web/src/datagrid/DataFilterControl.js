@@ -3,8 +3,10 @@ import React from 'react';
 import { DropDownMenuItem, DropDownMenuDivider, showMenu } from '../modals/DropDownMenu';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
-import { parseFilter } from '@dbgate/filterparser';
+import { parseFilter, createMultiLineFilter } from '@dbgate/filterparser';
 import InlineButton from '../widgets/InlineButton';
+import showModal from '../modals/showModal';
+import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -36,7 +38,7 @@ const FilterDiv = styled.div`
 const FilterInput = styled.input`
   flex: 1;
   min-width: 10px;
-  background-color: ${props => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
+  background-color: ${(props) => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
 `;
 // const FilterButton = styled.button`
 //   color: gray;
@@ -47,68 +49,68 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
     case 'number':
       return (
         <>
-          <DropDownMenuItem onClick={x => setFilter('')}>Clear Filter</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('=')}>Equals...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('<>')}>Does Not Equal...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NULL')}>Is Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('>')}>Greater Than...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('>=')}>Greater Than Or Equal To...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('<')}>Less Than...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('<=')}>Less Than Or Equal To...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('')}>Clear Filter</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('=')}>Equals...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('<>')}>Does Not Equal...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NULL')}>Is Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('>')}>Greater Than...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('>=')}>Greater Than Or Equal To...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('<')}>Less Than...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('<=')}>Less Than Or Equal To...</DropDownMenuItem>
         </>
       );
     case 'logical':
       return (
         <>
-          <DropDownMenuItem onClick={x => setFilter('')}>Clear Filter</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NULL')}>Is Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('TRUE')}>Is True</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('FALSE')}>Is False</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('TRUE, NULL')}>Is True or NULL</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('FALSE, NULL')}>Is False or NULL</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('')}>Clear Filter</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NULL')}>Is Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('TRUE')}>Is True</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('FALSE')}>Is False</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('TRUE, NULL')}>Is True or NULL</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('FALSE, NULL')}>Is False or NULL</DropDownMenuItem>
         </>
       );
     case 'datetime':
       return (
         <>
-          <DropDownMenuItem onClick={x => setFilter('')}>Clear Filter</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NULL')}>Is Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('')}>Clear Filter</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NULL')}>Is Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => openFilterWindow('<=')}>Before...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('>=')}>After...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('>=;<=')}>Between...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('<=')}>Before...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('>=')}>After...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('>=;<=')}>Between...</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => setFilter('TOMORROW')}>Tomorrow</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('TODAY')}>Today</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('YESTERDAY')}>Yesterday</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('TOMORROW')}>Tomorrow</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('TODAY')}>Today</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('YESTERDAY')}>Yesterday</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => setFilter('NEXT WEEK')}>Next Week</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('THIS WEEK')}>This Week</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('LAST WEEK')}>Last Week</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NEXT WEEK')}>Next Week</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('THIS WEEK')}>This Week</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('LAST WEEK')}>Last Week</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => setFilter('NEXT MONTH')}>Next Month</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('THIS MONTH')}>This Month</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('LAST MONTH')}>Last Month</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NEXT MONTH')}>Next Month</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('THIS MONTH')}>This Month</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('LAST MONTH')}>Last Month</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => setFilter('NEXT YEAR')}>Next Year</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('THIS YEAR')}>This Year</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('LAST YEAR')}>Last Year</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NEXT YEAR')}>Next Year</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('THIS YEAR')}>This Year</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('LAST YEAR')}>Last Year</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
@@ -140,24 +142,24 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
     case 'string':
       return (
         <>
-          <DropDownMenuItem onClick={x => setFilter('')}>Clear Filter</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('')}>Clear Filter</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => filterMultipleValues()}>Filter multiple values</DropDownMenuItem>
 
-          <DropDownMenuItem onClick={x => openFilterWindow('=')}>Equals...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('<>')}>Does Not Equal...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NULL')}>Is Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('EMPTY, NULL')}>Is Empty Or Null</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => setFilter('NOT EMPTY NOT NULL')}>Has Not Empty Value</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('=')}>Equals...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('<>')}>Does Not Equal...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NULL')}>Is Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NOT NULL')}>Is Not Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('EMPTY, NULL')}>Is Empty Or Null</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => setFilter('NOT EMPTY NOT NULL')}>Has Not Empty Value</DropDownMenuItem>
 
           <DropDownMenuDivider />
 
-          <DropDownMenuItem onClick={x => openFilterWindow('+')}>Contains...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('~')}>Does Not Contain...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('^')}>Begins With...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('!^')}>Does Not Begin With...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('$')}>Ends With...</DropDownMenuItem>
-          <DropDownMenuItem onClick={x => openFilterWindow('!$')}>Does Not End With...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('+')}>Contains...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('~')}>Does Not Contain...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('^')}>Begins With...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('!^')}>Does Not Begin With...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('$')}>Ends With...</DropDownMenuItem>
+          <DropDownMenuItem onClick={(x) => openFilterWindow('!$')}>Does Not End With...</DropDownMenuItem>
         </>
       );
   }
@@ -165,7 +167,7 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
 
 export default function DataFilterControl({ isReadOnly = false, filterType, filter, setFilter }) {
   const [filterState, setFilterState] = React.useState('empty');
-  const setFilterText = filter => {
+  const setFilterText = (filter) => {
     setFilter(filter);
     editorRef.current.value = filter || '';
     updateFilterState();
@@ -174,12 +176,19 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
     if ((filter || '') == (editorRef.current.value || '')) return;
     setFilter(editorRef.current.value);
   };
-  const filterMultipleValues = () => {};
-  const openFilterWindow = operator => {};
+  const filterMultipleValues = () => {
+    showModal((modalState) => (
+      <FilterMultipleValuesModal
+        modalState={modalState}
+        onFilter={(mode, text) => setFilterText(createMultiLineFilter(mode, text))}
+      />
+    ));
+  };
+  const openFilterWindow = (operator) => {};
   const buttonRef = React.useRef();
   const editorRef = React.useRef();
 
-  const handleKeyDown = ev => {
+  const handleKeyDown = (ev) => {
     if (isReadOnly) return;
     if (ev.keyCode == keycodes.enter) {
       applyFilter();
