@@ -7,6 +7,7 @@ import { parseFilter, createMultiLineFilter } from '@dbgate/filterparser';
 import InlineButton from '../widgets/InlineButton';
 import showModal from '../modals/showModal';
 import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
+import SetFilterModal from '../modals/SetFilterModal';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -184,7 +185,16 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
       />
     ));
   };
-  const openFilterWindow = (operator) => {};
+  const openFilterWindow = (operator) => {
+    showModal((modalState) => (
+      <SetFilterModal
+        filterType={filterType}
+        modalState={modalState}
+        onFilter={(text) => setFilterText(text)}
+        condition1={operator}
+      />
+    ));
+  };
   const buttonRef = React.useRef();
   const editorRef = React.useRef();
 

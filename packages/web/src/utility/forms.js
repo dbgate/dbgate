@@ -22,14 +22,26 @@ export const FormLabel = styled.div`
 
 export const FormValue = styled.div``;
 
+export function FormTextFieldRaw({ ...other }) {
+  return <Field {...other} as={TextField} />;
+}
+
 export function FormTextField({ label, ...other }) {
   return (
     <FormRow>
       <FormLabel>{label}</FormLabel>
       <FormValue>
-        <Field {...other} as={TextField} />
+        <FormTextFieldRaw {...other} />
       </FormValue>
     </FormRow>
+  );
+}
+
+export function FormSelectFieldRaw({ children, ...other }) {
+  return (
+    <Field {...other} as={SelectField}>
+      {children}
+    </Field>
   );
 }
 
@@ -38,9 +50,7 @@ export function FormSelectField({ label, children, ...other }) {
     <FormRow>
       <FormLabel>{label}</FormLabel>
       <FormValue>
-        <Field {...other} as={SelectField}>
-          {children}
-        </Field>
+        <FormSelectFieldRaw {...other}>{children}</FormSelectFieldRaw>
       </FormValue>
     </FormRow>
   );
@@ -53,4 +63,20 @@ export function FormSubmit({ text }) {
 export function FormButton({ text, onClick, ...other }) {
   const { values } = useFormikContext();
   return <FormStyledButton type="button" value={text} onClick={() => onClick(values)} {...other} />;
+}
+
+export function FormRadioGroupItem({ name, text, value }) {
+  const { setFieldValue, values } = useFormikContext();
+  return (
+    <div>
+      <input
+        type="radio"
+        name={name}
+        id={`${name}_${value}`}
+        defaultChecked={values[name] == value}
+        onClick={() => setFieldValue(name, value)}
+      />
+      <label htmlFor={`multiple_values_option_${value}`}>{text}</label>
+    </div>
+  );
 }
