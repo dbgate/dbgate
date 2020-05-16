@@ -2,26 +2,33 @@ import React from 'react';
 import _ from 'lodash';
 import { DatabaseIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import showModal from '../modals/showModal';
-import ConnectionModal from '../modals/ConnectionModal';
-import axios from '../utility/axios';
+import { openNewTab } from '../utility/common';
 
-function Menu({ data, makeAppObj }) {
-  const handleEdit = () => {
-    showModal(modalState => <ConnectionModal modalState={modalState} connection={data} />);
+function Menu({ data, setOpenedTabs }) {
+  const { connection, name } = data;
+  const tooltip = `${connection.displayName || connection.server}\n${name}`;
+
+  const handleNewQuery = () => {
+    openNewTab(setOpenedTabs, {
+      title: 'Query',
+      icon: 'sql.svg',
+      tooltip,
+      tabComponent: 'QueryTab',
+      props: {
+        conid: connection._id,
+        database: name,
+      },
+    });
   };
-  const handleDelete = () => {
-    axios.post('connections/delete', data);
-  };
+
   return (
     <>
-      <DropDownMenuItem onClick={handleEdit}>Edit</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleNewQuery}>New query</DropDownMenuItem>
     </>
   );
 }
 
-const databaseAppObject = flags => ({ name, connection }) => {
+const databaseAppObject = (flags) => ({ name, connection }) => {
   const { boldCurrentDatabase } = flags || {};
   const title = name;
   const key = name;
