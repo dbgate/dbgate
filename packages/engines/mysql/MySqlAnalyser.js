@@ -18,8 +18,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tables'));
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primary_keys'));
-    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreign_keys'));
+    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys'));
+    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignCeys'));
 
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({

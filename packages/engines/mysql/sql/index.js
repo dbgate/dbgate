@@ -1,13 +1,13 @@
 const columns = require('./columns');
 const tables = require('./tables');
-const primary_keys = require('./primary_keys');
-const foreign_keys = require('./foreign_keys');
-const table_modifications = require('./table_modifications');
+const primaryKeys = require('./primaryKeys');
+const foreignKeys = require('./foreignKeys');
+const tableModifications = require('./tableModifications');
 
 module.exports = {
   columns,
   tables,
-  primary_keys,
-  foreign_keys,
-  table_modifications,
+  primaryKeys,
+  foreignKeys,
+  tableModifications,
 };
