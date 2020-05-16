@@ -10,23 +10,25 @@ var config = {
   target: 'node',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
   },
-//   module: {
-//     rules: [
-//       {
-//         test: /\.js$/,
-//         exclude: /node_modules/
-//       },
-//     ],
-//   },
+
+  optimization: {
+    minimize: false
+  },
+  
+  //   module: {
+  //     rules: [
+  //       {
+  //         test: /\.js$/,
+  //         exclude: /node_modules/
+  //       },
+  //     ],
+  //   },
   plugins: [
     new webpack.IgnorePlugin({
       checkResource(resource) {
-        const lazyImports = [
-          'pg-native',
-          'uws'
-        ];
+        const lazyImports = ['pg-native', 'uws'];
         if (!lazyImports.includes(resource)) {
           return false;
         }
