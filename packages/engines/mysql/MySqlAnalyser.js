@@ -18,8 +18,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tables'));
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
-    //   const pkColumns = await this.driver.query(this.pool, this.createQuery('primary_keys.sql'));
-    //   const fkColumns = await this.driver.query(this.pool, this.createQuery('foreign_keys.sql'));
+    const pkColumns = await this.driver.query(this.pool, this.createQuery('primary_keys'));
+    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreign_keys'));
 
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({
@@ -31,9 +31,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
             notNull: !isNullable,
             autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
           })),
-        foreignKeys: [],
-        // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
-        // foreignKeys: extractForeignKeys(table, fkColumns.rows),
+        primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
+        foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
       })),
     });
   }

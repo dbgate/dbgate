@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const fp = require('lodash/fp');
 
 class DatabaseAnalyser {
   /**
@@ -88,5 +89,35 @@ DatabaseAnalyser.createEmptyStructure = () => ({
   procedures: [],
   triggers: [],
 });
+
+DatabaseAnalyser.byTableFilter = (table) => (x) => x.pureName == table.pureName && x.schemaName == x.schemaName;
+
+DatabaseAnalyser.extractPrimaryKeys = (table, pkColumns) => {
+  const filtered = pkColumns.filter(DatabaseAnalyser.byTableFilter(table));
+  if (filtered.length == 0) return undefined;
+  return {
+    ..._.pick(filtered[0], ['constraintName', 'schemaName', 'pureName']),
+    constraintType: 'primaryKey',
+    columns: filtered.map(fp.pick('columnName')),
+  };
+};
+
+DatabaseAnalyser.extractForeignKeys = (table, fkColumns) => {
+  const grouped = _.groupBy(fkColumns.filter(DatabaseAnalyser.byTableFilter(table)), 'constraintName');
+  return _.keys(grouped).map((constraintName) => ({
+    constraintName,
+    constraintType: 'foreignKey',
+    ..._.pick(grouped[constraintName][0], [
+      'constraintName',
+      'schemaName',
+      'pureName',
+      'refSchemaName',
+      'refTableName',
+      'updateAction',
+      'deleteAction',
+    ]),
+    columns: grouped[constraintName].map(fp.pick(['columnName', 'refColumnName'])),
+  }));
+};
 
 module.exports = DatabaseAnalyser;

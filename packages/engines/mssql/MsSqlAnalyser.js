@@ -2,37 +2,7 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const DatabaseAnalayser = require('../default/DatabaseAnalyser');
-
-const byTableFilter = (table) => (x) => x.pureName == table.pureName && x.schemaName == x.schemaName;
-
-function extractPrimaryKeys(table, pkColumns) {
-  const filtered = pkColumns.filter(byTableFilter(table));
-  if (filtered.length == 0) return undefined;
-  return {
-    ..._.pick(filtered[0], ['constraintName', 'schemaName', 'pureName']),
-    constraintType: 'primaryKey',
-    columns: filtered.map(fp.pick('columnName')),
-  };
-}
-
-function extractForeignKeys(table, fkColumns) {
-  const grouped = _.groupBy(fkColumns.filter(byTableFilter(table)), 'constraintName');
-  return _.keys(grouped).map((constraintName) => ({
-    constraintName,
-    constraintType: 'foreignKey',
-    ..._.pick(grouped[constraintName][0], [
-      'constraintName',
-      'schemaName',
-      'pureName',
-      'refSchemaName',
-      'refTableName',
-      'updateAction',
-      'deleteAction',
-    ]),
-    columns: grouped[constraintName].map(fp.pick(['columnName', 'refColumnName'])),
-  }));
-}
+const DatabaseAnalyser = require('../default/DatabaseAnalyser');
 
 function objectTypeToField(type) {
   switch (type.trim()) {
@@ -186,7 +156,7 @@ function detectType(col) {
   };
 }
 
-class MsSqlAnalyser extends DatabaseAnalayser {
+class MsSqlAnalyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
   }
@@ -239,8 +209,8 @@ class MsSqlAnalyser extends DatabaseAnalayser {
           autoIncrement: !!isIdentity,
           commonType: detectType(col),
         })),
-      primaryKey: extractPrimaryKeys(row, pkColumnsRows.rows),
-      foreignKeys: extractForeignKeys(row, fkColumnsRows.rows),
+      primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
+      foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
     }));
 
     const views = viewsRows.rows.map((row) => ({
