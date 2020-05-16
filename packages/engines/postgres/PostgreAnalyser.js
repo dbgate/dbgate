@@ -4,7 +4,7 @@ const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
 
-class MySqlAnalyser extends DatabaseAnalayser {
+class PostgreAnalyser extends DatabaseAnalayser {
   constructor(pool, driver) {
     super(pool, driver);
   }
@@ -17,8 +17,9 @@ class MySqlAnalyser extends DatabaseAnalayser {
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tableModifications'));
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
-    //   const pkColumns = await this.driver.query(this.pool, this.createQuery('primary_keys.sql'));
-    //   const fkColumns = await this.driver.query(this.pool, this.createQuery('foreign_keys.sql'));
+    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys'));
+    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys'));
+    // console.log('PG fkColumns', fkColumns.rows);
 
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({
@@ -29,12 +30,11 @@ class MySqlAnalyser extends DatabaseAnalayser {
             ...col,
             notNull: !isNullable,
           })),
-        foreignKeys: [],
-        // primaryKey: extractPrimaryKeys(table, pkColumns.rows),
-        // foreignKeys: extractForeignKeys(table, fkColumns.rows),
+        primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
+        foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
       })),
     });
   }
 }
 
-module.exports = MySqlAnalyser;
+module.exports = PostgreAnalyser;
