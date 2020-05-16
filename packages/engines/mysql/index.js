@@ -1,14 +1,20 @@
-const MySqlAnalyser = require("./MySqlAnalyser");
-const MySqlDumper = require("./MySqlDumper");
+const MySqlAnalyser = require('./MySqlAnalyser');
+const MySqlDumper = require('./MySqlDumper');
 
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
-  stringEscapeChar: "\\",
+  stringEscapeChar: '\\',
   quoteIdentifier(s) {
-    return "`" + s + "`";
-  }
+    return '`' + s + '`';
+  },
 };
+
+function extractColumns(fields) {
+  return fields.map((col) => ({
+    columnName: col.name,
+  }));
+}
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
@@ -18,7 +24,7 @@ const driver = {
       port,
       user,
       password,
-      database
+      database,
     });
     connection._database_name = database;
     connection._nativeModules = nativeModules;
@@ -26,17 +32,58 @@ const driver = {
   },
   async query(connection, sql) {
     return new Promise((resolve, reject) => {
-      connection.query(sql, function(error, results, fields) {
+      connection.query(sql, function (error, results, fields) {
         if (error) reject(error);
-        resolve({ rows: results, columns: fields });
+        resolve({ rows: results, columns: extractColumns(fields) });
       });
     });
   },
+  async stream(connection, sql, options) {
+    const query = connection.query(sql);
+
+    // const handleInfo = (info) => {
+    //   const { message, lineNumber, procName } = info;
+    //   options.info({
+    //     message,
+    //     line: lineNumber,
+    //     procedure: procName,
+    //     time: new Date(),
+    //     severity: 'info',
+    //   });
+    // };
+
+    const handleEnd = (result) => {
+      // console.log('RESULT', result);
+      options.done(result);
+    };
+
+    const handleRow = (row) => {
+      options.row(row);
+    };
+
+    const handleFields = (columns) => {
+      console.log('FIELDS', columns[0].name);
+      options.recordset(extractColumns(columns));
+    };
+
+    const handleError = (error) => {
+      console.log('ERROR', error);
+      const { message, lineNumber, procName } = error;
+      options.info({
+        message,
+        line: lineNumber,
+        procedure: procName,
+        time: new Date(),
+        severity: 'error',
+      });
+    };
+
+    query.on('error', handleError).on('fields', handleFields).on('result', handleRow).on('end', handleEnd);
+
+    return query;
+  },
   async getVersion(connection) {
-    const { rows } = await this.query(
-      connection,
-      "show variables like 'version'"
-    );
+    const { rows } = await this.query(connection, "show variables like 'version'");
     const version = rows[0].Value;
     return { version };
   },
@@ -49,8 +96,8 @@ const driver = {
     return analyser.incrementalAnalysis(structure);
   },
   async listDatabases(connection) {
-    const { rows } = await this.query(connection, "show databases");
-    return rows.map(x => ({ name: x.Database }));
+    const { rows } = await this.query(connection, 'show databases');
+    return rows.map((x) => ({ name: x.Database }));
   },
   createDumper() {
     return new MySqlDumper(this);
