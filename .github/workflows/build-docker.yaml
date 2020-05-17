@@ -37,9 +37,9 @@ jobs:
           yarn run prepare:docker
       - name: Build docker image
         run: |
-          docker build ./docker -t dbgate:future
+          docker build ./docker -t dbgate
       - name: Push docker image
         run: |
-          docker tag dbgate:future dbgate/dbgate:future
+          docker tag dbgate dbgate/dbgate
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker push dbgate/dbgate:future
+          docker push dbgate/dbgate
