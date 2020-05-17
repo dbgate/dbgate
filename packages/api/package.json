@@ -24,13 +24,14 @@
   },
   "scripts": {
     "start": "nodemon src/index.js",
-    "start:portal": "cross-env CONNECTIONS=mysql LABEL_mysql=localhost-mysql SERVER_mysql=localhost USER_mysql=root PASSWORD_mysql=test PORT_mysql=3307 ENGINE_mysql=mysql nodemon src/index.js",
+    "start:portal": "env-cmd nodemon src/index.js",
     "ts": "tsc",
     "build": "webpack"
   },
   "devDependencies": {
     "@dbgate/types": "^0.1.0",
     "@types/lodash": "^4.14.149",
+    "env-cmd": "^10.1.0",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.4",
     "webpack": "^4.42.0",
