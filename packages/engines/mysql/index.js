@@ -11,9 +11,11 @@ const dialect = {
 };
 
 function extractColumns(fields) {
-  return fields.map((col) => ({
-    columnName: col.name,
-  }));
+  if (fields)
+    return fields.map((col) => ({
+      columnName: col.name,
+    }));
+  return null;
 }
 
 /** @type {import('@dbgate/types').EngineDriver} */
