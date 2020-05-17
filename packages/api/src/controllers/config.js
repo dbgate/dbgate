@@ -10,9 +10,11 @@ module.exports = {
           page: process.env[`PAGE_${name}`],
         }))
       : null;
+    const startupPages = process.env.STARTUP_PAGES ? process.env.STARTUP_PAGES.split(',') : [];
     return {
       runAsPortal: !!process.env.CONNECTIONS,
       toolbar,
+      startupPages,
     };
   },
 };

@@ -25,6 +25,7 @@ import {
 import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
 import SearchInput from './SearchInput';
+import ErrorInfo from './ErrorInfo';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -126,7 +127,14 @@ function SqlObjectList({ conid, database }) {
 function SqlObjectListWrapper() {
   const db = useCurrentDatabase();
 
-  if (!db) return <div>(Choose database)</div>;
+  if (!db) {
+    return (
+      <>
+        <WidgetTitle>Tables, views, functions</WidgetTitle>
+        <ErrorInfo message="Database not selected" />
+      </>
+    );
+  }
   const { name, connection } = db;
 
   return <SqlObjectList conid={connection._id} database={name} />;
