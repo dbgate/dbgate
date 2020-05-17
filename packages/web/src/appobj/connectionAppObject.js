@@ -7,8 +7,10 @@ import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
 import ConfirmModal from '../modals/ConfirmModal';
+import { useConfig } from '../utility/metadataLoaders';
 
 function Menu({ data, setOpenedConnections, openedConnections }) {
+  const config = useConfig();
   const handleEdit = () => {
     showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
   };
@@ -27,10 +29,18 @@ function Menu({ data, setOpenedConnections, openedConnections }) {
   const handleDisconnect = () => {
     setOpenedConnections((list) => list.filter((x) => x != data._id));
   };
+  const handleConnect = () => {
+    setOpenedConnections((list) => [...list, data._id]);
+  };
   return (
     <>
-      <DropDownMenuItem onClick={handleEdit}>Edit</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      {config.runAsPortal == false && (
+        <>
+          <DropDownMenuItem onClick={handleEdit}>Edit</DropDownMenuItem>
+          <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+        </>
+      )}
+      {!openedConnections.includes(data._id) && <DropDownMenuItem onClick={handleConnect}>Connect</DropDownMenuItem>}
       {openedConnections.includes(data._id) && data.status && (
         <DropDownMenuItem onClick={handleRefresh}>Refresh</DropDownMenuItem>
       )}

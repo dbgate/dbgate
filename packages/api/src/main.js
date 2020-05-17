@@ -16,6 +16,7 @@ const databaseConnections = require('./controllers/databaseConnections');
 const metadata = require('./controllers/metadata');
 const sessions = require('./controllers/sessions');
 const jsldata = require('./controllers/jsldata');
+const config = require('./controllers/config');
 
 function start(argument = null) {
   console.log('process.argv', process.argv);
@@ -34,6 +35,7 @@ function start(argument = null) {
   useController(app, '/metadata', metadata);
   useController(app, '/sessions', sessions);
   useController(app, '/jsldata', jsldata);
+  useController(app, '/config', config);
 
   if (fs.existsSync('/home/dbgate-docker/build')) {
     // server static files inside docker container

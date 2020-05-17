@@ -6,19 +6,37 @@ const nedb = require('nedb-promises');
 const { datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 
+function getPortalCollections() {
+  if (process.env.CONNECTIONS) {
+    return _.compact(process.env.CONNECTIONS.split(',')).map((id) => ({
+      _id: id,
+      engine: process.env[`ENGINE_${id}`],
+      server: process.env[`SERVER_${id}`],
+      user: process.env[`USER_${id}`],
+      password: process.env[`PASSWORD_${id}`],
+      port: process.env[`PORT_${id}`],
+      displayName: process.env[`LABEL_${id}`],
+    }));
+  }
+  return null;
+}
+const portalConnections = getPortalCollections();
+
 module.exports = {
   datastore: null,
   opened: [],
 
   async _init() {
     const dir = datadir();
-    // @ts-ignore
-    this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
+    if (!portalConnections) {
+      // @ts-ignore
+      this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
+    }
   },
 
   list_meta: 'get',
   async list() {
-    return this.datastore.find();
+    return portalConnections || this.datastore.find();
   },
 
   test_meta: {
@@ -39,6 +57,7 @@ module.exports = {
 
   save_meta: 'post',
   async save(connection) {
+    if (portalConnections) return;
     let res;
     if (connection._id) {
       res = await this.datastore.update(_.pick(connection, '_id'), connection);
@@ -51,6 +70,7 @@ module.exports = {
 
   delete_meta: 'post',
   async delete(connection) {
+    if (portalConnections) return;
     const res = await this.datastore.remove(_.pick(connection, '_id'));
     socket.emitChanged('connection-list-changed');
     return res;
@@ -58,6 +78,7 @@ module.exports = {
 
   get_meta: 'get',
   async get({ conid }) {
+    if (portalConnections) return portalConnections.find((x) => x._id == conid);
     const res = await this.datastore.find({ _id: conid });
     return res[0];
   },

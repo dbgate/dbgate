@@ -40,6 +40,12 @@ const connectionInfoLoader = ({ conid }) => ({
   reloadTrigger: 'connection-list-changed',
 });
 
+const configLoader = () => ({
+  url: 'config/get',
+  params: {},
+  reloadTrigger: 'config-changed',
+});
+
 // const sqlObjectListLoader = ({ conid, database }) => ({
 //   url: 'metadata/list-objects',
 //   params: { conid, database },
@@ -203,4 +209,11 @@ export function getConnectionList() {
 }
 export function useConnectionList() {
   return useCore(connectionListLoader, {});
+}
+
+export function getConfig() {
+  return getCore(configLoader, {}) || {};
+}
+export function useConfig() {
+  return useCore(configLoader, {}) || {};
 }

@@ -6,6 +6,7 @@
   ],
   "scripts": {
     "start:api": "yarn workspace @dbgate/api start",
+    "start:api:portal": "yarn workspace @dbgate/api start:portal",
     "start:web": "yarn workspace @dbgate/web start",
     "start:sqltree": "yarn workspace @dbgate/sqltree start",
     "start:datalib": "yarn workspace @dbgate/datalib start",

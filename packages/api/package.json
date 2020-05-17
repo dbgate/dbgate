@@ -24,6 +24,7 @@
   },
   "scripts": {
     "start": "nodemon src/index.js",
+    "start:portal": "cross-env CONNECTIONS=mysql LABEL_mysql=localhost-mysql SERVER_mysql=localhost USER_mysql=root PASSWORD_mysql=test PORT_mysql=3307 ENGINE_mysql=mysql nodemon src/index.js",
     "ts": "tsc",
     "build": "webpack"
   },
