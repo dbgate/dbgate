@@ -4,6 +4,11 @@ import _ from 'lodash';
 export function getIconImage(src, props) {
   const { size = 16, style = {}, className, title } = props || {};
   if (!src) return null;
+
+  if (src.startsWith('fas ') || src.startsWith('far ')) {
+    return <i className={src} />;
+  }
+
   if (src.endsWith('.svg')) {
     // eslint-disable-next-line
     src = `${process.env.PUBLIC_URL}/icons/${src}`;

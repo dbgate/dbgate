@@ -37,6 +37,10 @@ function start(argument = null) {
   useController(app, '/jsldata', jsldata);
   useController(app, '/config', config);
 
+  if (process.env.PAGES_DIRECTORY) {
+    app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
+  }
+
   if (fs.existsSync('/home/dbgate-docker/build')) {
     // server static files inside docker container
     app.use(express.static('/home/dbgate-docker/build'));
