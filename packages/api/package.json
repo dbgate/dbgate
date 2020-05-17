@@ -19,7 +19,8 @@
     "mssql": "^6.0.1",
     "mysql": "^2.17.1",
     "nedb-promises": "^4.0.1",
-    "pg": "^7.17.0"
+    "pg": "^7.17.0",
+    "pg-query-stream": "^3.1.1"
   },
   "scripts": {
     "start": "nodemon src/index.js",
