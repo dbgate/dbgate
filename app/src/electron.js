@@ -112,7 +112,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     title: 'DbGate',
-    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon.png',
+    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon512.png',
     ...bounds,
     show: false,
     webPreferences: {
