@@ -3,15 +3,32 @@
 
 # DbGate - database administration tool
 
-DbGate is fast and efficient database administration tool. It uses JavaScript and TypeScript. 
+DbGate is fast and efficient database administration tool. It is focused to work with data (filtering, editing, master/detail views etc.)
+
+**Try it online** - https://dbgate.org
 
 ## Currently implemented features
-* Browsing objects - tables, views, procedures, functions
 * Support for Microsoft SQL Server, Postgre SQL, MySQL
 * Table data browsing - filtering, sorting, adding related columns using foreign keys
+* Master/detail views
+* Browsing objects - tables, views, procedures, functions
 * Table data editing, with SQL change script preview
-* SQL editor, execute SQL script
-* Runs as application for Windows and Linux. Or in Docker container on server and in web Browser on client. (in future possibly on Mac - colaborators needed)
+* SQL editor, execute SQL script, SQL code formatter
+* Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
+* For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
+
+## Current support for database engines
+| Action | Microsoft SQL Server | Postgre SQL | MySQL |
+|---|---|---|---|
+| Tables | yes | yes | yes |
+| Columns | yes | yes | yes |
+| Primary keys | yes | yes | yes |
+| Foreign keys | yes | yes | yes |
+| Run query | yes | yes | yes |
+| Data types | yes | no | no |
+| Views | yes | no | no |
+| Stored procedures | yes | no | no |
+| Functions | yes | no | no |
 
 ![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
 
@@ -28,10 +45,10 @@ DbGate is fast and efficient database administration tool. It uses JavaScript an
 ## How Can I Contribute?
 You're welcome to contribute to this project! Especially with these topics:
 
-* Mac support. App is build using electron, without native modules, so it should be very easy to build app for Mac
+* Bug fixing
+* Test Mac edition
 * Styles, graphics
 * Better MySQL, Postgre SQL support
-* Github actions for publishing releases
 
 Any help is appreciated!
 
@@ -44,7 +61,7 @@ yarn
 yarn start
 ```
 
-If you want to make modifications in typescript packages, run TypeScript compiler in watch mode in seconds terminal:
+If you want to make modifications in TypeScript packages, run TypeScript compiler in watch mode in seconds terminal:
 ```sh
 yarn lib
 ```
