@@ -55,7 +55,6 @@ jobs:
         run: |
           mkdir artifacts
           mv app/dist/*.exe artifacts/dbgate-windows.exe
-          mv app/dist/*.zip artifacts/dbgate-windows.zip
 
           mv app/dist/*.exe artifacts || true          
 
