@@ -21,6 +21,12 @@ export default function ToolBar({ toolbarPortalRef }) {
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
 
+  React.useEffect(() => {
+    window['dbgate_createNewConnection'] = modalState.open;
+    window['dbgate_newQuery'] = newQuery;
+    window['dbgate_closeAll'] = () => setOpenedTabs([]);
+  });
+
   function openTabFromButton(button) {
     if (openedTabs.find((x) => x.tabComponent == 'InfoPageTab' && x.props && x.props.page == button.page)) {
       setOpenedTabs((tabs) =>

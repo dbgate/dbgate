@@ -1,5 +1,7 @@
 const electron = require('electron');
+const { Menu } = require('electron');
 const { fork } = require('child_process');
+var { autoUpdater } = require('electron-updater');
 const Store = require('electron-store');
 // Module to control application life.
 const app = electron.app;
@@ -24,17 +26,103 @@ function hideSplash() {
   mainWindow.show();
 }
 
+function buildMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Connect to database',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_createNewConnection()`);
+          },
+        },
+        {
+          label: 'New query',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_newQuery()`);
+          },
+        },
+      ],
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'copy' },
+        { role: 'paste' },
+      ],
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forcereload' },
+        { role: 'toggledevtools' },
+        { type: 'separator' },
+        { role: 'resetzoom' },
+        { role: 'zoomin' },
+        { role: 'zoomout' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+    {
+      role: 'window',
+      submenu: [
+        {
+          label: 'Close all tabs',
+          click() {
+            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
+          },
+        },
+        { type: 'separator' },
+        { role: 'minimize' },
+        { role: 'close' },
+      ],
+    },
+    {
+      role: 'help',
+      submenu: [
+        {
+          label: 'dbgate.org',
+          click() {
+            require('electron').shell.openExternal('https://dbgate.org');
+          },
+        },
+        {
+          label: 'DbGate on GitHub',
+          click() {
+            require('electron').shell.openExternal('https://github.com/dbshell/dbgate');
+          },
+        },
+        {
+          label: 'DbGate on docker hub',
+          click() {
+            require('electron').shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
+          },
+        },
+      ],
+    },
+  ];
+
+  return Menu.buildFromTemplate(template);
+}
+
 function createWindow() {
   const bounds = store.get('winBounds');
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    title: 'DbGate',
+    icon: 'icon.ico',
     ...bounds,
     show: false,
     webPreferences: {
       nodeIntegration: true,
     },
   });
+
+  mainWindow.setMenu(buildMenu());
 
   function loadMainWindow() {
     const startUrl =
@@ -95,10 +183,15 @@ function createWindow() {
   });
 }
 
+function onAppReady() {
+  autoUpdater.checkForUpdatesAndNotify();
+  createWindow();
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow);
+app.on('ready', onAppReady);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
