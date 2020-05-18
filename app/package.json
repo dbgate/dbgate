@@ -10,12 +10,14 @@
   "build": {
     "appId": "org.dbgate",
     "mac": {
-      "category": "database"
+      "category": "database",
+      "icon": "icon.png"
     },
     "linux": {
       "target": [
         "AppImage"
-      ]
+      ],
+      "icon": "icon.png"
     },
     "win": {
       "target": [

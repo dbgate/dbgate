@@ -1,4 +1,5 @@
 const electron = require('electron');
+const os = require('os');
 const { Menu } = require('electron');
 const { fork } = require('child_process');
 var { autoUpdater } = require('electron-updater');
@@ -47,10 +48,7 @@ function buildMenu() {
     },
     {
       label: 'Edit',
-      submenu: [
-        { role: 'copy' },
-        { role: 'paste' },
-      ],
+      submenu: [{ role: 'copy' }, { role: 'paste' }],
     },
     {
       label: 'View',
@@ -114,7 +112,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     title: 'DbGate',
-    icon: 'icon.ico',
+    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon.png',
     ...bounds,
     show: false,
     webPreferences: {
