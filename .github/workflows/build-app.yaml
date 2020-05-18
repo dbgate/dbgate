@@ -15,8 +15,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2016]
-        # os: [macOS-10.14, windows-2016, ubuntu-18.04]
+        # os: [ubuntu-18.04, windows-2016]
+        os: [macOS-10.14, windows-2016, ubuntu-18.04]
 
     steps:
       - name: Context
@@ -44,12 +44,20 @@ jobs:
           mv app/dist/*.deb artifacts/dbgate-linux.deb || true
           mv app/dist/*.AppImage artifacts/dbgate-linux.AppImage || true
           mv app/dist/*.dmg artifacts/dbgate-mac.dmg || true
+
+          mv app/dist/*.deb artifacts || true
+          mv app/dist/*.AppImage artifacts || true
+          mv app/dist/*.dmg artifacts || true          
+
           mv app/dist/latest.yml artifacts/latest.yml || true
       - name: Copy artifacts Win
         if: matrix.os == 'windows-2016'
         run: |
           mkdir artifacts
           mv app/dist/*.exe artifacts/dbgate-windows.exe
+          mv app/dist/*.zip artifacts/dbgate-windows.zip
+
+          mv app/dist/*.exe artifacts || true          
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1

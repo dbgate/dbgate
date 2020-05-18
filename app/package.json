@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "0.0.2",
+  "version": "0.5.0",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "dependencies": {
@@ -8,7 +8,7 @@
     "electron-updater": "^4.3.1"
   },
   "build": {
-    "appId": "com.jenasoft.dbgate",
+    "appId": "org.dbgate",
     "mac": {
       "category": "database"
     },
