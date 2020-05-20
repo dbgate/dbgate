@@ -46,6 +46,13 @@ export default function SqlEditor({
     };
   }, [onKeyDown]);
 
+  // React.useEffect(() => {
+  //   if (currentEditorRef.current.editor)
+  //     currentEditorRef.current.editor.setOptions({
+  //       showGutter: false,
+  //     });
+  // }, []);
+
   return (
     <Wrapper ref={containerRef}>
       <AceEditor

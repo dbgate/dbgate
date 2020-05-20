@@ -379,6 +379,7 @@ export default function DataGridCore(props) {
   };
 
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
+
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
 
   React.useEffect(() => {
@@ -618,29 +619,29 @@ export default function DataGridCore(props) {
     let allRows = loadedAndInsertedRows;
 
     if (selectedCells.length <= 1) {
-      if (isRegularCell(currentCell)) {
-        let rowIndex = currentCell[0];
-        for (const rowData of pasteRows) {
-          if (rowIndex >= allRows.length) {
-            chs = changeSetInsertNewRow(chs, display.baseTable);
-            allRows = [...loadedRows, ...getChangeSetInsertedRows(chs, display.baseTable)];
-          }
-          let colIndex = currentCell[1];
-          const row = allRows[rowIndex];
-          for (const cell of rowData) {
-            chs = setChangeSetValue(
-              chs,
-              display.getChangeSetField(
-                row,
-                realColumnUniqueNames[colIndex],
-                rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
-              ),
-              cell
-            );
-            colIndex += 1;
-          }
-          rowIndex += 1;
+      const startRow = isRegularCell(currentCell) ? currentCell[0] : loadedAndInsertedRows.length;
+      const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
+      let rowIndex = startRow;
+      for (const rowData of pasteRows) {
+        if (rowIndex >= allRows.length) {
+          chs = changeSetInsertNewRow(chs, display.baseTable);
+          allRows = [...loadedRows, ...getChangeSetInsertedRows(chs, display.baseTable)];
         }
+        let colIndex = startCol;
+        const row = allRows[rowIndex];
+        for (const cell of rowData) {
+          chs = setChangeSetValue(
+            chs,
+            display.getChangeSetField(
+              row,
+              realColumnUniqueNames[colIndex],
+              rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
+            ),
+            cell == '(NULL)' ? null : cell
+          );
+          colIndex += 1;
+        }
+        rowIndex += 1;
       }
     }
     if (selectedCells.length > 1) {
@@ -671,14 +672,17 @@ export default function DataGridCore(props) {
   function copyToClipboard() {
     const rowIndexes = _.uniq(selectedCells.map((x) => x[0])).sort();
     const lines = rowIndexes.map((rowIndex) => {
-      const colIndexes = selectedCells
+      let colIndexes = selectedCells
         .filter((x) => x[0] == rowIndex)
         .map((x) => x[1])
         .sort();
+      if (colIndexes.includes('header')) {
+        colIndexes = _.range(0, columnSizes.count);
+      }
       const rowData = loadedAndInsertedRows[rowIndex];
       const line = colIndexes
         .map((col) => realColumnUniqueNames[col])
-        .map((col) => (rowData[col] == null ? '' : rowData[col]))
+        .map((col) => (rowData[col] == null ? '(NULL)' : rowData[col]))
         .join('\t');
       return line;
     });
@@ -831,7 +835,9 @@ export default function DataGridCore(props) {
 
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
-      showModal((modalState) => <ErrorMessageModal modalState={modalState} message={errorMessage} title='Error when saving' />);
+      showModal((modalState) => (
+        <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
+      ));
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       setConfirmSql(null);
@@ -1017,6 +1023,7 @@ export default function DataGridCore(props) {
     if (row != null) {
       let newRow = null;
       const rowCount = rowCountNewIncluded;
+      if (rowCount == 0) return;
 
       if (row < firstVisibleRowScrollIndex) newRow = row;
       else if (row + 1 >= firstVisibleRowScrollIndex + visibleRowCountLowerBound)

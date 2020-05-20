@@ -165,22 +165,26 @@ export function batchUpdateChangeSet(
   return changeSet;
 }
 
-function extractFields(item: ChangeSetItem): UpdateField[] {
-  return _.keys(item.fields).map((targetColumn) => ({
-    targetColumn,
-    exprType: 'value',
-    value: item.fields[targetColumn],
-  }));
+function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
+  return _.keys(item.fields)
+    .filter((targetColumn) => allowNulls || item.fields[targetColumn] != null)
+    .map((targetColumn) => ({
+      targetColumn,
+      exprType: 'value',
+      value: item.fields[targetColumn],
+    }));
 }
 
 function insertToSql(item: ChangeSetItem): Insert {
+  const fields = extractFields(item, false);
+  if (fields.length == 0) return null;
   return {
     targetTable: {
       pureName: item.pureName,
       schemaName: item.schemaName,
     },
     commandType: 'insert',
-    fields: extractFields(item),
+    fields,
   };
 }
 
@@ -236,17 +240,19 @@ function deleteToSql(item: ChangeSetItem): Delete {
 }
 
 export function changeSetToSql(changeSet: ChangeSet): Command[] {
-  return [
+  return _.compact([
     ...changeSet.inserts.map(insertToSql),
     ...changeSet.updates.map(updateToSql),
     ...changeSet.deletes.map(deleteToSql),
-  ];
+  ]);
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
-  console.log('definition', definition);
+  // console.log('definition', definition);
   const [field, item] = findExistingChangeSetItem(changeSet, definition);
-  console.log('field, item', field, item);
+  // console.log('field, item', field, item);
+  // console.log('changeSet[field]', changeSet[field]);
+  // console.log('changeSet[field] filtered', changeSet[field].filter((x) => x != item);
   if (item)
     return {
       ...changeSet,
