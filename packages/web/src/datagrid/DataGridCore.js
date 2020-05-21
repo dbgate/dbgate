@@ -669,17 +669,33 @@ export default function DataGridCore(props) {
     setChangeSet(chs);
   }
 
+  function cellsToRegularCells(cells) {
+    cells = _.flatten(
+      cells.map((cell) => {
+        if (cell[1] == 'header') {
+          return _.range(0, columnSizes.count).map((col) => [cell[0], col]);
+        }
+        return [cell];
+      })
+    );
+    cells = _.flatten(
+      cells.map((cell) => {
+        if (cell[0] == 'header') {
+          return _.range(0, allRowCount).map((row) => [row, cell[1]]);
+        }
+        return [cell];
+      })
+    );
+    return cells.filter(isRegularCell);
+  }
+
   function copyToClipboard() {
-    const rowIndexes = _.uniq(selectedCells.map((x) => x[0])).sort();
+    const cells = cellsToRegularCells(selectedCells);
+    const rowIndexes = _.sortBy(_.uniq(cells.map((x) => x[0])));
     const lines = rowIndexes.map((rowIndex) => {
-      let colIndexes = selectedCells
-        .filter((x) => x[0] == rowIndex)
-        .map((x) => x[1])
-        .sort();
-      if (colIndexes.includes('header')) {
-        colIndexes = _.range(0, columnSizes.count);
-      }
+      let colIndexes = _.sortBy(cells.filter((x) => x[0] == rowIndex).map((x) => x[1]));
       const rowData = loadedAndInsertedRows[rowIndex];
+      if (!rowData) return '';
       const line = colIndexes
         .map((col) => realColumnUniqueNames[col])
         .map((col) => (rowData[col] == null ? '(NULL)' : rowData[col]))
