@@ -135,6 +135,8 @@ const createParser = (filterType: FilterType) => {
     notEmpty: (r) => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
     true: () => word('TRUE').map(binaryFixedValueCondition(1)),
     false: () => word('FALSE').map(binaryFixedValueCondition(0)),
+    trueNum: () => word('1').map(binaryFixedValueCondition(1)),
+    falseNum: () => word('0').map(binaryFixedValueCondition(0)),
     eq: (r) => word('=').then(r.value).map(binaryCondition('=')),
     ne: (r) => word('!=').then(r.value).map(binaryCondition('<>')),
     lt: (r) => word('<').then(r.value).map(binaryCondition('<')),
@@ -170,7 +172,7 @@ const createParser = (filterType: FilterType) => {
       'endsWithNot',
       'containsNot'
     );
-  if (filterType == 'logical') allowedElements.push('true', 'false');
+  if (filterType == 'logical') allowedElements.push('true', 'false', 'trueNum', 'falseNum');
 
   // must be last
   if (filterType == 'string') allowedElements.push('valueTestStr');
