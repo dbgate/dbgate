@@ -13,7 +13,7 @@ export default function ConnectionsPinger({ children }) {
       const database = _.get(currentDatabase, 'name');
       const conid = _.get(currentDatabase, 'connection._id');
       if (conid && database) {
-        axios.post('database-connections/ping', { conid });
+        axios.post('database-connections/ping', { conid, database });
       }
     }, 30 * 1000);
     return () => window.clearInterval(handle);
