@@ -273,7 +273,7 @@ function deleteToSql(item: ChangeSetItem): Delete {
 export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Command[] {
   return _.compact(
     _.flatten([
-      ...changeSet.inserts.map((item) => insertToSql(item, dbinfo)),
+      ...changeSet.inserts.map((item) => insertToSql(item, dbinfo)) as any,
       ...changeSet.updates.map(updateToSql),
       ...changeSet.deletes.map(deleteToSql),
     ])
