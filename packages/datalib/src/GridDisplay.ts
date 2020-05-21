@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver, NamedObjectInfo } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
@@ -47,7 +47,8 @@ export abstract class GridDisplay {
     protected setConfig: ChangeConfigFunc,
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
-    public driver?: EngineDriver
+    public driver?: EngineDriver,
+    public dbinfo: DatabaseInfo = null
   ) {}
   columns: DisplayColumn[];
   baseTable?: TableInfo;

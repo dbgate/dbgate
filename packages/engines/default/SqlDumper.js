@@ -198,6 +198,7 @@ class SqlDumper {
       lambda(item);
     }
   }
+
   /** @param table {import('@dbgate/types').TableInfo} */
   createTable(table) {
     this.put('^create ^table %f ( &>&n', table);
@@ -253,6 +254,12 @@ class SqlDumper {
     if (fk.deleteAction) this.put(' ^on ^delete %k', fk.deleteAction);
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);
   }
+
+  /**
+   * @param table {import('@dbgate/types').NamedObjectInfo}
+   * @param allow {boolean}
+   */
+  allowIdentityInsert(table, allow) {}
 }
 
 module.exports = SqlDumper;

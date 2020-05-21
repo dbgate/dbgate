@@ -816,7 +816,7 @@ export default function DataGridCore(props) {
       dispatchInsplaceEditor({ type: 'shouldSave' });
       return;
     }
-    const script = changeSetToSql(changeSetRef.current);
+    const script = changeSetToSql(changeSetRef.current, display.dbinfo);
     const sql = scriptToSql(display.driver, script);
     setConfirmSql(sql);
     confirmSqlModalState.open();

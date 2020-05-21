@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { Command, Insert, Update, Delete, UpdateField, Condition } from '@dbgate/sqltree';
-import { NamedObjectInfo } from '@dbgate/types';
+import { Command, Insert, Update, Delete, UpdateField, Condition, AllowIdentityInsert } from '@dbgate/sqltree';
+import { NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -175,17 +175,48 @@ function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
     }));
 }
 
-function insertToSql(item: ChangeSetItem): Insert {
+function insertToSql(
+  item: ChangeSetItem,
+  dbinfo: DatabaseInfo = null
+): [AllowIdentityInsert, Insert, AllowIdentityInsert] {
   const fields = extractFields(item, false);
   if (fields.length == 0) return null;
-  return {
-    targetTable: {
-      pureName: item.pureName,
-      schemaName: item.schemaName,
-    },
-    commandType: 'insert',
-    fields,
+  let autoInc = false;
+  if (dbinfo) {
+    const table = dbinfo.tables.find((x) => x.schemaName == item.schemaName && x.pureName == item.pureName);
+    if (table) {
+      const autoIncCol = table.columns.find((x) => x.autoIncrement);
+      console.log('autoIncCol', autoIncCol);
+      if (autoIncCol && fields.find((x) => x.targetColumn == autoIncCol.columnName)) {
+        autoInc = true;
+      }
+    }
+  }
+  const targetTable = {
+    pureName: item.pureName,
+    schemaName: item.schemaName,
   };
+  return [
+    autoInc
+      ? {
+          targetTable,
+          commandType: 'allowIdentityInsert',
+          allow: true,
+        }
+      : null,
+    {
+      targetTable,
+      commandType: 'insert',
+      fields,
+    },
+    autoInc
+      ? {
+          targetTable,
+          commandType: 'allowIdentityInsert',
+          allow: false,
+        }
+      : null,
+  ];
 }
 
 function extractCondition(item: ChangeSetItem): Condition {
@@ -239,12 +270,14 @@ function deleteToSql(item: ChangeSetItem): Delete {
   };
 }
 
-export function changeSetToSql(changeSet: ChangeSet): Command[] {
-  return _.compact([
-    ...changeSet.inserts.map(insertToSql),
-    ...changeSet.updates.map(updateToSql),
-    ...changeSet.deletes.map(deleteToSql),
-  ]);
+export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Command[] {
+  return _.compact(
+    _.flatten([
+      ...changeSet.inserts.map((item) => insertToSql(item, dbinfo)),
+      ...changeSet.updates.map(updateToSql),
+      ...changeSet.deletes.map(deleteToSql),
+    ])
+  );
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {

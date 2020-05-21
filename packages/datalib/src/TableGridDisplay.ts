@@ -15,9 +15,9 @@ export class TableGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    protected dbinfo: DatabaseInfo
+    dbinfo: DatabaseInfo
   ) {
-    super(config, setConfig, cache, setCache, driver);
+    super(config, setConfig, cache, setCache, driver, dbinfo);
 
     this.table = this.findTable(tableName);
     if (!this.table) {

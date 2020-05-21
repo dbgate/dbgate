@@ -1,5 +1,5 @@
-import { TableInfo } from "./dbinfo";
-import { SqlDialect } from "./dialect";
+import { TableInfo } from './dbinfo';
+import { SqlDialect } from './dialect';
 
 export interface SqlDumper {
   s: string;
@@ -9,12 +9,9 @@ export interface SqlDumper {
   put(format: string, ...args);
   putCmd(format: string, ...args);
   putValue(value: string | number | Date);
-  putCollection<T>(
-    delimiter: string,
-    collection: T[],
-    lambda: (item: T) => void
-  );
+  putCollection<T>(delimiter: string, collection: T[], lambda: (item: T) => void);
 
   endCommand();
   createTable(table: TableInfo);
+  allowIdentityInsert(table: NamedObjectInfo, allow: boolean);
 }

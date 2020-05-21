@@ -39,7 +39,13 @@ export interface Insert {
   targetTable: NamedObjectInfo;
 }
 
-export type Command = Select | Update | Delete | Insert;
+export interface AllowIdentityInsert {
+  commandType: 'allowIdentityInsert';
+  targetTable: NamedObjectInfo;
+  allow: boolean;
+}
+
+export type Command = Select | Update | Delete | Insert | AllowIdentityInsert;
 
 // export interface Condition {
 //   conditionType: "eq" | "not" | "binary";

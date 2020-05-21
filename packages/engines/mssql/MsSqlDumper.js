@@ -11,6 +11,10 @@ class MsSqlDumper extends SqlDumper {
     }
     super.putStringValue(value);
   }
+
+  allowIdentityInsert(table, allow) {
+    this.putCmd("^set ^identity_insert %f %k;&n", table, allow ? "on" : "off");
+  }
 }
 
 module.exports = MsSqlDumper;
