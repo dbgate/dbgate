@@ -57,21 +57,27 @@ export default function TableDataGrid({
     setRefReloadToken((v) => v + 1);
   }, [reference]);
 
-  const display = React.useMemo(
-    () =>
-      connection
-        ? new TableGridDisplay(
-            { schemaName, pureName },
-            engines(connection),
-            config || myConfig,
-            setConfig || setMyConfig,
-            cache || myCache,
-            setCache || setMyCache,
-            dbinfo
-          )
-        : null,
-    [connection, config || myConfig, cache || myCache, conid, database, schemaName, pureName, dbinfo]
-  );
+  function createDisplay() {
+    return connection
+      ? new TableGridDisplay(
+          { schemaName, pureName },
+          engines(connection),
+          config || myConfig,
+          setConfig || setMyConfig,
+          cache || myCache,
+          setCache || setMyCache,
+          dbinfo
+        )
+      : null;
+  }
+
+  const [display, setDisplay] = React.useState(createDisplay());
+
+  React.useEffect(() => {
+    const newDisplay = createDisplay();
+    if (display && display.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
+    setDisplay(newDisplay);
+  }, [connection, config || myConfig, cache || myCache, conid, database, schemaName, pureName, dbinfo]);
 
   const handleDatabaseStructureChanged = React.useCallback(() => {
     (setCache || setMyCache)(createGridCache());
