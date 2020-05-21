@@ -135,7 +135,7 @@ function highlightSpecialCharacters(value) {
   return value;
 }
 
-const dateTimeRegex = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?/;
+const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
 
 function CellFormattedValue({ value }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
