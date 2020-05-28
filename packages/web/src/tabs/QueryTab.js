@@ -198,6 +198,8 @@ export default function QueryTab({
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
           readOnly={queryText == loadingText}
+          conid={conid}
+          database={database}
         />
         {sessionId && (
           <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
