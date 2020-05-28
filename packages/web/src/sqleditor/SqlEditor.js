@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
-import { addCompleter } from 'ace-builds/src-noconflict/ext-language_tools';
-import { useDatabaseInfo, getDatabaseInfo } from '../utility/metadataLoaders';
-// import { Autocomplete } from 'ace-builds';
+import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
+import { getDatabaseInfo } from '../utility/metadataLoaders';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -19,6 +18,24 @@ const engineToMode = {
   mysql: 'mysql',
   postgre: 'pgsql',
 };
+
+const COMMON_KEYWORDS = [
+  'select',
+  'where',
+  'update',
+  'delete',
+  'group',
+  'order',
+  'from',
+  'by',
+  'create',
+  'table',
+  'drop',
+  'alter',
+  'view',
+  'execute',
+  'procedure',
+];
 
 export default function SqlEditor({
   value = undefined,
@@ -38,29 +55,27 @@ export default function SqlEditor({
   const currentEditorRef = editorRef || ownEditorRef;
 
   React.useEffect(() => {
-    if ((tabVisible || focusOnCreate) && currentEditorRef.current && currentEditorRef.current.editor)
-      currentEditorRef.current.editor.focus();
-  }, [tabVisible, focusOnCreate]);
+    if (!tabVisible) return;
 
-  React.useEffect(() => {
-    if (onKeyDown && currentEditorRef.current) {
-      currentEditorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
-    }
-    return () => {
-      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
-    };
-  }, [onKeyDown]);
-
-  React.useEffect(() => {
+    setCompleters([]);
     addCompleter({
       getCompletions: async function (editor, session, pos, prefix, callback) {
         const cursor = session.selection.cursor;
         const line = session.getLine(cursor.row).slice(0, cursor.column);
         const dbinfo = await getDatabaseInfo({ conid, database });
 
-        if (/from\s*$/i.test(line)) {
+        let list = COMMON_KEYWORDS.map((word) => ({
+          name: word,
+          value: word,
+          caption: word,
+          meta: 'keyword',
+          score: 800,
+        }));
+
+        if (/from\s*([a-zA-Z0-9_]*)?$/i.test(line)) {
           if (dbinfo) {
-            const list = [
+            list = [
+              ...list,
               ...dbinfo.tables.map((x) => ({
                 name: x.pureName,
                 value: x.pureName,
@@ -76,15 +91,16 @@ export default function SqlEditor({
                 score: 1000,
               })),
             ];
-            callback(null, list);
           }
         }
+
+        callback(null, list);
       },
     });
 
     const doLiveAutocomplete = function (e) {
       const editor = e.editor;
-      // var hasCompleter = editor.completer && editor.completer.activated;
+      var hasCompleter = editor.completer && editor.completer.activated;
       const session = editor.session;
       const cursor = session.selection.cursor;
       const line = session.getLine(cursor.row).slice(0, cursor.column);
@@ -93,29 +109,38 @@ export default function SqlEditor({
       if (e.command.name === 'backspace') {
         // do not hide after backspace
       } else if (e.command.name === 'insertstring') {
-       
-        if (e.args == ' ' || e.args == '.') {
-          if (/from\s*$/i.test(line)) {
-            console.log('FROM', line);
-            currentEditorRef.current.editor.execCommand('startAutocomplete');
-          }
+        if (!hasCompleter) {
+          editor.execCommand('startAutocomplete');
         }
-        // console.log('e.command', e.command);
-        // console.log('e.args', e.args);
 
-        // if (!hasCompleter) {
-        //   startAutocomplete
-        //   // // always start completer
-        //   // var completer = Autocomplete.for(editor);
-        //   // // Disable autoInsert
-        //   // completer.autoInsert = false;
-        //   // completer.showPopup(editor);
+        // if (e.args == ' ' || e.args == '.') {
+        //   if (/from\s*$/i.test(line)) {
+        //     currentEditorRef.current.editor.execCommand('startAutocomplete');
+        //   }
         // }
       }
     };
 
     currentEditorRef.current.editor.commands.on('afterExec', doLiveAutocomplete);
-  }, []);
+
+    return () => {
+      currentEditorRef.current.editor.commands.removeListener('afterExec', doLiveAutocomplete);
+    };
+  }, [tabVisible, conid, database, currentEditorRef.current]);
+
+  React.useEffect(() => {
+    if ((tabVisible || focusOnCreate) && currentEditorRef.current && currentEditorRef.current.editor)
+      currentEditorRef.current.editor.focus();
+  }, [tabVisible, focusOnCreate]);
+
+  React.useEffect(() => {
+    if (onKeyDown && currentEditorRef.current) {
+      currentEditorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
+    }
+    return () => {
+      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
+    };
+  }, [onKeyDown]);
 
   return (
     <Wrapper ref={containerRef}>
