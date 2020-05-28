@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
 import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
+import analyseQuerySources from './analyseQuerySources';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -94,6 +95,31 @@ export default function SqlEditor({
           }
         }
 
+        const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);
+        if (colMatch && dbinfo) {
+          const table = colMatch[1];
+          const sources = analyseQuerySources(editor.getValue(), [
+            ...dbinfo.tables.map((x) => x.pureName),
+            ...dbinfo.views.map((x) => x.pureName),
+          ]);
+          const source = sources.find((x) => (x.alias || x.name) == table);
+          if (source) {
+            const table = dbinfo.tables.find((x) => x.pureName == source.name);
+            if (table) {
+              list = [
+                ...list,
+                ...table.columns.map((x) => ({
+                  name: x.columnName,
+                  value: x.columnName,
+                  caption: x.columnName,
+                  meta: 'column',
+                  score: 1000,
+                })),
+              ];
+            }
+          }
+        }
+
         callback(null, list);
       },
     });
@@ -109,7 +135,7 @@ export default function SqlEditor({
       if (e.command.name === 'backspace') {
         // do not hide after backspace
       } else if (e.command.name === 'insertstring') {
-        if (!hasCompleter) {
+        if (!hasCompleter || e.args == '.') {
           editor.execCommand('startAutocomplete');
         }
 
