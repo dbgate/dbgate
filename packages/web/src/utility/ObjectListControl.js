@@ -37,7 +37,7 @@ export default function ObjectListControl({ collection = [], title, showIfEmpty 
           <TableColumn
             fieldName="displayName"
             header="Name"
-            formatter={col => <AppObjectControl data={col} makeAppObj={makeAppObj} component="span" />}
+            formatter={(col) => <AppObjectControl data={col} makeAppObj={makeAppObj} component="span" />}
           />
           {children}
         </TableControl>

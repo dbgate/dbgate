@@ -2,9 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
-import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
-import { getDatabaseInfo } from '../utility/metadataLoaders';
 import analyseQuerySources from './analyseQuerySources';
+import keycodes from '../utility/keycodes';
+import useCodeCompletion from './useCodeCompletion';
+import showModal from '../modals/showModal';
+import InsertJoinModal from '../modals/InsertJoinModal';
+import { getDatabaseInfo } from '../utility/metadataLoaders';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -55,118 +58,50 @@ export default function SqlEditor({
 
   const currentEditorRef = editorRef || ownEditorRef;
 
-  React.useEffect(() => {
-    if (!tabVisible) return;
-
-    setCompleters([]);
-    addCompleter({
-      getCompletions: async function (editor, session, pos, prefix, callback) {
-        const cursor = session.selection.cursor;
-        const line = session.getLine(cursor.row).slice(0, cursor.column);
-        const dbinfo = await getDatabaseInfo({ conid, database });
-
-        let list = COMMON_KEYWORDS.map((word) => ({
-          name: word,
-          value: word,
-          caption: word,
-          meta: 'keyword',
-          score: 800,
-        }));
-
-        if (/from\s*([a-zA-Z0-9_]*)?$/i.test(line)) {
-          if (dbinfo) {
-            list = [
-              ...list,
-              ...dbinfo.tables.map((x) => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'table',
-                score: 1000,
-              })),
-              ...dbinfo.views.map((x) => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'view',
-                score: 1000,
-              })),
-            ];
-          }
-        }
-
-        const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);
-        if (colMatch && dbinfo) {
-          const table = colMatch[1];
-          const sources = analyseQuerySources(editor.getValue(), [
-            ...dbinfo.tables.map((x) => x.pureName),
-            ...dbinfo.views.map((x) => x.pureName),
-          ]);
-          const source = sources.find((x) => (x.alias || x.name) == table);
-          if (source) {
-            const table = dbinfo.tables.find((x) => x.pureName == source.name);
-            if (table) {
-              list = [
-                ...list,
-                ...table.columns.map((x) => ({
-                  name: x.columnName,
-                  value: x.columnName,
-                  caption: x.columnName,
-                  meta: 'column',
-                  score: 1000,
-                })),
-              ];
-            }
-          }
-        }
-
-        callback(null, list);
-      },
-    });
-
-    const doLiveAutocomplete = function (e) {
-      const editor = e.editor;
-      var hasCompleter = editor.completer && editor.completer.activated;
-      const session = editor.session;
-      const cursor = session.selection.cursor;
-      const line = session.getLine(cursor.row).slice(0, cursor.column);
-
-      // We don't want to autocomplete with no prefix
-      if (e.command.name === 'backspace') {
-        // do not hide after backspace
-      } else if (e.command.name === 'insertstring') {
-        if (!hasCompleter || e.args == '.') {
-          editor.execCommand('startAutocomplete');
-        }
-
-        // if (e.args == ' ' || e.args == '.') {
-        //   if (/from\s*$/i.test(line)) {
-        //     currentEditorRef.current.editor.execCommand('startAutocomplete');
-        //   }
-        // }
-      }
-    };
-
-    currentEditorRef.current.editor.commands.on('afterExec', doLiveAutocomplete);
-
-    return () => {
-      currentEditorRef.current.editor.commands.removeListener('afterExec', doLiveAutocomplete);
-    };
-  }, [tabVisible, conid, database, currentEditorRef.current]);
+  useCodeCompletion({
+    conid,
+    database,
+    tabVisible,
+    currentEditorRef,
+  });
 
   React.useEffect(() => {
     if ((tabVisible || focusOnCreate) && currentEditorRef.current && currentEditorRef.current.editor)
       currentEditorRef.current.editor.focus();
   }, [tabVisible, focusOnCreate]);
 
+  const handleKeyDown = React.useCallback(
+    async (data, hash, keyString, keyCode, event) => {
+      if (keyCode == keycodes.j && event.ctrlKey && !readOnly && tabVisible) {
+        event.preventDefault();
+        const dbinfo = await getDatabaseInfo({ conid, database });
+        showModal((modalState) => (
+          <InsertJoinModal
+            sql={currentEditorRef.current.editor.getValue()}
+            modalState={modalState}
+            engine={engine}
+            dbinfo={dbinfo}
+            onInsert={(text) => {
+              const editor = currentEditorRef.current.editor;
+              editor.session.insert(editor.getCursorPosition(), text);
+            }}
+          />
+        ));
+      }
+
+      if (onKeyDown) onKeyDown(data, hash, keyString, keyCode, event);
+    },
+    [onKeyDown]
+  );
+
   React.useEffect(() => {
-    if (onKeyDown && currentEditorRef.current) {
-      currentEditorRef.current.editor.keyBinding.addKeyboardHandler(onKeyDown);
+    if ((onKeyDown || !readOnly) && currentEditorRef.current) {
+      currentEditorRef.current.editor.keyBinding.addKeyboardHandler(handleKeyDown);
     }
     return () => {
-      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(onKeyDown);
+      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(handleKeyDown);
     };
-  }, [onKeyDown]);
+  }, [handleKeyDown]);
 
   return (
     <Wrapper ref={containerRef}>

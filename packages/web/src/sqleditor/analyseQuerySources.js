@@ -19,7 +19,7 @@ export default function analyseQuerySources(sql, sourceNames) {
               name: word,
             });
           }
-          if (/^(where)|(inner)|(left)|(right)$/i.test(postWord)) {
+          if (/^(where)|(inner)|(left)|(right)|(on)$/i.test(postWord)) {
             continue;
           }
           res.push({
