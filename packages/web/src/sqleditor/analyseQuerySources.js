@@ -18,14 +18,15 @@ export default function analyseQuerySources(sql, sourceNames) {
             res.push({
               name: word,
             });
-          }
-          if (/^(where)|(inner)|(left)|(right)|(on)$/i.test(postWord)) {
-            continue;
-          }
-          res.push({
-            name: word,
-            alias: postWord,
-          });
+          } else if (/^(where)|(inner)|(left)|(right)|(on)$/i.test(postWord)) {
+            res.push({
+              name: word,
+            });
+          } else
+            res.push({
+              name: word,
+              alias: postWord,
+            });
         }
       }
     }

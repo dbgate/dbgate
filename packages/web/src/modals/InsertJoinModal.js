@@ -103,17 +103,20 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
     if (event.keyCode == keycodes.leftArrow) {
       targetRef.current.focus();
     }
-    if (event.keyCode == keycodes.enter || event.keyCode == keycodes.rightArrow) {
+    if (event.keyCode == keycodes.enter) {
       aliasRef.current.focus();
     }
   }, []);
-  const aliasKeyDown = React.useCallback((event) => {
-    if (event.keyCode == keycodes.enter) {
-      event.preventDefault();
-      modalState.close();
-      onInsert(sqlPreview);
-    }
-  }, []);
+  const aliasKeyDown = React.useCallback(
+    (event) => {
+      if (event.keyCode == keycodes.enter) {
+        event.preventDefault();
+        modalState.close();
+        onInsert(sqlPreview);
+      }
+    },
+    [onInsert, sqlPreview]
+  );
 
   return (
     <ModalBase modalState={modalState}>
