@@ -19,6 +19,7 @@ const COMMON_KEYWORDS = [
   'view',
   'execute',
   'procedure',
+  'distinct',
 ];
 
 export default function useCodeCompletion({ conid, database, tabVisible, currentEditorRef }) {
@@ -40,8 +41,32 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           score: 800,
         }));
 
-        if (/(join)|(from)|(update)|(delete)|(insert)\s*([a-zA-Z0-9_]*)?$/i.test(line)) {
-          if (dbinfo) {
+        if (dbinfo) {
+          const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);
+          if (colMatch) {
+            const table = colMatch[1];
+            const sources = analyseQuerySources(editor.getValue(), [
+              ...dbinfo.tables.map((x) => x.pureName),
+              ...dbinfo.views.map((x) => x.pureName),
+            ]);
+            const source = sources.find((x) => (x.alias || x.name) == table);
+            console.log('sources', sources);
+            console.log('table', table, source);
+            if (source) {
+              const table = dbinfo.tables.find((x) => x.pureName == source.name);
+              if (table) {
+                list = [
+                  ...table.columns.map((x) => ({
+                    name: x.columnName,
+                    value: x.columnName,
+                    caption: x.columnName,
+                    meta: 'column',
+                    score: 1000,
+                  })),
+                ];
+              }
+            }
+          } else {
             list = [
               ...list,
               ...dbinfo.tables.map((x) => ({
@@ -62,30 +87,10 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           }
         }
 
-        const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);
-        if (colMatch && dbinfo) {
-          const table = colMatch[1];
-          const sources = analyseQuerySources(editor.getValue(), [
-            ...dbinfo.tables.map((x) => x.pureName),
-            ...dbinfo.views.map((x) => x.pureName),
-          ]);
-          const source = sources.find((x) => (x.alias || x.name) == table);
-          if (source) {
-            const table = dbinfo.tables.find((x) => x.pureName == source.name);
-            if (table) {
-              list = [
-                ...list,
-                ...table.columns.map((x) => ({
-                  name: x.columnName,
-                  value: x.columnName,
-                  caption: x.columnName,
-                  meta: 'column',
-                  score: 1000,
-                })),
-              ];
-            }
-          }
-        }
+        // if (/(join)|(from)|(update)|(delete)|(insert)\s*([a-zA-Z0-9_]*)?$/i.test(line)) {
+        //   if (dbinfo) {
+        //   }
+        // }
 
         callback(null, list);
       },
@@ -102,7 +107,7 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
       if (e.command.name === 'backspace') {
         // do not hide after backspace
       } else if (e.command.name === 'insertstring') {
-        if (!hasCompleter || e.args == '.') {
+        if ((!hasCompleter && /^[a-zA-Z]/.test(e.args)) || e.args == '.') {
           editor.execCommand('startAutocomplete');
         }
 
