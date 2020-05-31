@@ -70,7 +70,7 @@ export default function TableControl({
       setSelectedIndex((i) => Math.max(0, i - 1));
     }
     if (onKeyDown) onKeyDown(event);
-  }, []);
+  }, [setSelectedIndex, rows]);
 
   return (
     <Table
