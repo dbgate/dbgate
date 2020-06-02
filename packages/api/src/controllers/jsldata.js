@@ -37,6 +37,7 @@ module.exports = {
 
   openReader(jslid) {
     // console.log('OPENING READER');
+    console.log('OPENING READER, LINES=', fs.readFileSync(path.join(jsldir(), `${jslid}.jsonl`), 'utf-8').split('\n').length);
     const file = path.join(jsldir(), `${jslid}.jsonl`);
     return new Promise((resolve, reject) =>
       lineReader.open(file, (err, reader) => {
@@ -87,6 +88,7 @@ module.exports = {
   },
 
   async notifyChangedStats(stats) {
+    console.log('SENDING STATS', JSON.stringify(stats));
     await this.closeReader(stats.jslid);
     socket.emit(`jsldata-stats-${stats.jslid}`, stats);
   },

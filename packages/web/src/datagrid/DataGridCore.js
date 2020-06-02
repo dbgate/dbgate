@@ -208,6 +208,7 @@ export default function DataGridCore(props) {
     loadedTime: new Date().getTime(),
     allRowCount: null,
     errorMessage: null,
+    jslStatsCounter: 0,
   });
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
 
@@ -285,11 +286,11 @@ export default function DataGridCore(props) {
       const loadedInfo = {
         loadedRows: [...loadedRows, ...nextRows],
         loadedTime,
-        isLoadedAll: nextRows.length === 0,
       };
       setLoadProps((oldLoadProps) => ({
         ...oldLoadProps,
         isLoading: false,
+        isLoadedAll: oldLoadProps.jslStatsCounter == loadProps.jslStatsCounter && nextRows.length === 0,
         ...loadedInfo,
       }));
     }
@@ -375,6 +376,7 @@ export default function DataGridCore(props) {
       isLoadedAll: false,
       loadedTime: new Date().getTime(),
       errorMessage: null,
+      jslStatsCounter: 0,
     });
   };
 
@@ -419,6 +421,7 @@ export default function DataGridCore(props) {
       ...oldProps,
       allRowCount: stats.rowCount,
       isLoadedAll: false,
+      jslStatsCounter: oldProps.jslStatsCounter + 1,
     }));
   }, []);
 
