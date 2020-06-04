@@ -111,11 +111,9 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           editor.execCommand('startAutocomplete');
         }
 
-        // if (e.args == ' ' || e.args == '.') {
-        //   if (/from\s*$/i.test(line)) {
-        //     currentEditorRef.current.editor.execCommand('startAutocomplete');
-        //   }
-        // }
+        if (e.args == ' '  && /((from)|(join))\s*$/i.test(line)) {
+          editor.execCommand('startAutocomplete');
+        }
       }
     };
 
