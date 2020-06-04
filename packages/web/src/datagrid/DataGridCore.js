@@ -40,7 +40,7 @@ import DataGridContextMenu from './DataGridContextMenu';
 import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
-import showModal from '../modals/showModal';
+import useShowModal from '../modals/showModal';
 import ErrorMessageModal from '../modals/ErrorMessageModal';
 import ImportExportModal from '../modals/ImportExportModal';
 
@@ -248,6 +248,8 @@ export default function DataGridCore(props) {
         : null,
     [selectedCells]
   );
+
+  const showModal = useShowModal();
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount(props);

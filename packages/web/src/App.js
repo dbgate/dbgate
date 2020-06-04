@@ -11,6 +11,7 @@ import {
 } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
+import { ModalLayerProvider } from './modals/showModal';
 
 function App() {
   return (
@@ -22,7 +23,9 @@ function App() {
               <OpenedConnectionsProvider>
                 <LeftPanelWidthProvider>
                   <ConnectionsPinger>
-                    <Screen />
+                    <ModalLayerProvider>
+                      <Screen />
+                    </ModalLayerProvider>
                   </ConnectionsPinger>
                 </LeftPanelWidthProvider>
               </OpenedConnectionsProvider>

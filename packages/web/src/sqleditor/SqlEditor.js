@@ -5,7 +5,7 @@ import useDimensions from '../utility/useDimensions';
 import analyseQuerySources from './analyseQuerySources';
 import keycodes from '../utility/keycodes';
 import useCodeCompletion from './useCodeCompletion';
-import showModal from '../modals/showModal';
+import useShowModal from '../modals/showModal';
 import InsertJoinModal from '../modals/InsertJoinModal';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
 
@@ -57,6 +57,7 @@ export default function SqlEditor({
   const ownEditorRef = React.useRef(null);
 
   const currentEditorRef = editorRef || ownEditorRef;
+  const showModal = useShowModal();
 
   useCodeCompletion({
     conid,

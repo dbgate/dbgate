@@ -1,9 +1,10 @@
 import _ from 'lodash';
 import React from 'react';
 import useStorage from './useStorage';
-import { useConnectionInfo } from './metadataLoaders';
+import { useConnectionInfo, useConfig } from './metadataLoaders';
 import usePrevious from './usePrevious';
 import useNewQuery from '../query/useNewQuery';
+import useShowModal from '../modals/showModal';
 
 function createGlobalState(defaultValue) {
   const Context = React.createContext(null);
@@ -86,6 +87,8 @@ export function useAppObjectParams() {
   const setSavedSqlFiles = useSetSavedSqlFiles();
   const openedConnections = useOpenedConnections();
   const setOpenedConnections = useSetOpenedConnections();
+  const showModal = useShowModal();
+  const config = useConfig();
 
   return {
     setOpenedTabs,
@@ -95,6 +98,8 @@ export function useAppObjectParams() {
     setSavedSqlFiles,
     openedConnections,
     setOpenedConnections,
+    config,
+    showModal,
   };
 }
 

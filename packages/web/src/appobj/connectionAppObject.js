@@ -2,15 +2,14 @@ import _ from 'lodash';
 import React from 'react';
 import { getEngineIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import showModal from '../modals/showModal';
+import useShowModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
 import ConfirmModal from '../modals/ConfirmModal';
 import { useConfig } from '../utility/metadataLoaders';
 
-function Menu({ data, setOpenedConnections, openedConnections }) {
-  const config = useConfig();
+function Menu({ data, setOpenedConnections, openedConnections, config, showModal }) {
   const handleEdit = () => {
     showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
   };

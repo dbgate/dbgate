@@ -11,6 +11,7 @@ import WidgetContainer from './widgets/WidgetContainer';
 import ToolBar from './widgets/Toolbar';
 import StatusBar from './widgets/StatusBar';
 import { useSplitterDrag, HorizontalSplitHandle } from './widgets/Splitter';
+import { ModalLayer } from './modals/showModal';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -132,6 +133,7 @@ export default function Screen() {
       <StausBarContainer>
         <StatusBar />
       </StausBarContainer>
+      <ModalLayer />
     </>
   );
 }

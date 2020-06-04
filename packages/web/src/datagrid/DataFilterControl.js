@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
 import { parseFilter, createMultiLineFilter } from '@dbgate/filterparser';
 import InlineButton from '../widgets/InlineButton';
-import showModal from '../modals/showModal';
+import useShowModal from '../modals/showModal';
 import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
 import SetFilterModal from '../modals/SetFilterModal';
 // import { $ } from '../../Utility/jquery';
@@ -167,6 +167,7 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
 }
 
 export default function DataFilterControl({ isReadOnly = false, filterType, filter, setFilter }) {
+  const showModal = useShowModal();
   const [filterState, setFilterState] = React.useState('empty');
   const setFilterText = (filter) => {
     setFilter(filter);
