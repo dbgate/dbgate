@@ -1,3 +1,4 @@
+const shell = require('./shell');
 // require('socket.io-client');
 
 // "socket.io-client": "^2.3.0",
@@ -11,8 +12,10 @@ if (argument && argument.endsWith('Process')) {
 
   const module = proc[argument];
   module.start();
-} else {
+} else if (!module['parent']) {
   const main = require('./main');
-  
+
   main.start(argument);
 }
+
+module.exports = shell;

@@ -84,6 +84,10 @@ const driver = {
 
     return query;
   },
+  readableStream(connection, sql) {
+    const query = connection.query(sql);
+    return query.stream({ highWaterMark: 100 });
+  },
   async getVersion(connection) {
     const { rows } = await this.query(connection, "show variables like 'version'");
     const version = rows[0].Value;

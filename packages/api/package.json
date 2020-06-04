@@ -1,5 +1,6 @@
 {
   "name": "@dbgate/api",
+  "main": "src/index.js",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -10,6 +11,7 @@
     "bufferutil": "^4.0.1",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
+    "csv": "^5.3.2",
     "eslint": "^6.8.0",
     "express": "^4.17.1",
     "find-free-port": "^2.0.0",

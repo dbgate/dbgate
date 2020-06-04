@@ -1,3 +1,4 @@
+import stream from 'stream'
 import { QueryResult } from './query';
 import { SqlDialect } from './dialect';
 import { SqlDumper } from './dumper';
@@ -16,6 +17,7 @@ export interface EngineDriver {
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
+  readableStream(pool: any, sql: string): stream.Readable;
   getVersion(pool: any): Promise<{ version: string }>;
   listDatabases(
     pool: any
