@@ -8,6 +8,7 @@ export default function DataGridContextMenu({
   insertNewRow,
   setNull,
   reload,
+  exportGrid,
 }) {
   return (
     <>
@@ -30,6 +31,9 @@ export default function DataGridContextMenu({
       <DropDownMenuDivider />
       <DropDownMenuItem onClick={setNull} keyText="Ctrl+0">
         Set NULL
+      </DropDownMenuItem>
+      <DropDownMenuItem onClick={exportGrid} >
+        Export
       </DropDownMenuItem>
     </>
   );

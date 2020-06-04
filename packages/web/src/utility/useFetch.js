@@ -58,6 +58,9 @@ export default function useFetch({
   }, [...indicators]);
 
   React.useEffect(() => {
+    if (reloadTrigger && !socket) {
+      console.error('Socket not available, reloadTrigger not planned');
+    }
     if (reloadTrigger && socket) {
       for (const item of getAsArray(reloadTrigger)) {
         socket.on(item, handleReload);

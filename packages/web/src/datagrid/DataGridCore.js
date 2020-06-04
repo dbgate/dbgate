@@ -42,6 +42,7 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
 import showModal from '../modals/showModal';
 import ErrorMessageModal from '../modals/ErrorMessageModal';
+import ImportExportModal from '../modals/ImportExportModal';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -537,6 +538,7 @@ export default function DataGridCore(props) {
         insertNewRow={insertNewRow}
         reload={() => display.reload()}
         setNull={setNull}
+        exportGrid={exportGrid}
       />
     );
   };
@@ -589,6 +591,10 @@ export default function DataGridCore(props) {
     if (event && event.target.localName == 'input') return;
     if (event) event.preventDefault();
     copyToClipboard();
+  }
+
+  function exportGrid() {
+    showModal((modalState) => <ImportExportModal modalState={modalState} />);
   }
 
   function setCellValue(chs, cell, value) {

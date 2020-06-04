@@ -1,8 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
+import Select from 'react-select';
 import { TextField, SelectField } from './inputs';
 import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
+import { useConnectionList, useDatabaseList } from './metadataLoaders';
+import useSocket from './SocketProvider';
 
 export const FormRow = styled.div`
   display: flex;
@@ -79,4 +82,47 @@ export function FormRadioGroupItem({ name, text, value }) {
       <label htmlFor={`multiple_values_option_${value}`}>{text}</label>
     </div>
   );
+}
+
+export function FormReactSelect({ options, name }) {
+  const { setFieldValue, values } = useFormikContext();
+  return (
+    <Select
+      options={options}
+      defaultValue={options.find((x) => x.value == values[name])}
+      onChange={(item) => setFieldValue(name, item ? item.value : null)}
+      menuPortalTarget={document.body}
+    />
+  );
+}
+
+export function FormConnectionSelect({ name }) {
+  const connections = useConnectionList();
+  const connectionOptions = React.useMemo(
+    () =>
+      (connections || []).map((conn) => ({
+        value: conn._id,
+        label: conn.displayName || conn.server,
+      })),
+    [connections]
+  );
+
+  if (connectionOptions.length == 0) return <div>Not available</div>;
+  return <FormReactSelect options={connectionOptions} name={name} />;
+}
+
+export function FormDatabaseSelect({ conidName, name }) {
+  const { values } = useFormikContext();
+  const databases = useDatabaseList({ conid: values[conidName] });
+  const databaseOptions = React.useMemo(
+    () =>
+      (databases || []).map((db) => ({
+        value: db.name,
+        label: db.name,
+      })),
+    [databases]
+  );
+
+  if (databaseOptions.length == 0) return <div>Not available</div>;
+  return <FormReactSelect options={databaseOptions} name={name} />;
 }
