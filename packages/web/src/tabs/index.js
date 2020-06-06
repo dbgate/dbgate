@@ -2,6 +2,7 @@ import TableDataTab from './TableDataTab';
 import ViewDataTab from './ViewDataTab';
 import TableStructureTab from './TableStructureTab';
 import QueryTab from './QueryTab';
+import ShellTab from './ShellTab';
 import InfoPageTab from './InfoPageTab';
 
 export default {
@@ -10,4 +11,5 @@ export default {
   TableStructureTab,
   QueryTab,
   InfoPageTab,
+  ShellTab,
 };

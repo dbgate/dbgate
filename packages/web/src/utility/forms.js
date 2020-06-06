@@ -4,8 +4,9 @@ import Select from 'react-select';
 import { TextField, SelectField } from './inputs';
 import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { useConnectionList, useDatabaseList } from './metadataLoaders';
+import { useConnectionList, useDatabaseList, useDatabaseInfo } from './metadataLoaders';
 import useSocket from './SocketProvider';
+import getAsArray from './getAsArray';
 
 export const FormRow = styled.div`
   display: flex;
@@ -84,14 +85,23 @@ export function FormRadioGroupItem({ name, text, value }) {
   );
 }
 
-export function FormReactSelect({ options, name }) {
+export function FormReactSelect({ options, name, isMulti = false }) {
   const { setFieldValue, values } = useFormikContext();
+
   return (
     <Select
       options={options}
-      defaultValue={options.find((x) => x.value == values[name])}
-      onChange={(item) => setFieldValue(name, item ? item.value : null)}
+      defaultValue={
+        isMulti
+          ? options.filter((x) => values[name] && values[name].includes(x.value))
+          : options.find((x) => x.value == values[name])
+      }
+      onChange={(item) =>
+        setFieldValue(name, isMulti ? getAsArray(item).map((x) => x.value) : item ? item.value : null)
+      }
       menuPortalTarget={document.body}
+      isMulti={isMulti}
+      closeMenuOnSelect={!isMulti}
     />
   );
 }
@@ -125,4 +135,20 @@ export function FormDatabaseSelect({ conidName, name }) {
 
   if (databaseOptions.length == 0) return <div>Not available</div>;
   return <FormReactSelect options={databaseOptions} name={name} />;
+}
+
+export function FormTablesSelect({ conidName, databaseName, name }) {
+  const { values } = useFormikContext();
+  const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
+  const tablesOptions = React.useMemo(
+    () =>
+      [...((dbinfo && dbinfo.tables) || []), ...((dbinfo && dbinfo.views) || [])].map((x) => ({
+        value: `${x.schemaName}.${x.pureName}`,
+        label: x.pureName,
+      })),
+    [dbinfo]
+  );
+
+  if (tablesOptions.length == 0) return <div>Not available</div>;
+  return <FormReactSelect options={tablesOptions} name={name} isMulti />;
 }

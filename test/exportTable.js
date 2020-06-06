@@ -23,3 +23,24 @@ async function run() {
 }
 
 dbgateApi.runScript(run);
+
+// dbgateApi.runBatch([
+//   {
+//     type: 'copyStream',
+//     source: {
+//       type: 'queryReader',
+//       connection: {
+//         server: 'localhost',
+//         engine: 'mysql',
+//         user: 'root',
+//         password: 'test',
+//         port: '3307',
+//         database: 'Chinook',
+//       },
+//       sql: 'SELECT * FROM Genre',
+//     },
+//     target: {
+//       type: 'csvWriter',
+//     },
+//   },
+// ]);

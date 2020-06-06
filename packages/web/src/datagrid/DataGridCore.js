@@ -596,7 +596,19 @@ export default function DataGridCore(props) {
   }
 
   function exportGrid() {
-    showModal((modalState) => <ImportExportModal modalState={modalState} />);
+    showModal((modalState) => (
+      <ImportExportModal
+        modalState={modalState}
+        initialValues={{
+          sourceStorageType: 'database',
+          sourceConnectionId: conid,
+          sourceDatabaseName: database,
+          sourceTables: [
+            `${display.baseTable && display.baseTable.schemaName}.${display.baseTable && display.baseTable.pureName}`,
+          ],
+        }}
+      />
+    ));
   }
 
   function setCellValue(chs, cell, value) {

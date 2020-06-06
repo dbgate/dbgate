@@ -10,17 +10,43 @@ import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
 import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
 import ImportExportConfigurator from '../impexp/ImportExportConfigurator';
+import createImpExpScript from '../impexp/createImpExpScript';
+import { openNewTab } from '../utility/common';
+import { useSetOpenedTabs } from '../utility/globalState';
+import { Formik, Form, useFormik, useFormikContext } from 'formik';
 
-export default function ImportExportModal({ modalState }) {
+export default function ImportExportModal({ modalState, initialValues }) {
+  const setOpenedTabs = useSetOpenedTabs();
+
+  const handleSubmit = async (values) => {
+    const code = await createImpExpScript(values);
+    openNewTab(setOpenedTabs, {
+      title: 'Shell',
+      icon: 'trigger.svg',
+      tabComponent: 'ShellTab',
+      props: {
+        initialScript: code,
+      },
+    });
+    modalState.close();
+  };
   return (
     <ModalBase modalState={modalState}>
-      <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
-      <ModalContent>
-        <ImportExportConfigurator />
-      </ModalContent>
-      <ModalFooter>
-        <FormStyledButton type="button" value="Close" onClick={modalState.close} />
-      </ModalFooter>
+      <Formik
+        onSubmit={handleSubmit}
+        initialValues={{ sourceStorageType: 'database', targetStorageType: 'csv', ...initialValues }}
+      >
+        <Form>
+          <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
+          <ModalContent>
+            <ImportExportConfigurator />
+          </ModalContent>
+          <ModalFooter>
+            <FormStyledButton type="submit" value="Export" />
+            <FormStyledButton type="button" value="Close" onClick={modalState.close} />
+          </ModalFooter>
+        </Form>
+      </Formik>
     </ModalBase>
   );
 }

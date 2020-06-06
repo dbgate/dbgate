@@ -4,7 +4,14 @@ import { Formik, Form, useFormik, useFormikContext } from 'formik';
 import styled from 'styled-components';
 import Select from 'react-select';
 import { FontIcon } from '../icons';
-import { FormButtonRow, FormSubmit, FormReactSelect, FormConnectionSelect, FormDatabaseSelect } from '../utility/forms';
+import {
+  FormButtonRow,
+  FormSubmit,
+  FormReactSelect,
+  FormConnectionSelect,
+  FormDatabaseSelect,
+  FormTablesSelect,
+} from '../utility/forms';
 import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
 
 const Wrapper = styled.div`
@@ -62,6 +69,7 @@ function SourceTargetConfig({
   storageTypeField,
   connectionIdField,
   databaseNameField,
+  tablesField,
 }) {
   const types = [
     { value: 'database', label: 'Database' },
@@ -80,6 +88,8 @@ function SourceTargetConfig({
           <FormConnectionSelect name={connectionIdField} />
           <Label>Database</Label>
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
+          <Label>Tables/views</Label>
+          <FormTablesSelect conidName={connectionIdField} databaseName={databaseNameField} name={tablesField} />
         </>
       )}
     </Column>
@@ -88,23 +98,21 @@ function SourceTargetConfig({
 
 export default function ImportExportConfigurator() {
   return (
-    <Formik onSubmit={null} initialValues={{ sourceStorageType: 'database', targetStorageType: 'csv' }}>
-      <Form>
-        <Wrapper>
-          <SourceTargetConfig
-            isSource
-            storageTypeField="sourceStorageType"
-            connectionIdField="sourceConnectionId"
-            databaseNameField="sourceDatabaseName"
-          />
-          <SourceTargetConfig
-            isTarget
-            storageTypeField="targetStorageType"
-            connectionIdField="targetConnectionId"
-            databaseNameField="targetDatabaseName"
-          />
-        </Wrapper>
-      </Form>
-    </Formik>
+    <Wrapper>
+      <SourceTargetConfig
+        isSource
+        storageTypeField="sourceStorageType"
+        connectionIdField="sourceConnectionId"
+        databaseNameField="sourceDatabaseName"
+        tablesField="sourceTables"
+      />
+      <SourceTargetConfig
+        isTarget
+        storageTypeField="targetStorageType"
+        connectionIdField="targetConnectionId"
+        databaseNameField="targetDatabaseName"
+        tablesField="targetTables"
+      />
+    </Wrapper>
   );
 }
