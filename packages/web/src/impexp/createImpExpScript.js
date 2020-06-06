@@ -1,24 +1,9 @@
+import _ from 'lodash';
 import ScriptCreator from './ScriptCreator';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
-
-function splitFullName(name) {
-  const i = name.indexOf('.');
-  if (i >= 0)
-    return {
-      schemaName: name.substr(0, i),
-      pureName: name.substr(i + 1),
-    };
-  return {
-    schemaName: null,
-    pureName: name,
-  };
-}
-function quoteFullName(dialect, { schemaName, pureName }) {
-  if (schemaName) return `${dialect.quoteIdentifier(schemaName)}.${dialect.quoteIdentifier(pureName)}`;
-  return `${dialect.quoteIdentifier(pureName)}`;
-}
+import { quoteFullName, fullNameFromString } from '@dbgate/datalib';
 
 export default async function createImpExpScript(values) {
   const script = new ScriptCreator();
@@ -29,10 +14,10 @@ export default async function createImpExpScript(values) {
       const connection = await getConnectionInfo({ conid: values.sourceConnectionId });
       const driver = engines(connection);
 
-      const fullName = splitFullName(table);
+      const fullName = fullNameFromString(table);
       script.assign(sourceVar, 'queryReader', {
         connection: {
-          ...connection,
+          ..._.pick(connection, ['server', 'engine', 'user', 'password', 'port']),
           database: values.sourceDatabaseName,
         },
         sql: `select * from ${quoteFullName(driver.dialect, fullName)}`,

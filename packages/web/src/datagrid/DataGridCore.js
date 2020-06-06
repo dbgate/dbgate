@@ -28,6 +28,7 @@ import {
   deleteChangeSetRows,
   batchUpdateChangeSet,
   setChangeSetValue,
+  fullNameToString,
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { copyTextToClipboard } from '../utility/clipboard';
@@ -603,9 +604,7 @@ export default function DataGridCore(props) {
           sourceStorageType: 'database',
           sourceConnectionId: conid,
           sourceDatabaseName: database,
-          sourceTables: [
-            `${display.baseTable && display.baseTable.schemaName}.${display.baseTable && display.baseTable.pureName}`,
-          ],
+          sourceTables: display.baseTable ? [fullNameToString(display.baseTable)] : [],
         }}
       />
     ));
