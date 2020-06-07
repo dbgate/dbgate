@@ -54,12 +54,16 @@ module.exports = {
         DBGATE_API: process.argv[1],
       },
     });
-    subprocess.stdout.on('data', (data) => this.dispatchMessage(runid, data.toString()));
-    subprocess.stderr.on('data', (data) =>
-      data.toString.split('\n').forEach((message) => {
-        this.dispatchMessage(runid, { severity: 'error', message });
-      })
-    );
+    const pipeDispatcher = (severity) => (data) =>
+      data
+        .toString()
+        .split('\n')
+        .forEach((message) => {
+          if (message.trim()) this.dispatchMessage(runid, { severity, message: message.trim() });
+        });
+
+    subprocess.stdout.on('data', pipeDispatcher('info'));
+    subprocess.stderr.on('data', pipeDispatcher('error'));
     subprocess.on('exit', (code) => {
       socket.emit(`runner-done-${runid}`, code);
     });
@@ -101,6 +105,7 @@ module.exports = {
       res.push({
         name: file,
         size: stat.size,
+        path: path.join(directory, file),
       });
     }
     return res;
