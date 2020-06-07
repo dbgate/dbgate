@@ -17,7 +17,7 @@ export interface EngineDriver {
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
-  readableStream(pool: any, sql: string): stream.Readable;
+  readableStream(pool: any, sql: string): Promise<stream.Readable>;
   getVersion(pool: any): Promise<{ version: string }>;
   listDatabases(
     pool: any

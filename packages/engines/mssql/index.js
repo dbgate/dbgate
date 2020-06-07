@@ -154,6 +154,27 @@ const driver = {
 
     return request;
   },
+  async readableStream(pool, sql) {
+    const request = await pool.request();
+    const { stream } = pool._nativeModules;
+
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    request.stream = true;
+    request.on('row', (row) => pass.write(row));
+    request.on('error', (err) => {
+      console.error(err);
+      pass.end();
+    });
+    request.on('done', () => pass.end());
+
+    request.query(sql);
+
+    return pass;
+  },
   async getVersion(pool) {
     const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
     return { version };

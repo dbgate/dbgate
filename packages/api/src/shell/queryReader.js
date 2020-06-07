@@ -8,7 +8,7 @@ async function queryReader({ connection, sql }) {
   const driver = engines(connection);
   const pool = await driverConnect(driver, connection);
   console.log(`Connected.`);
-  return driver.readableStream(pool, sql);
+  return await driver.readableStream(pool, sql);
 }
 
 module.exports = queryReader;

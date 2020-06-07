@@ -84,7 +84,7 @@ const driver = {
 
     return query;
   },
-  readableStream(connection, sql) {
+  async readableStream(connection, sql) {
     const query = connection.query(sql);
     return query.stream({ highWaterMark: 100 });
   },

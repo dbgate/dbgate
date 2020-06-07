@@ -5,7 +5,8 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
-import { filterName } from '@dbgate/datalib';
+import { filterName, fullNameToString } from '@dbgate/datalib';
+import ImportExportModal from '../modals/ImportExportModal';
 
 const icons = {
   tables: 'table2.svg',
@@ -28,6 +29,10 @@ const menus = {
       label: 'Show CREATE TABLE script',
       sqlTemplate: 'CREATE TABLE',
     },
+    {
+      label: 'Export',
+      isExport: true,
+    },
   ],
   views: [
     {
@@ -37,6 +42,10 @@ const menus = {
     {
       label: 'Show CREATE VIEW script',
       sqlTemplate: 'CREATE OBJECT',
+    },
+    {
+      label: 'Export',
+      isExport: true,
     },
   ],
   procedures: [
@@ -90,14 +99,28 @@ async function openObjectDetail(
   });
 }
 
-function Menu({ data, makeAppObj, setOpenedTabs }) {
+function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
   return (
     <>
       {menus[data.objectTypeField].map((menu) => (
         <DropDownMenuItem
           key={menu.label}
           onClick={() => {
-            openObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
+            if (menu.isExport) {
+              showModal((modalState) => (
+                <ImportExportModal
+                  modalState={modalState}
+                  initialValues={{
+                    sourceStorageType: 'database',
+                    sourceConnectionId: data.conid,
+                    sourceDatabaseName: data.database,
+                    sourceTables: [fullNameToString(data)],
+                  }}
+                />
+              ));
+            } else {
+              openObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
+            }
           }}
         >
           {menu.label}
