@@ -9,7 +9,7 @@ function childProcessChecker() {
       // One way can be to check for error code ERR_IPC_CHANNEL_CLOSED
       //     and call process.exit()
       console.log('parent died', ex.toString());
-      process.exit();
+      process.exit(1);
     }
   }, 1000);
 }

@@ -1,9 +1,12 @@
 export default class ScriptWriter {
   constructor() {
     this.s = '';
-    this.put('const dbgateApi = require("@dbgate/api");');
-    this.put();
-    this.put('async function run() {');
+    this.varCount = 0;
+  }
+
+  allocVariable(prefix = 'var') {
+    this.varCount += 1;
+    return `${prefix}${this.varCount}`;
   }
 
   put(s = '') {
@@ -11,17 +14,11 @@ export default class ScriptWriter {
     this.s += '\n';
   }
 
-  finish() {
-    this.put('}');
-    this.put();
-    this.put('dbgateApi.runScript(run);');
-  }
-
   assign(variableName, functionName, props) {
-    this.put(`  const ${variableName} = await dbgateApi.${functionName}(${JSON.stringify(props)});`);
+    this.put(`const ${variableName} = await dbgateApi.${functionName}(${JSON.stringify(props)});`);
   }
 
   copyStream(sourceVar, targetVar) {
-    this.put(`  await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
+    this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
   }
 }

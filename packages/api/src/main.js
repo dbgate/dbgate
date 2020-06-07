@@ -15,11 +15,12 @@ const serverConnections = require('./controllers/serverConnections');
 const databaseConnections = require('./controllers/databaseConnections');
 const metadata = require('./controllers/metadata');
 const sessions = require('./controllers/sessions');
+const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 
 function start(argument = null) {
-  console.log('process.argv', process.argv);
+  // console.log('process.argv', process.argv);
 
   const app = express();
 
@@ -34,6 +35,7 @@ function start(argument = null) {
   useController(app, '/database-connections', databaseConnections);
   useController(app, '/metadata', metadata);
   useController(app, '/sessions', sessions);
+  useController(app, '/runners', runners);
   useController(app, '/jsldata', jsldata);
   useController(app, '/config', config);
 

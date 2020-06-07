@@ -19,6 +19,11 @@ export interface OpenedSession {
   subprocess: ChildProcess;
 }
 
+export interface OpenedRunner {
+  runid: string;
+  subprocess: ChildProcess;
+}
+
 export interface StoredConnection {
   engine: string;
   server: string;

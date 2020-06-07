@@ -8,7 +8,7 @@ import { useConnectionInfo, getTableInfo, getConnectionInfo, getSqlObjectInfo } 
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
-import SessionMessagesView from '../query/SessionMessagesView';
+import SocketMessagesView from '../query/SocketMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
 import { VerticalSplitter } from '../widgets/Splitter';
@@ -19,11 +19,10 @@ import SaveSqlFileModal from '../modals/SaveSqlFileModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
+import ShellToolbar from '../query/ShellToolbar';
 
 export default function ShellTab({
   tabid,
-  conid,
-  database,
   initialArgs,
   tabVisible,
   toolbarPortalRef,
@@ -42,6 +41,11 @@ export default function ShellTab({
   ]);
   const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
   const setOpenedTabs = useSetOpenedTabs();
+
+  const [executeNumber, setExecuteNumber] = React.useState(0);
+  const [runnerId, setRunnerId] = React.useState(null);
+
+  const socket = useSocket();
 
   React.useEffect(() => {
     window.addEventListener('beforeunload', saveToStorage);
@@ -68,8 +72,18 @@ export default function ShellTab({
 
   const editorRef = React.useRef(null);
 
-  useUpdateDatabaseForTab(tabVisible, conid, database);
-  const connection = useConnectionInfo({ conid });
+  const handleRunnerDone = React.useCallback(() => {
+    setBusy(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (runnerId && socket) {
+      socket.on(`runner-done-${runnerId}`, handleRunnerDone);
+      return () => {
+        socket.off(`runner-done-${runnerId}`, handleRunnerDone);
+      };
+    }
+  }, [runnerId, socket]);
 
   const handleChange = (text) => {
     if (text != null) shellTextRef.current = text;
@@ -77,12 +91,24 @@ export default function ShellTab({
     saveToStorageDebounced();
   };
 
-  const handleExecute = async () => {};
+  const handleExecute = async () => {
+    if (busy) return;
+    setExecuteNumber((num) => num + 1);
+    const selectedText = editorRef.current.editor.getSelectedText();
+
+    let runid = runnerId;
+    const resp = await axios.post('runners/start', {
+      script: selectedText || shellText,
+    });
+    runid = resp.data.runid;
+    setRunnerId(runid);
+    setBusy(true);
+  };
 
   const handleCancel = () => {
-    // axios.post('sessions/cancel', {
-    //   sesid: sessionId,
-    // });
+    axios.post('runners/cancel', {
+      runid: runnerId,
+    });
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
@@ -102,7 +128,19 @@ export default function ShellTab({
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
         />
+        <SocketMessagesView eventName={runnerId ? `runner-info-${runnerId}` : null} executeNumber={executeNumber} />
       </VerticalSplitter>
+      {toolbarPortalRef &&
+        toolbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(
+          <ShellToolbar
+            execute={handleExecute}
+            busy={busy}
+            cancel={handleCancel}
+          />,
+          toolbarPortalRef.current
+        )}
     </>
   );
 }

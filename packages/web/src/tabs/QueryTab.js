@@ -8,7 +8,7 @@ import { useConnectionInfo, getTableInfo, getConnectionInfo, getSqlObjectInfo } 
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
-import SessionMessagesView from '../query/SessionMessagesView';
+import SocketMessagesView from '../query/SocketMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
 import { VerticalSplitter } from '../widgets/Splitter';
@@ -143,6 +143,7 @@ export default function QueryTab({
   };
 
   const handleExecute = async () => {
+    if (busy) return;
     setExecuteNumber((num) => num + 1);
     const selectedText = editorRef.current.editor.getSelectedText();
 
@@ -204,8 +205,8 @@ export default function QueryTab({
         {sessionId && (
           <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
             <TabPage label="Messages" key="messages">
-              <SessionMessagesView
-                sessionId={sessionId}
+              <SocketMessagesView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
                 onMessageClick={handleMesageClick}
                 executeNumber={executeNumber}
               />

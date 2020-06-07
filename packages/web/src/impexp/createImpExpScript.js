@@ -1,12 +1,12 @@
 import _ from 'lodash';
-import ScriptCreator from './ScriptCreator';
+import ScriptWriter from './ScriptWriter';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
 import { quoteFullName, fullNameFromString } from '@dbgate/datalib';
 
 export default async function createImpExpScript(values) {
-  const script = new ScriptCreator();
+  const script = new ScriptWriter();
   if (values.sourceStorageType == 'database') {
     const tables = getAsArray(values.sourceTables);
     for (const table of tables) {
@@ -29,7 +29,8 @@ export default async function createImpExpScript(values) {
       });
 
       script.copyStream(sourceVar, targetVar);
+      script.put();
     }
   }
-  return script.getCode();
+  return script.s;
 }

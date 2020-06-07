@@ -3,7 +3,7 @@ import React from 'react';
 import MessagesView from './MessagesView';
 import useSocket from '../utility/SocketProvider';
 
-export default function SessionMessagesView({ sessionId, onMessageClick, executeNumber }) {
+export default function SocketMessagesView({ eventName, onMessageClick = undefined, executeNumber }) {
   const [displayedMessages, setDisplayedMessages] = React.useState([]);
   const cachedMessagesRef = React.useRef([]);
   const socket = useSocket();
@@ -27,13 +27,13 @@ export default function SessionMessagesView({ sessionId, onMessageClick, execute
   }, [executeNumber]);
 
   React.useEffect(() => {
-    if (sessionId && socket) {
-      socket.on(`session-info-${sessionId}`, handleInfo);
+    if (eventName && socket) {
+      socket.on(eventName, handleInfo);
       return () => {
-        socket.off(`session-info-${sessionId}`, handleInfo);
+        socket.off(eventName, handleInfo);
       };
     }
-  }, [sessionId, socket]);
+  }, [eventName, socket]);
 
   return <MessagesView items={displayedMessages} onMessageClick={onMessageClick} />;
 }

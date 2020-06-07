@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 let createdDatadir = false;
-let createdJsldir = false;
+const createDirectories = {};
 
 function datadir() {
   const dir = path.join(os.homedir(), 'dbgate-data');
@@ -18,20 +18,26 @@ function datadir() {
   return dir;
 }
 
-function jsldir() {
-  const dir = path.join(datadir(), 'jsl');
-  if (!createdJsldir) {
+const dirFunc = (dirname) => () => {
+  const dir = path.join(datadir(), dirname);
+  if (!createDirectories[dirname]) {
     if (!fs.existsSync(dir)) {
       console.log(`Creating jsl directory ${dir}`);
       fs.mkdirSync(dir);
     }
-    createdJsldir = true;
+    createDirectories[dirname] = true;
   }
 
   return dir;
-}
+};
+
+const jsldir = dirFunc('jsl');
+const rundir = dirFunc('run');
+const uploadsdir = dirFunc('uploads');
 
 module.exports = {
   datadir,
   jsldir,
+  rundir,
+  uploadsdir,
 };
