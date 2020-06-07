@@ -19,6 +19,8 @@ const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 
+const { rundir } = require('./utility/directories');
+
 function start(argument = null) {
   // console.log('process.argv', process.argv);
 
@@ -43,6 +45,8 @@ function start(argument = null) {
     app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
   }
 
+  app.use('/runners/data', express.static(rundir()));
+
   if (fs.existsSync('/home/dbgate-docker/build')) {
     // server static files inside docker container
     app.use(express.static('/home/dbgate-docker/build'));
@@ -54,7 +58,7 @@ function start(argument = null) {
 
   if (argument == '--dynport') {
     childProcessChecker();
-        
+
     findFreePort(53911, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);

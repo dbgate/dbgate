@@ -209,6 +209,8 @@ export default function QueryTab({
                 eventName={sessionId ? `session-info-${sessionId}` : null}
                 onMessageClick={handleMesageClick}
                 executeNumber={executeNumber}
+                showProcedure
+                showLine
               />
             </TabPage>
           </ResultTabs>

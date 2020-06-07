@@ -51,7 +51,7 @@ function formatDuration(duration) {
   return `${Math.round(duration / 1000)} s`;
 }
 
-function MessagesView({ items, onMessageClick }) {
+function MessagesView({ items, onMessageClick, showProcedure = false, showLine = false }) {
   const handleClick = (row) => {
     if (onMessageClick) onMessageClick(row);
   };
@@ -76,8 +76,8 @@ function MessagesView({ items, onMessageClick }) {
           <StyledHeader>Time</StyledHeader>
           <StyledHeader>Delta</StyledHeader>
           <StyledHeader>Duration</StyledHeader>
-          <StyledHeader>Procedure</StyledHeader>
-          <StyledHeader>Line</StyledHeader>
+          {showProcedure && <StyledHeader>Procedure</StyledHeader>}
+          {showLine && <StyledHeader>Line</StyledHeader>}
         </tr>
         {items.map((row, index) => (
           // @ts-ignore
@@ -91,8 +91,8 @@ function MessagesView({ items, onMessageClick }) {
                 ? formatDuration(new Date(row.time).getTime() - new Date(items[index - 1].time).getTime())
                 : 'n/a'}
             </StyledCell>
-            <StyledCell>{row.procedure}</StyledCell>
-            <StyledCell>{row.line}</StyledCell>
+            {showProcedure && <StyledCell>{row.procedure}</StyledCell>}
+            {showLine && <StyledCell>{row.line}</StyledCell>}
           </StyledRow>
         ))}
       </StyledTable>

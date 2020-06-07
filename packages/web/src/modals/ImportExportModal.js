@@ -42,7 +42,7 @@ export default function ImportExportModal({ modalState, initialValues }) {
             <ImportExportConfigurator />
           </ModalContent>
           <ModalFooter>
-            <FormStyledButton type="submit" value="Export" />
+            <FormStyledButton type="submit" value="Generate script" />
             <FormStyledButton type="button" value="Close" onClick={modalState.close} />
           </ModalFooter>
         </Form>

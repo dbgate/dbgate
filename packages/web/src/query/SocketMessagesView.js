@@ -3,7 +3,13 @@ import React from 'react';
 import MessagesView from './MessagesView';
 import useSocket from '../utility/SocketProvider';
 
-export default function SocketMessagesView({ eventName, onMessageClick = undefined, executeNumber }) {
+export default function SocketMessagesView({
+  eventName,
+  onMessageClick = undefined,
+  executeNumber,
+  showProcedure = false,
+  showLine = false,
+}) {
   const [displayedMessages, setDisplayedMessages] = React.useState([]);
   const cachedMessagesRef = React.useRef([]);
   const socket = useSocket();
@@ -35,5 +41,12 @@ export default function SocketMessagesView({ eventName, onMessageClick = undefin
     }
   }, [eventName, socket]);
 
-  return <MessagesView items={displayedMessages} onMessageClick={onMessageClick} />;
+  return (
+    <MessagesView
+      items={displayedMessages}
+      onMessageClick={onMessageClick}
+      showProcedure={showProcedure}
+      showLine={showLine}
+    />
+  );
 }

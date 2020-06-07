@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const uuidv1 = require('uuid/v1');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -83,11 +83,26 @@ module.exports = {
 
   cancel_meta: 'post',
   async cancel({ runid }) {
-    const session = this.opened.find((x) => x.runid == runid);
-    if (!session) {
+    const runner = this.opened.find((x) => x.runid == runid);
+    if (!runner) {
       throw new Error('Invalid runner');
     }
-    session.subprocess.kill();
+    runner.subprocess.kill();
     return { state: 'ok' };
+  },
+
+  files_meta: 'get',
+  async files({ runid }) {
+    const directory = path.join(rundir(), runid);
+    const files = await fs.readdir(directory);
+    const res = [];
+    for (const file of files) {
+      const stat = await fs.stat(path.join(directory, file));
+      res.push({
+        name: file,
+        size: stat.size,
+      });
+    }
+    return res;
   },
 };

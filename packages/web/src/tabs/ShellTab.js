@@ -11,7 +11,7 @@ import QueryToolbar from '../query/QueryToolbar';
 import SocketMessagesView from '../query/SocketMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
-import { VerticalSplitter } from '../widgets/Splitter';
+import { VerticalSplitter, HorizontalSplitter } from '../widgets/Splitter';
 import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
@@ -20,6 +20,7 @@ import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
 import ShellToolbar from '../query/ShellToolbar';
+import RunnerOutputPane from '../query/RunnerOutputPane';
 
 export default function ShellTab({
   tabid,
@@ -128,17 +129,13 @@ export default function ShellTab({
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
         />
-        <SocketMessagesView eventName={runnerId ? `runner-info-${runnerId}` : null} executeNumber={executeNumber} />
+        <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber}/>
       </VerticalSplitter>
       {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <ShellToolbar
-            execute={handleExecute}
-            busy={busy}
-            cancel={handleCancel}
-          />,
+          <ShellToolbar execute={handleExecute} busy={busy} cancel={handleCancel} />,
           toolbarPortalRef.current
         )}
     </>
