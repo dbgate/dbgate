@@ -63,25 +63,18 @@ function DatabaseSelector() {
   );
 }
 
-function SourceTargetConfig({
-  isSource = false,
-  isTarget = false,
-  storageTypeField,
-  connectionIdField,
-  databaseNameField,
-  tablesField,
-}) {
+function SourceTargetConfig({ direction, storageTypeField, connectionIdField, databaseNameField, tablesField }) {
   const types = [
-    { value: 'database', label: 'Database' },
-    { value: 'csv', label: 'CSV file(s)' },
-    { value: 'json', label: 'JSON file(s)' },
+    { value: 'database', label: 'Database', directions: ['source'] },
+    { value: 'csv', label: 'CSV file(s)', directions: ['target'] },
+    { value: 'json', label: 'JSON file(s)', directions: [] },
   ];
   const { values } = useFormikContext();
   return (
     <Column>
-      {isSource && <Label>Source configuration</Label>}
-      {isTarget && <Label>Target configuration</Label>}
-      <FormReactSelect options={types} name={storageTypeField} />
+      {direction == 'source' && <Label>Source configuration</Label>}
+      {direction == 'target' && <Label>Target configuration</Label>}
+      <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
       {values[storageTypeField] == 'database' && (
         <>
           <Label>Server</Label>
@@ -100,14 +93,14 @@ export default function ImportExportConfigurator() {
   return (
     <Wrapper>
       <SourceTargetConfig
-        isSource
+        direction="source"
         storageTypeField="sourceStorageType"
         connectionIdField="sourceConnectionId"
         databaseNameField="sourceDatabaseName"
         tablesField="sourceTables"
       />
       <SourceTargetConfig
-        isTarget
+        direction="target"
         storageTypeField="targetStorageType"
         connectionIdField="targetConnectionId"
         databaseNameField="targetDatabaseName"
