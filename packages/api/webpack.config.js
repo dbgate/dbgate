@@ -11,12 +11,13 @@ var config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    libraryTarget: 'commonjs2',
   },
 
   optimization: {
-    minimize: false
+    minimize: false,
   },
-  
+
   //   module: {
   //     rules: [
   //       {

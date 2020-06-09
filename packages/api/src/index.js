@@ -12,7 +12,7 @@ if (argument && argument.endsWith('Process')) {
 
   const module = proc[argument];
   module.start();
-} else if (!module['parent']) {
+} else if (!module['parent'] && !process.argv.includes('--checkParent')) {
   const main = require('./main');
 
   main.start(argument);
