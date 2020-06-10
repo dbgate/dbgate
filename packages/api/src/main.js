@@ -1,4 +1,5 @@
 const express = require('express');
+const basicAuth = require('express-basic-auth');
 const bodyParser = require('body-parser');
 const http = require('http');
 const cors = require('cors');
@@ -28,6 +29,18 @@ function start(argument = null) {
 
   const server = http.createServer(app);
   socket.set(io(server));
+
+  if (process.env.LOGIN && process.env.PASSWORD) {
+    app.use(
+      basicAuth({
+        users: {
+          [process.env.LOGIN]: process.env.PASSWORD,
+        },
+        challenge: true,
+        realm: 'DbGate Web App',
+      })
+    );
+  }
 
   app.use(cors());
   app.use(bodyParser.json());
