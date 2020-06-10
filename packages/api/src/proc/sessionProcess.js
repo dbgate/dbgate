@@ -17,10 +17,10 @@ class TableWriter {
   constructor(columns) {
     this.jslid = uuidv1();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
-    this.currentStream = fs.createWriteStream(this.currentFile);
     this.currentRowCount = 0;
     this.currentChangeIndex = 0;
-    fs.writeFileSync(`${this.currentFile}.info`, JSON.stringify(columns));
+    fs.writeFileSync(this.currentFile, JSON.stringify(columns) + '\n');
+    this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
     this.writeCurrentStats(false, false);
     process.send({ msgtype: 'recordset', jslid: this.jslid });
   }
