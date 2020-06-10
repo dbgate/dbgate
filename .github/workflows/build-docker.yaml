@@ -4,8 +4,13 @@ name: Docker image
 
 on:
   push:
-    branches:
-      - production
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+# on:
+#   push:
+#     branches:
+#       - production
 
 jobs:
   build:
