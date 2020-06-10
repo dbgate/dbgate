@@ -7,8 +7,10 @@ async function fakeObjectReader({ delay = 0 } = {}) {
   function doWrite() {
     pass.write({ id: 1, country: 'Czechia' });
     pass.write({ id: 2, country: 'Austria' });
-    pass.write({ id: 3, country: 'Germany' });
-    pass.write({ id: 4, country: 'Romania' });
+    pass.write({ country: 'Germany', id: 3 });
+    pass.write({ country: 'Romania', id: 4 });
+    pass.write({ country: 'Great Britain', id: 5 });
+    pass.write({ country: 'Bosna, Hecegovina', id: 6 });
     pass.end();
   }
 

@@ -17,9 +17,13 @@ async function run() {
 
   const csvWriter = await dbgateApi.csvWriter({
     fileName: 'test.csv',
+    header: true,
   });
 
+  const consoleWriter = await dbgateApi.consoleObjectWriter();
+
   await dbgateApi.copyStream(queryReader, csvWriter);
+  // await dbgateApi.copyStream(queryReader, consoleWriter);
 }
 
 dbgateApi.runScript(run);
