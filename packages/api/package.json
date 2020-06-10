@@ -9,6 +9,7 @@
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
+    "byline": "^5.0.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "csv": "^5.3.2",

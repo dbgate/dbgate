@@ -2,6 +2,7 @@ const _ = require('lodash');
 const path = require('path');
 const fs = require('fs-extra');
 const uuidv1 = require('uuid/v1');
+const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { rundir, uploadsdir } = require('../utility/directories');
@@ -55,15 +56,10 @@ module.exports = {
       },
     });
     const pipeDispatcher = (severity) => (data) =>
-      data
-        .toString()
-        .split('\n')
-        .forEach((message) => {
-          if (message.trim()) this.dispatchMessage(runid, { severity, message: message.trim() });
-        });
+      this.dispatchMessage(runid, { severity, message: data.toString().trim() });
 
-    subprocess.stdout.on('data', pipeDispatcher('info'));
-    subprocess.stderr.on('data', pipeDispatcher('error'));
+    byline(subprocess.stdout).on('data', pipeDispatcher('info'));
+    byline(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', (code) => {
       socket.emit(`runner-done-${runid}`, code);
     });
