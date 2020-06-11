@@ -13,6 +13,9 @@ import {
   FormTablesSelect,
 } from '../utility/forms';
 import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
+import TableControl, { TableColumn } from '../utility/TableControl';
+
+const Container = styled.div``;
 
 const Wrapper = styled.div`
   display: flex;
@@ -67,7 +70,7 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
   const types = [
     { value: 'database', label: 'Database', directions: ['source'] },
     { value: 'csv', label: 'CSV file(s)', directions: ['target'] },
-    { value: 'json', label: 'JSON file(s)', directions: [] },
+    { value: 'jsonl', label: 'JSON lines file(s)', directions: ['target'] },
   ];
   const { values } = useFormikContext();
   return (
@@ -81,8 +84,12 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
           <FormConnectionSelect name={connectionIdField} />
           <Label>Database</Label>
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
-          <Label>Tables/views</Label>
-          <FormTablesSelect conidName={connectionIdField} databaseName={databaseNameField} name={tablesField} />
+          {direction == 'source' && (
+            <>
+              <Label>Tables/views</Label>
+              <FormTablesSelect conidName={connectionIdField} databaseName={databaseNameField} name={tablesField} />
+            </>
+          )}
         </>
       )}
     </Column>
@@ -90,22 +97,52 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
 }
 
 export default function ImportExportConfigurator() {
+  const { values } = useFormikContext();
+  const sources = values.sourceTables;
+  const actionOptions = [
+    {
+      label: 'Create file',
+      value: 'createFile',
+    },
+    {
+      label: 'Create table',
+      value: 'createTable',
+    },
+    {
+      label: 'Drop and create table',
+      value: 'dropCreateFile',
+    },
+    {
+      label: 'Append data',
+      value: 'appendData',
+    },
+  ];
   return (
-    <Wrapper>
-      <SourceTargetConfig
-        direction="source"
-        storageTypeField="sourceStorageType"
-        connectionIdField="sourceConnectionId"
-        databaseNameField="sourceDatabaseName"
-        tablesField="sourceTables"
-      />
-      <SourceTargetConfig
-        direction="target"
-        storageTypeField="targetStorageType"
-        connectionIdField="targetConnectionId"
-        databaseNameField="targetDatabaseName"
-        tablesField="targetTables"
-      />
-    </Wrapper>
+    <Container>
+      <Wrapper>
+        <SourceTargetConfig
+          direction="source"
+          storageTypeField="sourceStorageType"
+          connectionIdField="sourceConnectionId"
+          databaseNameField="sourceDatabaseName"
+          tablesField="sourceTables"
+        />
+        <SourceTargetConfig
+          direction="target"
+          storageTypeField="targetStorageType"
+          connectionIdField="targetConnectionId"
+          databaseNameField="targetDatabaseName"
+          tablesField="targetTables"
+        />
+      </Wrapper>
+      {/* <TableControl rows={sources || []}>
+        <TableColumn fieldName="source" header="Source" formatter={(row) => row} />
+        <TableColumn
+          fieldName="action"
+          header="Action"
+          formatter={(row) => <FormReactSelect name={`action_${row}`} options={actionOptions} />}
+        />
+      </TableControl> */}
+    </Container>
   );
 }

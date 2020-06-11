@@ -24,9 +24,16 @@ export default async function createImpExpScript(values) {
       });
 
       const targetVar = script.allocVariable();
-      script.assign(targetVar, 'csvWriter', {
-        fileName: `${fullName.pureName}.csv`,
-      });
+      if (values.targetStorageType == 'csv') {
+        script.assign(targetVar, 'csvWriter', {
+          fileName: `${fullName.pureName}.csv`,
+        });
+      }
+      if (values.targetStorageType == 'jsonl') {
+        script.assign(targetVar, 'jsonLinesWriter', {
+          fileName: `${fullName.pureName}.jsonl`,
+        });
+      }
 
       script.copyStream(sourceVar, targetVar);
       script.put();
