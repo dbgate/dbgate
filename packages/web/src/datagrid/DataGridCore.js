@@ -215,7 +215,7 @@ export default function DataGridCore(props) {
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
-  const focusFieldRef = React.useRef();
+  const focusFieldRef = React.useRef(null);
 
   const [vScrollValueToSet, setvScrollValueToSet] = React.useState();
   const [vScrollValueToSetDate, setvScrollValueToSetDate] = React.useState(new Date());
@@ -237,6 +237,7 @@ export default function DataGridCore(props) {
 
   const changeSet = changeSetState && changeSetState.value;
   const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
+  const isFocusingRef = React.useRef(false);
 
   const changeSetRef = React.useRef(changeSet);
 
@@ -332,8 +333,9 @@ export default function DataGridCore(props) {
         };
       case 'close': {
         const [row, col] = currentCell || [];
-        // @ts-ignore
-        if (focusFieldRef.current) focusFieldRef.current.focus();
+        if (focusFieldRef.current) {
+          focusFieldRef.current.focus();
+        }
         // @ts-ignore
         if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
         if (action.mode == 'save') setTimeout(handleSave, 0);
@@ -411,7 +413,13 @@ export default function DataGridCore(props) {
   React.useEffect(() => {
     if (tabVisible) {
       // @ts-ignore
-      if (focusFieldRef.current) focusFieldRef.current.focus();
+      if (focusFieldRef.current) {
+        isFocusingRef.current = true;
+        focusFieldRef.current.focus();
+        setTimeout(() => {
+          isFocusingRef.current = false;
+        }, 1);
+      }
     }
   }, [tabVisible, focusFieldRef.current]);
 
@@ -623,6 +631,7 @@ export default function DataGridCore(props) {
   }
 
   function handlePaste(event) {
+    if (isFocusingRef.current) return;
     var pastedText = undefined;
     // @ts-ignore
     if (window.clipboardData && window.clipboardData.getData) {
