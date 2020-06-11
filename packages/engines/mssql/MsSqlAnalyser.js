@@ -3,6 +3,7 @@ const _ = require('lodash');
 const sql = require('./sql');
 
 const DatabaseAnalyser = require('../default/DatabaseAnalyser');
+const { filter } = require('lodash');
 
 function objectTypeToField(type) {
   switch (type.trim()) {
@@ -159,10 +160,17 @@ function detectType(col) {
 class MsSqlAnalyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
+    this.singleObjectId = null;
   }
 
   createQuery(resFileName, filterIdObjects) {
     let res = sql[resFileName];
+    if (this.singleObjectFilter) {
+      const { typeField } = this.singleObjectFilter;
+      if (!this.singleObjectId) return null;
+      if (!filterIdObjects.includes(typeField)) return null;
+      return res.replace('=[OBJECT_ID_CONDITION]', ` = ${this.singleObjectId}`);
+    }
     if (!this.modifications || !filterIdObjects || this.modifications.length == 0) {
       res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
     } else {
@@ -177,7 +185,19 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     }
     return res;
   }
+
+  async getSingleObjectId() {
+    if (this.singleObjectFilter) {
+      const { name, typeField } = this.singleObjectFilter;
+      const { schemaName, pureName } = name;
+      const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
+      const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
+      this.singleObjectId = resId.rows[0].id;
+    }
+  }
+
   async _runAnalysis() {
+    await this.getSingleObjectId();
     const tablesRows = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
     const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
     const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));

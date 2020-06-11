@@ -6,6 +6,19 @@ async function run() {
     // header: false,
   });
 
+  const tableWriter = await dbgateApi.tableWriter({
+    connection: {
+      server: 'localhost',
+      engine: 'mssql',
+      user: 'sa',
+      password: 'Pwd2020Db',
+      database: 'Chinook',
+    },
+    schemaName: 'dbo',
+    pureName: 'Genre2',
+    createIfNotExists: true,
+    truncate: true,
+  });
 
   // const tableWriter = await dbgateApi.tableWriter({
   //   connection: {
@@ -21,7 +34,8 @@ async function run() {
 
   const consoleWriter = await dbgateApi.consoleObjectWriter();
 
-  await dbgateApi.copyStream(csvReader, consoleWriter);
+  // await dbgateApi.copyStream(csvReader, consoleWriter);
+  await dbgateApi.copyStream(csvReader, tableWriter);
 }
 
 dbgateApi.runScript(run);

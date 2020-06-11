@@ -4,4 +4,5 @@ export interface SqlDialect {
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
   quoteIdentifier(s: string): string;
+  fallbackDataType?: string;
 }

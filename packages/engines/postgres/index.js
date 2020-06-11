@@ -6,6 +6,7 @@ const PostgreDumper = require('./PostgreDumper');
 const dialect = {
   rangeSelect: true,
   stringEscapeChar: '\\',
+  fallbackDataType: 'nvarchar(max)',
   quoteIdentifier(s) {
     return '"' + s + '"';
   },

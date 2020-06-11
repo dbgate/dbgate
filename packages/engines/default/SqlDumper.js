@@ -155,7 +155,7 @@ class SqlDumper {
       if (column.isPersisted) this.put(' ^persisted');
       return;
     }
-    this.put('%k', column.dataType);
+    this.put('%k', column.dataType || this.dialect.fallbackDataType);
     if (column.autoIncrement) {
       this.autoIncrement();
     }

@@ -1,6 +1,8 @@
 const _ = require('lodash');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
 const MsSqlDumper = require('./MsSqlDumper');
+const createBulkInsertStream = require('./createBulkInsertStream');
+const { analyseSingleObject } = require('../mysql');
 
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
@@ -8,6 +10,7 @@ const dialect = {
   rangeSelect: true,
   offsetFetchRangeSyntax: true,
   stringEscapeChar: "'",
+  fallbackDataType: 'nvarchar(max)',
   quoteIdentifier(s) {
     return `[${s}]`;
   },
@@ -68,6 +71,12 @@ const driver = {
   },
   // @ts-ignore
   async query(pool, sql) {
+    if (sql == null) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
     const resp = await pool.request().query(sql);
     // console.log(Object.keys(resp.recordset));
     // console.log(resp);
@@ -179,6 +188,10 @@ const driver = {
 
     return pass;
   },
+  async writeTable(pool, name, options) {
+    const { stream, mssql } = pool._nativeModules;
+    return createBulkInsertStream(this, mssql, stream, pool, name, options);
+  },
   async getVersion(pool) {
     const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
     return { version };
@@ -190,6 +203,16 @@ const driver = {
   async analyseFull(pool) {
     const analyser = new MsSqlAnalyser(pool, this);
     return analyser.fullAnalysis();
+  },
+  async analyseSingleObject(pool, name, typeField = 'tables') {
+    const analyser = new MsSqlAnalyser(pool, this);
+    analyser.singleObjectFilter = { name, typeField };
+    const res = await analyser.fullAnalysis();
+    return res.tables[0];
+  },
+  // @ts-ignore
+  analyseSingleTable(pool, name) {
+    return this.analyseSingleObject(pool, name, 'tables');
   },
   async analyseIncremental(pool, structure) {
     const analyser = new MsSqlAnalyser(pool, this);

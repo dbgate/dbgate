@@ -14,6 +14,7 @@ class DatabaseAnalyser {
     this.structure = null;
     /** import('@dbgate/types').DatabaseModification[]) */
     this.modifications = null;
+    this.singleObjectFilter = null;
   }
 
   async _runAnalysis() {
