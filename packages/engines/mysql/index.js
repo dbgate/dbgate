@@ -86,7 +86,23 @@ const driver = {
   },
   async readableStream(connection, sql) {
     const query = connection.query(sql);
-    return query.stream({ highWaterMark: 100 });
+    const { stream } = connection._nativeModules;
+
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    query
+      .on('error', (err) => {
+        console.error(err);
+        pass.end();
+      })
+      .on('fields', (fields) => pass.write({ columns: extractColumns(fields) }))
+      .on('result', (row) => pass.write(row))
+      .on('end', () => pass.end());
+
+    return pass;
   },
   async getVersion(connection) {
     const { rows } = await this.query(connection, "show variables like 'version'");

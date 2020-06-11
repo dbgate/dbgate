@@ -89,10 +89,13 @@ export default function QueryTab({
     }
   }, [sqlFromTemplate]);
 
-  const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, queryTextRef.current), [
-    localStorageKey,
-    queryTextRef,
-  ]);
+  const saveToStorage = React.useCallback(() => {
+    try {
+      localStorage.setItem(localStorageKey, queryTextRef.current);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [localStorageKey, queryTextRef]);
   const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
 
   React.useEffect(() => {

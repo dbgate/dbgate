@@ -4,11 +4,12 @@ import { JslGridDisplay, createGridConfig, createGridCache } from '@dbgate/datal
 import useFetch from '../utility/useFetch';
 
 export default function JslDataGrid({ jslid }) {
-  const columns = useFetch({
+  const info = useFetch({
     params: { jslid },
     url: 'jsldata/get-info',
-    defaultValue: [],
+    defaultValue: {},
   });
+  const columns = (info && info.columns) || [];
   const [config, setConfig] = React.useState(createGridConfig());
   const [cache, setCache] = React.useState(createGridCache());
   const display = React.useMemo(() => new JslGridDisplay(jslid, columns, config, setConfig, cache, setCache), [

@@ -1,13 +1,24 @@
 const dbgateApi = require('@dbgate/api');
 
 async function run() {
+  // const queryReader = await dbgateApi.queryReader({
+  //   connection: {
+  //     server: 'localhost',
+  //     engine: 'mysql',
+  //     user: 'root',
+  //     password: 'test',
+  //     port: '3307',
+  //     database: 'Chinook',
+  //   },
+  //   sql: 'SELECT * FROM Genre',
+  // });
+
   const queryReader = await dbgateApi.queryReader({
     connection: {
       server: 'localhost',
-      engine: 'mysql',
-      user: 'root',
-      password: 'test',
-      port: '3307',
+      engine: 'mssql',
+      user: 'sa',
+      password: 'Pwd2020Db',
       database: 'Chinook',
     },
     sql: 'SELECT * FROM Genre',
@@ -17,7 +28,7 @@ async function run() {
 
   const csvWriter = await dbgateApi.csvWriter({
     fileName: 'test.csv',
-    header: true,
+    // header: false,
   });
 
   const consoleWriter = await dbgateApi.consoleObjectWriter();

@@ -164,6 +164,10 @@ const driver = {
     });
 
     request.stream = true;
+    request.on('recordset', (driverColumns) => {
+      const [columns, mapper] = extractColumns(driverColumns);
+      pass.write({ columns });
+    });
     request.on('row', (row) => pass.write(row));
     request.on('error', (err) => {
       console.error(err);

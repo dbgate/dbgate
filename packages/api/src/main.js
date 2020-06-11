@@ -43,7 +43,7 @@ function start(argument = null) {
   }
 
   app.use(cors());
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({ limit: '50mb' }));
 
   useController(app, '/connections', connections);
   useController(app, '/server-connections', serverConnections);

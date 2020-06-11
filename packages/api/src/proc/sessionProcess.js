@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const childProcessChecker = require('../utility/childProcessChecker');
+const goSplit = require('../utility/goSplit');
 
 const driverConnect = require('../utility/driverConnect');
 const { jsldir } = require('../utility/directories');
@@ -19,7 +20,7 @@ class TableWriter {
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     this.currentRowCount = 0;
     this.currentChangeIndex = 0;
-    fs.writeFileSync(this.currentFile, JSON.stringify(columns) + '\n');
+    fs.writeFileSync(this.currentFile, JSON.stringify({ columns }) + '\n');
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
     this.writeCurrentStats(false, false);
     process.send({ msgtype: 'recordset', jslid: this.jslid });
@@ -140,9 +141,11 @@ async function handleExecuteQuery({ sql }) {
   await waitConnected();
   const driver = engines(storedConnection);
 
-  const handler = new StreamHandler();
-  const stream = await driver.stream(systemConnection, sql, handler);
-  handler.stream = stream;
+  for (const sqlItem of goSplit(sql)) {
+    const handler = new StreamHandler();
+    const stream = await driver.stream(systemConnection, sqlItem, handler);
+    handler.stream = stream;
+  }
 }
 
 const messageHandlers = {
