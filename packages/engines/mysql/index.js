@@ -84,7 +84,7 @@ const driver = {
 
     return query;
   },
-  async readableStream(connection, sql) {
+  async readQuery(connection, sql) {
     const query = connection.query(sql);
     const { stream } = connection._nativeModules;
 

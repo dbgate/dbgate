@@ -154,7 +154,7 @@ const driver = {
 
     return request;
   },
-  async readableStream(pool, sql) {
+  async readQuery(pool, sql) {
     const request = await pool.request();
     const { stream } = pool._nativeModules;
 
