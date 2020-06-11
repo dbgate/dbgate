@@ -160,6 +160,7 @@ export default function TabsPanel() {
   const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
   const handleMouseUp = (e, tabid) => {
     if (e.button == 1) {
+      e.preventDefault();
       closeTab(tabid);
     }
   };
