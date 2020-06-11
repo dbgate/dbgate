@@ -7,6 +7,8 @@ const copyStream = require('./copyStream');
 const fakeObjectReader = require('./fakeObjectReader');
 const consoleObjectWriter = require('./consoleObjectWriter');
 const excelSheetReader = require('./excelSheetReader');
+const jsonLinesWriter = require('./jsonLinesWriter');
+const jsonLinesReader = require('./jsonLinesReader');
 
 module.exports = {
   queryReader,
@@ -16,6 +18,8 @@ module.exports = {
   tableWriter,
   copyStream,
   excelSheetReader,
+  jsonLinesWriter,
+  jsonLinesReader,
   fakeObjectReader,
   consoleObjectWriter,
 };

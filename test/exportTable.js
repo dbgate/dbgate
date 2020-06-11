@@ -31,9 +31,15 @@ async function run() {
     // header: false,
   });
 
+  const jsonWriter = await dbgateApi.jsonLinesWriter({
+    fileName: 'test.jsonl',
+    header: false,
+  });
+
   const consoleWriter = await dbgateApi.consoleObjectWriter();
 
-  await dbgateApi.copyStream(queryReader, csvWriter);
+  // await dbgateApi.copyStream(queryReader, csvWriter);
+  await dbgateApi.copyStream(queryReader, jsonWriter);
   // await dbgateApi.copyStream(queryReader, consoleWriter);
 }
 

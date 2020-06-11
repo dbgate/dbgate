@@ -11,6 +11,11 @@ async function run() {
     sheetName: 'Events',
   });
 
+  const jsonReader = await dbgateApi.jsonLinesReader({
+    fileName: 'test.jsonl',
+    header: false,
+  });
+
   const tableWriter = await dbgateApi.tableWriter({
     connection: {
       server: 'localhost',
@@ -20,7 +25,7 @@ async function run() {
       database: 'Chinook',
     },
     schemaName: 'dbo',
-    pureName: 'Events',
+    pureName: 'Genre3',
     createIfNotExists: true,
     truncate: true,
   });
@@ -40,7 +45,7 @@ async function run() {
   const consoleWriter = await dbgateApi.consoleObjectWriter();
 
   // await dbgateApi.copyStream(excelReader, consoleWriter);
-  await dbgateApi.copyStream(excelReader, tableWriter);
+  await dbgateApi.copyStream(jsonReader, tableWriter);
   // await dbgateApi.copyStream(csvReader, consoleWriter);
   // await dbgateApi.copyStream(csvReader, tableWriter);
 }
