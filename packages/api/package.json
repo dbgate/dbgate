@@ -14,6 +14,7 @@
     "cross-env": "^6.0.3",
     "csv": "^5.3.2",
     "eslint": "^6.8.0",
+    "exceljs": "^4.0.1",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
     "find-free-port": "^2.0.0",

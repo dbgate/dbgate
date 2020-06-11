@@ -6,6 +6,11 @@ async function run() {
     // header: false,
   });
 
+  const excelReader = await dbgateApi.excelSheetReader({
+    fileName: '/home/jena/Downloads/events-Jan_Prochazka.xlsx',
+    sheetName: 'Events',
+  });
+
   const tableWriter = await dbgateApi.tableWriter({
     connection: {
       server: 'localhost',
@@ -15,7 +20,7 @@ async function run() {
       database: 'Chinook',
     },
     schemaName: 'dbo',
-    pureName: 'Genre2',
+    pureName: 'Events',
     createIfNotExists: true,
     truncate: true,
   });
@@ -34,8 +39,10 @@ async function run() {
 
   const consoleWriter = await dbgateApi.consoleObjectWriter();
 
+  // await dbgateApi.copyStream(excelReader, consoleWriter);
+  await dbgateApi.copyStream(excelReader, tableWriter);
   // await dbgateApi.copyStream(csvReader, consoleWriter);
-  await dbgateApi.copyStream(csvReader, tableWriter);
+  // await dbgateApi.copyStream(csvReader, tableWriter);
 }
 
 dbgateApi.runScript(run);

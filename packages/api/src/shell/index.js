@@ -6,6 +6,7 @@ const tableWriter = require('./tableWriter');
 const copyStream = require('./copyStream');
 const fakeObjectReader = require('./fakeObjectReader');
 const consoleObjectWriter = require('./consoleObjectWriter');
+const excelSheetReader = require('./excelSheetReader');
 
 module.exports = {
   queryReader,
@@ -14,6 +15,7 @@ module.exports = {
   runScript,
   tableWriter,
   copyStream,
+  excelSheetReader,
   fakeObjectReader,
   consoleObjectWriter,
 };

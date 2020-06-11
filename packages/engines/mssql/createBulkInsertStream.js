@@ -45,6 +45,7 @@ function createBulkInsertStream(driver, mssql, stream, pool, name, options) {
 
     const respTemplate = await pool.request().query(`SELECT * FROM ${fullNameQuoted} WHERE 1=0`);
     writable.templateColumns = respTemplate.recordset.toTable().columns;
+    // console.log('writable.templateColumns', writable.templateColumns);
 
     this.columnNames = _.intersection(
       structure.columns.map((x) => x.columnName),
@@ -62,7 +63,12 @@ function createBulkInsertStream(driver, mssql, stream, pool, name, options) {
       // console.log('TCOL', tcol);
       // console.log('TYPE', tcol.type, mssql.Int);
       // table.columns.add(column, tcol ? tcol.type : mssql.NVarChar(mssql.MAX));
-      table.columns.add(column, tcol ? tcol.type : mssql.NVarChar(mssql.MAX), { nullable: tcol.nullable });
+      table.columns.add(column, tcol ? tcol.type : mssql.NVarChar(mssql.MAX), {
+        nullable: tcol.nullable,
+        length: tcol.length,
+        precision: tcol.precision,
+        scale: tcol.scale,
+      });
     }
     for (const row of rows) {
       table.rows.add(...this.columnNames.map((col) => row[col]));
