@@ -14,9 +14,10 @@ import {
   FormSelectField,
   FormSchemaSelect,
 } from '../utility/forms';
-import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
+import { useConnectionList, useDatabaseList, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField } from '../utility/inputs';
+import { getActionOptions, getTargetName } from './createImpExpScript';
 
 const Container = styled.div``;
 
@@ -69,7 +70,14 @@ function DatabaseSelector() {
   );
 }
 
-function SourceTargetConfig({ direction, storageTypeField, connectionIdField, databaseNameField, schemaNameField,tablesField }) {
+function SourceTargetConfig({
+  direction,
+  storageTypeField,
+  connectionIdField,
+  databaseNameField,
+  schemaNameField,
+  tablesField,
+}) {
   const types = [
     { value: 'database', label: 'Database', directions: ['source', 'target'] },
     { value: 'csv', label: 'CSV file(s)', directions: ['target'] },
@@ -92,7 +100,12 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
           {direction == 'source' && (
             <>
               <Label>Tables/views</Label>
-              <FormTablesSelect conidName={connectionIdField} schemaName={schemaNameField} databaseName={databaseNameField} name={tablesField} />
+              <FormTablesSelect
+                conidName={connectionIdField}
+                schemaName={schemaNameField}
+                databaseName={databaseNameField}
+                name={tablesField}
+              />
             </>
           )}
         </>
@@ -102,29 +115,10 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
 }
 
 export default function ImportExportConfigurator() {
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
+  const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sources = values.sourceTables;
-  const getActionOptions = ()=>{
 
-  }
-  const actionOptions = [
-    {
-      label: 'Create file',
-      value: 'createFile',
-    },
-    {
-      label: 'Create table',
-      value: 'createTable',
-    },
-    {
-      label: 'Drop and create table',
-      value: 'dropCreateFile',
-    },
-    {
-      label: 'Append data',
-      value: 'appendData',
-    },
-  ];
   return (
     <Container>
       <Wrapper>
@@ -147,8 +141,27 @@ export default function ImportExportConfigurator() {
       </Wrapper>
       <TableControl rows={sources || []}>
         <TableColumn fieldName="source" header="Source" formatter={(row) => row} />
-        <TableColumn fieldName="action" header="Action" formatter={(row) => <SelectField options={actionOptions} />} />
-        <TableColumn fieldName="target" header="Target" formatter={(row) => <TextField />} />
+        <TableColumn
+          fieldName="action"
+          header="Action"
+          formatter={(row) => (
+            <SelectField
+              options={getActionOptions(row, values, targetDbinfo)}
+              value={values[`actionType_${row}`] || getActionOptions(row, values, targetDbinfo)[0].value}
+              onChange={(e) => setFieldValue(`actionType_${row}`, e.target.value)}
+            />
+          )}
+        />
+        <TableColumn
+          fieldName="target"
+          header="Target"
+          formatter={(row) => (
+            <TextField
+              value={getTargetName(row, values)}
+              onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
+            />
+          )}
+        />
       </TableControl>
     </Container>
   );

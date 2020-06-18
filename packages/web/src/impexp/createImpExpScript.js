@@ -3,6 +3,7 @@ import ScriptWriter from './ScriptWriter';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
+import { findObjectLike } from '@dbgate/datalib';
 import { quoteFullName, fullNameFromString } from '@dbgate/datalib';
 
 export default async function createImpExpScript(values) {
@@ -40,4 +41,49 @@ export default async function createImpExpScript(values) {
     }
   }
   return script.s;
+}
+
+export function  getTargetName(source, values) {
+  const key = `targetName_${source}`;
+  if (values[key]) return values[key];
+  if (values.targetStorageType == 'csv') return `${source}.csv`;
+  if (values.targetStorageType == 'jsonl') return `${source}.jsonl`;
+  return source;
+}
+
+export function getActionOptions(source, values,targetDbinfo) {
+  const res = [];
+  const targetName = getTargetName(source, values);
+  if (values.targetStorageType == 'database') {
+    let existing = findObjectLike(
+      { schemaName: values.targetSchemaName, pureName: targetName },
+      targetDbinfo,
+      'tables'
+    );
+    if (existing) {
+      res.push({
+        label: 'Append data',
+        value: 'appendData',
+      });
+      res.push({
+        label: 'Truncate and import',
+        value: 'truncate',
+      });
+      res.push({
+        label: 'Drop and create table',
+        value: 'dropCreateTable',
+      });
+    } else {
+      res.push({
+        label: 'Create table',
+        value: 'createTable',
+      });
+    }
+  } else {
+    res.push({
+      label: 'Create file',
+      value: 'createFile',
+    });
+  }
+  return res;
 }

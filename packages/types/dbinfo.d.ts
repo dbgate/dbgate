@@ -76,11 +76,14 @@ export interface SchemaInfo {
   schemaName: string;
 }
 
-export interface DatabaseInfo {
+export interface DatabaseInfoObjects {
   tables: TableInfo[];
   views: ViewInfo[];
   procedures: ProcedureInfo[];
   functions: FunctionInfo[];
   triggers: TriggerInfo[];
+}
+
+export interface DatabaseInfo extends DatabaseInfoObjects {
   schemas: SchemaInfo[];
 }
