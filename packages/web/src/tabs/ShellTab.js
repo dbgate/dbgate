@@ -21,6 +21,8 @@ import sqlFormatter from 'sql-formatter';
 import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
 import ShellToolbar from '../query/ShellToolbar';
 import RunnerOutputPane from '../query/RunnerOutputPane';
+import useShowModal from '../modals/showModal';
+import ImportExportModal from '../modals/ImportExportModal';
 
 export default function ShellTab({
   tabid,
@@ -35,6 +37,7 @@ export default function ShellTab({
   const [shellText, setShellText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
   const shellTextRef = React.useRef(shellText);
   const [busy, setBusy] = React.useState(false);
+  const showModal = useShowModal();
 
   const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, shellTextRef.current), [
     localStorageKey,
@@ -119,6 +122,17 @@ export default function ShellTab({
     }
   };
 
+  const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
+
+  const handleEdit = () => {
+    const jsonTextMatch = shellText.match(configRegex);
+    if (jsonTextMatch) {
+      showModal((modalState) => (
+        <ImportExportModal modalState={modalState} initialValues={JSON.parse(jsonTextMatch[1])} />
+      ));
+    }
+  };
+
   return (
     <>
       <VerticalSplitter>
@@ -129,13 +143,19 @@ export default function ShellTab({
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
         />
-        <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber}/>
+        <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber} />
       </VerticalSplitter>
       {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <ShellToolbar execute={handleExecute} busy={busy} cancel={handleCancel} />,
+          <ShellToolbar
+            execute={handleExecute}
+            busy={busy}
+            cancel={handleCancel}
+            edit={handleEdit}
+            editAvailable={configRegex.test(shellText || '')}
+          />,
           toolbarPortalRef.current
         )}
     </>

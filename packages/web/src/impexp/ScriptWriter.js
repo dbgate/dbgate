@@ -21,4 +21,8 @@ export default class ScriptWriter {
   copyStream(sourceVar, targetVar) {
     this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
   }
+
+  comment(s) {
+    this.put(`// ${s}`);
+  }
 }

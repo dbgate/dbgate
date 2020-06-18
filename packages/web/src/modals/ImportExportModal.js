@@ -28,7 +28,7 @@ export default function ImportExportModal({ modalState, initialValues }) {
         initialScript: code,
       },
     });
-    // modalState.close();
+    modalState.close();
   };
   return (
     <ModalBase modalState={modalState}>

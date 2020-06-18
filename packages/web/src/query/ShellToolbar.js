@@ -1,7 +1,7 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function ShellToolbar({ execute, cancel, busy}) {
+export default function ShellToolbar({ execute, cancel, busy, edit, editAvailable }) {
   return (
     <>
       <ToolbarButton disabled={busy} onClick={execute} icon="fas fa-play">
@@ -9,6 +9,9 @@ export default function ShellToolbar({ execute, cancel, busy}) {
       </ToolbarButton>
       <ToolbarButton disabled={!busy} onClick={cancel} icon="fas fa-times">
         Cancel
+      </ToolbarButton>
+      <ToolbarButton disabled={!editAvailable} onClick={edit} icon="fas fa-edit">
+        Show wizard
       </ToolbarButton>
     </>
   );

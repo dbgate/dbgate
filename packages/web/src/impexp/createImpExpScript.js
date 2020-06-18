@@ -108,7 +108,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
   }
 }
 
-export default async function createImpExpScript(values) {
+export default async function createImpExpScript(values, addEditorInfo = true) {
   const script = new ScriptWriter();
 
   const [sourceConnection, sourceDriver] = await getConnection(
@@ -134,6 +134,10 @@ export default async function createImpExpScript(values) {
 
     script.copyStream(sourceVar, targetVar);
     script.put();
+  }
+  if (addEditorInfo) {
+    script.comment('@ImportExportConfigurator');
+    script.comment(JSON.stringify(values));
   }
   return script.s;
 }
