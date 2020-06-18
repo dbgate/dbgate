@@ -17,9 +17,17 @@ import {
 import { useConnectionList, useDatabaseList, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField } from '../utility/inputs';
-import { getActionOptions, getTargetName } from './createImpExpScript';
+import { getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
+import getElectron from '../utility/getElectron';
+import ErrorInfo from '../widgets/ErrorInfo';
+import getAsArray from '../utility/getAsArray';
+import axios from '../utility/axios';
+import LoadingInfo from '../widgets/LoadingInfo';
 
-const Container = styled.div``;
+const Container = styled.div`
+  max-height: 50vh;
+  overflow-y: scroll;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -42,6 +50,19 @@ const Label = styled.div`
   margin: 5px;
   margin-top: 15px;
   color: #777;
+`;
+
+const SourceNameWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const TrashWrapper = styled.div`
+  &:hover {
+    background-color: #ccc;
+  }
+  cursor: pointer;
+  color: blue;
 `;
 
 function DatabaseSelector() {
@@ -70,6 +91,88 @@ function DatabaseSelector() {
   );
 }
 
+function getFileFilters(storageType) {
+  const res = [];
+  if (storageType == 'csv') res.push({ name: 'CSV files', extensions: ['csv'] });
+  if (storageType == 'jsonl') res.push({ name: 'JSON lines', extensions: ['jsonl'] });
+  if (storageType == 'excel') res.push({ name: 'MS Excel files', extensions: ['xlsx'] });
+  res.push({ name: 'All Files', extensions: ['*'] });
+  return res;
+}
+
+async function addFilesToSourceList(files, values, setFieldValue) {
+  const newSources = [];
+  const storage = values.sourceStorageType;
+  for (const file of getAsArray(files)) {
+    if (isFileStorage(storage)) {
+      if (storage == 'excel') {
+        const resp = await axios.get(`files/analyse-excel?filePath=${encodeURIComponent(file.full)}`);
+        /** @type {import('@dbgate/types').DatabaseInfo} */
+        const structure = resp.data;
+        for (const table of structure.tables) {
+          const sourceName = table.pureName;
+          newSources.push(sourceName);
+          setFieldValue(`sourceFile_${sourceName}`, {
+            fileName: file.full,
+            sheetName: table.pureName,
+          });
+        }
+      } else {
+        const sourceName = file.name;
+        newSources.push(sourceName);
+        setFieldValue(`sourceFile_${sourceName}`, {
+          fileName: file.full,
+        });
+      }
+    }
+  }
+  setFieldValue('sourceList', [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources]);
+}
+
+function ElectronFilesInput() {
+  const { values, setFieldValue } = useFormikContext();
+  const electron = getElectron();
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleClick = async () => {
+    const files = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+      properties: ['openFile', 'multiSelections'],
+      filters: getFileFilters(values.sourceStorageType),
+    });
+    if (files) {
+      const path = window.require('path');
+      try {
+        setIsLoading(true);
+        await addFilesToSourceList(
+          files.map((full) => ({
+            full,
+            ...path.parse(full),
+          })),
+          values,
+          setFieldValue
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  return (
+    <>
+      <FormStyledButton type="button" value="Add file(s)" onClick={handleClick} />
+      {isLoading && <LoadingInfo message="Anaysing input files" />}
+    </>
+  );
+}
+
+function FilesInput() {
+  const electron = getElectron();
+  if (electron) {
+    return <ElectronFilesInput />;
+  }
+  return <ErrorInfo message="Import files is currently implemented only for electron client" />;
+}
+
 function SourceTargetConfig({
   direction,
   storageTypeField,
@@ -80,16 +183,18 @@ function SourceTargetConfig({
 }) {
   const types = [
     { value: 'database', label: 'Database', directions: ['source', 'target'] },
-    { value: 'csv', label: 'CSV file(s)', directions: ['target'] },
-    { value: 'jsonl', label: 'JSON lines file(s)', directions: ['target'] },
+    { value: 'csv', label: 'CSV file(s)', directions: ['source', 'target'] },
+    { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
+    { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
   ];
   const { values } = useFormikContext();
+  const storageType = values[storageTypeField];
   return (
     <Column>
       {direction == 'source' && <Label>Source configuration</Label>}
       {direction == 'target' && <Label>Target configuration</Label>}
       <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
-      {values[storageTypeField] == 'database' && (
+      {storageType == 'database' && (
         <>
           <Label>Server</Label>
           <FormConnectionSelect name={connectionIdField} />
@@ -110,7 +215,27 @@ function SourceTargetConfig({
           )}
         </>
       )}
+      {isFileStorage(storageType) && direction == 'source' && <FilesInput />}
     </Column>
+  );
+}
+
+function SourceName({ name }) {
+  const { values, setFieldValue } = useFormikContext();
+  const handleDelete = () => {
+    setFieldValue(
+      'sourceList',
+      values.sourceList.filter((x) => x != name)
+    );
+  };
+
+  return (
+    <SourceNameWrapper>
+      <div>{name}</div>
+      <TrashWrapper onClick={handleDelete}>
+        <i className="fas fa-trash" />
+      </TrashWrapper>
+    </SourceNameWrapper>
   );
 }
 
@@ -139,7 +264,7 @@ export default function ImportExportConfigurator() {
         />
       </Wrapper>
       <TableControl rows={sourceList || []}>
-        <TableColumn fieldName="source" header="Source" formatter={(row) => row} />
+        <TableColumn fieldName="source" header="Source" formatter={(row) => <SourceName name={row} />} />
         <TableColumn
           fieldName="action"
           header="Action"

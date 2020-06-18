@@ -3,8 +3,9 @@ import _ from 'lodash';
 import { DatabaseIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
+import ImportExportModal from '../modals/ImportExportModal';
 
-function Menu({ data, setOpenedTabs }) {
+function Menu({ data, setOpenedTabs, showModal }) {
   const { connection, name } = data;
   const tooltip = `${connection.displayName || connection.server}\n${name}`;
 
@@ -21,9 +22,24 @@ function Menu({ data, setOpenedTabs }) {
     });
   };
 
+  const handleImport = () => {
+    showModal((modalState) => (
+      <ImportExportModal
+        modalState={modalState}
+        initialValues={{
+          sourceStorageType: 'csv',
+          targetStorageType: 'database',
+          targetConnectionId: data.connection._id,
+          targetDatabaseName: data.name,
+        }}
+      />
+    ));
+  };
+
   return (
     <>
       <DropDownMenuItem onClick={handleNewQuery}>New query</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleImport}>Import</DropDownMenuItem>
     </>
   );
 }
