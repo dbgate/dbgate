@@ -76,7 +76,7 @@ function SourceTargetConfig({
   connectionIdField,
   databaseNameField,
   schemaNameField,
-  tablesField,
+  tablesField = undefined,
 }) {
   const types = [
     { value: 'database', label: 'Database', directions: ['source', 'target'] },
@@ -97,7 +97,7 @@ function SourceTargetConfig({
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
           <Label>Schema</Label>
           <FormSchemaSelect conidName={connectionIdField} databaseName={databaseNameField} name={schemaNameField} />
-          {direction == 'source' && (
+          {tablesField && (
             <>
               <Label>Tables/views</Label>
               <FormTablesSelect
@@ -117,7 +117,7 @@ function SourceTargetConfig({
 export default function ImportExportConfigurator() {
   const { values, setFieldValue } = useFormikContext();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
-  const sources = values.sourceTables;
+  const { sourceList } = values;
 
   return (
     <Container>
@@ -128,7 +128,7 @@ export default function ImportExportConfigurator() {
           connectionIdField="sourceConnectionId"
           databaseNameField="sourceDatabaseName"
           schemaNameField="sourceSchemaName"
-          tablesField="sourceTables"
+          tablesField="sourceList"
         />
         <SourceTargetConfig
           direction="target"
@@ -136,10 +136,9 @@ export default function ImportExportConfigurator() {
           connectionIdField="targetConnectionId"
           databaseNameField="targetDatabaseName"
           schemaNameField="targetSchemaName"
-          tablesField="targetTables"
         />
       </Wrapper>
-      <TableControl rows={sources || []}>
+      <TableControl rows={sourceList || []}>
         <TableColumn fieldName="source" header="Source" formatter={(row) => row} />
         <TableColumn
           fieldName="action"
