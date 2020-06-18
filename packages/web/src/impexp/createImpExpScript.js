@@ -4,7 +4,7 @@ import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
 import { findObjectLike } from '@dbgate/datalib';
-import { quoteFullName, fullNameFromString } from '@dbgate/datalib';
+import { quoteFullName, fullNameFromString } from '@dbgate/tools';
 
 export function getTargetName(source, values) {
   const key = `targetName_${source}`;
@@ -37,11 +37,10 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
   if (values.sourceStorageType == 'database') {
     const fullName = { schemaName: values.sourceSchemaName, pureName: sourceName };
     return [
-      'queryReader',
+      'tableReader',
       {
         connection: sourceConnection,
-        // @ts-ignore
-        sql: `select * from ${quoteFullName(sourceDriver.dialect, fullName)}`,
+        ...fullName,
       },
     ];
   }

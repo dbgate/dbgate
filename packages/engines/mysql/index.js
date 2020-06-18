@@ -85,7 +85,7 @@ const driver = {
 
     return query;
   },
-  async readQuery(connection, sql) {
+  async readQuery(connection, sql, structure) {
     const query = connection.query(sql);
     const { stream } = connection._nativeModules;
 
@@ -99,7 +99,7 @@ const driver = {
         console.error(err);
         pass.end();
       })
-      .on('fields', (fields) => pass.write({ columns: extractColumns(fields) }))
+      .on('fields', (fields) => pass.write(structure || { columns: extractColumns(fields) }))
       .on('result', (row) => pass.write(row))
       .on('end', () => pass.end());
 

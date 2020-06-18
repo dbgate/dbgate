@@ -6,7 +6,7 @@ select
 	col.COLUMN_NAME as columnName,
 	col.IS_NULLABLE as isNullable,
 	col.DATA_TYPE as dataType,
-	col.CHARACTER_MAXIMUM_LENGTH,
+	col.CHARACTER_MAXIMUM_LENGTH as charMaxLength,
 	col.NUMERIC_PRECISION as precision,
 	col.NUMERIC_SCALE as scale,
 	col.COLUMN_DEFAULT

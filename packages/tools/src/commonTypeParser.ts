@@ -15,7 +15,7 @@ export function isTypeNumber(dataType) {
 }
 
 export function isTypeString(dataType) {
-  return dataType && /char/i.test(dataType);
+  return dataType && /char|binary/i.test(dataType);
 }
 
 export function isTypeLogical(dataType) {

@@ -23,7 +23,7 @@ export interface EngineDriver {
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
-  readQuery(pool: any, sql: string): Promise<stream.Readable>;
+  readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
   writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writeable>;
   analyseSingleObject(
     pool: any,

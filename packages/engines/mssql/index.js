@@ -22,7 +22,6 @@ function extractColumns(columns) {
     ...col,
     columnName: col.name,
     notNull: !col.nullable,
-    autoIncrement: !!col.identity,
   }));
 
   const generateName = () => {
@@ -164,7 +163,7 @@ const driver = {
 
     return request;
   },
-  async readQuery(pool, sql) {
+  async readQuery(pool, sql, structure) {
     const request = await pool.request();
     const { stream } = pool._nativeModules;
 
@@ -176,7 +175,7 @@ const driver = {
     request.stream = true;
     request.on('recordset', (driverColumns) => {
       const [columns, mapper] = extractColumns(driverColumns);
-      pass.write({ columns });
+      pass.write(structure || { columns });
     });
     request.on('row', (row) => pass.write(row));
     request.on('error', (err) => {
