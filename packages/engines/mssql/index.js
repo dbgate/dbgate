@@ -55,7 +55,7 @@ function extractColumns(columns) {
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
   async connect(nativeModules, { server, port, user, password, database }) {
-    const pool = await nativeModules.mssql.connect({
+    const pool = new nativeModules.mssql.ConnectionPool({
       server,
       port,
       user,
@@ -66,6 +66,7 @@ const driver = {
         enableArithAbort: true,
       },
     });
+    await pool.connect();
     pool._nativeModules = nativeModules;
     return pool;
   },
