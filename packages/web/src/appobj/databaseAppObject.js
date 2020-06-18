@@ -36,10 +36,25 @@ function Menu({ data, setOpenedTabs, showModal }) {
     ));
   };
 
+  const handleExport = () => {
+    showModal((modalState) => (
+      <ImportExportModal
+        modalState={modalState}
+        initialValues={{
+          targetStorageType: 'csv',
+          sourceStorageType: 'database',
+          sourceConnectionId: data.connection._id,
+          sourceDatabaseName: data.name,
+        }}
+      />
+    ));
+  };
+
   return (
     <>
       <DropDownMenuItem onClick={handleNewQuery}>New query</DropDownMenuItem>
       <DropDownMenuItem onClick={handleImport}>Import</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleExport}>Export</DropDownMenuItem>
     </>
   );
 }
