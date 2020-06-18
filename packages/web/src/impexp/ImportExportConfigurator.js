@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import FormStyledButton from '../widgets/FormStyledButton';
 import { useFormikContext } from 'formik';
 import styled from 'styled-components';
@@ -148,8 +149,9 @@ function SourceTargetConfig({
     { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
     { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
   ];
-  const { values } = useFormikContext();
+  const { values, setFieldValue } = useFormikContext();
   const storageType = values[storageTypeField];
+  const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
   return (
     <Column>
       {direction == 'source' && <Label>Source configuration</Label>}
@@ -172,6 +174,29 @@ function SourceTargetConfig({
                 databaseName={databaseNameField}
                 name={tablesField}
               />
+              <div>
+                <FormStyledButton
+                  type="button"
+                  value="All tables"
+                  onClick={() =>
+                    setFieldValue(
+                      'sourceList',
+                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.tables.map((x) => x.pureName))])
+                    )
+                  }
+                />
+                <FormStyledButton
+                  type="button"
+                  value="All views"
+                  onClick={() =>
+                    setFieldValue(
+                      'sourceList',
+                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.views.map((x) => x.pureName))])
+                    )
+                  }
+                />
+                <FormStyledButton type="button" value="Remove all" onClick={() => setFieldValue('sourceList', [])} />
+              </div>
             </>
           )}
         </>

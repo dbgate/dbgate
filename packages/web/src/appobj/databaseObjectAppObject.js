@@ -44,8 +44,16 @@ const menus = {
       sqlTemplate: 'CREATE OBJECT',
     },
     {
+      label: 'Show CREATE TABLE script',
+      sqlTemplate: 'CREATE TABLE',
+    },
+    {
       label: 'Export',
       isExport: true,
+    },
+    {
+      label: 'Open structure',
+      tab: 'TableStructureTab',
     },
   ],
   procedures: [

@@ -122,7 +122,7 @@ export function useDatabaseInfo(args) {
   return useCore(databaseInfoLoader, args);
 }
 
-async function getDbCore(args, objectTypeField = undefined) {
+export async function getDbCore(args, objectTypeField = undefined) {
   const db = await getDatabaseInfo(args);
   if (!db) return null;
   return db[objectTypeField || args.objectTypeField].find(

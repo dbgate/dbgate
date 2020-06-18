@@ -4,7 +4,13 @@ import _ from 'lodash';
 import axios from '../utility/axios';
 import engines from '@dbgate/engines';
 
-import { useConnectionInfo, getTableInfo, getConnectionInfo, getSqlObjectInfo } from '../utility/metadataLoaders';
+import {
+  useConnectionInfo,
+  getTableInfo,
+  getDbCore,
+  getConnectionInfo,
+  getSqlObjectInfo,
+} from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
@@ -24,7 +30,7 @@ function useSqlTemplate(sqlTemplate, props) {
 
   async function loadTemplate() {
     if (sqlTemplate == 'CREATE TABLE') {
-      const tableInfo = await getTableInfo(props);
+      const tableInfo = await getDbCore(props, props.objectTypeField || 'tables');
       const connection = await getConnectionInfo(props);
       const driver = engines(connection.engine);
       const dmp = driver.createDumper();

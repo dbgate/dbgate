@@ -5,7 +5,7 @@ import ObjectListControl from '../utility/ObjectListControl';
 import { TableColumn } from '../utility/TableControl';
 import columnAppObject from '../appobj/columnAppObject';
 import constraintAppObject from '../appobj/constraintAppObject';
-import { useTableInfo } from '../utility/metadataLoaders';
+import { useTableInfo, useDbCore } from '../utility/metadataLoaders';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -16,8 +16,8 @@ const WhitePage = styled.div`
   background-color: white;
 `;
 
-export default function TableStructureTab({ conid, database, schemaName, pureName }) {
-  const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
+export default function TableStructureTab({ conid, database, schemaName, pureName, objectTypeField = 'tables' }) {
+  const tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
   if (!tableInfo) return null;
   const { columns, primaryKey, foreignKeys, dependencies } = tableInfo;
   return (
