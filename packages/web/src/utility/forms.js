@@ -92,7 +92,7 @@ export function FormReactSelect({ options, name, isMulti = false }) {
   return (
     <Select
       options={options}
-      defaultValue={
+      value={
         isMulti
           ? options.filter((x) => values[name] && values[name].includes(x.value))
           : options.find((x) => x.value == values[name])

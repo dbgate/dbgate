@@ -1,20 +1,15 @@
 import React from 'react';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { Formik, Form, useFormik, useFormikContext } from 'formik';
+import { useFormikContext } from 'formik';
 import styled from 'styled-components';
-import Select from 'react-select';
-import { FontIcon } from '../icons';
 import {
-  FormButtonRow,
-  FormSubmit,
   FormReactSelect,
   FormConnectionSelect,
   FormDatabaseSelect,
   FormTablesSelect,
-  FormSelectField,
   FormSchemaSelect,
 } from '../utility/forms';
-import { useConnectionList, useDatabaseList, useDatabaseInfo } from '../utility/metadataLoaders';
+import { useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField } from '../utility/inputs';
 import { getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
@@ -38,14 +33,6 @@ const Column = styled.div`
   flex: 1;
 `;
 
-const StyledSelect = styled(Select)`
-  // min-width: 350px;
-`;
-
-const OptionsWrapper = styled.div`
-  margin-left: 10px;
-`;
-
 const Label = styled.div`
   margin: 5px;
   margin-top: 15px;
@@ -64,32 +51,6 @@ const TrashWrapper = styled.div`
   cursor: pointer;
   color: blue;
 `;
-
-function DatabaseSelector() {
-  const connections = useConnectionList();
-  const connectionOptions = React.useMemo(
-    () =>
-      (connections || []).map((conn) => ({
-        value: conn._id,
-        label: conn.displayName || conn.server,
-      })),
-    [connections]
-  );
-
-  // const databases = useDatabaseList({ conid: _id });
-
-  return (
-    <>
-      <Label>Server</Label>
-      <StyledSelect
-        options={connectionOptions}
-        // defaultValue={type}
-        // onChange={setType}
-        menuPortalTarget={document.body}
-      />
-    </>
-  );
-}
 
 function getFileFilters(storageType) {
   const res = [];
