@@ -50,7 +50,7 @@ export function FormSelectFieldRaw({ children, ...other }) {
   );
 }
 
-export function FormSelectField({ label, children, ...other }) {
+export function FormSelectField({ label, children = null, ...other }) {
   return (
     <FormRow>
       <FormLabel>{label}</FormLabel>
@@ -138,16 +138,34 @@ export function FormDatabaseSelect({ conidName, name }) {
   return <FormReactSelect options={databaseOptions} name={name} />;
 }
 
-export function FormTablesSelect({ conidName, databaseName, name }) {
+export function FormSchemaSelect({ conidName, databaseName, name }) {
+  const { values } = useFormikContext();
+  const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
+  const schemaOptions = React.useMemo(
+    () =>
+      ((dbinfo && dbinfo.schemas) || []).map((schema) => ({
+        value: schema.schemaName,
+        label: schema.schemaName,
+      })),
+    [dbinfo]
+  );
+
+  if (schemaOptions.length == 0) return <div>Not available</div>;
+  return <FormReactSelect options={schemaOptions} name={name} />;
+}
+
+export function FormTablesSelect({ conidName, databaseName, schemaName, name }) {
   const { values } = useFormikContext();
   const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
   const tablesOptions = React.useMemo(
     () =>
-      [...((dbinfo && dbinfo.tables) || []), ...((dbinfo && dbinfo.views) || [])].map((x) => ({
-        value: fullNameToString(x),
-        label: x.pureName,
-      })),
-    [dbinfo]
+      [...((dbinfo && dbinfo.tables) || []), ...((dbinfo && dbinfo.views) || [])]
+        .filter((x) => !values[schemaName] || x.schemaName == values[schemaName])
+        .map((x) => ({
+          value: x.pureName,
+          label: x.pureName,
+        })),
+    [dbinfo, values[schemaName]]
   );
 
   if (tablesOptions.length == 0) return <div>Not available</div>;

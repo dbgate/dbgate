@@ -11,9 +11,12 @@ import {
   FormConnectionSelect,
   FormDatabaseSelect,
   FormTablesSelect,
+  FormSelectField,
+  FormSchemaSelect,
 } from '../utility/forms';
 import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
+import { TextField, SelectField } from '../utility/inputs';
 
 const Container = styled.div``;
 
@@ -66,9 +69,9 @@ function DatabaseSelector() {
   );
 }
 
-function SourceTargetConfig({ direction, storageTypeField, connectionIdField, databaseNameField, tablesField }) {
+function SourceTargetConfig({ direction, storageTypeField, connectionIdField, databaseNameField, schemaNameField,tablesField }) {
   const types = [
-    { value: 'database', label: 'Database', directions: ['source'] },
+    { value: 'database', label: 'Database', directions: ['source', 'target'] },
     { value: 'csv', label: 'CSV file(s)', directions: ['target'] },
     { value: 'jsonl', label: 'JSON lines file(s)', directions: ['target'] },
   ];
@@ -84,10 +87,12 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
           <FormConnectionSelect name={connectionIdField} />
           <Label>Database</Label>
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
+          <Label>Schema</Label>
+          <FormSchemaSelect conidName={connectionIdField} databaseName={databaseNameField} name={schemaNameField} />
           {direction == 'source' && (
             <>
               <Label>Tables/views</Label>
-              <FormTablesSelect conidName={connectionIdField} databaseName={databaseNameField} name={tablesField} />
+              <FormTablesSelect conidName={connectionIdField} schemaName={schemaNameField} databaseName={databaseNameField} name={tablesField} />
             </>
           )}
         </>
@@ -99,6 +104,9 @@ function SourceTargetConfig({ direction, storageTypeField, connectionIdField, da
 export default function ImportExportConfigurator() {
   const { values } = useFormikContext();
   const sources = values.sourceTables;
+  const getActionOptions = ()=>{
+
+  }
   const actionOptions = [
     {
       label: 'Create file',
@@ -125,6 +133,7 @@ export default function ImportExportConfigurator() {
           storageTypeField="sourceStorageType"
           connectionIdField="sourceConnectionId"
           databaseNameField="sourceDatabaseName"
+          schemaNameField="sourceSchemaName"
           tablesField="sourceTables"
         />
         <SourceTargetConfig
@@ -132,17 +141,15 @@ export default function ImportExportConfigurator() {
           storageTypeField="targetStorageType"
           connectionIdField="targetConnectionId"
           databaseNameField="targetDatabaseName"
+          schemaNameField="targetSchemaName"
           tablesField="targetTables"
         />
       </Wrapper>
-      {/* <TableControl rows={sources || []}>
+      <TableControl rows={sources || []}>
         <TableColumn fieldName="source" header="Source" formatter={(row) => row} />
-        <TableColumn
-          fieldName="action"
-          header="Action"
-          formatter={(row) => <FormReactSelect name={`action_${row}`} options={actionOptions} />}
-        />
-      </TableControl> */}
+        <TableColumn fieldName="action" header="Action" formatter={(row) => <SelectField options={actionOptions} />} />
+        <TableColumn fieldName="target" header="Target" formatter={(row) => <TextField />} />
+      </TableControl>
     </Container>
   );
 }

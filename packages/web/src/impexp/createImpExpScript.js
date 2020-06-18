@@ -14,7 +14,7 @@ export default async function createImpExpScript(values) {
       const connection = await getConnectionInfo({ conid: values.sourceConnectionId });
       const driver = engines(connection);
 
-      const fullName = fullNameFromString(table);
+      const fullName = { schemaName: values.sourceSchemaName, pureName: table };
       script.assign(sourceVar, 'queryReader', {
         connection: {
           ..._.pick(connection, ['server', 'engine', 'user', 'password', 'port']),

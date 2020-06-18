@@ -114,7 +114,8 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
                     sourceStorageType: 'database',
                     sourceConnectionId: data.conid,
                     sourceDatabaseName: data.database,
-                    sourceTables: [fullNameToString(data)],
+                    sourceSchemaName: data.schemaName,
+                    sourceTables: [data.pureName],
                   }}
                 />
               ));

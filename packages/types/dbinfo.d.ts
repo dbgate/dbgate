@@ -71,10 +71,16 @@ export interface FunctionInfo extends SqlObjectInfo {}
 
 export interface TriggerInfo extends SqlObjectInfo {}
 
+export interface SchemaInfo {
+  objectId?: string;
+  schemaName: string;
+}
+
 export interface DatabaseInfo {
   tables: TableInfo[];
   views: ViewInfo[];
   procedures: ProcedureInfo[];
   functions: FunctionInfo[];
   triggers: TriggerInfo[];
+  schemas: SchemaInfo[];
 }

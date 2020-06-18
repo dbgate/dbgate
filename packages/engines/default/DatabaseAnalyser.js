@@ -89,6 +89,7 @@ DatabaseAnalyser.createEmptyStructure = () => ({
   functions: [],
   procedures: [],
   triggers: [],
+  schemas: [],
 });
 
 DatabaseAnalyser.byTableFilter = (table) => (x) => x.pureName == table.pureName && x.schemaName == x.schemaName;

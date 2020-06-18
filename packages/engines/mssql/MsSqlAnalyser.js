@@ -168,7 +168,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     if (this.singleObjectFilter) {
       const { typeField } = this.singleObjectFilter;
       if (!this.singleObjectId) return null;
-      if (!filterIdObjects.includes(typeField)) return null;
+      if (!filterIdObjects || !filterIdObjects.includes(typeField)) return null;
       return res.replace('=[OBJECT_ID_CONDITION]', ` = ${this.singleObjectId}`);
     }
     if (!this.modifications || !filterIdObjects || this.modifications.length == 0) {
@@ -202,6 +202,9 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
     const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumnsRows = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    const schemaRows = await this.driver.query(this.pool, this.createQuery('getSchemas'));
+
+    const schemas = schemaRows.rows;
 
     const sqlCodeRows = await this.driver.query(
       this.pool,
@@ -265,6 +268,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       views,
       procedures,
       functions,
+      schemas,
     });
   }
 

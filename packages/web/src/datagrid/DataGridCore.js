@@ -604,7 +604,8 @@ export default function DataGridCore(props) {
           sourceStorageType: 'database',
           sourceConnectionId: conid,
           sourceDatabaseName: database,
-          sourceTables: display.baseTable ? [fullNameToString(display.baseTable)] : [],
+          sourceSchemaName: display.baseTable && display.baseTable.schemaName,
+          sourceTables: display.baseTable ? [display.baseTable.pureName] : [],
         }}
       />
     ));
