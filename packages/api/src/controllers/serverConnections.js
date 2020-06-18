@@ -99,4 +99,11 @@ module.exports = {
     await this.ensureOpened(conid);
     return { status: 'ok' };
   },
+
+  createDatabase_meta: 'post',
+  async createDatabase({ conid, name }) {
+    const opened = await this.ensureOpened(conid);
+    opened.subprocess.send({ msgtype: 'createDatabase', name });
+    return { status: 'ok' };
+  },
 };

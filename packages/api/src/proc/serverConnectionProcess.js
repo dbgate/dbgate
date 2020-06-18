@@ -65,9 +65,18 @@ function handlePing() {
   lastPing = new Date().getTime();
 }
 
+async function handleCreateDatabase({ name }) {
+  const driver = engines(storedConnection);
+  systemConnection = await driverConnect(driver, storedConnection);
+  console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
+  await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
+  await handleRefresh();
+}
+
 const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
+  createDatabase: handleCreateDatabase,
 };
 
 async function handleMessage({ msgtype, ...other }) {

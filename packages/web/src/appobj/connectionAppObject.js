@@ -8,6 +8,7 @@ import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
 import ConfirmModal from '../modals/ConfirmModal';
 import { useConfig } from '../utility/metadataLoaders';
+import CreateDatabaseModal from '../modals/CreateDatabaseModal';
 
 function Menu({ data, setOpenedConnections, openedConnections, config, showModal }) {
   const handleEdit = () => {
@@ -21,6 +22,9 @@ function Menu({ data, setOpenedConnections, openedConnections, config, showModal
         onConfirm={() => axios.post('connections/delete', data)}
       />
     ));
+  };
+  const handleCreateDatabase = () => {
+    showModal((modalState) => <CreateDatabaseModal modalState={modalState} conid={data._id} />);
   };
   const handleRefresh = () => {
     axios.post('server-connections/refresh', { conid: data._id });
@@ -45,6 +49,9 @@ function Menu({ data, setOpenedConnections, openedConnections, config, showModal
       )}
       {openedConnections.includes(data._id) && (
         <DropDownMenuItem onClick={handleDisconnect}>Disconnect</DropDownMenuItem>
+      )}
+      {openedConnections.includes(data._id) && (
+        <DropDownMenuItem onClick={handleCreateDatabase}>Create database</DropDownMenuItem>
       )}
     </>
   );
