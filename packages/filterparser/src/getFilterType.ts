@@ -1,19 +1,11 @@
-import { DbTypeCode } from '@dbgate/types';
+import { isTypeNumber, isTypeString, isTypeLogical, isTypeDateTime } from '@dbgate/tools';
 import { FilterType } from './types';
 
-export function getFilterType(typeCode?: DbTypeCode): FilterType {
-  if (!typeCode) return 'string';
-  switch (typeCode) {
-    case 'int':
-    case 'numeric':
-    case 'float':
-      return 'number';
-    case 'string':
-      return 'string';
-    case 'datetime':
-      return 'datetime';
-    case 'logical':
-      return 'logical';
-  }
+export function getFilterType(dataType: string): FilterType {
+  if (!dataType) return 'string';
+  if (isTypeNumber(dataType)) return 'number';
+  if (isTypeString(dataType)) return 'string';
+  if (isTypeLogical(dataType)) return 'logical';
+  if (isTypeDateTime(dataType)) return 'datetime';
   return 'string';
 }

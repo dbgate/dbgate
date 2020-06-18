@@ -24,136 +24,12 @@ function objectTypeToField(type) {
   }
 }
 
-/** @returns {import('@dbgate/types').DbType} */
-function detectType(col) {
-  switch (col.dataType) {
-    case 'binary':
-      return {
-        typeCode: 'string',
-        isBinary: true,
-      };
-
-    case 'image':
-      return {
-        typeCode: 'string',
-        isBinary: true,
-        isBlob: true,
-      };
-
-    case 'timestamp':
-      return {
-        typeCode: 'string',
-      };
-    case 'varbinary':
-      return {
-        typeCode: 'string',
-        length: col.maxLength,
-        isBinary: true,
-        isVarLength: true,
-      };
-    case 'bit':
-      return {
-        typeCode: 'logical',
-      };
-
-    case 'tinyint':
-      return {
-        typeCode: 'int',
-        bytes: 1,
-      };
-    case 'mediumint':
-      return {
-        typeCode: 'int',
-        bytes: 3,
-      };
-    case 'datetime':
-      return {
-        typeCode: 'datetime',
-        subType: 'datetime',
-      };
-    case 'time':
-      return {
-        typeCode: 'datetime',
-        subType: 'time',
-      };
-    case 'year':
-      return {
-        typeCode: 'datetime',
-        subType: 'year',
-      };
-    case 'date':
-      return {
-        typeCode: 'datetime',
-        subType: 'date',
-      };
-    case 'decimal':
-    case 'numeric':
-      return {
-        typeCode: 'numeric',
-        precision: col.precision,
-        scale: col.scale,
-      };
-    case 'float':
-      return { typeCode: 'float' };
-    case 'uniqueidentifier':
-      return { typeCode: 'string' };
-    case 'smallint':
-      return {
-        typeCode: 'int',
-        bytes: 2,
-      };
-    case 'int':
-      return {
-        typeCode: 'int',
-        bytes: 4,
-      };
-    case 'bigint':
-      return {
-        typeCode: 'int',
-        bytes: 8,
-      };
-    case 'real':
-      return { typeCode: 'float' };
-    case 'char':
-      return {
-        typeCode: 'string',
-        length: col.maxLength,
-      };
-    case 'nchar':
-      return { typeCode: 'string', length: col.maxLength, isUnicode: true };
-    case 'varchar':
-      return {
-        typeCode: 'string',
-        length: col.maxLength,
-        isVarLength: true,
-      };
-    case 'nvarchar':
-      return {
-        typeCode: 'string',
-        length: col.maxLength,
-        isVarLength: true,
-        isUnicode: true,
-      };
-    case 'text':
-      return {
-        typeCode: 'blob',
-        isText: true,
-      };
-    case 'ntext':
-      return {
-        typeCode: 'blob',
-        isText: true,
-        isUnicode: true,
-      };
-    case 'xml':
-      return {
-        typeCode: 'blob',
-        isXml: true,
-      };
-  }
+function getColumnInfo({ isNullable, isIdentity, columnName, dataType }) {
   return {
-    typeCode: 'generic',
-    sql: col.dataType,
+    columnName,
+    dataType,
+    notNull: !isNullable,
+    autoIncrement: !!isIdentity,
   };
 }
 
@@ -224,14 +100,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const tables = tablesRows.rows.map((row) => ({
       ...row,
-      columns: columnsRows.rows
-        .filter((col) => col.objectId == row.objectId)
-        .map(({ isNullable, isIdentity, ...col }) => ({
-          ...col,
-          notNull: !isNullable,
-          autoIncrement: !!isIdentity,
-          commonType: detectType(col),
-        })),
+      columns: columnsRows.rows.filter((col) => col.objectId == row.objectId).map(getColumnInfo),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
     }));
@@ -239,14 +108,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const views = viewsRows.rows.map((row) => ({
       ...row,
       createSql: getCreateSql(row),
-      columns: viewColumnRows.rows
-        .filter((col) => col.objectId == row.objectId)
-        .map(({ isNullable, isIdentity, ...col }) => ({
-          ...col,
-          notNull: !isNullable,
-          autoIncrement: !!isIdentity,
-          commonType: detectType(col),
-        })),
+      columns: viewColumnRows.rows.filter((col) => col.objectId == row.objectId).map(getColumnInfo),
     }));
 
     const procedures = programmableRows.rows

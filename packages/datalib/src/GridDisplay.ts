@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, DbType, EngineDriver, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
@@ -19,7 +19,7 @@ export interface DisplayColumn {
   foreignKey?: ForeignKeyInfo;
   isChecked?: boolean;
   hintColumnName?: string;
-  commonType?: DbType;
+  dataType?: string;
 }
 
 export interface DisplayedColumnEx extends DisplayColumn {
@@ -143,7 +143,7 @@ export abstract class GridDisplay {
       const column = displayedColumnInfo[uniqueName];
       if (!column) continue;
       try {
-        const condition = parseFilter(filter, getFilterType(column.commonType?.typeCode));
+        const condition = parseFilter(filter, getFilterType(column.dataType));
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, (expr: Expression) => {

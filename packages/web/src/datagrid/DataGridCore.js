@@ -1180,7 +1180,7 @@ export default function DataGridCore(props) {
                   data-col={col.colIndex}
                 >
                   <DataFilterControl
-                    filterType={getFilterType(col.commonType ? col.commonType.typeCode : null)}
+                    filterType={getFilterType(col.dataType)}
                     filter={display.getFilter(col.uniqueName)}
                     setFilter={(value) => display.setFilter(col.uniqueName, value)}
                   />

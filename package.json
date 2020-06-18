@@ -9,6 +9,7 @@
     "start:api:portal": "yarn workspace @dbgate/api start:portal",
     "start:web": "yarn workspace @dbgate/web start",
     "start:sqltree": "yarn workspace @dbgate/sqltree start",
+    "start:tools": "yarn workspace @dbgate/tools start",
     "start:datalib": "yarn workspace @dbgate/datalib start",
     "start:filterparser": "yarn workspace @dbgate/filterparser start",
     "build:sqltree": "yarn workspace @dbgate/sqltree build",
@@ -26,7 +27,7 @@
 
     "prepare": "yarn build:lib",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
-    "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\"",
+    "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\" \"yarn start:tools\"",
     "ts:api": "yarn workspace @dbgate/api ts",
     "ts:web": "yarn workspace @dbgate/web ts",
     "ts": "yarn ts:api && yarn ts:web",
