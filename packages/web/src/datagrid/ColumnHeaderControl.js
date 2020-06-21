@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
 import DropDownButton from '../widgets/DropDownButton';
-import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import { useSplitterDrag } from '../widgets/Splitter';
 import { FontIcon } from '../icons';
 
@@ -31,11 +31,18 @@ const ResizeHandle = styled.div`
   z-index: 1;
 `;
 
-export default function ColumnHeaderControl({ column, setSort, onResize, order }) {
+const GroupingLabel = styled.span`
+  color: green;
+  white-space: nowrap;
+`;
+
+export default function ColumnHeaderControl({ column, setSort, onResize, order, setGrouping, grouping }) {
   const onResizeDown = useSplitterDrag('clientX', onResize);
   return (
     <HeaderDiv>
       <LabelDiv>
+        {grouping && <GroupingLabel>{grouping.toLowerCase()}:</GroupingLabel>}
+
         <ColumnLabel {...column} />
         {order == 'ASC' && (
           <IconWrapper>
@@ -52,6 +59,14 @@ export default function ColumnHeaderControl({ column, setSort, onResize, order }
         <DropDownButton>
           <DropDownMenuItem onClick={() => setSort('ASC')}>Sort ascending</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
+          <DropDownMenuDivider />
+          <DropDownMenuItem onClick={() => setGrouping('GROUP')}>Group by</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('MAX')}>MAX</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('MIN')}>MIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('SUM')}>SUM</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('AVG')}>AVG</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('COUNT')}>COUNT</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setGrouping('COUNT DISTINCT')}>COUNT DISTINCT</DropDownMenuItem>
         </DropDownButton>
       )}
       <ResizeHandle className="resizeHandleControl" onMouseDown={onResizeDown} />

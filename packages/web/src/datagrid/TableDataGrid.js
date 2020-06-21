@@ -53,10 +53,6 @@ export default function TableDataGrid({
   const dbinfo = useDatabaseInfo({ conid, database });
   const [reference, setReference] = React.useState(null);
 
-  React.useEffect(() => {
-    setRefReloadToken((v) => v + 1);
-  }, [reference]);
-
   function createDisplay() {
     return connection
       ? new TableGridDisplay(
@@ -72,6 +68,11 @@ export default function TableDataGrid({
   }
 
   const [display, setDisplay] = React.useState(createDisplay());
+
+  React.useEffect(() => {
+    setRefReloadToken((v) => v + 1);
+    if (!reference && display && display.isGrouped) display.clearGrouping();
+  }, [reference]);
 
   React.useEffect(() => {
     const newDisplay = createDisplay();

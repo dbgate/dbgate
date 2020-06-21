@@ -6,6 +6,7 @@ import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
 import useDimensions from '../utility/useDimensions';
 import axios from '../utility/axios';
 import DataFilterControl from './DataFilterControl';
+import stableStringify from 'json-stable-stringify';
 import { getFilterType } from '@dbgate/filterparser';
 import { cellFromEvent, getCellRange, topLeftCell, isRegularCell, nullCell, emptyCellArray } from './selection';
 import keycodes from '../utility/keycodes';
@@ -480,6 +481,21 @@ export default function DataGridCore(props) {
       }
     }
   }, [display && display.focusedColumn]);
+
+  React.useEffect(() => {
+    if (display.groupColumns) {
+      console.log('SET REFERENCE');
+
+      props.onReferenceClick({
+        schemaName: display.baseTable.schemaName,
+        pureName: display.baseTable.pureName,
+        columns: display.groupColumns.map((col) => ({
+          baseName: col,
+          refName: col,
+        })),
+      });
+    }
+  }, [stableStringify(display && display.groupColumns)]);
 
   const rowCountInfo = React.useMemo(() => {
     if (selectedCells.length > 1 && selectedCells.every((x) => _.isNumber(x[0]) && _.isNumber(x[1]))) {
@@ -1101,6 +1117,10 @@ export default function DataGridCore(props) {
     }
   }
 
+  function setGrouping(uniqueName, groupFunc) {
+    display.setGrouping(uniqueName, groupFunc);
+  }
+
   //   console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
   //   console.log('gridScrollAreaHeight', gridScrollAreaHeight);
   //   console.log('containerHeight', containerHeight);
@@ -1155,6 +1175,8 @@ export default function DataGridCore(props) {
                   setSort={display.sortable ? (order) => display.setSort(col.uniqueName, order) : null}
                   order={display.getSortOrder(col.uniqueName)}
                   onResize={(diff) => display.resizeColumn(col.uniqueName, col.widthNumber, diff)}
+                  setGrouping={display.sortable ? (groupFunc) => setGrouping(col.uniqueName, groupFunc) : null}
+                  grouping={display.getGrouping(col.uniqueName)}
                 />
               </TableHeaderCell>
             ))}

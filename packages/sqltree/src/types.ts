@@ -123,7 +123,14 @@ export interface RawExpression {
   sql: string;
 }
 
-export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression | RawExpression;
+export interface CallExpression {
+  exprType: 'call';
+  func: string;
+  args: Expression[];
+  argsPrefix?: string; // DISTINCT in case of COUNT DISTINCT
+}
+
+export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression | RawExpression | CallExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };

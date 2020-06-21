@@ -27,5 +27,11 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
     case 'raw':
       dmp.put('%s', expr.sql);
       break;
+
+    case 'call':
+      dmp.put('%s(%s', expr.func, expr.argsPrefix);
+      dmp.putCollection(',', expr.args, (x) => dumpSqlExpression(dmp, x));
+      dmp.put(')');
+      break;
   }
 }

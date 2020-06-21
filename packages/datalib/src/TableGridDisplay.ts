@@ -70,8 +70,8 @@ export class TableGridDisplay extends GridDisplay {
 
           this.addReferenceToSelect(select, parentAlias, column);
 
-          this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources)
-          this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources)
+          this.addJoinsFromExpandedColumns(select, subcolumns, childAlias, columnSources);
+          this.addAddedColumnsToSelect(select, subcolumns, childAlias, columnSources);
         }
       }
     }
@@ -111,8 +111,12 @@ export class TableGridDisplay extends GridDisplay {
 
   addHintsToSelect(select: Select): boolean {
     let res = false;
+    const groupColumns = this.groupColumns;
     for (const column of this.getGridColumns()) {
       if (column.foreignKey) {
+        if (groupColumns && !groupColumns.includes(column.uniqueName)) {
+          continue;
+        }
         const table = this.getFkTarget(column);
         if (table && table.columns && table.columns.length > 0) {
           const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));

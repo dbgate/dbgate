@@ -16,6 +16,8 @@ export interface GridReferenceDefinition {
   }[];
 }
 
+export type GroupFunc = 'GROUP' | 'MAX' | 'MIN' | 'SUM' | 'AVG' | 'COUNT' | 'COUNT DISTINCT'
+
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
   focusedColumn?: string;
@@ -24,6 +26,7 @@ export interface GridConfig extends GridConfigColumns {
     uniqueName: string;
     order: 'ASC' | 'DESC';
   }[];
+  grouping: { [uniqueName: string]: GroupFunc };
 }
 
 export interface GridCache {
@@ -39,6 +42,7 @@ export function createGridConfig(): GridConfig {
     columnWidths: {},
     sort: [],
     focusedColumn: null,
+    grouping: {},
   };
 }
 

@@ -1,10 +1,11 @@
 import _ from 'lodash';
-import { GridConfig, GridCache, GridConfigColumns, createGridCache } from './GridConfig';
+import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
 import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
+import { group } from 'console';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -174,13 +175,56 @@ export abstract class GridDisplay {
     if (this.config.sort?.length > 0) {
       select.orderBy = this.config.sort
         .map((col) => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
-        .filter((col) => col.dispInfo)
+        .map((col) => ({ ...col, expr: select.columns.find((x) => x.alias == col.uniqueName) }))
+        .filter((col) => col.dispInfo && col.expr)
         .map((col) => ({
-          exprType: 'column',
-          columnName: col.dispInfo.columnName,
+          ...col.expr,
           direction: col.order,
-          source: { alias: col.dispInfo.sourceAlias },
         }));
+    }
+  }
+
+  get isGrouped() {
+    return !_.isEmpty(this.config.grouping);
+  }
+
+  get groupColumns() {
+    return this.isGrouped ? _.keys(_.pickBy(this.config.grouping, (v) => v == 'GROUP')) : null;
+  }
+
+  applyGroupOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+    const groupColumns = this.groupColumns;
+    if (groupColumns && groupColumns.length > 0) {
+      select.groupBy = groupColumns.map((col) => ({
+        exprType: 'column',
+        columnName: displayedColumnInfo[col].columnName,
+        source: { alias: displayedColumnInfo[col].sourceAlias },
+      }));
+    }
+    if (!_.isEmpty(this.config.grouping)) {
+      for (let i = 0; i < select.columns.length; i++) {
+        const uniqueName = select.columns[i].alias;
+        if (groupColumns && groupColumns.includes(uniqueName)) continue;
+        const grouping = this.getGrouping(uniqueName);
+        let func = 'MAX';
+        let argsPrefix = '';
+        if (grouping) {
+          if (grouping == 'COUNT DISTINCT') {
+            func = 'COUNT';
+            argsPrefix = 'DISTINCT ';
+          } else {
+            func = grouping;
+          }
+        }
+        select.columns[i] = {
+          alias: select.columns[i].alias,
+          exprType: 'call',
+          func,
+          argsPrefix,
+          args: [select.columns[i]],
+        };
+      }
+      select.columns = select.columns.filter((x) => x.alias);
     }
   }
 
@@ -219,6 +263,34 @@ export abstract class GridDisplay {
     this.setConfig((cfg) => ({
       ...cfg,
       sort: [{ uniqueName, order }],
+    }));
+    this.reload();
+  }
+
+  setGrouping(uniqueName, groupFunc: GroupFunc) {
+    this.setConfig((cfg) => ({
+      ...cfg,
+      grouping: groupFunc
+        ? {
+            ...cfg.grouping,
+            [uniqueName]: groupFunc,
+          }
+        : _.omitBy(cfg.grouping, (v, k) => k == uniqueName),
+    }));
+    this.reload();
+  }
+
+  getGrouping(uniqueName): GroupFunc {
+    if (this.isGrouped) {
+      return this.config.grouping[uniqueName] || 'MAX';
+    }
+    return null;
+  }
+
+  clearGrouping() {
+    this.setConfig((cfg) => ({
+      ...cfg,
+      grouping: {},
     }));
     this.reload();
   }
@@ -298,6 +370,7 @@ export abstract class GridDisplay {
     );
     this.processReferences(select, displayedColumnInfo);
     this.applyFilterOnSelect(select, displayedColumnInfo);
+    this.applyGroupOnSelect(select, displayedColumnInfo);
     this.applySortOnSelect(select, displayedColumnInfo);
     return select;
   }
