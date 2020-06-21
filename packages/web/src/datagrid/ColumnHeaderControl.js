@@ -41,7 +41,9 @@ export default function ColumnHeaderControl({ column, setSort, onResize, order, 
   return (
     <HeaderDiv>
       <LabelDiv>
-        {grouping && <GroupingLabel>{grouping.toLowerCase()}:</GroupingLabel>}
+        {grouping && (
+          <GroupingLabel>{grouping == 'COUNT DISTINCT' ? 'distinct' : grouping.toLowerCase()}:</GroupingLabel>
+        )}
 
         <ColumnLabel {...column} />
         {order == 'ASC' && (

@@ -16,7 +16,7 @@ export interface GridReferenceDefinition {
   }[];
 }
 
-export type GroupFunc = 'GROUP' | 'MAX' | 'MIN' | 'SUM' | 'AVG' | 'COUNT' | 'COUNT DISTINCT'
+export type GroupFunc = 'GROUP' | 'MAX' | 'MIN' | 'SUM' | 'AVG' | 'COUNT' | 'COUNT DISTINCT' | 'NULL';
 
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };

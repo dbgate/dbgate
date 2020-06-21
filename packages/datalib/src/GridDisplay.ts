@@ -5,7 +5,7 @@ import { parseFilter, getFilterType } from '@dbgate/filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
-import { group } from 'console';
+import { isTypeLogical } from '@dbgate/tools';
 
 export interface DisplayColumn {
   schemaName: string;
@@ -206,23 +206,27 @@ export abstract class GridDisplay {
         const uniqueName = select.columns[i].alias;
         if (groupColumns && groupColumns.includes(uniqueName)) continue;
         const grouping = this.getGrouping(uniqueName);
-        let func = 'MAX';
-        let argsPrefix = '';
-        if (grouping) {
-          if (grouping == 'COUNT DISTINCT') {
-            func = 'COUNT';
-            argsPrefix = 'DISTINCT ';
-          } else {
-            func = grouping;
+        if (grouping == 'NULL') {
+          select.columns[i].alias = null;
+        } else {
+          let func = 'MAX';
+          let argsPrefix = '';
+          if (grouping) {
+            if (grouping == 'COUNT DISTINCT') {
+              func = 'COUNT';
+              argsPrefix = 'DISTINCT ';
+            } else {
+              func = grouping;
+            }
           }
+          select.columns[i] = {
+            alias: select.columns[i].alias,
+            exprType: 'call',
+            func,
+            argsPrefix,
+            args: [select.columns[i]],
+          };
         }
-        select.columns[i] = {
-          alias: select.columns[i].alias,
-          exprType: 'call',
-          func,
-          argsPrefix,
-          args: [select.columns[i]],
-        };
       }
       select.columns = select.columns.filter((x) => x.alias);
     }
@@ -284,6 +288,7 @@ export abstract class GridDisplay {
     if (this.isGrouped) {
       if (this.config.grouping[uniqueName]) return this.config.grouping[uniqueName];
       const column = this.baseTable.columns.find((x) => x.columnName == uniqueName);
+      if (isTypeLogical(column?.dataType)) return 'COUNT DISTINCT';
       if (column?.autoIncrement) return 'COUNT';
       return 'MAX';
     }
@@ -405,15 +410,33 @@ export abstract class GridDisplay {
   }
 
   getCountQuery() {
-    const select = this.createSelect();
-    select.columns = [
-      {
-        exprType: 'raw',
-        sql: 'COUNT(*)',
-        alias: 'count',
-      },
-    ];
+    let select = this.createSelect();
     select.orderBy = null;
+
+    if (this.isGrouped) {
+      select = {
+        commandType: 'select',
+        from: {
+          subQuery: select,
+          alias: 'subq',
+        },
+        columns: [
+          {
+            exprType: 'raw',
+            sql: 'COUNT(*)',
+            alias: 'count',
+          },
+        ],
+      };
+    } else {
+      select.columns = [
+        {
+          exprType: 'raw',
+          sql: 'COUNT(*)',
+          alias: 'count',
+        },
+      ];
+    }
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }
