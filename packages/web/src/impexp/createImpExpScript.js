@@ -3,8 +3,7 @@ import ScriptWriter from './ScriptWriter';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
-import { findObjectLike } from '@dbgate/datalib';
-import { quoteFullName, fullNameFromString } from '@dbgate/tools';
+import { findObjectLike } from '@dbgate/tools';
 
 export function getTargetName(source, values) {
   const key = `targetName_${source}`;
