@@ -7,7 +7,6 @@ import FormStyledButton from '../widgets/FormStyledButton';
 import { useConnectionList, useDatabaseList, useDatabaseInfo } from './metadataLoaders';
 import useSocket from './SocketProvider';
 import getAsArray from './getAsArray';
-import { fullNameToString } from '@dbgate/datalib';
 
 export const FormRow = styled.div`
   display: flex;

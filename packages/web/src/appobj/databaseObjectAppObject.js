@@ -5,7 +5,7 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
-import { filterName, fullNameToString } from '@dbgate/datalib';
+import { filterName } from '@dbgate/datalib';
 import ImportExportModal from '../modals/ImportExportModal';
 
 const icons = {

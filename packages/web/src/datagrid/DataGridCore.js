@@ -29,7 +29,6 @@ import {
   deleteChangeSetRows,
   batchUpdateChangeSet,
   setChangeSetValue,
-  fullNameToString,
 } from '@dbgate/datalib';
 import { scriptToSql } from '@dbgate/sqltree';
 import { copyTextToClipboard } from '../utility/clipboard';
