@@ -189,25 +189,50 @@ export abstract class GridDisplay {
   }
 
   get groupColumns() {
-    return this.isGrouped ? _.keys(_.pickBy(this.config.grouping, (v) => v == 'GROUP')) : null;
+    return this.isGrouped
+      ? _.keys(_.pickBy(this.config.grouping, (v) => v == 'GROUP' || v.startsWith('GROUP:')))
+      : null;
   }
 
   applyGroupOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
     const groupColumns = this.groupColumns;
     if (groupColumns && groupColumns.length > 0) {
-      select.groupBy = groupColumns.map((col) => ({
-        exprType: 'column',
-        columnName: displayedColumnInfo[col].columnName,
-        source: { alias: displayedColumnInfo[col].sourceAlias },
-      }));
+      // @ts-ignore
+      select.groupBy = groupColumns.map((col) => {
+        const colExpr: Expression = {
+          exprType: 'column',
+          columnName: displayedColumnInfo[col].columnName,
+          source: { alias: displayedColumnInfo[col].sourceAlias },
+        };
+        const grouping = this.config.grouping[col];
+        if (grouping.startsWith('GROUP:')) {
+          return {
+            exprType: 'transform',
+            transform: grouping,
+            expr: colExpr,
+          };
+        } else {
+          return colExpr;
+        }
+      });
     }
     if (!_.isEmpty(this.config.grouping)) {
       for (let i = 0; i < select.columns.length; i++) {
         const uniqueName = select.columns[i].alias;
-        if (groupColumns && groupColumns.includes(uniqueName)) continue;
+        // if (groupColumns && groupColumns.includes(uniqueName)) continue;
         const grouping = this.getGrouping(uniqueName);
-        if (grouping == 'NULL') {
+        if (grouping == 'GROUP') {
+          continue;
+        } else if (grouping == 'NULL') {
           select.columns[i].alias = null;
+        } else if (grouping && grouping.startsWith('GROUP:')) {
+          select.columns[i] = {
+            exprType: 'transform',
+            // @ts-ignore
+            transform: grouping,
+            expr: select.columns[i],
+            alias: select.columns[i].alias,
+          };
         } else {
           let func = 'MAX';
           let argsPrefix = '';

@@ -484,14 +484,13 @@ export default function DataGridCore(props) {
 
   React.useEffect(() => {
     if (display.groupColumns) {
-      console.log('SET REFERENCE');
-
       props.onReferenceClick({
         schemaName: display.baseTable.schemaName,
         pureName: display.baseTable.pureName,
         columns: display.groupColumns.map((col) => ({
           baseName: col,
           refName: col,
+          dataType: _.get(display.baseTable && display.baseTable.columns.find((x) => x.columnName == col), 'dataType'),
         })),
       });
     }

@@ -1,7 +1,10 @@
+import { isTypeDateTime } from '@dbgate/tools';
+
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
 
-export function getFilterValueExpression(value) {
+export function getFilterValueExpression(value, dataType) {
   if (value == null) return 'NULL';
+  if (isTypeDateTime(dataType)) return value;
   return `="${value}"`;
 }
 

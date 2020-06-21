@@ -33,5 +33,9 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
       dmp.putCollection(',', expr.args, (x) => dumpSqlExpression(dmp, x));
       dmp.put(')');
       break;
+
+    case 'transform':
+      dmp.transform(expr.transform, () => dumpSqlExpression(dmp, expr.expr));
+      break;
   }
 }

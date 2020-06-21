@@ -106,7 +106,7 @@ export default function TableDataGrid({
         ..._.fromPairs(
           reference.columns.map((col) => [
             col.refName,
-            selectedRows.map((x) => getFilterValueExpression(x[col.baseName])).join(', '),
+            selectedRows.map((x) => getFilterValueExpression(x[col.baseName], col.dataType)).join(', '),
           ])
         ),
       };

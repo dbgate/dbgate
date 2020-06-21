@@ -1,6 +1,7 @@
 import P from 'parsimmon';
 import { FilterType } from './types';
 import { Condition } from '@dbgate/sqltree';
+import { TransformType } from '@dbgate/types';
 
 const whitespace = P.regexp(/\s*/m);
 
@@ -94,6 +95,50 @@ const negateCondition = (condition) => {
   };
 };
 
+function getTransformCondition(transform: TransformType, value) {
+  return {
+    conditionType: 'binary',
+    operator: '=',
+    left: {
+      exprType: 'transform',
+      transform,
+      expr: {
+        exprType: 'placeholder',
+      },
+    },
+    right: {
+      exprType: 'value',
+      value,
+    },
+  };
+}
+
+const yearCondition = () => (value) => {
+  return getTransformCondition('YEAR', value);
+};
+
+const yearMonthCondition = () => (value) => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)/);
+
+  return {
+    conditionType: 'and',
+    conditions: [getTransformCondition('YEAR', m[1]), getTransformCondition('MONTH', m[2])],
+  };
+};
+
+const yearMonthDayCondition = () => (value) => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)/);
+
+  return {
+    conditionType: 'and',
+    conditions: [
+      getTransformCondition('YEAR', m[1]),
+      getTransformCondition('MONTH', m[2]),
+      getTransformCondition('DAY', m[3]),
+    ],
+  };
+};
+
 const createParser = (filterType: FilterType) => {
   const langDef = {
     string1: () =>
@@ -122,6 +167,10 @@ const createParser = (filterType: FilterType) => {
         .desc('number'),
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
+
+    yearNum: () => P.regexp(/\d\d\d\d/).map(yearCondition()),
+    yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
+    yearMonthDayNum: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayCondition()),
 
     value: (r) => P.alt(...allowedValues.map((x) => r[x])),
     valueTestEq: (r) => r.value.map(binaryCondition('=')),
@@ -173,6 +222,7 @@ const createParser = (filterType: FilterType) => {
       'containsNot'
     );
   if (filterType == 'logical') allowedElements.push('true', 'false', 'trueNum', 'falseNum');
+  if (filterType == 'datetime') allowedElements.push('yearMonthDayNum', 'yearMonthNum', 'yearNum');
 
   // must be last
   if (filterType == 'string') allowedElements.push('valueTestStr');

@@ -5,6 +5,7 @@ import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import { useSplitterDrag } from '../widgets/Splitter';
 import { FontIcon } from '../icons';
+import { isTypeDateTime } from '@dbgate/tools';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -69,6 +70,16 @@ export default function ColumnHeaderControl({ column, setSort, onResize, order, 
           <DropDownMenuItem onClick={() => setGrouping('AVG')}>AVG</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setGrouping('COUNT')}>COUNT</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setGrouping('COUNT DISTINCT')}>COUNT DISTINCT</DropDownMenuItem>
+          {isTypeDateTime(column.dataType) && (
+            <>
+              <DropDownMenuDivider />
+              <DropDownMenuItem onClick={() => setGrouping('GROUP:YEAR')}>Group by YEAR</DropDownMenuItem>
+              <DropDownMenuItem onClick={() => setGrouping('GROUP:MONTH')}>Group by MONTH</DropDownMenuItem>
+              <DropDownMenuItem onClick={() => setGrouping('GROUP:DAY')}>Group by DAY</DropDownMenuItem>
+              {/* <DropDownMenuItem onClick={() => setGrouping('GROUP:HOUR')}>Group by HOUR</DropDownMenuItem>
+              <DropDownMenuItem onClick={() => setGrouping('GROUP:MINUTE')}>Group by MINUTE</DropDownMenuItem> */}
+            </>
+          )}
         </DropDownButton>
       )}
       <ResizeHandle className="resizeHandleControl" onMouseDown={onResizeDown} />

@@ -1,4 +1,4 @@
-import { NamedObjectInfo, RangeDefinition } from '@dbgate/types';
+import { NamedObjectInfo, RangeDefinition, TransformType } from '@dbgate/types';
 
 // export interface Command {
 // }
@@ -130,7 +130,19 @@ export interface CallExpression {
   argsPrefix?: string; // DISTINCT in case of COUNT DISTINCT
 }
 
-export type Expression = ColumnRefExpression | ValueExpression | PlaceholderExpression | RawExpression | CallExpression;
+export interface TranformExpression {
+  exprType: 'transform';
+  expr: Expression;
+  transform: TransformType;
+}
+
+export type Expression =
+  | ColumnRefExpression
+  | ValueExpression
+  | PlaceholderExpression
+  | RawExpression
+  | CallExpression
+  | TranformExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };

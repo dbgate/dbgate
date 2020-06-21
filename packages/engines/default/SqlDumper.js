@@ -76,6 +76,9 @@ class SqlDumper {
       case 'v':
         this.putValue(value);
         break;
+      case 'c':
+        value(this);
+        break;
     }
   }
   putFormattedList(c, collection) {
@@ -253,6 +256,11 @@ class SqlDumper {
     );
     if (fk.deleteAction) this.put(' ^on ^delete %k', fk.deleteAction);
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);
+  }
+
+  /** @param type {import('@dbgate/types').TransformType} */
+  transform(type, dumpExpr) {
+    dumpExpr();
   }
 
   /**
