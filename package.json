@@ -16,7 +16,7 @@
     "build:datalib": "yarn workspace @dbgate/datalib build",
     "build:filterparser": "yarn workspace @dbgate/filterparser build",
     "build:tools": "yarn workspace @dbgate/tools build",
-    "build:lib": "yarn build:sqltree && yarn build:filterparser && yarn build:datalib && yarn build:tools",
+    "build:lib": "yarn build:tools && yarn build:sqltree && yarn build:filterparser && yarn build:datalib",
     "build:app": "cd app && yarn install && yarn build",
     "build:api": "yarn workspace @dbgate/api build",
     "build:web:docker": "yarn workspace @dbgate/web build:docker",
