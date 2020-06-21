@@ -228,8 +228,7 @@ export abstract class GridDisplay {
         } else if (grouping && grouping.startsWith('GROUP:')) {
           select.columns[i] = {
             exprType: 'transform',
-            // @ts-ignore
-            transform: grouping,
+            transform: grouping as any,
             expr: select.columns[i],
             alias: select.columns[i].alias,
           };
