@@ -282,7 +282,10 @@ export abstract class GridDisplay {
 
   getGrouping(uniqueName): GroupFunc {
     if (this.isGrouped) {
-      return this.config.grouping[uniqueName] || 'MAX';
+      if (this.config.grouping[uniqueName]) return this.config.grouping[uniqueName];
+      const column = this.baseTable.columns.find((x) => x.columnName == uniqueName);
+      if (column?.autoIncrement) return 'COUNT';
+      return 'MAX';
     }
     return null;
   }
