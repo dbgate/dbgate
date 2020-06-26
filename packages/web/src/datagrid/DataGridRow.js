@@ -142,7 +142,12 @@ function CellFormattedValue({ value }) {
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';
   if (value === false) return '0';
-  if (_.isNumber(value)) return value.toLocaleString();
+  if (_.isNumber(value)) {
+    if (value >= 10000 || value <= -10000) {
+      return value.toLocaleString();
+    }
+    return value.toString();
+  }
   if (_.isString(value)) {
     if (dateTimeRegex.test(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
     return highlightSpecialCharacters(value);
