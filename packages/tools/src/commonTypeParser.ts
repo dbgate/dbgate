@@ -23,5 +23,5 @@ export function isTypeLogical(dataType) {
 }
 
 export function isTypeDateTime(dataType) {
-  return dataType && /date|time/i.test(dataType);
+  return dataType && /date|time|timestamp/i.test(dataType);
 }

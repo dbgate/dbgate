@@ -4,11 +4,11 @@ select
 	table_name as "pureName", 
 	column_name as "columnName",
 	is_nullable as "isNullable",
-	data_type as dataType,
-	character_maximum_length,
-	numeric_precision,
-	numeric_scale,
-	column_default
+	data_type as "dataType",
+	character_maximum_length as "charMaxLength",
+	numeric_precision as "numericPrecision",
+	numeric_scale as "numericScale",
+	column_default as "defaultValue"
 from information_schema.columns
 where 
 		table_schema <> 'information_schema' 

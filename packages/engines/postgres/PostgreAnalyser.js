@@ -3,6 +3,37 @@ const _ = require('lodash');
 const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
+const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+
+function normalizeTypeName(dataType) {
+  if (dataType == 'character varying') return 'varchar';
+  if (dataType == 'timestamp without time zone') return 'timestamp';
+  return dataType;
+}
+
+function getColumnInfo({
+  isNullable,
+  isIdentity,
+  columnName,
+  dataType,
+  charMaxLength,
+  numericPrecision,
+  numericScale,
+  defaultValue,
+}) {
+  const normDataType = normalizeTypeName(dataType);
+  let fullDataType = normDataType;
+  if (charMaxLength && isTypeString(normDataType)) fullDataType = `${normDataType}(${charMaxLength})`;
+  if (numericPrecision && numericScale && isTypeNumeric(normDataType))
+    fullDataType = `${normDataType}(${numericPrecision},${numericScale})`;
+  return {
+    columnName,
+    dataType: fullDataType,
+    notNull: !isNullable,
+    autoIncrement: !!isIdentity,
+    defaultValue,
+  };
+}
 
 class PostgreAnalyser extends DatabaseAnalayser {
   constructor(pool, driver) {
@@ -26,10 +57,7 @@ class PostgreAnalyser extends DatabaseAnalayser {
         ...table,
         columns: columns.rows
           .filter((col) => col.pureName == table.pureName && col.schemaName == table.schemaName)
-          .map(({ isNullable, ...col }) => ({
-            ...col,
-            notNull: !isNullable,
-          })),
+          .map(getColumnInfo),
         primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
       })),

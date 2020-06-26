@@ -4,6 +4,8 @@ select c.name as columnName, t.name as dataType, c.object_id as objectId, c.is_i
 	col.CHARACTER_MAXIMUM_LENGTH as charMaxLength,
 	d.definition as defaultValue, d.name as defaultConstraint,
 	m.definition as computedExpression, m.is_persisted as isPersisted, c.column_id as columnId, 
+	col.NUMERIC_PRECISION as numericPrecision,
+	col.NUMERIC_SCALE as numericScale,
 	-- TODO only if version >= 2008
 	c.is_sparse as isSparse
 from sys.columns c

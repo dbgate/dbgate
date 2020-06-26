@@ -4,7 +4,7 @@ const sql = require('./sql');
 
 const DatabaseAnalyser = require('../default/DatabaseAnalyser');
 const { filter } = require('lodash');
-const { isTypeString } = require('@dbgate/tools');
+const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
 
 function objectTypeToField(type) {
   switch (type.trim()) {
@@ -25,9 +25,19 @@ function objectTypeToField(type) {
   }
 }
 
-function getColumnInfo({ isNullable, isIdentity, columnName, dataType, charMaxLength }) {
+function getColumnInfo({
+  isNullable,
+  isIdentity,
+  columnName,
+  dataType,
+  charMaxLength,
+  numericPrecision,
+  numericScale,
+}) {
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
+  if (numericPrecision && numericScale && isTypeNumeric(dataType))
+    fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
   return {
     columnName,
     dataType: fullDataType,

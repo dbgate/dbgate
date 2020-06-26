@@ -3,6 +3,30 @@ const _ = require('lodash');
 const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
+const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+
+function getColumnInfo({
+  isNullable,
+  extra,
+  columnName,
+  dataType,
+  charMaxLength,
+  numericPrecision,
+  numericScale,
+  defaultValue,
+}) {
+  let fullDataType = dataType;
+  if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
+  if (numericPrecision && numericScale && isTypeNumeric(dataType))
+    fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
+  return {
+    notNull: !isNullable,
+    autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
+    columnName,
+    dataType: fullDataType,
+    defaultValue,
+  };
+}
 
 class MySqlAnalyser extends DatabaseAnalayser {
   constructor(pool, driver) {
@@ -24,13 +48,7 @@ class MySqlAnalyser extends DatabaseAnalayser {
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({
         ...table,
-        columns: columns.rows
-          .filter((col) => col.pureName == table.pureName)
-          .map(({ isNullable, extra, ...col }) => ({
-            ...col,
-            notNull: !isNullable,
-            autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
-          })),
+        columns: columns.rows.filter((col) => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
       })),
