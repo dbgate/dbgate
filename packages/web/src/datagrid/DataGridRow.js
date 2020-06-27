@@ -152,7 +152,11 @@ function CellFormattedValue({ value }) {
     if (dateTimeRegex.test(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
     return highlightSpecialCharacters(value);
   }
-  return value;
+  if (_.isPlainObject(value)) {
+    if (_.isArray(value.data)) return <NullSpan>({value.data.length} bytes)</NullSpan>;
+    return <NullSpan>(RAW)</NullSpan>;
+  }
+  return value.toString();
 }
 
 function DataGridRow({
