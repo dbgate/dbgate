@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import { findExistingChangeSetItem } from '@dbgate/datalib';
 import InplaceEditor from './InplaceEditor';
 import { cellIsSelected } from './gridutil';
+import { isTypeLogical } from '@dbgate/tools';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
@@ -137,7 +138,7 @@ function highlightSpecialCharacters(value) {
 
 const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
 
-function CellFormattedValue({ value }) {
+function CellFormattedValue({ value, dataType }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';
@@ -153,7 +154,10 @@ function CellFormattedValue({ value }) {
     return highlightSpecialCharacters(value);
   }
   if (_.isPlainObject(value)) {
-    if (_.isArray(value.data)) return <NullSpan>({value.data.length} bytes)</NullSpan>;
+    if (_.isArray(value.data)) {
+      if (value.data.length == 1 && isTypeLogical(dataType)) return value.data[0];
+      return <NullSpan>({value.data.length} bytes)</NullSpan>;
+    }
     return <NullSpan>(RAW)</NullSpan>;
   }
   return value.toString();
@@ -245,7 +249,7 @@ function DataGridRow({
             />
           ) : (
             <>
-              <CellFormattedValue value={rowUpdated[col.uniqueName]} />
+              <CellFormattedValue value={rowUpdated[col.uniqueName]} dataType={col.dataType} />
               {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
             </>
           )}
