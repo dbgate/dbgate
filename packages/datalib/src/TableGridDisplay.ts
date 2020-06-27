@@ -81,7 +81,7 @@ export class TableGridDisplay extends GridDisplay {
     const childAlias = `${column.uniqueName}_ref`;
     if ((select.from.relations || []).find((x) => x.alias == childAlias)) return;
     const table = this.getFkTarget(column);
-    if (table) {
+    if (table && table.primaryKey) {
       select.from.relations = [
         ...(select.from.relations || []),
         {
@@ -118,7 +118,7 @@ export class TableGridDisplay extends GridDisplay {
           continue;
         }
         const table = this.getFkTarget(column);
-        if (table && table.columns && table.columns.length > 0) {
+        if (table && table.columns && table.columns.length > 0 && table.primaryKey) {
           const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
           if (hintColumn) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');

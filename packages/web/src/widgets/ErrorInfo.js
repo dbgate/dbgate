@@ -1,6 +1,7 @@
 import React from 'react';
 
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -11,14 +12,13 @@ const Container = styled.div`
 const Icon = styled.div`
   font-size: 20pt;
   margin: 10px;
-  color: red;
 `;
 
-export default function ErrorInfo({ message }) {
+export default function ErrorInfo({ message, icon = 'fas fa-times-circle red' }) {
   return (
     <Container>
       <Icon>
-        <i className="fas fa-times-circle" />
+        <FontIcon icon={icon} />
       </Icon>
       {message}
     </Container>

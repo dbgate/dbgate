@@ -131,7 +131,7 @@ function SqlObjectListWrapper() {
     return (
       <>
         <WidgetTitle>Tables, views, functions</WidgetTitle>
-        <ErrorInfo message="Database not selected" />
+        <ErrorInfo message="Database not selected" icon="fas fa-exclamation-circle blue" />
       </>
     );
   }

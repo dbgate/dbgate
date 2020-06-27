@@ -20,7 +20,7 @@ function getColumnInfo({
   if (numericPrecision && numericScale && isTypeNumeric(dataType))
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
   return {
-    notNull: !isNullable,
+    notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
     autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
     columnName,
     dataType: fullDataType,

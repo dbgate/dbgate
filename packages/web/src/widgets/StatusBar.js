@@ -42,7 +42,7 @@ export default function StatusBar() {
         </Item>
       )}
 
-      {status && (
+      {connection && status && (
         <Item>
           {status.name == 'pending' && (
             <>
@@ -59,6 +59,13 @@ export default function StatusBar() {
               <FontIcon icon="fas fa-times-circle red" /> Error
             </>
           )}
+        </Item>
+      )}
+      {!connection && (
+        <Item>
+          <>
+            <FontIcon icon="fas fa-plug gray" /> Not connected
+          </>
         </Item>
       )}
     </Container>
