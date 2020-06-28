@@ -62,6 +62,26 @@ class MySqlAnalyser extends DatabaseAnalayser {
     return res;
   }
 
+  getRequestedViewNames(allViewNames) {
+    if (this.singleObjectFilter) {
+      const { typeField, pureName } = this.singleObjectFilter;
+      if (typeField == 'views') return [pureName];
+    }
+    if (this.modifications) {
+      return this.modifications.filter((x) => x.objectTypeField == 'views').map((x) => x.newName);
+    }
+    return allViewNames;
+  }
+
+  async getViewTexts(allViewNames) {
+    const res = {};
+    for (const viewName of this.getRequestedViewNames(allViewNames)) {
+      const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
+      res[viewName] = resp.rows[0]['Create View'];
+    }
+    return res;
+  }
+
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tables'));
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
@@ -69,6 +89,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys'));
     const views = await this.driver.query(this.pool, this.createQuery('views'));
     const programmables = await this.driver.query(this.pool, this.createQuery('programmables'));
+
+    const viewTexts = await this.getViewTexts(views.rows.map((x) => x.pureName));
 
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({
@@ -80,6 +102,7 @@ class MySqlAnalyser extends DatabaseAnalayser {
       views: views.rows.map((view) => ({
         ...view,
         columns: columns.rows.filter((col) => col.pureName == view.pureName).map(getColumnInfo),
+        createSql: viewTexts[view.pureName],
       })),
       procedures: programmables.rows.filter((x) => x.objectType == 'PROCEDURE').map(fp.omit(['objectType'])),
       functions: programmables.rows.filter((x) => x.objectType == 'FUNCTION').map(fp.omit(['objectType'])),

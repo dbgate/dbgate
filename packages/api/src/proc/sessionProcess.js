@@ -97,7 +97,8 @@ class StreamHandler {
   }
   row(row) {
     // console.log('ACCEPT ROW', row);
-    this.currentWriter.row(row);
+    if (this.currentWriter) this.currentWriter.row(row);
+    else if (row.message) process.send({ msgtype: 'info', info: { message: row.message } });
     // this.onRow(this.jslid);
   }
   // error(error) {
