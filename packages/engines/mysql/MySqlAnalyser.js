@@ -68,7 +68,7 @@ class MySqlAnalyser extends DatabaseAnalayser {
       if (typeField == 'views') return [pureName];
     }
     if (this.modifications) {
-      return this.modifications.filter((x) => x.objectTypeField == 'views').map((x) => x.newName);
+      return this.modifications.filter((x) => x.objectTypeField == 'views').map((x) => x.newName.pureName);
     }
     return allViewNames;
   }
@@ -157,6 +157,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
         pureName: x.Name,
       })),
     ]);
+
+    // console.log('allModifications', allModifications);
     // console.log('MOD - SRC', modifications);
     // console.log(
     //   'MODs',
