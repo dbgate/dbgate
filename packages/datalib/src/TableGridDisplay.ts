@@ -40,7 +40,7 @@ export class TableGridDisplay extends GridDisplay {
     }
   }
 
-  findTable({ schemaName, pureName }) {
+  findTable({ schemaName = undefined, pureName }) {
     return (
       this.dbinfo &&
       this.dbinfo.tables &&

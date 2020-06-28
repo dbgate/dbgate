@@ -4,7 +4,7 @@ import { NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
 
 export interface ChangeSetItem {
   pureName: string;
-  schemaName: string;
+  schemaName?: string;
   insertedRowIndex?: number;
   condition?: { [column: string]: string };
   fields?: { [column: string]: string };

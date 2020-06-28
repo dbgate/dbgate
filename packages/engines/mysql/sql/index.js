@@ -5,6 +5,8 @@ const foreignKeys = require('./foreignKeys');
 const tableModifications = require('./tableModifications');
 const views = require('./views');
 const programmables = require('./programmables');
+const procedureModifications = require('./procedureModifications');
+const functionModifications = require('./functionModifications');
 
 module.exports = {
   columns,
@@ -14,4 +16,6 @@ module.exports = {
   tableModifications,
   views,
   programmables,
+  procedureModifications,
+  functionModifications,
 };

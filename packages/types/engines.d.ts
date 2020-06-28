@@ -48,7 +48,7 @@ export interface EngineDriver {
 export interface DatabaseModification {
   oldName?: NamedObjectInfo;
   newName?: NamedObjectInfo;
-  objectId: string;
+  objectId?: string;
   action: 'add' | 'remove' | 'change';
   objectTypeField: keyof DatabaseInfo;
 }

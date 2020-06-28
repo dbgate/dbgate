@@ -1,6 +1,6 @@
 export interface NamedObjectInfo {
   pureName: string;
-  schemaName: string;
+  schemaName?: string;
 }
 
 export interface ColumnReference {

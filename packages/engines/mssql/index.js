@@ -206,7 +206,7 @@ const driver = {
   },
   async analyseSingleObject(pool, name, typeField = 'tables') {
     const analyser = new MsSqlAnalyser(pool, this);
-    analyser.singleObjectFilter = { name, typeField };
+    analyser.singleObjectFilter = { ...name, typeField };
     const res = await analyser.fullAnalysis();
     return res.tables[0];
   },

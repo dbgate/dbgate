@@ -52,19 +52,19 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.singleObjectId = null;
   }
 
-  createQuery(resFileName, filterIdObjects) {
+  createQuery(resFileName, typeFields) {
     let res = sql[resFileName];
     if (this.singleObjectFilter) {
       const { typeField } = this.singleObjectFilter;
       if (!this.singleObjectId) return null;
-      if (!filterIdObjects || !filterIdObjects.includes(typeField)) return null;
+      if (!typeFields || !typeFields.includes(typeField)) return null;
       return res.replace('=[OBJECT_ID_CONDITION]', ` = ${this.singleObjectId}`);
     }
-    if (!this.modifications || !filterIdObjects || this.modifications.length == 0) {
+    if (!this.modifications || !typeFields || this.modifications.length == 0) {
       res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
     } else {
       const filterIds = this.modifications
-        .filter((x) => filterIdObjects.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
+        .filter((x) => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
         .map((x) => x.objectId);
       if (filterIds.length == 0) {
         res = res.replace('=[OBJECT_ID_CONDITION]', ' = 0');
@@ -77,8 +77,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async getSingleObjectId() {
     if (this.singleObjectFilter) {
-      const { name, typeField } = this.singleObjectFilter;
-      const { schemaName, pureName } = name;
+      const { schemaName, pureName, typeField } = this.singleObjectFilter;
       const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
       const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
       this.singleObjectId = resId.rows[0].id;
