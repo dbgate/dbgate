@@ -178,6 +178,13 @@ export default function QueryTab({
     });
   };
 
+  const handleKill = () => {
+    axios.post('sessions/cancel', {
+      sesid: sessionId,
+    });
+    setSessionId(null);
+  };
+
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
     if (keyCode == keycodes.f5) {
       event.preventDefault();
@@ -236,6 +243,8 @@ export default function QueryTab({
             cancel={handleCancel}
             format={handleFormatCode}
             save={saveSqlFileModalState.open}
+            isConnected={!!sessionId}
+            kill={handleKill}
           />,
           toolbarPortalRef.current
         )}

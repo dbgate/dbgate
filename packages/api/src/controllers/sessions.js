@@ -105,6 +105,16 @@ module.exports = {
     return { state: 'ok' };
   },
 
+  kill_meta: 'post',
+  async kill({ sesid }) {
+    const session = this.opened.find((x) => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    session.subprocess.kill();
+    return { state: 'ok' };
+  },
+
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);

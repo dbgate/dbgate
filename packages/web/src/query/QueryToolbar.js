@@ -1,7 +1,7 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function QueryToolbar({ execute, cancel, isDatabaseDefined, busy, save, format }) {
+export default function QueryToolbar({ execute, cancel, isDatabaseDefined, busy, save, format, isConnected, kill }) {
   return (
     <>
       <ToolbarButton disabled={!isDatabaseDefined || busy} onClick={execute} icon="fas fa-play">
@@ -9,6 +9,9 @@ export default function QueryToolbar({ execute, cancel, isDatabaseDefined, busy,
       </ToolbarButton>
       <ToolbarButton disabled={!busy} onClick={cancel} icon="fas fa-times">
         Cancel
+      </ToolbarButton>
+      <ToolbarButton disabled={!isConnected} onClick={kill} icon="fas fa-times">
+        Kill
       </ToolbarButton>
       <ToolbarButton onClick={save} icon="fas fa-save">
         Save
