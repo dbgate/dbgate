@@ -103,6 +103,7 @@ class MySqlAnalyser extends DatabaseAnalayser {
         ...view,
         columns: columns.rows.filter((col) => col.pureName == view.pureName).map(getColumnInfo),
         createSql: viewTexts[view.pureName],
+        requiresFormat: true,
       })),
       procedures: programmables.rows.filter((x) => x.objectType == 'PROCEDURE').map(fp.omit(['objectType'])),
       functions: programmables.rows.filter((x) => x.objectType == 'FUNCTION').map(fp.omit(['objectType'])),

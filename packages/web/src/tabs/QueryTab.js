@@ -39,7 +39,10 @@ function useSqlTemplate(sqlTemplate, props) {
     }
     if (sqlTemplate == 'CREATE OBJECT') {
       const objectInfo = await getSqlObjectInfo(props);
-      if (objectInfo) setSql(objectInfo.createSql);
+      if (objectInfo) {
+        if (objectInfo.requiresFormat) setSql(sqlFormatter.format(objectInfo.createSql));
+        else setSql(objectInfo.createSql);
+      }
     }
     if (sqlTemplate == 'EXECUTE PROCEDURE') {
       const procedureInfo = await getSqlObjectInfo(props);
