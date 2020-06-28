@@ -44,6 +44,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
     const columns = await this.driver.query(this.pool, this.createQuery('columns'));
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys'));
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys'));
+    const views = await this.driver.query(this.pool, this.createQuery('views'));
+    const programmables = await this.driver.query(this.pool, this.createQuery('programmables'));
 
     return this.mergeAnalyseResult({
       tables: tables.rows.map((table) => ({
@@ -52,6 +54,12 @@ class MySqlAnalyser extends DatabaseAnalayser {
         primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
       })),
+      views: views.rows.map((view) => ({
+        ...view,
+        columns: columns.rows.filter((col) => col.pureName == view.pureName).map(getColumnInfo),
+      })),
+      procedures: programmables.rows.filter((x) => x.objectType == 'PROCEDURE').map(fp.omit(['objectType'])),
+      functions: programmables.rows.filter((x) => x.objectType == 'FUNCTION').map(fp.omit(['objectType'])),
     });
   }
 }
