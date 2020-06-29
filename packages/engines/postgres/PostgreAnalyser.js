@@ -51,6 +51,7 @@ class PostgreAnalyser extends DatabaseAnalayser {
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
     // console.log('PG fkColumns', fkColumns.rows);
 
     return this.mergeAnalyseResult({
@@ -68,6 +69,8 @@ class PostgreAnalyser extends DatabaseAnalayser {
           .filter((col) => col.pureName == view.pureName && col.schemaName == view.schemaName)
           .map(getColumnInfo),
       })),
+      procedures: routines.rows.filter((x) => x.objectType == 'PROCEDURE'),
+      functions: routines.rows.filter((x) => x.objectType == 'FUNCTION'),
     });
   }
 }
