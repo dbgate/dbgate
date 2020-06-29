@@ -118,6 +118,16 @@ const driver = {
     const analyser = new MySqlAnalyser(pool, this);
     return analyser.incrementalAnalysis(structure);
   },
+  async analyseSingleObject(pool, name, typeField = 'tables') {
+    const analyser = new MySqlAnalyser(pool, this);
+    analyser.singleObjectFilter = { ...name, typeField };
+    const res = await analyser.fullAnalysis();
+    return res.tables[0];
+  },
+  // @ts-ignore
+  analyseSingleTable(pool, name) {
+    return this.analyseSingleObject(pool, name, 'tables');
+  },
   async listDatabases(connection) {
     const { rows } = await this.query(connection, 'show databases');
     return rows.map((x) => ({ name: x.Database }));

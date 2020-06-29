@@ -147,12 +147,12 @@ class MySqlAnalyser extends DatabaseAnalayser {
         if (x.objectType == 'VIEW') return { ...x, objectTypeField: 'views' };
         return null;
       }),
-      procedureModificationsQueryData.rows.map((x) => ({
+      ...procedureModificationsQueryData.rows.map((x) => ({
         objectTypeField: 'procedures',
         modifyDate: x.Modified,
         pureName: x.Name,
       })),
-      functionModificationsQueryData.rows.map((x) => ({
+      ...functionModificationsQueryData.rows.map((x) => ({
         objectTypeField: 'functions',
         modifyDate: x.Modified,
         pureName: x.Name,
@@ -160,6 +160,10 @@ class MySqlAnalyser extends DatabaseAnalayser {
     ]);
 
     // console.log('allModifications', allModifications);
+    // console.log(
+    //   'DATES',
+    //   this.structure.procedures.map((x) => x.modifyDate)
+    // );
     // console.log('MOD - SRC', modifications);
     // console.log(
     //   'MODs',
@@ -175,6 +179,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
 
       // object not modified
       if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
+
+      // console.log('MODIFICATION OF ', field, pureName, modifyDate, obj.modifyDate);
 
       /** @type {import('@dbgate/types').DatabaseModification} */
       const action = obj
