@@ -20,7 +20,7 @@ SELECT oid as "objectId", nspname as "schemaName", relname as "pureName",
       '    ' || column_name || ' ' ||  type || ' '|| not_null
     )
     , E',\\n'
-  ) || E'\\n);\\n' || (select pkey from pkey where pkey.conrelid = oid)) as "hash"
+  ) || E'\\n);\\n' || (select pkey from pkey where pkey.conrelid = oid)) as "hashCode"
 from
 (
   SELECT 

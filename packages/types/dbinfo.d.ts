@@ -45,6 +45,7 @@ export interface DatabaseObjectInfo extends NamedObjectInfo {
   objectId?: string;
   createDate?: string;
   modifyDate?: string;
+  hashCode?: string;
 }
 
 export interface SqlObjectInfo extends DatabaseObjectInfo {

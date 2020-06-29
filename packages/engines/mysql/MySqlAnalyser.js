@@ -83,12 +83,15 @@ class MySqlAnalyser extends DatabaseAnalayser {
   }
 
   async _runAnalysis() {
-    const tables = await this.driver.query(this.pool, this.createQuery('tables'));
-    const columns = await this.driver.query(this.pool, this.createQuery('columns'));
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys'));
-    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys'));
-    const views = await this.driver.query(this.pool, this.createQuery('views'));
-    const programmables = await this.driver.query(this.pool, this.createQuery('programmables'));
+    const tables = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const programmables = await this.driver.query(
+      this.pool,
+      this.createQuery('programmables', ['procedures', 'functions'])
+    );
 
     const viewTexts = await this.getViewTexts(views.rows.map((x) => x.pureName));
 
