@@ -35,17 +35,16 @@ module.exports = {
     });
   },
 
-  readLine(jslid) {
-    if (!this.openedReaders[jslid]) return Promise.reject();
+  readLine(readerInfo) {
     return new Promise((resolve, reject) => {
-      const { reader } = this.openedReaders[jslid];
+      const { reader } = readerInfo;
       if (!reader.hasNextLine()) {
         resolve(null);
         return;
       }
       reader.nextLine((err, line) => {
-        if (this.openedReaders[jslid].readedSchemaRow) this.openedReaders[jslid].readedDataRowCount += 1;
-        else this.openedReaders[jslid].readedSchemaRow = true;
+        if (readerInfo.readedSchemaRow) readerInfo.readedDataRowCount += 1;
+        else readerInfo.readedSchemaRow = true;
         if (err) reject(err);
         resolve(line);
       });
@@ -62,12 +61,14 @@ module.exports = {
     return new Promise((resolve, reject) =>
       lineReader.open(file, (err, reader) => {
         if (err) reject(err);
-        resolve();
-        this.openedReaders[jslid] = {
+        const readerInfo = {
           reader,
           readedDataRowCount: 0,
           readedSchemaRow: false,
+          isReading: true,
         };
+        this.openedReaders[jslid] = readerInfo;
+        resolve(readerInfo);
       })
     );
   },
@@ -76,15 +77,18 @@ module.exports = {
     if (this.openedReaders[jslid] && this.openedReaders[jslid].readedDataRowCount > offset) {
       await this.closeReader(jslid);
     }
+    let readerInfo = this.openedReaders[jslid];
     if (!this.openedReaders[jslid]) {
-      await this.openReader(jslid);
+      readerInfo = await this.openReader(jslid);
     }
-    if (!this.openedReaders[jslid].readedSchemaRow) {
-      await this.readLine(jslid); // skip structure
+    readerInfo.isReading = true;
+    if (!readerInfo.readedSchemaRow) {
+      await this.readLine(readerInfo); // skip structure
     }
-    while (this.openedReaders[jslid].readedDataRowCount < offset) {
-      await this.readLine(jslid);
+    while (readerInfo.readedDataRowCount < offset) {
+      await this.readLine(readerInfo);
     }
+    return readerInfo;
   },
 
   getInfo_meta: 'get',
@@ -97,12 +101,18 @@ module.exports = {
 
   getRows_meta: 'get',
   async getRows({ jslid, offset, limit }) {
-    await this.ensureReader(jslid, offset);
+    const readerInfo = await this.ensureReader(jslid, offset);
     const res = [];
     for (let i = 0; i < limit; i += 1) {
-      const line = await this.readLine(jslid);
+      const line = await this.readLine(readerInfo);
       if (line == null) break;
       res.push(JSON.parse(line));
+    }
+    readerInfo.isReading = false;
+    if (readerInfo.closeAfterReadAndSendStats) {
+      await this.closeReader(jslid);
+      socket.emit(`jsldata-stats-${jslid}`, readerInfo.closeAfterReadAndSendStats);
+      readerInfo.closeAfterReadAndSendStats = null;
     }
     return res;
   },
@@ -115,7 +125,12 @@ module.exports = {
 
   async notifyChangedStats(stats) {
     console.log('SENDING STATS', JSON.stringify(stats));
-    await this.closeReader(stats.jslid);
-    socket.emit(`jsldata-stats-${stats.jslid}`, stats);
+    const readerInfo = this.openedReaders[stats.jslid];
+    if (readerInfo && readerInfo.isReading) {
+      readerInfo.closeAfterReadAndSendStats = stats;
+    } else {
+      await this.closeReader(stats.jslid);
+      socket.emit(`jsldata-stats-${stats.jslid}`, stats);
+    }
   },
 };

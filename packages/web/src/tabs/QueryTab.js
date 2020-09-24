@@ -182,10 +182,11 @@ export default function QueryTab({
   };
 
   const handleKill = () => {
-    axios.post('sessions/cancel', {
+    axios.post('sessions/kill', {
       sesid: sessionId,
     });
     setSessionId(null);
+    setBusy(false);
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
