@@ -211,6 +211,7 @@ export default function DataGridCore(props) {
     allRowCount: null,
     errorMessage: null,
     jslStatsCounter: 0,
+    jslChangeIndex: 0,
   });
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
 
@@ -381,6 +382,7 @@ export default function DataGridCore(props) {
       loadedTime: new Date().getTime(),
       errorMessage: null,
       jslStatsCounter: 0,
+      jslChangeIndex: 0,
     });
   };
 
@@ -421,11 +423,13 @@ export default function DataGridCore(props) {
   }, [columnSizes, gridScrollAreaWidth]);
 
   const handleJslDataStats = React.useCallback((stats) => {
+    if (stats.changeIndex < loadProps.jslChangeIndex) return;
     setLoadProps((oldProps) => ({
       ...oldProps,
       allRowCount: stats.rowCount,
       isLoadedAll: false,
       jslStatsCounter: oldProps.jslStatsCounter + 1,
+      jslChangeIndex: stats.changeIndex,
     }));
   }, []);
 
