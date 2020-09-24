@@ -59,7 +59,7 @@ const Table = styled.table`
   left: 0;
   top: 0;
   bottom: 20px;
-  right: 20px;
+  // right: 20px;
   overflow: scroll;
   border-collapse: collapse;
   outline: none;
