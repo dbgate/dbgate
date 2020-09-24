@@ -44,7 +44,8 @@ module.exports = {
         return;
       }
       reader.nextLine((err, line) => {
-        this.openedReaders[jslid].readedCount += 1;
+        if (this.openedReaders[jslid].readedSchemaRow) this.openedReaders[jslid].readedDataRowCount += 1;
+        else this.openedReaders[jslid].readedSchemaRow = true;
         if (err) reject(err);
         resolve(line);
       });
@@ -53,10 +54,10 @@ module.exports = {
 
   openReader(jslid) {
     // console.log('OPENING READER');
-    console.log(
-      'OPENING READER, LINES=',
-      fs.readFileSync(path.join(jsldir(), `${jslid}.jsonl`), 'utf-8').split('\n').length
-    );
+    // console.log(
+    //   'OPENING READER, LINES=',
+    //   fs.readFileSync(path.join(jsldir(), `${jslid}.jsonl`), 'utf-8').split('\n').length
+    // );
     const file = path.join(jsldir(), `${jslid}.jsonl`);
     return new Promise((resolve, reject) =>
       lineReader.open(file, (err, reader) => {
@@ -64,21 +65,24 @@ module.exports = {
         resolve();
         this.openedReaders[jslid] = {
           reader,
-          readedCount: 0,
+          readedDataRowCount: 0,
+          readedSchemaRow: false,
         };
       })
     );
   },
 
   async ensureReader(jslid, offset) {
-    if (this.openedReaders[jslid] && this.openedReaders[jslid].readedCount > offset) {
+    if (this.openedReaders[jslid] && this.openedReaders[jslid].readedDataRowCount > offset) {
       await this.closeReader(jslid);
     }
     if (!this.openedReaders[jslid]) {
       await this.openReader(jslid);
     }
-    await this.readLine(jslid); // skip structure
-    while (this.openedReaders[jslid].readedCount < offset) {
+    if (!this.openedReaders[jslid].readedSchemaRow) {
+      await this.readLine(jslid); // skip structure
+    }
+    while (this.openedReaders[jslid].readedDataRowCount < offset) {
       await this.readLine(jslid);
     }
   },
