@@ -15,7 +15,7 @@ let afterConnectCallbacks = [];
 let currentHandlers = [];
 
 class TableWriter {
-  constructor(columns) {
+  constructor(columns, resultIndex) {
     this.jslid = uuidv1();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     this.currentRowCount = 0;
@@ -23,7 +23,8 @@ class TableWriter {
     fs.writeFileSync(this.currentFile, JSON.stringify({ columns }) + '\n');
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
     this.writeCurrentStats(false, false);
-    process.send({ msgtype: 'recordset', jslid: this.jslid });
+    this.resultIndex = resultIndex;
+    process.send({ msgtype: 'recordset', jslid: this.jslid, resultIndex });
   }
 
   row(row) {
@@ -64,7 +65,7 @@ class TableWriter {
 }
 
 class StreamHandler {
-  constructor() {
+  constructor(resultIndex) {
     this.recordset = this.recordset.bind(this);
     this.row = this.row.bind(this);
     // this.error = this.error.bind(this);
@@ -73,6 +74,7 @@ class StreamHandler {
     // use this for cancelling
     this.stream = null;
     this.plannedStats = false;
+    this.resultIndex = resultIndex;
     currentHandlers = [...currentHandlers, this];
   }
 
@@ -85,7 +87,7 @@ class StreamHandler {
 
   recordset(columns) {
     this.closeCurrentWriter();
-    this.currentWriter = new TableWriter(columns);
+    this.currentWriter = new TableWriter(columns, this.resultIndex);
 
     // this.writeCurrentStats();
 
@@ -142,10 +144,12 @@ async function handleExecuteQuery({ sql }) {
   await waitConnected();
   const driver = engines(storedConnection);
 
+  let resultIndex = 0;
   for (const sqlItem of goSplit(sql)) {
-    const handler = new StreamHandler();
+    const handler = new StreamHandler(resultIndex);
     const stream = await driver.stream(systemConnection, sqlItem, handler);
     handler.stream = stream;
+    resultIndex += 1;
   }
 }
 

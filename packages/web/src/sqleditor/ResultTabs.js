@@ -1,19 +1,20 @@
 import React from 'react';
+import _ from 'lodash';
 import { TabPage, TabControl } from '../widgets/TabControl';
 import useSocket from '../utility/SocketProvider';
 import JslDataGrid from './JslDataGrid';
 
 export default function ResultTabs({ children, sessionId, executeNumber }) {
   const socket = useSocket();
-  const [resultIds, setResultIds] = React.useState([]);
+  const [resultInfos, setResultInfos] = React.useState([]);
 
   const handleResultSet = React.useCallback((props) => {
-    const { jslid } = props;
-    setResultIds((ids) => [...ids, jslid]);
+    const { jslid, resultIndex } = props;
+    setResultInfos((array) => [...array, { jslid, resultIndex }]);
   }, []);
 
   React.useEffect(() => {
-    setResultIds([]);
+    setResultInfos([]);
   }, [executeNumber]);
 
   React.useEffect(() => {
@@ -26,11 +27,11 @@ export default function ResultTabs({ children, sessionId, executeNumber }) {
   }, [sessionId, socket]);
 
   return (
-    <TabControl activePageIndex={resultIds.length > 0 ? 1 : 0}>
+    <TabControl activePageIndex={resultInfos.length > 0 ? 1 : 0}>
       {children}
-      {resultIds.map((jslid, index) => (
-        <TabPage label={`Result ${index + 1}`} key={index}>
-          <JslDataGrid jslid={jslid} />
+      {_.sortBy(resultInfos, 'resultIndex').map((info) => (
+        <TabPage label={`Result ${info.resultIndex + 1}`} key={info.jslid}>
+          <JslDataGrid jslid={info.jslid} key={info.jslid} />
         </TabPage>
       ))}
     </TabControl>

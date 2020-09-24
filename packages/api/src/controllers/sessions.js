@@ -50,8 +50,8 @@ module.exports = {
   },
 
   handle_recordset(sesid, props) {
-    const { jslid } = props;
-    socket.emit(`session-recordset-${sesid}`, { jslid });
+    const { jslid, resultIndex } = props;
+    socket.emit(`session-recordset-${sesid}`, { jslid, resultIndex });
   },
 
   handle_stats(sesid, stats) {
