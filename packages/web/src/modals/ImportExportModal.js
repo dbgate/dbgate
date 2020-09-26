@@ -1,24 +1,28 @@
 import React from 'react';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
+import { Formik, Form, useFormikContext } from 'formik';
 import styled from 'styled-components';
-import Select from 'react-select';
-import { FontIcon } from '../icons';
-import { FormButtonRow, FormSubmit } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
-import { useConnectionList, useDatabaseList } from '../utility/metadataLoaders';
 import ImportExportConfigurator from '../impexp/ImportExportConfigurator';
 import createImpExpScript from '../impexp/createImpExpScript';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
-import { Formik, Form, useFormik, useFormikContext } from 'formik';
+import RunnerOutputPane from '../query/RunnerOutputPane';
+import axios from '../utility/axios';
 
-export default function ImportExportModal({ modalState, initialValues }) {
+const OutputContainer = styled.div`
+  position: relative;
+  height: 150px;
+`;
+
+function GenerateSctriptButton({ modalState }) {
   const setOpenedTabs = useSetOpenedTabs();
+  const { values } = useFormikContext();
 
-  const handleSubmit = async (values) => {
+  const handleGenerateScript = async () => {
     const code = await createImpExpScript(values);
     openNewTab(setOpenedTabs, {
       title: 'Shell',
@@ -30,10 +34,29 @@ export default function ImportExportModal({ modalState, initialValues }) {
     });
     modalState.close();
   };
+
+  return <FormStyledButton type="button" value="Generate script" onClick={handleGenerateScript} />;
+}
+
+export default function ImportExportModal({ modalState, initialValues }) {
+  const [executeNumber, setExecuteNumber] = React.useState(0);
+  const [runnerId, setRunnerId] = React.useState(null);
+
+  const handleExecute = async (values) => {
+    const script = await createImpExpScript(values);
+
+    setExecuteNumber((num) => num + 1);
+
+    let runid = runnerId;
+    const resp = await axios.post('runners/start', { script });
+    runid = resp.data.runid;
+    setRunnerId(runid);
+  };
+
   return (
     <ModalBase modalState={modalState}>
       <Formik
-        onSubmit={handleSubmit}
+        onSubmit={handleExecute}
         initialValues={{ sourceStorageType: 'database', targetStorageType: 'csv', ...initialValues }}
       >
         <Form>
@@ -42,9 +65,15 @@ export default function ImportExportModal({ modalState, initialValues }) {
             <ImportExportConfigurator />
           </ModalContent>
           <ModalFooter>
-            <FormStyledButton type="submit" value="Generate script" />
+            <FormStyledButton type="submit" value="Run" />
+            <GenerateSctriptButton modalState={modalState} />
             <FormStyledButton type="button" value="Close" onClick={modalState.close} />
           </ModalFooter>
+          {runnerId && (
+            <OutputContainer>
+              <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber} />
+            </OutputContainer>
+          )}
         </Form>
       </Formik>
     </ModalBase>
