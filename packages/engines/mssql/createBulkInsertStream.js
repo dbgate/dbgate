@@ -1,3 +1,4 @@
+const { prepareTableForImport } = require('@dbgate/tools');
 const _ = require('lodash');
 
 /**
@@ -34,7 +35,7 @@ function createBulkInsertStream(driver, mssql, stream, pool, name, options) {
     if (options.createIfNotExists && (!structure || options.dropIfExists)) {
       console.log(`Creating table ${fullName}`);
       const dmp = driver.createDumper();
-      dmp.createTable({ ...writable.structure, ...name });
+      dmp.createTable(prepareTableForImport({ ...writable.structure, ...name }));
       console.log(dmp.s);
       await driver.query(pool, dmp.s);
       structure = await driver.analyseSingleTable(pool, name);
