@@ -4,6 +4,7 @@ const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
 const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+const { rangeStep } = require('lodash/fp');
 
 function getColumnInfo({
   isNullable,
@@ -44,7 +45,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
     if (this.singleObjectFilter) {
       const { typeField, pureName } = this.singleObjectFilter;
       if (!typeFields || !typeFields.includes(typeField)) return null;
-      return res.replace('=[OBJECT_NAME_CONDITION]', ` = ${pureName}`).replace('#DATABASE#', this.pool._database_name);
+      res = res.replace('=[OBJECT_NAME_CONDITION]', ` = '${pureName}'`).replace('#DATABASE#', this.pool._database_name);
+      return res;
     }
     if (!this.modifications || !typeFields || this.modifications.length == 0) {
       res = res.replace('=[OBJECT_NAME_CONDITION]', ' is not null');

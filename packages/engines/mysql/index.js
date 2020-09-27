@@ -34,6 +34,12 @@ const driver = {
     return connection;
   },
   async query(connection, sql) {
+    if (sql == null) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
     return new Promise((resolve, reject) => {
       connection.query(sql, function (error, results, fields) {
         if (error) reject(error);

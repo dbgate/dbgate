@@ -27,6 +27,12 @@ const driver = {
     return client;
   },
   async query(client, sql) {
+    if (sql == null) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
     const res = await client.query(sql);
     return { rows: res.rows, columns: res.fields };
   },
