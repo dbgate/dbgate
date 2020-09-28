@@ -29,6 +29,7 @@ function createBulkInsertStreamBase(driver, stream, pool, name, options) {
 
   writable.checkStructure = async () => {
     let structure = await driver.analyseSingleTable(pool, name);
+    // console.log('ANALYSING', name, structure);
     if (structure && options.dropIfExists) {
       console.log(`Dropping table ${fullNameQuoted}`);
       await driver.query(pool, `DROP TABLE ${fullNameQuoted}`);
@@ -59,7 +60,7 @@ function createBulkInsertStreamBase(driver, stream, pool, name, options) {
 
     dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
     dmp.putCollection(',', this.columnNames, (col) => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
-    dmp.putRaw('\n');
+    dmp.putRaw(')\n VALUES\n');
 
     let wasRow = false;
     for (const row of rows) {
@@ -67,7 +68,10 @@ function createBulkInsertStreamBase(driver, stream, pool, name, options) {
       dmp.putRaw('(');
       dmp.putCollection(',', this.columnNames, (col) => dmp.putValue(row[col]));
       dmp.putRaw(')');
+      wasRow = true;
     }
+    dmp.putRaw(';');
+    // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
     await driver.query(pool, dmp.s);
   };
 

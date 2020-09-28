@@ -46,7 +46,7 @@ class PostgreAnalyser extends DatabaseAnalayser {
     if (this.singleObjectFilter) {
       const { typeField, schemaName, pureName } = this.singleObjectFilter;
       if (!typeFields || !typeFields.includes(typeField)) return null;
-      res = res.replace(/=OBJECT_ID_CONDITION/g, ` = '${typeField}:${schemaName}.${pureName}'`);
+      res = res.replace(/=OBJECT_ID_CONDITION/g, ` = '${typeField}:${schemaName || 'public'}.${pureName}'`);
       return res;
     }
     if (!this.modifications || !typeFields || this.modifications.length == 0) {

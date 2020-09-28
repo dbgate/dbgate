@@ -6,7 +6,7 @@ const MySqlDumper = require('./MySqlDumper');
 const dialect = {
   rangeSelect: true,
   stringEscapeChar: '\\',
-  fallbackDataType: 'nvarchar(max)',
+  fallbackDataType: 'longtext',
   quoteIdentifier(s) {
     return '`' + s + '`';
   },

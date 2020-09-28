@@ -21,7 +21,7 @@ module.exports = {
   opened: [],
 
   dispatchMessage(runid, message) {
-    console.log('DISPATCHING', message);
+    // console.log('DISPATCHING', message);
     if (_.isString(message)) {
       socket.emit(`runner-info-${runid}`, {
         message,

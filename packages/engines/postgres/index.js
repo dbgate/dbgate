@@ -6,8 +6,9 @@ const PostgreDumper = require('./PostgreDumper');
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
-  stringEscapeChar: '\\',
-  fallbackDataType: 'nvarchar(max)',
+  // stringEscapeChar: '\\',
+  stringEscapeChar: "'",
+  fallbackDataType: 'varchar',
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
