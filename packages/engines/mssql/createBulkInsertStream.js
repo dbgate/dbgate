@@ -1,5 +1,3 @@
-const { prepareTableForImport } = require('@dbgate/tools');
-const _ = require('lodash');
 const createBulkInsertStreamBase = require('../default/createBulkInsertStreamBase');
 
 /**
@@ -12,6 +10,15 @@ function createBulkInsertStream(driver, mssql, stream, pool, name, options) {
   const fullName = name.schemaName ? `[${name.schemaName}].[${name.pureName}]` : name.pureName;
 
   writable.send = async () => {
+    if (!writable.templateColumns) {
+      const fullNameQuoted = name.schemaName
+        ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
+        : driver.dialect.quoteIdentifier(name.pureName);
+
+      const respTemplate = await pool.request().query(`SELECT * FROM ${fullNameQuoted} WHERE 1=0`);
+      writable.templateColumns = respTemplate.recordset.toTable().columns;
+    }
+
     const rows = writable.buffer;
     writable.buffer = [];
     const table = new mssql.Table(fullName);

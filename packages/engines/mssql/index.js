@@ -2,7 +2,7 @@ const _ = require('lodash');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
 const MsSqlDumper = require('./MsSqlDumper');
 const createBulkInsertStream = require('./createBulkInsertStream');
-const { analyseSingleObject } = require('../mysql');
+const driverBase = require('../default/driverBase');
 
 /** @type {import('@dbgate/types').SqlDialect} */
 const dialect = {
@@ -53,6 +53,9 @@ function extractColumns(columns) {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
+  ...driverBase,
+  analyserClass: MsSqlAnalyser,
+  dumperClass: MsSqlDumper,
   async connect(nativeModules, { server, port, user, password, database }) {
     const pool = new nativeModules.mssql.ConnectionPool({
       server,
@@ -199,27 +202,6 @@ const driver = {
   async listDatabases(pool) {
     const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
     return rows;
-  },
-  async analyseFull(pool) {
-    const analyser = new MsSqlAnalyser(pool, this);
-    return analyser.fullAnalysis();
-  },
-  async analyseSingleObject(pool, name, typeField = 'tables') {
-    const analyser = new MsSqlAnalyser(pool, this);
-    analyser.singleObjectFilter = { ...name, typeField };
-    const res = await analyser.fullAnalysis();
-    return res.tables[0];
-  },
-  // @ts-ignore
-  analyseSingleTable(pool, name) {
-    return this.analyseSingleObject(pool, name, 'tables');
-  },
-  async analyseIncremental(pool, structure) {
-    const analyser = new MsSqlAnalyser(pool, this);
-    return analyser.incrementalAnalysis(structure);
-  },
-  createDumper() {
-    return new MsSqlDumper(this);
   },
   dialect,
   engine: 'mssql',

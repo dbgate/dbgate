@@ -1,3 +1,4 @@
+const driverBase = require('../default/driverBase');
 const MySqlAnalyser = require('./MySqlAnalyser');
 const MySqlDumper = require('./MySqlDumper');
 
@@ -21,6 +22,10 @@ function extractColumns(fields) {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
+  ...driverBase,
+  analyserClass: MySqlAnalyser,
+  dumperClass: MySqlDumper,
+
   async connect(nativeModules, { server, port, user, password, database }) {
     const connection = nativeModules.mysql.createConnection({
       host: server,
@@ -116,31 +121,31 @@ const driver = {
     const version = rows[0].Value;
     return { version };
   },
-  async analyseFull(pool) {
-    const analyser = new MySqlAnalyser(pool, this);
-    return analyser.fullAnalysis();
-  },
-  async analyseIncremental(pool, structure) {
-    const analyser = new MySqlAnalyser(pool, this);
-    return analyser.incrementalAnalysis(structure);
-  },
-  async analyseSingleObject(pool, name, typeField = 'tables') {
-    const analyser = new MySqlAnalyser(pool, this);
-    analyser.singleObjectFilter = { ...name, typeField };
-    const res = await analyser.fullAnalysis();
-    return res.tables[0];
-  },
-  // @ts-ignore
-  analyseSingleTable(pool, name) {
-    return this.analyseSingleObject(pool, name, 'tables');
-  },
+  // async analyseFull(pool) {
+  //   const analyser = new MySqlAnalyser(pool, this);
+  //   return analyser.fullAnalysis();
+  // },
+  // async analyseIncremental(pool, structure) {
+  //   const analyser = new MySqlAnalyser(pool, this);
+  //   return analyser.incrementalAnalysis(structure);
+  // },
+  // async analyseSingleObject(pool, name, typeField = 'tables') {
+  //   const analyser = new MySqlAnalyser(pool, this);
+  //   analyser.singleObjectFilter = { ...name, typeField };
+  //   const res = await analyser.fullAnalysis();
+  //   return res.tables[0];
+  // },
+  // // @ts-ignore
+  // analyseSingleTable(pool, name) {
+  //   return this.analyseSingleObject(pool, name, 'tables');
+  // },
   async listDatabases(connection) {
     const { rows } = await this.query(connection, 'show databases');
     return rows.map((x) => ({ name: x.Database }));
   },
-  createDumper() {
-    return new MySqlDumper(this);
-  },
+  // createDumper() {
+  //   return new MySqlDumper(this);
+  // },
   dialect,
   engine: 'mysql',
 };

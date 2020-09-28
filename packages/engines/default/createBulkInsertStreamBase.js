@@ -45,14 +45,30 @@ function createBulkInsertStreamBase(driver, stream, pool, name, options) {
       await driver.query(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
     }
 
-    const respTemplate = await pool.request().query(`SELECT * FROM ${fullNameQuoted} WHERE 1=0`);
-    writable.templateColumns = respTemplate.recordset.toTable().columns;
-    // console.log('writable.templateColumns', writable.templateColumns);
-
     this.columnNames = _.intersection(
       structure.columns.map((x) => x.columnName),
       writable.structure.columns.map((x) => x.columnName)
     );
+  };
+
+  writable.send = async () => {
+    const rows = writable.buffer;
+    writable.buffer = [];
+
+    const dmp = driver.createDumper();
+
+    dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
+    dmp.putCollection(',', this.columnNames, (col) => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
+    dmp.putRaw('\n');
+
+    let wasRow = false;
+    for (const row of rows) {
+      if (wasRow) dmp.putRaw(',\n');
+      dmp.putRaw('(');
+      dmp.putCollection(',', this.columnNames, (col) => dmp.putValue(row[col]));
+      dmp.putRaw(')');
+    }
+    await driver.query(pool, dmp.s);
   };
 
   writable.sendIfFull = async () => {

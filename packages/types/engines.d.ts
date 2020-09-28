@@ -43,6 +43,9 @@ export interface EngineDriver {
   analyseIncremental(pool: any, structure: DatabaseInfo): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   createDumper(): SqlDumper;
+
+  analyserClass?: any;
+  dumperClass?: any;
 }
 
 export interface DatabaseModification {

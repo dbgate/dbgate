@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const driverBase = require('../default/driverBase');
 const PostgreAnalyser = require('./PostgreAnalyser');
 const PostgreDumper = require('./PostgreDumper');
 
@@ -14,6 +15,10 @@ const dialect = {
 
 /** @type {import('@dbgate/types').EngineDriver} */
 const driver = {
+  ...driverBase,
+  analyserClass: PostgreAnalyser,
+  dumperClass: PostgreDumper,
+
   async connect(nativeModules, { server, port, user, password, database }) {
     const client = new nativeModules.pg.Client({
       host: server,
@@ -97,29 +102,29 @@ const driver = {
 
     return stream;
   },
-  async analyseSingleObject(pool, name, typeField = 'tables') {
-    const analyser = new PostgreAnalyser(pool, this);
-    analyser.singleObjectFilter = { ...name, typeField };
-    const res = await analyser.fullAnalysis();
-    return res.tables[0];
-  },
-  // @ts-ignore
-  analyseSingleTable(pool, name) {
-    return this.analyseSingleObject(pool, name, 'tables');
-  },
+  // async analyseSingleObject(pool, name, typeField = 'tables') {
+  //   const analyser = new PostgreAnalyser(pool, this);
+  //   analyser.singleObjectFilter = { ...name, typeField };
+  //   const res = await analyser.fullAnalysis();
+  //   return res.tables[0];
+  // },
+  // // @ts-ignore
+  // analyseSingleTable(pool, name) {
+  //   return this.analyseSingleObject(pool, name, 'tables');
+  // },
   async getVersion(client) {
     const { rows } = await this.query(client, 'SELECT version()');
     const { version } = rows[0];
     return { version };
   },
-  async analyseFull(pool) {
-    const analyser = new PostgreAnalyser(pool, this);
-    return analyser.fullAnalysis();
-  },
-  async analyseIncremental(pool, structure) {
-    const analyser = new PostgreAnalyser(pool, this);
-    return analyser.incrementalAnalysis(structure);
-  },
+  // async analyseFull(pool) {
+  //   const analyser = new PostgreAnalyser(pool, this);
+  //   return analyser.fullAnalysis();
+  // },
+  // async analyseIncremental(pool, structure) {
+  //   const analyser = new PostgreAnalyser(pool, this);
+  //   return analyser.incrementalAnalysis(structure);
+  // },
   async readQuery(client, sql, structure) {
     const query = new client._nativeModules.pgQueryStream(sql);
     const { stream } = client._nativeModules;
@@ -165,9 +170,9 @@ const driver = {
 
     return pass;
   },
-  createDumper() {
-    return new PostgreDumper(this);
-  },
+  // createDumper() {
+  //   return new PostgreDumper(this);
+  // },
   async listDatabases(client) {
     const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
