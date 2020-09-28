@@ -53,7 +53,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
     } else {
       const filterNames = this.modifications
         .filter((x) => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-        .map((x) => x.objectId);
+        .map((x) => x.newName && x.newName.pureName)
+        .filter(Boolean);
       if (filterNames.length == 0) {
         res = res.replace('=[OBJECT_NAME_CONDITION]', ' IS NULL');
       } else {
@@ -97,22 +98,25 @@ class MySqlAnalyser extends DatabaseAnalayser {
 
     const viewTexts = await this.getViewTexts(views.rows.map((x) => x.pureName));
 
-    return this.mergeAnalyseResult({
-      tables: tables.rows.map((table) => ({
-        ...table,
-        columns: columns.rows.filter((col) => col.pureName == table.pureName).map(getColumnInfo),
-        primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
-        foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
-      })),
-      views: views.rows.map((view) => ({
-        ...view,
-        columns: columns.rows.filter((col) => col.pureName == view.pureName).map(getColumnInfo),
-        createSql: viewTexts[view.pureName],
-        requiresFormat: true,
-      })),
-      procedures: programmables.rows.filter((x) => x.objectType == 'PROCEDURE').map(fp.omit(['objectType'])),
-      functions: programmables.rows.filter((x) => x.objectType == 'FUNCTION').map(fp.omit(['objectType'])),
-    });
+    return this.mergeAnalyseResult(
+      {
+        tables: tables.rows.map((table) => ({
+          ...table,
+          columns: columns.rows.filter((col) => col.pureName == table.pureName).map(getColumnInfo),
+          primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
+          foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
+        })),
+        views: views.rows.map((view) => ({
+          ...view,
+          columns: columns.rows.filter((col) => col.pureName == view.pureName).map(getColumnInfo),
+          createSql: viewTexts[view.pureName],
+          requiresFormat: true,
+        })),
+        procedures: programmables.rows.filter((x) => x.objectType == 'PROCEDURE').map(fp.omit(['objectType'])),
+        functions: programmables.rows.filter((x) => x.objectType == 'FUNCTION').map(fp.omit(['objectType'])),
+      },
+      (x) => x.pureName
+    );
   }
 
   getDeletedObjectsForField(nameArray, objectTypeField) {

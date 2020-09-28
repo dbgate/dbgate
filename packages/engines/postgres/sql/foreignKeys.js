@@ -19,6 +19,6 @@ where
 		base.table_schema <> 'information_schema' 
 		and base.table_schema <> 'pg_catalog' 
 		and base.table_schema !~ '^pg_toast' 
-		and 'table:' || base.table_schema || '.' || base.table_name =[OBJECT_ID_CONDITION]
+		and 'tables:' || base.table_schema || '.' || base.table_name =OBJECT_ID_CONDITION
 order by basecol.ordinal_position
 `;

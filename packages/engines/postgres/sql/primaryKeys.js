@@ -12,6 +12,6 @@ where
 		and table_constraints.table_schema <> 'pg_catalog' 
 		and table_constraints.table_schema !~ '^pg_toast' 
 		and table_constraints.constraint_type = 'PRIMARY KEY'
-		and 'table:' || table_constraints.table_schema || '.' || table_constraints.table_name =[OBJECT_ID_CONDITION]
+		and 'tables:' || table_constraints.table_schema || '.' || table_constraints.table_name =OBJECT_ID_CONDITION
 order by key_column_usage.ordinal_position
 `;

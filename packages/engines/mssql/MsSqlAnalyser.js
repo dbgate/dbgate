@@ -137,13 +137,16 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         createSql: getCreateSql(row),
       }));
 
-    return this.mergeAnalyseResult({
-      tables,
-      views,
-      procedures,
-      functions,
-      schemas,
-    });
+    return this.mergeAnalyseResult(
+      {
+        tables,
+        views,
+        procedures,
+        functions,
+        schemas,
+      },
+      (x) => x.objectId
+    );
   }
 
   getDeletedObjectsForField(idArray, objectTypeField) {

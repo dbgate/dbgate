@@ -20,7 +20,7 @@ SELECT oid as "objectId", nspname as "schemaName", relname as "pureName",
       '    ' || column_name || ' ' ||  type || ' '|| not_null
     )
     , E',\\n'
-  ) || E'\\n);\\n' || (select pkey from pkey where pkey.conrelid = oid)) as "hashCode"
+  ) || E'\\n);\\n' || coalesce((select pkey from pkey where pkey.conrelid = oid),'NO_PK')) as "hashCode"
 from
 (
   SELECT 
@@ -47,6 +47,6 @@ from
     AND n.nspname !~ '^pg_toast'
  ORDER BY a.attnum
 ) as tabledefinition
-where 'table:' || nspname || '.' ||  relname =[OBJECT_ID_CONDITION]
+where ('tables:' || nspname || '.' ||  relname) =OBJECT_ID_CONDITION
 group by relname, nspname, oid
 `;

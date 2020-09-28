@@ -97,6 +97,16 @@ const driver = {
 
     return stream;
   },
+  async analyseSingleObject(pool, name, typeField = 'tables') {
+    const analyser = new PostgreAnalyser(pool, this);
+    analyser.singleObjectFilter = { ...name, typeField };
+    const res = await analyser.fullAnalysis();
+    return res.tables[0];
+  },
+  // @ts-ignore
+  analyseSingleTable(pool, name) {
+    return this.analyseSingleObject(pool, name, 'tables');
+  },
   async getVersion(client) {
     const { rows } = await this.query(client, 'SELECT version()');
     const { version } = rows[0];
