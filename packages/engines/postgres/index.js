@@ -120,6 +120,51 @@ const driver = {
     const analyser = new PostgreAnalyser(pool, this);
     return analyser.incrementalAnalysis(structure);
   },
+  async readQuery(client, sql, structure) {
+    const query = new client._nativeModules.pgQueryStream(sql);
+    const { stream } = client._nativeModules;
+
+    const queryStream = client.query(query);
+
+    let wasHeader = false;
+
+    const pass = new stream.PassThrough({
+      objectMode: true,
+      highWaterMark: 100,
+    });
+
+    const handleEnd = (result) => {
+      pass.end();
+    };
+
+    const handleReadable = () => {
+      let row = queryStream.read();
+      if (!wasHeader && row) {
+        pass.write(
+          structure || {
+            columns: _.keys(row).map((columnName) => ({ columnName })),
+          }
+        );
+        wasHeader = true;
+      }
+
+      while (row) {
+        pass.write(row);
+        row = queryStream.read();
+      }
+    };
+
+    const handleError = (error) => {
+      console.error(error);
+      pass.end();
+    };
+
+    queryStream.on('error', handleError);
+    queryStream.on('readable', handleReadable);
+    queryStream.on('end', handleEnd);
+
+    return pass;
+  },
   createDumper() {
     return new PostgreDumper(this);
   },
