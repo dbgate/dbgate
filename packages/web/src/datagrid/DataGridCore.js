@@ -7,7 +7,7 @@ import useDimensions from '../utility/useDimensions';
 import axios from '../utility/axios';
 import DataFilterControl from './DataFilterControl';
 import stableStringify from 'json-stable-stringify';
-import { getFilterType } from '@dbgate/filterparser';
+import { getFilterType, getFilterValueExpression } from '@dbgate/filterparser';
 import { cellFromEvent, getCellRange, topLeftCell, isRegularCell, nullCell, emptyCellArray } from './selection';
 import keycodes from '../utility/keycodes';
 import DataGridRow from './DataGridRow';
@@ -560,6 +560,7 @@ export default function DataGridCore(props) {
         reload={() => display.reload()}
         setNull={setNull}
         exportGrid={exportGrid}
+        filterSelectedValue={filterSelectedValue}
       />
     );
   };
@@ -824,6 +825,21 @@ export default function DataGridCore(props) {
     setChangeSet(updatedChangeSet);
   }
 
+  function filterSelectedValue() {
+    const flts = {};
+    for (const cell of selectedCells) {
+      if (!isRegularCell(cell)) continue;
+      const modelIndex = columnSizes.realToModel(cell[1]);
+      const columnName = columns[modelIndex].uniqueName;
+      let value = loadedRows[cell[0]][columnName];
+      let svalue = getFilterValueExpression(value, columns[modelIndex].dataType);
+      if (_.has(flts, columnName)) flts[columnName] += ',' + svalue;
+      else flts[columnName] = svalue;
+    }
+
+    display.setFilters(flts);
+  }
+
   function revertAllChanges() {
     setChangeSet(createChangeSet());
   }
@@ -934,6 +950,11 @@ export default function DataGridCore(props) {
     if (event.keyCode == keycodes.r && event.ctrlKey) {
       event.preventDefault();
       revertRowChanges();
+    }
+
+    if (event.keyCode == keycodes.f && event.ctrlKey) {
+      event.preventDefault();
+      filterSelectedValue();
     }
 
     if (event.keyCode == keycodes.z && event.ctrlKey) {

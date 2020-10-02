@@ -287,6 +287,17 @@ export abstract class GridDisplay {
     this.reload();
   }
 
+  setFilters(dct) {
+    this.setConfig((cfg) => ({
+      ...cfg,
+      filters: {
+        ...cfg.filters,
+        ...dct,
+      },
+    }));
+    this.reload();
+  }
+
   setSort(uniqueName, order) {
     this.setConfig((cfg) => ({
       ...cfg,

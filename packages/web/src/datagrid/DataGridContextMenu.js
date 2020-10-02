@@ -9,6 +9,7 @@ export default function DataGridContextMenu({
   setNull,
   reload,
   exportGrid,
+  filterSelectedValue,
 }) {
   return (
     <>
@@ -34,6 +35,9 @@ export default function DataGridContextMenu({
       </DropDownMenuItem>
       <DropDownMenuItem onClick={exportGrid} >
         Export
+      </DropDownMenuItem>
+      <DropDownMenuItem onClick={filterSelectedValue} keyText="Ctrl+F">
+        Filter selected value
       </DropDownMenuItem>
     </>
   );
