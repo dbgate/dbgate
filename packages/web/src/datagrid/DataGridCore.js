@@ -1174,6 +1174,8 @@ export default function DataGridCore(props) {
               >
                 <ColumnHeaderControl
                   column={col}
+                  conid={conid}
+                  database={database}
                   setSort={display.sortable ? (order) => display.setSort(col.uniqueName, order) : null}
                   order={display.getSortOrder(col.uniqueName)}
                   onResize={(diff) => display.resizeColumn(col.uniqueName, col.widthNumber, diff)}

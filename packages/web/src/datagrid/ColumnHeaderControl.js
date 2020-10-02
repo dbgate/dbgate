@@ -4,8 +4,11 @@ import ColumnLabel from './ColumnLabel';
 import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import { useSplitterDrag } from '../widgets/Splitter';
-import { FontIcon } from '../icons';
+import { FontIcon, TableIcon } from '../icons';
 import { isTypeDateTime } from '@dbgate/tools';
+import { openNewTab } from '../utility/common';
+import { openDatabaseObjectDetail } from '../appobj/databaseObjectAppObject';
+import { useSetOpenedTabs } from '../utility/globalState';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -37,8 +40,44 @@ const GroupingLabel = styled.span`
   white-space: nowrap;
 `;
 
-export default function ColumnHeaderControl({ column, setSort, onResize, order, setGrouping, grouping }) {
+export default function ColumnHeaderControl({
+  column,
+  setSort,
+  onResize,
+  order,
+  setGrouping,
+  grouping,
+  conid,
+  database,
+}) {
   const onResizeDown = useSplitterDrag('clientX', onResize);
+  const { foreignKey } = column;
+  const setOpenedTabs = useSetOpenedTabs();
+
+  const openReferencedTable = () => {
+    openDatabaseObjectDetail(setOpenedTabs, 'TableDataTab', null, {
+      schemaName: foreignKey.refSchemaName,
+      pureName: foreignKey.refTableName,
+      conid,
+      database,
+      objectTypeField: 'tables',
+    });
+    // openNewTab(setOpenedTabs, {
+    //   title: foreignKey.refTableName,
+    //   tooltip,
+    //   icon: sqlTemplate ? 'sql.svg' : icons[objectTypeField],
+    //   tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
+    //   props: {
+    //     schemaName,
+    //     pureName,
+    //     conid,
+    //     database,
+    //     objectTypeField,
+    //     initialArgs: sqlTemplate ? { sqlTemplate } : null,
+    //   },
+    // });
+  };
+  console.log('COLUMN', column);
   return (
     <HeaderDiv>
       <LabelDiv>
@@ -63,6 +102,12 @@ export default function ColumnHeaderControl({ column, setSort, onResize, order, 
           <DropDownMenuItem onClick={() => setSort('ASC')}>Sort ascending</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setSort('DESC')}>Sort descending</DropDownMenuItem>
           <DropDownMenuDivider />
+          {foreignKey && (
+            <DropDownMenuItem onClick={openReferencedTable}>
+              Open table <strong>{foreignKey.refTableName}</strong>
+            </DropDownMenuItem>
+          )}
+          {foreignKey && <DropDownMenuDivider />}
           <DropDownMenuItem onClick={() => setGrouping('GROUP')}>Group by</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setGrouping('MAX')}>MAX</DropDownMenuItem>
           <DropDownMenuItem onClick={() => setGrouping('MIN')}>MIN</DropDownMenuItem>

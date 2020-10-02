@@ -79,7 +79,7 @@ const defaultTabs = {
   views: 'ViewDataTab',
 };
 
-async function openObjectDetail(
+export async function openDatabaseObjectDetail(
   setOpenedTabs,
   tabComponent,
   sqlTemplate,
@@ -128,7 +128,7 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
                 />
               ));
             } else {
-              openObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
+              openDatabaseObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
             }
           }}
         >
@@ -147,7 +147,7 @@ const databaseObjectAppObject = () => (
   const key = title;
   const Icon = (props) => getIconImage(icons[objectTypeField], props);
   const onClick = ({ schemaName, pureName }) => {
-    openObjectDetail(
+    openDatabaseObjectDetail(
       setOpenedTabs,
       defaultTabs[objectTypeField],
       defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
