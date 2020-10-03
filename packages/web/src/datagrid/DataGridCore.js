@@ -216,7 +216,7 @@ export default function DataGridCore(props) {
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
 
   const loadedTimeRef = React.useRef(0);
-  const focusFieldRef = React.useRef();
+  const focusFieldRef = React.useRef(null);
 
   const [vScrollValueToSet, setvScrollValueToSet] = React.useState();
   const [vScrollValueToSetDate, setvScrollValueToSetDate] = React.useState(new Date());
@@ -230,6 +230,7 @@ export default function DataGridCore(props) {
   const [shiftDragStartCell, setShiftDragStartCell] = React.useState(nullCell);
   const [autofillDragStartCell, setAutofillDragStartCell] = React.useState(nullCell);
   const [autofillSelectedCells, setAutofillSelectedCells] = React.useState(emptyCellArray);
+  const [focusFilterInputs, setFocusFilterInputs] = React.useState({});
 
   // const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
   // const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
@@ -333,7 +334,6 @@ export default function DataGridCore(props) {
         };
       case 'close': {
         const [row, col] = currentCell || [];
-        // @ts-ignore
         if (focusFieldRef.current) focusFieldRef.current.focus();
         // @ts-ignore
         if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
@@ -412,7 +412,6 @@ export default function DataGridCore(props) {
 
   React.useEffect(() => {
     if (tabVisible) {
-      // @ts-ignore
       if (focusFieldRef.current) focusFieldRef.current.focus();
     }
   }, [tabVisible, focusFieldRef.current]);
@@ -572,7 +571,6 @@ export default function DataGridCore(props) {
 
     // event.target.closest('table').focus();
     event.preventDefault();
-    // @ts-ignore
     if (focusFieldRef.current) focusFieldRef.current.focus();
     const cell = cellFromEvent(event);
 
@@ -930,6 +928,17 @@ export default function DataGridCore(props) {
     }
   };
 
+  const selectTopmostCell = (uniquePath) => {
+    const modelIndex = columns.findIndex((x) => x.uniquePath == uniquePath);
+    const realIndex = columnSizes.modelToReal(modelIndex);
+    let cell = [firstVisibleRowScrollIndex, realIndex];
+    // @ts-ignore
+    setCurrentCell(cell);
+    // @ts-ignore
+    setSelectedCells([cell]);
+    focusFieldRef.current.focus();
+  };
+
   function handleGridKeyDown(event) {
     if (event.keyCode == keycodes.f5) {
       event.preventDefault();
@@ -1072,7 +1081,11 @@ export default function DataGridCore(props) {
   }
 
   function focusFilterEditor(columnRealIndex) {
-    // let modelIndex = this.columnSizes.realToModel(columnRealIndex);
+    let modelIndex = columnSizes.realToModel(columnRealIndex);
+    setFocusFilterInputs((cols) => ({
+      ...cols,
+      [columns[modelIndex].uniqueName]: (cols[columns[modelIndex].uniqueName] || 0) + 1,
+    }));
     // this.headerFilters[this.columns[modelIndex].uniquePath].focus();
     return ['filter', columnRealIndex];
   }
@@ -1230,6 +1243,11 @@ export default function DataGridCore(props) {
                     filterType={getFilterType(col.dataType)}
                     filter={display.getFilter(col.uniqueName)}
                     setFilter={(value) => display.setFilter(col.uniqueName, value)}
+                    focusIndex={focusFilterInputs[col.uniqueName]}
+                    onFocusGrid={() => {
+                      selectTopmostCell(col.uniqueName);
+                      // focusFieldRef.current.focus();
+                    }}
                   />
                 </TableFilterCell>
               ))}

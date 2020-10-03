@@ -166,7 +166,14 @@ function DropDownContent({ filterType, setFilter, filterMultipleValues, openFilt
   }
 }
 
-export default function DataFilterControl({ isReadOnly = false, filterType, filter, setFilter }) {
+export default function DataFilterControl({
+  isReadOnly = false,
+  filterType,
+  filter,
+  setFilter,
+  focusIndex,
+  onFocusGrid,
+}) {
   const showModal = useShowModal();
   const [filterState, setFilterState] = React.useState('empty');
   const setFilterText = (filter) => {
@@ -199,6 +206,10 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
   const buttonRef = React.useRef();
   const editorRef = React.useRef();
 
+  React.useEffect(() => {
+    if (focusIndex) editorRef.current.focus();
+  }, [focusIndex]);
+
   const handleKeyDown = (ev) => {
     if (isReadOnly) return;
     if (ev.keyCode == keycodes.enter) {
@@ -206,6 +217,11 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
     }
     if (ev.keyCode == keycodes.escape) {
       setFilterText('');
+    }
+    if (ev.keyCode == keycodes.downArrow) {
+      onFocusGrid();
+      // ev.stopPropagation();
+      ev.preventDefault();
     }
     // if (ev.keyCode == KeyCodes.DownArrow || ev.keyCode == KeyCodes.UpArrow) {
     //     if (this.props.onControlKey) this.props.onControlKey(ev.keyCode);
@@ -272,6 +288,7 @@ export default function DataFilterControl({ isReadOnly = false, filterType, filt
         state={filterState}
         onBlur={applyFilter}
         onPaste={handlePaste}
+        autocomplete="off"
       />
       <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
         <i className="fas fa-filter" />
