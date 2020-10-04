@@ -143,13 +143,16 @@ function SourceTargetConfig({
   schemaNameField,
   tablesField = undefined,
 }) {
-  const types = [
-    { value: 'database', label: 'Database', directions: ['source', 'target'] },
-    { value: 'csv', label: 'CSV file(s)', directions: ['source', 'target'] },
-    { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
-    { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
-  ];
   const { values, setFieldValue } = useFormikContext();
+  const types =
+    values[storageTypeField] == 'jsldata'
+      ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
+      : [
+          { value: 'database', label: 'Database', directions: ['source', 'target'] },
+          { value: 'csv', label: 'CSV file(s)', directions: ['source', 'target'] },
+          { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
+          { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
+        ];
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
   return (

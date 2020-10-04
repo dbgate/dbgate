@@ -10,6 +10,7 @@ const consoleObjectWriter = require('./consoleObjectWriter');
 const excelSheetReader = require('./excelSheetReader');
 const jsonLinesWriter = require('./jsonLinesWriter');
 const jsonLinesReader = require('./jsonLinesReader');
+const jslDataReader = require('./jslDataReader');
 
 module.exports = {
   queryReader,
@@ -24,4 +25,5 @@ module.exports = {
   jsonLinesReader,
   fakeObjectReader,
   consoleObjectWriter,
+  jslDataReader,
 };

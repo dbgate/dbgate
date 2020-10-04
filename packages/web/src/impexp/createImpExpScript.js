@@ -33,7 +33,8 @@ async function getConnection(storageType, conid, database) {
 }
 
 function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
-  if (values.sourceStorageType == 'database') {
+  const { sourceStorageType } = values;
+  if (sourceStorageType == 'database') {
     const fullName = { schemaName: values.sourceSchemaName, pureName: sourceName };
     return [
       'tableReader',
@@ -43,18 +44,22 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
       },
     ];
   }
-  if (isFileStorage(values.sourceStorageType)) {
+  if (isFileStorage(sourceStorageType)) {
     const sourceFile = values[`sourceFile_${sourceName}`];
-    if (values.sourceStorageType == 'excel') {
+    if (sourceStorageType == 'excel') {
       return ['excelSheetReader', sourceFile];
     }
-    if (values.sourceStorageType == 'jsonl') {
+    if (sourceStorageType == 'jsonl') {
       return ['jsonLinesReader', sourceFile];
     }
-    if (values.sourceStorageType == 'csv') {
+    if (sourceStorageType == 'csv') {
       return ['csvReader', sourceFile];
     }
   }
+  if (sourceStorageType == 'jsldata') {
+    return ['jslDataReader', { jslid: values.sourceJslId }];
+  }
+  throw new Error(`Unknown storage type: ${sourceStorageType}`);
 }
 
 function getFlagsFroAction(action) {

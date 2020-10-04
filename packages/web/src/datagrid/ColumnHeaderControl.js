@@ -77,7 +77,6 @@ export default function ColumnHeaderControl({
     //   },
     // });
   };
-  console.log('COLUMN', column);
   return (
     <HeaderDiv>
       <LabelDiv>

@@ -618,11 +618,12 @@ export default function DataGridCore(props) {
       <ImportExportModal
         modalState={modalState}
         initialValues={{
-          sourceStorageType: 'database',
-          sourceConnectionId: conid,
-          sourceDatabaseName: database,
-          sourceSchemaName: display.baseTable && display.baseTable.schemaName,
-          sourceList: display.baseTable ? [display.baseTable.pureName] : [],
+          sourceStorageType: jslid ? 'jsldata' : 'database',
+          sourceJslId: jslid,
+          sourceConnectionId: jslid ? undefined : conid,
+          sourceDatabaseName: jslid ? undefined : database,
+          sourceSchemaName: jslid ? undefined : display.baseTable && display.baseTable.schemaName,
+          sourceList: jslid ? ['query-data'] : display.baseTable ? [display.baseTable.pureName] : [],
         }}
       />
     ));
