@@ -18,7 +18,7 @@ export function isFileStorage(storageType) {
 }
 
 async function getConnection(storageType, conid, database) {
-  if (storageType == 'database') {
+  if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
     const driver = engines(conn);
     return [
@@ -41,6 +41,15 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
       {
         connection: sourceConnection,
         ...fullName,
+      },
+    ];
+  }
+  if (sourceStorageType == 'query') {
+    return [
+      'queryReader',
+      {
+        connection: sourceConnection,
+        sql: values.sourceSql,
       },
     ];
   }

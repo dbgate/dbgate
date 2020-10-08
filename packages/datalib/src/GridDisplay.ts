@@ -381,13 +381,13 @@ export abstract class GridDisplay {
     };
   }
 
-  createSelect(): Select {
+  createSelect(options = {}): Select {
     return null;
   }
 
-  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo) {}
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {}
 
-  createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[]) {
+  createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[], options) {
     if (!columns) return null;
     const orderColumnName = columns[0].columnName;
     const select: Select = {
@@ -411,7 +411,7 @@ export abstract class GridDisplay {
       this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
       'uniqueName'
     );
-    this.processReferences(select, displayedColumnInfo);
+    this.processReferences(select, displayedColumnInfo, options);
     this.applyFilterOnSelect(select, displayedColumnInfo);
     this.applyGroupOnSelect(select, displayedColumnInfo);
     this.applySortOnSelect(select, displayedColumnInfo);
@@ -423,6 +423,13 @@ export abstract class GridDisplay {
     if (!select) return null;
     if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
     else if (this.driver.dialect.limitSelect) select.topRecords = count;
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
+  }
+
+  getExportQuery() {
+    const select = this.createSelect({ isExport: true });
+    if (!select) return null;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }

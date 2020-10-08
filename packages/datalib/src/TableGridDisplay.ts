@@ -162,14 +162,16 @@ export class TableGridDisplay extends GridDisplay {
     return this.findTable({ schemaName, pureName });
   }
 
-  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
+  processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {
     this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
-    this.addHintsToSelect(select);
+    if (!options.isExport) {
+      this.addHintsToSelect(select);
+    }
   }
 
-  createSelect() {
+  createSelect(options = {}) {
     if (!this.table) return null;
-    const select = this.createSelectBase(this.table, this.table.columns);
+    const select = this.createSelectBase(this.table, this.table.columns, options);
     return select;
   }
 

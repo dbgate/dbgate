@@ -10,7 +10,7 @@ import {
   FormTablesSelect,
   FormSchemaSelect,
 } from '../utility/forms';
-import { useDatabaseInfo } from '../utility/metadataLoaders';
+import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField } from '../utility/inputs';
 import { getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
@@ -19,6 +19,7 @@ import ErrorInfo from '../widgets/ErrorInfo';
 import getAsArray from '../utility/getAsArray';
 import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
+import SqlEditor from '../sqleditor/SqlEditor';
 
 const Container = styled.div`
   max-height: 50vh;
@@ -51,6 +52,12 @@ const TrashWrapper = styled.div`
   }
   cursor: pointer;
   color: blue;
+`;
+
+const SqlWrapper = styled.div`
+  position: relative;
+  height: 100px;
+  width: 20vw;
 `;
 
 function getFileFilters(storageType) {
@@ -142,6 +149,7 @@ function SourceTargetConfig({
   databaseNameField,
   schemaNameField,
   tablesField = undefined,
+  engine = undefined,
 }) {
   const { values, setFieldValue } = useFormikContext();
   const types =
@@ -152,6 +160,7 @@ function SourceTargetConfig({
           { value: 'csv', label: 'CSV file(s)', directions: ['source', 'target'] },
           { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
           { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
+          { value: 'query', label: 'SQL Query', directions: ['source'] },
         ];
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
@@ -160,12 +169,16 @@ function SourceTargetConfig({
       {direction == 'source' && <Label>Source configuration</Label>}
       {direction == 'target' && <Label>Target configuration</Label>}
       <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
-      {storageType == 'database' && (
+      {(storageType == 'database' || storageType == 'query') && (
         <>
           <Label>Server</Label>
           <FormConnectionSelect name={connectionIdField} />
           <Label>Database</Label>
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
+        </>
+      )}
+      {storageType == 'database' && (
+        <>
           <Label>Schema</Label>
           <FormSchemaSelect conidName={connectionIdField} databaseName={databaseNameField} name={schemaNameField} />
           {tablesField && (
@@ -204,6 +217,20 @@ function SourceTargetConfig({
           )}
         </>
       )}
+      {storageType == 'query' && (
+        <>
+          <Label>Query</Label>
+          <SqlWrapper>
+            <SqlEditor
+              value={values.sourceSql}
+              onChange={(value) => setFieldValue('sourceSql', value)}
+              engine={engine}
+              focusOnCreate
+            />
+          </SqlWrapper>
+        </>
+      )}
+
       {isFileStorage(storageType) && direction == 'source' && <FilesInput />}
     </Column>
   );
@@ -231,6 +258,8 @@ function SourceName({ name }) {
 export default function ImportExportConfigurator() {
   const { values, setFieldValue } = useFormikContext();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
+  const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
+  const { engine: sourceEngine } = sourceConnectionInfo || {};
   const { sourceList } = values;
 
   return (
@@ -243,6 +272,7 @@ export default function ImportExportConfigurator() {
           databaseNameField="sourceDatabaseName"
           schemaNameField="sourceSchemaName"
           tablesField="sourceList"
+          engine={sourceEngine}
         />
         <SourceTargetConfig
           direction="target"

@@ -43,8 +43,8 @@ export class ViewGridDisplay extends GridDisplay {
     };
   }
 
-  createSelect() {
-    const select = this.createSelectBase(this.view, this.view.columns);
+  createSelect(options = {}) {
+    const select = this.createSelectBase(this.view, this.view.columns, options);
     return select;
   }
 }
