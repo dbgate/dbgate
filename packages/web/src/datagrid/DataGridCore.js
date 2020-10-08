@@ -44,6 +44,8 @@ import ErrorInfo from '../widgets/ErrorInfo';
 import useShowModal from '../modals/showModal';
 import ErrorMessageModal from '../modals/ErrorMessageModal';
 import ImportExportModal from '../modals/ImportExportModal';
+import { openNewTab } from '../utility/common';
+import { useSetOpenedTabs } from '../utility/globalState';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -239,6 +241,7 @@ export default function DataGridCore(props) {
 
   const changeSet = changeSetState && changeSetState.value;
   const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
+  const setOpenedTabs = useSetOpenedTabs();
 
   const changeSetRef = React.useRef(changeSet);
 
@@ -560,6 +563,7 @@ export default function DataGridCore(props) {
         setNull={setNull}
         exportGrid={exportGrid}
         filterSelectedValue={filterSelectedValue}
+        openQuery={display.baseTable ? openQuery : null}
       />
     );
   };
@@ -843,6 +847,21 @@ export default function DataGridCore(props) {
     }
 
     display.setFilters(flts);
+  }
+
+  function openQuery() {
+    openNewTab(setOpenedTabs, {
+      title: 'Query',
+      icon: 'sql.svg',
+      tabComponent: 'QueryTab',
+      props: {
+        initialScript: display.getExportQuery(),
+        schemaName: display.baseTable.schemaName,
+        pureName: display.baseTable.pureName,
+        conid,
+        database,
+      },
+    });
   }
 
   function revertAllChanges() {

@@ -10,6 +10,7 @@ export default function DataGridContextMenu({
   reload,
   exportGrid,
   filterSelectedValue,
+  openQuery,
 }) {
   return (
     <>
@@ -33,12 +34,11 @@ export default function DataGridContextMenu({
       <DropDownMenuItem onClick={setNull} keyText="Ctrl+0">
         Set NULL
       </DropDownMenuItem>
-      <DropDownMenuItem onClick={exportGrid} >
-        Export
-      </DropDownMenuItem>
+      <DropDownMenuItem onClick={exportGrid}>Export</DropDownMenuItem>
       <DropDownMenuItem onClick={filterSelectedValue} keyText="Ctrl+F">
         Filter selected value
       </DropDownMenuItem>
+      {openQuery && <DropDownMenuItem onClick={openQuery}>Open query</DropDownMenuItem>}
     </>
   );
 }
