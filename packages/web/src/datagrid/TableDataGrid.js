@@ -43,15 +43,32 @@ export default function TableDataGrid({
   masterLoadedTime = undefined,
 }) {
   const [myConfig, setMyConfig] = React.useState(createGridConfig());
-  const [childConfig, setChildConfig] = React.useState(createGridConfig());
+  // const [childConfig, setChildConfig] = React.useState(createGridConfig());
   const [myCache, setMyCache] = React.useState(createGridCache());
   const [childCache, setChildCache] = React.useState(createGridCache());
   const [refReloadToken, setRefReloadToken] = React.useState(0);
   const [myLoadedTime, setMyLoadedTime] = React.useState(0);
 
+  const { childConfig } = config || myConfig;
+  const setChildConfig = (value, reference = undefined) => {
+    if (_.isFunction(value)) {
+      (setConfig || setMyConfig)((x) => ({
+        ...x,
+        childConfig: value(x.childConfig),
+      }));
+    } else {
+      (setConfig || setMyConfig)((x) => ({
+        ...x,
+        childConfig: value,
+        reference: reference === undefined ? x.reference : reference,
+      }));
+    }
+  };
+  const { reference } = config || myConfig;
+
   const connection = useConnectionInfo({ conid });
   const dbinfo = useDatabaseInfo({ conid, database });
-  const [reference, setReference] = React.useState(null);
+  // const [reference, setReference] = React.useState(null);
 
   function createDisplay() {
     return connection
@@ -125,7 +142,7 @@ export default function TableDataGrid({
   );
 
   const handleCloseReference = () => {
-    setReference(null);
+    setChildConfig(null, null);
   };
 
   if (!display) return null;
@@ -142,7 +159,7 @@ export default function TableDataGrid({
         dispatchChangeSet={dispatchChangeSet}
         toolbarPortalRef={toolbarPortalRef}
         showReferences
-        onReferenceClick={setReference}
+        onReferenceClick={(reference) => setChildConfig(createGridConfig(), reference)}
         onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}

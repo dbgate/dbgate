@@ -27,6 +27,8 @@ export interface GridConfig extends GridConfigColumns {
     order: 'ASC' | 'DESC';
   }[];
   grouping: { [uniqueName: string]: GroupFunc };
+  childConfig?: GridConfig;
+  reference?: GridReferenceDefinition;
 }
 
 export interface GridCache {
