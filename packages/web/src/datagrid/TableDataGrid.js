@@ -42,29 +42,28 @@ export default function TableDataGrid({
   setCache = undefined,
   masterLoadedTime = undefined,
 }) {
-  const [myConfig, setMyConfig] = React.useState(createGridConfig());
   // const [childConfig, setChildConfig] = React.useState(createGridConfig());
   const [myCache, setMyCache] = React.useState(createGridCache());
   const [childCache, setChildCache] = React.useState(createGridCache());
   const [refReloadToken, setRefReloadToken] = React.useState(0);
   const [myLoadedTime, setMyLoadedTime] = React.useState(0);
 
-  const { childConfig } = config || myConfig;
+  const { childConfig } = config;
   const setChildConfig = (value, reference = undefined) => {
     if (_.isFunction(value)) {
-      (setConfig || setMyConfig)((x) => ({
+      setConfig((x) => ({
         ...x,
         childConfig: value(x.childConfig),
       }));
     } else {
-      (setConfig || setMyConfig)((x) => ({
+      setConfig((x) => ({
         ...x,
         childConfig: value,
         reference: reference === undefined ? x.reference : reference,
       }));
     }
   };
-  const { reference } = config || myConfig;
+  const { reference } = config;
 
   const connection = useConnectionInfo({ conid });
   const dbinfo = useDatabaseInfo({ conid, database });
@@ -75,8 +74,8 @@ export default function TableDataGrid({
       ? new TableGridDisplay(
           { schemaName, pureName },
           engines(connection),
-          config || myConfig,
-          setConfig || setMyConfig,
+          config,
+          setConfig,
           cache || myCache,
           setCache || setMyCache,
           dbinfo
@@ -95,7 +94,7 @@ export default function TableDataGrid({
     const newDisplay = createDisplay();
     if (display && display.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
     setDisplay(newDisplay);
-  }, [connection, config || myConfig, cache || myCache, conid, database, schemaName, pureName, dbinfo]);
+  }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo]);
 
   const handleDatabaseStructureChanged = React.useCallback(() => {
     (setCache || setMyCache)(createGridCache());

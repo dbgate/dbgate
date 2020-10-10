@@ -3,16 +3,17 @@ import useFetch from '../utility/useFetch';
 import styled from 'styled-components';
 import theme from '../theme';
 import DataGrid from '../datagrid/DataGrid';
-import { ViewGridDisplay, createGridConfig, createGridCache, createChangeSet } from '@dbgate/datalib';
+import { ViewGridDisplay, createGridCache, createChangeSet } from '@dbgate/datalib';
 import { useConnectionInfo, useViewInfo } from '../utility/metadataLoaders';
 import engines from '@dbgate/engines';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
+import useGridConfig from '../utility/useGridConfig';
 
-export default function ViewDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef }) {
+export default function ViewDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef, tabid }) {
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
-  const [config, setConfig] = React.useState(createGridConfig());
+  const [config, setConfig] = useGridConfig(tabid);
   const [cache, setCache] = React.useState(createGridCache());
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
 
@@ -24,7 +25,15 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
   const display = React.useMemo(
     () =>
       viewInfo && connection
-        ? new ViewGridDisplay(viewInfo, engines(connection), config, setConfig, cache, setCache)
+        ? new ViewGridDisplay(
+            viewInfo,
+            engines(connection),
+            //@ts-ignore
+            config,
+            setConfig,
+            cache,
+            setCache
+          )
         : null,
     [viewInfo, connection, config, cache]
   );

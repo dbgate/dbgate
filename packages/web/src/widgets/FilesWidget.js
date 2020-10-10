@@ -19,7 +19,7 @@ function OpenedTabsList() {
 
   return (
     <>
-      <WidgetTitle>Opened tabs</WidgetTitle>
+      <WidgetTitle>Recently closed tabs</WidgetTitle>
       <WidgetsInnerContainer>
         <AppObjectList list={tabs} makeAppObj={openedTabAppObject()} />
       </WidgetsInnerContainer>

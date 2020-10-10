@@ -4,16 +4,18 @@ import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
 import TableDataGrid from '../datagrid/TableDataGrid';
+import useGridConfig from '../utility/useGridConfig';
 
 export default function TableDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef, tabid }) {
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
   useUpdateDatabaseForTab(tabVisible, conid, database);
-  // const [config, setConfig] = React.useState(createGridConfig());
+  const [config, setConfig] = useGridConfig(tabid);
 
   return (
     <TableDataGrid
       conid={conid}
-      // config={config}
+      config={config}
+      setConfig={setConfig}
       database={database}
       schemaName={schemaName}
       pureName={pureName}
