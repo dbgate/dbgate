@@ -131,12 +131,26 @@ export default function TabsPanel() {
     setOpenedTabs((files) => {
       const active = files.find((x) => x.tabid == tabid);
       if (!active) return files;
-      let index = _.findIndex(files, (x) => x.tabid == tabid);
-      const newFiles = files.filter((x) => !closeCondition(x, active));
+      const lastSelectedIndex = _.findIndex(files, (x) => x.tabid == tabid);
+      let selectedIndex = lastSelectedIndex;
 
-      if (!newFiles.find((x) => x.selected)) {
-        while (index >= newFiles.length) index -= 1;
-        if (index >= 0) newFiles[index].selected = true;
+      const newFiles = files.map((x) => ({
+        ...x,
+        closedTime: x.closedTime || (closeCondition(x, active) ? new Date().getTime() : undefined),
+      }));
+
+      while (selectedIndex >= 0 && newFiles[selectedIndex].closedTime) selectedIndex -= 1;
+
+      if (selectedIndex < 0) {
+        selectedIndex = lastSelectedIndex;
+        while (selectedIndex < newFiles.length && newFiles[selectedIndex].closedTime) selectedIndex += 1;
+      }
+
+      if (selectedIndex != lastSelectedIndex) {
+        return newFiles.map((x, index) => ({
+          ...x,
+          selected: index == selectedIndex,
+        }));
       }
 
       return newFiles;
@@ -184,12 +198,14 @@ export default function TabsPanel() {
   //   't',
   //   tabs.map(x => x.tooltip)
   // );
-  const tabsWithDb = tabs.map((tab) => ({
-    ...tab,
-    tabDbName: tab.props && tab.props.conid && tab.props.database ? tab.props.database : '(no DB)',
-    tabDbKey:
-      tab.props && tab.props.conid && tab.props.database ? formatDbKey(tab.props.conid, tab.props.database) : noDbKey,
-  }));
+  const tabsWithDb = tabs
+    .filter((x) => !x.closedTime)
+    .map((tab) => ({
+      ...tab,
+      tabDbName: tab.props && tab.props.conid && tab.props.database ? tab.props.database : '(no DB)',
+      tabDbKey:
+        tab.props && tab.props.conid && tab.props.database ? formatDbKey(tab.props.conid, tab.props.database) : noDbKey,
+    }));
   const tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
   const dbKeys = _.keys(tabsByDb).sort();
 

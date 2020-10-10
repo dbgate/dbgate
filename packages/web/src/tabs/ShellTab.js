@@ -33,7 +33,7 @@ export default function ShellTab({
   storageKey,
   ...other
 }) {
-  const localStorageKey = storageKey || `shell_${tabid}`;
+  const localStorageKey = storageKey || `tabdata_shell_${tabid}`;
   const [shellText, setShellText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
   const shellTextRef = React.useRef(shellText);
   const [busy, setBusy] = React.useState(false);

@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs, useSavedSqlFiles } from '../utility/globalState';
-import openedTabAppObject from '../appobj/openedTabAppObject';
+import closedTabAppObject from '../appobj/closedTabAppObject';
 import {
   SearchBoxWrapper,
   WidgetsInnerContainer,
@@ -14,14 +14,20 @@ import {
 } from './WidgetStyles';
 import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
 
-function OpenedTabsList() {
+function ClosedTabsList() {
   const tabs = useOpenedTabs();
 
   return (
     <>
       <WidgetTitle>Recently closed tabs</WidgetTitle>
       <WidgetsInnerContainer>
-        <AppObjectList list={tabs} makeAppObj={openedTabAppObject()} />
+        <AppObjectList
+          list={_.sortBy(
+            tabs.filter((x) => x.closedTime),
+            (x) => -x.closedTime
+          )}
+          makeAppObj={closedTabAppObject()}
+        />
       </WidgetsInnerContainer>
     </>
   );
@@ -44,7 +50,7 @@ export default function FilesWidget() {
   return (
     <WidgetsMainContainer>
       <WidgetsOuterContainer>
-        <OpenedTabsList />
+        <ClosedTabsList />
       </WidgetsOuterContainer>
       <WidgetsOuterContainer>
         <SavedSqlFilesList />

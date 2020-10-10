@@ -76,7 +76,7 @@ export default function QueryTab({
   ...other
 }) {
   const loadingText = 'Loading SQL template...';
-  const localStorageKey = storageKey || `sql_${tabid}`;
+  const localStorageKey = storageKey || `tabdata_sql_${tabid}`;
   const { sqlTemplate } = initialArgs || {};
   const [queryText, setQueryText] = React.useState(
     () => localStorage.getItem(localStorageKey) || initialScript || (sqlTemplate ? loadingText : '')
