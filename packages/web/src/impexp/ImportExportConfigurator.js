@@ -9,6 +9,7 @@ import {
   FormDatabaseSelect,
   FormTablesSelect,
   FormSchemaSelect,
+  FormArchiveFolderSelect,
 } from '../utility/forms';
 import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
@@ -147,6 +148,7 @@ function SourceTargetConfig({
   storageTypeField,
   connectionIdField,
   databaseNameField,
+  archiveFolderField,
   schemaNameField,
   tablesField = undefined,
   engine = undefined,
@@ -161,6 +163,7 @@ function SourceTargetConfig({
           { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
           { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
           { value: 'query', label: 'SQL Query', directions: ['source'] },
+          { value: 'archive', label: 'Archive', directions: ['source', 'target'] },
         ];
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
@@ -231,6 +234,13 @@ function SourceTargetConfig({
         </>
       )}
 
+      {storageType == 'archive' && (
+        <>
+          <Label>Archive folder</Label>
+          <FormArchiveFolderSelect name={archiveFolderField} />
+        </>
+      )}
+
       {isFileStorage(storageType) && direction == 'source' && <FilesInput />}
     </Column>
   );
@@ -270,6 +280,7 @@ export default function ImportExportConfigurator() {
           storageTypeField="sourceStorageType"
           connectionIdField="sourceConnectionId"
           databaseNameField="sourceDatabaseName"
+          archiveFolderField="sourceArchiveFolder"
           schemaNameField="sourceSchemaName"
           tablesField="sourceList"
           engine={sourceEngine}
@@ -279,6 +290,7 @@ export default function ImportExportConfigurator() {
           storageTypeField="targetStorageType"
           connectionIdField="targetConnectionId"
           databaseNameField="targetDatabaseName"
+          archiveFolderField="targetArchiveFolder"
           schemaNameField="targetSchemaName"
         />
       </Wrapper>

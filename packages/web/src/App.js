@@ -8,6 +8,7 @@ import {
   SavedSqlFilesProvider,
   OpenedConnectionsProvider,
   LeftPanelWidthProvider,
+  CurrentArchiveProvider,
 } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
@@ -24,7 +25,9 @@ function App() {
                 <LeftPanelWidthProvider>
                   <ConnectionsPinger>
                     <ModalLayerProvider>
-                      <Screen />
+                      <CurrentArchiveProvider>
+                        <Screen />
+                      </CurrentArchiveProvider>
                     </ModalLayerProvider>
                   </ConnectionsPinger>
                 </LeftPanelWidthProvider>

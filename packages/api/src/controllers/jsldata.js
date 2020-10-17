@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const lineReader = require('line-reader');
-const { jsldir } = require('../utility/directories');
+const { jsldir, archivedir } = require('../utility/directories');
 const socket = require('../utility/socket');
 
 function readFirstLine(file) {
@@ -18,6 +18,14 @@ function readFirstLine(file) {
       }
     });
   });
+}
+
+function getJslFileName(jslid) {
+  const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
+  if (archiveMatch) {
+    return path.join(archivedir(), archiveMatch[1], `${archiveMatch[2]}.jsonl`);
+  }
+  return path.join(jsldir(), `${jslid}.jsonl`);
 }
 
 module.exports = {
@@ -57,7 +65,7 @@ module.exports = {
     //   'OPENING READER, LINES=',
     //   fs.readFileSync(path.join(jsldir(), `${jslid}.jsonl`), 'utf-8').split('\n').length
     // );
-    const file = path.join(jsldir(), `${jslid}.jsonl`);
+    const file = getJslFileName(jslid);
     return new Promise((resolve, reject) =>
       lineReader.open(file, (err, reader) => {
         if (err) reject(err);
@@ -93,7 +101,7 @@ module.exports = {
 
   getInfo_meta: 'get',
   async getInfo({ jslid }) {
-    const file = path.join(jsldir(), `${jslid}.jsonl`);
+    const file = getJslFileName(jslid);
     const firstLine = await readFirstLine(file);
     if (firstLine) return JSON.parse(firstLine);
     return null;
@@ -119,8 +127,9 @@ module.exports = {
 
   getStats_meta: 'get',
   getStats({ jslid }) {
-    const file = path.join(jsldir(), `${jslid}.jsonl.stats`);
-    return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    const file = `${getJslFileName(jslid)}.stats`;
+    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    return {};
   },
 
   async notifyChangedStats(stats) {

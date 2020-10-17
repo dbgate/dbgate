@@ -11,6 +11,7 @@ const excelSheetReader = require('./excelSheetReader');
 const jsonLinesWriter = require('./jsonLinesWriter');
 const jsonLinesReader = require('./jsonLinesReader');
 const jslDataReader = require('./jslDataReader');
+const archiveWriter = require('./archiveWriter');
 
 module.exports = {
   queryReader,
@@ -26,4 +27,5 @@ module.exports = {
   fakeObjectReader,
   consoleObjectWriter,
   jslDataReader,
+  archiveWriter,
 };

@@ -64,6 +64,18 @@ const databaseListLoader = ({ conid }) => ({
   reloadTrigger: `database-list-changed-${conid}`,
 });
 
+const archiveFoldersLoader = () => ({
+  url: 'archive/folders',
+  params: {},
+  reloadTrigger: `archive-folders-changed`,
+});
+
+const archiveFilesLoader = ({ folder }) => ({
+  url: 'archive/files',
+  params: { folder },
+  reloadTrigger: `archive-files-changed-${folder}`,
+});
+
 const serverStatusLoader = () => ({
   url: 'server-connections/server-status',
   params: {},
@@ -216,4 +228,18 @@ export function getConfig() {
 }
 export function useConfig() {
   return useCore(configLoader, {}) || {};
+}
+
+export function getArchiveFiles(args) {
+  return getCore(archiveFilesLoader, args);
+}
+export function useArchiveFiles(args) {
+  return useCore(archiveFilesLoader, args);
+}
+
+export function getArchiveFolders(args) {
+  return getCore(archiveFoldersLoader, args);
+}
+export function useArchiveFolders(args) {
+  return useCore(archiveFoldersLoader, args);
 }

@@ -10,7 +10,7 @@ const IconWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${props =>
+  background-color: ${(props) =>
     // @ts-ignore
     props.isSelected ? theme.widgetMenu.backgroundSelected : 'inherit'};
   &:hover {
@@ -23,6 +23,7 @@ export default function WidgetIconPanel() {
     {
       icon: 'fa-database',
       name: 'database',
+      title: 'Database connections',
     },
     // {
     //   icon: 'fa-table',
@@ -31,6 +32,12 @@ export default function WidgetIconPanel() {
     {
       icon: 'fa-file-alt',
       name: 'file',
+      title: 'Closed tabs & Saved SQL files',
+    },
+    {
+      icon: 'fa-archive',
+      name: 'archive',
+      title: 'Archive (saved tabular data)',
     },
     // {
     //   icon: 'fa-cog',
@@ -47,14 +54,15 @@ export default function WidgetIconPanel() {
 
   return (
     <>
-      {widgets.map(({ icon, name }) => (
+      {widgets.map(({ icon, name, title }) => (
         <IconWrapper
           key={icon}
           // @ts-ignore
           isSelected={name === currentWidget}
           onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
+          title={title}
         >
-          <i className={`fas ${icon}`}/>
+          <i className={`fas ${icon}`} />
         </IconWrapper>
       ))}
     </>

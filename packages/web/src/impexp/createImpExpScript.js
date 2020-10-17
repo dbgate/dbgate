@@ -68,7 +68,7 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
   if (sourceStorageType == 'jsldata') {
     return ['jslDataReader', { jslid: values.sourceJslId }];
   }
-  throw new Error(`Unknown storage type: ${sourceStorageType}`);
+  throw new Error(`Unknown source storage type: ${sourceStorageType}`);
 }
 
 function getFlagsFroAction(action) {
@@ -91,7 +91,8 @@ function getFlagsFroAction(action) {
 }
 
 function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
-  if (values.targetStorageType == 'csv') {
+  const { targetStorageType } = values;
+  if (targetStorageType == 'csv') {
     return [
       'csvWriter',
       {
@@ -99,7 +100,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       },
     ];
   }
-  if (values.targetStorageType == 'jsonl') {
+  if (targetStorageType == 'jsonl') {
     return [
       'jsonLinesWriter',
       {
@@ -107,7 +108,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       },
     ];
   }
-  if (values.targetStorageType == 'database') {
+  if (targetStorageType == 'database') {
     return [
       'tableWriter',
       {
@@ -118,6 +119,17 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       },
     ];
   }
+  if (targetStorageType == 'archive') {
+    return [
+      'archiveWriter',
+      {
+        folderName: values.targetArchiveFolder,
+        fileName: getTargetName(sourceName, values),
+      },
+    ];
+  }
+
+  throw new Error(`Unknown target storage type: ${targetStorageType}`);
 }
 
 export default async function createImpExpScript(values, addEditorInfo = true) {

@@ -9,7 +9,7 @@ import ModalContent from './ModalContent';
 import ImportExportConfigurator from '../impexp/ImportExportConfigurator';
 import createImpExpScript from '../impexp/createImpExpScript';
 import { openNewTab } from '../utility/common';
-import { useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentArchive, useSetOpenedTabs } from '../utility/globalState';
 import RunnerOutputPane from '../query/RunnerOutputPane';
 import axios from '../utility/axios';
 
@@ -41,6 +41,7 @@ function GenerateSctriptButton({ modalState }) {
 export default function ImportExportModal({ modalState, initialValues }) {
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const [runnerId, setRunnerId] = React.useState(null);
+  const archive = useCurrentArchive();
 
   const handleExecute = async (values) => {
     const script = await createImpExpScript(values);
@@ -57,7 +58,13 @@ export default function ImportExportModal({ modalState, initialValues }) {
     <ModalBase modalState={modalState}>
       <Formik
         onSubmit={handleExecute}
-        initialValues={{ sourceStorageType: 'database', targetStorageType: 'csv', ...initialValues }}
+        initialValues={{
+          sourceStorageType: 'database',
+          targetStorageType: 'csv',
+          sourceArchiveFolder: archive,
+          targetArchiveFolder: archive,
+          ...initialValues,
+        }}
       >
         <Form>
           <ModalHeader modalState={modalState}>Import/Export</ModalHeader>

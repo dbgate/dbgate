@@ -20,6 +20,7 @@ const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 const files = require('./controllers/files');
+const archive = require('./controllers/archive');
 
 const { rundir } = require('./utility/directories');
 
@@ -55,6 +56,7 @@ function start(argument = null) {
   useController(app, '/jsldata', jsldata);
   useController(app, '/config', config);
   useController(app, '/files', files);
+  useController(app, '/archive', archive);
 
   if (process.env.PAGES_DIRECTORY) {
     app.use('/pages', express.static(process.env.PAGES_DIRECTORY));

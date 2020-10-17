@@ -1,12 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
+import Creatable from 'react-select/creatable';
 import { TextField, SelectField } from './inputs';
 import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { useConnectionList, useDatabaseList, useDatabaseInfo } from './metadataLoaders';
+import { useConnectionList, useDatabaseList, useDatabaseInfo, useArchiveFolders } from './metadataLoaders';
 import useSocket from './SocketProvider';
 import getAsArray from './getAsArray';
+import axios from './axios';
 
 export const FormRow = styled.div`
   display: flex;
@@ -85,11 +87,11 @@ export function FormRadioGroupItem({ name, text, value }) {
   );
 }
 
-export function FormReactSelect({ options, name, isMulti = false }) {
+export function FormReactSelect({ options, name, isMulti = false, Component = Select, ...other }) {
   const { setFieldValue, values } = useFormikContext();
 
   return (
-    <Select
+    <Component
       options={options}
       value={
         isMulti
@@ -102,6 +104,7 @@ export function FormReactSelect({ options, name, isMulti = false }) {
       menuPortalTarget={document.body}
       isMulti={isMulti}
       closeMenuOnSelect={!isMulti}
+      {...other}
     />
   );
 }
@@ -169,4 +172,26 @@ export function FormTablesSelect({ conidName, databaseName, schemaName, name }) 
 
   if (tablesOptions.length == 0) return <div>Not available</div>;
   return <FormReactSelect options={tablesOptions} name={name} isMulti />;
+}
+
+export function FormArchiveFolderSelect({ name }) {
+  const { setFieldValue } = useFormikContext();
+  const folders = useArchiveFolders();
+  const folderOptions = React.useMemo(
+    () =>
+      (folders || []).map((folder) => ({
+        value: folder.name,
+        label: folder.name,
+      })),
+    [folders]
+  );
+
+  const handleCreateOption = (folder) => {
+    axios.post('archive/create-folder', { folder });
+    setFieldValue(name, folder);
+  };
+
+  return (
+    <FormReactSelect options={folderOptions} name={name} Component={Creatable} onCreateOption={handleCreateOption} />
+  );
 }

@@ -4,6 +4,7 @@ import TableStructureTab from './TableStructureTab';
 import QueryTab from './QueryTab';
 import ShellTab from './ShellTab';
 import InfoPageTab from './InfoPageTab';
+import ArchiveFileTab from './ArchiveFileTab';
 
 export default {
   TableDataTab,
@@ -12,4 +13,5 @@ export default {
   QueryTab,
   InfoPageTab,
   ShellTab,
+  ArchiveFileTab,
 };

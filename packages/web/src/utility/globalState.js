@@ -87,12 +87,14 @@ export function useAppObjectParams() {
   const setSavedSqlFiles = useSetSavedSqlFiles();
   const openedConnections = useOpenedConnections();
   const setOpenedConnections = useSetOpenedConnections();
+  const currentArchive = useCurrentArchive();
   const showModal = useShowModal();
   const config = useConfig();
 
   return {
     setOpenedTabs,
     currentDatabase,
+    currentArchive,
     newQuery,
     openedTabs,
     setSavedSqlFiles,
@@ -113,3 +115,7 @@ export { OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnection
 const [LeftPanelWidthProvider, useLeftPanelWidth, useSetLeftPanelWidth] = createGlobalState(300);
 
 export { LeftPanelWidthProvider, useLeftPanelWidth, useSetLeftPanelWidth };
+
+const [CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive] = createGlobalState('default');
+
+export { CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive };
