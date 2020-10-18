@@ -1,7 +1,6 @@
-const path = require('path');
 const fs = require('fs');
 const lineReader = require('line-reader');
-const { jsldir, archivedir } = require('../utility/directories');
+const getJslFileName = require('../utility/getJslFileName');
 const socket = require('../utility/socket');
 
 function readFirstLine(file) {
@@ -20,13 +19,6 @@ function readFirstLine(file) {
   });
 }
 
-function getJslFileName(jslid) {
-  const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
-  if (archiveMatch) {
-    return path.join(archivedir(), archiveMatch[1], `${archiveMatch[2]}.jsonl`);
-  }
-  return path.join(jsldir(), `${jslid}.jsonl`);
-}
 
 module.exports = {
   openedReaders: {},

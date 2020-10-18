@@ -4,9 +4,12 @@ import moment from 'moment';
 import { DatabaseIcon, getIconImage, ArchiveTableIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
+import { filterName } from '@dbgate/datalib';
+import axios from '../utility/axios';
 
 function Menu({ data, setOpenedTabs }) {
   const handleDelete = () => {
+    axios.post('archive/delete-file', { file: data.fileName, folder: data.folderName });
     // setOpenedTabs((tabs) => tabs.filter((x) => x.tabid != data.tabid));
   };
   return (
@@ -32,8 +35,9 @@ const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs })
       },
     });
   };
+  const matcher = (filter) => filterName(filter, fileName);
 
-  return { title: fileName, key, Icon, Menu, onClick };
+  return { title: fileName, key, Icon, Menu, onClick, matcher };
 };
 
 export default archiveFileAppObject;

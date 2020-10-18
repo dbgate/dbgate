@@ -38,4 +38,27 @@ module.exports = {
         type: 'jsonl',
       }));
   },
+
+  refreshFiles_meta: 'post',
+  async refreshFiles({ folder }) {
+    socket.emitChanged(`archive-files-changed-${folder}`);
+  },
+
+  refreshFolders_meta: 'post',
+  async refreshFolders() {
+    socket.emitChanged(`archive-folders-changed`);
+  },
+
+  deleteFile_meta: 'post',
+  async deleteFile({ folder, file }) {
+    await fs.unlink(path.join(archivedir(), folder, `${file}.jsonl`));
+    socket.emitChanged(`archive-files-changed-${folder}`);
+  },
+
+  deleteFolder_meta: 'post',
+  async deleteFolder({ folder }) {
+    if (!folder) throw new Error('Missing folder parameter');
+    await fs.rmdir(path.join(archivedir(), folder), { recursive: true });
+    socket.emitChanged(`archive-folders-changed`);
+  },
 };

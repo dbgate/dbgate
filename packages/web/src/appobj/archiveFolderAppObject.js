@@ -3,10 +3,12 @@ import _ from 'lodash';
 import moment from 'moment';
 import { LocalDbIcon, getIconImage } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
+import axios from '../utility/axios';
+import { filterName } from '@dbgate/datalib';
 
 function Menu({ data, setOpenedTabs }) {
   const handleDelete = () => {
-    // setOpenedTabs((tabs) => tabs.filter((x) => x.tabid != data.tabid));
+    axios.post('archive/delete-folder', { folder: data.name });
   };
   return (
     <>
@@ -20,8 +22,9 @@ const archiveFolderAppObject = () => ({ name }, { setOpenedTabs, currentArchive 
   // const Icon = (props) => <i className="fas fa-archive" />;
   const Icon = LocalDbIcon;
   const isBold = name == currentArchive;
+  const matcher = (filter) => filterName(filter, name);
 
-  return { title: name, key, Icon, isBold, Menu };
+  return { title: name, key, Icon, isBold, Menu, matcher };
 };
 
 export default archiveFolderAppObject;

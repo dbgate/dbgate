@@ -1,9 +1,8 @@
-const path = require('path');
-const { jsldir } = require('../utility/directories');
+const getJslFileName = require('../utility/getJslFileName');
 const jsonLinesReader = require('./jsonLinesReader');
 
 function jslDataReader({ jslid }) {
-  const fileName = path.join(jsldir(), `${jslid}.jsonl`);
+  const fileName = getJslFileName(jslid);
   return jsonLinesReader({ fileName });
 }
 
