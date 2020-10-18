@@ -68,6 +68,15 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
   if (sourceStorageType == 'jsldata') {
     return ['jslDataReader', { jslid: values.sourceJslId }];
   }
+  if (sourceStorageType == 'archive') {
+    return [
+      'archiveReader',
+      {
+        folderName: values.sourceArchiveFolder,
+        fileName: sourceName,
+      },
+    ];
+  }
   throw new Error(`Unknown source storage type: ${sourceStorageType}`);
 }
 

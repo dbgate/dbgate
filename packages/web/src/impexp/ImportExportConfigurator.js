@@ -10,8 +10,9 @@ import {
   FormTablesSelect,
   FormSchemaSelect,
   FormArchiveFolderSelect,
+  FormArchiveFilesSelect,
 } from '../utility/forms';
-import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField } from '../utility/inputs';
 import { getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
@@ -167,6 +168,7 @@ function SourceTargetConfig({
         ];
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
+  const archiveFiles = useArchiveFiles({ folder: values[archiveFolderField] });
   return (
     <Column>
       {direction == 'source' && <Label>Source configuration</Label>}
@@ -238,6 +240,26 @@ function SourceTargetConfig({
         <>
           <Label>Archive folder</Label>
           <FormArchiveFolderSelect name={archiveFolderField} />
+        </>
+      )}
+
+      {storageType == 'archive' && direction == 'source' && (
+        <>
+          <Label>Source files</Label>
+          <FormArchiveFilesSelect folderName={values[archiveFolderField]} name={tablesField} />
+          <div>
+            <FormStyledButton
+              type="button"
+              value="All files"
+              onClick={() =>
+                setFieldValue(
+                  'sourceList',
+                  _.uniq([...(values.sourceList || []), ...(archiveFiles && archiveFiles.map((x) => x.name))])
+                )
+              }
+            />
+            <FormStyledButton type="button" value="Remove all" onClick={() => setFieldValue('sourceList', [])} />
+          </div>
         </>
       )}
 

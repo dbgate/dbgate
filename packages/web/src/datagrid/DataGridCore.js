@@ -618,25 +618,26 @@ export default function DataGridCore(props) {
   }
 
   function exportGrid() {
-    showModal((modalState) => (
-      <ImportExportModal
-        modalState={modalState}
-        initialValues={{
-          // sourceStorageType: jslid ? 'jsldata' : 'database',
-          // sourceJslId: jslid,
-          // sourceConnectionId: jslid ? undefined : conid,
-          // sourceDatabaseName: jslid ? undefined : database,
-          // sourceSchemaName: jslid ? undefined : display.baseTable && display.baseTable.schemaName,
-          // sourceList: jslid ? ['query-data'] : display.baseTable ? [display.baseTable.pureName] : [],
-          sourceStorageType: jslid ? 'jsldata' : 'query',
-          sourceJslId: jslid,
-          sourceConnectionId: jslid ? undefined : conid,
-          sourceDatabaseName: jslid ? undefined : database,
-          sourceSql: display.getExportQuery(),
-          sourceList: jslid ? ['query-data'] : display.baseTable ? [display.baseTable.pureName] : [],
-        }}
-      />
-    ));
+    const initialValues = {};
+    if (jslid) {
+      const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
+      if (archiveMatch) {
+        initialValues.sourceStorageType = 'archive';
+        initialValues.sourceArchiveFolder = archiveMatch[1];
+        initialValues.sourceList = [archiveMatch[2]];
+      } else {
+        initialValues.sourceStorageType = 'jsldata';
+        initialValues.sourceJslId = jslid;
+        initialValues.sourceList = ['query-data'];
+      }
+    } else {
+      initialValues.sourceStorageType = 'query';
+      initialValues.sourceConnectionId = conid;
+      initialValues.sourceDatabaseName = database;
+      initialValues.sourceSql = display.getExportQuery();
+      initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
+    }
+    showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
 
   function setCellValue(chs, cell, value) {

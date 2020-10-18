@@ -5,7 +5,13 @@ import Creatable from 'react-select/creatable';
 import { TextField, SelectField } from './inputs';
 import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { useConnectionList, useDatabaseList, useDatabaseInfo, useArchiveFolders } from './metadataLoaders';
+import {
+  useConnectionList,
+  useDatabaseList,
+  useDatabaseInfo,
+  useArchiveFolders,
+  useArchiveFiles,
+} from './metadataLoaders';
 import useSocket from './SocketProvider';
 import getAsArray from './getAsArray';
 import axios from './axios';
@@ -172,6 +178,22 @@ export function FormTablesSelect({ conidName, databaseName, schemaName, name }) 
 
   if (tablesOptions.length == 0) return <div>Not available</div>;
   return <FormReactSelect options={tablesOptions} name={name} isMulti />;
+}
+
+export function FormArchiveFilesSelect({ folderName, name }) {
+  // const { values } = useFormikContext();
+  const files = useArchiveFiles({ folder: folderName });
+  const filesOptions = React.useMemo(
+    () =>
+      (files || []).map((x) => ({
+        value: x.name,
+        label: x.name,
+      })),
+    [files]
+  );
+
+  if (filesOptions.length == 0) return <div>Not available</div>;
+  return <FormReactSelect options={filesOptions} name={name} isMulti />;
 }
 
 export function FormArchiveFolderSelect({ name }) {
