@@ -104,9 +104,26 @@ function TabContextMenu({ close, closeAll, closeOthers, closeWithSameDb, closeWi
   );
 }
 
+function getTabDbName(tab) {
+  if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
+  if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
+  return '(no DB)';
+}
+
+function getTabDbKey(tab) {
+  if (tab.props && tab.props.conid && tab.props.database) return `database://${tab.props.database}-${tab.props.conid}`;
+  if (tab.props && tab.props.archiveFolder) return `archive://${tab.props.archiveFolder}`;
+  return '_no';
+}
+
+function getDbIcon(key) {
+  if (key.startsWith('database://')) return 'fas fa-database';
+  if (key.startsWith('archive://')) return 'fas fa-archive';
+  return 'fas fa-file';
+}
+
 export default function TabsPanel() {
-  const noDbKey = '_no';
-  const formatDbKey = (conid, database) => `${database}-${conid}`;
+  // const formatDbKey = (conid, database) => `${database}-${conid}`;
 
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
@@ -114,7 +131,7 @@ export default function TabsPanel() {
   const setCurrentDb = useSetCurrentDatabase();
 
   const { name, connection } = currentDb || {};
-  const currentDbKey = name && connection ? formatDbKey(connection._id, name) : noDbKey;
+  const currentDbKey = name && connection ? `database://${name}-${connection._id}` : '_no';
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -202,9 +219,8 @@ export default function TabsPanel() {
     .filter((x) => !x.closedTime)
     .map((tab) => ({
       ...tab,
-      tabDbName: tab.props && tab.props.conid && tab.props.database ? tab.props.database : '(no DB)',
-      tabDbKey:
-        tab.props && tab.props.conid && tab.props.database ? formatDbKey(tab.props.conid, tab.props.database) : noDbKey,
+      tabDbName: getTabDbName(tab),
+      tabDbKey: getTabDbKey(tab),
     }));
   const tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
   const dbKeys = _.keys(tabsByDb).sort();
@@ -230,7 +246,7 @@ export default function TabsPanel() {
             selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
             onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
           >
-            <i className="fas fa-database" /> {tabsByDb[dbKey][0].tabDbName}
+            <i className={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
           <DbGroupHandler>
             {_.sortBy(tabsByDb[dbKey], 'title').map((tab) => (

@@ -30,8 +30,8 @@ const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs })
       tooltip: `${folderName}\n${fileName}`,
       tabComponent: 'ArchiveFileTab',
       props: {
-        fileName,
-        folderName,
+        archiveFile: fileName,
+        archiveFolder: folderName,
       },
     });
   };
