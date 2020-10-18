@@ -15,6 +15,7 @@ import {
 } from './ManagerStyles';
 import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
+import LoadingDataGrid from './LoadingDataGrid';
 
 const MainContainer = styled.div`
   position: absolute;
@@ -50,18 +51,18 @@ export default function DataGrid(props) {
       <LeftContainer>
         <ManagerMainContainer>
           <Container1>
-            <ColumnManager {...props} managerSize={managerSize}/>
+            <ColumnManager {...props} managerSize={managerSize} />
           </Container1>
           {props.showReferences && (
             <ManagerOuterContainer2>
-              <ReferenceManager {...props} managerSize={managerSize}/>
+              <ReferenceManager {...props} managerSize={managerSize} />
             </ManagerOuterContainer2>
           )}
         </ManagerMainContainer>
       </LeftContainer>
 
       <DataGridContainer>
-        <DataGridCore {...props} />
+        <LoadingDataGrid {...props} />
       </DataGridContainer>
     </HorizontalSplitter>
 
