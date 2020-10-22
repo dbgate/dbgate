@@ -9,9 +9,9 @@ class DatastoreProxy {
     this.requests = {};
     this.handle_response = this.handle_response.bind(this);
     this.handle_ping = this.handle_ping.bind(this);
+    this.notifyChangedCallback = null;
   }
 
-  // handle_response({ msgid, rows }) {
   handle_response({ msgid, rows }) {
     const [resolve, reject] = this.requests[msgid];
     resolve(rows);
@@ -20,6 +20,11 @@ class DatastoreProxy {
 
   handle_ping() {}
 
+  handle_notify({ msgid }) {
+    const [resolve, reject] = this.requests[msgid];
+    resolve();
+    delete this.requests[msgid];
+  }
 
   async ensureSubprocess() {
     if (!this.subprocess) {
@@ -49,7 +54,22 @@ class DatastoreProxy {
     return promise;
   }
 
-  async notifyChanged() {}
+  async notifyChangedCore() {
+    const msgid = uuidv1();
+    const promise = new Promise((resolve, reject) => {
+      this.requests[msgid] = [resolve, reject];
+      this.subprocess.send({ msgtype: 'notify', msgid });
+    });
+    return promise;
+  }
+
+  async notifyChanged(callback) {
+    this.notifyChangedCallback = callback;
+    await this.notifyChangedCore();
+    const call = this.notifyChangedCallback;
+    this.notifyChangedCallback = null;
+    if (call) call();
+  }
 }
 
 module.exports = DatastoreProxy;

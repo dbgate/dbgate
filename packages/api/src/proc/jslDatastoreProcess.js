@@ -8,7 +8,7 @@ function handlePing() {
   lastPing = new Date().getTime();
 }
 
-function handleOpen({file }) {
+function handleOpen({ file }) {
   handlePing();
   datastore = new JsonLinesDatastore(file);
 }
@@ -19,15 +19,16 @@ async function handleRead({ msgid, offset, limit }) {
   process.send({ msgtype: 'response', msgid, rows });
 }
 
-function handleNotifyChanged() {
-  datastore.notifyChanged();
+async function handleNotify({ msgid }) {
+  await datastore.notifyChanged();
+  process.send({ msgtype: 'notify', msgid });
 }
 
 const messageHandlers = {
   open: handleOpen,
   read: handleRead,
   ping: handlePing,
-  notifyChanged: handleNotifyChanged,
+  notify: handleNotify,
 };
 
 async function handleMessage({ msgtype, ...other }) {
