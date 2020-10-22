@@ -42,7 +42,7 @@ const DataGridContainer = styled.div`
   flex-grow: 1;
 `;
 
-/** @param props {import('./types').DataGridProps} */
+/** @param props {import('./types').LoadingDataGridProps} */
 export default function DataGrid(props) {
   const Container1 = props.showReferences ? ManagerOuterContainer1 : ManagerOuterContainerFull;
   const [managerSize, setManagerSize] = React.useState(0);
