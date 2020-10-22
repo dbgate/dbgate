@@ -11,7 +11,7 @@ class JsonLinesDatastore {
     this.notifyChangedCallback = null;
   }
 
-  closeReader() {
+  _closeReader() {
     if (!this.reader) return;
     const reader = this.reader;
     this.reader = null;
@@ -23,14 +23,14 @@ class JsonLinesDatastore {
   async notifyChanged(callback) {
     this.notifyChangedCallback = callback;
     await lock.acquire('reader', async () => {
-      this.closeReader();
+      this._closeReader();
     });
     const call = this.notifyChangedCallback;
     this.notifyChangedCallback = null;
     if (call) call();
   }
 
-  async openReader() {
+  async _openReader() {
     return new Promise((resolve, reject) =>
       lineReader.open(this.file, (err, reader) => {
         if (err) reject(err);
@@ -39,7 +39,7 @@ class JsonLinesDatastore {
     );
   }
 
-  readLine() {
+  _readLine() {
     return new Promise((resolve, reject) => {
       const reader = this.reader;
       if (!reader.hasNextLine()) {
@@ -55,28 +55,28 @@ class JsonLinesDatastore {
     });
   }
 
-  async ensureReader(offset) {
+  async _ensureReader(offset) {
     if (this.readedDataRowCount > offset) {
-      this.closeReader();
+      this._closeReader();
     }
     if (!this.reader) {
-      const reader = await this.openReader();
+      const reader = await this._openReader();
       this.reader = reader;
     }
     if (!this.readedSchemaRow) {
-      await this.readLine(); // skip structure
+      await this._readLine(); // skip structure
     }
     while (this.readedDataRowCount < offset) {
-      await this.readLine();
+      await this._readLine();
     }
   }
 
   async getRows(offset, limit) {
     const res = [];
     await lock.acquire('reader', async () => {
-      await this.ensureReader(offset);
+      await this._ensureReader(offset);
       for (let i = 0; i < limit; i += 1) {
-        const line = await this.readLine();
+        const line = await this._readLine();
         if (line == null) break;
         res.push(JSON.parse(line));
       }
