@@ -176,7 +176,14 @@ export default function TabsPanel() {
 
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = () => {
-    setOpenedTabs([]);
+    const closedTime = new Date().getTime();
+    setOpenedTabs((tabs) =>
+      tabs.map((tab) => ({
+        ...tab,
+        closedTime: tab.closedTime || closedTime,
+        selected: false,
+      }))
+    );
   };
   const closeWithSameDb = closeTabFunc(
     (x, active) =>
