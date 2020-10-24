@@ -171,10 +171,10 @@ function DataGridRow(props) {
     inplaceEditorState,
     dispatchInsplaceEditor,
     // row,
-    display,
+    // display,
     // changeSet,
     // setChangeSet,
-    insertedRowIndex,
+    // insertedRowIndex,
     autofillMarkerCell,
     selectedCells,
     autofillSelectedCells,
@@ -236,7 +236,7 @@ function DataGridRow(props) {
           isModifiedRow={rowStatus.status == 'updated'}
           isFocusedColumn={col.uniqueName == focusedColumn}
           isModifiedCell={rowStatus.status == 'updated' && rowStatus.modifiedFields.has(col.uniqueName)}
-          isInsertedRow={insertedRowIndex != null}
+          isInsertedRow={rowStatus.status == 'inserted'}
           isDeletedRow={rowStatus.status == 'deleted'}
         >
           {inplaceEditorState.cell &&

@@ -142,6 +142,7 @@ export default function DataGridCore(props) {
     exportGrid,
     allRowCount,
     openQuery,
+    onSave,
     insertedRowCount,
     isLoading,
     grider,
@@ -201,8 +202,6 @@ export default function DataGridCore(props) {
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
   // const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
-  const confirmSqlModalState = useModalState();
-  const [confirmSql, setConfirmSql] = React.useState('');
 
   const changeSet = changeSetState && changeSetState.value;
   const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
@@ -660,8 +659,13 @@ export default function DataGridCore(props) {
   }
 
   function deleteSelectedRows() {
-    const updatedChangeSet = getSelectedRowDefinitions().reduce((chs, row) => deleteChangeSetRows(chs, row), changeSet);
-    setChangeSet(updatedChangeSet);
+    grider.beginUpdate();
+    for (const index of getSelectedRowIndexes()) {
+      if (_.isNumber(index)) grider.deleteRow(index);
+    }
+    grider.endUpdate();
+    // const updatedChangeSet = getSelectedRowDefinitions().reduce((chs, row) => deleteChangeSetRows(chs, row), changeSet);
+    // setChangeSet(updatedChangeSet);
   }
 
   function handleGridWheel(event) {
@@ -698,33 +702,13 @@ export default function DataGridCore(props) {
       dispatchInsplaceEditor({ type: 'shouldSave' });
       return;
     }
+    if (onSave) onSave();
     // const script = changeSetToSql(changeSetRef.current, display.dbinfo);
     // const sql = scriptToSql(display.driver, script);
     // setConfirmSql(sql);
     // confirmSqlModalState.open();
   }
 
-  async function handleConfirmSql() {
-    // const resp = await axios.request({
-    //   url: 'database-connections/query-data',
-    //   method: 'post',
-    //   params: {
-    //     conid,
-    //     database,
-    //   },
-    //   data: { sql: confirmSql },
-    // });
-    // const { errorMessage } = resp.data || {};
-    // if (errorMessage) {
-    //   showModal((modalState) => (
-    //     <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
-    //   ));
-    // } else {
-    //   dispatchChangeSet({ type: 'reset', value: createChangeSet() });
-    //   setConfirmSql(null);
-    //   display.reload();
-    // }
-  }
 
   const insertNewRow = () => {
     if (display.baseTable) {
@@ -1109,12 +1093,6 @@ export default function DataGridCore(props) {
         maximum={grider.rowCount - visibleRowCountUpperBound + 2}
         onScroll={handleRowScroll}
         viewportRatio={visibleRowCountUpperBound / grider.rowCount}
-      />
-      <ConfirmSqlModal
-        modalState={confirmSqlModalState}
-        sql={confirmSql}
-        engine={display.engine}
-        onConfirm={handleConfirmSql}
       />
       {allRowCount && <RowCountLabel>{rowCountInfo}</RowCountLabel>}
       {props.toolbarPortalRef &&

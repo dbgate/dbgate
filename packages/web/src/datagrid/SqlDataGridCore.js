@@ -5,10 +5,14 @@ import DataGridCore from './DataGridCore';
 import useSocket from '../utility/SocketProvider';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
-import { getChangeSetInsertedRows } from '@dbgate/datalib';
+import { changeSetToSql, createChangeSet, getChangeSetInsertedRows } from '@dbgate/datalib';
 import { openNewTab } from '../utility/common';
 import LoadingDataGridCore from './LoadingDataGridCore';
 import ChangeSetGrider from './ChangeSetGrider';
+import { scriptToSql } from '@dbgate/sqltree';
+import useModalState from '../modals/useModalState';
+import ConfirmSqlModal from '../modals/ConfirmSqlModal';
+import ErrorMessageModal from '../modals/ErrorMessageModal';
 
 /** @param props {import('./types').DataGridProps} */
 async function loadDataPage(props, offset, limit) {
@@ -60,6 +64,13 @@ export default function SqlDataGridCore(props) {
   const showModal = useShowModal();
   const setOpenedTabs = useSetOpenedTabs();
 
+  const confirmSqlModalState = useModalState();
+  const [confirmSql, setConfirmSql] = React.useState('');
+
+  const changeSet = changeSetState && changeSetState.value;
+  const changeSetRef = React.useRef(changeSet);
+  changeSetRef.current = changeSet;
+
   function exportGrid() {
     const initialValues = {};
     initialValues.sourceStorageType = 'query';
@@ -84,18 +95,57 @@ export default function SqlDataGridCore(props) {
     });
   }
 
+  function handleSave() {
+    const script = changeSetToSql(changeSetRef.current, display.dbinfo);
+    const sql = scriptToSql(display.driver, script);
+    setConfirmSql(sql);
+    confirmSqlModalState.open();
+  }
+
+  async function handleConfirmSql() {
+    const resp = await axios.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql: confirmSql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal((modalState) => (
+        <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
+      ));
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      setConfirmSql(null);
+      display.reload();
+    }
+  }
+
   // const grider = React.useMemo(()=>new ChangeSetGrider())
 
   return (
-    <LoadingDataGridCore
-      {...props}
-      exportGrid={exportGrid}
-      openQuery={openQuery}
-      loadDataPage={loadDataPage}
-      dataPageAvailable={dataPageAvailable}
-      loadRowCount={loadRowCount}
-      griderFactory={ChangeSetGrider.factory}
-      griderFactoryDeps={ChangeSetGrider.factoryDeps}
-    />
+    <>
+      <LoadingDataGridCore
+        {...props}
+        exportGrid={exportGrid}
+        openQuery={openQuery}
+        loadDataPage={loadDataPage}
+        dataPageAvailable={dataPageAvailable}
+        loadRowCount={loadRowCount}
+        griderFactory={ChangeSetGrider.factory}
+        griderFactoryDeps={ChangeSetGrider.factoryDeps}
+        changeSet={changeSetState && changeSetState.value}
+        onSave={handleSave}
+      />
+      <ConfirmSqlModal
+        modalState={confirmSqlModalState}
+        sql={confirmSql}
+        engine={display.engine}
+        onConfirm={handleConfirmSql}
+      />
+    </>
   );
 }

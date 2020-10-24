@@ -56,7 +56,9 @@ export default class ChangeSetGrider extends Grider {
     if (insertedRowIndex != null) status = 'inserted';
     const rowStatus = {
       status,
-      modifiedFields: new Set(matchedChangeSetItem ? Object.keys(matchedChangeSetItem.fields) : []),
+      modifiedFields: new Set(
+        matchedChangeSetItem && matchedChangeSetItem.fields ? Object.keys(matchedChangeSetItem.fields) : []
+      ),
     };
     this.rowDataCache[index] = rowUpdated;
     this.rowStatusCache[index] = rowStatus;
