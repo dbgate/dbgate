@@ -8,6 +8,7 @@ import ImportExportModal from '../modals/ImportExportModal';
 import { getChangeSetInsertedRows } from '@dbgate/datalib';
 import { openNewTab } from '../utility/common';
 import LoadingDataGridCore from './LoadingDataGridCore';
+import RowsArrayGrider from './RowsArrayGrider';
 
 async function loadDataPage(props, offset, limit) {
   const { jslid } = props;
@@ -88,6 +89,8 @@ export default function JslDataGridCore(props) {
       loadRowCount={loadRowCount}
       loadNextDataToken={changeIndex}
       onReload={() => setChangeIndex(0)}
+      griderFactory={RowsArrayGrider.factory}
+      griderFactoryDeps={RowsArrayGrider.factoryDeps}
     />
   );
 }

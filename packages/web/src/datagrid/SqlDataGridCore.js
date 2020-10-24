@@ -8,8 +8,9 @@ import ImportExportModal from '../modals/ImportExportModal';
 import { getChangeSetInsertedRows } from '@dbgate/datalib';
 import { openNewTab } from '../utility/common';
 import LoadingDataGridCore from './LoadingDataGridCore';
+import ChangeSetGrider from './ChangeSetGrider';
 
-/** @param props {import('./types').LoadingDataGridProps} */
+/** @param props {import('./types').DataGridProps} */
 async function loadDataPage(props, offset, limit) {
   const { display, conid, database } = props;
 
@@ -53,6 +54,7 @@ async function loadRowCount(props) {
   return parseInt(response.data.rows[0].count);
 }
 
+/** @param props {import('./types').DataGridProps} */
 export default function SqlDataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
   const showModal = useShowModal();
@@ -82,6 +84,8 @@ export default function SqlDataGridCore(props) {
     });
   }
 
+  // const grider = React.useMemo(()=>new ChangeSetGrider())
+
   return (
     <LoadingDataGridCore
       {...props}
@@ -90,6 +94,8 @@ export default function SqlDataGridCore(props) {
       loadDataPage={loadDataPage}
       dataPageAvailable={dataPageAvailable}
       loadRowCount={loadRowCount}
+      griderFactory={ChangeSetGrider.factory}
+      griderFactoryDeps={ChangeSetGrider.factoryDeps}
     />
   );
 }

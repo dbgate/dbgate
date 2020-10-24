@@ -16,13 +16,16 @@ const StyledInput = styled.input`
 
 export default function InplaceEditor({
   widthPx,
-  definition,
-  changeSet,
-  setChangeSet,
+  // definition,
+  // changeSet,
+  // setChangeSet,
+  rowIndex,
+  uniqueName,
+  grider,
   cellValue,
   inplaceEditorState,
   dispatchInsplaceEditor,
-  isInsertedRow,
+  // isInsertedRow,
 }) {
   const editorRef = React.useRef();
   const isChangedRef = React.useRef(!!inplaceEditorState.text);
@@ -37,7 +40,8 @@ export default function InplaceEditor({
   function handleBlur() {
     if (isChangedRef.current) {
       const editor = editorRef.current;
-      setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+      grider.setCellValue(rowIndex, uniqueName, editor.value);
+      // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
       isChangedRef.current = false;
     }
     dispatchInsplaceEditor({ type: 'close' });
@@ -45,7 +49,8 @@ export default function InplaceEditor({
   if (inplaceEditorState.shouldSave) {
     const editor = editorRef.current;
     if (isChangedRef.current) {
-      setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+      grider.setCellValue(rowIndex, uniqueName, editor.value);
+      // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
       isChangedRef.current = false;
     }
     editor.blur();
@@ -60,7 +65,8 @@ export default function InplaceEditor({
         break;
       case keycodes.enter:
         if (isChangedRef.current) {
-          setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+          grider.setCellValue(rowIndex, uniqueName, editor.value);
+          // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
           isChangedRef.current = false;
         }
         editor.blur();
@@ -69,7 +75,8 @@ export default function InplaceEditor({
       case keycodes.s:
         if (event.ctrlKey) {
           if (isChangedRef.current) {
-            setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
+            grider.setCellValue(rowIndex, uniqueName, editor.value);
+            // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
             isChangedRef.current = false;
           }
           event.preventDefault();

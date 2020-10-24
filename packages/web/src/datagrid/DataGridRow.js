@@ -34,13 +34,13 @@ const TableBodyCell = styled.td`
     color: white;`}
 
     ${(props) =>
-      props.isModifiedRow &&
-      !props.isInsertedRow &&
-      !props.isSelected &&
-      !props.isAutofillSelected &&
-      !props.isModifiedCell &&
-      !props.isFocusedColumn &&
-      `
+    props.isModifiedRow &&
+    !props.isInsertedRow &&
+    !props.isSelected &&
+    !props.isAutofillSelected &&
+    !props.isModifiedCell &&
+    !props.isFocusedColumn &&
+    `
   background-color: #FFFFDB;`}
   ${(props) =>
     !props.isSelected &&
@@ -60,11 +60,11 @@ const TableBodyCell = styled.td`
       background-color: #DBFFDB;`}
 
     ${(props) =>
-      !props.isSelected &&
-      !props.isAutofillSelected &&
-      !props.isFocusedColumn &&
-      props.isDeletedRow &&
-      `
+    !props.isSelected &&
+    !props.isAutofillSelected &&
+    !props.isFocusedColumn &&
+    props.isDeletedRow &&
+    `
       background-color: #FFDBFF;
   `}
 
@@ -75,14 +75,13 @@ const TableBodyCell = styled.td`
   `}
   
     ${(props) =>
-      props.isDeletedRow &&
-      `
+    props.isDeletedRow &&
+    `
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
       // from http://www.patternify.com/
       background-repeat: repeat-x;
       background-position: 50% 50%;`}
-        
-  `;
+`;
 
 const HintSpan = styled.span`
   color: gray;
@@ -163,22 +162,25 @@ function CellFormattedValue({ value, dataType }) {
   return value.toString();
 }
 
-function DataGridRow({
-  rowHeight,
-  rowIndex,
-  visibleRealColumns,
-  inplaceEditorState,
-  dispatchInsplaceEditor,
-  row,
-  display,
-  changeSet,
-  setChangeSet,
-  insertedRowIndex,
-  autofillMarkerCell,
-  selectedCells,
-  autofillSelectedCells,
-  focusedColumn,
-}) {
+/** @param props {import('./types').DataGridProps} */
+function DataGridRow(props) {
+  const {
+    rowHeight,
+    rowIndex,
+    visibleRealColumns,
+    inplaceEditorState,
+    dispatchInsplaceEditor,
+    // row,
+    display,
+    // changeSet,
+    // setChangeSet,
+    insertedRowIndex,
+    autofillMarkerCell,
+    selectedCells,
+    autofillSelectedCells,
+    focusedColumn,
+    grider,
+  } = props;
   // usePropsCompare({
   //   rowHeight,
   //   rowIndex,
@@ -197,17 +199,22 @@ function DataGridRow({
 
   // console.log('RENDER ROW', rowIndex);
 
-  const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
-  const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
-  const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
+  const rowData = grider.getRowData(rowIndex);
+  const rowStatus = grider.getRowStatus(rowIndex);
+
+  // const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
+  // const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
+  // const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
+
   const hintFieldsAllowed = visibleRealColumns
     .filter((col) => {
       if (!col.hintColumnName) return false;
-      if (matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields)
-        return false;
+      if (rowStatus.status == 'updated' && rowStatus.modifiedFields.has(col.uniqueName)) return false;
       return true;
     })
     .map((col) => col.uniqueName);
+
+  if (!rowData) return null;
 
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }}>
@@ -226,13 +233,11 @@ function DataGridRow({
           data-col={col.colIndex}
           isSelected={cellIsSelected(rowIndex, col.colIndex, selectedCells)}
           isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
-          isModifiedRow={!!matchedChangeSetItem}
+          isModifiedRow={rowStatus.status == 'updated'}
           isFocusedColumn={col.uniqueName == focusedColumn}
-          isModifiedCell={
-            matchedChangeSetItem && matchedField == 'updates' && col.uniqueName in matchedChangeSetItem.fields
-          }
+          isModifiedCell={rowStatus.status == 'updated' && rowStatus.modifiedFields.has(col.uniqueName)}
           isInsertedRow={insertedRowIndex != null}
-          isDeletedRow={matchedField == 'deletes'}
+          isDeletedRow={rowStatus.status == 'deleted'}
         >
           {inplaceEditorState.cell &&
           rowIndex == inplaceEditorState.cell[0] &&
@@ -241,16 +246,19 @@ function DataGridRow({
               widthPx={col.widthPx}
               inplaceEditorState={inplaceEditorState}
               dispatchInsplaceEditor={dispatchInsplaceEditor}
-              cellValue={rowUpdated[col.uniqueName]}
-              changeSet={changeSet}
-              setChangeSet={setChangeSet}
-              insertedRowIndex={insertedRowIndex}
-              definition={display.getChangeSetField(row, col.uniqueName, insertedRowIndex)}
+              cellValue={rowData[col.uniqueName]}
+              grider={grider}
+              rowIndex={rowIndex}
+              uniqueName={col.uniqueName}
+              // changeSet={changeSet}
+              // setChangeSet={setChangeSet}
+              // insertedRowIndex={insertedRowIndex}
+              // definition={display.getChangeSetField(row, col.uniqueName, insertedRowIndex)}
             />
           ) : (
             <>
-              <CellFormattedValue value={rowUpdated[col.uniqueName]} dataType={col.dataType} />
-              {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{row[col.hintColumnName]}</HintSpan>}
+              <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} />
+              {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{rowData[col.hintColumnName]}</HintSpan>}
             </>
           )}
           {autofillMarkerCell && autofillMarkerCell[1] == col.colIndex && autofillMarkerCell[0] == rowIndex && (
