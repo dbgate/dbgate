@@ -29,6 +29,9 @@ export default abstract class Grider {
   revertAllChanges() {}
   undo() {}
   redo() {}
+  get rowCountInUpdate() {
+    return this.rowCount;
+  }
   get canUndo() {
     return false;
   }

@@ -448,73 +448,67 @@ export default function DataGridCore(props) {
 
   function setCellValue(cell, value) {
     grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
-    // return setChangeSetValue(
-    //   chs,
-    //   display.getChangeSetField(
-    //     rows[cell[0]],
-    //     realColumnUniqueNames[cell[1]],
-    //     cell[0] >= rows.length ? cell[0] - rows.length : null
-    //   ),
-    //   value
-    // );
   }
 
   function handlePaste(event) {
-    // var pastedText = undefined;
-    // // @ts-ignore
-    // if (window.clipboardData && window.clipboardData.getData) {
-    //   // IE
-    //   // @ts-ignore
-    //   pastedText = window.clipboardData.getData('Text');
-    // } else if (event.clipboardData && event.clipboardData.getData) {
-    //   pastedText = event.clipboardData.getData('text/plain');
-    // }
-    // event.preventDefault();
-    // const pasteRows = pastedText
-    //   .replace(/\r/g, '')
-    //   .split('\n')
-    //   .map((row) => row.split('\t'));
+    var pastedText = undefined;
+    // @ts-ignore
+    if (window.clipboardData && window.clipboardData.getData) {
+      // IE
+      // @ts-ignore
+      pastedText = window.clipboardData.getData('Text');
+    } else if (event.clipboardData && event.clipboardData.getData) {
+      pastedText = event.clipboardData.getData('text/plain');
+    }
+    event.preventDefault();
+    grider.beginUpdate();
+    const pasteRows = pastedText
+      .replace(/\r/g, '')
+      .split('\n')
+      .map((row) => row.split('\t'));
     // let chs = changeSet;
     // let allRows = loadedAndInsertedRows;
-    // if (selectedCells.length <= 1) {
-    //   const startRow = isRegularCell(currentCell) ? currentCell[0] : loadedAndInsertedRows.length;
-    //   const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
-    //   let rowIndex = startRow;
-    //   for (const rowData of pasteRows) {
-    //     if (rowIndex >= allRows.length) {
-    //       chs = changeSetInsertNewRow(chs, display.baseTable);
-    //       allRows = [...loadedRows, ...getChangeSetInsertedRows(chs, display.baseTable)];
-    //     }
-    //     let colIndex = startCol;
-    //     const row = allRows[rowIndex];
-    //     for (const cell of rowData) {
-    //       chs = setChangeSetValue(
-    //         chs,
-    //         display.getChangeSetField(
-    //           row,
-    //           realColumnUniqueNames[colIndex],
-    //           rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
-    //         ),
-    //         cell == '(NULL)' ? null : cell
-    //       );
-    //       colIndex += 1;
-    //     }
-    //     rowIndex += 1;
-    //   }
-    // }
-    // if (selectedCells.length > 1) {
-    //   const regularSelected = selectedCells.filter(isRegularCell);
-    //   const startRow = _.min(regularSelected.map((x) => x[0]));
-    //   const startCol = _.min(regularSelected.map((x) => x[1]));
-    //   for (const cell of regularSelected) {
-    //     const [rowIndex, colIndex] = cell;
-    //     const selectionRow = rowIndex - startRow;
-    //     const selectionCol = colIndex - startCol;
-    //     const pasteRow = pasteRows[selectionRow % pasteRows.length];
-    //     const pasteCell = pasteRow[selectionCol % pasteRow.length];
-    //     chs = setCellValue(chs, cell, pasteCell);
-    //   }
-    // }
+    if (selectedCells.length <= 1) {
+      const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
+      const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
+      let rowIndex = startRow;
+      for (const rowData of pasteRows) {
+        if (rowIndex >= grider.rowCountInUpdate) {
+          grider.insertRow();
+        }
+        let colIndex = startCol;
+        // const row = allRows[rowIndex];
+        for (const cell of rowData) {
+          setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
+          // chs = setChangeSetValue(
+          //   chs,
+          //   display.getChangeSetField(
+          //     row,
+          //     realColumnUniqueNames[colIndex],
+          //     rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
+          //   ),
+          //   cell == '(NULL)' ? null : cell
+          // );
+          colIndex += 1;
+        }
+        rowIndex += 1;
+      }
+    }
+    if (selectedCells.length > 1) {
+      const regularSelected = selectedCells.filter(isRegularCell);
+      const startRow = _.min(regularSelected.map((x) => x[0]));
+      const startCol = _.min(regularSelected.map((x) => x[1]));
+      for (const cell of regularSelected) {
+        const [rowIndex, colIndex] = cell;
+        const selectionRow = rowIndex - startRow;
+        const selectionCol = colIndex - startCol;
+        const pasteRow = pasteRows[selectionRow % pasteRows.length];
+        const pasteCell = pasteRow[selectionCol % pasteRow.length];
+        setCellValue(cell, pasteCell);
+        // chs = setCellValue(chs, cell, pasteCell);
+      }
+    }
+    grider.endUpdate();
     // setChangeSet(chs);
   }
 
@@ -524,11 +518,6 @@ export default function DataGridCore(props) {
       setCellValue(cell, null);
     });
     grider.endUpdate();
-    // let chs = changeSet;
-    // selectedCells.filter(isRegularCell).forEach((cell) => {
-    //   chs = setCellValue(chs, cell, null);
-    // });
-    // setChangeSet(chs);
   }
 
   function cellsToRegularCells(cells) {
@@ -659,10 +648,10 @@ export default function DataGridCore(props) {
     display.setFilters(flts);
   }
 
-  function revertAllChanges() {
-    grider.revertAllChanges();
-    // setChangeSet(createChangeSet());
-  }
+  // function revertAllChanges() {
+  //   grider.revertAllChanges();
+  //   // setChangeSet(createChangeSet());
+  // }
 
   function deleteSelectedRows() {
     grider.beginUpdate();

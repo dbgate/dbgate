@@ -99,9 +99,19 @@ export default class ChangeSetGrider extends Grider {
     this.applyModification((chs) => deleteChangeSetRows(chs, this.rowDefinitionsCache[index]));
   }
 
+  get rowCountInUpdate() {
+    if (this.batchChangeSet) {
+      const newRows = getChangeSetInsertedRows(this.batchChangeSet, this.display.baseTable);
+      return this.sourceRows.length + newRows.length;
+    } else {
+      return this.rowCount;
+    }
+  }
+
   insertRow(): number {
+    const res = this.rowCountInUpdate;
     this.applyModification((chs) => changeSetInsertNewRow(chs, this.display.baseTable));
-    return this.rowCount;
+    return res;
   }
 
   beginUpdate() {
