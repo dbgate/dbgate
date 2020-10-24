@@ -170,11 +170,6 @@ function DataGridRow(props) {
     visibleRealColumns,
     inplaceEditorState,
     dispatchInsplaceEditor,
-    // row,
-    // display,
-    // changeSet,
-    // setChangeSet,
-    // insertedRowIndex,
     autofillMarkerCell,
     selectedCells,
     autofillSelectedCells,
@@ -201,10 +196,6 @@ function DataGridRow(props) {
 
   const rowData = grider.getRowData(rowIndex);
   const rowStatus = grider.getRowStatus(rowIndex);
-
-  // const rowDefinition = display.getChangeSetRow(row, insertedRowIndex);
-  // const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(changeSet, rowDefinition);
-  // const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
 
   const hintFieldsAllowed = visibleRealColumns
     .filter((col) => {
@@ -250,10 +241,6 @@ function DataGridRow(props) {
               grider={grider}
               rowIndex={rowIndex}
               uniqueName={col.uniqueName}
-              // changeSet={changeSet}
-              // setChangeSet={setChangeSet}
-              // insertedRowIndex={insertedRowIndex}
-              // definition={display.getChangeSetField(row, col.uniqueName, insertedRowIndex)}
             />
           ) : (
             <>

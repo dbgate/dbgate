@@ -1,12 +1,9 @@
 import React from 'react';
 import axios from '../utility/axios';
 import { useSetOpenedTabs } from '../utility/globalState';
-import DataGridCore from './DataGridCore';
 import useSocket from '../utility/SocketProvider';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
-import { getChangeSetInsertedRows } from '@dbgate/datalib';
-import { openNewTab } from '../utility/common';
 import LoadingDataGridCore from './LoadingDataGridCore';
 import RowsArrayGrider from './RowsArrayGrider';
 

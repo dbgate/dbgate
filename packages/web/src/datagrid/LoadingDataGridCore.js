@@ -1,89 +1,9 @@
 import React from 'react';
-import axios from '../utility/axios';
-import { useSetOpenedTabs } from '../utility/globalState';
 import DataGridCore from './DataGridCore';
-import useSocket from '../utility/SocketProvider';
-import useShowModal from '../modals/showModal';
-import ImportExportModal from '../modals/ImportExportModal';
-import { getChangeSetInsertedRows } from '@dbgate/datalib';
-import { openNewTab } from '../utility/common';
-
-// /** @param props {import('./types').LoadingDataGridProps} */
-// async function loadDataPage(props, offset, limit) {
-//   const { display, conid, database, jslid } = props;
-
-//   if (jslid) {
-//     const response = await axios.request({
-//       url: 'jsldata/get-rows',
-//       method: 'get',
-//       params: {
-//         jslid,
-//         offset,
-//         limit,
-//       },
-//     });
-//     return response.data;
-//   }
-
-//   const sql = display.getPageQuery(offset, limit);
-
-//   const response = await axios.request({
-//     url: 'database-connections/query-data',
-//     method: 'post',
-//     params: {
-//       conid,
-//       database,
-//     },
-//     data: { sql },
-//   });
-
-//   if (response.data.errorMessage) return response.data;
-//   return response.data.rows;
-// }
-
-// function dataPageAvailable(props) {
-//   const { display, jslid } = props;
-//   if (jslid) return true;
-//   const sql = display.getPageQuery(0, 1);
-//   return !!sql;
-// }
-
-// /** @param props {import('./types').LoadingDataGridProps} */
-// async function loadRowCount(props) {
-//   const { display, conid, database, jslid } = props;
-
-//   if (jslid) {
-//     const response = await axios.request({
-//       url: 'jsldata/get-stats',
-//       method: 'get',
-//       params: {
-//         jslid,
-//       },
-//     });
-//     return response.data.rowCount;
-//   }
-
-//   const sql = display.getCountQuery();
-
-//   const response = await axios.request({
-//     url: 'database-connections/query-data',
-//     method: 'post',
-//     params: {
-//       conid,
-//       database,
-//     },
-//     data: { sql },
-//   });
-
-//   return parseInt(response.data.rows[0].count);
-// }
 
 export default function LoadingDataGridCore(props) {
   const {
     display,
-    changeSetState,
-    dispatchChangeSet,
-    tabVisible,
     loadDataPage,
     dataPageAvailable,
     loadRowCount,
@@ -105,18 +25,8 @@ export default function LoadingDataGridCore(props) {
     loadNextDataToken: 0,
   });
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
-  const showModal = useShowModal();
 
   const loadedTimeRef = React.useRef(0);
-
-  // const changeSet = changeSetState && changeSetState.value;
-  // const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
-  // const setOpenedTabs = useSetOpenedTabs();
-  // const socket = useSocket();
-
-  // const changeSetRef = React.useRef(changeSet);
-
-  // changeSetRef.current = changeSet;
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount(props);
@@ -196,9 +106,6 @@ export default function LoadingDataGridCore(props) {
     }));
   }, [loadNextDataToken]);
 
-  // const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
-  // const rowCountNewIncluded = loadedRows.length + insertedRows.length;
-
   const griderProps = { ...props, sourceRows: loadedRows };
   const grider = React.useMemo(() => griderFactory(griderProps), griderFactoryDeps(griderProps));
 
@@ -222,7 +129,6 @@ export default function LoadingDataGridCore(props) {
       allRowCount={allRowCount}
       openQuery={openQuery}
       isLoading={isLoading}
-      // rows={loadedRows}
       grider={grider}
     />
   );

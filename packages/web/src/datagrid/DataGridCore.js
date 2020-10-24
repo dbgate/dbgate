@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
 import useDimensions from '../utility/useDimensions';
-import axios from '../utility/axios';
 import DataFilterControl from './DataFilterControl';
 import stableStringify from 'json-stable-stringify';
 import { getFilterType, getFilterValueExpression } from '@dbgate/filterparser';
@@ -18,19 +17,6 @@ import {
   filterCellsForRow,
   cellIsSelected,
 } from './gridutil';
-import useModalState from '../modals/useModalState';
-import ConfirmSqlModal from '../modals/ConfirmSqlModal';
-import {
-  changeSetToSql,
-  createChangeSet,
-  revertChangeSetRowChanges,
-  getChangeSetInsertedRows,
-  changeSetInsertNewRow,
-  deleteChangeSetRows,
-  batchUpdateChangeSet,
-  setChangeSetValue,
-} from '@dbgate/datalib';
-import { scriptToSql } from '@dbgate/sqltree';
 import { copyTextToClipboard } from '../utility/clipboard';
 import DataGridToolbar from './DataGridToolbar';
 // import usePropsCompare from '../utility/usePropsCompare';
@@ -38,14 +24,8 @@ import ColumnHeaderControl from './ColumnHeaderControl';
 import InlineButton from '../widgets/InlineButton';
 import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
-import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
-import useShowModal from '../modals/showModal';
-import ErrorMessageModal from '../modals/ErrorMessageModal';
-import ImportExportModal from '../modals/ImportExportModal';
-import { openNewTab } from '../utility/common';
-import { useSetOpenedTabs } from '../utility/globalState';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -132,8 +112,6 @@ export default function DataGridCore(props) {
     display,
     conid,
     database,
-    // changeSetState,
-    // dispatchChangeSet,
     tabVisible,
     loadNextData,
     errorMessage,
@@ -143,7 +121,6 @@ export default function DataGridCore(props) {
     allRowCount,
     openQuery,
     onSave,
-    insertedRowCount,
     isLoading,
     grider,
   } = props;
@@ -170,11 +147,6 @@ export default function DataGridCore(props) {
   const [autofillSelectedCells, setAutofillSelectedCells] = React.useState(emptyCellArray);
   const [focusFilterInputs, setFocusFilterInputs] = React.useState({});
 
-  // const [inplaceEditorCell, setInplaceEditorCell] = React.useState(nullCell);
-  // const [inplaceEditorInitText, setInplaceEditorInitText] = React.useState('');
-  // const [inplaceEditorShouldSave, setInplaceEditorShouldSave] = React.useState(false);
-  // const [inplaceEditorChangedOnCreate, setInplaceEditorChangedOnCreate] = React.useState(false);
-
   const autofillMarkerCell = React.useMemo(
     () =>
       selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map((x) => x[0])).length == 1
@@ -183,28 +155,12 @@ export default function DataGridCore(props) {
     [selectedCells]
   );
 
-  const showModal = useShowModal();
-
-  // const data = useFetch({
-  //   url: 'database-connections/query-data',
-  //   method: 'post',
-  //   params: {
-  //     conid,
-  //     database,
-  //   },
-  //   data: { sql },
-  // });
-  // const { rows, columns } = data || {};
   const [firstVisibleRowScrollIndex, setFirstVisibleRowScrollIndex] = React.useState(0);
   const [firstVisibleColumnScrollIndex, setFirstVisibleColumnScrollIndex] = React.useState(0);
 
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [tableBodyRef] = useDimensions();
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  // const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
-
-  // const changeSet = changeSetState && changeSetState.value;
-  // const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
 
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
@@ -273,20 +229,6 @@ export default function DataGridCore(props) {
     }
   }, [selectedCells, props.refReloadToken, grider.getRowData(0)]);
 
-  // const handleCloseInplaceEditor = React.useCallback(
-  //   mode => {
-  //     const [row, col] = currentCell || [];
-  //     setInplaceEditorCell(null);
-  //     setInplaceEditorInitText(null);
-  //     setInplaceEditorShouldSave(false);
-  //     if (tableElement) tableElement.focus();
-  //     // @ts-ignore
-  //     if (mode == 'enter' && row) moveCurrentCell(row + 1, col);
-  //     if (mode == 'save') setTimeout(handleSave, 1);
-  //   },
-  //   [tableElement, currentCell]
-  // );
-
   // usePropsCompare({ columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns });
 
   const visibleRealColumns = React.useMemo(
@@ -352,9 +294,6 @@ export default function DataGridCore(props) {
     }
     if (allRowCount == null) return 'Loading row count...';
     return `Rows: ${allRowCount.toLocaleString()}`;
-    // if (this.isLoadingFirstPage) return "Loading first page...";
-    // if (this.isFirstPageError) return "Error loading first page";
-    // return `Rows: ${this.rowCount.toLocaleString()}`;
   }, [selectedCells, allRowCount, grider, visibleRealColumns]);
 
   if (!columns || columns.length == 0)
@@ -466,8 +405,6 @@ export default function DataGridCore(props) {
       .replace(/\r/g, '')
       .split('\n')
       .map((row) => row.split('\t'));
-    // let chs = changeSet;
-    // let allRows = loadedAndInsertedRows;
     if (selectedCells.length <= 1) {
       const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
       const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
@@ -477,18 +414,8 @@ export default function DataGridCore(props) {
           grider.insertRow();
         }
         let colIndex = startCol;
-        // const row = allRows[rowIndex];
         for (const cell of rowData) {
           setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
-          // chs = setChangeSetValue(
-          //   chs,
-          //   display.getChangeSetField(
-          //     row,
-          //     realColumnUniqueNames[colIndex],
-          //     rowIndex >= loadedRows.length ? rowIndex - loadedRows.length : null
-          //   ),
-          //   cell == '(NULL)' ? null : cell
-          // );
           colIndex += 1;
         }
         rowIndex += 1;
@@ -505,11 +432,9 @@ export default function DataGridCore(props) {
         const pasteRow = pasteRows[selectionRow % pasteRows.length];
         const pasteCell = pasteRow[selectionCol % pasteRow.length];
         setCellValue(cell, pasteCell);
-        // chs = setCellValue(chs, cell, pasteCell);
       }
     }
     grider.endUpdate();
-    // setChangeSet(chs);
   }
 
   function setNull() {
@@ -596,25 +521,9 @@ export default function DataGridCore(props) {
     }
   }
 
-  // function getRowDefinitions(rowIndexes) {
-  //   const res = [];
-  //   // if (!loadedAndInsertedRows) return res;
-  //   // for (const index of rowIndexes) {
-  //   //   if (loadedAndInsertedRows[index] && _.isNumber(index)) {
-  //   //     const insertedRowIndex = index >= loadedRows.length ? index - loadedRows.length : null;
-  //   //     res.push(display.getChangeSetRow(loadedAndInsertedRows[index], insertedRowIndex));
-  //   //   }
-  //   // }
-  //   return res;
-  // }
-
   function getSelectedRowIndexes() {
     return _.uniq((selectedCells || []).map((x) => x[0]));
   }
-
-  // function getSelectedRowDefinitions() {
-  //   return getRowDefinitions(getSelectedRowIndexes());
-  // }
 
   function getSelectedRowData() {
     return _.compact(getSelectedRowIndexes().map((index) => grider.getRowData(index)));
@@ -626,11 +535,6 @@ export default function DataGridCore(props) {
       if (_.isNumber(index)) grider.revertRowChanges(index);
     }
     grider.endUpdate();
-    // const updatedChangeSet = getSelectedRowDefinitions().reduce(
-    //   (chs, row) => revertChangeSetRowChanges(chs, row),
-    //   changeSet
-    // );
-    // setChangeSet(updatedChangeSet);
   }
 
   function filterSelectedValue() {
@@ -648,19 +552,12 @@ export default function DataGridCore(props) {
     display.setFilters(flts);
   }
 
-  // function revertAllChanges() {
-  //   grider.revertAllChanges();
-  //   // setChangeSet(createChangeSet());
-  // }
-
   function deleteSelectedRows() {
     grider.beginUpdate();
     for (const index of getSelectedRowIndexes()) {
       if (_.isNumber(index)) grider.deleteRow(index);
     }
     grider.endUpdate();
-    // const updatedChangeSet = getSelectedRowDefinitions().reduce((chs, row) => deleteChangeSetRows(chs, row), changeSet);
-    // setChangeSet(updatedChangeSet);
   }
 
   function handleGridWheel(event) {
@@ -698,16 +595,11 @@ export default function DataGridCore(props) {
       return;
     }
     if (onSave) onSave();
-    // const script = changeSetToSql(changeSetRef.current, display.dbinfo);
-    // const sql = scriptToSql(display.driver, script);
-    // setConfirmSql(sql);
-    // confirmSqlModalState.open();
   }
 
   const insertNewRow = () => {
     if (display.baseTable) {
       const rowIndex = grider.insertRow();
-      // setChangeSet(changeSetInsertNewRow(changeSet, display.baseTable));
       const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
       // @ts-ignore
       setCurrentCell(cell);
@@ -1045,7 +937,6 @@ export default function DataGridCore(props) {
         </TableHead>
         <TableBody ref={tableBodyRef}>
           {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
-            // .slice(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
             .map((rowIndex) => (
               <DataGridRow
                 key={rowIndex}
@@ -1057,16 +948,8 @@ export default function DataGridCore(props) {
                 dispatchInsplaceEditor={dispatchInsplaceEditor}
                 autofillSelectedCells={autofillSelectedCells}
                 selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-                // insertedRowIndex={
-                //   firstVisibleRowScrollIndex + index >= rows.length - (insertedRowCount || 0)
-                //     ? firstVisibleRowScrollIndex + index - rows.length - (insertedRowCount || 0)
-                //     : null
-                // }
                 autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-                // changeSet={changeSet}
-                // setChangeSet={setChangeSet}
                 display={display}
-                // row={row}
                 focusedColumn={display.focusedColumn}
               />
             ))}
@@ -1096,9 +979,6 @@ export default function DataGridCore(props) {
             reload={() => display.reload()}
             save={handleSave}
             grider={grider}
-            // changeSetState={changeSetState}
-            // dispatchChangeSet={dispatchChangeSet}
-            // revert={revertAllChanges}
           />,
           props.toolbarPortalRef.current
         )}

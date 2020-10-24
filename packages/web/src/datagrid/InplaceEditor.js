@@ -5,7 +5,6 @@ import React from 'react';
 import styled from 'styled-components';
 import theme from '../theme';
 import keycodes from '../utility/keycodes';
-import { setChangeSetValue } from '@dbgate/datalib';
 
 const StyledInput = styled.input`
   border: 0px solid;
@@ -16,16 +15,12 @@ const StyledInput = styled.input`
 
 export default function InplaceEditor({
   widthPx,
-  // definition,
-  // changeSet,
-  // setChangeSet,
   rowIndex,
   uniqueName,
   grider,
   cellValue,
   inplaceEditorState,
   dispatchInsplaceEditor,
-  // isInsertedRow,
 }) {
   const editorRef = React.useRef();
   const isChangedRef = React.useRef(!!inplaceEditorState.text);
@@ -41,7 +36,6 @@ export default function InplaceEditor({
     if (isChangedRef.current) {
       const editor = editorRef.current;
       grider.setCellValue(rowIndex, uniqueName, editor.value);
-      // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
       isChangedRef.current = false;
     }
     dispatchInsplaceEditor({ type: 'close' });
@@ -50,7 +44,6 @@ export default function InplaceEditor({
     const editor = editorRef.current;
     if (isChangedRef.current) {
       grider.setCellValue(rowIndex, uniqueName, editor.value);
-      // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
       isChangedRef.current = false;
     }
     editor.blur();
@@ -66,7 +59,6 @@ export default function InplaceEditor({
       case keycodes.enter:
         if (isChangedRef.current) {
           grider.setCellValue(rowIndex, uniqueName, editor.value);
-          // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
           isChangedRef.current = false;
         }
         editor.blur();
@@ -76,7 +68,6 @@ export default function InplaceEditor({
         if (event.ctrlKey) {
           if (isChangedRef.current) {
             grider.setCellValue(rowIndex, uniqueName, editor.value);
-            // setChangeSet(setChangeSetValue(changeSet, definition, editor.value));
             isChangedRef.current = false;
           }
           event.preventDefault();
