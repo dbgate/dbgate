@@ -1,16 +1,20 @@
 import {
   ChangeSet,
+  changeSetContainsChanges,
   changeSetInsertNewRow,
+  createChangeSet,
   deleteChangeSetRows,
   findExistingChangeSetItem,
   getChangeSetInsertedRows,
   GridDisplay,
+  revertChangeSetRowChanges,
   setChangeSetValue,
 } from '@dbgate/datalib';
 import Grider, { GriderRowStatus } from './Grider';
 
 export default class ChangeSetGrider extends Grider {
   public insertedRows: any[];
+  public changeSet: ChangeSet;
   public setChangeSet: Function;
   private rowCacheIndexes: Set<number>;
   private rowDataCache;
@@ -18,14 +22,10 @@ export default class ChangeSetGrider extends Grider {
   private rowDefinitionsCache;
   private batchChangeSet: ChangeSet;
 
-  constructor(
-    public sourceRows: any[],
-    public changeSet: ChangeSet,
-    public dispatchChangeSet,
-    public display: GridDisplay
-  ) {
+  constructor(public sourceRows: any[], public changeSetState, public dispatchChangeSet, public display: GridDisplay) {
     super();
-    this.insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
+    this.changeSet = changeSetState && changeSetState.value;
+    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display.baseTable);
     this.setChangeSet = (value) => dispatchChangeSet({ type: 'set', value });
     this.rowCacheIndexes = new Set();
     this.rowDataCache = {};
@@ -112,10 +112,36 @@ export default class ChangeSetGrider extends Grider {
     this.batchChangeSet = null;
   }
 
-  static factory({ sourceRows, changeSet, dispatchChangeSet, display }): ChangeSetGrider {
-    return new ChangeSetGrider(sourceRows, changeSet, dispatchChangeSet, display);
+  revertRowChanges(index: number) {
+    this.requireRowCache(index);
+    this.applyModification((chs) => revertChangeSetRowChanges(chs, this.rowDefinitionsCache[index]));
   }
-  static factoryDeps({ sourceRows, changeSet, dispatchChangeSet, display }) {
-    return [sourceRows, changeSet, dispatchChangeSet, display];
+  revertAllChanges() {
+    this.applyModification((chs) => createChangeSet());
+  }
+  undo() {
+    this.dispatchChangeSet({ type: 'undo' });
+  }
+  redo() {
+    this.dispatchChangeSet({ type: 'redo' });
+  }
+  get canUndo() {
+    return this.changeSetState.canUndo;
+  }
+  get canRedo() {
+    return this.changeSetState.canRedo;
+  }
+  get containsChanges() {
+    return changeSetContainsChanges(this.changeSet);
+  }
+  get disableLoadNextPage() {
+    return this.insertedRows.length > 0;
+  }
+
+  static factory({ sourceRows, changeSetState, dispatchChangeSet, display }): ChangeSetGrider {
+    return new ChangeSetGrider(sourceRows, changeSetState, dispatchChangeSet, display);
+  }
+  static factoryDeps({ sourceRows, changeSetState, dispatchChangeSet, display }) {
+    return [sourceRows, changeSetState ? changeSetState.value : null, dispatchChangeSet, display];
   }
 }

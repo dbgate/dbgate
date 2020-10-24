@@ -25,4 +25,25 @@ export default abstract class Grider {
   insertRow(): number {
     return null;
   }
+  revertRowChanges(index: number) {}
+  revertAllChanges() {}
+  undo() {}
+  redo() {}
+  get canUndo() {
+    return false;
+  }
+  get canRedo() {
+    return false;
+  }
+  get containsChanges() {
+    return false;
+  }
+  get disableLoadNextPage() {
+    return false;
+  }
+  updateRow(index, changeObject) {
+    for (const key of Object.keys(changeObject)) {
+      this.setCellValue(index, key, changeObject[key]);
+    }
+  }
 }

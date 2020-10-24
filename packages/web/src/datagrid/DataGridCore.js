@@ -132,8 +132,8 @@ export default function DataGridCore(props) {
     display,
     conid,
     database,
-    changeSetState,
-    dispatchChangeSet,
+    // changeSetState,
+    // dispatchChangeSet,
     tabVisible,
     loadNextData,
     errorMessage,
@@ -203,8 +203,8 @@ export default function DataGridCore(props) {
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
   // const [tableRef, { height: tableHeight, width: tableWidth }] = useDimensions();
 
-  const changeSet = changeSetState && changeSetState.value;
-  const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
+  // const changeSet = changeSetState && changeSetState.value;
+  // const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
 
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
@@ -446,7 +446,8 @@ export default function DataGridCore(props) {
     copyToClipboard();
   }
 
-  function setCellValue(chs, cell, value) {
+  function setCellValue(cell, value) {
+    grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
     // return setChangeSetValue(
     //   chs,
     //   display.getChangeSetField(
@@ -518,6 +519,11 @@ export default function DataGridCore(props) {
   }
 
   function setNull() {
+    grider.beginUpdate();
+    selectedCells.filter(isRegularCell).forEach((cell) => {
+      setCellValue(cell, null);
+    });
+    grider.endUpdate();
     // let chs = changeSet;
     // selectedCells.filter(isRegularCell).forEach((cell) => {
     //   chs = setCellValue(chs, cell, null);
@@ -588,17 +594,11 @@ export default function DataGridCore(props) {
       const currentRowNumber = currentCell[0];
       if (_.isNumber(currentRowNumber)) {
         const rowIndexes = _.uniq((autofillSelectedCells || []).map((x) => x[0])).filter((x) => x != currentRowNumber);
-        // @ts-ignore
         const colNames = selectedCells.map((cell) => realColumnUniqueNames[cell[1]]);
         const changeObject = _.pick(grider.getRowData(currentRowNumber), colNames);
-        setChangeSet(
-          batchUpdateChangeSet(
-            changeSet,
-            getRowDefinitions(rowIndexes),
-            // @ts-ignore
-            rowIndexes.map(() => changeObject)
-          )
-        );
+        grider.beginUpdate();
+        for (const index of rowIndexes) grider.updateRow(index, changeObject);
+        grider.endUpdate();
       }
 
       setAutofillDragStartCell(null);
@@ -607,36 +607,41 @@ export default function DataGridCore(props) {
     }
   }
 
-  function getRowDefinitions(rowIndexes) {
-    const res = [];
-    // if (!loadedAndInsertedRows) return res;
-    // for (const index of rowIndexes) {
-    //   if (loadedAndInsertedRows[index] && _.isNumber(index)) {
-    //     const insertedRowIndex = index >= loadedRows.length ? index - loadedRows.length : null;
-    //     res.push(display.getChangeSetRow(loadedAndInsertedRows[index], insertedRowIndex));
-    //   }
-    // }
-    return res;
-  }
+  // function getRowDefinitions(rowIndexes) {
+  //   const res = [];
+  //   // if (!loadedAndInsertedRows) return res;
+  //   // for (const index of rowIndexes) {
+  //   //   if (loadedAndInsertedRows[index] && _.isNumber(index)) {
+  //   //     const insertedRowIndex = index >= loadedRows.length ? index - loadedRows.length : null;
+  //   //     res.push(display.getChangeSetRow(loadedAndInsertedRows[index], insertedRowIndex));
+  //   //   }
+  //   // }
+  //   return res;
+  // }
 
   function getSelectedRowIndexes() {
     return _.uniq((selectedCells || []).map((x) => x[0]));
   }
 
-  function getSelectedRowDefinitions() {
-    return getRowDefinitions(getSelectedRowIndexes());
-  }
+  // function getSelectedRowDefinitions() {
+  //   return getRowDefinitions(getSelectedRowIndexes());
+  // }
 
   function getSelectedRowData() {
     return _.compact(getSelectedRowIndexes().map((index) => grider.getRowData(index)));
   }
 
   function revertRowChanges() {
-    const updatedChangeSet = getSelectedRowDefinitions().reduce(
-      (chs, row) => revertChangeSetRowChanges(chs, row),
-      changeSet
-    );
-    setChangeSet(updatedChangeSet);
+    grider.beginUpdate();
+    for (const index of getSelectedRowIndexes()) {
+      if (_.isNumber(index)) grider.revertRowChanges(index);
+    }
+    grider.endUpdate();
+    // const updatedChangeSet = getSelectedRowDefinitions().reduce(
+    //   (chs, row) => revertChangeSetRowChanges(chs, row),
+    //   changeSet
+    // );
+    // setChangeSet(updatedChangeSet);
   }
 
   function filterSelectedValue() {
@@ -655,7 +660,8 @@ export default function DataGridCore(props) {
   }
 
   function revertAllChanges() {
-    setChangeSet(createChangeSet());
+    grider.revertAllChanges();
+    // setChangeSet(createChangeSet());
   }
 
   function deleteSelectedRows() {
@@ -690,10 +696,10 @@ export default function DataGridCore(props) {
   }
 
   function undo() {
-    dispatchChangeSet({ type: 'undo' });
+    grider.undo();
   }
   function redo() {
-    dispatchChangeSet({ type: 'redo' });
+    grider.redo();
   }
 
   function handleSave() {
@@ -708,7 +714,6 @@ export default function DataGridCore(props) {
     // setConfirmSql(sql);
     // confirmSqlModalState.open();
   }
-
 
   const insertNewRow = () => {
     if (display.baseTable) {
@@ -1101,9 +1106,10 @@ export default function DataGridCore(props) {
           <DataGridToolbar
             reload={() => display.reload()}
             save={handleSave}
-            changeSetState={changeSetState}
-            dispatchChangeSet={dispatchChangeSet}
-            revert={revertAllChanges}
+            grider={grider}
+            // changeSetState={changeSetState}
+            // dispatchChangeSet={dispatchChangeSet}
+            // revert={revertAllChanges}
           />,
           props.toolbarPortalRef.current
         )}

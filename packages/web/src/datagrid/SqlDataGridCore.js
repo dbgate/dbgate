@@ -137,7 +137,7 @@ export default function SqlDataGridCore(props) {
         loadRowCount={loadRowCount}
         griderFactory={ChangeSetGrider.factory}
         griderFactoryDeps={ChangeSetGrider.factoryDeps}
-        changeSet={changeSetState && changeSetState.value}
+        // changeSet={changeSetState && changeSetState.value}
         onSave={handleSave}
       />
       <ConfirmSqlModal

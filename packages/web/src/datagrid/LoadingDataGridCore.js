@@ -109,14 +109,14 @@ export default function LoadingDataGridCore(props) {
 
   const loadedTimeRef = React.useRef(0);
 
-  const changeSet = changeSetState && changeSetState.value;
-  const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
-  const setOpenedTabs = useSetOpenedTabs();
-  const socket = useSocket();
+  // const changeSet = changeSetState && changeSetState.value;
+  // const setChangeSet = React.useCallback((value) => dispatchChangeSet({ type: 'set', value }), [dispatchChangeSet]);
+  // const setOpenedTabs = useSetOpenedTabs();
+  // const socket = useSocket();
 
-  const changeSetRef = React.useRef(changeSet);
+  // const changeSetRef = React.useRef(changeSet);
 
-  changeSetRef.current = changeSet;
+  // changeSetRef.current = changeSet;
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount(props);
@@ -196,20 +196,20 @@ export default function LoadingDataGridCore(props) {
     }));
   }, [loadNextDataToken]);
 
-  const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
-  const rowCountNewIncluded = loadedRows.length + insertedRows.length;
+  // const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
+  // const rowCountNewIncluded = loadedRows.length + insertedRows.length;
+
+  const griderProps = { ...props, sourceRows: loadedRows };
+  const grider = React.useMemo(() => griderFactory(griderProps), griderFactoryDeps(griderProps));
 
   const handleLoadNextData = () => {
-    if (!isLoadedAll && !errorMessage && insertedRows.length == 0) {
+    if (!isLoadedAll && !errorMessage && !grider.disableLoadNextPage) {
       if (dataPageAvailable(props)) {
         // If not, callbacks to load missing metadata are dispatched
         loadNextData();
       }
     }
   };
-
-  const griderProps = { ...props, sourceRows: loadedRows };
-  const grider = React.useMemo(() => griderFactory(griderProps), griderFactoryDeps(griderProps));
 
   return (
     <DataGridCore
@@ -219,7 +219,7 @@ export default function LoadingDataGridCore(props) {
       isLoadedAll={isLoadedAll}
       loadedTime={loadedTime}
       exportGrid={exportGrid}
-      // allRowCount={allRowCount}
+      allRowCount={allRowCount}
       openQuery={openQuery}
       isLoading={isLoading}
       // rows={loadedRows}
