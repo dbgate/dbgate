@@ -6,7 +6,6 @@ import useSocket from '../utility/SocketProvider';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
 import { getChangeSetInsertedRows } from '@dbgate/datalib';
-import ChangeSetDataGrid from './ChangeSetDataGrid';
 import { openNewTab } from '../utility/common';
 
 /** @param props {import('./types').LoadingDataGridProps} */
@@ -79,8 +78,20 @@ async function loadRowCount(props) {
   return parseInt(response.data.rows[0].count);
 }
 
-export default function LoadingDataGrid(props) {
-  const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible, jslid } = props;
+export default function LoadingDataGridCore(props) {
+  const {
+    display,
+    changeSetState,
+    dispatchChangeSet,
+    tabVisible,
+    loadDataPage,
+    dataPageAvailable,
+    loadRowCount,
+    loadNextDataToken,
+    onReload,
+    exportGrid,
+    openQuery,
+  } = props;
 
   const [loadProps, setLoadProps] = React.useState({
     isLoading: false,
@@ -89,8 +100,7 @@ export default function LoadingDataGrid(props) {
     loadedTime: new Date().getTime(),
     allRowCount: null,
     errorMessage: null,
-    jslStatsCounter: 0,
-    jslChangeIndex: 0,
+    loadNextDataToken: 0,
   });
   const { isLoading, loadedRows, isLoadedAll, loadedTime, allRowCount, errorMessage } = loadProps;
   const showModal = useShowModal();
@@ -122,33 +132,10 @@ export default function LoadingDataGrid(props) {
       isLoadedAll: false,
       loadedTime: new Date().getTime(),
       errorMessage: null,
-      jslStatsCounter: 0,
-      jslChangeIndex: 0,
+      loadNextDataToken: 0,
     });
+    if (onReload) onReload();
   };
-
-  function exportGrid() {
-    const initialValues = {};
-    if (jslid) {
-      const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
-      if (archiveMatch) {
-        initialValues.sourceStorageType = 'archive';
-        initialValues.sourceArchiveFolder = archiveMatch[1];
-        initialValues.sourceList = [archiveMatch[2]];
-      } else {
-        initialValues.sourceStorageType = 'jsldata';
-        initialValues.sourceJslId = jslid;
-        initialValues.sourceList = ['query-data'];
-      }
-    } else {
-      initialValues.sourceStorageType = 'query';
-      initialValues.sourceConnectionId = conid;
-      initialValues.sourceDatabaseName = database;
-      initialValues.sourceSql = display.getExportQuery();
-      initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
-    }
-    showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
-  }
 
   React.useEffect(() => {
     if (props.masterLoadedTime && props.masterLoadedTime > loadedTime) {
@@ -193,31 +180,19 @@ export default function LoadingDataGrid(props) {
       setLoadProps((oldLoadProps) => ({
         ...oldLoadProps,
         isLoading: false,
-        isLoadedAll: oldLoadProps.jslStatsCounter == loadProps.jslStatsCounter && nextRows.length === 0,
+        isLoadedAll: oldLoadProps.loadNextDataToken == loadNextDataToken && nextRows.length === 0,
+        loadNextDataToken,
         ...loadedInfo,
       }));
     }
   };
 
-  const handleJslDataStats = React.useCallback((stats) => {
-    if (stats.changeIndex < loadProps.jslChangeIndex) return;
+  React.useEffect(()=>{
     setLoadProps((oldProps) => ({
       ...oldProps,
-      allRowCount: stats.rowCount,
       isLoadedAll: false,
-      jslStatsCounter: oldProps.jslStatsCounter + 1,
-      jslChangeIndex: stats.changeIndex,
     }));
-  }, []);
-
-  React.useEffect(() => {
-    if (jslid && socket) {
-      socket.on(`jsldata-stats-${jslid}`, handleJslDataStats);
-      return () => {
-        socket.off(`jsldata-stats-${jslid}`, handleJslDataStats);
-      };
-    }
-  }, [jslid]);
+  },[loadNextDataToken]);
 
   const insertedRows = getChangeSetInsertedRows(changeSet, display.baseTable);
   const rowCountNewIncluded = loadedRows.length + insertedRows.length;
@@ -231,23 +206,8 @@ export default function LoadingDataGrid(props) {
     }
   };
 
-  function openQuery() {
-    openNewTab(setOpenedTabs, {
-      title: 'Query',
-      icon: 'sql.svg',
-      tabComponent: 'QueryTab',
-      props: {
-        initialScript: display.getExportQuery(),
-        schemaName: display.baseTable.schemaName,
-        pureName: display.baseTable.pureName,
-        conid,
-        database,
-      },
-    });
-  }
-
   return (
-    <ChangeSetDataGrid
+    <DataGridCore
       {...props}
       loadNextData={handleLoadNextData}
       errorMessage={errorMessage}
@@ -255,7 +215,7 @@ export default function LoadingDataGrid(props) {
       loadedTime={loadedTime}
       exportGrid={exportGrid}
       allRowCount={allRowCount}
-      openQuery={display.baseTable ? openQuery : null}
+      openQuery={openQuery}
       isLoading={isLoading}
       rows={loadedRows}
     />

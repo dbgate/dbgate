@@ -10,6 +10,7 @@ import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
 import useGridConfig from '../utility/useGridConfig';
+import SqlDataGridCore from '../datagrid/SqlDataGridCore';
 
 export default function ViewDataTab({ conid, database, schemaName, pureName, tabVisible, toolbarPortalRef, tabid }) {
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
@@ -50,6 +51,7 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
       changeSetState={changeSetState}
       dispatchChangeSet={dispatchChangeSet}
       toolbarPortalRef={toolbarPortalRef}
-    />
+      GridCore={SqlDataGridCore}
+      />
   );
 }

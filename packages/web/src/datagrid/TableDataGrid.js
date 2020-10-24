@@ -10,6 +10,7 @@ import useSocket from '../utility/SocketProvider';
 import { VerticalSplitter } from '../widgets/Splitter';
 import stableStringify from 'json-stable-stringify';
 import ReferenceHeader from './ReferenceHeader';
+import SqlDataGridCore from './SqlDataGridCore';
 
 const ReferenceContainer = styled.div`
   position: absolute;
@@ -162,6 +163,7 @@ export default function TableDataGrid({
         onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}
+        GridCore={SqlDataGridCore}
       />
       {reference && (
         <ReferenceContainer>

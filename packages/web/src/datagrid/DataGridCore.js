@@ -145,8 +145,6 @@ export default function DataGridCore(props) {
     openQuery,
     insertedRowCount,
     isLoading,
-    undo,
-    redo
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -685,6 +683,13 @@ export default function DataGridCore(props) {
     // @ts-ignore
     setvScrollValueToSet(newFirstVisibleRowScrollIndex);
     setvScrollValueToSetDate(new Date());
+  }
+
+  function undo() {
+    dispatchChangeSet({ type: 'undo' });
+  }
+  function redo() {
+    dispatchChangeSet({ type: 'redo' });
   }
 
   function handleSave() {
