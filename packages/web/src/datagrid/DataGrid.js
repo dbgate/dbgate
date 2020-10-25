@@ -41,8 +41,8 @@ const DataGridContainer = styled.div`
   flex-grow: 1;
 `;
 
-/** @param props {import('./types').DataGridProps} */
 export default function DataGrid(props) {
+  const { GridCore } = props;
   const Container1 = props.showReferences ? ManagerOuterContainer1 : ManagerOuterContainerFull;
   const [managerSize, setManagerSize] = React.useState(0);
   return (
@@ -50,18 +50,18 @@ export default function DataGrid(props) {
       <LeftContainer>
         <ManagerMainContainer>
           <Container1>
-            <ColumnManager {...props} managerSize={managerSize}/>
+            <ColumnManager {...props} managerSize={managerSize} />
           </Container1>
           {props.showReferences && (
             <ManagerOuterContainer2>
-              <ReferenceManager {...props} managerSize={managerSize}/>
+              <ReferenceManager {...props} managerSize={managerSize} />
             </ManagerOuterContainer2>
           )}
         </ManagerMainContainer>
       </LeftContainer>
 
       <DataGridContainer>
-        <DataGridCore {...props} />
+        <GridCore {...props} />
       </DataGridContainer>
     </HorizontalSplitter>
 

@@ -2,6 +2,7 @@ import React from 'react';
 import DataGrid from '../datagrid/DataGrid';
 import { JslGridDisplay, createGridConfig, createGridCache } from '@dbgate/datalib';
 import useFetch from '../utility/useFetch';
+import JslDataGridCore from '../datagrid/JslDataGridCore';
 
 export default function JslDataGrid({ jslid }) {
   const info = useFetch({
@@ -19,5 +20,5 @@ export default function JslDataGrid({ jslid }) {
     cache,
   ]);
 
-  return <DataGrid display={display} jslid={jslid} />;
+  return <DataGrid display={display} jslid={jslid} GridCore={JslDataGridCore} />;
 }
