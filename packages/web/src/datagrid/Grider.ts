@@ -7,10 +7,6 @@ export default abstract class Grider {
   abstract getRowData(index): any;
   abstract get rowCount(): number;
 
-  getRowsSample() {
-    return [this.getRowData(0)];
-  }
-
   getRowStatus(index): GriderRowStatus {
     const res: GriderRowStatus = {
       status: 'regular',

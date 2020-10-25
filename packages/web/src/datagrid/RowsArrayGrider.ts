@@ -17,7 +17,4 @@ export default class RowsArrayGrider extends Grider {
   static factoryDeps({ sourceRows }) {
     return [sourceRows];
   }
-  getRowsSample() {
-    return this.rows;
-  }
 }

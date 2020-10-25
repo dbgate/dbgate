@@ -7,6 +7,7 @@ import useNewQuery from '../query/useNewQuery';
 import { useConfig } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import { openNewTab } from '../utility/common';
+import useNewFreeTable from '../freetable/useNewFreeTable';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -16,6 +17,7 @@ const ToolbarContainer = styled.div`
 export default function ToolBar({ toolbarPortalRef }) {
   const modalState = useModalState();
   const newQuery = useNewQuery();
+  const newFreeTable = useNewFreeTable();
   const config = useConfig();
   const toolbar = config.toolbar || [];
   const setOpenedTabs = useSetOpenedTabs();
@@ -73,6 +75,9 @@ export default function ToolBar({ toolbarPortalRef }) {
       )}
       <ToolbarButton onClick={newQuery} icon="fas fa-file-alt">
         New Query
+      </ToolbarButton>
+      <ToolbarButton onClick={newFreeTable} icon="fas fa-table">
+        Free table editor
       </ToolbarButton>
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>
     </ToolbarContainer>

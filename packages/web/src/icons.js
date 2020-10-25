@@ -57,6 +57,7 @@ export function ExpandIcon({
 }
 
 export const TableIcon = (props) => getIconImage('table2.svg', props);
+export const FreeTableIcon = (props) => getIconImage('freetable.svg', props);
 export const ViewIcon = (props) => getIconImage('view2.svg', props);
 export const ArchiveTableIcon = (props) => getIconImage('archtable.svg', props);
 export const DatabaseIcon = (props) => getIconImage('database.svg', props);
