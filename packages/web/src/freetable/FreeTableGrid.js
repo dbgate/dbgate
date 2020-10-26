@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { ManagerMainContainer, ManagerOuterContainerFull } from '../datagrid/ManagerStyles';
 import { HorizontalSplitter } from '../widgets/Splitter';
+import FreeTableColumnEditor from './FreeTableColumnEditor';
 import FreeTableGridCore from './FreeTableGridCore';
 
 const LeftContainer = styled.div`
@@ -23,8 +24,7 @@ export default function FreeTableGrid(props) {
       <LeftContainer>
         <ManagerMainContainer>
           <ManagerOuterContainerFull>
-            COLUMNS
-            {/* <ColumnManager {...props} managerSize={managerSize} /> */}
+            <FreeTableColumnEditor {...props} />
           </ManagerOuterContainerFull>
         </ManagerMainContainer>
       </LeftContainer>

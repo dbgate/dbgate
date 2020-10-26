@@ -972,7 +972,7 @@ export default function DataGridCore(props) {
         viewportRatio={visibleRowCountUpperBound / grider.rowCount}
       />
       {allRowCount && <RowCountLabel>{rowCountInfo}</RowCountLabel>}
-      {props.toolbarPortalRef &&
+      {props.toolbarPortalRef && props.toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
           <DataGridToolbar

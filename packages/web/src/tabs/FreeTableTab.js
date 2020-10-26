@@ -19,7 +19,7 @@ export default function FreeDataTab({ conid, database, schemaName, pureName, tab
       modelState={modelState}
       dispatchModel={dispatchModel}
       tabVisible={tabVisible}
-      // toolbarPortalRef={toolbarPortalRef}
+      toolbarPortalRef={toolbarPortalRef}
     />
   );
 }

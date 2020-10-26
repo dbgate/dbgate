@@ -22,4 +22,16 @@ export default class FreeTableGrider extends Grider {
   static factoryDeps({ modelState, dispatchModel }) {
     return [modelState, dispatchModel];
   }
+  undo() {
+    this.dispatchModel({ type: 'undo' });
+  }
+  redo() {
+    this.dispatchModel({ type: 'redo' });
+  }
+  get canUndo() {
+    return this.modelState.canUndo;
+  }
+  get canRedo() {
+    return this.modelState.canRedo;
+  }
 }
