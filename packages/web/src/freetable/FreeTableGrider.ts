@@ -3,17 +3,59 @@ import Grider, { GriderRowStatus } from '../datagrid/Grider';
 
 export default class FreeTableGrider extends Grider {
   public model: FreeTableModel;
-  public rows: any[];
+  private batchModel: FreeTableModel;
+
   constructor(public modelState, public dispatchModel) {
     super();
     this.model = modelState && modelState.value;
-    this.rows = this.model.rows;
   }
   getRowData(index: any) {
-    return this.rows[index];
+    return this.model.rows[index];
   }
   get rowCount() {
-    return this.rows.length;
+    return this.model.rows.length;
+  }
+  get currentModel(): FreeTableModel {
+    return this.batchModel || this.model;
+  }
+  set currentModel(value) {
+    if (this.batchModel) this.batchModel = value;
+    else this.dispatchModel({ type: 'set', value });
+  }
+  setCellValue(index: number, uniqueName: string, value: any) {
+    const model = this.currentModel;
+    if (model.rows[index])
+      this.currentModel = {
+        ...model,
+        rows: model.rows.map((row, i) => (index == i ? { ...row, [uniqueName]: value } : row)),
+      };
+  }
+  get canInsert() {
+    return true;
+  }
+  insertRow(): number {
+    const model = this.currentModel;
+    this.currentModel = {
+      ...model,
+      rows: [...model.rows, {}],
+    };
+    return this.currentModel.rows.length - 1;
+  }
+  deleteRow(index: number) {
+    const model = this.currentModel;
+    this.currentModel = {
+      ...model,
+      rows: model.rows.filter((row, i) => index != i),
+    };
+  }
+  beginUpdate() {
+    this.batchModel = this.model;
+  }
+  endUpdate() {
+    if (this.model != this.batchModel) {
+      this.dispatchModel({ type: 'set', value: this.batchModel });
+      this.batchModel = null;
+    }
   }
 
   static factory({ modelState, dispatchModel }): FreeTableGrider {

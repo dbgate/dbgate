@@ -598,7 +598,7 @@ export default function DataGridCore(props) {
   }
 
   const insertNewRow = () => {
-    if (display.baseTable) {
+    if (grider.canInsert) {
       const rowIndex = grider.insertRow();
       const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
       // @ts-ignore

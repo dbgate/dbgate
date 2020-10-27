@@ -66,6 +66,10 @@ export default class ChangeSetGrider extends Grider {
     this.rowCacheIndexes.add(index);
   }
 
+  get canInsert() {
+    return !!this.display.baseTable;
+  }
+
   getRowData(index: number) {
     this.requireRowCache(index);
     return this.rowDataCache[index];
