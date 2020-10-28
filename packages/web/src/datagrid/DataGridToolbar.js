@@ -13,7 +13,7 @@ export default function DataGridToolbar({ reload, grider, save }) {
       <ToolbarButton disabled={!grider.canRedo} onClick={() => grider.redo()} icon="fas fa-redo">
         Redo
       </ToolbarButton>
-      <ToolbarButton disabled={!grider.containsChanges} onClick={save} icon="fas fa-save">
+      <ToolbarButton disabled={!grider.allowSave} onClick={save} icon="fas fa-save">
         Save
       </ToolbarButton>
       <ToolbarButton disabled={!grider.containsChanges} onClick={() => grider.revertAllChanges()} icon="fas fa-times">

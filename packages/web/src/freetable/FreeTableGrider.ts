@@ -33,6 +33,9 @@ export default class FreeTableGrider extends Grider {
   get canInsert() {
     return true;
   }
+  get allowSave() {
+    return true;
+  }
   insertRow(): number {
     const model = this.currentModel;
     this.currentModel = {

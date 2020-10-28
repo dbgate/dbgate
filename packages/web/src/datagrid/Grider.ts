@@ -28,6 +28,9 @@ export default abstract class Grider {
   get canInsert() {
     return false;
   }
+  get allowSave() {
+    return this.containsChanges;
+  }
   get rowCountInUpdate() {
     return this.rowCount;
   }
