@@ -196,7 +196,7 @@ export function FormArchiveFilesSelect({ folderName, name }) {
   return <FormReactSelect options={filesOptions} name={name} isMulti />;
 }
 
-export function FormArchiveFolderSelect({ name }) {
+export function FormArchiveFolderSelect({ name, ...other }) {
   const { setFieldValue } = useFormikContext();
   const folders = useArchiveFolders();
   const folderOptions = React.useMemo(
@@ -214,6 +214,12 @@ export function FormArchiveFolderSelect({ name }) {
   };
 
   return (
-    <FormReactSelect options={folderOptions} name={name} Component={Creatable} onCreateOption={handleCreateOption} />
+    <FormReactSelect
+      {...other}
+      options={folderOptions}
+      name={name}
+      Component={Creatable}
+      onCreateOption={handleCreateOption}
+    />
   );
 }

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { useSetOpenedTabs, useCurrentDatabase } from '../utility/globalState';
+import { useSetOpenedTabs } from '../utility/globalState';
 import { openNewTab } from '../utility/common';
 
 export default function useNewFreeTable() {
@@ -10,6 +10,6 @@ export default function useNewFreeTable() {
       title: title || 'Table',
       icon: 'freetable.svg',
       tabComponent: 'FreeTableTab',
-      props: {},
+      props,
     });
 }
