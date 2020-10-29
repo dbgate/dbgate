@@ -13,6 +13,7 @@ const jsonLinesReader = require('./jsonLinesReader');
 const jslDataReader = require('./jslDataReader');
 const archiveWriter = require('./archiveWriter');
 const archiveReader = require('./archiveReader');
+const collectorWriter = require('./collectorWriter');
 
 module.exports = {
   queryReader,
@@ -30,4 +31,5 @@ module.exports = {
   jslDataReader,
   archiveWriter,
   archiveReader,
+  collectorWriter,
 };

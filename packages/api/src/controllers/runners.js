@@ -11,7 +11,18 @@ const scriptTemplate = (script) => `
 const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
 require=null;
 async function run() {
-${script}
+const reader = ${script}
+}
+dbgateApi.runScript(run);
+`;
+
+const loaderScriptTemplate = (functionName, props, runid) => `
+const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
+require=null;
+async function run() {
+const reader=await dbgateApi.${functionName}(${JSON.stringify(props)});
+const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
+await dbgateApi.copyStream(reader, writer);
 }
 dbgateApi.runScript(run);
 `;
@@ -19,9 +30,10 @@ dbgateApi.runScript(run);
 module.exports = {
   /** @type {import('@dbgate/types').OpenedRunner[]} */
   opened: [],
+  requests: {},
 
   dispatchMessage(runid, message) {
-    // console.log('DISPATCHING', message);
+    if (message) console.log('...', message.message);
     if (_.isString(message)) {
       socket.emit(`runner-info-${runid}`, {
         message,
@@ -40,12 +52,24 @@ module.exports = {
 
   handle_ping() {},
 
-  start_meta: 'post',
-  async start({ script }) {
-    const runid = uuidv1();
+  handle_freeData(runid, { freeData }) {
+    const [resolve, reject] = this.requests[runid];
+    resolve(freeData);
+    delete this.requests[runid];
+  },
+
+  rejectRequest(runid, error) {
+    if (this.requests[runid]) {
+      const [resolve, reject] = this.requests[runid];
+      reject(error);
+      delete this.requests[runid];
+    }
+  },
+
+  startCore(runid, scriptText) {
     const directory = path.join(rundir(), runid);
     const scriptFile = path.join(uploadsdir(), runid + '.js');
-    fs.writeFileSync(`${scriptFile}`, scriptTemplate(script));
+    fs.writeFileSync(`${scriptFile}`, scriptText);
     fs.mkdirSync(directory);
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     const subprocess = fork(scriptFile, ['--checkParent'], {
@@ -61,9 +85,13 @@ module.exports = {
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', (code) => {
+      this.rejectRequest(runid, { message: 'No data retured, maybe input data source is too big' });
+      console.log('... EXIT process', code);
       socket.emit(`runner-done-${runid}`, code);
     });
     subprocess.on('error', (error) => {
+      this.rejectRequest(runid, { message: error && (error.message || error.toString()) });
+      console.error('... ERROR subprocess', error);
       this.dispatchMessage({
         severity: 'error',
         message: error.toString(),
@@ -79,6 +107,12 @@ module.exports = {
       this[`handle_${msgtype}`](runid, message);
     });
     return newOpened;
+  },
+
+  start_meta: 'post',
+  async start({ script }) {
+    const runid = uuidv1();
+    return this.startCore(runid, scriptTemplate(script));
   },
 
   cancel_meta: 'post',
@@ -105,5 +139,15 @@ module.exports = {
       });
     }
     return res;
+  },
+
+  loadReader_meta: 'post',
+  async loadReader({ functionName, props }) {
+    const promise = new Promise((resolve, reject) => {
+      const runid = uuidv1();
+      this.requests[runid] = [resolve, reject];
+      this.startCore(runid, loaderScriptTemplate(functionName, props, runid));
+    });
+    return promise;
   },
 };

@@ -90,22 +90,6 @@ const RowCountLabel = styled.div`
   bottom: 20px;
 `;
 
-const LoadingInfoWrapper = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-`;
-const LoadingInfoBox = styled.div`
-  background-color: #ccc;
-  padding: 10px;
-  border: 1px solid gray;
-`;
-
 /** @param props {import('./types').DataGridProps} */
 export default function DataGridCore(props) {
   const {
@@ -296,14 +280,7 @@ export default function DataGridCore(props) {
     return `Rows: ${allRowCount.toLocaleString()}`;
   }, [selectedCells, allRowCount, grider, visibleRealColumns]);
 
-  if (!columns || columns.length == 0)
-    return (
-      <LoadingInfoWrapper>
-        <LoadingInfoBox>
-          <LoadingInfo message="Waiting for structure" />
-        </LoadingInfoBox>
-      </LoadingInfoWrapper>
-    );
+  if (!columns || columns.length == 0) return <LoadingInfo wrapper message="Waiting for structure" />;
 
   if (errorMessage) {
     return <ErrorInfo message={errorMessage} />;
@@ -936,8 +913,8 @@ export default function DataGridCore(props) {
           )}
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound)
-            .map((rowIndex) => (
+          {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound).map(
+            (rowIndex) => (
               <DataGridRow
                 key={rowIndex}
                 grider={grider}
@@ -952,7 +929,8 @@ export default function DataGridCore(props) {
                 display={display}
                 focusedColumn={display.focusedColumn}
               />
-            ))}
+            )
+          )}
         </TableBody>
       </Table>
       <HorizontalScrollBar
@@ -972,23 +950,14 @@ export default function DataGridCore(props) {
         viewportRatio={visibleRowCountUpperBound / grider.rowCount}
       />
       {allRowCount && <RowCountLabel>{rowCountInfo}</RowCountLabel>}
-      {props.toolbarPortalRef && props.toolbarPortalRef.current &&
+      {props.toolbarPortalRef &&
+        props.toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <DataGridToolbar
-            reload={() => display.reload()}
-            save={handleSave}
-            grider={grider}
-          />,
+          <DataGridToolbar reload={() => display.reload()} save={handleSave} grider={grider} />,
           props.toolbarPortalRef.current
         )}
-      {isLoading && (
-        <LoadingInfoWrapper>
-          <LoadingInfoBox>
-            <LoadingInfo message="Loading data" />
-          </LoadingInfoBox>
-        </LoadingInfoWrapper>
-      )}
+      {isLoading && <LoadingInfo wrapper message="Loading data" />}
     </GridContainer>
   );
 }

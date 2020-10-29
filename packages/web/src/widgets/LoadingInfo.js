@@ -13,8 +13,24 @@ const Spinner = styled.div`
   margin: 10px;
 `;
 
-export default function LoadingInfo({ message }) {
-  return (
+const LoadingInfoWrapper = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+`;
+const LoadingInfoBox = styled.div`
+  background-color: #ccc;
+  padding: 10px;
+  border: 1px solid gray;
+`;
+
+export default function LoadingInfo({ message, wrapper = false }) {
+  const core = (
     <Container>
       <Spinner>
         <i className="fas fa-spinner fa-spin" />
@@ -22,4 +38,13 @@ export default function LoadingInfo({ message }) {
       {message}
     </Container>
   );
+  if (wrapper) {
+    return (
+      <LoadingInfoWrapper>
+        <LoadingInfoBox>{core}</LoadingInfoBox>
+      </LoadingInfoWrapper>
+    );
+  } else {
+    return core;
+  }
 }

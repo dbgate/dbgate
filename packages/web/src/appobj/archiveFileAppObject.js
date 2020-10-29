@@ -29,14 +29,20 @@ function Menu({ data, setOpenedTabs }) {
     openArchive(setOpenedTabs, data.fileName, data.folderName);
   };
   const handleOpenWrite = async () => {
-    const resp = await axios.post('archive/load-free-table', { file: data.fileName, folder: data.folderName });
+    // const resp = await axios.post('archive/load-free-table', { file: data.fileName, folder: data.folderName });
 
     openNewTab(setOpenedTabs, {
       title: data.fileName,
       icon: 'freetable.svg',
       tabComponent: 'FreeTableTab',
       props: {
-        initialData: resp.data,
+        initialData: {
+          functionName: 'archiveReader',
+          props: {
+            fileName: data.fileName,
+            folderName: data.folderName,
+          },
+        },
         archiveFile: data.fileName,
         archiveFolder: data.folderName,
       },
