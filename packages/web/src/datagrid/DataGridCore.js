@@ -26,6 +26,8 @@ import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
+import { openNewTab } from '../utility/common';
+import { useSetOpenedTabs } from '../utility/globalState';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -110,6 +112,7 @@ export default function DataGridCore(props) {
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
+  const setOpenedTabs = useSetOpenedTabs();
 
   // usePropsCompare(props);
 
@@ -294,6 +297,24 @@ export default function DataGridCore(props) {
     setFirstVisibleColumnScrollIndex(value);
   };
 
+  const handleOpenFreeTable = () => {
+    const columns = getSelectedColumns();
+    const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
+    openNewTab(setOpenedTabs, {
+      title: 'selection',
+      icon: 'freetable.svg',
+      tabComponent: 'FreeTableTab',
+      props: {
+        initialData: {
+          structure: {
+            columns,
+          },
+          rows,
+        },
+      },
+    });
+  };
+
   const handleContextMenu = (event) => {
     event.preventDefault();
     showMenu(
@@ -309,6 +330,7 @@ export default function DataGridCore(props) {
         exportGrid={exportGrid}
         filterSelectedValue={filterSelectedValue}
         openQuery={openQuery}
+        openFreeTable={handleOpenFreeTable}
       />
     );
   };
@@ -499,11 +521,25 @@ export default function DataGridCore(props) {
   }
 
   function getSelectedRowIndexes() {
-    return _.uniq((selectedCells || []).map((x) => x[0]));
+    if (selectedCells.find((x) => x[0] == 'header')) return _.range(0, grider.rowCount);
+    return _.uniq((selectedCells || []).map((x) => x[0])).filter((x) => _.isNumber(x));
+  }
+
+  function getSelectedColumnIndexes() {
+    if (selectedCells.find((x) => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
+    return _.uniq((selectedCells || []).map((x) => x[1])).filter((x) => _.isNumber(x));
   }
 
   function getSelectedRowData() {
     return _.compact(getSelectedRowIndexes().map((index) => grider.getRowData(index)));
+  }
+
+  function getSelectedColumns() {
+    return _.compact(
+      getSelectedColumnIndexes().map((index) => ({
+        columnName: realColumnUniqueNames[index],
+      }))
+    );
   }
 
   function revertRowChanges() {

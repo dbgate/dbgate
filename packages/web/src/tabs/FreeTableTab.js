@@ -44,7 +44,9 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
       // @ts-ignore
       dispatchModel({ type: 'reset', value });
     } else if (initialData) {
-      handleLoadInitialData();
+      if (initialData.functionName) handleLoadInitialData();
+      // @ts-ignore
+      else dispatchModel({ type: 'reset', value: initialData });
     }
   }, []);
 

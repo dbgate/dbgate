@@ -33,6 +33,10 @@ const menus = {
       label: 'Export',
       isExport: true,
     },
+    {
+      label: 'Open in free table editor',
+      isOpenFreeTable: true,
+    },
   ],
   views: [
     {
@@ -50,6 +54,10 @@ const menus = {
     {
       label: 'Export',
       isExport: true,
+    },
+    {
+      label: 'Open in free table editor',
+      isOpenFreeTable: true,
     },
     {
       label: 'Open structure',
@@ -113,7 +121,7 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
       {menus[data.objectTypeField].map((menu) => (
         <DropDownMenuItem
           key={menu.label}
-          onClick={() => {
+          onClick={async () => {
             if (menu.isExport) {
               showModal((modalState) => (
                 <ImportExportModal
@@ -127,6 +135,26 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
                   }}
                 />
               ));
+            } else if (menu.isOpenFreeTable) {
+              const coninfo = await getConnectionInfo(data);
+              openNewTab(setOpenedTabs, {
+                title: data.pureName,
+                icon: 'freetable.svg',
+                tabComponent: 'FreeTableTab',
+                props: {
+                  initialData: {
+                    functionName: 'tableReader',
+                    props: {
+                      connection: {
+                        ...coninfo,
+                        database: data.database,
+                      },
+                      schemaName: data.schemaName,
+                      pureName: data.pureName,
+                    },
+                  },
+                },
+              });
             } else {
               openDatabaseObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
             }

@@ -11,6 +11,7 @@ export default function DataGridContextMenu({
   exportGrid,
   filterSelectedValue,
   openQuery,
+  openFreeTable,
 }) {
   return (
     <>
@@ -34,11 +35,12 @@ export default function DataGridContextMenu({
       <DropDownMenuItem onClick={setNull} keyText="Ctrl+0">
         Set NULL
       </DropDownMenuItem>
-      <DropDownMenuItem onClick={exportGrid}>Export</DropDownMenuItem>
+      {exportGrid && <DropDownMenuItem onClick={exportGrid}>Export</DropDownMenuItem>}
       <DropDownMenuItem onClick={filterSelectedValue} keyText="Ctrl+F">
         Filter selected value
       </DropDownMenuItem>
       {openQuery && <DropDownMenuItem onClick={openQuery}>Open query</DropDownMenuItem>}
+      <DropDownMenuItem onClick={openFreeTable}>Open selection in free table editor</DropDownMenuItem>
     </>
   );
 }
