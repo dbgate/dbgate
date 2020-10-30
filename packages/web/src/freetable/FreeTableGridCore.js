@@ -4,7 +4,7 @@ import DataGridCore from '../datagrid/DataGridCore';
 import FreeTableGrider from './FreeTableGrider';
 
 export default function FreeTableGridCore(props) {
-  const { modelState, dispatchModel, config, setConfig } = props;
+  const { modelState, dispatchModel, config, setConfig, macroPreview, macroValues } = props;
   const grider = React.useMemo(() => FreeTableGrider.factory(props), FreeTableGrider.factoryDeps(props));
   const [cache, setCache] = React.useState(createGridCache());
   const display = React.useMemo(() => new FreeTableGridDisplay(modelState.value, config, setConfig, cache, setCache), [

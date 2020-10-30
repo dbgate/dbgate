@@ -8,8 +8,8 @@ import {
   // WidgetsInnerContainer,
   // Input,
   ManagerMainContainer,
-  ManagerOuterContainer1,
-  ManagerOuterContainer2,
+  ManagerOuterContainer_60,
+  ManagerOuterContainer_40,
   ManagerOuterContainerFull,
   WidgetTitle,
 } from './ManagerStyles';
@@ -43,7 +43,7 @@ const DataGridContainer = styled.div`
 
 export default function DataGrid(props) {
   const { GridCore } = props;
-  const Container1 = props.showReferences ? ManagerOuterContainer1 : ManagerOuterContainerFull;
+  const Container1 = props.showReferences ? ManagerOuterContainer_60 : ManagerOuterContainerFull;
   const [managerSize, setManagerSize] = React.useState(0);
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
@@ -53,9 +53,9 @@ export default function DataGrid(props) {
             <ColumnManager {...props} managerSize={managerSize} />
           </Container1>
           {props.showReferences && (
-            <ManagerOuterContainer2>
+            <ManagerOuterContainer_40>
               <ReferenceManager {...props} managerSize={managerSize} />
-            </ManagerOuterContainer2>
+            </ManagerOuterContainer_40>
           )}
         </ManagerMainContainer>
       </LeftContainer>

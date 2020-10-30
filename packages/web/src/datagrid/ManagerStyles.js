@@ -23,11 +23,11 @@ export const ManagerOuterContainer = styled.div`
   display: flex;
 `;
 
-export const ManagerOuterContainer1 = styled(ManagerOuterContainer)`
+export const ManagerOuterContainer_60 = styled(ManagerOuterContainer)`
   flex: 0 0 60%;
 `;
 
-export const ManagerOuterContainer2 = styled(ManagerOuterContainer)`
+export const ManagerOuterContainer_40 = styled(ManagerOuterContainer)`
   flex: 0 0 40%;
 `;
 
