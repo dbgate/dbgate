@@ -16,7 +16,7 @@ export class ViewGridDisplay extends GridDisplay {
     this.columns = this.getDisplayColumns(view);
     this.filterable = true;
     this.sortable = true;
-    this.editable = true;
+    this.editable = false;
   }
 
   getDisplayColumns(view: ViewInfo) {

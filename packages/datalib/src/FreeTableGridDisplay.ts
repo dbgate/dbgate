@@ -16,7 +16,6 @@ export class FreeTableGridDisplay extends GridDisplay {
     this.columns = this.getDisplayColumns(model);
     this.filterable = false;
     this.sortable = false;
-    this.editable = true;
   }
 
   getDisplayColumns(model: FreeTableModel) {

@@ -30,6 +30,9 @@ export default class FreeTableGrider extends Grider {
         rows: model.rows.map((row, i) => (index == i ? { ...row, [uniqueName]: value } : row)),
       };
   }
+  get editable() {
+    return true;
+  }
   get canInsert() {
     return true;
   }

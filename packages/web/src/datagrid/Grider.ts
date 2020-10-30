@@ -25,6 +25,9 @@ export default abstract class Grider {
   revertAllChanges() {}
   undo() {}
   redo() {}
+  get editable() {
+    return false;
+  }
   get canInsert() {
     return false;
   }

@@ -152,7 +152,7 @@ export default function DataGridCore(props) {
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
       case 'show':
-        if (!display.editable) return {};
+        if (!grider.editable) return {};
         return {
           cell: action.cell,
           text: action.text,
