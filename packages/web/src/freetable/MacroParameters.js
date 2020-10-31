@@ -1,10 +1,27 @@
 import React from 'react';
-import { FormTextField, FormSubmit, FormArchiveFolderSelect, FormRow, FormLabel } from '../utility/forms';
+import _ from 'lodash';
+import {
+  FormTextField,
+  FormSubmit,
+  FormArchiveFolderSelect,
+  FormRow,
+  FormLabel,
+  FormSelectField,
+} from '../utility/forms';
 import { Formik, Form, useFormikContext } from 'formik';
 
 function MacroArgument({ arg }) {
   if (arg.type == 'text') {
     return <FormTextField label={arg.label} name={arg.name} />;
+  }
+  if (arg.type == 'select') {
+    return (
+      <FormSelectField label={arg.label} name={arg.name}>
+        {arg.options.map((opt) =>
+          _.isString(opt) ? <option value={opt}>{opt}</option> : <option value={opt.value}>{opt.name}</option>
+        )}
+      </FormSelectField>
+    );
   }
   return null;
 }

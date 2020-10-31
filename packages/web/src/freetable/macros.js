@@ -2,15 +2,15 @@ const macros = [
   {
     title: 'Remove diacritics',
     name: 'removeDiacritics',
-    group: 'text',
+    group: 'Text',
     description: 'Removes diacritics from selected cells',
     type: 'transformValue',
-    code: `value => modules.diacritics.remove(value)`,
+    code: `return modules.lodash.deburr(value)`,
   },
   {
     title: 'Search & replace text',
     name: 'stringReplace',
-    group: 'text',
+    group: 'Text',
     description: 'Search & replace text or regular expression',
     type: 'transformValue',
     args: [
@@ -25,7 +25,31 @@ const macros = [
         name: 'replace',
       },
     ],
-    code: `value => value ? value.toString().replace(args.find, args.replace) : value`,
+    code: `return value ? value.toString().replace(args.find, args.replace) : value`,
+  },
+  {
+    title: 'Change text case',
+    name: 'changeTextCase',
+    group: 'Text',
+    description: 'Uppercase, lowercase and other case functions',
+    type: 'transformValue',
+    args: [
+      {
+        type: 'select',
+        options: ['toUpper', 'toLower', 'lowerCase', 'upperCase', 'kebabCase', 'snakeCase', 'camelCase', 'startCase'],
+        label: 'Type',
+        name: 'caseTransform',
+      },
+    ],
+    code: `return modules.lodash[args.caseTransform || 'toUpper'](value)`,
+  },
+  {
+    title: 'Row index',
+    name: 'rowIndex',
+    group: 'Tools',
+    description: 'index of row from 1 (autoincrement)',
+    type: 'transformValue',
+    code: `return rowIndex + 1`,
   },
 ];
 

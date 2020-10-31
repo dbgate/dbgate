@@ -109,6 +109,7 @@ export default function DataGridCore(props) {
     onSave,
     isLoading,
     grider,
+    onSelectionChanged,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -204,6 +205,12 @@ export default function DataGridCore(props) {
       if (focusFieldRef.current) focusFieldRef.current.focus();
     }
   }, [tabVisible, focusFieldRef.current]);
+
+  React.useEffect(() => {
+    if (onSelectionChanged) {
+      onSelectionChanged(getSelectedMacroCells());
+    }
+  }, [onSelectionChanged, selectedCells]);
 
   const maxScrollColumn = React.useMemo(() => {
     let newColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
@@ -528,6 +535,32 @@ export default function DataGridCore(props) {
   function getSelectedColumnIndexes() {
     if (selectedCells.find((x) => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
     return _.uniq((selectedCells || []).map((x) => x[1])).filter((x) => _.isNumber(x));
+  }
+
+  function getSelectedRegularCells() {
+    if (selectedCells.find((x) => x[0] == 'header' && x[1] == 'header')) {
+      const row = _.range(0, realColumnUniqueNames.length);
+      return _.range(0, grider.rowCount).map((rowIndex) => row.map((colIndex) => [rowIndex, colIndex]));
+    }
+    const res = [];
+    for (const cell of selectedCells) {
+      if (isRegularCell(cell)) res.push(cell);
+      else if (cell[0] == 'header' && _.isNumber(cell[1])) {
+        res.push(..._.range(0, grider.rowCount).map((rowIndex) => [rowIndex, cell[1]]));
+      } else if (cell[1] == 'header' && _.isNumber(cell[0])) {
+        res.push(..._.range(0, realColumnUniqueNames.length).map((colIndex) => [cell[0], colIndex]));
+      }
+    }
+    return res;
+  }
+
+  function getSelectedMacroCells() {
+    const regular = getSelectedRegularCells();
+    // @ts-ignore
+    return regular.map((cell) => ({
+      row: cell[0],
+      column: realColumnUniqueNames[cell[1]],
+    }));
   }
 
   function getSelectedRowData() {
