@@ -110,6 +110,7 @@ export default function DataGridCore(props) {
     isLoading,
     grider,
     onSelectionChanged,
+    frameSelection,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -997,6 +998,7 @@ export default function DataGridCore(props) {
                 autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
                 display={display}
                 focusedColumn={display.focusedColumn}
+                frameSelection={frameSelection}
               />
             )
           )}

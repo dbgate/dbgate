@@ -27,7 +27,7 @@ export function runMacro(
     const rows = data.rows.map((row, rowIndex) => {
       const selectedRow = selectedRows[rowIndex];
       if (selectedRow) {
-        const changedValues = [];
+        const modifiedFields = [];
         let res = null;
         for (const cell of selectedRow) {
           const { column } = cell;
@@ -38,14 +38,14 @@ export function runMacro(
               res = { ...row };
             }
             res[column] = newValue;
-            if (preview) changedValues.push(column);
+            if (preview) modifiedFields.push(column);
           }
         }
         if (res) {
-          if (changedValues.length > 0) {
+          if (modifiedFields.length > 0) {
             return {
               ...res,
-              __changedValues: new Set(changedValues),
+              __modifiedFields: new Set(modifiedFields),
             };
           }
           return res;

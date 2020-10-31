@@ -1,6 +1,8 @@
 export interface GriderRowStatus {
   status: 'regular' | 'updated' | 'deleted' | 'inserted';
-  modifiedFields: Set<string>;
+  modifiedFields?: Set<string>;
+  insertedFields?: Set<string>;
+  deletedFields?: Set<string>;
 }
 
 export default abstract class Grider {
@@ -10,7 +12,6 @@ export default abstract class Grider {
   getRowStatus(index): GriderRowStatus {
     const res: GriderRowStatus = {
       status: 'regular',
-      modifiedFields: new Set(),
     };
     return res;
   }

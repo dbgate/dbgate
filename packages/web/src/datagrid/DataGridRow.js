@@ -26,6 +26,12 @@ const TableBodyCell = styled.td`
     color: white;`}
 
   ${(props) =>
+    props.isFrameSelected &&
+    `
+      outline: 3px solid cyan;
+      outline-offset: -3px;`}
+  
+  ${(props) =>
     props.isAutofillSelected &&
     !props.isFocusedColumn &&
     `
@@ -59,7 +65,7 @@ const TableBodyCell = styled.td`
     `
       background-color: #DBFFDB;`}
 
-    ${(props) =>
+  ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isFocusedColumn &&
@@ -175,6 +181,7 @@ function DataGridRow(props) {
     autofillSelectedCells,
     focusedColumn,
     grider,
+    frameSelection,
   } = props;
   // usePropsCompare({
   //   rowHeight,
@@ -200,7 +207,7 @@ function DataGridRow(props) {
   const hintFieldsAllowed = visibleRealColumns
     .filter((col) => {
       if (!col.hintColumnName) return false;
-      if (rowStatus.status == 'updated' && rowStatus.modifiedFields.has(col.uniqueName)) return false;
+      if (rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) return false;
       return true;
     })
     .map((col) => col.uniqueName);
@@ -222,13 +229,18 @@ function DataGridRow(props) {
           }}
           data-row={rowIndex}
           data-col={col.colIndex}
-          isSelected={cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+          isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+          isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
           isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
           isModifiedRow={rowStatus.status == 'updated'}
           isFocusedColumn={col.uniqueName == focusedColumn}
-          isModifiedCell={rowStatus.status == 'updated' && rowStatus.modifiedFields.has(col.uniqueName)}
-          isInsertedRow={rowStatus.status == 'inserted'}
-          isDeletedRow={rowStatus.status == 'deleted'}
+          isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+          isInsertedRow={
+            rowStatus.status == 'inserted' || (rowStatus.insertedFields && rowStatus.insertedFields.has(col.uniqueName))
+          }
+          isDeletedRow={
+            rowStatus.status == 'deleted' || (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))
+          }
         >
           {inplaceEditorState.cell &&
           rowIndex == inplaceEditorState.cell[0] &&

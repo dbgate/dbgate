@@ -40,6 +40,7 @@ export default function FreeTableGridCore(props) {
       grider={grider}
       display={display}
       onSelectionChanged={macroPreview ? handleSelectionChanged : null}
+      frameSelection={!!macroPreview}
     />
   );
 }
