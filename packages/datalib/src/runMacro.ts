@@ -1,5 +1,8 @@
 import { FreeTableModel } from './FreeTableModel';
 import _ from 'lodash';
+import uuidv1 from 'uuid/v1';
+import uuidv4 from 'uuid/v4';
+import moment from 'moment';
 import { MacroDefinition, MacroSelectedCell } from './MacroDefinition';
 
 const getMacroFunction = {
@@ -12,6 +15,9 @@ const getMacroFunction = {
 
 const modules = {
   lodash: _,
+  uuidv1,
+  uuidv4,
+  moment,
 };
 
 export function runMacro(

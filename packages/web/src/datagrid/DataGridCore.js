@@ -111,6 +111,7 @@ export default function DataGridCore(props) {
     grider,
     onSelectionChanged,
     frameSelection,
+    onKeyDown,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -668,6 +669,10 @@ export default function DataGridCore(props) {
   };
 
   function handleGridKeyDown(event) {
+    if (onKeyDown) {
+      onKeyDown(event);
+    }
+
     if (event.keyCode == keycodes.f5) {
       event.preventDefault();
       display.reload();

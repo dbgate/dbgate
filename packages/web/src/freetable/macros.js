@@ -51,6 +51,40 @@ const macros = [
     type: 'transformValue',
     code: `return rowIndex + 1`,
   },
+  {
+    title: 'Generate UUID',
+    name: 'uuidv1',
+    group: 'Tools',
+    description: 'Generate unique identifier',
+    type: 'transformValue',
+    args: [
+      {
+        type: 'select',
+        options: [
+          { value: 'uuidv1', name: 'V1 - from timestamp' },
+          { value: 'uuidv4', name: 'V4 - random generated' },
+        ],
+        label: 'Version',
+        name: 'uuidVersion',
+      },
+    ],
+    code: `return modules[args.uuidVersion || 'uuidv1']()`,
+  },
+  {
+    title: 'Current date',
+    name: 'currentDate',
+    group: 'Tools',
+    description: 'Gets current date',
+    type: 'transformValue',
+    args: [
+      {
+        type: 'text',
+        label: 'Format',
+        name: 'dateFormat',
+      },
+    ],
+    code: `return modules.moment().format(args.dateFormat || 'YYYY-MM-DD HH:mm:ss')`,
+  },
 ];
 
 export default macros;

@@ -1,11 +1,21 @@
 import { createGridCache, FreeTableGridDisplay } from '@dbgate/datalib';
 import React from 'react';
 import DataGridCore from '../datagrid/DataGridCore';
+import keycodes from '../utility/keycodes';
 import FreeTableGrider from './FreeTableGrider';
 import MacroPreviewGrider from './MacroPreviewGrider';
 
 export default function FreeTableGridCore(props) {
-  const { modelState, dispatchModel, config, setConfig, macroPreview, macroValues, onSelectionChanged } = props;
+  const {
+    modelState,
+    dispatchModel,
+    config,
+    setConfig,
+    macroPreview,
+    macroValues,
+    onSelectionChanged,
+    setSelectedMacro,
+  } = props;
   const [cache, setCache] = React.useState(createGridCache());
   const [selectedCells, setSelectedCells] = React.useState([]);
   const grider = React.useMemo(
@@ -34,6 +44,12 @@ export default function FreeTableGridCore(props) {
     [setSelectedCells]
   );
 
+  const handleKeyDown = React.useCallback((event) => {
+    if (event.keyCode == keycodes.escape) {
+      setSelectedMacro(null);
+    }
+  }, []);
+
   return (
     <DataGridCore
       {...props}
@@ -41,6 +57,7 @@ export default function FreeTableGridCore(props) {
       display={display}
       onSelectionChanged={macroPreview ? handleSelectionChanged : null}
       frameSelection={!!macroPreview}
+      onKeyDown={handleKeyDown}
     />
   );
 }

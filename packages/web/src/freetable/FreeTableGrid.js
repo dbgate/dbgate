@@ -56,6 +56,7 @@ export default function FreeTableGrid(props) {
             macroPreview={selectedMacro}
             macroValues={macroValues}
             onSelectionChanged={setSelectedCells}
+            setSelectedMacro={setSelectedMacro}
           />
           {!!selectedMacro && (
             <MacroDetail
