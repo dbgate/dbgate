@@ -1,3 +1,4 @@
+import { runMacro } from '@dbgate/datalib';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -20,9 +21,16 @@ const DataGridContainer = styled.div`
 `;
 
 export default function FreeTableGrid(props) {
+  const { modelState, dispatchModel } = props;
   const [managerSize, setManagerSize] = React.useState(0);
   const [selectedMacro, setSelectedMacro] = React.useState(null);
   const [macroValues, setMacroValues] = React.useState({});
+  const [selectedCells, setSelectedCells] = React.useState([]);
+  const handleExecuteMacro = () => {
+    const newModel = runMacro(selectedMacro, macroValues, modelState.value, false, selectedCells);
+    dispatchModel({ type: 'set', value: newModel });
+    setSelectedMacro(null);
+  };
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
@@ -43,13 +51,19 @@ export default function FreeTableGrid(props) {
 
       <DataGridContainer>
         <VerticalSplitter initialValue="70%">
-          <FreeTableGridCore {...props} macroPreview={selectedMacro} macroValues={macroValues} />
+          <FreeTableGridCore
+            {...props}
+            macroPreview={selectedMacro}
+            macroValues={macroValues}
+            onSelectionChanged={setSelectedCells}
+          />
           {!!selectedMacro && (
             <MacroDetail
               selectedMacro={selectedMacro}
               setSelectedMacro={setSelectedMacro}
               onChangeValues={setMacroValues}
               macroValues={macroValues}
+              onExecute={handleExecuteMacro}
             />
           )}
         </VerticalSplitter>

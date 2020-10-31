@@ -6,6 +6,9 @@ import { TabPage, TabControl } from '../widgets/TabControl';
 import theme from '../theme';
 import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
 import MacroParameters from './MacroParameters';
+import { WidgetTitle } from '../widgets/WidgetStyles';
+import { FormButton } from '../utility/forms';
+import FormStyledButton from '../widgets/FormStyledButton';
 
 const Container = styled.div`
   display: flex;
@@ -39,27 +42,70 @@ const MacroDetailContainer = styled.div`
   bottom: 0;
 `;
 
-function MacroHeader({ selectedMacro, setSelectedMacro }) {
+const MacroDetailTabWrapper = styled.div`
+  display: flex;
+`;
+
+const MacroSection = styled.div`
+  margin: 5px;
+`;
+
+const TextWrapper = styled.div`
+  margin: 5px;
+`;
+
+const Buttons = styled.div`
+  display: flex;
+`;
+
+function MacroHeader({ selectedMacro, setSelectedMacro, onExecute }) {
   return (
     <Container>
       <Header>
         <ReferenceIcon />
         <HeaderText>{selectedMacro.title}</HeaderText>
       </Header>
-      <ToolbarButton icon="fas fa-times" onClick={() => setSelectedMacro(null)} patchY={6}>
-        Close
-      </ToolbarButton>
+      <Buttons>
+        <ToolbarButton icon="fas fa-check" onClick={onExecute} patchY={6}>
+          Execute
+        </ToolbarButton>
+        <ToolbarButton icon="fas fa-times" onClick={() => setSelectedMacro(null)} patchY={6}>
+          Close
+        </ToolbarButton>
+      </Buttons>
     </Container>
   );
 }
 
-export default function MacroDetail({ selectedMacro, setSelectedMacro, onChangeValues, macroValues }) {
+export default function MacroDetail({ selectedMacro, setSelectedMacro, onChangeValues, macroValues, onExecute }) {
   return (
     <MacroDetailContainer>
-      <MacroHeader selectedMacro={selectedMacro} setSelectedMacro={setSelectedMacro} />
+      <MacroHeader selectedMacro={selectedMacro} setSelectedMacro={setSelectedMacro} onExecute={onExecute} />
       <TabControl>
-        <TabPage label="Execute" key="execute">
-          <MacroParameters args={selectedMacro.args} onChangeValues={onChangeValues} initialValues={macroValues} />
+        <TabPage label="Macro detail" key="detail">
+          <MacroDetailTabWrapper>
+            <MacroSection>
+              <WidgetTitle>Execute</WidgetTitle>
+              <FormStyledButton value="Execute" onClick={onExecute} />
+            </MacroSection>
+
+            <MacroSection>
+              <WidgetTitle>Parameters</WidgetTitle>
+              {selectedMacro.args && selectedMacro.args.length > 0 ? (
+                <MacroParameters
+                  args={selectedMacro.args}
+                  onChangeValues={onChangeValues}
+                  initialValues={macroValues}
+                />
+              ) : (
+                <TextWrapper>This macro has no parameters</TextWrapper>
+              )}
+            </MacroSection>
+            <MacroSection>
+              <WidgetTitle>Description</WidgetTitle>
+              <TextWrapper>{selectedMacro.description}</TextWrapper>
+            </MacroSection>
+          </MacroDetailTabWrapper>
         </TabPage>
         <TabPage label="JavaScript" key="javascript">
           <JavaScriptEditor readOnly value={selectedMacro.code} />

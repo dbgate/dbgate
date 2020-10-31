@@ -5,7 +5,7 @@ import FreeTableGrider from './FreeTableGrider';
 import MacroPreviewGrider from './MacroPreviewGrider';
 
 export default function FreeTableGridCore(props) {
-  const { modelState, dispatchModel, config, setConfig, macroPreview, macroValues } = props;
+  const { modelState, dispatchModel, config, setConfig, macroPreview, macroValues, onSelectionChanged } = props;
   const [cache, setCache] = React.useState(createGridCache());
   const [selectedCells, setSelectedCells] = React.useState([]);
   const grider = React.useMemo(
@@ -26,12 +26,20 @@ export default function FreeTableGridCore(props) {
     cache,
   ]);
 
+  const handleSelectionChanged = React.useCallback(
+    (cells) => {
+      if (onSelectionChanged) onSelectionChanged(cells);
+      setSelectedCells(cells);
+    },
+    [setSelectedCells]
+  );
+
   return (
     <DataGridCore
       {...props}
       grider={grider}
       display={display}
-      onSelectionChanged={macroPreview ? setSelectedCells : null}
+      onSelectionChanged={macroPreview ? handleSelectionChanged : null}
     />
   );
 }

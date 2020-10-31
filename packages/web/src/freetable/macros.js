@@ -47,7 +47,7 @@ const macros = [
     title: 'Row index',
     name: 'rowIndex',
     group: 'Tools',
-    description: 'index of row from 1 (autoincrement)',
+    description: 'Index of row from 1 (autoincrement)',
     type: 'transformValue',
     code: `return rowIndex + 1`,
   },

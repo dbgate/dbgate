@@ -27,24 +27,30 @@ export function runMacro(
     const rows = data.rows.map((row, rowIndex) => {
       const selectedRow = selectedRows[rowIndex];
       if (selectedRow) {
-        const columnSet = new Set(selectedRow.map((item) => item.column));
         const changedValues = [];
-        const res = _.mapValues(row, (value, key) => {
-          if (columnSet.has(key)) {
-            const newValue = func(value, macroArgs, modules, rowIndex, row, key);
-            if (preview && newValue != value) changedValues.push(key);
-            return newValue;
-          } else {
-            return value;
+        let res = null;
+        for (const cell of selectedRow) {
+          const { column } = cell;
+          const oldValue = row[column];
+          const newValue = func(oldValue, macroArgs, modules, rowIndex, row, column);
+          if (newValue != oldValue) {
+            if (res == null) {
+              res = { ...row };
+            }
+            res[column] = newValue;
+            if (preview) changedValues.push(column);
           }
-        });
-        if (changedValues.length > 0) {
-          return {
-            ...res,
-            __changedValues: new Set(changedValues),
-          };
         }
-        return res;
+        if (res) {
+          if (changedValues.length > 0) {
+            return {
+              ...res,
+              __changedValues: new Set(changedValues),
+            };
+          }
+          return res;
+        }
+        return row;
       } else {
         return row;
       }
