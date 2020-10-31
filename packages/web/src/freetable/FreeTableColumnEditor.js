@@ -36,32 +36,57 @@ const Icon = styled(FontIcon)`
 `;
 const EditorInput = styled.input`
   width: calc(100% - 10px);
+  background-color: ${(props) =>
+    // @ts-ignore
+    props.isError ? '#FFCCCC' : 'white'};
 `;
 
-function ColumnNameEditor({ onEnter, onBlur = undefined, focusOnCreate = false, blurOnEnter = false, ...other }) {
+function ColumnNameEditor({
+  onEnter,
+  onBlur = undefined,
+  focusOnCreate = false,
+  blurOnEnter = false,
+  existingNames,
+  defaultValue = '',
+  ...other
+}) {
+  const [value, setValue] = React.useState(defaultValue || '');
   const editorRef = React.useRef(null);
+  const isError = value && existingNames && existingNames.includes(value);
   const handleKeyDown = (event) => {
-    if (event.keyCode == keycodes.enter) {
-      onEnter(editorRef.current.value);
-      editorRef.current.value = '';
+    if (value && event.keyCode == keycodes.enter && !isError) {
+      onEnter(value);
+      setValue('');
       if (blurOnEnter) editorRef.current.blur();
     }
     if (event.keyCode == keycodes.escape) {
-      editorRef.current.value = '';
+      setValue('');
       editorRef.current.blur();
     }
   };
   const handleBlur = () => {
-    if (editorRef.current.value) {
-      onEnter(editorRef.current.value);
-      editorRef.current.value = '';
+    if (value && !isError) {
+      onEnter(value);
+      setValue('');
     }
     if (onBlur) onBlur();
   };
   React.useEffect(() => {
     if (focusOnCreate) editorRef.current.focus();
   }, [focusOnCreate]);
-  return <EditorInput ref={editorRef} type="text" onKeyDown={handleKeyDown} onBlur={handleBlur} {...other} />;
+  return (
+    <EditorInput
+      ref={editorRef}
+      type="text"
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      value={value}
+      onChange={(ev) => setValue(ev.target.value)}
+      // @ts-ignore
+      isError={isError}
+      {...other}
+    />
+  );
 }
 
 function exchange(array, i1, i2) {
@@ -87,14 +112,14 @@ function ColumnManagerRow({ column, onEdit, onRemove, onUp, onDown }) {
   );
 }
 
-function dispatchChangeColumns(props, func) {
+function dispatchChangeColumns(props, func, rowFunc = null) {
   const { modelState, dispatchModel } = props;
   const model = modelState.value;
 
   dispatchModel({
     type: 'set',
     value: {
-      ...model,
+      rows: rowFunc ? model.rows.map(rowFunc) : model.rows,
       structure: {
         ...model.structure,
         columns: func(model.structure.columns),
@@ -116,11 +141,16 @@ export default function FreeTableColumnEditor(props) {
             <ColumnNameEditor
               defaultValue={column.columnName}
               onEnter={(columnName) => {
-                dispatchChangeColumns(props, (cols) => cols.map((col, i) => (index == i ? { columnName } : col)));
+                dispatchChangeColumns(
+                  props,
+                  (cols) => cols.map((col, i) => (index == i ? { columnName } : col)),
+                  (row) => _.mapKeys(row, (v, k) => (k == column.columnName ? columnName : k))
+                );
               }}
               onBlur={() => setEditingColumn(null)}
               focusOnCreate
               blurOnEnter
+              existingNames={model.structure.columns.map((x) => x.columnName)}
             />
           ) : (
             <ColumnManagerRow
@@ -144,6 +174,7 @@ export default function FreeTableColumnEditor(props) {
             dispatchChangeColumns(props, (cols) => [...cols, { columnName }]);
           }}
           placeholder="New column"
+          existingNames={model.structure.columns.map((x) => x.columnName)}
         />
       </ManagerInnerContainer>
     </>

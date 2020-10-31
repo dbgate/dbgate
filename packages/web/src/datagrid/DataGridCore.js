@@ -413,7 +413,8 @@ export default function DataGridCore(props) {
       .replace(/\r/g, '')
       .split('\n')
       .map((row) => row.split('\t'));
-    if (selectedCells.length <= 1) {
+    const selectedRegular = cellsToRegularCells(selectedCells);
+    if (selectedRegular.length <= 1) {
       const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
       const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
       let rowIndex = startRow;
@@ -429,11 +430,10 @@ export default function DataGridCore(props) {
         rowIndex += 1;
       }
     }
-    if (selectedCells.length > 1) {
-      const regularSelected = selectedCells.filter(isRegularCell);
-      const startRow = _.min(regularSelected.map((x) => x[0]));
-      const startCol = _.min(regularSelected.map((x) => x[1]));
-      for (const cell of regularSelected) {
+    if (selectedRegular.length > 1) {
+      const startRow = _.min(selectedRegular.map((x) => x[0]));
+      const startCol = _.min(selectedRegular.map((x) => x[1]));
+      for (const cell of selectedRegular) {
         const [rowIndex, colIndex] = cell;
         const selectionRow = rowIndex - startRow;
         const selectionCol = colIndex - startCol;
