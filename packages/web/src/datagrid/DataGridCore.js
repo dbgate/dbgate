@@ -465,7 +465,7 @@ export default function DataGridCore(props) {
     cells = _.flatten(
       cells.map((cell) => {
         if (cell[0] == 'header') {
-          return _.range(0, allRowCount).map((row) => [row, cell[1]]);
+          return _.range(0, grider.rowCount).map((row) => [row, cell[1]]);
         }
         return [cell];
       })
@@ -539,25 +539,8 @@ export default function DataGridCore(props) {
     return _.uniq((selectedCells || []).map((x) => x[1])).filter((x) => _.isNumber(x));
   }
 
-  function getSelectedRegularCells() {
-    if (selectedCells.find((x) => x[0] == 'header' && x[1] == 'header')) {
-      const row = _.range(0, realColumnUniqueNames.length);
-      return _.range(0, grider.rowCount).map((rowIndex) => row.map((colIndex) => [rowIndex, colIndex]));
-    }
-    const res = [];
-    for (const cell of selectedCells) {
-      if (isRegularCell(cell)) res.push(cell);
-      else if (cell[0] == 'header' && _.isNumber(cell[1])) {
-        res.push(..._.range(0, grider.rowCount).map((rowIndex) => [rowIndex, cell[1]]));
-      } else if (cell[1] == 'header' && _.isNumber(cell[0])) {
-        res.push(..._.range(0, realColumnUniqueNames.length).map((colIndex) => [cell[0], colIndex]));
-      }
-    }
-    return res;
-  }
-
   function getSelectedMacroCells() {
-    const regular = getSelectedRegularCells();
+    const regular = cellsToRegularCells(selectedCells);
     // @ts-ignore
     return regular.map((cell) => ({
       row: cell[0],
