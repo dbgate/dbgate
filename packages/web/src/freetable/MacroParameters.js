@@ -1,5 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
+import styled from 'styled-components';
 import {
   FormTextField,
   FormSubmit,
@@ -10,6 +11,9 @@ import {
   FormCheckboxField,
 } from '../utility/forms';
 import { Formik, Form, useFormikContext } from 'formik';
+
+const MacroArgumentsWrapper = styled.div`
+`;
 
 function MacroArgument({ arg, namePrefix }) {
   const name = `${namePrefix}${arg.name}`;
@@ -37,12 +41,12 @@ function MacroArgumentList({ args, onChangeValues, namePrefix }) {
     if (onChangeValues) onChangeValues(values);
   }, [values]);
   return (
-    <>
+    <MacroArgumentsWrapper>
       {' '}
       {args.map((arg) => (
         <MacroArgument arg={arg} key={arg.name} namePrefix={namePrefix} />
       ))}
-    </>
+    </MacroArgumentsWrapper>
   );
 }
 

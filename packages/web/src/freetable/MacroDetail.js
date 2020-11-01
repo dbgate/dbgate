@@ -44,6 +44,7 @@ const MacroDetailContainer = styled.div`
 
 const MacroDetailTabWrapper = styled.div`
   display: flex;
+  overflow-y: auto;
 `;
 
 const MacroSection = styled.div`

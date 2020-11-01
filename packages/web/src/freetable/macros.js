@@ -176,18 +176,129 @@ return {
       },
     ],
   },
+  {
+    title: 'Extract date fields',
+    name: 'extractDateFields',
+    group: 'Tools',
+    description: 'Extract yaear, month, day and other date/time fields from selection and adds it as new columns',
+    type: 'transformData',
+    code: `
+const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
+const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
+const addedColumnNames = modules.lodash.compact([args.year, args.month, args.day, args.hour, args.minute, args.second]);
+const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
+const resultRows = rows.map((row, rowIndex) => {
+  if (!selectedRowIndexes.includes(rowIndex)) return {
+    ...row,
+    __insertedFields: addedColumnNames,
+  };
+  let mom = null;
+  for(const cell of selectedRows[rowIndex]) {
+    const m = modules.moment(row[cell.column]);
+    if (m.isValid()) {
+      mom = m;
+      break;
+    }
+  }
+  if (!mom) return {
+    ...row,
+    __insertedFields: addedColumnNames,
+  };
+
+  const fields = {
+    year: mom.year(),
+    month: mom.month() + 1,
+    day: mom.day(),
+    hour: mom.hour(),
+    minute: mom.minute(),
+    second: mom.second(),
+  };
+
+  return {
+    ...row,
+    ...modules.lodash.pick(fields, addedColumnNames),
+    __insertedFields: addedColumnNames,
+  }
+});
+const resultCols = [
+  ...cols,
+  ...addedColumnNames,
+];
+return {
+  rows: resultRows,
+  cols: resultCols,
+}
+    `,
+    args: [
+      {
+        type: 'text',
+        label: 'Year name',
+        name: 'year',
+        default: 'year',
+      },
+      {
+        type: 'text',
+        label: 'Month name',
+        name: 'month',
+        default: 'month',
+      },
+      {
+        type: 'text',
+        label: 'Day name',
+        name: 'day',
+        default: 'day',
+      },
+      {
+        type: 'text',
+        label: 'Hour name',
+        name: 'hour',
+        default: 'hour',
+      },
+      {
+        type: 'text',
+        label: 'Minute name',
+        name: 'minute',
+        default: 'minute',
+      },
+      {
+        type: 'text',
+        label: 'Second name',
+        name: 'second',
+        default: 'second',
+      },
+    ],
+  },
 ];
 
 // function f() {
 //   const selectedColumnNames = modules.lodash.uniq(selectedCells.map((x) => x.column));
-//   const addedColumnNames = selectedColumnNames.map((col) => (args.prefix || '') + col + (args.postfix || ''));
-//   const resultRows = rows.map((row) => ({
-//     ...row,
-//     ...modules.lodash.fromPairs(
-//       selectedColumnNames.map((col) => [(args.prefix || '') + col + (args.postfix || ''), row[col]])
-//     ),
-//     __insertedFields: addedColumnNames,
-//   }));
+//   const selectedRowIndexes = modules.lodash.uniq(selectedCells.map((x) => x.row));
+//   const addedColumnNames = modules.lodash.compact(args.year, args.month, args.day, args.hour, args.minute, args.second);
+//   const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
+
+//   const resultRows = rows.map((row, rowIndex) => {
+//     if (!selectedRowIndexes.includes(rowIndex)) return row;
+//     const mom = selectedRows[index].find((x) => {
+//       const m = modules.moment(row[x.column]);
+//       if (m.isValid()) return m;
+//     });
+//     if (!mom) return row;
+
+//     const fields = {
+//       year: mom.year(),
+//       month: mom.month(),
+//       day: mom.day(),
+//       hour: mom.hour(),
+//       minute: mom.minute(),
+//       second: mom.second(),
+//     };
+
+//     return {
+//       ...row,
+//       ...modules.lodash.pick(fields, addedColumnNames),
+//       __insertedFields: addedColumnNames,
+//     };
+//   });
 //   const resultCols = [...cols, ...addedColumnNames];
 //   return {
 //     rows: resultRows,
