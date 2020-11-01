@@ -270,40 +270,4 @@ return {
   },
 ];
 
-// function f() {
-//   const selectedColumnNames = modules.lodash.uniq(selectedCells.map((x) => x.column));
-//   const selectedRowIndexes = modules.lodash.uniq(selectedCells.map((x) => x.row));
-//   const addedColumnNames = modules.lodash.compact(args.year, args.month, args.day, args.hour, args.minute, args.second);
-//   const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
-
-//   const resultRows = rows.map((row, rowIndex) => {
-//     if (!selectedRowIndexes.includes(rowIndex)) return row;
-//     const mom = selectedRows[index].find((x) => {
-//       const m = modules.moment(row[x.column]);
-//       if (m.isValid()) return m;
-//     });
-//     if (!mom) return row;
-
-//     const fields = {
-//       year: mom.year(),
-//       month: mom.month(),
-//       day: mom.day(),
-//       hour: mom.hour(),
-//       minute: mom.minute(),
-//       second: mom.second(),
-//     };
-
-//     return {
-//       ...row,
-//       ...modules.lodash.pick(fields, addedColumnNames),
-//       __insertedFields: addedColumnNames,
-//     };
-//   });
-//   const resultCols = [...cols, ...addedColumnNames];
-//   return {
-//     rows: resultRows,
-//     cols: resultCols,
-//   };
-// }
-
 export default macros;

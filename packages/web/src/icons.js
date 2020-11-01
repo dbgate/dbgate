@@ -62,6 +62,7 @@ export const ViewIcon = (props) => getIconImage('view2.svg', props);
 export const ArchiveTableIcon = (props) => getIconImage('archtable.svg', props);
 export const DatabaseIcon = (props) => getIconImage('database.svg', props);
 export const ServerIcon = (props) => getIconImage('server.svg', props);
+export const MacroIcon = (props) => getIconImage('double-wrench.svg', props);
 
 export const MicrosoftIcon = (props) => getIconImage('microsoft.svg', props);
 export const MySqlIcon = (props) => getIconImage('mysql.svg', props);
