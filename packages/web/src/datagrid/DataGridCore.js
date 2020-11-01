@@ -298,6 +298,16 @@ export default function DataGridCore(props) {
     return <ErrorInfo message={errorMessage} />;
   }
 
+  if (grider.errors && grider.errors.length > 0) {
+    return (
+      <div>
+        {grider.errors.map((err, index) => (
+          <ErrorInfo message={err} key={index} isSmall />
+        ))}
+      </div>
+    );
+  }
+
   const handleRowScroll = (value) => {
     setFirstVisibleRowScrollIndex(value);
   };

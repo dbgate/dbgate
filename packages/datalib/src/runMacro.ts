@@ -25,9 +25,16 @@ export function runMacro(
   macroArgs: {},
   data: FreeTableModel,
   preview: boolean,
-  selectedCells: MacroSelectedCell[]
+  selectedCells: MacroSelectedCell[],
+  errors: string[] = []
 ): FreeTableModel {
-  const func = eval(getMacroFunction[macro.type](macro.code));
+  let func;
+  try {
+    func = eval(getMacroFunction[macro.type](macro.code));
+  } catch (err) {
+    errors.push(`Error compiling macro ${macro.name}: ${err.message}`);
+    return data;
+  }
   if (macro.type == 'transformValue') {
     const selectedRows = _.groupBy(selectedCells, 'row');
     const rows = data.rows.map((row, rowIndex) => {
@@ -38,7 +45,12 @@ export function runMacro(
         for (const cell of selectedRow) {
           const { column } = cell;
           const oldValue = row[column];
-          const newValue = func(oldValue, macroArgs, modules, rowIndex, row, column);
+          let newValue = oldValue;
+          try {
+            newValue = func(oldValue, macroArgs, modules, rowIndex, row, column);
+          } catch (err) {
+            errors.push(`Error processing column ${column} on row ${rowIndex}: ${err.message}`);
+          }
           if (newValue != oldValue) {
             if (res == null) {
               res = { ...row };

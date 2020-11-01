@@ -3,9 +3,14 @@ import Grider, { GriderRowStatus } from '../datagrid/Grider';
 
 export default class MacroPreviewGrider extends Grider {
   model: FreeTableModel;
+  _errors: string[] = [];
   constructor(model: FreeTableModel, macro: MacroDefinition, macroArgs: {}, selectedCells: MacroSelectedCell[]) {
     super();
-    this.model = runMacro(macro, macroArgs, model, true, selectedCells);
+    this.model = runMacro(macro, macroArgs, model, true, selectedCells, this._errors);
+  }
+
+  get errors() {
+    return this._errors;
   }
 
   getRowStatus(index): GriderRowStatus {

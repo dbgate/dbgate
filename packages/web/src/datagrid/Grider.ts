@@ -50,6 +50,9 @@ export default abstract class Grider {
   get disableLoadNextPage() {
     return false;
   }
+  get errors() {
+    return null;
+  }
   updateRow(index, changeObject) {
     for (const key of Object.keys(changeObject)) {
       this.setCellValue(index, key, changeObject[key]);

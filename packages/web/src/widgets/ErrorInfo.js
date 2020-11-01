@@ -14,7 +14,20 @@ const Icon = styled.div`
   margin: 10px;
 `;
 
-export default function ErrorInfo({ message, icon = 'fas fa-times-circle red' }) {
+const ContainerSmall = styled.div`
+  display: flex;
+  margin-right: 10px;
+`;
+
+export default function ErrorInfo({ message, icon = 'fas fa-times-circle red', isSmall = false }) {
+  if (isSmall) {
+    return (
+      <ContainerSmall>
+        <FontIcon icon={icon} />
+        {message}
+      </ContainerSmall>
+    );
+  }
   return (
     <Container>
       <Icon>
