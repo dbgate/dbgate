@@ -36,7 +36,13 @@ export default function FreeTableGrid(props) {
   const [macroValues, setMacroValues] = React.useState({});
   const [selectedCells, setSelectedCells] = React.useState([]);
   const handleExecuteMacro = () => {
-    const newModel = runMacro(selectedMacro, macroValues, modelState.value, false, selectedCells);
+    const newModel = runMacro(
+      selectedMacro,
+      extractMacroValuesForMacro(macroValues, selectedMacro),
+      modelState.value,
+      false,
+      selectedCells
+    );
     dispatchModel({ type: 'set', value: newModel });
     setSelectedMacro(null);
   };
