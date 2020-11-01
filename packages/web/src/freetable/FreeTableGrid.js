@@ -1,5 +1,6 @@
 import { runMacro } from '@dbgate/datalib';
 import React from 'react';
+import _ from 'lodash';
 import styled from 'styled-components';
 
 import { ManagerMainContainer, ManagerOuterContainer_60, ManagerOuterContainer_40 } from '../datagrid/ManagerStyles';
@@ -19,6 +20,14 @@ const DataGridContainer = styled.div`
   position: relative;
   flex-grow: 1;
 `;
+
+function extractMacroValuesForMacro(macroValues, macro) {
+  if (!macro) return {};
+  return {
+    ..._.fromPairs((macro.args || []).filter((x) => x.default != null).map((x) => [x.name, x.default])),
+    ..._.mapKeys(macroValues, (v, k) => k.replace(/^.*#/, '')),
+  };
+}
 
 export default function FreeTableGrid(props) {
   const { modelState, dispatchModel } = props;
@@ -54,7 +63,7 @@ export default function FreeTableGrid(props) {
           <FreeTableGridCore
             {...props}
             macroPreview={selectedMacro}
-            macroValues={macroValues}
+            macroValues={extractMacroValuesForMacro(macroValues, selectedMacro)}
             onSelectionChanged={setSelectedCells}
             setSelectedMacro={setSelectedMacro}
           />

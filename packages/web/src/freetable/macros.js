@@ -38,10 +38,11 @@ const macros = [
         type: 'select',
         options: ['toUpper', 'toLower', 'lowerCase', 'upperCase', 'kebabCase', 'snakeCase', 'camelCase', 'startCase'],
         label: 'Type',
-        name: 'caseTransform',
+        name: 'type',
+        default: 'toUpper',
       },
     ],
-    code: `return modules.lodash[args.caseTransform || 'toUpper'](value)`,
+    code: `return modules.lodash[args.type](value)`,
   },
   {
     title: 'Row index',
@@ -65,10 +66,11 @@ const macros = [
           { value: 'uuidv4', name: 'V4 - random generated' },
         ],
         label: 'Version',
-        name: 'uuidVersion',
+        name: 'version',
+        default: 'uuidv1',
       },
     ],
-    code: `return modules[args.uuidVersion || 'uuidv1']()`,
+    code: `return modules[args.version]()`,
   },
   {
     title: 'Current date',
@@ -80,10 +82,11 @@ const macros = [
       {
         type: 'text',
         label: 'Format',
-        name: 'dateFormat',
+        name: 'format',
+        default: 'YYYY-MM-DD HH:mm:ss',
       },
     ],
-    code: `return modules.moment().format(args.dateFormat || 'YYYY-MM-DD HH:mm:ss')`,
+    code: `return modules.moment().format(args.format)`,
   },
 ];
 

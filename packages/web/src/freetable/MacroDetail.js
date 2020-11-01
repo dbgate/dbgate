@@ -93,9 +93,11 @@ export default function MacroDetail({ selectedMacro, setSelectedMacro, onChangeV
               <WidgetTitle>Parameters</WidgetTitle>
               {selectedMacro.args && selectedMacro.args.length > 0 ? (
                 <MacroParameters
+                  key={selectedMacro.name}
                   args={selectedMacro.args}
                   onChangeValues={onChangeValues}
-                  initialValues={macroValues}
+                  macroValues={macroValues}
+                  namePrefix={`${selectedMacro.name}#`}
                 />
               ) : (
                 <TextWrapper>This macro has no parameters</TextWrapper>
