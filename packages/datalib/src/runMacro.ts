@@ -16,7 +16,7 @@ const getMacroFunction = {
   ${code}
 }
 `,
-transformData: (code) => `
+  transformData: (code) => `
 (rows, args, modules, selectedCells, cols, columns) => {
   ${code}
 }
@@ -142,6 +142,7 @@ function runTramsformData(
     if (cols && !columns) {
       columns = cols.map((columnName) => ({ columnName }));
     }
+    columns = _.uniqBy(columns, 'columnName');
     if (!preview) {
       rows = removePreviewRowFlags(rows);
     }

@@ -206,12 +206,12 @@ const resultRows = rows.map((row, rowIndex) => {
   };
 
   const fields = {
-    year: mom.year(),
-    month: mom.month() + 1,
-    day: mom.day(),
-    hour: mom.hour(),
-    minute: mom.minute(),
-    second: mom.second(),
+    [args.year]: mom.year(),
+    [args.month]: mom.month() + 1,
+    [args.day]: mom.day(),
+    [args.hour]: mom.hour(),
+    [args.minute]: mom.minute(),
+    [args.second]: mom.second(),
   };
 
   return {
