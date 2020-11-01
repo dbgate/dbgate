@@ -16,7 +16,7 @@ export default class MacroPreviewGrider extends Grider {
   getRowStatus(index): GriderRowStatus {
     const row = this.model.rows[index];
     return {
-      status: 'regular',
+      status: (row && row.__rowStatus) || 'regular',
       modifiedFields: row ? row.__modifiedFields : null,
     };
   }

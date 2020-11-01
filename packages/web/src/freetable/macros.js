@@ -36,9 +36,9 @@ const macros = [
       },
     ],
     code: `
-    const rtext = args.isRegex ? args.find : modules.lodash.escapeRegExp(args.find);
-    const rflags = args.caseSensitive ? 'g' : 'ig';
-    return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace || '') : value
+const rtext = args.isRegex ? args.find : modules.lodash.escapeRegExp(args.find);
+const rflags = args.caseSensitive ? 'g' : 'ig';
+return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace || '') : value
     `,
   },
   {
@@ -102,6 +102,41 @@ const macros = [
     ],
     code: `return modules.moment().format(args.format)`,
   },
+  {
+    title: 'Duplicate rows',
+    name: 'duplicateRows',
+    group: 'Tools',
+    description: 'Duplicate selected rows',
+    type: 'transformRows',
+    code: `
+const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
+const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
+const maxIndex = _.max(selectedRowIndexes);
+return [
+  ...rows.slice(0, maxIndex + 1),
+  ...selectedRowIndexes.map(index => ({
+    ..._.pick(rows[index], selectedRows[index].map(x=>x.column)),
+    __rowStatus: 'inserted',
+  })),
+  ...rows.slice(maxIndex + 1),
+]
+    `,
+  },
+  {
+    title: 'Delete empty rows',
+    name: 'deleteEmptyRows',
+    group: 'Tools',
+    description: 'Delete empty rows - rows with all values null or empty string',
+    type: 'transformRows',
+    code: `
+return rows.map(row => {
+  if (cols.find(col => row[col])) return row;
+  return {
+    ...row,
+    __rowStatus: 'deleted',
+  };
+})
+`}
 ];
 
 export default macros;

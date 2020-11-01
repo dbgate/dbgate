@@ -11,6 +11,11 @@ const getMacroFunction = {
     ${code}
 }
 `,
+  transformRows: (code) => `
+(rows, args, modules, selectedCells, cols) => {
+  ${code}
+}
+`,
 };
 
 const modules = {
@@ -19,6 +24,96 @@ const modules = {
   uuidv4,
   moment,
 };
+
+function runTramsformValue(
+  func,
+  macroArgs: {},
+  data: FreeTableModel,
+  preview: boolean,
+  selectedCells: MacroSelectedCell[],
+  errors: string[] = []
+) {
+  const selectedRows = _.groupBy(selectedCells, 'row');
+  const rows = data.rows.map((row, rowIndex) => {
+    const selectedRow = selectedRows[rowIndex];
+    if (selectedRow) {
+      const modifiedFields = [];
+      let res = null;
+      for (const cell of selectedRow) {
+        const { column } = cell;
+        const oldValue = row[column];
+        let newValue = oldValue;
+        try {
+          newValue = func(oldValue, macroArgs, modules, rowIndex, row, column);
+        } catch (err) {
+          errors.push(`Error processing column ${column} on row ${rowIndex}: ${err.message}`);
+        }
+        if (newValue != oldValue) {
+          if (res == null) {
+            res = { ...row };
+          }
+          res[column] = newValue;
+          if (preview) modifiedFields.push(column);
+        }
+      }
+      if (res) {
+        if (modifiedFields.length > 0) {
+          return {
+            ...res,
+            __modifiedFields: new Set(modifiedFields),
+          };
+        }
+        return res;
+      }
+      return row;
+    } else {
+      return row;
+    }
+  });
+
+  return {
+    structure: data.structure,
+    rows,
+  };
+}
+
+function removePreviewRowFlags(rows) {
+  rows = rows.filter((row) => row.__rowStatus != 'deleted');
+  rows = rows.map((row) => {
+    if (row.__rowStatus || row.__modifiedFields) return _.omit(row, ['__rowStatus', '__modifiedFields']);
+    return row;
+  });
+  return rows;
+}
+
+function runTramsformRows(
+  func,
+  macroArgs: {},
+  data: FreeTableModel,
+  preview: boolean,
+  selectedCells: MacroSelectedCell[],
+  errors: string[] = []
+) {
+  let rows = data.rows;
+  try {
+    rows = func(
+      data.rows,
+      macroArgs,
+      modules,
+      selectedCells,
+      data.structure.columns.map((x) => x.columnName)
+    );
+    if (!preview) {
+      rows = removePreviewRowFlags(rows);
+    }
+  } catch (err) {
+    errors.push(`Error processing rows: ${err.message}`);
+  }
+  return {
+    structure: data.structure,
+    rows,
+  };
+}
 
 export function runMacro(
   macro: MacroDefinition,
@@ -36,48 +131,10 @@ export function runMacro(
     return data;
   }
   if (macro.type == 'transformValue') {
-    const selectedRows = _.groupBy(selectedCells, 'row');
-    const rows = data.rows.map((row, rowIndex) => {
-      const selectedRow = selectedRows[rowIndex];
-      if (selectedRow) {
-        const modifiedFields = [];
-        let res = null;
-        for (const cell of selectedRow) {
-          const { column } = cell;
-          const oldValue = row[column];
-          let newValue = oldValue;
-          try {
-            newValue = func(oldValue, macroArgs, modules, rowIndex, row, column);
-          } catch (err) {
-            errors.push(`Error processing column ${column} on row ${rowIndex}: ${err.message}`);
-          }
-          if (newValue != oldValue) {
-            if (res == null) {
-              res = { ...row };
-            }
-            res[column] = newValue;
-            if (preview) modifiedFields.push(column);
-          }
-        }
-        if (res) {
-          if (modifiedFields.length > 0) {
-            return {
-              ...res,
-              __modifiedFields: new Set(modifiedFields),
-            };
-          }
-          return res;
-        }
-        return row;
-      } else {
-        return row;
-      }
-    });
-
-    return {
-      structure: data.structure,
-      rows,
-    };
+    return runTramsformValue(func, macroArgs, data, preview, selectedCells, errors);
+  }
+  if (macro.type == 'transformRows') {
+    return runTramsformRows(func, macroArgs, data, preview, selectedCells, errors);
   }
   return data;
 }
