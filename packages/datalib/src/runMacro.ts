@@ -12,7 +12,12 @@ const getMacroFunction = {
 }
 `,
   transformRows: (code) => `
-(rows, args, modules, selectedCells, cols) => {
+(rows, args, modules, selectedCells, cols, columns) => {
+  ${code}
+}
+`,
+transformData: (code) => `
+(rows, args, modules, selectedCells, cols, columns) => {
   ${code}
 }
 `,
@@ -80,7 +85,8 @@ function runTramsformValue(
 function removePreviewRowFlags(rows) {
   rows = rows.filter((row) => row.__rowStatus != 'deleted');
   rows = rows.map((row) => {
-    if (row.__rowStatus || row.__modifiedFields) return _.omit(row, ['__rowStatus', '__modifiedFields']);
+    if (row.__rowStatus || row.__modifiedFields || row.__insertedFields || row.__deletedFields)
+      return _.omit(row, ['__rowStatus', '__modifiedFields', '__insertedFields', '__deletedFields']);
     return row;
   });
   return rows;
@@ -101,7 +107,8 @@ function runTramsformRows(
       macroArgs,
       modules,
       selectedCells,
-      data.structure.columns.map((x) => x.columnName)
+      data.structure.columns.map((x) => x.columnName),
+      data.structure.columns
     );
     if (!preview) {
       rows = removePreviewRowFlags(rows);
@@ -113,6 +120,39 @@ function runTramsformRows(
     structure: data.structure,
     rows,
   };
+}
+
+function runTramsformData(
+  func,
+  macroArgs: {},
+  data: FreeTableModel,
+  preview: boolean,
+  selectedCells: MacroSelectedCell[],
+  errors: string[] = []
+) {
+  try {
+    let { rows, columns, cols } = func(
+      data.rows,
+      macroArgs,
+      modules,
+      selectedCells,
+      data.structure.columns.map((x) => x.columnName),
+      data.structure.columns
+    );
+    if (cols && !columns) {
+      columns = cols.map((columnName) => ({ columnName }));
+    }
+    if (!preview) {
+      rows = removePreviewRowFlags(rows);
+    }
+    return {
+      structure: { columns },
+      rows,
+    };
+  } catch (err) {
+    errors.push(`Error processing data: ${err.message}`);
+  }
+  return data;
 }
 
 export function runMacro(
@@ -135,6 +175,10 @@ export function runMacro(
   }
   if (macro.type == 'transformRows') {
     return runTramsformRows(func, macroArgs, data, preview, selectedCells, errors);
+  }
+  if (macro.type == 'transformData') {
+    // @ts-ignore
+    return runTramsformData(func, macroArgs, data, preview, selectedCells, errors);
   }
   return data;
 }

@@ -1,5 +1,13 @@
 import { FreeTableModel, MacroDefinition, MacroSelectedCell, runMacro } from '@dbgate/datalib';
 import Grider, { GriderRowStatus } from '../datagrid/Grider';
+import _ from 'lodash';
+
+function convertToSet(row, field) {
+  if (!row) return null;
+  if (!row[field]) return null;
+  if (_.isSet(row[field])) return row[field];
+  return new Set(row[field]);
+}
 
 export default class MacroPreviewGrider extends Grider {
   model: FreeTableModel;
@@ -17,7 +25,9 @@ export default class MacroPreviewGrider extends Grider {
     const row = this.model.rows[index];
     return {
       status: (row && row.__rowStatus) || 'regular',
-      modifiedFields: row ? row.__modifiedFields : null,
+      modifiedFields: convertToSet(row, '__modifiedFields'),
+      insertedFields: convertToSet(row, '__insertedFields'),
+      deletedFields: convertToSet(row, '__deletedFields'),
     };
   }
 

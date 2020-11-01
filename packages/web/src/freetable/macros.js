@@ -111,11 +111,11 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     code: `
 const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
 const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
-const maxIndex = _.max(selectedRowIndexes);
+const maxIndex = modules.lodash.max(selectedRowIndexes);
 return [
   ...rows.slice(0, maxIndex + 1),
   ...selectedRowIndexes.map(index => ({
-    ..._.pick(rows[index], selectedRows[index].map(x=>x.column)),
+    ...modules.lodash.pick(rows[index], selectedRows[index].map(x => x.column)),
     __rowStatus: 'inserted',
   })),
   ...rows.slice(maxIndex + 1),
@@ -136,7 +136,63 @@ return rows.map(row => {
     __rowStatus: 'deleted',
   };
 })
-`}
+`,
+  },
+  {
+    title: 'Duplicate columns',
+    name: 'duplicateColumns',
+    group: 'Tools',
+    description: 'Duplicate selected columns',
+    type: 'transformData',
+    code: `
+const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
+const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
+const addedColumnNames = selectedColumnNames.map(col => (args.prefix || '') + col + (args.postfix || ''));
+const resultRows = rows.map((row, rowIndex) => ({
+  ...row,
+  ...(selectedRowIndexes.includes(rowIndex) ? modules.lodash.fromPairs(selectedColumnNames.map(col => [(args.prefix || '') + col + (args.postfix || ''), row[col]])) : {}),
+  __insertedFields: addedColumnNames,
+}));
+const resultCols = [
+  ...cols,
+  ...addedColumnNames,
 ];
+return {
+  rows: resultRows,
+  cols: resultCols,
+}
+    `,
+    args: [
+      {
+        type: 'text',
+        label: 'Prefix',
+        name: 'prefix',
+      },
+      {
+        type: 'text',
+        label: 'Postfix',
+        name: 'postfix',
+        default: '_copy',
+      },
+    ],
+  },
+];
+
+// function f() {
+//   const selectedColumnNames = modules.lodash.uniq(selectedCells.map((x) => x.column));
+//   const addedColumnNames = selectedColumnNames.map((col) => (args.prefix || '') + col + (args.postfix || ''));
+//   const resultRows = rows.map((row) => ({
+//     ...row,
+//     ...modules.lodash.fromPairs(
+//       selectedColumnNames.map((col) => [(args.prefix || '') + col + (args.postfix || ''), row[col]])
+//     ),
+//     __insertedFields: addedColumnNames,
+//   }));
+//   const resultCols = [...cols, ...addedColumnNames];
+//   return {
+//     rows: resultRows,
+//     cols: resultCols,
+//   };
+// }
 
 export default macros;

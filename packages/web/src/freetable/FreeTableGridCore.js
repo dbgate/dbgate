@@ -30,10 +30,11 @@ export default function FreeTableGridCore(props) {
       macroPreview ? selectedCells : null,
     ]
   );
-  const display = React.useMemo(() => new FreeTableGridDisplay(modelState.value, config, setConfig, cache, setCache), [
+  const display = React.useMemo(() => new FreeTableGridDisplay(grider.model || modelState.value, config, setConfig, cache, setCache), [
     modelState.value,
     config,
     cache,
+    grider,
   ]);
 
   const handleSelectionChanged = React.useCallback(
