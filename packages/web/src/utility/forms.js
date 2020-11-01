@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Select from 'react-select';
 import Creatable from 'react-select/creatable';
-import { TextField, SelectField } from './inputs';
+import { TextField, SelectField, CheckboxField } from './inputs';
 import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
 import {
@@ -44,6 +44,26 @@ export function FormTextField({ label, ...other }) {
       <FormLabel>{label}</FormLabel>
       <FormValue>
         <FormTextFieldRaw {...other} />
+      </FormValue>
+    </FormRow>
+  );
+}
+
+export function FormCheckboxFieldRaw({ name = undefined, ...other }) {
+  const { values, setFieldValue } = useFormikContext();
+  const handleChange = (event) => {
+    setFieldValue(name, event.target.checked);
+  };
+  return <CheckboxField name={name} checked={!!values[name]} onChange={handleChange} {...other} />;
+  // return <Field {...other} as={CheckboxField} />;
+}
+
+export function FormCheckboxField({ label, ...other }) {
+  return (
+    <FormRow>
+      <FormLabel>{label}</FormLabel>
+      <FormValue>
+        <FormCheckboxFieldRaw {...other} />
       </FormValue>
     </FormRow>
   );

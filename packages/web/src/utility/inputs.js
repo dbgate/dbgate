@@ -16,3 +16,7 @@ export function SelectField({ children = null, options = [], ...other }) {
     </select>
   );
 }
+
+export function CheckboxField({ editorRef = undefined, ...other }) {
+  return <input type="checkbox" {...other} ref={editorRef}></input>;
+}

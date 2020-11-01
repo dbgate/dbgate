@@ -24,8 +24,22 @@ const macros = [
         label: 'Replace with',
         name: 'replace',
       },
+      {
+        type: 'checkbox',
+        label: 'Case sensitive',
+        name: 'caseSensitive',
+      },
+      {
+        type: 'checkbox',
+        label: 'Regular expression',
+        name: 'isRegex',
+      },
     ],
-    code: `return value ? value.toString().replace(args.find, args.replace) : value`,
+    code: `
+    const rtext = args.isRegex ? args.find : modules.lodash.escapeRegExp(args.find);
+    const rflags = args.caseSensitive ? 'g' : 'ig';
+    return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace || '') : value
+    `,
   },
   {
     title: 'Change text case',

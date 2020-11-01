@@ -40,6 +40,7 @@ export default function FreeTableGrid(props) {
     dispatchModel({ type: 'set', value: newModel });
     setSelectedMacro(null);
   };
+  // console.log('macroValues', macroValues);
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
