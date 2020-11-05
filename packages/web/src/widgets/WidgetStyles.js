@@ -19,7 +19,6 @@ export const WidgetsMainContainer = styled.div`
 `;
 
 const StyledWidgetsOuterContainer = styled.div`
-  flex: 1 1 0;
   overflow: hidden;
   width: ${(props) => props.leftPanelWidth}px;
   position: relative;
@@ -27,9 +26,20 @@ const StyledWidgetsOuterContainer = styled.div`
   display: flex;
 `;
 
-export function WidgetsOuterContainer({ children }) {
+export function WidgetsOuterContainer({ children, style = undefined, refNode = undefined }) {
   const leftPanelWidth = useLeftPanelWidth();
-  return <StyledWidgetsOuterContainer leftPanelWidth={leftPanelWidth}>{children}</StyledWidgetsOuterContainer>;
+  return (
+    <StyledWidgetsOuterContainer
+      ref={refNode}
+      leftPanelWidth={leftPanelWidth}
+      style={{
+        ...style,
+        flex: style && (style.height != null || style.width != null) ? undefined : '1 1 0',
+      }}
+    >
+      {children}
+    </StyledWidgetsOuterContainer>
+  );
 }
 
 export const StyledWidgetsInnerContainer = styled.div`
@@ -53,14 +63,16 @@ const StyledWidgetTitle = styled.div`
   font-weight: bold;
   text-transform: uppercase;
   background-color: gray;
+  border: 1px solid #aaa;
   // background-color: #CEC;
 `;
 
-export function WidgetTitle({ children, inputRef = undefined }) {
+export function WidgetTitle({ children, inputRef = undefined, onClick = undefined }) {
   return (
     <StyledWidgetTitle
       onClick={() => {
         if (inputRef && inputRef.current) inputRef.current.focus();
+        if (onClick) onClick();
       }}
     >
       {children}

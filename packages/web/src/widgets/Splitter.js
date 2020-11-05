@@ -14,6 +14,7 @@ const SplitterMainBase = styled.div`
   bottom: 0;
 `;
 
+// @ts-ignore
 const VerticalMainContainer = styled(SplitterMainBase)`
   flex: 1;
   display: flex;

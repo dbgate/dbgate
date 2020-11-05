@@ -13,13 +13,13 @@ import {
   WidgetTitle,
 } from './WidgetStyles';
 import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
+import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 
 function ClosedTabsList() {
   const tabs = useOpenedTabs();
 
   return (
     <>
-      <WidgetTitle>Recently closed tabs</WidgetTitle>
       <WidgetsInnerContainer>
         <AppObjectList
           list={_.sortBy(
@@ -38,7 +38,6 @@ function SavedSqlFilesList() {
 
   return (
     <>
-      <WidgetTitle>Saved SQL files</WidgetTitle>
       <WidgetsInnerContainer>
         <AppObjectList list={files} makeAppObj={savedSqlFileAppObject()} />
       </WidgetsInnerContainer>
@@ -48,13 +47,13 @@ function SavedSqlFilesList() {
 
 export default function FilesWidget() {
   return (
-    <WidgetsMainContainer>
-      <WidgetsOuterContainer>
+    <WidgetColumnBar>
+      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="50%">
         <ClosedTabsList />
-      </WidgetsOuterContainer>
-      <WidgetsOuterContainer>
+      </WidgetColumnBarItem>
+      <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles">
         <SavedSqlFilesList />
-      </WidgetsOuterContainer>
-    </WidgetsMainContainer>
+      </WidgetColumnBarItem>
+    </WidgetColumnBar>
   );
 }

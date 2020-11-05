@@ -26,6 +26,7 @@ import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
 import SearchInput from './SearchInput';
 import ErrorInfo from './ErrorInfo';
+import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -60,14 +61,12 @@ function ConnectionList() {
       axios.post('server-connections/refresh', { conid });
     }
   };
-  const inputRef = React.useRef(null);
 
   const [filter, setFilter] = React.useState('');
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Connections</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search connection" filter={filter} setFilter={setFilter} inputRef={inputRef} />
+        <SearchInput placeholder="Search connection" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshConnections}>Refresh</InlineButton>
       </SearchBoxWrapper>
 
@@ -103,7 +102,6 @@ function SqlObjectList({ conid, database }) {
   const inputRef = React.useRef(null);
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Tables, views, functions</WidgetTitle>
       <SearchBoxWrapper>
         <SearchInput inputRef={inputRef} placeholder="Search tables or objects" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
@@ -128,12 +126,7 @@ function SqlObjectListWrapper() {
   const db = useCurrentDatabase();
 
   if (!db) {
-    return (
-      <>
-        <WidgetTitle>Tables, views, functions</WidgetTitle>
-        <ErrorInfo message="Database not selected" icon="fas fa-exclamation-circle blue" />
-      </>
-    );
+    return <ErrorInfo message="Database not selected" icon="fas fa-exclamation-circle blue" />;
   }
   const { name, connection } = db;
 
@@ -144,13 +137,13 @@ function SqlObjectListWrapper() {
 
 export default function DatabaseWidget() {
   return (
-    <WidgetsMainContainer>
-      <WidgetsOuterContainer>
+    <WidgetColumnBar>
+      <WidgetColumnBarItem title="Connections" name="connections" height="50%">
         <ConnectionList />
-      </WidgetsOuterContainer>
-      <WidgetsOuterContainer>
+      </WidgetColumnBarItem>
+      <WidgetColumnBarItem title="Tables, views, functions" name="dbObjects">
         <SqlObjectListWrapper />
-      </WidgetsOuterContainer>
-    </WidgetsMainContainer>
+      </WidgetColumnBarItem>
+    </WidgetColumnBar>
   );
 }

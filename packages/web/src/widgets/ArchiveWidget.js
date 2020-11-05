@@ -12,6 +12,7 @@ import {
   WidgetsOuterContainer,
   WidgetTitle,
 } from './WidgetStyles';
+import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
 import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
 import archiveFolderAppObject from '../appobj/archiveFolderAppObject';
@@ -22,7 +23,6 @@ import axios from '../utility/axios';
 
 function ArchiveFolderList() {
   const folders = useArchiveFolders();
-  const inputRef = React.useRef(null);
   const [filter, setFilter] = React.useState('');
 
   const setArchive = useSetCurrentArchive();
@@ -33,9 +33,8 @@ function ArchiveFolderList() {
 
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Archive folder</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput inputRef={inputRef} placeholder="Search archive folders" filter={filter} setFilter={setFilter} />
+        <SearchInput placeholder="Search archive folders" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshFolders}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <WidgetsInnerContainer>
@@ -53,7 +52,6 @@ function ArchiveFolderList() {
 function ArchiveFilesList() {
   const folder = useCurrentArchive();
   const files = useArchiveFiles({ folder });
-  const inputRef = React.useRef(null);
   const [filter, setFilter] = React.useState('');
   const handleRefreshFiles = () => {
     axios.post('archive/refresh-files', { folder });
@@ -61,9 +59,8 @@ function ArchiveFilesList() {
 
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Archive files</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput inputRef={inputRef} placeholder="Search archive files" filter={filter} setFilter={setFilter} />
+        <SearchInput placeholder="Search archive files" filter={filter} setFilter={setFilter} />
         <InlineButton onClick={handleRefreshFiles}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <WidgetsInnerContainer>
@@ -82,13 +79,13 @@ function ArchiveFilesList() {
 
 export default function ArchiveWidget() {
   return (
-    <WidgetsMainContainer>
-      <WidgetsOuterContainer>
+    <WidgetColumnBar>
+      <WidgetColumnBarItem title="Archive folders" name="folders" height="50%">
         <ArchiveFolderList />
-      </WidgetsOuterContainer>
-      <WidgetsOuterContainer>
+      </WidgetColumnBarItem>
+      <WidgetColumnBarItem title="Archive files" name="files">
         <ArchiveFilesList />
-      </WidgetsOuterContainer>
-    </WidgetsMainContainer>
+      </WidgetColumnBarItem>
+    </WidgetColumnBar>
   );
 }
