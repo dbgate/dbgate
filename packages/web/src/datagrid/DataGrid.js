@@ -6,20 +6,6 @@ import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 
-const MainContainer = styled.div`
-  position: absolute;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-`;
-
-const ColumnManagerContainer = styled.div`
-  background-color: white;
-  overflow-y: scroll;
-`;
-
 const LeftContainer = styled.div`
   background-color: white;
   display: flex;
@@ -53,27 +39,5 @@ export default function DataGrid(props) {
         <GridCore {...props} />
       </DataGridContainer>
     </HorizontalSplitter>
-
-    // <MainContainer>
-    //   <LeftContainer style={{ width: 300 }}>
-    //     <ManagerMainContainer>
-    //       <Container1>
-    //         <ColumnManager {...props} />
-    //       </Container1>
-    //       {props.showReferences && (
-    //         <ManagerOuterContainer2>
-    //           <ReferenceManager {...props} />
-    //         </ManagerOuterContainer2>
-    //       )}
-    //     </ManagerMainContainer>
-    //   </LeftContainer>
-
-    //   {/* <ColumnManagerContainer>
-    //     <ColumnManager {...props} />
-    //   </ColumnManagerContainer> */}
-    //   <DataGridContainer>
-    //     <DataGridCore {...props} />
-    //   </DataGridContainer>
-    // </MainContainer>
   );
 }
