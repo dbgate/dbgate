@@ -10,7 +10,7 @@ import {
 import { VerticalSplitHandle, useSplitterDrag } from './Splitter';
 import useDimensions from '../utility/useDimensions';
 
-export function WidgetColumnBarItem({ title, children, name, height = undefined }) {
+export function WidgetColumnBarItem({ title, children, name, height = undefined, collapsed = false }) {
   return <></>;
 }
 
@@ -42,7 +42,7 @@ export default function WidgetColumnBar({ children }) {
   const childArray = _.isArray(children) ? children : [children];
   const [refNode, dimensions] = useDimensions();
   const [collapsedWidgets, setCollapsedWidgets] = React.useState(() =>
-    childArray.filter((x) => x && x.props.collapsed).map((x) => x.props.key)
+    childArray.filter((x) => x && x.props.collapsed).map((x) => x.props.name)
   );
   const toggleCollapsed = (name) => {
     if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter((x) => x != name));

@@ -60,7 +60,7 @@ async function loadRowCount(props) {
 
 /** @param props {import('./types').DataGridProps} */
 export default function SqlDataGridCore(props) {
-  const { conid, database, display, changeSetState, dispatchChangeSet, tabVisible } = props;
+  const { conid, database, display, changeSetState, dispatchChangeSet } = props;
   const showModal = useShowModal();
   const setOpenedTabs = useSetOpenedTabs();
 

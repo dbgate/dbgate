@@ -210,7 +210,7 @@ export default function DataGridCore(props) {
 
   React.useEffect(() => {
     if (onSelectionChanged) {
-      onSelectionChanged(getSelectedMacroCells());
+      onSelectionChanged(getSelectedCellsPublished());
     }
   }, [onSelectionChanged, selectedCells]);
 
@@ -549,13 +549,30 @@ export default function DataGridCore(props) {
     return _.uniq((selectedCells || []).map((x) => x[1])).filter((x) => _.isNumber(x));
   }
 
-  function getSelectedMacroCells() {
+  function getSelectedCellsPublished() {
     const regular = cellsToRegularCells(selectedCells);
     // @ts-ignore
-    return regular.map((cell) => ({
-      row: cell[0],
-      column: realColumnUniqueNames[cell[1]],
-    }));
+    return regular
+      .map((cell) => ({
+        row: cell[0],
+        column: realColumnUniqueNames[cell[1]],
+      }))
+      .filter((x) => x.column);
+
+    // return regular.map((cell) => {
+    //   const row = cell[0];
+    //   const column = realColumnUniqueNames[cell[1]];
+    //   let value = null;
+    //   if (grider && column) {
+    //     let rowData = grider.getRowData(row);
+    //     if (rowData) value = rowData[column];
+    //   }
+    //   return {
+    //     row,
+    //     column,
+    //     value,
+    //   };
+    // });
   }
 
   function getSelectedRowData() {

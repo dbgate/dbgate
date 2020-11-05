@@ -13,6 +13,7 @@ export default function LoadingDataGridCore(props) {
     openQuery,
     griderFactory,
     griderFactoryDeps,
+    onChangeGrider,
   } = props;
 
   const [loadProps, setLoadProps] = React.useState({
@@ -108,6 +109,10 @@ export default function LoadingDataGridCore(props) {
 
   const griderProps = { ...props, sourceRows: loadedRows };
   const grider = React.useMemo(() => griderFactory(griderProps), griderFactoryDeps(griderProps));
+
+  React.useEffect(() => {
+    if (onChangeGrider) onChangeGrider(grider);
+  }, [grider]);
 
   const handleLoadNextData = () => {
     if (!isLoadedAll && !errorMessage && !grider.disableLoadNextPage) {
