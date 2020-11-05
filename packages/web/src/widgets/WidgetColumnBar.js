@@ -42,7 +42,7 @@ export default function WidgetColumnBar({ children }) {
   const childArray = _.isArray(children) ? children : [children];
   const [refNode, dimensions] = useDimensions();
   const [collapsedWidgets, setCollapsedWidgets] = React.useState(() =>
-    childArray.filter((x) => x.props.collapsed).map((x) => x.props.key)
+    childArray.filter((x) => x && x.props.collapsed).map((x) => x.props.key)
   );
   const toggleCollapsed = (name) => {
     if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter((x) => x != name));
@@ -62,7 +62,7 @@ export default function WidgetColumnBar({ children }) {
               widget={widget}
               key={widget.props.name}
               initialSize={widget.props.height}
-              splitterVisible={!!childArray.slice(index + 1).find((x) => !collapsedWidgets.includes(x.props.name))}
+              splitterVisible={!!childArray.slice(index + 1).find((x) => x && !collapsedWidgets.includes(x.props.name))}
             />
           </>
         );

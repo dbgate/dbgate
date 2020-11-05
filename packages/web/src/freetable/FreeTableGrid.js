@@ -9,6 +9,7 @@ import FreeTableColumnEditor from './FreeTableColumnEditor';
 import FreeTableGridCore from './FreeTableGridCore';
 import MacroDetail from './MacroDetail';
 import MacroManager from './MacroManager';
+import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 
 const LeftContainer = styled.div`
   background-color: white;
@@ -50,19 +51,19 @@ export default function FreeTableGrid(props) {
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
-        <ManagerMainContainer>
-          <ManagerOuterContainer_40>
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Columns" name="columns" height="40%">
             <FreeTableColumnEditor {...props} />
-          </ManagerOuterContainer_40>
-          <ManagerOuterContainer_60>
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Macros" name="macros">
             <MacroManager
               {...props}
               managerSize={managerSize}
               selectedMacro={selectedMacro}
               setSelectedMacro={setSelectedMacro}
             />
-          </ManagerOuterContainer_60>
-        </ManagerMainContainer>
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
       </LeftContainer>
 
       <DataGridContainer>

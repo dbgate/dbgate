@@ -134,7 +134,6 @@ export default function FreeTableColumnEditor(props) {
   const model = modelState.value;
   return (
     <>
-      <WidgetTitle>Columns</WidgetTitle>
       <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
         {model.structure.columns.map((column, index) =>
           index == editingColumn ? (

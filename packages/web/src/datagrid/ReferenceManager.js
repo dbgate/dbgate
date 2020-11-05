@@ -50,13 +50,11 @@ export default function ReferenceManager(props) {
   const { baseTable } = display || {};
   const { foreignKeys } = baseTable || {};
   const { dependencies } = baseTable || {};
-  const inputRef = React.useRef(null);
 
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>References</WidgetTitle>
       <SearchBoxWrapper>
-        <SearchInput placeholder="Search references" filter={filter} setFilter={setFilter} inputRef={inputRef} />
+        <SearchInput placeholder="Search references" filter={filter} setFilter={setFilter} />
       </SearchBoxWrapper>
       <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
         {foreignKeys && foreignKeys.length > 0 && (

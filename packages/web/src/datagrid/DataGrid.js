@@ -15,6 +15,7 @@ import {
 } from './ManagerStyles';
 import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
+import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 
 const MainContainer = styled.div`
   position: absolute;
@@ -43,21 +44,20 @@ const DataGridContainer = styled.div`
 
 export default function DataGrid(props) {
   const { GridCore } = props;
-  const Container1 = props.showReferences ? ManagerOuterContainer_60 : ManagerOuterContainerFull;
   const [managerSize, setManagerSize] = React.useState(0);
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
-        <ManagerMainContainer>
-          <Container1>
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Columns" name="columns" height="60%">
             <ColumnManager {...props} managerSize={managerSize} />
-          </Container1>
+          </WidgetColumnBarItem>
           {props.showReferences && (
-            <ManagerOuterContainer_40>
+            <WidgetColumnBarItem title="References" name="references">
               <ReferenceManager {...props} managerSize={managerSize} />
-            </ManagerOuterContainer_40>
+            </WidgetColumnBarItem>
           )}
-        </ManagerMainContainer>
+        </WidgetColumnBar>
       </LeftContainer>
 
       <DataGridContainer>

@@ -26,15 +26,13 @@ const SearchBoxWrapper = styled.div`
 // }
 
 export default function MacroManager({ managerSize, selectedMacro, setSelectedMacro }) {
-  const inputRef = React.useRef(null);
   const [filter, setFilter] = React.useState('');
 
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Macros</WidgetTitle>
       <ManagerInnerContainer style={{ maxWidth: managerSize }}>
         <SearchBoxWrapper>
-          <SearchInput placeholder="Search macros" filter={filter} setFilter={setFilter} inputRef={inputRef} />
+          <SearchInput placeholder="Search macros" filter={filter} setFilter={setFilter} />
         </SearchBoxWrapper>
         <AppObjectList
           list={_.sortBy(macros, 'title')}

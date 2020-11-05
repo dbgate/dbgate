@@ -89,17 +89,14 @@ function ColumnManagerRow(props) {
 export default function ColumnManager(props) {
   const { display } = props;
   const [columnFilter, setColumnFilter] = React.useState('');
-  const inputRef = React.useRef(null);
 
   return (
     <>
-      <WidgetTitle inputRef={inputRef}>Columns</WidgetTitle>
       <SearchBoxWrapper>
         <SearchInput
           placeholder="Search columns"
           filter={columnFilter}
           setFilter={setColumnFilter}
-          inputRef={inputRef}
         />
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
