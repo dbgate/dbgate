@@ -6,7 +6,6 @@ import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
-import { WidgetTitle } from '../widgets/WidgetStyles';
 
 const Wrapper = styled.div``;
 

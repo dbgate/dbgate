@@ -3,7 +3,6 @@ import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 
-import { ManagerMainContainer, ManagerOuterContainer_60, ManagerOuterContainer_40 } from '../datagrid/ManagerStyles';
 import { HorizontalSplitter, VerticalSplitter } from '../widgets/Splitter';
 import FreeTableColumnEditor from './FreeTableColumnEditor';
 import FreeTableGridCore from './FreeTableGridCore';

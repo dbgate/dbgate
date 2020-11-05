@@ -4,7 +4,6 @@ import { ManagerInnerContainer } from './ManagerStyles';
 import { LinkIcon, ReferenceIcon } from '../icons';
 import SearchInput from '../widgets/SearchInput';
 import { filterName } from '@dbgate/datalib';
-import { WidgetTitle } from '../widgets/WidgetStyles';
 
 const SearchBoxWrapper = styled.div`
   display: flex;

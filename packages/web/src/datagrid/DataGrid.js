@@ -1,18 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import DataGridCore from './DataGridCore';
 import ColumnManager from './ColumnManager';
 
-import {
-  // SearchBoxWrapper,
-  // WidgetsInnerContainer,
-  // Input,
-  ManagerMainContainer,
-  ManagerOuterContainer_60,
-  ManagerOuterContainer_40,
-  ManagerOuterContainerFull,
-  WidgetTitle,
-} from './ManagerStyles';
 import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
