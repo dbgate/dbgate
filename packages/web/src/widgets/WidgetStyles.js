@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
-import theme from '../theme';
+// import theme from '../theme';
 import { useLeftPanelWidth } from '../utility/globalState';
 
 export const SearchBoxWrapper = styled.div`
@@ -20,18 +20,18 @@ export const WidgetsMainContainer = styled.div`
 
 const StyledWidgetsOuterContainer = styled.div`
   overflow: hidden;
-  width: ${(props) => props.leftPanelWidth}px;
+  // width: ${(props) => props.leftPanelWidth}px;
   position: relative;
   flex-direction: column;
   display: flex;
 `;
 
 export function WidgetsOuterContainer({ children, style = undefined, refNode = undefined }) {
-  const leftPanelWidth = useLeftPanelWidth();
+  // const leftPanelWidth = useLeftPanelWidth();
   return (
     <StyledWidgetsOuterContainer
       ref={refNode}
-      leftPanelWidth={leftPanelWidth}
+      // leftPanelWidth={leftPanelWidth}
       style={{
         ...style,
         flex: style && (style.height != null || style.width != null) ? undefined : '1 1 0',

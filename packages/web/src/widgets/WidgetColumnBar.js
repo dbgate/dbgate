@@ -54,17 +54,16 @@ export default function WidgetColumnBar({ children }) {
       {childArray.map((widget, index) => {
         if (!widget) return null;
         return (
-          <>
+          <React.Fragment key={widget.props.name}>
             <WidgetTitle onClick={() => toggleCollapsed(widget.props.name)}>{widget.props.title}</WidgetTitle>
             <WidgetContainer
               parentHeight={dimensions && dimensions.height}
               visible={!collapsedWidgets.includes(widget.props.name)}
               widget={widget}
-              key={widget.props.name}
               initialSize={widget.props.height}
               splitterVisible={!!childArray.slice(index + 1).find((x) => x && !collapsedWidgets.includes(x.props.name))}
             />
-          </>
+          </React.Fragment>
         );
       })}
     </WidgetsMainContainer>
