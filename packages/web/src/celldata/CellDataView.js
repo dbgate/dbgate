@@ -2,7 +2,8 @@ import React from 'react';
 import { SelectField } from '../utility/inputs';
 import ErrorInfo from '../widgets/ErrorInfo';
 import styled from 'styled-components';
-import TextCellView from './TextCellView';
+import { TextCellViewWrap, TextCellViewNoWrap } from './TextCellView';
+import JsonCellView from './JsonCellDataView';
 
 const Toolbar = styled.div`
   display: flex;
@@ -23,9 +24,21 @@ const DataWrapper = styled.div`
 
 const formats = [
   {
+    type: 'textWrap',
+    title: 'Text (wrap)',
+    Component: TextCellViewWrap,
+    single: true,
+  },
+  {
     type: 'text',
-    title: 'Text',
-    Component: TextCellView,
+    title: 'Text (no wrap)',
+    Component: TextCellViewNoWrap,
+    single: true,
+  },
+  {
+    type: 'json',
+    title: 'Json',
+    Component: JsonCellView,
     single: true,
   },
 ];
@@ -46,7 +59,7 @@ export default function CellDataView({ selection, grider }) {
         Format:
         <SelectField
           value={selectedFormat && selectedFormat.type}
-          onChange={(value) => setSelectedFormat(formats.find((x) => x.type == value))}
+          onChange={(e) => setSelectedFormat(formats.find((x) => x.type == e.target.value))}
         >
           {formats.map((fmt) => (
             <option value={fmt.type} key={fmt.type}>

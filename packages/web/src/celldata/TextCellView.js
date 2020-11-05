@@ -5,7 +5,11 @@ const StyledInput = styled.textarea`
   flex: 1;
 `;
 
-export default function TextCellView({ value, grider, selection }) {
+export function TextCellViewWrap({ value, grider, selection }) {
+  return <StyledInput value={value} wrap="hard" readOnly />;
+}
+
+export function TextCellViewNoWrap({ value, grider, selection }) {
   return (
     <StyledInput
       value={value}
