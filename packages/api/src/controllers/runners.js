@@ -11,7 +11,7 @@ const scriptTemplate = (script) => `
 const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
 require=null;
 async function run() {
-const reader = ${script}
+${script}
 }
 dbgateApi.runScript(run);
 `;
