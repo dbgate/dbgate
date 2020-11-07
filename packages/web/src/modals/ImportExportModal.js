@@ -38,7 +38,7 @@ function GenerateSctriptButton({ modalState }) {
   return <FormStyledButton type="button" value="Generate script" onClick={handleGenerateScript} />;
 }
 
-export default function ImportExportModal({ modalState, initialValues }) {
+export default function ImportExportModal({ modalState, initialValues, uploadedFile = undefined }) {
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const [runnerId, setRunnerId] = React.useState(null);
   const archive = useCurrentArchive();
@@ -69,7 +69,7 @@ export default function ImportExportModal({ modalState, initialValues }) {
         <Form>
           <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
           <ModalContent>
-            <ImportExportConfigurator />
+            <ImportExportConfigurator uploadedFile={uploadedFile} />
           </ModalContent>
           <ModalFooter>
             <FormStyledButton type="submit" value="Run" />

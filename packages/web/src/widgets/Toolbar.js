@@ -8,6 +8,8 @@ import { useConfig } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
+import ImportExportModal from '../modals/ImportExportModal';
+import useShowModal from '../modals/showModal';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -22,12 +24,28 @@ export default function ToolBar({ toolbarPortalRef }) {
   const toolbar = config.toolbar || [];
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
+  const showModal = useShowModal();
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
     window['dbgate_newQuery'] = newQuery;
     window['dbgate_closeAll'] = () => setOpenedTabs([]);
   });
+
+  const showImport = () => {
+    showModal((modalState) => (
+      <ImportExportModal
+        modalState={modalState}
+        initialValues={{
+          sourceStorageType: 'csv',
+          // sourceConnectionId: data.conid,
+          // sourceDatabaseName: data.database,
+          // sourceSchemaName: data.schemaName,
+          // sourceList: [data.pureName],
+        }}
+      />
+    ));
+  };
 
   function openTabFromButton(button) {
     if (openedTabs.find((x) => x.tabComponent == 'InfoPageTab' && x.props && x.props.page == button.page)) {
@@ -78,6 +96,9 @@ export default function ToolBar({ toolbarPortalRef }) {
       </ToolbarButton>
       <ToolbarButton onClick={newFreeTable} icon="fas fa-table">
         Free table editor
+      </ToolbarButton>
+      <ToolbarButton onClick={showImport} icon="fas fa-file-upload">
+        Import data
       </ToolbarButton>
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>
     </ToolbarContainer>

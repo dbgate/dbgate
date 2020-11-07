@@ -3,7 +3,6 @@
 import React from 'react';
 import theme from './theme';
 import styled from 'styled-components';
-import { useDropzone } from 'react-dropzone';
 import TabsPanel from './TabsPanel';
 import TabContent from './TabContent';
 import WidgetIconPanel from './widgets/WidgetIconPanel';
@@ -13,7 +12,8 @@ import ToolBar from './widgets/Toolbar';
 import StatusBar from './widgets/StatusBar';
 import { useSplitterDrag, HorizontalSplitHandle } from './widgets/Splitter';
 import { ModalLayer } from './modals/showModal';
-import resolveApi from './utility/resolveApi';
+import DragAndDropFileTarget from './DragAndDropFileTarget';
+import { useUploadsZone } from './utility/UploadsProvider';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -98,15 +98,6 @@ const ScreenHorizontalSplitHandle = styled(HorizontalSplitHandle)`
   bottom: ${theme.statusBar.height}px;
 `;
 
-const DragAndDropTarget = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: red;
-`;
-
 export default function Screen() {
   const currentWidget = useCurrentWidget();
   const leftPanelWidth = useLeftPanelWidth();
@@ -117,42 +108,7 @@ export default function Screen() {
   const toolbarPortalRef = React.useRef();
   const onSplitDown = useSplitterDrag('clientX', (diff) => setLeftPanelWidth((v) => v + diff));
 
-  const onDrop = React.useCallback((files) => {
-    // Do something with the files
-    console.log('FILES', files);
-    files.forEach(async (file) => {
-      if (parseInt(file.size, 10) >= 4 * 1024 * 1024) {
-        // to big file
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('data', file);
-
-      const fetchOptions = {
-        method: 'POST',
-        body: formData,
-      };
-
-      const apiBase = resolveApi();
-      const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
-      const event = await resp.json();
-
-      return event;
-
-      // const reader = new FileReader();
-
-      // reader.onabort = () => console.log('file reading was aborted');
-      // reader.onerror = () => console.log('file reading has failed');
-      // reader.onload = () => {
-      //   // Do whatever you want with the file contents
-      //   const binaryStr = reader.result;
-      //   console.log(binaryStr);
-      // };
-      // reader.readAsArrayBuffer(file);
-    });
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { getRootProps, getInputProps, isDragActive } = useUploadsZone();
 
   return (
     <div {...getRootProps()}>
@@ -184,12 +140,7 @@ export default function Screen() {
       </StausBarContainer>
       <ModalLayer />
 
-      {!!isDragActive && (
-        <DragAndDropTarget>
-          Drop the files here ...
-          <input {...getInputProps()} />{' '}
-        </DragAndDropTarget>
-      )}
+      <DragAndDropFileTarget inputProps={getInputProps()} isDragActive={isDragActive} />
     </div>
   );
 }

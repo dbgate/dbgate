@@ -13,6 +13,7 @@ import {
 import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
 import { ModalLayerProvider } from './modals/showModal';
+import UploadsProvider from './utility/UploadsProvider';
 
 function App() {
   return (
@@ -26,7 +27,9 @@ function App() {
                   <ConnectionsPinger>
                     <ModalLayerProvider>
                       <CurrentArchiveProvider>
-                        <Screen />
+                        <UploadsProvider>
+                          <Screen />
+                        </UploadsProvider>
                       </CurrentArchiveProvider>
                     </ModalLayerProvider>
                   </ConnectionsPinger>

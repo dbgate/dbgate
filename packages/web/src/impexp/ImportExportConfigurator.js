@@ -22,6 +22,7 @@ import getAsArray from '../utility/getAsArray';
 import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
+import { useUploadsProvider } from '../utility/UploadsProvider';
 
 const Container = styled.div`
   max-height: 50vh;
@@ -60,6 +61,11 @@ const SqlWrapper = styled.div`
   position: relative;
   height: 100px;
   width: 20vw;
+`;
+
+const DragWrapper = styled.div`
+  padding: 10px;
+  background: #ddd;
 `;
 
 function getFileFilters(storageType) {
@@ -141,7 +147,7 @@ function FilesInput() {
   if (electron) {
     return <ElectronFilesInput />;
   }
-  return <ErrorInfo message="Import files is currently implemented only for electron client" />;
+  return <DragWrapper>Drag &amp; drop imported files here</DragWrapper>;
 }
 
 function SourceTargetConfig({
@@ -287,12 +293,43 @@ function SourceName({ name }) {
   );
 }
 
-export default function ImportExportConfigurator() {
+export default function ImportExportConfigurator({ uploadedFile = undefined }) {
   const { values, setFieldValue } = useFormikContext();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
   const { engine: sourceEngine } = sourceConnectionInfo || {};
   const { sourceList } = values;
+  const { uploadListener, setUploadListener } = useUploadsProvider();
+
+  const handleUpload = React.useCallback(
+    (file) => {
+      addFilesToSourceList(
+        [
+          {
+            full: file.filePath,
+            name: file.shortName,
+          },
+        ],
+        values,
+        setFieldValue
+      );
+      // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
+    },
+    [setFieldValue, sourceList]
+  );
+
+  React.useEffect(() => {
+    setUploadListener(() => handleUpload);
+    return () => {
+      setUploadListener(null);
+    };
+  }, [handleUpload]);
+
+  React.useEffect(() => {
+    if (uploadedFile) {
+      handleUpload(uploadedFile);
+    }
+  }, []);
 
   return (
     <Container>
