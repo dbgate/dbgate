@@ -1,6 +1,7 @@
 const express = require('express');
 const basicAuth = require('express-basic-auth');
 const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
 const http = require('http');
 const cors = require('cors');
 const io = require('socket.io');
@@ -21,6 +22,7 @@ const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 const files = require('./controllers/files');
 const archive = require('./controllers/archive');
+const uploads = require('./controllers/uploads');
 
 const { rundir } = require('./utility/directories');
 
@@ -47,6 +49,13 @@ function start(argument = null) {
   app.use(cors());
   app.use(bodyParser.json({ limit: '50mb' }));
 
+  app.use(
+    '/uploads',
+    fileUpload({
+      limits: { fileSize: 4 * 1024 * 1024 },
+    })
+  );
+
   useController(app, '/connections', connections);
   useController(app, '/server-connections', serverConnections);
   useController(app, '/database-connections', databaseConnections);
@@ -57,6 +66,7 @@ function start(argument = null) {
   useController(app, '/config', config);
   useController(app, '/files', files);
   useController(app, '/archive', archive);
+  useController(app, '/uploads', uploads);
 
   if (process.env.PAGES_DIRECTORY) {
     app.use('/pages', express.static(process.env.PAGES_DIRECTORY));

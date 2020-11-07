@@ -18,6 +18,7 @@
     "exceljs": "^4.0.1",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
+    "express-fileupload": "^1.2.0",
     "find-free-port": "^2.0.0",
     "fs-extra": "^8.1.0",
     "http": "^0.0.0",
