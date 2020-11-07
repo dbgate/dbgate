@@ -76,6 +76,10 @@ export abstract class GridDisplay {
     }));
   }
 
+  get hasReferences() {
+    return false;
+  }
+
   get focusedColumn() {
     return this.config.focusedColumn;
   }

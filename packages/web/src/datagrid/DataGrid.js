@@ -6,6 +6,7 @@ import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import CellDataView from '../celldata/CellDataView';
+import { FreeTableGridDisplay } from '@dbgate/datalib';
 
 const LeftContainer = styled.div`
   background-color: white;
@@ -30,12 +31,12 @@ export default function DataGrid(props) {
           <WidgetColumnBarItem title="Columns" name="columns" height="50%">
             <ColumnManager {...props} managerSize={managerSize} />
           </WidgetColumnBarItem>
-          {props.showReferences && (
-            <WidgetColumnBarItem title="References" name="references" height="30%">
+          {props.showReferences && props.display.hasReferences && (
+            <WidgetColumnBarItem title="References" name="references" height="30%" collapsed={props.isDetailView}>
               <ReferenceManager {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
-          <WidgetColumnBarItem title="Cell data" name="cellData">
+          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
             <CellDataView selection={selection} grider={grider} />
           </WidgetColumnBarItem>
         </WidgetColumnBar>

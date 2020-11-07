@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { SelectField } from '../utility/inputs';
 import ErrorInfo from '../widgets/ErrorInfo';
 import styled from 'styled-components';
@@ -43,24 +44,36 @@ const formats = [
   },
 ];
 
+function autodetect(selection, grider, value) {
+  if (_.isString(value)) {
+    if (value.startsWith('[') || value.startsWith('{')) return 'json';
+  }
+  return 'textWrap';
+}
+
 export default function CellDataView({ selection, grider }) {
-  const [selectedFormat, setSelectedFormat] = React.useState(formats[0]);
+  const [selectedFormatType, setSelectedFormatType] = React.useState('autodetect');
   let value = null;
   if (grider && selection.length == 1) {
     const rowData = grider.getRowData(selection[0].row);
     const { column } = selection[0];
     if (rowData) value = rowData[column];
   }
-  const { Component } = selectedFormat || {};
+  const autodetectFormatType = React.useMemo(() => autodetect(selection, grider, value), [selection, grider, value]);
+  const autodetectFormat = formats.find((x) => x.type == autodetectFormatType);
+
+  const usedFormatType = selectedFormatType == 'autodetect' ? autodetectFormatType : selectedFormatType;
+  const usedFormat = formats.find((x) => x.type == usedFormatType);
+
+  const { Component } = usedFormat || {};
 
   return (
     <MainWrapper>
       <Toolbar>
         Format:
-        <SelectField
-          value={selectedFormat && selectedFormat.type}
-          onChange={(e) => setSelectedFormat(formats.find((x) => x.type == e.target.value))}
-        >
+        <SelectField value={selectedFormatType} onChange={(e) => setSelectedFormatType(e.target.value)}>
+          <option value="autodetect">Autodetect - {autodetectFormat.title}</option>
+
           {formats.map((fmt) => (
             <option value={fmt.type} key={fmt.type}>
               {fmt.title}
@@ -70,7 +83,7 @@ export default function CellDataView({ selection, grider }) {
       </Toolbar>
 
       <DataWrapper>
-        {selectedFormat == null || (selectedFormat.single && value == null) ? (
+        {usedFormat == null || (usedFormat.single && value == null) ? (
           <ErrorInfo message="Must be selected one cell" />
         ) : (
           <Component value={value} grider={grider} selection={selection} />

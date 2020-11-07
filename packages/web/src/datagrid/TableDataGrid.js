@@ -42,6 +42,7 @@ export default function TableDataGrid({
   cache = undefined,
   setCache = undefined,
   masterLoadedTime = undefined,
+  isDetailView = false,
 }) {
   // const [childConfig, setChildConfig] = React.useState(createGridConfig());
   const [myCache, setMyCache] = React.useState(createGridCache());
@@ -164,6 +165,7 @@ export default function TableDataGrid({
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}
         GridCore={SqlDataGridCore}
+        isDetailView={isDetailView}
       />
       {reference && (
         <ReferenceContainer>
@@ -184,6 +186,7 @@ export default function TableDataGrid({
               cache={childCache}
               setCache={setChildCache}
               masterLoadedTime={myLoadedTime}
+              isDetailView
             />
           </ReferenceGridWrapper>
         </ReferenceContainer>

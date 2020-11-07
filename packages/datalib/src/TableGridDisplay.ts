@@ -218,4 +218,11 @@ export class TableGridDisplay extends GridDisplay {
       }
     }
   }
+
+  get hasReferences() {
+    if (!this.table) return false;
+    if (this.table.foreignKeys && this.table.foreignKeys.length > 0) return true;
+    if (this.table.dependencies && this.table.dependencies.length > 0) return true;
+    return false;
+  }
 }
