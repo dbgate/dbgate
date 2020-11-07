@@ -1,11 +1,15 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const cleanDirectory = require('./cleanDirectory');
 
 const createDirectories = {};
-
-const ensureDirectory = (dir) => {
+const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
+    if (clean && fs.existsSync(dir)) {
+      console.log(`Cleaning directory ${dir}`);
+      cleanDirectory(dir);
+    }
     if (!fs.existsSync(dir)) {
       console.log(`Creating directory ${dir}`);
       fs.mkdirSync(dir);
@@ -21,16 +25,16 @@ function datadir() {
   return dir;
 }
 
-const dirFunc = (dirname) => () => {
+const dirFunc = (dirname, clean = false) => () => {
   const dir = path.join(datadir(), dirname);
-  ensureDirectory(dir);
+  ensureDirectory(dir, clean);
 
   return dir;
 };
 
-const jsldir = dirFunc('jsl');
-const rundir = dirFunc('run');
-const uploadsdir = dirFunc('uploads');
+const jsldir = dirFunc('jsl', true);
+const rundir = dirFunc('run', true);
+const uploadsdir = dirFunc('uploads', true);
 const archivedir = dirFunc('archive');
 
 module.exports = {
