@@ -141,14 +141,14 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
                 {/* <WidgetColumnBarItem title="Preview" name="preview">
                   Preview
                 </WidgetColumnBarItem> */}
+                <WidgetColumnBarItem title="Output files" name="output" height="20%">
+                  <RunnerOutputFiles runnerId={runnerId} executeNumber={executeNumber} />
+                </WidgetColumnBarItem>
                 <WidgetColumnBarItem title="Messages" name="messages">
                   <SocketMessagesView
                     eventName={runnerId ? `runner-info-${runnerId}` : null}
                     executeNumber={executeNumber}
                   />
-                </WidgetColumnBarItem>
-                <WidgetColumnBarItem title="Output files" name="output">
-                  <RunnerOutputFiles runnerId={runnerId} executeNumber={executeNumber} />
                 </WidgetColumnBarItem>
               </WidgetColumnBar>
             </WidgetColumnWrapper>
