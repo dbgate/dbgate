@@ -22,27 +22,51 @@ const StyledModal = styled(Modal)`
   background: #fff;
   overflow: auto;
   webkitoverflowscrolling: touch;
-  borderradius: 4px;
   outline: none;
 
-  width: 50%;
-  max-width: 900px;
-  margin: auto;
-  margin-top: 15vh;
+  ${(props) =>
+    props.fullScreen &&
+    `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+      // width: 100%;
+      // height: 100%;
+    `}
 
-  // z-index:1200;
+  ${(props) =>
+    !props.fullScreen &&
+    `
+    border-radius: 10px;
+    width: 50%;
+    max-width: 900px;
+    margin: auto;
+    margin-top: 15vh;
+        `} 
+        
+        // z-index:1200;
+
+  ${(props) =>
+    props.isFlex &&
+    `
+          display: flex;
+              `}
 `;
 
 const ModalContent = styled.div`
   padding: 20px;
 `;
 
-export default function ModalBase({ modalState, children }) {
+export default function ModalBase({ modalState, children, isFlex = false, fullScreen = false }) {
   return (
     <StyledModal
       isOpen={modalState.isOpen}
       onRequestClose={modalState.close}
       overlayClassName="RactModalOverlay"
+      fullScreen={fullScreen}
+      isFlex={isFlex}
       // style={{
       //   overlay: {
       //     backgroundColor: '#000',

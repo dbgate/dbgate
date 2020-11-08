@@ -6,13 +6,16 @@ const Wrapper = styled.div`
   padding: 15px;
   display: flex;
   justify-content: space-between;
+  background-color: #eeffff;
 `;
 
 const CloseWrapper = styled.div`
   font-size: 12pt;
   &:hover {
-    background-color: #blue;
+    background-color: #ccccff;
   }
+  padding: 5px 10px;
+  border-radius: 10px; 
 `;
 
 export default function ModalHeader({ children, modalState }) {

@@ -25,8 +25,9 @@ import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
 
 const Container = styled.div`
-  max-height: 50vh;
-  overflow-y: scroll;
+  // max-height: 50vh;
+  // overflow-y: scroll;
+  flex: 1;
 `;
 
 const Wrapper = styled.div`
@@ -66,6 +67,12 @@ const SqlWrapper = styled.div`
 const DragWrapper = styled.div`
   padding: 10px;
   background: #ddd;
+`;
+
+const ArrowWrapper = styled.div`
+  font-size: 30px;
+  color: blue;
+  align-self: center;
 `;
 
 function getFileFilters(storageType) {
@@ -344,6 +351,9 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           tablesField="sourceList"
           engine={sourceEngine}
         />
+        <ArrowWrapper>
+          <i className="fas fa-arrow-right" />
+        </ArrowWrapper>
         <SourceTargetConfig
           direction="target"
           storageTypeField="targetStorageType"
