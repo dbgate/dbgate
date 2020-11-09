@@ -9,9 +9,11 @@ export default function ThemeHelmet() {
         .color-green { color: green; }
         .color-on-statusbar-green { color: lime; }
         .color-blue { color: blue; }
+
         .color-blue-icon { color: #05A; }
         .color-magenta-icon { color: #808 }
         .color-yellow-icon { color: #880 }
+        .color-green-icon { color: #0A3; }
         `}</style>
     </Helmet>
   );

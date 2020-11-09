@@ -1,9 +1,7 @@
-import { PrimaryKeyIcon, ForeignKeyIcon } from '../icons';
-
 /** @param props {import('@dbgate/types').ConstraintInfo} */
 function getConstraintIcon(props) {
-  if (props.constraintType == 'primaryKey') return PrimaryKeyIcon;
-  if (props.constraintType == 'foreignKey') return ForeignKeyIcon;
+  if (props.constraintType == 'primaryKey') return 'mdi mdi-key-star color-yellow-icon';
+  if (props.constraintType == 'foreignKey') return 'mdi mdi-key-link';
   return null;
 }
 
@@ -11,7 +9,7 @@ function getConstraintIcon(props) {
 export default function constraintAppObject(props, { setOpenedTabs }) {
   const title = props.constraintName;
   const key = title;
-  const Icon = getConstraintIcon(props);
+  const icon = getConstraintIcon(props);
 
-  return { title, key, Icon };
+  return { title, key, icon };
 }

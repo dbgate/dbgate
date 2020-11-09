@@ -5,7 +5,6 @@ import theme from './theme';
 import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 
 import { useOpenedTabs, useSetOpenedTabs, useCurrentDatabase, useSetCurrentDatabase } from './utility/globalState';
-import { getIconImage } from './icons';
 import { showMenu } from './modals/DropDownMenu';
 import { getConnectionInfo } from './utility/metadataLoaders';
 

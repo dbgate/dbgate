@@ -1,16 +1,17 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
-import { DatabaseIcon, getIconImage, ArchiveTableIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import { filterName } from '@dbgate/datalib';
 import axios from '../utility/axios';
 
+const archiveTableIcon = 'mdi mdi-table color-yellow-icon';
+
 function openArchive(setOpenedTabs, fileName, folderName) {
   openNewTab(setOpenedTabs, {
     title: fileName,
-    icon: 'archtable.svg',
+    icon: archiveTableIcon,
     tooltip: `${folderName}\n${fileName}`,
     tabComponent: 'ArchiveFileTab',
     props: {
@@ -33,7 +34,7 @@ function Menu({ data, setOpenedTabs }) {
 
     openNewTab(setOpenedTabs, {
       title: data.fileName,
-      icon: 'freetable.svg',
+      icon: archiveTableIcon,
       tabComponent: 'FreeTableTab',
       props: {
         initialData: {
@@ -60,13 +61,13 @@ function Menu({ data, setOpenedTabs }) {
 
 const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs }) => {
   const key = fileName;
-  const Icon = ArchiveTableIcon;
+  const icon = archiveTableIcon;
   const onClick = () => {
     openArchive(setOpenedTabs, fileName, folderName);
   };
   const matcher = (filter) => filterName(filter, fileName);
 
-  return { title: fileName, key, Icon, Menu, onClick, matcher };
+  return { title: fileName, key, icon, Menu, onClick, matcher };
 };
 
 export default archiveFileAppObject;

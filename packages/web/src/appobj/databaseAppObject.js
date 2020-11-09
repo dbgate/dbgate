@@ -1,6 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import { DatabaseIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';

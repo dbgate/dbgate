@@ -2,7 +2,6 @@ import React from 'react';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
 import styled from 'styled-components';
-import { FontIcon } from '../icons';
 import { FormButtonRow, FormSubmit, FormSelectFieldRaw, FormRow, FormRadioGroupItem, FormTextFieldRaw } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';

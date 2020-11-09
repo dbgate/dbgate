@@ -1,12 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
-import { filterName } from '@dbgate/datalib';
-import { ExpandIcon, FontIcon } from '../icons';
-import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
-import SearchInput from '../widgets/SearchInput';
-import { WidgetTitle } from '../widgets/WidgetStyles';
 import keycodes from '../utility/keycodes';
 
 const Row = styled.div`

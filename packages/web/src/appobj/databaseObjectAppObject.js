@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React from 'react';
-import { getIconImage } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import { getConnectionInfo } from '../utility/metadataLoaders';
@@ -102,7 +101,7 @@ export async function openDatabaseObjectDetail(
   openNewTab(setOpenedTabs, {
     title: pureName,
     tooltip,
-    icon: sqlTemplate ? 'sql.svg' : icons[objectTypeField],
+    icon: sqlTemplate ? 'mdi mdi-file' : icons[objectTypeField],
     tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
     props: {
       schemaName,
@@ -139,7 +138,7 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
               const coninfo = await getConnectionInfo(data);
               openNewTab(setOpenedTabs, {
                 title: data.pureName,
-                icon: 'freetable.svg',
+                icon: 'mdi mdi-table color-green-icon',
                 tabComponent: 'FreeTableTab',
                 props: {
                   initialData: {

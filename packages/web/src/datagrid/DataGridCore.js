@@ -321,7 +321,7 @@ export default function DataGridCore(props) {
     const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
     openNewTab(setOpenedTabs, {
       title: 'selection',
-      icon: 'freetable.svg',
+      icon: 'mdi mdi-table color-green-icon',
       tabComponent: 'FreeTableTab',
       props: {
         initialData: {

@@ -1,17 +1,15 @@
-import { ColumnIcon, SequenceIcon } from '../icons';
-
 /** @param columnProps {import('@dbgate/types').ColumnInfo} */
 function getColumnIcon(columnProps) {
-  if (columnProps.autoIncrement) return SequenceIcon;
-  return ColumnIcon;
+  if (columnProps.autoIncrement) return 'mdi mdi-numeric-1-box-multiple-outline';
+  return 'mdi mdi-table-column';
 }
 
 /** @param columnProps {import('@dbgate/types').ColumnInfo} */
 export default function columnAppObject(columnProps, { setOpenedTabs }) {
   const title = columnProps.columnName;
   const key = title;
-  const Icon = getColumnIcon(columnProps);
+  const icon = getColumnIcon(columnProps);
   const isBold = columnProps.notNull;
 
-  return { title, key, Icon, isBold };
+  return { title, key, icon, isBold };
 }

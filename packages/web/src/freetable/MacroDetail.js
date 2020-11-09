@@ -1,7 +1,6 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
-import { MacroIcon } from '../icons';
 import { TabPage, TabControl } from '../widgets/TabControl';
 import theme from '../theme';
 import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
@@ -63,7 +62,7 @@ function MacroHeader({ selectedMacro, setSelectedMacro, onExecute }) {
   return (
     <Container>
       <Header>
-        <MacroIcon />
+        <span className="mdi mdi-hammer-wrench" />
         <HeaderText>{selectedMacro.title}</HeaderText>
       </Header>
       <Buttons>

@@ -1,9 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
-import { SqlIcon } from '../icons';
-import { openNewTab } from '../utility/common';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import { useSetSavedSqlFiles } from '../utility/globalState';
 
 function Menu({ data, setSavedSqlFiles }) {
   const handleDelete = () => {
@@ -19,7 +16,7 @@ function Menu({ data, setSavedSqlFiles }) {
 const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQuery, openedTabs }) => {
   const key = storageKey;
   const title = name;
-  const Icon = SqlIcon;
+  const icon = 'mdi mdi-file';
 
   const onClick = () => {
     const existing = openedTabs.find((x) => x.props && x.props.storageKey == storageKey);
@@ -38,7 +35,7 @@ const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQ
     }
   };
 
-  return { title, key, Icon, onClick, Menu };
+  return { title, key, icon, onClick, Menu };
 };
 
 export default savedSqlFileAppObject;

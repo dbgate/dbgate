@@ -1,7 +1,6 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
-import { ReferenceIcon } from '../icons';
 import theme from '../theme';
 
 const Container = styled.div`

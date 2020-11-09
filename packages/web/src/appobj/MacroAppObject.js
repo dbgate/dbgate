@@ -1,14 +1,13 @@
 import _ from 'lodash';
 import { filterName } from '@dbgate/datalib';
-import { MacroIcon, StartIcon } from '../icons';
 
 const macroAppObject = () => ({ name, type, title, group }, { setOpenedTabs }) => {
   const key = name;
-  const Icon = MacroIcon;
+  const icon = 'mdi mdi-hammer-wrench';
   const matcher = (filter) => filterName(filter, name, title);
   const groupTitle = group;
 
-  return { title, key, Icon, groupTitle, matcher };
+  return { title, key, icon, groupTitle, matcher };
 };
 
 export default macroAppObject;
