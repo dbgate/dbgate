@@ -54,7 +54,6 @@
   },
   "devDependencies": {
     "@dbgate/types": "^0.1.0",
-    "@fortawesome/fontawesome-free": "^5.12.0",
     "@types/react": "^16.9.17",
     "@types/styled-components": "^4.4.2",
     "typescript": "^3.7.4"
