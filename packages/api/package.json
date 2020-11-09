@@ -20,7 +20,6 @@
     "express-basic-auth": "^1.2.0",
     "express-fileupload": "^1.2.0",
     "find-free-port": "^2.0.0",
-    "find-remove": "^2.0.3",
     "fs-extra": "^8.1.0",
     "http": "^0.0.0",
     "line-reader": "^0.4.0",
