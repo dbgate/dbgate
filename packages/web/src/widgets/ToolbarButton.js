@@ -32,6 +32,7 @@ const ButtonDiv = styled.div`
 
 const StyledIconSpan = styled.span`
   margin-right: 5px;
+  // font-size: 18px;
   color: ${(props) => (props.disabled ? 'gray' : 'blue')};
 `;
 
@@ -42,7 +43,6 @@ const ButtonDivInner = styled.div`
 `;
 
 export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined, patchY = 2 }) {
-  const Icon = icon;
   return (
     <ButtonDiv
       onClick={() => {
@@ -51,9 +51,9 @@ export default function ToolbarButton({ children, onClick, icon = undefined, dis
       disabled={disabled}
     >
       <ButtonDivInner patchY={patchY}>
-        {Icon && (
+        {icon && (
           <StyledIconSpan disabled={disabled}>
-            <i className={icon} />
+            <span className={icon} />
           </StyledIconSpan>
         )}
         {children}

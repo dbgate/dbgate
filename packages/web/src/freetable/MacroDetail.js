@@ -67,10 +67,10 @@ function MacroHeader({ selectedMacro, setSelectedMacro, onExecute }) {
         <HeaderText>{selectedMacro.title}</HeaderText>
       </Header>
       <Buttons>
-        <ToolbarButton icon="fas fa-check" onClick={onExecute} patchY={6}>
+        <ToolbarButton icon="mdi mdi-play" onClick={onExecute} patchY={6}>
           Execute
         </ToolbarButton>
-        <ToolbarButton icon="fas fa-times" onClick={() => setSelectedMacro(null)} patchY={6}>
+        <ToolbarButton icon="mdi mdi-close" onClick={() => setSelectedMacro(null)} patchY={6}>
           Close
         </ToolbarButton>
       </Buttons>

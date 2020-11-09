@@ -36,7 +36,7 @@ export default function ReferenceHeader({ reference, onClose }) {
           {reference.columns.map((x) => x.baseName).join(', ')}]
         </HeaderText>
       </Header>
-      <ToolbarButton icon="fas fa-times" onClick={onClose} patchY={6}>
+      <ToolbarButton icon="mdi mdi-close" onClick={onClose} patchY={6}>
         Close
       </ToolbarButton>
     </Container>

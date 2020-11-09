@@ -1264,6 +1264,11 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
+"@mdi/font@^5.8.55":
+  version "5.8.55"
+  resolved "https://registry.yarnpkg.com/@mdi/font/-/font-5.8.55.tgz#1464155bcbc8a6e4af6dffd611fe8e38e09af285"
+  integrity sha512-8mrwfFBsmj+D67ZiGQSe5TU/lcWCtDyli2eshQ2fvLCZGRPqFMM23YQp4+JMOTpk5yMZKTeAwNWIYfITy76OHA==
+
 "@mrmlnc/readdir-enhanced@^2.2.1":
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/@mrmlnc/readdir-enhanced/-/readdir-enhanced-2.2.1.tgz#524af240d1a360527b730475ecfa1344aa540dde"
