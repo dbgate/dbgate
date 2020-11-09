@@ -265,7 +265,7 @@ export default function TabsPanel() {
                 onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
                 onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
               >
-                {tab.busy ? <i className="mdi mdi-loading mdi-spin"></i> : getIconImage(tab.icon)}
+                {<span className={tab.busy ? 'mdi mdi-loading mdi-spin' : tab.icon} />}
                 <FileNameWrapper>{tab.title}</FileNameWrapper>
                 <CloseButton
                   className="mdi mdi-close tabCloseButton"

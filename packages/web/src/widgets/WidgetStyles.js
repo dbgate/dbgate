@@ -12,7 +12,7 @@ export const SearchBoxWrapper = styled.div`
 export const WidgetsMainContainer = styled.div`
   position: relative;
   display: flex;
-  flex-flow: column wrap;
+  // flex-flow: column wrap;
   flex: 1;
   flex-direction: column;
   user-select: none;

@@ -70,7 +70,6 @@ function ColumnManagerRow(props) {
         className="expandColumnIcon"
         isBlank={!column.foreignKey}
         isExpanded={column.foreignKey && display.isExpandedColumn(column.uniqueName)}
-        isSelected={isHover}
         onClick={() => display.toggleExpandedColumn(column.uniqueName)}
       />
       <input

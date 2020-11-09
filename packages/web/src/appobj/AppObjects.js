@@ -5,7 +5,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { showMenu } from '../modals/DropDownMenu';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
-import { FontIcon } from '../icons';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
@@ -23,7 +22,7 @@ const AppObjectSpan = styled.span`
 `;
 
 const IconWrap = styled.span`
-  margin-right: 10px;
+  margin-right: 5px;
 `;
 
 const StatusIconWrap = styled.span`
@@ -32,7 +31,7 @@ const StatusIconWrap = styled.span`
 
 export function AppObjectCore({
   title,
-  Icon,
+  icon,
   Menu,
   data,
   makeAppObj,
@@ -68,7 +67,7 @@ export function AppObjectCore({
       {...other}
     >
       {prefix}
-      <IconWrap>{isBusy ? <span className="mdi mdi-loading mdi-spin"></span> : <Icon />}</IconWrap>
+      <IconWrap>{isBusy ? <span className="mdi mdi-loading mdi-spin"></span> : <span className={icon} />}</IconWrap>
       {title}
       {statusIcon && (
         <StatusIconWrap>

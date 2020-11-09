@@ -30,7 +30,7 @@ export default function ReferenceHeader({ reference, onClose }) {
   return (
     <Container>
       <Header>
-        <ReferenceIcon />
+        <span className="mdi mdi-link-box" />
         <HeaderText>
           {reference.pureName} [{reference.columns.map((x) => x.refName).join(', ')}] = master [
           {reference.columns.map((x) => x.baseName).join(', ')}]

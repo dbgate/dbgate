@@ -22,3 +22,7 @@ code {
   bottom: 0;
   background-color: #00000080;
 }
+
+.icon-invisible {
+  visibility: hidden;
+}

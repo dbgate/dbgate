@@ -1,13 +1,10 @@
 import _ from 'lodash';
 import React from 'react';
-import { getEngineIcon } from '../icons';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import useShowModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
 import { filterName } from '@dbgate/datalib';
 import ConfirmModal from '../modals/ConfirmModal';
-import { useConfig } from '../utility/metadataLoaders';
 import CreateDatabaseModal from '../modals/CreateDatabaseModal';
 
 function Menu({ data, setOpenedConnections, openedConnections, config, showModal }) {
@@ -64,7 +61,7 @@ const connectionAppObject = (flags) => (
   const title = displayName || server;
   const key = _id;
   const isExpandable = openedConnections.includes(_id);
-  const Icon = getEngineIcon(engine);
+  const icon = 'mdi mdi-server color-blue-icon';
   const matcher = (filter) => filterName(filter, displayName, server);
   const { boldCurrentDatabase } = flags || {};
   const isBold = boldCurrentDatabase
@@ -89,7 +86,7 @@ const connectionAppObject = (flags) => (
   return {
     title,
     key,
-    Icon,
+    icon,
     Menu,
     matcher,
     isBold,

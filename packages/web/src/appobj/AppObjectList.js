@@ -10,9 +10,9 @@ const SubItemsDiv = styled.div`
 `;
 
 const ExpandIconHolder2 = styled.span`
-  margin-right: 5px;
-  position: relative;
-  top: -3px;
+  margin-right: 3px;
+  // position: relative;
+  // top: -3px;
 `;
 
 const ExpandIconHolder = styled.span`
@@ -71,11 +71,7 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
       prefix={
         SubItems ? (
           <ExpandIconHolder2>
-            {appobj.isExpandable ? (
-              <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
-            ) : (
-              <ExpandIcon isSelected={isHover} isBlank blankColor="#ccc" />
-            )}
+            {appobj.isExpandable ? <ExpandIcon isExpanded={isExpanded} /> : <ExpandIcon isBlank />}
           </ExpandIconHolder2>
         ) : null
       }
@@ -105,7 +101,7 @@ function AppObjectGroup({ group, items }) {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <ExpandIconHolder>
-          <ExpandIcon isSelected={isHover} isExpanded={isExpanded} />
+          <ExpandIcon isExpanded={isExpanded} />
         </ExpandIconHolder>
         {group} {items && `(${items.filter((x) => x.component).length})`}
       </GroupDiv>

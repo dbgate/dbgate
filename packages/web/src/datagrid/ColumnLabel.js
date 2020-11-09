@@ -2,7 +2,6 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { SequenceIcon, ForeignKeyIcon } from '../icons';
 
 const Label = styled.span`
   font-weight: ${props => (props.notNull ? 'bold' : 'normal')};
@@ -11,12 +10,12 @@ const Label = styled.span`
 
 /** @param column {import('@dbgate/datalib').DisplayColumn|import('@dbgate/types').ColumnInfo} */
 export default function ColumnLabel(column) {
-  let Icon = null;
-  if (column.autoIncrement) Icon = SequenceIcon;
-  if (column.foreignKey) Icon = ForeignKeyIcon;
+  let icon = null;
+  if (column.autoIncrement) icon = 'mdi mdi-numeric-1-box-multiple-outline';
+  if (column.foreignKey) icon = 'mdi mdi-key-link';
   return (
     <Label {...column}>
-      {Icon ? <Icon size={12} /> : null} {column.headerText || column.columnName}
+      {icon ? <span className={icon} /> : null} {column.headerText || column.columnName}
     </Label>
   );
 }

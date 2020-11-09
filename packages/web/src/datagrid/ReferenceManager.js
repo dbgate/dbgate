@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ManagerInnerContainer } from './ManagerStyles';
-import { LinkIcon, ReferenceIcon } from '../icons';
 import SearchInput from '../widgets/SearchInput';
 import { filterName } from '@dbgate/datalib';
 
@@ -31,10 +30,10 @@ const NameContainer = styled.div`
   white-space: nowrap;
 `;
 
-function ManagerRow({ tableName, columns, Icon, onClick }) {
+function ManagerRow({ tableName, columns, icon, onClick }) {
   return (
     <LinkContainer onClick={onClick}>
-      <Icon />
+      <span className={icon} />
       <NameContainer>
         {tableName} ({columns.map((x) => x.columnName).join(', ')})
       </NameContainer>
@@ -64,7 +63,7 @@ export default function ReferenceManager(props) {
               .map((fk) => (
                 <ManagerRow
                   key={fk.constraintName}
-                  Icon={LinkIcon}
+                  icon="mdi mdi-link"
                   tableName={fk.refTableName}
                   columns={fk.columns}
                   onClick={() =>
@@ -89,7 +88,7 @@ export default function ReferenceManager(props) {
               .map((fk) => (
                 <ManagerRow
                   key={fk.constraintName}
-                  Icon={ReferenceIcon}
+                  icon="mdi mdi-link-box"
                   tableName={fk.pureName}
                   columns={fk.columns}
                   onClick={() =>

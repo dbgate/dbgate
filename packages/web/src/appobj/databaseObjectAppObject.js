@@ -9,10 +9,10 @@ import { filterName } from '@dbgate/datalib';
 import ImportExportModal from '../modals/ImportExportModal';
 
 const icons = {
-  tables: 'table2.svg',
-  views: 'view2.svg',
-  procedures: 'procedure2.svg',
-  functions: 'function.svg',
+  tables: 'mdi mdi-table color-blue-icon',
+  views: 'mdi mdi-table color-magenta-icon',
+  procedures: 'mdi mdi-cog color-blue-icon',
+  functions: 'mdi mdi-function-variant',
 };
 
 const menus = {
@@ -173,7 +173,8 @@ const databaseObjectAppObject = () => (
 ) => {
   const title = schemaName ? `${schemaName}.${pureName}` : pureName;
   const key = title;
-  const Icon = (props) => getIconImage(icons[objectTypeField], props);
+  const icon = icons[objectTypeField];
+  // const Icon = (props) => getIconImage(icons[objectTypeField], props);
   const onClick = ({ schemaName, pureName }) => {
     openDatabaseObjectDetail(
       setOpenedTabs,
@@ -191,7 +192,7 @@ const databaseObjectAppObject = () => (
   const matcher = (filter) => filterName(filter, pureName);
   const groupTitle = _.startCase(objectTypeField);
 
-  return { title, key, Icon, Menu, onClick, matcher, groupTitle };
+  return { title, key, icon, Menu, onClick, matcher, groupTitle };
 };
 
 export default databaseObjectAppObject;

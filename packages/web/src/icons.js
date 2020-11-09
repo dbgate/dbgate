@@ -43,17 +43,16 @@ export function FontIcon({ icon, ...props }) {
   return <i {...props} className={className} style={style} title={props.title} />;
 }
 
-export function ExpandIcon({
-  isBlank = false,
-  isExpanded = false,
-  isSelected = false,
-  blankColor = 'white',
-  ...other
-}) {
+export function ExpandIcon({ isBlank = false, isExpanded = false, className = '', ...other }) {
   if (isBlank) {
-    return <FontIcon icon={`fas fa-square ${isSelected ? 'lightblue' : blankColor}`} {...other} />;
+    return <span className={`mdi mdi-minus-box-outline icon-invisible ${className}`} {...other} />;
   }
-  return <FontIcon icon={`far ${isExpanded ? 'fa-minus-square' : 'fa-plus-square'} `} {...other} />;
+  return (
+    <span
+      className={`${isExpanded ? 'mdi mdi-minus-box-outline' : 'mdi mdi-plus-box-outline'} ${className}`}
+      {...other}
+    />
+  );
 }
 
 export const TableIcon = (props) => getIconImage('table2.svg', props);

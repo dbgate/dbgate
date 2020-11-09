@@ -28,7 +28,7 @@ export default function DataGrid(props) {
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer>
         <WidgetColumnBar>
-          <WidgetColumnBarItem title="Columns" name="columns" height="50%">
+          <WidgetColumnBarItem title="Columns" name="columns" height={props.showReferences ? '40%' : '60%'}>
             <ColumnManager {...props} managerSize={managerSize} />
           </WidgetColumnBarItem>
           {props.showReferences && props.display.hasReferences && (

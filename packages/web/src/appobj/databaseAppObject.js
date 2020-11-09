@@ -12,7 +12,7 @@ function Menu({ data, setOpenedTabs, showModal }) {
   const handleNewQuery = () => {
     openNewTab(setOpenedTabs, {
       title: 'Query',
-      icon: 'sql.svg',
+      icon: 'mdi mdi-file',
       tooltip,
       tabComponent: 'QueryTab',
       props: {
@@ -63,7 +63,7 @@ const databaseAppObject = (flags) => ({ name, connection }) => {
   const { boldCurrentDatabase } = flags || {};
   const title = name;
   const key = name;
-  const Icon = DatabaseIcon;
+  const icon = 'mdi mdi-database color-yellow-icon';
   const isBold = boldCurrentDatabase
     ? ({ currentDatabase }) => {
         return (
@@ -72,7 +72,7 @@ const databaseAppObject = (flags) => ({ name, connection }) => {
       }
     : null;
 
-  return { title, key, Icon, Menu, isBold };
+  return { title, key, icon, Menu, isBold };
 };
 
 export default databaseAppObject;
