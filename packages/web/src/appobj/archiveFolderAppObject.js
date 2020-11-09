@@ -19,7 +19,6 @@ function Menu({ data, setOpenedTabs }) {
 
 const archiveFolderAppObject = () => ({ name }, { setOpenedTabs, currentArchive }) => {
   const key = name;
-  // const Icon = (props) => <i className="fas fa-archive" />;
   const Icon = LocalDbIcon;
   const isBold = name == currentArchive;
   const matcher = (filter) => filterName(filter, name);

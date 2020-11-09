@@ -971,7 +971,7 @@ export default function DataGridCore(props) {
               >
                 {filterCount > 0 && (
                   <InlineButton onClick={handleClearFilters} square>
-                    <i className="fas fa-times" />
+                    <span className="mdi mdi-filter-off" />
                   </InlineButton>
                 )}
               </TableHeaderCell>

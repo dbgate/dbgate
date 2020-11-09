@@ -294,7 +294,7 @@ function SourceName({ name }) {
     <SourceNameWrapper>
       <div>{name}</div>
       <TrashWrapper onClick={handleDelete}>
-        <i className="fas fa-trash" />
+        <span className="mdi mdi-delete" />
       </TrashWrapper>
     </SourceNameWrapper>
   );
@@ -352,7 +352,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           engine={sourceEngine}
         />
         <ArrowWrapper>
-          <i className="fas fa-arrow-right" />
+          <span className="mdi mdi-arrow-right" />
         </ArrowWrapper>
         <SourceTargetConfig
           direction="target"

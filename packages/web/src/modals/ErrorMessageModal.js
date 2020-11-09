@@ -25,7 +25,7 @@ export default function ErrorMessageModal({ modalState, title = 'Error', message
       <ModalContent>
         <Wrapper>
           <IconWrapper>
-            <FontIcon icon="fas fa-times-circle red" />
+            <span className="mdi mdi-close-circle color-red" />
           </IconWrapper>
           {message}
         </Wrapper>

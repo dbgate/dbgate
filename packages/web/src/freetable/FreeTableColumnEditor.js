@@ -27,8 +27,10 @@ const Name = styled.div`
 const Buttons = styled.div`
   white-space: nowrap;
 `;
-const Icon = styled(FontIcon)`
+const Icon = styled.span`
   // margin-left: 5px;
+  position: relative; 
+  top: 5px;
   &:hover {
     background-color: gray;
   }
@@ -103,10 +105,10 @@ function ColumnManagerRow({ column, onEdit, onRemove, onUp, onDown }) {
     <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       <Name>{column.columnName}</Name>
       <Buttons>
-        <Icon icon="fas fa-edit" onClick={onEdit} />
-        <Icon icon="fas fa-trash" onClick={onRemove} />
-        <Icon icon="fas fa-arrow-up" onClick={onUp} />
-        <Icon icon="fas fa-arrow-down" onClick={onDown} />
+        <Icon className="mdi mdi-pencil" onClick={onEdit} />
+        <Icon className="mdi mdi-delete" onClick={onRemove} />
+        <Icon className="mdi mdi-arrow-up" onClick={onUp} />
+        <Icon className="mdi mdi-arrow-down" onClick={onDown} />
       </Buttons>
     </Row>
   );

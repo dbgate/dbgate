@@ -23,7 +23,7 @@ export default function ModalHeader({ children, modalState }) {
     <Wrapper>
       <div>{children}</div>
       <CloseWrapper onClick={modalState.close}>
-        <i className="fas fa-times" />
+        <span className="mdi mdi-close" />
       </CloseWrapper>
     </Wrapper>
   );

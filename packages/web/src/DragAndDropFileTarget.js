@@ -41,7 +41,7 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
       <TargetStyled>
         <InfoBox>
           <IconWrapper>
-            <i className="fas fa-cloud-upload-alt" />
+            <span className="mdi mdi-cloud-upload" />
           </IconWrapper>
           <TitleWrapper>Drop the files to upload to DbGate</TitleWrapper>
           <InfoWrapper>Supported file types: csv, MS Excel, json-lines</InfoWrapper>

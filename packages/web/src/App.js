@@ -14,6 +14,7 @@ import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
 import { ModalLayerProvider } from './modals/showModal';
 import UploadsProvider from './utility/UploadsProvider';
+import ThemeHelmet from './themes/ThemeHelmet';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                     <ModalLayerProvider>
                       <CurrentArchiveProvider>
                         <UploadsProvider>
+                          <ThemeHelmet />
                           <Screen />
                         </UploadsProvider>
                       </CurrentArchiveProvider>

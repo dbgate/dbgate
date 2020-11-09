@@ -87,12 +87,12 @@ export default function ColumnHeaderControl({
         <ColumnLabel {...column} />
         {order == 'ASC' && (
           <IconWrapper>
-            <FontIcon icon="fas fa-sort-alpha-down green" />
+            <span className="mdi mdi-sort-alphabetical-ascending color-green" />
           </IconWrapper>
         )}
         {order == 'DESC' && (
           <IconWrapper>
-            <FontIcon icon="fas fa-sort-alpha-down-alt green" />
+            <span className="mdi mdi-sort-alphabetical-descending color-green" />
           </IconWrapper>
         )}
       </LabelDiv>

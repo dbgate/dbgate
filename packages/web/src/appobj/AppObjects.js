@@ -68,11 +68,11 @@ export function AppObjectCore({
       {...other}
     >
       {prefix}
-      <IconWrap>{isBusy ? <i className="fas fa-spinner fa-spin"></i> : <Icon />}</IconWrap>
+      <IconWrap>{isBusy ? <span className="mdi mdi-loading mdi-spin"></span> : <Icon />}</IconWrap>
       {title}
       {statusIcon && (
         <StatusIconWrap>
-          <FontIcon icon={statusIcon} title={statusTitle} />
+          <span className={statusIcon} title={statusTitle} />
         </StatusIconWrap>
       )}
     </Component>

@@ -33,7 +33,7 @@ export default function LoadingInfo({ message, wrapper = false }) {
   const core = (
     <Container>
       <Spinner>
-        <i className="fas fa-spinner fa-spin" />
+        <span className="mdi mdi-loading mdi-spin" />
       </Spinner>
       {message}
     </Container>

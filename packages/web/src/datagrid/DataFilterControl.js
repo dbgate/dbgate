@@ -291,7 +291,7 @@ export default function DataFilterControl({
         autocomplete="off"
       />
       <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
-        <i className="fas fa-filter" />
+        <span className="mdi mdi-filter" />
       </InlineButton>
     </FilterDiv>
   );

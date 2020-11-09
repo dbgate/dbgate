@@ -21,7 +21,7 @@ const IconWrapper = styled.div`
 export default function WidgetIconPanel() {
   const widgets = [
     {
-      icon: 'fa-database',
+      icon: 'mdi mdi-database',
       name: 'database',
       title: 'Database connections',
     },
@@ -30,12 +30,12 @@ export default function WidgetIconPanel() {
     //   name: 'table',
     // },
     {
-      icon: 'fa-file-alt',
+      icon: 'mdi mdi-file',
       name: 'file',
       title: 'Closed tabs & Saved SQL files',
     },
     {
-      icon: 'fa-archive',
+      icon: 'mdi mdi-archive',
       name: 'archive',
       title: 'Archive (saved tabular data)',
     },
@@ -62,7 +62,7 @@ export default function WidgetIconPanel() {
           onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
           title={title}
         >
-          <i className={`fas ${icon}`} />
+          <span className={icon} />
         </IconWrapper>
       ))}
     </>

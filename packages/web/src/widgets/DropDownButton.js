@@ -12,7 +12,7 @@ export default function DropDownButton({ children }) {
 
   return (
     <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
-      <i className="fas fa-chevron-down" />
+      <span className="mdi mdi-chevron-down" />
     </InlineButton>
   );
 }

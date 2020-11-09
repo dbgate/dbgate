@@ -19,11 +19,11 @@ const ContainerSmall = styled.div`
   margin-right: 10px;
 `;
 
-export default function ErrorInfo({ message, icon = 'fas fa-times-circle red', isSmall = false }) {
+export default function ErrorInfo({ message, icon = 'mdi mdi-close-circle color-red', isSmall = false }) {
   if (isSmall) {
     return (
       <ContainerSmall>
-        <FontIcon icon={icon} />
+        <span className={icon} />
         {message}
       </ContainerSmall>
     );
@@ -31,7 +31,7 @@ export default function ErrorInfo({ message, icon = 'fas fa-times-circle red', i
   return (
     <Container>
       <Icon>
-        <FontIcon icon={icon} />
+        <span className={icon} />
       </Icon>
       {message}
     </Container>

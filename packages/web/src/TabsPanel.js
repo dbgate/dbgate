@@ -78,7 +78,7 @@ const FileNameWrapper = styled.span`
   margin-left: 5px;
 `;
 
-const CloseButton = styled.i`
+const CloseButton = styled.span`
   margin-left: 5px;
   color: gray;
   &:hover {
@@ -117,9 +117,9 @@ function getTabDbKey(tab) {
 }
 
 function getDbIcon(key) {
-  if (key.startsWith('database://')) return 'fas fa-database';
-  if (key.startsWith('archive://')) return 'fas fa-archive';
-  return 'fas fa-file';
+  if (key.startsWith('database://')) return 'mdi mdi-database';
+  if (key.startsWith('archive://')) return 'mdi mdi-archive';
+  return 'mdi mdi-file';
 }
 
 export default function TabsPanel() {
@@ -253,7 +253,7 @@ export default function TabsPanel() {
             selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
             onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
           >
-            <i className={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
+            <span className={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
           <DbGroupHandler>
             {_.sortBy(tabsByDb[dbKey], 'title').map((tab) => (
@@ -265,10 +265,10 @@ export default function TabsPanel() {
                 onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
                 onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
               >
-                {tab.busy ? <i className="fas fa-spinner fa-spin"></i> : getIconImage(tab.icon)}
+                {tab.busy ? <i className="mdi mdi-loading mdi-spin"></i> : getIconImage(tab.icon)}
                 <FileNameWrapper>{tab.title}</FileNameWrapper>
                 <CloseButton
-                  className="fas fa-times tabCloseButton"
+                  className="mdi mdi-close tabCloseButton"
                   onClick={(e) => {
                     e.preventDefault();
                     closeTab(tab.tabid);

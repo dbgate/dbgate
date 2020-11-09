@@ -77,10 +77,10 @@ const connectionAppObject = (flags) => (
   let statusIcon = null;
   let statusTitle = null;
   if (openedConnections.includes(_id)) {
-    if (!status) statusIcon = 'fas fa-spinner fa-spin';
-    else if (status.name == 'pending') statusIcon = 'fas fa-spinner fa-spin';
-    else if (status.name == 'ok') statusIcon = 'fas fa-check-circle green';
-    else statusIcon = 'fas fa-times-circle red';
+    if (!status) statusIcon = 'mdi mdi-loading mdi-spin';
+    else if (status.name == 'pending') statusIcon = 'mdi mdi-loading mdi-spin';
+    else if (status.name == 'ok') statusIcon = 'mdi mdi-check-circle color-green';
+    else statusIcon = 'mdi mdi-close-circle color-red';
     if (status && status.name == 'error') {
       statusTitle = status.message;
     }

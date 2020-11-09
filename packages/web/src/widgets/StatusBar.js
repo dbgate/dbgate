@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { getEngineIcon } from '../icons';
 import { useCurrentDatabase } from '../utility/globalState';
 import { useDatabaseStatus } from '../utility/metadataLoaders';
-import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -22,23 +20,22 @@ export default function StatusBar() {
   const { name, connection } = useCurrentDatabase() || {};
   const status = useDatabaseStatus(connection ? { conid: connection._id, database: name } : {});
   const { displayName, server, user, engine } = connection || {};
-  const EngineIcon = getEngineIcon(engine);
   return (
     <Container>
       {name && (
         <Item>
-          <i className="fas fa-database" /> {name}
+          <i className="mdi mdi-database" /> {name}
         </Item>
       )}
       {(displayName || server) && (
         <Item>
-          <EngineIcon size={12} /> {displayName || server}
+          <span className='mdi mdi-server'/> {displayName || server}
         </Item>
       )}
 
       {user && (
         <Item>
-          <i className="fas fa-user" /> {user}
+          <span className="mdi mdi-account" /> {user}
         </Item>
       )}
 
@@ -46,17 +43,17 @@ export default function StatusBar() {
         <Item>
           {status.name == 'pending' && (
             <>
-              <FontIcon icon="fas fa-spinner fa-spin" /> Loading
+              <span className="mdi mdi-loading mdi-spin" /> Loading
             </>
           )}
           {status.name == 'ok' && (
             <>
-              <FontIcon icon="fas fa-check-circle lime" /> Connected
+              <span className="mdi mdi-check-circle color-on-statusbar-green" /> Connected
             </>
           )}
           {status.name == 'error' && (
             <>
-              <FontIcon icon="fas fa-times-circle red" /> Error
+              <span className="mdi mdi-close-circle color-red" /> Error
             </>
           )}
         </Item>
@@ -64,7 +61,7 @@ export default function StatusBar() {
       {!connection && (
         <Item>
           <>
-            <FontIcon icon="fas fa-plug gray" /> Not connected
+            <span className="mdi mdi-lan-disconnect" /> Not connected
           </>
         </Item>
       )}

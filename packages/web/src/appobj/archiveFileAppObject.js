@@ -60,7 +60,6 @@ function Menu({ data, setOpenedTabs }) {
 
 const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs }) => {
   const key = fileName;
-  // const Icon = (props) => <i className="fas fa-archive" />;
   const Icon = ArchiveTableIcon;
   const onClick = () => {
     openArchive(setOpenedTabs, fileName, folderName);
