@@ -8,10 +8,10 @@ import { filterName } from '@dbgate/datalib';
 import ImportExportModal from '../modals/ImportExportModal';
 
 const icons = {
-  tables: 'mdi mdi-table color-blue-icon',
-  views: 'mdi mdi-table color-magenta-icon',
-  procedures: 'mdi mdi-cog color-blue-icon',
-  functions: 'mdi mdi-function-variant',
+  tables: 'img table',
+  views: 'img view',
+  procedures: 'img procedure',
+  functions: 'img function',
 };
 
 const menus = {
@@ -101,7 +101,7 @@ export async function openDatabaseObjectDetail(
   openNewTab(setOpenedTabs, {
     title: pureName,
     tooltip,
-    icon: sqlTemplate ? 'mdi mdi-file' : icons[objectTypeField],
+    icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
     tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
     props: {
       schemaName,
@@ -138,7 +138,7 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
               const coninfo = await getConnectionInfo(data);
               openNewTab(setOpenedTabs, {
                 title: data.pureName,
-                icon: 'mdi mdi-table color-green-icon',
+                icon: 'img free-table',
                 tabComponent: 'FreeTableTab',
                 props: {
                   initialData: {

@@ -292,7 +292,7 @@ export default function DataFilterControl({
         autocomplete="off"
       />
       <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
-        <FontIcon icon="mdi mdi-filter" />
+        <FontIcon icon="icon filter" />
       </InlineButton>
     </FilterDiv>
   );

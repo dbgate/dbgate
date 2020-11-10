@@ -64,7 +64,7 @@ export default function ReferenceManager(props) {
               .map((fk) => (
                 <ManagerRow
                   key={fk.constraintName}
-                  icon="mdi mdi-link"
+                  icon="img link"
                   tableName={fk.refTableName}
                   columns={fk.columns}
                   onClick={() =>
@@ -89,7 +89,7 @@ export default function ReferenceManager(props) {
               .map((fk) => (
                 <ManagerRow
                   key={fk.constraintName}
-                  icon="mdi mdi-link-box"
+                  icon="img reference"
                   tableName={fk.pureName}
                   columns={fk.columns}
                   onClick={() =>

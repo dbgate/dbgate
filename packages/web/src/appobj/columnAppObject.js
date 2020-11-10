@@ -1,7 +1,7 @@
 /** @param columnProps {import('@dbgate/types').ColumnInfo} */
 function getColumnIcon(columnProps) {
-  if (columnProps.autoIncrement) return 'mdi mdi-numeric-1-box-multiple-outline';
-  return 'mdi mdi-table-column';
+  if (columnProps.autoIncrement) return 'img autoincrement';
+  return 'img column';
 }
 
 /** @param columnProps {import('@dbgate/types').ColumnInfo} */

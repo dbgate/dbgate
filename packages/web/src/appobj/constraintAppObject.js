@@ -1,7 +1,7 @@
 /** @param props {import('@dbgate/types').ConstraintInfo} */
 function getConstraintIcon(props) {
-  if (props.constraintType == 'primaryKey') return 'mdi mdi-key-star color-yellow-icon';
-  if (props.constraintType == 'foreignKey') return 'mdi mdi-key-link';
+  if (props.constraintType == 'primaryKey') return 'img primary-key';
+  if (props.constraintType == 'foreignKey') return 'img foreign-key';
   return null;
 }
 

@@ -34,7 +34,7 @@ export default function LoadingInfo({ message, wrapper = false }) {
   const core = (
     <Container>
       <Spinner>
-        <FontIcon icon="mdi mdi-loading mdi-spin" />
+        <FontIcon icon="icon loading" />
       </Spinner>
       {message}
     </Container>

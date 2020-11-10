@@ -25,18 +25,18 @@ export default function StatusBar() {
     <Container>
       {name && (
         <Item>
-          <FontIcon icon="mdi mdi-database" /> {name}
+          <FontIcon icon="icon database" /> {name}
         </Item>
       )}
       {(displayName || server) && (
         <Item>
-          <FontIcon icon='mdi mdi-server'/> {displayName || server}
+          <FontIcon icon="icon server" /> {displayName || server}
         </Item>
       )}
 
       {user && (
         <Item>
-          <FontIcon icon="mdi mdi-account" /> {user}
+          <FontIcon icon="icon account" /> {user}
         </Item>
       )}
 
@@ -44,17 +44,17 @@ export default function StatusBar() {
         <Item>
           {status.name == 'pending' && (
             <>
-              <FontIcon icon="mdi mdi-loading mdi-spin" /> Loading
+              <FontIcon icon="icon loading" /> Loading
             </>
           )}
           {status.name == 'ok' && (
             <>
-              <FontIcon icon="mdi mdi-check-circle color-on-statusbar-green" /> Connected
+              <FontIcon icon="img statusbar-ok" /> Connected
             </>
           )}
           {status.name == 'error' && (
             <>
-              <FontIcon icon="mdi mdi-close-circle color-red" /> Error
+              <FontIcon icon="img red-error" /> Error
             </>
           )}
         </Item>
@@ -62,7 +62,7 @@ export default function StatusBar() {
       {!connection && (
         <Item>
           <>
-            <FontIcon icon="mdi mdi-lan-disconnect" /> Not connected
+            <FontIcon icon="icon disconnected" /> Not connected
           </>
         </Item>
       )}

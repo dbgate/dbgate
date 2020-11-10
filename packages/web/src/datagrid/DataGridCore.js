@@ -322,7 +322,7 @@ export default function DataGridCore(props) {
     const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
     openNewTab(setOpenedTabs, {
       title: 'selection',
-      icon: 'mdi mdi-table color-green-icon',
+      icon: 'img free-table',
       tabComponent: 'FreeTableTab',
       props: {
         initialData: {
@@ -972,7 +972,7 @@ export default function DataGridCore(props) {
               >
                 {filterCount > 0 && (
                   <InlineButton onClick={handleClearFilters} square>
-                    <FontIcon icon="mdi mdi-filter-off" />
+                    <FontIcon icon="icon filter-off" />
                   </InlineButton>
                 )}
               </TableHeaderCell>

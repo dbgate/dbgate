@@ -68,7 +68,7 @@ export function AppObjectCore({
       {...other}
     >
       {prefix}
-      <IconWrap>{isBusy ? <FontIcon icon="mdi mdi-loading mdi-spin" /> : <FontIcon icon={icon} />}</IconWrap>
+      <IconWrap>{isBusy ? <FontIcon icon="icon loading" /> : <FontIcon icon={icon} />}</IconWrap>
       {title}
       {statusIcon && (
         <StatusIconWrap>

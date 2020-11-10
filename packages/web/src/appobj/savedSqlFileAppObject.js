@@ -16,7 +16,7 @@ function Menu({ data, setSavedSqlFiles }) {
 const savedSqlFileAppObject = () => ({ name, storageKey }, { setOpenedTabs, newQuery, openedTabs }) => {
   const key = storageKey;
   const title = name;
-  const icon = 'mdi mdi-file';
+  const icon = 'img sql-file';
 
   const onClick = () => {
     const existing = openedTabs.find((x) => x.props && x.props.storageKey == storageKey);

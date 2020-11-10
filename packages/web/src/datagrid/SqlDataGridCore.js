@@ -83,7 +83,7 @@ export default function SqlDataGridCore(props) {
   function openQuery() {
     openNewTab(setOpenedTabs, {
       title: 'Query',
-      icon: 'mdi mdi-file',
+      icon: 'img sql-file',
       tabComponent: 'QueryTab',
       props: {
         initialScript: display.getExportQuery(),

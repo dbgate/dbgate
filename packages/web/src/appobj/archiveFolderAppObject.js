@@ -18,7 +18,7 @@ function Menu({ data, setOpenedTabs }) {
 
 const archiveFolderAppObject = () => ({ name }, { setOpenedTabs, currentArchive }) => {
   const key = name;
-  const icon = 'mdi mdi-database-outline color-green-icon';
+  const icon = 'img archive-folder';
   const isBold = name == currentArchive;
   const matcher = (filter) => filterName(filter, name);
 

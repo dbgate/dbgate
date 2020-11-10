@@ -19,7 +19,7 @@ const ContainerSmall = styled.div`
   margin-right: 10px;
 `;
 
-export default function ErrorInfo({ message, icon = 'mdi mdi-close-circle color-red', isSmall = false }) {
+export default function ErrorInfo({ message, icon = 'img red-error', isSmall = false }) {
   if (isSmall) {
     return (
       <ContainerSmall>

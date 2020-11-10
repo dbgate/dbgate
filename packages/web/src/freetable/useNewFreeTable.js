@@ -8,7 +8,7 @@ export default function useNewFreeTable() {
   return ({ title = undefined, ...props } = {}) =>
     openNewTab(setOpenedTabs, {
       title: title || 'Table',
-      icon: 'mdi mdi-table color-green-icon',
+      icon: 'img free-table',
       tabComponent: 'FreeTableTab',
       props,
     });

@@ -22,7 +22,7 @@ const IconWrapper = styled.div`
 export default function WidgetIconPanel() {
   const widgets = [
     {
-      icon: 'mdi mdi-database',
+      icon: 'icon database',
       name: 'database',
       title: 'Database connections',
     },
@@ -31,12 +31,12 @@ export default function WidgetIconPanel() {
     //   name: 'table',
     // },
     {
-      icon: 'mdi mdi-file',
+      icon: 'icon file',
       name: 'file',
       title: 'Closed tabs & Saved SQL files',
     },
     {
-      icon: 'mdi mdi-archive',
+      icon: 'icon archive',
       name: 'archive',
       title: 'Archive (saved tabular data)',
     },

@@ -14,7 +14,7 @@ export default function useNewQuery() {
   return ({ title = undefined, ...props } = {}) =>
     openNewTab(setOpenedTabs, {
       title: title || 'Query',
-      icon: 'mdi mdi-file',
+      icon: 'img sql-file',
       tooltip,
       tabComponent: 'QueryTab',
       props: {

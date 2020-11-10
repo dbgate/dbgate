@@ -295,7 +295,7 @@ function SourceName({ name }) {
     <SourceNameWrapper>
       <div>{name}</div>
       <TrashWrapper onClick={handleDelete}>
-        <FontIcon icon="mdi mdi-delete" />
+        <FontIcon icon="icon delete" />
       </TrashWrapper>
     </SourceNameWrapper>
   );
@@ -353,7 +353,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           engine={sourceEngine}
         />
         <ArrowWrapper>
-          <FontIcon icon="mdi mdi-arrow-right" />
+          <FontIcon icon="icon arrow-right" />
         </ArrowWrapper>
         <SourceTargetConfig
           direction="target"

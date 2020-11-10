@@ -126,7 +126,7 @@ function SqlObjectListWrapper() {
   const db = useCurrentDatabase();
 
   if (!db) {
-    return <ErrorInfo message="Database not selected" icon="mdi mdi-alert-circle color-blue" />;
+    return <ErrorInfo message="Database not selected" icon="img alert" />;
   }
   const { name, connection } = db;
 

@@ -12,8 +12,8 @@ const Label = styled.span`
 /** @param column {import('@dbgate/datalib').DisplayColumn|import('@dbgate/types').ColumnInfo} */
 export default function ColumnLabel(column) {
   let icon = null;
-  if (column.autoIncrement) icon = 'mdi mdi-numeric-1-box-multiple-outline';
-  if (column.foreignKey) icon = 'mdi mdi-key-link';
+  if (column.autoIncrement) icon = 'img autoincrement';
+  if (column.foreignKey) icon = 'img foreign-key';
   return (
     <Label {...column}>
       {icon ? <FontIcon icon={icon} /> : null} {column.headerText || column.columnName}

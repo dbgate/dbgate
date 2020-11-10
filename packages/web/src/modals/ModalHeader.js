@@ -24,7 +24,7 @@ export default function ModalHeader({ children, modalState }) {
     <Wrapper>
       <div>{children}</div>
       <CloseWrapper onClick={modalState.close}>
-        <FontIcon icon="mdi mdi-close" />
+        <FontIcon icon="icon close" />
       </CloseWrapper>
     </Wrapper>
   );

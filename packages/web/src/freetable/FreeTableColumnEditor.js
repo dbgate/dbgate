@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
+import { FontIcon } from '../icons';
 import keycodes from '../utility/keycodes';
 
 const Row = styled.div`
@@ -22,9 +23,9 @@ const Name = styled.div`
 const Buttons = styled.div`
   white-space: nowrap;
 `;
-const Icon = styled.span`
+const Icon = styled(FontIcon)`
   // margin-left: 5px;
-  position: relative; 
+  position: relative;
   top: 5px;
   &:hover {
     background-color: gray;
@@ -100,10 +101,10 @@ function ColumnManagerRow({ column, onEdit, onRemove, onUp, onDown }) {
     <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
       <Name>{column.columnName}</Name>
       <Buttons>
-        <Icon className="mdi mdi-pencil" onClick={onEdit} />
-        <Icon className="mdi mdi-delete" onClick={onRemove} />
-        <Icon className="mdi mdi-arrow-up" onClick={onUp} />
-        <Icon className="mdi mdi-arrow-down" onClick={onDown} />
+        <Icon icon="icon edit" onClick={onEdit} />
+        <Icon icon="icon delete" onClick={onRemove} />
+        <Icon icon="icon arrow-up" onClick={onUp} />
+        <Icon icon="icon arrow-down" onClick={onDown} />
       </Buttons>
     </Row>
   );

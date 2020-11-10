@@ -30,13 +30,13 @@ export default function ReferenceHeader({ reference, onClose }) {
   return (
     <Container>
       <Header>
-        <FontIcon icon="mdi mdi-link-box" />
+        <FontIcon icon="img reference" />
         <HeaderText>
           {reference.pureName} [{reference.columns.map((x) => x.refName).join(', ')}] = master [
           {reference.columns.map((x) => x.baseName).join(', ')}]
         </HeaderText>
       </Header>
-      <ToolbarButton icon="mdi mdi-close" onClick={onClose} patchY={6}>
+      <ToolbarButton icon="icon close" onClick={onClose} patchY={6}>
         Close
       </ToolbarButton>
     </Container>

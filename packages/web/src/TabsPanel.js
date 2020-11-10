@@ -78,7 +78,7 @@ const FileNameWrapper = styled.span`
   margin-left: 5px;
 `;
 
-const CloseButton = styled.span`
+const CloseButton = styled(FontIcon)`
   margin-left: 5px;
   color: gray;
   &:hover {
@@ -265,10 +265,11 @@ export default function TabsPanel() {
                 onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
                 onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
               >
-                {<FontIcon icon={tab.busy ? 'mdi mdi-loading mdi-spin' : tab.icon} />}
+                {<FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />}
                 <FileNameWrapper>{tab.title}</FileNameWrapper>
                 <CloseButton
-                  className="mdi mdi-close tabCloseButton"
+                  icon="icon close"
+                  className="tabCloseButton"
                   onClick={(e) => {
                     e.preventDefault();
                     closeTab(tab.tabid);

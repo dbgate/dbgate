@@ -90,7 +90,7 @@ function GenerateSctriptButton({ modalState }) {
     const code = await createImpExpScript(values);
     openNewTab(setOpenedTabs, {
       title: 'Shell',
-      icon: 'mdi mdi-flash color-blue-icon',
+      icon: 'img shell',
       tabComponent: 'ShellTab',
       props: {
         initialScript: code,

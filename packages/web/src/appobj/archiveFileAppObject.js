@@ -6,12 +6,10 @@ import { openNewTab } from '../utility/common';
 import { filterName } from '@dbgate/datalib';
 import axios from '../utility/axios';
 
-const archiveTableIcon = 'mdi mdi-table color-yellow-icon';
-
 function openArchive(setOpenedTabs, fileName, folderName) {
   openNewTab(setOpenedTabs, {
     title: fileName,
-    icon: archiveTableIcon,
+    icon: 'img archive',
     tooltip: `${folderName}\n${fileName}`,
     tabComponent: 'ArchiveFileTab',
     props: {
@@ -34,7 +32,7 @@ function Menu({ data, setOpenedTabs }) {
 
     openNewTab(setOpenedTabs, {
       title: data.fileName,
-      icon: archiveTableIcon,
+      icon: 'img archive',
       tabComponent: 'FreeTableTab',
       props: {
         initialData: {
@@ -61,7 +59,7 @@ function Menu({ data, setOpenedTabs }) {
 
 const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs }) => {
   const key = fileName;
-  const icon = archiveTableIcon;
+  const icon = 'img archive';
   const onClick = () => {
     openArchive(setOpenedTabs, fileName, folderName);
   };

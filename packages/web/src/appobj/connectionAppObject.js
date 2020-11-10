@@ -61,7 +61,7 @@ const connectionAppObject = (flags) => (
   const title = displayName || server;
   const key = _id;
   const isExpandable = openedConnections.includes(_id);
-  const icon = 'mdi mdi-server color-blue-icon';
+  const icon = 'img server';
   const matcher = (filter) => filterName(filter, displayName, server);
   const { boldCurrentDatabase } = flags || {};
   const isBold = boldCurrentDatabase
@@ -74,10 +74,10 @@ const connectionAppObject = (flags) => (
   let statusIcon = null;
   let statusTitle = null;
   if (openedConnections.includes(_id)) {
-    if (!status) statusIcon = 'mdi mdi-loading mdi-spin';
-    else if (status.name == 'pending') statusIcon = 'mdi mdi-loading mdi-spin';
-    else if (status.name == 'ok') statusIcon = 'mdi mdi-check-circle color-green';
-    else statusIcon = 'mdi mdi-close-circle color-red';
+    if (!status) statusIcon = 'icon loading';
+    else if (status.name == 'pending') statusIcon = 'icon loading';
+    else if (status.name == 'ok') statusIcon = 'img green-ok';
+    else statusIcon = 'img red-error';
     if (status && status.name == 'error') {
       statusTitle = status.message;
     }

@@ -87,17 +87,17 @@ export default function ToolBar({ toolbarPortalRef }) {
         </ToolbarButton>
       ))}
       {config.runAsPortal == false && (
-        <ToolbarButton onClick={modalState.open} icon="mdi mdi-database-plus">
+        <ToolbarButton onClick={modalState.open} icon="icon new-connection">
           Add connection
         </ToolbarButton>
       )}
-      <ToolbarButton onClick={newQuery} icon="mdi mdi-file">
+      <ToolbarButton onClick={newQuery} icon="icon sql-file">
         New Query
       </ToolbarButton>
-      <ToolbarButton onClick={newFreeTable} icon="mdi mdi-table">
+      <ToolbarButton onClick={newFreeTable} icon="icon table">
         Free table editor
       </ToolbarButton>
-      <ToolbarButton onClick={showImport} icon="mdi mdi-file-upload">
+      <ToolbarButton onClick={showImport} icon="icon import">
         Import data
       </ToolbarButton>
 
