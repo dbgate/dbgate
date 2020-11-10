@@ -24,7 +24,7 @@ export default function StatusBar() {
     <Container>
       {name && (
         <Item>
-          <i className="mdi mdi-database" /> {name}
+          <span className="mdi mdi-database" /> {name}
         </Item>
       )}
       {(displayName || server) && (
