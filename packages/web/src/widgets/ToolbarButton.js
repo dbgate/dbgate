@@ -2,7 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
-import theme from '../theme';
+import dimensions from '../theme/dimensions';
 
 const ButtonDiv = styled.div`
   padding: 5px 15px;
@@ -10,7 +10,7 @@ const ButtonDiv = styled.div`
   color: black;
   border: 0;
   border-right: 1px solid #ccc;
-  height: ${theme.toolBar.height}px;
+  height: ${dimensions.toolBar.height}px;
 
   ${(props) =>
     !props.disabled &&

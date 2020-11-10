@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
-import theme from '../theme';
+import dimensions from '../theme/dimensions';
 
 const ButtonInput = styled.input`
-  // height: ${theme.toolBar.height - 5}px;
+  // height: ${dimensions.toolBar.height - 5}px;
    border: 1px solid #2e6da4;
   padding: 5px;
   margin: 2px;

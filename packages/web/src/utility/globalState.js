@@ -119,3 +119,7 @@ export { LeftPanelWidthProvider, useLeftPanelWidth, useSetLeftPanelWidth };
 const [CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive] = createGlobalState('default');
 
 export { CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive };
+
+const [CurrentThemeProvider, useCurrentTheme, useSetCurrentTheme] = createGlobalState('light');
+
+export { CurrentThemeProvider, useCurrentTheme, useSetCurrentTheme };

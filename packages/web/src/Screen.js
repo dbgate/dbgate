@@ -1,7 +1,7 @@
 // @ts-nocheck
 
 import React from 'react';
-import theme from './theme';
+import dimensions from './theme/dimensions';
 import styled from 'styled-components';
 import TabsPanel from './TabsPanel';
 import TabContent from './TabContent';
@@ -14,14 +14,15 @@ import { useSplitterDrag, HorizontalSplitHandle } from './widgets/Splitter';
 import { ModalLayer } from './modals/showModal';
 import DragAndDropFileTarget from './DragAndDropFileTarget';
 import { useUploadsZone } from './utility/UploadsProvider';
+import useTheme from './theme/useTheme';
 
 const BodyDiv = styled.div`
   position: fixed;
-  top: ${theme.tabsPanel.height + theme.toolBar.height}px;
+  top: ${dimensions.tabsPanel.height + dimensions.toolBar.height}px;
   left: ${(props) => props.contentLeft}px;
-  bottom: ${theme.statusBar.height}px;
+  bottom: ${dimensions.statusBar.height}px;
   right: 0;
-  background-color: ${theme.mainArea.background};
+  background-color: ${(props) => props.theme.mainAreaBackground};
 `;
 
 const ToolBarDiv = styled.div`
@@ -29,36 +30,36 @@ const ToolBarDiv = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  background-color: ${theme.toolBar.background};
-  height: ${theme.toolBar.height}px;
+  background-color: ${(props) => props.theme.toolBarBackground};
+  height: ${dimensions.toolBar.height}px;
 `;
 
 const IconBar = styled.div`
   position: fixed;
-  top: ${theme.toolBar.height}px;
+  top: ${dimensions.toolBar.height}px;
   left: 0;
-  bottom: ${theme.statusBar.height}px;
-  width: ${theme.widgetMenu.iconSize}px;
-  background-color: ${theme.widgetMenu.background};
+  bottom: ${dimensions.statusBar.height}px;
+  width: ${dimensions.widgetMenu.iconSize}px;
+  background-color: ${(props) => props.theme.widgetBackground};
 `;
 
 const LeftPanel = styled.div`
   position: fixed;
-  top: ${theme.toolBar.height}px;
-  left: ${theme.widgetMenu.iconSize}px;
-  bottom: ${theme.statusBar.height}px;
-  background-color: ${theme.leftPanel.background};
+  top: ${dimensions.toolBar.height}px;
+  left: ${dimensions.widgetMenu.iconSize}px;
+  bottom: ${dimensions.statusBar.height}px;
+  background-color: ${(props) => props.theme.leftPanelBackground};
   display: flex;
 `;
 
 const TabsPanelContainer = styled.div`
   display: flex;
   position: fixed;
-  top: ${theme.toolBar.height}px;
+  top: ${dimensions.toolBar.height}px;
   left: ${(props) => props.contentLeft}px;
-  height: ${theme.tabsPanel.height}px;
+  height: ${dimensions.tabsPanel.height}px;
   right: 0;
-  background-color: ${theme.tabsPanel.background};
+  background-color: ${(props) => props.theme.tabsPanelBackground};
   border-top: 1px solid #ccc;
 
   overflow-x: auto;
@@ -85,26 +86,27 @@ const TabsPanelContainer = styled.div`
 
 const StausBarContainer = styled.div`
   position: fixed;
-  height: ${theme.statusBar.height}px;
+  height: ${dimensions.statusBar.height}px;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${theme.statusBar.background};
+  background-color: ${(props) => props.theme.statusBarBackground};
 `;
 
 const ScreenHorizontalSplitHandle = styled(HorizontalSplitHandle)`
   position: absolute;
-  top: ${theme.toolBar.height}px;
-  bottom: ${theme.statusBar.height}px;
+  top: ${dimensions.toolBar.height}px;
+  bottom: ${dimensions.statusBar.height}px;
 `;
 
 export default function Screen() {
+  const theme = useTheme();
   const currentWidget = useCurrentWidget();
   const leftPanelWidth = useLeftPanelWidth();
   const setLeftPanelWidth = useSetLeftPanelWidth();
   const contentLeft = currentWidget
-    ? theme.widgetMenu.iconSize + leftPanelWidth + theme.splitter.thickness
-    : theme.widgetMenu.iconSize;
+    ? dimensions.widgetMenu.iconSize + leftPanelWidth + dimensions.splitter.thickness
+    : dimensions.widgetMenu.iconSize;
   const toolbarPortalRef = React.useRef();
   const onSplitDown = useSplitterDrag('clientX', (diff) => setLeftPanelWidth((v) => v + diff));
 
@@ -112,30 +114,30 @@ export default function Screen() {
 
   return (
     <div {...getRootProps()}>
-      <ToolBarDiv>
+      <ToolBarDiv theme={theme}>
         <ToolBar toolbarPortalRef={toolbarPortalRef} />
       </ToolBarDiv>
-      <IconBar>
+      <IconBar theme={theme}>
         <WidgetIconPanel />
       </IconBar>
       {!!currentWidget && (
-        <LeftPanel>
+        <LeftPanel theme={theme}>
           <WidgetContainer />
         </LeftPanel>
       )}
       {!!currentWidget && (
         <ScreenHorizontalSplitHandle
           onMouseDown={onSplitDown}
-          style={{ left: leftPanelWidth + theme.widgetMenu.iconSize }}
+          style={{ left: leftPanelWidth + dimensions.widgetMenu.iconSize }}
         />
       )}
-      <TabsPanelContainer contentLeft={contentLeft}>
+      <TabsPanelContainer contentLeft={contentLeft} theme={theme}>
         <TabsPanel></TabsPanel>
       </TabsPanelContainer>
-      <BodyDiv contentLeft={contentLeft}>
+      <BodyDiv contentLeft={contentLeft} theme={theme}>
         <TabContent toolbarPortalRef={toolbarPortalRef} />
       </BodyDiv>
-      <StausBarContainer>
+      <StausBarContainer theme={theme}>
         <StatusBar />
       </StausBarContainer>
       <ModalLayer />

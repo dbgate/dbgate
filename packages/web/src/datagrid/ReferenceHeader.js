@@ -1,7 +1,7 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
-import theme from '../theme';
+import dimensions from '../theme/dimensions';
 import { FontIcon } from '../icons';
 
 const Container = styled.div`
@@ -9,8 +9,8 @@ const Container = styled.div`
   justify-content: space-between;
   align-items: center;
   background: #ddeeee;
-  height: ${theme.toolBar.height}px;
-  min-height: ${theme.toolBar.height}px;
+  height: ${dimensions.toolBar.height}px;
+  min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
   border-top: 1px solid #ccc;
   border-bottom: 1px solid #ccc;

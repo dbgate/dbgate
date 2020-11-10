@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import ToolbarButton from './ToolbarButton';
 import useNewQuery from '../query/useNewQuery';
 import { useConfig } from '../utility/metadataLoaders';
-import { useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
+import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
 import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
@@ -25,6 +25,8 @@ export default function ToolBar({ toolbarPortalRef }) {
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
   const showModal = useShowModal();
+  const currentTheme = useCurrentTheme();
+  const setCurrentTheme = useSetCurrentTheme();
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
@@ -45,6 +47,11 @@ export default function ToolBar({ toolbarPortalRef }) {
         }}
       />
     ));
+  };
+
+  const switchTheme = () => {
+    if (currentTheme == 'light') setCurrentTheme('dark');
+    else setCurrentTheme('light');
   };
 
   function openTabFromButton(button) {
@@ -99,6 +106,9 @@ export default function ToolBar({ toolbarPortalRef }) {
       </ToolbarButton>
       <ToolbarButton onClick={showImport} icon="icon import">
         Import data
+      </ToolbarButton>
+      <ToolbarButton onClick={switchTheme} icon="icon theme">
+        Switch theme
       </ToolbarButton>
 
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>

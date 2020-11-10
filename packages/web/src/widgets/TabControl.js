@@ -1,7 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import theme from '../theme';
+import useTheme from '../theme/useTheme';
+import dimensions from '../theme/dimensions';
 
 const TabItem = styled.div`
   border-right: 1px solid white;
@@ -11,11 +12,11 @@ const TabItem = styled.div`
   align-items: center;
   cursor: pointer;
   &:hover {
-    color: ${theme.tabsPanel.hoverFont};
+    color: ${(props) => props.theme.tabsPanelHoverFont};
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? theme.mainArea.background : 'inherit'};
+    props.selected ? props.theme.mainAreaBackground : 'inherit'};
 `;
 
 const TabNameWrapper = styled.span`
@@ -41,9 +42,9 @@ const TabContainer = styled.div`
 
 const TabsContainer = styled.div`
   display: flex;
-  height: ${theme.tabsPanel.height}px;
+  height: ${dimensions.tabsPanel.height}px;
   right: 0;
-  background-color: ${theme.tabsPanel.background};
+  background-color: ${(props) => props.theme.tabsPanelBackground};
 `;
 
 const TabContentContainer = styled.div`
@@ -72,6 +73,8 @@ export function TabControl({ children, activePageIndex = undefined }) {
     if (activePageIndex != null) setValue(activePageIndex);
   }, [activePageIndex]);
 
+  const theme = useTheme();
+
   // // cleanup closed tabs
   // if (_.difference(_.keys(mountedTabs), _.map(childrenArray, 'props.key')).length > 0) {
   //   setMountedTabs(_.pickBy(mountedTabs, (v, k) => childrenArray.find((x) => x.props.key == k)));
@@ -79,12 +82,12 @@ export function TabControl({ children, activePageIndex = undefined }) {
 
   return (
     <MainContainer>
-      <TabsContainer>
+      <TabsContainer theme={theme}>
         {childrenArray
           .filter((x) => x.props)
           .map((tab, index) => (
             // @ts-ignore
-            <TabItem key={index} onClick={() => setValue(index)} selected={value == index}>
+            <TabItem key={index} onClick={() => setValue(index)} selected={value == index} theme={theme}>
               <TabNameWrapper>{tab.props.label}</TabNameWrapper>
             </TabItem>
           ))}

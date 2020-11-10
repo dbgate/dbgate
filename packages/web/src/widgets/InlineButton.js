@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
-import theme from '../theme';
 
 const ButtonDiv = styled.div`
   //box-shadow: 3px 4px 0px 0px #899599;

@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
-import theme from './theme';
 import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 
 import { useOpenedTabs, useSetOpenedTabs, useCurrentDatabase, useSetCurrentDatabase } from './utility/globalState';
 import { showMenu } from './modals/DropDownMenu';
 import { getConnectionInfo } from './utility/metadataLoaders';
 import { FontIcon } from './icons';
+import useTheme from './theme/useTheme';
 
 // const files = [
 //   { name: 'app.js' },
@@ -47,7 +47,7 @@ const DbNameWrapper = styled.div`
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? theme.mainArea.background : 'inherit'};
+    props.selected ? props.theme.mainAreaBackground : 'inherit'};
 `;
 
 // const DbNameWrapperInner = styled.div`
@@ -67,11 +67,11 @@ const FileTabItem = styled.div`
   cursor: pointer;
   user-select: none;
   &:hover {
-    color: ${theme.tabsPanel.hoverFont};
+    color: ${(props) => props.theme.tabsPanelHoverFont};
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? theme.mainArea.background : 'inherit'};
+    props.selected ? props.theme.mainAreaBackground : 'inherit'};
 `;
 
 const FileNameWrapper = styled.span`
@@ -82,7 +82,7 @@ const CloseButton = styled(FontIcon)`
   margin-left: 5px;
   color: gray;
   &:hover {
-    color: ${theme.tabsPanel.hoverFont};
+    color: ${(props) => props.theme.tabsPanelHoverFont};
   }
 `;
 
@@ -124,6 +124,7 @@ function getDbIcon(key) {
 
 export default function TabsPanel() {
   // const formatDbKey = (conid, database) => `${database}-${conid}`;
+  const theme = useTheme();
 
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
@@ -252,6 +253,7 @@ export default function TabsPanel() {
             // @ts-ignore
             selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
             onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
+            theme={theme}
           >
             <FontIcon icon={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
@@ -261,6 +263,7 @@ export default function TabsPanel() {
                 {...tab}
                 title={tab.tooltip}
                 key={tab.tabid}
+                theme={theme}
                 onClick={(e) => handleTabClick(e, tab.tabid)}
                 onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
                 onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
@@ -270,6 +273,7 @@ export default function TabsPanel() {
                 <CloseButton
                   icon="icon close"
                   className="tabCloseButton"
+                  theme={theme}
                   onClick={(e) => {
                     e.preventDefault();
                     closeTab(tab.tabid);

@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
-import theme from '../theme';
 import keycodes from '../utility/keycodes';
 
 const StyledInput = styled.input`

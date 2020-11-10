@@ -2,7 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
-import theme from '../theme';
+import dimensions from '../theme/dimensions';
 
 const SplitterMainBase = styled.div`
   flex: 1;
@@ -28,7 +28,7 @@ const HorizontalMainContainer = styled(SplitterMainBase)`
 
 export const VerticalSplitHandle = styled.div`
   background-color: #ccc;
-  height: ${theme.splitter.thickness}px;
+  height: ${dimensions.splitter.thickness}px;
   cursor: row-resize;
   &:hover {
     background-color: #AAA;
@@ -37,7 +37,7 @@ export const VerticalSplitHandle = styled.div`
 
 export const HorizontalSplitHandle = styled.div`
   background-color: #ccc;
-  width: ${theme.splitter.thickness}px;
+  width: ${dimensions.splitter.thickness}px;
   cursor: col-resize;
   &:hover {
     background-color: #AAA;

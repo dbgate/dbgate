@@ -1,25 +1,27 @@
 import React from 'react';
-import theme from '../theme';
+import dimensions from '../theme/dimensions';
 import styled from 'styled-components';
 import { useCurrentWidget, useSetCurrentWidget } from '../utility/globalState';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const IconWrapper = styled.div`
-  color: ${theme.widgetMenu.iconFontColor};
-  font-size: ${theme.widgetMenu.iconFontSize};
-  height: ${theme.widgetMenu.iconSize}px;
+  color: ${(props) => props.theme.widgetIconFontColor};
+  font-size: ${dimensions.widgetMenu.iconFontSize};
+  height: ${dimensions.widgetMenu.iconSize}px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: ${(props) =>
     // @ts-ignore
-    props.isSelected ? theme.widgetMenu.backgroundSelected : 'inherit'};
+    props.isSelected ? props.theme.widgetBackgroundSelected : 'inherit'};
   &:hover {
-    background-color: ${theme.widgetMenu.backgroundHover};
+    background-color: ${(props) => props.theme.widgetBackgroundHover};
   }
 `;
 
 export default function WidgetIconPanel() {
+  const theme = useTheme();
   const widgets = [
     {
       icon: 'icon database',
@@ -62,6 +64,7 @@ export default function WidgetIconPanel() {
           isSelected={name === currentWidget}
           onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
           title={title}
+          theme={theme}
         >
           <FontIcon icon={icon} />
         </IconWrapper>

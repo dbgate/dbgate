@@ -34,6 +34,7 @@ const iconNames = {
   'icon format-code': 'mdi mdi-code-tags-check',
   'icon show-wizard': 'mdi mdi-comment-edit',
   'icon disconnected': 'mdi mdi-lan-disconnect',
+  'icon theme': 'mdi mdi-brightness-6',
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',

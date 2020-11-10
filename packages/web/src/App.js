@@ -9,6 +9,7 @@ import {
   OpenedConnectionsProvider,
   LeftPanelWidthProvider,
   CurrentArchiveProvider,
+  CurrentThemeProvider,
 } from './utility/globalState';
 import { SocketProvider } from './utility/SocketProvider';
 import ConnectionsPinger from './utility/ConnectionsPinger';
@@ -28,10 +29,12 @@ function App() {
                   <ConnectionsPinger>
                     <ModalLayerProvider>
                       <CurrentArchiveProvider>
-                        <UploadsProvider>
-                          <ThemeHelmet />
-                          <Screen />
-                        </UploadsProvider>
+                        <CurrentThemeProvider>
+                          <UploadsProvider>
+                            <ThemeHelmet />
+                            <Screen />
+                          </UploadsProvider>
+                        </CurrentThemeProvider>
                       </CurrentArchiveProvider>
                     </ModalLayerProvider>
                   </ConnectionsPinger>
