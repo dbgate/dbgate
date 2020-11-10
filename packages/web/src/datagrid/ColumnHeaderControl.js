@@ -7,6 +7,7 @@ import { useSplitterDrag } from '../widgets/Splitter';
 import { isTypeDateTime } from '@dbgate/tools';
 import { openDatabaseObjectDetail } from '../appobj/databaseObjectAppObject';
 import { useSetOpenedTabs } from '../utility/globalState';
+import { FontIcon } from '../icons';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -85,12 +86,12 @@ export default function ColumnHeaderControl({
         <ColumnLabel {...column} />
         {order == 'ASC' && (
           <IconWrapper>
-            <span className="mdi mdi-sort-alphabetical-ascending color-green" />
+            <FontIcon icon="mdi mdi-sort-alphabetical-ascending color-green" />
           </IconWrapper>
         )}
         {order == 'DESC' && (
           <IconWrapper>
-            <span className="mdi mdi-sort-alphabetical-descending color-green" />
+            <FontIcon icon="mdi mdi-sort-alphabetical-descending color-green" />
           </IconWrapper>
         )}
       </LabelDiv>

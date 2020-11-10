@@ -7,6 +7,7 @@ import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 import { useOpenedTabs, useSetOpenedTabs, useCurrentDatabase, useSetCurrentDatabase } from './utility/globalState';
 import { showMenu } from './modals/DropDownMenu';
 import { getConnectionInfo } from './utility/metadataLoaders';
+import { FontIcon } from './icons';
 
 // const files = [
 //   { name: 'app.js' },
@@ -116,9 +117,9 @@ function getTabDbKey(tab) {
 }
 
 function getDbIcon(key) {
-  if (key.startsWith('database://')) return 'mdi mdi-database';
-  if (key.startsWith('archive://')) return 'mdi mdi-archive';
-  return 'mdi mdi-file';
+  if (key.startsWith('database://')) return 'icon database';
+  if (key.startsWith('archive://')) return 'icon archive';
+  return 'icon file';
 }
 
 export default function TabsPanel() {
@@ -252,7 +253,7 @@ export default function TabsPanel() {
             selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
             onClick={() => handleSetDb(tabsByDb[dbKey][0].props)}
           >
-            <span className={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
+            <FontIcon icon={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
           <DbGroupHandler>
             {_.sortBy(tabsByDb[dbKey], 'title').map((tab) => (
@@ -264,7 +265,7 @@ export default function TabsPanel() {
                 onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
                 onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
               >
-                {<span className={tab.busy ? 'mdi mdi-loading mdi-spin' : tab.icon} />}
+                {<FontIcon icon={tab.busy ? 'mdi mdi-loading mdi-spin' : tab.icon} />}
                 <FileNameWrapper>{tab.title}</FileNameWrapper>
                 <CloseButton
                   className="mdi mdi-close tabCloseButton"

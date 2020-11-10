@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from './icons';
 
 const TargetStyled = styled.div`
   position: fixed;
@@ -41,7 +42,7 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
       <TargetStyled>
         <InfoBox>
           <IconWrapper>
-            <span className="mdi mdi-cloud-upload" />
+            <FontIcon icon="icon cloud-upload" />
           </IconWrapper>
           <TitleWrapper>Drop the files to upload to DbGate</TitleWrapper>
           <InfoWrapper>Supported file types: csv, MS Excel, json-lines</InfoWrapper>

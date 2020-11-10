@@ -23,6 +23,7 @@ import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -294,7 +295,7 @@ function SourceName({ name }) {
     <SourceNameWrapper>
       <div>{name}</div>
       <TrashWrapper onClick={handleDelete}>
-        <span className="mdi mdi-delete" />
+        <FontIcon icon="mdi mdi-delete" />
       </TrashWrapper>
     </SourceNameWrapper>
   );
@@ -352,7 +353,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           engine={sourceEngine}
         />
         <ArrowWrapper>
-          <span className="mdi mdi-arrow-right" />
+          <FontIcon icon="mdi mdi-arrow-right" />
         </ArrowWrapper>
         <SourceTargetConfig
           direction="target"

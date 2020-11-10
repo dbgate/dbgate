@@ -2,6 +2,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 const Label = styled.span`
   font-weight: ${props => (props.notNull ? 'bold' : 'normal')};
@@ -15,7 +16,7 @@ export default function ColumnLabel(column) {
   if (column.foreignKey) icon = 'mdi mdi-key-link';
   return (
     <Label {...column}>
-      {icon ? <span className={icon} /> : null} {column.headerText || column.columnName}
+      {icon ? <FontIcon icon={icon} /> : null} {column.headerText || column.columnName}
     </Label>
   );
 }

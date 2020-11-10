@@ -2,6 +2,7 @@ import React from 'react';
 import theme from '../theme';
 import styled from 'styled-components';
 import { useCurrentWidget, useSetCurrentWidget } from '../utility/globalState';
+import { FontIcon } from '../icons';
 
 const IconWrapper = styled.div`
   color: ${theme.widgetMenu.iconFontColor};
@@ -62,7 +63,7 @@ export default function WidgetIconPanel() {
           onClick={() => setCurrentWidget(name === currentWidget ? null : name)}
           title={title}
         >
-          <span className={icon} />
+          <FontIcon icon={icon} />
         </IconWrapper>
       ))}
     </>

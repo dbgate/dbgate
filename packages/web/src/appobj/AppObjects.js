@@ -3,6 +3,7 @@
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 import { showMenu } from '../modals/DropDownMenu';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 
@@ -67,11 +68,11 @@ export function AppObjectCore({
       {...other}
     >
       {prefix}
-      <IconWrap>{isBusy ? <span className="mdi mdi-loading mdi-spin"></span> : <span className={icon} />}</IconWrap>
+      <IconWrap>{isBusy ? <FontIcon icon="mdi mdi-loading mdi-spin" /> : <FontIcon icon={icon} />}</IconWrap>
       {title}
       {statusIcon && (
         <StatusIconWrap>
-          <span className={statusIcon} title={statusTitle} />
+          <FontIcon icon={statusIcon} title={statusTitle} />
         </StatusIconWrap>
       )}
     </Component>

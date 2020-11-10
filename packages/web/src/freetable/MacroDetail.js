@@ -8,6 +8,7 @@ import MacroParameters from './MacroParameters';
 import { WidgetTitle } from '../widgets/WidgetStyles';
 import { FormButton } from '../utility/forms';
 import FormStyledButton from '../widgets/FormStyledButton';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -62,7 +63,7 @@ function MacroHeader({ selectedMacro, setSelectedMacro, onExecute }) {
   return (
     <Container>
       <Header>
-        <span className="mdi mdi-hammer-wrench" />
+        <FontIcon icon="mdi mdi-hammer-wrench" />
         <HeaderText>{selectedMacro.title}</HeaderText>
       </Header>
       <Buttons>

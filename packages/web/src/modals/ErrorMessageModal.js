@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
+import { FontIcon } from '../icons';
 
 const Wrapper = styled.div`
 display:flex
@@ -23,7 +24,7 @@ export default function ErrorMessageModal({ modalState, title = 'Error', message
       <ModalContent>
         <Wrapper>
           <IconWrapper>
-            <span className="mdi mdi-close-circle color-red" />
+            <FontIcon icon="mdi mdi-close-circle color-red" />
           </IconWrapper>
           {message}
         </Wrapper>

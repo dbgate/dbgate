@@ -8,6 +8,7 @@ import InlineButton from '../widgets/InlineButton';
 import useShowModal from '../modals/showModal';
 import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
 import SetFilterModal from '../modals/SetFilterModal';
+import { FontIcon } from '../icons';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -291,7 +292,7 @@ export default function DataFilterControl({
         autocomplete="off"
       />
       <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
-        <span className="mdi mdi-filter" />
+        <FontIcon icon="mdi mdi-filter" />
       </InlineButton>
     </FilterDiv>
   );

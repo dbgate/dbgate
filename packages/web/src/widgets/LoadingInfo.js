@@ -1,6 +1,7 @@
 import React from 'react';
 
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -33,7 +34,7 @@ export default function LoadingInfo({ message, wrapper = false }) {
   const core = (
     <Container>
       <Spinner>
-        <span className="mdi mdi-loading mdi-spin" />
+        <FontIcon icon="mdi mdi-loading mdi-spin" />
       </Spinner>
       {message}
     </Container>

@@ -28,6 +28,7 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
+import { FontIcon } from '../icons';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -971,7 +972,7 @@ export default function DataGridCore(props) {
               >
                 {filterCount > 0 && (
                   <InlineButton onClick={handleClearFilters} square>
-                    <span className="mdi mdi-filter-off" />
+                    <FontIcon icon="mdi mdi-filter-off" />
                   </InlineButton>
                 )}
               </TableHeaderCell>

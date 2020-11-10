@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 import { useCurrentDatabase } from '../utility/globalState';
 import { useDatabaseStatus } from '../utility/metadataLoaders';
@@ -24,18 +25,18 @@ export default function StatusBar() {
     <Container>
       {name && (
         <Item>
-          <span className="mdi mdi-database" /> {name}
+          <FontIcon icon="mdi mdi-database" /> {name}
         </Item>
       )}
       {(displayName || server) && (
         <Item>
-          <span className='mdi mdi-server'/> {displayName || server}
+          <FontIcon icon='mdi mdi-server'/> {displayName || server}
         </Item>
       )}
 
       {user && (
         <Item>
-          <span className="mdi mdi-account" /> {user}
+          <FontIcon icon="mdi mdi-account" /> {user}
         </Item>
       )}
 
@@ -43,17 +44,17 @@ export default function StatusBar() {
         <Item>
           {status.name == 'pending' && (
             <>
-              <span className="mdi mdi-loading mdi-spin" /> Loading
+              <FontIcon icon="mdi mdi-loading mdi-spin" /> Loading
             </>
           )}
           {status.name == 'ok' && (
             <>
-              <span className="mdi mdi-check-circle color-on-statusbar-green" /> Connected
+              <FontIcon icon="mdi mdi-check-circle color-on-statusbar-green" /> Connected
             </>
           )}
           {status.name == 'error' && (
             <>
-              <span className="mdi mdi-close-circle color-red" /> Error
+              <FontIcon icon="mdi mdi-close-circle color-red" /> Error
             </>
           )}
         </Item>
@@ -61,7 +62,7 @@ export default function StatusBar() {
       {!connection && (
         <Item>
           <>
-            <span className="mdi mdi-lan-disconnect" /> Not connected
+            <FontIcon icon="mdi mdi-lan-disconnect" /> Not connected
           </>
         </Item>
       )}

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
 import { filterName } from '@dbgate/datalib';
+import { FontIcon } from '../icons';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -33,7 +34,7 @@ const NameContainer = styled.div`
 function ManagerRow({ tableName, columns, icon, onClick }) {
   return (
     <LinkContainer onClick={onClick}>
-      <span className={icon} />
+      <FontIcon icon={icon} />
       <NameContainer>
         {tableName} ({columns.map((x) => x.columnName).join(', ')})
       </NameContainer>

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 const Wrapper = styled.div`
   font-size: 15pt;
@@ -23,7 +24,7 @@ export default function ModalHeader({ children, modalState }) {
     <Wrapper>
       <div>{children}</div>
       <CloseWrapper onClick={modalState.close}>
-        <span className="mdi mdi-close" />
+        <FontIcon icon="mdi mdi-close" />
       </CloseWrapper>
     </Wrapper>
   );

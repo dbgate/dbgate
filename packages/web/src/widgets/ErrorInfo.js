@@ -1,6 +1,7 @@
 import React from 'react';
 
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ export default function ErrorInfo({ message, icon = 'mdi mdi-close-circle color-
   if (isSmall) {
     return (
       <ContainerSmall>
-        <span className={icon} />
+        <FontIcon icon={icon} />
         {message}
       </ContainerSmall>
     );
@@ -30,7 +31,7 @@ export default function ErrorInfo({ message, icon = 'mdi mdi-close-circle color-
   return (
     <Container>
       <Icon>
-        <span className={icon} />
+        <FontIcon icon={icon} />
       </Icon>
       {message}
     </Container>

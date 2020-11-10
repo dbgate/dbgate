@@ -1,4 +1,5 @@
 import React from 'react';
+import { FontIcon } from '../icons';
 import { showMenu } from '../modals/DropDownMenu';
 import InlineButton from './InlineButton';
 
@@ -12,7 +13,7 @@ export default function DropDownButton({ children }) {
 
   return (
     <InlineButton buttonRef={buttonRef} onClick={handleShowMenu} square>
-      <span className="mdi mdi-chevron-down" />
+      <FontIcon icon="mdi mdi-chevron-down" />
     </InlineButton>
   );
 }

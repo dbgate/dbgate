@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
+import { FontIcon } from '../icons';
 import theme from '../theme';
 
 const ButtonDiv = styled.div`
@@ -53,7 +54,7 @@ export default function ToolbarButton({ children, onClick, icon = undefined, dis
       <ButtonDivInner patchY={patchY}>
         {icon && (
           <StyledIconSpan disabled={disabled}>
-            <span className={icon} />
+            <FontIcon icon={icon} />
           </StyledIconSpan>
         )}
         {children}

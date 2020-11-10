@@ -2,6 +2,7 @@ import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
 import theme from '../theme';
+import { FontIcon } from '../icons';
 
 const Container = styled.div`
   display: flex;
@@ -29,7 +30,7 @@ export default function ReferenceHeader({ reference, onClose }) {
   return (
     <Container>
       <Header>
-        <span className="mdi mdi-link-box" />
+        <FontIcon icon="mdi mdi-link-box" />
         <HeaderText>
           {reference.pureName} [{reference.columns.map((x) => x.refName).join(', ')}] = master [
           {reference.columns.map((x) => x.baseName).join(', ')}]
