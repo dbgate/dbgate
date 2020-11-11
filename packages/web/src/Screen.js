@@ -99,6 +99,10 @@ const ScreenHorizontalSplitHandle = styled(HorizontalSplitHandle)`
   bottom: ${dimensions.statusBar.height}px;
 `;
 
+// const StyledRoot = styled.div`
+//   // color: ${(props) => props.theme.fontColor};
+// `;
+
 export default function Screen() {
   const theme = useTheme();
   const currentWidget = useCurrentWidget();

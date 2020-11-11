@@ -47,7 +47,7 @@ const DbNameWrapper = styled.div`
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? props.theme.mainAreaBackground : 'inherit'};
+    props.selected ? props.theme.tabsPanelSelectedBackground : 'inherit'};
 `;
 
 // const DbNameWrapperInner = styled.div`
@@ -71,7 +71,7 @@ const FileTabItem = styled.div`
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? props.theme.mainAreaBackground : 'inherit'};
+    props.selected ? props.theme.tabsPanelSelectedBackground : 'inherit'};
 `;
 
 const FileNameWrapper = styled.span`

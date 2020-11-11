@@ -29,6 +29,7 @@ import ErrorInfo from '../widgets/ErrorInfo';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -69,7 +70,7 @@ const TableHeaderCell = styled.td`
   padding: 0;
   // padding: 2px;
   margin: 0;
-  background-color: #f6f7f9;
+  background-color: ${(props) => props.theme.gridHeaderBackground};
   overflow: hidden;
 `;
 const TableFilterCell = styled.td`
@@ -88,7 +89,7 @@ const FocusField = styled.input`
 
 const RowCountLabel = styled.div`
   position: absolute;
-  background-color: lightgoldenrodyellow;
+  background-color: ${(props) => props.theme.gridRowCountLabel};
   right: 40px;
   bottom: 20px;
 `;
@@ -268,6 +269,8 @@ export default function DataGridCore(props) {
       });
     }
   }, [stableStringify(display && display.groupColumns)]);
+
+  const theme = useTheme();
 
   const rowCountInfo = React.useMemo(() => {
     if (selectedCells.length > 1 && selectedCells.every((x) => _.isNumber(x[0]) && _.isNumber(x[1]))) {
@@ -942,9 +945,10 @@ export default function DataGridCore(props) {
       >
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
-            <TableHeaderCell data-row="header" data-col="header" />
+            <TableHeaderCell data-row="header" data-col="header" theme={theme} />
             {visibleRealColumns.map((col) => (
               <TableHeaderCell
+                theme={theme}
                 data-row="header"
                 data-col={col.colIndex}
                 key={col.uniqueName}
@@ -1036,7 +1040,7 @@ export default function DataGridCore(props) {
         onScroll={handleRowScroll}
         viewportRatio={visibleRowCountUpperBound / grider.rowCount}
       />
-      {allRowCount && <RowCountLabel>{rowCountInfo}</RowCountLabel>}
+      {allRowCount && <RowCountLabel theme={theme}>{rowCountInfo}</RowCountLabel>}
       {props.toolbarPortalRef &&
         props.toolbarPortalRef.current &&
         tabVisible &&

@@ -3,14 +3,14 @@ import moment from 'moment';
 import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
-import { findExistingChangeSetItem } from '@dbgate/datalib';
 import InplaceEditor from './InplaceEditor';
 import { cellIsSelected } from './gridutil';
 import { isTypeLogical } from '@dbgate/tools';
+import useTheme from '../theme/useTheme';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
-  border: 1px solid #c0c0c0;
+  border: 1px solid ${(props) => props.theme.border};
   // border-collapse: collapse;
   padding: 2px;
   white-space: nowrap;
@@ -22,22 +22,21 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     `
     background: initial;
-    background-color: deepskyblue;
-    color: white;`}
+    background-color: ${props.theme.gridSelectionBackground};
+    color: ${props.theme.gridSelectionFont};`}
 
   ${(props) =>
     props.isFrameSelected &&
     `
-      outline: 3px solid cyan;
+      outline: 3px solid ${props.theme.gridSelectionBackground};
       outline-offset: -3px;`}
   
   ${(props) =>
     props.isAutofillSelected &&
     !props.isFocusedColumn &&
     `
-    background: initial;
-    background-color: magenta;
-    color: white;`}
+      outline: 3px solid ${props.theme.gridSelectionBackground};
+      outline-offset: -3px;`}
 
     ${(props) =>
     props.isModifiedRow &&
@@ -47,7 +46,7 @@ const TableBodyCell = styled.td`
     !props.isModifiedCell &&
     !props.isFocusedColumn &&
     `
-  background-color: #FFFFDB;`}
+  background-color: ${props.theme.gridModifiedRowBackground};`}
   ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
@@ -55,7 +54,7 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isModifiedCell &&
     `
-      background-color: bisque;`}
+      background-color: ${props.theme.gridModifiedCellBackground};`}
 
   ${(props) =>
     !props.isSelected &&
@@ -63,7 +62,7 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isInsertedRow &&
     `
-      background-color: #DBFFDB;`}
+      background-color: ${props.theme.gridInsertedRowBackground};`}
 
   ${(props) =>
     !props.isSelected &&
@@ -71,13 +70,13 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isDeletedRow &&
     `
-      background-color: #FFDBFF;
+      background-color: ${props.theme.gridDeletedRowBackground};
   `}
 
   ${(props) =>
     props.isFocusedColumn &&
     `
-    background-color: lightgoldenrodyellow;
+    background-color: ${props.theme.gridFocusedColumnBackground};
   `}
   
     ${(props) =>
@@ -100,27 +99,27 @@ const NullSpan = styled.span`
 
 const TableBodyRow = styled.tr`
   // height: 35px;
-  background-color: #ffffff;
+  background-color: ${(props) => props.theme.gridRowBackground};
   &:nth-child(6n + 3) {
-    background-color: #ebebeb;
+    background-color: ${(props) => props.theme.gridRowBackground2};
   }
   &:nth-child(6n + 6) {
-    background-color: #ebf5ff;
+    background-color: ${(props) => props.theme.gridRowBackground3};
   }
 `;
 
 const TableHeaderCell = styled.td`
-  border: 1px solid #c0c0c0;
+  border: 1px solid ${(props) => props.theme.border};
   text-align: left;
   padding: 2px;
-  background-color: #f6f7f9;
+  background-color: ${(props) => props.theme.gridHeaderBackground};
   overflow: hidden;
 `;
 
 const AutoFillPoint = styled.div`
   width: 8px;
   height: 8px;
-  background-color: #1a73e8;
+  background-color: ${(props) => props.theme.gridAutoFillBackground};
   position: absolute;
   right: 0px;
   bottom: 0px;
@@ -201,6 +200,8 @@ function DataGridRow(props) {
 
   // console.log('RENDER ROW', rowIndex);
 
+  const theme = useTheme();
+
   const rowData = grider.getRowData(rowIndex);
   const rowStatus = grider.getRowStatus(rowIndex);
 
@@ -215,13 +216,14 @@ function DataGridRow(props) {
   if (!rowData) return null;
 
   return (
-    <TableBodyRow style={{ height: `${rowHeight}px` }}>
-      <TableHeaderCell data-row={rowIndex} data-col="header">
+    <TableBodyRow style={{ height: `${rowHeight}px` }} theme={theme}>
+      <TableHeaderCell data-row={rowIndex} data-col="header" theme={theme}>
         {rowIndex + 1}
       </TableHeaderCell>
       {visibleRealColumns.map((col) => (
         <TableBodyCell
           key={col.uniqueName}
+          theme={theme}
           style={{
             width: col.widthPx,
             minWidth: col.widthPx,
@@ -261,7 +263,7 @@ function DataGridRow(props) {
             </>
           )}
           {autofillMarkerCell && autofillMarkerCell[1] == col.colIndex && autofillMarkerCell[0] == rowIndex && (
-            <AutoFillPoint className="autofillHandleMarker"></AutoFillPoint>
+            <AutoFillPoint className="autofillHandleMarker" theme={theme}></AutoFillPoint>
           )}
         </TableBodyCell>
       ))}

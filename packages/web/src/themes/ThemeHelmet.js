@@ -1,7 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import useTheme from '../theme/useTheme';
 
 export default function ThemeHelmet() {
+  const theme = useTheme();
   return (
     <Helmet>
       <style>{`
@@ -14,6 +16,10 @@ export default function ThemeHelmet() {
         .color-magenta-icon { color: #808 }
         .color-yellow-icon { color: #880 }
         .color-green-icon { color: #0A3; }
+
+        body {
+          color: ${theme.mainFont};
+        }
         `}</style>
     </Helmet>
   );

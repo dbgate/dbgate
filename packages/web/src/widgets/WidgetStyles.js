@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from 'react';
 import styled from 'styled-components';
+import useTheme from '../theme/useTheme';
 // import theme from '../theme';
 import { useLeftPanelWidth } from '../utility/globalState';
 
@@ -62,14 +63,15 @@ const StyledWidgetTitle = styled.div`
   padding: 5px;
   font-weight: bold;
   text-transform: uppercase;
-  background-color: gray;
-  border: 1px solid #aaa;
-  // background-color: #CEC;
+  background-color: ${(props) => props.theme.widgetTitleBackground};
+  border: 1px solid ${(props) => props.theme.border};
 `;
 
 export function WidgetTitle({ children, inputRef = undefined, onClick = undefined }) {
+  const theme = useTheme();
   return (
     <StyledWidgetTitle
+      theme={theme}
       onClick={() => {
         if (inputRef && inputRef.current) inputRef.current.focus();
         if (onClick) onClick();
