@@ -1,7 +1,14 @@
 // https://css-tricks.com/using-javascript-to-adjust-saturation-and-brightness-of-rgb-colors/
 
 export function hexToRgb(rgb) {
-  return (rgb = [rgb.substring(1, 3), rgb.substring(3, 5), rgb.substring(5, 7)].map((x) => parseInt(x, 16)));
+  if (!rgb) throw new Error(`Ivalid RGB color: ${rgb}`);
+  if (rgb.match(/^#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]$/)) {
+    rgb = `#${rgb[1]}${rgb[1]}${rgb[2]}${rgb[2]}${rgb[3]}${rgb[3]}`;
+  }
+  if (!rgb.match(/^#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]$/)) {
+    throw new Error(`Ivalid RGB color: ${rgb}`);
+  }
+  return [rgb.substring(1, 3), rgb.substring(3, 5), rgb.substring(5, 7)].map((x) => parseInt(x, 16));
 }
 
 function componentToHex(c) {
@@ -26,6 +33,10 @@ export function getLightnessOfRGB(rgb) {
 
   // Return the average divided by 255
   return (highest + lowest) / 2 / 255;
+}
+
+export function getColorType(rgb) {
+  return getLightnessOfRGB(rgb) > 0.5 ? 'light' : 'dark';
 }
 
 export function saturateByTenth(rgb) {

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { accentColor, darkenByTenth, lightenByTenth } from './colorUtil';
+import { accentColor, darkenByTenth, getColorType, lightenByTenth } from './colorUtil';
 import { generate, presetPalettes, presetDarkPalettes, presetPrimaryColors } from '@ant-design/colors';
 
 function fillOne(theme, name, type, add, background, fontName, invFontName, changeLightFunc, fontPalettes) {
@@ -40,26 +40,29 @@ function fillOne(theme, name, type, add, background, fontName, invFontName, chan
   add[`${name}_font_link`] = add[`${name}_font_geekblue`][7];
 
   if (background) {
-    add[`${name}_background_alt2`] = changeLightFunc(add[`${name}_background1`], 0.05);
-    add[`${name}_background_alt3`] = add[`${name}_background_geekblue`][0];
+    add[`${name}_background_alt2`] = changeLightFunc(add[`${name}_background1`], type == 'light' ? 0.05 : 0.1);
+    add[`${name}_background_alt3`] = add[`${name}_background_geekblue`][type == 'light' ? 0 : 1];
   }
 }
 
-export default function fillTheme(theme) {
-  const add = {};
-  add.fontWhite1 = theme.fontWhite1 || '#FFFFFF';
-  add.fontWhite2 = theme.fontWhite2 || darkenByTenth(add.fontWhite1, 0.3);
-  add.fontWhite3 = theme.fontWhite3 || darkenByTenth(add.fontWhite2, 0.2);
+function fillThemeCore(theme) {
+  const add = { ...theme };
+  add.fontWhite1 = add.fontWhite1 || '#FFFFFF';
+  add.fontWhite2 = add.fontWhite2 || darkenByTenth(add.fontWhite1, 0.3);
+  add.fontWhite3 = add.fontWhite3 || darkenByTenth(add.fontWhite2, 0.2);
 
-  add.fontBlack1 = theme.fontBlack1 || '#000000';
-  add.fontBlack2 = theme.fontBlack2 || lightenByTenth(add.fontBlack1, 0.3);
-  add.fontBlack3 = theme.fontBlack3 || lightenByTenth(add.fontBlack2, 0.2);
+  add.fontBlack1 = add.fontBlack1 || '#000000';
+  add.fontBlack2 = add.fontBlack2 || lightenByTenth(add.fontBlack1, 0.3);
+  add.fontBlack3 = add.fontBlack3 || lightenByTenth(add.fontBlack2, 0.2);
 
   for (const key of _.keys(theme)) {
-    const match = key.match(/(.*)_type/);
-    if (!match) continue;
-    const name = match[1];
-    const type = theme[key];
+    const matchType = key.match(/^(.*)_type$/);
+    const matchBg = key.match(/^(.*)_background$/);
+    if (!matchType && !matchBg) continue;
+    const name = matchType ? matchType[1] : matchBg[1];
+    if (matchBg && theme[`${name}_type`]) continue;
+
+    const type = matchType ? theme[key] : getColorType(theme[key]);
     if (type != 'light' && type != 'dark') continue;
 
     const background = theme[`${name}_background`];
@@ -69,22 +72,15 @@ export default function fillTheme(theme) {
     if (type == 'dark') {
       fillOne(theme, name, type, add, background, 'fontWhite', 'fontBlack', lightenByTenth, presetDarkPalettes);
     }
-    // add[`${name}_fontr`] = accentColor(add[`${name}_font1`], 0, 0.6);
-    // add[`${name}_fontg`] = accentColor(add[`${name}_font1`], 1, 0.6);
-    // add[`${name}_fontb`] = accentColor(add[`${name}_font1`], 2, 0.6);
-
-    // if (background) {
-    //   add[`${name}_backgroundr`] = accentColor(add[`${name}_background1`], 0);
-    //   add[`${name}_backgroundg`] = accentColor(add[`${name}_background1`], 1);
-    //   add[`${name}_backgroundb`] = accentColor(add[`${name}_background1`], 2);
-    // }
   }
-  console.log('COLORS', {
-    ...add,
-    ...theme,
-  });
   return {
     ...add,
     ...theme,
   };
+}
+
+export default function fillTheme(theme) {
+  theme = fillThemeCore(theme);
+  console.log('THEME', theme);
+  return theme;
 }

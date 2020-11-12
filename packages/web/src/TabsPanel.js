@@ -31,8 +31,8 @@ const DbWrapperHandler = styled.div`
 const DbNameWrapper = styled.div`
   text-align: center;
   font-size: 8pt;
-  border-bottom: 1px solid #ccc;
-  border-right: 1px solid white;
+  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-right: 1px solid ${(props) => props.theme.border};
   cursor: pointer;
   user-select: none;
   padding: 1px;
@@ -57,7 +57,7 @@ const DbNameWrapper = styled.div`
 // `;
 
 const FileTabItem = styled.div`
-  border-right: 1px solid white;
+  border-right: 1px solid ${(props) => props.theme.border};
   padding-left: 15px;
   padding-right: 15px;
   flex-shrink: 1;

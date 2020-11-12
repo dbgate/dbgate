@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
 import dimensions from '../theme/dimensions';
+import useTheme from '../theme/useTheme';
 
 const SplitterMainBase = styled.div`
   flex: 1;
@@ -27,20 +28,20 @@ const HorizontalMainContainer = styled(SplitterMainBase)`
 `;
 
 export const VerticalSplitHandle = styled.div`
-  background-color: #ccc;
-  height: ${dimensions.splitter.thickness}px;
+background-color: ${(props) => props.theme.border};
+height: ${dimensions.splitter.thickness}px;
   cursor: row-resize;
   &:hover {
-    background-color: #AAA;
+    background-color: #aaa;
   }
 `;
 
 export const HorizontalSplitHandle = styled.div`
-  background-color: #ccc;
+  background-color: ${(props) => props.theme.border};
   width: ${dimensions.splitter.thickness}px;
   cursor: col-resize;
   &:hover {
-    background-color: #AAA;
+    background-color: #aaa;
   }
 `;
 
@@ -107,6 +108,7 @@ function SplitterCore({
   size = undefined,
   setSize = undefined,
 }) {
+  const theme = useTheme();
   const childrenArray = _.isArray(children) ? children : [children];
   if (childrenArray.length !== 1 && childrenArray.length != 2) {
     throw new Error('Splitter must have 1 or 2 children');
@@ -130,7 +132,7 @@ function SplitterCore({
   return (
     <Main ref={refNode}>
       <ChildContainer1 style={isSplitter ? { [styleField]: size1 } : { flex: '1' }}>{childrenArray[0]}</ChildContainer1>
-      {isSplitter && <Handle onMouseDown={handleResizeDown} />}
+      {isSplitter && <Handle onMouseDown={handleResizeDown} theme={theme} />}
       {isSplitter && <ChildContainer2>{childrenArray[1]}</ChildContainer2>}
     </Main>
   );

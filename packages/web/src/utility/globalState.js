@@ -120,6 +120,6 @@ const [CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive] = create
 
 export { CurrentArchiveProvider, useCurrentArchive, useSetCurrentArchive };
 
-const [CurrentThemeProvider, useCurrentTheme, useSetCurrentTheme] = createGlobalState('light');
+const [CurrentThemeProvider, useCurrentTheme, useSetCurrentTheme] = createStorageState('selectedTheme', 'light');
 
 export { CurrentThemeProvider, useCurrentTheme, useSetCurrentTheme };

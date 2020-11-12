@@ -5,7 +5,7 @@ import useTheme from '../theme/useTheme';
 import dimensions from '../theme/dimensions';
 
 const TabItem = styled.div`
-  border-right: 1px solid white;
+  border-right: 1px solid ${(props) => props.theme.border};
   padding-left: 15px;
   padding-right: 15px;
   display: flex;

@@ -1,20 +1,24 @@
-export default {
-  background: '#000',
-  iconFontColor: '#eee',
-  backgroundHover: '#555',
-  backgroundSelected: '#4CAF50',
+import fillTheme from './fillTheme';
 
-  leftPanelBackground: '#ccc',
+const theme = {
+  main_type: 'dark',
+  main_background: '#fff',
 
-  widgetBackground: '#222',
-  widgetIconFontColor: '#eee',
-  widgetBackgroundHover: '#555',
-  widgetBackgroundSelected: '#4CAF50',
+  selectionAntName: 'blue',
 
-  tabsPanelBackground: '#ccc',
-  tabsPanelHoverFont: '#338',
+  border: '#555',
+
+  toolbar_background: '#333',
+  content_background: '#333',
+  left_background: '#333',
+  widget_background: '#222',
+  title_background: '#555',
+  manager_background: '#000',
+  tabs_background: '#444',
+  gridheader_background: '#222',
+  gridbody_background: '#000',
 
   statusBarBackground: '#00c',
-  toolBarBackground: '#eee',
-  mainAreaBackground: '#333',
 };
+
+export default fillTheme(theme);

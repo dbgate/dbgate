@@ -60,7 +60,7 @@ const TabsPanelContainer = styled.div`
   height: ${dimensions.tabsPanel.height}px;
   right: 0;
   background-color: ${(props) => props.theme.tabs_background2};
-  border-top: 1px solid #ccc;
+  border-top: 1px solid ${(props) => props.theme.border};
 
   overflow-x: auto;
 

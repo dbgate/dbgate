@@ -6,5 +6,5 @@ const themes = { light, dark };
 
 export default function useTheme() {
   const currentTheme = useCurrentTheme();
-  return themes[currentTheme];
+  return themes[currentTheme] || light;
 }
