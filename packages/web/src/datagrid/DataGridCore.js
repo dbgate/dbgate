@@ -64,7 +64,7 @@ const TableHeaderRow = styled.tr`
 `;
 const TableHeaderCell = styled.td`
   // font-weight: bold;
-  border: 1px solid #c0c0c0;
+  border: 1px solid ${(props) => props.theme.border};
   // border-collapse: collapse;
   text-align: left;
   padding: 0;
@@ -970,6 +970,7 @@ export default function DataGridCore(props) {
           {display.filterable && (
             <TableHeaderRow>
               <TableHeaderCell
+                theme={theme}
                 style={{ width: hederColwidthPx, minWidth: hederColwidthPx, maxWidth: hederColwidthPx }}
                 data-row="filter"
                 data-col="header"

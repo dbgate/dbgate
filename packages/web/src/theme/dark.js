@@ -18,15 +18,16 @@ const theme = {
   widget_background: '#222',
   title_background: '#555',
   manager_background: '#000',
-  tabs_background: '#444',
+  tabs_background: '#111',
   gridheader_background: '#222',
   gridbody_background: '#000',
   scrollbar_background: '#444',
   input_background: '#333',
   modal_background: '#222',
   modalheader_background: '#555',
-  button_background: '#337ab7',
+  button_background: '#004488',
   statusbar_background: '#00c',
+  inlinebtn_background: '#222',
 };
 
 export default fillTheme(theme);

@@ -8,6 +8,7 @@ import { isTypeDateTime } from '@dbgate/tools';
 import { openDatabaseObjectDetail } from '../appobj/databaseObjectAppObject';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -28,7 +29,7 @@ const IconWrapper = styled.span`
 `;
 
 const ResizeHandle = styled.div`
-  background-color: #ccc;
+  background-color: ${(props) => props.theme.border};
   width: 2px;
   cursor: col-resize;
   z-index: 1;
@@ -52,6 +53,7 @@ export default function ColumnHeaderControl({
   const onResizeDown = useSplitterDrag('clientX', onResize);
   const { foreignKey } = column;
   const setOpenedTabs = useSetOpenedTabs();
+  const theme = useTheme();
 
   const openReferencedTable = () => {
     openDatabaseObjectDetail(setOpenedTabs, 'TableDataTab', null, {
@@ -125,7 +127,7 @@ export default function ColumnHeaderControl({
           )}
         </DropDownButton>
       )}
-      <ResizeHandle className="resizeHandleControl" onMouseDown={onResizeDown} />
+      <ResizeHandle className="resizeHandleControl" onMouseDown={onResizeDown} theme={theme} />
     </HeaderDiv>
   );
 }

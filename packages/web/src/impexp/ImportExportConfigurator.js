@@ -44,7 +44,7 @@ const Column = styled.div`
 const Label = styled.div`
   margin: 5px;
   margin-top: 15px;
-  color: #777;
+  color: ${(props) => props.theme.modal_font2};
 `;
 
 const SourceNameWrapper = styled.div`
@@ -54,10 +54,10 @@ const SourceNameWrapper = styled.div`
 
 const TrashWrapper = styled.div`
   &:hover {
-    background-color: #ccc;
+    background-color: ${(props) => props.theme.modal_background2};
   }
   cursor: pointer;
-  color: blue;
+  color: ${(props) => props.theme.modal_font_blue[7]};
 `;
 
 const SqlWrapper = styled.div`
@@ -170,6 +170,7 @@ function SourceTargetConfig({
   tablesField = undefined,
   engine = undefined,
 }) {
+  const theme = useTheme();
   const { values, setFieldValue } = useFormikContext();
   const types =
     values[storageTypeField] == 'jsldata'
@@ -187,24 +188,24 @@ function SourceTargetConfig({
   const archiveFiles = useArchiveFiles({ folder: values[archiveFolderField] });
   return (
     <Column>
-      {direction == 'source' && <Label>Source configuration</Label>}
-      {direction == 'target' && <Label>Target configuration</Label>}
+      {direction == 'source' && <Label theme={theme}>Source configuration</Label>}
+      {direction == 'target' && <Label theme={theme}>Target configuration</Label>}
       <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
       {(storageType == 'database' || storageType == 'query') && (
         <>
-          <Label>Server</Label>
+          <Label theme={theme}>Server</Label>
           <FormConnectionSelect name={connectionIdField} />
-          <Label>Database</Label>
+          <Label theme={theme}>Database</Label>
           <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} />
         </>
       )}
       {storageType == 'database' && (
         <>
-          <Label>Schema</Label>
+          <Label theme={theme}>Schema</Label>
           <FormSchemaSelect conidName={connectionIdField} databaseName={databaseNameField} name={schemaNameField} />
           {tablesField && (
             <>
-              <Label>Tables/views</Label>
+              <Label theme={theme}>Tables/views</Label>
               <FormTablesSelect
                 conidName={connectionIdField}
                 schemaName={schemaNameField}
@@ -240,7 +241,7 @@ function SourceTargetConfig({
       )}
       {storageType == 'query' && (
         <>
-          <Label>Query</Label>
+          <Label theme={theme}>Query</Label>
           <SqlWrapper>
             <SqlEditor
               value={values.sourceSql}
@@ -254,14 +255,14 @@ function SourceTargetConfig({
 
       {storageType == 'archive' && (
         <>
-          <Label>Archive folder</Label>
+          <Label theme={theme}>Archive folder</Label>
           <FormArchiveFolderSelect name={archiveFolderField} />
         </>
       )}
 
       {storageType == 'archive' && direction == 'source' && (
         <>
-          <Label>Source files</Label>
+          <Label theme={theme}>Source files</Label>
           <FormArchiveFilesSelect folderName={values[archiveFolderField]} name={tablesField} />
           <div>
             <FormStyledButton
@@ -286,6 +287,7 @@ function SourceTargetConfig({
 
 function SourceName({ name }) {
   const { values, setFieldValue } = useFormikContext();
+  const theme = useTheme();
   const handleDelete = () => {
     setFieldValue(
       'sourceList',
@@ -296,7 +298,7 @@ function SourceName({ name }) {
   return (
     <SourceNameWrapper>
       <div>{name}</div>
-      <TrashWrapper onClick={handleDelete}>
+      <TrashWrapper onClick={handleDelete} theme={theme}>
         <FontIcon icon="icon delete" />
       </TrashWrapper>
     </SourceNameWrapper>

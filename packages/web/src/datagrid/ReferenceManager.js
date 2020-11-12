@@ -4,6 +4,7 @@ import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
 import { filterName } from '@dbgate/datalib';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -16,7 +17,7 @@ const Header = styled.div`
 `;
 
 const LinkContainer = styled.div`
-  color: #337ab7;
+  color: ${props=>props.theme.manager_font_blue[7]};
   margin: 5px;
   &:hover {
     text-decoration: underline;
@@ -32,8 +33,9 @@ const NameContainer = styled.div`
 `;
 
 function ManagerRow({ tableName, columns, icon, onClick }) {
+  const theme = useTheme();
   return (
-    <LinkContainer onClick={onClick}>
+    <LinkContainer onClick={onClick} theme={theme}>
       <FontIcon icon={icon} />
       <NameContainer>
         {tableName} ({columns.map((x) => x.columnName).join(', ')})

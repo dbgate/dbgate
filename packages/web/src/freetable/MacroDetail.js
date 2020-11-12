@@ -9,6 +9,7 @@ import { WidgetTitle } from '../widgets/WidgetStyles';
 import { FormButton } from '../utility/forms';
 import FormStyledButton from '../widgets/FormStyledButton';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const Container = styled.div`
   display: flex;
@@ -18,8 +19,8 @@ const Container = styled.div`
   height: ${dimensions.toolBar.height}px;
   min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
+  border-top: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${(props) => props.theme.border};
 `;
 
 const Header = styled.div`
@@ -60,8 +61,9 @@ const Buttons = styled.div`
 `;
 
 function MacroHeader({ selectedMacro, setSelectedMacro, onExecute }) {
+  const theme = useTheme();
   return (
-    <Container>
+    <Container theme={theme}>
       <Header>
         <FontIcon icon="img macro" />
         <HeaderText>{selectedMacro.title}</HeaderText>

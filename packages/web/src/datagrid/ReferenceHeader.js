@@ -3,17 +3,18 @@ import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
 import dimensions from '../theme/dimensions';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ddeeee;
+  background: ${(props) => props.theme.gridheader_background_cyan[0]};
   height: ${dimensions.toolBar.height}px;
   min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
+  border-top: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${(props) => props.theme.border};
 `;
 
 const Header = styled.div`
@@ -27,8 +28,9 @@ const HeaderText = styled.div`
 `;
 
 export default function ReferenceHeader({ reference, onClose }) {
+  const theme = useTheme();
   return (
-    <Container>
+    <Container theme={theme}>
       <Header>
         <FontIcon icon="img reference" />
         <HeaderText>

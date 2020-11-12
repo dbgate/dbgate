@@ -43,7 +43,7 @@ const WidgetColumnWrapper = styled.div`
   display: flex;
   flex: 1;
   overflow: hidden;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid ${(props) => props.theme.border};
 `;
 
 const StyledForm = styled(Form)`
@@ -58,9 +58,7 @@ const StyledForm = styled(Form)`
 `;
 
 const ContentWrapper = styled.div`
-  // border-bottom: 1px solid #ccc;
-  border-top: 1px solid #ccc;
-  // padding: 15px;
+  border-top: 1px solid ${(props) => props.theme.border};
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -135,10 +133,10 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
         <StyledForm>
           <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
           <Wrapper>
-            <ContentWrapper>
+            <ContentWrapper theme={theme}>
               <ImportExportConfigurator uploadedFile={uploadedFile} />
             </ContentWrapper>
-            <WidgetColumnWrapper>
+            <WidgetColumnWrapper theme={theme}>
               <WidgetColumnBar>
                 {/* <WidgetColumnBarItem title="Preview" name="preview">
                   Preview

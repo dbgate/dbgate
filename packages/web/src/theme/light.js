@@ -26,6 +26,7 @@ const theme = {
   modalheader_background: '#eff',
   button_background: '#337ab7',
   statusbar_background: '#00c',
+  inlinebtn_background: '#ededed',
 };
 
 export default fillTheme(theme);
