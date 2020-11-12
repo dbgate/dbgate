@@ -67,20 +67,6 @@ const TabsPanelContainer = styled.div`
   ::-webkit-scrollbar {
     height: 7px;
   }
-  ::-webkit-scrollbar-track {
-    // -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.3); 
-    border-radius: 1px;
-    background-color: #ddd;
-  }
- 
-  ::-webkit-scrollbar-thumb {
-    border-radius: 1px;
-    // -webkit-box-shadow: inset 0 0 2px rgba(0,0,0,0.5); 
-    background-color: #aaa;
-    &:hover {
-      background-color: #99c;
-    }
-  }  
 }
 `;
 

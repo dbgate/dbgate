@@ -18,6 +18,7 @@ const theme = {
   gridheader_background: '#f6f7f9',
   gridheader_type: 'light',
   gridbody_background: '#fff',
+  scrollbar_background: '#ddd',
 
   statusBarBackground: '#00c',
 };

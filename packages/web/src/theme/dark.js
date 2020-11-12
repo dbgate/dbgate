@@ -17,6 +17,7 @@ const theme = {
   tabs_background: '#444',
   gridheader_background: '#222',
   gridbody_background: '#000',
+  scrollbar_background: '#444',
 
   statusBarBackground: '#00c',
 };

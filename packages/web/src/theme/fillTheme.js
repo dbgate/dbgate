@@ -16,6 +16,7 @@ function fillOne(theme, name, type, add, background, fontName, invFontName, chan
     add[`${name}_background1`] = background;
     add[`${name}_background2`] = changeLightFunc(add[`${name}_background1`]);
     add[`${name}_background3`] = changeLightFunc(add[`${name}_background2`]);
+    add[`${name}_background4`] = changeLightFunc(add[`${name}_background3`]);
   }
 
   for (const colorName in presetPrimaryColors) {
