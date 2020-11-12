@@ -82,6 +82,7 @@ const connectionAppObject = (flags) => (
       statusTitle = status.message;
     }
   }
+  const extInfo = engine;
 
   return {
     title,
@@ -94,6 +95,7 @@ const connectionAppObject = (flags) => (
     onClick,
     statusIcon,
     statusTitle,
+    extInfo,
   };
 };
 

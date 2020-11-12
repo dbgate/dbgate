@@ -59,7 +59,7 @@ const iconNames = {
   'img free-table': 'mdi mdi-table color-green-7',
   'img macro': 'mdi mdi-hammer-wrench',
 
-  'img database': 'mdi mdi-database color-yellow-7',
+  'img database': 'mdi mdi-database color-gold-7',
   'img table': 'mdi mdi-table color-blue-7',
   'img view': 'mdi mdi-table color-magenta-7',
   'img procedure': 'mdi mdi-cog color-blue-7',

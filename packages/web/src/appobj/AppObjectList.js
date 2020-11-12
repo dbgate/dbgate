@@ -7,7 +7,7 @@ import { ExpandIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 
 const SubItemsDiv = styled.div`
-  margin-left: 16px;
+  margin-left: 28px;
 `;
 
 const ExpandIconHolder2 = styled.span`

@@ -31,6 +31,12 @@ const StatusIconWrap = styled.span`
   margin-left: 5px;
 `;
 
+const ExtInfoWrap = styled.span`
+font-weight: normal;
+margin-left: 5px;
+  color: ${(props) => props.theme.left_font3};
+`;
+
 export function AppObjectCore({
   title,
   icon,
@@ -43,6 +49,7 @@ export function AppObjectCore({
   component = 'div',
   prefix = null,
   statusIcon,
+  extInfo,
   statusTitle,
   ...other
 }) {
@@ -78,6 +85,7 @@ export function AppObjectCore({
           <FontIcon icon={statusIcon} title={statusTitle} />
         </StatusIconWrap>
       )}
+      {extInfo && <ExtInfoWrap theme={theme}>{extInfo}</ExtInfoWrap>}
     </Component>
   );
 }
