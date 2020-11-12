@@ -2,6 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import keycodes from './keycodes';
+import useTheme from '../theme/useTheme';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -17,15 +18,15 @@ const TableHeaderRow = styled.tr``;
 const TableBodyRow = styled.tr`
   background-color: ${(props) =>
     // @ts-ignore
-    props.isSelected ? '#ccccff' : ''};
+    props.isSelected ? props.theme.gridbody_background_blue[1] : props.theme.gridbody_background};
 `;
 const TableHeaderCell = styled.td`
-  border: 1px solid #e8eef4;
-  background-color: #e8eef4;
+  border: 1px solid ${(props) => props.theme.gridheader_background};
+  background-color: ${(props) => props.theme.gridheader_background};
   padding: 5px;
 `;
 const TableBodyCell = styled.td`
-  border: 1px solid #e8eef4;
+  border: 1px solid ${(props) => props.theme.gridbody_background2};
   padding: 5px;
 `;
 
@@ -55,6 +56,7 @@ export default function TableControl({
 
   const myTableRef = React.useRef(null);
   const currentTableRef = tableRef || myTableRef;
+  const theme = useTheme();
 
   React.useEffect(() => {
     if (focusOnCreate) {
@@ -62,15 +64,18 @@ export default function TableControl({
     }
   }, []);
 
-  const handleKeyDown = React.useCallback((event) => {
-    if (event.keyCode == keycodes.downArrow) {
-      setSelectedIndex((i) => Math.min(i + 1, rows.length - 1));
-    }
-    if (event.keyCode == keycodes.upArrow) {
-      setSelectedIndex((i) => Math.max(0, i - 1));
-    }
-    if (onKeyDown) onKeyDown(event);
-  }, [setSelectedIndex, rows]);
+  const handleKeyDown = React.useCallback(
+    (event) => {
+      if (event.keyCode == keycodes.downArrow) {
+        setSelectedIndex((i) => Math.min(i + 1, rows.length - 1));
+      }
+      if (event.keyCode == keycodes.upArrow) {
+        setSelectedIndex((i) => Math.max(0, i - 1));
+      }
+      if (onKeyDown) onKeyDown(event);
+    },
+    [setSelectedIndex, rows]
+  );
 
   return (
     <Table
@@ -83,7 +88,9 @@ export default function TableControl({
       <TableHead>
         <TableHeaderRow>
           {columns.map((x) => (
-            <TableHeaderCell key={x.fieldName}>{x.header}</TableHeaderCell>
+            <TableHeaderCell key={x.fieldName} theme={theme}>
+              {x.header}
+            </TableHeaderCell>
           ))}
         </TableHeaderRow>
       </TableHead>
@@ -91,6 +98,7 @@ export default function TableControl({
         {rows.map((row, index) => (
           <TableBodyRow
             key={index}
+            theme={theme}
             // @ts-ignore
             isSelected={index == selectedIndex}
             onClick={
@@ -103,7 +111,7 @@ export default function TableControl({
             }
           >
             {columns.map((col) => (
-              <TableBodyCell key={col.fieldName}>{format(row, col)}</TableBodyCell>
+              <TableBodyCell key={col.fieldName} theme={theme}>{format(row, col)}</TableBodyCell>
             ))}
           </TableBodyRow>
         ))}

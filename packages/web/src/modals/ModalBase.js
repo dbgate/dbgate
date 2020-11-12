@@ -19,8 +19,8 @@ import useTheme from '../theme/useTheme';
 // `;
 
 const StyledModal = styled(Modal)`
-  border: 1px solid #ccc;
-  background: #fff;
+  border: 1px solid ${(props) => props.theme.border};
+  background: ${(props) => props.theme.modal_background};
   overflow: auto;
   webkitoverflowscrolling: touch;
   outline: none;
@@ -64,6 +64,7 @@ export default function ModalBase({ modalState, children, isFlex = false, fullSc
   const theme = useTheme();
   return (
     <StyledModal
+      theme={theme}
       isOpen={modalState.isOpen}
       onRequestClose={modalState.close}
       overlayClassName="RactModalOverlay"

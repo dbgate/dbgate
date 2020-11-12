@@ -118,6 +118,7 @@ export default function Screen() {
       {!!currentWidget && (
         <ScreenHorizontalSplitHandle
           onMouseDown={onSplitDown}
+          theme={theme}
           style={{ left: leftPanelWidth + dimensions.widgetMenu.iconSize }}
         />
       )}

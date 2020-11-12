@@ -9,6 +9,7 @@ import {
 } from './WidgetStyles';
 import { VerticalSplitHandle, useSplitterDrag } from './Splitter';
 import useDimensions from '../utility/useDimensions';
+import useTheme from '../theme/useTheme';
 
 export function WidgetColumnBarItem({ title, children, name, height = undefined, collapsed = false }) {
   return <></>;
@@ -16,6 +17,7 @@ export function WidgetColumnBarItem({ title, children, name, height = undefined,
 
 function WidgetContainer({ widget, visible, splitterVisible, parentHeight, initialSize = undefined }) {
   const [size, setSize] = React.useState(null);
+  const theme = useTheme();
 
   const handleResizeDown = useSplitterDrag('clientY', (diff) => setSize((v) => v + diff));
 
@@ -33,7 +35,7 @@ function WidgetContainer({ widget, visible, splitterVisible, parentHeight, initi
       <WidgetsOuterContainer style={splitterVisible ? { height: size } : null}>
         {widget.props.children}
       </WidgetsOuterContainer>
-      {splitterVisible && <VerticalSplitHandle onMouseDown={handleResizeDown} />}
+      {splitterVisible && <VerticalSplitHandle onMouseDown={handleResizeDown} theme={theme} />}
     </>
   );
 }

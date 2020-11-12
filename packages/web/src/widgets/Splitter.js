@@ -28,11 +28,11 @@ const HorizontalMainContainer = styled(SplitterMainBase)`
 `;
 
 export const VerticalSplitHandle = styled.div`
-background-color: ${(props) => props.theme.border};
-height: ${dimensions.splitter.thickness}px;
+  background-color: ${(props) => props.theme.border};
+  height: ${dimensions.splitter.thickness}px;
   cursor: row-resize;
   &:hover {
-    background-color: #aaa;
+    background-color: ${(props) => props.theme.border_background2};
   }
 `;
 
@@ -41,7 +41,7 @@ export const HorizontalSplitHandle = styled.div`
   width: ${dimensions.splitter.thickness}px;
   cursor: col-resize;
   &:hover {
-    background-color: #aaa;
+    background-color: ${(props) => props.theme.border_background2};
   }
 `;
 

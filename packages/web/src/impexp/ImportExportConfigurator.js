@@ -24,6 +24,7 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -67,12 +68,12 @@ const SqlWrapper = styled.div`
 
 const DragWrapper = styled.div`
   padding: 10px;
-  background: #ddd;
+  background: ${(props) => props.theme.modal_background2};
 `;
 
 const ArrowWrapper = styled.div`
   font-size: 30px;
-  color: blue;
+  color: ${(props) => props.theme.modal_font_blue[7]};
   align-self: center;
 `;
 
@@ -151,11 +152,12 @@ function ElectronFilesInput() {
 }
 
 function FilesInput() {
+  const theme = useTheme();
   const electron = getElectron();
   if (electron) {
     return <ElectronFilesInput />;
   }
-  return <DragWrapper>Drag &amp; drop imported files here</DragWrapper>;
+  return <DragWrapper theme={theme}>Drag &amp; drop imported files here</DragWrapper>;
 }
 
 function SourceTargetConfig({
@@ -308,6 +310,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
   const { engine: sourceEngine } = sourceConnectionInfo || {};
   const { sourceList } = values;
   const { uploadListener, setUploadListener } = useUploadsProvider();
+  const theme = useTheme();
 
   const handleUpload = React.useCallback(
     (file) => {
@@ -352,7 +355,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           tablesField="sourceList"
           engine={sourceEngine}
         />
-        <ArrowWrapper>
+        <ArrowWrapper theme={theme}>
           <FontIcon icon="icon arrow-right" />
         </ArrowWrapper>
         <SourceTargetConfig

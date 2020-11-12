@@ -108,7 +108,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         Import data
       </ToolbarButton>
       <ToolbarButton onClick={switchTheme} icon="icon theme">
-        Switch theme
+        {currentTheme == 'dark' ? 'Light mode' : 'Dark mode'}
       </ToolbarButton>
 
       <ToolbarContainer ref={toolbarPortalRef}></ToolbarContainer>

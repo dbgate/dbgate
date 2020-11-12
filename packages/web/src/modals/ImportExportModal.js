@@ -15,6 +15,7 @@ import axios from '../utility/axios';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import SocketMessagesView from '../query/SocketMessagesView';
 import RunnerOutputFiles from '../query/RunnerOuputFiles';
+import useTheme from '../theme/useTheme';
 
 const headerHeight = '60px';
 const footerHeight = '60px';
@@ -72,9 +73,9 @@ const Footer = styled.div`
   left: 0;
   right: 0;
   bottom: 0px;
-  background-color: #eeffff;
+  background-color: ${(props) => props.theme.modalheader_background};
 
-  border-top: 1px solid #ccc;
+  border-top: 1px solid ${(props) => props.theme.border};
   // padding: 15px;
 `;
 
@@ -106,6 +107,7 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const [runnerId, setRunnerId] = React.useState(null);
   const archive = useCurrentArchive();
+  const theme = useTheme();
 
   const handleExecute = async (values) => {
     const script = await createImpExpScript(values);
@@ -153,7 +155,7 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
               </WidgetColumnBar>
             </WidgetColumnWrapper>
           </Wrapper>
-          <Footer>
+          <Footer theme={theme}>
             <FooterButtons>
               <FormStyledButton type="submit" value="Run" />
               <GenerateSctriptButton modalState={modalState} />

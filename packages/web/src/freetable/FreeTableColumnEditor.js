@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 import keycodes from '../utility/keycodes';
 
 const Row = styled.div`
@@ -13,7 +14,7 @@ const Row = styled.div`
   // padding: 5px;
   cursor: pointer;
   &:hover {
-    background-color: lightblue;
+    background-color: ${(props) => props.theme.manager_background_blue[1]};
   }
 `;
 const Name = styled.div`
@@ -28,7 +29,7 @@ const Icon = styled(FontIcon)`
   position: relative;
   top: 5px;
   &:hover {
-    background-color: gray;
+    background-color: ${(props) => props.theme.manager_background3};
   }
   padding: 5px;
 `;
@@ -36,7 +37,7 @@ const EditorInput = styled.input`
   width: calc(100% - 10px);
   background-color: ${(props) =>
     // @ts-ignore
-    props.isError ? '#FFCCCC' : 'white'};
+    props.isError ? props.theme.manager_background_red[1] : props.theme.manager_background};
 `;
 
 function ColumnNameEditor({
@@ -48,6 +49,7 @@ function ColumnNameEditor({
   defaultValue = '',
   ...other
 }) {
+  const theme = useTheme();
   const [value, setValue] = React.useState(defaultValue || '');
   const editorRef = React.useRef(null);
   const isError = value && existingNames && existingNames.includes(value);
@@ -74,6 +76,7 @@ function ColumnNameEditor({
   }, [focusOnCreate]);
   return (
     <EditorInput
+      theme={theme}
       ref={editorRef}
       type="text"
       onKeyDown={handleKeyDown}
@@ -97,14 +100,15 @@ function exchange(array, i1, i2) {
 
 function ColumnManagerRow({ column, onEdit, onRemove, onUp, onDown }) {
   const [isHover, setIsHover] = React.useState(false);
+  const theme = useTheme();
   return (
-    <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)}>
+    <Row onMouseEnter={() => setIsHover(true)} onMouseLeave={() => setIsHover(false)} theme={theme}>
       <Name>{column.columnName}</Name>
       <Buttons>
-        <Icon icon="icon edit" onClick={onEdit} />
-        <Icon icon="icon delete" onClick={onRemove} />
-        <Icon icon="icon arrow-up" onClick={onUp} />
-        <Icon icon="icon arrow-down" onClick={onDown} />
+        <Icon icon="icon edit" onClick={onEdit} theme={theme} />
+        <Icon icon="icon delete" onClick={onRemove} theme={theme} />
+        <Icon icon="icon arrow-up" onClick={onUp} theme={theme} />
+        <Icon icon="icon arrow-down" onClick={onDown} theme={theme} />
       </Buttons>
     </Row>
   );

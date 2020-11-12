@@ -9,9 +9,10 @@ import FreeTableGridCore from './FreeTableGridCore';
 import MacroDetail from './MacroDetail';
 import MacroManager from './MacroManager';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
+import useTheme from '../theme/useTheme';
 
 const LeftContainer = styled.div`
-  background-color: white;
+  background-color: ${(props) => props.theme.manager_background};
   display: flex;
   flex: 1;
 `;
@@ -31,6 +32,7 @@ function extractMacroValuesForMacro(macroValues, macro) {
 
 export default function FreeTableGrid(props) {
   const { modelState, dispatchModel } = props;
+  const theme = useTheme();
   const [managerSize, setManagerSize] = React.useState(0);
   const [selectedMacro, setSelectedMacro] = React.useState(null);
   const [macroValues, setMacroValues] = React.useState({});
@@ -49,7 +51,7 @@ export default function FreeTableGrid(props) {
   // console.log('macroValues', macroValues);
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
-      <LeftContainer>
+      <LeftContainer theme={theme}>
         <WidgetColumnBar>
           <WidgetColumnBarItem title="Columns" name="columns" height="40%">
             <FreeTableColumnEditor {...props} />

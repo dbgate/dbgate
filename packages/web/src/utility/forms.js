@@ -15,6 +15,7 @@ import {
 import useSocket from './SocketProvider';
 import getAsArray from './getAsArray';
 import axios from './axios';
+import useTheme from '../theme/useTheme';
 
 export const FormRow = styled.div`
   display: flex;
@@ -115,9 +116,32 @@ export function FormRadioGroupItem({ name, text, value }) {
 
 export function FormReactSelect({ options, name, isMulti = false, Component = Select, ...other }) {
   const { setFieldValue, values } = useFormikContext();
+  const theme = useTheme();
 
   return (
     <Component
+      theme={(t) => ({
+        ...t,
+        colors: {
+          ...t.colors,
+          neutral0: theme.input_background,
+          neutral10: theme.input_background2,
+          neutral20: theme.input_background3,
+          neutral30: theme.input_background4,
+          neutral40: theme.input_font3,
+          neutral50: theme.input_font3,
+          neutral60: theme.input_font2,
+          neutral70: theme.input_font2,
+          neutral80: theme.input_font2,
+          neutral90: theme.input_font1,
+          primary: theme.input_background_blue[5],
+          primary75: theme.input_background_blue[3],
+          primary50: theme.input_background_blue[2],
+          primary25: theme.input_background_blue[0],
+          danger: theme.input_background_red[5],
+          dangerLight: theme.input_background_red[1],
+        },
+      })}
       options={options}
       value={
         isMulti
