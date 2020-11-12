@@ -12,11 +12,11 @@ const TabItem = styled.div`
   align-items: center;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.tabsPanelHoverFont};
+    color: ${(props) => props.theme.tabs_font_hover};
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? props.theme.mainAreaBackground : 'inherit'};
+    props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
 
 const TabNameWrapper = styled.span`
@@ -44,7 +44,7 @@ const TabsContainer = styled.div`
   display: flex;
   height: ${dimensions.tabsPanel.height}px;
   right: 0;
-  background-color: ${(props) => props.theme.tabsPanelBackground};
+  background-color: ${(props) => props.theme.tabs_background2};
 `;
 
 const TabContentContainer = styled.div`

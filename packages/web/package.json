@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/colors": "^5.0.0",
     "@dbgate/datalib": "^0.1.0",
     "@dbgate/engines": "^0.1.0",
     "@dbgate/sqltree": "^0.1.0",

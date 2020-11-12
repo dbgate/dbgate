@@ -8,7 +8,7 @@ import useTheme from '../theme/useTheme';
 const ButtonDiv = styled.div`
   padding: 5px 15px;
   // margin: 2px;
-  color: ${(props) => props.theme.mainFont};
+  color: ${(props) => props.theme.main_font1};
   border: 0;
   border-right: 1px solid ${(props) => props.theme.border};
   height: ${dimensions.toolBar.height}px;
@@ -17,25 +17,25 @@ const ButtonDiv = styled.div`
     !props.disabled &&
     `
   &:hover {
-    background-color: ${props.theme.tabsPanelBackgroundHover} ;
+    background-color: ${props.theme.toolbar_background2} ;
   }
 
   &:active:hover {
-    background-color: ${props.theme.tabsPanelBackgroundHoverClick};
+    background-color: ${props.theme.toolbar_background3};
   }
   `}
 
   ${(props) =>
     props.disabled &&
     `
-    color: ${props.theme.mainFontGray};
+    color: ${props.theme.main_font3};
   `}
 `;
 
 const StyledIconSpan = styled.span`
   margin-right: 5px;
   // font-size: 18px;
-  color: ${(props) => (props.disabled ? props.theme.mainFontGray : props.theme.mainFontActive)};
+  color: ${(props) => (props.disabled ? props.theme.main_font3 : props.theme.main_font_link)};
 `;
 
 const ButtonDivInner = styled.div`

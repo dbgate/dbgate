@@ -5,10 +5,11 @@ import ErrorInfo from '../widgets/ErrorInfo';
 import styled from 'styled-components';
 import { TextCellViewWrap, TextCellViewNoWrap } from './TextCellView';
 import JsonCellView from './JsonCellDataView';
+import useTheme from '../theme/useTheme';
 
 const Toolbar = styled.div`
   display: flex;
-  background: #ccc;
+  background: ${(props) => props.theme.toolbar_background};
   align-items: center;
 `;
 
@@ -53,6 +54,7 @@ function autodetect(selection, grider, value) {
 
 export default function CellDataView({ selection, grider }) {
   const [selectedFormatType, setSelectedFormatType] = React.useState('autodetect');
+  const theme = useTheme();
   let value = null;
   if (grider && selection.length == 1) {
     const rowData = grider.getRowData(selection[0].row);
@@ -69,7 +71,7 @@ export default function CellDataView({ selection, grider }) {
 
   return (
     <MainWrapper>
-      <Toolbar>
+      <Toolbar theme={theme}>
         Format:
         <SelectField value={selectedFormatType} onChange={(e) => setSelectedFormatType(e.target.value)}>
           <option value="autodetect">Autodetect - {autodetectFormat.title}</option>

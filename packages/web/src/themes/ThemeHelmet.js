@@ -18,7 +18,7 @@ export default function ThemeHelmet() {
         .color-green-icon { color: #0A3; }
 
         body {
-          color: ${theme.mainFont};
+          color: ${theme.main_font1};
         }
         `}</style>
     </Helmet>

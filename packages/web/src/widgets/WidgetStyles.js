@@ -63,7 +63,10 @@ const StyledWidgetTitle = styled.div`
   padding: 5px;
   font-weight: bold;
   text-transform: uppercase;
-  background-color: ${(props) => props.theme.widgetTitleBackground};
+  background-color: ${(props) => props.theme.title_background};
+  &:hover {
+    background-color: ${(props) => props.theme.title_background2};
+  }
   border: 1px solid ${(props) => props.theme.border};
 `;
 

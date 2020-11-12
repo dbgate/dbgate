@@ -22,7 +22,7 @@ const BodyDiv = styled.div`
   left: ${(props) => props.contentLeft}px;
   bottom: ${dimensions.statusBar.height}px;
   right: 0;
-  background-color: ${(props) => props.theme.mainAreaBackground};
+  background-color: ${(props) => props.theme.content_background};
 `;
 
 const ToolBarDiv = styled.div`
@@ -30,7 +30,7 @@ const ToolBarDiv = styled.div`
   top: 0;
   left: 0;
   right: 0;
-  background-color: ${(props) => props.theme.toolBarBackground};
+  background-color: ${(props) => props.theme.toolbar_background};
   height: ${dimensions.toolBar.height}px;
 `;
 
@@ -40,7 +40,7 @@ const IconBar = styled.div`
   left: 0;
   bottom: ${dimensions.statusBar.height}px;
   width: ${dimensions.widgetMenu.iconSize}px;
-  background-color: ${(props) => props.theme.widgetBackground};
+  background-color: ${(props) => props.theme.widget_background};
 `;
 
 const LeftPanel = styled.div`
@@ -48,7 +48,7 @@ const LeftPanel = styled.div`
   top: ${dimensions.toolBar.height}px;
   left: ${dimensions.widgetMenu.iconSize}px;
   bottom: ${dimensions.statusBar.height}px;
-  background-color: ${(props) => props.theme.leftPanelBackground};
+  background-color: ${(props) => props.theme.left_background};
   display: flex;
 `;
 
@@ -59,7 +59,7 @@ const TabsPanelContainer = styled.div`
   left: ${(props) => props.contentLeft}px;
   height: ${dimensions.tabsPanel.height}px;
   right: 0;
-  background-color: ${(props) => props.theme.tabsPanelBackground};
+  background-color: ${(props) => props.theme.tabs_background2};
   border-top: 1px solid #ccc;
 
   overflow-x: auto;

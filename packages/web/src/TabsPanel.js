@@ -8,6 +8,7 @@ import { showMenu } from './modals/DropDownMenu';
 import { getConnectionInfo } from './utility/metadataLoaders';
 import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
+import usePropsCompare from './utility/usePropsCompare';
 
 // const files = [
 //   { name: 'app.js' },
@@ -43,11 +44,11 @@ const DbNameWrapper = styled.div`
   // height: 15px;
 
   &:hover {
-    background-color: #aaa;
+    background-color: ${(props) => props.theme.tabs_background3};
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? props.theme.tabsPanelSelectedBackground : 'inherit'};
+    props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
 
 // const DbNameWrapperInner = styled.div`
@@ -67,11 +68,11 @@ const FileTabItem = styled.div`
   cursor: pointer;
   user-select: none;
   &:hover {
-    color: ${(props) => props.theme.tabsPanelHoverFont};
+    color: ${(props) => props.theme.tabs_font_hover};
   }
   background-color: ${(props) =>
     // @ts-ignore
-    props.selected ? props.theme.tabsPanelSelectedBackground : 'inherit'};
+    props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
 
 const FileNameWrapper = styled.span`
@@ -82,7 +83,7 @@ const CloseButton = styled(FontIcon)`
   margin-left: 5px;
   color: gray;
   &:hover {
-    color: ${(props) => props.theme.tabsPanelHoverFont};
+    color: ${(props) => props.theme.tabs_font2};
   }
 `;
 

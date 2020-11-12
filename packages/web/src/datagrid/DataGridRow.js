@@ -22,20 +22,20 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     `
     background: initial;
-    background-color: ${props.theme.gridSelectionBackground};
-    color: ${props.theme.gridSelectionFont};`}
+    background-color: ${props.theme.gridbody_selection[4]};
+    color: ${props.theme.gridbody_invfont1};`}
 
   ${(props) =>
     props.isFrameSelected &&
     `
-      outline: 3px solid ${props.theme.gridSelectionBackground};
+      outline: 3px solid ${props.theme.gridbody_selection[4]};
       outline-offset: -3px;`}
   
   ${(props) =>
     props.isAutofillSelected &&
     !props.isFocusedColumn &&
     `
-      outline: 3px solid ${props.theme.gridSelectionBackground};
+      outline: 3px solid ${props.theme.gridbody_selection[4]};
       outline-offset: -3px;`}
 
     ${(props) =>
@@ -46,7 +46,7 @@ const TableBodyCell = styled.td`
     !props.isModifiedCell &&
     !props.isFocusedColumn &&
     `
-  background-color: ${props.theme.gridModifiedRowBackground};`}
+  background-color: ${props.theme.gridbody_background_gold[1]};`}
   ${(props) =>
     !props.isSelected &&
     !props.isAutofillSelected &&
@@ -54,7 +54,7 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isModifiedCell &&
     `
-      background-color: ${props.theme.gridModifiedCellBackground};`}
+      background-color: ${props.theme.gridbody_background_orange[1]};`}
 
   ${(props) =>
     !props.isSelected &&
@@ -62,7 +62,7 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isInsertedRow &&
     `
-      background-color: ${props.theme.gridInsertedRowBackground};`}
+      background-color: ${props.theme.gridbody_background_green[1]};`}
 
   ${(props) =>
     !props.isSelected &&
@@ -70,13 +70,13 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     props.isDeletedRow &&
     `
-      background-color: ${props.theme.gridDeletedRowBackground};
+      background-color: ${props.theme.gridbody_background_volcano[1]};
   `}
 
   ${(props) =>
     props.isFocusedColumn &&
     `
-    background-color: ${props.theme.gridFocusedColumnBackground};
+    background-color: ${props.theme.gridbody_background_yellow[0]};
   `}
   
     ${(props) =>
@@ -99,12 +99,12 @@ const NullSpan = styled.span`
 
 const TableBodyRow = styled.tr`
   // height: 35px;
-  background-color: ${(props) => props.theme.gridRowBackground};
+  background-color: ${(props) => props.theme.gridbody_background};
   &:nth-child(6n + 3) {
-    background-color: ${(props) => props.theme.gridRowBackground2};
+    background-color: ${(props) => props.theme.gridbody_background_alt2};
   }
   &:nth-child(6n + 6) {
-    background-color: ${(props) => props.theme.gridRowBackground3};
+    background-color: ${(props) => props.theme.gridbody_background_alt3};
   }
 `;
 
@@ -112,14 +112,14 @@ const TableHeaderCell = styled.td`
   border: 1px solid ${(props) => props.theme.border};
   text-align: left;
   padding: 2px;
-  background-color: ${(props) => props.theme.gridHeaderBackground};
+  background-color: ${(props) => props.theme.gridheader_background};
   overflow: hidden;
 `;
 
 const AutoFillPoint = styled.div`
   width: 8px;
   height: 8px;
-  background-color: ${(props) => props.theme.gridAutoFillBackground};
+  background-color: ${(props) => props.theme.gridbody_selection[6]};
   position: absolute;
   right: 0px;
   bottom: 0px;

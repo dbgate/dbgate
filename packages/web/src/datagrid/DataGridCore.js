@@ -70,7 +70,7 @@ const TableHeaderCell = styled.td`
   padding: 0;
   // padding: 2px;
   margin: 0;
-  background-color: ${(props) => props.theme.gridHeaderBackground};
+  background-color: ${(props) => props.theme.gridheader_background};
   overflow: hidden;
 `;
 const TableFilterCell = styled.td`
@@ -89,7 +89,7 @@ const FocusField = styled.input`
 
 const RowCountLabel = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.gridRowCountLabel};
+  background-color: ${(props) => props.theme.gridbody_background_yellow[1]};
   right: 40px;
   bottom: 20px;
 `;

@@ -6,17 +6,26 @@ import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 
 const IconWrapper = styled.div`
-  color: ${(props) => props.theme.widgetIconFontColor};
+  color: ${(props) => props.theme.widget_font2};
   font-size: ${dimensions.widgetMenu.iconFontSize};
   height: ${dimensions.widgetMenu.iconSize}px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(props) =>
+
+  ${(props) =>
     // @ts-ignore
-    props.isSelected ? props.theme.widgetBackgroundSelected : 'inherit'};
+    props.isSelected &&
+    `
+    background-color: ${props.theme.widget_background3};
+    // position: relative;
+    // border-left: 3px solid ${props.theme.widget_font1};
+    // left: -3px;
+    color: ${props.theme.widget_font1};
+    `}
+
   &:hover {
-    background-color: ${(props) => props.theme.widgetBackgroundHover};
+    color: ${(props) => props.theme.widget_font1};
   }
 `;
 
