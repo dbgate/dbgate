@@ -42,6 +42,22 @@ export default function ThemeHelmet() {
         body *::-webkit-scrollbar-thumb:hover {
           background-color: ${theme.scrollbar_background4};
         }
+
+        input {
+          background-color: ${theme.input_background};
+          color: ${theme.input_font1};
+        }
+        
+        select {
+          background-color: ${theme.input_background};
+          color: ${theme.input_font1};
+        }
+
+        textarea {
+          background-color: ${theme.input_background};
+          color: ${theme.input_font1};
+        }
+
         `}</style>
     </Helmet>
   );

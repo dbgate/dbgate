@@ -4,7 +4,10 @@ const theme = {
   main_type: 'dark',
   main_background: '#fff',
 
+  fontWhite1: '#ddd',
+
   selectionAntName: 'blue',
+  aceEditorTheme: 'twilight',
 
   border: '#555',
 
@@ -18,6 +21,7 @@ const theme = {
   gridheader_background: '#222',
   gridbody_background: '#000',
   scrollbar_background: '#444',
+  input_background: '#333',
 
   statusBarBackground: '#00c',
 };

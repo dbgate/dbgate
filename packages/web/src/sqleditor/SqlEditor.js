@@ -8,6 +8,7 @@ import useCodeCompletion from './useCodeCompletion';
 import useShowModal from '../modals/showModal';
 import InsertJoinModal from '../modals/InsertJoinModal';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
+import useTheme from '../theme/useTheme';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -55,6 +56,7 @@ export default function SqlEditor({
 }) {
   const [containerRef, { height, width }] = useDimensions();
   const ownEditorRef = React.useRef(null);
+  const theme = useTheme();
 
   const currentEditorRef = editorRef || ownEditorRef;
   const showModal = useShowModal();
@@ -109,7 +111,7 @@ export default function SqlEditor({
       <AceEditor
         ref={currentEditorRef}
         mode={engineToMode[engine] || 'sql'}
-        theme="github"
+        theme={theme.aceEditorTheme}
         onChange={onChange}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{ $blockScrolling: true }}

@@ -9,6 +9,7 @@ import useShowModal from '../modals/showModal';
 import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
 import SetFilterModal from '../modals/SetFilterModal';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -40,7 +41,12 @@ const FilterDiv = styled.div`
 const FilterInput = styled.input`
   flex: 1;
   min-width: 10px;
-  background-color: ${(props) => (props.state == 'ok' ? '#CCFFCC' : props.state == 'error' ? '#FFCCCC' : 'white')};
+  background-color: ${(props) =>
+    props.state == 'ok'
+      ? props.theme.input_background_green[1]
+      : props.state == 'error'
+      ? props.theme.input_background_red[1]
+      : props.theme.input_background};
 `;
 // const FilterButton = styled.button`
 //   color: gray;
@@ -176,6 +182,7 @@ export default function DataFilterControl({
   onFocusGrid,
 }) {
   const showModal = useShowModal();
+  const theme = useTheme();
   const [filterState, setFilterState] = React.useState('empty');
   const setFilterText = (filter) => {
     setFilter(filter);
@@ -281,6 +288,7 @@ export default function DataFilterControl({
   return (
     <FilterDiv>
       <FilterInput
+        theme={theme}
         ref={editorRef}
         onKeyDown={handleKeyDown}
         type="text"

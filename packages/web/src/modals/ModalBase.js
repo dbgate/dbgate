@@ -1,6 +1,7 @@
 import React from 'react';
 import Modal from 'react-modal';
 import styled from 'styled-components';
+import useTheme from '../theme/useTheme';
 
 // const StyledModal = styled(Modal)`
 //   position: absolute;
@@ -60,6 +61,7 @@ const ModalContent = styled.div`
 `;
 
 export default function ModalBase({ modalState, children, isFlex = false, fullScreen = false }) {
+  const theme = useTheme();
   return (
     <StyledModal
       isOpen={modalState.isOpen}

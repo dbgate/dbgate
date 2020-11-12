@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import useDimensions from '../utility/useDimensions';
+import useTheme from '../theme/useTheme';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -22,6 +23,7 @@ export default function JavaScriptEditor({
 }) {
   const [containerRef, { height, width }] = useDimensions();
   const ownEditorRef = React.useRef(null);
+  const theme = useTheme();
 
   const currentEditorRef = editorRef || ownEditorRef;
 
@@ -51,7 +53,7 @@ export default function JavaScriptEditor({
       <AceEditor
         ref={currentEditorRef}
         mode="javascript"
-        theme="github"
+        theme={theme.aceEditorTheme}
         onChange={onChange}
         name="UNIQUE_ID_OF_DIV"
         editorProps={{ $blockScrolling: true }}

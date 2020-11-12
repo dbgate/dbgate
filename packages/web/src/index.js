@@ -11,6 +11,7 @@ import 'ace-builds/src-noconflict/mode-pgsql';
 import 'ace-builds/src-noconflict/mode-sqlserver';
 import 'ace-builds/src-noconflict/mode-javascript';
 import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-twilight';
 import 'ace-builds/src-noconflict/ext-searchbox';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import localStorageGarbageCollector from './utility/localStorageGarbageCollector';
