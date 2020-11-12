@@ -76,7 +76,7 @@ const StausBarContainer = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: ${(props) => props.theme.statusBarBackground};
+  background-color: ${(props) => props.theme.statusbar_background};
 `;
 
 const ScreenHorizontalSplitHandle = styled(HorizontalSplitHandle)`

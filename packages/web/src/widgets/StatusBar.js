@@ -1,13 +1,14 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 import { useCurrentDatabase } from '../utility/globalState';
 import { useDatabaseStatus } from '../utility/metadataLoaders';
 
 const Container = styled.div`
   display: flex;
-  color: white;
+  color: ${(props) => props.theme.statusbar_font1};
   align-items: stretch;
 `;
 
@@ -17,12 +18,25 @@ const Item = styled.div`
   //   flex-grow: 0;
 `;
 
+const ErrorWrapper = styled.span`
+  color: ${(props) =>
+    // @ts-ignore
+    props.theme.statusbar_font_red[5]};
+`;
+
+const InfoWrapper = styled.span`
+  color: ${(props) =>
+    // @ts-ignore
+    props.theme.statusbar_font_green[5]};
+`;
+
 export default function StatusBar() {
   const { name, connection } = useCurrentDatabase() || {};
   const status = useDatabaseStatus(connection ? { conid: connection._id, database: name } : {});
   const { displayName, server, user, engine } = connection || {};
+  const theme = useTheme();
   return (
-    <Container>
+    <Container theme={theme}>
       {name && (
         <Item>
           <FontIcon icon="icon database" /> {name}
@@ -49,12 +63,18 @@ export default function StatusBar() {
           )}
           {status.name == 'ok' && (
             <>
-              <FontIcon icon="img statusbar-ok" /> Connected
+              <InfoWrapper theme={theme}>
+                <FontIcon icon="icon ok" />
+              </InfoWrapper>{' '}
+              Connected
             </>
           )}
           {status.name == 'error' && (
             <>
-              <FontIcon icon="img red-error" /> Error
+              <ErrorWrapper theme={theme}>
+                <FontIcon icon="icon error" />
+              </ErrorWrapper>{' '}
+              Error
             </>
           )}
         </Item>

@@ -1,22 +1,13 @@
 import React from 'react';
 import { Helmet } from 'react-helmet';
 import useTheme from '../theme/useTheme';
+import _ from 'lodash';
 
 export default function ThemeHelmet() {
   const theme = useTheme();
   return (
     <Helmet>
       <style>{`
-        .color-red { color: red; }
-        .color-green { color: green; }
-        .color-on-statusbar-green { color: lime; }
-        .color-blue { color: blue; }
-
-        .color-blue-icon { color: #05A; }
-        .color-magenta-icon { color: #808 }
-        .color-yellow-icon { color: #880 }
-        .color-green-icon { color: #0A3; }
-
         body {
           color: ${theme.main_font1};
         }
@@ -57,6 +48,12 @@ export default function ThemeHelmet() {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};
         }
+
+        ${_.flatten(
+          _.keys(theme.main_palettes).map((color) =>
+            theme.main_palettes[color].map((code, index) => `.color-${color}-${index + 1} { color: ${code} }`)
+          )
+        ).join('\n')}
 
         `}</style>
     </Helmet>

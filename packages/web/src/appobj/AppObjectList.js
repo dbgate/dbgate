@@ -4,6 +4,7 @@ import { AppObjectCore } from './AppObjects';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 import styled from 'styled-components';
 import { ExpandIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const SubItemsDiv = styled.div`
   margin-left: 16px;
@@ -23,7 +24,7 @@ const GroupDiv = styled.div`
   user-select: none;
   padding: 5px;
   &:hover {
-    background-color: lightblue;
+    background-color: ${(props) => props.theme.left_background_blue[1]};
   }
   cursor: pointer;
   white-space: nowrap;
@@ -93,12 +94,14 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
 function AppObjectGroup({ group, items }) {
   const [isExpanded, setIsExpanded] = React.useState(true);
   const [isHover, setIsHover] = React.useState(false);
+  const theme = useTheme();
   return (
     <>
       <GroupDiv
         onMouseEnter={() => setIsHover(true)}
         onMouseLeave={() => setIsHover(false)}
         onClick={() => setIsExpanded(!isExpanded)}
+        theme={theme}
       >
         <ExpandIconHolder>
           <ExpandIcon isExpanded={isExpanded} />

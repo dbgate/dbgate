@@ -2,6 +2,7 @@ import React from 'react';
 
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const Container = styled.div`
   display: flex;
@@ -25,12 +26,13 @@ const LoadingInfoWrapper = styled.div`
   justify-content: space-around;
 `;
 const LoadingInfoBox = styled.div`
-  background-color: #ccc;
+  background-color: ${(props) => props.theme.main_background2};
   padding: 10px;
   border: 1px solid gray;
 `;
 
 export default function LoadingInfo({ message, wrapper = false }) {
+  const theme = useTheme();
   const core = (
     <Container>
       <Spinner>
@@ -42,7 +44,7 @@ export default function LoadingInfo({ message, wrapper = false }) {
   if (wrapper) {
     return (
       <LoadingInfoWrapper>
-        <LoadingInfoBox>{core}</LoadingInfoBox>
+        <LoadingInfoBox theme={theme}>{core}</LoadingInfoBox>
       </LoadingInfoWrapper>
     );
   } else {

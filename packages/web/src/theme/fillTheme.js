@@ -74,6 +74,10 @@ function fillThemeCore(theme) {
       fillOne(theme, name, type, add, background, 'fontWhite', 'fontBlack', lightenByTenth, presetDarkPalettes);
     }
   }
+
+  if (add.main_type == 'dark') add.main_palettes = presetDarkPalettes;
+  else add.main_palettes = presetPalettes;
+
   return {
     ...add,
     ...theme,

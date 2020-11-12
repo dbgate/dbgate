@@ -2,7 +2,7 @@ import fillTheme from './fillTheme';
 
 const theme = {
   main_type: 'dark',
-  main_background: '#fff',
+  main_background: '#444',
 
   fontWhite1: '#ddd',
 
@@ -26,8 +26,7 @@ const theme = {
   modal_background: '#222',
   modalheader_background: '#555',
   button_background: '#337ab7',
-
-  statusBarBackground: '#00c',
+  statusbar_background: '#00c',
 };
 
 export default fillTheme(theme);

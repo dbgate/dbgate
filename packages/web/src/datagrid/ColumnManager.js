@@ -6,6 +6,7 @@ import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
+import useTheme from '../theme/useTheme';
 
 const Wrapper = styled.div``;
 
@@ -15,7 +16,7 @@ const Row = styled.div`
   cursor: pointer;
   white-space: nowrap;
   &:hover {
-    background-color: lightblue;
+    background-color: ${(props) => props.theme.manager_background_blue[1]};
   }
 `;
 
@@ -31,23 +32,6 @@ const Button = styled.button`
   // width: 50px;
 `;
 
-// const Input = styled.input`
-//   flex: 1;
-//   min-width: 90px;
-// `;
-
-// function ExpandIcon({ display, column, isHover, ...other }) {
-//   if (column.foreignKey) {
-//     return (
-//       <FontIcon
-//         icon={`far ${display.isExpandedColumn(column.uniqueName) ? 'fa-minus-square' : 'fa-plus-square'} `}
-//         {...other}
-//       />
-//     );
-//   }
-//   return <FontIcon icon={`fas fa-square ${isHover ? 'lightblue' : 'white'}`} {...other} />;
-// }
-
 /**
  * @param {object} props
  * @param {import('@dbgate/datalib').GridDisplay} props.display
@@ -56,10 +40,12 @@ const Button = styled.button`
 function ColumnManagerRow(props) {
   const { display, column } = props;
   const [isHover, setIsHover] = React.useState(false);
+  const theme = useTheme();
   return (
     <Row
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
+      theme={theme}
       onClick={(e) => {
         // @ts-ignore
         if (e.target.closest('.expandColumnIcon')) return;
@@ -91,11 +77,7 @@ export default function ColumnManager(props) {
   return (
     <>
       <SearchBoxWrapper>
-        <SearchInput
-          placeholder="Search columns"
-          filter={columnFilter}
-          setFilter={setColumnFilter}
-        />
+        <SearchInput placeholder="Search columns" filter={columnFilter} setFilter={setColumnFilter} />
         <InlineButton onClick={() => display.hideAllColumns()}>Hide</InlineButton>
         <InlineButton onClick={() => display.showAllColumns()}>Show</InlineButton>
       </SearchBoxWrapper>

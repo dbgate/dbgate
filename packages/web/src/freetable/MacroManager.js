@@ -13,18 +13,6 @@ const SearchBoxWrapper = styled.div`
   margin-bottom: 5px;
 `;
 
-// const MacroItemStyled = styled.div`
-//   white-space: nowrap;
-//   padding: 5px;
-//   &:hover {
-//     background-color: lightblue;
-//   }
-// `;
-
-// function MacroListItem({ macro }) {
-//   return <MacroItemStyled>{macro.title}</MacroItemStyled>;
-// }
-
 export default function MacroManager({ managerSize, selectedMacro, setSelectedMacro }) {
   const [filter, setFilter] = React.useState('');
 

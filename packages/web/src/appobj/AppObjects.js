@@ -5,12 +5,13 @@ import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
 import { showMenu } from '../modals/DropDownMenu';
+import useTheme from '../theme/useTheme';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
   &:hover {
-    background-color: lightblue;
+    background-color: ${(props) => props.theme.left_background_blue[1]};
   }
   cursor: pointer;
   white-space: nowrap;
@@ -46,6 +47,7 @@ export function AppObjectCore({
   ...other
 }) {
   const appObjectParams = useAppObjectParams();
+  const theme = useTheme();
 
   const handleContextMenu = (event) => {
     if (!Menu) return;
@@ -65,6 +67,7 @@ export function AppObjectCore({
       onContextMenu={handleContextMenu}
       onClick={onClick ? () => onClick(data) : undefined}
       isBold={bold}
+      theme={theme}
       {...other}
     >
       {prefix}

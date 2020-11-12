@@ -25,8 +25,7 @@ const theme = {
   modal_background: '#fff',
   modalheader_background: '#eff',
   button_background: '#337ab7',
-
-  statusBarBackground: '#00c',
+  statusbar_background: '#00c',
 };
 
 export default fillTheme(theme);
