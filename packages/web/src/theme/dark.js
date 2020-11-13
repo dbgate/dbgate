@@ -8,6 +8,7 @@ const theme = {
 
   selectionAntName: 'blue',
   aceEditorTheme: 'twilight',
+  jsonViewerTheme: 'monokai',
 
   border: '#555',
   border_background: '#555',
@@ -19,7 +20,7 @@ const theme = {
   title_background: '#555',
   manager_background: '#222',
   tabs_background: '#111',
-  gridheader_background: '#222',
+  gridheader_background: '#333',
   gridbody_background: '#1a1a1a',
   scrollbar_background: '#444',
   input_background: '#222',

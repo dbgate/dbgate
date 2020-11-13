@@ -45,7 +45,8 @@ export function WidgetsOuterContainer({ children, style = undefined, refNode = u
 
 export const StyledWidgetsInnerContainer = styled.div`
   flex: 1 1;
-  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: auto;
   width: ${(props) => props.leftPanelWidth}px;
 `;
 

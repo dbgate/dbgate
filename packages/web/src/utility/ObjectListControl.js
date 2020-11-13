@@ -2,13 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 import TableControl, { TableColumn } from './TableControl';
 import { AppObjectControl } from '../appobj/AppObjects';
+import useTheme from '../theme/useTheme';
 
 const ObjectListWrapper = styled.div`
   margin-bottom: 20px;
 `;
 
 const ObjectListHeader = styled.div`
-  background-color: #ebedef;
+  background-color: ${(props) => props.theme.gridheader_background};
   padding: 5px;
 `;
 
@@ -25,11 +26,12 @@ const ObjectListBody = styled.div`
 `;
 
 export default function ObjectListControl({ collection = [], title, showIfEmpty = false, makeAppObj, children }) {
+  const theme = useTheme();
   if (collection.length == 0 && !showIfEmpty) return null;
 
   return (
     <ObjectListWrapper>
-      <ObjectListHeader>
+      <ObjectListHeader theme={theme}>
         <ObjectListHeaderTitle>{title}</ObjectListHeaderTitle>
       </ObjectListHeader>
       <ObjectListBody>

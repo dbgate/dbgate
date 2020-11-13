@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import ReactJson from 'react-json-view';
 import ErrorInfo from '../widgets/ErrorInfo';
+import useTheme from '../theme/useTheme';
 
 const OuterWrapper = styled.div`
   flex: 1;
@@ -18,12 +19,13 @@ const InnerWrapper = styled.div`
 `;
 
 export default function JsonCellView({ value }) {
+  const theme = useTheme();
   try {
     const json = JSON.parse(value);
     return (
       <OuterWrapper>
         <InnerWrapper>
-          <ReactJson src={json} />
+          <ReactJson src={json} theme={theme.jsonViewerTheme} />
         </InnerWrapper>
       </OuterWrapper>
     );

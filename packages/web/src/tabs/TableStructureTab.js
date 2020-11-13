@@ -6,6 +6,7 @@ import { TableColumn } from '../utility/TableControl';
 import columnAppObject from '../appobj/columnAppObject';
 import constraintAppObject from '../appobj/constraintAppObject';
 import { useTableInfo, useDbCore } from '../utility/metadataLoaders';
+import useTheme from '../theme/useTheme';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -13,15 +14,17 @@ const WhitePage = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: white;
+  background-color: ${(props) => props.theme.main_background};
+  overflow: auto;
 `;
 
 export default function TableStructureTab({ conid, database, schemaName, pureName, objectTypeField = 'tables' }) {
+  const theme = useTheme();
   const tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
   if (!tableInfo) return null;
   const { columns, primaryKey, foreignKeys, dependencies } = tableInfo;
   return (
-    <WhitePage>
+    <WhitePage theme={theme}>
       <ObjectListControl
         collection={columns.map((x, index) => ({ ...x, ordinal: index + 1 }))}
         makeAppObj={columnAppObject}

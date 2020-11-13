@@ -6,6 +6,7 @@ const theme = {
 
   selectionAntName: 'blue',
   aceEditorTheme: 'github',
+  jsonViewerTheme: 'rjv-default',
 
   border: '#ccc',
   border_background: '#ccc',

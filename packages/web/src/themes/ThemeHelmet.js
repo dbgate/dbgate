@@ -37,16 +37,19 @@ export default function ThemeHelmet() {
         input {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};
+          border: 1px solid ${theme.border};
         }
         
         select {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};
+          border: 1px solid ${theme.border};
         }
 
         textarea {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};
+          border: 1px solid ${theme.border};
         }
 
         ${_.flatten(
