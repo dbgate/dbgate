@@ -60,6 +60,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         tabs.map((tab) => ({
           ...tab,
           selected: tab.tabComponent == 'InfoPageTab' && tab.props && tab.props.page == button.page,
+          closedTime: undefined,
         }))
       );
     } else {
