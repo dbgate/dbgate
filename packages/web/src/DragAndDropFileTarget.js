@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from './icons';
+import useTheme from './theme/useTheme';
 
 const TargetStyled = styled.div`
   position: fixed;
@@ -9,7 +10,7 @@ const TargetStyled = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: #aaaaff;
+  background: ${(props) => props.theme.main_background_blue[3]};
   align-items: center;
   justify-content: space-around;
   z-index: 1000;
@@ -37,9 +38,10 @@ const TitleWrapper = styled.div`
 `;
 
 export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
+  const theme = useTheme();
   return (
     !!isDragActive && (
-      <TargetStyled>
+      <TargetStyled theme={theme}>
         <InfoBox>
           <IconWrapper>
             <FontIcon icon="icon cloud-upload" />

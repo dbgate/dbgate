@@ -86,9 +86,9 @@ function getFileFilters(storageType) {
   return res;
 }
 
-async function addFilesToSourceList(files, values, setFieldValue) {
+async function addFilesToSourceList(files, values, setFieldValue, preferedStorageType) {
   const newSources = [];
-  const storage = values.sourceStorageType;
+  const storage = preferedStorageType || values.sourceStorageType;
   for (const file of getAsArray(files)) {
     if (isFileStorage(storage)) {
       if (storage == 'excel') {
@@ -113,6 +113,9 @@ async function addFilesToSourceList(files, values, setFieldValue) {
     }
   }
   setFieldValue('sourceList', [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources]);
+  if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
+    setFieldValue('sourceStorageType', preferedStorageType);
+  }
 }
 
 function ElectronFilesInput() {
@@ -311,7 +314,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
   const { engine: sourceEngine } = sourceConnectionInfo || {};
   const { sourceList } = values;
-  const { uploadListener, setUploadListener } = useUploadsProvider();
+  const { setUploadListener } = useUploadsProvider();
   const theme = useTheme();
 
   const handleUpload = React.useCallback(
@@ -324,11 +327,12 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
           },
         ],
         values,
-        setFieldValue
+        setFieldValue,
+        !sourceList || sourceList.length == 0 ? file.storageType : null
       );
       // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
     },
-    [setFieldValue, sourceList]
+    [setFieldValue, sourceList, values]
   );
 
   React.useEffect(() => {
