@@ -36,6 +36,10 @@ const Wrapper = styled.div`
   display: flex;
 `;
 
+const SourceListWrapper = styled.div`
+  margin: 10px;
+`;
+
 const Column = styled.div`
   margin: 10px;
   flex: 1;
@@ -75,6 +79,12 @@ const ArrowWrapper = styled.div`
   font-size: 30px;
   color: ${(props) => props.theme.modal_font_blue[7]};
   align-self: center;
+`;
+
+const Title = styled.div`
+  font-size: 20px;
+  text-align: center;
+  margin: 10px 0px;
 `;
 
 function getFileFilters(storageType) {
@@ -194,8 +204,16 @@ function SourceTargetConfig({
   const archiveFiles = useArchiveFiles({ folder: values[archiveFolderField] });
   return (
     <Column>
-      {direction == 'source' && <Label theme={theme}>Source configuration</Label>}
-      {direction == 'target' && <Label theme={theme}>Target configuration</Label>}
+      {direction == 'source' && (
+        <Title theme={theme}>
+          <FontIcon icon="icon import" /> Source configuration
+        </Title>
+      )}
+      {direction == 'target' && (
+        <Title theme={theme}>
+          <FontIcon icon="icon export" /> Target configuration
+        </Title>
+      )}
       <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
       {(storageType == 'database' || storageType == 'query') && (
         <>
@@ -396,45 +414,51 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
           schemaNameField="targetSchemaName"
         />
       </Wrapper>
-      <TableControl rows={sourceList || []}>
-        <TableColumn fieldName="source" header="Source" formatter={(row) => <SourceName name={row} />} />
-        <TableColumn
-          fieldName="action"
-          header="Action"
-          formatter={(row) => (
-            <SelectField
-              options={getActionOptions(row, values, targetDbinfo)}
-              value={values[`actionType_${row}`] || getActionOptions(row, values, targetDbinfo)[0].value}
-              onChange={(e) => setFieldValue(`actionType_${row}`, e.target.value)}
-            />
-          )}
-        />
-        <TableColumn
-          fieldName="target"
-          header="Target"
-          formatter={(row) => (
-            <TextField
-              value={getTargetName(row, values)}
-              onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
-            />
-          )}
-        />
-        <TableColumn
-          fieldName="preview"
-          header="Preview"
-          formatter={(row) =>
-            supportsPreview ? (
-              <CheckboxField
-                checked={previewSource == row}
-                onChange={(e) => {
-                  if (e.target.checked) setPreviewSource(row);
-                  else setPreviewSource(null);
-                }}
+      <SourceListWrapper>
+        <Title>
+          <FontIcon icon="icon tables" /> Map source tables/files
+        </Title>
+        <TableControl rows={sourceList || []}>
+          <TableColumn fieldName="source" header="Source" formatter={(row) => <SourceName name={row} />} />
+          <TableColumn
+            fieldName="action"
+            header="Action"
+            formatter={(row) => (
+              <SelectField
+                options={getActionOptions(row, values, targetDbinfo)}
+                value={values[`actionType_${row}`] || getActionOptions(row, values, targetDbinfo)[0].value}
+                onChange={(e) => setFieldValue(`actionType_${row}`, e.target.value)}
               />
-            ) : null
-          }
-        />
-      </TableControl>
+            )}
+          />
+          <TableColumn
+            fieldName="target"
+            header="Target"
+            formatter={(row) => (
+              <TextField
+                value={getTargetName(row, values)}
+                onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
+              />
+            )}
+          />
+          <TableColumn
+            fieldName="preview"
+            header="Preview"
+            formatter={(row) =>
+              supportsPreview ? (
+                <CheckboxField
+                  checked={previewSource == row}
+                  onChange={(e) => {
+                    if (e.target.checked) setPreviewSource(row);
+                    else setPreviewSource(null);
+                  }}
+                />
+              ) : null
+            }
+          />
+        </TableControl>
+        {(sourceList || []).length == 0 && <ErrorInfo message="No source tables/files" icon="img alert" />}
+      </SourceListWrapper>
     </Container>
   );
 }

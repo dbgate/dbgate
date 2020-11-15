@@ -6,8 +6,10 @@ const iconNames = {
   'icon plus-box': 'mdi mdi-plus-box-outline',
   'icon invisible-box': 'mdi mdi-minus-box-outline icon-invisible',
   'icon cloud-upload': 'mdi mdi-cloud-upload',
-  'icon import': 'mdi mdi-file-upload',
+  'icon import': 'mdi mdi-application-import',
+  'icon export': 'mdi mdi-application-export',
   'icon new-connection': 'mdi mdi-database-plus',
+  'icon tables': 'mdi mdi-table-multiple',
 
   'icon database': 'mdi mdi-database',
   'icon server': 'mdi mdi-server',

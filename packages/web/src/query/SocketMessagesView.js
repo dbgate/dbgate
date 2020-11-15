@@ -2,6 +2,7 @@ import _ from 'lodash';
 import React from 'react';
 import MessagesView from './MessagesView';
 import useSocket from '../utility/SocketProvider';
+import ErrorInfo from '../widgets/ErrorInfo';
 
 export default function SocketMessagesView({
   eventName,
@@ -40,6 +41,10 @@ export default function SocketMessagesView({
       };
     }
   }, [eventName, socket]);
+
+  if (!displayedMessages || displayedMessages.length == 0) {
+    return <ErrorInfo message="No messages" icon="img alert" />;
+  }
 
   return (
     <MessagesView

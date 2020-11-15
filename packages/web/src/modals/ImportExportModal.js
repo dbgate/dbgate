@@ -18,6 +18,9 @@ import SocketMessagesView from '../query/SocketMessagesView';
 import RunnerOutputFiles from '../query/RunnerOuputFiles';
 import useTheme from '../theme/useTheme';
 import PreviewDataGrid from '../impexp/PreviewDataGrid';
+import useSocket from '../utility/SocketProvider';
+import LoadingInfo from '../widgets/LoadingInfo';
+import { FontIcon } from '../icons';
 
 const headerHeight = '60px';
 const footerHeight = '60px';
@@ -115,8 +118,25 @@ export default function ImportExportModal({
   const theme = useTheme();
   const [previewReader, setPreviewReader] = React.useState(0);
   const targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : archive;
+  const socket = useSocket();
+
+  const [busy, setBusy] = React.useState(false);
+
+  const handleRunnerDone = React.useCallback(() => {
+    setBusy(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (runnerId && socket) {
+      socket.on(`runner-done-${runnerId}`, handleRunnerDone);
+      return () => {
+        socket.off(`runner-done-${runnerId}`, handleRunnerDone);
+      };
+    }
+  }, [runnerId, socket]);
 
   const handleExecute = async (values) => {
+    if (busy) return;
     const script = await createImpExpScript(values);
 
     setExecuteNumber((num) => num + 1);
@@ -125,6 +145,13 @@ export default function ImportExportModal({
     const resp = await axios.post('runners/start', { script });
     runid = resp.data.runid;
     setRunnerId(runid);
+    setBusy(true);
+  };
+
+  const handleCancel = () => {
+    axios.post('runners/cancel', {
+      runid: runnerId,
+    });
   };
 
   return (
@@ -140,7 +167,7 @@ export default function ImportExportModal({
         }}
       >
         <StyledForm>
-          <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
+          <ModalHeader modalState={modalState}>Import/Export {busy && <FontIcon icon="icon loading" />}</ModalHeader>
           <Wrapper>
             <ContentWrapper theme={theme}>
               <ImportExportConfigurator uploadedFile={uploadedFile} onChangePreview={setPreviewReader} />
@@ -166,7 +193,11 @@ export default function ImportExportModal({
           </Wrapper>
           <Footer theme={theme}>
             <FooterButtons>
-              <FormStyledButton type="submit" value="Run" />
+              {busy ? (
+                <FormStyledButton type="button" value="Cancel" onClick={handleCancel} />
+              ) : (
+                <FormStyledButton type="submit" value="Run" />
+              )}
               <GenerateSctriptButton modalState={modalState} />
               <FormStyledButton type="button" value="Close" onClick={modalState.close} />
             </FooterButtons>

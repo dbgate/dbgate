@@ -6,6 +6,7 @@ import TableControl, { TableColumn } from '../utility/TableControl';
 import formatFileSize from '../utility/formatFileSize';
 import resolveApi from '../utility/resolveApi';
 import getElectron from '../utility/getElectron';
+import ErrorInfo from '../widgets/ErrorInfo';
 
 export default function RunnerOutputFiles({ runnerId, executeNumber }) {
   const socket = useSocket();
@@ -30,6 +31,10 @@ export default function RunnerOutputFiles({ runnerId, executeNumber }) {
   }, [executeNumber]);
 
   const electron = getElectron();
+
+  if (!files || files.length == 0) {
+    return <ErrorInfo message="No output files" icon="img alert" />;
+  }
 
   return (
     <TableControl rows={files}>
