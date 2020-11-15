@@ -3,7 +3,7 @@ import _ from 'lodash';
 import axios from './axios';
 import useSocket from './SocketProvider';
 import stableStringify from 'json-stable-stringify';
-import { getCachedPromise, cacheGet, cacheSet } from './cache';
+import { getCachedPromise, cacheGet, cacheSet, cacheClean } from './cache';
 import getAsArray from './getAsArray';
 
 export default function useFetch({
@@ -43,9 +43,17 @@ export default function useFetch({
       if (fromCache) {
         setValue([fromCache, loadedIndicators]);
       } else {
-        const res = await getCachedPromise(cacheKey, doLoad);
-        cacheSet(cacheKey, res, reloadTrigger);
-        setValue([res, loadedIndicators]);
+        try {
+          const res = await getCachedPromise(cacheKey, doLoad);
+          cacheSet(cacheKey, res, reloadTrigger);
+          setValue([res, loadedIndicators]);
+        } catch (err) {
+          console.error('Error when using cached promise', err);
+          cacheClean(cacheKey);
+          const res = await doLoad();
+          cacheSet(cacheKey, res, reloadTrigger);
+          setValue([res, loadedIndicators]);
+        }
       }
     } else {
       const res = await doLoad();

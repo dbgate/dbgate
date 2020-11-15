@@ -34,7 +34,9 @@ module.exports = {
 
   files_meta: 'get',
   async files({ folder }) {
-    const files = await fs.readdir(path.join(archivedir(), folder));
+    const dir = path.join(archivedir(), folder);
+    if (!(await fs.exists(dir))) return [];
+    const files = await fs.readdir(dir);
     return files
       .filter((name) => name.endsWith('.jsonl'))
       .map((name) => ({

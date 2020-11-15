@@ -10,7 +10,7 @@ import ModalContent from './ModalContent';
 import ImportExportConfigurator from '../impexp/ImportExportConfigurator';
 import createImpExpScript from '../impexp/createImpExpScript';
 import { openNewTab } from '../utility/common';
-import { useCurrentArchive, useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentArchive, useSetCurrentArchive, useSetCurrentWidget, useSetOpenedTabs } from '../utility/globalState';
 import RunnerOutputPane from '../query/RunnerOutputPane';
 import axios from '../utility/axios';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
@@ -119,11 +119,20 @@ export default function ImportExportModal({
   const [previewReader, setPreviewReader] = React.useState(0);
   const targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : archive;
   const socket = useSocket();
+  const refreshArchiveFolderRef = React.useRef(null);
+  const setArchive = useSetCurrentArchive();
+  const setCurrentWidget = useSetCurrentWidget();
 
   const [busy, setBusy] = React.useState(false);
 
   const handleRunnerDone = React.useCallback(() => {
     setBusy(false);
+    if (refreshArchiveFolderRef.current) {
+      axios.post('archive/refresh-folders', {});
+      axios.post('archive/refresh-files', { folder: refreshArchiveFolderRef.current });
+      setArchive(refreshArchiveFolderRef.current);
+      setCurrentWidget('archive');
+    }
   }, []);
 
   React.useEffect(() => {
@@ -146,6 +155,11 @@ export default function ImportExportModal({
     runid = resp.data.runid;
     setRunnerId(runid);
     setBusy(true);
+    if (values.targetStorageType == 'archive') {
+      refreshArchiveFolderRef.current = values.targetArchiveFolder;
+    } else {
+      refreshArchiveFolderRef.current = null;
+    }
   };
 
   const handleCancel = () => {
