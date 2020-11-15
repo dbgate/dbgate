@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import moment from 'moment';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
 import { Formik, Form, useFormikContext } from 'formik';
@@ -102,12 +103,18 @@ function GenerateSctriptButton({ modalState }) {
   return <FormStyledButton type="button" value="Generate script" onClick={handleGenerateScript} />;
 }
 
-export default function ImportExportModal({ modalState, initialValues, uploadedFile = undefined }) {
+export default function ImportExportModal({
+  modalState,
+  initialValues,
+  uploadedFile = undefined,
+  importToArchive = false,
+}) {
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const [runnerId, setRunnerId] = React.useState(null);
   const archive = useCurrentArchive();
   const theme = useTheme();
-  const [previewReader, setPreviewReader] = useState(0);
+  const [previewReader, setPreviewReader] = React.useState(0);
+  const targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : archive;
 
   const handleExecute = async (values) => {
     const script = await createImpExpScript(values);
@@ -126,9 +133,9 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
         onSubmit={handleExecute}
         initialValues={{
           sourceStorageType: 'database',
-          targetStorageType: 'csv',
+          targetStorageType: importToArchive ? 'archive' : 'csv',
           sourceArchiveFolder: archive,
-          targetArchiveFolder: archive,
+          targetArchiveFolder,
           ...initialValues,
         }}
       >

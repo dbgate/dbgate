@@ -262,7 +262,10 @@ function SourceTargetConfig({
       {storageType == 'archive' && (
         <>
           <Label theme={theme}>Archive folder</Label>
-          <FormArchiveFolderSelect name={archiveFolderField} />
+          <FormArchiveFolderSelect
+            name={archiveFolderField}
+            additionalFolders={_.compact([values[archiveFolderField]])}
+          />
         </>
       )}
 

@@ -47,6 +47,7 @@ export function useUploadsZone() {
               <ImportExportModal
                 uploadedFile={fileData}
                 modalState={modalState}
+                importToArchive
                 initialValues={{
                   sourceStorageType: fileData.storageType,
                   // sourceConnectionId: data.conid,

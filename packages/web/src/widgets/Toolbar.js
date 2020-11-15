@@ -38,6 +38,7 @@ export default function ToolBar({ toolbarPortalRef }) {
     showModal((modalState) => (
       <ImportExportModal
         modalState={modalState}
+        importToArchive
         initialValues={{
           sourceStorageType: 'csv',
           // sourceConnectionId: data.conid,

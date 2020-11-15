@@ -240,15 +240,22 @@ export function FormArchiveFilesSelect({ folderName, name }) {
   return <FormReactSelect options={filesOptions} name={name} isMulti />;
 }
 
-export function FormArchiveFolderSelect({ name, ...other }) {
+export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other }) {
   const { setFieldValue } = useFormikContext();
   const folders = useArchiveFolders();
   const folderOptions = React.useMemo(
-    () =>
-      (folders || []).map((folder) => ({
+    () => [
+      ...(folders || []).map((folder) => ({
         value: folder.name,
         label: folder.name,
       })),
+      ...additionalFolders
+        .filter((x) => !(folders || []).find((y) => y.name == x))
+        .map((folder) => ({
+          value: folder,
+          label: folder,
+        })),
+    ],
     [folders]
   );
 
