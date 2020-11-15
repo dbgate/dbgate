@@ -37,12 +37,13 @@ class CsvPrepareStream extends stream.Transform {
   }
 }
 
-async function csvReader({ fileName, encoding = 'utf-8', header = true, delimiter, quoted }) {
+async function csvReader({ fileName, encoding = 'utf-8', header = true, delimiter, quoted, limitRows = undefined }) {
   console.log(`Reading file ${fileName}`);
   const csvStream = csv.parse({
     // @ts-ignore
     delimiter,
     quoted,
+    to_line: limitRows ? limitRows + 1 : -1,
   });
   const fileStream = fs.createReadStream(fileName, encoding);
   const csvPrepare = new CsvPrepareStream({ header });

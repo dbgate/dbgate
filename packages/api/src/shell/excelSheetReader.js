@@ -14,7 +14,7 @@ async function loadWorkbook(fileName) {
   return workbook;
 }
 
-async function excelSheetReader({ fileName, sheetName }) {
+async function excelSheetReader({ fileName, sheetName, limitRows = undefined }) {
   const workbook = await loadWorkbook(fileName);
   const sheet = workbook.getWorksheet(sheetName);
 
@@ -27,6 +27,7 @@ async function excelSheetReader({ fileName, sheetName }) {
   };
   pass.write(structure);
   for (let rowIndex = 2; rowIndex <= sheet.rowCount; rowIndex++) {
+    if (limitRows && rowIndex > limitRows + 1) break;
     const row = sheet.getRow(rowIndex);
     const rowData = _.fromPairs(structure.columns.map((col, index) => [col.columnName, row.getCell(index + 1).value]));
     if (_.isEmpty(_.omitBy(rowData, (v) => v == null || v.toString().trim().length == 0))) continue;

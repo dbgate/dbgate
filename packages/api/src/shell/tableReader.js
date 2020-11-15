@@ -3,7 +3,7 @@ const driverConnect = require('../utility/driverConnect');
 
 const engines = require('@dbgate/engines');
 
-async function queryReader({ connection, pureName, schemaName }) {
+async function tableReader({ connection, pureName, schemaName }) {
   const driver = engines(connection);
   const pool = await driverConnect(driver, connection);
   console.log(`Connected.`);
@@ -25,4 +25,4 @@ async function queryReader({ connection, pureName, schemaName }) {
   return await driver.readQuery(pool, query);
 }
 
-module.exports = queryReader;
+module.exports = tableReader;

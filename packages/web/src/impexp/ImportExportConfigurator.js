@@ -14,8 +14,8 @@ import {
 } from '../utility/forms';
 import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
-import { TextField, SelectField } from '../utility/inputs';
-import { getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
+import { TextField, SelectField, CheckboxField } from '../utility/inputs';
+import { createPreviewReader, getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
 import getElectron from '../utility/getElectron';
 import ErrorInfo from '../widgets/ErrorInfo';
 import getAsArray from '../utility/getAsArray';
@@ -86,7 +86,7 @@ function getFileFilters(storageType) {
   return res;
 }
 
-async function addFilesToSourceList(files, values, setFieldValue, preferedStorageType) {
+async function addFilesToSourceList(files, values, setFieldValue, preferedStorageType, setPreviewSource) {
   const newSources = [];
   const storage = preferedStorageType || values.sourceStorageType;
   for (const file of getAsArray(files)) {
@@ -115,6 +115,9 @@ async function addFilesToSourceList(files, values, setFieldValue, preferedStorag
   setFieldValue('sourceList', [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources]);
   if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
     setFieldValue('sourceStorageType', preferedStorageType);
+  }
+  if (setPreviewSource && newSources.length == 1) {
+    setPreviewSource(newSources[0]);
   }
 }
 
@@ -308,7 +311,7 @@ function SourceName({ name }) {
   );
 }
 
-export default function ImportExportConfigurator({ uploadedFile = undefined }) {
+export default function ImportExportConfigurator({ uploadedFile = undefined, onChangePreview = undefined }) {
   const { values, setFieldValue } = useFormikContext();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
@@ -316,6 +319,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
   const { sourceList } = values;
   const { setUploadListener } = useUploadsProvider();
   const theme = useTheme();
+  const [previewSource, setPreviewSource] = React.useState(null);
 
   const handleUpload = React.useCallback(
     (file) => {
@@ -328,7 +332,8 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
         ],
         values,
         setFieldValue,
-        !sourceList || sourceList.length == 0 ? file.storageType : null
+        !sourceList || sourceList.length == 0 ? file.storageType : null,
+        setPreviewSource
       );
       // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
     },
@@ -347,6 +352,21 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
       handleUpload(uploadedFile);
     }
   }, []);
+
+  const supportsPreview = ['csv', 'jsonl', 'excel'].includes(values.sourceStorageType);
+
+  const handleChangePreviewSource = async () => {
+    if (previewSource && supportsPreview) {
+      const reader = await createPreviewReader(values, previewSource);
+      if (onChangePreview) onChangePreview(reader);
+    } else {
+      onChangePreview(null);
+    }
+  };
+
+  React.useEffect(() => {
+    handleChangePreviewSource();
+  }, [previewSource, supportsPreview]);
 
   return (
     <Container>
@@ -395,6 +415,21 @@ export default function ImportExportConfigurator({ uploadedFile = undefined }) {
               onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
             />
           )}
+        />
+        <TableColumn
+          fieldName="preview"
+          header="Preview"
+          formatter={(row) =>
+            supportsPreview ? (
+              <CheckboxField
+                checked={previewSource == row}
+                onChange={(e) => {
+                  if (e.target.checked) setPreviewSource(row);
+                  else setPreviewSource(null);
+                }}
+              />
+            ) : null
+          }
         />
       </TableControl>
     </Container>

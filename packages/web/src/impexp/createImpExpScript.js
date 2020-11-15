@@ -211,3 +211,19 @@ export function getActionOptions(source, values, targetDbinfo) {
   }
   return res;
 }
+
+export async function createPreviewReader(values, sourceName) {
+  const [sourceConnection, sourceDriver] = await getConnection(
+    values.sourceStorageType,
+    values.sourceConnectionId,
+    values.sourceDatabaseName
+  );
+  const [functionName, props] = getSourceExpr(sourceName, values, sourceConnection, sourceDriver);
+  return {
+    functionName,
+    props: {
+      ...props,
+      limitRows: 100,
+    },
+  };
+}

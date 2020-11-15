@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
 import { Formik, Form, useFormikContext } from 'formik';
@@ -16,6 +16,7 @@ import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar
 import SocketMessagesView from '../query/SocketMessagesView';
 import RunnerOutputFiles from '../query/RunnerOuputFiles';
 import useTheme from '../theme/useTheme';
+import PreviewDataGrid from '../impexp/PreviewDataGrid';
 
 const headerHeight = '60px';
 const footerHeight = '60px';
@@ -106,6 +107,7 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
   const [runnerId, setRunnerId] = React.useState(null);
   const archive = useCurrentArchive();
   const theme = useTheme();
+  const [previewReader, setPreviewReader] = useState(0);
 
   const handleExecute = async (values) => {
     const script = await createImpExpScript(values);
@@ -134,13 +136,10 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
           <ModalHeader modalState={modalState}>Import/Export</ModalHeader>
           <Wrapper>
             <ContentWrapper theme={theme}>
-              <ImportExportConfigurator uploadedFile={uploadedFile} />
+              <ImportExportConfigurator uploadedFile={uploadedFile} onChangePreview={setPreviewReader} />
             </ContentWrapper>
             <WidgetColumnWrapper theme={theme}>
               <WidgetColumnBar>
-                {/* <WidgetColumnBarItem title="Preview" name="preview">
-                  Preview
-                </WidgetColumnBarItem> */}
                 <WidgetColumnBarItem title="Output files" name="output" height="20%">
                   <RunnerOutputFiles runnerId={runnerId} executeNumber={executeNumber} />
                 </WidgetColumnBarItem>
@@ -150,6 +149,11 @@ export default function ImportExportModal({ modalState, initialValues, uploadedF
                     executeNumber={executeNumber}
                   />
                 </WidgetColumnBarItem>
+                {previewReader && (
+                  <WidgetColumnBarItem title="Preview" name="preview">
+                    <PreviewDataGrid reader={previewReader} />
+                  </WidgetColumnBarItem>
+                )}
               </WidgetColumnBar>
             </WidgetColumnWrapper>
           </Wrapper>
