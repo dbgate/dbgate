@@ -9,11 +9,7 @@ function Menu({ data, setOpenedTabs }) {
   const handleDelete = () => {
     axios.post('archive/delete-folder', { folder: data.name });
   };
-  return (
-    <>
-      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
-    </>
-  );
+  return <>{data.name != 'default' && <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>}</>;
 }
 
 const archiveFolderAppObject = () => ({ name }, { setOpenedTabs, currentArchive }) => {
