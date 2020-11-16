@@ -97,6 +97,6 @@ yarn start:app:local
 * [app](https://github.com/dbshell/dbgate/tree/master/app) - application (JavaScript)
 * [engines](https://github.com/dbshell/dbgate/tree/master/packages/engines) - drivers for database engine (mssql, mysql, postgres), analysing database structure, creating specific queries (JavaScript)
 * [filterparser](https://github.com/dbshell/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon
-* (sqltree)[https://github.com/dbshell/dbgate/tree/master/packages/sqltree] - JSON representation of SQL query, functions converting to SQL (TypeScript)
-* (types)[https://github.com/dbshell/dbgate/tree/master/packages/types] - common TypeScript definitions
-* (web[https://github.com/dbshell/dbgate/tree/master/packages/web]) - frontend in React (JavaScript)
+* [sqltree](https://github.com/dbshell/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript)
+* [types](https://github.com/dbshell/dbgate/tree/master/packages/types) - common TypeScript definitions
+* [web](https://github.com/dbshell/dbgate/tree/master/packages/web) - frontend in React (JavaScript)
