@@ -12,6 +12,7 @@ const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
 require=null;
 async function run() {
 ${script}
+console.log('Finished job script');
 }
 dbgateApi.runScript(run);
 `;

@@ -21,9 +21,10 @@ import PreviewDataGrid from '../impexp/PreviewDataGrid';
 import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
+import LargeButton from '../widgets/LargeButton';
 
 const headerHeight = '60px';
-const footerHeight = '60px';
+const footerHeight = '100px';
 
 const OutputContainer = styled.div`
   position: relative;
@@ -84,6 +85,7 @@ const Footer = styled.div`
 
 const FooterButtons = styled.div`
   margin: 15px;
+  display: flex;
 `;
 
 function GenerateSctriptButton({ modalState }) {
@@ -103,7 +105,23 @@ function GenerateSctriptButton({ modalState }) {
     modalState.close();
   };
 
-  return <FormStyledButton type="button" value="Generate script" onClick={handleGenerateScript} />;
+  return (
+    <LargeButton icon="img sql-file" onClick={handleGenerateScript}>
+      Generate script
+    </LargeButton>
+  );
+}
+
+function RunButton() {
+  const { submitForm } = useFormikContext();
+  const handleSubmit = () => {
+    submitForm();
+  };
+  return (
+    <LargeButton onClick={handleSubmit} icon="icon run">
+      Run
+    </LargeButton>
+  );
 }
 
 export default function ImportExportModal({
@@ -146,6 +164,8 @@ export default function ImportExportModal({
 
   const handleExecute = async (values) => {
     if (busy) return;
+    
+    setBusy(true);
     const script = await createImpExpScript(values);
 
     setExecuteNumber((num) => num + 1);
@@ -154,7 +174,6 @@ export default function ImportExportModal({
     const resp = await axios.post('runners/start', { script });
     runid = resp.data.runid;
     setRunnerId(runid);
-    setBusy(true);
     if (values.targetStorageType == 'archive') {
       refreshArchiveFolderRef.current = values.targetArchiveFolder;
     } else {
@@ -208,12 +227,16 @@ export default function ImportExportModal({
           <Footer theme={theme}>
             <FooterButtons>
               {busy ? (
-                <FormStyledButton type="button" value="Cancel" onClick={handleCancel} />
+                <LargeButton icon="icon close" onClick={handleCancel}>
+                  Cancel
+                </LargeButton>
               ) : (
-                <FormStyledButton type="submit" value="Run" />
+                <RunButton />
               )}
               <GenerateSctriptButton modalState={modalState} />
-              <FormStyledButton type="button" value="Close" onClick={modalState.close} />
+              <LargeButton onClick={modalState.close} icon="icon close">
+                Close
+              </LargeButton>
             </FooterButtons>
           </Footer>
         </StyledForm>
