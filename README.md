@@ -5,36 +5,26 @@
 
 DbGate is fast and efficient database administration tool. It is focused to work with data (filtering, editing, master/detail views etc.)
 
-**Try it online** - https://dbgate.org
+**Try it online** - https://demo.dbgate.org - online demo application
 
-## Currently implemented features
+## Features
 * Support for Microsoft SQL Server, Postgre SQL, MySQL
-* Table data browsing - filtering, sorting, adding related columns using foreign keys
+* Table data browsing - filtering, sorting, related columns using foreign keys
 * Master/detail views
 * Browsing objects - tables, views, procedures, functions
 * Table data editing, with SQL change script preview
-* SQL editor, execute SQL script, SQL code formatter
+* SQL editor, execute SQL script, SQL code formatter, SQL code completion, SQL join wizard
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
+* Import, export from/to CSV, Excel, JSON
+* Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
+* Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
-
-## Current support for database engines
-| Action | Microsoft SQL Server | Postgre SQL | MySQL |
-|---|---|---|---|
-| Tables | yes | yes | yes |
-| Columns | yes | yes | yes |
-| Primary keys | yes | yes | yes |
-| Foreign keys | yes | yes | yes |
-| Run query | yes | yes | yes |
-| Data types | yes | no | no |
-| Views | yes | no | no |
-| Stored procedures | yes | no | no |
-| Functions | yes | no | no |
 
 ![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
 
 ## Design goals
-* Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) . First will be implemented the most used features from this software.
-* Minimal dependencies - so that the software can be developed in future without problems with obsolete libraries
+* Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) .
+* Minimal dependencies
     * Frontend - React, styled-components, socket.io
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
@@ -43,16 +33,28 @@ DbGate is fast and efficient database administration tool. It is focused to work
 * Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 ## How Can I Contribute?
-You're welcome to contribute to this project! Especially with these topics:
+You're welcome to contribute to this project! Below are some ideas, how to contribute:
 
 * Bug fixing
 * Test Mac edition
-* Styles, graphics
-* Better MySQL, Postgre SQL support
+* Improve linux package build, add to APT repository
+* Auto-upgrade of electron application
+* Support for new import/export formats
 
 Any help is appreciated!
 
 Feel free to report issues and open merge requests.
+
+## Roadmap
+
+| Feature | Complexity | Schedule |
+|---|---|---|
+| Query designer | medium | december 2020 |
+| Table designer (structure editor) | big | january 2021 |
+| Filter SQL result sets | small | november 2020 |
+| Filtering, sorting in free table editor | small | november 2020 |
+| Using tedious driver instead of mssql | small | january 2021 |
+| Support for SQLite | big | 2021 |
 
 ## How to run development environment
 
@@ -90,11 +92,11 @@ yarn start:app:local
 ```
 
 ## Packages
-* api - backend, Javascript, ExpressJS
-* datalib - TypeScript library for utility classes
-* electron - application (JavaScript)
-* engines - drivers for database engine (mssql, mysql, postgres), analysing database structure, creating specific queries (JavaScript)
-* filterparser - TypeScript library for parsing data filter expressions using parsimmon
-* sqltree - JSON representation of SQL query, functions converting to SQL (TypeScript)
-* types - common TypeScript definitions
-* web - frontend in React (JavaScript)
+* [api](https://github.com/dbshell/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS
+* [datalib](https://github.com/dbshell/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes
+* [app](https://github.com/dbshell/dbgate/tree/master/app) - application (JavaScript)
+* [engines](https://github.com/dbshell/dbgate/tree/master/packages/engines) - drivers for database engine (mssql, mysql, postgres), analysing database structure, creating specific queries (JavaScript)
+* [filterparser](https://github.com/dbshell/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon
+* (sqltree)[https://github.com/dbshell/dbgate/tree/master/packages/sqltree] - JSON representation of SQL query, functions converting to SQL (TypeScript)
+* (types)[https://github.com/dbshell/dbgate/tree/master/packages/types] - common TypeScript definitions
+* (web[https://github.com/dbshell/dbgate/tree/master/packages/web]) - frontend in React (JavaScript)
