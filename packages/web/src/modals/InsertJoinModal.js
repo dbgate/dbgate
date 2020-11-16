@@ -51,7 +51,7 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
   const targets = React.useMemo(() => {
     const source = sources[sourceIndex];
     if (!source) return [];
-    /** @type {import('@dbgate/types').TableInfo} */
+    /** @type {import('dbgate-types').TableInfo} */
     const table = dbinfo.tables.find((x) => x.pureName == sources[sourceIndex].name);
     if (!table) return [];
     return [

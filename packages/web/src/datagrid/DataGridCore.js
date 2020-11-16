@@ -6,7 +6,7 @@ import { HorizontalScrollBar, VerticalScrollBar } from './ScrollBars';
 import useDimensions from '../utility/useDimensions';
 import DataFilterControl from './DataFilterControl';
 import stableStringify from 'json-stable-stringify';
-import { getFilterType, getFilterValueExpression } from '@dbgate/filterparser';
+import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
 import { cellFromEvent, getCellRange, topLeftCell, isRegularCell, nullCell, emptyCellArray } from './selection';
 import keycodes from '../utility/keycodes';
 import DataGridRow from './DataGridRow';

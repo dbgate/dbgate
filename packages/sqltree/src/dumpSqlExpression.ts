@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { SqlDumper } from '@dbgate/types';
+import { SqlDumper } from 'dbgate-types';
 import { Expression, ColumnRefExpression } from './types';
 import { dumpSqlSourceRef } from './dumpSqlSource';
 

@@ -1,4 +1,4 @@
-# @dbgate/types
+# dbgate-types
 
 Typescript definitions for DbGate app
 
@@ -11,4 +11,4 @@ Typescript definitions for DbGate app
 
 ## Installation
 
-    yarn add --dev @dbgate/types
+    yarn add --dev dbgate-types

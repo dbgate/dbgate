@@ -3,7 +3,7 @@ const _ = require('lodash');
 const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
-const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 const { rangeStep } = require('lodash/fp');
 
 function getColumnInfo({
@@ -191,7 +191,7 @@ class MySqlAnalyser extends DatabaseAnalayser {
 
       // console.log('MODIFICATION OF ', field, pureName, modifyDate, obj.modifyDate);
 
-      /** @type {import('@dbgate/types').DatabaseModification} */
+      /** @type {import('dbgate-types').DatabaseModification} */
       const action = obj
         ? {
             newName: { pureName },

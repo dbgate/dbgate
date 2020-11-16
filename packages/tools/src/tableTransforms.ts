@@ -1,4 +1,4 @@
-import { TableInfo } from '@dbgate/types';
+import { TableInfo } from 'dbgate-types';
 import _ from 'lodash';
 
 export function prepareTableForImport(table: TableInfo): TableInfo {

@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { Command, Insert, Update, Delete, UpdateField, Condition, AllowIdentityInsert } from '@dbgate/sqltree';
-import { NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
+import { Command, Insert, Update, Delete, UpdateField, Condition, AllowIdentityInsert } from 'dbgate-sqltree';
+import { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
 
 export interface ChangeSetItem {
   pureName: string;

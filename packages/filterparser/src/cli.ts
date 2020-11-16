@@ -1,7 +1,7 @@
 import { parseFilter } from './parseFilter';
 import { FilterType } from './types';
-import engines from '@dbgate/engines';
-import { dumpSqlCondition, treeToSql } from '@dbgate/sqltree';
+import engines from 'dbgate-engines';
+import { dumpSqlCondition, treeToSql } from 'dbgate-sqltree';
 
 const ast = parseFilter(process.argv[2], process.argv[3] as FilterType);
 

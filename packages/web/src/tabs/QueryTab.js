@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import axios from '../utility/axios';
-import engines from '@dbgate/engines';
+import engines from 'dbgate-engines';
 
 import {
   useConnectionInfo,

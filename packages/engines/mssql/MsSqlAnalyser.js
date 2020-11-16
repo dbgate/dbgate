@@ -4,7 +4,7 @@ const sql = require('./sql');
 
 const DatabaseAnalyser = require('../default/DatabaseAnalyser');
 const { filter } = require('lodash');
-const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 
 function objectTypeToField(type) {
   switch (type.trim()) {
@@ -187,7 +187,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       // object not modified
       if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
 
-      /** @type {import('@dbgate/types').DatabaseModification} */
+      /** @type {import('dbgate-types').DatabaseModification} */
       const action = obj
         ? {
             newName: { schemaName, pureName },

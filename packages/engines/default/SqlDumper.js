@@ -2,7 +2,7 @@ const _ = require('lodash');
 const moment = require('moment');
 
 class SqlDumper {
-  /** @param driver {import('@dbgate/types').EngineDriver} */
+  /** @param driver {import('dbgate-types').EngineDriver} */
   constructor(driver) {
     this.s = '';
     this.driver = driver;
@@ -150,7 +150,7 @@ class SqlDumper {
   }
 
   /**
-   * @param column {import('@dbgate/types').ColumnInfo}
+   * @param column {import('dbgate-types').ColumnInfo}
    */
   columnDefinition(column, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
     if (column.computedExpression) {
@@ -176,7 +176,7 @@ class SqlDumper {
   }
 
   /**
-   * @param column {import('@dbgate/types').ColumnInfo}
+   * @param column {import('dbgate-types').ColumnInfo}
    */
   columnDefault(column) {
     if (column.defaultConstraint != null) {
@@ -202,7 +202,7 @@ class SqlDumper {
     }
   }
 
-  /** @param table {import('@dbgate/types').TableInfo} */
+  /** @param table {import('dbgate-types').TableInfo} */
   createTable(table) {
     this.put('^create ^table %f ( &>&n', table);
     this.putCollection(',&n', table.columns, (col) => {
@@ -245,7 +245,7 @@ class SqlDumper {
     // }
   }
 
-  /** @param fk {import('@dbgate/types').ForeignKeyInfo} */
+  /** @param fk {import('dbgate-types').ForeignKeyInfo} */
   createForeignKeyFore(fk) {
     if (fk.constraintName != null) this.put('^constraint %i ', fk.constraintName);
     this.put(
@@ -258,13 +258,13 @@ class SqlDumper {
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);
   }
 
-  /** @param type {import('@dbgate/types').TransformType} */
+  /** @param type {import('dbgate-types').TransformType} */
   transform(type, dumpExpr) {
     dumpExpr();
   }
 
   /**
-   * @param table {import('@dbgate/types').NamedObjectInfo}
+   * @param table {import('dbgate-types').NamedObjectInfo}
    * @param allow {boolean}
    */
   allowIdentityInsert(table, allow) {}

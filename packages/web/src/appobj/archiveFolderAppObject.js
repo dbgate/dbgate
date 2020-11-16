@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import axios from '../utility/axios';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 
 function Menu({ data, setOpenedTabs }) {
   const handleDelete = () => {

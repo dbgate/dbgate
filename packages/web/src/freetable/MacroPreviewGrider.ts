@@ -1,4 +1,4 @@
-import { FreeTableModel, MacroDefinition, MacroSelectedCell, runMacro } from '@dbgate/datalib';
+import { FreeTableModel, MacroDefinition, MacroSelectedCell, runMacro } from 'dbgate-datalib';
 import Grider, { GriderRowStatus } from '../datagrid/Grider';
 import _ from 'lodash';
 

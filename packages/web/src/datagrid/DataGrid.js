@@ -6,7 +6,7 @@ import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import CellDataView from '../celldata/CellDataView';
-import { FreeTableGridDisplay } from '@dbgate/datalib';
+import { FreeTableGridDisplay } from 'dbgate-datalib';
 import useTheme from '../theme/useTheme';
 
 const LeftContainer = styled.div`

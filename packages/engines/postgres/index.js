@@ -3,7 +3,7 @@ const driverBase = require('../default/driverBase');
 const PostgreAnalyser = require('./PostgreAnalyser');
 const PostgreDumper = require('./PostgreDumper');
 
-/** @type {import('@dbgate/types').SqlDialect} */
+/** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
   // stringEscapeChar: '\\',
@@ -14,7 +14,7 @@ const dialect = {
   },
 };
 
-/** @type {import('@dbgate/types').EngineDriver} */
+/** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: PostgreAnalyser,

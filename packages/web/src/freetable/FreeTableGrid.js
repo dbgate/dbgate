@@ -1,4 +1,4 @@
-import { runMacro } from '@dbgate/datalib';
+import { runMacro } from 'dbgate-datalib';
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';

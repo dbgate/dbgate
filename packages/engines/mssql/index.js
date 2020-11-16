@@ -4,7 +4,7 @@ const MsSqlDumper = require('./MsSqlDumper');
 const createBulkInsertStream = require('./createBulkInsertStream');
 const driverBase = require('../default/driverBase');
 
-/** @type {import('@dbgate/types').SqlDialect} */
+/** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
@@ -51,7 +51,7 @@ function extractColumns(columns) {
   return [res, mapper];
 }
 
-/** @type {import('@dbgate/types').EngineDriver} */
+/** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: MsSqlAnalyser,

@@ -1,4 +1,4 @@
-const engines = require('@dbgate/engines');
+const engines = require('dbgate-engines');
 const uuidv1 = require('uuid/v1');
 const path = require('path');
 const fs = require('fs');

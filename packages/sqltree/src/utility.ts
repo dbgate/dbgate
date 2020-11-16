@@ -1,4 +1,4 @@
-import { EngineDriver, SqlDumper } from '@dbgate/types';
+import { EngineDriver, SqlDumper } from 'dbgate-types';
 import { Command } from './types';
 import { dumpSqlCommand } from './dumpSqlCommand';
 

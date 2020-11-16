@@ -1,4 +1,4 @@
-import { createGridCache, FreeTableGridDisplay } from '@dbgate/datalib';
+import { createGridCache, FreeTableGridDisplay } from 'dbgate-datalib';
 import React from 'react';
 import DataGridCore from '../datagrid/DataGridCore';
 import keycodes from '../utility/keycodes';

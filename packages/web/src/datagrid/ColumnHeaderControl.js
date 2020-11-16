@@ -4,7 +4,7 @@ import ColumnLabel from './ColumnLabel';
 import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import { useSplitterDrag } from '../widgets/Splitter';
-import { isTypeDateTime } from '@dbgate/tools';
+import { isTypeDateTime } from 'dbgate-tools';
 import { openDatabaseObjectDetail } from '../appobj/databaseObjectAppObject';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';

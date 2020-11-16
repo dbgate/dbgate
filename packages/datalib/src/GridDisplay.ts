@@ -1,11 +1,11 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from '@dbgate/types';
-import { parseFilter, getFilterType } from '@dbgate/filterparser';
+import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
-import { Expression, Select, treeToSql, dumpSqlSelect } from '@dbgate/sqltree';
-import { isTypeLogical } from '@dbgate/tools';
+import { Expression, Select, treeToSql, dumpSqlSelect } from 'dbgate-sqltree';
+import { isTypeLogical } from 'dbgate-tools';
 
 export interface DisplayColumn {
   schemaName: string;

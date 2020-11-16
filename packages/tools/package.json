@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "@dbgate/tools",
+  "name": "dbgate-tools",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -13,7 +13,7 @@
     "lib"
   ],
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/node": "^13.7.0",
     "jest": "^24.9.0",
     "ts-jest": "^25.2.1",

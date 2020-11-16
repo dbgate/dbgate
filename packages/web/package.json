@@ -1,12 +1,12 @@
 {
-  "name": "@dbgate/web",
+  "name": "dbgate-web",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@ant-design/colors": "^5.0.0",
-    "@dbgate/datalib": "^1.0.0",
-    "@dbgate/engines": "^1.0.0",
-    "@dbgate/sqltree": "^1.0.0",
+    "dbgate-datalib": "^1.0.0",
+    "dbgate-engines": "^1.0.0",
+    "dbgate-sqltree": "^1.0.0",
     "@mdi/font": "^5.8.55",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -54,7 +54,7 @@
     ]
   },
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/react": "^16.9.17",
     "@types/styled-components": "^4.4.2",
     "typescript": "^3.7.4"

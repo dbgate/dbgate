@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { SeriesSizes } from './SeriesSizes';
 import { CellAddress } from './selection';
-import { GridDisplay } from '@dbgate/datalib';
+import { GridDisplay } from 'dbgate-datalib';
 import Grider from './Grider';
 
 export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {
@@ -89,7 +89,7 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
-  /** @type {(import('@dbgate/datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
+  /** @type {(import('dbgate-datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
   const realColumns = [];
 
   // frozen columns

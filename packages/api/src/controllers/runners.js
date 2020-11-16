@@ -8,7 +8,7 @@ const { fork } = require('child_process');
 const { rundir, uploadsdir } = require('../utility/directories');
 
 const scriptTemplate = (script) => `
-const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
+const dbgateApi = require(process.env.DBGATE_API || "dbgate-api");
 require=null;
 async function run() {
 ${script}
@@ -18,7 +18,7 @@ dbgateApi.runScript(run);
 `;
 
 const loaderScriptTemplate = (functionName, props, runid) => `
-const dbgateApi = require(process.env.DBGATE_API || "@dbgate/api");
+const dbgateApi = require(process.env.DBGATE_API || "dbgate-api");
 require=null;
 async function run() {
 const reader=await dbgateApi.${functionName}(${JSON.stringify(props)});
@@ -29,7 +29,7 @@ dbgateApi.runScript(run);
 `;
 
 module.exports = {
-  /** @type {import('@dbgate/types').OpenedRunner[]} */
+  /** @type {import('dbgate-types').OpenedRunner[]} */
   opened: [],
   requests: {},
 

@@ -1,9 +1,9 @@
-const { prepareTableForImport } = require('@dbgate/tools');
+const { prepareTableForImport } = require('dbgate-tools');
 const _ = require('lodash');
 
 /**
  *
- * @param {import('@dbgate/types').EngineDriver} driver
+ * @param {import('dbgate-types').EngineDriver} driver
  */
 function createBulkInsertStreamBase(driver, stream, pool, name, options) {
   const fullNameQuoted = name.schemaName

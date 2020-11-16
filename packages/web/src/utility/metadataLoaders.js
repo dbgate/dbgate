@@ -124,12 +124,12 @@ function useCore(loader, args) {
   return res;
 }
 
-/** @returns {Promise<import('@dbgate/types').DatabaseInfo>} */
+/** @returns {Promise<import('dbgate-types').DatabaseInfo>} */
 export function getDatabaseInfo(args) {
   return getCore(databaseInfoLoader, args);
 }
 
-/** @returns {import('@dbgate/types').DatabaseInfo} */
+/** @returns {import('dbgate-types').DatabaseInfo} */
 export function useDatabaseInfo(args) {
   return useCore(databaseInfoLoader, args);
 }
@@ -150,22 +150,22 @@ export function useDbCore(args, objectTypeField = undefined) {
   );
 }
 
-/** @returns {Promise<import('@dbgate/types').TableInfo>} */
+/** @returns {Promise<import('dbgate-types').TableInfo>} */
 export function getTableInfo(args) {
   return getDbCore(args, 'tables');
 }
 
-/** @returns {import('@dbgate/types').TableInfo} */
+/** @returns {import('dbgate-types').TableInfo} */
 export function useTableInfo(args) {
   return useDbCore(args, 'tables');
 }
 
-/** @returns {Promise<import('@dbgate/types').ViewInfo>} */
+/** @returns {Promise<import('dbgate-types').ViewInfo>} */
 export function getViewInfo(args) {
   return getDbCore(args, 'views');
 }
 
-/** @returns {import('@dbgate/types').ViewInfo} */
+/** @returns {import('dbgate-types').ViewInfo} */
 export function useViewInfo(args) {
   return useDbCore(args, 'views');
 }
@@ -178,12 +178,12 @@ export function useSqlObjectInfo(args) {
   return useDbCore(args);
 }
 
-/** @returns {Promise<import('@dbgate/types').StoredConnection>} */
+/** @returns {Promise<import('dbgate-types').StoredConnection>} */
 export function getConnectionInfo(args) {
   return getCore(connectionInfoLoader, args);
 }
 
-/** @returns {import('@dbgate/types').StoredConnection} */
+/** @returns {import('dbgate-types').StoredConnection} */
 export function useConnectionInfo(args) {
   return useCore(connectionInfoLoader, args);
 }

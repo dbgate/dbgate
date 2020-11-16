@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "@dbgate/types",
+  "name": "dbgate-types",
 
   "homepage": "https://dbgate.org/",
   "repository": {

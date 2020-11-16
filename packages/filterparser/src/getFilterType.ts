@@ -1,4 +1,4 @@
-import { isTypeNumber, isTypeString, isTypeLogical, isTypeDateTime } from '@dbgate/tools';
+import { isTypeNumber, isTypeString, isTypeLogical, isTypeDateTime } from 'dbgate-tools';
 import { FilterType } from './types';
 
 export function getFilterType(dataType: string): FilterType {

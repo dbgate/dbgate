@@ -1,7 +1,7 @@
 import P from 'parsimmon';
 import { FilterType } from './types';
-import { Condition } from '@dbgate/sqltree';
-import { TransformType } from '@dbgate/types';
+import { Condition } from 'dbgate-sqltree';
+import { TransformType } from 'dbgate-types';
 
 const whitespace = P.regexp(/\s*/m);
 

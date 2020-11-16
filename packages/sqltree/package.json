@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "@dbgate/sqltree",
+  "name": "dbgate-sqltree",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
 
@@ -22,7 +22,7 @@
     "lib"
   ],
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/node": "^13.7.0",
     "typescript": "^3.7.5"
   }

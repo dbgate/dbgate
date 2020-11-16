@@ -1,14 +1,14 @@
-# @dbgate/sqltree
+# dbgate-sqltree
 
 JavaScript/TypeScript SQL query-builder library
 
-@dbgate/sqltree hold query definition in RAW JSON objects.
+dbgate-sqltree hold query definition in RAW JSON objects.
 
 ## Sample usage
 
 ```javascript
-const { treeToSql, dumpSqlSelect } = require('@dbgate/sqltree');
-const engines = require('@dbgate/engines');
+const { treeToSql, dumpSqlSelect } = require('dbgate-sqltree');
+const engines = require('dbgate-engines');
 
 const select = {
   commandType: 'select',
@@ -36,4 +36,4 @@ console.log('Generated SQL', sqll);
 
 ## Installation
 
-    yarn add @dbgate/sqltree
+    yarn add dbgate-sqltree

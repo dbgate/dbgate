@@ -2,7 +2,7 @@ const createBulkInsertStreamBase = require('../default/createBulkInsertStreamBas
 
 /**
  *
- * @param {import('@dbgate/types').EngineDriver} driver
+ * @param {import('dbgate-types').EngineDriver} driver
  */
 function createBulkInsertStream(driver, mssql, stream, pool, name, options) {
   const writable = createBulkInsertStreamBase(driver, stream, pool, name, options);

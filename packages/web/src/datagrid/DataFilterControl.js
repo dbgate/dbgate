@@ -3,7 +3,7 @@ import React from 'react';
 import { DropDownMenuItem, DropDownMenuDivider, showMenu } from '../modals/DropDownMenu';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
-import { parseFilter, createMultiLineFilter } from '@dbgate/filterparser';
+import { parseFilter, createMultiLineFilter } from 'dbgate-filterparser';
 import InlineButton from '../widgets/InlineButton';
 import useShowModal from '../modals/showModal';
 import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';

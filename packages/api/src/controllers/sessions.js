@@ -6,7 +6,7 @@ const { fork } = require('child_process');
 const jsldata = require('./jsldata');
 
 module.exports = {
-  /** @type {import('@dbgate/types').OpenedSession[]} */
+  /** @type {import('dbgate-types').OpenedSession[]} */
   opened: [],
 
   // handle_error(sesid, props) {

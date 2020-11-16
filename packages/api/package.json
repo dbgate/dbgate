@@ -1,11 +1,11 @@
 {
-  "name": "@dbgate/api",
+  "name": "dbgate-api",
   "main": "src/index.js",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "@dbgate/engines": "^1.0.0",
-    "@dbgate/sqltree": "^1.0.0",
+    "dbgate-engines": "^1.0.0",
+    "dbgate-sqltree": "^1.0.0",
     "async-lock": "^1.2.4",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
@@ -36,7 +36,7 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/lodash": "^4.14.149",
     "env-cmd": "^10.1.0",
     "nodemon": "^2.0.2",

@@ -9,7 +9,7 @@ import {
   GridDisplay,
   revertChangeSetRowChanges,
   setChangeSetValue,
-} from '@dbgate/datalib';
+} from 'dbgate-datalib';
 import Grider, { GriderRowStatus } from './Grider';
 
 export default class ChangeSetGrider extends Grider {

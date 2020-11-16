@@ -5,7 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import InplaceEditor from './InplaceEditor';
 import { cellIsSelected } from './gridutil';
-import { isTypeLogical } from '@dbgate/tools';
+import { isTypeLogical } from 'dbgate-tools';
 import useTheme from '../theme/useTheme';
 
 const TableBodyCell = styled.td`

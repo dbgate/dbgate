@@ -2,7 +2,7 @@ const driverBase = require('../default/driverBase');
 const MySqlAnalyser = require('./MySqlAnalyser');
 const MySqlDumper = require('./MySqlDumper');
 
-/** @type {import('@dbgate/types').SqlDialect} */
+/** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
   stringEscapeChar: '\\',
@@ -20,7 +20,7 @@ function extractColumns(fields) {
   return null;
 }
 
-/** @type {import('@dbgate/types').EngineDriver} */
+/** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: MySqlAnalyser,

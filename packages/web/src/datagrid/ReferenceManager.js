@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { ManagerInnerContainer } from './ManagerStyles';
 import SearchInput from '../widgets/SearchInput';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 

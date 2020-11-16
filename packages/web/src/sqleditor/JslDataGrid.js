@@ -1,6 +1,6 @@
 import React from 'react';
 import DataGrid from '../datagrid/DataGrid';
-import { JslGridDisplay, createGridConfig, createGridCache } from '@dbgate/datalib';
+import { JslGridDisplay, createGridConfig, createGridCache } from 'dbgate-datalib';
 import useFetch from '../utility/useFetch';
 import JslDataGridCore from '../datagrid/JslDataGridCore';
 

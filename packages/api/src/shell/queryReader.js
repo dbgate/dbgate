@@ -1,6 +1,6 @@
 const driverConnect = require('../utility/driverConnect');
 
-const engines = require('@dbgate/engines');
+const engines = require('dbgate-engines');
 
 async function queryReader({ connection, sql }) {
   console.log(`Reading query ${sql}`);

@@ -1,4 +1,4 @@
-import types from "@dbgate/types";
+import types from "dbgate-types";
 
 declare function getDriver(
   connection: string | { engine: string }

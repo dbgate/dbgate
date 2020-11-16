@@ -1,8 +1,8 @@
 import React from 'react';
 import DataGrid from '../datagrid/DataGrid';
-import { ViewGridDisplay, createGridCache, createChangeSet } from '@dbgate/datalib';
+import { ViewGridDisplay, createGridCache, createChangeSet } from 'dbgate-datalib';
 import { useConnectionInfo, useViewInfo } from '../utility/metadataLoaders';
-import engines from '@dbgate/engines';
+import engines from 'dbgate-engines';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';

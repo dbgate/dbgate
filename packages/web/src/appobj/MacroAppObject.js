@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 
 const macroAppObject = () => ({ name, type, title, group }, { setOpenedTabs }) => {
   const key = name;

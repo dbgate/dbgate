@@ -1,5 +1,5 @@
 {
-  "name": "@dbgate/engines",
+  "name": "dbgate-engines",
   "version": "1.0.0",
   "main": "index.js",
   "typings": "./index.d.ts",
@@ -14,13 +14,13 @@
   "license": "GPL",
 
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/lodash": "^4.14.149",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.5"
   },
   "dependencies": {
     "lodash": "^4.17.15",
-    "@dbgate/tools": "^1.0.0"
+    "dbgate-tools": "^1.0.0"
   }
 }

@@ -103,7 +103,7 @@ async function addFilesToSourceList(files, values, setFieldValue, preferedStorag
     if (isFileStorage(storage)) {
       if (storage == 'excel') {
         const resp = await axios.get(`files/analyse-excel?filePath=${encodeURIComponent(file.full)}`);
-        /** @type {import('@dbgate/types').DatabaseInfo} */
+        /** @type {import('dbgate-types').DatabaseInfo} */
         const structure = resp.data;
         for (const table of structure.tables) {
           const sourceName = table.pureName;

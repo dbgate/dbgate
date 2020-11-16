@@ -1,7 +1,7 @@
 const SqlDumper = require('../default/SqlDumper');
 
 class MySqlDumper extends SqlDumper {
-  /** @param type {import('@dbgate/types').TransformType} */
+  /** @param type {import('dbgate-types').TransformType} */
   transform(type, dumpExpr) {
     switch (type) {
       case 'GROUP:YEAR':

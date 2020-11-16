@@ -1,4 +1,4 @@
-import { GridDisplay, ChangeSet, GridReferenceDefinition } from '@dbgate/datalib';
+import { GridDisplay, ChangeSet, GridReferenceDefinition } from 'dbgate-datalib';
 import Grider from './Grider';
 
 export interface DataGridProps {

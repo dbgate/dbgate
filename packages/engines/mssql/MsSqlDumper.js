@@ -16,7 +16,7 @@ class MsSqlDumper extends SqlDumper {
     this.putCmd('^set ^identity_insert %f %k;&n', table, allow ? 'on' : 'off');
   }
 
-  /** @param type {import('@dbgate/types').TransformType} */
+  /** @param type {import('dbgate-types').TransformType} */
   transform(type, dumpExpr) {
     switch (type) {
       case 'GROUP:YEAR':

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import moment from 'moment';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 import axios from '../utility/axios';
 
 function openArchive(setOpenedTabs, fileName, folderName) {

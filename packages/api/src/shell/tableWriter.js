@@ -1,6 +1,6 @@
 const driverConnect = require('../utility/driverConnect');
 
-const engines = require('@dbgate/engines');
+const engines = require('dbgate-engines');
 
 async function tableWriter({ connection, schemaName, pureName, ...options }) {
   console.log(`Write table ${schemaName}.${pureName}`);

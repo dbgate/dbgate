@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "name": "@dbgate/filterparser",
+  "name": "dbgate-filterparser",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
@@ -13,7 +13,7 @@
     "lib"
   ],
   "devDependencies": {
-    "@dbgate/types": "^1.0.0",
+    "dbgate-types": "^1.0.0",
     "@types/jest": "^25.1.4",
     "@types/node": "^13.7.0",
     "jest": "^24.9.0",
@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@types/parsimmon": "^1.10.1",
-    "@dbgate/tools": "^1.0.0",
+    "dbgate-tools": "^1.0.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "parsimmon": "^1.13.0"

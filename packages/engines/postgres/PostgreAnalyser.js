@@ -3,7 +3,7 @@ const _ = require('lodash');
 const sql = require('./sql');
 
 const DatabaseAnalayser = require('../default/DatabaseAnalyser');
-const { isTypeString, isTypeNumeric } = require('@dbgate/tools');
+const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 
 function normalizeTypeName(dataType) {
   if (dataType == 'character varying') return 'varchar';
@@ -127,7 +127,7 @@ class PostgreAnalyser extends DatabaseAnalayser {
 
       // console.log('MODIFICATION OF ', objectTypeField, schemaName, pureName);
 
-      /** @type {import('@dbgate/types').DatabaseModification} */
+      /** @type {import('dbgate-types').DatabaseModification} */
       const action = obj
         ? {
             newName: { schemaName, pureName },

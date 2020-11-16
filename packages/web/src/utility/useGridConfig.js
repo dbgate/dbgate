@@ -1,4 +1,4 @@
-import { createGridConfig } from '@dbgate/datalib';
+import { createGridConfig } from 'dbgate-datalib';
 import React from 'react';
 
 const loadGridConfigFunc = (tabid) => () => {

@@ -3,7 +3,7 @@ import React from 'react';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import ConnectionModal from '../modals/ConnectionModal';
 import axios from '../utility/axios';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 import ConfirmModal from '../modals/ConfirmModal';
 import CreateDatabaseModal from '../modals/CreateDatabaseModal';
 

@@ -1,4 +1,4 @@
-const dbgateApi = require('@dbgate/api');
+const dbgateApi = require('dbgate-api');
 
 async function run() {
   const var3 = await dbgateApi.excelSheetReader({

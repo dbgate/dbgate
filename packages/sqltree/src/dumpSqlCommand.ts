@@ -1,4 +1,4 @@
-import { SqlDumper } from '@dbgate/types';
+import { SqlDumper } from 'dbgate-types';
 import { Command, Select, Update, Delete, Insert } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
 import { dumpSqlFromDefinition, dumpSqlSourceRef } from './dumpSqlSource';

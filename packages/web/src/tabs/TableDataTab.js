@@ -1,5 +1,5 @@
 import React from 'react';
-import { createGridCache, createChangeSet, createGridConfig } from '@dbgate/datalib';
+import { createGridCache, createChangeSet, createGridConfig } from 'dbgate-datalib';
 import useUndoReducer from '../utility/useUndoReducer';
 import usePropsCompare from '../utility/usePropsCompare';
 import { useUpdateDatabaseForTab } from '../utility/globalState';

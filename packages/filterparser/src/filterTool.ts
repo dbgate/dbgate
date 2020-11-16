@@ -1,4 +1,4 @@
-import { isTypeDateTime } from '@dbgate/tools';
+import { isTypeDateTime } from 'dbgate-tools';
 
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
 

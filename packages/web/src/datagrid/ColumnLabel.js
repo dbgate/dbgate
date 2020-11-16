@@ -9,7 +9,7 @@ const Label = styled.span`
   white-space: nowrap;
 `;
 
-/** @param column {import('@dbgate/datalib').DisplayColumn|import('@dbgate/types').ColumnInfo} */
+/** @param column {import('dbgate-datalib').DisplayColumn|import('dbgate-types').ColumnInfo} */
 export default function ColumnLabel(column) {
   let icon = null;
   if (column.autoIncrement) icon = 'img autoincrement';

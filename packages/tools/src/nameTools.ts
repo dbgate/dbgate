@@ -1,4 +1,4 @@
-import { DatabaseInfo, DatabaseInfoObjects } from '@dbgate/types';
+import { DatabaseInfo, DatabaseInfoObjects } from 'dbgate-types';
 
 export function fullNameFromString(name) {
   const m = name.match(/\[([^\]]+)\]\.\[([^\]]+)\]/);

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from './ColumnLabel';
-import { filterName } from '@dbgate/datalib';
+import { filterName } from 'dbgate-datalib';
 import { ExpandIcon } from '../icons';
 import InlineButton from '../widgets/InlineButton';
 import { ManagerInnerContainer } from './ManagerStyles';
@@ -34,8 +34,8 @@ const Button = styled.button`
 
 /**
  * @param {object} props
- * @param {import('@dbgate/datalib').GridDisplay} props.display
- * @param {import('@dbgate/datalib').DisplayColumn} props.column
+ * @param {import('dbgate-datalib').GridDisplay} props.display
+ * @param {import('dbgate-datalib').DisplayColumn} props.column
  */
 function ColumnManagerRow(props) {
   const { display, column } = props;

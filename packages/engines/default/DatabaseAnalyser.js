@@ -4,15 +4,15 @@ const fp = require('lodash/fp');
 class DatabaseAnalyser {
   /**
    *
-   * @param {import('@dbgate/types').EngineDriver} driver
+   * @param {import('dbgate-types').EngineDriver} driver
    */
   constructor(pool, driver) {
     this.pool = pool;
     this.driver = driver;
     // this.result = DatabaseAnalyser.createEmptyStructure();
-    /** @type {import('@dbgate/types').DatabaseInfo} */
+    /** @type {import('dbgate-types').DatabaseInfo} */
     this.structure = null;
-    /** import('@dbgate/types').DatabaseModification[]) */
+    /** import('dbgate-types').DatabaseModification[]) */
     this.modifications = null;
     this.singleObjectFilter = null;
   }
@@ -21,7 +21,7 @@ class DatabaseAnalyser {
     return DatabaseAnalyser.createEmptyStructure();
   }
 
-  /** @returns {Promise<import('@dbgate/types').DatabaseModification[]>} */
+  /** @returns {Promise<import('dbgate-types').DatabaseModification[]>} */
   async getModifications() {
     if (this.structure == null) throw new Error('DatabaseAnalyse.getModifications - structure must be filled');
 
@@ -82,7 +82,7 @@ class DatabaseAnalyser {
   // }
 }
 
-/** @returns {import('@dbgate/types').DatabaseInfo} */
+/** @returns {import('dbgate-types').DatabaseInfo} */
 DatabaseAnalyser.createEmptyStructure = () => ({
   tables: [],
   views: [],
