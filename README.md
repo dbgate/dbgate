@@ -18,6 +18,7 @@ DbGate is fast and efficient database administration tool. It is focused to work
 * Import, export from/to CSV, Excel, JSON
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
+* Light and dark theme
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 
 ![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
