@@ -94,13 +94,14 @@ yarn start:app:local
 ```
 
 ## Packages
-* [api](https://github.com/dbshell/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS
+Some dbgate packages can be used also without DbGate. You can find them on [NPM repository](https://www.npmjs.com/search?q=keywords:dbgate)
+
+* [api](https://github.com/dbshell/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS [![NPM version](https://img.shields.io/npm/v/dbgate-api.svg)](https://www.npmjs.com/package/dbgate-api)
 * [datalib](https://github.com/dbshell/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes
 * [app](https://github.com/dbshell/dbgate/tree/master/app) - application (JavaScript)
-* [engines](https://github.com/dbshell/dbgate/tree/master/packages/engines) - drivers for database engine (mssql, mysql, postgres), analysing database structure, creating specific queries (JavaScript)
+* [engines](https://github.com/dbshell/dbgate/tree/master/packages/engines) - drivers for database engine (mssql, mysql, postgres), analysing database structure, creating specific queries (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-engines.svg)](https://www.npmjs.com/package/dbgate-engines)
 * [filterparser](https://github.com/dbshell/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon
-* [sqltree](https://github.com/dbshell/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript)
-* [types](https://github.com/dbshell/dbgate/tree/master/packages/types) - common TypeScript definitions
+* [sqltree](https://github.com/dbshell/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript) [![NPM version](https://img.shields.io/npm/v/dbgate-sqltree.svg)](https://www.npmjs.com/package/dbgate-sqltree)
+* [types](https://github.com/dbshell/dbgate/tree/master/packages/types) - common TypeScript definitions [![NPM version](https://img.shields.io/npm/v/dbgate-types.svg)](https://www.npmjs.com/package/dbgate-types)
 * [web](https://github.com/dbshell/dbgate/tree/master/packages/web) - frontend in React (JavaScript)
-
-Some dbgate packages can be used also without DbGate. You can find them on [NPM repository](https://www.npmjs.com/search?q=keywords:dbgate)
+* [tools](https://github.com/dbshell/dbgate/tree/master/packages/tools) - various tools [![NPM version](https://img.shields.io/npm/v/dbgate-tools.svg)](https://www.npmjs.com/package/dbgate-tools)
