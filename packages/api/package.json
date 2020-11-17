@@ -1,7 +1,7 @@
 {
   "name": "dbgate-api",
   "main": "src/index.js",
-  "version": "1.0.3",
+  "version": "1.0.4",
 
   "homepage": "https://dbgate.org/",
   "repository": {
@@ -45,6 +45,7 @@
     "fs-extra": "^8.1.0",
     "http": "^0.0.0",
     "line-reader": "^0.4.0",
+    "lodash": "^4.17.15",
     "mssql": "^6.0.1",
     "mysql": "^2.17.1",
     "nedb-promises": "^4.0.1",

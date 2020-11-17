@@ -1,18 +1,16 @@
 {
-  "version": "1.0.2",
+  "version": "1.0.3",
   "name": "dbgate-sqltree",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbshell/dbgate.git"
-  },  
+  },
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
-  
   "keywords": [
     "sql",
     "mssql",
@@ -21,7 +19,6 @@
     "query",
     "dbgate"
   ],
-
   "scripts": {
     "prepare": "yarn build",
     "build": "tsc",
@@ -31,8 +28,11 @@
     "lib"
   ],
   "devDependencies": {
-    "dbgate-types": "^1.0.0",
     "@types/node": "^13.7.0",
+    "dbgate-types": "^1.0.0",
     "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15"
   }
 }
