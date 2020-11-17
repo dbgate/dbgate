@@ -28,6 +28,21 @@ dbgateApi.runScript(run);
 
 ```
 
+Silly example, runs without any dependencies. Copy [fakeObjectReader](https://github.com/dbshell/dbgate/blob/master/packages/api/src/shell/fakeObjectReader.js) to [consoleObjectWriter](https://github.com/dbshell/dbgate/blob/master/packages/api/src/shell/consoleObjectWriter.js) .
+
+```javascript
+
+const dbgateApi = require('dbgate-api');
+async function run() {
+  const reader = await dbgateApi.fakeObjectReader();
+  const writer = await dbgateApi.consoleObjectWriter();
+  await dbgateApi.copyStream(reader, writer);
+  console.log('Finished job script');
+}
+dbgateApi.runScript(run);
+
+```
+
 ## dbgateApi functions
 
 ### dbgateApi.copyStream
