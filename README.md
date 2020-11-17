@@ -1,5 +1,6 @@
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 [![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/JanProchazkaCz/30eur)
+[![NPM version](https://img.shields.io/npm/v/dbgate-api.svg)](https://www.npmjs.com/package/moleculer)
 
 # DbGate - database administration tool
 
@@ -101,3 +102,5 @@ yarn start:app:local
 * [sqltree](https://github.com/dbshell/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript)
 * [types](https://github.com/dbshell/dbgate/tree/master/packages/types) - common TypeScript definitions
 * [web](https://github.com/dbshell/dbgate/tree/master/packages/web) - frontend in React (JavaScript)
+
+Some dbgate packages can be used also without DbGate. You can find them on [NPM repository](https://www.npmjs.com/search?q=keywords:dbgate)
