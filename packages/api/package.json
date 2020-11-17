@@ -2,7 +2,16 @@
   "name": "dbgate-api",
   "main": "src/index.js",
   "version": "1.0.0",
-  "private": true,
+
+  "homepage": "https://dbgate.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbshell/dbgate.git"
+  },  
+  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
+  "author": "Jan Prochazka",
+  "license": "GPL",
+  
   "dependencies": {
     "dbgate-engines": "^1.0.0",
     "dbgate-sqltree": "^1.0.0",

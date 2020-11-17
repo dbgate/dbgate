@@ -3,6 +3,16 @@
   "name": "dbgate-tools",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
+
+  "homepage": "https://dbgate.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbshell/dbgate.git"
+  },  
+  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
+  "author": "Jan Prochazka",
+  "license": "GPL",
+
   "scripts": {
     "prepare": "yarn build",
     "build": "tsc",
