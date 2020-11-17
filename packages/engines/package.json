@@ -1,18 +1,16 @@
 {
   "name": "dbgate-engines",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "typings": "./index.d.ts",
-
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbshell/dbgate.git"
-  },  
+  },
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
-
   "keywords": [
     "sql",
     "mssql",
@@ -20,15 +18,15 @@
     "postgresql",
     "dbgate"
   ],
-
   "devDependencies": {
-    "dbgate-types": "^1.0.0",
     "@types/lodash": "^4.14.149",
+    "dbgate-types": "^1.0.0",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.5"
   },
   "dependencies": {
+    "dbgate-tools": "^1.0.0",
     "lodash": "^4.17.15",
-    "dbgate-tools": "^1.0.0"
+    "moment": "^2.24.0"
   }
 }
