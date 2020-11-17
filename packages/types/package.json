@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "dbgate-types",
 
   "homepage": "https://dbgate.org/",
@@ -10,6 +10,10 @@
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
+
+  "keywords": [
+    "dbgate"
+  ],
 
   "types": "index.d.ts",
   "main": "",

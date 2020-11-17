@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
+  "version": "1.0.1",
   "name": "dbgate-sqltree",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -13,6 +13,15 @@
   "author": "Jan Prochazka",
   "license": "GPL",
   
+  "keywords": [
+    "sql",
+    "mssql",
+    "mssql",
+    "postgresql",
+    "query",
+    "dbgate"
+  ],
+
   "scripts": {
     "prepare": "yarn build",
     "build": "tsc",

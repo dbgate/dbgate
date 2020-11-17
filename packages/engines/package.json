@@ -1,6 +1,6 @@
 {
   "name": "dbgate-engines",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "typings": "./index.d.ts",
 
@@ -12,6 +12,14 @@
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
+
+  "keywords": [
+    "sql",
+    "mssql",
+    "mssql",
+    "postgresql",
+    "dbgate"
+  ],
 
   "devDependencies": {
     "dbgate-types": "^1.0.0",
