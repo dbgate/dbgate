@@ -77,7 +77,7 @@ const connectionAppObject = (flags) => (
     if (!status) statusIcon = 'icon loading';
     else if (status.name == 'pending') statusIcon = 'icon loading';
     else if (status.name == 'ok') statusIcon = 'img green-ok';
-    else statusIcon = 'img red-error';
+    else statusIcon = 'img error';
     if (status && status.name == 'error') {
       statusTitle = status.message;
     }

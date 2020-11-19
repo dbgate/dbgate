@@ -24,7 +24,7 @@ export default function ErrorMessageModal({ modalState, title = 'Error', message
       <ModalContent>
         <Wrapper>
           <IconWrapper>
-            <FontIcon icon="img red-error" />
+            <FontIcon icon="img error" />
           </IconWrapper>
           {message}
         </Wrapper>

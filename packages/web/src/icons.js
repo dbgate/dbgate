@@ -45,7 +45,7 @@ const iconNames = {
 
   'img green-ok': 'mdi mdi-check-circle color-green-8',
   'img alert': 'mdi mdi-alert-circle color-blue-6',
-  // 'img red-error': 'mdi mdi-close-circle color-red-7',
+  'img error': 'mdi mdi-close-circle color-red-7',
   // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
 
   'img archive': 'mdi mdi-table color-gold-7',
