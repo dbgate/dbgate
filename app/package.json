@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "3.7.32",
+  "version": "3.7.33",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "dependencies": {
