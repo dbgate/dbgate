@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { fileformats } from './fileformats';
 import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
 
@@ -47,7 +48,13 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
             <FontIcon icon="icon cloud-upload" />
           </IconWrapper>
           <TitleWrapper>Drop the files to upload to DbGate</TitleWrapper>
-          <InfoWrapper>Supported file types: csv, MS Excel, json-lines</InfoWrapper>
+          <InfoWrapper>
+            Supported file types:{' '}
+            {fileformats
+              .filter((x) => x.readerFunc)
+              .map((x) => x.name)
+              .join(', ')}
+          </InfoWrapper>
         </InfoBox>
         <input {...inputProps} />
       </TargetStyled>

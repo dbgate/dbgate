@@ -96,43 +96,31 @@ function getFileFilters(storageType) {
   return res;
 }
 
-async function addFilesToSourceList(files, values, setFieldValue, preferedStorageType, setPreviewSource) {
+async function addFilesToSourceList(files, values, setValues, preferedStorageType, setPreviewSource) {
   const newSources = [];
+  const newValues = {};
   const storage = preferedStorageType || values.sourceStorageType;
   for (const file of getAsArray(files)) {
-    if (isFileStorage(storage)) {
-      if (storage == 'excel') {
-        const resp = await axios.get(`files/analyse-excel?filePath=${encodeURIComponent(file.full)}`);
-        /** @type {import('dbgate-types').DatabaseInfo} */
-        const structure = resp.data;
-        for (const table of structure.tables) {
-          const sourceName = table.pureName;
-          newSources.push(sourceName);
-          setFieldValue(`sourceFile_${sourceName}`, {
-            fileName: file.full,
-            sheetName: table.pureName,
-          });
-        }
-      } else {
-        const sourceName = file.name;
-        newSources.push(sourceName);
-        setFieldValue(`sourceFile_${sourceName}`, {
-          fileName: file.full,
-        });
-      }
+    const format = findFileFormat(storage);
+    if (format && format.addFilesToSourceList) {
+      await format.addFilesToSourceList(file, newSources, newValues);
     }
   }
-  setFieldValue('sourceList', [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources]);
+  newValues['sourceList'] = [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources];
   if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
-    setFieldValue('sourceStorageType', preferedStorageType);
+    newValues['sourceStorageType'] = preferedStorageType;
   }
+  setValues({
+    ...values,
+    ...newValues,
+  });
   if (setPreviewSource && newSources.length == 1) {
     setPreviewSource(newSources[0]);
   }
 }
 
 function ElectronFilesInput() {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setValues } = useFormikContext();
   const electron = getElectron();
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -151,7 +139,7 @@ function ElectronFilesInput() {
             ...path.parse(full),
           })),
           values,
-          setFieldValue
+          setValues
         );
       } finally {
         setIsLoading(false);
@@ -195,7 +183,7 @@ function SourceTargetConfig({
           { value: 'database', label: 'Database', directions: ['source', 'target'] },
           ...fileformats.map((format) => ({
             value: format.storageType,
-            label: format.name,
+            label: `${format.name} files(s)`,
             directions: getFileFormatDirections(format),
           })),
           { value: 'query', label: 'SQL Query', directions: ['source'] },
@@ -335,7 +323,7 @@ function SourceName({ name }) {
 }
 
 export default function ImportExportConfigurator({ uploadedFile = undefined, onChangePreview = undefined }) {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue, setValues } = useFormikContext();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
   const { engine: sourceEngine } = sourceConnectionInfo || {};
@@ -354,7 +342,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
           },
         ],
         values,
-        setFieldValue,
+        setValues,
         !sourceList || sourceList.length == 0 ? file.storageType : null,
         setPreviewSource
       );
