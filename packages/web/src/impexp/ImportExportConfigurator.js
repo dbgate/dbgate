@@ -91,7 +91,7 @@ const Title = styled.div`
 function getFileFilters(storageType) {
   const res = [];
   const format = findFileFormat(storageType);
-  if (format) res.push({ name: format.filesTitle, extensions: [format.extension] });
+  if (format) res.push({ name: format.name, extensions: [format.extension] });
   res.push({ name: 'All Files', extensions: ['*'] });
   return res;
 }
@@ -195,7 +195,7 @@ function SourceTargetConfig({
           { value: 'database', label: 'Database', directions: ['source', 'target'] },
           ...fileformats.map((format) => ({
             value: format.storageType,
-            label: format.filesTitle,
+            label: format.name,
             directions: getFileFormatDirections(format),
           })),
           { value: 'query', label: 'SQL Query', directions: ['source'] },
