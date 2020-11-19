@@ -4,7 +4,7 @@ import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, D
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
-import { Expression, Select, treeToSql, dumpSqlSelect } from 'dbgate-sqltree';
+import { Expression, Select, treeToSql, dumpSqlSelect, Condition } from 'dbgate-sqltree';
 import { isTypeLogical } from 'dbgate-tools';
 
 export interface DisplayColumn {
@@ -486,5 +486,34 @@ export abstract class GridDisplay {
     }
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
+  }
+
+  compileFilters(): Condition {
+    const filters = this.config && this.config.filters;
+    if (!filters) return null;
+    const conditions = [];
+    for (const name in filters) {
+      const column = this.columns.find((x) => (x.columnName = name));
+      if (!column) continue;
+      const filterType = getFilterType(column.dataType);
+      try {
+        const condition = parseFilter(filters[name], filterType);
+        const replaced = _.cloneDeepWith(condition, (expr: Expression) => {
+          if (expr.exprType == 'placeholder')
+            return {
+              exprType: 'column',
+              columnName: column.columnName,
+            };
+        });
+        conditions.push(replaced);
+      } catch (err) {
+        // filter parse error - ignore filter
+      }
+    }
+    if (conditions.length == 0) return null;
+    return {
+      conditionType: 'and',
+      conditions,
+    };
   }
 }

@@ -1,6 +1,6 @@
 const fs = require('fs');
 const lineReader = require('line-reader');
-const { off } = require('process');
+const _ = require('lodash');
 const DatastoreProxy = require('../utility/DatastoreProxy');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const getJslFileName = require('../utility/getJslFileName');
@@ -112,10 +112,10 @@ module.exports = {
     return null;
   },
 
-  getRows_meta: 'get',
-  async getRows({ jslid, offset, limit }) {
+  getRows_meta: 'post',
+  async getRows({ jslid, offset, limit, filters }) {
     const datastore = await this.ensureDatastore(jslid);
-    return datastore.getRows(offset, limit);
+    return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters);
   },
 
   getStats_meta: 'get',

@@ -13,6 +13,8 @@ export class JslGridDisplay extends GridDisplay {
   ) {
     super(config, setConfig, cache, setCache, null);
 
+    this.filterable = true;
+
     this.columns = columns
       .map((col) => ({
         columnName: col.columnName,

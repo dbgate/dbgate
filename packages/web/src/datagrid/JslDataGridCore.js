@@ -8,17 +8,15 @@ import LoadingDataGridCore from './LoadingDataGridCore';
 import RowsArrayGrider from './RowsArrayGrider';
 
 async function loadDataPage(props, offset, limit) {
-  const { jslid } = props;
+  const { jslid, display } = props;
 
-  const response = await axios.request({
-    url: 'jsldata/get-rows',
-    method: 'get',
-    params: {
-      jslid,
-      offset,
-      limit,
-    },
+  const response = await axios.post('jsldata/get-rows', {
+    jslid,
+    offset,
+    limit,
+    filters: display ? display.compileFilters() : null,
   });
+
   return response.data;
 }
 
@@ -63,10 +61,13 @@ export default function JslDataGridCore(props) {
     showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
 
-  const handleJslDataStats = React.useCallback((stats) => {
-    if (stats.changeIndex < changeIndex) return;
-    setChangeIndex(stats.changeIndex);
-  }, [changeIndex]);
+  const handleJslDataStats = React.useCallback(
+    (stats) => {
+      if (stats.changeIndex < changeIndex) return;
+      setChangeIndex(stats.changeIndex);
+    },
+    [changeIndex]
+  );
 
   React.useEffect(() => {
     if (jslid && socket) {
