@@ -21,6 +21,32 @@ const excelFormat: FileFormatDefinition = {
       };
     }
   },
+
+  args: [
+    {
+      type: 'checkbox',
+      name: 'singleFile',
+      label: 'Create single file',
+      direction: 'target',
+    },
+  ],
+
+  getDefaultOutputName: (sourceName, values) => {
+    if (values.target_excel_singleFile) {
+      return sourceName;
+    }
+    return null;
+  },
+
+  getOutputParams: (sourceName, values) => {
+    if (values.target_excel_singleFile) {
+      return {
+        sheetName: values[`targetName_${sourceName}`] || sourceName,
+        fileName:'data.xlsx'
+      };
+    }
+    return null;
+  },
 };
 
 export default excelFormat;

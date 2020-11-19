@@ -10,7 +10,11 @@ export function getTargetName(source, values) {
   const key = `targetName_${source}`;
   if (values[key]) return values[key];
   const format = findFileFormat(values.targetStorageType);
-  if (format) return `${source}.${format.extension}`;
+  if (format) {
+    const res = format.getDefaultOutputName ? format.getDefaultOutputName(source, values) : null;
+    if (res) return res;
+    return `${source}.${format.extension}`;
+  }
   return source;
 }
 
@@ -113,10 +117,15 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
   const { targetStorageType } = values;
   const format = findFileFormat(targetStorageType);
   if (format && format.writerFunc) {
+    const outputParams = format.getOutputParams && format.getOutputParams(sourceName, values);
     return [
       format.writerFunc,
       {
-        fileName: getTargetName(sourceName, values),
+        ...(outputParams
+          ? outputParams
+          : {
+              fileName: getTargetName(sourceName, values),
+            }),
         ...extractApiParameters(values, 'target', format),
       },
     ];

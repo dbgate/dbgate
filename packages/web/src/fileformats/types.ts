@@ -14,4 +14,6 @@ export interface FileFormatDefinition {
       [key: string]: any;
     }
   ) => void;
+  getDefaultOutputName?: (sourceName, values) => string;
+  getOutputParams?: (sourceName, values) => any;
 }
