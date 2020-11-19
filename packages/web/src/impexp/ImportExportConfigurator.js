@@ -25,6 +25,7 @@ import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
+import { fileformats, findFileFormat, getFileFormatDirections } from '../fileformats';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -89,9 +90,8 @@ const Title = styled.div`
 
 function getFileFilters(storageType) {
   const res = [];
-  if (storageType == 'csv') res.push({ name: 'CSV files', extensions: ['csv'] });
-  if (storageType == 'jsonl') res.push({ name: 'JSON lines', extensions: ['jsonl'] });
-  if (storageType == 'excel') res.push({ name: 'MS Excel files', extensions: ['xlsx'] });
+  const format = findFileFormat(storageType);
+  if (format) res.push({ name: format.filesTitle, extensions: [format.extension] });
   res.push({ name: 'All Files', extensions: ['*'] });
   return res;
 }
@@ -193,9 +193,11 @@ function SourceTargetConfig({
       ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
       : [
           { value: 'database', label: 'Database', directions: ['source', 'target'] },
-          { value: 'csv', label: 'CSV file(s)', directions: ['source', 'target'] },
-          { value: 'jsonl', label: 'JSON lines file(s)', directions: ['source', 'target'] },
-          { value: 'excel', label: 'MS Excel file(s)', directions: ['source'] },
+          ...fileformats.map((format) => ({
+            value: format.storageType,
+            label: format.filesTitle,
+            directions: getFileFormatDirections(format),
+          })),
           { value: 'query', label: 'SQL Query', directions: ['source'] },
           { value: 'archive', label: 'Archive', directions: ['source', 'target'] },
         ];
@@ -374,7 +376,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
     }
   }, []);
 
-  const supportsPreview = ['csv', 'jsonl', 'excel'].includes(values.sourceStorageType);
+  const supportsPreview = !!findFileFormat(values.sourceStorageType);
 
   const handleChangePreviewSource = async () => {
     if (previewSource && supportsPreview) {

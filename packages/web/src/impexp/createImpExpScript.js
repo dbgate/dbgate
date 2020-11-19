@@ -4,17 +4,18 @@ import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import engines from 'dbgate-engines';
 import { findObjectLike } from 'dbgate-tools';
+import { findFileFormat } from '../fileformats';
 
 export function getTargetName(source, values) {
   const key = `targetName_${source}`;
   if (values[key]) return values[key];
-  if (values.targetStorageType == 'csv') return `${source}.csv`;
-  if (values.targetStorageType == 'jsonl') return `${source}.jsonl`;
+  const format = findFileFormat(values.targetStorageType);
+  if (format) return `${source}.${format.extension}`;
   return source;
 }
 
 export function isFileStorage(storageType) {
-  return storageType == 'csv' || storageType == 'jsonl' || storageType == 'excel';
+  return !!findFileFormat(storageType);
 }
 
 async function getConnection(storageType, conid, database) {
@@ -55,14 +56,9 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
   }
   if (isFileStorage(sourceStorageType)) {
     const sourceFile = values[`sourceFile_${sourceName}`];
-    if (sourceStorageType == 'excel') {
-      return ['excelSheetReader', sourceFile];
-    }
-    if (sourceStorageType == 'jsonl') {
-      return ['jsonLinesReader', sourceFile];
-    }
-    if (sourceStorageType == 'csv') {
-      return ['csvReader', sourceFile];
+    const format = findFileFormat(sourceStorageType);
+    if (format && format.readerFunc) {
+      return [format.readerFunc, sourceFile];
     }
   }
   if (sourceStorageType == 'jsldata') {
@@ -101,21 +97,15 @@ function getFlagsFroAction(action) {
 
 function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
   const { targetStorageType } = values;
-  if (targetStorageType == 'csv') {
+  const format = findFileFormat(targetStorageType);
+  if (format && format.writerFunc) {
     return [
-      'csvWriter',
+      format.writerFunc,
       {
         fileName: getTargetName(sourceName, values),
       },
     ];
-  }
-  if (targetStorageType == 'jsonl') {
-    return [
-      'jsonLinesWriter',
-      {
-        fileName: getTargetName(sourceName, values),
-      },
-    ];
+
   }
   if (targetStorageType == 'database') {
     return [

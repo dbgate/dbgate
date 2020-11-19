@@ -10,6 +10,7 @@ import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
+import { defaultFileFormat } from '../fileformats';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -40,7 +41,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         modalState={modalState}
         importToArchive
         initialValues={{
-          sourceStorageType: 'csv',
+          sourceStorageType: defaultFileFormat.storageType,
           // sourceConnectionId: data.conid,
           // sourceDatabaseName: data.database,
           // sourceSchemaName: data.schemaName,

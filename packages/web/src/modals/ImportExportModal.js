@@ -22,6 +22,7 @@ import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
 import LargeButton from '../widgets/LargeButton';
+import { defaultFileFormat } from '../fileformats';
 
 const headerHeight = '60px';
 const footerHeight = '100px';
@@ -193,7 +194,7 @@ export default function ImportExportModal({
         onSubmit={handleExecute}
         initialValues={{
           sourceStorageType: 'database',
-          targetStorageType: importToArchive ? 'archive' : 'csv',
+          targetStorageType: importToArchive ? 'archive' : defaultFileFormat.storageType,
           sourceArchiveFolder: archive,
           targetArchiveFolder,
           ...initialValues,

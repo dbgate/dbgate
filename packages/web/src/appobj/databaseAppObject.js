@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';
+import { defaultFileFormat } from '../fileformats';
 
 function Menu({ data, setOpenedTabs, showModal }) {
   const { connection, name } = data;
@@ -26,7 +27,7 @@ function Menu({ data, setOpenedTabs, showModal }) {
       <ImportExportModal
         modalState={modalState}
         initialValues={{
-          sourceStorageType: 'csv',
+          sourceStorageType: defaultFileFormat.storageType,
           targetStorageType: 'database',
           targetConnectionId: data.connection._id,
           targetDatabaseName: data.name,
@@ -40,7 +41,7 @@ function Menu({ data, setOpenedTabs, showModal }) {
       <ImportExportModal
         modalState={modalState}
         initialValues={{
-          targetStorageType: 'csv',
+          targetStorageType: defaultFileFormat.storageType,
           sourceStorageType: 'database',
           sourceConnectionId: data.connection._id,
           sourceDatabaseName: data.name,

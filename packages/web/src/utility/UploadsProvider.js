@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
+import { findFileFormat } from '../fileformats';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
 import resolveApi from './resolveApi';
@@ -42,7 +43,7 @@ export function useUploadsZone() {
         if (uploadListener) {
           uploadListener(fileData);
         } else {
-          if (['csv', 'excel', 'jsonl'].includes(fileData.storageType)) {
+          if (findFileFormat(fileData.storageType)) {
             showModal((modalState) => (
               <ImportExportModal
                 uploadedFile={fileData}
