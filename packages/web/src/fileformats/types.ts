@@ -4,6 +4,7 @@ export interface FileFormatDefinition {
   name: string;
   readerFunc?: string;
   writerFunc?: string;
+  args?: any[];
   addFilesToSourceList: (
     file: {
       full: string;

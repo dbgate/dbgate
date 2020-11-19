@@ -26,6 +26,7 @@ import { useUploadsProvider } from '../utility/UploadsProvider';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import { fileformats, findFileFormat, getFileFormatDirections } from '../fileformats';
+import FormArgumentList from '../utility/FormArgumentList';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -192,6 +193,7 @@ function SourceTargetConfig({
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
   const archiveFiles = useArchiveFiles({ folder: values[archiveFolderField] });
+  const format = findFileFormat(storageType);
   return (
     <Column>
       {direction == 'source' && (
@@ -297,7 +299,14 @@ function SourceTargetConfig({
         </>
       )}
 
-      {isFileStorage(storageType) && direction == 'source' && <FilesInput />}
+      {!!format && direction == 'source' && <FilesInput />}
+
+      {format && format.args && (
+        <FormArgumentList
+          args={format.args.filter((arg) => !arg.direction || arg.direction == direction)}
+          namePrefix={`${direction}_${format.storageType}_`}
+        />
+      )}
     </Column>
   );
 }
@@ -378,6 +387,18 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   React.useEffect(() => {
     handleChangePreviewSource();
   }, [previewSource, supportsPreview]);
+
+  const oldValues = React.useRef({});
+  React.useEffect(() => {
+    const changed = _.pickBy(
+      values,
+      (v, k) => k.startsWith(`source_${values.sourceStorageType}_`) && oldValues.current[k] != v
+    );
+    if (!_.isEmpty(changed)) {
+      handleChangePreviewSource();
+    }
+    oldValues.current = values;
+  }, [values]);
 
   return (
     <Container>

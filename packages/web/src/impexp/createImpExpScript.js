@@ -18,6 +18,14 @@ export function isFileStorage(storageType) {
   return !!findFileFormat(storageType);
 }
 
+function extractApiParameters(values, direction, format) {
+  const pairs = (format.args || [])
+    .filter((arg) => arg.apiName)
+    .map((arg) => [arg.apiName, values[`${direction}_${format.storageType}_${arg.name}`]])
+    .filter((x) => x[1]);
+  return _.fromPairs(pairs);
+}
+
 async function getConnection(storageType, conid, database) {
   if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
@@ -58,7 +66,13 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
     const sourceFile = values[`sourceFile_${sourceName}`];
     const format = findFileFormat(sourceStorageType);
     if (format && format.readerFunc) {
-      return [format.readerFunc, sourceFile];
+      return [
+        format.readerFunc,
+        {
+          ...sourceFile,
+          ...extractApiParameters(values, 'source', format),
+        },
+      ];
     }
   }
   if (sourceStorageType == 'jsldata') {
@@ -103,9 +117,9 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       format.writerFunc,
       {
         fileName: getTargetName(sourceName, values),
+        ...extractApiParameters(values, 'target', format),
       },
     ];
-
   }
   if (targetStorageType == 'database') {
     return [

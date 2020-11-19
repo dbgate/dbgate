@@ -21,6 +21,7 @@ export default function PreviewDataGrid({ reader, ...other }) {
         setGrider(null);
         return;
       }
+      setErrorMessage(null);
       setIsLoading(true);
       const resp = await axios.post('runners/load-reader', reader);
       // @ts-ignore
