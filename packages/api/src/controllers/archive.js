@@ -6,6 +6,7 @@ const { formatWithOptions } = require('util');
 const { archivedir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
+const { saveFreeTableData } = require('../utility/freeTableStorage');
 
 module.exports = {
   folders_meta: 'get',
@@ -70,13 +71,7 @@ module.exports = {
 
   saveFreeTable_meta: 'post',
   async saveFreeTable({ folder, file, data }) {
-    const { structure, rows } = data;
-    const fileStream = fs.createWriteStream(path.join(archivedir(), folder, `${file}.jsonl`));
-    await fileStream.write(JSON.stringify(structure) + '\n');
-    for (const row of rows) {
-      await fileStream.write(JSON.stringify(row) + '\n');
-    }
-    await fileStream.close();
+    saveFreeTableData(path.join(archivedir(), folder, `${file}.jsonl`), data);
     return true;
   },
 

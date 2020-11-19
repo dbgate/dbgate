@@ -2,6 +2,7 @@ const fs = require('fs');
 const lineReader = require('line-reader');
 const { off } = require('process');
 const DatastoreProxy = require('../utility/DatastoreProxy');
+const { saveFreeTableData } = require('../utility/freeTableStorage');
 const getJslFileName = require('../utility/getJslFileName');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const socket = require('../utility/socket');
@@ -137,5 +138,11 @@ module.exports = {
     //   await this.closeReader(stats.jslid);
     //   socket.emit(`jsldata-stats-${stats.jslid}`, stats);
     // }
+  },
+
+  saveFreeTable_meta: 'post',
+  async saveFreeTable({ jslid, data }) {
+    saveFreeTableData(getJslFileName(jslid), data);
+    return true;
   },
 };
