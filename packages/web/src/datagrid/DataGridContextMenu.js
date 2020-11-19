@@ -15,30 +15,42 @@ export default function DataGridContextMenu({
 }) {
   return (
     <>
-      <DropDownMenuItem onClick={reload} keyText="F5">
-        Reload
-      </DropDownMenuItem>
-      <DropDownMenuDivider />
+      {!!reload && (
+        <DropDownMenuItem onClick={reload} keyText="F5">
+          Reload
+        </DropDownMenuItem>
+      )}
+      {!!reload && <DropDownMenuDivider />}
       <DropDownMenuItem onClick={copy} keyText="Ctrl+C">
         Copy
       </DropDownMenuItem>
-      <DropDownMenuItem onClick={revertRowChanges} keyText="Ctrl+R">
-        Revert row changes
-      </DropDownMenuItem>
-      <DropDownMenuItem onClick={deleteSelectedRows} keyText="Ctrl+Delete">
-        Delete selected rows
-      </DropDownMenuItem>
-      <DropDownMenuItem onClick={insertNewRow} keyText="Insert">
-        Insert new row
-      </DropDownMenuItem>
+      {revertRowChanges && (
+        <DropDownMenuItem onClick={revertRowChanges} keyText="Ctrl+R">
+          Revert row changes
+        </DropDownMenuItem>
+      )}
+      {deleteSelectedRows && (
+        <DropDownMenuItem onClick={deleteSelectedRows} keyText="Ctrl+Delete">
+          Delete selected rows
+        </DropDownMenuItem>
+      )}
+      {insertNewRow && (
+        <DropDownMenuItem onClick={insertNewRow} keyText="Insert">
+          Insert new row
+        </DropDownMenuItem>
+      )}
       <DropDownMenuDivider />
-      <DropDownMenuItem onClick={setNull} keyText="Ctrl+0">
-        Set NULL
-      </DropDownMenuItem>
+      {setNull && (
+        <DropDownMenuItem onClick={setNull} keyText="Ctrl+0">
+          Set NULL
+        </DropDownMenuItem>
+      )}
       {exportGrid && <DropDownMenuItem onClick={exportGrid}>Export</DropDownMenuItem>}
-      <DropDownMenuItem onClick={filterSelectedValue} keyText="Ctrl+F">
-        Filter selected value
-      </DropDownMenuItem>
+      {filterSelectedValue && (
+        <DropDownMenuItem onClick={filterSelectedValue} keyText="Ctrl+F">
+          Filter selected value
+        </DropDownMenuItem>
+      )}
       {openQuery && <DropDownMenuItem onClick={openQuery}>Open query</DropDownMenuItem>}
       <DropDownMenuItem onClick={openFreeTable}>Open selection in free table editor</DropDownMenuItem>
     </>

@@ -32,6 +32,7 @@ export class TableGridDisplay extends GridDisplay {
     this.filterable = true;
     this.sortable = true;
     this.editable = true;
+    this.supportsReload = true;
     this.baseTable = this.table;
     if (this.table && this.table.columns) {
       this.changeSetKeyFields = this.table.primaryKey

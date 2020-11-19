@@ -345,13 +345,13 @@ export default function DataGridCore(props) {
       event.pageY,
       <DataGridContextMenu
         copy={handleCopy}
-        revertRowChanges={revertRowChanges}
-        deleteSelectedRows={deleteSelectedRows}
-        insertNewRow={insertNewRow}
-        reload={() => display.reload()}
-        setNull={setNull}
+        revertRowChanges={grider.containsChanges ? revertRowChanges : null}
+        deleteSelectedRows={grider.editable ? deleteSelectedRows : null}
+        insertNewRow={grider.editable ? insertNewRow : null}
+        reload={display.supportsReload ? () => display.reload() : null}
+        setNull={grider.editable ? setNull : null}
         exportGrid={exportGrid}
-        filterSelectedValue={filterSelectedValue}
+        filterSelectedValue={display.filterable ? filterSelectedValue : null}
         openQuery={openQuery}
         openFreeTable={handleOpenFreeTable}
       />
