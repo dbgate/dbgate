@@ -2,16 +2,14 @@
   "name": "dbgate-api",
   "main": "src/index.js",
   "version": "1.0.5",
-
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbshell/dbgate.git"
-  },  
+  },
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
-  
   "keywords": [
     "sql",
     "mssql",
@@ -24,11 +22,7 @@
     "export",
     "dbgate"
   ],
-
   "dependencies": {
-    "dbgate-engines": "^1.0.0",
-    "dbgate-sqltree": "^1.0.0",
-    "dbgate-tools": "^1.0.0",
     "async-lock": "^1.2.4",
     "axios": "^0.19.0",
     "body-parser": "^1.19.0",
@@ -37,8 +31,10 @@
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "csv": "^5.3.2",
+    "dbgate-engines": "^1.0.0",
+    "dbgate-sqltree": "^1.0.0",
+    "dbgate-tools": "^1.0.0",
     "eslint": "^6.8.0",
-    "exceljs": "^4.0.1",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
     "express-fileupload": "^1.2.0",
@@ -51,7 +47,8 @@
     "mysql": "^2.17.1",
     "nedb-promises": "^4.0.1",
     "pg": "^7.17.0",
-    "pg-query-stream": "^3.1.1"
+    "pg-query-stream": "^3.1.1",
+    "xlsx": "^0.16.8"
   },
   "scripts": {
     "start": "nodemon src/index.js",
@@ -60,8 +57,8 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "dbgate-types": "^1.0.0",
     "@types/lodash": "^4.14.149",
+    "dbgate-types": "^1.0.0",
     "env-cmd": "^10.1.0",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.4",

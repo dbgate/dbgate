@@ -1,4 +1,4 @@
-const exceljs = require('exceljs');
+const xlsx = require('xlsx');
 const stream = require('stream');
 const _ = require('lodash');
 
@@ -8,28 +8,28 @@ async function loadWorkbook(fileName) {
   let workbook = loadedWorkbooks[fileName];
   if (workbook) return workbook;
   console.log(`Loading excel ${fileName}`);
-  workbook = new exceljs.Workbook();
-  await workbook.xlsx.readFile(fileName);
+  workbook = xlsx.readFile(fileName);
   loadedWorkbooks[fileName] = workbook;
   return workbook;
 }
 
 async function excelSheetReader({ fileName, sheetName, limitRows = undefined }) {
   const workbook = await loadWorkbook(fileName);
-  const sheet = workbook.getWorksheet(sheetName);
+  const sheet = workbook.Sheets[sheetName];
 
   const pass = new stream.PassThrough({
     objectMode: true,
   });
-  const header = sheet.getRow(1);
+  const rows = xlsx.utils.sheet_to_json(sheet, { header: 1 });
+  const header = rows[0];
   const structure = {
-    columns: _.range(header.cellCount).map((index) => ({ columnName: header.getCell(index + 1).value })),
+    columns: _.range(header.length).map((index) => ({ columnName: header[index] })),
   };
   pass.write(structure);
-  for (let rowIndex = 2; rowIndex <= sheet.rowCount; rowIndex++) {
-    if (limitRows && rowIndex > limitRows + 1) break;
-    const row = sheet.getRow(rowIndex);
-    const rowData = _.fromPairs(structure.columns.map((col, index) => [col.columnName, row.getCell(index + 1).value]));
+  for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+    if (limitRows && rowIndex > limitRows) break;
+    const row = rows[rowIndex];
+    const rowData = _.fromPairs(structure.columns.map((col, index) => [col.columnName, row[index]]));
     if (_.isEmpty(_.omitBy(rowData, (v) => v == null || v.toString().trim().length == 0))) continue;
     pass.write(rowData);
   }
