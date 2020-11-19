@@ -22,7 +22,7 @@ function extractApiParameters(values, direction, format) {
   const pairs = (format.args || [])
     .filter((arg) => arg.apiName)
     .map((arg) => [arg.apiName, values[`${direction}_${format.storageType}_${arg.name}`]])
-    .filter((x) => x[1]);
+    .filter((x) => x[1] != null);
   return _.fromPairs(pairs);
 }
 

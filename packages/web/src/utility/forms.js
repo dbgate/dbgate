@@ -50,12 +50,14 @@ export function FormTextField({ label, ...other }) {
   );
 }
 
-export function FormCheckboxFieldRaw({ name = undefined, ...other }) {
+export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefined, ...other }) {
   const { values, setFieldValue } = useFormikContext();
   const handleChange = (event) => {
     setFieldValue(name, event.target.checked);
   };
-  return <CheckboxField name={name} checked={!!values[name]} onChange={handleChange} {...other} />;
+  let isChecked = values[name];
+  if (isChecked == null) isChecked = defaultValue;
+  return <CheckboxField name={name} checked={!!isChecked} onChange={handleChange} {...other} />;
   // return <Field {...other} as={CheckboxField} />;
 }
 

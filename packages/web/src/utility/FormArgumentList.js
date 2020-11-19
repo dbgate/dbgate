@@ -20,7 +20,7 @@ function FormArgument({ arg, namePrefix }) {
     return <FormTextField label={arg.label} name={name} />;
   }
   if (arg.type == 'checkbox') {
-    return <FormCheckboxField label={arg.label} name={name} />;
+    return <FormCheckboxField label={arg.label} name={name} defaultValue={arg.default} />;
   }
   if (arg.type == 'select') {
     return (

@@ -21,6 +21,20 @@ const csvFormat: FileFormatDefinition = {
       ],
       apiName: 'delimiter',
     },
+    {
+      type: 'checkbox',
+      name: 'quoted',
+      label: 'Quoted',
+      apiName: 'quoted',
+      direction: 'target',
+    },
+    {
+      type: 'checkbox',
+      name: 'header',
+      label: 'Has header row',
+      apiName: 'header',
+      default: true,
+    },
   ],
 };
 
