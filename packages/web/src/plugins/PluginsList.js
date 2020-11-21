@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
+import PluginIcon from './PluginIcon';
 
 const Wrapper = styled.div`
   margin: 1px 3px 10px 5px;
@@ -25,7 +26,7 @@ const Line = styled.div`
   display: flex;
 `;
 
-const Icon = styled.img`
+const Icon = styled(PluginIcon)`
   width: 50px;
   height: 50px;
 `;
@@ -58,7 +59,7 @@ function PluginsListItem({ plugin }) {
   const theme = useTheme();
   return (
     <Wrapper onClick={() => openPlugin(setOpenedTabs, plugin)} theme={theme}>
-      <Icon src="https://raw.githubusercontent.com/dbshell/dbgate-plugin-csv/master/icon.svg" />
+      <Icon plugin={plugin} />
       <Texts>
         <Line>
           <Name>{plugin.package.name}</Name>
