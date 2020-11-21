@@ -17,6 +17,7 @@ import { ModalLayerProvider } from './modals/showModal';
 import UploadsProvider from './utility/UploadsProvider';
 import ThemeHelmet from './themes/ThemeHelmet';
 import PluginsProvider from './plugins/PluginsProvider';
+import { ExtensionsProvider } from './utility/useExtensions';
 
 function App() {
   return (
@@ -29,16 +30,18 @@ function App() {
                 <LeftPanelWidthProvider>
                   <ConnectionsPinger>
                     <PluginsProvider>
-                      <ModalLayerProvider>
-                        <CurrentArchiveProvider>
-                          <CurrentThemeProvider>
-                            <UploadsProvider>
-                              <ThemeHelmet />
-                              <Screen />
-                            </UploadsProvider>
-                          </CurrentThemeProvider>
-                        </CurrentArchiveProvider>
-                      </ModalLayerProvider>
+                      <ExtensionsProvider>
+                        <ModalLayerProvider>
+                          <CurrentArchiveProvider>
+                            <CurrentThemeProvider>
+                              <UploadsProvider>
+                                <ThemeHelmet />
+                                <Screen />
+                              </UploadsProvider>
+                            </CurrentThemeProvider>
+                          </CurrentArchiveProvider>
+                        </ModalLayerProvider>
+                      </ExtensionsProvider>
                     </PluginsProvider>
                   </ConnectionsPinger>
                 </LeftPanelWidthProvider>

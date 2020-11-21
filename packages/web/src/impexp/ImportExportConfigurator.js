@@ -354,10 +354,6 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   const [previewSource, setPreviewSource] = React.useState(null);
   const extensions = useExtensions();
 
-  console.log('ImportExportConfigurator', extensions);
-  const installed = useInstalledPlugins();
-  console.log('installed', installed);
-
   const handleUpload = React.useCallback(
     (file) => {
       console.log('UPLOAD', extensions);
