@@ -38,3 +38,15 @@ export default function PluginsProvider({ children }) {
   }, [installedPlugins]);
   return <PluginsContext.Provider value={plugins}>{children}</PluginsContext.Provider>;
 }
+
+export function usePlugins() {
+  const installed = useInstalledPlugins();
+  const loaded = React.useContext(PluginsContext);
+  return installed
+    .map((manifest) => ({
+      packageName: manifest.name,
+      manifest,
+      content: loaded[manifest.name],
+    }))
+    .filter((x) => x.content);
+}
