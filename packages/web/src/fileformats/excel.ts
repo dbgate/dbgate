@@ -1,9 +1,7 @@
 import axios from '../utility/axios';
-import fileFormatBase from './fileFormatBase';
 import { FileFormatDefinition } from './types';
 
 const excelFormat: FileFormatDefinition = {
-  ...fileFormatBase,
   storageType: 'excel',
   extension: 'xlsx',
   name: 'MS Excel',

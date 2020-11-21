@@ -97,14 +97,22 @@ function getFileFilters(storageType) {
   return res;
 }
 
+async function addFilesToSourceListDefault(file, newSources, newValues) {
+  const sourceName = file.name;
+  newSources.push(sourceName);
+  newValues[`sourceFile_${sourceName}`] = {
+    fileName: file.full,
+  };
+}
+
 async function addFilesToSourceList(files, values, setValues, preferedStorageType, setPreviewSource) {
   const newSources = [];
   const newValues = {};
   const storage = preferedStorageType || values.sourceStorageType;
   for (const file of getAsArray(files)) {
     const format = findFileFormat(storage);
-    if (format && format.addFilesToSourceList) {
-      await format.addFilesToSourceList(file, newSources, newValues);
+    if (format) {
+      await (format.addFilesToSourceList || addFilesToSourceListDefault)(file, newSources, newValues);
     }
   }
   newValues['sourceList'] = [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources];
