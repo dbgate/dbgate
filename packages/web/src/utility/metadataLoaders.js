@@ -88,6 +88,12 @@ const connectionListLoader = () => ({
   reloadTrigger: `connection-list-changed`,
 });
 
+const insttalledPluginsLoader = () => ({
+  url: 'plugins/installed',
+  params: {},
+  reloadTrigger: `installed-plugins-changed`,
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -242,4 +248,11 @@ export function getArchiveFolders(args) {
 }
 export function useArchiveFolders(args) {
   return useCore(archiveFoldersLoader, args);
+}
+
+export function getInstalledPlugins(args) {
+  return getCore(insttalledPluginsLoader, args) || [];
+}
+export function useInstalledPlugins(args) {
+  return useCore(insttalledPluginsLoader, args) || [];
 }

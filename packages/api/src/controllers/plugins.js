@@ -2,12 +2,32 @@ const fs = require('fs-extra');
 const fetch = require('node-fetch');
 const path = require('path');
 const pacote = require('pacote');
-const { pluginstmpdir } = require('../utility/directories');
+const { pluginstmpdir, pluginsdir } = require('../utility/directories');
+const socket = require('../utility/socket');
+
+async function loadPackageInfo(dir) {
+  const readmeFile = path.join(dir, 'README.md');
+  const packageFile = path.join(dir, 'package.json');
+
+  if (!(await fs.exists(packageFile))) {
+    return null;
+  }
+
+  let readme = null;
+  let manifest = null;
+  if (await fs.exists(readmeFile)) readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+  if (await fs.exists(packageFile)) manifest = JSON.parse(await fs.readFile(packageFile, { encoding: 'utf-8' }));
+  return {
+    readme,
+    manifest,
+  };
+}
 
 module.exports = {
   script_meta: 'get',
   async script({ packageName }) {
-    const data = await fs.readFile('/home/jena/jenasoft/dbgate-plugin-csv/lib/frontend.js', {
+    const file = path.join(pluginsdir(), packageName, 'lib', 'frontend.js');
+    const data = await fs.readFile(file, {
       encoding: 'utf-8',
     });
     return data;
@@ -15,21 +35,54 @@ module.exports = {
 
   search_meta: 'get',
   async search({ filter }) {
-    const response = await fetch(`https://api.npms.io/v2/search?q=keywords:dbgate ${encodeURIComponent(filter)}`);
+    // const response = await fetch(`https://api.npms.io/v2/search?q=keywords:dbgate ${encodeURIComponent(filter)}`);
+    // const json = await response.json();
+    // const { results } = json || {};
+    // return (results || []).map((x) => x.package);
+
+    const response = await fetch(
+      `https://www.npmjs.com/search/suggestions?q=dbgate-plugin ${encodeURIComponent(filter)}`
+    );
     const json = await response.json();
-    console.log(json);
-    const { results } = json || {};
-    return results || [];
+    return json || [];
   },
 
-  readme_meta: 'get',
-  async readme({ packageName }) {
+  info_meta: 'get',
+  async info({ packageName }) {
     const dir = path.join(pluginstmpdir(), packageName);
     if (!(await fs.exists(dir))) {
       await pacote.extract(packageName, dir);
     }
-    const file = path.join(dir, 'README.md');
-    if (await fs.exists(file)) return await fs.readFile(file, { encoding: 'utf-8' });
-    return '';
+    return await loadPackageInfo(dir);
+    // return await {
+    //   ...loadPackageInfo(dir),
+    //   installed: loadPackageInfo(path.join(pluginsdir(), packageName)),
+    // };
+  },
+
+  installed_meta: 'get',
+  async installed() {
+    const files = await fs.readdir(pluginsdir());
+    return await Promise.all(
+      files.map((packageName) =>
+        fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then((x) => JSON.parse(x))
+      )
+    );
+  },
+
+  install_meta: 'post',
+  async install({ packageName }) {
+    const dir = path.join(pluginsdir(), packageName);
+    if (!(await fs.exists(dir))) {
+      await pacote.extract(packageName, dir);
+    }
+    socket.emitChanged(`installed-plugins-changed`);
+  },
+
+  uninstall_meta: 'post',
+  async uninstall({ packageName }) {
+    const dir = path.join(pluginsdir(), packageName);
+    await fs.rmdir(dir, { recursive: true });
+    socket.emitChanged(`installed-plugins-changed`);
   },
 };

@@ -1,37 +1,17 @@
 import React from 'react';
-import _ from 'lodash';
-
-import { AppObjectList } from '../appobj/AppObjectList';
-import { useCurrentArchive, useSetCurrentArchive } from '../utility/globalState';
 import { SearchBoxWrapper, WidgetsInnerContainer } from './WidgetStyles';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
-import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
-import archiveFolderAppObject from '../appobj/archiveFolderAppObject';
-import archiveFileAppObject from '../appobj/archiveFileAppObject';
+import { useInstalledPlugins } from '../utility/metadataLoaders';
 import SearchInput from './SearchInput';
-import InlineButton from './InlineButton';
-import axios from '../utility/axios';
 import useFetch from '../utility/useFetch';
 import PluginsList from '../plugins/PluginsList';
 
 function InstalledPluginsList() {
-  //   const folders = useArchiveFolders();
-  //   const [filter, setFilter] = React.useState('');
-
-  //   const setArchive = useSetCurrentArchive();
-
-  //   const handleRefreshFolders = () => {
-  //     axios.post('archive/refresh-folders', {});
-  //   };
+  const plugins = useInstalledPlugins();
 
   return (
     <WidgetsInnerContainer>
-      {/* <AppObjectList
-        list={_.sortBy(folders, 'name')}
-        makeAppObj={archiveFolderAppObject()}
-        onObjectClick={(archive) => setArchive(archive.name)}
-        filter={filter}
-      /> */}
+      <PluginsList plugins={plugins} />
     </WidgetsInnerContainer>
   );
 }

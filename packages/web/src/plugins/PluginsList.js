@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
 import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
-import PluginIcon from './PluginIcon';
+import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtractors';
 
 const Wrapper = styled.div`
   margin: 1px 3px 10px 5px;
@@ -26,7 +26,7 @@ const Line = styled.div`
   display: flex;
 `;
 
-const Icon = styled(PluginIcon)`
+const Icon = styled.img`
   width: 50px;
   height: 50px;
 `;
@@ -43,33 +43,33 @@ const Version = styled.div`
   margin-left: 5px;
 `;
 
-function openPlugin(setOpenedTabs, plugin) {
+function openPlugin(setOpenedTabs, packageManifest) {
   openNewTab(setOpenedTabs, {
-    title: plugin.package.name,
+    title: packageManifest.name,
     icon: 'icon plugin',
     tabComponent: 'PluginTab',
     props: {
-      plugin,
+      packageName: packageManifest.name,
     },
   });
 }
 
-function PluginsListItem({ plugin }) {
+function PluginsListItem({ packageManifest }) {
   const setOpenedTabs = useSetOpenedTabs();
   const theme = useTheme();
   return (
-    <Wrapper onClick={() => openPlugin(setOpenedTabs, plugin)} theme={theme}>
-      <Icon plugin={plugin} />
+    <Wrapper onClick={() => openPlugin(setOpenedTabs, packageManifest)} theme={theme}>
+      <Icon src={extractPluginIcon(packageManifest)} />
       <Texts>
         <Line>
-          <Name>{plugin.package.name}</Name>
-          <Version>{plugin.package.version}</Version>
+          <Name>{packageManifest.name}</Name>
+          <Version>{packageManifest.version}</Version>
         </Line>
         <Line>
-          <Description>{plugin.package.description}</Description>
+          <Description>{packageManifest.description}</Description>
         </Line>
         <Line>
-          <Author>{plugin.package.author && plugin.package.author.name}</Author>
+          <Author>{extractPluginAuthor(packageManifest)}</Author>
         </Line>
       </Texts>
     </Wrapper>
@@ -79,8 +79,8 @@ function PluginsListItem({ plugin }) {
 export default function PluginsList({ plugins }) {
   return (
     <>
-      {plugins.map((plugin) => (
-        <PluginsListItem plugin={plugin} key={plugin.package.name} />
+      {plugins.map((packageManifest) => (
+        <PluginsListItem packageManifest={packageManifest} key={packageManifest.name} />
       ))}
     </>
   );
