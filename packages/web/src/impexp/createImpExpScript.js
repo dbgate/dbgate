@@ -181,7 +181,7 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     script.comment('@ImportExportConfigurator');
     script.comment(JSON.stringify(values));
   }
-  return script.s;
+  return script.getScript(extensions);
 }
 
 export function getActionOptions(extensions, source, values, targetDbinfo) {
