@@ -16,6 +16,7 @@ import ConnectionsPinger from './utility/ConnectionsPinger';
 import { ModalLayerProvider } from './modals/showModal';
 import UploadsProvider from './utility/UploadsProvider';
 import ThemeHelmet from './themes/ThemeHelmet';
+import PluginsProvider from './plugins/PluginsProvider';
 
 function App() {
   return (
@@ -31,7 +32,9 @@ function App() {
                       <CurrentArchiveProvider>
                         <CurrentThemeProvider>
                           <UploadsProvider>
-                            <ThemeHelmet />
+                            <PluginsProvider>
+                              <ThemeHelmet />
+                            </PluginsProvider>
                             <Screen />
                           </UploadsProvider>
                         </CurrentThemeProvider>

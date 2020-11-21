@@ -6,6 +6,7 @@ import ShellTab from './ShellTab';
 import InfoPageTab from './InfoPageTab';
 import ArchiveFileTab from './ArchiveFileTab';
 import FreeTableTab from './FreeTableTab';
+import PluginTab from './PluginTab';
 
 export default {
   TableDataTab,
@@ -16,4 +17,5 @@ export default {
   ShellTab,
   ArchiveFileTab,
   FreeTableTab,
+  PluginTab,
 };

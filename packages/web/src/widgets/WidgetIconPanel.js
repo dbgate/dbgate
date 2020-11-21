@@ -51,6 +51,11 @@ export default function WidgetIconPanel() {
       name: 'archive',
       title: 'Archive (saved tabular data)',
     },
+    {
+      icon: 'icon plugin',
+      name: 'plugins',
+      title: 'Extensions & Plugins',
+    },
     // {
     //   icon: 'fa-cog',
     //   name: 'settings',
