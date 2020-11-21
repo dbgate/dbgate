@@ -88,7 +88,7 @@ const connectionListLoader = () => ({
   reloadTrigger: `connection-list-changed`,
 });
 
-const insttalledPluginsLoader = () => ({
+const installedPluginsLoader = () => ({
   url: 'plugins/installed',
   params: {},
   reloadTrigger: `installed-plugins-changed`,
@@ -251,8 +251,8 @@ export function useArchiveFolders(args) {
 }
 
 export function getInstalledPlugins(args) {
-  return getCore(insttalledPluginsLoader, args) || [];
+  return getCore(installedPluginsLoader, args) || [];
 }
 export function useInstalledPlugins(args) {
-  return useCore(insttalledPluginsLoader, args) || [];
+  return useCore(installedPluginsLoader, args) || [];
 }

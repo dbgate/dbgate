@@ -3,9 +3,9 @@ import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';
-import { defaultFileFormat } from '../fileformats';
+import { getDefaultFileFormat } from '../utility/fileformats';
 
-function Menu({ data, setOpenedTabs, showModal }) {
+function Menu({ data, setOpenedTabs, showModal, extensions }) {
   const { connection, name } = data;
   const tooltip = `${connection.displayName || connection.server}\n${name}`;
 
@@ -27,7 +27,7 @@ function Menu({ data, setOpenedTabs, showModal }) {
       <ImportExportModal
         modalState={modalState}
         initialValues={{
-          sourceStorageType: defaultFileFormat.storageType,
+          sourceStorageType: getDefaultFileFormat(extensions).storageType,
           targetStorageType: 'database',
           targetConnectionId: data.connection._id,
           targetDatabaseName: data.name,
@@ -41,7 +41,7 @@ function Menu({ data, setOpenedTabs, showModal }) {
       <ImportExportModal
         modalState={modalState}
         initialValues={{
-          targetStorageType: defaultFileFormat.storageType,
+          targetStorageType: getDefaultFileFormat(extensions).storageType,
           sourceStorageType: 'database',
           sourceConnectionId: data.connection._id,
           sourceDatabaseName: data.name,

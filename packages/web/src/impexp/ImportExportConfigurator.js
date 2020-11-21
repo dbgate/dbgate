@@ -12,10 +12,10 @@ import {
   FormArchiveFolderSelect,
   FormArchiveFilesSelect,
 } from '../utility/forms';
-import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+import { useArchiveFiles, useConnectionInfo, useDatabaseInfo, useInstalledPlugins } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField, CheckboxField } from '../utility/inputs';
-import { createPreviewReader, getActionOptions, getTargetName, isFileStorage } from './createImpExpScript';
+import { createPreviewReader, getActionOptions, getTargetName } from './createImpExpScript';
 import getElectron from '../utility/getElectron';
 import ErrorInfo from '../widgets/ErrorInfo';
 import getAsArray from '../utility/getAsArray';
@@ -25,8 +25,9 @@ import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
-import { fileformats, findFileFormat, getFileFormatDirections } from '../fileformats';
+import { findFileFormat, getFileFormatDirections } from '../utility/fileformats';
 import FormArgumentList from '../utility/FormArgumentList';
+import useExtensions from '../utility/useExtensions';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -89,9 +90,9 @@ const Title = styled.div`
   margin: 10px 0px;
 `;
 
-function getFileFilters(storageType) {
+function getFileFilters(extensions, storageType) {
   const res = [];
-  const format = findFileFormat(storageType);
+  const format = findFileFormat(extensions, storageType);
   if (format) res.push({ name: format.name, extensions: [format.extension] });
   res.push({ name: 'All Files', extensions: ['*'] });
   return res;
@@ -105,12 +106,12 @@ async function addFilesToSourceListDefault(file, newSources, newValues) {
   };
 }
 
-async function addFilesToSourceList(files, values, setValues, preferedStorageType, setPreviewSource) {
+async function addFilesToSourceList(extensions, files, values, setValues, preferedStorageType, setPreviewSource) {
   const newSources = [];
   const newValues = {};
   const storage = preferedStorageType || values.sourceStorageType;
   for (const file of getAsArray(files)) {
-    const format = findFileFormat(storage);
+    const format = findFileFormat(extensions, storage);
     if (format) {
       await (format.addFilesToSourceList || addFilesToSourceListDefault)(file, newSources, newValues);
     }
@@ -132,17 +133,19 @@ function ElectronFilesInput() {
   const { values, setValues } = useFormikContext();
   const electron = getElectron();
   const [isLoading, setIsLoading] = React.useState(false);
+  const extensions = useExtensions();
 
   const handleClick = async () => {
     const files = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
       properties: ['openFile', 'multiSelections'],
-      filters: getFileFilters(values.sourceStorageType),
+      filters: getFileFilters(extensions, values.sourceStorageType),
     });
     if (files) {
       const path = window.require('path');
       try {
         setIsLoading(true);
         await addFilesToSourceList(
+          extensions,
           files.map((full) => ({
             full,
             ...path.parse(full),
@@ -183,6 +186,7 @@ function SourceTargetConfig({
   tablesField = undefined,
   engine = undefined,
 }) {
+  const extensions = useExtensions();
   const theme = useTheme();
   const { values, setFieldValue } = useFormikContext();
   const types =
@@ -190,7 +194,7 @@ function SourceTargetConfig({
       ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
       : [
           { value: 'database', label: 'Database', directions: ['source', 'target'] },
-          ...fileformats.map((format) => ({
+          ...extensions.fileFormats.map((format) => ({
             value: format.storageType,
             label: `${format.name} files(s)`,
             directions: getFileFormatDirections(format),
@@ -201,7 +205,7 @@ function SourceTargetConfig({
   const storageType = values[storageTypeField];
   const dbinfo = useDatabaseInfo({ conid: values[connectionIdField], database: values[databaseNameField] });
   const archiveFiles = useArchiveFiles({ folder: values[archiveFolderField] });
-  const format = findFileFormat(storageType);
+  const format = findFileFormat(extensions, storageType);
   return (
     <Column>
       {direction == 'source' && (
@@ -348,10 +352,17 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   const { setUploadListener } = useUploadsProvider();
   const theme = useTheme();
   const [previewSource, setPreviewSource] = React.useState(null);
+  const extensions = useExtensions();
+
+  console.log('ImportExportConfigurator', extensions);
+  const installed = useInstalledPlugins();
+  console.log('installed', installed);
 
   const handleUpload = React.useCallback(
     (file) => {
+      console.log('UPLOAD', extensions);
       addFilesToSourceList(
+        extensions,
         [
           {
             full: file.filePath,
@@ -365,7 +376,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
       );
       // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
     },
-    [setFieldValue, sourceList, values]
+    [extensions, setFieldValue, sourceList, values]
   );
 
   React.useEffect(() => {
@@ -381,11 +392,11 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
     }
   }, []);
 
-  const supportsPreview = !!findFileFormat(values.sourceStorageType);
+  const supportsPreview = !!findFileFormat(extensions, values.sourceStorageType);
 
   const handleChangePreviewSource = async () => {
     if (previewSource && supportsPreview) {
-      const reader = await createPreviewReader(values, previewSource);
+      const reader = await createPreviewReader(extensions, values, previewSource);
       if (onChangePreview) onChangePreview(reader);
     } else {
       onChangePreview(null);
@@ -444,8 +455,8 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
             header="Action"
             formatter={(row) => (
               <SelectField
-                options={getActionOptions(row, values, targetDbinfo)}
-                value={values[`actionType_${row}`] || getActionOptions(row, values, targetDbinfo)[0].value}
+                options={getActionOptions(extensions, row, values, targetDbinfo)}
+                value={values[`actionType_${row}`] || getActionOptions(extensions, row, values, targetDbinfo)[0].value}
                 onChange={(e) => setFieldValue(`actionType_${row}`, e.target.value)}
               />
             )}
@@ -455,7 +466,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
             header="Target"
             formatter={(row) => (
               <TextField
-                value={getTargetName(row, values)}
+                value={getTargetName(extensions, row, values)}
                 onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
               />
             )}

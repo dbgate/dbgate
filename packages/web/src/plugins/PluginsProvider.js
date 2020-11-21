@@ -9,12 +9,7 @@ export default function PluginsProvider({ children }) {
   const installedPlugins = useInstalledPlugins();
   const [plugins, setPlugins] = React.useState({});
   const handleLoadPlugins = async () => {
-    setPlugins((x) =>
-      _.pick(
-        x,
-        installedPlugins.map((y) => y.name)
-      )
-    );
+    const newPlugins = {};
     for (const installed of installedPlugins) {
       if (!_.keys(plugins).includes(installed.name)) {
         console.log('Loading module', installed.name);
@@ -26,12 +21,16 @@ export default function PluginsProvider({ children }) {
           },
         });
         const module = eval(resp.data);
-        setPlugins((v) => ({
-          ...v,
-          [installed.name]: module,
-        }));
+        console.log('Loaded plugin', module);
+        newPlugins[installed.name] = module.__esModule ? module.default : module;
       }
     }
+    setPlugins((x) =>
+      _.pick(
+        { ...x, ...newPlugins },
+        installedPlugins.map((y) => y.name)
+      )
+    );
   };
   React.useEffect(() => {
     handleLoadPlugins();
@@ -42,11 +41,16 @@ export default function PluginsProvider({ children }) {
 export function usePlugins() {
   const installed = useInstalledPlugins();
   const loaded = React.useContext(PluginsContext);
-  return installed
-    .map((manifest) => ({
-      packageName: manifest.name,
-      manifest,
-      content: loaded[manifest.name],
-    }))
-    .filter((x) => x.content);
+
+  return React.useMemo(
+    () =>
+      installed
+        .map((manifest) => ({
+          packageName: manifest.name,
+          manifest,
+          content: loaded[manifest.name],
+        }))
+        .filter((x) => x.content),
+    [installed, loaded]
+  );
 }

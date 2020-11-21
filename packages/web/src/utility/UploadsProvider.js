@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { findFileFormat } from '../fileformats';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
+import { findFileFormat } from './fileformats';
 import resolveApi from './resolveApi';
+import useExtensions from './useExtensions';
 
 const UploadsContext = React.createContext(null);
 
@@ -19,6 +20,7 @@ export function useUploadsProvider() {
 export function useUploadsZone() {
   const { uploadListener } = useUploadsProvider();
   const showModal = useShowModal();
+  const extensions = useExtensions();
 
   const onDrop = React.useCallback(
     (files) => {
@@ -43,7 +45,7 @@ export function useUploadsZone() {
         if (uploadListener) {
           uploadListener(fileData);
         } else {
-          if (findFileFormat(fileData.storageType)) {
+          if (findFileFormat(extensions, fileData.storageType)) {
             showModal((modalState) => (
               <ImportExportModal
                 uploadedFile={fileData}
@@ -73,7 +75,7 @@ export function useUploadsZone() {
         // reader.readAsArrayBuffer(file);
       });
     },
-    [uploadListener]
+    [uploadListener, extensions]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 

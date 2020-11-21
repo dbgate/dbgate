@@ -22,7 +22,8 @@ import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
 import LargeButton from '../widgets/LargeButton';
-import { defaultFileFormat } from '../fileformats';
+import { getDefaultFileFormat } from '../utility/fileformats';
+import useExtensions from '../utility/useExtensions';
 
 const headerHeight = '60px';
 const footerHeight = '100px';
@@ -92,9 +93,10 @@ const FooterButtons = styled.div`
 function GenerateSctriptButton({ modalState }) {
   const setOpenedTabs = useSetOpenedTabs();
   const { values } = useFormikContext();
+  const extensions = useExtensions();
 
   const handleGenerateScript = async () => {
-    const code = await createImpExpScript(values);
+    const code = await createImpExpScript(extensions, values);
     openNewTab(setOpenedTabs, {
       title: 'Shell',
       icon: 'img shell',
@@ -141,6 +143,7 @@ export default function ImportExportModal({
   const refreshArchiveFolderRef = React.useRef(null);
   const setArchive = useSetCurrentArchive();
   const setCurrentWidget = useSetCurrentWidget();
+  const extensions = useExtensions();
 
   const [busy, setBusy] = React.useState(false);
 
@@ -165,9 +168,9 @@ export default function ImportExportModal({
 
   const handleExecute = async (values) => {
     if (busy) return;
-    
+
     setBusy(true);
-    const script = await createImpExpScript(values);
+    const script = await createImpExpScript(extensions, values);
 
     setExecuteNumber((num) => num + 1);
 
@@ -194,7 +197,7 @@ export default function ImportExportModal({
         onSubmit={handleExecute}
         initialValues={{
           sourceStorageType: 'database',
-          targetStorageType: importToArchive ? 'archive' : defaultFileFormat.storageType,
+          targetStorageType: importToArchive ? 'archive' : getDefaultFileFormat(extensions).storageType,
           sourceArchiveFolder: archive,
           targetArchiveFolder,
           ...initialValues,

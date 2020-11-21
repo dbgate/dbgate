@@ -28,18 +28,18 @@ function App() {
               <OpenedConnectionsProvider>
                 <LeftPanelWidthProvider>
                   <ConnectionsPinger>
-                    <ModalLayerProvider>
-                      <CurrentArchiveProvider>
-                        <CurrentThemeProvider>
-                          <UploadsProvider>
-                            <PluginsProvider>
+                    <PluginsProvider>
+                      <ModalLayerProvider>
+                        <CurrentArchiveProvider>
+                          <CurrentThemeProvider>
+                            <UploadsProvider>
                               <ThemeHelmet />
-                            </PluginsProvider>
-                            <Screen />
-                          </UploadsProvider>
-                        </CurrentThemeProvider>
-                      </CurrentArchiveProvider>
-                    </ModalLayerProvider>
+                              <Screen />
+                            </UploadsProvider>
+                          </CurrentThemeProvider>
+                        </CurrentArchiveProvider>
+                      </ModalLayerProvider>
+                    </PluginsProvider>
                   </ConnectionsPinger>
                 </LeftPanelWidthProvider>
               </OpenedConnectionsProvider>
