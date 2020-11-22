@@ -6,6 +6,7 @@ const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir } = require('../utility/directories');
+const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -13,11 +14,16 @@ function extractPlugins(script) {
   return matches.map((x) => x[1]);
 }
 
+const requirePluginsTemplate = (plugins) =>
+  plugins
+    .map(
+      (packageName) => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
+    )
+    .join('');
+
 const scriptTemplate = (script) => `
 const dbgateApi = require(process.env.DBGATE_API);
-${extractPlugins(script)
-  .map((packageName) => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`)
-  .join('')}
+${requirePluginsTemplate(extractPlugins(script))}
 require=null;
 async function run() {
 ${script}
@@ -29,9 +35,10 @@ dbgateApi.runScript(run);
 
 const loaderScriptTemplate = (functionName, props, runid) => `
 const dbgateApi = require(process.env.DBGATE_API);
+${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-const reader=await dbgateApi.${functionName}(${JSON.stringify(props)});
+const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }

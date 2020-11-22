@@ -1,10 +1,11 @@
 import _ from 'lodash';
+import { extractShellApiFunctionName, extractShellApiPlugins } from 'dbgate-tools';
 
 export default class ScriptWriter {
   constructor() {
     this.s = '';
     this.packageNames = [];
-    this.engines = [];
+    // this.engines = [];
     this.varCount = 0;
   }
 
@@ -19,21 +20,8 @@ export default class ScriptWriter {
   }
 
   assign(variableName, functionName, props) {
-    const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
-    if (nsMatch) {
-      const packageName = nsMatch[2];
-      if (!this.packageNames.includes(packageName)) {
-        this.packageNames.push(packageName);
-      }
-      this.put(
-        `const ${variableName} = await ${_.camelCase(packageName)}.shellApi.${nsMatch[1]}(${JSON.stringify(props)});`
-      );
-    } else {
-      this.put(`const ${variableName} = await dbgateApi.${functionName}(${JSON.stringify(props)});`);
-    }
-    if (props && props.connection && props.connection.engine && !this.engines.includes(props.connection.engine)) {
-      this.engines.push(props.connection.engine);
-    }
+    this.put(`const ${variableName} = await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`);
+    this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
   copyStream(sourceVar, targetVar) {
@@ -54,6 +42,6 @@ export default class ScriptWriter {
     //   this.comment(JSON.stringify(this.engines));
     // }
     const packageNames = this.packageNames;
-    return packageNames.map((packageName) => `// @require ${packageName}\n`).join('') + '\n' + this.s;
+    return _.uniq(packageNames).map((packageName) => `// @require ${packageName}\n`).join('') + '\n' + this.s;
   }
 }
