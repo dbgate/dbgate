@@ -19,7 +19,7 @@ const requirePluginsTemplate = (plugins) =>
     .map(
       (packageName) => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
     )
-    .join('');
+    .join('') + `dbgateApi.registerPlugins(${plugins.map((x) => _.camelCase(x)).join(',')});\n`;
 
 const scriptTemplate = (script) => `
 const dbgateApi = require(process.env.DBGATE_API);

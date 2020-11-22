@@ -20,7 +20,6 @@ const sessions = require('./controllers/sessions');
 const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
-const files = require('./controllers/files');
 const archive = require('./controllers/archive');
 const uploads = require('./controllers/uploads');
 const plugins = require('./controllers/plugins');
@@ -65,7 +64,6 @@ function start(argument = null) {
   useController(app, '/runners', runners);
   useController(app, '/jsldata', jsldata);
   useController(app, '/config', config);
-  useController(app, '/files', files);
   useController(app, '/archive', archive);
   useController(app, '/uploads', uploads);
   useController(app, '/plugins', plugins);

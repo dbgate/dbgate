@@ -5,6 +5,10 @@ import { useInstalledPlugins } from '../utility/metadataLoaders';
 
 const PluginsContext = React.createContext(null);
 
+const dbgateEnv = {
+  axios,
+};
+
 export default function PluginsProvider({ children }) {
   const installedPlugins = useInstalledPlugins();
   const [plugins, setPlugins] = React.useState({});
@@ -22,7 +26,9 @@ export default function PluginsProvider({ children }) {
         });
         const module = eval(resp.data);
         console.log('Loaded plugin', module);
-        newPlugins[installed.name] = module.__esModule ? module.default : module;
+        const moduleContent = module.__esModule ? module.default : module;
+        if (moduleContent.initialize) moduleContent.initialize(dbgateEnv);
+        newPlugins[installed.name] = moduleContent;
       }
     }
     setPlugins((x) =>

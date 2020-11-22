@@ -4,6 +4,7 @@ const path = require('path');
 const pacote = require('pacote');
 const { pluginstmpdir, pluginsdir } = require('../utility/directories');
 const socket = require('../utility/socket');
+const requirePlugin = require('../shell/requirePlugin');
 
 async function loadPackageInfo(dir) {
   const readmeFile = path.join(dir, 'README.md');
@@ -84,5 +85,11 @@ module.exports = {
     const dir = path.join(pluginsdir(), packageName);
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
+  },
+
+  command_meta: 'post',
+  async command({ packageName, command, args }) {
+    const content = requirePlugin(packageName);
+    return content.commands[command](args);
   },
 };
