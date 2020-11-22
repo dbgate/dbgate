@@ -47,7 +47,7 @@ export function useUploadsZone() {
 
         for (const format of extensions.fileFormats) {
           if (file.name.endsWith('.' + format.extension)) {
-            fileData.shortName = file.name.slice(-format.extension.length - 1);
+            fileData.shortName = file.name.slice(0, -format.extension.length - 1);
             fileData.storageType = format.storageType;
           }
         }
