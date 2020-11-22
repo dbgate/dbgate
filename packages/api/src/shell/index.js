@@ -1,6 +1,4 @@
 const queryReader = require('./queryReader');
-const csvWriter = require('./csvWriter');
-const csvReader = require('./csvReader');
 const runScript = require('./runScript');
 const tableWriter = require('./tableWriter');
 const tableReader = require('./tableReader');
@@ -19,8 +17,6 @@ const finalizer = require('./finalizer');
 
 module.exports = {
   queryReader,
-  csvWriter,
-  csvReader,
   runScript,
   tableWriter,
   tableReader,
