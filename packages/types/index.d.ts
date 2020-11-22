@@ -39,4 +39,4 @@ export * from './query';
 export * from './dialect';
 export * from './dumper';
 export * from './dbtypes';
-export * from './fileformat';
+export * from './extensions';

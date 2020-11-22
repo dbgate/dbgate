@@ -56,6 +56,7 @@ const jsonlFormat = {
   writerFunc: 'jsonLinesWriter',
 };
 
+/** @returns {import('dbgate-types').FileFormatDefinition[]} */
 export function buildFileFormats(plugins) {
   const res = [excelFormat, jsonlFormat];
   for (const { content } of plugins) {

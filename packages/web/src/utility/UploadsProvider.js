@@ -30,6 +30,7 @@ export function useUploadsZone() {
           return;
         }
 
+        console.log('FILE', file);
         const formData = new FormData();
         formData.append('data', file);
 
@@ -41,6 +42,15 @@ export function useUploadsZone() {
         const apiBase = resolveApi();
         const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
         const fileData = await resp.json();
+
+        fileData.shortName = file.name;
+
+        for (const format of extensions.fileFormats) {
+          if (file.name.endsWith('.' + format.extension)) {
+            fileData.shortName = file.name.slice(-format.extension.length - 1);
+            fileData.storageType = format.storageType;
+          }
+        }
 
         if (uploadListener) {
           uploadListener(fileData);

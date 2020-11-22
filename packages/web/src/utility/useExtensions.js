@@ -11,6 +11,7 @@ export function ExtensionsProvider({ children }) {
 }
 
 export function buildExtensions(plugins) {
+  /** @type {import('dbgate-types').ExtensionsDirectory} */
   const extensions = {
     plugins,
     fileFormats: buildFileFormats(plugins),
@@ -18,6 +19,7 @@ export function buildExtensions(plugins) {
   return extensions;
 }
 
+/** @returns {import('dbgate-types').ExtensionsDirectory} */
 export default function useExtensions() {
   return React.useContext(ExtensionsContext);
 }
