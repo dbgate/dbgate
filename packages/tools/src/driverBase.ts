@@ -1,6 +1,6 @@
-const createBulkInsertStreamBase = require('./createBulkInsertStreamBase');
+import { createBulkInsertStreamBase } from './createBulkInsertStreamBase';
 
-const driverBase = {
+export const driverBase = {
   analyserClass: null,
   dumperClass: null,
 
@@ -24,11 +24,4 @@ const driverBase = {
   createDumper() {
     return new this.dumperClass(this);
   },
-  async writeTable(pool, name, options) {
-    const { stream, mssql } = pool._nativeModules;
-    // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
-  },
 };
-
-module.exports = driverBase;

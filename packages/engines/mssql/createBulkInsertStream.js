@@ -1,4 +1,4 @@
-const createBulkInsertStreamBase = require('../default/createBulkInsertStreamBase');
+const { createBulkInsertStreamBase } = require('dbgate-tools');
 
 /**
  *

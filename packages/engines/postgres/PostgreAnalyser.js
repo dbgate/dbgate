@@ -2,7 +2,7 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const DatabaseAnalayser = require('../default/DatabaseAnalyser');
+const { DatabaseAnalyser } = require('dbgate-tools');
 const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 
 function normalizeTypeName(dataType) {
@@ -35,7 +35,7 @@ function getColumnInfo({
   };
 }
 
-class PostgreAnalyser extends DatabaseAnalayser {
+class PostgreAnalyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
   }
@@ -84,8 +84,8 @@ class PostgreAnalyser extends DatabaseAnalayser {
           columns: columns.rows
             .filter((col) => col.pureName == table.pureName && col.schemaName == table.schemaName)
             .map(getColumnInfo),
-          primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
-          foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
+          primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
+          foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
         })),
         views: views.rows.map((view) => ({
           ...view,

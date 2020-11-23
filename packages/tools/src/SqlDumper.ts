@@ -1,13 +1,24 @@
-const _ = require('lodash');
-const moment = require('moment');
+import {
+  ColumnInfo,
+  EngineDriver,
+  ForeignKeyInfo,
+  NamedObjectInfo,
+  SqlDialect,
+  TableInfo,
+  TransformType,
+} from 'dbgate-types';
+import _ from 'lodash';
+import moment from 'moment';
 
-class SqlDumper {
-  /** @param driver {import('dbgate-types').EngineDriver} */
-  constructor(driver) {
-    this.s = '';
+export class SqlDumper {
+  s = '';
+  driver: EngineDriver;
+  dialect: SqlDialect;
+  indentLevel = 0;
+
+  constructor(driver: EngineDriver) {
     this.driver = driver;
     this.dialect = driver.dialect;
-    this.indentLevel = 0;
   }
   endCommand() {
     this.putRaw(';\n');
@@ -85,8 +96,7 @@ class SqlDumper {
     if (!collection) return;
     this.putCollection(', ', collection, (item) => this.putFormattedValue(c, item));
   }
-  /** @param format {string} */
-  put(format, ...args) {
+  put(format: string, ...args) {
     let i = 0;
     let argIndex = 0;
     const length = format.length;
@@ -149,10 +159,7 @@ class SqlDumper {
     this.put(' ^auto_increment');
   }
 
-  /**
-   * @param column {import('dbgate-types').ColumnInfo}
-   */
-  columnDefinition(column, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
+  columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
     if (column.computedExpression) {
       this.put('^as %s', column.computedExpression);
       if (column.isPersisted) this.put(' ^persisted');
@@ -175,10 +182,7 @@ class SqlDumper {
     }
   }
 
-  /**
-   * @param column {import('dbgate-types').ColumnInfo}
-   */
-  columnDefault(column) {
+  columnDefault(column: ColumnInfo) {
     if (column.defaultConstraint != null) {
       this.put(' ^constraint %i ^default %s ', column.defaultConstraint, column.defaultValue);
     } else {
@@ -186,13 +190,7 @@ class SqlDumper {
     }
   }
 
-  /**
-   * @template T
-   * @param {string} delimiter
-   * @param {T[]} collection
-   * @param {(col: T) => void} lambda
-   */
-  putCollection(delimiter, collection, lambda) {
+  putCollection<T>(delimiter: string, collection: T[], lambda: (col: T) => void) {
     if (!collection) return;
     let first = true;
     for (const item of collection) {
@@ -202,8 +200,7 @@ class SqlDumper {
     }
   }
 
-  /** @param table {import('dbgate-types').TableInfo} */
-  createTable(table) {
+  createTable(table: TableInfo) {
     this.put('^create ^table %f ( &>&n', table);
     this.putCollection(',&n', table.columns, (col) => {
       this.put('%i ', col.columnName);
@@ -245,8 +242,7 @@ class SqlDumper {
     // }
   }
 
-  /** @param fk {import('dbgate-types').ForeignKeyInfo} */
-  createForeignKeyFore(fk) {
+  createForeignKeyFore(fk: ForeignKeyInfo) {
     if (fk.constraintName != null) this.put('^constraint %i ', fk.constraintName);
     this.put(
       '^foreign ^key (%,i) ^references %f (%,i)',
@@ -258,16 +254,9 @@ class SqlDumper {
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);
   }
 
-  /** @param type {import('dbgate-types').TransformType} */
-  transform(type, dumpExpr) {
+  transform(type: TransformType, dumpExpr) {
     dumpExpr();
   }
 
-  /**
-   * @param table {import('dbgate-types').NamedObjectInfo}
-   * @param allow {boolean}
-   */
-  allowIdentityInsert(table, allow) {}
+  allowIdentityInsert(table: NamedObjectInfo, allow: boolean) {}
 }
-
-module.exports = SqlDumper;

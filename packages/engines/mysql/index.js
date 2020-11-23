@@ -1,4 +1,4 @@
-const driverBase = require('../default/driverBase');
+const { driverBase } = require('dbgate-tools');
 const MySqlAnalyser = require('./MySqlAnalyser');
 const MySqlDumper = require('./MySqlDumper');
 
@@ -143,6 +143,12 @@ const driver = {
     const { rows } = await this.query(connection, 'show databases');
     return rows.map((x) => ({ name: x.Database }));
   },
+  async writeTable(pool, name, options) {
+    const { stream } = pool._nativeModules;
+    // @ts-ignore
+    return createBulkInsertStreamBase(this, stream, pool, name, options);
+  },
+
   // createDumper() {
   //   return new MySqlDumper(this);
   // },

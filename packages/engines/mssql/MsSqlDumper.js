@@ -1,4 +1,4 @@
-const SqlDumper = require('../default/SqlDumper');
+const { SqlDumper } = require('dbgate-tools');
 
 class MsSqlDumper extends SqlDumper {
   autoIncrement() {

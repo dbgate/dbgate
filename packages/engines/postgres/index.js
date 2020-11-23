@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const driverBase = require('../default/driverBase');
+const { driverBase } = require('dbgate-tools');
 const PostgreAnalyser = require('./PostgreAnalyser');
 const PostgreDumper = require('./PostgreDumper');
 
@@ -174,6 +174,11 @@ const driver = {
   // createDumper() {
   //   return new PostgreDumper(this);
   // },
+  async writeTable(pool, name, options) {
+    const { stream } = pool._nativeModules;
+    // @ts-ignore
+    return createBulkInsertStreamBase(this, stream, pool, name, options);
+  },
   async listDatabases(client) {
     const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;

@@ -1,8 +1,8 @@
 const _ = require('lodash');
+const { driverBase } = require('dbgate-tools');
 const MsSqlAnalyser = require('./MsSqlAnalyser');
 const MsSqlDumper = require('./MsSqlDumper');
 const createBulkInsertStream = require('./createBulkInsertStream');
-const driverBase = require('../default/driverBase');
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {

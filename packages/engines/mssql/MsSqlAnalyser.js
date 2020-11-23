@@ -2,7 +2,7 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const DatabaseAnalyser = require('../default/DatabaseAnalyser');
+const { DatabaseAnalyser } = require('dbgate-tools');
 const { filter } = require('lodash');
 const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 

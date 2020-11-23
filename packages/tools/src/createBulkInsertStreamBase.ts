@@ -1,11 +1,8 @@
-const { prepareTableForImport } = require('dbgate-tools');
-const _ = require('lodash');
+import { EngineDriver } from 'dbgate-types';
+import _ from 'lodash';
+import { prepareTableForImport } from './tableTransforms';
 
-/**
- *
- * @param {import('dbgate-types').EngineDriver} driver
- */
-function createBulkInsertStreamBase(driver, stream, pool, name, options) {
+export function createBulkInsertStreamBase(driver, stream, pool, name, options): any {
   const fullNameQuoted = name.schemaName
     ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
     : driver.dialect.quoteIdentifier(name.pureName);
@@ -94,5 +91,3 @@ function createBulkInsertStreamBase(driver, stream, pool, name, options) {
 
   return writable;
 }
-
-module.exports = createBulkInsertStreamBase;

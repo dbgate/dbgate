@@ -2,7 +2,7 @@ const fp = require('lodash/fp');
 const _ = require('lodash');
 const sql = require('./sql');
 
-const DatabaseAnalayser = require('../default/DatabaseAnalyser');
+const { DatabaseAnalyser } = require('dbgate-tools');
 const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 const { rangeStep } = require('lodash/fp');
 
@@ -35,7 +35,7 @@ function objectTypeToField(type) {
   return null;
 }
 
-class MySqlAnalyser extends DatabaseAnalayser {
+class MySqlAnalyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
   }
@@ -103,8 +103,8 @@ class MySqlAnalyser extends DatabaseAnalayser {
         tables: tables.rows.map((table) => ({
           ...table,
           columns: columns.rows.filter((col) => col.pureName == table.pureName).map(getColumnInfo),
-          primaryKey: DatabaseAnalayser.extractPrimaryKeys(table, pkColumns.rows),
-          foreignKeys: DatabaseAnalayser.extractForeignKeys(table, fkColumns.rows),
+          primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
+          foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
         })),
         views: views.rows.map((view) => ({
           ...view,
