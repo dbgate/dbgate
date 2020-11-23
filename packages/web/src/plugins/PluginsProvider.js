@@ -24,7 +24,7 @@ export default function PluginsProvider({ children }) {
             packageName: installed.name,
           },
         });
-        const module = eval(resp.data);
+        const module = eval(`${resp.data}; plugin`);
         console.log('Loaded plugin', module);
         const moduleContent = module.__esModule ? module.default : module;
         if (moduleContent.initialize) moduleContent.initialize(dbgateEnv);
