@@ -94,6 +94,7 @@ export default function TableDataGrid({
 
   React.useEffect(() => {
     const newDisplay = createDisplay();
+    if (!newDisplay) return;
     if (display && display.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
     setDisplay(newDisplay);
   }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo]);
