@@ -41,11 +41,13 @@ module.exports = {
     // const { results } = json || {};
     // return (results || []).map((x) => x.package);
 
+    // DOCS: https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search
     const response = await fetch(
-      `https://www.npmjs.com/search/suggestions?q=dbgate-plugin ${encodeURIComponent(filter)}`
+      `http://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(filter)}+keywords:dbgateplugin&size=25&from=0`
     );
     const json = await response.json();
-    return json || [];
+    const { objects } = json || {};
+    return (objects || []).map((x) => x.package);
   },
 
   info_meta: 'get',

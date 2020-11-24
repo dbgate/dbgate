@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { SearchBoxWrapper, WidgetsInnerContainer } from './WidgetStyles';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useInstalledPlugins } from '../utility/metadataLoaders';
@@ -18,14 +19,25 @@ function InstalledPluginsList() {
 
 function AvailablePluginsList() {
   const [filter, setFilter] = React.useState('');
+  const [search, setSearch] = React.useState('');
 
   const plugins = useFetch({
     url: 'plugins/search',
     params: {
-      filter,
+      filter: search,
     },
     defaultValue: [],
   });
+
+  const setDebouncedFilter = React.useRef(
+    // @ts-ignore
+    _.debounce((value) => setSearch(value), 500)
+  );
+
+  React.useEffect(() => {
+    // @ts-ignore
+    setDebouncedFilter.current(filter);
+  }, [filter]);
 
   return (
     <>
