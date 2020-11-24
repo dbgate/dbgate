@@ -2,8 +2,8 @@ import { DatabaseInfo, DatabaseModification, EngineDriver } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
-import fp_pick from 'lodash/fp/pick';
 
+const fp_pick = (arg) => (array) => _pick(array, arg);
 export class DatabaseAnalyser {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
