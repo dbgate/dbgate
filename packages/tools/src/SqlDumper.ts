@@ -7,8 +7,9 @@ import {
   TableInfo,
   TransformType,
 } from 'dbgate-types';
-import _ from 'lodash';
-import moment from 'moment';
+import _isString from 'lodash/isString'
+import _isNumber from 'lodash/isNumber'
+import _isDate from 'lodash/isDate'
 
 export class SqlDumper {
   s = '';
@@ -47,9 +48,9 @@ export class SqlDumper {
     if (value === null) this.putRaw('NULL');
     if (value === true) this.putRaw('1');
     if (value === false) this.putRaw('0');
-    else if (_.isString(value)) this.putStringValue(value);
-    else if (_.isNumber(value)) this.putRaw(value.toString());
-    else if (_.isDate(value)) this.putStringValue(moment(value).toISOString());
+    else if (_isString(value)) this.putStringValue(value);
+    else if (_isNumber(value)) this.putRaw(value.toString());
+    else if (_isDate(value)) this.putStringValue(new Date(value).toISOString());
   }
   putCmd(format, ...args) {
     this.put(format, ...args);

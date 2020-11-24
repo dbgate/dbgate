@@ -1,5 +1,5 @@
 import { EngineDriver } from 'dbgate-types';
-import _ from 'lodash';
+import _intersection from 'lodash/intersection';
 import { prepareTableForImport } from './tableTransforms';
 
 export function createBulkInsertStreamBase(driver, stream, pool, name, options): any {
@@ -43,7 +43,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
       await driver.query(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
     }
 
-    this.columnNames = _.intersection(
+    this.columnNames = _intersection(
       structure.columns.map((x) => x.columnName),
       writable.structure.columns.map((x) => x.columnName)
     );

@@ -1,5 +1,3 @@
-import { createBulkInsertStreamBase } from './createBulkInsertStreamBase';
-
 export const driverBase = {
   analyserClass: null,
   dumperClass: null,

@@ -1,6 +1,8 @@
 import { DatabaseInfo, DatabaseModification, EngineDriver } from 'dbgate-types';
-import _ from 'lodash';
-import fp from 'lodash/fp';
+import _sortBy from 'lodash/sortBy';
+import _groupBy from 'lodash/groupBy';
+import _pick from 'lodash/pick';
+import fp_pick from 'lodash/fp/pick';
 
 export class DatabaseAnalyser {
   structure: DatabaseInfo;
@@ -54,7 +56,7 @@ export class DatabaseAnalyser {
       const newArray = newlyAnalysed[field] || [];
       const addedChangedIds = newArray.map((x) => extractObjectId(x));
       const removeAllIds = [...removedIds, ...addedChangedIds];
-      res[field] = _.sortBy(
+      res[field] = _sortBy(
         [...this.structure[field].filter((x) => !removeAllIds.includes(extractObjectId(x))), ...newArray],
         (x) => x.pureName
       );
@@ -92,17 +94,17 @@ export class DatabaseAnalyser {
     const filtered = pkColumns.filter(DatabaseAnalyser.byTableFilter(table));
     if (filtered.length == 0) return undefined;
     return {
-      ..._.pick(filtered[0], ['constraintName', 'schemaName', 'pureName']),
+      ..._pick(filtered[0], ['constraintName', 'schemaName', 'pureName']),
       constraintType: 'primaryKey',
-      columns: filtered.map(fp.pick('columnName')),
+      columns: filtered.map(fp_pick('columnName')),
     };
   }
   static extractForeignKeys(table, fkColumns) {
-    const grouped = _.groupBy(fkColumns.filter(DatabaseAnalyser.byTableFilter(table)), 'constraintName');
-    return _.keys(grouped).map((constraintName) => ({
+    const grouped = _groupBy(fkColumns.filter(DatabaseAnalyser.byTableFilter(table)), 'constraintName');
+    return Object.keys(grouped).map((constraintName) => ({
       constraintName,
       constraintType: 'foreignKey',
-      ..._.pick(grouped[constraintName][0], [
+      ..._pick(grouped[constraintName][0], [
         'constraintName',
         'schemaName',
         'pureName',
@@ -111,7 +113,7 @@ export class DatabaseAnalyser {
         'updateAction',
         'deleteAction',
       ]),
-      columns: grouped[constraintName].map(fp.pick(['columnName', 'refColumnName'])),
+      columns: grouped[constraintName].map(fp_pick(['columnName', 'refColumnName'])),
     }));
   }
 }
