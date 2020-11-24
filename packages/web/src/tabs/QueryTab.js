@@ -6,7 +6,6 @@ import engines from 'dbgate-engines';
 
 import {
   useConnectionInfo,
-  getTableInfo,
   getDbCore,
   getConnectionInfo,
   getSqlObjectInfo,
