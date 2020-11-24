@@ -4,13 +4,14 @@ import DataGrid from './DataGrid';
 import styled from 'styled-components';
 import { TableGridDisplay, createGridConfig, createGridCache } from 'dbgate-datalib';
 import { getFilterValueExpression } from 'dbgate-filterparser';
+import { findEngineDriver } from 'dbgate-tools';
 import { useConnectionInfo, getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
-import engines from 'dbgate-engines';
 import useSocket from '../utility/SocketProvider';
 import { VerticalSplitter } from '../widgets/Splitter';
 import stableStringify from 'json-stable-stringify';
 import ReferenceHeader from './ReferenceHeader';
 import SqlDataGridCore from './SqlDataGridCore';
+import useExtensions from '../utility/useExtensions';
 
 const ReferenceContainer = styled.div`
   position: absolute;
@@ -49,6 +50,7 @@ export default function TableDataGrid({
   const [childCache, setChildCache] = React.useState(createGridCache());
   const [refReloadToken, setRefReloadToken] = React.useState(0);
   const [myLoadedTime, setMyLoadedTime] = React.useState(0);
+  const extension = useExtensions();
 
   const { childConfig } = config;
   const setChildConfig = (value, reference = undefined) => {
@@ -75,7 +77,7 @@ export default function TableDataGrid({
     return connection
       ? new TableGridDisplay(
           { schemaName, pureName },
-          engines(connection),
+          findEngineDriver(connection, extension),
           config,
           setConfig,
           cache || myCache,

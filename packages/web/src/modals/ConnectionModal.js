@@ -7,10 +7,12 @@ import { Formik, Form } from 'formik';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
+import useExtensions from '../utility/useExtensions';
 // import FormikForm from '../utility/FormikForm';
 
 export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState('Not connected');
+  const extensions = useExtensions();
 
   const handleTest = async (values) => {
     const resp = await axios.post('connections/test', values);
@@ -31,9 +33,15 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
         <Form>
           <ModalContent>
             <FormSelectField label="Database engine" name="engine">
-              <option value="mssql">Microsoft SQL Server</option>
+              <option value=""></option>
+              {extensions.drivers.map((driver) => (
+                <option value={driver.engine} key={driver.engine}>
+                  {driver.title}
+                </option>
+              ))}
+              {/* <option value="mssql">Microsoft SQL Server</option>
               <option value="mysql">MySQL</option>
-              <option value="postgres">Postgre SQL</option>
+              <option value="postgres">Postgre SQL</option> */}
             </FormSelectField>
             <FormTextField label="Server" name="server" />
             <FormTextField label="Port" name="port" />

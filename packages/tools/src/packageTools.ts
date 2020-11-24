@@ -1,4 +1,7 @@
+import { EngineDriver, ExtensionsDirectory } from 'dbgate-types';
 import _camelCase from 'lodash/camelCase';
+import _isString from 'lodash/isString';
+import _isPlainObject from 'lodash/isPlainObject';
 
 export function extractShellApiPlugins(functionName, props): string[] {
   const res = [];
@@ -21,4 +24,17 @@ export function extractShellApiFunctionName(functionName) {
     return `${_camelCase(nsMatch[2])}.shellApi.${nsMatch[1]}`;
   }
   return `dbgateApi.${functionName}`;
+}
+
+export function findEngineDriver(connection, extensions: ExtensionsDirectory): EngineDriver {
+  if (_isString(connection)) {
+    return extensions.drivers.find((x) => x.engine == connection);
+  }
+  if (_isPlainObject(connection)) {
+    const { engine } = connection;
+    if (engine) {
+      return extensions.drivers.find((x) => x.engine == engine);
+    }
+  }
+  return null;
 }

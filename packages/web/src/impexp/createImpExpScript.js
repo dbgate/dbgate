@@ -2,8 +2,7 @@ import _ from 'lodash';
 import ScriptWriter from './ScriptWriter';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
-import engines from 'dbgate-engines';
-import { findObjectLike } from 'dbgate-tools';
+import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../utility/fileformats';
 
 export function getTargetName(extensions, source, values) {
@@ -26,10 +25,10 @@ function extractApiParameters(values, direction, format) {
   return _.fromPairs(pairs);
 }
 
-async function getConnection(storageType, conid, database) {
+async function getConnection(extensions, storageType, conid, database) {
   if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
-    const driver = engines(conn);
+    const driver = findEngineDriver(conn, extensions);
     return [
       {
         ..._.pick(conn, ['server', 'engine', 'user', 'password', 'port']),
@@ -154,11 +153,13 @@ export default async function createImpExpScript(extensions, values, addEditorIn
   const script = new ScriptWriter();
 
   const [sourceConnection, sourceDriver] = await getConnection(
+    extensions,
     values.sourceStorageType,
     values.sourceConnectionId,
     values.sourceDatabaseName
   );
   const [targetConnection, targetDriver] = await getConnection(
+    extensions,
     values.targetStorageType,
     values.targetConnectionId,
     values.targetDatabaseName
@@ -223,6 +224,7 @@ export function getActionOptions(extensions, source, values, targetDbinfo) {
 
 export async function createPreviewReader(extensions, values, sourceName) {
   const [sourceConnection, sourceDriver] = await getConnection(
+    extensions,
     values.sourceStorageType,
     values.sourceConnectionId,
     values.sourceDatabaseName

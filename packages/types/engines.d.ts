@@ -20,6 +20,7 @@ export interface WriteTableOptions {
 
 export interface EngineDriver {
   engine: string;
+  title: string;
   connect(nativeModules, { server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);

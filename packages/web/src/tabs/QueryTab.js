@@ -2,14 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import axios from '../utility/axios';
-import engines from 'dbgate-engines';
 
-import {
-  useConnectionInfo,
-  getDbCore,
-  getConnectionInfo,
-  getSqlObjectInfo,
-} from '../utility/metadataLoaders';
+import { useConnectionInfo, getDbCore, getConnectionInfo, getSqlObjectInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs, useOpenedTabs } from '../utility/globalState';
 import QueryToolbar from '../query/QueryToolbar';
@@ -23,15 +17,18 @@ import useSocket from '../utility/SocketProvider';
 import SaveSqlFileModal from '../modals/SaveSqlFileModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
+import useExtensions from '../utility/useExtensions';
+import { driverBase, findEngineDriver } from 'dbgate-tools';
 
 function useSqlTemplate(sqlTemplate, props) {
   const [sql, setSql] = React.useState('');
+  const extensions = useExtensions();
 
   async function loadTemplate() {
     if (sqlTemplate == 'CREATE TABLE') {
       const tableInfo = await getDbCore(props, props.objectTypeField || 'tables');
       const connection = await getConnectionInfo(props);
-      const driver = engines(connection.engine);
+      const driver = findEngineDriver(connection, extensions) || driverBase;
       const dmp = driver.createDumper();
       if (tableInfo) dmp.createTable(tableInfo);
       setSql(dmp.s);
@@ -47,7 +44,7 @@ function useSqlTemplate(sqlTemplate, props) {
       const procedureInfo = await getSqlObjectInfo(props);
       const connection = await getConnectionInfo(props);
 
-      const driver = engines(connection.engine);
+      const driver = findEngineDriver(connection, extensions) || driverBase;
       const dmp = driver.createDumper();
       if (procedureInfo) dmp.put('^execute %f', procedureInfo);
       setSql(dmp.s);

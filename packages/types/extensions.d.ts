@@ -1,3 +1,5 @@
+import { EngineDriver } from "./engines";
+
 export interface FileFormatDefinition {
   storageType: string;
   extension: string;
@@ -27,4 +29,5 @@ export interface PluginDefinition {
 export interface ExtensionsDirectory {
   plugins: PluginDefinition[];
   fileFormats: FileFormatDefinition[];
+  drivers: EngineDriver[];
 }

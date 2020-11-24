@@ -1,6 +1,20 @@
+import { SqlDumper } from "./SqlDumper";
+
+const dialect = {
+  limitSelect: true,
+  rangeSelect: true,
+  offsetFetchRangeSyntax: true,
+  stringEscapeChar: "'",
+  fallbackDataType: 'nvarchar(max)',
+  quoteIdentifier(s) {
+    return s;
+  },
+};
+
 export const driverBase = {
   analyserClass: null,
-  dumperClass: null,
+  dumperClass: SqlDumper,
+  dialect,
 
   async analyseFull(pool) {
     const analyser = new this.analyserClass(pool, this);
