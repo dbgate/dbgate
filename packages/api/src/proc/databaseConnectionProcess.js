@@ -1,7 +1,6 @@
-const engines = require('dbgate-engines');
 const stableStringify = require('json-stable-stringify');
-const driverConnect = require('../utility/driverConnect');
 const childProcessChecker = require('../utility/childProcessChecker');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 let systemConnection;
 let storedConnection;
@@ -26,14 +25,14 @@ async function checkedAsyncCall(promise) {
 }
 
 async function handleFullRefresh() {
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
   analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection));
   process.send({ msgtype: 'structure', structure: analysedStructure });
   setStatusName('ok');
 }
 
 async function handleIncrementalRefresh() {
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
   const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure));
   if (newStructure != null) {
     analysedStructure = newStructure;
@@ -58,8 +57,8 @@ async function handleConnect({ connection, structure }) {
   lastPing = new Date().getTime();
 
   if (!structure) setStatusName('pending');
-  const driver = engines(storedConnection);
-  systemConnection = await checkedAsyncCall(driverConnect(driver, storedConnection));
+  const driver = requireEngineDriver(storedConnection);
+  systemConnection = await checkedAsyncCall(driver.connect(storedConnection));
   if (structure) {
     analysedStructure = structure;
     handleIncrementalRefresh();
@@ -82,7 +81,7 @@ function waitConnected() {
 
 async function handleQueryData({ msgid, sql }) {
   await waitConnected();
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
   try {
     const res = await driver.query(systemConnection, sql);
     process.send({ msgtype: 'response', msgid, ...res });

@@ -7,9 +7,9 @@ import { DatabaseInfo, NamedObjectInfo, TableInfo, ViewInfo, ProcedureInfo, Func
 export interface StreamOptions {
   recordset: (columns) => void;
   row: (row) => void;
-  error: (error) => void;
-  done: (result) => void;
-  info: (info) => void;
+  error?: (error) => void;
+  done?: (result) => void;
+  info?: (info) => void;
 }
 
 export interface WriteTableOptions {
@@ -21,7 +21,7 @@ export interface WriteTableOptions {
 export interface EngineDriver {
   engine: string;
   title: string;
-  connect(nativeModules, { server, port, user, password, database }): any;
+  connect({ server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
   readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
