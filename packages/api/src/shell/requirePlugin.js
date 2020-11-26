@@ -12,8 +12,16 @@ function requirePlugin(packageName, requiredPlugin = null) {
   if (loadedPlugins[packageName]) return loadedPlugins[packageName];
 
   if (requiredPlugin == null) {
-    console.log('Loading module', packageName);
-    const module = require(path.join(pluginsdir(), packageName, 'dist', 'backend.js'));
+    let module;
+    const modulePath = path.join(pluginsdir(), packageName, 'dist', 'backend.js');
+    console.log(`Loading module ${packageName} from ${modulePath}`);
+    try {
+      // @ts-ignore
+      module = __non_webpack_require__(modulePath);
+    } catch (err) {
+      console.error('Failed load webpacked module', err);
+      module = require(modulePath);
+    }
     requiredPlugin = module.__esModule ? module.default : module;
   }
   loadedPlugins[packageName] = requiredPlugin;
