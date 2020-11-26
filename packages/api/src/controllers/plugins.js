@@ -1,10 +1,10 @@
 const fs = require('fs-extra');
-const fetch = require('node-fetch');
+const axios = require('axios');
 const path = require('path');
-const pacote = require('pacote');
 const { pluginstmpdir, pluginsdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const requirePlugin = require('../shell/requirePlugin');
+const downloadPackage = require('../utility/downloadPackage');
 
 async function loadPackageInfo(dir) {
   const readmeFile = path.join(dir, 'README.md');
@@ -36,17 +36,11 @@ module.exports = {
 
   search_meta: 'get',
   async search({ filter }) {
-    // const response = await fetch(`https://api.npms.io/v2/search?q=keywords:dbgate ${encodeURIComponent(filter)}`);
-    // const json = await response.json();
-    // const { results } = json || {};
-    // return (results || []).map((x) => x.package);
-
     // DOCS: https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search
-    const response = await fetch(
+    const resp = await axios.default.get(
       `http://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(filter)}+keywords:dbgateplugin&size=25&from=0`
     );
-    const json = await response.json();
-    const { objects } = json || {};
+    const { objects } = resp.data || {};
     return (objects || []).map((x) => x.package);
   },
 
@@ -54,7 +48,7 @@ module.exports = {
   async info({ packageName }) {
     const dir = path.join(pluginstmpdir(), packageName);
     if (!(await fs.exists(dir))) {
-      await pacote.extract(packageName, dir);
+      await downloadPackage(packageName, dir);
     }
     return await loadPackageInfo(dir);
     // return await {
@@ -77,7 +71,7 @@ module.exports = {
   async install({ packageName }) {
     const dir = path.join(pluginsdir(), packageName);
     if (!(await fs.exists(dir))) {
-      await pacote.extract(packageName, dir);
+      await downloadPackage(packageName, dir);
     }
     socket.emitChanged(`installed-plugins-changed`);
   },
