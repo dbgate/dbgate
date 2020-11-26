@@ -25,7 +25,6 @@
     "byline": "^5.0.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
-    "dbgate-engines": "^1.0.0",
     "dbgate-sqltree": "^1.0.0",
     "dbgate-tools": "^1.0.0",
     "eslint": "^6.8.0",
@@ -37,13 +36,9 @@
     "http": "^0.0.0",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.15",
-    "mssql": "^6.0.1",
-    "mysql": "^2.17.1",
     "nedb-promises": "^4.0.1",
     "node-fetch": "^2.6.1",
-    "pacote": "^11.1.13",
-    "pg": "^7.17.0",
-    "pg-query-stream": "^3.1.1"
+    "pacote": "^11.1.13"
   },
   "scripts": {
     "start": "nodemon src/index.js",

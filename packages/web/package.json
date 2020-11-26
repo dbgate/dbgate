@@ -12,7 +12,6 @@
     "axios": "^0.19.0",
     "cross-env": "^6.0.3",
     "dbgate-datalib": "^1.0.0",
-    "dbgate-engines": "^1.0.0",
     "dbgate-sqltree": "^1.0.0",
     "dbgate-tools": "^1.0.0",
     "eslint": "^6.8.0",
