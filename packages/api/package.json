@@ -12,10 +12,6 @@
   "license": "GPL",
   "keywords": [
     "sql",
-    "mssql",
-    "mssql",
-    "postgresql",
-    "excel",
     "json",
     "import",
     "export",

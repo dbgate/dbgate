@@ -27,7 +27,7 @@ async function loadPackageInfo(dir) {
 module.exports = {
   script_meta: 'get',
   async script({ packageName }) {
-    const file = path.join(pluginsdir(), packageName, 'lib', 'frontend.js');
+    const file = path.join(pluginsdir(), packageName, 'dist', 'frontend.js');
     const data = await fs.readFile(file, {
       encoding: 'utf-8',
     });

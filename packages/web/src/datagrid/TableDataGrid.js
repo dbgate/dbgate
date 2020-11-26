@@ -50,7 +50,7 @@ export default function TableDataGrid({
   const [childCache, setChildCache] = React.useState(createGridCache());
   const [refReloadToken, setRefReloadToken] = React.useState(0);
   const [myLoadedTime, setMyLoadedTime] = React.useState(0);
-  const extension = useExtensions();
+  const extensions = useExtensions();
 
   const { childConfig } = config;
   const setChildConfig = (value, reference = undefined) => {
@@ -77,7 +77,7 @@ export default function TableDataGrid({
     return connection
       ? new TableGridDisplay(
           { schemaName, pureName },
-          findEngineDriver(connection, extension),
+          findEngineDriver(connection, extensions),
           config,
           setConfig,
           cache || myCache,
@@ -99,7 +99,7 @@ export default function TableDataGrid({
     if (!newDisplay) return;
     if (display && display.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
     setDisplay(newDisplay);
-  }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo]);
+  }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo, extensions]);
 
   const handleDatabaseStructureChanged = React.useCallback(() => {
     (setCache || setMyCache)(createGridCache());

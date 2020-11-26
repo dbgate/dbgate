@@ -13,7 +13,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
 
   if (requiredPlugin == null) {
     console.log('Loading module', packageName);
-    const module = require(path.join(pluginsdir(), packageName, 'lib', 'backend.js'));
+    const module = require(path.join(pluginsdir(), packageName, 'dist', 'backend.js'));
     requiredPlugin = module.__esModule ? module.default : module;
   }
   loadedPlugins[packageName] = requiredPlugin;

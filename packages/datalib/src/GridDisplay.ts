@@ -424,6 +424,7 @@ export abstract class GridDisplay {
   }
 
   getPageQuery(offset: number, count: number) {
+    if (!this.driver) return null;
     const select = this.createSelect();
     if (!select) return null;
     if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
