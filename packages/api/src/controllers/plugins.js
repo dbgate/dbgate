@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const axios = require('axios');
 const path = require('path');
-const { pluginstmpdir, pluginsdir } = require('../utility/directories');
+const { pluginsdir, datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
@@ -23,6 +23,14 @@ const downloadPackage = require('../utility/downloadPackage');
 //     manifest,
 //   };
 // }
+
+const preinstallPlugins = [
+  'dbgate-plugin-mssql',
+  'dbgate-plugin-mysql',
+  'dbgate-plugin-postgres',
+  'dbgate-plugin-csv',
+  'dbgate-plugin-excel',
+];
 
 module.exports = {
   script_meta: 'get',
@@ -110,11 +118,33 @@ module.exports = {
     const dir = path.join(pluginsdir(), packageName);
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
+    this.removedPlugins.push(packageName);
+    await fs.writeFile(path.join(datadir(), 'removed-plugins'), this.removedPlugins.join('\n'));
   },
 
   command_meta: 'post',
   async command({ packageName, command, args }) {
     const content = requirePlugin(packageName);
     return content.commands[command](args);
+  },
+
+  async _init() {
+    const installed = await this.installed();
+    try {
+      this.removedPlugins = (await fs.readFile(path.join(datadir(), 'removed-plugins'), { encoding: 'utf-8' })).split(
+        '\n'
+      );
+    } catch (err) {
+      this.removedPlugins = [];
+    }
+    for (const packageName of preinstallPlugins) {
+      if (this.removedPlugins.includes(packageName)) continue;
+      try {
+        console.log('Preinstalling plugin', packageName);
+        await this.install({ packageName });
+      } catch (err) {
+        console.error('Error preinstalling plugin', packageName, err);
+      }
+    }
   },
 };
