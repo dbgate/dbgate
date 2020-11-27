@@ -2,7 +2,8 @@ import _ from 'lodash';
 
 export function extractPluginIcon(packageManifest) {
   const { links } = packageManifest || {};
-  const { repository, homepage } = links || {};
+  const { repository } = links || {};
+  const homepage = (links && links.homepage) || packageManifest.homepage;
   const tested = repository || homepage || packageManifest.homepage;
 
   if (tested) {

@@ -55,7 +55,7 @@ function Delimiter() {
   return <span> | </span>;
 }
 
-export default function PluginTab({ packageName }) {
+function PluginTabCore({ packageName }) {
   const theme = useTheme();
   const installed = useInstalledPlugins();
   const info = useFetch({
@@ -63,7 +63,7 @@ export default function PluginTab({ packageName }) {
     url: 'plugins/info',
     defaultValue: null,
   });
-  const { readme, manifest } = info || {};
+  let { readme, manifest } = info || {};
   const handleInstall = async () => {
     axios.post('plugins/install', { packageName });
   };
@@ -71,34 +71,52 @@ export default function PluginTab({ packageName }) {
     axios.post('plugins/uninstall', { packageName });
   };
 
+  if (info == null) {
+    return <LoadingInfo message="Loading extension detail" />;
+  }
+
+  if (manifest == null) {
+    const installedFound = installed.find((x) => x.name == packageName);
+    if (installedFound) {
+      manifest = installedFound;
+      readme = installedFound.readme;
+    }
+    if (manifest == null) {
+      return null;
+    }
+  }
+
+  return (
+    <>
+      <Header theme={theme}>
+        <Icon src={extractPluginIcon(manifest)} />
+        <HeaderBody>
+          <Title theme={theme}>{packageName}</Title>
+          <HeaderLine>
+            <Author>{extractPluginAuthor(manifest)}</Author>
+            <Delimiter />
+            <Version>{manifest.version && manifest.version}</Version>
+          </HeaderLine>
+          <HeaderLine>
+            {!installed.find((x) => x.name == packageName) && (
+              <FormStyledButton type="button" value="Install" onClick={handleInstall} />
+            )}
+            {!!installed.find((x) => x.name == packageName) && (
+              <FormStyledButton type="button" value="Uninstall" onClick={handleUninstall} />
+            )}
+          </HeaderLine>
+        </HeaderBody>
+      </Header>
+      <ReactMarkdown>{readme}</ReactMarkdown>
+    </>
+  );
+}
+
+export default function PluginTab({ packageName }) {
+  const theme = useTheme();
   return (
     <WhitePage theme={theme}>
-      {info == null || manifest == null ? (
-        <LoadingInfo message="Loading extension detail" />
-      ) : (
-        <>
-          <Header theme={theme}>
-            <Icon src={extractPluginIcon(manifest)} />
-            <HeaderBody>
-              <Title theme={theme}>{packageName}</Title>
-              <HeaderLine>
-                <Author>{extractPluginAuthor(manifest)}</Author>
-                <Delimiter />
-                <Version>{manifest.version && manifest.version}</Version>
-              </HeaderLine>
-              <HeaderLine>
-                {!installed.find((x) => x.name == packageName) && (
-                  <FormStyledButton type="button" value="Install" onClick={handleInstall} />
-                )}
-                {!!installed.find((x) => x.name == packageName) && (
-                  <FormStyledButton type="button" value="Uninstall" onClick={handleUninstall} />
-                )}
-              </HeaderLine>
-            </HeaderBody>
-          </Header>
-          <ReactMarkdown>{readme}</ReactMarkdown>
-        </>
-      )}
+      <PluginTabCore packageName={packageName} />
     </WhitePage>
   );
 }

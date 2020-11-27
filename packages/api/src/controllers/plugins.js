@@ -6,23 +6,23 @@ const socket = require('../utility/socket');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
 
-async function loadPackageInfo(dir) {
-  const readmeFile = path.join(dir, 'README.md');
-  const packageFile = path.join(dir, 'package.json');
+// async function loadPackageInfo(dir) {
+//   const readmeFile = path.join(dir, 'README.md');
+//   const packageFile = path.join(dir, 'package.json');
 
-  if (!(await fs.exists(packageFile))) {
-    return null;
-  }
+//   if (!(await fs.exists(packageFile))) {
+//     return null;
+//   }
 
-  let readme = null;
-  let manifest = null;
-  if (await fs.exists(readmeFile)) readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
-  if (await fs.exists(packageFile)) manifest = JSON.parse(await fs.readFile(packageFile, { encoding: 'utf-8' }));
-  return {
-    readme,
-    manifest,
-  };
-}
+//   let readme = null;
+//   let manifest = null;
+//   if (await fs.exists(readmeFile)) readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+//   if (await fs.exists(packageFile)) manifest = JSON.parse(await fs.readFile(packageFile, { encoding: 'utf-8' }));
+//   return {
+//     readme,
+//     manifest,
+//   };
+// }
 
 module.exports = {
   script_meta: 'get',
@@ -46,11 +46,28 @@ module.exports = {
 
   info_meta: 'get',
   async info({ packageName }) {
-    const dir = path.join(pluginstmpdir(), packageName);
-    if (!(await fs.exists(dir))) {
-      await downloadPackage(packageName, dir);
+    try {
+      const infoResp = await axios.default.get(`https://registry.npmjs.org/${packageName}`);
+      const { latest } = infoResp.data['dist-tags'];
+      const manifest = infoResp.data.versions[latest];
+      const { readme } = infoResp.data;
+
+      return {
+        readme,
+        manifest,
+      };
+    } catch (err) {
+      return {
+        state: 'error',
+        error: err.message,
+      };
     }
-    return await loadPackageInfo(dir);
+
+    // const dir = path.join(pluginstmpdir(), packageName);
+    // if (!(await fs.exists(dir))) {
+    //   await downloadPackage(packageName, dir);
+    // }
+    // return await loadPackageInfo(dir);
     // return await {
     //   ...loadPackageInfo(dir),
     //   installed: loadPackageInfo(path.join(pluginsdir(), packageName)),
@@ -60,11 +77,23 @@ module.exports = {
   installed_meta: 'get',
   async installed() {
     const files = await fs.readdir(pluginsdir());
-    return await Promise.all(
-      files.map((packageName) =>
-        fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then((x) => JSON.parse(x))
-      )
-    );
+    const res = [];
+    for (const packageName of files) {
+      const manifest = await fs
+        .readFile(path.join(pluginsdir(), packageName, 'package.json'))
+        .then((x) => JSON.parse(x));
+      const readmeFile = path.join(pluginsdir(), packageName, 'README.md');
+      if (await fs.exists(readmeFile)) {
+        manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+      }
+      res.push(manifest);
+    }
+    return res;
+    // const res = await Promise.all(
+    //   files.map((packageName) =>
+    //     fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then((x) => JSON.parse(x))
+    //   )
+    // );
   },
 
   install_meta: 'post',
