@@ -10,7 +10,8 @@ import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
-import { defaultFileFormat } from '../fileformats';
+import useExtensions from '../utility/useExtensions';
+import { getDefaultFileFormat } from '../utility/fileformats';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -28,6 +29,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const showModal = useShowModal();
   const currentTheme = useCurrentTheme();
   const setCurrentTheme = useSetCurrentTheme();
+  const extensions = useExtensions();
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
@@ -41,7 +43,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         modalState={modalState}
         importToArchive
         initialValues={{
-          sourceStorageType: defaultFileFormat.storageType,
+          sourceStorageType: getDefaultFileFormat(extensions).storageType,
           // sourceConnectionId: data.conid,
           // sourceDatabaseName: data.database,
           // sourceSchemaName: data.schemaName,

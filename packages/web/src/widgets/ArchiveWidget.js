@@ -1,19 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
-import { useCurrentArchive, useOpenedTabs, useSavedSqlFiles, useSetCurrentArchive } from '../utility/globalState';
-import closedTabAppObject from '../appobj/closedTabAppObject';
-import {
-  SearchBoxWrapper,
-  WidgetsInnerContainer,
-  WidgetsMainContainer,
-  WidgetsOuterContainer,
-  WidgetTitle,
-} from './WidgetStyles';
+import { useCurrentArchive, useSetCurrentArchive } from '../utility/globalState';
+import { SearchBoxWrapper, WidgetsInnerContainer } from './WidgetStyles';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
-import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
 import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
 import archiveFolderAppObject from '../appobj/archiveFolderAppObject';
 import archiveFileAppObject from '../appobj/archiveFileAppObject';

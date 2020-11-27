@@ -1,4 +1,3 @@
-const engines = require('dbgate-engines');
 const uuidv1 = require('uuid/v1');
 const path = require('path');
 const fs = require('fs');
@@ -6,8 +5,8 @@ const _ = require('lodash');
 const childProcessChecker = require('../utility/childProcessChecker');
 const goSplit = require('../utility/goSplit');
 
-const driverConnect = require('../utility/driverConnect');
 const { jsldir } = require('../utility/directories');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 let systemConnection;
 let storedConnection;
@@ -119,8 +118,8 @@ class StreamHandler {
 async function handleConnect(connection) {
   storedConnection = connection;
 
-  const driver = engines(storedConnection);
-  systemConnection = await driverConnect(driver, storedConnection);
+  const driver = requireEngineDriver(storedConnection);
+  systemConnection = await driver.connect(storedConnection);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
@@ -142,7 +141,7 @@ function waitConnected() {
 
 async function handleExecuteQuery({ sql }) {
   await waitConnected();
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
 
   let resultIndex = 0;
   for (const sqlItem of goSplit(sql)) {

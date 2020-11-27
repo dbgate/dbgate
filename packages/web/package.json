@@ -4,9 +4,6 @@
   "private": true,
   "dependencies": {
     "@ant-design/colors": "^5.0.0",
-    "dbgate-datalib": "^1.0.0",
-    "dbgate-engines": "^1.0.0",
-    "dbgate-sqltree": "^1.0.0",
     "@mdi/font": "^5.8.55",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -14,6 +11,9 @@
     "ace-builds": "^1.4.8",
     "axios": "^0.19.0",
     "cross-env": "^6.0.3",
+    "dbgate-datalib": "^1.0.0",
+    "dbgate-sqltree": "^1.0.0",
+    "dbgate-tools": "^1.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
     "formik": "^2.1.0",
@@ -24,6 +24,7 @@
     "react-dropzone": "^11.2.3",
     "react-helmet": "^6.1.0",
     "react-json-view": "^1.19.1",
+    "react-markdown": "^5.0.3",
     "react-modal": "^3.11.1",
     "react-scripts": "3.3.0",
     "react-select": "^3.1.0",
@@ -54,9 +55,9 @@
     ]
   },
   "devDependencies": {
-    "dbgate-types": "^1.0.0",
     "@types/react": "^16.9.17",
     "@types/styled-components": "^4.4.2",
+    "dbgate-types": "^1.0.0",
     "typescript": "^3.7.4"
   }
 }

@@ -35,6 +35,7 @@ const dirFunc = (dirname, clean = false) => () => {
 const jsldir = dirFunc('jsl', true);
 const rundir = dirFunc('run', true);
 const uploadsdir = dirFunc('uploads', true);
+const pluginsdir = dirFunc('plugins');
 const archivedir = dirFunc('archive');
 
 module.exports = {
@@ -44,4 +45,5 @@ module.exports = {
   uploadsdir,
   archivedir,
   ensureDirectory,
+  pluginsdir,
 };

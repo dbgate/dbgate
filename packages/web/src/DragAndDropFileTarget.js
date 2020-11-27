@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { fileformats } from './fileformats';
 import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
+import useExtensions from './utility/useExtensions';
 
 const TargetStyled = styled.div`
   position: fixed;
@@ -40,6 +40,7 @@ const TitleWrapper = styled.div`
 
 export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
   const theme = useTheme();
+  const { fileFormats } = useExtensions();
   return (
     !!isDragActive && (
       <TargetStyled theme={theme}>
@@ -50,7 +51,7 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
           <TitleWrapper>Drop the files to upload to DbGate</TitleWrapper>
           <InfoWrapper>
             Supported file types:{' '}
-            {fileformats
+            {fileFormats
               .filter((x) => x.readerFunc)
               .map((x) => x.name)
               .join(', ')}

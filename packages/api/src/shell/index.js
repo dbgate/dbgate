@@ -1,14 +1,10 @@
 const queryReader = require('./queryReader');
-const csvWriter = require('./csvWriter');
-const csvReader = require('./csvReader');
 const runScript = require('./runScript');
 const tableWriter = require('./tableWriter');
 const tableReader = require('./tableReader');
 const copyStream = require('./copyStream');
 const fakeObjectReader = require('./fakeObjectReader');
 const consoleObjectWriter = require('./consoleObjectWriter');
-const excelSheetReader = require('./excelSheetReader');
-const excelSheetWriter = require('./excelSheetWriter');
 const jsonLinesWriter = require('./jsonLinesWriter');
 const jsonLinesReader = require('./jsonLinesReader');
 const jslDataReader = require('./jslDataReader');
@@ -16,16 +12,15 @@ const archiveWriter = require('./archiveWriter');
 const archiveReader = require('./archiveReader');
 const collectorWriter = require('./collectorWriter');
 const finalizer = require('./finalizer');
+const registerPlugins = require('./registerPlugins');
+const requirePlugin = require('./requirePlugin');
 
-module.exports = {
+const dbgateApi = {
   queryReader,
-  csvWriter,
-  csvReader,
   runScript,
   tableWriter,
   tableReader,
   copyStream,
-  excelSheetReader,
   jsonLinesWriter,
   jsonLinesReader,
   fakeObjectReader,
@@ -34,6 +29,10 @@ module.exports = {
   archiveWriter,
   archiveReader,
   collectorWriter,
-  excelSheetWriter,
   finalizer,
+  registerPlugins,
 };
+
+requirePlugin.initialize(dbgateApi);
+
+module.exports = dbgateApi;

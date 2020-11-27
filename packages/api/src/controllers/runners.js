@@ -5,10 +5,25 @@ const uuidv1 = require('uuid/v1');
 const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const { rundir, uploadsdir } = require('../utility/directories');
+const { rundir, uploadsdir, pluginsdir } = require('../utility/directories');
+const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
+
+function extractPlugins(script) {
+  const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
+  const matches = [...script.matchAll(requireRegex)];
+  return matches.map((x) => x[1]);
+}
+
+const requirePluginsTemplate = (plugins) =>
+  plugins
+    .map(
+      (packageName) => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
+    )
+    .join('') + `dbgateApi.registerPlugins(${plugins.map((x) => _.camelCase(x)).join(',')});\n`;
 
 const scriptTemplate = (script) => `
-const dbgateApi = require(process.env.DBGATE_API || "dbgate-api");
+const dbgateApi = require(process.env.DBGATE_API);
+${requirePluginsTemplate(extractPlugins(script))}
 require=null;
 async function run() {
 ${script}
@@ -19,10 +34,11 @@ dbgateApi.runScript(run);
 `;
 
 const loaderScriptTemplate = (functionName, props, runid) => `
-const dbgateApi = require(process.env.DBGATE_API || "dbgate-api");
+const dbgateApi = require(process.env.DBGATE_API);
+${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-const reader=await dbgateApi.${functionName}(${JSON.stringify(props)});
+const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }
@@ -73,12 +89,14 @@ module.exports = {
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
     fs.mkdirSync(directory);
+    const pluginNames = fs.readdirSync(pluginsdir());
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     const subprocess = fork(scriptFile, ['--checkParent'], {
       cwd: directory,
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       env: {
         DBGATE_API: process.argv[1],
+        ..._.fromPairs(pluginNames.map((name) => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
       },
     });
     const pipeDispatcher = (severity) => (data) =>
@@ -153,4 +171,3 @@ module.exports = {
     return promise;
   },
 };
-

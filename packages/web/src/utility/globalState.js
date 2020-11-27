@@ -5,6 +5,7 @@ import { useConnectionInfo, useConfig } from './metadataLoaders';
 import usePrevious from './usePrevious';
 import useNewQuery from '../query/useNewQuery';
 import useShowModal from '../modals/showModal';
+import useExtensions from './useExtensions';
 
 function createGlobalState(defaultValue) {
   const Context = React.createContext(null);
@@ -90,6 +91,7 @@ export function useAppObjectParams() {
   const currentArchive = useCurrentArchive();
   const showModal = useShowModal();
   const config = useConfig();
+  const extensions = useExtensions();
 
   return {
     setOpenedTabs,

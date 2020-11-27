@@ -1,7 +1,6 @@
-const engines = require('dbgate-engines');
 const stableStringify = require('json-stable-stringify');
-const driverConnect = require('../utility/driverConnect');
 const childProcessChecker = require('../utility/childProcessChecker');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 let systemConnection;
 let storedConnection;
@@ -10,7 +9,7 @@ let lastStatus = null;
 let lastPing = null;
 
 async function handleRefresh() {
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
   try {
     const databases = await driver.listDatabases(systemConnection);
     setStatusName('ok');
@@ -46,9 +45,9 @@ async function handleConnect(connection) {
   setStatusName('pending');
   lastPing = new Date().getTime();
 
-  const driver = engines(storedConnection);
+  const driver = requireEngineDriver(storedConnection);
   try {
-    systemConnection = await driverConnect(driver, storedConnection);
+    systemConnection = await driver.connect(storedConnection);
     handleRefresh();
     setInterval(handleRefresh, 30 * 1000);
   } catch (err) {
@@ -66,8 +65,8 @@ function handlePing() {
 }
 
 async function handleCreateDatabase({ name }) {
-  const driver = engines(storedConnection);
-  systemConnection = await driverConnect(driver, storedConnection);
+  const driver = requireEngineDriver(storedConnection);
+  systemConnection = await driver.connect(storedConnection);
   console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
   await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
   await handleRefresh();

@@ -2,24 +2,19 @@ import _ from 'lodash';
 import ScriptWriter from './ScriptWriter';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
-import engines from 'dbgate-engines';
-import { findObjectLike } from 'dbgate-tools';
-import { findFileFormat } from '../fileformats';
+import { findEngineDriver, findObjectLike } from 'dbgate-tools';
+import { findFileFormat } from '../utility/fileformats';
 
-export function getTargetName(source, values) {
+export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
   if (values[key]) return values[key];
-  const format = findFileFormat(values.targetStorageType);
+  const format = findFileFormat(extensions, values.targetStorageType);
   if (format) {
     const res = format.getDefaultOutputName ? format.getDefaultOutputName(source, values) : null;
     if (res) return res;
     return `${source}.${format.extension}`;
   }
   return source;
-}
-
-export function isFileStorage(storageType) {
-  return !!findFileFormat(storageType);
 }
 
 function extractApiParameters(values, direction, format) {
@@ -30,10 +25,10 @@ function extractApiParameters(values, direction, format) {
   return _.fromPairs(pairs);
 }
 
-async function getConnection(storageType, conid, database) {
+async function getConnection(extensions, storageType, conid, database) {
   if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
-    const driver = engines(conn);
+    const driver = findEngineDriver(conn, extensions);
     return [
       {
         ..._.pick(conn, ['server', 'engine', 'user', 'password', 'port']),
@@ -45,7 +40,7 @@ async function getConnection(storageType, conid, database) {
   return [null, null];
 }
 
-function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
+function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver) {
   const { sourceStorageType } = values;
   if (sourceStorageType == 'database') {
     const fullName = { schemaName: values.sourceSchemaName, pureName: sourceName };
@@ -66,9 +61,9 @@ function getSourceExpr(sourceName, values, sourceConnection, sourceDriver) {
       },
     ];
   }
-  if (isFileStorage(sourceStorageType)) {
+  if (findFileFormat(extensions, sourceStorageType)) {
     const sourceFile = values[`sourceFile_${sourceName}`];
-    const format = findFileFormat(sourceStorageType);
+    const format = findFileFormat(extensions, sourceStorageType);
     if (format && format.readerFunc) {
       return [
         format.readerFunc,
@@ -113,9 +108,9 @@ function getFlagsFroAction(action) {
   };
 }
 
-function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
+function getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver) {
   const { targetStorageType } = values;
-  const format = findFileFormat(targetStorageType);
+  const format = findFileFormat(extensions, targetStorageType);
   if (format && format.writerFunc) {
     const outputParams = format.getOutputParams && format.getOutputParams(sourceName, values);
     return [
@@ -124,7 +119,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
         ...(outputParams
           ? outputParams
           : {
-              fileName: getTargetName(sourceName, values),
+              fileName: getTargetName(extensions, sourceName, values),
             }),
         ...extractApiParameters(values, 'target', format),
       },
@@ -136,7 +131,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       {
         connection: targetConnection,
         schemaName: values.targetSchemaName,
-        pureName: getTargetName(sourceName, values),
+        pureName: getTargetName(extensions, sourceName, values),
         ...getFlagsFroAction(values[`actionType_${sourceName}`]),
       },
     ];
@@ -146,7 +141,7 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
       'archiveWriter',
       {
         folderName: values.targetArchiveFolder,
-        fileName: getTargetName(sourceName, values),
+        fileName: getTargetName(extensions, sourceName, values),
       },
     ];
   }
@@ -154,15 +149,17 @@ function getTargetExpr(sourceName, values, targetConnection, targetDriver) {
   throw new Error(`Unknown target storage type: ${targetStorageType}`);
 }
 
-export default async function createImpExpScript(values, addEditorInfo = true) {
+export default async function createImpExpScript(extensions, values, addEditorInfo = true) {
   const script = new ScriptWriter();
 
   const [sourceConnection, sourceDriver] = await getConnection(
+    extensions,
     values.sourceStorageType,
     values.sourceConnectionId,
     values.sourceDatabaseName
   );
   const [targetConnection, targetDriver] = await getConnection(
+    extensions,
     values.targetStorageType,
     values.targetConnectionId,
     values.targetDatabaseName
@@ -172,11 +169,11 @@ export default async function createImpExpScript(values, addEditorInfo = true) {
   for (const sourceName of sourceList) {
     const sourceVar = script.allocVariable();
     // @ts-ignore
-    script.assign(sourceVar, ...getSourceExpr(sourceName, values, sourceConnection, sourceDriver));
+    script.assign(sourceVar, ...getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver));
 
     const targetVar = script.allocVariable();
     // @ts-ignore
-    script.assign(targetVar, ...getTargetExpr(sourceName, values, targetConnection, targetDriver));
+    script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
 
     script.copyStream(sourceVar, targetVar);
     script.put();
@@ -185,12 +182,12 @@ export default async function createImpExpScript(values, addEditorInfo = true) {
     script.comment('@ImportExportConfigurator');
     script.comment(JSON.stringify(values));
   }
-  return script.s;
+  return script.getScript(extensions);
 }
 
-export function getActionOptions(source, values, targetDbinfo) {
+export function getActionOptions(extensions, source, values, targetDbinfo) {
   const res = [];
-  const targetName = getTargetName(source, values);
+  const targetName = getTargetName(extensions, source, values);
   if (values.targetStorageType == 'database') {
     let existing = findObjectLike(
       { schemaName: values.targetSchemaName, pureName: targetName },
@@ -225,13 +222,14 @@ export function getActionOptions(source, values, targetDbinfo) {
   return res;
 }
 
-export async function createPreviewReader(values, sourceName) {
+export async function createPreviewReader(extensions, values, sourceName) {
   const [sourceConnection, sourceDriver] = await getConnection(
+    extensions,
     values.sourceStorageType,
     values.sourceConnectionId,
     values.sourceDatabaseName
   );
-  const [functionName, props] = getSourceExpr(sourceName, values, sourceConnection, sourceDriver);
+  const [functionName, props] = getSourceExpr(extensions, sourceName, values, sourceConnection, sourceDriver);
   return {
     functionName,
     props: {

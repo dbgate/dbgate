@@ -18,6 +18,7 @@ class ParseStream extends stream.Transform {
     }
     if (!this.limitRows || this.rowsWritten < this.limitRows) {
       this.push(obj);
+      this.rowsWritten += 1;
     }
     done();
   }

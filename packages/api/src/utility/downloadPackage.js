@@ -1,0 +1,64 @@
+// const pacote = require('pacote');
+const axios = require('axios');
+// const tarballExtract = require('tarball-extract');
+const uuidv1 = require('uuid/v1');
+const path = require('path');
+const fs = require('fs');
+const zlib = require('zlib');
+const tar = require('tar');
+const ncp = require('ncp').ncp;
+const { uploadsdir } = require('./directories');
+
+function extractTarball(tmpFile, destination) {
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(tmpFile)
+      .pipe(zlib.createGunzip())
+      .pipe(tar.extract({ cwd: destination }))
+      .on('error', (err) => reject(err))
+      .on('end', () => resolve());
+  });
+}
+
+function saveStreamToFile(pipedStream, fileName) {
+  return new Promise((resolve, reject) => {
+    const fileStream = fs.createWriteStream(fileName);
+    fileStream.on('close', () => resolve());
+    pipedStream.pipe(fileStream);
+  });
+}
+
+function copyDirectory(source, target) {
+  return new Promise((resolve, reject) => {
+    ncp(source, target, (err) => {
+      if (err) reject(err);
+      resolve();
+    });
+  });
+}
+
+async function downloadPackage(packageName, directory) {
+  // await pacote.extract(packageName, directory);
+  const infoResp = await axios.default.get(`https://registry.npmjs.org/${packageName}`);
+
+  const { latest } = infoResp.data['dist-tags'] || {};
+  if (!latest) return false;
+
+  const tarball = infoResp.data.versions[latest].dist.tarball;
+
+  const tmpFile = path.join(uploadsdir(), uuidv1() + '.tgz');
+  console.log(`Downloading tarball ${tarball} into ${tmpFile}`);
+  const tarballResp = await axios.default({
+    method: 'get',
+    url: tarball,
+    responseType: 'stream',
+  });
+  await saveStreamToFile(tarballResp.data, tmpFile);
+  const tmpDir = path.join(uploadsdir(), uuidv1());
+  fs.mkdirSync(tmpDir);
+  await extractTarball(tmpFile, tmpDir);
+  await copyDirectory(path.join(tmpDir, 'package'), directory);
+
+  return true;
+}
+
+module.exports = downloadPackage;

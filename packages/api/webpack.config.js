@@ -14,9 +14,9 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
-  optimization: {
-    minimize: false,
-  },
+  // optimization: {
+  //   minimize: false,
+  // },
 
   //   module: {
   //     rules: [
@@ -29,7 +29,7 @@ var config = {
   plugins: [
     new webpack.IgnorePlugin({
       checkResource(resource) {
-        const lazyImports = ['pg-native', 'uws'];
+        const lazyImports = ['uws'];
         if (!lazyImports.includes(resource)) {
           return false;
         }

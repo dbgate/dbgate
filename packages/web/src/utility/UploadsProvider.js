@@ -1,9 +1,10 @@
 import React from 'react';
 import { useDropzone } from 'react-dropzone';
-import { findFileFormat } from '../fileformats';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
+import { findFileFormat } from './fileformats';
 import resolveApi from './resolveApi';
+import useExtensions from './useExtensions';
 
 const UploadsContext = React.createContext(null);
 
@@ -19,6 +20,7 @@ export function useUploadsProvider() {
 export function useUploadsZone() {
   const { uploadListener } = useUploadsProvider();
   const showModal = useShowModal();
+  const extensions = useExtensions();
 
   const onDrop = React.useCallback(
     (files) => {
@@ -28,6 +30,7 @@ export function useUploadsZone() {
           return;
         }
 
+        console.log('FILE', file);
         const formData = new FormData();
         formData.append('data', file);
 
@@ -40,10 +43,19 @@ export function useUploadsZone() {
         const resp = await fetch(`${apiBase}/uploads/upload`, fetchOptions);
         const fileData = await resp.json();
 
+        fileData.shortName = file.name;
+
+        for (const format of extensions.fileFormats) {
+          if (file.name.endsWith('.' + format.extension)) {
+            fileData.shortName = file.name.slice(0, -format.extension.length - 1);
+            fileData.storageType = format.storageType;
+          }
+        }
+
         if (uploadListener) {
           uploadListener(fileData);
         } else {
-          if (findFileFormat(fileData.storageType)) {
+          if (findFileFormat(extensions, fileData.storageType)) {
             showModal((modalState) => (
               <ImportExportModal
                 uploadedFile={fileData}
@@ -73,7 +85,7 @@ export function useUploadsZone() {
         // reader.readAsArrayBuffer(file);
       });
     },
-    [uploadListener]
+    [uploadListener, extensions]
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 

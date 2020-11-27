@@ -42,6 +42,7 @@ const iconNames = {
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',
+  'icon plugin': 'mdi mdi-toy-brick',
 
   'img green-ok': 'mdi mdi-check-circle color-green-8',
   'img alert': 'mdi mdi-alert-circle color-blue-6',
