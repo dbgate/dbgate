@@ -139,6 +139,7 @@ module.exports = {
     }
     for (const packageName of preinstallPlugins) {
       if (this.removedPlugins.includes(packageName)) continue;
+      if (installed.find((x) => x.name == packageName)) continue;
       try {
         console.log('Preinstalling plugin', packageName);
         await this.install({ packageName });

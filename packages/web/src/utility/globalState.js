@@ -104,6 +104,7 @@ export function useAppObjectParams() {
     setOpenedConnections,
     config,
     showModal,
+    extensions,
   };
 }
 

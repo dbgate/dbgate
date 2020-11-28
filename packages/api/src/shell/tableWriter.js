@@ -1,7 +1,8 @@
-const requireEngineDriver = require("../utility/requireEngineDriver");
+const { fullNameToString } = require('dbgate-tools');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 async function tableWriter({ connection, schemaName, pureName, ...options }) {
-  console.log(`Write table ${schemaName}.${pureName}`);
+  console.log(`Writing table ${fullNameToString({ schemaName, pureName })}`);
 
   const driver = requireEngineDriver(connection);
   const pool = await driver.connect(connection);

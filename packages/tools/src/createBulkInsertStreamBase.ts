@@ -43,7 +43,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
       await driver.query(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
     }
 
-    this.columnNames = _intersection(
+    writable.columnNames = _intersection(
       structure.columns.map((x) => x.columnName),
       writable.structure.columns.map((x) => x.columnName)
     );
@@ -56,14 +56,14 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     const dmp = driver.createDumper();
 
     dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
-    dmp.putCollection(',', this.columnNames, (col) => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
+    dmp.putCollection(',', writable.columnNames, (col) => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
     dmp.putRaw(')\n VALUES\n');
 
     let wasRow = false;
     for (const row of rows) {
       if (wasRow) dmp.putRaw(',\n');
       dmp.putRaw('(');
-      dmp.putCollection(',', this.columnNames, (col) => dmp.putValue(row[col]));
+      dmp.putCollection(',', writable.columnNames, (col) => dmp.putValue(row[col]));
       dmp.putRaw(')');
       wasRow = true;
     }

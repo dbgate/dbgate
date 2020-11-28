@@ -1,4 +1,4 @@
-const { quoteFullName } = require('dbgate-tools');
+const { quoteFullName, fullNameToString } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 
 async function tableReader({ connection, pureName, schemaName }) {
@@ -11,13 +11,15 @@ async function tableReader({ connection, pureName, schemaName }) {
   const table = await driver.analyseSingleObject(pool, fullName, 'tables');
   const query = `select * from ${quoteFullName(driver.dialect, fullName)}`;
   if (table) {
-    console.log(`Reading table ${table.pureName}`);
+    // @ts-ignore
+    console.log(`Reading table ${fullNameToString(table)}`);
     // @ts-ignore
     return await driver.readQuery(pool, query, table);
   }
   const view = await driver.analyseSingleObject(pool, fullName, 'views');
   if (view) {
-    console.log(`Reading view ${view.pureName}`);
+    // @ts-ignore
+    console.log(`Reading view ${fullNameToString(view)}`);
     // @ts-ignore
     return await driver.readQuery(pool, query, view);
   }
