@@ -44,7 +44,7 @@ const iconNames = {
   'icon chevron-down': 'mdi mdi-chevron-down',
   'icon plugin': 'mdi mdi-toy-brick',
 
-  'img green-ok': 'mdi mdi-check-circle color-green-8',
+  'img ok': 'mdi mdi-check-circle color-green-8',
   'img alert': 'mdi mdi-alert-circle color-blue-6',
   'img error': 'mdi mdi-close-circle color-red-7',
   // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',

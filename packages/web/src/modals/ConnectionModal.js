@@ -8,22 +8,34 @@ import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
 import useExtensions from '../utility/useExtensions';
+import LoadingInfo from '../widgets/LoadingInfo';
+import { FontIcon } from '../icons';
 // import FormikForm from '../utility/FormikForm';
 
 export default function ConnectionModal({ modalState, connection = undefined }) {
-  const [sqlConnectResult, setSqlConnectResult] = React.useState('Not connected');
+  const [sqlConnectResult, setSqlConnectResult] = React.useState(null);
   const extensions = useExtensions();
+  const [isTesting, setIsTesting] = React.useState(false);
+  const testIdRef = React.useRef(0);
 
   const handleTest = async (values) => {
+    setIsTesting(true);
+    testIdRef.current += 1;
+    const testid = testIdRef.current;
     const resp = await axios.post('connections/test', values);
-    const { error, version } = resp.data;
+    if (testIdRef.current != testid) return;
 
-    setSqlConnectResult(error || version);
+    setIsTesting(false);
+    setSqlConnectResult(resp.data);
+  };
+
+  const handleCancel = async () => {
+    testIdRef.current += 1; // invalidate current test
+    setIsTesting(false);
   };
 
   const handleSubmit = async (values) => {
-    const resp = await axios.post('connections/save', values);
-
+    axios.post('connections/save', values);
     modalState.close();
   };
   return (
@@ -46,13 +58,28 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
             <FormTextField label="Server" name="server" />
             <FormTextField label="Port" name="port" />
             <FormTextField label="User" name="user" />
-            <FormTextField label="Password" name="password" />
+            <FormTextField label="Password" name="password" type="password" />
             <FormTextField label="Display name" name="displayName" />
-            <div>Connect result: {sqlConnectResult}</div>
+            {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
+              <div>
+                Connected: <FontIcon icon="img ok" /> {sqlConnectResult.version}
+              </div>
+            )}
+            {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error' && (
+              <div>
+                Connect failed: <FontIcon icon="img error" /> {sqlConnectResult.error}
+              </div>
+            )}
+            {isTesting && <LoadingInfo message="Testing connection" />}
           </ModalContent>
 
           <ModalFooter>
-            <FormButton text="Test" onClick={handleTest} />
+            {isTesting ? (
+              <FormButton text="Cancel" onClick={handleCancel} />
+            ) : (
+              <FormButton text="Test" onClick={handleTest} />
+            )}
+
             <FormSubmit text="Save" />
           </ModalFooter>
         </Form>
