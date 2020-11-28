@@ -19,7 +19,8 @@
     "prepare": "yarn build",
     "build": "tsc",
     "start": "tsc --watch",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "yarn build"
   },
   "files": [
     "lib"
