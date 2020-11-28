@@ -19,9 +19,6 @@ module.exports = {
     existing.status = status;
     socket.emitChanged(`server-status-changed`);
   },
-  handle_error(conid, { error }) {
-    console.log(`Error in server connection ${conid}: ${error}`);
-  },
   handle_ping() {},
 
   async ensureOpened(conid) {

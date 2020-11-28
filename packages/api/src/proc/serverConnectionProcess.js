@@ -96,8 +96,11 @@ function start() {
   process.on('message', async (message) => {
     try {
       await handleMessage(message);
-    } catch (e) {
-      process.send({ msgtype: 'error', error: e.message });
+    } catch (err) {
+      setStatus({
+        name: 'error',
+        message: err.message,
+      });
     }
   });
 }
