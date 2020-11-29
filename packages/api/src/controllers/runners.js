@@ -38,16 +38,7 @@ const dbgateApi = require(process.env.DBGATE_API);
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {
-${
-  props.downloadUrl
-    ? `
-    const downloaded=await dbgateApi.download(${JSON.stringify(props.downloadUrl)});
-    const reader=await ${extractShellApiFunctionName(functionName)}(Object.assign(${JSON.stringify(
-        _.omit(props, ['downloadUrl'])
-      )}, { fileName: downloaded }));
-    `
-    : `const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`
-}
+const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});
 const writer=await dbgateApi.collectorWriter({runid: '${runid}'});
 await dbgateApi.copyStream(reader, writer);
 }

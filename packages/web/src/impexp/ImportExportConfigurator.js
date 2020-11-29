@@ -109,12 +109,11 @@ function getFileFilters(extensions, storageType) {
   return res;
 }
 
-async function addFilesToSourceListDefault(file, newSources, newValues) {
-  const sourceName = file.name;
+async function addFileToSourceListDefault({ fileName, shortName }, newSources, newValues) {
+  const sourceName = shortName;
   newSources.push(sourceName);
   newValues[`sourceFile_${sourceName}`] = {
-    fileName: file.full,
-    downloadUrl: file.url,
+    fileName,
   };
 }
 
@@ -125,7 +124,7 @@ async function addFilesToSourceList(extensions, files, values, setValues, prefer
   for (const file of getAsArray(files)) {
     const format = findFileFormat(extensions, storage);
     if (format) {
-      await (format.addFilesToSourceList || addFilesToSourceListDefault)(file, newSources, newValues);
+      await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues);
     }
   }
   newValues['sourceList'] = [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources];
@@ -159,8 +158,8 @@ function ElectronFilesInput() {
         await addFilesToSourceList(
           extensions,
           files.map((full) => ({
-            full,
-            ...path.parse(full),
+            fileName: full,
+            shortName: path.parse(full).name,
           })),
           values,
           setValues
@@ -202,8 +201,9 @@ function FilesInput({ setPreviewSource = undefined }) {
       extensions,
       [
         {
-          url,
-          name: extractUrlName(url),
+          fileName: url,
+          shortName: extractUrlName(url),
+          isDownload: true,
         },
       ],
       values,
@@ -385,11 +385,11 @@ function SourceName({ name }) {
     );
   };
   const doChangeUrl = (url) => {
-    setFieldValue(`sourceFile_${name}`, { downloadUrl: url });
+    setFieldValue(`sourceFile_${name}`, { fileName: url });
   };
   const handleChangeUrl = () => {
     showModal((modalState) => (
-      <ChangeDownloadUrlModal modalState={modalState} url={obj.downloadUrl} onConfirm={doChangeUrl} />
+      <ChangeDownloadUrlModal modalState={modalState} url={obj.fileName} onConfirm={doChangeUrl} />
     ));
   };
 
@@ -397,7 +397,7 @@ function SourceName({ name }) {
     <SourceNameWrapper>
       <div>{name}</div>
       <SourceNameButtons>
-        {obj && !!obj.downloadUrl && (
+        {obj && !!obj.isDownload && (
           <IconButtonWrapper onClick={handleChangeUrl} theme={theme}>
             <FontIcon icon="icon web" />
           </IconButtonWrapper>
@@ -427,8 +427,8 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
         extensions,
         [
           {
-            full: file.filePath,
-            name: file.shortName,
+            fileName: file.filePath,
+            shortName: file.shortName,
           },
         ],
         values,

@@ -1,4 +1,4 @@
-import { EngineDriver } from "./engines";
+import { EngineDriver } from './engines';
 
 export interface FileFormatDefinition {
   storageType: string;
@@ -7,9 +7,10 @@ export interface FileFormatDefinition {
   readerFunc?: string;
   writerFunc?: string;
   args?: any[];
-  addFilesToSourceList?: (
+  addFileToSourceList?: (
     file: {
-      full: string;
+      fileName: string;
+      shortName: string;
     },
     newSources: string[],
     newValues: {
