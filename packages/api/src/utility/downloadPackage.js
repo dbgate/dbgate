@@ -8,6 +8,7 @@ const zlib = require('zlib');
 const tar = require('tar');
 const ncp = require('ncp').ncp;
 const { uploadsdir } = require('./directories');
+const { downloadFile } = require('./downloader');
 
 function extractTarball(tmpFile, destination) {
   return new Promise((resolve, reject) => {
@@ -19,13 +20,6 @@ function extractTarball(tmpFile, destination) {
   });
 }
 
-function saveStreamToFile(pipedStream, fileName) {
-  return new Promise((resolve, reject) => {
-    const fileStream = fs.createWriteStream(fileName);
-    fileStream.on('close', () => resolve());
-    pipedStream.pipe(fileStream);
-  });
-}
 
 function copyDirectory(source, target) {
   return new Promise((resolve, reject) => {
@@ -46,13 +40,7 @@ async function downloadPackage(packageName, directory) {
   const tarball = infoResp.data.versions[latest].dist.tarball;
 
   const tmpFile = path.join(uploadsdir(), uuidv1() + '.tgz');
-  console.log(`Downloading tarball ${tarball} into ${tmpFile}`);
-  const tarballResp = await axios.default({
-    method: 'get',
-    url: tarball,
-    responseType: 'stream',
-  });
-  await saveStreamToFile(tarballResp.data, tmpFile);
+  downloadFile(tarball, tmpFile);
   const tmpDir = path.join(uploadsdir(), uuidv1());
   fs.mkdirSync(tmpDir);
   await extractTarball(tmpFile, tmpDir);

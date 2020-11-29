@@ -12,14 +12,13 @@ import {
   FormArchiveFolderSelect,
   FormArchiveFilesSelect,
 } from '../utility/forms';
-import { useArchiveFiles, useConnectionInfo, useDatabaseInfo, useInstalledPlugins } from '../utility/metadataLoaders';
+import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import TableControl, { TableColumn } from '../utility/TableControl';
 import { TextField, SelectField, CheckboxField } from '../utility/inputs';
 import { createPreviewReader, getActionOptions, getTargetName } from './createImpExpScript';
 import getElectron from '../utility/getElectron';
 import ErrorInfo from '../widgets/ErrorInfo';
 import getAsArray from '../utility/getAsArray';
-import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUploadsProvider } from '../utility/UploadsProvider';
@@ -29,6 +28,8 @@ import { findFileFormat, getFileFormatDirections } from '../utility/fileformats'
 import FormArgumentList from '../utility/FormArgumentList';
 import useExtensions from '../utility/useExtensions';
 import UploadButton from '../utility/UploadButton';
+import useShowModal from '../modals/showModal';
+import ChangeDownloadUrlModal from '../modals/ChangeDownloadUrlModal';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -91,6 +92,10 @@ const Title = styled.div`
   margin: 10px 0px;
 `;
 
+const ButtonsLine = styled.div`
+  display: flex;
+`;
+
 function getFileFilters(extensions, storageType) {
   const res = [];
   const format = findFileFormat(extensions, storageType);
@@ -104,6 +109,7 @@ async function addFilesToSourceListDefault(file, newSources, newValues) {
   newSources.push(sourceName);
   newValues[`sourceFile_${sourceName}`] = {
     fileName: file.full,
+    downloadUrl: file.url,
   };
 }
 
@@ -168,12 +174,47 @@ function ElectronFilesInput() {
   );
 }
 
-function FilesInput() {
+function extractUrlName(url) {
+  const match = url.match(/\/([^/]+)($|\?)/);
+  if (match) {
+    const res = match[1];
+    if (res.includes('.')) {
+      return res.slice(0, res.indexOf('.'));
+    }
+    return res;
+  }
+  return 'url';
+}
+
+function FilesInput({ setPreviewSource = undefined }) {
   const theme = useTheme();
   const electron = getElectron();
+  const showModal = useShowModal();
+  const { values, setValues } = useFormikContext();
+  const extensions = useExtensions();
+  const doAddUrl = (url) => {
+    addFilesToSourceList(
+      extensions,
+      [
+        {
+          url,
+          name: extractUrlName(url),
+        },
+      ],
+      values,
+      setValues,
+      null,
+      setPreviewSource
+    );
+  };
+  const handleAddUrl = () =>
+    showModal((modalState) => <ChangeDownloadUrlModal modalState={modalState} onConfirm={doAddUrl} />);
   return (
     <>
-      {electron ? <ElectronFilesInput /> : <UploadButton />}
+      <ButtonsLine>
+        {electron ? <ElectronFilesInput /> : <UploadButton />}
+        <FormStyledButton value="Add web URL" onClick={handleAddUrl} />
+      </ButtonsLine>
       <DragWrapper theme={theme}>Drag &amp; drop imported files here</DragWrapper>
     </>
   );
@@ -188,6 +229,7 @@ function SourceTargetConfig({
   schemaNameField,
   tablesField = undefined,
   engine = undefined,
+  setPreviewSource = undefined,
 }) {
   const extensions = useExtensions();
   const theme = useTheme();
@@ -314,7 +356,7 @@ function SourceTargetConfig({
         </>
       )}
 
-      {!!format && direction == 'source' && <FilesInput />}
+      {!!format && direction == 'source' && <FilesInput setPreviewSource={setPreviewSource} />}
 
       {format && format.args && (
         <FormArgumentList
@@ -359,7 +401,6 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
 
   const handleUpload = React.useCallback(
     (file) => {
-      console.log('UPLOAD', extensions);
       addFilesToSourceList(
         extensions,
         [
@@ -430,6 +471,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
           schemaNameField="sourceSchemaName"
           tablesField="sourceList"
           engine={sourceEngine}
+          setPreviewSource={setPreviewSource}
         />
         <ArrowWrapper theme={theme}>
           <FontIcon icon="icon arrow-right" />

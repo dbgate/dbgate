@@ -14,6 +14,7 @@ const collectorWriter = require('./collectorWriter');
 const finalizer = require('./finalizer');
 const registerPlugins = require('./registerPlugins');
 const requirePlugin = require('./requirePlugin');
+const download = require('./download');
 
 const dbgateApi = {
   queryReader,
@@ -31,6 +32,7 @@ const dbgateApi = {
   collectorWriter,
   finalizer,
   registerPlugins,
+  download,
 };
 
 requirePlugin.initialize(dbgateApi);

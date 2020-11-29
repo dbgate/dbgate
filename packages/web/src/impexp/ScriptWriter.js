@@ -20,7 +20,20 @@ export default class ScriptWriter {
   }
 
   assign(variableName, functionName, props) {
-    this.put(`const ${variableName} = await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`);
+    if (props.downloadUrl) {
+      const fileNameVar = this.allocVariable();
+      this.put(`const ${fileNameVar} = await dbgateApi.download(${JSON.stringify(props.downloadUrl)});`);
+      this.put(
+        `const ${variableName} = await ${extractShellApiFunctionName(functionName)}(
+          Object.assign(${JSON.stringify(props)}, {
+            fileName: ${fileNameVar},
+            downloadUrl: undefined
+          })
+        );`
+      );
+    } else {
+      this.put(`const ${variableName} = await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`);
+    }
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
@@ -42,6 +55,12 @@ export default class ScriptWriter {
     //   this.comment(JSON.stringify(this.engines));
     // }
     const packageNames = this.packageNames;
-    return _.uniq(packageNames).map((packageName) => `// @require ${packageName}\n`).join('') + '\n' + this.s;
+    return (
+      _.uniq(packageNames)
+        .map((packageName) => `// @require ${packageName}\n`)
+        .join('') +
+      '\n' +
+      this.s
+    );
   }
 }
