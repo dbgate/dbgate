@@ -68,7 +68,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
       return [
         format.readerFunc,
         {
-          ...sourceFile,
+          ..._.omit(sourceFile, ['isDownload']),
           ...extractApiParameters(values, 'source', format),
         },
       ];

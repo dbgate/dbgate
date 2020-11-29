@@ -109,11 +109,12 @@ function getFileFilters(extensions, storageType) {
   return res;
 }
 
-async function addFileToSourceListDefault({ fileName, shortName }, newSources, newValues) {
+async function addFileToSourceListDefault({ fileName, shortName, isDownload }, newSources, newValues) {
   const sourceName = shortName;
   newSources.push(sourceName);
   newValues[`sourceFile_${sourceName}`] = {
     fileName,
+    isDownload,
   };
 }
 
@@ -385,7 +386,7 @@ function SourceName({ name }) {
     );
   };
   const doChangeUrl = (url) => {
-    setFieldValue(`sourceFile_${name}`, { fileName: url });
+    setFieldValue(`sourceFile_${name}`, { fileName: url, isDownload: true });
   };
   const handleChangeUrl = () => {
     showModal((modalState) => (
@@ -455,6 +456,8 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   }, []);
 
   const supportsPreview = !!findFileFormat(extensions, values.sourceStorageType);
+  const previewFileName =
+    previewSource && values[`sourceFile_${previewSource}`] && values[`sourceFile_${previewSource}`].fileName;
 
   const handleChangePreviewSource = async () => {
     if (previewSource && supportsPreview) {
@@ -467,7 +470,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
 
   React.useEffect(() => {
     handleChangePreviewSource();
-  }, [previewSource, supportsPreview]);
+  }, [previewSource, supportsPreview, previewFileName]);
 
   const oldValues = React.useRef({});
   React.useEffect(() => {
