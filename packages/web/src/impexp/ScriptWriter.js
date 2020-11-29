@@ -24,12 +24,9 @@ export default class ScriptWriter {
       const fileNameVar = this.allocVariable();
       this.put(`const ${fileNameVar} = await dbgateApi.download(${JSON.stringify(props.downloadUrl)});`);
       this.put(
-        `const ${variableName} = await ${extractShellApiFunctionName(functionName)}(
-          Object.assign(${JSON.stringify(props)}, {
-            fileName: ${fileNameVar},
-            downloadUrl: undefined
-          })
-        );`
+        `const ${variableName} = await ${extractShellApiFunctionName(functionName)}(Object.assign(${JSON.stringify(
+          _.omit(props, ['downloadUrl'])
+        )}, { fileName: ${fileNameVar} }));`
       );
     } else {
       this.put(`const ${variableName} = await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`);

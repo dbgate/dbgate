@@ -1,5 +1,4 @@
 import React from 'react';
-import _ from 'lodash';
 
 const iconNames = {
   'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -26,6 +25,7 @@ const iconNames = {
   'icon save': 'mdi mdi-content-save',
   'icon account': 'mdi mdi-account',
   'icon sql-file': 'mdi mdi-file',
+  'icon web': 'mdi mdi-web',
 
   'icon edit': 'mdi mdi-pencil',
   'icon delete': 'mdi mdi-delete',

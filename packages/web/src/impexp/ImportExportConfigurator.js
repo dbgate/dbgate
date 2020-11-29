@@ -61,12 +61,17 @@ const SourceNameWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const TrashWrapper = styled.div`
+const SourceNameButtons = styled.div`
+  display: flex;
+`;
+
+const IconButtonWrapper = styled.div`
   &:hover {
     background-color: ${(props) => props.theme.modal_background2};
   }
   cursor: pointer;
   color: ${(props) => props.theme.modal_font_blue[7]};
+  margin-left: 5px;
 `;
 
 const SqlWrapper = styled.div`
@@ -371,19 +376,36 @@ function SourceTargetConfig({
 function SourceName({ name }) {
   const { values, setFieldValue } = useFormikContext();
   const theme = useTheme();
+  const showModal = useShowModal();
+  const obj = values[`sourceFile_${name}`];
   const handleDelete = () => {
     setFieldValue(
       'sourceList',
       values.sourceList.filter((x) => x != name)
     );
   };
+  const doChangeUrl = (url) => {
+    setFieldValue(`sourceFile_${name}`, { downloadUrl: url });
+  };
+  const handleChangeUrl = () => {
+    showModal((modalState) => (
+      <ChangeDownloadUrlModal modalState={modalState} url={obj.downloadUrl} onConfirm={doChangeUrl} />
+    ));
+  };
 
   return (
     <SourceNameWrapper>
       <div>{name}</div>
-      <TrashWrapper onClick={handleDelete} theme={theme}>
-        <FontIcon icon="icon delete" />
-      </TrashWrapper>
+      <SourceNameButtons>
+        {obj && !!obj.downloadUrl && (
+          <IconButtonWrapper onClick={handleChangeUrl} theme={theme}>
+            <FontIcon icon="icon web" />
+          </IconButtonWrapper>
+        )}
+        <IconButtonWrapper onClick={handleDelete} theme={theme}>
+          <FontIcon icon="icon delete" />
+        </IconButtonWrapper>
+      </SourceNameButtons>
     </SourceNameWrapper>
   );
 }

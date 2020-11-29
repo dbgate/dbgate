@@ -43,8 +43,8 @@ ${
     ? `
     const downloaded=await dbgateApi.download(${JSON.stringify(props.downloadUrl)});
     const reader=await ${extractShellApiFunctionName(functionName)}(Object.assign(${JSON.stringify(
-        props
-      )}, { fileName: downloaded, downloadUrl: undefined }));
+        _.omit(props, ['downloadUrl'])
+      )}, { fileName: downloaded }));
     `
     : `const reader=await ${extractShellApiFunctionName(functionName)}(${JSON.stringify(props)});`
 }
