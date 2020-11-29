@@ -17,12 +17,12 @@ export function useUploadsProvider() {
   return React.useContext(UploadsContext);
 }
 
-export function useUploadsZone() {
+export function useUploadFiles() {
   const { uploadListener } = useUploadsProvider();
   const showModal = useShowModal();
   const extensions = useExtensions();
 
-  const onDrop = React.useCallback(
+  const handleUploadFiles = React.useCallback(
     (files) => {
       files.forEach(async (file) => {
         if (parseInt(file.size, 10) >= 4 * 1024 * 1024) {
@@ -87,6 +87,12 @@ export function useUploadsZone() {
     },
     [uploadListener, extensions]
   );
+
+  return handleUploadFiles;
+}
+
+export function useUploadsZone() {
+  const onDrop = useUploadFiles();
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return { getRootProps, getInputProps, isDragActive };

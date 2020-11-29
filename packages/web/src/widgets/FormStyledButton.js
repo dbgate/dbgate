@@ -4,7 +4,10 @@ import styled from 'styled-components';
 import dimensions from '../theme/dimensions';
 import useTheme from '../theme/useTheme';
 
-const ButtonInput = styled.input`
+// const StyledInputBase=styled.input``;
+// const StyledLabelBase=styled.label``;
+
+const makeStyle = (base) => styled(base)`
   // height: ${dimensions.toolBar.height - 5}px;
   border: 1px solid ${(props) => props.theme.button_background2};
   padding: 5px;
@@ -34,7 +37,10 @@ const ButtonInput = styled.input`
   `}
 `;
 
-// ${props.theme.button_background_gray[1]};
+const ButtonInput = makeStyle(styled.input``);
+const FormStyledLabelBase = makeStyle(styled.label``);
+export const FormStyledLabel = styled(FormStyledLabelBase)`
+`;
 
 export default function FormStyledButton({
   onClick = undefined,

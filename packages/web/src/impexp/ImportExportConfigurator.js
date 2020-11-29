@@ -28,6 +28,7 @@ import useTheme from '../theme/useTheme';
 import { findFileFormat, getFileFormatDirections } from '../utility/fileformats';
 import FormArgumentList from '../utility/FormArgumentList';
 import useExtensions from '../utility/useExtensions';
+import UploadButton from '../utility/UploadButton';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -170,10 +171,12 @@ function ElectronFilesInput() {
 function FilesInput() {
   const theme = useTheme();
   const electron = getElectron();
-  if (electron) {
-    return <ElectronFilesInput />;
-  }
-  return <DragWrapper theme={theme}>Drag &amp; drop imported files here</DragWrapper>;
+  return (
+    <>
+      {electron ? <ElectronFilesInput /> : <UploadButton />}
+      <DragWrapper theme={theme}>Drag &amp; drop imported files here</DragWrapper>
+    </>
+  );
 }
 
 function SourceTargetConfig({
