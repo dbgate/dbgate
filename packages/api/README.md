@@ -91,36 +91,11 @@ Imports data into table. Options are optional, default values are false.
   });
 ```
 
-### dbgateApi.csvReader
-Reads CSV file
-```js
-  const reader = await dbgateApi.csvReader({
-    fileName: '/home/root/test.csv',
-    encoding: 'utf-8',
-    header: true,
-    delimiter: ',',
-    quoted: false,
-    limitRows: null
-  });
-```
-
-### dbgateApi.csvWriter
-Writes CSV file
-```js
-  const reader = await dbgateApi.csvWriter({
-    fileName: '/home/root/test.csv',
-    encoding: 'utf-8',
-    header: true,
-    delimiter: ',',
-    quoted: false
-  });
-```
-
 ### dbgateApi.jsonLinesReader
 Reads JSON lines data file. On first line could be structure. Every line contains one row as JSON serialized object.
 ```js
   const reader = await dbgateApi.jsonLinesReader({
-    fileName: '/home/root/test.jsonl',
+    fileName: 'test.jsonl',
     encoding: 'utf-8',
     header: true,
     limitRows: null
@@ -131,19 +106,8 @@ Reads JSON lines data file. On first line could be structure. Every line contain
 Writes JSON lines data file. On first line could be structure. Every line contains one row as JSON serialized object.
 ```js
   const reader = await dbgateApi.jsonLinesWriter({
-    fileName: '/home/root/test.jsonl',
+    fileName: 'test.jsonl',
     encoding: 'utf-8',
     header: true
   });
 ```
-
-### dbgateApi.excelSheetReader
-Reads tabular data from one sheet in MS Excel file.
-```js
-  const reader = await dbgateApi.excelSheetReader({
-    fileName: '/home/root/test.xlsx',
-    sheetName: 'Album',
-    limitRows: null
-  });
-```
-
