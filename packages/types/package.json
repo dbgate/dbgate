@@ -1,20 +1,17 @@
 {
-  "version": "1.0.1",
+  "version": "1.0.2",
   "name": "dbgate-types",
-
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/dbshell/dbgate.git"
-  },  
+  },
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
-
   "keywords": [
     "dbgate"
   ],
-
   "types": "index.d.ts",
   "main": "",
   "typeScriptVersion": "2.8"
