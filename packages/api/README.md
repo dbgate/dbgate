@@ -13,6 +13,7 @@ This example exports table Customer info CSV file.
 ```javascript
 const dbgateApi = require('dbgate-api');
 const dbgatePluginMssql = require("dbgate-plugin-mssql");
+const dbgatePluginCsv = require("dbgate-plugin-csv");
 
 dbgateApi.registerPlugins(dbgatePluginMssql);
 
@@ -22,7 +23,7 @@ async function run() {
     schemaName: 'dbo',
     pureName: 'Customer',
   });
-  const writer = await dbgateApi.csvWriter({ fileName: 'Customer.csv' });
+  const writer = await dbgatePluginCsv.shellApi.writer({ fileName: 'Customer.csv' });
   await dbgateApi.copyStream(reader, writer);
 
   console.log('Finished job script');
