@@ -40,7 +40,7 @@ async function downloadPackage(packageName, directory) {
   const tarball = infoResp.data.versions[latest].dist.tarball;
 
   const tmpFile = path.join(uploadsdir(), uuidv1() + '.tgz');
-  downloadFile(tarball, tmpFile);
+  await downloadFile(tarball, tmpFile);
   const tmpDir = path.join(uploadsdir(), uuidv1());
   fs.mkdirSync(tmpDir);
   await extractTarball(tmpFile, tmpDir);
