@@ -8,7 +8,7 @@ dbgate-sqltree hold query definition in RAW JSON objects.
 
 ```javascript
 const { treeToSql, dumpSqlSelect } = require("dbgate-sqltree");
-const engines = require("dbgate-engines");
+const dbgatePluginMysql = require("dbgate-plugin-mysql");
 
 const select = {
   commandType: "select",
@@ -32,7 +32,7 @@ const select = {
   ],
 };
 
-const sql = treeToSql(engines("mysql"), select, dumpSqlSelect);
+const sql = treeToSql(dbgatePluginMysql.driver, select, dumpSqlSelect);
 console.log("Generated query:", sql);
 
 ```
