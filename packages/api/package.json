@@ -1,7 +1,7 @@
 {
   "name": "dbgate-api",
   "main": "src/index.js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -38,8 +38,8 @@
     "lodash": "^4.17.15",
     "ncp": "^2.0.0",
     "nedb-promises": "^4.0.1",
-    "uuid": "^3.4.0",
-    "tar": "^6.0.5"
+    "tar": "^6.0.5",
+    "uuid": "^3.4.0"
   },
   "scripts": {
     "start": "nodemon src/index.js",
