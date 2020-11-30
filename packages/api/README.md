@@ -11,8 +11,11 @@ Allows run DbGate data-manipulation scripts.
 This example exports table Customer info CSV file.
 
 ```javascript
-
 const dbgateApi = require('dbgate-api');
+const dbgatePluginMssql = require("dbgate-plugin-mssql");
+
+dbgateApi.registerPlugins(dbgatePluginMssql);
+
 async function run() {
   const reader = await dbgateApi.tableReader({
     connection: { server: 'localhost', engine: 'mssql', user: 'sa', password: 'xxxx', database: 'Chinook' },
