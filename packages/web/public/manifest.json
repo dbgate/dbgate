@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "DbGate",
+  "name": "DbGate database tool",
   "icons": [
     {
       "src": "favicon.ico",
