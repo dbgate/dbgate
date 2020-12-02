@@ -4,7 +4,6 @@ import ModalBase from './ModalBase';
 import { FormButtonRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
 import { TextField } from '../utility/inputs';
 import { Formik, Form } from 'formik';
-import { useSetSavedSqlFiles } from '../utility/globalState';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';

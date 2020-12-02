@@ -5,7 +5,6 @@ import {
   CurrentWidgetProvider,
   CurrentDatabaseProvider,
   OpenedTabsProvider,
-  SavedSqlFilesProvider,
   OpenedConnectionsProvider,
   LeftPanelWidthProvider,
   CurrentArchiveProvider,
@@ -25,28 +24,26 @@ function App() {
       <CurrentDatabaseProvider>
         <SocketProvider>
           <OpenedTabsProvider>
-            <SavedSqlFilesProvider>
-              <OpenedConnectionsProvider>
-                <LeftPanelWidthProvider>
-                  <ConnectionsPinger>
-                    <PluginsProvider>
-                      <ExtensionsProvider>
-                        <ModalLayerProvider>
-                          <CurrentArchiveProvider>
-                            <CurrentThemeProvider>
-                              <UploadsProvider>
-                                <ThemeHelmet />
-                                <Screen />
-                              </UploadsProvider>
-                            </CurrentThemeProvider>
-                          </CurrentArchiveProvider>
-                        </ModalLayerProvider>
-                      </ExtensionsProvider>
-                    </PluginsProvider>
-                  </ConnectionsPinger>
-                </LeftPanelWidthProvider>
-              </OpenedConnectionsProvider>
-            </SavedSqlFilesProvider>
+            <OpenedConnectionsProvider>
+              <LeftPanelWidthProvider>
+                <ConnectionsPinger>
+                  <PluginsProvider>
+                    <ExtensionsProvider>
+                      <ModalLayerProvider>
+                        <CurrentArchiveProvider>
+                          <CurrentThemeProvider>
+                            <UploadsProvider>
+                              <ThemeHelmet />
+                              <Screen />
+                            </UploadsProvider>
+                          </CurrentThemeProvider>
+                        </CurrentArchiveProvider>
+                      </ModalLayerProvider>
+                    </ExtensionsProvider>
+                  </PluginsProvider>
+                </ConnectionsPinger>
+              </LeftPanelWidthProvider>
+            </OpenedConnectionsProvider>
           </OpenedTabsProvider>
         </SocketProvider>
       </CurrentDatabaseProvider>

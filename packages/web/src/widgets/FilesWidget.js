@@ -1,19 +1,13 @@
 import React from 'react';
-import styled from 'styled-components';
 import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
-import { useOpenedTabs, useSavedSqlFiles } from '../utility/globalState';
+import { useOpenedTabs } from '../utility/globalState';
 import closedTabAppObject from '../appobj/closedTabAppObject';
-import {
-  SearchBoxWrapper,
-  WidgetsInnerContainer,
-  WidgetsMainContainer,
-  WidgetsOuterContainer,
-  WidgetTitle,
-} from './WidgetStyles';
+import { WidgetsInnerContainer } from './WidgetStyles';
 import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
+import { useFiles } from '../utility/metadataLoaders';
 
 function ClosedTabsList() {
   const tabs = useOpenedTabs();
@@ -34,7 +28,7 @@ function ClosedTabsList() {
 }
 
 function SavedSqlFilesList() {
-  const files = useSavedSqlFiles();
+  const files = useFiles({ folder: 'sql' });
 
   return (
     <>

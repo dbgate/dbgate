@@ -94,6 +94,12 @@ const installedPluginsLoader = () => ({
   reloadTrigger: `installed-plugins-changed`,
 });
 
+const filesLoader = ({ folder }) => ({
+  url: 'files/list',
+  params: { folder },
+  reloadTrigger: `files-changed-${folder}`,
+});
+
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform } = loader(args);
   const key = stableStringify({ url, ...params });
@@ -255,4 +261,11 @@ export function getInstalledPlugins(args) {
 }
 export function useInstalledPlugins(args) {
   return useCore(installedPluginsLoader, args) || [];
+}
+
+export function getFiles(args) {
+  return getCore(filesLoader, args);
+}
+export function useFiles(args) {
+  return useCore(filesLoader, args);
 }
