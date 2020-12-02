@@ -91,6 +91,7 @@ module.exports = {
     fs.mkdirSync(directory);
     const pluginNames = fs.readdirSync(pluginsdir());
     console.log(`RUNNING SCRIPT ${scriptFile}`);
+    // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(scriptFile, ['--checkParent'], {
       cwd: directory,
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
