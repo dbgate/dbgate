@@ -9,10 +9,10 @@ import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
 // import FormikForm from '../utility/FormikForm';
 
-export default function SaveFileModal({ getData, folder, format, modalState, name, onSave = undefined }) {
+export default function SaveFileModal({ data, folder, format, modalState, name, onSave = undefined }) {
   const handleSubmit = async (values) => {
     const { name } = values;
-    await axios.post('files/save', { folder, file: name, data: getData(), format });
+    await axios.post('files/save', { folder, file: name, data, format });
     modalState.close();
     if (onSave) onSave(name);
   };

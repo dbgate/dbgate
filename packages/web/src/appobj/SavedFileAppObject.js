@@ -42,8 +42,7 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
       onLoad={(data) => {
         newQuery({
           title: file,
-          // @ts-ignore
-          initialScript: data,
+          initialData: data,
         });
       }}
     />
@@ -60,14 +59,15 @@ export function SavedShellFileAppObject({ data, commonProps }) {
       format="text"
       icon="img shell"
       onLoad={(data) => {
-        openNewTab(setOpenedTabs, {
-          title: file,
-          icon: 'img shell',
-          tabComponent: 'ShellTab',
-          props: {
-            initialScript: data,
+        openNewTab(
+          setOpenedTabs,
+          {
+            title: file,
+            icon: 'img shell',
+            tabComponent: 'ShellTab',
           },
-        });
+          data
+        );
       }}
     />
   );

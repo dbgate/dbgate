@@ -11,16 +11,20 @@ export default function useNewQuery() {
 
   const tooltip = `${connection.displayName || connection.server}\n${database}`;
 
-  return ({ title = undefined, ...props } = {}) =>
-    openNewTab(setOpenedTabs, {
-      title: title || 'Query',
-      icon: 'img sql-file',
-      tooltip,
-      tabComponent: 'QueryTab',
-      props: {
-        ...props,
-        conid: connection._id,
-        database,
+  return ({ title = undefined, initialData = undefined, ...props } = {}) =>
+    openNewTab(
+      setOpenedTabs,
+      {
+        title: title || 'Query',
+        icon: 'img sql-file',
+        tooltip,
+        tabComponent: 'QueryTab',
+        props: {
+          ...props,
+          conid: connection._id,
+          database,
+        },
       },
-    });
+      initialData
+    );
 }

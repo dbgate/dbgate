@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
+import localforage from 'localforage';
 import axios from '../utility/axios';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { VerticalSplitter } from '../widgets/Splitter';
@@ -22,13 +23,13 @@ export default function ShellTab({
   storageKey,
   ...other
 }) {
-  const localStorageKey = storageKey || `tabdata_shell_${tabid}`;
-  const [shellText, setShellText] = React.useState(() => localStorage.getItem(localStorageKey) || initialScript || '');
+  const localStorageKey = `tabdata_shell_${tabid}`;
+  const [shellText, setShellText] = React.useState(initialScript || '');
   const shellTextRef = React.useRef(shellText);
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
 
-  const saveToStorage = React.useCallback(() => localStorage.setItem(localStorageKey, shellTextRef.current), [
+  const saveToStorage = React.useCallback(() => localforage.setItem(localStorageKey, shellTextRef.current), [
     localStorageKey,
     shellTextRef,
   ]);
