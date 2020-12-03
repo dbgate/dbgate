@@ -5,7 +5,7 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs } from '../utility/globalState';
 import ClosedTabAppObject from '../appobj/ClosedTabAppObject';
 import { WidgetsInnerContainer } from './WidgetStyles';
-import SavedSqlFileAppObject from '../appobj/SavedSqlFileAppObject';
+import { SavedSqlFileAppObject } from '../appobj/SavedFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
 
