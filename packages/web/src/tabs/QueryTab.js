@@ -14,7 +14,7 @@ import { VerticalSplitter } from '../widgets/Splitter';
 import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
-import SaveSqlFileModal from '../modals/SaveSqlFileModal';
+import SaveFileModal from '../modals/SaveFileModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import useExtensions from '../utility/useExtensions';
@@ -84,7 +84,7 @@ export default function QueryTab({
   const openedTabs = useOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
-  const saveSqlFileModalState = useModalState();
+  const saveFileModalState = useModalState();
 
   const sqlFromTemplate = useSqlTemplate(sqlTemplate, { conid, database, ...other });
   React.useEffect(() => {
@@ -242,15 +242,17 @@ export default function QueryTab({
             busy={busy}
             cancel={handleCancel}
             format={handleFormatCode}
-            save={saveSqlFileModalState.open}
+            save={saveFileModalState.open}
             isConnected={!!sessionId}
             kill={handleKill}
           />,
           toolbarPortalRef.current
         )}
-      <SaveSqlFileModal
-        modalState={saveSqlFileModalState}
-        storageKey={localStorageKey}
+      <SaveFileModal
+        modalState={saveFileModalState}
+        getData={() => localStorage.getItem(localStorageKey)}
+        format="text"
+        folder="sql"
         name={openedTabs.find((x) => x.tabid == tabid).title}
         onSave={(name) => changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, title: name }))}
       />

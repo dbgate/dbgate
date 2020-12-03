@@ -17,21 +17,21 @@ function Menu({ data }) {
 }
 
 function SavedSqlFileAppObject({ data, commonProps }) {
-  const { name } = data;
+  const { file } = data;
   const newQuery = useNewQuery();
 
   const onClick = async () => {
-    const resp = await axios.post('files/load', { folder: 'sql', file: name });
+    const resp = await axios.post('files/load', { folder: 'sql', file, format: 'text' });
     newQuery({
-      title: name,
+      title: file,
       // @ts-ignore
       initialScript: resp.data,
     });
   };
 
-  return <AppObjectCore {...commonProps} data={data} title={name} icon="img sql-file" onClick={onClick} Menu={Menu} />;
+  return <AppObjectCore {...commonProps} data={data} title={file} icon="img sql-file" onClick={onClick} Menu={Menu} />;
 }
 
-SavedSqlFileAppObject.extractKey = (data) => data.name;
+SavedSqlFileAppObject.extractKey = (data) => data.file;
 
 export default SavedSqlFileAppObject;

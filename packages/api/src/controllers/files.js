@@ -3,14 +3,16 @@ const path = require('path');
 const { filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 
-function serialize(folder, data) {
-  if (folder == 'sql') return data;
-  return JSON.stringify(data);
+function serialize(format, data) {
+  if (format == 'text') return data;
+  if (format == 'json') return JSON.stringify(data);
+  throw new Error(`Invalid format: ${format}`);
 }
 
-function deserialize(folder, text) {
-  if (folder == 'sql') return text;
-  return JSON.parse(text);
+function deserialize(format, text) {
+  if (format == 'text') return text;
+  if (format == 'json') return JSON.parse(text);
+  throw new Error(`Invalid format: ${format}`);
 }
 
 module.exports = {
@@ -18,7 +20,7 @@ module.exports = {
   async list({ folder }) {
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) return [];
-    const files = (await fs.readdir(dir)).map((name) => ({ name }));
+    const files = (await fs.readdir(dir)).map((file) => ({ folder, file }));
     return files;
   },
 
@@ -29,18 +31,18 @@ module.exports = {
   },
 
   load_meta: 'post',
-  async load({ folder, file }) {
+  async load({ folder, file, format }) {
     const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });
-    return deserialize(folder, text);
+    return deserialize(format, text);
   },
 
   save_meta: 'post',
-  async save({ folder, file, data }) {
+  async save({ folder, file, data, format }) {
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) {
       await fs.mkdir(dir);
     }
-    await fs.writeFile(path.join(dir, file), serialize(folder, data));
+    await fs.writeFile(path.join(dir, file), serialize(format, data));
     socket.emitChanged(`files-changed-${folder}`);
   },
 };

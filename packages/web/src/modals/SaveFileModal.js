@@ -9,16 +9,16 @@ import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
 // import FormikForm from '../utility/FormikForm';
 
-export default function SaveSqlFileModal({ storageKey, modalState, name, onSave = undefined }) {
+export default function SaveFileModal({ getData, folder, format, modalState, name, onSave = undefined }) {
   const handleSubmit = async (values) => {
     const { name } = values;
-    await axios.post('files/save', { folder: 'sql', file: name, data: localStorage.getItem(storageKey) });
+    await axios.post('files/save', { folder, file: name, data: getData(), format });
     modalState.close();
     if (onSave) onSave(name);
   };
   return (
     <ModalBase modalState={modalState}>
-      <ModalHeader modalState={modalState}>Save SQL file</ModalHeader>
+      <ModalHeader modalState={modalState}>Save file</ModalHeader>
       <Formik onSubmit={handleSubmit} initialValues={{ name }}>
         <Form>
           <ModalContent>

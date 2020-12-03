@@ -17,7 +17,7 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
   const [config, setConfig] = useGridConfig(tabid);
   const [modelState, dispatchModel] = useUndoReducer(createFreeTableModel());
   const storageKey = `tabdata_freetable_${tabid}`;
-  const saveSqlFileModalState = useModalState();
+  const saveFileModalState = useModalState();
   const setOpenedTabs = useSetOpenedTabs();
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState(null);
@@ -79,10 +79,10 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
         dispatchModel={dispatchModel}
         tabVisible={tabVisible}
         toolbarPortalRef={toolbarPortalRef}
-        onSave={() => saveSqlFileModalState.open()}
+        onSave={() => saveFileModalState.open()}
       />
       <SaveArchiveModal
-        modalState={saveSqlFileModalState}
+        modalState={saveFileModalState}
         folder={archiveFolder}
         file={archiveFile}
         onSave={handleSave}
