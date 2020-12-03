@@ -18,33 +18,26 @@ import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import useEditorData from '../utility/useEditorData';
-import useSqlTemplate from '../utility/useSqlTemplate';
+import applySqlTemplate from '../utility/applySqlTemplate';
 import LoadingInfo from '../widgets/LoadingInfo';
+import useExtensions from '../utility/useExtensions';
 
 export default function QueryTab({ tabid, conid, database, initialArgs, tabVisible, toolbarPortalRef, ...other }) {
-  const { sqlTemplate } = initialArgs || {};
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
   const saveFileModalState = useModalState();
-  const { editorData, setEditorData, isLoading } = useEditorData(tabid);
+  const extensions = useExtensions();
+  const { editorData, setEditorData, isLoading } = useEditorData({
+    tabid,
+    loadFromArgs: initialArgs && initialArgs.sqlTemplate
+      ? () => applySqlTemplate(initialArgs.sqlTemplate, extensions, { conid, database, ...other })
+      : null,
+  });
 
-  const [sqlFromTemplate, isLoadingTemplate] = useSqlTemplate(sqlTemplate, { conid, database, ...other });
   const editorRef = React.useRef(null);
-
-  React.useEffect(() => {
-    if (sqlFromTemplate && sqlTemplate) {
-      setEditorData(sqlFromTemplate);
-      // editorRef.current.editor.setValue(sqlFromTemplate);
-      // editorRef.current.editor.clearSelection();
-      changeTab(tabid, setOpenedTabs, (tab) => ({
-        ...tab,
-        props: _.omit(tab.props, ['initialArgs']),
-      }));
-    }
-  }, [sqlFromTemplate]);
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
@@ -120,7 +113,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     editorRef.current.editor.clearSelection();
   };
 
-  if (isLoading || isLoadingTemplate)
+  if (isLoading)
     return (
       <div>
         <LoadingInfo message="Loading SQL script" />
