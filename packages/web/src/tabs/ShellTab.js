@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import localforage from 'localforage';
 import axios from '../utility/axios';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { VerticalSplitter } from '../widgets/Splitter';
@@ -13,52 +12,22 @@ import ShellToolbar from '../query/ShellToolbar';
 import RunnerOutputPane from '../query/RunnerOutputPane';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
+import useEditorData from '../utility/useEditorData';
 
-export default function ShellTab({
-  tabid,
-  initialArgs,
-  tabVisible,
-  toolbarPortalRef,
-  initialScript,
-  storageKey,
-  ...other
-}) {
-  const localStorageKey = `tabdata_shell_${tabid}`;
-  const [shellText, setShellText] = React.useState(initialScript || '');
-  const shellTextRef = React.useRef(shellText);
+const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
+const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
+
+export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
+  const { editorData, setEditorData } = useEditorData({ tabid });
 
-  const saveToStorage = React.useCallback(() => localforage.setItem(localStorageKey, shellTextRef.current), [
-    localStorageKey,
-    shellTextRef,
-  ]);
-  const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
   const setOpenedTabs = useSetOpenedTabs();
 
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const [runnerId, setRunnerId] = React.useState(null);
 
   const socket = useSocket();
-
-  React.useEffect(() => {
-    window.addEventListener('beforeunload', saveToStorage);
-    return () => {
-      saveToStorage();
-      window.removeEventListener('beforeunload', saveToStorage);
-    };
-  }, []);
-
-  React.useEffect(() => {
-    if (!storageKey)
-      changeTab(tabid, setOpenedTabs, (tab) => ({
-        ...tab,
-        props: {
-          ...tab.props,
-          storageKey: localStorageKey,
-        },
-      }));
-  }, [storageKey]);
 
   React.useEffect(() => {
     changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
@@ -79,12 +48,6 @@ export default function ShellTab({
     }
   }, [runnerId, socket]);
 
-  const handleChange = (text) => {
-    if (text != null) shellTextRef.current = text;
-    setShellText(text);
-    saveToStorageDebounced();
-  };
-
   const handleExecute = async () => {
     if (busy) return;
     setExecuteNumber((num) => num + 1);
@@ -92,7 +55,9 @@ export default function ShellTab({
 
     let runid = runnerId;
     const resp = await axios.post('runners/start', {
-      script: selectedText || shellText,
+      script: selectedText
+        ? [...(editorData || '').matchAll(requireRegex)].map((x) => `${x[1]}\n`).join('') + selectedText
+        : editorData,
     });
     runid = resp.data.runid;
     setRunnerId(runid);
@@ -112,10 +77,8 @@ export default function ShellTab({
     }
   };
 
-  const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
-
   const handleEdit = () => {
-    const jsonTextMatch = shellText.match(configRegex);
+    const jsonTextMatch = (editorData || '').match(configRegex);
     if (jsonTextMatch) {
       showModal((modalState) => (
         <ImportExportModal modalState={modalState} initialValues={JSON.parse(jsonTextMatch[1])} />
@@ -127,8 +90,8 @@ export default function ShellTab({
     <>
       <VerticalSplitter>
         <JavaScriptEditor
-          value={shellText}
-          onChange={handleChange}
+          value={editorData || ''}
+          onChange={setEditorData}
           tabVisible={tabVisible}
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
@@ -144,7 +107,7 @@ export default function ShellTab({
             busy={busy}
             cancel={handleCancel}
             edit={handleEdit}
-            editAvailable={configRegex.test(shellText || '')}
+            editAvailable={configRegex.test(editorData || '')}
           />,
           toolbarPortalRef.current
         )}

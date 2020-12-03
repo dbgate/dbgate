@@ -97,14 +97,15 @@ function GenerateSctriptButton({ modalState }) {
 
   const handleGenerateScript = async () => {
     const code = await createImpExpScript(extensions, values);
-    openNewTab(setOpenedTabs, {
-      title: 'Shell',
-      icon: 'img shell',
-      tabComponent: 'ShellTab',
-      props: {
-        initialScript: code,
+    openNewTab(
+      setOpenedTabs,
+      {
+        title: 'Shell',
+        icon: 'img shell',
+        tabComponent: 'ShellTab',
       },
-    });
+      code
+    );
     modalState.close();
   };
 
