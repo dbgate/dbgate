@@ -3,10 +3,10 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import ObjectListControl from '../utility/ObjectListControl';
 import { TableColumn } from '../utility/TableControl';
-import columnAppObject from '../appobj/columnAppObject';
-import constraintAppObject from '../appobj/constraintAppObject';
 import { useTableInfo, useDbCore } from '../utility/metadataLoaders';
 import useTheme from '../theme/useTheme';
+import ColumnLabel from '../datagrid/ColumnLabel';
+import { FontIcon } from '../icons';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -18,6 +18,25 @@ const WhitePage = styled.div`
   overflow: auto;
 `;
 
+const IconTextSpan = styled.span`
+  white-space: nowrap;
+`;
+
+function getConstraintIcon(data) {
+  if (data.constraintType == 'primaryKey') return 'img primary-key';
+  if (data.constraintType == 'foreignKey') return 'img foreign-key';
+  return null;
+}
+
+function ConstraintLabel({ data }) {
+  const icon = getConstraintIcon(data);
+  return (
+    <IconTextSpan>
+      <FontIcon icon={icon} /> {data.constraintName}
+    </IconTextSpan>
+  );
+}
+
 export default function TableStructureTab({ conid, database, schemaName, pureName, objectTypeField = 'tables' }) {
   const theme = useTheme();
   const tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
@@ -27,7 +46,8 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
     <WhitePage theme={theme}>
       <ObjectListControl
         collection={columns.map((x, index) => ({ ...x, ordinal: index + 1 }))}
-        makeAppObj={columnAppObject}
+        NameComponent={({ data }) => <ColumnLabel {...data} forceIcon />}
+        // makeAppObj={columnAppObject}
         title="Columns"
       >
         <TableColumn
@@ -77,7 +97,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         /> */}
       </ObjectListControl>
 
-      <ObjectListControl collection={_.compact([primaryKey])} makeAppObj={constraintAppObject} title="Primary key">
+      <ObjectListControl collection={_.compact([primaryKey])} NameComponent={ConstraintLabel} title="Primary key">
         <TableColumn
           fieldName="columns"
           header="Columns"
@@ -85,7 +105,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         />
       </ObjectListControl>
 
-      <ObjectListControl collection={foreignKeys} makeAppObj={constraintAppObject} title="Foreign keys">
+      <ObjectListControl collection={foreignKeys} NameComponent={ConstraintLabel} title="Foreign keys">
         <TableColumn
           fieldName="baseColumns"
           header="Base columns"
@@ -101,7 +121,7 @@ export default function TableStructureTab({ conid, database, schemaName, pureNam
         <TableColumn fieldName="deleteAction" header="ON DELETE" />
       </ObjectListControl>
 
-      <ObjectListControl collection={dependencies} makeAppObj={constraintAppObject} title="Dependencies">
+      <ObjectListControl collection={dependencies} NameComponent={ConstraintLabel} title="Dependencies">
         <TableColumn
           fieldName="baseColumns"
           header="Base columns"
