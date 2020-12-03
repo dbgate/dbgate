@@ -13,6 +13,8 @@ import RunnerOutputPane from '../query/RunnerOutputPane';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
 import useEditorData from '../utility/useEditorData';
+import SaveTabModal from '../modals/SaveTabModal';
+import useModalState from '../modals/useModalState';
 
 const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
 const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
@@ -21,6 +23,7 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
   const { editorData, setEditorData } = useEditorData({ tabid });
+  const saveFileModalState = useModalState();
 
   const setOpenedTabs = useSetOpenedTabs();
 
@@ -108,9 +111,11 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
             cancel={handleCancel}
             edit={handleEdit}
             editAvailable={configRegex.test(editorData || '')}
+            save={saveFileModalState.open}
           />,
           toolbarPortalRef.current
         )}
+      <SaveTabModal modalState={saveFileModalState} data={editorData} format="text" folder="shell" tabid={tabid} />
     </>
   );
 }
