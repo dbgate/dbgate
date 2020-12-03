@@ -17,6 +17,7 @@ import UploadsProvider from './utility/UploadsProvider';
 import ThemeHelmet from './themes/ThemeHelmet';
 import PluginsProvider from './plugins/PluginsProvider';
 import { ExtensionsProvider } from './utility/useExtensions';
+import { MenuLayerProvider } from './modals/showMenu';
 
 function App() {
   return (
@@ -33,8 +34,10 @@ function App() {
                         <CurrentThemeProvider>
                           <UploadsProvider>
                             <ModalLayerProvider>
-                              <ThemeHelmet />
-                              <Screen />
+                              <MenuLayerProvider>
+                                <ThemeHelmet />
+                                <Screen />
+                              </MenuLayerProvider>
                             </ModalLayerProvider>
                           </UploadsProvider>
                         </CurrentThemeProvider>

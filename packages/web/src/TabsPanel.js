@@ -4,11 +4,11 @@ import styled from 'styled-components';
 import { DropDownMenuItem, DropDownMenuDivider } from './modals/DropDownMenu';
 
 import { useOpenedTabs, useSetOpenedTabs, useCurrentDatabase, useSetCurrentDatabase } from './utility/globalState';
-import { showMenu } from './modals/DropDownMenu';
 import { getConnectionInfo } from './utility/metadataLoaders';
 import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
 import usePropsCompare from './utility/usePropsCompare';
+import { useShowMenu } from './modals/showMenu';
 
 // const files = [
 //   { name: 'app.js' },
@@ -126,6 +126,7 @@ function getDbIcon(key) {
 export default function TabsPanel() {
   // const formatDbKey = (conid, database) => `${database}-${conid}`;
   const theme = useTheme();
+  const showMenu = useShowMenu();
 
   const tabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();

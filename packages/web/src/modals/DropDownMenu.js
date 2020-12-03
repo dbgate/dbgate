@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { LoadingToken, sleep } from '../utility/common';
+import useDocumentClick from '../utility/useDocumentClick';
+import { useHideMenu } from './showMenu';
 
 const ContextMenuStyled = styled.ul`
   position: absolute;
@@ -167,6 +169,11 @@ export function DropDownMenuItem({ children, keyText = undefined, onClick }) {
 // }
 
 export function ContextMenu({ left, top, children }) {
+  const hideMenu = useHideMenu();
+  useDocumentClick(async () => {
+    await sleep(0);
+    hideMenu();
+  });
   return <ContextMenuStyled style={{ left: `${left}px`, top: `${top}px` }}>{children}</ContextMenuStyled>;
 }
 
@@ -204,71 +211,71 @@ export function ContextMenu({ left, top, children }) {
 //     parentMenu: PropTypes.any
 // };
 
-let menuHandle = null;
-let hideToken = null;
+// let menuHandle = null;
+// let hideToken = null;
 
-function showMenuCore(left, top, contentHolder, closeCallback = null) {
-  let container = document.createElement('div');
-  let handle = {
-    container,
-    closeCallback,
-    close() {
-      this.container.remove();
-    },
-  };
-  document.body.appendChild(container);
-  ReactDOM.render(
-    <ContextMenu left={left} top={top}>
-      {contentHolder}
-    </ContextMenu>,
-    container
-  );
-  return handle;
-}
+// function showMenuCore(left, top, contentHolder, closeCallback = null) {
+//   let container = document.createElement('div');
+//   let handle = {
+//     container,
+//     closeCallback,
+//     close() {
+//       this.container.remove();
+//     },
+//   };
+//   document.body.appendChild(container);
+//   ReactDOM.render(
+//     <ContextMenu left={left} top={top}>
+//       {contentHolder}
+//     </ContextMenu>,
+//     container
+//   );
+//   return handle;
+// }
 
-export function showMenu(left, top, contentHolder, closeCallback = null) {
-  hideMenu();
-  if (hideToken) hideToken.cancel();
-  menuHandle = showMenuCore(left, top, contentHolder, closeCallback);
-  captureMouseDownEvents();
-}
+// export function showMenu(left, top, contentHolder, closeCallback = null) {
+//   hideMenu();
+//   if (hideToken) hideToken.cancel();
+//   menuHandle = showMenuCore(left, top, contentHolder, closeCallback);
+//   captureMouseDownEvents();
+// }
 
-function captureMouseDownEvents() {
-  document.addEventListener('mousedown', mouseDownListener, true);
-}
+// function captureMouseDownEvents() {
+//   document.addEventListener('mousedown', mouseDownListener, true);
+// }
 
-function releaseMouseDownEvents() {
-  document.removeEventListener('mousedown', mouseDownListener, true);
-}
+// function releaseMouseDownEvents() {
+//   document.removeEventListener('mousedown', mouseDownListener, true);
+// }
 
-function captureMouseUpEvents() {
-  document.addEventListener('mouseup', mouseUpListener, true);
-}
+// function captureMouseUpEvents() {
+//   document.addEventListener('mouseup', mouseUpListener, true);
+// }
 
-function releaseMouseUpEvents() {
-  document.removeEventListener('mouseup', mouseUpListener, true);
-}
+// function releaseMouseUpEvents() {
+//   document.removeEventListener('mouseup', mouseUpListener, true);
+// }
 
-async function mouseDownListener(e) {
-  captureMouseUpEvents();
-}
+// async function mouseDownListener(e) {
+//   captureMouseUpEvents();
+// }
 
-async function mouseUpListener(e) {
-  let token = new LoadingToken();
-  hideToken = token;
-  await sleep(0);
-  if (token.isCanceled) return;
-  hideMenu();
-}
+// async function mouseUpListener(e) {
+//   let token = new LoadingToken();
+//   hideToken = token;
+//   await sleep(0);
+//   if (token.isCanceled) return;
+//   hideMenu();
+// }
 
-function hideMenu() {
-  if (menuHandle == null) return;
-  menuHandle.close();
-  if (menuHandle.closeCallback) menuHandle.closeCallback();
-  menuHandle = null;
-  releaseMouseDownEvents();
-  releaseMouseUpEvents();
-}
+// function hideMenu() {
+//   if (menuHandle == null) return;
+//   menuHandle.close();
+//   if (menuHandle.closeCallback) menuHandle.closeCallback();
+//   menuHandle = null;
+//   releaseMouseDownEvents();
+//   releaseMouseUpEvents();
+// }
 
 function getElementOffset(element) {
   var de = document.documentElement;

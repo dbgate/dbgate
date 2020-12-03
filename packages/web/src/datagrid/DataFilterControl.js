@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React from 'react';
-import { DropDownMenuItem, DropDownMenuDivider, showMenu } from '../modals/DropDownMenu';
+import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import styled from 'styled-components';
 import keycodes from '../utility/keycodes';
 import { parseFilter, createMultiLineFilter } from 'dbgate-filterparser';
@@ -10,6 +10,7 @@ import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal';
 import SetFilterModal from '../modals/SetFilterModal';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
+import { useShowMenu } from '../modals/showMenu';
 // import { $ } from '../../Utility/jquery';
 // import autobind from 'autobind-decorator';
 // import * as React from 'react';
@@ -182,6 +183,7 @@ export default function DataFilterControl({
   onFocusGrid,
 }) {
   const showModal = useShowModal();
+  const showMenu = useShowMenu();
   const theme = useTheme();
   const [filterState, setFilterState] = React.useState('empty');
   const setFilterText = (filter) => {

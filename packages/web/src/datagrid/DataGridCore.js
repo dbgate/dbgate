@@ -22,7 +22,6 @@ import DataGridToolbar from './DataGridToolbar';
 // import usePropsCompare from '../utility/usePropsCompare';
 import ColumnHeaderControl from './ColumnHeaderControl';
 import InlineButton from '../widgets/InlineButton';
-import { showMenu } from '../modals/DropDownMenu';
 import DataGridContextMenu from './DataGridContextMenu';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
@@ -30,6 +29,7 @@ import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
+import { useShowMenu } from '../modals/showMenu';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -138,6 +138,7 @@ export default function DataGridCore(props) {
   const [autofillDragStartCell, setAutofillDragStartCell] = React.useState(nullCell);
   const [autofillSelectedCells, setAutofillSelectedCells] = React.useState(emptyCellArray);
   const [focusFilterInputs, setFocusFilterInputs] = React.useState({});
+  const showMenu = useShowMenu();
 
   const autofillMarkerCell = React.useMemo(
     () =>

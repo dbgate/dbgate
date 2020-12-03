@@ -15,6 +15,7 @@ import { ModalLayer } from './modals/showModal';
 import DragAndDropFileTarget from './DragAndDropFileTarget';
 import { useUploadsZone } from './utility/UploadsProvider';
 import useTheme from './theme/useTheme';
+import { MenuLayer } from './modals/showMenu';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -132,6 +133,7 @@ export default function Screen() {
         <StatusBar />
       </StausBarContainer>
       <ModalLayer />
+      <MenuLayer />
 
       <DragAndDropFileTarget inputProps={getInputProps()} isDragActive={isDragActive} />
     </div>

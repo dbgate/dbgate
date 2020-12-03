@@ -1,10 +1,11 @@
 import React from 'react';
 import { FontIcon } from '../icons';
-import { showMenu } from '../modals/DropDownMenu';
+import { useShowMenu } from '../modals/showMenu';
 import InlineButton from './InlineButton';
 
 export default function DropDownButton({ children }) {
   const buttonRef = React.useRef(null);
+  const showMenu = useShowMenu();
 
   const handleShowMenu = () => {
     const rect = buttonRef.current.getBoundingClientRect();

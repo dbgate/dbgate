@@ -4,8 +4,10 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';
 import { getDefaultFileFormat } from '../utility/fileformats';
+import { useSetOpenedTabs } from '../utility/globalState';
 
-function Menu({ data, setOpenedTabs, showModal, extensions }) {
+function Menu({ data, showModal, extensions }) {
+  const setOpenedTabs = useSetOpenedTabs();
   const { connection, name } = data;
   const tooltip = `${connection.displayName || connection.server}\n${name}`;
 

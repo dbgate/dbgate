@@ -4,7 +4,7 @@ import _ from 'lodash';
 import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
-import { showMenu } from '../modals/DropDownMenu';
+// import { showMenu } from '../modals/DropDownMenu';
 import useTheme from '../theme/useTheme';
 import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 
@@ -60,7 +60,7 @@ export function AppObjectCore({
     if (!Menu) return;
 
     event.preventDefault();
-    showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} {...appObjectParams} />);
+    // showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} {...appObjectParams} />);
   };
 
   const Component = component == 'div' ? AppObjectDiv : AppObjectSpan;
