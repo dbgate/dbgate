@@ -146,7 +146,7 @@ function Menu({ data }) {
                 icon: 'img free-table',
                 tabComponent: 'FreeTableTab',
                 props: {
-                  initialData: {
+                  initialArgs: {
                     functionName: 'tableReader',
                     props: {
                       connection: {

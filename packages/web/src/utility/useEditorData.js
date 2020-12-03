@@ -4,26 +4,35 @@ import localforage from 'localforage';
 import { changeTab } from './common';
 import { useSetOpenedTabs } from './globalState';
 
-export default function useEditorData({ tabid, loadFromArgs }) {
+export default function useEditorData({ tabid, loadFromArgs = null }) {
   const localStorageKey = `tabdata_${tabid}`;
   const setOpenedTabs = useSetOpenedTabs();
   const changeCounterRef = React.useRef(0);
   const savedCounterRef = React.useRef(0);
+  const [errorMessage, setErrorMessage] = React.useState(null);
 
   const [value, setValue] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(true);
+  const initialDataRef = React.useRef(null);
 
   const valueRef = React.useRef(null);
 
   const initialLoad = async () => {
     if (loadFromArgs) {
-      const init = await loadFromArgs();
-      changeTab(tabid, setOpenedTabs, (tab) => ({
-        ...tab,
-        props: _.omit(tab.props, ['initialArgs']),
-      }));
-      setValue(init);
-      valueRef.current = init;
+      try {
+        const init = await loadFromArgs();
+        changeTab(tabid, setOpenedTabs, (tab) => ({
+          ...tab,
+          props: _.omit(tab.props, ['initialArgs']),
+        }));
+        setValue(init);
+        valueRef.current = init;
+        initialDataRef.current = init;
+      } catch (err) {
+        const message = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
+        setErrorMessage(message);
+        console.error(err.response);
+      }
     } else {
       const initFallback = localStorage.getItem(localStorageKey);
       if (initFallback != null) {
@@ -33,11 +42,13 @@ export default function useEditorData({ tabid, loadFromArgs }) {
         // move to local forage
         await localforage.setItem(localStorageKey, init);
         localStorage.removeItem(localStorageKey);
+        initialDataRef.current = init;
       } else {
         const init = await localforage.getItem(localStorageKey);
         if (init) {
           setValue(init);
           valueRef.current = init;
+          initialDataRef.current = init;
         }
       }
     }
@@ -82,5 +93,11 @@ export default function useEditorData({ tabid, loadFromArgs }) {
     };
   }, []);
 
-  return { editorData: value, setEditorData: handleChange, isLoading };
+  return {
+    editorData: value,
+    setEditorData: handleChange,
+    isLoading,
+    initialData: initialDataRef.current,
+    errorMessage,
+  };
 }

@@ -35,7 +35,7 @@ function Menu({ data, setOpenedTabs }) {
       icon: 'img archive',
       tabComponent: 'FreeTableTab',
       props: {
-        initialData: {
+        initialArgs: {
           functionName: 'archiveReader',
           props: {
             fileName: data.fileName,

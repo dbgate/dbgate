@@ -324,19 +324,21 @@ export default function DataGridCore(props) {
   const handleOpenFreeTable = () => {
     const columns = getSelectedColumns();
     const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
-    openNewTab(setOpenedTabs, {
-      title: 'selection',
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
-      props: {
-        initialData: {
-          structure: {
-            columns,
-          },
-          rows,
-        },
+    openNewTab(
+      setOpenedTabs,
+      {
+        title: 'selection',
+        icon: 'img free-table',
+        tabComponent: 'FreeTableTab',
+        props: {},
       },
-    });
+      {
+        structure: {
+          columns,
+        },
+        rows,
+      }
+    );
   };
 
   const handleContextMenu = (event) => {
