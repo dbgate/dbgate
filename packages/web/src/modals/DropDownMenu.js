@@ -174,7 +174,15 @@ export function ContextMenu({ left, top, children }) {
     await sleep(0);
     hideMenu();
   });
-  return <ContextMenuStyled style={{ left: `${left}px`, top: `${top}px` }}>{children}</ContextMenuStyled>;
+  const menuRef = React.useRef(null);
+  React.useEffect(() => {
+    if (menuRef.current) fixPopupPlacement(menuRef.current);
+  }, [menuRef.current]);
+  return (
+    <ContextMenuStyled ref={menuRef} style={{ left: `${left}px`, top: `${top}px` }}>
+      {children}
+    </ContextMenuStyled>
+  );
 }
 
 // export class ContextMenu extends React.Component<IContextMenuProps> {
