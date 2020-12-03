@@ -11,10 +11,20 @@ export default function useEditorData(tabid, initialData = null) {
   const valueRef = React.useRef(null);
 
   const initialLoad = async () => {
-    const init = await localforage.getItem(localStorageKey);
-    if (init) {
+    const initFallback = localStorage.getItem(localStorageKey);
+    if (initFallback != null) {
+      const init = JSON.parse(initFallback);
       setValue(init);
       valueRef.current = init;
+      // move to local forage
+      await localforage.setItem(localStorageKey, init);
+      localStorage.removeItem(localStorageKey);
+    } else {
+      const init = await localforage.getItem(localStorageKey);
+      if (init) {
+        setValue(init);
+        valueRef.current = init;
+      }
     }
     setIsLoading(false);
   };
@@ -32,7 +42,13 @@ export default function useEditorData(tabid, initialData = null) {
     }
   }, [localStorageKey, valueRef]);
 
-  const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 500), [saveToStorage]);
+  const saveToStorageFallback = React.useCallback(() => {
+    if (valueRef.current == null) return;
+    // on window unload must be synchronous actions, save to local storage instead
+    localStorage.setItem(localStorageKey, JSON.stringify(valueRef.current));
+  }, [localStorageKey, valueRef]);
+
+  const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
 
   const handleChange = (newValue) => {
     if (newValue != null) valueRef.current = newValue;
@@ -41,10 +57,10 @@ export default function useEditorData(tabid, initialData = null) {
   };
 
   React.useEffect(() => {
-    window.addEventListener('beforeunload', saveToStorage);
+    window.addEventListener('beforeunload', saveToStorageFallback);
     return () => {
       saveToStorage();
-      window.removeEventListener('beforeunload', saveToStorage);
+      window.removeEventListener('beforeunload', saveToStorageFallback);
     };
   }, []);
 
