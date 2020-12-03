@@ -6,7 +6,7 @@ import SearchInput from '../widgets/SearchInput';
 import { WidgetTitle } from '../widgets/WidgetStyles';
 import macros from './macros';
 import { AppObjectList } from '../appobj/AppObjectList';
-import macroAppObject from '../appobj/MacroAppObject';
+import MacroAppObject from '../appobj/MacroAppObject';
 
 const SearchBoxWrapper = styled.div`
   display: flex;
@@ -24,10 +24,13 @@ export default function MacroManager({ managerSize, selectedMacro, setSelectedMa
         </SearchBoxWrapper>
         <AppObjectList
           list={_.sortBy(macros, 'title')}
-          AppObjectComponent={macroAppObject()}
+          AppObjectComponent={MacroAppObject}
           onObjectClick={(macro) => setSelectedMacro(macro)}
+          getCommonProps={(data) => ({
+            isBold: selectedMacro && selectedMacro.name == data.name,
+          })}
           filter={filter}
-          groupFunc={(appobj) => appobj.groupTitle}
+          groupFunc={(data) => data.group}
         />
         {/* {macros.map((macro) => (
           <MacroListItem key={`${macro.group}/${macro.name}`} macro={macro} />

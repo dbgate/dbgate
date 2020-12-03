@@ -1,13 +1,15 @@
 import _ from 'lodash';
+import React from 'react';
 import { filterName } from 'dbgate-datalib';
+import { AppObjectCore } from './AppObjectCore';
 
-const macroAppObject = () => ({ name, type, title, group }, { setOpenedTabs }) => {
-  const key = name;
-  const icon = 'img macro';
-  const matcher = (filter) => filterName(filter, name, title);
-  const groupTitle = group;
+function MacroAppObject({ data, commonProps }) {
+  const { name, type, title, group } = data;
 
-  return { title, key, icon, groupTitle, matcher };
-};
+  return <AppObjectCore {...commonProps} data={data} title={title} icon={'img macro'} />;
+}
 
-export default macroAppObject;
+MacroAppObject.extractKey = (data) => data.name;
+MacroAppObject.createMatcher = ({ name, title }) => (filter) => filterName(filter, name, title);
+
+export default MacroAppObject;
