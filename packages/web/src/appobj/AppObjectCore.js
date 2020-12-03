@@ -5,9 +5,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
 import { useShowMenu } from '../modals/showMenu';
-// import { showMenu } from '../modals/DropDownMenu';
 import useTheme from '../theme/useTheme';
-// import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
@@ -18,11 +16,6 @@ const AppObjectDiv = styled.div`
   white-space: nowrap;
   font-weight: ${(props) => (props.isBold ? 'bold' : 'normal')};
 `;
-
-// const AppObjectSpan = styled.span`
-//   white-space: nowrap;
-//   font-weight: ${(props) => (props.isBold ? 'bold' : 'normal')};
-// `;
 
 const IconWrap = styled.span`
   margin-right: 5px;
@@ -42,13 +35,11 @@ export function AppObjectCore({
   title,
   icon,
   data,
-  // makeAppObj,
   onClick = undefined,
   onClick2 = undefined,
   onClick3 = undefined,
   isBold = undefined,
   isBusy = undefined,
-  // component = 'div',
   prefix = undefined,
   statusIcon = undefined,
   extInfo = undefined,
@@ -56,7 +47,6 @@ export function AppObjectCore({
   Menu = undefined,
   ...other
 }) {
-  // const appObjectParams = useAppObjectParams();
   const theme = useTheme();
   const showMenu = useShowMenu();
 
@@ -65,14 +55,7 @@ export function AppObjectCore({
 
     event.preventDefault();
     showMenu(event.pageX, event.pageY, <Menu data={data} />);
-    // showMenu(event.pageX, event.pageY, <Menu data={data} makeAppObj={makeAppObj} {...appObjectParams} />);
   };
-
-  // const Component = component == 'div' ? AppObjectDiv : AppObjectSpan;
-
-  // let bold = false;
-  // if (_.isFunction(isBold)) bold = isBold(appObjectParams);
-  // else bold = !!isBold;
 
   return (
     <AppObjectDiv
@@ -98,9 +81,3 @@ export function AppObjectCore({
     </AppObjectDiv>
   );
 }
-
-// export function AppObjectControl({ data, makeAppObj, component = 'div' }) {
-//   const appObjectParams = useAppObjectParams();
-//   const appobj = makeAppObj(data, appObjectParams);
-//   return <AppObjectCore {...appobj} data={data} makeAppObj={makeAppObj} component={component} />;
-// }

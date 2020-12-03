@@ -69,9 +69,6 @@ function ConnectionAppObject({ data, commonProps }) {
   const setOpenedConnections = useSetOpenedConnections();
   const currentDatabase = useCurrentDatabase();
 
-  // const key = _id;
-  // const isExpandable = openedConnections.includes(_id);
-  // const matcher = (filter) => filterName(filter, displayName, server);
   const isBold = _.get(currentDatabase, 'connection._id') == _id;
   const onClick = () => setOpenedConnections((c) => [...c, _id]);
 
@@ -102,20 +99,6 @@ function ConnectionAppObject({ data, commonProps }) {
       Menu={Menu}
     />
   );
-
-  // return {
-  //   title,
-  //   key,
-  //   icon,
-  //   Menu,
-  //   matcher,
-  //   isBold,
-  //   isExpandable,
-  //   onClick,
-  //   statusIcon,
-  //   statusTitle,
-  //   extInfo,
-  // };
 }
 
 ConnectionAppObject.extractKey = (data) => data._id;

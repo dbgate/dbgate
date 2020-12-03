@@ -174,7 +174,6 @@ function Menu({ data }) {
 function DatabaseObjectAppObject({ data, commonProps }) {
   const { conid, database, pureName, schemaName, objectTypeField } = data;
   const setOpenedTabs = useSetOpenedTabs();
-  // const Icon = (props) => getIconImage(icons[objectTypeField], props);
   const onClick = ({ schemaName, pureName }) => {
     openDatabaseObjectDetail(
       setOpenedTabs,
@@ -189,8 +188,6 @@ function DatabaseObjectAppObject({ data, commonProps }) {
       }
     );
   };
-  // const matcher = (filter) => filterName(filter, pureName);
-  // const groupTitle = _.startCase(objectTypeField);
 
   return (
     <AppObjectCore
@@ -202,14 +199,11 @@ function DatabaseObjectAppObject({ data, commonProps }) {
       Menu={Menu}
     />
   );
-  // return { title, key, icon, Menu, onClick, matcher, groupTitle };
 }
 
 DatabaseObjectAppObject.extractKey = ({ schemaName, pureName }) =>
   schemaName ? `${schemaName}.${pureName}` : pureName;
 
 DatabaseObjectAppObject.createMatcher = ({ pureName }) => (filter) => filterName(filter, pureName);
-
-// DatabaseObjectAppObject.groupTitle = ({ pureName }) => (filter) => filterName(filter, pureName);
 
 export default DatabaseObjectAppObject;

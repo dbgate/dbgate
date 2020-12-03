@@ -44,13 +44,9 @@ function AppObjectListItem({
 
   React.useEffect(() => {
     if (!expandable) {
-      // if (data._id == '6pOY2iFY8Gsq7mk6') console.log('COLLAPSE1');
       setIsExpanded(false);
     }
   }, [expandable]);
-
-  // const { matcher } = appobj;
-  // if (matcher && !matcher(filter)) return null;
 
   let commonProps = {
     prefix: SubItems ? (
@@ -128,7 +124,6 @@ export function AppObjectList({
   if (groupFunc) {
     const listGrouped = _.compact(
       (list || []).map((data) => {
-        // const appobj = makeAppObj(data, appObjectParams);
         const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
         if (matcher && !matcher(filter)) return null;
         const component = createComponent(data);
