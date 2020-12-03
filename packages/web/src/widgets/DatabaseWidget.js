@@ -2,11 +2,11 @@ import React from 'react';
 import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
-import connectionAppObject from '../appobj/connectionAppObject';
-import databaseAppObject from '../appobj/databaseAppObject';
+import ConnectionAppObject from '../appobj/ConnectionAppObject';
+import DatabaseAppObject from '../appobj/DatabaseAppObject';
 import { useSetCurrentDatabase, useCurrentDatabase, useOpenedConnections } from '../utility/globalState';
 import InlineButton from './InlineButton';
-import databaseObjectAppObject from '../appobj/databaseObjectAppObject';
+import DatabaseObjectAppObject from '../appobj/DatabaseObjectAppObject';
 import {
   // useSqlObjectList,
   useDatabaseList,
@@ -41,7 +41,8 @@ function SubDatabaseList({ data }) {
   return (
     <AppObjectList
       list={(databases || []).map((db) => ({ ...db, connection: data }))}
-      makeAppObj={databaseAppObject({ boldCurrentDatabase: true })}
+      AppObjectComponent={DatabaseAppObject}
+      // makeAppObj={databaseAppObject({ boldCurrentDatabase: true })}
       onObjectClick={handleDatabaseClick}
     />
   );
@@ -73,9 +74,11 @@ function ConnectionList() {
       <WidgetsInnerContainer>
         <AppObjectList
           list={connectionsWithStatus}
-          makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
+          AppObjectComponent={ConnectionAppObject}
+          // makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
           SubItems={SubDatabaseList}
           filter={filter}
+          isExpandable={(data) => openedConnections.includes(data._id)}
         />
       </WidgetsInnerContainer>
     </>
@@ -112,8 +115,8 @@ function SqlObjectList({ conid, database }) {
         ) : (
           <AppObjectList
             list={objectList.map((x) => ({ ...x, conid, database }))}
-            makeAppObj={databaseObjectAppObject()}
-            groupFunc={(appobj) => appobj.groupTitle}
+            AppObjectComponent={DatabaseObjectAppObject}
+            groupFunc={(data) => _.startCase(data.objectTypeField)}
             filter={filter}
           />
         )}

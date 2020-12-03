@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import TableControl, { TableColumn } from './TableControl';
-import { AppObjectControl } from '../appobj/AppObjects';
+// import { AppObjectControl } from '../appobj/AppObjects';
 import useTheme from '../theme/useTheme';
 
 const ObjectListWrapper = styled.div`
@@ -39,7 +39,7 @@ export default function ObjectListControl({ collection = [], title, showIfEmpty 
           <TableColumn
             fieldName="displayName"
             header="Name"
-            formatter={(col) => <AppObjectControl data={col} makeAppObj={makeAppObj} component="span" />}
+            // formatter={(col) => <AppObjectControl data={col} makeAppObj={makeAppObj} component="span" />}
           />
           {children}
         </TableControl>

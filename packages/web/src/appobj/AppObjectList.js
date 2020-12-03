@@ -1,7 +1,5 @@
 import React from 'react';
 import _ from 'lodash';
-import { AppObjectCore } from './AppObjects';
-import { useSetOpenedTabs, useAppObjectParams } from '../utility/globalState';
 import styled from 'styled-components';
 import { ExpandIcon } from '../icons';
 import useTheme from '../theme/useTheme';
@@ -31,53 +29,37 @@ const GroupDiv = styled.div`
   font-weight: bold;
 `;
 
-function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, SubItems }) {
+function AppObjectListItem({ AppObjectComponent, data, filter, onObjectClick, isExpandable, SubItems }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const [isHover, setIsHover] = React.useState(false);
+
+  const expandable = data && isExpandable && isExpandable(data);
 
   React.useEffect(() => {
-    if (!appobj.isExpandable) {
+    if (!expandable) {
       // if (data._id == '6pOY2iFY8Gsq7mk6') console.log('COLLAPSE1');
       setIsExpanded(false);
     }
-  }, [appobj && appobj.isExpandable]);
+  }, [expandable]);
 
   // const { matcher } = appobj;
   // if (matcher && !matcher(filter)) return null;
 
-  if (onObjectClick)
-    appobj = {
-      ...appobj,
-      onClick: onObjectClick,
-    };
+  const commonProps = {
+    prefix: SubItems ? (
+      <ExpandIconHolder2>
+        {expandable ? <ExpandIcon isExpanded={isExpanded} /> : <ExpandIcon isBlank />}
+      </ExpandIconHolder2>
+    ) : null,
+  };
+
   if (SubItems) {
-    const oldClick = appobj.onClick;
-    appobj = {
-      ...appobj,
-      onClick: () => {
-        if (oldClick) oldClick();
-        // if (data._id == '6pOY2iFY8Gsq7mk6') console.log('COLLAPSE2');
-        setIsExpanded((v) => !v);
-      },
-    };
+    commonProps.onClick2 = () => setIsExpanded((v) => !v);
+  }
+  if (onObjectClick) {
+    commonProps.onClick3 = onObjectClick;
   }
 
-  let res = (
-    <AppObjectCore
-      data={data}
-      makeAppObj={makeAppObj}
-      {...appobj}
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
-      prefix={
-        SubItems ? (
-          <ExpandIconHolder2>
-            {appobj.isExpandable ? <ExpandIcon isExpanded={isExpanded} /> : <ExpandIcon isBlank />}
-          </ExpandIconHolder2>
-        ) : null
-      }
-    />
-  );
+  let res = <AppObjectComponent data={data} commonProps={commonProps} />;
   if (SubItems && isExpanded) {
     res = (
       <>
@@ -93,16 +75,10 @@ function AppObjectListItem({ makeAppObj, data, filter, appobj, onObjectClick, Su
 
 function AppObjectGroup({ group, items }) {
   const [isExpanded, setIsExpanded] = React.useState(true);
-  const [isHover, setIsHover] = React.useState(false);
   const theme = useTheme();
   return (
     <>
-      <GroupDiv
-        onMouseEnter={() => setIsHover(true)}
-        onMouseLeave={() => setIsHover(false)}
-        onClick={() => setIsExpanded(!isExpanded)}
-        theme={theme}
-      >
+      <GroupDiv onClick={() => setIsExpanded(!isExpanded)} theme={theme}>
         <ExpandIconHolder>
           <ExpandIcon isExpanded={isExpanded} />
         </ExpandIconHolder>
@@ -115,36 +91,35 @@ function AppObjectGroup({ group, items }) {
 
 export function AppObjectList({
   list,
-  makeAppObj,
+  AppObjectComponent,
   SubItems = undefined,
   onObjectClick = undefined,
   filter = undefined,
   groupFunc = undefined,
   groupOrdered = undefined,
+  isExpandable = undefined,
 }) {
-  const appObjectParams = useAppObjectParams();
-
-  const createComponent = (data, appobj) => (
+  const createComponent = (data) => (
     <AppObjectListItem
-      key={appobj.key}
-      appobj={appobj}
-      makeAppObj={makeAppObj}
+      key={AppObjectComponent.extractKey(data)}
+      AppObjectComponent={AppObjectComponent}
       data={data}
       filter={filter}
       onObjectClick={onObjectClick}
       SubItems={SubItems}
+      isExpandable={isExpandable}
     />
   );
 
   if (groupFunc) {
     const listGrouped = _.compact(
       (list || []).map((data) => {
-        const appobj = makeAppObj(data, appObjectParams);
-        const { matcher } = appobj;
+        // const appobj = makeAppObj(data, appObjectParams);
+        const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
         if (matcher && !matcher(filter)) return null;
-        const component = createComponent(data, appobj);
-        const group = groupFunc(appobj);
-        return { group, appobj, component };
+        const component = createComponent(data);
+        const group = groupFunc(data);
+        return { group, data, component };
       })
     );
     const groups = _.groupBy(listGrouped, 'group');
@@ -154,9 +129,8 @@ export function AppObjectList({
   }
 
   return (list || []).map((data) => {
-    const appobj = makeAppObj(data, appObjectParams);
-    const { matcher } = appobj;
+    const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
     if (matcher && !matcher(filter)) return null;
-    return createComponent(data, appobj);
+    return createComponent(data);
   });
 }

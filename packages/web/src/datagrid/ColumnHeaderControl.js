@@ -5,7 +5,7 @@ import DropDownButton from '../widgets/DropDownButton';
 import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 import { useSplitterDrag } from '../widgets/Splitter';
 import { isTypeDateTime } from 'dbgate-tools';
-import { openDatabaseObjectDetail } from '../appobj/databaseObjectAppObject';
+import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';

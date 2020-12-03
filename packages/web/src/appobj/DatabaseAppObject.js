@@ -4,11 +4,17 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';
 import { getDefaultFileFormat } from '../utility/fileformats';
-import { useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
+import { AppObjectCore } from './AppObjectCore';
+import useShowModal from '../modals/showModal';
+import useExtensions from '../utility/useExtensions';
 
-function Menu({ data, showModal, extensions }) {
-  const setOpenedTabs = useSetOpenedTabs();
+function Menu({ data }) {
   const { connection, name } = data;
+  const setOpenedTabs = useSetOpenedTabs();
+  const extensions = useExtensions();
+  const showModal = useShowModal();
+
   const tooltip = `${connection.displayName || connection.server}\n${name}`;
 
   const handleNewQuery = () => {
@@ -31,8 +37,8 @@ function Menu({ data, showModal, extensions }) {
         initialValues={{
           sourceStorageType: getDefaultFileFormat(extensions).storageType,
           targetStorageType: 'database',
-          targetConnectionId: data.connection._id,
-          targetDatabaseName: data.name,
+          targetConnectionId: connection._id,
+          targetDatabaseName: name,
         }}
       />
     ));
@@ -45,8 +51,8 @@ function Menu({ data, showModal, extensions }) {
         initialValues={{
           targetStorageType: getDefaultFileFormat(extensions).storageType,
           sourceStorageType: 'database',
-          sourceConnectionId: data.connection._id,
-          sourceDatabaseName: data.name,
+          sourceConnectionId: connection._id,
+          sourceDatabaseName: name,
         }}
       />
     ));
@@ -61,20 +67,23 @@ function Menu({ data, showModal, extensions }) {
   );
 }
 
-const databaseAppObject = (flags) => ({ name, connection }) => {
-  const { boldCurrentDatabase } = flags || {};
-  const title = name;
-  const key = name;
-  const icon = 'img database';
-  const isBold = boldCurrentDatabase
-    ? ({ currentDatabase }) => {
-        return (
-          _.get(currentDatabase, 'connection._id') == _.get(connection, '_id') && _.get(currentDatabase, 'name') == name
-        );
+function DatabaseAppObject({ data, commonProps }) {
+  const { name, connection } = data;
+  const currentDatabase = useCurrentDatabase();
+  return (
+    <AppObjectCore
+      {...commonProps}
+      data={data}
+      title={name}
+      icon="img database"
+      isBold={
+        _.get(currentDatabase, 'connection._id') == _.get(connection, '_id') && _.get(currentDatabase, 'name') == name
       }
-    : null;
+      Menu={Menu}
+    />
+  );
+}
 
-  return { title, key, icon, Menu, isBold };
-};
+DatabaseAppObject.extractKey = (props) => props.name;
 
-export default databaseAppObject;
+export default DatabaseAppObject;

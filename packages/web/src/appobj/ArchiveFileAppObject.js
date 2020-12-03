@@ -1,10 +1,10 @@
 import React from 'react';
-import _ from 'lodash';
-import moment from 'moment';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { openNewTab } from '../utility/common';
 import { filterName } from 'dbgate-datalib';
 import axios from '../utility/axios';
+import { useSetOpenedTabs } from '../utility/globalState';
+import { AppObjectCore } from './AppObjectCore';
 
 function openArchive(setOpenedTabs, fileName, folderName) {
   openNewTab(setOpenedTabs, {
@@ -57,15 +57,19 @@ function Menu({ data, setOpenedTabs }) {
   );
 }
 
-const archiveFileAppObject = () => ({ fileName, folderName }, { setOpenedTabs }) => {
-  const key = fileName;
-  const icon = 'img archive';
+function ArchiveFileAppObject({ data, commonProps }) {
+  const { fileName, folderName } = data;
+  const setOpenedTabs = useSetOpenedTabs();
   const onClick = () => {
     openArchive(setOpenedTabs, fileName, folderName);
   };
-  const matcher = (filter) => filterName(filter, fileName);
 
-  return { title: fileName, key, icon, Menu, onClick, matcher };
-};
+  return (
+    <AppObjectCore {...commonProps} data={data} title={fileName} icon="img archive" onClick={onClick} Menu={Menu} />
+  );
+}
 
-export default archiveFileAppObject;
+ArchiveFileAppObject.extractKey = (data) => data.fileName;
+ArchiveFileAppObject.createMatcher = ({ fileName }) => (filter) => filterName(filter, fileName);
+
+export default ArchiveFileAppObject;

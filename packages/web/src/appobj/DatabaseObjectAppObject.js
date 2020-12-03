@@ -6,6 +6,9 @@ import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from 'dbgate-datalib';
 import ImportExportModal from '../modals/ImportExportModal';
+import { useSetOpenedTabs } from '../utility/globalState';
+import { AppObjectCore } from './AppObjectCore';
+import useShowModal from '../modals/showModal';
 
 const icons = {
   tables: 'img table',
@@ -114,7 +117,9 @@ export async function openDatabaseObjectDetail(
   });
 }
 
-function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
+function Menu({ data }) {
+  const showModal = useShowModal();
+  const setOpenedTabs = useSetOpenedTabs();
   return (
     <>
       {menus[data.objectTypeField].map((menu) => (
@@ -166,13 +171,9 @@ function Menu({ data, makeAppObj, setOpenedTabs, showModal }) {
   );
 }
 
-const databaseObjectAppObject = () => (
-  { conid, database, pureName, schemaName, objectTypeField },
-  { setOpenedTabs }
-) => {
-  const title = schemaName ? `${schemaName}.${pureName}` : pureName;
-  const key = title;
-  const icon = icons[objectTypeField];
+function DatabaseObjectAppObject({ data, commonProps }) {
+  const { conid, database, pureName, schemaName, objectTypeField } = data;
+  const setOpenedTabs = useSetOpenedTabs();
   // const Icon = (props) => getIconImage(icons[objectTypeField], props);
   const onClick = ({ schemaName, pureName }) => {
     openDatabaseObjectDetail(
@@ -188,10 +189,27 @@ const databaseObjectAppObject = () => (
       }
     );
   };
-  const matcher = (filter) => filterName(filter, pureName);
-  const groupTitle = _.startCase(objectTypeField);
+  // const matcher = (filter) => filterName(filter, pureName);
+  // const groupTitle = _.startCase(objectTypeField);
 
-  return { title, key, icon, Menu, onClick, matcher, groupTitle };
-};
+  return (
+    <AppObjectCore
+      {...commonProps}
+      data={data}
+      title={schemaName ? `${schemaName}.${pureName}` : pureName}
+      icon={icons[objectTypeField]}
+      onClick={onClick}
+      Menu={Menu}
+    />
+  );
+  // return { title, key, icon, Menu, onClick, matcher, groupTitle };
+}
 
-export default databaseObjectAppObject;
+DatabaseObjectAppObject.extractKey = ({ schemaName, pureName }) =>
+  schemaName ? `${schemaName}.${pureName}` : pureName;
+
+DatabaseObjectAppObject.createMatcher = ({ pureName }) => (filter) => filterName(filter, pureName);
+
+// DatabaseObjectAppObject.groupTitle = ({ pureName }) => (filter) => filterName(filter, pureName);
+
+export default DatabaseObjectAppObject;

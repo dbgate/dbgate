@@ -6,8 +6,8 @@ import { useCurrentArchive, useSetCurrentArchive } from '../utility/globalState'
 import { SearchBoxWrapper, WidgetsInnerContainer } from './WidgetStyles';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
-import archiveFolderAppObject from '../appobj/archiveFolderAppObject';
-import archiveFileAppObject from '../appobj/archiveFileAppObject';
+import ArchiveFolderAppObject from '../appobj/ArchiveFolderAppObject';
+import ArchiveFileAppObject from '../appobj/ArchiveFileAppObject';
 import SearchInput from './SearchInput';
 import InlineButton from './InlineButton';
 import axios from '../utility/axios';
@@ -31,7 +31,7 @@ function ArchiveFolderList() {
       <WidgetsInnerContainer>
         <AppObjectList
           list={_.sortBy(folders, 'name')}
-          makeAppObj={archiveFolderAppObject()}
+          AppObjectComponent={ArchiveFolderAppObject}
           onObjectClick={(archive) => setArchive(archive.name)}
           filter={filter}
         />
@@ -61,7 +61,7 @@ function ArchiveFilesList() {
             folderName: folder,
           }))}
           filter={filter}
-          makeAppObj={archiveFileAppObject()}
+          AppObjectComponent={ArchiveFileAppObject}
         />
       </WidgetsInnerContainer>
     </>

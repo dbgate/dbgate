@@ -3,9 +3,9 @@ import _ from 'lodash';
 
 import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs } from '../utility/globalState';
-import closedTabAppObject from '../appobj/closedTabAppObject';
+import ClosedTabAppObject from '../appobj/ClosedTabAppObject';
 import { WidgetsInnerContainer } from './WidgetStyles';
-import savedSqlFileAppObject from '../appobj/savedSqlFileAppObject';
+import SavedSqlFileAppObject from '../appobj/SavedSqlFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
 
@@ -20,7 +20,7 @@ function ClosedTabsList() {
             tabs.filter((x) => x.closedTime),
             (x) => -x.closedTime
           )}
-          makeAppObj={closedTabAppObject()}
+          AppObjectComponent={ClosedTabAppObject}
         />
       </WidgetsInnerContainer>
     </>
@@ -33,7 +33,7 @@ function SavedSqlFilesList() {
   return (
     <>
       <WidgetsInnerContainer>
-        <AppObjectList list={files} makeAppObj={savedSqlFileAppObject()} />
+        <AppObjectList list={files} AppObjectComponent={SavedSqlFileAppObject} />
       </WidgetsInnerContainer>
     </>
   );

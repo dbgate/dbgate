@@ -6,8 +6,17 @@ import axios from '../utility/axios';
 import { filterName } from 'dbgate-datalib';
 import ConfirmModal from '../modals/ConfirmModal';
 import CreateDatabaseModal from '../modals/CreateDatabaseModal';
+import { useCurrentDatabase, useOpenedConnections, useSetOpenedConnections } from '../utility/globalState';
+import { AppObjectCore } from './AppObjectCore';
+import useShowModal from '../modals/showModal';
+import { useConfig } from '../utility/metadataLoaders';
 
-function Menu({ data, setOpenedConnections, openedConnections, config, showModal }) {
+function Menu({ data }) {
+  const openedConnections = useOpenedConnections();
+  const setOpenedConnections = useSetOpenedConnections();
+  const showModal = useShowModal();
+  const config = useConfig();
+
   const handleEdit = () => {
     showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
   };
@@ -54,21 +63,16 @@ function Menu({ data, setOpenedConnections, openedConnections, config, showModal
   );
 }
 
-const connectionAppObject = (flags) => (
-  { _id, server, displayName, engine, status },
-  { openedConnections, setOpenedConnections }
-) => {
-  const title = displayName || server;
-  const key = _id;
-  const isExpandable = openedConnections.includes(_id);
-  const icon = 'img server';
-  const matcher = (filter) => filterName(filter, displayName, server);
-  const { boldCurrentDatabase } = flags || {};
-  const isBold = boldCurrentDatabase
-    ? ({ currentDatabase }) => {
-        return _.get(currentDatabase, 'connection._id') == _id;
-      }
-    : null;
+function ConnectionAppObject({ data, commonProps }) {
+  const { _id, server, displayName, engine, status } = data;
+  const openedConnections = useOpenedConnections();
+  const setOpenedConnections = useSetOpenedConnections();
+  const currentDatabase = useCurrentDatabase();
+
+  // const key = _id;
+  // const isExpandable = openedConnections.includes(_id);
+  // const matcher = (filter) => filterName(filter, displayName, server);
+  const isBold = _.get(currentDatabase, 'connection._id') == _id;
   const onClick = () => setOpenedConnections((c) => [...c, _id]);
 
   let statusIcon = null;
@@ -84,19 +88,37 @@ const connectionAppObject = (flags) => (
   }
   const extInfo = engine;
 
-  return {
-    title,
-    key,
-    icon,
-    Menu,
-    matcher,
-    isBold,
-    isExpandable,
-    onClick,
-    statusIcon,
-    statusTitle,
-    extInfo,
-  };
-};
+  return (
+    <AppObjectCore
+      {...commonProps}
+      title={displayName || server}
+      icon="img server"
+      data={data}
+      statusIcon={statusIcon}
+      statusTitle={statusTitle}
+      extInfo={extInfo}
+      isBold={isBold}
+      onClick={onClick}
+      Menu={Menu}
+    />
+  );
 
-export default connectionAppObject;
+  // return {
+  //   title,
+  //   key,
+  //   icon,
+  //   Menu,
+  //   matcher,
+  //   isBold,
+  //   isExpandable,
+  //   onClick,
+  //   statusIcon,
+  //   statusTitle,
+  //   extInfo,
+  // };
+}
+
+ConnectionAppObject.extractKey = (data) => data._id;
+ConnectionAppObject.createMatcher = ({ displayName, server }) => (filter) => filterName(filter, displayName, server);
+
+export default ConnectionAppObject;

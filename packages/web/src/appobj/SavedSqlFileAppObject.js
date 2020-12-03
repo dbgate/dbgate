@@ -2,6 +2,8 @@ import React from 'react';
 import axios from '../utility/axios';
 import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { AppObjectCore } from './AppObjectCore';
+import useNewQuery from '../query/useNewQuery';
 
 function Menu({ data }) {
   const handleDelete = () => {
@@ -14,20 +16,22 @@ function Menu({ data }) {
   );
 }
 
-const savedSqlFileAppObject = () => ({ name }, { setOpenedTabs, newQuery, openedTabs }) => {
-  const key = name;
-  const title = name;
-  const icon = 'img sql-file';
+function SavedSqlFileAppObject({ data, commonProps }) {
+  const { name } = data;
+  const newQuery = useNewQuery();
 
   const onClick = async () => {
     const resp = await axios.post('files/load', { folder: 'sql', file: name });
     newQuery({
       title: name,
+      // @ts-ignore
       initialScript: resp.data,
     });
   };
 
-  return { title, key, icon, onClick, Menu };
-};
+  return <AppObjectCore {...commonProps} data={data} title={name} icon="img sql-file" onClick={onClick} Menu={Menu} />;
+}
 
-export default savedSqlFileAppObject;
+SavedSqlFileAppObject.extractKey = (data) => data.name;
+
+export default SavedSqlFileAppObject;

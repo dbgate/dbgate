@@ -80,31 +80,31 @@ export function useUpdateDatabaseForTab(tabVisible, conid, database) {
   }
 }
 
-export function useAppObjectParams() {
-  const setOpenedTabs = useSetOpenedTabs();
-  const currentDatabase = useCurrentDatabase();
-  const newQuery = useNewQuery();
-  const openedTabs = useOpenedTabs();
-  const openedConnections = useOpenedConnections();
-  const setOpenedConnections = useSetOpenedConnections();
-  const currentArchive = useCurrentArchive();
-  const showModal = useShowModal();
-  const config = useConfig();
-  const extensions = useExtensions();
+// export function useAppObjectParams() {
+//   const setOpenedTabs = useSetOpenedTabs();
+//   const currentDatabase = useCurrentDatabase();
+//   const newQuery = useNewQuery();
+//   const openedTabs = useOpenedTabs();
+//   const openedConnections = useOpenedConnections();
+//   const setOpenedConnections = useSetOpenedConnections();
+//   const currentArchive = useCurrentArchive();
+//   const showModal = useShowModal();
+//   const config = useConfig();
+//   const extensions = useExtensions();
 
-  return {
-    setOpenedTabs,
-    currentDatabase,
-    currentArchive,
-    newQuery,
-    openedTabs,
-    openedConnections,
-    setOpenedConnections,
-    config,
-    showModal,
-    extensions,
-  };
-}
+//   return {
+//     setOpenedTabs,
+//     currentDatabase,
+//     currentArchive,
+//     newQuery,
+//     openedTabs,
+//     openedConnections,
+//     setOpenedConnections,
+//     config,
+//     showModal,
+//     extensions,
+//   };
+// }
 
 const [OpenedConnectionsProvider, useOpenedConnections, useSetOpenedConnections] = createGlobalState([]);
 

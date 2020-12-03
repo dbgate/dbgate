@@ -24,7 +24,7 @@ export default function MacroManager({ managerSize, selectedMacro, setSelectedMa
         </SearchBoxWrapper>
         <AppObjectList
           list={_.sortBy(macros, 'title')}
-          makeAppObj={macroAppObject()}
+          AppObjectComponent={macroAppObject()}
           onObjectClick={(macro) => setSelectedMacro(macro)}
           filter={filter}
           groupFunc={(appobj) => appobj.groupTitle}

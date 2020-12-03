@@ -2,8 +2,11 @@ import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { useSetOpenedTabs } from '../utility/globalState';
+import { AppObjectCore } from './AppObjectCore';
 
-function Menu({ data, setOpenedTabs }) {
+function Menu({ data }) {
+  const setOpenedTabs = useSetOpenedTabs();
   const handleDelete = () => {
     setOpenedTabs((tabs) => tabs.filter((x) => x.tabid != data.tabid));
   };
@@ -18,9 +21,9 @@ function Menu({ data, setOpenedTabs }) {
   );
 }
 
-const closedTabAppObject = () => ({ tabid, props, selected, icon, title, closedTime, busy }, { setOpenedTabs }) => {
-  const key = tabid;
-  const isBold = !!selected;
+function ClosedTabAppObject({ data, commonProps }) {
+  const { tabid, props, selected, icon, title, closedTime, busy } = data;
+  const setOpenedTabs = useSetOpenedTabs();
 
   const onClick = () => {
     setOpenedTabs((files) =>
@@ -32,7 +35,20 @@ const closedTabAppObject = () => ({ tabid, props, selected, icon, title, closedT
     );
   };
 
-  return { title: `${title} ${moment(closedTime).fromNow()}`, key, icon, isBold, onClick, isBusy: busy, Menu };
-};
+  return (
+    <AppObjectCore
+      {...commonProps}
+      data={data}
+      title={`${title} ${moment(closedTime).fromNow()}`}
+      icon={icon}
+      isBold={!!selected}
+      onClick={onClick}
+      isBusy={busy}
+      Menu={Menu}
+    />
+  );
+}
 
-export default closedTabAppObject;
+ClosedTabAppObject.extractKey = (data) => data.tabid;
+
+export default ClosedTabAppObject;
