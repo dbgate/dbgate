@@ -29,16 +29,16 @@ function App() {
                 <ConnectionsPinger>
                   <PluginsProvider>
                     <ExtensionsProvider>
-                      <ModalLayerProvider>
-                        <CurrentArchiveProvider>
-                          <CurrentThemeProvider>
-                            <UploadsProvider>
+                      <CurrentArchiveProvider>
+                        <CurrentThemeProvider>
+                          <UploadsProvider>
+                            <ModalLayerProvider>
                               <ThemeHelmet />
                               <Screen />
-                            </UploadsProvider>
-                          </CurrentThemeProvider>
-                        </CurrentArchiveProvider>
-                      </ModalLayerProvider>
+                            </ModalLayerProvider>
+                          </UploadsProvider>
+                        </CurrentThemeProvider>
+                      </CurrentArchiveProvider>
                     </ExtensionsProvider>
                   </PluginsProvider>
                 </ConnectionsPinger>
