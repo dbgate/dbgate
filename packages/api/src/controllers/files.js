@@ -2,6 +2,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
+const scheduler = require('./scheduler');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -44,5 +45,8 @@ module.exports = {
     }
     await fs.writeFile(path.join(dir, file), serialize(format, data));
     socket.emitChanged(`files-changed-${folder}`);
+    if (folder == 'shell') {
+      scheduler.reload();
+    }
   },
 };

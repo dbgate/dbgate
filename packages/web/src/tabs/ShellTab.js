@@ -15,6 +15,7 @@ import ImportExportModal from '../modals/ImportExportModal';
 import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
+import LoadingInfo from '../widgets/LoadingInfo';
 
 const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
 const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
@@ -22,7 +23,7 @@ const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
 export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
-  const { editorData, setEditorData } = useEditorData({ tabid });
+  const { editorData, setEditorData, isLoading } = useEditorData({ tabid });
   const saveFileModalState = useModalState();
 
   const setOpenedTabs = useSetOpenedTabs();
@@ -88,6 +89,14 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
       ));
     }
   };
+
+  if (isLoading) {
+    return (
+      <div>
+        <LoadingInfo message="Loading shell script" />
+      </div>
+    );
+  }
 
   return (
     <>

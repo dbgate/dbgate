@@ -32,9 +32,10 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   const extensions = useExtensions();
   const { editorData, setEditorData, isLoading } = useEditorData({
     tabid,
-    loadFromArgs: initialArgs && initialArgs.sqlTemplate
-      ? () => applySqlTemplate(initialArgs.sqlTemplate, extensions, { conid, database, ...other })
-      : null,
+    loadFromArgs:
+      initialArgs && initialArgs.sqlTemplate
+        ? () => applySqlTemplate(initialArgs.sqlTemplate, extensions, { conid, database, ...other })
+        : null,
   });
 
   const editorRef = React.useRef(null);
@@ -113,12 +114,13 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     editorRef.current.editor.clearSelection();
   };
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div>
         <LoadingInfo message="Loading SQL script" />
       </div>
     );
+  }
 
   return (
     <>
