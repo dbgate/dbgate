@@ -84,17 +84,22 @@ function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartTyp
   return res;
 }
 
-export default function DataChart({ data }) {
-  const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  const { values } = useForm();
-
-  const { labelColumn } = values;
+export function extractDataColumns(values) {
   const dataColumns = [];
   for (const key in values) {
     if (key.startsWith('dataColumn_') && values[key]) {
       dataColumns.push(key.substring('dataColumn_'.length));
     }
   }
+  return dataColumns;
+}
+
+export default function DataChart({ data }) {
+  const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
+  const { values } = useForm();
+
+  const { labelColumn } = values;
+  const dataColumns = extractDataColumns(values);
 
   return (
     <ChartWrapper ref={containerRef}>

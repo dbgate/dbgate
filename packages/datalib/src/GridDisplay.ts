@@ -433,9 +433,10 @@ export abstract class GridDisplay {
     return sql;
   }
 
-  getExportQuery() {
+  getExportQuery(postprocessSelect = null) {
     const select = this.createSelect({ isExport: true });
     if (!select) return null;
+    if (postprocessSelect) postprocessSelect(select);
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }

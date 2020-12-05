@@ -106,6 +106,7 @@ export default function DataGridCore(props) {
     isLoadedAll,
     loadedTime,
     exportGrid,
+    openActiveChart,
     allRowCount,
     openQuery,
     onSave,
@@ -377,7 +378,8 @@ export default function DataGridCore(props) {
         filterSelectedValue={display.filterable ? filterSelectedValue : null}
         openQuery={openQuery}
         openFreeTable={handleOpenFreeTable}
-        openChart={handleOpenChart}
+        openChartSelection={handleOpenChart}
+        openActiveChart={openActiveChart}
       />
     );
   };

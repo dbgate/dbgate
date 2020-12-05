@@ -80,6 +80,26 @@ export default function SqlDataGridCore(props) {
     initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
     showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
+  function openActiveChart() {
+    openNewTab(
+      setOpenedTabs,
+      {
+        title: 'Chart',
+        icon: 'img chart',
+        tabComponent: 'ChartTab',
+        props: {
+          conid,
+          database,
+        },
+      },
+      {
+        config: { chartType: 'bar' },
+        sql: display.getExportQuery((select) => {
+          select.orderBy = null;
+        }),
+      }
+    );
+  }
   function openQuery() {
     openNewTab(setOpenedTabs, {
       title: 'Query',
@@ -131,6 +151,7 @@ export default function SqlDataGridCore(props) {
       <LoadingDataGridCore
         {...props}
         exportGrid={exportGrid}
+        openActiveChart={openActiveChart}
         openQuery={openQuery}
         loadDataPage={loadDataPage}
         dataPageAvailable={dataPageAvailable}

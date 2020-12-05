@@ -7,7 +7,7 @@ import { dumpSqlCondition } from './dumpSqlCondition';
 export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   dmp.put('^select ');
   if (cmd.topRecords) {
-    dmp.put('^top %s ', cmd.topRecords);
+    if (!dmp.dialect.rangeSelect || dmp.dialect.offsetFetchRangeSyntax) dmp.put('^top %s ', cmd.topRecords);
   }
   if (cmd.distinct) {
     dmp.put('^distinct ');
@@ -50,6 +50,9 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
     } else {
       dmp.put('^limit %s ^offset %s ', cmd.range.limit, cmd.range.offset);
     }
+  }
+  if (cmd.topRecords) {
+    if (dmp.dialect.rangeSelect && !dmp.dialect.offsetFetchRangeSyntax) dmp.put('^limit %s ', cmd.topRecords);
   }
 }
 
