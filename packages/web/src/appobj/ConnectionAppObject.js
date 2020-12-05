@@ -76,15 +76,7 @@ function ConnectionAppObject({ data, commonProps }) {
 
   let statusIcon = null;
   let statusTitle = null;
-  if (openedConnections.includes(_id)) {
-    if (!status) statusIcon = 'icon loading';
-    else if (status.name == 'pending') statusIcon = 'icon loading';
-    else if (status.name == 'ok') statusIcon = 'img ok';
-    else statusIcon = 'img error';
-    if (status && status.name == 'error') {
-      statusTitle = status.message;
-    }
-  }
+
   let extInfo = null;
   if (extensions.drivers.find((x) => x.engine == engine)) {
     const match = (engine || '').match(/^([^@]*)@/);
@@ -93,6 +85,16 @@ function ConnectionAppObject({ data, commonProps }) {
     extInfo = engine;
     statusIcon = 'img warn';
     statusTitle = `Engine driver ${engine} not found, review installed plugins and change engine in edit connection dialog`;
+  }
+
+  if (openedConnections.includes(_id)) {
+    if (!status) statusIcon = 'icon loading';
+    else if (status.name == 'pending') statusIcon = 'icon loading';
+    else if (status.name == 'ok') statusIcon = 'img ok';
+    else statusIcon = 'img error';
+    if (status && status.name == 'error') {
+      statusTitle = status.message;
+    }
   }
 
   return (
