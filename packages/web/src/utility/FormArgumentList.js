@@ -1,16 +1,8 @@
 import React from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
-import {
-  FormTextField,
-  FormSubmit,
-  FormArchiveFolderSelect,
-  FormRow,
-  FormLabel,
-  FormSelectField,
-  FormCheckboxField,
-} from './forms';
-import { Formik, Form, useFormikContext } from 'formik';
+import { FormTextField, FormSelectField, FormCheckboxField } from './forms';
+import { useForm } from './FormProvider';
 
 const FormArgumentsWrapper = styled.div``;
 
@@ -35,7 +27,7 @@ function FormArgument({ arg, namePrefix }) {
 }
 
 export default function FormArgumentList({ args, onChangeValues = undefined, namePrefix }) {
-  const { values } = useFormikContext();
+  const { values } = useForm();
   React.useEffect(() => {
     if (onChangeValues) onChangeValues(values);
   }, [values]);

@@ -1,8 +1,7 @@
 import React from 'react';
 import _ from 'lodash';
-import { Formik, Form, useFormikContext } from 'formik';
 import FormArgumentList from '../utility/FormArgumentList';
-
+import { FormProvider } from '../utility/FormProvider';
 
 export default function MacroParameters({ args, onChangeValues, macroValues, namePrefix }) {
   if (!args || args.length == 0) return null;
@@ -11,10 +10,8 @@ export default function MacroParameters({ args, onChangeValues, macroValues, nam
     ...macroValues,
   };
   return (
-    <Formik initialValues={initialValues} onSubmit={() => {}}>
-      <Form>
-        <FormArgumentList args={args} onChangeValues={onChangeValues} namePrefix={namePrefix} />
-      </Form>
-    </Formik>
+    <FormProvider initialValues={initialValues}>
+      <FormArgumentList args={args} onChangeValues={onChangeValues} namePrefix={namePrefix} />
+    </FormProvider>
   );
 }

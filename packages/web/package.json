@@ -17,7 +17,6 @@
     "dbgate-tools": "^1.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
-    "formik": "^2.1.0",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",
     "react": "^16.12.0",

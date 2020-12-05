@@ -1,7 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { useFormikContext } from 'formik';
 import styled from 'styled-components';
 import {
   FormReactSelect,
@@ -30,6 +29,7 @@ import useExtensions from '../utility/useExtensions';
 import UploadButton from '../utility/UploadButton';
 import useShowModal from '../modals/showModal';
 import ChangeDownloadUrlModal from '../modals/ChangeDownloadUrlModal';
+import { useForm } from '../utility/FormProvider';
 
 const Container = styled.div`
   // max-height: 50vh;
@@ -142,7 +142,7 @@ async function addFilesToSourceList(extensions, files, values, setValues, prefer
 }
 
 function ElectronFilesInput() {
-  const { values, setValues } = useFormikContext();
+  const { values, setValues } = useForm();
   const electron = getElectron();
   const [isLoading, setIsLoading] = React.useState(false);
   const extensions = useExtensions();
@@ -195,7 +195,7 @@ function FilesInput({ setPreviewSource = undefined }) {
   const theme = useTheme();
   const electron = getElectron();
   const showModal = useShowModal();
-  const { values, setValues } = useFormikContext();
+  const { values, setValues } = useForm();
   const extensions = useExtensions();
   const doAddUrl = (url) => {
     addFilesToSourceList(
@@ -239,7 +239,7 @@ function SourceTargetConfig({
 }) {
   const extensions = useExtensions();
   const theme = useTheme();
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue } = useForm();
   const types =
     values[storageTypeField] == 'jsldata'
       ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
@@ -375,7 +375,7 @@ function SourceTargetConfig({
 }
 
 function SourceName({ name }) {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue } = useForm();
   const theme = useTheme();
   const showModal = useShowModal();
   const obj = values[`sourceFile_${name}`];
@@ -412,7 +412,7 @@ function SourceName({ name }) {
 }
 
 export default function ImportExportConfigurator({ uploadedFile = undefined, onChangePreview = undefined }) {
-  const { values, setFieldValue, setValues } = useFormikContext();
+  const { values, setFieldValue, setValues } = useForm();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
   const { engine: sourceEngine } = sourceConnectionInfo || {};

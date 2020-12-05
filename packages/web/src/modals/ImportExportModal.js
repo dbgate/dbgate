@@ -2,7 +2,6 @@ import React from 'react';
 import moment from 'moment';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
-import { Formik, Form, useFormikContext } from 'formik';
 import styled from 'styled-components';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
@@ -21,9 +20,10 @@ import PreviewDataGrid from '../impexp/PreviewDataGrid';
 import useSocket from '../utility/SocketProvider';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
-import LargeButton from '../widgets/LargeButton';
+import LargeButton, { LargeFormButton } from '../widgets/LargeButton';
 import { getDefaultFileFormat } from '../utility/fileformats';
 import useExtensions from '../utility/useExtensions';
+import { FormProvider, useForm } from '../utility/FormProvider';
 
 const headerHeight = '60px';
 const footerHeight = '100px';
@@ -54,7 +54,7 @@ const WidgetColumnWrapper = styled.div`
   border-left: 1px solid ${(props) => props.theme.border};
 `;
 
-const StyledForm = styled(Form)`
+const FormWrapper = styled.div`
   position: fixed;
   top: 0;
   left: 0;
@@ -92,7 +92,7 @@ const FooterButtons = styled.div`
 
 function GenerateSctriptButton({ modalState }) {
   const setOpenedTabs = useSetOpenedTabs();
-  const { values } = useFormikContext();
+  const { values } = useForm();
   const extensions = useExtensions();
 
   const handleGenerateScript = async () => {
@@ -112,18 +112,6 @@ function GenerateSctriptButton({ modalState }) {
   return (
     <LargeButton icon="img sql-file" onClick={handleGenerateScript}>
       Generate script
-    </LargeButton>
-  );
-}
-
-function RunButton() {
-  const { submitForm } = useFormikContext();
-  const handleSubmit = () => {
-    submitForm();
-  };
-  return (
-    <LargeButton onClick={handleSubmit} icon="icon run">
-      Run
     </LargeButton>
   );
 }
@@ -194,8 +182,7 @@ export default function ImportExportModal({
 
   return (
     <ModalBase modalState={modalState} fullScreen isFlex>
-      <Formik
-        onSubmit={handleExecute}
+      <FormProvider
         initialValues={{
           sourceStorageType: 'database',
           targetStorageType: importToArchive ? 'archive' : getDefaultFileFormat(extensions).storageType,
@@ -204,7 +191,7 @@ export default function ImportExportModal({
           ...initialValues,
         }}
       >
-        <StyledForm>
+        <FormWrapper>
           <ModalHeader modalState={modalState}>Import/Export {busy && <FontIcon icon="icon loading" />}</ModalHeader>
           <Wrapper>
             <ContentWrapper theme={theme}>
@@ -236,7 +223,9 @@ export default function ImportExportModal({
                   Cancel
                 </LargeButton>
               ) : (
-                <RunButton />
+                <LargeFormButton onClick={handleExecute} icon="icon run">
+                  Run
+                </LargeFormButton>
               )}
               <GenerateSctriptButton modalState={modalState} />
               <LargeButton onClick={modalState.close} icon="icon close">
@@ -244,8 +233,8 @@ export default function ImportExportModal({
               </LargeButton>
             </FooterButtons>
           </Footer>
-        </StyledForm>
-      </Formik>
+        </FormWrapper>
+      </FormProvider>
     </ModalBase>
   );
 }

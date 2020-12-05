@@ -6,8 +6,8 @@ import useDimensions from '../utility/useDimensions';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import { FormCheckboxField, FormSelectField } from '../utility/forms';
-import { Formik, Form } from 'formik';
 import DataChart from './DataChart';
+import { FormProvider } from '../utility/FormProvider';
 
 const LeftContainer = styled.div`
   background-color: ${(props) => props.theme.manager_background};
@@ -21,36 +21,34 @@ export default function ChartEditor({ data }) {
   const availableColumnNames = data ? data.structure.columns.map((x) => x.columnName) : [];
 
   return (
-    <Formik initialValues={{ chartType: 'bar' }} onSubmit={() => {}}>
-      <Form>
-        <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
-          <LeftContainer theme={theme}>
-            <WidgetColumnBar>
-              <WidgetColumnBarItem title="Style" name="style" height="40%">
-                <FormSelectField label="Chart type" name="chartType">
-                  <option value="bar">Bar</option>
-                  <option value="line">Line</option>
-                </FormSelectField>
-              </WidgetColumnBarItem>
-              <WidgetColumnBarItem title="Data" name="data">
-                <FormSelectField label="Label column" name="labelColumn">
-                  <option value=""></option>
-                  {availableColumnNames.map((col) => (
-                    <option value={col} key={col}>
-                      {col}
-                    </option>
-                  ))}
-                </FormSelectField>
+    <FormProvider initialValues={{ chartType: 'bar' }}>
+      <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
+        <LeftContainer theme={theme}>
+          <WidgetColumnBar>
+            <WidgetColumnBarItem title="Style" name="style" height="40%">
+              <FormSelectField label="Chart type" name="chartType">
+                <option value="bar">Bar</option>
+                <option value="line">Line</option>
+              </FormSelectField>
+            </WidgetColumnBarItem>
+            <WidgetColumnBarItem title="Data" name="data">
+              <FormSelectField label="Label column" name="labelColumn">
+                <option value=""></option>
                 {availableColumnNames.map((col) => (
-                  <FormCheckboxField label={col} name={`dataColumn_${col}`} key={col} />
+                  <option value={col} key={col}>
+                    {col}
+                  </option>
                 ))}
-              </WidgetColumnBarItem>
-            </WidgetColumnBar>
-          </LeftContainer>
+              </FormSelectField>
+              {availableColumnNames.map((col) => (
+                <FormCheckboxField label={col} name={`dataColumn_${col}`} key={col} />
+              ))}
+            </WidgetColumnBarItem>
+          </WidgetColumnBar>
+        </LeftContainer>
 
-          <DataChart data={data} />
-        </HorizontalSplitter>
-      </Form>
-    </Formik>
+        <DataChart data={data} />
+      </HorizontalSplitter>
+    </FormProvider>
   );
 }

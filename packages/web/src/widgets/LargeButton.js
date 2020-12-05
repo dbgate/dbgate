@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { FontIcon } from '../icons';
 import dimensions from '../theme/dimensions';
 import useTheme from '../theme/useTheme';
+import { useForm } from '../utility/FormProvider';
 
 const ButtonDiv = styled.div`
   padding: 5px 15px;
@@ -56,5 +57,14 @@ export default function LargeButton({ children, onClick, icon = undefined, disab
       </IconDiv>
       <ButtonDivInner>{children}</ButtonDivInner>
     </ButtonDiv>
+  );
+}
+
+export function LargeFormButton({ children, onClick, icon = undefined, disabled = undefined }) {
+  const { values } = useForm();
+  return (
+    <LargeButton icon={icon} disabled={disabled} onClick={() => onClick(values)}>
+      {children}
+    </LargeButton>
   );
 }

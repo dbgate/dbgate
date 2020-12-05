@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import Select from 'react-select';
 import Creatable from 'react-select/creatable';
 import { TextField, SelectField, CheckboxField } from './inputs';
-import { Field, useFormikContext } from 'formik';
 import FormStyledButton from '../widgets/FormStyledButton';
 import {
   useConnectionList,
@@ -12,10 +11,10 @@ import {
   useArchiveFolders,
   useArchiveFiles,
 } from './metadataLoaders';
-import useSocket from './SocketProvider';
 import getAsArray from './getAsArray';
 import axios from './axios';
 import useTheme from '../theme/useTheme';
+import { useForm } from './FormProvider';
 
 export const FormRow = styled.div`
   display: flex;
@@ -35,23 +34,32 @@ export const FormLabel = styled.div`
 
 export const FormValue = styled.div``;
 
-export function FormTextFieldRaw({ ...other }) {
-  return <Field {...other} as={TextField} />;
+export function FormTextFieldRaw({ name, focused = false, ...other }) {
+  const { values, setFieldValue } = useForm();
+  const handleChange = (event) => {
+    setFieldValue(name, event.target.value);
+  };
+  const textFieldRef = React.useRef(null);
+  React.useEffect(() => {
+    if (textFieldRef.current && focused) textFieldRef.current.focus();
+  }, [textFieldRef.current, focused]);
+
+  return <TextField {...other} value={values[name]} onChange={handleChange} editorRef={textFieldRef} />;
 }
 
-export function FormTextField({ label, ...other }) {
+export function FormTextField({ name, label, focused = false, ...other }) {
   return (
     <FormRow>
       <FormLabel>{label}</FormLabel>
       <FormValue>
-        <FormTextFieldRaw {...other} />
+        <FormTextFieldRaw name={name} focused={focused} {...other} />
       </FormValue>
     </FormRow>
   );
 }
 
 export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefined, ...other }) {
-  const { values, setFieldValue } = useFormikContext();
+  const { values, setFieldValue } = useForm();
   const handleChange = (event) => {
     setFieldValue(name, event.target.checked);
   };
@@ -72,36 +80,43 @@ export function FormCheckboxField({ label, ...other }) {
   );
 }
 
-export function FormSelectFieldRaw({ children, ...other }) {
+export function FormSelectFieldRaw({ children, name, ...other }) {
+  const { values, setFieldValue } = useForm();
+  const handleChange = (event) => {
+    setFieldValue(name, event.target.value);
+  };
   return (
-    <Field {...other} as={SelectField}>
+    <SelectField {...other} value={values[name]} onChange={handleChange}>
       {children}
-    </Field>
+    </SelectField>
   );
 }
 
-export function FormSelectField({ label, children = null, ...other }) {
+export function FormSelectField({ label, name, children = null, ...other }) {
   return (
     <FormRow>
       <FormLabel>{label}</FormLabel>
       <FormValue>
-        <FormSelectFieldRaw {...other}>{children}</FormSelectFieldRaw>
+        <FormSelectFieldRaw name={name} {...other}>
+          {children}
+        </FormSelectFieldRaw>
       </FormValue>
     </FormRow>
   );
 }
 
-export function FormSubmit({ text }) {
-  return <FormStyledButton type="submit" value={text} />;
+export function FormSubmit({ onClick, value, ...other }) {
+  const { values } = useForm();
+  return <FormStyledButton type="submit" value={value} onClick={() => onClick(values)} {...other} />;
 }
 
-export function FormButton({ text, onClick, ...other }) {
-  const { values } = useFormikContext();
-  return <FormStyledButton type="button" value={text} onClick={() => onClick(values)} {...other} />;
+export function FormButton({ onClick, value, ...other }) {
+  const { values } = useForm();
+  return <FormStyledButton type="button" value={value} onClick={() => onClick(values)} {...other} />;
 }
 
 export function FormRadioGroupItem({ name, text, value }) {
-  const { setFieldValue, values } = useFormikContext();
+  const { setFieldValue, values } = useForm();
   return (
     <div>
       <input
@@ -117,7 +132,7 @@ export function FormRadioGroupItem({ name, text, value }) {
 }
 
 export function FormReactSelect({ options, name, isMulti = false, Component = Select, ...other }) {
-  const { setFieldValue, values } = useFormikContext();
+  const { setFieldValue, values } = useForm();
   const theme = useTheme();
 
   return (
@@ -177,7 +192,7 @@ export function FormConnectionSelect({ name }) {
 }
 
 export function FormDatabaseSelect({ conidName, name }) {
-  const { values } = useFormikContext();
+  const { values } = useForm();
   const databases = useDatabaseList({ conid: values[conidName] });
   const databaseOptions = React.useMemo(
     () =>
@@ -193,7 +208,7 @@ export function FormDatabaseSelect({ conidName, name }) {
 }
 
 export function FormSchemaSelect({ conidName, databaseName, name }) {
-  const { values } = useFormikContext();
+  const { values } = useForm();
   const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
   const schemaOptions = React.useMemo(
     () =>
@@ -209,7 +224,7 @@ export function FormSchemaSelect({ conidName, databaseName, name }) {
 }
 
 export function FormTablesSelect({ conidName, databaseName, schemaName, name }) {
-  const { values } = useFormikContext();
+  const { values } = useForm();
   const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
   const tablesOptions = React.useMemo(
     () =>
@@ -243,7 +258,7 @@ export function FormArchiveFilesSelect({ folderName, name }) {
 }
 
 export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other }) {
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue } = useForm();
   const folders = useArchiveFolders();
   const folderOptions = React.useMemo(
     () => [

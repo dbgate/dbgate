@@ -1,11 +1,11 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormTextField, FormSubmit } from '../utility/forms';
-import { Formik, Form } from 'formik';
+import { FormButton, FormSubmit, FormTextField } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
+import { FormProvider } from '../utility/FormProvider';
 
 export default function CreateDatabaseModal({ modalState, conid }) {
   const handleSubmit = async (values) => {
@@ -17,16 +17,14 @@ export default function CreateDatabaseModal({ modalState, conid }) {
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>Create database</ModalHeader>
-      <Formik onSubmit={handleSubmit} initialValues={{ name: 'newdb' }}>
-        <Form>
-          <ModalContent>
-            <FormTextField label="Database name" name="name" />
-          </ModalContent>
-          <ModalFooter>
-            <FormSubmit text="Create" />
-          </ModalFooter>
-        </Form>
-      </Formik>
+      <FormProvider initialValues={{ name: 'newdb' }}>
+        <ModalContent>
+          <FormTextField label="Database name" name="name" />
+        </ModalContent>
+        <ModalFooter>
+          <FormSubmit value="Create" onClick={handleSubmit} />
+        </ModalFooter>
+      </FormProvider>
     </ModalBase>
   );
 }

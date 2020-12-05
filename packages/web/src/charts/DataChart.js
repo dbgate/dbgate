@@ -7,7 +7,7 @@ import useDimensions from '../utility/useDimensions';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import { FormSelectField } from '../utility/forms';
-import { Formik, Form, useFormikContext } from 'formik';
+import { useForm } from '../utility/FormProvider';
 
 const ChartWrapper = styled.div`
   flex: 1;
@@ -75,7 +75,7 @@ function createChartData(freeData, labelColumn, dataColumns) {
 
 export default function DataChart({ data }) {
   const [containerRef, { height: containerHeight, width: containerWidth }] = useDimensions();
-  const { values } = useFormikContext();
+  const { values } = useForm();
 
   const { labelColumn } = values;
   const dataColumns = [];

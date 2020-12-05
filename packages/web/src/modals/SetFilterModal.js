@@ -2,12 +2,19 @@ import React from 'react';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
 import styled from 'styled-components';
-import { FormButtonRow, FormSubmit, FormSelectFieldRaw, FormRow, FormRadioGroupItem, FormTextFieldRaw } from '../utility/forms';
+import {
+  FormButtonRow,
+  FormSubmit,
+  FormSelectFieldRaw,
+  FormRow,
+  FormRadioGroupItem,
+  FormTextFieldRaw,
+} from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
-import { Formik, Form } from 'formik';
 import { TextField } from '../utility/inputs';
+import { FormProvider } from '../utility/FormProvider';
 
 const Wrapper = styled.div`
   display: flex;
@@ -104,30 +111,28 @@ export default function SetFilterModal({ modalState, onFilter, filterType, condi
 
   return (
     <ModalBase modalState={modalState}>
-      <Formik onSubmit={handleOk} initialValues={{ condition1, condition2: '=', joinOperator: ' ' }}>
-        <Form>
-          <ModalHeader modalState={modalState}>Set filter</ModalHeader>
-          <ModalContent>
-            <FormRow>Show rows where</FormRow>
-            <FormRow>
-              <Select filterType={filterType} name="condition1" />
-              <FormTextFieldRaw name="value1" editorRef={editorRef} />
-            </FormRow>
-            <FormRow>
-              <FormRadioGroupItem name="joinOperator" value=" " text="And" />
-              <FormRadioGroupItem name="joinOperator" value="," text="Or" />
-            </FormRow>
-            <FormRow>
-              <Select filterType={filterType} name="condition2" />
-              <FormTextFieldRaw name="value2" />
-            </FormRow>
-          </ModalContent>
-          <ModalFooter>
-            <FormSubmit text="OK" />
-            <FormStyledButton type="button" value="Close" onClick={modalState.close} />
-          </ModalFooter>
-        </Form>
-      </Formik>
+      <FormProvider initialValues={{ condition1, condition2: '=', joinOperator: ' ' }}>
+        <ModalHeader modalState={modalState}>Set filter</ModalHeader>
+        <ModalContent>
+          <FormRow>Show rows where</FormRow>
+          <FormRow>
+            <Select filterType={filterType} name="condition1" />
+            <FormTextFieldRaw name="value1" editorRef={editorRef} />
+          </FormRow>
+          <FormRow>
+            <FormRadioGroupItem name="joinOperator" value=" " text="And" />
+            <FormRadioGroupItem name="joinOperator" value="," text="Or" />
+          </FormRow>
+          <FormRow>
+            <Select filterType={filterType} name="condition2" />
+            <FormTextFieldRaw name="value2" />
+          </FormRow>
+        </ModalContent>
+        <ModalFooter>
+          <FormSubmit value="OK" onClick={handleOk} />
+          <FormStyledButton type="button" value="Close" onClick={modalState.close} />
+        </ModalFooter>
+      </FormProvider>
     </ModalBase>
   );
 }
