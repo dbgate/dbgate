@@ -106,7 +106,10 @@ export function FormSelectField({ label, name, children = null, ...other }) {
 }
 
 export function FormSubmit({ onClick, value, ...other }) {
-  const { values } = useForm();
+  const { values, setSubmitAction } = useForm();
+  React.useEffect(() => {
+    setSubmitAction({ action: onClick });
+  }, [onClick]);
   return <FormStyledButton type="submit" value={value} onClick={() => onClick(values)} {...other} />;
 }
 

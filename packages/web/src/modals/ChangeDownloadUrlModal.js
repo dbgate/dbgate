@@ -12,10 +12,19 @@ export default function ChangeDownloadUrlModal({ modalState, url = '', onConfirm
   // React.useEffect(() => {
   //   if (textFieldRef.current) textFieldRef.current.focus();
   // }, [textFieldRef.current]);
-  const handleSubmit = async (values) => {
-    onConfirm(values.url);
-    modalState.close();
-  };
+
+  // const handleSubmit = () => async (values) => {
+  //   onConfirm(values.url);
+  //   modalState.close();
+  // };
+
+  const handleSubmit = React.useCallback(
+    async (values) => {
+      onConfirm(values.url);
+      modalState.close();
+    },
+    [modalState, onConfirm]
+  );
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>Download imported file from web</ModalHeader>

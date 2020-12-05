@@ -70,6 +70,7 @@ export default function ModalBase({ modalState, children, isFlex = false, fullSc
       overlayClassName="RactModalOverlay"
       fullScreen={fullScreen}
       isFlex={isFlex}
+      ariaHideApp={false}
       // style={{
       //   overlay: {
       //     backgroundColor: '#000',

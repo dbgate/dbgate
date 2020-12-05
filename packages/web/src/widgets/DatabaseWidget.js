@@ -73,7 +73,9 @@ function ConnectionList() {
 
       <WidgetsInnerContainer>
         <AppObjectList
-          list={connectionsWithStatus}
+          list={_.sortBy(connectionsWithStatus, ({ displayName, server }) =>
+            (displayName || server || '').toUpperCase()
+          )}
           AppObjectComponent={ConnectionAppObject}
           // makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
           SubItems={SubDatabaseList}
