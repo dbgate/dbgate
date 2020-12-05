@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import { createFreeTableModel } from 'dbgate-datalib';
 import useUndoReducer from '../utility/useUndoReducer';
 import { useSetOpenedTabs } from '../utility/globalState';
@@ -15,7 +16,6 @@ import SaveTabModal from '../modals/SaveTabModal';
 import ChartEditor from '../charts/ChartEditor';
 
 export default function ChartTab({ tabVisible, toolbarPortalRef, tabid }) {
-  const [config, setConfig] = useGridConfig(tabid);
   const [modelState, dispatchModel] = useUndoReducer(createFreeTableModel());
   const saveFileModalState = useModalState();
   const { initialData, setEditorData, errorMessage, isLoading } = useEditorData({
@@ -31,6 +31,16 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, tabid }) {
     setEditorData(modelState.value);
   }, [modelState]);
 
+  const setConfig = React.useCallback(
+    (config) =>
+      // @ts-ignore
+      dispatchModel({
+        type: 'compute',
+        compute: (v) => ({ ...v, config: _.isFunction(config) ? config(v.config) : config }),
+      }),
+    [dispatchModel]
+  );
+
   if (isLoading) {
     return <LoadingInfo wrapper message="Loading data" />;
   }
@@ -40,7 +50,11 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, tabid }) {
 
   return (
     <>
-      <ChartEditor data={modelState.value && modelState.value.data} />
+      <ChartEditor
+        data={modelState.value && modelState.value.data}
+        config={modelState.value ? modelState.value.config || {} : {}}
+        setConfig={setConfig}
+      />
       <SaveTabModal
         modalState={saveFileModalState}
         data={modelState.value}

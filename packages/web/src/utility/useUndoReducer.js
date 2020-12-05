@@ -1,9 +1,9 @@
+import _ from 'lodash';
 import React from 'react';
 
 function reducer(state, action) {
   switch (action.type) {
     case 'set':
-      // console.log('SET', state.history, action.value);
       return {
         history: [...state.history.slice(0, state.current + 1), action.value],
         current: state.current + 1,
@@ -11,6 +11,16 @@ function reducer(state, action) {
         canUndo: true,
         canRedo: false,
       };
+    case 'compute': {
+      const newValue = action.compute(state.history[state.current]);
+      return {
+        history: [...state.history.slice(0, state.current + 1), newValue],
+        current: state.current + 1,
+        value: newValue,
+        canUndo: true,
+        canRedo: false,
+      };
+    }
     case 'undo':
       if (state.current > 0)
         return {

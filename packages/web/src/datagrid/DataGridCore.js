@@ -356,6 +356,7 @@ export default function DataGridCore(props) {
       },
       {
         data: getSelectedFreeData(),
+        config: { chartType: 'bar' },
       }
     );
   };

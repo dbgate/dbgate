@@ -7,7 +7,7 @@ import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import { FormCheckboxField, FormSelectField } from '../utility/forms';
 import DataChart from './DataChart';
-import { FormProvider } from '../utility/FormProvider';
+import { FormProviderCore } from '../utility/FormProvider';
 
 const LeftContainer = styled.div`
   background-color: ${(props) => props.theme.manager_background};
@@ -15,13 +15,13 @@ const LeftContainer = styled.div`
   flex: 1;
 `;
 
-export default function ChartEditor({ data }) {
+export default function ChartEditor({ data, config, setConfig }) {
   const [managerSize, setManagerSize] = React.useState(0);
   const theme = useTheme();
   const availableColumnNames = data ? data.structure.columns.map((x) => x.columnName) : [];
 
   return (
-    <FormProvider initialValues={{ chartType: 'bar' }}>
+    <FormProviderCore values={config} setValues={setConfig}>
       <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
         <LeftContainer theme={theme}>
           <WidgetColumnBar>
@@ -49,6 +49,6 @@ export default function ChartEditor({ data }) {
 
         <DataChart data={data} />
       </HorizontalSplitter>
-    </FormProvider>
+    </FormProviderCore>
   );
 }

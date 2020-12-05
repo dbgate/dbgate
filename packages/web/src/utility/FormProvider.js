@@ -5,6 +5,14 @@ const FormContext = React.createContext(null);
 
 export function FormProvider({ children, initialValues = {} }) {
   const [values, setValues] = React.useState(initialValues);
+  return (
+    <FormProviderCore values={values} setValues={setValues}>
+      {children}
+    </FormProviderCore>
+  );
+}
+
+export function FormProviderCore({ children, values, setValues }) {
   const [submitAction, setSubmitAction] = React.useState(null);
   const handleEnter = React.useCallback(
     (e) => {
