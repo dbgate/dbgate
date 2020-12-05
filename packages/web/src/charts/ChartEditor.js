@@ -5,7 +5,7 @@ import useTheme from '../theme/useTheme';
 import useDimensions from '../utility/useDimensions';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
-import { FormCheckboxField, FormSelectField } from '../utility/forms';
+import { FormCheckboxField, FormSelectField, FormTextField } from '../utility/forms';
 import DataChart from './DataChart';
 import { FormProviderCore } from '../utility/FormProvider';
 
@@ -29,7 +29,13 @@ export default function ChartEditor({ data, config, setConfig }) {
               <FormSelectField label="Chart type" name="chartType">
                 <option value="bar">Bar</option>
                 <option value="line">Line</option>
+                {/* <option value="radar">Radar</option> */}
+                <option value="pie">Pie</option>
+                <option value="polarArea">Polar area</option>
+                {/* <option value="bubble">Bubble</option>
+                <option value="scatter">Scatter</option> */}
               </FormSelectField>
+              <FormTextField label="Color seed" name="colorSeed" />
             </WidgetColumnBarItem>
             <WidgetColumnBarItem title="Data" name="data">
               <FormSelectField label="Label column" name="labelColumn">
