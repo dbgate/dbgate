@@ -10,6 +10,7 @@ import { useCurrentDatabase, useOpenedConnections, useSetOpenedConnections } fro
 import { AppObjectCore } from './AppObjectCore';
 import useShowModal from '../modals/showModal';
 import { useConfig } from '../utility/metadataLoaders';
+import useExtensions from '../utility/useExtensions';
 
 function Menu({ data }) {
   const openedConnections = useOpenedConnections();
@@ -68,6 +69,7 @@ function ConnectionAppObject({ data, commonProps }) {
   const openedConnections = useOpenedConnections();
   const setOpenedConnections = useSetOpenedConnections();
   const currentDatabase = useCurrentDatabase();
+  const extensions = useExtensions();
 
   const isBold = _.get(currentDatabase, 'connection._id') == _id;
   const onClick = () => setOpenedConnections((c) => [...c, _id]);
@@ -83,7 +85,15 @@ function ConnectionAppObject({ data, commonProps }) {
       statusTitle = status.message;
     }
   }
-  const extInfo = engine;
+  let extInfo = null;
+  if (extensions.drivers.find((x) => x.engine == engine)) {
+    const match = (engine || '').match(/^([^@]*)@/);
+    extInfo = match ? match[1] : engine;
+  } else {
+    extInfo = engine;
+    statusIcon = 'img warn';
+    statusTitle = `Engine driver ${engine} not found, review installed plugins and change engine in edit connection dialog`;
+  }
 
   return (
     <AppObjectCore
