@@ -39,7 +39,7 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
     changeTab(tabid, setOpenedTabs, (tab) => ({
       ...tab,
       title: file,
-      props: { archiveFIle: file, archiveFolder: folder },
+      props: { archiveFile: file, archiveFolder: folder },
     }));
   };
 
