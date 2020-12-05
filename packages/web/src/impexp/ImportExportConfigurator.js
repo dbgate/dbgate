@@ -179,7 +179,7 @@ function ElectronFilesInput() {
   );
 }
 
-function extractUrlName(url) {
+function extractUrlName(url, values) {
   const match = url.match(/\/([^/]+)($|\?)/);
   if (match) {
     const res = match[1];
@@ -188,7 +188,7 @@ function extractUrlName(url) {
     }
     return res;
   }
-  return 'url';
+  return `url${values && values.sourceList ? values.sourceList.length + 1 : '1'}`;
 }
 
 function FilesInput({ setPreviewSource = undefined }) {
@@ -203,7 +203,7 @@ function FilesInput({ setPreviewSource = undefined }) {
       [
         {
           fileName: url,
-          shortName: extractUrlName(url),
+          shortName: extractUrlName(url, values),
           isDownload: true,
         },
       ],
@@ -399,7 +399,7 @@ function SourceName({ name }) {
       <div>{name}</div>
       <SourceNameButtons>
         {obj && !!obj.isDownload && (
-          <IconButtonWrapper onClick={handleChangeUrl} theme={theme}>
+          <IconButtonWrapper onClick={handleChangeUrl} theme={theme} title={obj && obj.fileName}>
             <FontIcon icon="icon web" />
           </IconButtonWrapper>
         )}
