@@ -7,6 +7,7 @@ import InfoPageTab from './InfoPageTab';
 import ArchiveFileTab from './ArchiveFileTab';
 import FreeTableTab from './FreeTableTab';
 import PluginTab from './PluginTab';
+import ChartTab from './ChartTab';
 
 export default {
   TableDataTab,
@@ -18,4 +19,5 @@ export default {
   ArchiveFileTab,
   FreeTableTab,
   PluginTab,
+  ChartTab,
 };

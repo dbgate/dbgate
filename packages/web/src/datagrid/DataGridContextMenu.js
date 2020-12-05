@@ -12,6 +12,7 @@ export default function DataGridContextMenu({
   filterSelectedValue,
   openQuery,
   openFreeTable,
+  openChart,
 }) {
   return (
     <>
@@ -53,6 +54,7 @@ export default function DataGridContextMenu({
       )}
       {openQuery && <DropDownMenuItem onClick={openQuery}>Open query</DropDownMenuItem>}
       <DropDownMenuItem onClick={openFreeTable}>Open selection in free table editor</DropDownMenuItem>
+      <DropDownMenuItem onClick={openChart}>Open chart from selection</DropDownMenuItem>
     </>
   );
 }

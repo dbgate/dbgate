@@ -321,9 +321,18 @@ export default function DataGridCore(props) {
     setFirstVisibleColumnScrollIndex(value);
   };
 
-  const handleOpenFreeTable = () => {
+  const getSelectedFreeData = () => {
     const columns = getSelectedColumns();
     const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
+    return {
+      structure: {
+        columns,
+      },
+      rows,
+    };
+  };
+
+  const handleOpenFreeTable = () => {
     openNewTab(
       setOpenedTabs,
       {
@@ -332,11 +341,21 @@ export default function DataGridCore(props) {
         tabComponent: 'FreeTableTab',
         props: {},
       },
+      getSelectedFreeData()
+    );
+  };
+
+  const handleOpenChart = () => {
+    openNewTab(
+      setOpenedTabs,
       {
-        structure: {
-          columns,
-        },
-        rows,
+        title: 'Chart',
+        icon: 'img chart',
+        tabComponent: 'ChartTab',
+        props: {},
+      },
+      {
+        data: getSelectedFreeData(),
       }
     );
   };
@@ -357,6 +376,7 @@ export default function DataGridCore(props) {
         filterSelectedValue={display.filterable ? filterSelectedValue : null}
         openQuery={openQuery}
         openFreeTable={handleOpenFreeTable}
+        openChart={handleOpenChart}
       />
     );
   };

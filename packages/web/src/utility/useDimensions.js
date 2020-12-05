@@ -51,7 +51,7 @@ import ResizeObserver from 'resize-observer-polyfill';
 // Export hook
 export default function useDimensions(dependencies = []) {
   const [node, setNode] = useState(null);
-  const ref = useCallback(newNode => {
+  const ref = useCallback((newNode) => {
     setNode(newNode);
   }, []);
 
@@ -68,7 +68,7 @@ export default function useDimensions(dependencies = []) {
   });
 
   // Define measure function
-  const measure = useCallback(innerNode => {
+  const measure = useCallback((innerNode) => {
     const rect = innerNode.getBoundingClientRect();
     setDimensions({
       x: rect.left,

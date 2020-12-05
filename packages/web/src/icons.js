@@ -59,6 +59,7 @@ const iconNames = {
   'img foreign-key': 'mdi mdi-key-link',
   'img sql-file': 'mdi mdi-file',
   'img shell': 'mdi mdi-flash color-blue-7',
+  'img chart': 'mdi mdi-chart-bar color-magenta-7',
 
   'img free-table': 'mdi mdi-table color-green-7',
   'img macro': 'mdi mdi-hammer-wrench',
