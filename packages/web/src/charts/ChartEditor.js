@@ -12,6 +12,8 @@ import { loadChartData, loadChartStructure } from './chartDataLoader';
 import useExtensions from '../utility/useExtensions';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver } from 'dbgate-tools';
+import { FormFieldTemplateTiny } from '../utility/formStyle';
+import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
 
 const LeftContainer = styled.div`
   background-color: ${(props) => props.theme.manager_background};
@@ -72,36 +74,46 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
   }, [config, sql, conid, database]);
 
   return (
-    <FormProviderCore values={config} setValues={setConfig}>
+    <FormProviderCore values={config} setValues={setConfig} template={FormFieldTemplateTiny}>
       <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
         <LeftContainer theme={theme}>
           <WidgetColumnBar>
             <WidgetColumnBarItem title="Style" name="style" height="40%">
-              <FormSelectField label="Chart type" name="chartType">
-                <option value="bar">Bar</option>
-                <option value="line">Line</option>
-                {/* <option value="radar">Radar</option> */}
-                <option value="pie">Pie</option>
-                <option value="polarArea">Polar area</option>
-                {/* <option value="bubble">Bubble</option>
+              <ManagerInnerContainer style={{ maxWidth: managerSize }}>
+                <FormSelectField label="Chart type" name="chartType">
+                  <option value="bar">Bar</option>
+                  <option value="line">Line</option>
+                  {/* <option value="radar">Radar</option> */}
+                  <option value="pie">Pie</option>
+                  <option value="polarArea">Polar area</option>
+                  {/* <option value="bubble">Bubble</option>
                 <option value="scatter">Scatter</option> */}
-              </FormSelectField>
-              <FormTextField label="Color seed" name="colorSeed" />
+                </FormSelectField>
+                <FormSelectField label="Color set" name="colorSeed">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                </FormSelectField>
+              </ManagerInnerContainer>
             </WidgetColumnBarItem>
             <WidgetColumnBarItem title="Data" name="data">
-              {availableColumnNames.length > 0 && (
-                <FormSelectField label="Label column" name="labelColumn">
-                  <option value=""></option>
-                  {availableColumnNames.map((col) => (
-                    <option value={col} key={col}>
-                      {col}
-                    </option>
-                  ))}
-                </FormSelectField>
-              )}
-              {availableColumnNames.map((col) => (
-                <FormCheckboxField label={col} name={`dataColumn_${col}`} key={col} />
-              ))}
+              <ManagerInnerContainer style={{ maxWidth: managerSize }}>
+                {availableColumnNames.length > 0 && (
+                  <FormSelectField label="Label column" name="labelColumn">
+                    <option value=""></option>
+                    {availableColumnNames.map((col) => (
+                      <option value={col} key={col}>
+                        {col}
+                      </option>
+                    ))}
+                  </FormSelectField>
+                )}
+                {availableColumnNames.map((col) => (
+                  <FormCheckboxField label={col} name={`dataColumn_${col}`} key={col} />
+                ))}
+              </ManagerInnerContainer>
             </WidgetColumnBarItem>
           </WidgetColumnBar>
         </LeftContainer>

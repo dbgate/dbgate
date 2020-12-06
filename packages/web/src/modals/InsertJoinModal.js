@@ -1,6 +1,5 @@
 import React from 'react';
 import ModalBase from './ModalBase';
-import { FormButtonRow } from '../utility/forms';
 import FormStyledButton from '../widgets/FormStyledButton';
 import SqlEditor from '../sqleditor/SqlEditor';
 import styled from 'styled-components';

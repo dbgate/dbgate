@@ -1,13 +1,11 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormButtonRow, FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
-import { TextField } from '../utility/inputs';
+import { FormTextField, FormSubmit } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
 import { FormProvider } from '../utility/FormProvider';
-// import FormikForm from '../utility/FormikForm';
 
 export default function SaveFileModal({ data, folder, format, modalState, name, onSave = undefined }) {
   const handleSubmit = async (values) => {

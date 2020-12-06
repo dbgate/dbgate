@@ -2,19 +2,13 @@ import React from 'react';
 import ModalBase from './ModalBase';
 import FormStyledButton from '../widgets/FormStyledButton';
 import styled from 'styled-components';
-import {
-  FormButtonRow,
-  FormSubmit,
-  FormSelectFieldRaw,
-  FormRow,
-  FormRadioGroupItem,
-  FormTextFieldRaw,
-} from '../utility/forms';
+import { FormSubmit, FormSelectFieldRaw, FormRadioGroupItem, FormTextFieldRaw } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
 import { TextField } from '../utility/inputs';
 import { FormProvider } from '../utility/FormProvider';
+import { FormRow } from '../utility/formStyle';
 
 const Wrapper = styled.div`
   display: flex;

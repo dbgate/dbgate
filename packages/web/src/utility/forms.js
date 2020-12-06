@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import Select from 'react-select';
 import Creatable from 'react-select/creatable';
 import { TextField, SelectField, CheckboxField } from './inputs';
@@ -14,25 +13,8 @@ import {
 import getAsArray from './getAsArray';
 import axios from './axios';
 import useTheme from '../theme/useTheme';
-import { useForm } from './FormProvider';
+import { useForm, useFormFieldTemplate } from './FormProvider';
 
-export const FormRow = styled.div`
-  display: flex;
-  margin: 10px;
-`;
-
-export const FormButtonRow = styled.div`
-  display: flex;
-  // justify-content: flex-end;
-  margin: 10px;
-`;
-
-export const FormLabel = styled.div`
-  width: 10vw;
-  font-weight: bold;
-`;
-
-export const FormValue = styled.div``;
 
 export function FormTextFieldRaw({ name, focused = false, ...other }) {
   const { values, setFieldValue } = useForm();
@@ -48,13 +30,11 @@ export function FormTextFieldRaw({ name, focused = false, ...other }) {
 }
 
 export function FormTextField({ name, label, focused = false, ...other }) {
+  const FieldTemplate = useFormFieldTemplate();
   return (
-    <FormRow>
-      <FormLabel>{label}</FormLabel>
-      <FormValue>
-        <FormTextFieldRaw name={name} focused={focused} {...other} />
-      </FormValue>
-    </FormRow>
+    <FieldTemplate label={label} type="text">
+      <FormTextFieldRaw name={name} focused={focused} {...other} />
+    </FieldTemplate>
   );
 }
 
@@ -70,13 +50,11 @@ export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefine
 }
 
 export function FormCheckboxField({ label, ...other }) {
+  const FieldTemplate = useFormFieldTemplate();
   return (
-    <FormRow>
-      <FormLabel>{label}</FormLabel>
-      <FormValue>
-        <FormCheckboxFieldRaw {...other} />
-      </FormValue>
-    </FormRow>
+    <FieldTemplate label={label} type="checkbox">
+      <FormCheckboxFieldRaw {...other} />
+    </FieldTemplate>
   );
 }
 
@@ -93,15 +71,13 @@ export function FormSelectFieldRaw({ children, name, ...other }) {
 }
 
 export function FormSelectField({ label, name, children = null, ...other }) {
+  const FieldTemplate = useFormFieldTemplate();
   return (
-    <FormRow>
-      <FormLabel>{label}</FormLabel>
-      <FormValue>
-        <FormSelectFieldRaw name={name} {...other}>
-          {children}
-        </FormSelectFieldRaw>
-      </FormValue>
-    </FormRow>
+    <FieldTemplate label={label} type="select">
+      <FormSelectFieldRaw name={name} {...other}>
+        {children}
+      </FormSelectFieldRaw>
+    </FieldTemplate>
   );
 }
 
