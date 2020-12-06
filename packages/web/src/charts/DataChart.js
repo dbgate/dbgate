@@ -1,9 +1,11 @@
 import React from 'react';
+import _ from 'lodash';
 import Chart from 'react-chartjs-2';
 import randomcolor from 'randomcolor';
 import styled from 'styled-components';
 import useDimensions from '../utility/useDimensions';
 import { useForm } from '../utility/FormProvider';
+import { saturateByTenth } from '../theme/colorUtil';
 
 const ChartWrapper = styled.div`
   flex: 1;
@@ -13,18 +15,29 @@ const ChartWrapper = styled.div`
 function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType) {
   if (!freeData || !labelColumn || !dataColumns || dataColumns.length == 0) return {};
   const colors = randomcolor({
-    count: freeData.rows.length,
+    count: _.max([freeData.rows.length, dataColumns.length, 1]),
     seed: colorSeed,
   });
+  let backgroundColor = null;
+  let borderColor = null;
   const res = {
     labels: freeData.rows.map((x) => x[labelColumn]),
-    datasets: dataColumns.map((dataColumn) => ({
-      label: dataColumn,
-      data: freeData.rows.map((row) => row[dataColumn]),
-      backgroundColor: chartType != 'line' ? colors : null,
-      borderColor: chartType == 'line' ? colors : null,
-      borderWidth: 1,
-    })),
+    datasets: dataColumns.map((dataColumn, columnIndex) => {
+      if (chartType == 'line' || chartType == 'bar') {
+        backgroundColor = colors[columnIndex];
+        borderColor = saturateByTenth(backgroundColor);
+      } else {
+        backgroundColor = colors;
+      }
+
+      return {
+        label: dataColumn,
+        data: freeData.rows.map((row) => row[dataColumn]),
+        backgroundColor,
+        borderColor,
+        borderWidth: 1,
+      };
+    }),
   };
 
   return res;

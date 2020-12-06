@@ -71,7 +71,7 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
     if (config.labelColumn && sql && conid && database) {
       handleLoadData();
     }
-  }, [config, sql, conid, database]);
+  }, [config, sql, conid, database, availableColumnNames]);
 
   return (
     <FormProviderCore values={config} setValues={setConfig} template={FormFieldTemplateTiny}>
@@ -90,12 +90,17 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
                 <option value="scatter">Scatter</option> */}
                 </FormSelectField>
                 <FormSelectField label="Color set" name="colorSeed">
-                  <option value="1">1</option>
+                  <option value="a">1</option>
                   <option value="2">2</option>
                   <option value="3">3</option>
                   <option value="4">4</option>
                   <option value="5">5</option>
                 </FormSelectField>
+                <FormSelectField label="Truncate from" name="truncateFrom">
+                  <option value="begin">Begin</option>
+                  <option value="end">End (most recent data for datetime)</option>
+                </FormSelectField>
+                <FormTextField label="Truncate limit" name="truncateLimit" />
               </ManagerInnerContainer>
             </WidgetColumnBarItem>
             <WidgetColumnBarItem title="Data" name="data">
