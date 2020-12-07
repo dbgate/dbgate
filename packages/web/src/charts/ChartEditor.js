@@ -1,5 +1,6 @@
 import React from 'react';
 import Chart from 'react-chartjs-2';
+import _ from 'lodash';
 import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
 import useDimensions from '../utility/useDimensions';
@@ -14,6 +15,7 @@ import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver } from 'dbgate-tools';
 import { FormFieldTemplateTiny } from '../utility/formStyle';
 import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
+import { presetPrimaryColors } from '@ant-design/colors';
 
 const LeftContainer = styled.div`
   background-color: ${(props) => props.theme.manager_background};
@@ -110,7 +112,20 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
                   </FormSelectField>
                 )}
                 {availableColumnNames.map((col) => (
-                  <FormCheckboxField label={col} name={`dataColumn_${col}`} key={col} />
+                  <React.Fragment key={col}>
+                    <FormCheckboxField label={col} name={`dataColumn_${col}`} />
+                    {config[`dataColumn_${col}`] && (
+                      <FormSelectField label="Color" name={`dataColumnColor_${col}`}>
+                        <option value="">Random</option>
+
+                        {_.keys(presetPrimaryColors).map((color) => (
+                          <option value={color} key={color}>
+                            {_.startCase(color)}
+                          </option>
+                        ))}
+                      </FormSelectField>
+                    )}
+                  </React.Fragment>
                 ))}
               </ManagerInnerContainer>
             </WidgetColumnBarItem>
