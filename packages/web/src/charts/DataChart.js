@@ -27,11 +27,11 @@ function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartTyp
       if (chartType == 'line' || chartType == 'bar') {
         const color = dataColumnColors[dataColumn];
         if (color) {
-          backgroundColor = theme.main_palettes[color][4];
+          backgroundColor = theme.main_palettes[color][4] + '80';
           borderColor = theme.main_palettes[color][7];
         } else {
-          backgroundColor = colors[columnIndex];
-          borderColor = saturateByTenth(backgroundColor);
+          backgroundColor = colors[columnIndex] + '80';
+          borderColor = colors[columnIndex];
         }
       } else {
         backgroundColor = colors;
