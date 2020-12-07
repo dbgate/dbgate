@@ -19,7 +19,7 @@ export default function SaveFileModal({ data, folder, format, modalState, name, 
       <ModalHeader modalState={modalState}>Save file</ModalHeader>
       <FormProvider initialValues={{ name }}>
         <ModalContent>
-          <FormTextField label="File name" name="name" />
+          <FormTextField label="File name" name="name" focused/>
         </ModalContent>
         <ModalFooter>
           <FormSubmit value="Save" onClick={handleSubmit} />

@@ -124,7 +124,14 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
           />,
           toolbarPortalRef.current
         )}
-      <SaveTabModal modalState={saveFileModalState} data={editorData} format="text" folder="shell" tabid={tabid} />
+      <SaveTabModal
+        modalState={saveFileModalState}
+        tabVisible={tabVisible}
+        data={editorData}
+        format="text"
+        folder="shell"
+        tabid={tabid}
+      />
     </>
   );
 }

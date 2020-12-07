@@ -89,13 +89,7 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
                   {/* <option value="bubble">Bubble</option>
                 <option value="scatter">Scatter</option> */}
                 </FormSelectField>
-                <FormSelectField label="Color set" name="colorSeed">
-                  <option value="a">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                  <option value="5">5</option>
-                </FormSelectField>
+                <FormTextField label="Color set" name="colorSeed" />
                 <FormSelectField label="Truncate from" name="truncateFrom">
                   <option value="begin">Begin</option>
                   <option value="end">End (most recent data for datetime)</option>

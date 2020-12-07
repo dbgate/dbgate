@@ -61,6 +61,7 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
       />
       <SaveTabModal
         modalState={saveFileModalState}
+        tabVisible={tabVisible}
         data={modelState.value}
         format="json"
         folder="charts"

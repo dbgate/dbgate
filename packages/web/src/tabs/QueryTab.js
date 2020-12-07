@@ -165,7 +165,14 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
           />,
           toolbarPortalRef.current
         )}
-      <SaveTabModal modalState={saveFileModalState} data={editorData} format="text" folder="sql" tabid={tabid} />
+      <SaveTabModal
+        modalState={saveFileModalState}
+        tabVisible={tabVisible}
+        data={editorData}
+        format="text"
+        folder="sql"
+        tabid={tabid}
+      />
     </>
   );
 }

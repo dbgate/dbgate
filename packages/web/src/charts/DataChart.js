@@ -66,7 +66,7 @@ export default function DataChart({ data }) {
         key={`${values.chartType}|${containerWidth}|${containerHeight}`}
         width={containerWidth}
         height={containerHeight}
-        data={createChartData(data, labelColumn, dataColumns, values.colorSeed || 1, values.chartType)}
+        data={createChartData(data, labelColumn, dataColumns, values.colorSeed || '5', values.chartType)}
         type={values.chartType}
       />
     </ChartWrapper>
