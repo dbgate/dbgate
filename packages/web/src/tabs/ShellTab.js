@@ -19,6 +19,7 @@ import LoadingInfo from '../widgets/LoadingInfo';
 
 const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
 const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
+const initRegex = /([^\n]+\/\/\s*@init)/g;
 
 export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const [busy, setBusy] = React.useState(false);
@@ -60,7 +61,9 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
     let runid = runnerId;
     const resp = await axios.post('runners/start', {
       script: selectedText
-        ? [...(editorData || '').matchAll(requireRegex)].map((x) => `${x[1]}\n`).join('') + selectedText
+        ? [...(editorData || '').matchAll(requireRegex)].map((x) => `${x[1]}\n`).join('') +
+          [...(editorData || '').matchAll(initRegex)].map((x) => `${x[1]}\n`).join('') +
+          selectedText
         : editorData,
     });
     runid = resp.data.runid;
