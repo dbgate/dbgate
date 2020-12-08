@@ -2,6 +2,7 @@ import React from 'react';
 import Modal from 'react-modal';
 import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
+import ErrorBoundary from '../utility/ErrorBoundary';
 
 // const StyledModal = styled(Modal)`
 //   position: absolute;
@@ -80,7 +81,7 @@ export default function ModalBase({ modalState, children, isFlex = false, fullSc
       //   zIndex: 1200,
       // }}
     >
-      {children}
+      <ErrorBoundary>{children}</ErrorBoundary>
     </StyledModal>
   );
 }

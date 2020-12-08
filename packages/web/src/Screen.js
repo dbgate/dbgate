@@ -16,6 +16,7 @@ import DragAndDropFileTarget from './DragAndDropFileTarget';
 import { useUploadsZone } from './utility/UploadsProvider';
 import useTheme from './theme/useTheme';
 import { MenuLayer } from './modals/showMenu';
+import ErrorBoundary from './utility/ErrorBoundary';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -113,7 +114,9 @@ export default function Screen() {
       </IconBar>
       {!!currentWidget && (
         <LeftPanel theme={theme}>
-          <WidgetContainer />
+          <ErrorBoundary>
+            <WidgetContainer />
+          </ErrorBoundary>
         </LeftPanel>
       )}
       {!!currentWidget && (

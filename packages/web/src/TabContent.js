@@ -3,6 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import tabs from './tabs';
 import { useOpenedTabs } from './utility/globalState';
+import ErrorBoundary from './utility/ErrorBoundary';
 
 const TabContainer = styled.div`
   position: absolute;
@@ -11,7 +12,7 @@ const TabContainer = styled.div`
   right: 0;
   bottom: 0;
   display: flex;
-  visibility: ${props =>
+  visibility: ${(props) =>
     // @ts-ignore
     props.tabVisible ? 'visible' : 'hidden'};
 `;
@@ -34,10 +35,10 @@ export default function TabContent({ toolbarPortalRef }) {
 
   // cleanup closed tabs
   if (_.difference(_.keys(mountedTabs), _.map(files, 'tabid')).length > 0) {
-    setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find(x => x.tabid == k)));
+    setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find((x) => x.tabid == k)));
   }
 
-  const selectedTab = files.find(x => x.selected);
+  const selectedTab = files.find((x) => x.selected);
   if (selectedTab) {
     const { tabid } = selectedTab;
     if (tabid && !mountedTabs[tabid])
@@ -47,13 +48,15 @@ export default function TabContent({ toolbarPortalRef }) {
       });
   }
 
-  return _.keys(mountedTabs).map(tabid => {
+  return _.keys(mountedTabs).map((tabid) => {
     const { TabComponent, props } = mountedTabs[tabid];
     const tabVisible = tabid == (selectedTab && selectedTab.tabid);
     return (
       // @ts-ignore
       <TabContainer key={tabid} tabVisible={tabVisible}>
-        <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
+        <ErrorBoundary>
+          <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
+        </ErrorBoundary>
       </TabContainer>
     );
   });
