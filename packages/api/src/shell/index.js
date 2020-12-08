@@ -33,6 +33,7 @@ const dbgateApi = {
   archiveReader,
   collectorWriter,
   finalizer,
+  download,
   registerPlugins,
   executeQuery,
   loadFile,
