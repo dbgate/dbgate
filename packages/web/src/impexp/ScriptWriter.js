@@ -2,11 +2,11 @@ import _ from 'lodash';
 import { extractShellApiFunctionName, extractShellApiPlugins } from 'dbgate-tools';
 
 export default class ScriptWriter {
-  constructor() {
+  constructor(varCount) {
     this.s = '';
     this.packageNames = [];
     // this.engines = [];
-    this.varCount = 0;
+    this.varCount = parseInt(varCount) || 0;
   }
 
   allocVariable(prefix = 'var') {
@@ -32,22 +32,14 @@ export default class ScriptWriter {
     this.put(`// ${s}`);
   }
 
-  getScript(extensions) {
-    // if (this.packageNames.length > 0) {
-    //   this.comment('@packages');
-    //   this.comment(JSON.stringify(this.packageNames));
-    // }
-    // if (this.engines.length > 0) {
-    //   this.comment('@engines');
-    //   this.comment(JSON.stringify(this.engines));
-    // }
+  getScript(extensions, schedule) {
     const packageNames = this.packageNames;
-    return (
-      _.uniq(packageNames)
-        .map((packageName) => `// @require ${packageName}\n`)
-        .join('') +
-      '\n' +
-      this.s
-    );
+    let prefix = _.uniq(packageNames)
+      .map((packageName) => `// @require ${packageName}\n`)
+      .join('');
+    if (schedule) prefix += `// @schedule ${schedule}`;
+    if (prefix) prefix += '\n';
+
+    return prefix + this.s;
   }
 }

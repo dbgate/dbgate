@@ -24,6 +24,7 @@ import LargeButton, { LargeFormButton } from '../widgets/LargeButton';
 import { getDefaultFileFormat } from '../utility/fileformats';
 import useExtensions from '../utility/useExtensions';
 import { FormProvider, useForm } from '../utility/FormProvider';
+import { FormTextField } from '../utility/forms';
 
 const headerHeight = '60px';
 const footerHeight = '100px';
@@ -213,6 +214,10 @@ export default function ImportExportModal({
                     <PreviewDataGrid reader={previewReader} />
                   </WidgetColumnBarItem>
                 )}
+                <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
+                  <FormTextField label="Schedule" name="schedule" />
+                  <FormTextField label="Start variable index" name="startVariableIndex" />
+                </WidgetColumnBarItem>
               </WidgetColumnBar>
             </WidgetColumnWrapper>
           </Wrapper>

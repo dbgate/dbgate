@@ -150,7 +150,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
 }
 
 export default async function createImpExpScript(extensions, values, addEditorInfo = true) {
-  const script = new ScriptWriter();
+  const script = new ScriptWriter(values.startVariableIndex || 0);
 
   const [sourceConnection, sourceDriver] = await getConnection(
     extensions,
@@ -182,7 +182,7 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     script.comment('@ImportExportConfigurator');
     script.comment(JSON.stringify(values));
   }
-  return script.getScript(extensions);
+  return script.getScript(extensions, values.schedule);
 }
 
 export function getActionOptions(extensions, source, values, targetDbinfo) {
