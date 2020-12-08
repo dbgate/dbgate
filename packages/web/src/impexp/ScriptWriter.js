@@ -2,7 +2,7 @@ import _ from 'lodash';
 import { extractShellApiFunctionName, extractShellApiPlugins } from 'dbgate-tools';
 
 export default class ScriptWriter {
-  constructor(varCount) {
+  constructor(varCount = '0') {
     this.s = '';
     this.packageNames = [];
     // this.engines = [];
@@ -24,6 +24,10 @@ export default class ScriptWriter {
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
+  requirePackage(packageName) {
+    this.packageNames.push(packageName);
+  }
+
   copyStream(sourceVar, targetVar) {
     this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
   }
@@ -32,7 +36,7 @@ export default class ScriptWriter {
     this.put(`// ${s}`);
   }
 
-  getScript(extensions, schedule) {
+  getScript(schedule = null) {
     const packageNames = this.packageNames;
     let prefix = _.uniq(packageNames)
       .map((packageName) => `// @require ${packageName}\n`)

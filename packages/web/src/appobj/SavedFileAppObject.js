@@ -5,20 +5,23 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { AppObjectCore } from './AppObjectCore';
 import useNewQuery from '../query/useNewQuery';
 import { openNewTab } from '../utility/common';
-import { useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
+import ScriptWriter from '../impexp/ScriptWriter';
+import { extractPackageName } from 'dbgate-tools';
 
-function Menu({ data }) {
+function Menu({ data, menuExt = null }) {
   const handleDelete = () => {
     axios.post('files/delete', data);
   };
   return (
     <>
       <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      {menuExt}
     </>
   );
 }
 
-export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad }) {
+export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad, menuExt = null }) {
   const { file, folder } = data;
 
   const onClick = async () => {
@@ -26,12 +29,48 @@ export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad
     onLoad(resp.data);
   };
 
-  return <AppObjectCore {...commonProps} data={data} title={file} icon={icon} onClick={onClick} Menu={Menu} />;
+  return (
+    <AppObjectCore
+      {...commonProps}
+      data={data}
+      title={file}
+      icon={icon}
+      onClick={onClick}
+      Menu={menuExt ? (props) => <Menu {...props} menuExt={menuExt} /> : Menu}
+    />
+  );
 }
 
 export function SavedSqlFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
   const newQuery = useNewQuery();
+  const currentDatabase = useCurrentDatabase();
+  const setOpenedTabs = useSetOpenedTabs();
+
+  const connection = _.get(currentDatabase, 'connection');
+  const database = _.get(currentDatabase, 'name');
+
+  const handleGenerateExecute = () => {
+    const script = new ScriptWriter();
+    const conn = {
+      ..._.omit(connection, ['displayName', '_id']),
+      database,
+    };
+    script.put(`const sql = await dbgateApi.loadFile('${folder}/${file}');`)
+    script.put(`await dbgateApi.executeQuery({ sql, connection: ${JSON.stringify(conn)} });`)
+    // @ts-ignore
+    script.requirePackage(extractPackageName(conn.engine));
+
+    openNewTab(
+      setOpenedTabs,
+      {
+        title: 'Shell',
+        icon: 'img shell',
+        tabComponent: 'ShellTab',
+      },
+      script.getScript()
+    );
+  };
 
   return (
     <SavedFileAppObjectBase
@@ -39,6 +78,11 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
       commonProps={commonProps}
       format="text"
       icon="img sql-file"
+      menuExt={
+        connection && database ? (
+          <DropDownMenuItem onClick={handleGenerateExecute}>Generate shell execute</DropDownMenuItem>
+        ) : null
+      }
       onLoad={(data) => {
         newQuery({
           title: file,

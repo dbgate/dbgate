@@ -18,6 +18,15 @@ export function extractShellApiPlugins(functionName, props): string[] {
   return res;
 }
 
+export function extractPackageName(name): string {
+  if (!name) return null;
+  const nsMatch = name.match(/^([^@]+)@([^@]+)/);
+  if (nsMatch) {
+    return nsMatch[2];
+  }
+  return null;
+}
+
 export function extractShellApiFunctionName(functionName) {
   const nsMatch = functionName.match(/^([^@]+)@([^@]+)/);
   if (nsMatch) {

@@ -15,6 +15,8 @@ const finalizer = require('./finalizer');
 const registerPlugins = require('./registerPlugins');
 const requirePlugin = require('./requirePlugin');
 const download = require('./download');
+const executeQuery = require('./executeQuery');
+const loadFile = require('./loadFile');
 
 const dbgateApi = {
   queryReader,
@@ -32,7 +34,8 @@ const dbgateApi = {
   collectorWriter,
   finalizer,
   registerPlugins,
-  download,
+  executeQuery,
+  loadFile,
 };
 
 requirePlugin.initialize(dbgateApi);
