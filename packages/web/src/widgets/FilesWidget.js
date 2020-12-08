@@ -5,7 +5,7 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs } from '../utility/globalState';
 import ClosedTabAppObject from '../appobj/ClosedTabAppObject';
 import { WidgetsInnerContainer } from './WidgetStyles';
-import { SavedSqlFileAppObject, SavedShellFileAppObject } from '../appobj/SavedFileAppObject';
+import { SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject } from '../appobj/SavedFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
 
@@ -51,17 +51,32 @@ function SavedShellFilesList() {
   );
 }
 
+function SavedChartFilesList() {
+  const files = useFiles({ folder: 'charts' });
+
+  return (
+    <>
+      <WidgetsInnerContainer>
+        <AppObjectList list={files} AppObjectComponent={SavedChartFileAppObject} />
+      </WidgetsInnerContainer>
+    </>
+  );
+}
+
 export default function FilesWidget() {
   return (
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="40%">
+      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="20%">
         <ClosedTabsList />
       </WidgetColumnBarItem>
-      <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="30%">
+      <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="20%">
         <SavedSqlFilesList />
       </WidgetColumnBarItem>
-      <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="30%">
+      <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="20%">
         <SavedShellFilesList />
+      </WidgetColumnBarItem>
+      <WidgetColumnBarItem title="Saved charts" name="charts" height="20%">
+        <SavedChartFilesList />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   );

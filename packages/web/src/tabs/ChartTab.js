@@ -2,18 +2,15 @@ import React from 'react';
 import _ from 'lodash';
 import { createFreeTableModel } from 'dbgate-datalib';
 import useUndoReducer from '../utility/useUndoReducer';
-import { useSetOpenedTabs, useUpdateDatabaseForTab } from '../utility/globalState';
-import useGridConfig from '../utility/useGridConfig';
-import FreeTableGrid from '../freetable/FreeTableGrid';
-import SaveArchiveModal from '../modals/SaveArchiveModal';
+import ReactDOM from 'react-dom';
+import { useUpdateDatabaseForTab } from '../utility/globalState';
 import useModalState from '../modals/useModalState';
-import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
-import { changeTab } from '../utility/common';
 import ErrorInfo from '../widgets/ErrorInfo';
 import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import ChartEditor from '../charts/ChartEditor';
+import ChartToolbar from '../charts/ChartToolbar';
 
 export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database, tabid }) {
   const [modelState, dispatchModel] = useUndoReducer(createFreeTableModel());
@@ -67,6 +64,10 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
         folder="charts"
         tabid={tabid}
       />
+      {toolbarPortalRef &&
+        toolbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<ChartToolbar save={saveFileModalState.open} />, toolbarPortalRef.current)}
     </>
   );
 }

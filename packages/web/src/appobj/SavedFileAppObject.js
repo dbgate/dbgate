@@ -56,8 +56,8 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
       ..._.omit(connection, ['displayName', '_id']),
       database,
     };
-    script.put(`const sql = await dbgateApi.loadFile('${folder}/${file}');`)
-    script.put(`await dbgateApi.executeQuery({ sql, connection: ${JSON.stringify(conn)} });`)
+    script.put(`const sql = await dbgateApi.loadFile('${folder}/${file}');`);
+    script.put(`await dbgateApi.executeQuery({ sql, connection: ${JSON.stringify(conn)} });`);
     // @ts-ignore
     script.requirePackage(extractPackageName(conn.engine));
 
@@ -117,7 +117,44 @@ export function SavedShellFileAppObject({ data, commonProps }) {
   );
 }
 
-[SavedSqlFileAppObject, SavedShellFileAppObject].forEach((fn) => {
+export function SavedChartFileAppObject({ data, commonProps }) {
+  const { file, folder } = data;
+  const setOpenedTabs = useSetOpenedTabs();
+
+  const currentDatabase = useCurrentDatabase();
+
+  const connection = _.get(currentDatabase, 'connection') || {};
+  const database = _.get(currentDatabase, 'name');
+
+  const tooltip = `${connection.displayName || connection.server}\n${database}`;
+
+  return (
+    <SavedFileAppObjectBase
+      data={data}
+      commonProps={commonProps}
+      format="json"
+      icon="img chart"
+      onLoad={(data) => {
+        openNewTab(
+          setOpenedTabs,
+          {
+            title: file,
+            icon: 'img chart',
+            tooltip,
+            props: {
+              conid: connection._id,
+              database,
+            },
+            tabComponent: 'ChartTab',
+          },
+          data
+        );
+      }}
+    />
+  );
+}
+
+[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject].forEach((fn) => {
   // @ts-ignore
   fn.extractKey = (data) => data.file;
 });
