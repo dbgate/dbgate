@@ -7,7 +7,7 @@ import { VerticalSplitter } from '../widgets/Splitter';
 import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
-import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
+import GenericEditor from '../sqleditor/GenericEditor';
 import ShellToolbar from '../query/ShellToolbar';
 import RunnerOutputPane from '../query/RunnerOutputPane';
 import useShowModal from '../modals/showModal';
@@ -104,12 +104,13 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   return (
     <>
       <VerticalSplitter>
-        <JavaScriptEditor
+        <GenericEditor
           value={editorData || ''}
           onChange={setEditorData}
           tabVisible={tabVisible}
           onKeyDown={handleKeyDown}
           editorRef={editorRef}
+          mode="javascript"
         />
         <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber} />
       </VerticalSplitter>

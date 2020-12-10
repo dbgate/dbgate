@@ -39,6 +39,7 @@ const iconNames = {
   'icon theme': 'mdi mdi-brightness-6',
   'icon error': 'mdi mdi-close-circle',
   'icon ok': 'mdi mdi-check-circle',
+  'icon markdown': 'mdi mdi-application',
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',
@@ -60,6 +61,7 @@ const iconNames = {
   'img sql-file': 'mdi mdi-file',
   'img shell': 'mdi mdi-flash color-blue-7',
   'img chart': 'mdi mdi-chart-bar color-magenta-7',
+  'img markdown': 'mdi mdi-application color-red-7',
 
   'img free-table': 'mdi mdi-table color-green-7',
   'img macro': 'mdi mdi-hammer-wrench',

@@ -5,7 +5,12 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs } from '../utility/globalState';
 import ClosedTabAppObject from '../appobj/ClosedTabAppObject';
 import { WidgetsInnerContainer } from './WidgetStyles';
-import { SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject } from '../appobj/SavedFileAppObject';
+import {
+  SavedSqlFileAppObject,
+  SavedShellFileAppObject,
+  SavedChartFileAppObject,
+  SavedMarkdownFileAppObject,
+} from '../appobj/SavedFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
 import useHasPermission from '../utility/useHasPermission';
@@ -64,6 +69,18 @@ function SavedChartFilesList() {
   );
 }
 
+function SavedMarkdownFilesList() {
+  const files = useFiles({ folder: 'markdown' });
+
+  return (
+    <>
+      <WidgetsInnerContainer>
+        <AppObjectList list={files} AppObjectComponent={SavedMarkdownFileAppObject} />
+      </WidgetsInnerContainer>
+    </>
+  );
+}
+
 export default function FilesWidget() {
   const hasPermission = useHasPermission();
   return (
@@ -72,18 +89,23 @@ export default function FilesWidget() {
         <ClosedTabsList />
       </WidgetColumnBarItem>
       {hasPermission('files/sql/read') && (
-        <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="20%">
+        <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="15%">
           <SavedSqlFilesList />
         </WidgetColumnBarItem>
       )}
       {hasPermission('files/shell/read') && (
-        <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="20%">
+        <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="15%">
           <SavedShellFilesList />
         </WidgetColumnBarItem>
       )}
       {hasPermission('files/charts/read') && (
-        <WidgetColumnBarItem title="Saved charts" name="charts" height="20%">
+        <WidgetColumnBarItem title="Saved charts" name="charts" height="15%">
           <SavedChartFilesList />
+        </WidgetColumnBarItem>
+      )}
+      {hasPermission('files/markdown/read') && (
+        <WidgetColumnBarItem title="Saved markdown pages" name="markdown" height="15%">
+          <SavedMarkdownFilesList />
         </WidgetColumnBarItem>
       )}
     </WidgetColumnBar>

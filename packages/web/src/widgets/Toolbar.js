@@ -66,6 +66,14 @@ export default function ToolBar({ toolbarPortalRef }) {
     else setCurrentTheme('light');
   };
 
+  const newMarkdown = () => {
+    openNewTab(setOpenedTabs, {
+      title: 'Page',
+      tabComponent: 'MarkdownEditorTab',
+      icon: 'img markdown',
+    });
+  };
+
   function openTabFromButton(button) {
     if (openedTabs.find((x) => x.tabComponent == 'InfoPageTab' && x.props && x.props.page == button.page)) {
       setOpenedTabs((tabs) =>
@@ -117,6 +125,9 @@ export default function ToolBar({ toolbarPortalRef }) {
       </ToolbarButton>
       <ToolbarButton onClick={newFreeTable} icon="icon table">
         Free table editor
+      </ToolbarButton>
+      <ToolbarButton onClick={newMarkdown} icon="icon markdown">
+        New markdown
       </ToolbarButton>
       <ToolbarButton onClick={showImport} icon="icon import">
         Import data

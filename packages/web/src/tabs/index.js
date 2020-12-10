@@ -8,6 +8,8 @@ import ArchiveFileTab from './ArchiveFileTab';
 import FreeTableTab from './FreeTableTab';
 import PluginTab from './PluginTab';
 import ChartTab from './ChartTab';
+import MarkdownEditorTab from './MarkdownEditorTab';
+import MarkdownViewTab from './MarkdownViewTab';
 
 export default {
   TableDataTab,
@@ -20,4 +22,6 @@ export default {
   FreeTableTab,
   PluginTab,
   ChartTab,
+  MarkdownEditorTab,
+  MarkdownViewTab,
 };

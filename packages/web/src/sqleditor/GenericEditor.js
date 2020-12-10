@@ -12,7 +12,8 @@ const Wrapper = styled.div`
   bottom: 0;
 `;
 
-export default function JavaScriptEditor({
+export default function GenericEditor({
+  mode,
   value = undefined,
   readOnly = false,
   onChange = undefined,
@@ -52,7 +53,7 @@ export default function JavaScriptEditor({
     <Wrapper ref={containerRef}>
       <AceEditor
         ref={currentEditorRef}
-        mode="javascript"
+        mode={mode}
         theme={theme.aceEditorTheme}
         onChange={onChange}
         name="UNIQUE_ID_OF_DIV"

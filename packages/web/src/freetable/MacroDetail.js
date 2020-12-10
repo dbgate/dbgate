@@ -3,7 +3,7 @@ import ToolbarButton from '../widgets/ToolbarButton';
 import styled from 'styled-components';
 import { TabPage, TabControl } from '../widgets/TabControl';
 import dimensions from '../theme/dimensions';
-import JavaScriptEditor from '../sqleditor/JavaScriptEditor';
+import GenericEditor from '../sqleditor/GenericEditor';
 import MacroParameters from './MacroParameters';
 import { WidgetTitle } from '../widgets/WidgetStyles';
 import { FormButton } from '../utility/forms';
@@ -113,7 +113,7 @@ export default function MacroDetail({ selectedMacro, setSelectedMacro, onChangeV
           </MacroDetailTabWrapper>
         </TabPage>
         <TabPage label="JavaScript" key="javascript">
-          <JavaScriptEditor readOnly value={selectedMacro.code} />
+          <GenericEditor readOnly value={selectedMacro.code} mode="javascript" />
         </TabPage>
       </TabControl>
     </MacroDetailContainer>

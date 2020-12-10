@@ -177,7 +177,43 @@ export function SavedChartFileAppObject({ data, commonProps }) {
   );
 }
 
-[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject].forEach((fn) => {
+export function SavedMarkdownFileAppObject({ data, commonProps }) {
+  const { file, folder } = data;
+  const setOpenedTabs = useSetOpenedTabs();
+
+  const showPage = () => {
+    openNewTab(setOpenedTabs, {
+      title: file,
+      icon: 'img markdown',
+      tabComponent: 'MarkdownViewTab',
+      props: {
+        file,
+      },
+    });
+  };
+  return (
+    <SavedFileAppObjectBase
+      data={data}
+      commonProps={commonProps}
+      format="text"
+      icon="img markdown"
+      onLoad={(data) => {
+        openNewTab(
+          setOpenedTabs,
+          {
+            title: file,
+            icon: 'img markdown',
+            tabComponent: 'MarkdownEditorTab',
+          },
+          data
+        );
+      }}
+      menuExt={<DropDownMenuItem onClick={showPage}>Show page</DropDownMenuItem>}
+    />
+  );
+}
+
+[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject, SavedMarkdownFileAppObject].forEach((fn) => {
   // @ts-ignore
   fn.extractKey = (data) => data.file;
 });
