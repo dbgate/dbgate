@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import useStorage from './useStorage';
-import { useConnectionInfo, useConfig } from './metadataLoaders';
+import { useConnectionInfo, useConfig, getConnectionInfo } from './metadataLoaders';
 import usePrevious from './usePrevious';
 import useNewQuery from '../query/useNewQuery';
 import useShowModal from '../modals/showModal';
@@ -48,16 +48,43 @@ function createStorageState(storageKey, defaultValue) {
 const [CurrentWidgetProvider, useCurrentWidget, useSetCurrentWidget] = createGlobalState('database');
 export { CurrentWidgetProvider, useCurrentWidget, useSetCurrentWidget };
 
-const [CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabaseCore] = createGlobalState(null);
+const [CurrentDatabaseProvider, useCurrentDatabaseCore, useSetCurrentDatabaseCore] = createGlobalState(null);
 
 function useSetCurrentDatabase() {
   const setDb = useSetCurrentDatabaseCore();
-  const db = useCurrentDatabase();
+  const db = useCurrentDatabaseCore();
   return (value) => {
     if (_.get(db, 'name') !== _.get(value, 'name') || _.get(db, 'connection._id') != _.get(value, 'connection._id')) {
       setDb(value);
     }
   };
+}
+
+function useCurrentDatabase() {
+  const config = useConfig();
+  const db = useCurrentDatabaseCore();
+
+  const [connection, setConnection] = React.useState(null);
+  const loadSingleConnection = async () => {
+    if (config && config.singleDatabase) {
+      const conn = await getConnectionInfo({ conid: config.singleDatabase.conid });
+      setConnection(conn);
+    }
+  };
+  React.useEffect(() => {
+    loadSingleConnection();
+  }, [config]);
+
+  if (config && config.singleDatabase) {
+    if (connection) {
+      return {
+        connection,
+        name: config.singleDatabase.database,
+      };
+    }
+    return null;
+  }
+  return db;
 }
 
 export { CurrentDatabaseProvider, useCurrentDatabase, useSetCurrentDatabase };

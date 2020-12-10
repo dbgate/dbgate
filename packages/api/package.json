@@ -45,6 +45,7 @@
   "scripts": {
     "start": "nodemon src/index.js",
     "start:portal": "env-cmd nodemon src/index.js",
+    "start:covid": "env-cmd -f .covid-env nodemon src/index.js",
     "ts": "tsc",
     "build": "webpack"
   },

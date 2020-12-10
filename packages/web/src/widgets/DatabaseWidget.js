@@ -14,6 +14,7 @@ import {
   useServerStatus,
   useDatabaseStatus,
   useDatabaseInfo,
+  useConfig,
 } from '../utility/metadataLoaders';
 import {
   SearchBoxWrapper,
@@ -131,7 +132,11 @@ function SqlObjectListWrapper() {
   const db = useCurrentDatabase();
 
   if (!db) {
-    return <ErrorInfo message="Database not selected" icon="img alert" />;
+    return (
+      <WidgetsInnerContainer>
+        <ErrorInfo message="Database not selected" icon="img alert" />
+      </WidgetsInnerContainer>
+    );
   }
   const { name, connection } = db;
 
@@ -141,11 +146,14 @@ function SqlObjectListWrapper() {
 }
 
 export default function DatabaseWidget() {
+  const config = useConfig();
   return (
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Connections" name="connections" height="50%">
-        <ConnectionList />
-      </WidgetColumnBarItem>
+      {!config.singleDatabase && (
+        <WidgetColumnBarItem title="Connections" name="connections" height="50%">
+          <ConnectionList />
+        </WidgetColumnBarItem>
+      )}
       <WidgetColumnBarItem title="Tables, views, functions" name="dbObjects">
         <SqlObjectListWrapper />
       </WidgetColumnBarItem>

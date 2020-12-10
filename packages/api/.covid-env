@@ -1,0 +1,10 @@
+CONNECTIONS=mysql
+
+LABEL_mysql=MySql
+SERVER_mysql=dbgate.org
+USER_mysql=reader
+PASSWORD_mysql=CovidReader2020
+PORT_mysql=3326
+ENGINE_mysql=mysql@dbgate-plugin-mysql
+SINGLE_CONNECTION=mysql
+SINGLE_DATABASE=covid

@@ -15,6 +15,13 @@ module.exports = {
       runAsPortal: !!process.env.CONNECTIONS,
       toolbar,
       startupPages,
+      singleDatabase:
+        process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE
+          ? {
+              conid: process.env.SINGLE_CONNECTION,
+              database: process.env.SINGLE_DATABASE,
+            }
+          : null,
     };
   },
 };
