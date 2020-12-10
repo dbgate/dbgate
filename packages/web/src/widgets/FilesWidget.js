@@ -8,6 +8,7 @@ import { WidgetsInnerContainer } from './WidgetStyles';
 import { SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject } from '../appobj/SavedFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
+import useHasPermission from '../utility/useHasPermission';
 
 function ClosedTabsList() {
   const tabs = useOpenedTabs();
@@ -64,20 +65,27 @@ function SavedChartFilesList() {
 }
 
 export default function FilesWidget() {
+  const hasPermission = useHasPermission();
   return (
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="20%">
         <ClosedTabsList />
       </WidgetColumnBarItem>
-      <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="20%">
-        <SavedSqlFilesList />
-      </WidgetColumnBarItem>
-      <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="20%">
-        <SavedShellFilesList />
-      </WidgetColumnBarItem>
-      <WidgetColumnBarItem title="Saved charts" name="charts" height="20%">
-        <SavedChartFilesList />
-      </WidgetColumnBarItem>
+      {hasPermission('files/sql/read') && (
+        <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="20%">
+          <SavedSqlFilesList />
+        </WidgetColumnBarItem>
+      )}
+      {hasPermission('files/shell/read') && (
+        <WidgetColumnBarItem title="Saved shell files" name="shellFiles" height="20%">
+          <SavedShellFilesList />
+        </WidgetColumnBarItem>
+      )}
+      {hasPermission('files/charts/read') && (
+        <WidgetColumnBarItem title="Saved charts" name="charts" height="20%">
+          <SavedChartFilesList />
+        </WidgetColumnBarItem>
+      )}
     </WidgetColumnBar>
   );
 }

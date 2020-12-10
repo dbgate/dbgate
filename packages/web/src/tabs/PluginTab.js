@@ -9,6 +9,7 @@ import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtra
 import FormStyledButton from '../widgets/FormStyledButton';
 import axios from '../utility/axios';
 import { useInstalledPlugins } from '../utility/metadataLoaders';
+import useHasPermission from '../utility/useHasPermission';
 
 const WhitePage = styled.div`
   position: absolute;
@@ -56,6 +57,7 @@ function Delimiter() {
 }
 
 function PluginTabCore({ packageName }) {
+  const hasPermission = useHasPermission();
   const theme = useTheme();
   const installed = useInstalledPlugins();
   const info = useFetch({
@@ -98,10 +100,10 @@ function PluginTabCore({ packageName }) {
             <Version>{manifest.version && manifest.version}</Version>
           </HeaderLine>
           <HeaderLine>
-            {!installed.find((x) => x.name == packageName) && (
+            {hasPermission('plugins/install') && !installed.find((x) => x.name == packageName) && (
               <FormStyledButton type="button" value="Install" onClick={handleInstall} />
             )}
-            {!!installed.find((x) => x.name == packageName) && (
+            {hasPermission('plugins/install') && !!installed.find((x) => x.name == packageName) && (
               <FormStyledButton type="button" value="Uninstall" onClick={handleUninstall} />
             )}
           </HeaderLine>

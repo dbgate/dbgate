@@ -6,3 +6,4 @@ export * from './createBulkInsertStreamBase';
 export * from './DatabaseAnalyser';
 export * from './driverBase';
 export * from './SqlDumper';
+export * from './testPermission';

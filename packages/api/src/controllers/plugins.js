@@ -5,6 +5,7 @@ const { pluginsdir, datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
+const hasPermission = require('../utility/hasPermission');
 
 // async function loadPackageInfo(dir) {
 //   const readmeFile = path.join(dir, 'README.md');
@@ -106,6 +107,7 @@ module.exports = {
 
   install_meta: 'post',
   async install({ packageName }) {
+    if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
     if (!(await fs.exists(dir))) {
       await downloadPackage(packageName, dir);
@@ -115,6 +117,7 @@ module.exports = {
 
   uninstall_meta: 'post',
   async uninstall({ packageName }) {
+    if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);

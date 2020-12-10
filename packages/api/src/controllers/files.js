@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const path = require('path');
 const { filesdir } = require('../utility/directories');
+const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 
@@ -19,6 +20,7 @@ function deserialize(format, text) {
 module.exports = {
   list_meta: 'get',
   async list({ folder }) {
+    if (!hasPermission(`files/${folder}/read`)) return [];
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) return [];
     const files = (await fs.readdir(dir)).map((file) => ({ folder, file }));
@@ -27,24 +29,28 @@ module.exports = {
 
   delete_meta: 'post',
   async delete({ folder, file }) {
+    if (!hasPermission(`files/${folder}/write`)) return;
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed-${folder}`);
   },
 
   rename_meta: 'post',
   async rename({ folder, file, newFile }) {
+    if (!hasPermission(`files/${folder}/write`)) return;
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed-${folder}`);
   },
 
   load_meta: 'post',
   async load({ folder, file, format }) {
+    if (!hasPermission(`files/${folder}/read`)) return null;
     const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });
     return deserialize(format, text);
   },
 
   save_meta: 'post',
   async save({ folder, file, data, format }) {
+    if (!hasPermission(`files/${folder}/write`)) return;
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) {
       await fs.mkdir(dir);

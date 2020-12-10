@@ -11,17 +11,21 @@ module.exports = {
         }))
       : null;
     const startupPages = process.env.STARTUP_PAGES ? process.env.STARTUP_PAGES.split(',') : [];
+    const permissions = process.env.PERMISSIONS ? process.env.PERMISSIONS.split(',') : null;
+    const singleDatabase =
+      process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE
+        ? {
+            conid: process.env.SINGLE_CONNECTION,
+            database: process.env.SINGLE_DATABASE,
+          }
+        : null;
+
     return {
       runAsPortal: !!process.env.CONNECTIONS,
       toolbar,
       startupPages,
-      singleDatabase:
-        process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE
-          ? {
-              conid: process.env.SINGLE_CONNECTION,
-              database: process.env.SINGLE_DATABASE,
-            }
-          : null,
+      singleDatabase,
+      permissions,
     };
   },
 };

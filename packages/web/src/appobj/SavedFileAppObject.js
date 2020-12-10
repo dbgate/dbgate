@@ -10,8 +10,10 @@ import ScriptWriter from '../impexp/ScriptWriter';
 import { extractPackageName } from 'dbgate-tools';
 import useShowModal from '../modals/showModal';
 import InputTextModal from '../modals/InputTextModal';
+import useHasPermission from '../utility/useHasPermission';
 
 function Menu({ data, menuExt = null }) {
+  const hasPermission = useHasPermission();
   const showModal = useShowModal();
   const handleDelete = () => {
     axios.post('files/delete', data);
@@ -31,8 +33,12 @@ function Menu({ data, menuExt = null }) {
   };
   return (
     <>
-      <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
-      <DropDownMenuItem onClick={handleRename}>Rename</DropDownMenuItem>
+      {hasPermission(`files/${data.folder}/write`) && (
+        <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      )}
+      {hasPermission(`files/${data.folder}/write`) && (
+        <DropDownMenuItem onClick={handleRename}>Rename</DropDownMenuItem>
+      )}
       {menuExt}
     </>
   );

@@ -3,6 +3,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const cron = require('node-cron');
 const runners = require('./runners');
+const hasPermission = require('../utility/hasPermission');
 
 const scheduleRegex = /\s*\/\/\s*@schedule\s+([^\n]+)\n/;
 
@@ -26,6 +27,7 @@ module.exports = {
   },
 
   async reload() {
+    if (!hasPermission('files/shell/read')) return;
     const shellDir = path.join(filesdir(), 'shell');
     await this.unload();
     if (!(await fs.exists(shellDir))) return;
