@@ -37,7 +37,11 @@ function start(argument = null) {
   socket.set(io(server));
 
   if (process.env.LOGIN && process.env.PASSWORD) {
+    // https://stackoverflow.com/questions/12921658/use-specific-middleware-in-express-for-all-paths-except-a-specific-one
+    // remove: '/.well-known/acme-challenge/',
+
     app.use(
+      /^(?!.*\/\.well-known\/).*$/,
       basicAuth({
         users: {
           [process.env.LOGIN]: process.env.PASSWORD,
