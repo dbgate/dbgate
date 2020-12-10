@@ -16,6 +16,7 @@ import { findEngineDriver } from 'dbgate-tools';
 import { FormFieldTemplateTiny } from '../utility/formStyle';
 import { ManagerInnerContainer } from '../datagrid/ManagerStyles';
 import { presetPrimaryColors } from '@ant-design/colors';
+import ErrorInfo from '../widgets/ErrorInfo';
 
 const LeftContainer = styled.div`
   background-color: ${(props) => props.theme.manager_background};
@@ -27,6 +28,7 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
   const [managerSize, setManagerSize] = React.useState(0);
   const theme = useTheme();
   const extensions = useExtensions();
+  const [error, setError] = React.useState(null);
 
   const [availableColumnNames, setAvailableColumnNames] = React.useState([]);
   const [loadedData, setLoadedData] = React.useState(null);
@@ -41,8 +43,12 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
   const handleLoadColumns = async () => {
     const driver = await getDriver();
     if (!driver) return;
-    const columns = await loadChartStructure(driver, conid, database, sql);
-    setAvailableColumnNames(columns);
+    try {
+      const columns = await loadChartStructure(driver, conid, database, sql);
+      setAvailableColumnNames(columns);
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const handleLoadData = async () => {
@@ -74,6 +80,14 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
       handleLoadData();
     }
   }, [config, sql, conid, database, availableColumnNames]);
+
+  if (error) {
+    return (
+      <div>
+        <ErrorInfo message={error} />
+      </div>
+    );
+  }
 
   return (
     <FormProviderCore values={config} setValues={setConfig} template={FormFieldTemplateTiny}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import ReactMarkdown from 'react-markdown';
+import Markdown from 'markdown-to-jsx';
 import useTheme from '../theme/useTheme';
 import useFetch from '../utility/useFetch';
 import LoadingInfo from '../widgets/LoadingInfo';
@@ -109,7 +109,7 @@ function PluginTabCore({ packageName }) {
           </HeaderLine>
         </HeaderBody>
       </Header>
-      <ReactMarkdown>{readme}</ReactMarkdown>
+      <Markdown>{readme}</Markdown>
     </>
   );
 }

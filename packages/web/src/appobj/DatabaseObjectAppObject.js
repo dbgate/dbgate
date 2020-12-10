@@ -9,6 +9,8 @@ import ImportExportModal from '../modals/ImportExportModal';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { AppObjectCore } from './AppObjectCore';
 import useShowModal from '../modals/showModal';
+import { findEngineDriver } from 'dbgate-tools';
+import useExtensions from '../utility/useExtensions';
 
 const icons = {
   tables: 'img table',
@@ -39,6 +41,10 @@ const menus = {
       label: 'Open in free table editor',
       isOpenFreeTable: true,
     },
+    {
+      label: 'Open active chart',
+      isActiveChart: true,
+    },
   ],
   views: [
     {
@@ -64,6 +70,10 @@ const menus = {
     {
       label: 'Open structure',
       tab: 'TableStructureTab',
+    },
+    {
+      label: 'Open active chart',
+      isActiveChart: true,
     },
   ],
   procedures: [
@@ -120,6 +130,15 @@ export async function openDatabaseObjectDetail(
 function Menu({ data }) {
   const showModal = useShowModal();
   const setOpenedTabs = useSetOpenedTabs();
+  const extensions = useExtensions();
+
+  const getDriver = async () => {
+    const conn = await getConnectionInfo(data);
+    if (!conn) return;
+    const driver = findEngineDriver(conn, extensions);
+    return driver;
+  };
+
   return (
     <>
       {menus[data.objectTypeField].map((menu) => (
@@ -159,6 +178,26 @@ function Menu({ data }) {
                   },
                 },
               });
+            } else if (menu.isActiveChart) {
+              const driver = await getDriver();
+              const dmp = driver.createDumper();
+              dmp.put('^select * from %f', data);
+              openNewTab(
+                setOpenedTabs,
+                {
+                  title: data.pureName,
+                  icon: 'img chart',
+                  tabComponent: 'ChartTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
+                },
+                {
+                  config: { chartType: 'bar' },
+                  sql: dmp.s,
+                }
+              );
             } else {
               openDatabaseObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
             }

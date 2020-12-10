@@ -18,6 +18,7 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
   const resp = await axios.post('database-connections/query-data', { conid, database, sql: dmp.s });
+  if (resp.data.errorMessage) throw new Error(resp.data.errorMessage);
   return resp.data.columns.map((x) => x.columnName);
 }
 
