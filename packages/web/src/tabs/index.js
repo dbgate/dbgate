@@ -10,6 +10,7 @@ import PluginTab from './PluginTab';
 import ChartTab from './ChartTab';
 import MarkdownEditorTab from './MarkdownEditorTab';
 import MarkdownViewTab from './MarkdownViewTab';
+import MarkdownPreviewTab from './MarkdownPreviewTab';
 
 export default {
   TableDataTab,
@@ -24,4 +25,5 @@ export default {
   ChartTab,
   MarkdownEditorTab,
   MarkdownViewTab,
+  MarkdownPreviewTab,
 };

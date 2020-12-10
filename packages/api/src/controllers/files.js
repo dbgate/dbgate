@@ -5,6 +5,10 @@ const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 
+const markdownAutorunRegex = /<\!--.*@autorun\s*(\n.*-->|-->)/s;
+const markdownButtonRegex = /<\!--.*@button\s+([^\n]+)(\n.*-->|-->)/s;
+const markdownIconRegex = /<\!--.*@icon\s+([^\n]+)(\n.*-->|-->)/s;
+
 function serialize(format, data) {
   if (format == 'text') return data;
   if (format == 'json') return JSON.stringify(data);
@@ -60,5 +64,30 @@ module.exports = {
     if (folder == 'shell') {
       scheduler.reload();
     }
+  },
+
+  markdownManifest_meta: 'get',
+  async markdownManifest() {
+    if (!hasPermission(`files/markdown/write`)) return {};
+    const dir = path.join(filesdir(), 'markdown');
+    if (!(await fs.exists(dir))) return {};
+    const files = await fs.readdir(dir);
+    const res = [];
+    for (const file of files) {
+      const filePath = path.join(dir, file);
+      const text = await fs.readFile(filePath, { encoding: 'utf-8' });
+      const autorun = text.match(markdownAutorunRegex);
+      const button = text.match(markdownButtonRegex);
+      const icon = text.match(markdownIconRegex);
+      if (autorun || button) {
+        res.push({
+          file,
+          autorun: !!autorun,
+          button: button ? button[1].trim() : undefined,
+          icon: icon ? icon[1].trim() : undefined,
+        });
+      }
+    }
+    return res;
   },
 };

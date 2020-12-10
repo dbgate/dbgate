@@ -46,6 +46,12 @@ const configLoader = () => ({
   reloadTrigger: 'config-changed',
 });
 
+const markdownManifestLoader = () => ({
+  url: 'files/markdown-manifest',
+  params: {},
+  reloadTrigger: 'files-changed-markdown',
+});
+
 // const sqlObjectListLoader = ({ conid, database }) => ({
 //   url: 'metadata/list-objects',
 //   params: { conid, database },
@@ -268,4 +274,11 @@ export function getFiles(args) {
 }
 export function useFiles(args) {
   return useCore(filesLoader, args);
+}
+
+export function getMarkdownManifest(args) {
+  return getCore(markdownManifestLoader, args);
+}
+export function useMarkdownManifest(args) {
+  return useCore(markdownManifestLoader, args);
 }

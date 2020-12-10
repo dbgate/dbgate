@@ -2,6 +2,7 @@ import React from 'react';
 import Markdown from 'markdown-to-jsx';
 import styled from 'styled-components';
 import OpenChartLink from './OpenChartLink';
+import MarkdownLink from './MarkdownLink';
 
 const Wrapper = styled.div`
   padding: 10px;
@@ -18,6 +19,7 @@ export default function MarkdownExtendedView({ children }) {
             OpenChartLink: {
               component: OpenChartLink,
             },
+            a: MarkdownLink,
           },
         }}
       >

@@ -26,6 +26,7 @@ const iconNames = {
   'icon account': 'mdi mdi-account',
   'icon sql-file': 'mdi mdi-file',
   'icon web': 'mdi mdi-web',
+  'icon home': 'mdi mdi-home',
 
   'icon edit': 'mdi mdi-pencil',
   'icon delete': 'mdi mdi-delete',
@@ -40,6 +41,7 @@ const iconNames = {
   'icon error': 'mdi mdi-close-circle',
   'icon ok': 'mdi mdi-check-circle',
   'icon markdown': 'mdi mdi-application',
+  'icon preview': 'mdi mdi-file-find',
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',
@@ -62,6 +64,7 @@ const iconNames = {
   'img shell': 'mdi mdi-flash color-blue-7',
   'img chart': 'mdi mdi-chart-bar color-magenta-7',
   'img markdown': 'mdi mdi-application color-red-7',
+  'img preview': 'mdi mdi-file-find color-red-7',
 
   'img free-table': 'mdi mdi-table color-green-7',
   'img macro': 'mdi mdi-hammer-wrench',

@@ -9,6 +9,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 import getElectron from '../utility/getElectron';
 import useTheme from '../theme/useTheme';
+import { StyledThemedLink } from '../widgets/FormStyledButton';
 
 const Container = styled.div`
   display: flex;
@@ -22,15 +23,6 @@ const StyledLine = styled.div`
 
 const StyledValue = styled.span`
   font-weight: bold;
-`;
-
-const StyledLink = styled.a`
-  text-decoration: none;
-  cursor: pointer;
-  color: ${(props) => props.theme.main_background_blue[7]};
-  &:hover {
-    text-decoration: underline;
-  }
 `;
 
 function Line({ label, children }) {
@@ -48,13 +40,13 @@ function Link({ label, children, href }) {
     <StyledLine>
       {label}:{' '}
       {electron ? (
-        <StyledLink theme={theme} onClick={() => electron.shell.openExternal(href)}>
+        <StyledThemedLink theme={theme} onClick={() => electron.shell.openExternal(href)}>
           {children}
-        </StyledLink>
+        </StyledThemedLink>
       ) : (
-        <StyledLink theme={theme} href={href} target="_blank" rel="noopener noreferrer">
+        <StyledThemedLink theme={theme} href={href} target="_blank" rel="noopener noreferrer">
           {children}
-        </StyledLink>
+        </StyledThemedLink>
       )}
     </StyledLine>
   );

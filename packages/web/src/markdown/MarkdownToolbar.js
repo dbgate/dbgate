@@ -2,7 +2,7 @@ import React from 'react';
 import useHasPermission from '../utility/useHasPermission';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function MarkdownToolbar({ save }) {
+export default function MarkdownToolbar({ save, showPreview }) {
   const hasPermission = useHasPermission();
 
   return (
@@ -12,6 +12,9 @@ export default function MarkdownToolbar({ save }) {
           Save
         </ToolbarButton>
       )}
+      <ToolbarButton onClick={showPreview} icon="icon preview">
+        Preview
+      </ToolbarButton>
     </>
   );
 }

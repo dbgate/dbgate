@@ -4,7 +4,7 @@ import ConnectionModal from '../modals/ConnectionModal';
 import styled from 'styled-components';
 import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
 import useNewQuery from '../query/useNewQuery';
-import { useConfig } from '../utility/metadataLoaders';
+import { useConfig, useMarkdownManifest } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
 import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
@@ -25,7 +25,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const newQuery = useNewQuery();
   const newFreeTable = useNewFreeTable();
   const config = useConfig();
-  const toolbar = config.toolbar || [];
+  // const toolbar = config.toolbar || [];
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
   const showModal = useShowModal();
@@ -33,6 +33,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const setCurrentTheme = useSetCurrentTheme();
   const extensions = useExtensions();
   const electron = getElectron();
+  const markdownManifest = useMarkdownManifest();
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
@@ -74,47 +75,47 @@ export default function ToolBar({ toolbarPortalRef }) {
     });
   };
 
-  function openTabFromButton(button) {
-    if (openedTabs.find((x) => x.tabComponent == 'InfoPageTab' && x.props && x.props.page == button.page)) {
+  function openTabFromButton(page) {
+    if (
+      openedTabs.find(
+        (x) => x.tabComponent == 'MarkdownViewTab' && x.props && x.props.file == page.file && x.closedTime == null
+      )
+    ) {
       setOpenedTabs((tabs) =>
         tabs.map((tab) => ({
           ...tab,
-          selected: tab.tabComponent == 'InfoPageTab' && tab.props && tab.props.page == button.page,
-          closedTime: undefined,
+          selected: tab.tabComponent == 'MarkdownViewTab' && tab.props && tab.props.file == page.file,
         }))
       );
     } else {
       openNewTab(setOpenedTabs, {
-        title: button.title,
-        tabComponent: 'InfoPageTab',
-        icon: button.icon,
+        title: page.button || page.file,
+        tabComponent: 'MarkdownViewTab',
+        icon: page.icon || 'img markdown',
         props: {
-          page: button.page,
+          file: page.file,
         },
       });
     }
   }
 
   React.useEffect(() => {
-    if (config.startupPages) {
-      for (const page of config.startupPages) {
-        const button = toolbar.find((x) => x.name == page);
-        if (button) {
-          openTabFromButton(button);
-        }
-      }
+    for (const page of (markdownManifest || []).filter((x) => x.autorun)) {
+      openTabFromButton(page);
     }
-  }, config && config.startupPages);
+  }, [markdownManifest]);
 
   return (
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
       {!electron && <ToolbarButtonExternalImage image="/logo192.png" onClick={showAbout} />}
-      {toolbar.map((button) => (
-        <ToolbarButton key={button.name} onClick={() => openTabFromButton(button)} icon={button.icon}>
-          {button.title}
-        </ToolbarButton>
-      ))}
+      {(markdownManifest || [])
+        .filter((x) => x.button)
+        .map((x) => (
+          <ToolbarButton key={x.button} onClick={() => openTabFromButton(x)} icon={x.icon || 'icon markdown'}>
+            {x.button}
+          </ToolbarButton>
+        ))}
       {config.runAsPortal == false && (
         <ToolbarButton onClick={modalState.open} icon="icon new-connection">
           Add connection

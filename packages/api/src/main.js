@@ -72,9 +72,9 @@ function start(argument = null) {
   useController(app, '/files', files);
   useController(app, '/scheduler', scheduler);
 
-  if (process.env.PAGES_DIRECTORY) {
-    app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
-  }
+  // if (process.env.PAGES_DIRECTORY) {
+  //   app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
+  // }
 
   app.use('/runners/data', express.static(rundir()));
 

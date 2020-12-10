@@ -1,18 +1,9 @@
 import React from 'react';
 import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
-import styled from 'styled-components';
 import { openNewTab } from '../utility/common';
 import axios from '../utility/axios';
 import useTheme from '../theme/useTheme';
-
-const StyledLink = styled.a`
-  text-decoration: none;
-  cursor: pointer;
-  color: ${(props) => props.theme.main_background_blue[7]};
-  &:hover {
-    text-decoration: underline;
-  }
-`;
+import { StyledThemedLink } from '../widgets/FormStyledButton';
 
 export default function OpenChartLink({ file, children }) {
   const setOpenedTabs = useSetOpenedTabs();
@@ -37,8 +28,8 @@ export default function OpenChartLink({ file, children }) {
   };
 
   return (
-    <StyledLink theme={theme} onClick={handleClick}>
+    <StyledThemedLink theme={theme} onClick={handleClick}>
       {children}
-    </StyledLink>
+    </StyledThemedLink>
   );
 }

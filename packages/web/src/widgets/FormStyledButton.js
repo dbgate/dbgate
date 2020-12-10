@@ -39,8 +39,7 @@ const makeStyle = (base) => styled(base)`
 
 const ButtonInput = makeStyle(styled.input``);
 const FormStyledLabelBase = makeStyle(styled.label``);
-export const FormStyledLabel = styled(FormStyledLabelBase)`
-`;
+export const FormStyledLabel = styled(FormStyledLabelBase)``;
 
 export default function FormStyledButton({
   onClick = undefined,
@@ -67,3 +66,12 @@ export default function FormStyledButton({
     />
   );
 }
+
+export const StyledThemedLink = styled.a`
+  text-decoration: none;
+  cursor: pointer;
+  color: ${(props) => props.theme.main_background_blue[7]};
+  &:hover {
+    text-decoration: underline;
+  }
+`;

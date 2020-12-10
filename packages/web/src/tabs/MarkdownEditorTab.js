@@ -8,15 +8,42 @@ import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
+import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
+import { openNewTab } from '../utility/common';
 
 export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
-  const { editorData, setEditorData, isLoading } = useEditorData({ tabid });
+  const { editorData, setEditorData, isLoading, saveToStorage } = useEditorData({ tabid });
   const saveFileModalState = useModalState();
+  const openedTabs = useOpenedTabs();
+  const setOpenedTabs = useSetOpenedTabs();
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
     if (keyCode == keycodes.f5) {
       event.preventDefault();
-      // handlePreview();
+      showPreview();
+    }
+  };
+
+  const showPreview = async () => {
+    await saveToStorage();
+    const existing = (openedTabs || []).find((x) => x.props && x.props.sourceTabId == tabid && x.closedTime == null);
+    if (existing) {
+      setOpenedTabs((tabs) =>
+        tabs.map((x) => ({
+          ...x,
+          selected: x.tabid == existing.tabid,
+        }))
+      );
+    } else {
+      const thisTab = (openedTabs || []).find((x) => x.tabid == tabid);
+      openNewTab(setOpenedTabs, {
+        title: thisTab.title,
+        icon: 'img preview',
+        tabComponent: 'MarkdownPreviewTab',
+        props: {
+          sourceTabId: tabid,
+        },
+      });
     }
   };
 
@@ -40,7 +67,10 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
       {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
-        ReactDOM.createPortal(<MarkdownToolbar save={saveFileModalState.open} />, toolbarPortalRef.current)}
+        ReactDOM.createPortal(
+          <MarkdownToolbar save={saveFileModalState.open} showPreview={showPreview} />,
+          toolbarPortalRef.current
+        )}
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}

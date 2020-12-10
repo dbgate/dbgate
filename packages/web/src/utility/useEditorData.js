@@ -4,7 +4,7 @@ import localforage from 'localforage';
 import { changeTab } from './common';
 import { useSetOpenedTabs } from './globalState';
 
-export default function useEditorData({ tabid, loadFromArgs = null }) {
+export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null }) {
   const localStorageKey = `tabdata_${tabid}`;
   const setOpenedTabs = useSetOpenedTabs();
   const changeCounterRef = React.useRef(0);
@@ -57,19 +57,20 @@ export default function useEditorData({ tabid, loadFromArgs = null }) {
 
   React.useEffect(() => {
     initialLoad();
-  }, []);
+  }, [reloadToken]);
 
   const saveToStorage = React.useCallback(async () => {
     if (valueRef.current == null) return;
     try {
       await localforage.setItem(localStorageKey, valueRef.current);
+      localStorage.removeItem(localStorageKey);
       savedCounterRef.current = changeCounterRef.current;
     } catch (err) {
       console.error(err);
     }
   }, [localStorageKey, valueRef]);
 
-  const saveToStorageFallback = React.useCallback(() => {
+  const saveToStorageSync = React.useCallback(() => {
     if (valueRef.current == null) return;
     if (savedCounterRef.current == changeCounterRef.current) return; // all saved
     // on window unload must be synchronous actions, save to local storage instead
@@ -86,10 +87,10 @@ export default function useEditorData({ tabid, loadFromArgs = null }) {
   };
 
   React.useEffect(() => {
-    window.addEventListener('beforeunload', saveToStorageFallback);
+    window.addEventListener('beforeunload', saveToStorageSync);
     return () => {
       saveToStorage();
-      window.removeEventListener('beforeunload', saveToStorageFallback);
+      window.removeEventListener('beforeunload', saveToStorageSync);
     };
   }, []);
 
@@ -99,5 +100,7 @@ export default function useEditorData({ tabid, loadFromArgs = null }) {
     isLoading,
     initialData: initialDataRef.current,
     errorMessage,
+    saveToStorage,
+    saveToStorageSync,
   };
 }
