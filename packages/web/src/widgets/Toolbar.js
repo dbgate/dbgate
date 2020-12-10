@@ -2,7 +2,7 @@ import React from 'react';
 import useModalState from '../modals/useModalState';
 import ConnectionModal from '../modals/ConnectionModal';
 import styled from 'styled-components';
-import ToolbarButton from './ToolbarButton';
+import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
 import useNewQuery from '../query/useNewQuery';
 import { useConfig } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
@@ -12,6 +12,8 @@ import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
 import useExtensions from '../utility/useExtensions';
 import { getDefaultFileFormat } from '../utility/fileformats';
+import getElectron from '../utility/getElectron';
+import AboutModal from '../modals/AboutModal';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -30,12 +32,18 @@ export default function ToolBar({ toolbarPortalRef }) {
   const currentTheme = useCurrentTheme();
   const setCurrentTheme = useSetCurrentTheme();
   const extensions = useExtensions();
+  const electron = getElectron();
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
     window['dbgate_newQuery'] = newQuery;
     window['dbgate_closeAll'] = () => setOpenedTabs([]);
+    window['dbgate_showAbout'] = showAbout;
   });
+
+  const showAbout = () => {
+    showModal((modalState) => <AboutModal modalState={modalState} />);
+  };
 
   const showImport = () => {
     showModal((modalState) => (
@@ -93,6 +101,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   return (
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
+      {!electron && <ToolbarButtonExternalImage image="/logo192.png" onClick={showAbout} />}
       {toolbar.map((button) => (
         <ToolbarButton key={button.name} onClick={() => openTabFromButton(button)} icon={button.icon}>
           {button.title}

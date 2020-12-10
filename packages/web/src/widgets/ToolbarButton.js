@@ -44,6 +44,11 @@ const ButtonDivInner = styled.div`
   white-space: nowrap;
 `;
 
+const ButtonExternalImage = styled.img`
+  width: 20px;
+  height: 20px;
+`;
+
 export default function ToolbarButton({ children, onClick, icon = undefined, disabled = undefined, patchY = 2 }) {
   const theme = useTheme();
   return (
@@ -62,6 +67,21 @@ export default function ToolbarButton({ children, onClick, icon = undefined, dis
         )}
         {children}
       </ButtonDivInner>
+    </ButtonDiv>
+  );
+}
+
+export function ToolbarButtonExternalImage({ image, onClick, disabled = undefined }) {
+  const theme = useTheme();
+  return (
+    <ButtonDiv
+      theme={theme}
+      onClick={() => {
+        if (!disabled && onClick) onClick();
+      }}
+      disabled={disabled}
+    >
+      <ButtonExternalImage src={image} />
     </ButtonDiv>
   );
 }

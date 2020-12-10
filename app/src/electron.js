@@ -99,6 +99,12 @@ function buildMenu() {
             require('electron').shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
           },
         },
+        {
+          label: 'About',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_showAbout()`);
+          },
+        },
       ],
     },
   ];

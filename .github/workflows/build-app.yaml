@@ -33,6 +33,9 @@ jobs:
       - name: yarn install
         run: |
           yarn install
+      - name: setCurrentVersion
+        run: |
+          yarn setCurrentVersion
       - name: Publish
         run: |
           yarn run build:app

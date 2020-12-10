@@ -37,6 +37,9 @@ jobs:
       - name: yarn install
         run: |
           yarn install
+      - name: setCurrentVersion
+        run: |
+          yarn setCurrentVersion
       - name: Prepare docker image
         run: |
           yarn run prepare:docker

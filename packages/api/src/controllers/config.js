@@ -1,3 +1,5 @@
+const currentVersion = require('../currentVersion');
+
 module.exports = {
   get_meta: 'get',
   async get() {
@@ -26,6 +28,7 @@ module.exports = {
       startupPages,
       singleDatabase,
       permissions,
+      ...currentVersion,
     };
   },
 };
