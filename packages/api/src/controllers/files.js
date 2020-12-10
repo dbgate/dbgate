@@ -68,7 +68,7 @@ module.exports = {
 
   markdownManifest_meta: 'get',
   async markdownManifest() {
-    if (!hasPermission(`files/markdown/write`)) return [];
+    if (!hasPermission(`files/markdown/read`)) return [];
     const dir = path.join(filesdir(), 'markdown');
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
