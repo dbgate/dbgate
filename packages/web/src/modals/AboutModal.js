@@ -28,6 +28,9 @@ const StyledLink = styled.a`
   text-decoration: none;
   cursor: pointer;
   color: ${(props) => props.theme.main_background_blue[7]};
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 function Line({ label, children }) {

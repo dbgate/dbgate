@@ -1,14 +1,7 @@
 import React from 'react';
 import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
-import Markdown from 'markdown-to-jsx';
-import styled from 'styled-components';
-
-const Wrapper = styled.div`
-  padding: 10px;
-  overflow: auto;
-  flex: 1;
-`;
+import MarkdownExtendedView from '../markdown/MarkdownExtendedView';
 
 export default function MarkdownViewTab({ file }) {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -33,9 +26,5 @@ export default function MarkdownViewTab({ file }) {
     );
   }
 
-  return (
-    <Wrapper>
-      <Markdown>{text || ''}</Markdown>
-    </Wrapper>
-  );
+  return <MarkdownExtendedView>{text || ''}</MarkdownExtendedView>;
 }

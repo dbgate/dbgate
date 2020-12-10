@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import _ from 'lodash';
 import keycodes from '../utility/keycodes';
 import GenericEditor from '../sqleditor/GenericEditor';
-import MarkdownToolbar from '../charts/MarkdownToolbar';
+import MarkdownToolbar from '../markdown/MarkdownToolbar';
 import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
