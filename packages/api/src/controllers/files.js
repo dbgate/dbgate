@@ -31,6 +31,12 @@ module.exports = {
     socket.emitChanged(`files-changed-${folder}`);
   },
 
+  rename_meta: 'post',
+  async rename({ folder, file, newFile }) {
+    await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
+    socket.emitChanged(`files-changed-${folder}`);
+  },
+
   load_meta: 'post',
   async load({ folder, file, format }) {
     const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });

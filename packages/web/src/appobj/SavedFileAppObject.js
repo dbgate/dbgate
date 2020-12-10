@@ -8,14 +8,31 @@ import { openNewTab } from '../utility/common';
 import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
 import ScriptWriter from '../impexp/ScriptWriter';
 import { extractPackageName } from 'dbgate-tools';
+import useShowModal from '../modals/showModal';
+import InputTextModal from '../modals/InputTextModal';
 
 function Menu({ data, menuExt = null }) {
+  const showModal = useShowModal();
   const handleDelete = () => {
     axios.post('files/delete', data);
+  };
+  const handleRename = () => {
+    showModal((modalState) => (
+      <InputTextModal
+        modalState={modalState}
+        value={data.file}
+        label="New file name"
+        header="Rename file"
+        onConfirm={(newFile) => {
+          axios.post('files/rename', { ...data, newFile });
+        }}
+      />
+    ));
   };
   return (
     <>
       <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
+      <DropDownMenuItem onClick={handleRename}>Rename</DropDownMenuItem>
       {menuExt}
     </>
   );
