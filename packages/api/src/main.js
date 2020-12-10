@@ -44,6 +44,9 @@ function start(argument = null) {
         },
         challenge: true,
         realm: 'DbGate Web App',
+
+        // https://stackoverflow.com/questions/12921658/use-specific-middleware-in-express-for-all-paths-except-a-specific-one
+        // remove: '/.well-known/acme-challenge/',
       })
     );
   }
