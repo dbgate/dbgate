@@ -50,6 +50,28 @@ export function FavoriteFileAppObject({ data, commonProps }) {
     showModal((modalState) => <FavoriteModal modalState={modalState} editingData={data} />);
   };
 
+  const editFavoriteJson = async () => {
+    const resp = await axios.post('files/load', {
+      folder: 'favorites',
+      file: data.file,
+      format: 'text',
+    });
+
+    openNewTab(
+      {
+        icon: 'icon favorite',
+        title,
+        tabComponent: 'FavoriteEditorTab',
+        props: {
+          savedFile: data.file,
+          savedFormat: 'text',
+          savedFolder: 'favorites',
+        },
+      },
+      { editor: JSON.stringify(JSON.parse(resp.data), null, 2) }
+    );
+  };
+
   return (
     <SavedFileAppObjectBase
       data={data}
@@ -61,7 +83,12 @@ export function FavoriteFileAppObject({ data, commonProps }) {
       onLoad={async (data) => {
         openFavorite(data);
       }}
-      menuExt={<DropDownMenuItem onClick={editFavorite}>Edit</DropDownMenuItem>}
+      menuExt={
+        <>
+          <DropDownMenuItem onClick={editFavorite}>Edit</DropDownMenuItem>
+          <DropDownMenuItem onClick={editFavoriteJson}>Edit JSON definition</DropDownMenuItem>
+        </>
+      }
     />
   );
 }

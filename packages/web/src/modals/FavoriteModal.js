@@ -8,6 +8,7 @@ import { FormProvider, useForm } from '../utility/FormProvider';
 import axios from '../utility/axios';
 import uuidv1 from 'uuid/v1';
 import { FontIcon } from '../icons';
+import useHasPermission from '../utility/useHasPermission';
 
 function FontIconPreview() {
   const { values } = useForm();
@@ -15,6 +16,7 @@ function FontIconPreview() {
 }
 
 export default function FavoriteModal({ modalState, editingData = undefined, savingTab = undefined }) {
+  const hasPermission = useHasPermission();
   const initialValues = React.useMemo(() => {
     if (savingTab) {
       return {
@@ -102,7 +104,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
         </ModalContent>
         <ModalFooter>
           <FormButton value="Cancel" onClick={() => modalState.close()} />
-          <FormSubmit value="OK" onClick={handleSubmit} />
+          {hasPermission('files/favorites/write') && <FormSubmit value="OK" onClick={handleSubmit} />}
         </ModalFooter>
       </FormProvider>
     </ModalBase>

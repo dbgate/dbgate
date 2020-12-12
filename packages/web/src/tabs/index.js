@@ -11,6 +11,7 @@ import ChartTab from './ChartTab';
 import MarkdownEditorTab from './MarkdownEditorTab';
 import MarkdownViewTab from './MarkdownViewTab';
 import MarkdownPreviewTab from './MarkdownPreviewTab';
+import FavoriteEditorTab from './FavoriteEditorTab';
 
 export default {
   TableDataTab,
@@ -26,4 +27,5 @@ export default {
   MarkdownEditorTab,
   MarkdownViewTab,
   MarkdownPreviewTab,
+  FavoriteEditorTab,
 };
