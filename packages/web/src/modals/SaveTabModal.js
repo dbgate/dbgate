@@ -13,7 +13,12 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
     changeTab(tabid, setOpenedTabs, (tab) => ({
       ...tab,
       title: name,
-      props: { ...tab.props, savedFile: name },
+      props: {
+        ...tab.props,
+        savedFile: name,
+        savedFolder: folder,
+        savedFormat: format,
+      },
     }));
 
   const handleKeyboard = React.useCallback(

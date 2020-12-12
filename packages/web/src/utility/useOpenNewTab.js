@@ -46,7 +46,13 @@ export default function useOpenNewTab() {
 
       const tabid = uuidv1();
       if (initialData) {
-        await localforage.setItem(`tabdata_${tabid}`, initialData);
+        for (const key of _.keys(initialData)) {
+          if (key == 'editor') {
+            await localforage.setItem(`tabdata_${key}_${tabid}`, initialData[key]);
+          } else {
+            localStorage.setItem(`tabdata_${key}_${tabid}`, JSON.stringify(initialData[key]));
+          }
+        }
       }
       setOpenedTabs((files) => [
         ...(files || []).map((x) => ({ ...x, selected: false })),

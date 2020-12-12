@@ -66,6 +66,25 @@ module.exports = {
     }
   },
 
+  favorites_meta: 'get',
+  async favorites() {
+    if (!hasPermission(`files/favorites/read`)) return [];
+    const dir = path.join(filesdir(), 'favorites');
+    if (!(await fs.exists(dir))) return [];
+    const files = await fs.readdir(dir);
+    const res = [];
+    for (const file of files) {
+      const filePath = path.join(dir, file);
+      const text = await fs.readFile(filePath, { encoding: 'utf-8' });
+      res.push({
+        file,
+        folder: 'favorites',
+        ...JSON.parse(text),
+      });
+    }
+    return res;
+  },
+
   markdownManifest_meta: 'get',
   async markdownManifest() {
     if (!hasPermission(`files/markdown/read`)) return [];

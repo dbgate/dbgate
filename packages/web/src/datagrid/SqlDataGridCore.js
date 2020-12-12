@@ -92,10 +92,12 @@ export default function SqlDataGridCore(props) {
         },
       },
       {
-        config: { chartType: 'bar' },
-        sql: display.getExportQuery((select) => {
-          select.orderBy = null;
-        }),
+        editor: {
+          config: { chartType: 'bar' },
+          sql: display.getExportQuery((select) => {
+            select.orderBy = null;
+          }),
+        },
       }
     );
   }

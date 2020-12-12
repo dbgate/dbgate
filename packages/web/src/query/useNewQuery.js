@@ -24,6 +24,6 @@ export default function useNewQuery() {
           database,
         },
       },
-      initialData
+      { editor: initialData }
     );
 }

@@ -14,6 +14,9 @@ import { getDefaultFileFormat } from '../utility/fileformats';
 import getElectron from '../utility/getElectron';
 import AboutModal from '../modals/AboutModal';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import axios from '../utility/axios';
+import tabs from '../tabs';
+import uuidv1 from 'uuid/v1';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -35,6 +38,8 @@ export default function ToolBar({ toolbarPortalRef }) {
   const extensions = useExtensions();
   const electron = getElectron();
   const markdownManifest = useMarkdownManifest();
+
+  const currentTab = openedTabs.find((x) => x.selected);
 
   React.useEffect(() => {
     window['dbgate_createNewConnection'] = modalState.open;
@@ -73,6 +78,31 @@ export default function ToolBar({ toolbarPortalRef }) {
       title: 'Page',
       tabComponent: 'MarkdownEditorTab',
       icon: 'img markdown',
+    });
+  };
+
+  const addToFavorite = () => {
+    const tabdata = {};
+
+    const re = new RegExp(`tabdata_(.*)_${currentTab.tabid}`);
+    for (const key in localStorage) {
+      const match = key.match(re);
+      if (!match) continue;
+      if (match[1] == 'editor') continue;
+      tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
+    }
+
+    axios.post('files/save', {
+      folder: 'favorites',
+      file: uuidv1(),
+      format: 'json',
+      data: {
+        title: currentTab.title,
+        icon: currentTab.icon,
+        props: currentTab.props,
+        tabComponent: currentTab.tabComponent,
+        tabdata,
+      },
     });
   };
 
@@ -134,6 +164,14 @@ export default function ToolBar({ toolbarPortalRef }) {
       <ToolbarButton onClick={showImport} icon="icon import">
         Import data
       </ToolbarButton>
+      {!!currentTab &&
+        tabs[currentTab.tabComponent] &&
+        tabs[currentTab.tabComponent].allowAddToFavorites &&
+        tabs[currentTab.tabComponent].allowAddToFavorites(currentTab.props) && (
+          <ToolbarButton onClick={addToFavorite} icon="icon favorite">
+            Add to favorites
+          </ToolbarButton>
+        )}
       <ToolbarButton onClick={switchTheme} icon="icon theme">
         {currentTheme == 'dark' ? 'Light mode' : 'Dark mode'}
       </ToolbarButton>

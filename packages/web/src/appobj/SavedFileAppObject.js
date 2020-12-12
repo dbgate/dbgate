@@ -44,7 +44,7 @@ function Menu({ data, menuExt = null }) {
   );
 }
 
-export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad, menuExt = null }) {
+export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad, title = undefined, menuExt = null }) {
   const { file, folder } = data;
 
   const onClick = async () => {
@@ -56,7 +56,7 @@ export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad
     <AppObjectCore
       {...commonProps}
       data={data}
-      title={file}
+      title={title || file}
       icon={icon}
       onClick={onClick}
       Menu={menuExt ? (props) => <Menu {...props} menuExt={menuExt} /> : Menu}
@@ -90,7 +90,7 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },
-      script.getScript()
+      { editor: script.getScript() }
     );
   };
 
@@ -111,6 +111,8 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
           initialData: data,
           // @ts-ignore
           savedFile: file,
+          savedFolder: 'sql',
+          savedFormat: 'text',
         });
       }}
     />
@@ -135,9 +137,11 @@ export function SavedShellFileAppObject({ data, commonProps }) {
             tabComponent: 'ShellTab',
             props: {
               savedFile: file,
+              savedFolder: 'shell',
+              savedFormat: 'text',
             },
           },
-          data
+          { editor: data }
         );
       }}
     />
@@ -171,10 +175,12 @@ export function SavedChartFileAppObject({ data, commonProps }) {
               conid: connection._id,
               database,
               savedFile: file,
+              savedFolder: 'charts',
+              savedFormat: 'json',
             },
             tabComponent: 'ChartTab',
           },
-          data
+          { editor: data }
         );
       }}
     />
@@ -191,7 +197,9 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
       icon: 'img markdown',
       tabComponent: 'MarkdownViewTab',
       props: {
-        file,
+        savedFile: file,
+        savedFolder: 'markdown',
+        savedFormat: 'text',
       },
     });
   };
@@ -209,9 +217,11 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
             tabComponent: 'MarkdownEditorTab',
             props: {
               savedFile: file,
+              savedFolder: 'markdown',
+              savedFormat: 'text',
             },
           },
-          data
+          { editor: data }
         );
       }}
       menuExt={<DropDownMenuItem onClick={showPage}>Show page</DropDownMenuItem>}
@@ -219,7 +229,51 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
   );
 }
 
-[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject, SavedMarkdownFileAppObject].forEach((fn) => {
+export function FavoriteFileAppObject({ data, commonProps }) {
+  const { file, folder, icon, tabComponent, title, props, tabdata } = data;
+  const openNewTab = useOpenNewTab();
+
+  return (
+    <SavedFileAppObjectBase
+      data={data}
+      commonProps={commonProps}
+      format="json"
+      icon={icon || 'img favorite'}
+      title={title}
+      onLoad={async (data) => {
+        let tabdataNew = tabdata;
+        if (props.savedFile) {
+          const resp = await axios.post('files/load', {
+            folder: props.savedFolder,
+            file: props.savedFile,
+            format: props.savedFormat,
+          });
+          tabdataNew = {
+            ...tabdata,
+            editor: resp.data,
+          };
+        }
+        openNewTab(
+          {
+            title,
+            icon: icon || 'img favorite',
+            props,
+            tabComponent,
+          },
+          tabdataNew
+        );
+      }}
+    />
+  );
+}
+
+[
+  SavedSqlFileAppObject,
+  SavedShellFileAppObject,
+  SavedChartFileAppObject,
+  SavedMarkdownFileAppObject,
+  FavoriteFileAppObject,
+].forEach((fn) => {
   // @ts-ignore
   fn.extractKey = (data) => data.file;
 });

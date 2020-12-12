@@ -3,13 +3,17 @@ import axios from '../utility/axios';
 import LoadingInfo from '../widgets/LoadingInfo';
 import MarkdownExtendedView from '../markdown/MarkdownExtendedView';
 
-export default function MarkdownViewTab({ file }) {
+export default function MarkdownViewTab({ savedFile }) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [text, setText] = React.useState(null);
 
   const handleLoad = async () => {
     setIsLoading(true);
-    const resp = await axios.post('files/load', { folder: 'markdown', file, format: 'text' });
+    const resp = await axios.post('files/load', {
+      folder: 'markdown',
+      file: savedFile,
+      format: 'text',
+    });
     setText(resp.data);
     setIsLoading(false);
   };
@@ -28,3 +32,5 @@ export default function MarkdownViewTab({ file }) {
 
   return <MarkdownExtendedView>{text || ''}</MarkdownExtendedView>;
 }
+
+MarkdownViewTab.allowAddToFavorites = (props) => true;

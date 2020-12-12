@@ -104,7 +104,7 @@ function GenerateSctriptButton({ modalState }) {
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },
-      code
+      { editor: code }
     );
     modalState.close();
   };

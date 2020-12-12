@@ -23,7 +23,7 @@ export default function OpenChartLink({ file, children }) {
           savedFile: file,
         },
       },
-      resp.data
+      { editor: resp.data }
     );
   };
 

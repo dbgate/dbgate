@@ -341,7 +341,7 @@ export default function DataGridCore(props) {
         tabComponent: 'FreeTableTab',
         props: {},
       },
-      getSelectedFreeData()
+      { editor: getSelectedFreeData() }
     );
   };
 
@@ -354,8 +354,10 @@ export default function DataGridCore(props) {
         props: {},
       },
       {
-        data: getSelectedFreeData(),
-        config: { chartType: 'bar' },
+        editor: {
+          data: getSelectedFreeData(),
+          config: { chartType: 'bar' },
+        },
       }
     );
   };

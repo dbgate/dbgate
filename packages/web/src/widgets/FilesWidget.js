@@ -15,23 +15,6 @@ import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import { useFiles } from '../utility/metadataLoaders';
 import useHasPermission from '../utility/useHasPermission';
 
-function ClosedTabsList() {
-  const tabs = useOpenedTabs();
-
-  return (
-    <>
-      <WidgetsInnerContainer>
-        <AppObjectList
-          list={_.sortBy(
-            tabs.filter((x) => x.closedTime),
-            (x) => -x.closedTime
-          )}
-          AppObjectComponent={ClosedTabAppObject}
-        />
-      </WidgetsInnerContainer>
-    </>
-  );
-}
 
 function SavedSqlFilesList() {
   const files = useFiles({ folder: 'sql' });
@@ -85,9 +68,6 @@ export default function FilesWidget() {
   const hasPermission = useHasPermission();
   return (
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="20%">
-        <ClosedTabsList />
-      </WidgetColumnBarItem>
       {hasPermission('files/sql/read') && (
         <WidgetColumnBarItem title="Saved SQL files" name="sqlFiles" height="15%">
           <SavedSqlFilesList />

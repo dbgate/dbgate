@@ -28,3 +28,4 @@ export default function TableDataTab({ conid, database, schemaName, pureName, ta
 }
 
 TableDataTab.matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
+TableDataTab.allowAddToFavorites = (props) => true;

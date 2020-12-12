@@ -5,7 +5,7 @@ import { changeTab } from './common';
 import { useSetOpenedTabs } from './globalState';
 
 export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null }) {
-  const localStorageKey = `tabdata_${tabid}`;
+  const localStorageKey = `tabdata_editor_${tabid}`;
   const setOpenedTabs = useSetOpenedTabs();
   const changeCounterRef = React.useRef(0);
   const savedCounterRef = React.useRef(0);

@@ -56,6 +56,11 @@ export default function WidgetIconPanel() {
       name: 'plugins',
       title: 'Extensions & Plugins',
     },
+    {
+      icon: 'icon favorite',
+      name: 'favorites',
+      title: 'Favorites',
+    },
     // {
     //   icon: 'fa-cog',
     //   name: 'settings',

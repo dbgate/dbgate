@@ -46,6 +46,12 @@ const configLoader = () => ({
   reloadTrigger: 'config-changed',
 });
 
+const favoritesLoader = () => ({
+  url: 'files/favorites',
+  params: {},
+  reloadTrigger: 'files-changed-favorites',
+});
+
 const markdownManifestLoader = () => ({
   url: 'files/markdown-manifest',
   params: {},
@@ -281,4 +287,11 @@ export function getMarkdownManifest(args) {
 }
 export function useMarkdownManifest(args) {
   return useCore(markdownManifestLoader, args);
+}
+
+export function getFavorites(args) {
+  return getCore(favoritesLoader, args);
+}
+export function useFavorites(args) {
+  return useCore(favoritesLoader, args);
 }
