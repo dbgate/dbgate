@@ -14,9 +14,7 @@ import { getDefaultFileFormat } from '../utility/fileformats';
 import getElectron from '../utility/getElectron';
 import AboutModal from '../modals/AboutModal';
 import useOpenNewTab from '../utility/useOpenNewTab';
-import axios from '../utility/axios';
 import tabs from '../tabs';
-import uuidv1 from 'uuid/v1';
 import FavoriteModal from '../modals/FavoriteModal';
 
 const ToolbarContainer = styled.div`
@@ -84,28 +82,6 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   const addToFavorite = () => {
     showModal((modalState) => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
-    // const tabdata = {};
-
-    // const re = new RegExp(`tabdata_(.*)_${currentTab.tabid}`);
-    // for (const key in localStorage) {
-    //   const match = key.match(re);
-    //   if (!match) continue;
-    //   if (match[1] == 'editor') continue;
-    //   tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
-    // }
-
-    // axios.post('files/save', {
-    //   folder: 'favorites',
-    //   file: uuidv1(),
-    //   format: 'json',
-    //   data: {
-    //     title: currentTab.title,
-    //     icon: currentTab.icon,
-    //     props: currentTab.props,
-    //     tabComponent: currentTab.tabComponent,
-    //     tabdata,
-    //   },
-    // });
   };
 
   function openTabFromButton(page) {

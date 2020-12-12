@@ -15,6 +15,14 @@ import axios from './axios';
 import useTheme from '../theme/useTheme';
 import { useForm, useFormFieldTemplate } from './FormProvider';
 
+export function FormFieldTemplate({ label, children, type }) {
+  const FieldTemplate = useFormFieldTemplate();
+  return (
+    <FieldTemplate label={label} type={type}>
+      {children}
+    </FieldTemplate>
+  );
+}
 
 export function FormTextFieldRaw({ name, focused = false, ...other }) {
   const { values, setFieldValue } = useForm();

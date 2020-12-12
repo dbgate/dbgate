@@ -1,6 +1,6 @@
 import React from 'react';
 import ModalBase from './ModalBase';
-import { FormTextField, FormSubmit, FormButton, FormCheckboxField } from '../utility/forms';
+import { FormTextField, FormSubmit, FormButton, FormCheckboxField, FormFieldTemplate } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
@@ -8,7 +8,6 @@ import { FormProvider, useForm } from '../utility/FormProvider';
 import axios from '../utility/axios';
 import uuidv1 from 'uuid/v1';
 import { FontIcon } from '../icons';
-import { FormFieldTemplateDefault } from '../utility/formStyle';
 
 function FontIconPreview() {
   const { values } = useForm();
@@ -93,9 +92,9 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
         <ModalContent>
           <FormTextField label="Title" name="title" focused />
           <FormTextField label="Icon" name="icon" />
-          <FormFieldTemplateDefault label="Icon preview" type="icon">
+          <FormFieldTemplate label="Icon preview" type="icon">
             <FontIconPreview />
-          </FormFieldTemplateDefault>
+          </FormFieldTemplate>
           <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
           <FormCheckboxField label="Open on startup" name="openOnStartup" />
         </ModalContent>

@@ -1,12 +1,11 @@
 import React from 'react';
 import ModalBase from './ModalBase';
-import { FormTextField, FormSubmit, FormArchiveFolderSelect } from '../utility/forms';
+import { FormTextField, FormSubmit, FormArchiveFolderSelect, FormFieldTemplate } from '../utility/forms';
 import styled from 'styled-components';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
 import { FormProvider } from '../utility/FormProvider';
-import { FormFieldTemplateDefault } from '../utility/formStyle';
 
 const SelectWrapper = styled.div`
   width: 150px;
@@ -25,11 +24,11 @@ export default function SaveArchiveModal({ file = 'new-table', folder = 'default
       <ModalHeader modalState={modalState}>Save to archive</ModalHeader>
       <FormProvider initialValues={{ file, folder }}>
         <ModalContent>
-          <FormFieldTemplateDefault label="Folder" type="select">
+          <FormFieldTemplate label="Folder" type="select">
             <SelectWrapper>
               <FormArchiveFolderSelect name="folder" />
             </SelectWrapper>
-          </FormFieldTemplateDefault>
+          </FormFieldTemplate>
           <FormTextField label="File name" name="file" />
         </ModalContent>
         <ModalFooter>
