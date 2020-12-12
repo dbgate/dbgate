@@ -67,7 +67,10 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
       {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
-        ReactDOM.createPortal(<ChartToolbar save={saveFileModalState.open} />, toolbarPortalRef.current)}
+        ReactDOM.createPortal(
+          <ChartToolbar save={saveFileModalState.open} modelState={modelState} dispatchModel={dispatchModel} />,
+          toolbarPortalRef.current
+        )}
     </>
   );
 }
