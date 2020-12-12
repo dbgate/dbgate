@@ -3,6 +3,7 @@ import Markdown from 'markdown-to-jsx';
 import styled from 'styled-components';
 import OpenChartLink from './OpenChartLink';
 import MarkdownLink from './MarkdownLink';
+import OpenSqlLink from './OpenSqlLink';
 
 const Wrapper = styled.div`
   padding: 10px;
@@ -18,6 +19,9 @@ export default function MarkdownExtendedView({ children }) {
           overrides: {
             OpenChartLink: {
               component: OpenChartLink,
+            },
+            OpenSqlLink: {
+              component: OpenSqlLink,
             },
             a: MarkdownLink,
           },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentDatabase } from '../utility/globalState';
 import axios from '../utility/axios';
 import useTheme from '../theme/useTheme';
 import { StyledThemedLink } from '../widgets/FormStyledButton';
@@ -20,6 +20,7 @@ export default function OpenChartLink({ file, children }) {
         props: {
           conid: currentDb && currentDb.connection && currentDb.connection._id,
           database: currentDb && currentDb.name,
+          savedFile: file,
         },
       },
       resp.data
