@@ -24,7 +24,7 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
 
 export async function loadChartData(driver: EngineDriver, conid, database, sql, config) {
   const dataColumns = extractDataColumns(config);
-  const { labelColumn, truncateFrom, truncateLimit } = config;
+  const { labelColumn, truncateFrom, truncateLimit, showRelativeValues } = config;
   if (!labelColumn || !dataColumns || dataColumns.length == 0) return null;
 
   const select: Select = {
@@ -76,11 +76,30 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
   const resp = await axios.post('database-connections/query-data', { conid, database, sql: dmp.s });
-  if (truncateFrom == 'end' && resp.data.rows) {
-    return {
-      ...resp.data,
-      rows: _.reverse([...resp.data.rows]),
-    };
+  let { rows, columns } = resp.data;
+  if (truncateFrom == 'end' && rows) {
+    rows = _.reverse([...rows]);
   }
-  return resp.data;
+  if (showRelativeValues) {
+    const maxValues = dataColumns.map((col) => _.max(rows.map((row) => row[col])));
+    for (const [col, max] of _.zip(dataColumns, maxValues)) {
+      if (!max) continue;
+      if (!_.isNumber(max)) continue;
+      if (!(max > 0)) continue;
+      rows = rows.map((row) => ({
+        ...row,
+        [col]: (row[col] / max) * 100,
+      }));
+      // columns = columns.map((x) => {
+      //   if (x.columnName == col) {
+      //     return { columnName: `${col} %` };
+      //   }
+      //   return x;
+      // });
+    }
+  }
+  return {
+    columns,
+    rows,
+  };
 }

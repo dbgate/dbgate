@@ -111,6 +111,7 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
                   <option value="end">End (most recent data for datetime)</option>
                 </FormSelectField>
                 <FormTextField label="Truncate limit" name="truncateLimit" />
+                <FormCheckboxField label="Show relative values" name="showRelativeValues" />
               </ManagerInnerContainer>
             </WidgetColumnBarItem>
             <WidgetColumnBarItem title="Data" name="data">
