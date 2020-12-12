@@ -54,3 +54,5 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
       />
   );
 }
+
+ViewDataTab.matchingProps = ['conid', 'database', 'schemaName', 'pureName'];

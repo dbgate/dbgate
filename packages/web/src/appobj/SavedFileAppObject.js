@@ -109,6 +109,8 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
         newQuery({
           title: file,
           initialData: data,
+          // @ts-ignore
+          savedFile: file,
         });
       }}
     />
@@ -131,6 +133,9 @@ export function SavedShellFileAppObject({ data, commonProps }) {
             title: file,
             icon: 'img shell',
             tabComponent: 'ShellTab',
+            props: {
+              savedFile: file,
+            },
           },
           data
         );
@@ -165,6 +170,7 @@ export function SavedChartFileAppObject({ data, commonProps }) {
             props: {
               conid: connection._id,
               database,
+              savedFile: file,
             },
             tabComponent: 'ChartTab',
           },
@@ -201,6 +207,9 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
             title: file,
             icon: 'img markdown',
             tabComponent: 'MarkdownEditorTab',
+            props: {
+              savedFile: file,
+            },
           },
           data
         );

@@ -8,8 +8,13 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
 
-  const name = openedTabs.find((x) => x.tabid == tabid).title;
-  const onSave = (name) => changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, title: name }));
+  const { savedFile } = openedTabs.find((x) => x.tabid == tabid).props || {};
+  const onSave = (name) =>
+    changeTab(tabid, setOpenedTabs, (tab) => ({
+      ...tab,
+      title: name,
+      props: { ...tab.props, savedFile: name },
+    }));
 
   const handleKeyboard = React.useCallback(
     (e) => {
@@ -31,6 +36,13 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
   }, [tabVisible, handleKeyboard]);
 
   return (
-    <SaveFileModal data={data} folder={folder} format={format} modalState={modalState} name={name} onSave={onSave} />
+    <SaveFileModal
+      data={data}
+      folder={folder}
+      format={format}
+      modalState={modalState}
+      name={savedFile || 'newFile'}
+      onSave={onSave}
+    />
   );
 }
