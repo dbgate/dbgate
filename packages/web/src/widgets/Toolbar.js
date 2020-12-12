@@ -4,7 +4,7 @@ import ConnectionModal from '../modals/ConnectionModal';
 import styled from 'styled-components';
 import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
 import useNewQuery from '../query/useNewQuery';
-import { useConfig, useMarkdownManifest } from '../utility/metadataLoaders';
+import { useConfig, useFavorites } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
@@ -16,6 +16,7 @@ import AboutModal from '../modals/AboutModal';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import tabs from '../tabs';
 import FavoriteModal from '../modals/FavoriteModal';
+import { useOpenFavorite } from '../appobj/FavoriteFileAppObject';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -36,7 +37,8 @@ export default function ToolBar({ toolbarPortalRef }) {
   const setCurrentTheme = useSetCurrentTheme();
   const extensions = useExtensions();
   const electron = getElectron();
-  const markdownManifest = useMarkdownManifest();
+  const favorites = useFavorites();
+  const openFavorite = useOpenFavorite();
 
   const currentTab = openedTabs.find((x) => x.selected);
 
@@ -84,45 +86,46 @@ export default function ToolBar({ toolbarPortalRef }) {
     showModal((modalState) => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
   };
 
-  function openTabFromButton(page) {
-    if (
-      openedTabs.find(
-        (x) => x.tabComponent == 'MarkdownViewTab' && x.props && x.props.file == page.file && x.closedTime == null
-      )
-    ) {
-      setOpenedTabs((tabs) =>
-        tabs.map((tab) => ({
-          ...tab,
-          selected: tab.tabComponent == 'MarkdownViewTab' && tab.props && tab.props.file == page.file,
-        }))
-      );
-    } else {
-      openNewTab({
-        title: page.button || page.file,
-        tabComponent: 'MarkdownViewTab',
-        icon: page.icon || 'img markdown',
-        props: {
-          file: page.file,
-        },
-      });
-    }
+  function openTabFromButton(favorite) {
+    openFavorite(favorite);
+    // if (
+    //   openedTabs.find(
+    //     (x) => x.tabComponent == 'MarkdownViewTab' && x.props && x.props.file == page.file && x.closedTime == null
+    //   )
+    // ) {
+    //   setOpenedTabs((tabs) =>
+    //     tabs.map((tab) => ({
+    //       ...tab,
+    //       selected: tab.tabComponent == 'MarkdownViewTab' && tab.props && tab.props.file == page.file,
+    //     }))
+    //   );
+    // } else {
+    //   openNewTab({
+    //     title: page.button || page.file,
+    //     tabComponent: 'MarkdownViewTab',
+    //     icon: page.icon || 'img markdown',
+    //     props: {
+    //       file: page.file,
+    //     },
+    //   });
+    // }
   }
 
   React.useEffect(() => {
-    for (const page of (markdownManifest || []).filter((x) => x.autorun)) {
-      openTabFromButton(page);
+    for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
+      openTabFromButton(fav);
     }
-  }, [markdownManifest]);
+  }, [favorites]);
 
   return (
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
       {!electron && <ToolbarButtonExternalImage image="/logo192.png" onClick={showAbout} />}
-      {(markdownManifest || [])
-        .filter((x) => x.button)
+      {(favorites || [])
+        .filter((x) => x.showInToolbar)
         .map((x) => (
-          <ToolbarButton key={x.button} onClick={() => openTabFromButton(x)} icon={x.icon || 'icon markdown'}>
-            {x.button}
+          <ToolbarButton key={x.file} onClick={() => openTabFromButton(x)} icon={x.icon || 'icon favorite'}>
+            {x.title}
           </ToolbarButton>
         ))}
       {config.runAsPortal == false && (

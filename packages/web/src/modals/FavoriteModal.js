@@ -26,6 +26,8 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       return {
         title: editingData.title,
         icon: editingData.icon,
+        showInToolbar: editingData.showInToolbar,
+        openOnStartup: editingData.openOnStartup,
       };
     }
   }, []);
