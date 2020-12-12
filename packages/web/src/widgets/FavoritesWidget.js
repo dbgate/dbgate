@@ -5,10 +5,10 @@ import { AppObjectList } from '../appobj/AppObjectList';
 import { useOpenedTabs } from '../utility/globalState';
 import ClosedTabAppObject from '../appobj/ClosedTabAppObject';
 import { WidgetsInnerContainer } from './WidgetStyles';
-import { FavoriteFileAppObject } from '../appobj/SavedFileAppObject';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
-import { useFavorites, useFiles } from '../utility/metadataLoaders';
+import { useFavorites } from '../utility/metadataLoaders';
 import useHasPermission from '../utility/useHasPermission';
+import { FavoriteFileAppObject } from '../appobj/FavoriteFileAppObject';
 
 function ClosedTabsList() {
   const tabs = useOpenedTabs();

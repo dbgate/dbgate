@@ -4,19 +4,28 @@ import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { AppObjectCore } from './AppObjectCore';
 import useNewQuery from '../query/useNewQuery';
-import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentDatabase } from '../utility/globalState';
 import ScriptWriter from '../impexp/ScriptWriter';
 import { extractPackageName } from 'dbgate-tools';
 import useShowModal from '../modals/showModal';
 import InputTextModal from '../modals/InputTextModal';
 import useHasPermission from '../utility/useHasPermission';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import ConfirmModal from '../modals/ConfirmModal';
 
-function Menu({ data, menuExt = null }) {
+function Menu({ data, menuExt = null, title = undefined, disableRename = false }) {
   const hasPermission = useHasPermission();
   const showModal = useShowModal();
   const handleDelete = () => {
-    axios.post('files/delete', data);
+    showModal((modalState) => (
+      <ConfirmModal
+        modalState={modalState}
+        message={`Really delete file ${title || data.file}?`}
+        onConfirm={() => {
+          axios.post('files/delete', data);
+        }}
+      />
+    ));
   };
   const handleRename = () => {
     showModal((modalState) => (
@@ -36,7 +45,7 @@ function Menu({ data, menuExt = null }) {
       {hasPermission(`files/${data.folder}/write`) && (
         <DropDownMenuItem onClick={handleDelete}>Delete</DropDownMenuItem>
       )}
-      {hasPermission(`files/${data.folder}/write`) && (
+      {hasPermission(`files/${data.folder}/write`) && !disableRename && (
         <DropDownMenuItem onClick={handleRename}>Rename</DropDownMenuItem>
       )}
       {menuExt}
@@ -44,7 +53,16 @@ function Menu({ data, menuExt = null }) {
   );
 }
 
-export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad, title = undefined, menuExt = null }) {
+export function SavedFileAppObjectBase({
+  data,
+  commonProps,
+  format,
+  icon,
+  onLoad,
+  title = undefined,
+  menuExt = null,
+  disableRename = false,
+}) {
   const { file, folder } = data;
 
   const onClick = async () => {
@@ -59,7 +77,7 @@ export function SavedFileAppObjectBase({ data, commonProps, format, icon, onLoad
       title={title || file}
       icon={icon}
       onClick={onClick}
-      Menu={menuExt ? (props) => <Menu {...props} menuExt={menuExt} /> : Menu}
+      Menu={(props) => <Menu {...props} menuExt={menuExt} title={title} disableRename={disableRename} />}
     />
   );
 }
@@ -229,51 +247,7 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
   );
 }
 
-export function FavoriteFileAppObject({ data, commonProps }) {
-  const { file, folder, icon, tabComponent, title, props, tabdata } = data;
-  const openNewTab = useOpenNewTab();
-
-  return (
-    <SavedFileAppObjectBase
-      data={data}
-      commonProps={commonProps}
-      format="json"
-      icon={icon || 'img favorite'}
-      title={title}
-      onLoad={async (data) => {
-        let tabdataNew = tabdata;
-        if (props.savedFile) {
-          const resp = await axios.post('files/load', {
-            folder: props.savedFolder,
-            file: props.savedFile,
-            format: props.savedFormat,
-          });
-          tabdataNew = {
-            ...tabdata,
-            editor: resp.data,
-          };
-        }
-        openNewTab(
-          {
-            title,
-            icon: icon || 'img favorite',
-            props,
-            tabComponent,
-          },
-          tabdataNew
-        );
-      }}
-    />
-  );
-}
-
-[
-  SavedSqlFileAppObject,
-  SavedShellFileAppObject,
-  SavedChartFileAppObject,
-  SavedMarkdownFileAppObject,
-  FavoriteFileAppObject,
-].forEach((fn) => {
+[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject, SavedMarkdownFileAppObject].forEach((fn) => {
   // @ts-ignore
   fn.extractKey = (data) => data.file;
 });
