@@ -25,11 +25,11 @@ import InlineButton from '../widgets/InlineButton';
 import DataGridContextMenu from './DataGridContextMenu';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
-import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import { useShowMenu } from '../modals/showMenu';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -118,7 +118,7 @@ export default function DataGridCore(props) {
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   // usePropsCompare(props);
 
@@ -335,7 +335,6 @@ export default function DataGridCore(props) {
 
   const handleOpenFreeTable = () => {
     openNewTab(
-      setOpenedTabs,
       {
         title: 'selection',
         icon: 'img free-table',
@@ -348,7 +347,6 @@ export default function DataGridCore(props) {
 
   const handleOpenChart = () => {
     openNewTab(
-      setOpenedTabs,
       {
         title: 'Chart',
         icon: 'img chart',

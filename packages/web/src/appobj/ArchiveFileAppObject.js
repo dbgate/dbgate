@@ -1,13 +1,12 @@
 import React from 'react';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import { openNewTab } from '../utility/common';
 import { filterName } from 'dbgate-datalib';
 import axios from '../utility/axios';
-import { useSetOpenedTabs } from '../utility/globalState';
 import { AppObjectCore } from './AppObjectCore';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
-function openArchive(setOpenedTabs, fileName, folderName) {
-  openNewTab(setOpenedTabs, {
+function openArchive(openNewTab, fileName, folderName) {
+  openNewTab({
     title: fileName,
     icon: 'img archive',
     tooltip: `${folderName}\n${fileName}`,
@@ -19,18 +18,19 @@ function openArchive(setOpenedTabs, fileName, folderName) {
   });
 }
 
-function Menu({ data, setOpenedTabs }) {
+function Menu({ data }) {
+  const openNewTab = useOpenNewTab();
   const handleDelete = () => {
     axios.post('archive/delete-file', { file: data.fileName, folder: data.folderName });
     // setOpenedTabs((tabs) => tabs.filter((x) => x.tabid != data.tabid));
   };
   const handleOpenRead = () => {
-    openArchive(setOpenedTabs, data.fileName, data.folderName);
+    openArchive(openNewTab, data.fileName, data.folderName);
   };
   const handleOpenWrite = async () => {
     // const resp = await axios.post('archive/load-free-table', { file: data.fileName, folder: data.folderName });
 
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: data.fileName,
       icon: 'img archive',
       tabComponent: 'FreeTableTab',
@@ -59,9 +59,9 @@ function Menu({ data, setOpenedTabs }) {
 
 function ArchiveFileAppObject({ data, commonProps }) {
   const { fileName, folderName } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const onClick = () => {
-    openArchive(setOpenedTabs, fileName, folderName);
+    openArchive(openNewTab, fileName, folderName);
   };
 
   return (

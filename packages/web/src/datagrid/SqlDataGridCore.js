@@ -6,13 +6,13 @@ import useSocket from '../utility/SocketProvider';
 import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
 import { changeSetToSql, createChangeSet, getChangeSetInsertedRows } from 'dbgate-datalib';
-import { openNewTab } from '../utility/common';
 import LoadingDataGridCore from './LoadingDataGridCore';
 import ChangeSetGrider from './ChangeSetGrider';
 import { scriptToSql } from 'dbgate-sqltree';
 import useModalState from '../modals/useModalState';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal';
 import ErrorMessageModal from '../modals/ErrorMessageModal';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 /** @param props {import('./types').DataGridProps} */
 async function loadDataPage(props, offset, limit) {
@@ -62,7 +62,7 @@ async function loadRowCount(props) {
 export default function SqlDataGridCore(props) {
   const { conid, database, display, changeSetState, dispatchChangeSet } = props;
   const showModal = useShowModal();
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
@@ -82,7 +82,6 @@ export default function SqlDataGridCore(props) {
   }
   function openActiveChart() {
     openNewTab(
-      setOpenedTabs,
       {
         title: 'Chart',
         icon: 'img chart',
@@ -101,7 +100,7 @@ export default function SqlDataGridCore(props) {
     );
   }
   function openQuery() {
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: 'Query',
       icon: 'img sql-file',
       tabComponent: 'QueryTab',

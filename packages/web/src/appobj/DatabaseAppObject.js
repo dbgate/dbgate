@@ -1,24 +1,25 @@
 import React from 'react';
 import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import { openNewTab } from '../utility/common';
 import ImportExportModal from '../modals/ImportExportModal';
 import { getDefaultFileFormat } from '../utility/fileformats';
-import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
+import { useCurrentDatabase } from '../utility/globalState';
 import { AppObjectCore } from './AppObjectCore';
 import useShowModal from '../modals/showModal';
 import useExtensions from '../utility/useExtensions';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 function Menu({ data }) {
   const { connection, name } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
+
   const extensions = useExtensions();
   const showModal = useShowModal();
 
   const tooltip = `${connection.displayName || connection.server}\n${name}`;
 
   const handleNewQuery = () => {
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: 'Query',
       icon: 'img sql-file',
       tooltip,

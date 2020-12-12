@@ -6,7 +6,6 @@ import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
 import useNewQuery from '../query/useNewQuery';
 import { useConfig, useMarkdownManifest } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
-import { openNewTab } from '../utility/common';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
@@ -14,6 +13,7 @@ import useExtensions from '../utility/useExtensions';
 import { getDefaultFileFormat } from '../utility/fileformats';
 import getElectron from '../utility/getElectron';
 import AboutModal from '../modals/AboutModal';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -28,6 +28,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   // const toolbar = config.toolbar || [];
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const showModal = useShowModal();
   const currentTheme = useCurrentTheme();
   const setCurrentTheme = useSetCurrentTheme();
@@ -68,7 +69,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   };
 
   const newMarkdown = () => {
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: 'Page',
       tabComponent: 'MarkdownEditorTab',
       icon: 'img markdown',
@@ -88,7 +89,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         }))
       );
     } else {
-      openNewTab(setOpenedTabs, {
+      openNewTab({
         title: page.button || page.file,
         tabComponent: 'MarkdownViewTab',
         icon: page.icon || 'img markdown',

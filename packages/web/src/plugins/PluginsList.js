@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
-import { openNewTab } from '../utility/common';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtractors';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const Wrapper = styled.div`
   margin: 1px 3px 10px 5px;
@@ -43,8 +43,8 @@ const Version = styled.div`
   margin-left: 5px;
 `;
 
-function openPlugin(setOpenedTabs, packageManifest) {
-  openNewTab(setOpenedTabs, {
+function openPlugin(openNewTab, packageManifest) {
+  openNewTab({
     title: packageManifest.name,
     icon: 'icon plugin',
     tabComponent: 'PluginTab',
@@ -55,10 +55,10 @@ function openPlugin(setOpenedTabs, packageManifest) {
 }
 
 function PluginsListItem({ packageManifest }) {
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const theme = useTheme();
   return (
-    <Wrapper onClick={() => openPlugin(setOpenedTabs, packageManifest)} theme={theme}>
+    <Wrapper onClick={() => openPlugin(openNewTab, packageManifest)} theme={theme}>
       <Icon src={extractPluginIcon(packageManifest)} />
       <Texts>
         <Line>

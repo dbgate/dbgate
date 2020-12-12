@@ -1,12 +1,11 @@
 import _ from 'lodash';
-import { useSetOpenedTabs } from '../utility/globalState';
-import { openNewTab } from '../utility/common';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 export default function useNewFreeTable() {
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   return ({ title = undefined, ...props } = {}) =>
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: title || 'Table',
       icon: 'img free-table',
       tabComponent: 'FreeTableTab',

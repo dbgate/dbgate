@@ -4,13 +4,13 @@ import _ from 'lodash';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { AppObjectCore } from './AppObjectCore';
 import useNewQuery from '../query/useNewQuery';
-import { openNewTab } from '../utility/common';
 import { useCurrentDatabase, useSetOpenedTabs } from '../utility/globalState';
 import ScriptWriter from '../impexp/ScriptWriter';
 import { extractPackageName } from 'dbgate-tools';
 import useShowModal from '../modals/showModal';
 import InputTextModal from '../modals/InputTextModal';
 import useHasPermission from '../utility/useHasPermission';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 function Menu({ data, menuExt = null }) {
   const hasPermission = useHasPermission();
@@ -68,7 +68,7 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
   const newQuery = useNewQuery();
   const currentDatabase = useCurrentDatabase();
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   const connection = _.get(currentDatabase, 'connection');
   const database = _.get(currentDatabase, 'name');
@@ -85,7 +85,6 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
     script.requirePackage(extractPackageName(conn.engine));
 
     openNewTab(
-      setOpenedTabs,
       {
         title: 'Shell',
         icon: 'img shell',
@@ -118,7 +117,8 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
 
 export function SavedShellFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
+
   return (
     <SavedFileAppObjectBase
       data={data}
@@ -127,7 +127,6 @@ export function SavedShellFileAppObject({ data, commonProps }) {
       icon="img shell"
       onLoad={(data) => {
         openNewTab(
-          setOpenedTabs,
           {
             title: file,
             icon: 'img shell',
@@ -142,7 +141,7 @@ export function SavedShellFileAppObject({ data, commonProps }) {
 
 export function SavedChartFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   const currentDatabase = useCurrentDatabase();
 
@@ -159,7 +158,6 @@ export function SavedChartFileAppObject({ data, commonProps }) {
       icon="img chart"
       onLoad={(data) => {
         openNewTab(
-          setOpenedTabs,
           {
             title: file,
             icon: 'img chart',
@@ -179,10 +177,10 @@ export function SavedChartFileAppObject({ data, commonProps }) {
 
 export function SavedMarkdownFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   const showPage = () => {
-    openNewTab(setOpenedTabs, {
+    openNewTab({
       title: file,
       icon: 'img markdown',
       tabComponent: 'MarkdownViewTab',
@@ -199,7 +197,6 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
       icon="img markdown"
       onLoad={(data) => {
         openNewTab(
-          setOpenedTabs,
           {
             title: file,
             icon: 'img markdown',

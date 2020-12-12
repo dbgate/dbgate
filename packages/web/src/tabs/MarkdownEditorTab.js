@@ -9,13 +9,14 @@ import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
-import { openNewTab } from '../utility/common';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const { editorData, setEditorData, isLoading, saveToStorage } = useEditorData({ tabid });
   const saveFileModalState = useModalState();
   const openedTabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
     if (keyCode == keycodes.f5) {
@@ -36,7 +37,7 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
       );
     } else {
       const thisTab = (openedTabs || []).find((x) => x.tabid == tabid);
-      openNewTab(setOpenedTabs, {
+      openNewTab({
         title: thisTab.title,
         icon: 'img preview',
         tabComponent: 'MarkdownPreviewTab',

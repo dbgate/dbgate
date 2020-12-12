@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
-import { openNewTab } from '../utility/common';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from 'dbgate-datalib';
@@ -11,6 +10,7 @@ import { AppObjectCore } from './AppObjectCore';
 import useShowModal from '../modals/showModal';
 import { findEngineDriver } from 'dbgate-tools';
 import useExtensions from '../utility/useExtensions';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const icons = {
   tables: 'img table',
@@ -100,7 +100,7 @@ const defaultTabs = {
 };
 
 export async function openDatabaseObjectDetail(
-  setOpenedTabs,
+  openNewTab,
   tabComponent,
   sqlTemplate,
   { schemaName, pureName, conid, database, objectTypeField }
@@ -111,7 +111,7 @@ export async function openDatabaseObjectDetail(
     pureName,
   })}`;
 
-  openNewTab(setOpenedTabs, {
+  openNewTab({
     title: pureName,
     tooltip,
     icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
@@ -129,7 +129,7 @@ export async function openDatabaseObjectDetail(
 
 function Menu({ data }) {
   const showModal = useShowModal();
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const extensions = useExtensions();
 
   const getDriver = async () => {
@@ -160,7 +160,7 @@ function Menu({ data }) {
               ));
             } else if (menu.isOpenFreeTable) {
               const coninfo = await getConnectionInfo(data);
-              openNewTab(setOpenedTabs, {
+              openNewTab({
                 title: data.pureName,
                 icon: 'img free-table',
                 tabComponent: 'FreeTableTab',
@@ -183,7 +183,6 @@ function Menu({ data }) {
               const dmp = driver.createDumper();
               dmp.put('^select * from %f', data);
               openNewTab(
-                setOpenedTabs,
                 {
                   title: data.pureName,
                   icon: 'img chart',
@@ -199,7 +198,7 @@ function Menu({ data }) {
                 }
               );
             } else {
-              openDatabaseObjectDetail(setOpenedTabs, menu.tab, menu.sqlTemplate, data);
+              openDatabaseObjectDetail(openNewTab, menu.tab, menu.sqlTemplate, data);
             }
           }}
         >
@@ -212,10 +211,10 @@ function Menu({ data }) {
 
 function DatabaseObjectAppObject({ data, commonProps }) {
   const { conid, database, pureName, schemaName, objectTypeField } = data;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const onClick = ({ schemaName, pureName }) => {
     openDatabaseObjectDetail(
-      setOpenedTabs,
+      openNewTab,
       defaultTabs[objectTypeField],
       defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
       {

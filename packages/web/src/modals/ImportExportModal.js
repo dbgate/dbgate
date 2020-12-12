@@ -8,7 +8,6 @@ import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
 import ImportExportConfigurator from '../impexp/ImportExportConfigurator';
 import createImpExpScript from '../impexp/createImpExpScript';
-import { openNewTab } from '../utility/common';
 import { useCurrentArchive, useSetCurrentArchive, useSetCurrentWidget, useSetOpenedTabs } from '../utility/globalState';
 import RunnerOutputPane from '../query/RunnerOutputPane';
 import axios from '../utility/axios';
@@ -25,6 +24,7 @@ import { getDefaultFileFormat } from '../utility/fileformats';
 import useExtensions from '../utility/useExtensions';
 import { FormProvider, useForm } from '../utility/FormProvider';
 import { FormTextField } from '../utility/forms';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const headerHeight = '60px';
 const footerHeight = '100px';
@@ -92,14 +92,13 @@ const FooterButtons = styled.div`
 `;
 
 function GenerateSctriptButton({ modalState }) {
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const { values } = useForm();
   const extensions = useExtensions();
 
   const handleGenerateScript = async () => {
     const code = await createImpExpScript(extensions, values);
     openNewTab(
-      setOpenedTabs,
       {
         title: 'Shell',
         icon: 'img shell',
