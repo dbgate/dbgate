@@ -148,6 +148,7 @@ export default function ToolBar({ toolbarPortalRef }) {
       {!!currentTab &&
         tabs[currentTab.tabComponent] &&
         tabs[currentTab.tabComponent].allowAddToFavorites &&
+        currentTab.props &&
         tabs[currentTab.tabComponent].allowAddToFavorites(currentTab.props) && (
           <ToolbarButton onClick={addToFavorite} icon="icon favorite">
             Add to favorites
