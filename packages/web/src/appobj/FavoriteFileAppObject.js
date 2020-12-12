@@ -1,11 +1,19 @@
 import React from 'react';
+import { DropDownMenuItem } from '../modals/DropDownMenu';
+import FavoriteModal from '../modals/FavoriteModal';
+import useShowModal from '../modals/showModal';
 import axios from '../utility/axios';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import { SavedFileAppObjectBase } from './SavedFileAppObject';
 
 export function FavoriteFileAppObject({ data, commonProps }) {
-  const { file, folder, icon, tabComponent, title, props, tabdata } = data;
+  const { icon, tabComponent, title, props, tabdata } = data;
   const openNewTab = useOpenNewTab();
+  const showModal = useShowModal();
+
+  const editFavorite = () => {
+    showModal((modalState) => <FavoriteModal modalState={modalState} editingData={data} />);
+  };
 
   return (
     <SavedFileAppObjectBase
@@ -38,6 +46,7 @@ export function FavoriteFileAppObject({ data, commonProps }) {
           tabdataNew
         );
       }}
+      menuExt={<DropDownMenuItem onClick={editFavorite}>Edit</DropDownMenuItem>}
     />
   );
 }
