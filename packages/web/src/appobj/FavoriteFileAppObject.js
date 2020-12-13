@@ -3,6 +3,8 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import FavoriteModal from '../modals/FavoriteModal';
 import useShowModal from '../modals/showModal';
 import axios from '../utility/axios';
+import { copyTextToClipboard } from '../utility/clipboard';
+import getElectron from '../utility/getElectron';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import { SavedFileAppObjectBase } from './SavedFileAppObject';
 
@@ -41,10 +43,11 @@ export function useOpenFavorite() {
 }
 
 export function FavoriteFileAppObject({ data, commonProps }) {
-  const { icon, tabComponent, title, props, tabdata } = data;
+  const { icon, tabComponent, title, props, tabdata, urlPath } = data;
   const openNewTab = useOpenNewTab();
   const showModal = useShowModal();
   const openFavorite = useOpenFavorite();
+  const electron = getElectron();
 
   const editFavorite = () => {
     showModal((modalState) => <FavoriteModal modalState={modalState} editingData={data} />);
@@ -72,6 +75,10 @@ export function FavoriteFileAppObject({ data, commonProps }) {
     );
   };
 
+  const copyLink = () => {
+    copyTextToClipboard(`${document.location.origin}#favorite=${urlPath}`);
+  };
+
   return (
     <SavedFileAppObjectBase
       data={data}
@@ -87,6 +94,7 @@ export function FavoriteFileAppObject({ data, commonProps }) {
         <>
           <DropDownMenuItem onClick={editFavorite}>Edit</DropDownMenuItem>
           <DropDownMenuItem onClick={editFavoriteJson}>Edit JSON definition</DropDownMenuItem>
+          {!electron && urlPath && <DropDownMenuItem onClick={copyLink}>Copy link</DropDownMenuItem>}
         </>
       }
     />

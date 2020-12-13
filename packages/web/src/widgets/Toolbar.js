@@ -86,34 +86,21 @@ export default function ToolBar({ toolbarPortalRef }) {
     showModal((modalState) => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
   };
 
-  function openTabFromButton(favorite) {
-    openFavorite(favorite);
-    // if (
-    //   openedTabs.find(
-    //     (x) => x.tabComponent == 'MarkdownViewTab' && x.props && x.props.file == page.file && x.closedTime == null
-    //   )
-    // ) {
-    //   setOpenedTabs((tabs) =>
-    //     tabs.map((tab) => ({
-    //       ...tab,
-    //       selected: tab.tabComponent == 'MarkdownViewTab' && tab.props && tab.props.file == page.file,
-    //     }))
-    //   );
-    // } else {
-    //   openNewTab({
-    //     title: page.button || page.file,
-    //     tabComponent: 'MarkdownViewTab',
-    //     icon: page.icon || 'img markdown',
-    //     props: {
-    //       file: page.file,
-    //     },
-    //   });
-    // }
-  }
-
   React.useEffect(() => {
-    for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
-      openTabFromButton(fav);
+    const { hash } = document.location;
+    const favname = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
+    if (favname) {
+      const open = (favorites || []).find((x) => x.urlPath == favname);
+      if (open) {
+        openFavorite(open);
+        window.history.replaceState(null, null, ' ');
+      }
+    } else {
+      if (!openedTabs.find((x) => x.closedTime == null)) {
+        for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
+          openFavorite(fav);
+        }
+      }
     }
   }, [favorites]);
 
@@ -124,7 +111,7 @@ export default function ToolBar({ toolbarPortalRef }) {
       {(favorites || [])
         .filter((x) => x.showInToolbar)
         .map((x) => (
-          <ToolbarButton key={x.file} onClick={() => openTabFromButton(x)} icon={x.icon || 'icon favorite'}>
+          <ToolbarButton key={x.file} onClick={() => openFavorite(x)} icon={x.icon || 'icon favorite'}>
             {x.title}
           </ToolbarButton>
         ))}

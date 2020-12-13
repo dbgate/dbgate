@@ -9,6 +9,7 @@ import axios from '../utility/axios';
 import uuidv1 from 'uuid/v1';
 import { FontIcon } from '../icons';
 import useHasPermission from '../utility/useHasPermission';
+import _ from 'lodash';
 
 function FontIconPreview() {
   const { values } = useForm();
@@ -22,6 +23,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       return {
         title: savingTab.title,
         icon: savingTab.icon,
+        urlPath: _.kebabCase(_.deburr(savingTab.title)),
       };
     }
     if (editingData) {
@@ -30,6 +32,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
         icon: editingData.icon,
         showInToolbar: editingData.showInToolbar,
         openOnStartup: editingData.openOnStartup,
+        urlPath: editingData.urlPath,
       };
     }
   }, []);
@@ -99,6 +102,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
           <FormFieldTemplate label="Icon preview" type="icon">
             <FontIconPreview />
           </FormFieldTemplate>
+          <FormTextField label="URL path" name="urlPath" />
           <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
           <FormCheckboxField label="Open on startup" name="openOnStartup" />
         </ModalContent>
