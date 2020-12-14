@@ -33,15 +33,11 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
   const savedProperties = ['title', 'icon', 'showInToolbar', 'openOnStartup', 'urlPath'];
   const initialValues = React.useMemo(() => {
     if (savingTab) {
-      const res = {
+      return {
         title: savingTab.title,
         icon: savingTab.icon,
         urlPath: _.kebabCase(_.deburr(savingTab.title)),
       };
-      if (!hasPermission('files/favorites/write')) {
-        res.shareAsLink = true;
-      }
-      return res;
     }
     if (editingData) {
       return _.pick(editingData, savedProperties);
@@ -49,6 +45,8 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
   }, []);
 
   const savedFile = savingTab && savingTab.props && savingTab.props.savedFile;
+
+  const canWriteFavorite = hasPermission('files/favorites/write');
 
   const getTabSaveData = async (values) => {
     const tabdata = {};
@@ -126,7 +124,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
 
   return (
     <ModalBase modalState={modalState}>
-      <ModalHeader modalState={modalState}>{editingData ? 'Edit favorite' : 'Add to favorites'}</ModalHeader>
+      <ModalHeader modalState={modalState}>{editingData ? 'Edit favorite' : 'Share / add to favorites'}</ModalHeader>
       <FormProvider initialValues={initialValues}>
         <ModalContent>
           <FormTextField label="Title" name="title" focused />
@@ -135,10 +133,10 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
             <FontIconPreview />
           </FormFieldTemplate>
           <FormTextField label="URL path" name="urlPath" />
-          {!!savingTab && !electron && hasPermission('files/favorites/write') && (
+          {!!savingTab && !electron && canWriteFavorite && (
             <FormCheckboxField label="Share as link" name="shareAsLink" />
           )}
-          <FormCondition condition={(values) => !values.shareAsLink}>
+          <FormCondition condition={(values) => !values.shareAsLink && canWriteFavorite}>
             <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
             <FormCheckboxField label="Open on startup" name="openOnStartup" />
           </FormCondition>
@@ -150,10 +148,10 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
           )}
         </ModalContent>
         <ModalFooter>
-          <FormCondition condition={(values) => !values.shareAsLink && hasPermission('files/favorites/write')}>
+          <FormCondition condition={(values) => !values.shareAsLink && canWriteFavorite}>
             <FormSubmit value="OK" onClick={handleSubmit} />
           </FormCondition>
-          <FormCondition condition={(values) => values.shareAsLink}>
+          <FormCondition condition={(values) => values.shareAsLink || !canWriteFavorite}>
             <FormButton value="Copy link" onClick={handleCopyLink} />
           </FormCondition>
           <FormButton value="Cancel" onClick={() => modalState.close()} />
