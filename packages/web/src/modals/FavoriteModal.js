@@ -20,6 +20,7 @@ import useHasPermission from '../utility/useHasPermission';
 import _ from 'lodash';
 import getElectron from '../utility/getElectron';
 import { copyTextToClipboard } from '../utility/clipboard';
+import localforage from 'localforage';
 
 function FontIconPreview() {
   const { values } = useForm();
@@ -32,32 +33,46 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
   const savedProperties = ['title', 'icon', 'showInToolbar', 'openOnStartup', 'urlPath'];
   const initialValues = React.useMemo(() => {
     if (savingTab) {
-      return {
+      const res = {
         title: savingTab.title,
         icon: savingTab.icon,
         urlPath: _.kebabCase(_.deburr(savingTab.title)),
       };
+      if (!hasPermission('files/favorites/write')) {
+        res.shareAsLink = true;
+      }
+      return res;
     }
     if (editingData) {
       return _.pick(editingData, savedProperties);
     }
   }, []);
 
-  // const savedFile = savingTab && savingTab.props && savingTab.props.savedFile;
+  const savedFile = savingTab && savingTab.props && savingTab.props.savedFile;
 
   const getTabSaveData = async (values) => {
     const tabdata = {};
+    const skipEditor = !!savedFile && values.whatToSave != 'content';
 
     const re = new RegExp(`tabdata_(.*)_${savingTab.tabid}`);
+    for (const key in await localforage.keys()) {
+      const match = key.match(re);
+      if (!match) continue;
+      if (skipEditor && match[1] == 'editor') continue;
+      tabdata[match[1]] = JSON.parse(await localforage.getItem(key));
+    }
     for (const key in localStorage) {
       const match = key.match(re);
       if (!match) continue;
-      if (match[1] == 'editor') continue;
+      if (skipEditor && match[1] == 'editor') continue;
       tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
     }
 
     return {
-      props: savingTab.props,
+      props:
+        values.whatToSave == 'content' && savingTab.props
+          ? _.omit(savingTab.props, ['savedFile', 'savedFormat', 'savedFolder'])
+          : savingTab.props,
       tabComponent: savingTab.tabComponent,
       tabdata,
       ..._.pick(values, savedProperties),
@@ -119,22 +134,19 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
             <FontIconPreview />
           </FormFieldTemplate>
           <FormTextField label="URL path" name="urlPath" />
-          {!!savingTab && !electron && <FormCheckboxField label="Share as link" name="shareAsLink" />}
+          {!!savingTab && !electron && hasPermission('files/favorites/write') && (
+            <FormCheckboxField label="Share as link" name="shareAsLink" />
+          )}
           <FormCondition condition={(values) => !values.shareAsLink}>
             <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
             <FormCheckboxField label="Open on startup" name="openOnStartup" />
           </FormCondition>
-          {
-          <FormSelectField label="Chart type" name="chartType">
-                  <option value="bar">Bar</option>
-                  <option value="line">Line</option>
-                  {/* <option value="radar">Radar</option> */}
-                  <option value="pie">Pie</option>
-                  <option value="polarArea">Polar area</option>
-                  {/* <option value="bubble">Bubble</option>
-                <option value="scatter">Scatter</option> */}
-                </FormSelectField>
-}
+          {!!savingTab && !!savedFile && (
+            <FormSelectField label="What to save" name="whatToSave">
+              <option value="fileName">Link to file</option>
+              <option value="content">Content</option>
+            </FormSelectField>
+          )}
         </ModalContent>
         <ModalFooter>
           <FormCondition condition={(values) => !values.shareAsLink && hasPermission('files/favorites/write')}>
