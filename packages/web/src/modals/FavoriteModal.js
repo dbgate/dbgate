@@ -55,11 +55,11 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
     const skipEditor = !!savedFile && values.whatToSave != 'content';
 
     const re = new RegExp(`tabdata_(.*)_${savingTab.tabid}`);
-    for (const key in await localforage.keys()) {
+    for (const key of await localforage.keys()) {
       const match = key.match(re);
       if (!match) continue;
       if (skipEditor && match[1] == 'editor') continue;
-      tabdata[match[1]] = JSON.parse(await localforage.getItem(key));
+      tabdata[match[1]] = await localforage.getItem(key);
     }
     for (const key in localStorage) {
       const match = key.match(re);
@@ -67,6 +67,7 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       if (skipEditor && match[1] == 'editor') continue;
       tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
     }
+    console.log('tabdata', tabdata, skipEditor, savingTab.tabid);
 
     return {
       props:

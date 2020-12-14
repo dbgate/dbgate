@@ -140,4 +140,4 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   );
 }
 
-ShellTab.allowAddToFavorites = (props) => props.savedFile;
+ShellTab.allowAddToFavorites = (props) => true;

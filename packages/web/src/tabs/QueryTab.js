@@ -177,4 +177,4 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   );
 }
 
-QueryTab.allowAddToFavorites = (props) => props.savedFile;
+QueryTab.allowAddToFavorites = (props) => true;

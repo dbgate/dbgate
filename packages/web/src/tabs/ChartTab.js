@@ -75,4 +75,4 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
   );
 }
 
-ChartTab.allowAddToFavorites = (props) => props.savedFile;
+ChartTab.allowAddToFavorites = (props) => true;

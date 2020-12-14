@@ -193,8 +193,10 @@ function Menu({ data }) {
                   },
                 },
                 {
-                  config: { chartType: 'bar' },
-                  sql: dmp.s,
+                  editor: {
+                    config: { chartType: 'bar' },
+                    sql: dmp.s,
+                  },
                 }
               );
             } else {
