@@ -10,6 +10,7 @@ const iconNames = {
   'icon new-connection': 'mdi mdi-database-plus',
   'icon tables': 'mdi mdi-table-multiple',
   'icon favorite': 'mdi mdi-star',
+  'icon share': 'mdi mdi-share-variant',
 
   'icon database': 'mdi mdi-database',
   'icon server': 'mdi mdi-server',

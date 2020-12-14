@@ -24,6 +24,12 @@ export function FormFieldTemplate({ label, children, type }) {
   );
 }
 
+export function FormCondition({ condition, children }) {
+  const { values } = useForm();
+  if (condition(values)) return children;
+  return null;
+}
+
 export function FormTextFieldRaw({ name, focused = false, ...other }) {
   const { values, setFieldValue } = useForm();
   const handleChange = (event) => {

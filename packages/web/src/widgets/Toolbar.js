@@ -17,6 +17,7 @@ import useOpenNewTab from '../utility/useOpenNewTab';
 import tabs from '../tabs';
 import FavoriteModal from '../modals/FavoriteModal';
 import { useOpenFavorite } from '../appobj/FavoriteFileAppObject';
+import ErrorMessageModal from '../modals/ErrorMessageModal';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -88,18 +89,26 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   React.useEffect(() => {
     const { hash } = document.location;
-    const favname = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
-    if (favname) {
-      const open = (favorites || []).find((x) => x.urlPath == favname);
+    const openFavoriteName = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
+    const openTabdata = hash && hash.startsWith('#tabdata=') ? hash.substring('#tabdata='.length) : null;
+    if (openFavoriteName) {
+      const open = (favorites || []).find((x) => x.urlPath == openFavoriteName);
       if (open) {
         openFavorite(open);
         window.history.replaceState(null, null, ' ');
       }
-    } else {
-      if (!openedTabs.find((x) => x.closedTime == null)) {
-        for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
-          openFavorite(fav);
-        }
+    } else if (openTabdata) {
+      try {
+        const json = JSON.parse(decodeURIComponent(openTabdata));
+        console.log('TABDATA', json);
+        openFavorite(json);
+        window.history.replaceState(null, null, ' ');
+      } catch (err) {
+        showModal((modalState) => <ErrorMessageModal modalState={modalState} message={err.message} />);
+      }
+    } else if (!openedTabs.find((x) => x.closedTime == null)) {
+      for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
+        openFavorite(fav);
       }
     }
   }, [favorites]);
@@ -137,8 +146,8 @@ export default function ToolBar({ toolbarPortalRef }) {
         tabs[currentTab.tabComponent].allowAddToFavorites &&
         currentTab.props &&
         tabs[currentTab.tabComponent].allowAddToFavorites(currentTab.props) && (
-          <ToolbarButton onClick={addToFavorite} icon="icon favorite">
-            Add to favorites
+          <ToolbarButton onClick={addToFavorite} icon="icon share">
+            Share
           </ToolbarButton>
         )}
       <ToolbarButton onClick={switchTheme} icon="icon theme">

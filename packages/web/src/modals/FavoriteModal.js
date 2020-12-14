@@ -1,6 +1,14 @@
 import React from 'react';
 import ModalBase from './ModalBase';
-import { FormTextField, FormSubmit, FormButton, FormCheckboxField, FormFieldTemplate } from '../utility/forms';
+import {
+  FormTextField,
+  FormSubmit,
+  FormButton,
+  FormCheckboxField,
+  FormFieldTemplate,
+  FormCondition,
+  FormSelectField,
+} from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalContent from './ModalContent';
 import ModalFooter from './ModalFooter';
@@ -10,6 +18,8 @@ import uuidv1 from 'uuid/v1';
 import { FontIcon } from '../icons';
 import useHasPermission from '../utility/useHasPermission';
 import _ from 'lodash';
+import getElectron from '../utility/getElectron';
+import { copyTextToClipboard } from '../utility/clipboard';
 
 function FontIconPreview() {
   const { values } = useForm();
@@ -18,6 +28,8 @@ function FontIconPreview() {
 
 export default function FavoriteModal({ modalState, editingData = undefined, savingTab = undefined }) {
   const hasPermission = useHasPermission();
+  const electron = getElectron();
+  const savedProperties = ['title', 'icon', 'showInToolbar', 'openOnStartup', 'urlPath'];
   const initialValues = React.useMemo(() => {
     if (savingTab) {
       return {
@@ -27,17 +39,13 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       };
     }
     if (editingData) {
-      return {
-        title: editingData.title,
-        icon: editingData.icon,
-        showInToolbar: editingData.showInToolbar,
-        openOnStartup: editingData.openOnStartup,
-        urlPath: editingData.urlPath,
-      };
+      return _.pick(editingData, savedProperties);
     }
   }, []);
 
-  const saveTab = async (values) => {
+  // const savedFile = savingTab && savingTab.props && savingTab.props.savedFile;
+
+  const getTabSaveData = async (values) => {
     const tabdata = {};
 
     const re = new RegExp(`tabdata_(.*)_${savingTab.tabid}`);
@@ -48,20 +56,22 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       tabdata[match[1]] = JSON.parse(localStorage.getItem(key));
     }
 
+    return {
+      props: savingTab.props,
+      tabComponent: savingTab.tabComponent,
+      tabdata,
+      ..._.pick(values, savedProperties),
+    };
+  };
+
+  const saveTab = async (values) => {
+    const data = await getTabSaveData(values);
+
     axios.post('files/save', {
       folder: 'favorites',
       file: uuidv1(),
       format: 'json',
-      data: {
-        props: savingTab.props,
-        tabComponent: savingTab.tabComponent,
-        tabdata,
-        ...values,
-        // title: values.title,
-        // icon: values.icon,
-        // showInToolbar: values.showInToolbar,
-        // openOnStartup: values.openOnStartup,
-      },
+      data,
     });
   };
 
@@ -92,6 +102,12 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
       saveFile(values);
     }
   };
+
+  const handleCopyLink = async (values) => {
+    const tabdata = await getTabSaveData(values);
+    copyTextToClipboard(`${document.location.origin}#tabdata=${encodeURIComponent(JSON.stringify(tabdata))}`);
+  };
+
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>{editingData ? 'Edit favorite' : 'Add to favorites'}</ModalHeader>
@@ -103,12 +119,31 @@ export default function FavoriteModal({ modalState, editingData = undefined, sav
             <FontIconPreview />
           </FormFieldTemplate>
           <FormTextField label="URL path" name="urlPath" />
-          <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
-          <FormCheckboxField label="Open on startup" name="openOnStartup" />
+          {!!savingTab && !electron && <FormCheckboxField label="Share as link" name="shareAsLink" />}
+          <FormCondition condition={(values) => !values.shareAsLink}>
+            <FormCheckboxField label="Show in toolbar" name="showInToolbar" />
+            <FormCheckboxField label="Open on startup" name="openOnStartup" />
+          </FormCondition>
+          {
+          <FormSelectField label="Chart type" name="chartType">
+                  <option value="bar">Bar</option>
+                  <option value="line">Line</option>
+                  {/* <option value="radar">Radar</option> */}
+                  <option value="pie">Pie</option>
+                  <option value="polarArea">Polar area</option>
+                  {/* <option value="bubble">Bubble</option>
+                <option value="scatter">Scatter</option> */}
+                </FormSelectField>
+}
         </ModalContent>
         <ModalFooter>
+          <FormCondition condition={(values) => !values.shareAsLink && hasPermission('files/favorites/write')}>
+            <FormSubmit value="OK" onClick={handleSubmit} />
+          </FormCondition>
+          <FormCondition condition={(values) => values.shareAsLink}>
+            <FormButton value="Copy link" onClick={handleCopyLink} />
+          </FormCondition>
           <FormButton value="Cancel" onClick={() => modalState.close()} />
-          {hasPermission('files/favorites/write') && <FormSubmit value="OK" onClick={handleSubmit} />}
         </ModalFooter>
       </FormProvider>
     </ModalBase>
