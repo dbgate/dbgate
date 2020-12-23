@@ -63,7 +63,7 @@ function getOptions(timeAxis, chartType) {
 }
 
 function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType, dataColumnColors, theme) {
-  if (!freeData || !labelColumn || !dataColumns || dataColumns.length == 0) return [{}, {}];
+  if (!freeData || !labelColumn || !dataColumns || !freeData.rows || dataColumns.length == 0) return [{}, {}];
   const colors = randomcolor({
     count: _.max([freeData.rows.length, dataColumns.length, 1]),
     seed: colorSeed,
