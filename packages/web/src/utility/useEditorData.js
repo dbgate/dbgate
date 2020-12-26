@@ -4,6 +4,19 @@ import localforage from 'localforage';
 import { changeTab } from './common';
 import { useSetOpenedTabs } from './globalState';
 
+function getParsedLocalStorage(key) {
+  const value = localStorage.getItem(key);
+  if (value != null) {
+    try {
+      const res = JSON.parse(value);
+      return res;
+    } catch (e) {
+      localStorage.removeItem(key);
+    }
+  }
+  return null;
+}
+
 export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null }) {
   const localStorageKey = `tabdata_editor_${tabid}`;
   const setOpenedTabs = useSetOpenedTabs();
@@ -34,7 +47,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
         console.error(err.response);
       }
     } else {
-      const initFallback = localStorage.getItem(localStorageKey);
+      const initFallback = getParsedLocalStorage(localStorageKey);
       if (initFallback != null) {
         const init = JSON.parse(initFallback);
         setValue(init);

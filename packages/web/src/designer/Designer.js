@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import DesignerTable from './DesignerTable';
+import uuidv1 from 'uuid/v1';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -13,6 +14,7 @@ export default function Designer({ value, onChange }) {
     e.preventDefault();
     if (!data) return;
     var json = JSON.parse(data);
+    json.designerId = uuidv1();
     onChange({
       ...value,
       tables: [...(tables || []), json],
@@ -26,20 +28,29 @@ export default function Designer({ value, onChange }) {
   };
 
   const changeTable = React.useCallback(
-    (table, index) => {
-      const newValue = {
-        ...value,
-        tables: (tables || []).map((t, i) => (i == index ? table : t)),
-      };
-      onChange(newValue);
+    (table) => {
+      onChange((current) => ({
+        ...current,
+        tables: (current.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
+      }));
+    },
+    [onChange]
+  );
+
+  const bringToFront = React.useCallback(
+    (table) => {
+      onChange((current) => ({
+        ...current,
+        tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
+      }));
     },
     [onChange]
   );
 
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-      {(tables || []).map((table, index) => (
-        <DesignerTable key={index} {...table} index={index} onChangeTable={changeTable} />
+      {(tables || []).map((table) => (
+        <DesignerTable key={table.designerId} {...table} onChangeTable={changeTable} onBringToFront={bringToFront} />
       ))}
     </Wrapper>
   );

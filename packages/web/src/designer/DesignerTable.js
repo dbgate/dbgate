@@ -23,7 +23,7 @@ const ColumnsWrapper = styled.div`
 `;
 
 export default function DesignerTable(props) {
-  const { pureName, columns, left, top, onChangeTable, index } = props;
+  const { pureName, columns, left, top, onChangeTable, onBringToFront } = props;
   const [movingPosition, setMovingPosition] = React.useState(null);
   const movingPositionRef = React.useRef(null);
 
@@ -54,14 +54,11 @@ export default function DesignerTable(props) {
   const handleMoveEnd = React.useCallback(
     (e) => {
       if (movingPositionRef.current) {
-        onChangeTable(
-          {
-            ...props,
-            left: movingPositionRef.current.left,
-            top: movingPositionRef.current.top,
-          },
-          index
-        );
+        onChangeTable({
+          ...props,
+          left: movingPositionRef.current.left,
+          top: movingPositionRef.current.top,
+        });
       }
 
       movingPositionRef.current = null;
@@ -71,7 +68,7 @@ export default function DesignerTable(props) {
 
       // this.props.designer.changedModel(true);
     },
-    [onChangeTable, index]
+    [onChangeTable, props]
   );
 
   React.useEffect(() => {
@@ -103,6 +100,7 @@ export default function DesignerTable(props) {
         left: movingPosition ? movingPosition.left : left,
         top: movingPosition ? movingPosition.top : top,
       }}
+      onMouseDown={() => onBringToFront(props)}
     >
       <Header onMouseDown={headerMouseDown}>{pureName}</Header>
       <ColumnsWrapper>
