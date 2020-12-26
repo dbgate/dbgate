@@ -1,31 +1,96 @@
 import React from 'react';
 import styled from 'styled-components';
 import ColumnLabel from '../datagrid/ColumnLabel';
+import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
 
 const Wrapper = styled.div`
   position: absolute;
-  background-color: white;
+  // background-color: white;
+  background-color: ${(props) => props.theme.designtable_background};
+  border: 1px solid ${(props) => props.theme.border};
 `;
 
 const Header = styled.div`
   font-weight: bold;
   text-align: center;
   padding: 2px;
-  background: lightblue;
+  background: ${(props) => props.theme.designtable_background_blue[2]};
+  border-bottom: 1px solid ${(props) => props.theme.border};
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
 `;
 
 const ColumnsWrapper = styled.div`
   max-height: 400px;
   overflow-y: auto;
-  width: 100%;
-  margin: 5px;
+  width: calc(100% - 10px);
+  padding: 5px;
 `;
 
-export default function DesignerTable(props) {
-  const { pureName, columns, left, top, onChangeTable, onBringToFront } = props;
+const HeaderLabel = styled.div``;
+
+const CloseWrapper = styled.div`
+  ${(props) =>
+    `
+  background-color: ${props.theme.toolbar_background} ;
+
+  &:hover {
+    background-color: ${props.theme.toolbar_background2} ;
+  }
+
+  &:active:hover {
+    background-color: ${props.theme.toolbar_background3};
+  }
+  `}
+`;
+
+// &:hover {
+//     background-color: ${(props) => props.theme.designtable_background_gold[1]};
+//   }
+
+const ColumnLine = styled.div`
+  ${(props) =>
+    // @ts-ignore
+    !props.isDragSource &&
+    // @ts-ignore
+    !props.isDragTarget &&
+    `
+    &:hover {
+        background-color: ${props.theme.designtable_background_gold[1]};
+    }
+    `}
+
+  ${(props) =>
+    // @ts-ignore
+    props.isDragSource &&
+    `
+    background-color: ${props.theme.designtable_background_green[4]};
+    `}
+
+  ${(props) =>
+    // @ts-ignore
+    props.isDragTarget &&
+    `
+    background-color: ${props.theme.designtable_background_volcano[4]};
+    `}
+`;
+
+export default function DesignerTable({
+  table,
+  onChangeTable,
+  onBringToFront,
+  onRemoveTable,
+  sourceDragColumn,
+  setSourceDragColumn,
+  targetDragColumn,
+  setTargetDragColumn,
+}) {
+  const { pureName, columns, left, top, designerId } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
   const movingPositionRef = React.useRef(null);
+  const theme = useTheme();
 
   const moveStartXRef = React.useRef(null);
   const moveStartYRef = React.useRef(null);
@@ -55,7 +120,7 @@ export default function DesignerTable(props) {
     (e) => {
       if (movingPositionRef.current) {
         onChangeTable({
-          ...props,
+          ...table,
           left: movingPositionRef.current.left,
           top: movingPositionRef.current.top,
         });
@@ -68,7 +133,7 @@ export default function DesignerTable(props) {
 
       // this.props.designer.changedModel(true);
     },
-    [onChangeTable, props]
+    [onChangeTable, table]
   );
 
   React.useEffect(() => {
@@ -96,18 +161,64 @@ export default function DesignerTable(props) {
 
   return (
     <Wrapper
+      theme={theme}
       style={{
         left: movingPosition ? movingPosition.left : left,
         top: movingPosition ? movingPosition.top : top,
       }}
-      onMouseDown={() => onBringToFront(props)}
+      onMouseDown={() => onBringToFront(table)}
     >
-      <Header onMouseDown={headerMouseDown}>{pureName}</Header>
+      <Header onMouseDown={headerMouseDown} theme={theme}>
+        <HeaderLabel>{pureName}</HeaderLabel>
+        <CloseWrapper onClick={() => onRemoveTable(table)} theme={theme}>
+          <FontIcon icon="icon close" />
+        </CloseWrapper>
+      </Header>
       <ColumnsWrapper>
         {(columns || []).map((column) => (
-          <div key={column.columnName}>
-            <ColumnLabel {...column} />
-          </div>
+          <ColumnLine
+            key={column.columnName}
+            theme={theme}
+            draggable
+            // @ts-ignore
+            isDragSource={
+              sourceDragColumn &&
+              sourceDragColumn.designerId == designerId &&
+              sourceDragColumn.columnName == column.columnName
+            }
+            // @ts-ignore
+            isDragTarget={
+              targetDragColumn &&
+              targetDragColumn.designerId == designerId &&
+              targetDragColumn.columnName == column.columnName
+            }
+            onDragStart={(e) => {
+              const dragData = {
+                ...column,
+                designerId,
+              };
+              setSourceDragColumn(dragData);
+              e.dataTransfer.setData('designer_column_drag_data', JSON.stringify(dragData));
+            }}
+            onDragOver={(e) => {
+              if (sourceDragColumn) {
+                e.preventDefault();
+                setTargetDragColumn({
+                  ...column,
+                  designerId,
+                });
+              }
+            }}
+            onDrop={(e) => {
+              var data = e.dataTransfer.getData('designer_column_drag_data');
+              e.preventDefault();
+              if (!data) return;
+              setTargetDragColumn(null);
+              setSourceDragColumn(null);
+            }}
+          >
+            <ColumnLabel {...column} forceIcon />
+          </ColumnLine>
         ))}
       </ColumnsWrapper>
     </Wrapper>

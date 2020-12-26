@@ -28,6 +28,9 @@ const theme = {
   button_background: '#337ab7',
   statusbar_background: '#00c',
   inlinebtn_background: '#ededed',
+
+  designer_background: '#eee',
+  designtable_background: '#fff',
 };
 
 export default fillTheme(theme);
