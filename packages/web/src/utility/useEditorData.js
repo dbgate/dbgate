@@ -11,6 +11,8 @@ function getParsedLocalStorage(key) {
       const res = JSON.parse(value);
       return res;
     } catch (e) {
+      // console.log('FAILED LOAD FROM STORAGE', e);
+      // console.log('VALUE', value);
       localStorage.removeItem(key);
     }
   }

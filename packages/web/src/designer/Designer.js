@@ -49,22 +49,26 @@ export default function Designer({ value, onChange }) {
 
   const bringToFront = React.useCallback(
     (table) => {
-      onChange((current) => ({
-        ...current,
-        tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
-      }));
+      const newValue = {
+        ...value,
+        tables: [...(value.tables || []).filter((x) => x.designerId != table.designerId), table],
+      };
+
+      onChange(newValue);
     },
-    [onChange]
+    [onChange, value]
   );
 
   const removeTable = React.useCallback(
     (table) => {
-      onChange((current) => ({
-        ...current,
-        tables: (current.tables || []).filter((x) => x.designerId != table.designerId),
-      }));
+      const newValue = {
+        ...value,
+        tables: (value.tables || []).filter((x) => x.designerId != table.designerId),
+      };
+
+      onChange(newValue);
     },
-    [onChange]
+    [onChange, value]
   );
 
   return (
