@@ -3,7 +3,7 @@ import useModalState from '../modals/useModalState';
 import ConnectionModal from '../modals/ConnectionModal';
 import styled from 'styled-components';
 import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
-import useNewQuery from '../query/useNewQuery';
+import useNewQuery, { useNewQueryDesign } from '../query/useNewQuery';
 import { useConfig, useFavorites } from '../utility/metadataLoaders';
 import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
 import useNewFreeTable from '../freetable/useNewFreeTable';
@@ -27,6 +27,7 @@ const ToolbarContainer = styled.div`
 export default function ToolBar({ toolbarPortalRef }) {
   const modalState = useModalState();
   const newQuery = useNewQuery();
+  const newQueryDesign = useNewQueryDesign();
   const newFreeTable = useNewFreeTable();
   const config = useConfig();
   // const toolbar = config.toolbar || [];
@@ -131,6 +132,9 @@ export default function ToolBar({ toolbarPortalRef }) {
       )}
       <ToolbarButton onClick={newQuery} icon="icon sql-file">
         New Query
+      </ToolbarButton>
+      <ToolbarButton onClick={newQueryDesign} icon="icon query-design">
+        Query Designer
       </ToolbarButton>
       <ToolbarButton onClick={newFreeTable} icon="icon table">
         Free table editor

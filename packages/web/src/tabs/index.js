@@ -12,6 +12,7 @@ import MarkdownEditorTab from './MarkdownEditorTab';
 import MarkdownViewTab from './MarkdownViewTab';
 import MarkdownPreviewTab from './MarkdownPreviewTab';
 import FavoriteEditorTab from './FavoriteEditorTab';
+import QueryDesignTab from './QueryDesignTab';
 
 export default {
   TableDataTab,
@@ -28,4 +29,5 @@ export default {
   MarkdownViewTab,
   MarkdownPreviewTab,
   FavoriteEditorTab,
+  QueryDesignTab,
 };

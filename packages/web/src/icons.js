@@ -29,6 +29,7 @@ const iconNames = {
   'icon sql-file': 'mdi mdi-file',
   'icon web': 'mdi mdi-web',
   'icon home': 'mdi mdi-home',
+  'icon query-design': 'mdi mdi-vector-polyline-edit',
 
   'icon edit': 'mdi mdi-pencil',
   'icon delete': 'mdi mdi-delete',
@@ -68,6 +69,7 @@ const iconNames = {
   'img markdown': 'mdi mdi-application color-red-7',
   'img preview': 'mdi mdi-file-find color-red-7',
   'img favorite': 'mdi mdi-star color-yellow-7',
+  'img query-design': 'mdi mdi-vector-polyline-edit color-red-7',
 
   'img free-table': 'mdi mdi-table color-green-7',
   'img macro': 'mdi mdi-hammer-wrench',

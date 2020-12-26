@@ -27,3 +27,29 @@ export default function useNewQuery() {
       { editor: initialData }
     );
 }
+
+export function useNewQueryDesign() {
+  const openNewTab = useOpenNewTab();
+  const currentDatabase = useCurrentDatabase();
+
+  const connection = _.get(currentDatabase, 'connection') || {};
+  const database = _.get(currentDatabase, 'name');
+
+  const tooltip = `${connection.displayName || connection.server}\n${database}`;
+
+  return ({ title = undefined, initialData = undefined, ...props } = {}) =>
+    openNewTab(
+      {
+        title: title || 'Query',
+        icon: 'img query-design',
+        tooltip,
+        tabComponent: 'QueryDesignTab',
+        props: {
+          ...props,
+          conid: connection._id,
+          database,
+        },
+      },
+      { editor: initialData }
+    );
+}

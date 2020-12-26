@@ -67,6 +67,10 @@ export function AppObjectCore({
       }}
       theme={theme}
       isBold={isBold}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
+      }}
       {...other}
     >
       {prefix}
