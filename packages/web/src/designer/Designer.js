@@ -18,6 +18,7 @@ export default function Designer({ value, onChange }) {
   const [targetDragColumn, setTargetDragColumn] = React.useState(null);
   const domTablesRef = React.useRef({});
   const wrapperRef = React.useRef();
+  const [changeToken, setChangeToken] = React.useState(0);
 
   const handleDrop = (e) => {
     var data = e.dataTransfer.getData('app_object_drag_data');
@@ -85,10 +86,14 @@ export default function Designer({ value, onChange }) {
     onChange(newValue);
   };
 
+//   React.useEffect(() => {
+//     setTimeout(() => setChangeToken((x) => x + 1), 100);
+//   }, [value]);
+
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} theme={theme} ref={wrapperRef}>
       {(references || []).map((ref) => (
-        <DesignerReference key={ref.designerId} domTables={domTablesRef.current} {...ref} />
+        <DesignerReference key={ref.designerId} changeToken={changeToken} domTablesRef={domTablesRef} {...ref} />
       ))}
       {(tables || []).map((table) => (
         <DesignerTable
@@ -102,6 +107,7 @@ export default function Designer({ value, onChange }) {
           onChangeTable={changeTable}
           onBringToFront={bringToFront}
           onRemoveTable={removeTable}
+          setChangeToken={setChangeToken}
           wrapperRef={wrapperRef}
           onChangeDomTable={(table) => {
             domTablesRef.current[table.designerId] = table;

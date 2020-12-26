@@ -12,8 +12,8 @@ const StyledSvg = styled.svg`
   height: 100%;
 `;
 
-export default function DesignerReference({ domTables, designerId, source, target }) {
-  console.log('domTables', domTables);
+export default function DesignerReference({ domTablesRef, designerId, source, target, changeToken }) {
+  const domTables = domTablesRef.current;
   /** @type {DomTableRef} */
   const sourceTable = domTables[source.designerId];
   /** @type {DomTableRef} */
@@ -21,14 +21,17 @@ export default function DesignerReference({ domTables, designerId, source, targe
   if (!sourceTable || !targetTable) return null;
   const sourceRect = sourceTable.getRect();
   const targetRect = targetTable.getRect();
-  console.log('LINE', sourceRect.left, sourceRect.top, targetRect.left, targetRect.top);
+  if (!sourceRect || !targetRect) return null;
+  const sourceY = sourceTable.getColumnY(source.columnName);
+  const targetY = targetTable.getColumnY(target.columnName);
+  if (sourceY == null || targetY == null) return null;
   return (
     <StyledSvg>
       <line
         x1={sourceRect.left}
-        y1={sourceRect.top}
+        y1={sourceY}
         x2={targetRect.left}
-        y2={targetRect.top}
+        y2={targetY}
         style={{ stroke: 'rgb(255,0,0)', strokeWidth: 2 }}
       />
     </StyledSvg>

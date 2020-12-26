@@ -4,6 +4,7 @@ import ColumnLabel from '../datagrid/ColumnLabel';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import DomTableRef from './DomTableRef';
+import _ from 'lodash'
 
 const Wrapper = styled.div`
   position: absolute;
@@ -90,6 +91,7 @@ export default function DesignerTable({
   setTargetDragColumn,
   onChangeDomTable,
   wrapperRef,
+  setChangeToken,
 }) {
   const { pureName, columns, left, top, designerId } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
@@ -111,6 +113,8 @@ export default function DesignerTable({
       top: (movingPositionRef.current.top || 0) + diffY,
     };
     setMovingPosition(movingPositionRef.current);
+    // setChangeToken((x) => x + 1);
+    changeTokenDebounced.current();
     //   onChangeTable(
     //     {
     //       ...props,
@@ -120,6 +124,11 @@ export default function DesignerTable({
     //     index
     //   );
   }, []);
+
+  const changeTokenDebounced = React.useRef(
+    // @ts-ignore
+    _.debounce(() => setChangeToken((x) => x + 1), 100)
+  );
 
   const handleMoveEnd = React.useCallback(
     (e) => {
@@ -133,6 +142,8 @@ export default function DesignerTable({
 
       movingPositionRef.current = null;
       setMovingPosition(null);
+      changeTokenDebounced.current();
+      // setChangeToken((x) => x + 1);
 
       // this.props.model.fixPositions();
 
@@ -167,6 +178,7 @@ export default function DesignerTable({
   const dispatchDomColumn = (columnName, dom) => {
     domObjectsRef.current[columnName] = dom;
     onChangeDomTable(new DomTableRef(table, domObjectsRef.current, wrapperRef.current));
+    changeTokenDebounced.current();
   };
 
   return (
