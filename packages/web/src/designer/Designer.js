@@ -38,12 +38,13 @@ export default function Designer({ value, onChange }) {
 
   const changeTable = React.useCallback(
     (table) => {
-      onChange((current) => ({
-        ...current,
-        tables: (current.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
-      }));
+      const newValue = {
+        ...value,
+        tables: (value.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
+      };
+      onChange(newValue);
     },
-    [onChange]
+    [onChange, value]
   );
 
   const bringToFront = React.useCallback(

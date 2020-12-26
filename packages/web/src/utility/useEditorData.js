@@ -49,13 +49,12 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     } else {
       const initFallback = getParsedLocalStorage(localStorageKey);
       if (initFallback != null) {
-        const init = JSON.parse(initFallback);
-        setValue(init);
-        valueRef.current = init;
+        setValue(initFallback);
+        valueRef.current = initFallback;
         // move to local forage
-        await localforage.setItem(localStorageKey, init);
+        await localforage.setItem(localStorageKey, initFallback);
         localStorage.removeItem(localStorageKey);
-        initialDataRef.current = init;
+        initialDataRef.current = initFallback;
       } else {
         const init = await localforage.getItem(localStorageKey);
         if (init) {
