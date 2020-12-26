@@ -27,10 +27,11 @@ export default function Designer({ value, onChange }) {
 
   const changeTable = React.useCallback(
     (table, index) => {
-      onChange({
+      const newValue = {
         ...value,
         tables: (tables || []).map((t, i) => (i == index ? table : t)),
-      });
+      };
+      onChange(newValue);
     },
     [onChange]
   );
@@ -38,12 +39,7 @@ export default function Designer({ value, onChange }) {
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
       {(tables || []).map((table, index) => (
-        <DesignerTable
-          key={index}
-          {...table}
-          index={index}
-          onChangeTable={changeTable}
-        />
+        <DesignerTable key={index} {...table} index={index} onChangeTable={changeTable} />
       ))}
     </Wrapper>
   );

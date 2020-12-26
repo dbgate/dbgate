@@ -12,12 +12,14 @@ const Header = styled.div`
   text-align: center;
   padding: 2px;
   background: lightblue;
+  cursor: pointer;
 `;
 
 const ColumnsWrapper = styled.div`
   max-height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
   width: 100%;
+  margin: 5px;
 `;
 
 export default function DesignerTable(props) {
@@ -28,46 +30,49 @@ export default function DesignerTable(props) {
   const moveStartXRef = React.useRef(null);
   const moveStartYRef = React.useRef(null);
 
-  const handleMove = React.useCallback(
-    (e) => {
-      let diffX = e.clientX - moveStartXRef.current;
-      let diffY = e.clientY - moveStartYRef.current;
-      moveStartXRef.current = e.clientX;
-      moveStartYRef.current = e.clientY;
+  const handleMove = React.useCallback((e) => {
+    let diffX = e.clientX - moveStartXRef.current;
+    let diffY = e.clientY - moveStartYRef.current;
+    moveStartXRef.current = e.clientX;
+    moveStartYRef.current = e.clientY;
 
-      movingPositionRef.current = {
-        left: (movingPositionRef.current.left || 0) + diffX,
-        top: (movingPositionRef.current.top || 0) + diffY,
-      };
-      setMovingPosition(movingPositionRef.current);
-      //   onChangeTable(
-      //     {
-      //       ...props,
-      //       left: (left || 0) + diffX,
-      //       top: (top || 0) + diffY,
-      //     },
-      //     index
-      //   );
-    },
-    [onChangeTable]
-  );
-
-  const handleMoveEnd = React.useCallback((e) => {
-    setMovingPosition(null);
-
-    onChangeTable(
-      {
-        ...props,
-        left: movingPositionRef.current.left,
-        top: movingPositionRef.current.top,
-      },
-      index
-    );
-
-    // this.props.model.fixPositions();
-
-    // this.props.designer.changedModel(true);
+    movingPositionRef.current = {
+      left: (movingPositionRef.current.left || 0) + diffX,
+      top: (movingPositionRef.current.top || 0) + diffY,
+    };
+    setMovingPosition(movingPositionRef.current);
+    //   onChangeTable(
+    //     {
+    //       ...props,
+    //       left: (left || 0) + diffX,
+    //       top: (top || 0) + diffY,
+    //     },
+    //     index
+    //   );
   }, []);
+
+  const handleMoveEnd = React.useCallback(
+    (e) => {
+      if (movingPositionRef.current) {
+        onChangeTable(
+          {
+            ...props,
+            left: movingPositionRef.current.left,
+            top: movingPositionRef.current.top,
+          },
+          index
+        );
+      }
+
+      movingPositionRef.current = null;
+      setMovingPosition(null);
+
+      // this.props.model.fixPositions();
+
+      // this.props.designer.changedModel(true);
+    },
+    [onChangeTable, index]
+  );
 
   React.useEffect(() => {
     if (movingPosition) {
