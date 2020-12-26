@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import DesignerTable from './DesignerTable';
 import uuidv1 from 'uuid/v1';
 import useTheme from '../theme/useTheme';
+import DesignerReference from './DesignerReference';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -10,7 +11,7 @@ const Wrapper = styled.div`
 `;
 
 export default function Designer({ value, onChange }) {
-  const { tables } = value || {};
+  const { tables, references } = value || {};
   const theme = useTheme();
 
   const [sourceDragColumn, setSourceDragColumn] = React.useState(null);
@@ -66,8 +67,27 @@ export default function Designer({ value, onChange }) {
     [onChange, value]
   );
 
+  const handleCreateReference = (source, target) => {
+    const newValue = {
+      ...value,
+      references: [
+        ...(value.references || []),
+        {
+          designerId: uuidv1(),
+          source,
+          target,
+        },
+      ],
+    };
+
+    onChange(newValue);
+  };
+
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} theme={theme}>
+      {(references || []).map((ref) => (
+        <DesignerReference key={ref.designerId} tables={tables} {...ref} />
+      ))}
       {(tables || []).map((table) => (
         <DesignerTable
           key={table.designerId}
@@ -75,6 +95,7 @@ export default function Designer({ value, onChange }) {
           setSourceDragColumn={setSourceDragColumn}
           targetDragColumn={targetDragColumn}
           setTargetDragColumn={setTargetDragColumn}
+          onCreateReference={handleCreateReference}
           table={table}
           onChangeTable={changeTable}
           onBringToFront={bringToFront}

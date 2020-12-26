@@ -82,6 +82,7 @@ export default function DesignerTable({
   onChangeTable,
   onBringToFront,
   onRemoveTable,
+  onCreateReference,
   sourceDragColumn,
   setSourceDragColumn,
   targetDragColumn,
@@ -213,6 +214,7 @@ export default function DesignerTable({
               var data = e.dataTransfer.getData('designer_column_drag_data');
               e.preventDefault();
               if (!data) return;
+              onCreateReference(sourceDragColumn, targetDragColumn);
               setTargetDragColumn(null);
               setSourceDragColumn(null);
             }}
