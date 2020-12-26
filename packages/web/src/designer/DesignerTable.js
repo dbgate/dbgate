@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import ColumnLabel from '../datagrid/ColumnLabel';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
+import DomTableRef from './DomTableRef';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -87,11 +88,14 @@ export default function DesignerTable({
   setSourceDragColumn,
   targetDragColumn,
   setTargetDragColumn,
+  onChangeDomTable,
+  wrapperRef,
 }) {
   const { pureName, columns, left, top, designerId } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
   const movingPositionRef = React.useRef(null);
   const theme = useTheme();
+  const domObjectsRef = React.useRef({});
 
   const moveStartXRef = React.useRef(null);
   const moveStartYRef = React.useRef(null);
@@ -160,6 +164,11 @@ export default function DesignerTable({
     [handleMove, handleMoveEnd]
   );
 
+  const dispatchDomColumn = (columnName, dom) => {
+    domObjectsRef.current[columnName] = dom;
+    onChangeDomTable(new DomTableRef(table, domObjectsRef.current, wrapperRef.current));
+  };
+
   return (
     <Wrapper
       theme={theme}
@@ -168,6 +177,7 @@ export default function DesignerTable({
         top: movingPosition ? movingPosition.top : top,
       }}
       onMouseDown={() => onBringToFront(table)}
+      ref={(dom) => dispatchDomColumn('', dom)}
     >
       <Header onMouseDown={headerMouseDown} theme={theme}>
         <HeaderLabel>{pureName}</HeaderLabel>
@@ -181,6 +191,7 @@ export default function DesignerTable({
             key={column.columnName}
             theme={theme}
             draggable
+            ref={(dom) => dispatchDomColumn(column.columnName, dom)}
             // @ts-ignore
             isDragSource={
               sourceDragColumn &&
