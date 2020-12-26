@@ -20,20 +20,15 @@ export default function Designer({ value, onChange }) {
     var data = e.dataTransfer.getData('app_object_drag_data');
     e.preventDefault();
     if (!data) return;
+    const rect = e.target.getBoundingClientRect();
     var json = JSON.parse(data);
     json.designerId = uuidv1();
-    json.left = e.clientX;
-    json.top = e.clientY;
+    json.left = e.clientX - rect.left;
+    json.top = e.clientY - rect.top;
     onChange({
       ...value,
       tables: [...(tables || []), json],
     });
-    // var objs = AppObject.createAppObjectInstances(json);
-    // let targetOffset = $(ev.target).offset();
-    // for (let obj of objs) {
-    //     await this.props.model.addTable(obj, ev.clientX - targetOffset.left, ev.clientY - targetOffset.top);
-    // }
-    // this.changedModel();
   };
 
   const changeTable = React.useCallback(
