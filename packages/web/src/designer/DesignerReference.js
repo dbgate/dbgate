@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import DomTableRef from './DomTableRef';
 import _ from 'lodash';
 import useTheme from '../theme/useTheme';
+import { useShowMenu } from '../modals/showMenu';
+import { DropDownMenuDivider, DropDownMenuItem } from '../modals/DropDownMenu';
 
 const StyledSvg = styled.svg`
   position: absolute;
@@ -35,8 +37,31 @@ const ReferenceText = styled.span`
   background-color: ${(props) => props.theme.designer_background};
 `;
 
-export default function DesignerReference({ domTablesRef, designerId, sourceId, targetId, columns, changeToken }) {
+function ReferenceContextMenu({ remove, setJoinType }) {
+  return (
+    <>
+      <DropDownMenuItem onClick={remove}>Remove</DropDownMenuItem>
+      <DropDownMenuDivider />
+      <DropDownMenuItem onClick={() => setJoinType('INNER JOIN')}>Set INNER JOIN</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('LEFT JOIN')}>Set LEFT JOIN</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('RIGHT JOIN')}>Set RIGHT JOIN</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('FULL OUTER JOIN')}>Set FULL OUTER JOIN</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('WHERE EXISTS')}>Set WHERE EXISTS</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('WHERE NOT EXISTS')}>Set WHERE NOT EXISTS</DropDownMenuItem>
+    </>
+  );
+}
+
+export default function DesignerReference({
+  domTablesRef,
+  reference,
+  changeToken,
+  onRemoveReference,
+  onChangeReference,
+}) {
+  const { designerId, sourceId, targetId, columns, joinType } = reference;
   const theme = useTheme();
+  const showMenu = useShowMenu();
   const domTables = domTablesRef.current;
   /** @type {DomTableRef} */
   const sourceTable = domTables[sourceId];
@@ -46,8 +71,6 @@ export default function DesignerReference({ domTablesRef, designerId, sourceId, 
   const sourceRect = sourceTable.getRect();
   const targetRect = targetTable.getRect();
   if (!sourceRect || !targetRect) return null;
-
-
 
   const buswi = 10;
   const extwi = 25;
@@ -72,6 +95,23 @@ export default function DesignerReference({ domTablesRef, designerId, sourceId, 
   const dst = { x: minpos.xdst, y: dstY };
 
   const lineStyle = { fill: 'none', stroke: theme.designer_line, strokeWidth: 2 };
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <ReferenceContextMenu
+        remove={() => onRemoveReference({ designerId })}
+        setJoinType={(joinType) => {
+          onChangeReference({
+            ...reference,
+            joinType,
+          });
+        }}
+      />
+    );
+  };
 
   return (
     <>
@@ -116,8 +156,13 @@ export default function DesignerReference({ domTablesRef, designerId, sourceId, 
           left: (src.x + extwi * minpos.dirsrc + dst.x + extwi * minpos.dirdst) / 2 - 16,
           top: (src.y + dst.y) / 2 - 16,
         }}
+        onContextMenu={handleContextMenu}
       >
-        <ReferenceText theme={theme}>inner join</ReferenceText>
+        <ReferenceText theme={theme}>
+          {_.snakeCase(joinType || 'INNER JOIN')
+            .replace('_', '\xa0')
+            .replace('_', '\xa0')}
+        </ReferenceText>
       </ReferenceWrapper>
     </>
   );

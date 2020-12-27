@@ -70,6 +70,29 @@ export default function Designer({ value, onChange }) {
     [onChange, value]
   );
 
+  const changeReference = React.useCallback(
+    (ref) => {
+      const newValue = {
+        ...value,
+        references: (value.references || []).map((x) => (x.designerId == ref.designerId ? ref : x)),
+      };
+      onChange(newValue);
+    },
+    [onChange, value]
+  );
+
+  const removeReference = React.useCallback(
+    (ref) => {
+      const newValue = {
+        ...value,
+        references: (value.references || []).filter((x) => x.designerId != ref.designerId),
+      };
+
+      onChange(newValue);
+    },
+    [onChange, value]
+  );
+
   const handleCreateReference = (source, target) => {
     const existingReference = (value.references || []).find(
       (x) =>
@@ -124,7 +147,14 @@ export default function Designer({ value, onChange }) {
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} theme={theme} ref={wrapperRef}>
       {(references || []).map((ref) => (
-        <DesignerReference key={ref.designerId} changeToken={changeToken} domTablesRef={domTablesRef} {...ref} />
+        <DesignerReference
+          key={ref.designerId}
+          changeToken={changeToken}
+          domTablesRef={domTablesRef}
+          reference={ref}
+          onChangeReference={changeReference}
+          onRemoveReference={removeReference}
+        />
       ))}
       {(tables || []).map((table) => (
         <DesignerTable
