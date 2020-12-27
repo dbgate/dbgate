@@ -26,6 +26,8 @@ export default class DomTableRef {
     return {
       left: rect.left - wrap.left,
       top: rect.top - wrap.top,
+      right: rect.right - wrap.left,
+      bottom: rect.bottom - wrap.top,
     };
   }
 
