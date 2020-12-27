@@ -31,6 +31,7 @@ const theme = {
 
   designer_background: '#eee',
   designtable_background: '#fff',
+  designer_line: '#666',
 };
 
 export default fillTheme(theme);

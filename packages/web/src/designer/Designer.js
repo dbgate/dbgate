@@ -71,24 +71,55 @@ export default function Designer({ value, onChange }) {
   );
 
   const handleCreateReference = (source, target) => {
+    const existingReference = (value.references || []).find(
+      (x) =>
+        (x.sourceId == source.designerId && x.targetId == target.designerId) ||
+        (x.sourceId == target.designerId && x.targetId == source.designerId)
+    );
     const newValue = {
       ...value,
-      references: [
-        ...(value.references || []),
-        {
-          designerId: uuidv1(),
-          source,
-          target,
-        },
-      ],
+      references: existingReference
+        ? value.references.map((ref) =>
+            ref == existingReference
+              ? {
+                  ...existingReference,
+                  columns: [
+                    ...existingReference.columns,
+                    existingReference.sourceId == source.designerId
+                      ? {
+                          source: source.columnName,
+                          target: target.columnName,
+                        }
+                      : {
+                          source: target.columnName,
+                          target: source.columnName,
+                        },
+                  ],
+                }
+              : ref
+          )
+        : [
+            ...(value.references || []),
+            {
+              designerId: uuidv1(),
+              sourceId: source.designerId,
+              targetId: target.designerId,
+              columns: [
+                {
+                  source: source.columnName,
+                  target: target.columnName,
+                },
+              ],
+            },
+          ],
     };
 
     onChange(newValue);
   };
 
-//   React.useEffect(() => {
-//     setTimeout(() => setChangeToken((x) => x + 1), 100);
-//   }, [value]);
+  //   React.useEffect(() => {
+  //     setTimeout(() => setChangeToken((x) => x + 1), 100);
+  //   }, [value]);
 
   return (
     <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} theme={theme} ref={wrapperRef}>
