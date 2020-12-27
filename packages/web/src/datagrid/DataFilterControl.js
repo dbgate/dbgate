@@ -179,8 +179,8 @@ export default function DataFilterControl({
   filterType,
   filter,
   setFilter,
-  focusIndex,
-  onFocusGrid,
+  focusIndex = 0,
+  onFocusGrid = undefined,
 }) {
   const showModal = useShowModal();
   const showMenu = useShowMenu();
@@ -229,7 +229,7 @@ export default function DataFilterControl({
       setFilterText('');
     }
     if (ev.keyCode == keycodes.downArrow) {
-      onFocusGrid();
+      if (onFocusGrid) onFocusGrid();
       // ev.stopPropagation();
       ev.preventDefault();
     }

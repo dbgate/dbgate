@@ -2,8 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import DesignerTable from './DesignerTable';
 import uuidv1 from 'uuid/v1';
+import _ from 'lodash';
 import useTheme from '../theme/useTheme';
 import DesignerReference from './DesignerReference';
+import cleanupDesignColumns from './cleanupDesignColumns';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -148,7 +150,7 @@ export default function Designer({ value, onChange }) {
           (x) => x.designerId == column.designerId && x.columnName == column.columnName
         )
           ? current.columns
-          : [...(current.columns || []), column],
+          : [...cleanupDesignColumns(current.columns), _.pick(column, ['designerId', 'columnName'])],
       }));
     },
     [onChange]
