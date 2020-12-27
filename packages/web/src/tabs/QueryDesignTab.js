@@ -22,6 +22,7 @@ import applySqlTemplate from '../utility/applySqlTemplate';
 import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
 import QueryDesigner from '../designer/QueryDesigner';
+import QueryDesignColumns from '../designer/QueryDesignColumns';
 
 export default function QueryDesignTab({
   tabid,
@@ -121,25 +122,26 @@ export default function QueryDesignTab({
 
   return (
     <>
-      <VerticalSplitter>
+      <VerticalSplitter initialValue="70%">
         <QueryDesigner
-          value={editorData || ''}
+          value={editorData || {}}
           conid={conid}
           database={database}
           engine={connection && connection.engine}
           onChange={setEditorData}
           onKeyDown={handleKeyDown}
         ></QueryDesigner>
-        {sessionId && (
-          <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
-            <TabPage label="Messages" key="messages">
-              <SocketMessagesView
-                eventName={sessionId ? `session-info-${sessionId}` : null}
-                executeNumber={executeNumber}
-              />
-            </TabPage>
-          </ResultTabs>
-        )}
+        <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
+          <TabPage label="Columns" key="columns">
+            <QueryDesignColumns value={editorData || {}} onChange={setEditorData} />
+          </TabPage>
+          <TabPage label="Messages" key="messages">
+            <SocketMessagesView
+              eventName={sessionId ? `session-info-${sessionId}` : null}
+              executeNumber={executeNumber}
+            />
+          </TabPage>
+        </ResultTabs>
       </VerticalSplitter>
       {/* {toolbarPortalRef &&
         toolbarPortalRef.current &&

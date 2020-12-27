@@ -8,6 +8,13 @@ import DesignerReference from './DesignerReference';
 const Wrapper = styled.div`
   flex: 1;
   background-color: ${(props) => props.theme.designer_background};
+  overflow: scroll;
+`;
+
+const Canvas = styled.div`
+  width: 3000px;
+  height: 3000px;
+  position: relative;
 `;
 
 export default function Designer({ value, onChange }) {
@@ -37,144 +44,154 @@ export default function Designer({ value, onChange }) {
 
   const changeTable = React.useCallback(
     (table) => {
-      const newValue = {
-        ...value,
-        tables: (value.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
-      };
-      onChange(newValue);
+      onChange((current) => ({
+        ...current,
+        tables: (current.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
+      }));
     },
-    [onChange, value]
+    [onChange]
   );
 
   const bringToFront = React.useCallback(
     (table) => {
-      const newValue = {
-        ...value,
-        tables: [...(value.tables || []).filter((x) => x.designerId != table.designerId), table],
-      };
-
-      onChange(newValue);
+      onChange((current) => ({
+        ...current,
+        tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
+      }));
     },
-    [onChange, value]
+    [onChange]
   );
 
   const removeTable = React.useCallback(
     (table) => {
-      const newValue = {
-        ...value,
-        tables: (value.tables || []).filter((x) => x.designerId != table.designerId),
-      };
-
-      onChange(newValue);
+      onChange((current) => ({
+        ...current,
+        tables: (current.tables || []).filter((x) => x.designerId != table.designerId),
+      }));
     },
-    [onChange, value]
+    [onChange]
   );
 
   const changeReference = React.useCallback(
     (ref) => {
-      const newValue = {
-        ...value,
-        references: (value.references || []).map((x) => (x.designerId == ref.designerId ? ref : x)),
-      };
-      onChange(newValue);
+      onChange((current) => ({
+        ...current,
+        references: (current.references || []).map((x) => (x.designerId == ref.designerId ? ref : x)),
+      }));
     },
-    [onChange, value]
+    [onChange]
   );
 
   const removeReference = React.useCallback(
     (ref) => {
-      const newValue = {
-        ...value,
-        references: (value.references || []).filter((x) => x.designerId != ref.designerId),
-      };
-
-      onChange(newValue);
+      onChange((current) => ({
+        ...current,
+        references: (current.references || []).filter((x) => x.designerId != ref.designerId),
+      }));
     },
-    [onChange, value]
+    [onChange]
   );
 
   const handleCreateReference = (source, target) => {
-    const existingReference = (value.references || []).find(
-      (x) =>
-        (x.sourceId == source.designerId && x.targetId == target.designerId) ||
-        (x.sourceId == target.designerId && x.targetId == source.designerId)
-    );
-    const newValue = {
-      ...value,
-      references: existingReference
-        ? value.references.map((ref) =>
-            ref == existingReference
-              ? {
-                  ...existingReference,
-                  columns: [
-                    ...existingReference.columns,
-                    existingReference.sourceId == source.designerId
-                      ? {
-                          source: source.columnName,
-                          target: target.columnName,
-                        }
-                      : {
-                          source: target.columnName,
-                          target: source.columnName,
-                        },
-                  ],
-                }
-              : ref
-          )
-        : [
-            ...(value.references || []),
-            {
-              designerId: uuidv1(),
-              sourceId: source.designerId,
-              targetId: target.designerId,
-              columns: [
-                {
-                  source: source.columnName,
-                  target: target.columnName,
-                },
-              ],
-            },
-          ],
-    };
+    onChange((current) => {
+      const existingReference = (current.references || []).find(
+        (x) =>
+          (x.sourceId == source.designerId && x.targetId == target.designerId) ||
+          (x.sourceId == target.designerId && x.targetId == source.designerId)
+      );
 
-    onChange(newValue);
+      return {
+        ...current,
+        references: existingReference
+          ? current.references.map((ref) =>
+              ref == existingReference
+                ? {
+                    ...existingReference,
+                    columns: [
+                      ...existingReference.columns,
+                      existingReference.sourceId == source.designerId
+                        ? {
+                            source: source.columnName,
+                            target: target.columnName,
+                          }
+                        : {
+                            source: target.columnName,
+                            target: source.columnName,
+                          },
+                    ],
+                  }
+                : ref
+            )
+          : [
+              ...(current.references || []),
+              {
+                designerId: uuidv1(),
+                sourceId: source.designerId,
+                targetId: target.designerId,
+                columns: [
+                  {
+                    source: source.columnName,
+                    target: target.columnName,
+                  },
+                ],
+              },
+            ],
+      };
+    });
   };
+
+  const handleSelectColumn = React.useCallback(
+    (column) => {
+      onChange((current) => ({
+        ...current,
+        columns: (current.columns || []).find(
+          (x) => x.designerId == column.designerId && x.columnName == column.columnName
+        )
+          ? current.columns
+          : [...(current.columns || []), column],
+      }));
+    },
+    [onChange]
+  );
 
   //   React.useEffect(() => {
   //     setTimeout(() => setChangeToken((x) => x + 1), 100);
   //   }, [value]);
 
   return (
-    <Wrapper onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} theme={theme} ref={wrapperRef}>
-      {(references || []).map((ref) => (
-        <DesignerReference
-          key={ref.designerId}
-          changeToken={changeToken}
-          domTablesRef={domTablesRef}
-          reference={ref}
-          onChangeReference={changeReference}
-          onRemoveReference={removeReference}
-        />
-      ))}
-      {(tables || []).map((table) => (
-        <DesignerTable
-          key={table.designerId}
-          sourceDragColumn={sourceDragColumn}
-          setSourceDragColumn={setSourceDragColumn}
-          targetDragColumn={targetDragColumn}
-          setTargetDragColumn={setTargetDragColumn}
-          onCreateReference={handleCreateReference}
-          table={table}
-          onChangeTable={changeTable}
-          onBringToFront={bringToFront}
-          onRemoveTable={removeTable}
-          setChangeToken={setChangeToken}
-          wrapperRef={wrapperRef}
-          onChangeDomTable={(table) => {
-            domTablesRef.current[table.designerId] = table;
-          }}
-        />
-      ))}
+    <Wrapper theme={theme}>
+      <Canvas onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} ref={wrapperRef}>
+        {(references || []).map((ref) => (
+          <DesignerReference
+            key={ref.designerId}
+            changeToken={changeToken}
+            domTablesRef={domTablesRef}
+            reference={ref}
+            onChangeReference={changeReference}
+            onRemoveReference={removeReference}
+          />
+        ))}
+        {(tables || []).map((table) => (
+          <DesignerTable
+            key={table.designerId}
+            sourceDragColumn={sourceDragColumn}
+            setSourceDragColumn={setSourceDragColumn}
+            targetDragColumn={targetDragColumn}
+            setTargetDragColumn={setTargetDragColumn}
+            onCreateReference={handleCreateReference}
+            onSelectColumn={handleSelectColumn}
+            table={table}
+            onChangeTable={changeTable}
+            onBringToFront={bringToFront}
+            onRemoveTable={removeTable}
+            setChangeToken={setChangeToken}
+            wrapperRef={wrapperRef}
+            onChangeDomTable={(table) => {
+              domTablesRef.current[table.designerId] = table;
+            }}
+          />
+        ))}
+      </Canvas>
     </Wrapper>
   );
 }

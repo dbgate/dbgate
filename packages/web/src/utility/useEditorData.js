@@ -94,8 +94,12 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
   const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
 
   const handleChange = (newValue) => {
-    if (newValue != null) valueRef.current = newValue;
-    setValue(newValue);
+    if (_.isFunction(newValue)) {
+      valueRef.current = newValue(valueRef.current);
+    } else {
+      if (newValue != null) valueRef.current = newValue;
+    }
+    setValue(valueRef.current);
     changeCounterRef.current += 1;
     saveToStorageDebounced();
   };

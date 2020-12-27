@@ -4,7 +4,7 @@ import ColumnLabel from '../datagrid/ColumnLabel';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import DomTableRef from './DomTableRef';
-import _ from 'lodash'
+import _ from 'lodash';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -85,6 +85,7 @@ export default function DesignerTable({
   onBringToFront,
   onRemoveTable,
   onCreateReference,
+  onSelectColumn,
   sourceDragColumn,
   setSourceDragColumn,
   targetDragColumn,
@@ -241,6 +242,12 @@ export default function DesignerTable({
               setTargetDragColumn(null);
               setSourceDragColumn(null);
             }}
+            onMouseDown={(e) =>
+                onSelectColumn({
+                ...column,
+                designerId,
+              })
+            }
           >
             <ColumnLabel {...column} forceIcon />
           </ColumnLine>
