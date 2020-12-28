@@ -82,7 +82,23 @@ export interface CompoudCondition {
   conditions: Condition[];
 }
 
-export type Condition = BinaryCondition | NotCondition | TestCondition | CompoudCondition | LikeCondition;
+export interface ExistsCondition {
+  conditionType: 'exists';
+  subQuery: Select;
+}
+export interface NotExistsCondition {
+  conditionType: 'notExists';
+  subQuery: Select;
+}
+
+export type Condition =
+  | BinaryCondition
+  | NotCondition
+  | TestCondition
+  | CompoudCondition
+  | LikeCondition
+  | ExistsCondition
+  | NotExistsCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

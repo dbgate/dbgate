@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition } from 'dbgate-sqltree';
+import { dumpSqlSelect, Select, JoinType, Condition, Relation } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 
@@ -37,16 +37,49 @@ function findJoinType(
   table: DesignerTableInfo,
   dumpedTables: DesignerTableInfo[],
   references: DesignerReferenceInfo[],
-  joinTypes: DesignerJoinType[]
+  joinTypes = ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN', 'WHERE EXISTS', 'WHERE NOT EXISTS']
 ): DesignerJoinType {
   const dumpedTableIds = dumpedTables.map((x) => x.designerId);
   const reference = references.find(
     (x) =>
-      (x.sourceId == table.designerId && dumpedTableIds.includes(x.targetId)) ||
-      (x.targetId == table.designerId && dumpedTableIds.includes(x.sourceId))
+      joinTypes.includes(x.joinType) &&
+      ((x.sourceId == table.designerId && dumpedTableIds.includes(x.targetId)) ||
+        (x.targetId == table.designerId && dumpedTableIds.includes(x.sourceId)))
   );
   if (reference) return reference.joinType || 'CROSS JOIN';
   return 'CROSS JOIN';
+}
+
+function sortTablesByReferences(
+  dumpedTables: DesignerTableInfo[],
+  tables: DesignerTableInfo[],
+  references: DesignerReferenceInfo[],
+  joinTypes = ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN', 'WHERE EXISTS', 'WHERE NOT EXISTS']
+) {
+  const res = [];
+  const dumpedTableIds = dumpedTables.map((x) => x.designerId);
+  const toAdd = [...tables];
+  while (toAdd.length > 0) {
+    let found = false;
+    for (const test of toAdd) {
+      const reference = references.find(
+        (x) =>
+          joinTypes.includes(x.joinType) &&
+          ((x.sourceId == test.designerId && dumpedTableIds.includes(x.targetId)) ||
+            (x.targetId == test.designerId && dumpedTableIds.includes(x.sourceId)))
+      );
+      if (reference) {
+        res.push(test);
+        _.remove(toAdd, (x) => x == test);
+        dumpedTableIds.push(test.designerId);
+        found = true;
+        break;
+      }
+    }
+    if (!found) break;
+  }
+  res.push(...toAdd);
+  return res;
 }
 
 function findConditions(
@@ -90,6 +123,24 @@ function findConditions(
   return res;
 }
 
+function addRelations(
+  relations: Relation[],
+  tables: DesignerTableInfo[],
+  dumpedTables: DesignerTableInfo[],
+  designer: DesignerInfo
+) {
+  for (const table of tables) {
+    if (dumpedTables.includes(table)) continue;
+    relations.push({
+      name: table,
+      alias: table.alias,
+      joinType: findJoinType(table, dumpedTables, designer.references) as JoinType,
+      conditions: findConditions(table, dumpedTables, designer.references, designer.tables),
+    });
+    dumpedTables.push(table);
+  }
+}
+
 export default function generateDesignedQuery(designer: DesignerInfo, engine: EngineDriver) {
   const { tables, columns, references } = designer;
   const primaryTable = findPrimaryTable(designer.tables);
@@ -111,6 +162,7 @@ export default function generateDesignedQuery(designer: DesignerInfo, engine: En
   };
 
   const dumpedTables = [primaryTable];
+  const conditions: Condition[] = [];
   for (const component of components) {
     const subComponents = groupByComponents(
       component,
@@ -119,22 +171,45 @@ export default function generateDesignedQuery(designer: DesignerInfo, engine: En
       primaryTable
     );
     for (const subComponent of subComponents) {
-      for (const table of subComponent) {
-        if (dumpedTables.includes(table)) continue;
-        select.from.relations.push({
-          name: table,
-          alias: table.alias,
-          joinType: findJoinType(table, dumpedTables, designer.references, [
-            'INNER JOIN',
-            'LEFT JOIN',
-            'RIGHT JOIN',
-            'FULL OUTER JOIN',
-          ]) as JoinType,
-          conditions: findConditions(table, dumpedTables, designer.references, designer.tables),
+      const sortedSubComponent = sortTablesByReferences(dumpedTables, subComponent, designer.references);
+      const table0 = sortedSubComponent[0];
+      const joinType0 = findJoinType(table0, dumpedTables, designer.references);
+      if (joinType0 == 'WHERE EXISTS' || joinType0 == 'WHERE NOT EXISTS') {
+        const subselect: Select = {
+          commandType: 'select',
+          from: {
+            name: table0,
+            alias: table0.alias,
+            relations: [],
+          },
+        };
+        dumpedTables.push(table0);
+        addRelations(subselect.from.relations, sortedSubComponent, dumpedTables, designer);
+        conditions.push({
+          conditionType: joinType0 == 'WHERE EXISTS' ? 'exists' : 'notExists',
+          subQuery: subselect,
         });
-        dumpedTables.push(table);
+      } else {
+        addRelations(select.from.relations, sortedSubComponent, dumpedTables, designer);
+        // for (const table of sortedSubComponent) {
+
+        //   if (dumpedTables.includes(table)) continue;
+        //   select.from.relations.push({
+        //     name: table,
+        //     alias: table.alias,
+        //     joinType: findJoinType(table, dumpedTables, designer.references) as JoinType,
+        //     conditions: findConditions(table, dumpedTables, designer.references, designer.tables),
+        //   });
+        //   dumpedTables.push(table);
+        // }
       }
     }
+  }
+  if (conditions.length > 0) {
+    select.where = {
+      conditionType: 'and',
+      conditions,
+    };
   }
 
   const dmp = engine.createDumper();

@@ -2,6 +2,7 @@ import { SqlDumper } from 'dbgate-types';
 import { Condition, BinaryCondition } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
 import { link } from 'fs';
+import { dumpSqlSelect } from './dumpSqlCommand';
 
 export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
   switch (condition.conditionType) {
@@ -30,7 +31,7 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       break;
     case 'and':
     case 'or':
-      dmp.putCollection(` ^${condition.conditionType} `, condition.conditions, cond => {
+      dmp.putCollection(` ^${condition.conditionType} `, condition.conditions, (cond) => {
         dmp.putRaw('(');
         dumpSqlCondition(dmp, cond);
         dmp.putRaw(')');
@@ -49,6 +50,16 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
     case 'not':
       dmp.put('^not (');
       dumpSqlCondition(dmp, condition.condition);
+      dmp.put(')');
+      break;
+    case 'exists':
+      dmp.put('^exists (');
+      dumpSqlSelect(dmp, condition.subQuery);
+      dmp.put(')');
+      break;
+    case 'notExists':
+      dmp.put('^not ^exists (');
+      dumpSqlSelect(dmp, condition.subQuery);
       dmp.put(')');
       break;
   }
