@@ -91,7 +91,7 @@ export interface Source {
   subQueryString?: string;
 }
 
-export type JoinType = 'LEFT JOIN' | 'INNER JOIN' | 'RIGHT JOIN';
+export type JoinType = 'LEFT JOIN' | 'INNER JOIN' | 'RIGHT JOIN' | 'CROSS JOIN';
 
 export type Relation = Source & {
   conditions: Condition[];

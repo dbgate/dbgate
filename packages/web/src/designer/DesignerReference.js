@@ -46,6 +46,7 @@ function ReferenceContextMenu({ remove, setJoinType }) {
       <DropDownMenuItem onClick={() => setJoinType('LEFT JOIN')}>Set LEFT JOIN</DropDownMenuItem>
       <DropDownMenuItem onClick={() => setJoinType('RIGHT JOIN')}>Set RIGHT JOIN</DropDownMenuItem>
       <DropDownMenuItem onClick={() => setJoinType('FULL OUTER JOIN')}>Set FULL OUTER JOIN</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setJoinType('CROSS JOIN')}>Set CROSS JOIN</DropDownMenuItem>
       <DropDownMenuItem onClick={() => setJoinType('WHERE EXISTS')}>Set WHERE EXISTS</DropDownMenuItem>
       <DropDownMenuItem onClick={() => setJoinType('WHERE NOT EXISTS')}>Set WHERE NOT EXISTS</DropDownMenuItem>
     </>
@@ -159,7 +160,7 @@ export default function DesignerReference({
         onContextMenu={handleContextMenu}
       >
         <ReferenceText theme={theme}>
-          {_.snakeCase(joinType || 'INNER JOIN')
+          {_.snakeCase(joinType || 'CROSS JOIN')
             .replace('_', '\xa0')
             .replace('_', '\xa0')}
         </ReferenceText>

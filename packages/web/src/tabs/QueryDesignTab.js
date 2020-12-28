@@ -23,6 +23,8 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
 import QueryDesigner from '../designer/QueryDesigner';
 import QueryDesignColumns from '../designer/QueryDesignColumns';
+import { findEngineDriver } from 'dbgate-tools';
+import generateDesignedQuery from '../designer/generateDesignedQuery';
 
 export default function QueryDesignTab({
   tabid,
@@ -40,6 +42,9 @@ export default function QueryDesignTab({
   const [busy, setBusy] = React.useState(false);
   const saveFileModalState = useModalState();
   const extensions = useExtensions();
+  const connection = useConnectionInfo({ conid });
+  const engine = findEngineDriver(connection, extensions);
+  const [sqlPreview, setSqlPreview] = React.useState('');
   const { editorData, setEditorData, isLoading } = useEditorData({
     tabid,
     loadFromArgs:
@@ -53,6 +58,16 @@ export default function QueryDesignTab({
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
   }, []);
+
+  const generatePreview = (value, engine) => {
+    if (!engine || !value) return;
+    const sql = generateDesignedQuery(value, engine);
+    setSqlPreview(sql);
+  };
+
+  React.useEffect(() => {
+    generatePreview(editorData, engine);
+  }, [editorData, engine]);
 
   React.useEffect(() => {
     if (sessionId && socket) {
@@ -68,7 +83,6 @@ export default function QueryDesignTab({
   }, [busy]);
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
-  const connection = useConnectionInfo({ conid });
 
   const handleExecute = async () => {
     if (busy) return;
@@ -135,12 +149,17 @@ export default function QueryDesignTab({
           <TabPage label="Columns" key="columns">
             <QueryDesignColumns value={editorData || {}} onChange={setEditorData} />
           </TabPage>
-          <TabPage label="Messages" key="messages">
-            <SocketMessagesView
-              eventName={sessionId ? `session-info-${sessionId}` : null}
-              executeNumber={executeNumber}
-            />
+          <TabPage label="SQL" key="sql">
+            <SqlEditor value={sqlPreview} engine={engine} readOnly />
           </TabPage>
+          {sessionId && (
+            <TabPage label="Messages" key="messages">
+              <SocketMessagesView
+                eventName={sessionId ? `session-info-${sessionId}` : null}
+                executeNumber={executeNumber}
+              />
+            </TabPage>
+          )}
         </ResultTabs>
       </VerticalSplitter>
       {/* {toolbarPortalRef &&

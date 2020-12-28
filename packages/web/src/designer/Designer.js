@@ -130,6 +130,7 @@ export default function Designer({ value, onChange }) {
                 designerId: uuidv1(),
                 sourceId: source.designerId,
                 targetId: target.designerId,
+                joinType: 'INNER JOIN',
                 columns: [
                   {
                     source: source.columnName,

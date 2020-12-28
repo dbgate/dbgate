@@ -1,6 +1,4 @@
-import { TableInfo } from 'dbgate-types';
-
-type DesignerTableInfo = TableInfo & { designerId: string };
+import { DesignerTableInfo } from "./types";
 
 export default class DomTableRef {
   domTable: Element;
