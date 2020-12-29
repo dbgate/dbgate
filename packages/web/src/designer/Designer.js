@@ -158,6 +158,31 @@ export default function Designer({ value, onChange }) {
     [onChange]
   );
 
+  const handleChangeColumn = React.useCallback(
+    (column, changeFunc) => {
+      onChange((current) => {
+        const existing = (current.columns || []).find(
+          (x) => x.designerId == column.designerId && x.columnName == column.columnName
+        );
+        if (existing) {
+          return {
+            ...current,
+            columns: current.columns.map((x) => (x == existing ? changeFunc(existing) : x)),
+          };
+        } else {
+          return {
+            ...current,
+            columns: [
+              ...cleanupDesignColumns(current.columns),
+              changeFunc(_.pick(column, ['designerId', 'columnName'])),
+            ],
+          };
+        }
+      });
+    },
+    [onChange]
+  );
+
   //   React.useEffect(() => {
   //     setTimeout(() => setChangeToken((x) => x + 1), 100);
   //   }, [value]);
@@ -185,6 +210,7 @@ export default function Designer({ value, onChange }) {
             setTargetDragColumn={setTargetDragColumn}
             onCreateReference={handleCreateReference}
             onSelectColumn={handleSelectColumn}
+            onChangeColumn={handleChangeColumn}
             table={table}
             onChangeTable={changeTable}
             onBringToFront={bringToFront}
@@ -194,6 +220,7 @@ export default function Designer({ value, onChange }) {
             onChangeDomTable={(table) => {
               domTablesRef.current[table.designerId] = table;
             }}
+            designer={value}
           />
         ))}
       </Canvas>

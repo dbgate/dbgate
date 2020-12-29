@@ -5,6 +5,7 @@ import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import DomTableRef from './DomTableRef';
 import _ from 'lodash';
+import { CheckboxField } from '../utility/inputs';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -86,6 +87,7 @@ export default function DesignerTable({
   onRemoveTable,
   onCreateReference,
   onSelectColumn,
+  onChangeColumn,
   sourceDragColumn,
   setSourceDragColumn,
   targetDragColumn,
@@ -93,6 +95,7 @@ export default function DesignerTable({
   onChangeDomTable,
   wrapperRef,
   setChangeToken,
+  designer,
 }) {
   const { pureName, columns, left, top, designerId } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
@@ -243,12 +246,38 @@ export default function DesignerTable({
               setSourceDragColumn(null);
             }}
             onMouseDown={(e) =>
-                onSelectColumn({
+              onSelectColumn({
                 ...column,
                 designerId,
               })
             }
           >
+            <CheckboxField
+              checked={
+                !!(designer.columns || []).find(
+                  (x) => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
+                )
+              }
+              onChange={(e) => {
+                if (e.target.checked) {
+                  onChangeColumn(
+                    {
+                      ...column,
+                      designerId,
+                    },
+                    (col) => ({ ...col, isOutput: true })
+                  );
+                } else {
+                  onChangeColumn(
+                    {
+                      ...column,
+                      designerId,
+                    },
+                    (col) => ({ ...col, isOutput: false })
+                  );
+                }
+              }}
+            />
             <ColumnLabel {...column} forceIcon />
           </ColumnLine>
         ))}

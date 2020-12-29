@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions } from 'dbgate-sqltree';
+import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions, Source } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 
@@ -67,6 +67,14 @@ function findConnectingReference(
   return null;
 }
 
+function findQuerySource(designer: DesignerInfo, designerId: string): Source {
+  const table = designer.tables.find((x) => x.designerId == designerId);
+  if (!table) return null;
+  return {
+    name: table,
+    alias: table.alias,
+  };
+}
 class DesignerComponentCreator {
   toAdd: DesignerTableInfo[];
   components: DesignerComponent[] = [];
@@ -216,6 +224,22 @@ class DesignerQueryDumper {
         });
       }
     }
+
+    const topLevelColumns = this.designer.columns.filter((col) =>
+      topLevelTables.find((tbl) => tbl.designerId == col.designerId)
+    );
+    const outputColumns = topLevelColumns.filter((x) => x.isOutput);
+    if (outputColumns.length == 0) {
+      res.selectAll = true;
+    } else {
+      res.columns = outputColumns.map((col) => ({
+        exprType: 'column',
+        columnName: col.columnName,
+        alias: col.alias,
+        source: findQuerySource(this.designer, col.designerId),
+      }));
+    }
+
     return res;
   }
 }
