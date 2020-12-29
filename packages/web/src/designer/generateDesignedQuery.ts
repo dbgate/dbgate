@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition, Relation } from 'dbgate-sqltree';
+import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 
@@ -20,6 +20,12 @@ class DesignerComponent {
   get nonPrimaryTablesAndReferences() {
     return _.zip(this.nonPrimaryTables, this.nonPrimaryReferences);
   }
+  get myAndParentTables() {
+    return [...this.parentTables, ...this.tables];
+  }
+  get parentTables() {
+    return this.parentComponent ? this.parentComponent.myAndParentTables : [];
+  }
 }
 
 function referenceIsConnecting(
@@ -39,6 +45,9 @@ function referenceIsJoin(reference) {
 }
 function referenceIsExists(reference) {
   return ['WHERE EXISTS', 'WHERE NOT EXISTS'].includes(reference.joinType);
+}
+function referenceIsCrossJoin(reference) {
+  return !reference.joinType || reference.joinType == 'CROSS JOIN';
 }
 
 function findConnectingReference(
@@ -113,21 +122,6 @@ class DesignerComponentCreator {
   }
 }
 
-function mergeConditions(condition1: Condition, condition2: Condition): Condition {
-  if (!condition1) return condition2;
-  if (!condition2) return condition1;
-  if (condition1.conditionType == 'and' && condition2.conditionType == 'and') {
-    return {
-      conditionType: 'and',
-      conditions: [...condition1.conditions, ...condition2.conditions],
-    };
-  }
-  return {
-    conditionType: 'and',
-    conditions: [condition1, condition2],
-  };
-}
-
 function mergeSelects(select1: Select, select2: Select): Select {
   return {
     commandType: 'select',
@@ -147,8 +141,11 @@ function mergeSelects(select1: Select, select2: Select): Select {
   };
 }
 class DesignerQueryDumper {
-  // dumpedTables: DesignerTableInfo[];
   constructor(public designer: DesignerInfo, public components: DesignerComponent[]) {}
+
+  get topLevelTables(): DesignerTableInfo[] {
+    return _.flatten(this.components.map((x) => x.tables));
+  }
 
   dumpComponent(component: DesignerComponent) {
     const select: Select = {
@@ -168,6 +165,33 @@ class DesignerQueryDumper {
         conditions: getReferenceConditions(ref, this.designer),
       });
     }
+
+    for (const subComponent of component.subComponents) {
+      const subQuery = this.dumpComponent(subComponent);
+      subQuery.selectAll = true;
+      select.where = mergeConditions(select.where, {
+        conditionType: subComponent.parentReference.joinType == 'WHERE NOT EXISTS' ? 'notExists' : 'exists',
+        subQuery,
+      });
+    }
+
+    if (component.parentReference) {
+      select.where = mergeConditions(select.where, {
+        conditionType: 'and',
+        conditions: getReferenceConditions(component.parentReference, this.designer),
+      });
+
+      // cross join conditions in subcomponents
+      for (const ref of this.designer.references) {
+        if (referenceIsCrossJoin(ref) && referenceIsConnecting(ref, component.tables, component.myAndParentTables)) {
+          select.where = mergeConditions(select.where, {
+            conditionType: 'and',
+            conditions: getReferenceConditions(ref, this.designer),
+          });
+        }
+      }
+    }
+
     return select;
   }
 
@@ -177,6 +201,17 @@ class DesignerQueryDumper {
       const select = this.dumpComponent(component);
       if (res == null) res = select;
       else res = mergeSelects(res, select);
+    }
+
+    // top level cross join conditions
+    const topLevelTables = this.topLevelTables;
+    for (const ref of this.designer.references) {
+      if (referenceIsCrossJoin(ref) && referenceIsConnecting(ref, topLevelTables, topLevelTables)) {
+        res.where = mergeConditions(res.where, {
+          conditionType: 'and',
+          conditions: getReferenceConditions(ref, this.designer),
+        });
+      }
     }
     return res;
   }
