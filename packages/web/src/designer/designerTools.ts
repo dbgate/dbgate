@@ -4,6 +4,7 @@ import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { DesignerComponentCreator } from './DesignerComponentCreator';
 import { DesignerQueryDumper } from './DesignerQueryDumper';
+import { getFilterType } from 'dbgate-filterparser';
 
 export function referenceIsConnecting(
   reference: DesignerReferenceInfo,
@@ -128,4 +129,16 @@ export function isConnectedByReference(
   const array1 = arrays.find((a) => a.find((x) => x.designerId == table1.designerId));
   const array2 = arrays.find((a) => a.find((x) => x.designerId == table2.designerId));
   return array1 == array2;
+}
+
+export function findDesignerFilterType({ designerId, columnName }, designer) {
+  const table = (designer.tables || []).find((x) => x.designerId == designerId);
+  if (table) {
+    const column = (table.columns || []).find((x) => x.columnName == columnName);
+    if (column) {
+      const { dataType } = column;
+      return getFilterType(dataType);
+    }
+  }
+  return 'string';
 }

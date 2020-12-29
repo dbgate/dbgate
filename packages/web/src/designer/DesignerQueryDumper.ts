@@ -9,7 +9,9 @@ import {
   referenceIsConnecting,
   mergeSelectsFromDesigner,
   findQuerySource,
+  findDesignerFilterType,
 } from './designerTools';
+import { parseFilter } from 'dbgate-filterparser';
 
 export class DesignerQueryDumper {
   constructor(public designer: DesignerInfo, public components: DesignerComponent[]) {}
@@ -61,9 +63,33 @@ export class DesignerQueryDumper {
           });
         }
       }
+      this.addConditions(select, component.tables);
     }
 
     return select;
+  }
+
+  addConditions(select: Select, tables: DesignerTableInfo[]) {
+    for (const column of this.designer.columns) {
+      if (!column.filter) continue;
+      const table = this.designer.tables.find((x) => x.designerId == column.designerId);
+      if (!tables.find((x) => x.designerId == table.designerId)) continue;
+
+      const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
+      if (condition) {
+        select.where = mergeConditions(
+          select.where,
+          _.cloneDeepWith(condition, (expr) => {
+            if (expr.exprType == 'placeholder')
+              return {
+                exprType: 'column',
+                columnName: column.columnName,
+                source: findQuerySource(this.designer, column.designerId),
+              };
+          })
+        );
+      }
+    }
   }
 
   run() {
@@ -147,6 +173,8 @@ export class DesignerQueryDumper {
         source: findQuerySource(this.designer, col.designerId),
       }));
     }
+
+    this.addConditions(res, topLevelTables);
 
     return res;
   }

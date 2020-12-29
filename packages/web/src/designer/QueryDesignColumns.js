@@ -2,6 +2,7 @@ import React from 'react';
 import DataFilterControl from '../datagrid/DataFilterControl';
 import { CheckboxField, SelectField, TextField } from '../utility/inputs';
 import TableControl, { TableColumn } from '../utility/TableControl';
+import { findDesignerFilterType } from './designerTools';
 
 function getTableDisplayName(column, tables) {
   const table = tables.find((x) => x.designerId == column.designerId);
@@ -115,7 +116,7 @@ export default function QueryDesignColumns({ value, onChange }) {
         header="Filter"
         formatter={(row) => (
           <DataFilterControl
-            filterType="string"
+            filterType={findDesignerFilterType(row, value)}
             filter={row.filter}
             setFilter={(filter) => {
               changeColumn({ ...row, filter });
