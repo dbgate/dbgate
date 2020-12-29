@@ -26,7 +26,9 @@ export type DesignerColumnInfo = {
   columnName: string;
   alias?: string;
   isGrouped?: boolean;
+  aggregate?: string;
   isOutput?: boolean;
+  sortOrder?: number;
   filter: string;
 };
 

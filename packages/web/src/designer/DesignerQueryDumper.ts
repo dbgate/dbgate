@@ -88,14 +88,62 @@ export class DesignerQueryDumper {
     const topLevelColumns = this.designer.columns.filter((col) =>
       topLevelTables.find((tbl) => tbl.designerId == col.designerId)
     );
+    const selectIsGrouped = !!topLevelColumns.find((x) => x.isGrouped || (x.aggregate && x.aggregate != '---'));
     const outputColumns = topLevelColumns.filter((x) => x.isOutput);
     if (outputColumns.length == 0) {
       res.selectAll = true;
     } else {
-      res.columns = outputColumns.map((col) => ({
+      res.columns = outputColumns.map((col) => {
+        const source = findQuerySource(this.designer, col.designerId);
+        const { columnName } = col;
+        let { alias } = col;
+        if (selectIsGrouped && !col.isGrouped) {
+          // use aggregate
+          const aggregate = col.aggregate == null || col.aggregate == '---' ? 'MAX' : col.aggregate;
+          if (!alias) alias = `${aggregate}(${columnName})`;
+
+          return {
+            exprType: 'call',
+            func: aggregate == 'COUNT DISTINCT' ? 'COUNT' : aggregate,
+            argsPrefix: aggregate == 'COUNT DISTINCT' ? 'DISTINCT' : null,
+            alias,
+            args: [
+              {
+                exprType: 'column',
+                columnName,
+                source,
+              },
+            ],
+          };
+        } else {
+          return {
+            exprType: 'column',
+            columnName,
+            alias,
+            source,
+          };
+        }
+      });
+    }
+
+    const groupedColumns = topLevelColumns.filter((x) => x.isGrouped);
+    if (groupedColumns.length > 0) {
+      res.groupBy = groupedColumns.map((col) => ({
         exprType: 'column',
         columnName: col.columnName,
-        alias: col.alias,
+        source: findQuerySource(this.designer, col.designerId),
+      }));
+    }
+
+    const orderColumns = _.sortBy(
+      topLevelColumns.filter((x) => x.sortOrder),
+      (x) => Math.abs(x.sortOrder)
+    );
+    if (orderColumns.length > 0) {
+      res.orderBy = orderColumns.map((col) => ({
+        exprType: 'column',
+        direction: col.sortOrder < 0 ? 'DESC' : 'ASC',
+        columnName: col.columnName,
         source: findQuerySource(this.designer, col.designerId),
       }));
     }

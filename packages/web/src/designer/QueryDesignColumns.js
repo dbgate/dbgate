@@ -71,22 +71,24 @@ export default function QueryDesignColumns({ value, onChange }) {
       <TableColumn
         fieldName="aggregate"
         header="Aggregate"
-        formatter={(row) => (
-          <SelectField
-            value={row.aggregate}
-            onChange={(e) => {
-              changeColumn({ ...row, aggregate: e.target.value });
-            }}
-          >
-            <option value="---">---</option>
-            <option value="MIN">MIN</option>
-            <option value="MAX">MAX</option>
-            <option value="COUNT">COUNT</option>
-            <option value="COUNT DISTINCT">COUNT DISTINCT</option>
-            <option value="SUM">SUM</option>
-            <option value="AVG">AVG</option>
-          </SelectField>
-        )}
+        formatter={(row) =>
+          !row.isGrouped && (
+            <SelectField
+              value={row.aggregate}
+              onChange={(e) => {
+                changeColumn({ ...row, aggregate: e.target.value });
+              }}
+            >
+              <option value="---">---</option>
+              <option value="MIN">MIN</option>
+              <option value="MAX">MAX</option>
+              <option value="COUNT">COUNT</option>
+              <option value="COUNT DISTINCT">COUNT DISTINCT</option>
+              <option value="SUM">SUM</option>
+              <option value="AVG">AVG</option>
+            </SelectField>
+          )
+        }
       />
       <TableColumn
         fieldName="sortOrder"
@@ -95,7 +97,7 @@ export default function QueryDesignColumns({ value, onChange }) {
           <SelectField
             value={row.sortOrder}
             onChange={(e) => {
-              changeColumn({ ...row, sortOrder: e.target.value });
+              changeColumn({ ...row, sortOrder: parseInt(e.target.value) });
             }}
           >
             <option value="0">---</option>
