@@ -3,34 +3,213 @@ import { dumpSqlSelect, Select, JoinType, Condition, Relation } from 'dbgate-sql
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 
-function groupByComponents(
-  tables: DesignerTableInfo[],
-  references: DesignerReferenceInfo[],
-  joinTypes: string[],
-  primaryTable: DesignerTableInfo
-) {
-  let components = tables.map((table) => [table]);
-  for (const ref of references) {
-    if (joinTypes.includes(ref.joinType)) {
-      const comp1 = components.find((comp) => comp.find((t) => t.designerId == ref.sourceId));
-      const comp2 = components.find((comp) => comp.find((t) => t.designerId == ref.targetId));
-      if (comp1 && comp2 && comp1 != comp2) {
-        // join components
-        components = [...components.filter((x) => x != comp1 && x != comp2), [...comp1, ...comp2]];
-      }
-    }
+class DesignerComponent {
+  subComponents: DesignerComponent[] = [];
+  parentComponent: DesignerComponent;
+  parentReference: DesignerReferenceInfo;
+
+  tables: DesignerTableInfo[] = [];
+  nonPrimaryReferences: DesignerReferenceInfo[] = [];
+
+  get primaryTable() {
+    return this.tables[0];
   }
-  if (primaryTable) {
-    const primaryComponent = components.find((comp) => comp.find((t) => t == primaryTable));
-    if (primaryComponent) {
-      components = [primaryComponent, ...components.filter((x) => x != primaryComponent)];
-    }
+  get nonPrimaryTables() {
+    return this.tables.slice(1);
   }
-  return components;
+  get nonPrimaryTablesAndReferences() {
+    return _.zip(this.nonPrimaryTables, this.nonPrimaryReferences);
+  }
 }
 
+function referenceIsConnecting(
+  reference: DesignerReferenceInfo,
+  tables1: DesignerTableInfo[],
+  tables2: DesignerTableInfo[]
+) {
+  return (
+    (tables1.find((x) => x.designerId == reference.sourceId) &&
+      tables2.find((x) => x.designerId == reference.targetId)) ||
+    (tables1.find((x) => x.designerId == reference.targetId) && tables2.find((x) => x.designerId == reference.sourceId))
+  );
+}
+
+function referenceIsJoin(reference) {
+  return ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN'].includes(reference.joinType);
+}
+function referenceIsExists(reference) {
+  return ['WHERE EXISTS', 'WHERE NOT EXISTS'].includes(reference.joinType);
+}
+
+function findConnectingReference(
+  designer: DesignerInfo,
+  tables1: DesignerTableInfo[],
+  tables2: DesignerTableInfo[],
+  additionalCondition: (ref: DesignerReferenceInfo) => boolean
+) {
+  for (const ref of designer.references) {
+    if (additionalCondition(ref) && referenceIsConnecting(ref, tables1, tables2)) {
+      return ref;
+    }
+  }
+  return null;
+}
+
+class DesignerComponentCreator {
+  toAdd: DesignerTableInfo[];
+  components: DesignerComponent[] = [];
+
+  constructor(public designer: DesignerInfo) {
+    this.toAdd = [...designer.tables];
+    while (this.toAdd.length > 0) {
+      const component = this.parseComponent(null);
+      this.components.push(component);
+    }
+  }
+
+  parseComponent(root) {
+    if (root == null) {
+      root = findPrimaryTable(this.toAdd);
+    }
+    if (!root) return null;
+    _.remove(this.toAdd, (x) => x == root);
+    const res = new DesignerComponent();
+    res.tables.push(root);
+
+    for (;;) {
+      let found = false;
+      for (const test of this.toAdd) {
+        const ref = findConnectingReference(this.designer, res.tables, [test], referenceIsJoin);
+        if (ref) {
+          res.tables.push(test);
+          res.nonPrimaryReferences.push(ref);
+          _.remove(this.toAdd, (x) => x == test);
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) break;
+    }
+
+    for (;;) {
+      let found = false;
+      for (const test of this.toAdd) {
+        const ref = findConnectingReference(this.designer, res.tables, [test], referenceIsExists);
+        if (ref) {
+          const subComponent = this.parseComponent(test);
+          res.subComponents.push(subComponent);
+          subComponent.parentComponent = res;
+          subComponent.parentReference = ref;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) break;
+    }
+
+    return res;
+  }
+}
+
+function mergeConditions(condition1: Condition, condition2: Condition): Condition {
+  if (!condition1) return condition2;
+  if (!condition2) return condition1;
+  if (condition1.conditionType == 'and' && condition2.conditionType == 'and') {
+    return {
+      conditionType: 'and',
+      conditions: [...condition1.conditions, ...condition2.conditions],
+    };
+  }
+  return {
+    conditionType: 'and',
+    conditions: [condition1, condition2],
+  };
+}
+
+function mergeSelects(select1: Select, select2: Select): Select {
+  return {
+    commandType: 'select',
+    from: {
+      ...select1.from,
+      relations: [
+        ...select1.from.relations,
+        {
+          joinType: 'CROSS JOIN',
+          name: select2.from.name,
+          alias: select2.from.alias,
+        },
+        ...select2.from.relations,
+      ],
+    },
+    where: mergeConditions(select1.where, select2.where),
+  };
+}
+class DesignerQueryDumper {
+  // dumpedTables: DesignerTableInfo[];
+  constructor(public designer: DesignerInfo, public components: DesignerComponent[]) {}
+
+  dumpComponent(component: DesignerComponent) {
+    const select: Select = {
+      commandType: 'select',
+      from: {
+        name: component.primaryTable,
+        alias: component.primaryTable.alias,
+        relations: [],
+      },
+    };
+
+    for (const [table, ref] of component.nonPrimaryTablesAndReferences) {
+      select.from.relations.push({
+        name: table,
+        alias: table.alias,
+        joinType: ref.joinType as JoinType,
+        conditions: getReferenceConditions(ref, this.designer),
+      });
+    }
+    return select;
+  }
+
+  run() {
+    let res: Select = null;
+    for (const component of this.components) {
+      const select = this.dumpComponent(component);
+      if (res == null) res = select;
+      else res = mergeSelects(res, select);
+    }
+    return res;
+  }
+}
+
+// function groupByComponents(
+//   tables: DesignerTableInfo[],
+//   references: DesignerReferenceInfo[],
+//   joinTypes: string[],
+//   primaryTable: DesignerTableInfo
+// ) {
+//   let components = tables.map((table) => [table]);
+//   for (const ref of references) {
+//     if (joinTypes.includes(ref.joinType)) {
+//       const comp1 = components.find((comp) => comp.find((t) => t.designerId == ref.sourceId));
+//       const comp2 = components.find((comp) => comp.find((t) => t.designerId == ref.targetId));
+//       if (comp1 && comp2 && comp1 != comp2) {
+//         // join components
+//         components = [...components.filter((x) => x != comp1 && x != comp2), [...comp1, ...comp2]];
+//       }
+//     }
+//   }
+//   if (primaryTable) {
+//     const primaryComponent = components.find((comp) => comp.find((t) => t == primaryTable));
+//     if (primaryComponent) {
+//       components = [primaryComponent, ...components.filter((x) => x != primaryComponent)];
+//     }
+//   }
+//   return components;
+// }
+
 function findPrimaryTable(tables: DesignerTableInfo[]) {
-  return _.minBy(tables, (x) => x.left + x.top);
+  return _.minBy(tables, (x) => x.top);
 }
 
 function findJoinType(
@@ -80,6 +259,32 @@ function sortTablesByReferences(
   }
   res.push(...toAdd);
   return res;
+}
+
+function getReferenceConditions(reference: DesignerReferenceInfo, designer: DesignerInfo): Condition[] {
+  const sourceTable = designer.tables.find((x) => x.designerId == reference.sourceId);
+  const targetTable = designer.tables.find((x) => x.designerId == reference.targetId);
+
+  return reference.columns.map((col) => ({
+    conditionType: 'binary',
+    operator: '=',
+    left: {
+      exprType: 'column',
+      columnName: col.source,
+      source: {
+        name: sourceTable,
+        alias: sourceTable.alias,
+      },
+    },
+    right: {
+      exprType: 'column',
+      columnName: col.target,
+      source: {
+        name: targetTable,
+        alias: targetTable.alias,
+      },
+    },
+  }));
 }
 
 function findConditions(
@@ -145,72 +350,76 @@ export default function generateDesignedQuery(designer: DesignerInfo, engine: En
   const { tables, columns, references } = designer;
   const primaryTable = findPrimaryTable(designer.tables);
   if (!primaryTable) return '';
-  const components = groupByComponents(
-    designer.tables,
-    designer.references,
-    ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN', 'WHERE EXISTS', 'WHERE NOT EXISTS'],
-    primaryTable
-  );
+  const componentCreator = new DesignerComponentCreator(designer);
+  const designerDumper = new DesignerQueryDumper(designer, componentCreator.components);
+  const select = designerDumper.run();
 
-  const select: Select = {
-    commandType: 'select',
-    from: {
-      name: primaryTable,
-      alias: primaryTable.alias,
-      relations: [],
-    },
-  };
+  //   const components = groupByComponents(
+  //     designer.tables,
+  //     designer.references,
+  //     ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN', 'WHERE EXISTS', 'WHERE NOT EXISTS'],
+  //     primaryTable
+  //   );
 
-  const dumpedTables = [primaryTable];
-  const conditions: Condition[] = [];
-  for (const component of components) {
-    const subComponents = groupByComponents(
-      component,
-      designer.references,
-      ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN'],
-      primaryTable
-    );
-    for (const subComponent of subComponents) {
-      const sortedSubComponent = sortTablesByReferences(dumpedTables, subComponent, designer.references);
-      const table0 = sortedSubComponent[0];
-      const joinType0 = findJoinType(table0, dumpedTables, designer.references);
-      if (joinType0 == 'WHERE EXISTS' || joinType0 == 'WHERE NOT EXISTS') {
-        const subselect: Select = {
-          commandType: 'select',
-          from: {
-            name: table0,
-            alias: table0.alias,
-            relations: [],
-          },
-        };
-        dumpedTables.push(table0);
-        addRelations(subselect.from.relations, sortedSubComponent, dumpedTables, designer);
-        conditions.push({
-          conditionType: joinType0 == 'WHERE EXISTS' ? 'exists' : 'notExists',
-          subQuery: subselect,
-        });
-      } else {
-        addRelations(select.from.relations, sortedSubComponent, dumpedTables, designer);
-        // for (const table of sortedSubComponent) {
+  //   const select: Select = {
+  //     commandType: 'select',
+  //     from: {
+  //       name: primaryTable,
+  //       alias: primaryTable.alias,
+  //       relations: [],
+  //     },
+  //   };
 
-        //   if (dumpedTables.includes(table)) continue;
-        //   select.from.relations.push({
-        //     name: table,
-        //     alias: table.alias,
-        //     joinType: findJoinType(table, dumpedTables, designer.references) as JoinType,
-        //     conditions: findConditions(table, dumpedTables, designer.references, designer.tables),
-        //   });
-        //   dumpedTables.push(table);
-        // }
-      }
-    }
-  }
-  if (conditions.length > 0) {
-    select.where = {
-      conditionType: 'and',
-      conditions,
-    };
-  }
+  //   const dumpedTables = [primaryTable];
+  //   const conditions: Condition[] = [];
+  //   for (const component of components) {
+  //     const subComponents = groupByComponents(
+  //       component,
+  //       designer.references,
+  //       ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'FULL OUTER JOIN'],
+  //       primaryTable
+  //     );
+  //     for (const subComponent of subComponents) {
+  //       const sortedSubComponent = sortTablesByReferences(dumpedTables, subComponent, designer.references);
+  //       const table0 = sortedSubComponent[0];
+  //       const joinType0 = findJoinType(table0, dumpedTables, designer.references);
+  //       if (joinType0 == 'WHERE EXISTS' || joinType0 == 'WHERE NOT EXISTS') {
+  //         const subselect: Select = {
+  //           commandType: 'select',
+  //           from: {
+  //             name: table0,
+  //             alias: table0.alias,
+  //             relations: [],
+  //           },
+  //         };
+  //         dumpedTables.push(table0);
+  //         addRelations(subselect.from.relations, sortedSubComponent, dumpedTables, designer);
+  //         conditions.push({
+  //           conditionType: joinType0 == 'WHERE EXISTS' ? 'exists' : 'notExists',
+  //           subQuery: subselect,
+  //         });
+  //       } else {
+  //         addRelations(select.from.relations, sortedSubComponent, dumpedTables, designer);
+  //         // for (const table of sortedSubComponent) {
+
+  //         //   if (dumpedTables.includes(table)) continue;
+  //         //   select.from.relations.push({
+  //         //     name: table,
+  //         //     alias: table.alias,
+  //         //     joinType: findJoinType(table, dumpedTables, designer.references) as JoinType,
+  //         //     conditions: findConditions(table, dumpedTables, designer.references, designer.tables),
+  //         //   });
+  //         //   dumpedTables.push(table);
+  //         // }
+  //       }
+  //     }
+  //   }
+  //   if (conditions.length > 0) {
+  //     select.where = {
+  //       conditionType: 'and',
+  //       conditions,
+  //     };
+  //   }
 
   const dmp = engine.createDumper();
   dumpSqlSelect(dmp, select);

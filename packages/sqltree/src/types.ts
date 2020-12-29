@@ -110,7 +110,7 @@ export interface Source {
 export type JoinType = 'LEFT JOIN' | 'INNER JOIN' | 'RIGHT JOIN' | 'CROSS JOIN';
 
 export type Relation = Source & {
-  conditions: Condition[];
+  conditions?: Condition[];
   joinType: JoinType;
 };
 export type FromDefinition = Source & { relations?: Relation[] };
