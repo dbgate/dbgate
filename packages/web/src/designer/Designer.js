@@ -6,7 +6,7 @@ import _ from 'lodash';
 import useTheme from '../theme/useTheme';
 import DesignerReference from './DesignerReference';
 import cleanupDesignColumns from './cleanupDesignColumns';
-import { isConnectedByReference } from './generateDesignedQuery';
+import { isConnectedByReference } from './designerTools';
 
 const Wrapper = styled.div`
   flex: 1;

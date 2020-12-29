@@ -5,7 +5,7 @@ import _ from 'lodash';
 import useTheme from '../theme/useTheme';
 import { useShowMenu } from '../modals/showMenu';
 import { DropDownMenuDivider, DropDownMenuItem } from '../modals/DropDownMenu';
-import { isConnectedByReference } from './generateDesignedQuery';
+import { isConnectedByReference } from './designerTools';
 
 const StyledSvg = styled.svg`
   position: absolute;

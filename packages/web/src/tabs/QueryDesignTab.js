@@ -24,7 +24,7 @@ import useExtensions from '../utility/useExtensions';
 import QueryDesigner from '../designer/QueryDesigner';
 import QueryDesignColumns from '../designer/QueryDesignColumns';
 import { findEngineDriver } from 'dbgate-tools';
-import generateDesignedQuery from '../designer/generateDesignedQuery';
+import { generateDesignedQuery } from '../designer/designerTools';
 
 export default function QueryDesignTab({
   tabid,
