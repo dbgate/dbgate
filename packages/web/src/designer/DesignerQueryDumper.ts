@@ -55,7 +55,7 @@ export class DesignerQueryDumper {
       });
 
       // cross join conditions in subcomponents
-      for (const ref of this.designer.references) {
+      for (const ref of this.designer.references || []) {
         if (referenceIsCrossJoin(ref) && referenceIsConnecting(ref, component.tables, component.myAndParentTables)) {
           select.where = mergeConditions(select.where, {
             conditionType: 'and',
@@ -70,9 +70,9 @@ export class DesignerQueryDumper {
   }
 
   addConditions(select: Select, tables: DesignerTableInfo[]) {
-    for (const column of this.designer.columns) {
+    for (const column of this.designer.columns || []) {
       if (!column.filter) continue;
-      const table = this.designer.tables.find((x) => x.designerId == column.designerId);
+      const table = (this.designer.tables || []).find((x) => x.designerId == column.designerId);
       if (!tables.find((x) => x.designerId == table.designerId)) continue;
 
       const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
@@ -102,7 +102,7 @@ export class DesignerQueryDumper {
 
     // top level cross join conditions
     const topLevelTables = this.topLevelTables;
-    for (const ref of this.designer.references) {
+    for (const ref of this.designer.references || []) {
       if (referenceIsCrossJoin(ref) && referenceIsConnecting(ref, topLevelTables, topLevelTables)) {
         res.where = mergeConditions(res.where, {
           conditionType: 'and',
@@ -111,7 +111,7 @@ export class DesignerQueryDumper {
       }
     }
 
-    const topLevelColumns = this.designer.columns.filter((col) =>
+    const topLevelColumns = (this.designer.columns || []).filter((col) =>
       topLevelTables.find((tbl) => tbl.designerId == col.designerId)
     );
     const selectIsGrouped = !!topLevelColumns.find((x) => x.isGrouped || (x.aggregate && x.aggregate != '---'));

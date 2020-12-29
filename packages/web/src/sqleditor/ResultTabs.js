@@ -27,7 +27,7 @@ export default function ResultTabs({ children, sessionId, executeNumber }) {
   }, [sessionId, socket]);
 
   return (
-    <TabControl activePageIndex={resultInfos.length > 0 ? 1 : 0}>
+    <TabControl activePageLabel={resultInfos.length > 0 ? 'Result 1' : null}>
       {children}
       {_.sortBy(resultInfos, 'resultIndex').map((info) => (
         <TabPage label={`Result ${info.resultIndex + 1}`} key={info.jslid}>

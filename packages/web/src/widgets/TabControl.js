@@ -62,7 +62,7 @@ export function TabPage({ key, label, children }) {
   return children;
 }
 
-export function TabControl({ children, activePageIndex = undefined }) {
+export function TabControl({ children, activePageIndex = undefined, activePageLabel = undefined }) {
   const [value, setValue] = React.useState(0);
 
   // const [mountedTabs, setMountedTabs] = React.useState({});
@@ -72,6 +72,13 @@ export function TabControl({ children, activePageIndex = undefined }) {
   React.useEffect(() => {
     if (activePageIndex != null) setValue(activePageIndex);
   }, [activePageIndex]);
+
+  React.useEffect(() => {
+    if (activePageLabel != null) {
+      const pageIndex = _.findIndex(childrenArray, (x) => x.props.label == activePageLabel);
+      if (pageIndex >= 0) setValue(pageIndex);
+    }
+  }, [activePageLabel]);
 
   const theme = useTheme();
 

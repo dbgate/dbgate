@@ -6,7 +6,7 @@ import axios from '../utility/axios';
 import { useConnectionInfo } from '../utility/metadataLoaders';
 import SqlEditor from '../sqleditor/SqlEditor';
 import { useUpdateDatabaseForTab, useSetOpenedTabs } from '../utility/globalState';
-import QueryToolbar from '../query/QueryToolbar';
+import QueryDesignToolbar from '../designer/QueryDesignToolbar';
 import SocketMessagesView from '../query/SocketMessagesView';
 import { TabPage } from '../widgets/TabControl';
 import ResultTabs from '../sqleditor/ResultTabs';
@@ -62,7 +62,7 @@ export default function QueryDesignTab({
   const generatePreview = (value, engine) => {
     if (!engine || !value) return;
     const sql = generateDesignedQuery(value, engine);
-    setSqlPreview(sql);
+    setSqlPreview(sqlFormatter.format(sql));
   };
 
   React.useEffect(() => {
@@ -84,10 +84,9 @@ export default function QueryDesignTab({
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
 
-  const handleExecute = async () => {
+  const handleExecute = React.useCallback(async () => {
     if (busy) return;
     setExecuteNumber((num) => num + 1);
-    const selectedText = editorRef.current.editor.getSelectedText();
 
     let sesid = sessionId;
     if (!sesid) {
@@ -101,9 +100,9 @@ export default function QueryDesignTab({
     setBusy(true);
     await axios.post('sessions/execute-query', {
       sesid,
-      sql: selectedText || editorData,
+      sql: sqlPreview,
     });
-  };
+  }, [busy]);
 
   const handleCancel = () => {
     axios.post('sessions/cancel', {
@@ -119,12 +118,21 @@ export default function QueryDesignTab({
     setBusy(false);
   };
 
-  const handleKeyDown = (data, hash, keyString, keyCode, event) => {
-    if (keyCode == keycodes.f5) {
-      event.preventDefault();
+  const handleKeyDown = React.useCallback((e) => {
+    if (e.keyCode == keycodes.f5) {
+      e.preventDefault();
       handleExecute();
     }
-  };
+  }, []);
+
+  React.useEffect(() => {
+    if (tabVisible) {
+      document.addEventListener('keydown', handleKeyDown, false);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [tabVisible, handleKeyDown]);
 
   if (isLoading) {
     return (
@@ -143,7 +151,6 @@ export default function QueryDesignTab({
           database={database}
           engine={connection && connection.engine}
           onChange={setEditorData}
-          onKeyDown={handleKeyDown}
         ></QueryDesigner>
         <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
           <TabPage label="Columns" key="columns">
@@ -162,22 +169,22 @@ export default function QueryDesignTab({
           )}
         </ResultTabs>
       </VerticalSplitter>
-      {/* {toolbarPortalRef &&
+      {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <QueryToolbar
+          <QueryDesignToolbar
             isDatabaseDefined={conid && database}
             execute={handleExecute}
             busy={busy}
-            cancel={handleCancel}
-            format={handleFormatCode}
+            // cancel={handleCancel}
+            // format={handleFormatCode}
             save={saveFileModalState.open}
-            isConnected={!!sessionId}
-            kill={handleKill}
+            // isConnected={!!sessionId}
+            // kill={handleKill}
           />,
           toolbarPortalRef.current
-        )} */}
+        )}
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}
