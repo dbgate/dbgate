@@ -26,6 +26,9 @@ class DesignerComponent {
   get parentTables() {
     return this.parentComponent ? this.parentComponent.myAndParentTables : [];
   }
+  get thisAndSubComponentsTables() {
+    return [...this.tables, ..._.flatten(this.subComponents.map((x) => x.thisAndSubComponentsTables))];
+  }
 }
 
 function referenceIsConnecting(
@@ -221,7 +224,6 @@ function findPrimaryTable(tables: DesignerTableInfo[]) {
   return _.minBy(tables, (x) => x.top);
 }
 
-
 function getReferenceConditions(reference: DesignerReferenceInfo, designer: DesignerInfo): Condition[] {
   const sourceTable = designer.tables.find((x) => x.designerId == reference.sourceId);
   const targetTable = designer.tables.find((x) => x.designerId == reference.targetId);
@@ -259,4 +261,22 @@ export default function generateDesignedQuery(designer: DesignerInfo, engine: En
   const dmp = engine.createDumper();
   dumpSqlSelect(dmp, select);
   return dmp.s;
+}
+
+export function isConnectedByReference(
+  designer: DesignerInfo,
+  table1: { designerId: string },
+  table2: { designerId: string },
+  withoutRef: { designerId: string }
+) {
+  const creator = new DesignerComponentCreator({
+    ...designer,
+    references: withoutRef
+      ? designer.references.filter((x) => x.designerId != withoutRef.designerId)
+      : designer.references,
+  });
+  const arrays = creator.components.map((x) => x.thisAndSubComponentsTables);
+  const array1 = arrays.find((a) => a.find((x) => x.designerId == table1.designerId));
+  const array2 = arrays.find((a) => a.find((x) => x.designerId == table2.designerId));
+  return array1 == array2;
 }

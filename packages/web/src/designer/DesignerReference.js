@@ -5,6 +5,7 @@ import _ from 'lodash';
 import useTheme from '../theme/useTheme';
 import { useShowMenu } from '../modals/showMenu';
 import { DropDownMenuDivider, DropDownMenuItem } from '../modals/DropDownMenu';
+import { isConnectedByReference } from './generateDesignedQuery';
 
 const StyledSvg = styled.svg`
   position: absolute;
@@ -37,18 +38,22 @@ const ReferenceText = styled.span`
   background-color: ${(props) => props.theme.designer_background};
 `;
 
-function ReferenceContextMenu({ remove, setJoinType }) {
+function ReferenceContextMenu({ remove, setJoinType, isConnected }) {
   return (
     <>
       <DropDownMenuItem onClick={remove}>Remove</DropDownMenuItem>
-      <DropDownMenuDivider />
-      <DropDownMenuItem onClick={() => setJoinType('INNER JOIN')}>Set INNER JOIN</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('LEFT JOIN')}>Set LEFT JOIN</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('RIGHT JOIN')}>Set RIGHT JOIN</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('FULL OUTER JOIN')}>Set FULL OUTER JOIN</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('CROSS JOIN')}>Set CROSS JOIN</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('WHERE EXISTS')}>Set WHERE EXISTS</DropDownMenuItem>
-      <DropDownMenuItem onClick={() => setJoinType('WHERE NOT EXISTS')}>Set WHERE NOT EXISTS</DropDownMenuItem>
+      {!isConnected && (
+        <>
+          <DropDownMenuDivider />
+          <DropDownMenuItem onClick={() => setJoinType('INNER JOIN')}>Set INNER JOIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('LEFT JOIN')}>Set LEFT JOIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('RIGHT JOIN')}>Set RIGHT JOIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('FULL OUTER JOIN')}>Set FULL OUTER JOIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('CROSS JOIN')}>Set CROSS JOIN</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('WHERE EXISTS')}>Set WHERE EXISTS</DropDownMenuItem>
+          <DropDownMenuItem onClick={() => setJoinType('WHERE NOT EXISTS')}>Set WHERE NOT EXISTS</DropDownMenuItem>
+        </>
+      )}
     </>
   );
 }
@@ -59,6 +64,7 @@ export default function DesignerReference({
   changeToken,
   onRemoveReference,
   onChangeReference,
+  designer,
 }) {
   const { designerId, sourceId, targetId, columns, joinType } = reference;
   const theme = useTheme();
@@ -104,6 +110,7 @@ export default function DesignerReference({
       event.pageY,
       <ReferenceContextMenu
         remove={() => onRemoveReference({ designerId })}
+        isConnected={isConnectedByReference(designer, { designerId: sourceId }, { designerId: targetId }, reference)}
         setJoinType={(joinType) => {
           onChangeReference({
             ...reference,
