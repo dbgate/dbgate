@@ -29,7 +29,8 @@ export type DesignerColumnInfo = {
   aggregate?: string;
   isOutput?: boolean;
   sortOrder?: number;
-  filter: string;
+  filter?: string;
+  groupFilter?: string;
 };
 
 export type DesignerInfo = {

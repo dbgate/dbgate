@@ -36,6 +36,11 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
     dmp.putCollection(', ', cmd.groupBy, (expr) => dumpSqlExpression(dmp, expr));
     dmp.put('&n');
   }
+  if (cmd.having) {
+    dmp.put('&n^having ');
+    dumpSqlCondition(dmp, cmd.having);
+    dmp.put('&n');
+  }
   if (cmd.orderBy) {
     dmp.put('&n^order ^by ');
     dmp.putCollection(', ', cmd.orderBy, (expr) => {

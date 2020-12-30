@@ -1,5 +1,14 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions, Source } from 'dbgate-sqltree';
+import {
+  dumpSqlSelect,
+  Select,
+  JoinType,
+  Condition,
+  Relation,
+  mergeConditions,
+  Source,
+  ResultField,
+} from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { DesignerComponent } from './DesignerComponentCreator';
@@ -93,6 +102,59 @@ export class DesignerQueryDumper {
     }
   }
 
+  addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {
+    for (const column of this.designer.columns || []) {
+      if (!column.groupFilter) continue;
+      const table = (this.designer.tables || []).find((x) => x.designerId == column.designerId);
+      if (!table) continue;
+      if (!tables.find((x) => x.designerId == table.designerId)) continue;
+
+      const condition = parseFilter(column.groupFilter, findDesignerFilterType(column, this.designer));
+      if (condition) {
+        select.having = mergeConditions(
+          select.having,
+          _.cloneDeepWith(condition, (expr) => {
+            if (expr.exprType == 'placeholder') {
+              return this.getColumnOutputExpression(column, selectIsGrouped);
+            }
+          })
+        );
+      }
+    }
+  }
+
+  getColumnOutputExpression(col, selectIsGrouped): ResultField {
+    const source = findQuerySource(this.designer, col.designerId);
+    const { columnName } = col;
+    let { alias } = col;
+    if (selectIsGrouped && !col.isGrouped) {
+      // use aggregate
+      const aggregate = col.aggregate == null || col.aggregate == '---' ? 'MAX' : col.aggregate;
+      if (!alias) alias = `${aggregate}(${columnName})`;
+
+      return {
+        exprType: 'call',
+        func: aggregate == 'COUNT DISTINCT' ? 'COUNT' : aggregate,
+        argsPrefix: aggregate == 'COUNT DISTINCT' ? 'DISTINCT' : null,
+        alias,
+        args: [
+          {
+            exprType: 'column',
+            columnName,
+            source,
+          },
+        ],
+      };
+    } else {
+      return {
+        exprType: 'column',
+        columnName,
+        alias,
+        source,
+      };
+    }
+  }
+
   run() {
     let res: Select = null;
     for (const component of this.components) {
@@ -120,37 +182,7 @@ export class DesignerQueryDumper {
     if (outputColumns.length == 0) {
       res.selectAll = true;
     } else {
-      res.columns = outputColumns.map((col) => {
-        const source = findQuerySource(this.designer, col.designerId);
-        const { columnName } = col;
-        let { alias } = col;
-        if (selectIsGrouped && !col.isGrouped) {
-          // use aggregate
-          const aggregate = col.aggregate == null || col.aggregate == '---' ? 'MAX' : col.aggregate;
-          if (!alias) alias = `${aggregate}(${columnName})`;
-
-          return {
-            exprType: 'call',
-            func: aggregate == 'COUNT DISTINCT' ? 'COUNT' : aggregate,
-            argsPrefix: aggregate == 'COUNT DISTINCT' ? 'DISTINCT' : null,
-            alias,
-            args: [
-              {
-                exprType: 'column',
-                columnName,
-                source,
-              },
-            ],
-          };
-        } else {
-          return {
-            exprType: 'column',
-            columnName,
-            alias,
-            source,
-          };
-        }
-      });
+      res.columns = outputColumns.map((col) => this.getColumnOutputExpression(col, selectIsGrouped));
     }
 
     const groupedColumns = topLevelColumns.filter((x) => x.isGrouped);
@@ -176,6 +208,7 @@ export class DesignerQueryDumper {
     }
 
     this.addConditions(res, topLevelTables);
+    this.addGroupConditions(res, topLevelTables, selectIsGrouped);
 
     return res;
   }

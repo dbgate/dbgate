@@ -38,6 +38,8 @@ export default function QueryDesignColumns({ value, onChange }) {
     [onChange]
   );
 
+  const hasGroupedColumn = !!(columns || []).find((x) => x.isGrouped);
+
   return (
     <TableControl rows={columns || []}>
       <TableColumn fieldName="columnName" header="Column/Expression" />
@@ -136,6 +138,21 @@ export default function QueryDesignColumns({ value, onChange }) {
           />
         )}
       />
+      {hasGroupedColumn && (
+        <TableColumn
+          fieldName="groupFilter"
+          header="Group filter"
+          formatter={(row) => (
+            <DataFilterControl
+              filterType={findDesignerFilterType(row, value)}
+              filter={row.groupFilter}
+              setFilter={(groupFilter) => {
+                changeColumn({ ...row, groupFilter });
+              }}
+            />
+          )}
+        />
+      )}
       <TableColumn
         fieldName="actions"
         header=""

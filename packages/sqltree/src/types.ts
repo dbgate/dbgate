@@ -16,6 +16,7 @@ export interface Select {
   orderBy?: OrderByExpression[];
   groupBy?: Expression[];
   where?: Condition;
+  having?: Condition;
 }
 
 export type UpdateField = Expression & { targetColumn: string };
