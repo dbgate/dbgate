@@ -73,6 +73,7 @@ export class DesignerQueryDumper {
     for (const column of this.designer.columns || []) {
       if (!column.filter) continue;
       const table = (this.designer.tables || []).find((x) => x.designerId == column.designerId);
+      if (!table) continue;
       if (!tables.find((x) => x.designerId == table.designerId)) continue;
 
       const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
