@@ -205,6 +205,45 @@ export function SavedChartFileAppObject({ data, commonProps }) {
   );
 }
 
+export function SavedQueryFileAppObject({ data, commonProps }) {
+  const { file, folder } = data;
+  const openNewTab = useOpenNewTab();
+
+  const currentDatabase = useCurrentDatabase();
+
+  const connection = _.get(currentDatabase, 'connection') || {};
+  const database = _.get(currentDatabase, 'name');
+
+  const tooltip = `${connection.displayName || connection.server}\n${database}`;
+
+  return (
+    <SavedFileAppObjectBase
+      data={data}
+      commonProps={commonProps}
+      format="json"
+      icon="img query-design"
+      onLoad={(data) => {
+        openNewTab(
+          {
+            title: file,
+            icon: 'img query-design',
+            tooltip,
+            props: {
+              conid: connection._id,
+              database,
+              savedFile: file,
+              savedFolder: 'query',
+              savedFormat: 'json',
+            },
+            tabComponent: 'QueryDesignTab',
+          },
+          { editor: data }
+        );
+      }}
+    />
+  );
+}
+
 export function SavedMarkdownFileAppObject({ data, commonProps }) {
   const { file, folder } = data;
   const openNewTab = useOpenNewTab();
@@ -247,7 +286,29 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
   );
 }
 
-[SavedSqlFileAppObject, SavedShellFileAppObject, SavedChartFileAppObject, SavedMarkdownFileAppObject].forEach((fn) => {
+export function SavedFileAppObject({ data, commonProps }) {
+  const { folder } = data;
+  const folderTypes = {
+    sql: SavedSqlFileAppObject,
+    shell: SavedShellFileAppObject,
+    charts: SavedChartFileAppObject,
+    markdown: SavedMarkdownFileAppObject,
+    query: SavedQueryFileAppObject,
+  };
+  const AppObject = folderTypes[folder];
+  if (AppObject) {
+    return <AppObject data={data} commonProps={commonProps} />;
+  }
+  return null;
+}
+
+[
+  SavedSqlFileAppObject,
+  SavedShellFileAppObject,
+  SavedChartFileAppObject,
+  SavedMarkdownFileAppObject,
+  SavedFileAppObject,
+].forEach((fn) => {
   // @ts-ignore
   fn.extractKey = (data) => data.file;
 });

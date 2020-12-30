@@ -47,6 +47,9 @@ export default function WidgetColumnBar({ children }) {
     childArray.filter((x) => x && x.props.collapsed).map((x) => x.props.name)
   );
   const toggleCollapsed = (name) => {
+    // skip collapse last uncollapsed item
+    if (!childArray.find((x) => x.props.name != name && !collapsedWidgets.includes(x.props.name))) return;
+    
     if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter((x) => x != name));
     else setCollapsedWidgets([...collapsedWidgets, name]);
   };

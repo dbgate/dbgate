@@ -27,11 +27,25 @@ module.exports = {
     return files;
   },
 
+  listAll_meta: 'get',
+  async listAll() {
+    const folders = await fs.readdir(filesdir());
+    const res = [];
+    for (const folder of folders) {
+      if (!hasPermission(`files/${folder}/read`)) continue;
+      const dir = path.join(filesdir(), folder);
+      const files = (await fs.readdir(dir)).map((file) => ({ folder, file }));
+      res.push(...files);
+    }
+    return res;
+  },
+
   delete_meta: 'post',
   async delete({ folder, file }) {
     if (!hasPermission(`files/${folder}/write`)) return;
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`all-files-changed`);
   },
 
   rename_meta: 'post',
@@ -39,6 +53,7 @@ module.exports = {
     if (!hasPermission(`files/${folder}/write`)) return;
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`all-files-changed`);
   },
 
   load_meta: 'post',
@@ -57,6 +72,7 @@ module.exports = {
     }
     await fs.writeFile(path.join(dir, file), serialize(format, data));
     socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`all-files-changed`);
     if (folder == 'shell') {
       scheduler.reload();
     }

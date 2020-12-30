@@ -105,6 +105,11 @@ const filesLoader = ({ folder }) => ({
   params: { folder },
   reloadTrigger: `files-changed-${folder}`,
 });
+const allFilesLoader = () => ({
+  url: 'files/list-all',
+  params: {},
+  reloadTrigger: `all-files-changed`,
+});
 
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform } = loader(args);
@@ -274,6 +279,13 @@ export function getFiles(args) {
 }
 export function useFiles(args) {
   return useCore(filesLoader, args);
+}
+
+export function getAllFiles(args) {
+  return getCore(allFilesLoader, args);
+}
+export function useAllFiles(args) {
+  return useCore(allFilesLoader, args);
 }
 
 export function getFavorites(args) {
