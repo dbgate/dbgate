@@ -21,6 +21,11 @@ const Canvas = styled.div`
   position: relative;
 `;
 
+const EmptyInfo = styled.div`
+  margin: 50px;
+  font-size: 20px;
+`;
+
 export default function Designer({ value, onChange, conid, database }) {
   const { tables, references } = value || {};
   const theme = useTheme();
@@ -46,7 +51,7 @@ export default function Designer({ value, onChange, conid, database }) {
     onChange((current) => {
       const foreignKeys = _.compact([
         ...(json.foreignKeys || []).map((fk) => {
-          const tables = (current.tables || []).filter(
+          const tables = ((current || {}).tables || []).filter(
             (tbl) => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
           );
           if (tables.length == 1)
@@ -58,7 +63,7 @@ export default function Designer({ value, onChange, conid, database }) {
           return null;
         }),
         ..._.flatten(
-          (current.tables || []).map((tbl) =>
+          ((current || {}).tables || []).map((tbl) =>
             (tbl.foreignKeys || []).map((fk) => {
               if (fk.refTableName == json.pureName && fk.refSchemaName == json.schemaName) {
                 return {
@@ -75,11 +80,11 @@ export default function Designer({ value, onChange, conid, database }) {
 
       return {
         ...current,
-        tables: [...(current.tables || []), json],
+        tables: [...((current || {}).tables || []), json],
         references:
           foreignKeys.length == 1
             ? [
-                ...(current.references || []),
+                ...((current || {}).references || []),
                 {
                   designerId: uuidv1(),
                   sourceId: foreignKeys[0].sourceId,
@@ -91,7 +96,7 @@ export default function Designer({ value, onChange, conid, database }) {
                   })),
                 },
               ]
-            : current.references,
+            : (current || {}).references,
       };
     });
   };
@@ -283,6 +288,7 @@ export default function Designer({ value, onChange, conid, database }) {
 
   return (
     <Wrapper theme={theme}>
+      {(tables || []).length == 0 && <EmptyInfo>Drag &amp; drop tables or views from left panel list here</EmptyInfo>}
       <Canvas onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} ref={wrapperRef}>
         {(references || []).map((ref) => (
           <DesignerReference

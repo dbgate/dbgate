@@ -5,7 +5,13 @@ import styled from 'styled-components';
 import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
 import useNewQuery, { useNewQueryDesign } from '../query/useNewQuery';
 import { useConfig, useFavorites } from '../utility/metadataLoaders';
-import { useSetOpenedTabs, useOpenedTabs, useCurrentTheme, useSetCurrentTheme } from '../utility/globalState';
+import {
+  useSetOpenedTabs,
+  useOpenedTabs,
+  useCurrentTheme,
+  useSetCurrentTheme,
+  useCurrentDatabase,
+} from '../utility/globalState';
 import useNewFreeTable from '../freetable/useNewFreeTable';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
@@ -30,6 +36,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const newQueryDesign = useNewQueryDesign();
   const newFreeTable = useNewFreeTable();
   const config = useConfig();
+  const currentDatabase = useCurrentDatabase();
   // const toolbar = config.toolbar || [];
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
@@ -133,9 +140,11 @@ export default function ToolBar({ toolbarPortalRef }) {
       <ToolbarButton onClick={newQuery} icon="icon sql-file">
         New Query
       </ToolbarButton>
-      <ToolbarButton onClick={newQueryDesign} icon="icon query-design">
-        Query Designer
-      </ToolbarButton>
+      {!!currentDatabase && (
+        <ToolbarButton onClick={newQueryDesign} icon="icon query-design">
+          Query Designer
+        </ToolbarButton>
+      )}
       <ToolbarButton onClick={newFreeTable} icon="icon table">
         Free table editor
       </ToolbarButton>

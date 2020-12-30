@@ -23,7 +23,11 @@ const Header = styled.div`
   font-weight: bold;
   text-align: center;
   padding: 2px;
-  background: ${(props) => props.theme.designtable_background_blue[2]};
+  background: ${(props) =>
+    // @ts-ignore
+    props.objectTypeField == 'views'
+      ? props.theme.designtable_background_magenta[2]
+      : props.theme.designtable_background_blue[2]};
   border-bottom: 1px solid ${(props) => props.theme.border};
   cursor: pointer;
   display: flex;
@@ -140,7 +144,7 @@ export default function DesignerTable({
   setChangeToken,
   designer,
 }) {
-  const { pureName, columns, left, top, designerId, alias } = table;
+  const { pureName, columns, left, top, designerId, alias, objectTypeField } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
   const movingPositionRef = React.useRef(null);
   const theme = useTheme();
@@ -287,7 +291,7 @@ export default function DesignerTable({
         addReference={
           foreignKey
             ? () => {
-              onAddReferenceByColumn(designerId, foreignKey);
+                onAddReferenceByColumn(designerId, foreignKey);
               }
             : null
         }
@@ -305,7 +309,13 @@ export default function DesignerTable({
       onMouseDown={() => onBringToFront(table)}
       ref={(dom) => dispatchDomColumn('', dom)}
     >
-      <Header onMouseDown={headerMouseDown} theme={theme} onContextMenu={handleHeaderContextMenu}>
+      <Header
+        onMouseDown={headerMouseDown}
+        theme={theme}
+        onContextMenu={handleHeaderContextMenu}
+        // @ts-ignore
+        objectTypeField={objectTypeField}
+      >
         <HeaderLabel>{alias || pureName}</HeaderLabel>
         <CloseWrapper onClick={() => onRemoveTable(table)} theme={theme}>
           <FontIcon icon="icon close" />
