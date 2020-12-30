@@ -11,6 +11,7 @@ import useShowModal from '../modals/showModal';
 import { findEngineDriver } from 'dbgate-tools';
 import useExtensions from '../utility/useExtensions';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import uuidv1 from 'uuid/v1';
 
 const icons = {
   tables: 'img table',
@@ -45,6 +46,10 @@ const menus = {
       label: 'Open active chart',
       isActiveChart: true,
     },
+    {
+      label: 'Query designer',
+      isQueryDesigner: true,
+    },
   ],
   views: [
     {
@@ -74,6 +79,10 @@ const menus = {
     {
       label: 'Open active chart',
       isActiveChart: true,
+    },
+    {
+      label: 'Query designer',
+      isQueryDesigner: true,
     },
   ],
   procedures: [
@@ -196,6 +205,30 @@ function Menu({ data }) {
                   editor: {
                     config: { chartType: 'bar' },
                     sql: dmp.s,
+                  },
+                }
+              );
+            } else if (menu.isQueryDesigner) {
+              openNewTab(
+                {
+                  title: data.pureName,
+                  icon: 'img query-design',
+                  tabComponent: 'QueryDesignTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
+                },
+                {
+                  editor: {
+                    tables: [
+                      {
+                        ...data,
+                        designerId: uuidv1(),
+                        left: 50,
+                        top: 50,
+                      },
+                    ],
                   },
                 }
               );

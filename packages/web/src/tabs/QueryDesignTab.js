@@ -18,7 +18,6 @@ import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import useEditorData from '../utility/useEditorData';
-import applySqlTemplate from '../utility/applySqlTemplate';
 import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
 import QueryDesigner from '../designer/QueryDesigner';
@@ -26,15 +25,7 @@ import QueryDesignColumns from '../designer/QueryDesignColumns';
 import { findEngineDriver } from 'dbgate-tools';
 import { generateDesignedQuery } from '../designer/designerTools';
 
-export default function QueryDesignTab({
-  tabid,
-  conid,
-  database,
-  initialArgs,
-  tabVisible,
-  toolbarPortalRef,
-  ...other
-}) {
+export default function QueryDesignTab({ tabid, conid, database, tabVisible, toolbarPortalRef, ...other }) {
   const [sessionId, setSessionId] = React.useState(null);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
@@ -47,10 +38,6 @@ export default function QueryDesignTab({
   const [sqlPreview, setSqlPreview] = React.useState('');
   const { editorData, setEditorData, isLoading } = useEditorData({
     tabid,
-    loadFromArgs:
-      initialArgs && initialArgs.sqlTemplate
-        ? () => applySqlTemplate(initialArgs.sqlTemplate, extensions, { conid, database, ...other })
-        : null,
   });
 
   const editorRef = React.useRef(null);

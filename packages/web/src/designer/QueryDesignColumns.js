@@ -2,6 +2,7 @@ import React from 'react';
 import DataFilterControl from '../datagrid/DataFilterControl';
 import { CheckboxField, SelectField, TextField } from '../utility/inputs';
 import TableControl, { TableColumn } from '../utility/TableControl';
+import InlineButton from '../widgets/InlineButton';
 import { findDesignerFilterType } from './designerTools';
 
 function getTableDisplayName(column, tables) {
@@ -15,15 +16,26 @@ export default function QueryDesignColumns({ value, onChange }) {
 
   const changeColumn = React.useCallback(
     (col) => {
-      const newValue = {
-        ...value,
-        columns: (value.columns || []).map((x) =>
+      onChange((current) => ({
+        ...current,
+        columns: (current.columns || []).map((x) =>
           x.designerId == col.designerId && x.columnName == col.columnName ? col : x
         ),
-      };
-      onChange(newValue);
+      }));
     },
-    [onChange, value]
+    [onChange]
+  );
+
+  const removeColumn = React.useCallback(
+    (col) => {
+      onChange((current) => ({
+        ...current,
+        columns: (current.columns || []).filter(
+          (x) => x.designerId != col.designerId || x.columnName != col.columnName
+        ),
+      }));
+    },
+    [onChange]
   );
 
   return (
@@ -122,6 +134,15 @@ export default function QueryDesignColumns({ value, onChange }) {
               changeColumn({ ...row, filter });
             }}
           />
+        )}
+      />
+      <TableColumn
+        fieldName="actions"
+        header=""
+        formatter={(row) => (
+          <>
+            <InlineButton onClick={() => removeColumn(row)}>Remove</InlineButton>
+          </>
         )}
       />
     </TableControl>

@@ -37,13 +37,15 @@ export default function Designer({ value, onChange, conid, database }) {
     if (!data) return;
     const rect = e.target.getBoundingClientRect();
     var json = JSON.parse(data);
+    const { objectTypeField } = json;
+    if (objectTypeField != 'tables' && objectTypeField != 'views') return;
     json.designerId = uuidv1();
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
 
     onChange((current) => {
       const foreignKeys = _.compact([
-        ...json.foreignKeys.map((fk) => {
+        ...(json.foreignKeys || []).map((fk) => {
           const tables = (current.tables || []).filter(
             (tbl) => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
           );
