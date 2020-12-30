@@ -1,11 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
+import { findForeignKeyForColumn } from 'dbgate-tools';
 import ColumnLabel from '../datagrid/ColumnLabel';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import DomTableRef from './DomTableRef';
 import _ from 'lodash';
 import { CheckboxField } from '../utility/inputs';
+import { useShowMenu } from '../modals/showMenu';
+import { DropDownMenuDivider, DropDownMenuItem } from '../modals/DropDownMenu';
+import useShowModal from '../modals/showModal';
+import InputTextModal from '../modals/InputTextModal';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -80,12 +85,50 @@ const ColumnLine = styled.div`
     `}
 `;
 
+function TableContextMenu({ remove, setTableAlias, removeTableAlias }) {
+  return (
+    <>
+      <DropDownMenuItem onClick={remove}>Remove</DropDownMenuItem>
+      <DropDownMenuDivider />
+      <DropDownMenuItem onClick={setTableAlias}>Set table alias</DropDownMenuItem>
+      {!!removeTableAlias && <DropDownMenuItem onClick={removeTableAlias}>Remove table alias</DropDownMenuItem>}
+    </>
+  );
+}
+
+function ColumnContextMenu({ setSortOrder, addReference }) {
+  return (
+    <>
+      <DropDownMenuItem onClick={() => setSortOrder(1)}>Sort ascending</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setSortOrder(-1)}>Sort descending</DropDownMenuItem>
+      <DropDownMenuItem onClick={() => setSortOrder(0)}>Unsort</DropDownMenuItem>
+      {!!addReference && <DropDownMenuItem onClick={addReference}>Add reference</DropDownMenuItem>}
+    </>
+  );
+}
+
+function ColumnDesignerIcons({ column, designerId, designer }) {
+  const designerColumn = (designer.columns || []).find(
+    (x) => x.designerId == designerId && x.columnName == column.columnName
+  );
+  if (!designerColumn) return null;
+  return (
+    <>
+      {!!designerColumn.filter && <FontIcon icon="img filter" />}
+      {designerColumn.sortOrder > 0 && <FontIcon icon="img sort-asc" />}
+      {designerColumn.sortOrder < 0 && <FontIcon icon="img sort-desc" />}
+      {!!designerColumn.isGrouped && <FontIcon icon="img group" />}
+    </>
+  );
+}
+
 export default function DesignerTable({
   table,
   onChangeTable,
   onBringToFront,
   onRemoveTable,
   onCreateReference,
+  onAddReferenceByColumn,
   onSelectColumn,
   onChangeColumn,
   sourceDragColumn,
@@ -97,11 +140,13 @@ export default function DesignerTable({
   setChangeToken,
   designer,
 }) {
-  const { pureName, columns, left, top, designerId } = table;
+  const { pureName, columns, left, top, designerId, alias } = table;
   const [movingPosition, setMovingPosition] = React.useState(null);
   const movingPositionRef = React.useRef(null);
   const theme = useTheme();
   const domObjectsRef = React.useRef({});
+  const showMenu = useShowMenu();
+  const showModal = useShowModal();
 
   const moveStartXRef = React.useRef(null);
   const moveStartYRef = React.useRef(null);
@@ -185,6 +230,71 @@ export default function DesignerTable({
     changeTokenDebounced.current();
   };
 
+  const handleSetTableAlias = () => {
+    showModal((modalState) => (
+      <InputTextModal
+        modalState={modalState}
+        value={alias || ''}
+        label="New alias"
+        header="Set table alias"
+        onConfirm={(newAlias) => {
+          onChangeTable({
+            ...table,
+            alias: newAlias,
+          });
+        }}
+      />
+    ));
+  };
+
+  const handleHeaderContextMenu = (event) => {
+    event.preventDefault();
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <TableContextMenu
+        remove={() => onRemoveTable({ designerId })}
+        setTableAlias={handleSetTableAlias}
+        removeTableAlias={
+          alias
+            ? () =>
+                onChangeTable({
+                  ...table,
+                  alias: null,
+                })
+            : null
+        }
+      />
+    );
+  };
+
+  const handleColumnContextMenu = (column) => (event) => {
+    event.preventDefault();
+    const foreignKey = findForeignKeyForColumn(table, column);
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <ColumnContextMenu
+        setSortOrder={(sortOrder) => {
+          onChangeColumn(
+            {
+              ...column,
+              designerId,
+            },
+            (col) => ({ ...col, sortOrder })
+          );
+        }}
+        addReference={
+          foreignKey
+            ? () => {
+              onAddReferenceByColumn(designerId, foreignKey);
+              }
+            : null
+        }
+      />
+    );
+  };
+
   return (
     <Wrapper
       theme={theme}
@@ -195,8 +305,8 @@ export default function DesignerTable({
       onMouseDown={() => onBringToFront(table)}
       ref={(dom) => dispatchDomColumn('', dom)}
     >
-      <Header onMouseDown={headerMouseDown} theme={theme}>
-        <HeaderLabel>{pureName}</HeaderLabel>
+      <Header onMouseDown={headerMouseDown} theme={theme} onContextMenu={handleHeaderContextMenu}>
+        <HeaderLabel>{alias || pureName}</HeaderLabel>
         <CloseWrapper onClick={() => onRemoveTable(table)} theme={theme}>
           <FontIcon icon="icon close" />
         </CloseWrapper>
@@ -204,6 +314,7 @@ export default function DesignerTable({
       <ColumnsWrapper>
         {(columns || []).map((column) => (
           <ColumnLine
+            onContextMenu={handleColumnContextMenu(column)}
             key={column.columnName}
             theme={theme}
             draggable
@@ -278,7 +389,8 @@ export default function DesignerTable({
                 }
               }}
             />
-            <ColumnLabel {...column} forceIcon />
+            <ColumnLabel {...column} foreignKey={findForeignKeyForColumn(table, column)} forceIcon />
+            <ColumnDesignerIcons column={column} designerId={designerId} designer={designer} />
           </ColumnLine>
         ))}
       </ColumnsWrapper>

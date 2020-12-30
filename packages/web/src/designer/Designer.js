@@ -7,6 +7,7 @@ import useTheme from '../theme/useTheme';
 import DesignerReference from './DesignerReference';
 import cleanupDesignColumns from './cleanupDesignColumns';
 import { isConnectedByReference } from './designerTools';
+import { getTableInfo } from '../utility/metadataLoaders';
 
 const Wrapper = styled.div`
   flex: 1;
@@ -20,7 +21,7 @@ const Canvas = styled.div`
   position: relative;
 `;
 
-export default function Designer({ value, onChange }) {
+export default function Designer({ value, onChange, conid, database }) {
   const { tables, references } = value || {};
   const theme = useTheme();
 
@@ -39,10 +40,11 @@ export default function Designer({ value, onChange }) {
     json.designerId = uuidv1();
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
-    onChange({
-      ...value,
-      tables: [...(tables || []), json],
-    });
+
+    onChange((current) => ({
+      ...current,
+      tables: [...(current.tables || []), json],
+    }));
   };
 
   const changeTable = React.useCallback(
@@ -70,6 +72,9 @@ export default function Designer({ value, onChange }) {
       onChange((current) => ({
         ...current,
         tables: (current.tables || []).filter((x) => x.designerId != table.designerId),
+        references: (current.references || []).filter(
+          (x) => x.sourceId != table.designerId && x.targetId != table.designerId
+        ),
       }));
     },
     [onChange]
@@ -144,6 +149,45 @@ export default function Designer({ value, onChange }) {
     });
   };
 
+  const handleAddReferenceByColumn = async (designerId, foreignKey) => {
+    const toTable = await getTableInfo({
+      conid,
+      database,
+      pureName: foreignKey.refTableName,
+      schemaName: foreignKey.refSchemaName,
+    });
+    const newTableDesignerId = uuidv1();
+    onChange((current) => {
+      const fromTable = (current.tables || []).find((x) => x.designerId == designerId);
+      if (!fromTable) return;
+      return {
+        ...current,
+        tables: [
+          ...(current.tables || []),
+          {
+            ...toTable,
+            left: fromTable.left + 300,
+            top: fromTable.top + 50,
+            designerId: newTableDesignerId,
+          },
+        ],
+        references: [
+          ...(current.references || []),
+          {
+            designerId: uuidv1(),
+            sourceId: fromTable.designerId,
+            targetId: newTableDesignerId,
+            joinType: 'INNER JOIN',
+            columns: foreignKey.columns.map((col) => ({
+              source: col.columnName,
+              target: col.refColumnName,
+            })),
+          },
+        ],
+      };
+    });
+  };
+
   const handleSelectColumn = React.useCallback(
     (column) => {
       onChange((current) => ({
@@ -211,6 +255,7 @@ export default function Designer({ value, onChange }) {
             onCreateReference={handleCreateReference}
             onSelectColumn={handleSelectColumn}
             onChangeColumn={handleChangeColumn}
+            onAddReferenceByColumn={handleAddReferenceByColumn}
             table={table}
             onChangeTable={changeTable}
             onBringToFront={bringToFront}

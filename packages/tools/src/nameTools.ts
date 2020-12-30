@@ -1,4 +1,4 @@
-import { DatabaseInfo, DatabaseInfoObjects } from 'dbgate-types';
+import { ColumnInfo, DatabaseInfo, DatabaseInfoObjects, TableInfo } from 'dbgate-types';
 
 export function fullNameFromString(name) {
   const m = name.match(/\[([^\]]+)\]\.\[([^\]]+)\]/);
@@ -44,4 +44,8 @@ export function findObjectLike(
   }
   // @ts-ignore
   return dbinfo[objectTypeField].find((x) => equalStringLike(x.pureName, pureName));
+}
+
+export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo) {
+  return (table.foreignKeys || []).find((fk) => fk.columns.find((col) => col.columnName == column.columnName));
 }

@@ -85,6 +85,8 @@ const iconNames = {
 
   'img reference': 'mdi mdi-link-box',
   'img link': 'mdi mdi-link',
+  'img filter': 'mdi mdi-filter',
+  'img group': 'mdi mdi-group',
 };
 
 export function FontIcon({ icon, className = '', ...other }) {

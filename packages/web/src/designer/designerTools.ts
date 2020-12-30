@@ -34,7 +34,7 @@ export function findConnectingReference(
   tables2: DesignerTableInfo[],
   additionalCondition: (ref: DesignerReferenceInfo) => boolean
 ) {
-  for (const ref of designer.references) {
+  for (const ref of designer.references || []) {
     if (additionalCondition(ref) && referenceIsConnecting(ref, tables1, tables2)) {
       return ref;
     }
@@ -119,6 +119,7 @@ export function isConnectedByReference(
   table2: { designerId: string },
   withoutRef: { designerId: string }
 ) {
+  if (!designer.references) return false;
   const creator = new DesignerComponentCreator({
     ...designer,
     references: withoutRef

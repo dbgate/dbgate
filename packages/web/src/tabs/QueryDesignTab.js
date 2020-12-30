@@ -102,7 +102,7 @@ export default function QueryDesignTab({
       sesid,
       sql: sqlPreview,
     });
-  }, [busy]);
+  }, [busy, conid, sessionId, database, sqlPreview]);
 
   const handleCancel = () => {
     axios.post('sessions/cancel', {
@@ -118,12 +118,15 @@ export default function QueryDesignTab({
     setBusy(false);
   };
 
-  const handleKeyDown = React.useCallback((e) => {
-    if (e.keyCode == keycodes.f5) {
-      e.preventDefault();
-      handleExecute();
-    }
-  }, []);
+  const handleKeyDown = React.useCallback(
+    (e) => {
+      if (e.keyCode == keycodes.f5) {
+        e.preventDefault();
+        handleExecute();
+      }
+    },
+    [handleExecute]
+  );
 
   React.useEffect(() => {
     if (tabVisible) {
