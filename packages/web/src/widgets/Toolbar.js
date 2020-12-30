@@ -109,7 +109,6 @@ export default function ToolBar({ toolbarPortalRef }) {
     } else if (openTabdata) {
       try {
         const json = JSON.parse(decodeURIComponent(openTabdata));
-        console.log('TABDATA', json);
         openFavorite(json);
         window.history.replaceState(null, null, ' ');
       } catch (err) {

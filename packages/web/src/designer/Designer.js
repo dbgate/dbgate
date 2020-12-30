@@ -128,10 +128,13 @@ export default function Designer({ value, onChange, conid, database }) {
 
   const bringToFront = React.useCallback(
     (table) => {
-      onChange((current) => ({
-        ...current,
-        tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
-      }));
+      onChange(
+        (current) => ({
+          ...current,
+          tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
+        }),
+        true
+      );
     },
     [onChange]
   );
@@ -260,14 +263,17 @@ export default function Designer({ value, onChange, conid, database }) {
 
   const handleSelectColumn = React.useCallback(
     (column) => {
-      onChange((current) => ({
-        ...current,
-        columns: (current.columns || []).find(
-          (x) => x.designerId == column.designerId && x.columnName == column.columnName
-        )
-          ? current.columns
-          : [...cleanupDesignColumns(current.columns), _.pick(column, ['designerId', 'columnName'])],
-      }));
+      onChange(
+        (current) => ({
+          ...current,
+          columns: (current.columns || []).find(
+            (x) => x.designerId == column.designerId && x.columnName == column.columnName
+          )
+            ? current.columns
+            : [...cleanupDesignColumns(current.columns), _.pick(column, ['designerId', 'columnName'])],
+        }),
+        true
+      );
     },
     [onChange]
   );
@@ -275,19 +281,20 @@ export default function Designer({ value, onChange, conid, database }) {
   const handleChangeColumn = React.useCallback(
     (column, changeFunc) => {
       onChange((current) => {
-        const existing = (current.columns || []).find(
+        const currentColumns = (current || {}).columns || [];
+        const existing = currentColumns.find(
           (x) => x.designerId == column.designerId && x.columnName == column.columnName
         );
         if (existing) {
           return {
             ...current,
-            columns: current.columns.map((x) => (x == existing ? changeFunc(existing) : x)),
+            columns: currentColumns.map((x) => (x == existing ? changeFunc(existing) : x)),
           };
         } else {
           return {
             ...current,
             columns: [
-              ...cleanupDesignColumns(current.columns),
+              ...cleanupDesignColumns(currentColumns),
               changeFunc(_.pick(column, ['designerId', 'columnName'])),
             ],
           };

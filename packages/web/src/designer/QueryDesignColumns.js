@@ -6,7 +6,7 @@ import InlineButton from '../widgets/InlineButton';
 import { findDesignerFilterType } from './designerTools';
 
 function getTableDisplayName(column, tables) {
-  const table = tables.find((x) => x.designerId == column.designerId);
+  const table = (tables || []).find((x) => x.designerId == column.designerId);
   if (table) return table.alias || table.pureName;
   return '';
 }

@@ -24,6 +24,7 @@ import QueryDesigner from '../designer/QueryDesigner';
 import QueryDesignColumns from '../designer/QueryDesignColumns';
 import { findEngineDriver } from 'dbgate-tools';
 import { generateDesignedQuery } from '../designer/designerTools';
+import useUndoReducer from '../utility/useUndoReducer';
 
 export default function QueryDesignTab({ tabid, conid, database, tabVisible, toolbarPortalRef, ...other }) {
   const [sessionId, setSessionId] = React.useState(null);
@@ -36,11 +37,26 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   const connection = useConnectionInfo({ conid });
   const engine = findEngineDriver(connection, extensions);
   const [sqlPreview, setSqlPreview] = React.useState('');
-  const { editorData, setEditorData, isLoading } = useEditorData({
+  const { initialData, setEditorData, isLoading } = useEditorData({
     tabid,
   });
+  const [modelState, dispatchModel] = useUndoReducer(
+    {
+      tables: [],
+      references: [],
+      columns: [],
+    },
+    { mergeNearActions: true }
+  );
 
-  const editorRef = React.useRef(null);
+  React.useEffect(() => {
+    // @ts-ignore
+    if (initialData) dispatchModel({ type: 'reset', value: initialData });
+  }, [initialData]);
+
+  React.useEffect(() => {
+    setEditorData(modelState.value);
+  }, [modelState]);
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
@@ -53,8 +69,19 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   };
 
   React.useEffect(() => {
-    generatePreview(editorData, engine);
-  }, [editorData, engine]);
+    generatePreview(modelState.value, engine);
+  }, [modelState.value, engine]);
+
+  const handleChange = React.useCallback(
+    (value, skipUndoChain) =>
+      // @ts-ignore
+      dispatchModel({
+        type: 'compute',
+        useMerge: skipUndoChain,
+        compute: (v) => (_.isFunction(value) ? value(v) : value),
+      }),
+    [dispatchModel]
+  );
 
   React.useEffect(() => {
     if (sessionId && socket) {
@@ -136,15 +163,15 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     <>
       <VerticalSplitter initialValue="70%">
         <QueryDesigner
-          value={editorData || {}}
+          value={modelState.value || {}}
           conid={conid}
           database={database}
           engine={connection && connection.engine}
-          onChange={setEditorData}
+          onChange={handleChange}
         ></QueryDesigner>
         <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
           <TabPage label="Columns" key="columns">
-            <QueryDesignColumns value={editorData || {}} onChange={setEditorData} />
+            <QueryDesignColumns value={modelState.value || {}} onChange={handleChange} />
           </TabPage>
           <TabPage label="SQL" key="sql">
             <SqlEditor value={sqlPreview} engine={engine} readOnly />
@@ -164,6 +191,8 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
         tabVisible &&
         ReactDOM.createPortal(
           <QueryDesignToolbar
+            modelState={modelState}
+            dispatchModel={dispatchModel}
             isDatabaseDefined={conid && database}
             execute={handleExecute}
             busy={busy}
@@ -178,7 +207,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}
-        data={editorData}
+        data={modelState.value}
         format="json"
         folder="query"
         tabid={tabid}
