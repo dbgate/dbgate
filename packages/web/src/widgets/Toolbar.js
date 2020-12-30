@@ -1,8 +1,9 @@
 import React from 'react';
 import useModalState from '../modals/useModalState';
 import ConnectionModal from '../modals/ConnectionModal';
+import { DropDownMenuItem } from '../modals/DropDownMenu';
 import styled from 'styled-components';
-import ToolbarButton, { ToolbarButtonExternalImage } from './ToolbarButton';
+import ToolbarButton, { ToolbarButtonExternalImage, ToolbarDropDownButton } from './ToolbarButton';
 import useNewQuery, { useNewQueryDesign } from '../query/useNewQuery';
 import { useConfig, useFavorites } from '../utility/metadataLoaders';
 import {
@@ -132,25 +133,14 @@ export default function ToolBar({ toolbarPortalRef }) {
             {x.title}
           </ToolbarButton>
         ))}
-      {config.runAsPortal == false && (
-        <ToolbarButton onClick={modalState.open} icon="icon new-connection">
-          Add connection
-        </ToolbarButton>
-      )}
-      <ToolbarButton onClick={newQuery} icon="icon sql-file">
-        New Query
-      </ToolbarButton>
-      {!!currentDatabase && (
-        <ToolbarButton onClick={newQueryDesign} icon="icon query-design">
-          Query Designer
-        </ToolbarButton>
-      )}
-      <ToolbarButton onClick={newFreeTable} icon="icon table">
-        Free table editor
-      </ToolbarButton>
-      <ToolbarButton onClick={newMarkdown} icon="icon markdown">
-        New markdown
-      </ToolbarButton>
+      <ToolbarDropDownButton icon="icon add" text="New">
+        {config.runAsPortal == false && <DropDownMenuItem onClick={modalState.open}>Connection</DropDownMenuItem>}
+        <DropDownMenuItem onClick={newQuery}>SQL query</DropDownMenuItem>
+        {!!currentDatabase && <DropDownMenuItem onClick={newQueryDesign}>Query designer</DropDownMenuItem>}
+        <DropDownMenuItem onClick={newFreeTable}>Free table editor</DropDownMenuItem>
+        <DropDownMenuItem onClick={newMarkdown}>Markdown page</DropDownMenuItem>
+      </ToolbarDropDownButton>
+
       <ToolbarButton onClick={showImport} icon="icon import">
         Import data
       </ToolbarButton>

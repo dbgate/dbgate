@@ -2,6 +2,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from '../icons';
+import { useShowMenu } from '../modals/showMenu';
 import dimensions from '../theme/dimensions';
 import useTheme from '../theme/useTheme';
 
@@ -82,6 +83,35 @@ export function ToolbarButtonExternalImage({ image, onClick, disabled = undefine
       disabled={disabled}
     >
       <ButtonExternalImage src={image} />
+    </ButtonDiv>
+  );
+}
+
+export function ToolbarDropDownButton({ children, icon = undefined, text, disabled = undefined, patchY = 2 }) {
+  const theme = useTheme();
+  const showMenu = useShowMenu();
+  const buttonRef = React.useRef(null);
+
+  return (
+    <ButtonDiv
+      theme={theme}
+      onClick={() => {
+        if (disabled) return;
+
+        const rect = buttonRef.current.getBoundingClientRect();
+        showMenu(rect.left, rect.bottom, children);
+      }}
+      disabled={disabled}
+    >
+      <ButtonDivInner patchY={patchY} ref={buttonRef}>
+        {icon && (
+          <StyledIconSpan disabled={disabled} theme={theme}>
+            <FontIcon icon={icon} />
+          </StyledIconSpan>
+        )}
+        {text}
+        <FontIcon icon="icon chevron-down" />
+      </ButtonDivInner>
     </ButtonDiv>
   );
 }
