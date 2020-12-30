@@ -78,14 +78,14 @@ const ColumnLine = styled.div`
     // @ts-ignore
     props.isDragSource &&
     `
-    background-color: ${props.theme.designtable_background_green[4]};
+    background-color: ${props.theme.designtable_background_cyan[2]};
     `}
 
   ${(props) =>
     // @ts-ignore
     props.isDragTarget &&
     `
-    background-color: ${props.theme.designtable_background_volcano[4]};
+    background-color: ${props.theme.designtable_background_cyan[2]};
     `}
 `;
 
@@ -348,6 +348,10 @@ export default function DesignerTable({
               };
               setSourceDragColumn(dragData);
               e.dataTransfer.setData('designer_column_drag_data', JSON.stringify(dragData));
+            }}
+            onDragEnd={(e) => {
+              setTargetDragColumn(null);
+              setSourceDragColumn(null);
             }}
             onDragOver={(e) => {
               if (sourceDragColumn) {

@@ -26,6 +26,21 @@ const EmptyInfo = styled.div`
   font-size: 20px;
 `;
 
+function fixPositions(tables) {
+  const minLeft = _.min(tables.map((x) => x.left));
+  const minTop = _.min(tables.map((x) => x.top));
+  if (minLeft < 0 || minTop < 0) {
+    const dLeft = minLeft < 0 ? -minLeft : 0;
+    const dTop = minTop < 0 ? -minTop : 0;
+    return tables.map((tbl) => ({
+      ...tbl,
+      left: tbl.left + dLeft,
+      top: tbl.top + dTop,
+    }));
+  }
+  return tables;
+}
+
 export default function Designer({ value, onChange, conid, database }) {
   const { tables, references } = value || {};
   const theme = useTheme();
@@ -105,7 +120,7 @@ export default function Designer({ value, onChange, conid, database }) {
     (table) => {
       onChange((current) => ({
         ...current,
-        tables: (current.tables || []).map((x) => (x.designerId == table.designerId ? table : x)),
+        tables: fixPositions((current.tables || []).map((x) => (x.designerId == table.designerId ? table : x))),
       }));
     },
     [onChange]
@@ -288,7 +303,7 @@ export default function Designer({ value, onChange, conid, database }) {
 
   return (
     <Wrapper theme={theme}>
-      {(tables || []).length == 0 && <EmptyInfo>Drag &amp; drop tables or views from left panel list here</EmptyInfo>}
+      {(tables || []).length == 0 && <EmptyInfo>Drag &amp; drop tables or views from left panel here</EmptyInfo>}
       <Canvas onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} ref={wrapperRef}>
         {(references || []).map((ref) => (
           <DesignerReference

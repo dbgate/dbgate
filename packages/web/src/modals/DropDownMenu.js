@@ -17,6 +17,7 @@ const ContextMenuStyled = styled.ul`
   text-align: left;
   min-width: 160px;
   z-index: 1050;
+  cursor: default;
 `;
 
 const KeyTextSpan = styled.span`
