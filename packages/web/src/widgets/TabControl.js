@@ -80,6 +80,12 @@ export function TabControl({ children, activePageIndex = undefined, activePageLa
     }
   }, [activePageLabel]);
 
+  React.useEffect(() => {
+    if (childrenArray.length > 0 && (value < 0 || value >= childrenArray.length)) {
+      setValue(0);
+    }
+  });
+
   const theme = useTheme();
 
   // // cleanup closed tabs

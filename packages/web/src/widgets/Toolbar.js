@@ -142,11 +142,11 @@ export default function ToolBar({ toolbarPortalRef }) {
         ))}
       <ToolbarDropDownButton icon="icon add" text="New">
         {config.runAsPortal == false && <DropDownMenuItem onClick={modalState.open}>Connection</DropDownMenuItem>}
-        <DropDownMenuItem onClick={newQuery}>SQL query</DropDownMenuItem>
-        {!!currentDatabase && <DropDownMenuItem onClick={newQueryDesign}>Query designer</DropDownMenuItem>}
-        <DropDownMenuItem onClick={newFreeTable}>Free table editor</DropDownMenuItem>
-        <DropDownMenuItem onClick={newMarkdown}>Markdown page</DropDownMenuItem>
-        <DropDownMenuItem onClick={newShell}>JavaScript shell script</DropDownMenuItem>
+        <DropDownMenuItem onClick={() => newQuery()}>SQL query</DropDownMenuItem>
+        {!!currentDatabase && <DropDownMenuItem onClick={() => newQueryDesign()}>Query designer</DropDownMenuItem>}
+        <DropDownMenuItem onClick={() => newFreeTable()}>Free table editor</DropDownMenuItem>
+        <DropDownMenuItem onClick={() => newMarkdown()}>Markdown page</DropDownMenuItem>
+        <DropDownMenuItem onClick={() => newShell()}>JavaScript shell script</DropDownMenuItem>
       </ToolbarDropDownButton>
 
       <ToolbarButton onClick={showImport} icon="icon import">
