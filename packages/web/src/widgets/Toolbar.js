@@ -96,6 +96,14 @@ export default function ToolBar({ toolbarPortalRef }) {
     showModal((modalState) => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
   };
 
+  const newShell = () => {
+    openNewTab({
+      title: 'Shell',
+      icon: 'img shell',
+      tabComponent: 'ShellTab',
+    });
+  };
+
   React.useEffect(() => {
     const { hash } = document.location;
     const openFavoriteName = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
@@ -138,6 +146,7 @@ export default function ToolBar({ toolbarPortalRef }) {
         {!!currentDatabase && <DropDownMenuItem onClick={newQueryDesign}>Query designer</DropDownMenuItem>}
         <DropDownMenuItem onClick={newFreeTable}>Free table editor</DropDownMenuItem>
         <DropDownMenuItem onClick={newMarkdown}>Markdown page</DropDownMenuItem>
+        <DropDownMenuItem onClick={newShell}>JavaScript shell script</DropDownMenuItem>
       </ToolbarDropDownButton>
 
       <ToolbarButton onClick={showImport} icon="icon import">
