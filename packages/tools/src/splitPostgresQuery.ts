@@ -195,14 +195,14 @@ function handleKeyTokenFindResult(context: SplitExecutionContext, findResult: Fi
       read(context, findResult.expIndex, findResult.nextIndex);
       publishStatement(context);
       break;
+    // case BACKTICK:
     case SINGLE_QUOTE:
-    case DOUBLE_QUOTE:
-    // case BACKTICK: {
-    //   read(context, findResult.nextIndex);
-    //   const findQuoteResult = findEndQuote(context.unread, findResult.exp);
-    //   read(context, findQuoteResult.nextIndex, undefined, false);
-    //   break;
-    // }
+    case DOUBLE_QUOTE: {
+      read(context, findResult.nextIndex);
+      const findQuoteResult = findEndQuote(context.unread, findResult.exp);
+      read(context, findQuoteResult.nextIndex, undefined, false);
+      break;
+    }
     case DOUBLE_DASH_COMMENT_START: {
       if (context.retainComments) {
         read(context, findResult.nextIndex);
