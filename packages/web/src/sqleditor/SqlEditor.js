@@ -24,23 +24,23 @@ const engineToMode = {
   postgre: 'pgsql',
 };
 
-const COMMON_KEYWORDS = [
-  'select',
-  'where',
-  'update',
-  'delete',
-  'group',
-  'order',
-  'from',
-  'by',
-  'create',
-  'table',
-  'drop',
-  'alter',
-  'view',
-  'execute',
-  'procedure',
-];
+// const COMMON_KEYWORDS = [
+//   'select',
+//   'where',
+//   'update',
+//   'delete',
+//   'group',
+//   'order',
+//   'from',
+//   'by',
+//   'create',
+//   'table',
+//   'drop',
+//   'alter',
+//   'view',
+//   'execute',
+//   'procedure',
+// ];
 
 export default function SqlEditor({
   value = undefined,

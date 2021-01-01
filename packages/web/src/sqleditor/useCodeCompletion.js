@@ -20,6 +20,7 @@ const COMMON_KEYWORDS = [
   'execute',
   'procedure',
   'distinct',
+  'go',
 ];
 
 export default function useCodeCompletion({ conid, database, tabVisible, currentEditorRef }) {
@@ -111,7 +112,7 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           editor.execCommand('startAutocomplete');
         }
 
-        if (e.args == ' '  && /((from)|(join))\s*$/i.test(line)) {
+        if (e.args == ' ' && /((from)|(join))\s*$/i.test(line)) {
           editor.execCommand('startAutocomplete');
         }
       }
