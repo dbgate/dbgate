@@ -95,15 +95,15 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  cancel_meta: 'post',
-  async cancel({ sesid }) {
-    const session = this.opened.find((x) => x.sesid == sesid);
-    if (!session) {
-      throw new Error('Invalid session');
-    }
-    session.subprocess.send({ msgtype: 'cancel' });
-    return { state: 'ok' };
-  },
+  // cancel_meta: 'post',
+  // async cancel({ sesid }) {
+  //   const session = this.opened.find((x) => x.sesid == sesid);
+  //   if (!session) {
+  //     throw new Error('Invalid session');
+  //   }
+  //   session.subprocess.send({ msgtype: 'cancel' });
+  //   return { state: 'ok' };
+  // },
 
   kill_meta: 'post',
   async kill({ sesid }) {
@@ -112,6 +112,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
     session.subprocess.kill();
+    this.dispatchMessage(sesid, 'Connection closed');
     return { state: 'ok' };
   },
 

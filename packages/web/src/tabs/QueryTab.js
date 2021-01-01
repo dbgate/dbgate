@@ -24,6 +24,7 @@ import useExtensions from '../utility/useExtensions';
 
 export default function QueryTab({ tabid, conid, database, initialArgs, tabVisible, toolbarPortalRef, ...other }) {
   const [sessionId, setSessionId] = React.useState(null);
+  const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
@@ -63,6 +64,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   const handleExecute = async () => {
     if (busy) return;
     setExecuteNumber((num) => num + 1);
+    setVisibleResultTabs(true);
     const selectedText = editorRef.current.editor.getSelectedText();
 
     let sesid = sessionId;
@@ -81,14 +83,14 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     });
   };
 
-  const handleCancel = () => {
-    axios.post('sessions/cancel', {
-      sesid: sessionId,
-    });
-  };
+  // const handleCancel = () => {
+  //   axios.post('sessions/cancel', {
+  //     sesid: sessionId,
+  //   });
+  // };
 
-  const handleKill = () => {
-    axios.post('sessions/kill', {
+  const handleKill = async () => {
+    await axios.post('sessions/kill', {
       sesid: sessionId,
     });
     setSessionId(null);
@@ -135,7 +137,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
           conid={conid}
           database={database}
         />
-        {sessionId && (
+        {visibleResultTabs && (
           <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
             <TabPage label="Messages" key="messages">
               <SocketMessagesView
@@ -157,7 +159,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
             isDatabaseDefined={conid && database}
             execute={handleExecute}
             busy={busy}
-            cancel={handleCancel}
+            // cancel={handleCancel}
             format={handleFormatCode}
             save={saveFileModalState.open}
             isConnected={!!sessionId}
