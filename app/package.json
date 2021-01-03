@@ -18,7 +18,9 @@
         "AppImage",
         "deb"
       ],
-      "icon": "icon512.png"
+      "icon": "256x256.png",
+      "category": "Development",
+      "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL"
     },
     "win": {
       "target": [
