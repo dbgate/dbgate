@@ -28,6 +28,7 @@ import useUndoReducer from '../utility/useUndoReducer';
 
 export default function QueryDesignTab({ tabid, conid, database, tabVisible, toolbarPortalRef, ...other }) {
   const [sessionId, setSessionId] = React.useState(null);
+  const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
@@ -101,6 +102,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   const handleExecute = React.useCallback(async () => {
     if (busy) return;
     setExecuteNumber((num) => num + 1);
+    setVisibleResultTabs(true);
 
     let sesid = sessionId;
     if (!sesid) {
@@ -118,14 +120,8 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     });
   }, [busy, conid, sessionId, database, sqlPreview]);
 
-  const handleCancel = () => {
-    axios.post('sessions/cancel', {
-      sesid: sessionId,
-    });
-  };
-
-  const handleKill = () => {
-    axios.post('sessions/kill', {
+  const handleKill = async () => {
+    await axios.post('sessions/kill', {
       sesid: sessionId,
     });
     setSessionId(null);
@@ -176,7 +172,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
           <TabPage label="SQL" key="sql">
             <SqlEditor value={sqlPreview} engine={engine} readOnly />
           </TabPage>
-          {sessionId && (
+          {visibleResultTabs && (
             <TabPage label="Messages" key="messages">
               <SocketMessagesView
                 eventName={sessionId ? `session-info-${sessionId}` : null}
@@ -199,8 +195,8 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
             // cancel={handleCancel}
             // format={handleFormatCode}
             save={saveFileModalState.open}
-            // isConnected={!!sessionId}
-            // kill={handleKill}
+            isConnected={!!sessionId}
+            kill={handleKill}
           />,
           toolbarPortalRef.current
         )}
