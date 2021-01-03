@@ -132,7 +132,13 @@ export default function ToolBar({ toolbarPortalRef }) {
   return (
     <ToolbarContainer>
       <ConnectionModal modalState={modalState} />
-      {!electron && <ToolbarButtonExternalImage image="/logo192.png" onClick={showAbout} />}
+      {!electron && (
+        <ToolbarButtonExternalImage
+          // eslint-disable-next-line
+          image={`${process.env.PUBLIC_URL}/logo192.png`}
+          onClick={showAbout}
+        />
+      )}
       {(favorites || [])
         .filter((x) => x.showInToolbar)
         .map((x) => (

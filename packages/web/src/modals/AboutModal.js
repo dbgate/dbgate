@@ -60,7 +60,10 @@ export default function AboutModal({ modalState }) {
       <ModalHeader modalState={modalState}>About DbGate</ModalHeader>
       <ModalContent>
         <Container>
-          <img src="/logo192.png" />
+          <img
+            // eslint-disable-next-line
+            src={`${process.env.PUBLIC_URL}/logo192.png`}
+          />
           <TextContainer>
             <Line label="Version">{version}</Line>
             <Line label="Build date">{moment(buildTime).format('YYYY-MM-DD')}</Line>
