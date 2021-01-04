@@ -259,7 +259,7 @@ export default function DataGridCore(props) {
   });
 
   React.useEffect(() => {
-    if (display.groupColumns) {
+    if (display.groupColumns && display.baseTable) {
       props.onReferenceClick({
         schemaName: display.baseTable.schemaName,
         pureName: display.baseTable.pureName,
@@ -270,7 +270,7 @@ export default function DataGridCore(props) {
         })),
       });
     }
-  }, [stableStringify(display && display.groupColumns)]);
+  }, [display.baseTable, stableStringify(display && display.groupColumns)]);
 
   const theme = useTheme();
 
