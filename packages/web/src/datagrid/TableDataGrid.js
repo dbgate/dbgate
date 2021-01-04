@@ -123,7 +123,8 @@ export default function TableDataGrid({
       setMyLoadedTime(loadedTime);
       if (!reference) return;
       const filters = {
-        ...childConfig.filters,
+        // ...childConfig.filters,
+        ...(config && config.filters),
         ..._.fromPairs(
           reference.columns.map((col) => [
             col.refName,
