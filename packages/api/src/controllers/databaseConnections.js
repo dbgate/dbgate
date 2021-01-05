@@ -7,7 +7,7 @@ const { DatabaseAnalyser } = require('dbgate-tools');
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
   opened: [],
-  closed: [],
+  closed: {},
   requests: {},
 
   handle_structure(conid, database, { structure }) {
@@ -39,7 +39,7 @@ module.exports = {
     if (existing) return existing;
     const connection = await connections.get({ conid });
     const subprocess = fork(process.argv[1], ['databaseConnectionProcess']);
-    const lastClosed = this.closed.find((x) => x.conid == conid && x.database == database);
+    const lastClosed = this.closed[`${conid}/${database}`];
     const newOpened = {
       conid,
       database,
@@ -89,6 +89,8 @@ module.exports = {
   async status({ conid, database }) {
     const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     if (existing) return existing.status;
+    const lastClosed = this.closed[`${conid}/${database}`];
+    if (lastClosed) return lastClosed.status;
     return {
       name: 'error',
       message: 'Not connected',
@@ -118,7 +120,7 @@ module.exports = {
       existing.disconnected = true;
       if (kill) existing.subprocess.kill();
       this.opened = this.opened.filter((x) => x.conid != conid || x.database != database);
-      this.closed[conid] = {
+      this.closed[`${conid}/${database}`] = {
         status: {
           ...existing.status,
           name: 'error',

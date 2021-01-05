@@ -108,6 +108,15 @@ function SqlObjectList({ conid, database }) {
 
   const inputRef = React.useRef(null);
 
+  if (status && status.name == 'error') {
+    return (
+      <WidgetsInnerContainer>
+        <ErrorInfo message={status.message} icon="img error" />
+        <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
+      </WidgetsInnerContainer>
+    );
+  }
+
   if (objectList.length == 0 && (status && status.name) != 'pending') {
     return (
       <WidgetsInnerContainer>
