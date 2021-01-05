@@ -105,7 +105,21 @@ function SqlObjectList({ conid, database }) {
       )
     )
   );
+
   const inputRef = React.useRef(null);
+
+  if (objectList.length == 0 && (status && status.name) != 'pending') {
+    return (
+      <WidgetsInnerContainer>
+        <ErrorInfo
+          message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
+          icon="img alert"
+        />
+        <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
+      </WidgetsInnerContainer>
+    );
+  }
+
   return (
     <>
       <SearchBoxWrapper>
