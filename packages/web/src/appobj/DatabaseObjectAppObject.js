@@ -25,6 +25,7 @@ const menus = {
     {
       label: 'Open data',
       tab: 'TableDataTab',
+      forceNewTab: true,
     },
     {
       label: 'Open structure',
@@ -55,6 +56,7 @@ const menus = {
     {
       label: 'Open data',
       tab: 'ViewDataTab',
+      forceNewTab: true,
     },
     {
       label: 'Show CREATE VIEW script',
@@ -112,7 +114,8 @@ export async function openDatabaseObjectDetail(
   openNewTab,
   tabComponent,
   sqlTemplate,
-  { schemaName, pureName, conid, database, objectTypeField }
+  { schemaName, pureName, conid, database, objectTypeField },
+  forceNewTab
 ) {
   const connection = await getConnectionInfo({ conid });
   const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
@@ -120,20 +123,24 @@ export async function openDatabaseObjectDetail(
     pureName,
   })}`;
 
-  openNewTab({
-    title: pureName,
-    tooltip,
-    icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
-    tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
-    props: {
-      schemaName,
-      pureName,
-      conid,
-      database,
-      objectTypeField,
-      initialArgs: sqlTemplate ? { sqlTemplate } : null,
+  openNewTab(
+    {
+      title: pureName,
+      tooltip,
+      icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
+      tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
+      props: {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField,
+        initialArgs: sqlTemplate ? { sqlTemplate } : null,
+      },
     },
-  });
+    undefined,
+    { forceNewTab }
+  );
 }
 
 function Menu({ data }) {
@@ -233,7 +240,7 @@ function Menu({ data }) {
                 }
               );
             } else {
-              openDatabaseObjectDetail(openNewTab, menu.tab, menu.sqlTemplate, data);
+              openDatabaseObjectDetail(openNewTab, menu.tab, menu.sqlTemplate, data, menu.forceNewTab);
             }
           }}
         >
@@ -258,7 +265,8 @@ function DatabaseObjectAppObject({ data, commonProps }) {
         conid,
         database,
         objectTypeField,
-      }
+      },
+      false
     );
   };
 

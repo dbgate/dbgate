@@ -11,7 +11,7 @@ export default function useOpenNewTab() {
   const openedTabs = useOpenedTabs();
 
   const openNewTab = React.useCallback(
-    async (newTab, initialData = undefined) => {
+    async (newTab, initialData = undefined, options) => {
       let existing = null;
 
       const { savedFile } = newTab.props || {};
@@ -22,8 +22,10 @@ export default function useOpenNewTab() {
         );
       }
 
+      const { forceNewTab } = options || {};
+
       const component = tabs[newTab.tabComponent];
-      if (!existing && component && component.matchingProps) {
+      if (!existing && !forceNewTab && component && component.matchingProps) {
         const testString = stableStringify(_.pick(newTab.props || {}, component.matchingProps));
         existing = openedTabs.find(
           (x) =>
