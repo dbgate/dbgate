@@ -30,6 +30,7 @@ import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 import { useShowMenu } from '../modals/showMenu';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import axios from '../utility/axios';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -1072,7 +1073,15 @@ export default function DataGridCore(props) {
         props.toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
-          <DataGridToolbar reload={() => display.reload()} save={handleSave} grider={grider} />,
+          <DataGridToolbar
+            reload={() => display.reload()}
+            save={handleSave}
+            grider={grider}
+            reconnect={async () => {
+              await axios.post('database-connections/refresh', { conid, database });
+              display.reload();
+            }}
+          />,
           props.toolbarPortalRef.current
         )}
       {isLoading && <LoadingInfo wrapper message="Loading data" />}

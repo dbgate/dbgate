@@ -12,6 +12,7 @@ const iconNames = {
   'icon favorite': 'mdi mdi-star',
   'icon share': 'mdi mdi-share-variant',
   'icon add': 'mdi mdi-plus-circle',
+  'icon connection': 'mdi mdi-connection',
 
   'icon database': 'mdi mdi-database',
   'icon server': 'mdi mdi-server',

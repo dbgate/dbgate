@@ -1,11 +1,14 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function DataGridToolbar({ reload, grider, save }) {
+export default function DataGridToolbar({ reload, reconnect, grider, save }) {
   return (
     <>
       <ToolbarButton onClick={reload} icon="icon reload">
         Refresh
+      </ToolbarButton>
+      <ToolbarButton onClick={reconnect} icon="icon connection">
+        Reconnect
       </ToolbarButton>
       <ToolbarButton disabled={!grider.canUndo} onClick={() => grider.undo()} icon="icon undo">
         Undo
