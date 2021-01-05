@@ -122,9 +122,11 @@ export default function TableDataGrid({
     (selectedRows, loadedTime) => {
       setMyLoadedTime(loadedTime);
       if (!reference) return;
+
+      const filtersBase = display && display.isGrouped ? config.filters : childConfig.filters;
+
       const filters = {
-        // ...childConfig.filters,
-        ...(config && config.filters),
+        ...filtersBase,
         ..._.fromPairs(
           reference.columns.map((col) => [
             col.refName,
