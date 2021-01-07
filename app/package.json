@@ -17,6 +17,7 @@
     "mac": {
       "category": "database",
       "icon": "icon512.png",
+      "artifactName": "dbgate-mac-${version}.${ext}",
       "publish": [
         "github"
       ]
@@ -27,6 +28,7 @@
         "deb"
       ],
       "icon": "icon.png",
+      "artifactName": "dbgate-linux-${version}.${ext}",
       "category": "Development",
       "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL",
       "publish": [
@@ -37,6 +39,7 @@
       "target": [
         "nsis"
       ],
+      "artifactName": "dbgate-windows-${version}.${ext}",
       "icon": "icon.ico",
       "publish": [
         "github"
