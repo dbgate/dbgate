@@ -39,6 +39,8 @@ jobs:
       - name: Publish
         run: |
           yarn run build:app
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       - name: Copy artifacts Linux, MacOs
         if: matrix.os != 'windows-2016'
@@ -75,7 +77,6 @@ jobs:
           files: "artifacts/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       # - name: Create Release
       #   id: create_release
