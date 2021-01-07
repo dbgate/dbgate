@@ -22,7 +22,8 @@
     },
     "linux": {
       "target": [
-        "AppImage"
+        "AppImage",
+        "deb"
       ],
       "icon": "icon.png",
       "category": "Development",
