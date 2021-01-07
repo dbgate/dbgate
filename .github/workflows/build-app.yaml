@@ -59,8 +59,6 @@ jobs:
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
 
-          mv app/dist/dbgate-pad.xml artifacts/ || true
-
       # - name: Copy artifacts Linux, MacOs
       #   if: matrix.os != 'windows-2016'
       #   run: |
@@ -89,6 +87,7 @@ jobs:
         if: matrix.os == 'windows-2016'
         run: |
           mv app/dist/latest.yml artifacts/latest.yml || true
+          mv app/dist/dbgate-pad.xml artifacts/ || true
 
       - name: Copy latest-linux.yml
         if: matrix.os == 'ubuntu-18.04'

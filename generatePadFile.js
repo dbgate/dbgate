@@ -12,7 +12,7 @@ let size = 0;
 const files = fs.readdirSync('app/dist');
 for (const file of files) {
   if (file.endsWith('.exe')) {
-    const stats = fs.statSync(path.join('app', 'dist', 'file'));
+    const stats = fs.statSync(path.join('app', 'dist', file));
     size = stats.size;
   }
 }
@@ -26,4 +26,6 @@ const padContent = template
   .replace('#SIZE_KB#', Math.round(size / 1024))
   .replace('#SIZE_MB#', Math.round(size / 1024 / 1024));
 
-fs.writeFileSync('app/dist/dbgate-pad.xml', padContent, 'utf-8');
+if (size > 0) {
+  fs.writeFileSync('app/dist/dbgate-pad.xml', padContent, 'utf-8');
+}
