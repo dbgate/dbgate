@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "3.8.16",
+  "version": "3.8.17",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "dependencies": {
@@ -12,7 +12,9 @@
     "mac": {
       "category": "database",
       "icon": "icon512.png",
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "linux": {
       "target": [
@@ -22,14 +24,18 @@
       "icon": "icon.png",
       "category": "Development",
       "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL",
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "win": {
       "target": [
         "nsis"
       ],
       "icon": "icon.ico",
-      "publish": ["github"]
+      "publish": [
+        "github"
+      ]
     },
     "files": [
       "packages",
