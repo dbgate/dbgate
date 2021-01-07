@@ -114,12 +114,13 @@ function buildMenu() {
 
 function createWindow() {
   const bounds = store.get('winBounds');
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     title: 'DbGate',
-    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon.png',
     ...bounds,
+    icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     show: false,
     webPreferences: {
       nodeIntegration: true,
