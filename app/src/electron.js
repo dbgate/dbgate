@@ -150,6 +150,9 @@ function createWindow() {
       store.set('winBounds', mainWindow.getBounds());
     });
     mainWindow.loadURL(startUrl);
+    if (os.platform() == 'linux') {
+      mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
+    }
   }
 
   splashWindow = new BrowserWindow({
