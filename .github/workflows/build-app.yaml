@@ -75,6 +75,7 @@ jobs:
           files: "artifacts/**"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       # - name: Create Release
       #   id: create_release
