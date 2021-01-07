@@ -4,7 +4,7 @@ const packageJson = fs.readFileSync('app/package.json', { encoding: 'utf-8' });
 const json = JSON.parse(packageJson);
 const { version } = json;
 
-const template = fs.readFileSync('app/dbgate-pad-template.xml');
+const template = fs.readFileSync('app/dbgate-pad-template.xml', { encoding: 'utf-8' });
 
 const date = new Date();
 let size = 0;
