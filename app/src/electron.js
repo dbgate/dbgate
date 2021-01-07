@@ -4,6 +4,8 @@ const { Menu } = require('electron');
 const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const Store = require('electron-store');
+const log = require('electron-log');
+
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -18,6 +20,9 @@ const store = new Store();
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let splashWindow;
+
+log.transports.file.level = 'debug';
+autoUpdater.logger = log;
 
 function hideSplash() {
   if (splashWindow) {

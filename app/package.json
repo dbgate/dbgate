@@ -4,8 +4,9 @@
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "dependencies": {
+    "electron-log": "^4.3.1",
     "electron-store": "^5.1.1",
-    "electron-updater": "^4.3.1"
+    "electron-updater": "^4.3.5"
   },
   "repository": {
     "type": "git",
