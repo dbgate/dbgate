@@ -24,6 +24,7 @@
     "build:app:local": "cd app && yarn build:local",
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",
+    "generatePadFile": "node generatePadFile",
 
     "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/build/* docker -u 2 && copyfiles \"packages/web/build/**/*\" docker -u 2",
     "prepare:docker": "yarn build:web:docker && yarn build:api && yarn copy:docker:build",

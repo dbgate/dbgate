@@ -41,6 +41,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
+      - name: generatePadFile
+        run: |
+          yarn generatePadFile
+
       - name: Copy artifacts
         run: |
           mkdir artifacts          
@@ -54,6 +58,8 @@ jobs:
           mv app/dist/*.AppImage artifacts/ || true
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
+
+          mv app/dist/dbgate-pad.xml artifacts/ || true
 
       # - name: Copy artifacts Linux, MacOs
       #   if: matrix.os != 'windows-2016'

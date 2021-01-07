@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<XML_DIZ_INFO>
+  <MASTER_PAD_VERSION_INFO>
+    <MASTER_PAD_VERSION>3.01</MASTER_PAD_VERSION>
+    <MASTER_PAD_EDITOR>PADManager 2.0.46</MASTER_PAD_EDITOR>
+    <MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+  </MASTER_PAD_VERSION_INFO>
+  <Company_Info>
+    <Company_Name>JenaSoft</Company_Name>
+    <Address_1>Vratislavska 396</Address_1>
+    <Address_2>Praha 8</Address_2>
+    <City_Town>Prague</City_Town>
+    <State_Province/>
+    <Zip_Postal_Code>18100</Zip_Postal_Code>
+    <Country>Czech Republic</Country>
+    <Company_WebSite_URL>https://dbgate.org/</Company_WebSite_URL>
+    <Contact_Info>
+      <Contact_First_Name>Jan</Contact_First_Name>
+      <Contact_Last_Name>Prochazka</Contact_Last_Name>
+      <Contact_Email>jenasoft.database@gmail.com</Contact_Email>
+      <Author_First_Name>Jan</Author_First_Name>
+      <Author_Last_Name>Prochazka</Author_Last_Name>
+      <Author_Email>jenasoft.database@gmail.com</Author_Email>
+    </Contact_Info>
+    <Support_Info>
+      <Sales_Email>jenasoft.database@gmail.com</Sales_Email>
+      <Support_Email>jenasoft.database@gmail.com</Support_Email>
+      <General_Email>jenasoft.database@gmail.com</General_Email>
+      <Sales_Phone/>
+      <Support_Phone/>
+      <General_Phone/>
+      <Fax_Phone/>
+    </Support_Info>
+  </Company_Info>
+  <Site>
+    <Site_FORM>Y</Site_FORM>
+    <Site_VERSION>1.0</Site_VERSION>
+    <Site_URL>https://dbgate.org/</Site_URL>
+    <Site_DESCRIPTION>This PAD extension allows you to add your site info into your PAD file. This info can be used by site submission software or by web directories themselves.</Site_DESCRIPTION>
+    <Site_Contact_Email>jenasoft.database@gmail.com</Site_Contact_Email>
+    <Site_Contact_First_Name>Jan</Site_Contact_First_Name>
+    <Site_Contact_Last_Name>Prochazka</Site_Contact_Last_Name>
+    <Site_Description_100>Database tools - effecient data manipulation</Site_Description_100>
+    <Site_Description_250>Database tools - effecient data manipulation, import, export, filtering, master/detail, query designer</Site_Description_250>
+    <Site_Description_450>Database tools - effecient data manipulation, import, export, filtering, master/detail, query designer</Site_Description_450>
+    <Site_Site_URL>https://dbgate.org/</Site_Site_URL>
+    <Site_Site_Title>DbGate</Site_Site_Title>
+    <Site_Keywords>database, manager, organizer, explorer, mssql, sqlserver, tsql, sql, mysql, postgre, postgresql,  export, import, filter</Site_Keywords>
+  </Site>
+  <Program_Info>
+    <Program_Name>DbGate</Program_Name>
+    <Program_Version>#VERSION#</Program_Version>
+    <Program_Release_Month>#MONTH#</Program_Release_Month>
+    <Program_Release_Day>#DAY#</Program_Release_Day>
+    <Program_Release_Year>#YEAR#</Program_Release_Year>
+    <Program_Cost_Dollars>0.00</Program_Cost_Dollars>
+    <Program_Type>Freeware</Program_Type>
+    <Program_Release_Status>Major Update</Program_Release_Status>
+    <Program_Install_Support>Install and Uninstall</Program_Install_Support>
+    <Program_OS_Support>Linux,Linux Gnome,Linux GPL,Linux Open Source,Mac OS X,Win7 x64,WinOther</Program_OS_Support>
+    <Program_Language>English</Program_Language>
+    <Program_Change_Info>Query designer</Program_Change_Info>
+    <Program_System_Requirements></Program_System_Requirements>
+    <Program_Category_Class>Business::Databases &amp; Tools</Program_Category_Class>
+    <File_Info>
+      <File_Size_Bytes>#SIZE_BYTES#</File_Size_Bytes>
+      <File_Size_K>#SIZE_KB#</File_Size_K>
+      <File_Size_MB>#SIZE_MB#</File_Size_MB>
+      <Filename_Versioned/>
+      <Filename_Previous/>
+      <Filename_Generic/>
+      <Filename_Long/>
+    </File_Info>
+    <Expire_Info>
+      <Has_Expire_Info>N</Has_Expire_Info>
+      <Expire_Based_On>Days</Expire_Based_On>
+      <Expire_Count/>
+      <Expire_Other_Info/>
+      <Expire_Month/>
+      <Expire_Day/>
+      <Expire_Year/>
+    </Expire_Info>
+    <Program_Categories>Business &amp; Finance :: Database Managers,Programming :: Databases &amp; Networks,Programming :: SQL</Program_Categories>
+    <Limitations>No limitations</Limitations>
+    <Program_Cost_Other_Code/>
+    <Program_Cost_Other/>
+    <Awards/>
+    <Program_Specific_Category/>
+    <Includes_JAVA_VM/>
+    <Includes_VB_Runtime/>
+    <Includes_DirectX/>
+  </Program_Info>
+  <Web_Info>
+    <Application_URLs>
+      <Application_Info_URL>https://dbgate.org/</Application_Info_URL>
+      <Application_Screenshot_URL>https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png</Application_Screenshot_URL>
+      <Application_Icon_URL>https://github.com/dbshell/dbgate/raw/master/app/icon.png</Application_Icon_URL>
+      <Application_XML_File_URL>https://github.com/dbshell/dbgate/releases/latest/download/dbgate-pad.xml</Application_XML_File_URL>
+      <Application_Order_URL></Application_Order_URL>
+    </Application_URLs>
+    <Download_URLs>
+      <Primary_Download_URL>https://github.com/dbshell/dbgate/releases/latest/download/dbgate-latest.exe</Primary_Download_URL>
+      <Secondary_Download_URL></Secondary_Download_URL>
+      <Additional_Download_URL_1/>
+      <Additional_Download_URL_2/>
+    </Download_URLs>
+  </Web_Info>
+  <Permissions>
+    <Distribution_Permissions>This product can be freely distributed through the Internet. To put it onto a CD, please contact jenasoft.database@gmail.com</Distribution_Permissions>
+    <EULA>MIT License
+
+Copyright (c) 2021 Jan Prochazka
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</EULA>
+  </Permissions>
+  <Program_Descriptions>
+    <English>
+      <Keywords>sql, management, tool, microsoft, sql, mssql, postgres, postgresql, mysql, csv, data, export, import, javascript, database</Keywords>
+      <Char_Desc_45>Modern data manipulation tool</Char_Desc_45>
+      <Char_Desc_80>Modern cross-platform data manipulation tool</Char_Desc_80>
+      <Char_Desc_250>Modern cross-platform data manipulation tool for Microsoft SQL Server, PostgreSQL and MySQL. Query designer. Master/detail views. Advanced data filtering. Export, import. Exports can be saved as jobs</Char_Desc_250>
+      <Char_Desc_450>Modern cross-platform data manipulation tool for Microsoft SQL Server, PostgreSQL and MySQL. Query designer. Charts. Master/detail views. Advanced data filtering. Export, import. Exports can be saved as jobs</Char_Desc_450>
+      <Char_Desc_2000>
+Modern cross-platform data manipulation tool for Microsoft SQL Server, PostgreSQL and MySQL
+Main features: 
+  Quick database browser.
+  Database editor, view and and views, stored procedures, functions, triggers, table relations. 
+  Export, import - CSV, MS Excel
+  Query designer
+  Advanced data filtering. 
+  Export, import. 
+  JavaScript data scripting.
+  Run queries, code completion. 
+  Display data from referenced tables. 
+  Create charts, supports for active charts - are refreshed when underlying source is changed
+</Char_Desc_2000>
+    </English>
+  </Program_Descriptions>
+</XML_DIZ_INFO>
