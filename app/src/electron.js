@@ -118,11 +118,12 @@ function createWindow() {
     width: 1200,
     height: 800,
     title: 'DbGate',
-    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon512.png',
+    icon: os.platform() == 'win32' ? 'icon.ico' : 'icon.png',
     ...bounds,
     show: false,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
     },
   });
 
