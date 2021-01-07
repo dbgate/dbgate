@@ -11,7 +11,8 @@
     "appId": "org.dbgate",
     "mac": {
       "category": "database",
-      "icon": "icon512.png"
+      "icon": "icon512.png",
+      "publish": ["github"]
     },
     "linux": {
       "target": [
@@ -20,13 +21,15 @@
       ],
       "icon": "icon.png",
       "category": "Development",
-      "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL"
+      "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL",
+      "publish": ["github"]
     },
     "win": {
       "target": [
         "nsis"
       ],
-      "icon": "icon.ico"
+      "icon": "icon.ico",
+      "publish": ["github"]
     },
     "files": [
       "packages",

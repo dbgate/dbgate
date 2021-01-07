@@ -2,7 +2,7 @@ const electron = require('electron');
 const os = require('os');
 const { Menu } = require('electron');
 const { fork } = require('child_process');
-var { autoUpdater } = require('electron-updater');
+const { autoUpdater } = require('electron-updater');
 const Store = require('electron-store');
 // Module to control application life.
 const app = electron.app;
