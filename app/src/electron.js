@@ -1,6 +1,5 @@
 const electron = require('electron');
 const os = require('os');
-const fs = require('fs');
 const { Menu } = require('electron');
 const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
@@ -24,18 +23,6 @@ let splashWindow;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
-
-function datadir() {
-  const dir = path.join(os.homedir(), 'dbgate-data');
-  if (!fs.existsSync(dir)) {
-    try {
-      fs.mkdirSync(dir);
-    } catch (err) {
-      console.error(`Error creating ${dir} directory`, err);
-    }
-  }
-  return dir;
-}
 
 function hideSplash() {
   if (splashWindow) {
@@ -164,9 +151,7 @@ function createWindow() {
     });
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
-      const iconFile = path.join(datadir(), 'dbgate-icon.png');
-      fs.copyFileSync(path.resolve(__dirname, '../icon.png'), iconFile);
-      mainWindow.setIcon(iconFile);
+      mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
   }
 

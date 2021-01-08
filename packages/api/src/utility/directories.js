@@ -12,11 +12,7 @@ const ensureDirectory = (dir, clean) => {
     }
     if (!fs.existsSync(dir)) {
       console.log(`Creating directory ${dir}`);
-      try {
-        fs.mkdirSync(dir);
-      } catch (err) {
-        console.error(`Error creating ${dir} directory`, err);
-      }
+      fs.mkdirSync(dir);
     }
     createDirectories[dir] = true;
   }
