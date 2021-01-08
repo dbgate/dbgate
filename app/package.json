@@ -47,7 +47,8 @@
     },
     "files": [
       "packages",
-      "src"
+      "src",
+      "icon.png"
     ]
   },
   "homepage": "./",
