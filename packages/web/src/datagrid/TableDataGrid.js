@@ -2,7 +2,7 @@ import React from 'react';
 import _ from 'lodash';
 import DataGrid from './DataGrid';
 import styled from 'styled-components';
-import { TableGridDisplay, createGridConfig, createGridCache } from 'dbgate-datalib';
+import { TableGridDisplay, TableFormViewDisplay, createGridConfig, createGridCache } from 'dbgate-datalib';
 import { getFilterValueExpression } from 'dbgate-filterparser';
 import { findEngineDriver } from 'dbgate-tools';
 import { useConnectionInfo, getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
@@ -88,7 +88,22 @@ export default function TableDataGrid({
       : null;
   }
 
+  function createFormDisplay() {
+    return connection
+      ? new TableFormViewDisplay(
+          { schemaName, pureName },
+          findEngineDriver(connection, extensions),
+          config,
+          setConfig,
+          cache || myCache,
+          setCache || setMyCache,
+          dbinfo
+        )
+      : null;
+  }
+
   const [display, setDisplay] = React.useState(createDisplay());
+  const [formDisplay, setFormDisplay] = React.useState(createFormDisplay());
 
   React.useEffect(() => {
     setRefReloadToken((v) => v + 1);
@@ -100,6 +115,13 @@ export default function TableDataGrid({
     if (!newDisplay) return;
     if (display && display.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
     setDisplay(newDisplay);
+  }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo, extensions]);
+
+  React.useEffect(() => {
+    const newDisplay = createFormDisplay();
+    if (!newDisplay) return;
+    if (formDisplay && formDisplay.isLoadedCorrectly && !newDisplay.isLoadedCorrectly) return;
+    setFormDisplay(newDisplay);
   }, [connection, config, cache || myCache, conid, database, schemaName, pureName, dbinfo, extensions]);
 
   const handleDatabaseStructureChanged = React.useCallback(() => {
@@ -159,9 +181,12 @@ export default function TableDataGrid({
     <VerticalSplitter>
       <DataGrid
         // key={`${conid}, ${database}, ${schemaName}, ${pureName}`}
+        config={config}
+        setConfig={setConfig}
         conid={conid}
         database={database}
         display={display}
+        formDisplay={formDisplay}
         tabVisible={tabVisible}
         changeSetState={changeSetState}
         dispatchChangeSet={dispatchChangeSet}
@@ -174,9 +199,9 @@ export default function TableDataGrid({
         GridCore={SqlDataGridCore}
         FormView={SqlFormView}
         isDetailView={isDetailView}
-        tableInfo={
-          dbinfo && dbinfo.tables && dbinfo.tables.find((x) => x.pureName == pureName && x.schemaName == schemaName)
-        }
+        // tableInfo={
+        //   dbinfo && dbinfo.tables && dbinfo.tables.find((x) => x.pureName == pureName && x.schemaName == schemaName)
+        // }
       />
       {reference && (
         <ReferenceContainer>

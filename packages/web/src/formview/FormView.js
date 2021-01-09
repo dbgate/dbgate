@@ -61,15 +61,34 @@ const NullSpan = styled.span`
   font-style: italic;
 `;
 
-export default function FormView({ tableInfo, rowData, toolbarPortalRef, tabVisible, onSetTableView }) {
+export default function FormView(props) {
+  const { rowData, toolbarPortalRef, tabVisible, config, setConfig } = props;
+  /** @type {import('dbgate-datalib').FormViewDisplay} */
+  const formDisplay = props.formDisplay;
   const theme = useTheme();
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [wrapperRef, { height: wrapperHeight }] = useDimensions();
 
-  if (!tableInfo || !rowData) return null;
+  const handleSwitchToTable = () => {
+    setConfig((cfg) => ({
+      ...cfg,
+      isFormView: false,
+      formViewKey: null,
+    }));
+  };
+
+  const toolbar =
+    toolbarPortalRef &&
+    toolbarPortalRef.current &&
+    tabVisible &&
+    ReactDOM.createPortal(<FormViewToolbar switchToTable={handleSwitchToTable} />, toolbarPortalRef.current);
+
+  // console.log('display', display);
+
+  if (!formDisplay || !formDisplay.isLoadedCorrectly) return toolbar;
 
   const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
-  const columnChunks = _.chunk(tableInfo.columns, rowCount);
+  const columnChunks = _.chunk(formDisplay.columns, rowCount);
 
   return (
     <Wrapper ref={wrapperRef}>
@@ -78,18 +97,15 @@ export default function FormView({ tableInfo, rowData, toolbarPortalRef, tabVisi
           {chunk.map((col) => (
             <TableRow key={col.columnName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
               <TableHeaderCell theme={theme}>
-                <ColumnLabel {...col} foreignKey={findForeignKeyForColumn(tableInfo, col)} />
+                <ColumnLabel {...col} />
               </TableHeaderCell>
-              <TableBodyCell theme={theme}>{rowData[col.columnName]}</TableBodyCell>
+              <TableBodyCell theme={theme}>{rowData && rowData[col.columnName]}</TableBodyCell>
             </TableRow>
           ))}
         </Table>
       ))}
 
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(<FormViewToolbar switchToTable={onSetTableView} />, toolbarPortalRef.current)}
+      {toolbar}
     </Wrapper>
   );
 }

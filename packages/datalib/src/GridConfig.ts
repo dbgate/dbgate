@@ -29,6 +29,8 @@ export interface GridConfig extends GridConfigColumns {
   grouping: { [uniqueName: string]: GroupFunc };
   childConfig?: GridConfig;
   reference?: GridReferenceDefinition;
+  isFormView?: boolean;
+  formViewKey?: { [uniqueName: string]: string };
 }
 
 export interface GridCache {

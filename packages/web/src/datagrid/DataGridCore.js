@@ -116,7 +116,7 @@ export default function DataGridCore(props) {
     onSelectionChanged,
     frameSelection,
     onKeyDown,
-    onSetFormView,
+    formViewAvailable,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -943,6 +943,13 @@ export default function DataGridCore(props) {
     display.clearFilters();
   };
 
+  const handleSetFormView =
+    formViewAvailable && display.baseTable && display.baseTable.primaryKey
+      ? (rowData) => {
+          display.switchToFormView(rowData);
+        }
+      : null;
+
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
   // console.log(
   //   'gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()',
@@ -1048,7 +1055,7 @@ export default function DataGridCore(props) {
                 display={display}
                 focusedColumn={display.focusedColumn}
                 frameSelection={frameSelection}
-                onSetFormView={onSetFormView}
+                onSetFormView={handleSetFormView}
               />
             )
           )}

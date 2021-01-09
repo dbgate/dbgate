@@ -21,17 +21,13 @@ const DataGridContainer = styled.div`
 `;
 
 export default function DataGrid(props) {
-  const { GridCore, FormView } = props;
+  const { GridCore, FormView, config, formDisplay } = props;
   const theme = useTheme();
   const [managerSize, setManagerSize] = React.useState(0);
   const [selection, setSelection] = React.useState([]);
   const [grider, setGrider] = React.useState(null);
-  const [formViewData, setFormViewData] = React.useState(null);
-  const isFormView = !!formViewData;
-
-  const handleSetFormView = (rowData) => {
-    setFormViewData(rowData);
-  };
+  // const [formViewData, setFormViewData] = React.useState(null);
+  const isFormView = !!(config && config.isFormView);
 
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
@@ -57,13 +53,13 @@ export default function DataGrid(props) {
 
       <DataGridContainer>
         {isFormView ? (
-          <FormView {...props} rowData={formViewData} onSetTableView={() => setFormViewData(null)} />
+          <FormView {...props} />
         ) : (
           <GridCore
             {...props}
             onSelectionChanged={setSelection}
             onChangeGrider={setGrider}
-            onSetFormView={FormView ? handleSetFormView : null}
+            formViewAvailable={!!FormView && !!formDisplay}
           />
         )}
       </DataGridContainer>
