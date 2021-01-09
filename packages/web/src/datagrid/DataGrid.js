@@ -57,7 +57,7 @@ export default function DataGrid(props) {
 
       <DataGridContainer>
         {isFormView ? (
-          <FormView {...props} rowData={formViewData} />
+          <FormView {...props} rowData={formViewData} onSetTableView={() => setFormViewData(null)} />
         ) : (
           <GridCore
             {...props}

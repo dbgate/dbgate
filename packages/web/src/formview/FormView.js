@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import React from 'react';
+import ReactDOM from 'react-dom';
 import ColumnLabel from '../datagrid/ColumnLabel';
 import { findForeignKeyForColumn } from 'dbgate-tools';
 import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
 import useDimensions from '../utility/useDimensions';
+import FormViewToolbar from './FormViewToolbar';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -59,7 +61,7 @@ const NullSpan = styled.span`
   font-style: italic;
 `;
 
-export default function FormView({ tableInfo, rowData }) {
+export default function FormView({ tableInfo, rowData, toolbarPortalRef, tabVisible, onSetTableView }) {
   const theme = useTheme();
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [wrapperRef, { height: wrapperHeight }] = useDimensions();
@@ -83,6 +85,11 @@ export default function FormView({ tableInfo, rowData }) {
           ))}
         </Table>
       ))}
+
+      {toolbarPortalRef &&
+        toolbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<FormViewToolbar switchToTable={onSetTableView} />, toolbarPortalRef.current)}
     </Wrapper>
   );
 }
