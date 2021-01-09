@@ -39,6 +39,8 @@ const iconNames = {
   'icon arrow-up': 'mdi mdi-arrow-up',
   'icon arrow-down': 'mdi mdi-arrow-down',
   'icon arrow-left': 'mdi mdi-arrow-left',
+  'icon arrow-begin': 'mdi mdi-arrow-collapse-left',
+  'icon arrow-end': 'mdi mdi-arrow-collapse-right',
   'icon arrow-right': 'mdi mdi-arrow-right',
   'icon format-code': 'mdi mdi-code-tags-check',
   'icon show-wizard': 'mdi mdi-comment-edit',

@@ -62,7 +62,7 @@ const NullSpan = styled.span`
 `;
 
 export default function FormView(props) {
-  const { rowData, toolbarPortalRef, tabVisible, config, setConfig } = props;
+  const { rowData, toolbarPortalRef, tabVisible, config, setConfig, onNavigate } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
   const theme = useTheme();
@@ -81,7 +81,10 @@ export default function FormView(props) {
     toolbarPortalRef &&
     toolbarPortalRef.current &&
     tabVisible &&
-    ReactDOM.createPortal(<FormViewToolbar switchToTable={handleSwitchToTable} />, toolbarPortalRef.current);
+    ReactDOM.createPortal(
+      <FormViewToolbar switchToTable={handleSwitchToTable} onNavigate={onNavigate} />,
+      toolbarPortalRef.current
+    );
 
   // console.log('display', display);
 

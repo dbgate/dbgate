@@ -6,11 +6,10 @@ import useExtensions from '../utility/useExtensions';
 import FormView from './FormView';
 import axios from '../utility/axios';
 
-async function loadCurrentRow(props) {
-  const { formDisplay, conid, database } = props;
+async function loadRow(props, sql) {
+  const { conid, database } = props;
   /** @type {import('dbgate-datalib').TableFormViewDisplay} */
-
-  const sql = formDisplay.getCurrentRowQuery();
+  const formDisplay = props.formDisplay;
 
   const response = await axios.request({
     url: 'database-connections/query-data',
@@ -31,12 +30,22 @@ export default function SqlFormView(props) {
   const [rowData, setRowData] = React.useState(null);
 
   const handleLoadCurrentRow = async () => {
-    const row = await loadCurrentRow(props);
+    const row = await loadRow(props, formDisplay.getCurrentRowQuery());
     if (row) setRowData(row);
   };
 
+  const handleNavigate = async (command) => {
+    const row = await loadRow(props, formDisplay.navigateRowQuery(command));
+    if (row) {
+      setRowData(row);
+      formDisplay.navigate(row);
+    }
+  };
+
   React.useEffect(() => {
-    handleLoadCurrentRow();
+    if (formDisplay && !formDisplay.isLoadedCurrentRow(rowData)) {
+      handleLoadCurrentRow();
+    }
   }, [formDisplay]);
 
   // const { config, setConfig, cache, setCache, schemaName, pureName, conid, database } = props;
@@ -67,5 +76,5 @@ export default function SqlFormView(props) {
   //   setDisplay(newDisplay);
   // }, [config, cache, conid, database, schemaName, pureName, dbinfo, extensions]);
 
-  return <FormView {...props} rowData={rowData} />;
+  return <FormView {...props} rowData={rowData} onNavigate={handleNavigate} />;
 }
