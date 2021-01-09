@@ -116,6 +116,7 @@ export default function DataGridCore(props) {
     onSelectionChanged,
     frameSelection,
     onKeyDown,
+    onSetFormView,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -1047,6 +1048,7 @@ export default function DataGridCore(props) {
                 display={display}
                 focusedColumn={display.focusedColumn}
                 frameSelection={frameSelection}
+                onSetFormView={onSetFormView}
               />
             )
           )}

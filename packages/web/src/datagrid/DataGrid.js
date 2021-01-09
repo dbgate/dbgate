@@ -21,31 +21,51 @@ const DataGridContainer = styled.div`
 `;
 
 export default function DataGrid(props) {
-  const { GridCore } = props;
+  const { GridCore, FormView } = props;
   const theme = useTheme();
   const [managerSize, setManagerSize] = React.useState(0);
   const [selection, setSelection] = React.useState([]);
   const [grider, setGrider] = React.useState(null);
+  const [formViewData, setFormViewData] = React.useState(null);
+  const isFormView = !!formViewData;
+
+  const handleSetFormView = (rowData) => {
+    setFormViewData(rowData);
+  };
+
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer theme={theme}>
         <WidgetColumnBar>
-          <WidgetColumnBarItem title="Columns" name="columns" height={props.showReferences ? '40%' : '60%'}>
-            <ColumnManager {...props} managerSize={managerSize} />
-          </WidgetColumnBarItem>
+          {!isFormView && (
+            <WidgetColumnBarItem title="Columns" name="columns" height={props.showReferences ? '40%' : '60%'}>
+              <ColumnManager {...props} managerSize={managerSize} />
+            </WidgetColumnBarItem>
+          )}
           {props.showReferences && props.display.hasReferences && (
             <WidgetColumnBarItem title="References" name="references" height="30%" collapsed={props.isDetailView}>
               <ReferenceManager {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
-          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
-            <CellDataView selection={selection} grider={grider} />
-          </WidgetColumnBarItem>
+          {!isFormView && (
+            <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
+              <CellDataView selection={selection} grider={grider} />
+            </WidgetColumnBarItem>
+          )}
         </WidgetColumnBar>
       </LeftContainer>
 
       <DataGridContainer>
-        <GridCore {...props} onSelectionChanged={setSelection} onChangeGrider={setGrider} />
+        {isFormView ? (
+          <FormView {...props} rowData={formViewData} />
+        ) : (
+          <GridCore
+            {...props}
+            onSelectionChanged={setSelection}
+            onChangeGrider={setGrider}
+            onSetFormView={FormView ? handleSetFormView : null}
+          />
+        )}
       </DataGridContainer>
     </HorizontalSplitter>
   );

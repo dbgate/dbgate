@@ -32,6 +32,7 @@ const iconNames = {
   'icon web': 'mdi mdi-web',
   'icon home': 'mdi mdi-home',
   'icon query-design': 'mdi mdi-vector-polyline-edit',
+  'icon form': 'mdi mdi-form-select',
 
   'icon edit': 'mdi mdi-pencil',
   'icon delete': 'mdi mdi-delete',

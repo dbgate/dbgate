@@ -12,6 +12,7 @@ import stableStringify from 'json-stable-stringify';
 import ReferenceHeader from './ReferenceHeader';
 import SqlDataGridCore from './SqlDataGridCore';
 import useExtensions from '../utility/useExtensions';
+import SqlFormView from '../formview/SqlFormView';
 
 const ReferenceContainer = styled.div`
   position: absolute;
@@ -171,7 +172,11 @@ export default function TableDataGrid({
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}
         GridCore={SqlDataGridCore}
+        FormView={SqlFormView}
         isDetailView={isDetailView}
+        tableInfo={
+          dbinfo && dbinfo.tables && dbinfo.tables.find((x) => x.pureName == pureName && x.schemaName == schemaName)
+        }
       />
       {reference && (
         <ReferenceContainer>
