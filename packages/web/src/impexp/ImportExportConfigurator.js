@@ -455,7 +455,8 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
     }
   }, []);
 
-  const supportsPreview = !!findFileFormat(extensions, values.sourceStorageType);
+  const supportsPreview =
+    !!findFileFormat(extensions, values.sourceStorageType) || values.sourceStorageType == 'archive';
   const previewFileName =
     previewSource && values[`sourceFile_${previewSource}`] && values[`sourceFile_${previewSource}`].fileName;
 
