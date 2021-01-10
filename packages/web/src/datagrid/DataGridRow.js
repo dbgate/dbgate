@@ -291,9 +291,10 @@ function DataGridRow(props) {
               inplaceEditorState={inplaceEditorState}
               dispatchInsplaceEditor={dispatchInsplaceEditor}
               cellValue={rowData[col.uniqueName]}
-              grider={grider}
-              rowIndex={rowIndex}
-              uniqueName={col.uniqueName}
+              // grider={grider}
+              // rowIndex={rowIndex}
+              // uniqueName={col.uniqueName}
+              onSetValue={(value) => grider.setCellValue(rowIndex, col.uniqueName, value)}
             />
           ) : (
             <>

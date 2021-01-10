@@ -12,6 +12,7 @@ import FormViewContextMenu from './FormViewContextMenu';
 import keycodes from '../utility/keycodes';
 import { CellFormattedValue } from '../datagrid/DataGridRow';
 import { cellFromEvent } from '../datagrid/selection';
+import InplaceEditor from '../datagrid/InplaceEditor';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -73,21 +74,16 @@ const TableBodyCell = styled.td`
     color: ${props.theme.gridbody_invfont1};`}
 `;
 
-const HintSpan = styled.span`
-  color: gray;
-  margin-left: 5px;
-`;
-const NullSpan = styled.span`
-  color: gray;
-  font-style: italic;
-`;
-
 const FocusField = styled.input`
   // visibility: hidden
   position: absolute;
   left: -1000px;
   top: -1000px;
 `;
+
+function isDataCell(cell) {
+  return cell[1] % 2 == 1;
+}
 
 export default function FormView(props) {
   const { rowData, toolbarPortalRef, tabVisible, config, setConfig, onNavigate } = props;
@@ -131,7 +127,7 @@ export default function FormView(props) {
     }
   }, [tabVisible, focusFieldRef.current]);
 
-  const moveCursor = (row, col) => {
+  const checkMoveCursorBounds = (row, col) => {
     if (row < 0) row = 0;
     if (col < 0) col = 0;
     if (col >= columnChunks.length * 2) col = columnChunks.length * 2 - 1;
@@ -144,28 +140,28 @@ export default function FormView(props) {
     if (event.ctrlKey) {
       switch (event.keyCode) {
         case keycodes.leftArrow:
-          return moveCursor(currentCell[0], 0);
+          return checkMoveCursorBounds(currentCell[0], 0);
         case keycodes.rightArrow:
-          return moveCursor(currentCell[0], columnChunks.length * 2 - 1);
+          return checkMoveCursorBounds(currentCell[0], columnChunks.length * 2 - 1);
       }
     }
     switch (event.keyCode) {
       case keycodes.leftArrow:
-        return moveCursor(currentCell[0], currentCell[1] - 1);
+        return checkMoveCursorBounds(currentCell[0], currentCell[1] - 1);
       case keycodes.rightArrow:
-        return moveCursor(currentCell[0], currentCell[1] + 1);
+        return checkMoveCursorBounds(currentCell[0], currentCell[1] + 1);
       case keycodes.upArrow:
-        return moveCursor(currentCell[0] - 1, currentCell[1]);
+        return checkMoveCursorBounds(currentCell[0] - 1, currentCell[1]);
       case keycodes.downArrow:
-        return moveCursor(currentCell[0] + 1, currentCell[1]);
+        return checkMoveCursorBounds(currentCell[0] + 1, currentCell[1]);
       case keycodes.pageUp:
-        return moveCursor(0, currentCell[1]);
+        return checkMoveCursorBounds(0, currentCell[1]);
       case keycodes.pageDown:
-        return moveCursor(rowCount - 1, currentCell[1]);
+        return checkMoveCursorBounds(rowCount - 1, currentCell[1]);
       case keycodes.home:
-        return moveCursor(0, 0);
+        return checkMoveCursorBounds(0, 0);
       case keycodes.end:
-        return moveCursor(rowCount - 1, columnChunks.length * 2 - 1);
+        return checkMoveCursorBounds(rowCount - 1, columnChunks.length * 2 - 1);
     }
   };
 
@@ -193,6 +189,12 @@ export default function FormView(props) {
     scrollIntoView(currentCell);
   }, [rowData]);
 
+  const moveCurrentCell = (row, col) => {
+    const moved = checkMoveCursorBounds(row, col);
+    setCurrentCell(moved);
+    scrollIntoView(moved);
+  };
+
   const handleKeyDown = (event) => {
     const navigation = handleKeyNavigation(event);
     if (navigation) {
@@ -205,6 +207,22 @@ export default function FormView(props) {
       setCurrentCell(moved);
       scrollIntoView(moved);
       event.preventDefault();
+      return;
+    }
+    if (
+      !event.ctrlKey &&
+      !event.altKey &&
+      ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+        (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        event.keyCode == keycodes.dash)
+    ) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', text: event.nativeEvent.key, cell: currentCell });
+      return;
+    }
+    if (event.keyCode == keycodes.f2) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
       return;
     }
   };
@@ -221,9 +239,51 @@ export default function FormView(props) {
     event.preventDefault();
     if (focusFieldRef.current) focusFieldRef.current.focus();
     const cell = cellFromEvent(event);
+
+    if (isDataCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+    } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'close' });
+    }
+
     // @ts-ignore
     setCurrentCell(cell);
   };
+
+  const getCellWidth = (row, col) => {
+    const element = cellRefs.current[`${row},${col}`];
+    if (element) return element.getBoundingClientRect().width;
+    return 100;
+  };
+
+  const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
+    switch (action.type) {
+      case 'show':
+        // if (!grider.editable) return {};
+        return {
+          cell: action.cell,
+          text: action.text,
+          selectAll: action.selectAll,
+        };
+      case 'close': {
+        const [row, col] = currentCell || [];
+        if (focusFieldRef.current) focusFieldRef.current.focus();
+        // @ts-ignore
+        if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
+        // if (action.mode == 'save') setTimeout(handleSave, 0);
+        return {};
+      }
+      case 'shouldSave': {
+        return {
+          ...state,
+          shouldSave: true,
+        };
+      }
+    }
+    return {};
+  }, {});
 
   const toolbar =
     toolbarPortalRef &&
@@ -260,7 +320,24 @@ export default function FormView(props) {
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
                 ref={(element) => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
               >
-                <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
+                {inplaceEditorState.cell &&
+                rowIndex == inplaceEditorState.cell[0] &&
+                chunkIndex * 2 + 1 == inplaceEditorState.cell[1] ? (
+                  <InplaceEditor
+                    widthPx={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                    inplaceEditorState={inplaceEditorState}
+                    dispatchInsplaceEditor={dispatchInsplaceEditor}
+                    cellValue={rowData[col.uniqueName]}
+                    onSetValue={(value) => {}}
+                    // grider={grider}
+                    // rowIndex={rowIndex}
+                    // uniqueName={col.uniqueName}
+                  />
+                ) : (
+                  <>
+                    <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
+                  </>
+                )}
               </TableBodyCell>
             </TableRow>
           ))}
