@@ -154,7 +154,7 @@ function highlightSpecialCharacters(value) {
 
 const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
 
-function CellFormattedValue({ value, dataType }) {
+export function CellFormattedValue({ value, dataType }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';

@@ -7,6 +7,11 @@ import styled from 'styled-components';
 import useTheme from '../theme/useTheme';
 import useDimensions from '../utility/useDimensions';
 import FormViewToolbar from './FormViewToolbar';
+import { useShowMenu } from '../modals/showMenu';
+import FormViewContextMenu from './FormViewContextMenu';
+import keycodes from '../utility/keycodes';
+import { CellFormattedValue } from '../datagrid/DataGridRow';
+import { cellFromEvent } from '../datagrid/selection';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -40,6 +45,14 @@ const TableHeaderCell = styled.td`
   background-color: ${(props) => props.theme.gridheader_background};
   overflow: hidden;
   position: relative;
+
+  ${(props) =>
+    // @ts-ignore
+    props.isSelected &&
+    `
+    background: initial;
+    background-color: ${props.theme.gridbody_selection[4]};
+    color: ${props.theme.gridbody_invfont1};`}
 `;
 
 const TableBodyCell = styled.td`
@@ -50,6 +63,14 @@ const TableBodyCell = styled.td`
   white-space: nowrap;
   position: relative;
   overflow: hidden;
+
+  ${(props) =>
+    // @ts-ignore
+    props.isSelected &&
+    `
+    background: initial;
+    background-color: ${props.theme.gridbody_selection[4]};
+    color: ${props.theme.gridbody_invfont1};`}
 `;
 
 const HintSpan = styled.span`
@@ -61,6 +82,13 @@ const NullSpan = styled.span`
   font-style: italic;
 `;
 
+const FocusField = styled.input`
+  // visibility: hidden
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+`;
+
 export default function FormView(props) {
   const { rowData, toolbarPortalRef, tabVisible, config, setConfig, onNavigate } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
@@ -68,6 +96,12 @@ export default function FormView(props) {
   const theme = useTheme();
   const [headerRowRef, { height: rowHeight }] = useDimensions();
   const [wrapperRef, { height: wrapperHeight }] = useDimensions();
+  const showMenu = useShowMenu();
+  const focusFieldRef = React.useRef(null);
+  const [currentCell, setCurrentCell] = React.useState([0, 0]);
+
+  const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
+  const columnChunks = _.chunk(formDisplay.columns, rowCount);
 
   const handleSwitchToTable = () => {
     setConfig((cfg) => ({
@@ -75,6 +109,99 @@ export default function FormView(props) {
       isFormView: false,
       formViewKey: null,
     }));
+  };
+
+  const handleContextMenu = (event) => {
+    event.preventDefault();
+    showMenu(
+      event.pageX,
+      event.pageY,
+      <FormViewContextMenu switchToTable={handleSwitchToTable} onNavigate={onNavigate} />
+    );
+  };
+
+  React.useEffect(() => {
+    if (tabVisible) {
+      if (focusFieldRef.current) focusFieldRef.current.focus();
+    }
+  }, [tabVisible, focusFieldRef.current]);
+
+  const moveCursor = (row, col) => {
+    if (row < 0) row = 0;
+    if (col < 0) col = 0;
+    if (col >= columnChunks.length * 2) col = columnChunks.length * 2 - 1;
+    const chunk = columnChunks[Math.floor(col / 2)];
+    if (chunk && row >= chunk.length) row = chunk.length - 1;
+    return [row, col];
+  };
+
+  const handleCursorMove = (event) => {
+    switch (event.keyCode) {
+      case keycodes.leftArrow:
+        return moveCursor(currentCell[0], currentCell[1] - 1);
+      case keycodes.rightArrow:
+        return moveCursor(currentCell[0], currentCell[1] + 1);
+      case keycodes.upArrow:
+        return moveCursor(currentCell[0] - 1, currentCell[1]);
+      case keycodes.downArrow:
+        return moveCursor(currentCell[0] + 1, currentCell[1]);
+      case keycodes.pageUp:
+        return moveCursor(0, currentCell[1]);
+      case keycodes.pageDown:
+        return moveCursor(rowCount - 1, currentCell[1]);
+      case keycodes.home:
+        return moveCursor(0, 0);
+      case keycodes.end:
+        return moveCursor(rowCount - 1, columnChunks.length * 2 - 1);
+    }
+  };
+
+  const handleKeyNavigation = (event) => {
+    if (event.ctrlKey) {
+      switch (event.keyCode) {
+        case keycodes.leftArrow:
+        case keycodes.upArrow:
+          return 'previous';
+        case keycodes.rightArrow:
+        case keycodes.downArrow:
+          return 'next';
+        case keycodes.home:
+          return 'begin';
+        case keycodes.end:
+          return 'end';
+      }
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    const navigation = handleKeyNavigation(event);
+    if (navigation) {
+      event.preventDefault();
+      onNavigate(navigation);
+      return;
+    }
+    const moved = handleCursorMove(event);
+    if (moved) {
+      setCurrentCell(moved);
+      event.preventDefault();
+      return;
+    }
+  };
+
+  const handleTableMouseDown = (event) => {
+    event.preventDefault();
+    if (focusFieldRef.current) focusFieldRef.current.focus();
+
+    if (event.target.closest('.buttonLike')) return;
+    if (event.target.closest('.resizeHandleControl')) return;
+    if (event.target.closest('input')) return;
+
+    // event.target.closest('table').focus();
+    event.preventDefault();
+    if (focusFieldRef.current) focusFieldRef.current.focus();
+    const cell = cellFromEvent(event);
+    // @ts-ignore
+    setCurrentCell(cell);
   };
 
   const toolbar =
@@ -86,27 +213,38 @@ export default function FormView(props) {
       toolbarPortalRef.current
     );
 
-  // console.log('display', display);
-
   if (!formDisplay || !formDisplay.isLoadedCorrectly) return toolbar;
 
-  const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
-  const columnChunks = _.chunk(formDisplay.columns, rowCount);
-
   return (
-    <Wrapper ref={wrapperRef}>
-      {columnChunks.map((chunk, index) => (
-        <Table key={index}>
-          {chunk.map((col) => (
+    <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>
+      {columnChunks.map((chunk, chunkIndex) => (
+        <Table key={chunkIndex} onMouseDown={handleTableMouseDown}>
+          {chunk.map((col, rowIndex) => (
             <TableRow key={col.columnName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
-              <TableHeaderCell theme={theme}>
+              <TableHeaderCell
+                theme={theme}
+                data-row={rowIndex}
+                data-col={chunkIndex * 2}
+                // @ts-ignore
+                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+              >
                 <ColumnLabel {...col} />
               </TableHeaderCell>
-              <TableBodyCell theme={theme}>{rowData && rowData[col.columnName]}</TableBodyCell>
+              <TableBodyCell
+                theme={theme}
+                data-row={rowIndex}
+                data-col={chunkIndex * 2 + 1}
+                // @ts-ignore
+                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+              >
+                <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
+              </TableBodyCell>
             </TableRow>
           ))}
         </Table>
       ))}
+
+      <FocusField type="text" ref={focusFieldRef} onKeyDown={handleKeyDown} />
 
       {toolbar}
     </Wrapper>
