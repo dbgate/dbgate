@@ -1,4 +1,4 @@
-import { TableFormViewDisplay } from 'dbgate-datalib';
+import { changeSetToSql, createChangeSet, TableFormViewDisplay } from 'dbgate-datalib';
 import { findEngineDriver } from 'dbgate-tools';
 import React from 'react';
 import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
@@ -6,6 +6,11 @@ import useExtensions from '../utility/useExtensions';
 import FormView from './FormView';
 import axios from '../utility/axios';
 import ChangeSetFormer from './ChangeSetFormer';
+import ConfirmSqlModal from '../modals/ConfirmSqlModal';
+import ErrorMessageModal from '../modals/ErrorMessageModal';
+import { scriptToSql } from 'dbgate-sqltree';
+import useModalState from '../modals/useModalState';
+import useShowModal from '../modals/showModal';
 
 async function loadRow(props, sql) {
   const { conid, database } = props;
@@ -27,8 +32,17 @@ async function loadRow(props, sql) {
 }
 
 export default function SqlFormView(props) {
-  const { formDisplay, changeSetState, dispatchChangeSet } = props;
+  const { formDisplay, changeSetState, dispatchChangeSet, conid, database } = props;
   const [rowData, setRowData] = React.useState(null);
+  const [reloadToken, setReloadToken] = React.useState(0);
+
+  const confirmSqlModalState = useModalState();
+  const [confirmSql, setConfirmSql] = React.useState('');
+  const showModal = useShowModal();
+
+  const changeSet = changeSetState && changeSetState.value;
+  const changeSetRef = React.useRef(changeSet);
+  changeSetRef.current = changeSet;
 
   const handleLoadCurrentRow = async () => {
     const row = await loadRow(props, formDisplay.getCurrentRowQuery());
@@ -44,6 +58,10 @@ export default function SqlFormView(props) {
   };
 
   React.useEffect(() => {
+    if (formDisplay) handleLoadCurrentRow();
+  }, [reloadToken]);
+
+  React.useEffect(() => {
     if (formDisplay && !formDisplay.isLoadedCurrentRow(rowData)) {
       handleLoadCurrentRow();
     }
@@ -55,6 +73,35 @@ export default function SqlFormView(props) {
     dispatchChangeSet,
     formDisplay,
   ]);
+
+  function handleSave() {
+    const script = changeSetToSql(changeSetRef.current, formDisplay.dbinfo);
+    const sql = scriptToSql(formDisplay.driver, script);
+    setConfirmSql(sql);
+    confirmSqlModalState.open();
+  }
+
+  async function handleConfirmSql() {
+    const resp = await axios.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql: confirmSql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal((modalState) => (
+        <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
+      ));
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      setConfirmSql(null);
+      setReloadToken((x) => x + 1);
+    }
+  }
 
   // const { config, setConfig, cache, setCache, schemaName, pureName, conid, database } = props;
   // const { formViewKey } = config;
@@ -84,5 +131,15 @@ export default function SqlFormView(props) {
   //   setDisplay(newDisplay);
   // }, [config, cache, conid, database, schemaName, pureName, dbinfo, extensions]);
 
-  return <FormView {...props} rowData={rowData} onNavigate={handleNavigate} former={former} />;
+  return (
+    <>
+      <FormView {...props} rowData={rowData} onNavigate={handleNavigate} former={former} onSave={handleSave} />
+      <ConfirmSqlModal
+        modalState={confirmSqlModalState}
+        sql={confirmSql}
+        engine={formDisplay.engine}
+        onConfirm={handleConfirmSql}
+      />
+    </>
+  );
 }

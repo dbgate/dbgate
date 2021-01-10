@@ -92,7 +92,7 @@ function isDataCell(cell) {
 }
 
 export default function FormView(props) {
-  const { toolbarPortalRef, tabVisible, config, setConfig, onNavigate, former } = props;
+  const { toolbarPortalRef, tabVisible, config, setConfig, onNavigate, former, onSave } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
   const theme = useTheme();
@@ -188,6 +188,15 @@ export default function FormView(props) {
     }
   };
 
+  function handleSave() {
+    if (inplaceEditorState.cell) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'shouldSave' });
+      return;
+    }
+    if (onSave) onSave();
+  }
+
   const scrollIntoView = (cell) => {
     const element = cellRefs.current[`${cell[0]},${cell[1]}`];
     if (element) element.scrollIntoView();
@@ -217,6 +226,12 @@ export default function FormView(props) {
       event.preventDefault();
       return;
     }
+    if (event.keyCode == keycodes.s && event.ctrlKey) {
+      event.preventDefault();
+      handleSave();
+      // this.saveAndFocus();
+    }
+
     if (
       !event.ctrlKey &&
       !event.altKey &&
