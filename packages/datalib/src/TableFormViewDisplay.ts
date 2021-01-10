@@ -15,9 +15,9 @@ import {
 import { filterName } from './filterName';
 import { TableGridDisplay } from './TableGridDisplay';
 import stableStringify from 'json-stable-stringify';
+import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 
 export class TableFormViewDisplay extends FormViewDisplay {
-  public table: TableInfo;
   // use utility functions from GridDisplay and publish result in FromViewDisplat interface
   private gridDisplay: TableGridDisplay;
 
@@ -35,13 +35,17 @@ export class TableFormViewDisplay extends FormViewDisplay {
 
     this.isLoadedCorrectly = this.gridDisplay.isLoadedCorrectly;
     this.columns = this.gridDisplay.columns;
+    this.baseTable = this.gridDisplay.baseTable;
   }
 
-  getPrimaryKeyEqualCondition(): Condition {
-    if (!this.config.formViewKey) return null;
+  getPrimaryKeyEqualCondition(row = null): Condition {
+    if (!row) row = this.config.formViewKey;
+    if (!row) return null;
+    const { primaryKey } = this.gridDisplay.baseTable;
+    if (primaryKey) return null;
     return {
       conditionType: 'and',
-      conditions: _.keys(this.config.formViewKey).map((columnName) => ({
+      conditions: primaryKey.columns.map(({ columnName }) => ({
         conditionType: 'binary',
         operator: '=',
         left: {
@@ -185,5 +189,26 @@ export class TableFormViewDisplay extends FormViewDisplay {
 
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
+  }
+
+  getChangeSetRow(row): ChangeSetRowDefinition {
+    if (!this.baseTable) return null;
+    return {
+      pureName: this.baseTable.pureName,
+      schemaName: this.baseTable.schemaName,
+      condition: this.extractKey(row),
+    };
+  }
+
+  getChangeSetField(row, uniqueName): ChangeSetFieldDefinition {
+    const col = this.columns.find((x) => x.uniqueName == uniqueName);
+    if (!col) return null;
+    if (!this.baseTable) return null;
+    if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;
+    return {
+      ...this.getChangeSetRow(row),
+      uniqueName: uniqueName,
+      columnName: col.columnName,
+    };
   }
 }

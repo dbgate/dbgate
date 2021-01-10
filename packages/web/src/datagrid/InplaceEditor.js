@@ -23,6 +23,7 @@ export default function InplaceEditor({
   onSetValue,
 }) {
   const editorRef = React.useRef();
+  const widthRef = React.useRef(widthPx);
   const isChangedRef = React.useRef(!!inplaceEditorState.text);
   React.useEffect(() => {
     const editor = editorRef.current;
@@ -88,9 +89,9 @@ export default function InplaceEditor({
       onChange={() => (isChangedRef.current = true)}
       onKeyDown={handleKeyDown}
       style={{
-        width: widthPx,
-        minWidth: widthPx,
-        maxWidth: widthPx,
+        width: widthRef.current,
+        minWidth: widthRef.current,
+        maxWidth: widthRef.current,
       }}
     />
   );

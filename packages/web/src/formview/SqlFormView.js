@@ -5,6 +5,7 @@ import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 import useExtensions from '../utility/useExtensions';
 import FormView from './FormView';
 import axios from '../utility/axios';
+import ChangeSetFormer from './ChangeSetFormer';
 
 async function loadRow(props, sql) {
   const { conid, database } = props;
@@ -26,7 +27,7 @@ async function loadRow(props, sql) {
 }
 
 export default function SqlFormView(props) {
-  const { formDisplay } = props;
+  const { formDisplay, changeSetState, dispatchChangeSet } = props;
   const [rowData, setRowData] = React.useState(null);
 
   const handleLoadCurrentRow = async () => {
@@ -46,7 +47,14 @@ export default function SqlFormView(props) {
     if (formDisplay && !formDisplay.isLoadedCurrentRow(rowData)) {
       handleLoadCurrentRow();
     }
-  }, [formDisplay]);
+  }, [formDisplay, rowData]);
+
+  const former = React.useMemo(() => new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay), [
+    rowData,
+    changeSetState,
+    dispatchChangeSet,
+    formDisplay,
+  ]);
 
   // const { config, setConfig, cache, setCache, schemaName, pureName, conid, database } = props;
   // const { formViewKey } = config;
@@ -76,5 +84,5 @@ export default function SqlFormView(props) {
   //   setDisplay(newDisplay);
   // }, [config, cache, conid, database, schemaName, pureName, dbinfo, extensions]);
 
-  return <FormView {...props} rowData={rowData} onNavigate={handleNavigate} />;
+  return <FormView {...props} rowData={rowData} onNavigate={handleNavigate} former={former} />;
 }

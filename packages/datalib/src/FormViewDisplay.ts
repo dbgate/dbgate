@@ -11,6 +11,7 @@ import { ChangeCacheFunc, ChangeConfigFunc, DisplayColumn } from './GridDisplay'
 export class FormViewDisplay {
   isLoadedCorrectly = true;
   columns: DisplayColumn[];
+  public baseTable: TableInfo;
 
   constructor(
     public config: GridConfig,
@@ -20,4 +21,5 @@ export class FormViewDisplay {
     public driver?: EngineDriver,
     public dbinfo: DatabaseInfo = null
   ) {}
+
 }

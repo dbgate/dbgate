@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import _ from 'lodash';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -48,7 +50,6 @@ const TableHeaderCell = styled.td`
   position: relative;
 
   ${(props) =>
-    // @ts-ignore
     props.isSelected &&
     `
     background: initial;
@@ -66,12 +67,17 @@ const TableBodyCell = styled.td`
   overflow: hidden;
 
   ${(props) =>
-    // @ts-ignore
     props.isSelected &&
     `
     background: initial;
     background-color: ${props.theme.gridbody_selection[4]};
     color: ${props.theme.gridbody_invfont1};`}
+
+  ${(props) =>
+    !props.isSelected &&
+    props.isModifiedCell &&
+    `
+        background-color: ${props.theme.gridbody_background_orange[1]};`}
 `;
 
 const FocusField = styled.input`
@@ -86,7 +92,7 @@ function isDataCell(cell) {
 }
 
 export default function FormView(props) {
-  const { rowData, toolbarPortalRef, tabVisible, config, setConfig, onNavigate } = props;
+  const { toolbarPortalRef, tabVisible, config, setConfig, onNavigate, former } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
   const theme = useTheme();
@@ -99,6 +105,8 @@ export default function FormView(props) {
 
   const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
   const columnChunks = _.chunk(formDisplay.columns, rowCount);
+
+  const { rowData, rowStatus } = former;
 
   const handleSwitchToTable = () => {
     setConfig((cfg) => ({
@@ -318,6 +326,7 @@ export default function FormView(props) {
                 data-col={chunkIndex * 2 + 1}
                 // @ts-ignore
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+                isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
                 ref={(element) => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
               >
                 {inplaceEditorState.cell &&
@@ -328,7 +337,9 @@ export default function FormView(props) {
                     inplaceEditorState={inplaceEditorState}
                     dispatchInsplaceEditor={dispatchInsplaceEditor}
                     cellValue={rowData[col.uniqueName]}
-                    onSetValue={(value) => {}}
+                    onSetValue={(value) => {
+                      former.setCellValue(col.uniqueName, value);
+                    }}
                     // grider={grider}
                     // rowIndex={rowIndex}
                     // uniqueName={col.uniqueName}
