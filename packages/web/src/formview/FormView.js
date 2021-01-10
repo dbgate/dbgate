@@ -99,6 +99,7 @@ export default function FormView(props) {
   const showMenu = useShowMenu();
   const focusFieldRef = React.useRef(null);
   const [currentCell, setCurrentCell] = React.useState([0, 0]);
+  const cellRefs = React.useRef({});
 
   const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
   const columnChunks = _.chunk(formDisplay.columns, rowCount);
@@ -120,6 +121,10 @@ export default function FormView(props) {
     );
   };
 
+  const setCellRef = (row, col, element) => {
+    cellRefs.current[`${row},${col}`] = element;
+  };
+
   React.useEffect(() => {
     if (tabVisible) {
       if (focusFieldRef.current) focusFieldRef.current.focus();
@@ -136,6 +141,14 @@ export default function FormView(props) {
   };
 
   const handleCursorMove = (event) => {
+    if (event.ctrlKey) {
+      switch (event.keyCode) {
+        case keycodes.leftArrow:
+          return moveCursor(currentCell[0], 0);
+        case keycodes.rightArrow:
+          return moveCursor(currentCell[0], columnChunks.length * 2 - 1);
+      }
+    }
     switch (event.keyCode) {
       case keycodes.leftArrow:
         return moveCursor(currentCell[0], currentCell[1] - 1);
@@ -159,10 +172,8 @@ export default function FormView(props) {
   const handleKeyNavigation = (event) => {
     if (event.ctrlKey) {
       switch (event.keyCode) {
-        case keycodes.leftArrow:
         case keycodes.upArrow:
           return 'previous';
-        case keycodes.rightArrow:
         case keycodes.downArrow:
           return 'next';
         case keycodes.home:
@@ -172,6 +183,15 @@ export default function FormView(props) {
       }
     }
   };
+
+  const scrollIntoView = (cell) => {
+    const element = cellRefs.current[`${cell[0]},${cell[1]}`];
+    if (element) element.scrollIntoView();
+  };
+
+  React.useEffect(() => {
+    scrollIntoView(currentCell);
+  }, [rowData]);
 
   const handleKeyDown = (event) => {
     const navigation = handleKeyNavigation(event);
@@ -183,6 +203,7 @@ export default function FormView(props) {
     const moved = handleCursorMove(event);
     if (moved) {
       setCurrentCell(moved);
+      scrollIntoView(moved);
       event.preventDefault();
       return;
     }
@@ -227,6 +248,7 @@ export default function FormView(props) {
                 data-col={chunkIndex * 2}
                 // @ts-ignore
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+                ref={(element) => setCellRef(rowIndex, chunkIndex * 2, element)}
               >
                 <ColumnLabel {...col} />
               </TableHeaderCell>
@@ -236,6 +258,7 @@ export default function FormView(props) {
                 data-col={chunkIndex * 2 + 1}
                 // @ts-ignore
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+                ref={(element) => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
               >
                 <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
               </TableBodyCell>
