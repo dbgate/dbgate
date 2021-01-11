@@ -330,6 +330,11 @@ export default function FormView(props) {
       onReload();
     }
 
+    if (event.keyCode == keycodes.f4) {
+      event.preventDefault();
+      handleSwitchToTable();
+    }
+
     if (
       !event.ctrlKey &&
       !event.altKey &&

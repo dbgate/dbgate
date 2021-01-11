@@ -14,6 +14,7 @@ export default function DataGridContextMenu({
   openFreeTable,
   openChartSelection,
   openActiveChart,
+  switchToForm,
 }) {
   return (
     <>
@@ -57,6 +58,11 @@ export default function DataGridContextMenu({
       <DropDownMenuItem onClick={openFreeTable}>Open selection in free table editor</DropDownMenuItem>
       <DropDownMenuItem onClick={openChartSelection}>Open chart from selection</DropDownMenuItem>
       {openActiveChart && <DropDownMenuItem onClick={openActiveChart}>Open active chart</DropDownMenuItem>}
+      {!!switchToForm && (
+        <DropDownMenuItem onClick={switchToForm} keyText="F4">
+          Form view
+        </DropDownMenuItem>
+      )}
     </>
   );
 }
