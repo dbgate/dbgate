@@ -7,6 +7,7 @@ import InplaceEditor from './InplaceEditor';
 import { cellIsSelected } from './gridutil';
 import { isTypeLogical } from 'dbgate-tools';
 import useTheme from '../theme/useTheme';
+import { FontIcon } from '../icons';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
@@ -114,6 +115,7 @@ const TableHeaderCell = styled.td`
   padding: 2px;
   background-color: ${(props) => props.theme.gridheader_background};
   overflow: hidden;
+  position: relative;
 `;
 
 const AutoFillPoint = styled.div`
@@ -125,6 +127,16 @@ const AutoFillPoint = styled.div`
   bottom: 0px;
   overflow: visible;
   cursor: crosshair;
+`;
+
+const ShowFormButton = styled.div`
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  &:hover {
+    background-color: ${(props) => props.theme.gridheader_background_blue[4]};
+    border: 1px solid ${(props) => props.theme.border};
+  }
 `;
 
 function makeBulletString(value) {
@@ -142,7 +154,7 @@ function highlightSpecialCharacters(value) {
 
 const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
 
-function CellFormattedValue({ value, dataType }) {
+export function CellFormattedValue({ value, dataType }) {
   if (value == null) return <NullSpan>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';
@@ -167,6 +179,33 @@ function CellFormattedValue({ value, dataType }) {
   return value.toString();
 }
 
+function RowHeaderCell({ rowIndex, theme, onSetFormView, rowData }) {
+  const [mouseIn, setMouseIn] = React.useState(false);
+
+  return (
+    <TableHeaderCell
+      data-row={rowIndex}
+      data-col="header"
+      theme={theme}
+      onMouseEnter={onSetFormView ? () => setMouseIn(true) : null}
+      onMouseLeave={onSetFormView ? () => setMouseIn(false) : null}
+    >
+      {rowIndex + 1}
+      {!!onSetFormView && mouseIn && (
+        <ShowFormButton
+          theme={theme}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSetFormView(rowData);
+          }}
+        >
+          <FontIcon icon="icon form" />
+        </ShowFormButton>
+      )}
+    </TableHeaderCell>
+  );
+}
+
 /** @param props {import('./types').DataGridProps} */
 function DataGridRow(props) {
   const {
@@ -181,6 +220,7 @@ function DataGridRow(props) {
     focusedColumn,
     grider,
     frameSelection,
+    onSetFormView,
   } = props;
   // usePropsCompare({
   //   rowHeight,
@@ -217,9 +257,8 @@ function DataGridRow(props) {
 
   return (
     <TableBodyRow style={{ height: `${rowHeight}px` }} theme={theme}>
-      <TableHeaderCell data-row={rowIndex} data-col="header" theme={theme}>
-        {rowIndex + 1}
-      </TableHeaderCell>
+      <RowHeaderCell rowIndex={rowIndex} theme={theme} onSetFormView={onSetFormView} rowData={rowData} />
+
       {visibleRealColumns.map((col) => (
         <TableBodyCell
           key={col.uniqueName}
@@ -252,9 +291,10 @@ function DataGridRow(props) {
               inplaceEditorState={inplaceEditorState}
               dispatchInsplaceEditor={dispatchInsplaceEditor}
               cellValue={rowData[col.uniqueName]}
-              grider={grider}
-              rowIndex={rowIndex}
-              uniqueName={col.uniqueName}
+              // grider={grider}
+              // rowIndex={rowIndex}
+              // uniqueName={col.uniqueName}
+              onSetValue={(value) => grider.setCellValue(rowIndex, col.uniqueName, value)}
             />
           ) : (
             <>

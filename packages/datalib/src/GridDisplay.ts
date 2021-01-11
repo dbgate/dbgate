@@ -518,4 +518,20 @@ export abstract class GridDisplay {
       conditions,
     };
   }
+
+  switchToFormView(rowData) {
+    if (!this.baseTable) return;
+    const { primaryKey } = this.baseTable;
+    if (!primaryKey) return;
+    const { columns } = primaryKey;
+
+    this.setConfig((cfg) => ({
+      ...cfg,
+      isFormView: true,
+      formViewKey: _.pick(
+        rowData,
+        columns.map((x) => x.columnName)
+      ),
+    }));
+  }
 }

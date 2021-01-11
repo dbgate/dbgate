@@ -116,6 +116,7 @@ export default function DataGridCore(props) {
     onSelectionChanged,
     frameSelection,
     onKeyDown,
+    formViewAvailable,
   } = props;
   // console.log('RENDER GRID', display.baseTable.pureName);
   const columns = React.useMemo(() => display.allColumns, [display]);
@@ -381,6 +382,7 @@ export default function DataGridCore(props) {
         openFreeTable={handleOpenFreeTable}
         openChartSelection={handleOpenChart}
         openActiveChart={openActiveChart}
+        switchToForm={handleSwitchToFormView}
       />
     );
   };
@@ -719,6 +721,11 @@ export default function DataGridCore(props) {
       display.reload();
     }
 
+    if (event.keyCode == keycodes.f4) {
+      event.preventDefault();
+      handleSwitchToFormView();
+    }
+
     if (event.keyCode == keycodes.s && event.ctrlKey) {
       event.preventDefault();
       handleSave();
@@ -942,6 +949,24 @@ export default function DataGridCore(props) {
     display.clearFilters();
   };
 
+  const handleSetFormView =
+    formViewAvailable && display.baseTable && display.baseTable.primaryKey
+      ? (rowData) => {
+          display.switchToFormView(rowData);
+        }
+      : null;
+
+  const handleSwitchToFormView =
+    formViewAvailable && display.baseTable && display.baseTable.primaryKey
+      ? () => {
+          const cell = currentCell;
+          if (!isRegularCell(cell)) return;
+          const rowData = grider.getRowData(cell[0]);
+          if (!rowData) return;
+          display.switchToFormView(rowData);
+        }
+      : null;
+
   // console.log('visibleRealColumnIndexes', visibleRealColumnIndexes);
   // console.log(
   //   'gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()',
@@ -1047,6 +1072,7 @@ export default function DataGridCore(props) {
                 display={display}
                 focusedColumn={display.focusedColumn}
                 frameSelection={frameSelection}
+                onSetFormView={handleSetFormView}
               />
             )
           )}
@@ -1081,6 +1107,7 @@ export default function DataGridCore(props) {
               await axios.post('database-connections/refresh', { conid, database });
               display.reload();
             }}
+            switchToForm={handleSwitchToFormView}
           />,
           props.toolbarPortalRef.current
         )}

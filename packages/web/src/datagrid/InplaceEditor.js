@@ -14,14 +14,16 @@ const StyledInput = styled.input`
 
 export default function InplaceEditor({
   widthPx,
-  rowIndex,
-  uniqueName,
-  grider,
+  // rowIndex,
+  // uniqueName,
+  // grider,
   cellValue,
   inplaceEditorState,
   dispatchInsplaceEditor,
+  onSetValue,
 }) {
   const editorRef = React.useRef();
+  const widthRef = React.useRef(widthPx);
   const isChangedRef = React.useRef(!!inplaceEditorState.text);
   React.useEffect(() => {
     const editor = editorRef.current;
@@ -34,7 +36,8 @@ export default function InplaceEditor({
   function handleBlur() {
     if (isChangedRef.current) {
       const editor = editorRef.current;
-      grider.setCellValue(rowIndex, uniqueName, editor.value);
+      onSetValue(editor.value);
+      // grider.setCellValue(rowIndex, uniqueName, editor.value);
       isChangedRef.current = false;
     }
     dispatchInsplaceEditor({ type: 'close' });
@@ -42,7 +45,8 @@ export default function InplaceEditor({
   if (inplaceEditorState.shouldSave) {
     const editor = editorRef.current;
     if (isChangedRef.current) {
-      grider.setCellValue(rowIndex, uniqueName, editor.value);
+      onSetValue(editor.value);
+      // grider.setCellValue(rowIndex, uniqueName, editor.value);
       isChangedRef.current = false;
     }
     editor.blur();
@@ -57,7 +61,8 @@ export default function InplaceEditor({
         break;
       case keycodes.enter:
         if (isChangedRef.current) {
-          grider.setCellValue(rowIndex, uniqueName, editor.value);
+          // grider.setCellValue(rowIndex, uniqueName, editor.value);
+          onSetValue(editor.value);
           isChangedRef.current = false;
         }
         editor.blur();
@@ -66,7 +71,8 @@ export default function InplaceEditor({
       case keycodes.s:
         if (event.ctrlKey) {
           if (isChangedRef.current) {
-            grider.setCellValue(rowIndex, uniqueName, editor.value);
+            onSetValue(editor.value);
+            // grider.setCellValue(rowIndex, uniqueName, editor.value);
             isChangedRef.current = false;
           }
           event.preventDefault();
@@ -83,9 +89,9 @@ export default function InplaceEditor({
       onChange={() => (isChangedRef.current = true)}
       onKeyDown={handleKeyDown}
       style={{
-        width: widthPx,
-        minWidth: widthPx,
-        maxWidth: widthPx,
+        width: widthRef.current,
+        minWidth: widthRef.current,
+        maxWidth: widthRef.current,
       }}
     />
   );

@@ -52,14 +52,17 @@ function autodetect(selection, grider, value) {
   return 'textWrap';
 }
 
-export default function CellDataView({ selection, grider }) {
+export default function CellDataView({ selection = undefined, grider = undefined, selectedValue = undefined }) {
   const [selectedFormatType, setSelectedFormatType] = React.useState('autodetect');
   const theme = useTheme();
   let value = null;
-  if (grider && selection.length == 1) {
+  if (grider && selection && selection.length == 1) {
     const rowData = grider.getRowData(selection[0].row);
     const { column } = selection[0];
     if (rowData) value = rowData[column];
+  }
+  if (selectedValue) {
+    value = selectedValue;
   }
   const autodetectFormatType = React.useMemo(() => autodetect(selection, grider, value), [selection, grider, value]);
   const autodetectFormat = formats.find((x) => x.type == autodetectFormatType);

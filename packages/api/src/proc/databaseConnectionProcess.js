@@ -38,6 +38,7 @@ async function handleIncrementalRefresh() {
     analysedStructure = newStructure;
     process.send({ msgtype: 'structure', structure: analysedStructure });
   }
+  setStatusName('ok');
 }
 
 function setStatus(status) {

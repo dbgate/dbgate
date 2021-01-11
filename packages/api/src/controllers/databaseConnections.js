@@ -28,6 +28,7 @@ module.exports = {
   handle_status(conid, database, { status }) {
     const existing = this.opened.find((x) => x.conid == conid && x.database == database);
     if (!existing) return;
+    if (existing.status == status) return;
     existing.status = status;
     socket.emitChanged(`database-status-changed-${conid}-${database}`);
   },

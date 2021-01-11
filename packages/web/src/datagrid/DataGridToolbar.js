@@ -1,9 +1,14 @@
 import React from 'react';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function DataGridToolbar({ reload, reconnect, grider, save }) {
+export default function DataGridToolbar({ reload, reconnect, grider, save, switchToForm }) {
   return (
     <>
+      {switchToForm && (
+        <ToolbarButton onClick={switchToForm} icon="icon form">
+          Form view
+        </ToolbarButton>
+      )}
       <ToolbarButton onClick={reload} icon="icon reload">
         Refresh
       </ToolbarButton>
