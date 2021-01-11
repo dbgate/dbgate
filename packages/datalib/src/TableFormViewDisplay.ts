@@ -152,6 +152,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
   getCountQuery() {
     if (!this.driver) return null;
     const select = this.getCountSelect();
+    if (!select) return null;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }
@@ -159,6 +160,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
   getBeforeCountQuery() {
     if (!this.driver) return null;
     const select = this.getCountSelect();
+    if (!select) return null;
     select.where = mergeConditions(select.where, this.getPrimaryKeyOperatorCondition('<'));
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
