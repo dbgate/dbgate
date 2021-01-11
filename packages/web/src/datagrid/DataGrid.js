@@ -25,6 +25,7 @@ export default function DataGrid(props) {
   const theme = useTheme();
   const [managerSize, setManagerSize] = React.useState(0);
   const [selection, setSelection] = React.useState([]);
+  const [formSelection, setFormSelection] = React.useState(null);
   const [grider, setGrider] = React.useState(null);
   // const [formViewData, setFormViewData] = React.useState(null);
   const isFormView = !!(config && config.isFormView);
@@ -43,17 +44,19 @@ export default function DataGrid(props) {
               <ReferenceManager {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
-          {!isFormView && (
-            <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
+          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
+            {isFormView ? (
+              <CellDataView selectedValue={formSelection} />
+            ) : (
               <CellDataView selection={selection} grider={grider} />
-            </WidgetColumnBarItem>
-          )}
+            )}
+          </WidgetColumnBarItem>
         </WidgetColumnBar>
       </LeftContainer>
 
       <DataGridContainer>
         {isFormView ? (
-          <FormView {...props} />
+          <FormView {...props} onSelectionChanged={setFormSelection} />
         ) : (
           <GridCore
             {...props}

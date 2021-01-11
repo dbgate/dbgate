@@ -65,7 +65,9 @@ const TableBodyCell = styled.td`
   padding: 2px;
   white-space: nowrap;
   position: relative;
+  max-width: 500px;
   overflow: hidden;
+  text-overflow: ellipsis;
 
   ${(props) =>
     props.isSelected &&
@@ -119,6 +121,7 @@ export default function FormView(props) {
     onReconnect,
     allRowCount,
     rowCountBefore,
+    onSelectionChanged,
   } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
@@ -161,6 +164,13 @@ export default function FormView(props) {
       if (focusFieldRef.current) focusFieldRef.current.focus();
     }
   }, [tabVisible, focusFieldRef.current]);
+
+  React.useEffect(() => {
+    if (!onSelectionChanged || !rowData) return;
+    const col = getCellColumn(currentCell);
+    if (!col) return;
+    onSelectionChanged(rowData[col.uniqueName]);
+  }, [onSelectionChanged, currentCell, rowData]);
 
   const checkMoveCursorBounds = (row, col) => {
     if (row < 0) row = 0;
