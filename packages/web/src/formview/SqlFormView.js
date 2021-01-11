@@ -32,7 +32,7 @@ async function loadRow(props, sql) {
 }
 
 export default function SqlFormView(props) {
-  const { formDisplay, changeSetState, dispatchChangeSet, conid, database } = props;
+  const { formDisplay, changeSetState, dispatchChangeSet, conid, database, onReferenceSourceChanged } = props;
   const [rowData, setRowData] = React.useState(null);
   const [reloadToken, setReloadToken] = React.useState(0);
   const [rowCountInfo, setRowCountInfo] = React.useState(null);
@@ -69,6 +69,10 @@ export default function SqlFormView(props) {
       formDisplay.navigate(row);
     }
   };
+
+  React.useEffect(() => {
+    if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData]);
+  }, [rowData]);
 
   React.useEffect(() => {
     if (formDisplay) handleLoadCurrentRow();

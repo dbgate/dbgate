@@ -95,6 +95,11 @@ const RowCountLabel = styled.div`
   bottom: 20px;
 `;
 
+const HintSpan = styled.span`
+  color: gray;
+  margin-left: 5px;
+`;
+
 function isDataCell(cell) {
   return cell[1] % 2 == 1;
 }
@@ -310,6 +315,11 @@ export default function FormView(props) {
       copyToClipboard();
     }
 
+    if (event.keyCode == keycodes.f5) {
+      event.preventDefault();
+      onReload();
+    }
+
     if (
       !event.ctrlKey &&
       !event.altKey &&
@@ -452,6 +462,11 @@ export default function FormView(props) {
                 ) : (
                   <>
                     <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
+                    {!!col.hintColumnName &&
+                      rowData &&
+                      !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (
+                        <HintSpan>{rowData[col.hintColumnName]}</HintSpan>
+                      )}
                   </>
                 )}
               </TableBodyCell>
