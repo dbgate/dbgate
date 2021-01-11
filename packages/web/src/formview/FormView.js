@@ -15,6 +15,7 @@ import keycodes from '../utility/keycodes';
 import { CellFormattedValue } from '../datagrid/DataGridRow';
 import { cellFromEvent } from '../datagrid/selection';
 import InplaceEditor from '../datagrid/InplaceEditor';
+import { copyTextToClipboard } from '../utility/clipboard';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -87,12 +88,33 @@ const FocusField = styled.input`
   top: -1000px;
 `;
 
+const RowCountLabel = styled.div`
+  position: absolute;
+  background-color: ${(props) => props.theme.gridbody_background_yellow[1]};
+  right: 40px;
+  bottom: 20px;
+`;
+
 function isDataCell(cell) {
   return cell[1] % 2 == 1;
 }
 
 export default function FormView(props) {
-  const { toolbarPortalRef, tabVisible, config, setConfig, onNavigate, former, onSave } = props;
+  const {
+    toolbarPortalRef,
+    tabVisible,
+    config,
+    setConfig,
+    onNavigate,
+    former,
+    onSave,
+    conid,
+    database,
+    onReload,
+    onReconnect,
+    allRowCount,
+    rowCountBefore,
+  } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
   const theme = useTheme();
@@ -197,6 +219,25 @@ export default function FormView(props) {
     if (onSave) onSave();
   }
 
+  function getCellColumn(cell) {
+    const chunk = columnChunks[Math.floor(cell[1] / 2)];
+    if (!chunk) return;
+    const column = chunk[cell[0]];
+    return column;
+  }
+
+  function setCellValue(cell, value) {
+    const column = getCellColumn(cell);
+    if (!column) return;
+    former.setCellValue(column.uniqueName, value);
+  }
+
+  function setNull() {
+    if (isDataCell(currentCell)) {
+      setCellValue(currentCell, null);
+    }
+  }
+
   const scrollIntoView = (cell) => {
     const element = cellRefs.current[`${cell[0]},${cell[1]}`];
     if (element) element.scrollIntoView();
@@ -211,6 +252,13 @@ export default function FormView(props) {
     setCurrentCell(moved);
     scrollIntoView(moved);
   };
+
+  function copyToClipboard() {
+    const column = getCellColumn(currentCell);
+    if (!column) return;
+    const text = currentCell[1] % 2 == 1 ? rowData[column.uniqueName] : column.columnName;
+    copyTextToClipboard(text);
+  }
 
   const handleKeyDown = (event) => {
     const navigation = handleKeyNavigation(event);
@@ -230,6 +278,36 @@ export default function FormView(props) {
       event.preventDefault();
       handleSave();
       // this.saveAndFocus();
+    }
+
+    if (event.keyCode == keycodes.n0 && event.ctrlKey) {
+      event.preventDefault();
+      setNull();
+    }
+
+    if (event.keyCode == keycodes.r && event.ctrlKey) {
+      event.preventDefault();
+      former.revertRowChanges();
+    }
+
+    // if (event.keyCode == keycodes.f && event.ctrlKey) {
+    //   event.preventDefault();
+    //   filterSelectedValue();
+    // }
+
+    if (event.keyCode == keycodes.z && event.ctrlKey) {
+      event.preventDefault();
+      former.undo();
+    }
+
+    if (event.keyCode == keycodes.y && event.ctrlKey) {
+      event.preventDefault();
+      former.redo();
+    }
+
+    if (event.keyCode == keycodes.c && event.ctrlKey) {
+      event.preventDefault();
+      copyToClipboard();
     }
 
     if (
@@ -281,6 +359,11 @@ export default function FormView(props) {
     return 100;
   };
 
+  const rowCountInfo = React.useMemo(() => {
+    if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
+    return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+  }, [rowCountBefore, allRowCount]);
+
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
       case 'show':
@@ -313,7 +396,14 @@ export default function FormView(props) {
     toolbarPortalRef.current &&
     tabVisible &&
     ReactDOM.createPortal(
-      <FormViewToolbar switchToTable={handleSwitchToTable} onNavigate={onNavigate} />,
+      <FormViewToolbar
+        switchToTable={handleSwitchToTable}
+        onNavigate={onNavigate}
+        reload={onReload}
+        reconnect={onReconnect}
+        save={handleSave}
+        former={former}
+      />,
       toolbarPortalRef.current
     );
 
@@ -371,6 +461,7 @@ export default function FormView(props) {
       ))}
 
       <FocusField type="text" ref={focusFieldRef} onKeyDown={handleKeyDown} />
+      {rowCountInfo && <RowCountLabel theme={theme}>{rowCountInfo}</RowCountLabel>}
 
       {toolbar}
     </Wrapper>

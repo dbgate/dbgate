@@ -42,7 +42,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     if (!row) row = this.config.formViewKey;
     if (!row) return null;
     const { primaryKey } = this.gridDisplay.baseTable;
-    if (primaryKey) return null;
+    if (!primaryKey) return null;
     return {
       conditionType: 'and',
       conditions: primaryKey.columns.map(({ columnName }) => ({
@@ -68,6 +68,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     const conditions = [];
 
     const { primaryKey } = this.gridDisplay.baseTable;
+    if (!primaryKey) return null;
     for (let index = 0; index < primaryKey.columns.length; index++) {
       conditions.push({
         conditionType: 'and',
@@ -133,7 +134,40 @@ export class TableFormViewDisplay extends FormViewDisplay {
     return sql;
   }
 
+  getCountSelect() {
+    const select = this.getSelect();
+    if (!select) return null;
+    select.orderBy = null;
+    select.columns = [
+      {
+        exprType: 'raw',
+        sql: 'COUNT(*)',
+        alias: 'count',
+      },
+    ];
+    select.topRecords = null;
+    return select;
+  }
+
+  getCountQuery() {
+    if (!this.driver) return null;
+    const select = this.getCountSelect();
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
+  }
+
+  getBeforeCountQuery() {
+    if (!this.driver) return null;
+    const select = this.getCountSelect();
+    select.where = mergeConditions(select.where, this.getPrimaryKeyOperatorCondition('<'));
+    const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    return sql;
+  }
+
   extractKey(row) {
+    if (!row || !this.gridDisplay.baseTable || !this.gridDisplay.baseTable.primaryKey) {
+      return null;
+    }
     const formViewKey = _.pick(
       row,
       this.gridDisplay.baseTable.primaryKey.columns.map((x) => x.columnName)
@@ -150,6 +184,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
   }
 
   isLoadedCurrentRow(row) {
+    console.log('isLoadedCurrentRow', row, this.config.formViewKey);
     if (!row) return false;
     const formViewKey = this.extractKey(row);
     return stableStringify(formViewKey) == stableStringify(this.config.formViewKey);

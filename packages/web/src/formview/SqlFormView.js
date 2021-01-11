@@ -14,8 +14,8 @@ import useShowModal from '../modals/showModal';
 
 async function loadRow(props, sql) {
   const { conid, database } = props;
-  /** @type {import('dbgate-datalib').TableFormViewDisplay} */
-  const formDisplay = props.formDisplay;
+
+  if (!sql) return null;
 
   const response = await axios.request({
     url: 'database-connections/query-data',
@@ -35,6 +35,7 @@ export default function SqlFormView(props) {
   const { formDisplay, changeSetState, dispatchChangeSet, conid, database } = props;
   const [rowData, setRowData] = React.useState(null);
   const [reloadToken, setReloadToken] = React.useState(0);
+  const [rowCountInfo, setRowCountInfo] = React.useState(null);
 
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
@@ -49,6 +50,18 @@ export default function SqlFormView(props) {
     if (row) setRowData(row);
   };
 
+  const handleLoadRowCount = async () => {
+    const countRow = await loadRow(props, formDisplay.getCountQuery());
+    const countBeforeRow = await loadRow(props, formDisplay.getBeforeCountQuery());
+
+    if (countRow && countBeforeRow) {
+      setRowCountInfo({
+        allRowCount: parseInt(countRow.count),
+        rowCountBefore: parseInt(countBeforeRow.count),
+      });
+    }
+  };
+
   const handleNavigate = async (command) => {
     const row = await loadRow(props, formDisplay.navigateRowQuery(command));
     if (row) {
@@ -59,13 +72,19 @@ export default function SqlFormView(props) {
 
   React.useEffect(() => {
     if (formDisplay) handleLoadCurrentRow();
+    setRowCountInfo(null);
+    handleLoadRowCount();
   }, [reloadToken]);
 
   React.useEffect(() => {
+    if (!formDisplay.isLoadedCorrectly) return;
+
     if (formDisplay && !formDisplay.isLoadedCurrentRow(rowData)) {
       handleLoadCurrentRow();
     }
-  }, [formDisplay, rowData]);
+    setRowCountInfo(null);
+    handleLoadRowCount();
+  }, [formDisplay]);
 
   const former = React.useMemo(() => new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay), [
     rowData,
@@ -133,7 +152,19 @@ export default function SqlFormView(props) {
 
   return (
     <>
-      <FormView {...props} rowData={rowData} onNavigate={handleNavigate} former={former} onSave={handleSave} />
+      <FormView
+        {...props}
+        rowData={rowData}
+        onNavigate={handleNavigate}
+        former={former}
+        onSave={handleSave}
+        onReload={() => setReloadToken((x) => x + 1)}
+        onReconnect={async () => {
+          await axios.post('database-connections/refresh', { conid, database });
+          formDisplay.reload();
+        }}
+        {...rowCountInfo}
+      />
       <ConfirmSqlModal
         modalState={confirmSqlModalState}
         sql={confirmSql}
