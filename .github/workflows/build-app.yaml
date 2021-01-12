@@ -41,6 +41,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
+      - name: codeSigning
+        if: matrix.os == 'windows-2016'
+        uses: DanaBear/code-sign-action@v4
+        with:
+          certificate: '${{ secrets.WINCERT_CERTIFICATE }}'
+          password: '${{ secrets.WINCERT_PASSWORD }}'
+          certificatesha1: '${{ secrets.WINCERT_SHA1 }}'
+          folder: 'app/dist'
+
       - name: generatePadFile
         run: |
           yarn generatePadFile
