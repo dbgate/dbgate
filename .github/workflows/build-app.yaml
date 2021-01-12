@@ -47,7 +47,7 @@ jobs:
         with:
           certificate: '${{ secrets.WINCERT_CERTIFICATE }}'
           password: '${{ secrets.WINCERT_PASSWORD }}'
-          certificatesha1: '${{ secrets.WINCERT_SHA1 }}'
+          certificatename: 'Jan Prochazka'
           folder: 'app/dist'
 
       - name: generatePadFile
