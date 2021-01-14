@@ -152,6 +152,10 @@ export default function FormView(props) {
     }));
   };
 
+  const handleFilterThisValue = isDataCell(currentCell)
+    ? () => formDisplay.filterCellValue(getCellColumn(currentCell), rowData)
+    : null;
+
   const handleContextMenu = (event) => {
     event.preventDefault();
     showMenu(
@@ -161,9 +165,7 @@ export default function FormView(props) {
         switchToTable={handleSwitchToTable}
         onNavigate={onNavigate}
         addToFilter={() => formDisplay.addFilterColumn(getCellColumn(currentCell))}
-        filterThisValue={
-          isDataCell(currentCell) ? () => formDisplay.filterCellValue(getCellColumn(currentCell), rowData) : null
-        }
+        filterThisValue={handleFilterThisValue}
       />
     );
   };
@@ -336,6 +338,11 @@ export default function FormView(props) {
     if (event.keyCode == keycodes.c && event.ctrlKey) {
       event.preventDefault();
       copyToClipboard();
+    }
+
+    if (event.keyCode == keycodes.f && event.ctrlKey) {
+      event.preventDefault();
+      if (handleFilterThisValue) handleFilterThisValue();
     }
 
     if (event.keyCode == keycodes.f5) {

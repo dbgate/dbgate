@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
 import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
-import { parseFilter, getFilterType } from 'dbgate-filterparser';
+import { parseFilter, getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect, Condition } from 'dbgate-sqltree';
@@ -28,6 +28,21 @@ export class FormViewDisplay {
       ...cfg,
       formFilterColumns: [...(cfg.formFilterColumns || []), column.uniqueName],
     }));
+  }
+
+  filterCellValue(column, rowData) {
+    if (!column || !rowData) return;
+    const value = rowData[column.uniqueName];
+    const expr = getFilterValueExpression(value, column.dataType);
+    if (expr) {
+      this.setConfig((cfg) => ({
+        ...cfg,
+        filters: {
+          ...cfg.filters,
+          [column.uniqueName]: expr,
+        },
+      }));
+    }
   }
 
   setFilter(uniqueName, value) {

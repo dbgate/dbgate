@@ -8,7 +8,11 @@ export default function FormViewContextMenu({ switchToTable, onNavigate, addToFi
         Table view
       </DropDownMenuItem>
       {addToFilter && <DropDownMenuItem onClick={addToFilter}>Add to filter</DropDownMenuItem>}
-      {filterThisValue && <DropDownMenuItem onClick={filterThisValue}>Filter this value</DropDownMenuItem>}
+      {filterThisValue && (
+        <DropDownMenuItem onClick={filterThisValue} keyText="Ctrl+F">
+          Filter this value
+        </DropDownMenuItem>
+      )}
       <DropDownMenuDivider />
       <DropDownMenuItem onClick={() => onNavigate('begin')} keyText="Ctrl+Home">
         Navigate to begin
