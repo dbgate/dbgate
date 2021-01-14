@@ -534,6 +534,7 @@ export abstract class GridDisplay {
             columns.map((x) => x.columnName)
           )
         : null,
+      formViewKeyRequested: null,
     }));
   }
 }
