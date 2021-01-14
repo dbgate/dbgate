@@ -186,7 +186,6 @@ export class TableFormViewDisplay extends FormViewDisplay {
   }
 
   isLoadedCurrentRow(row) {
-    console.log('isLoadedCurrentRow', row, this.config.formViewKey);
     if (!row) return false;
     const formViewKey = this.extractKey(row);
     return stableStringify(formViewKey) == stableStringify(this.config.formViewKey);

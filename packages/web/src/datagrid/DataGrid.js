@@ -63,7 +63,7 @@ export default function DataGrid(props) {
 
       <DataGridContainer>
         {isFormView ? (
-          <FormView {...props} onSelectionChanged={setFormSelection} />
+          <FormView {...props} onSelectionChanged={collapsedWidgets.includes('cellData') ? null : setFormSelection} />
         ) : (
           <GridCore
             {...props}

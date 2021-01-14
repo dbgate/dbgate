@@ -19,6 +19,7 @@ import { copyTextToClipboard } from '../utility/clipboard';
 import { FontIcon } from '../icons';
 import openReferenceForm from './openReferenceForm';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import LoadingInfo from '../widgets/LoadingInfo';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -125,6 +126,7 @@ export default function FormView(props) {
     allRowCount,
     rowCountBefore,
     onSelectionChanged,
+    isLoading,
   } = props;
   /** @type {import('dbgate-datalib').FormViewDisplay} */
   const formDisplay = props.formDisplay;
@@ -436,6 +438,14 @@ export default function FormView(props) {
       toolbarPortalRef.current
     );
 
+  if (isLoading) {
+    return (
+      <>
+        <LoadingInfo wrapper message="Loading data" />
+        {toolbar}
+      </>
+    );
+  }
   if (!formDisplay || !formDisplay.isLoadedCorrectly) return toolbar;
 
   return (

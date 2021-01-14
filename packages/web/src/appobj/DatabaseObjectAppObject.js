@@ -28,6 +28,16 @@ const menus = {
       forceNewTab: true,
     },
     {
+      label: 'Open form',
+      tab: 'TableDataTab',
+      forceNewTab: true,
+      initialData: {
+        grid: {
+          isFormView: true,
+        },
+      },
+    },
+    {
       label: 'Open structure',
       tab: 'TableStructureTab',
     },
@@ -115,7 +125,8 @@ export async function openDatabaseObjectDetail(
   tabComponent,
   sqlTemplate,
   { schemaName, pureName, conid, database, objectTypeField },
-  forceNewTab
+  forceNewTab,
+  initialData
 ) {
   const connection = await getConnectionInfo({ conid });
   const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
@@ -138,7 +149,7 @@ export async function openDatabaseObjectDetail(
         initialArgs: sqlTemplate ? { sqlTemplate } : null,
       },
     },
-    undefined,
+    initialData,
     { forceNewTab }
   );
 }
@@ -240,7 +251,14 @@ function Menu({ data }) {
                 }
               );
             } else {
-              openDatabaseObjectDetail(openNewTab, menu.tab, menu.sqlTemplate, data, menu.forceNewTab);
+              openDatabaseObjectDetail(
+                openNewTab,
+                menu.tab,
+                menu.sqlTemplate,
+                data,
+                menu.forceNewTab,
+                menu.initialData
+              );
             }
           }}
         >

@@ -32,10 +32,19 @@ async function loadRow(props, sql) {
 }
 
 export default function SqlFormView(props) {
-  const { formDisplay, changeSetState, dispatchChangeSet, conid, database, onReferenceSourceChanged } = props;
+  const {
+    formDisplay,
+    changeSetState,
+    dispatchChangeSet,
+    conid,
+    database,
+    onReferenceSourceChanged,
+    refReloadToken,
+  } = props;
   const [rowData, setRowData] = React.useState(null);
   const [reloadToken, setReloadToken] = React.useState(0);
   const [rowCountInfo, setRowCountInfo] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
@@ -46,8 +55,17 @@ export default function SqlFormView(props) {
   changeSetRef.current = changeSet;
 
   const handleLoadCurrentRow = async () => {
-    const row = await loadRow(props, formDisplay.getCurrentRowQuery());
-    if (row) setRowData(row);
+    let isLoaded = false;
+    if (formDisplay.config.formViewKey) {
+      setIsLoading(true);
+      const row = await loadRow(props, formDisplay.getCurrentRowQuery());
+      setIsLoading(false);
+      setRowData(row);
+      isLoaded = !!row;
+    }
+    if (!isLoaded) {
+      await handleNavigate('first');
+    }
   };
 
   const handleLoadRowCount = async () => {
@@ -63,16 +81,18 @@ export default function SqlFormView(props) {
   };
 
   const handleNavigate = async (command) => {
+    setIsLoading(true);
     const row = await loadRow(props, formDisplay.navigateRowQuery(command));
+    setIsLoading(false);
+    setRowData(row);
     if (row) {
-      setRowData(row);
       formDisplay.navigate(row);
     }
   };
 
   React.useEffect(() => {
     if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData]);
-  }, [rowData]);
+  }, [rowData, refReloadToken]);
 
   React.useEffect(() => {
     if (formDisplay) handleLoadCurrentRow();
@@ -105,6 +125,7 @@ export default function SqlFormView(props) {
   }
 
   async function handleConfirmSql() {
+    setIsLoading(true);
     const resp = await axios.request({
       url: 'database-connections/query-data',
       method: 'post',
@@ -114,6 +135,7 @@ export default function SqlFormView(props) {
       },
       data: { sql: confirmSql },
     });
+    setIsLoading(false);
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
       showModal((modalState) => (
@@ -162,10 +184,11 @@ export default function SqlFormView(props) {
         onNavigate={handleNavigate}
         former={former}
         onSave={handleSave}
+        isLoading={isLoading}
         onReload={() => setReloadToken((x) => x + 1)}
         onReconnect={async () => {
           await axios.post('database-connections/refresh', { conid, database });
-          formDisplay.reload();
+          setReloadToken((x) => x + 1);
         }}
         {...rowCountInfo}
       />
