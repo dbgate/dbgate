@@ -21,7 +21,7 @@ const InnerWrapper = styled.div`
 export default function JsonCellView({ value }) {
   const theme = useTheme();
   try {
-    const json = JSON.parse(value);
+    const json = React.useMemo(() => JSON.parse(value), [value]);
     return (
       <OuterWrapper>
         <InnerWrapper>
