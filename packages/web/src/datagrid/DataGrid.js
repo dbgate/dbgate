@@ -45,7 +45,13 @@ export default function DataGrid(props) {
               <ReferenceManager {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
-          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed>
+          <WidgetColumnBarItem
+            title="Cell data"
+            name="cellData"
+            // cell data must be collapsed by default, because of performance reasons
+            // when not collapsed, onSelectionChanged of grid is set and RERENDER of this component is done on every selection change
+            collapsed
+          >
             {isFormView ? (
               <CellDataView selectedValue={formSelection} />
             ) : (

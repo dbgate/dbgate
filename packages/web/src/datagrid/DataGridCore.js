@@ -1062,6 +1062,9 @@ export default function DataGridCore(props) {
           {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound).map(
             (rowIndex) => (
               <DataGridRow
+                // this component use React.memo
+                // when adding props, check, whether they are correctly memoized and row is not rerendered
+                // uncomment line console.log('RENDER ROW', rowIndex); in  DataGridRow.js for check
                 key={rowIndex}
                 grider={grider}
                 rowIndex={rowIndex}
