@@ -528,10 +528,12 @@ export abstract class GridDisplay {
     this.setConfig((cfg) => ({
       ...cfg,
       isFormView: true,
-      formViewKey: _.pick(
-        rowData,
-        columns.map((x) => x.columnName)
-      ),
+      formViewKey: rowData
+        ? _.pick(
+            rowData,
+            columns.map((x) => x.columnName)
+          )
+        : null,
     }));
   }
 }

@@ -11,6 +11,7 @@ import ErrorMessageModal from '../modals/ErrorMessageModal';
 import { scriptToSql } from 'dbgate-sqltree';
 import useModalState from '../modals/useModalState';
 import useShowModal from '../modals/showModal';
+import stableStringify from 'json-stable-stringify';
 
 async function loadRow(props, sql) {
   const { conid, database } = props;
@@ -45,6 +46,7 @@ export default function SqlFormView(props) {
   const [reloadToken, setReloadToken] = React.useState(0);
   const [rowCountInfo, setRowCountInfo] = React.useState(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const loadedFiltersRef = React.useRef('');
 
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
@@ -95,6 +97,10 @@ export default function SqlFormView(props) {
   }, [rowData, refReloadToken]);
 
   React.useEffect(() => {
+    loadedFiltersRef.current = formDisplay ? stableStringify(formDisplay.config) : null;
+  }, [rowData]);
+
+  React.useEffect(() => {
     if (formDisplay) handleLoadCurrentRow();
     setRowCountInfo(null);
     handleLoadRowCount();
@@ -103,7 +109,11 @@ export default function SqlFormView(props) {
   React.useEffect(() => {
     if (!formDisplay.isLoadedCorrectly) return;
 
-    if (formDisplay && !formDisplay.isLoadedCurrentRow(rowData)) {
+    if (
+      formDisplay &&
+      (!formDisplay.isLoadedCurrentRow(rowData) ||
+        loadedFiltersRef.current != stableStringify(formDisplay.config.filters))
+    ) {
       handleLoadCurrentRow();
     }
     setRowCountInfo(null);

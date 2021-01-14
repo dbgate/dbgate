@@ -342,6 +342,7 @@ export default function FormView(props) {
     }
 
     if (
+      rowData &&
       !event.ctrlKey &&
       !event.altKey &&
       ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
@@ -352,7 +353,7 @@ export default function FormView(props) {
       dispatchInsplaceEditor({ type: 'show', text: event.nativeEvent.key, cell: currentCell });
       return;
     }
-    if (event.keyCode == keycodes.f2) {
+    if (rowData && event.keyCode == keycodes.f2) {
       // @ts-ignore
       dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
       return;
@@ -374,7 +375,9 @@ export default function FormView(props) {
 
     if (isDataCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
       // @ts-ignore
-      dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+      if (rowData) {
+        dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+      }
     } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
       // @ts-ignore
       dispatchInsplaceEditor({ type: 'close' });
@@ -391,6 +394,7 @@ export default function FormView(props) {
   };
 
   const rowCountInfo = React.useMemo(() => {
+    if (rowData  == null) return 'No data';
     if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
     return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
   }, [rowCountBefore, allRowCount]);
@@ -490,11 +494,9 @@ export default function FormView(props) {
                   />
                 ) : (
                   <>
-                    <CellFormattedValue
-                      value={rowData && rowData[col.columnName]}
-                      dataType={col.dataType}
-                      theme={theme}
-                    />
+                    {rowData && (
+                      <CellFormattedValue value={rowData[col.columnName]} dataType={col.dataType} theme={theme} />
+                    )}
                     {!!col.hintColumnName &&
                       rowData &&
                       !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (

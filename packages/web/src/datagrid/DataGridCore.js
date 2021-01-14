@@ -968,9 +968,7 @@ export default function DataGridCore(props) {
     formViewAvailable && display.baseTable && display.baseTable.primaryKey
       ? () => {
           const cell = currentCell;
-          if (!isRegularCell(cell)) return;
-          const rowData = grider.getRowData(cell[0]);
-          if (!rowData) return;
+          const rowData = isRegularCell(cell) ? grider.getRowData(cell[0]) : null;
           display.switchToFormView(rowData);
         }
       : null;
