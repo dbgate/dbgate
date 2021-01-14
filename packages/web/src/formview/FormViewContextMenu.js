@@ -1,12 +1,14 @@
 import React from 'react';
 import { DropDownMenuItem, DropDownMenuDivider } from '../modals/DropDownMenu';
 
-export default function FormViewContextMenu({ switchToTable, onNavigate }) {
+export default function FormViewContextMenu({ switchToTable, onNavigate, addToFilter, filterThisValue }) {
   return (
     <>
       <DropDownMenuItem onClick={switchToTable} keyText="F4">
         Table view
       </DropDownMenuItem>
+      {addToFilter && <DropDownMenuItem onClick={addToFilter}>Add to filter</DropDownMenuItem>}
+      {filterThisValue && <DropDownMenuItem onClick={filterThisValue}>Filter this value</DropDownMenuItem>}
       <DropDownMenuDivider />
       <DropDownMenuItem onClick={() => onNavigate('begin')} keyText="Ctrl+Home">
         Navigate to begin

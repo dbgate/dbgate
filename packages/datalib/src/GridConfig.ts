@@ -31,6 +31,8 @@ export interface GridConfig extends GridConfigColumns {
   reference?: GridReferenceDefinition;
   isFormView?: boolean;
   formViewKey?: { [uniqueName: string]: string };
+  formViewKeyRequested?: { [uniqueName: string]: string };
+  formFilterColumns: string[];
 }
 
 export interface GridCache {
@@ -47,6 +49,7 @@ export function createGridConfig(): GridConfig {
     sort: [],
     focusedColumn: null,
     grouping: {},
+    formFilterColumns: [],
   };
 }
 

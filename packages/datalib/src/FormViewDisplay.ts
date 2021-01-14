@@ -22,4 +22,29 @@ export class FormViewDisplay {
     public dbinfo: DatabaseInfo = null
   ) {}
 
+  addFilterColumn(column) {
+    if (!column) return;
+    this.setConfig((cfg) => ({
+      ...cfg,
+      formFilterColumns: [...(cfg.formFilterColumns || []), column.uniqueName],
+    }));
+  }
+
+  setFilter(uniqueName, value) {
+    this.setConfig((cfg) => ({
+      ...cfg,
+      filters: {
+        ...cfg.filters,
+        [uniqueName]: value,
+      },
+    }));
+  }
+
+  removeFilter(uniqueName) {
+    this.setConfig((cfg) => ({
+      ...cfg,
+      formFilterColumns: (cfg.formFilterColumns || []).filter((x) => x != uniqueName),
+      filters: _.omit(cfg.filters || [], uniqueName),
+    }));
+  }
 }

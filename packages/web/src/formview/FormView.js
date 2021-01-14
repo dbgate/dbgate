@@ -157,7 +157,14 @@ export default function FormView(props) {
     showMenu(
       event.pageX,
       event.pageY,
-      <FormViewContextMenu switchToTable={handleSwitchToTable} onNavigate={onNavigate} />
+      <FormViewContextMenu
+        switchToTable={handleSwitchToTable}
+        onNavigate={onNavigate}
+        addToFilter={() => formDisplay.addFilterColumn(getCellColumn(currentCell))}
+        filterThisValue={
+          isDataCell(currentCell) ? () => formDisplay.filterCellValue(getCellColumn(currentCell), rowData) : null
+        }
+      />
     );
   };
 
@@ -394,7 +401,7 @@ export default function FormView(props) {
   };
 
   const rowCountInfo = React.useMemo(() => {
-    if (rowData  == null) return 'No data';
+    if (rowData == null) return 'No data';
     if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
     return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
   }, [rowCountBefore, allRowCount]);

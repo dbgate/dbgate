@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import ColumnManager from './ColumnManager';
+import FormViewFilters from '../formview/FormViewFilters';
 
 import ReferenceManager from './ReferenceManager';
 import { HorizontalSplitter } from '../widgets/Splitter';
 import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar';
 import CellDataView from '../celldata/CellDataView';
-import { FreeTableGridDisplay } from 'dbgate-datalib';
 import useTheme from '../theme/useTheme';
 
 const LeftContainer = styled.div`
@@ -38,6 +38,11 @@ export default function DataGrid(props) {
           {!isFormView && (
             <WidgetColumnBarItem title="Columns" name="columns" height={props.showReferences ? '40%' : '60%'}>
               <ColumnManager {...props} managerSize={managerSize} />
+            </WidgetColumnBarItem>
+          )}
+          {isFormView && (
+            <WidgetColumnBarItem title="Filters" name="filters" height="30%">
+              <FormViewFilters {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
           {props.showReferences && props.display.hasReferences && (
