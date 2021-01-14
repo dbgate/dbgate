@@ -43,15 +43,6 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
 
-      # - name: codeSigning
-      #   if: matrix.os == 'windows-2016'
-      #   uses: DanaBear/code-sign-action@v4
-      #   with:
-      #     certificate: '${{ secrets.WINCERT_CERTIFICATE }}'
-      #     password: '${{ secrets.WINCERT_PASSWORD }}'
-      #     certificatename: 'Jan Prochazka'
-      #     folder: 'app/dist'
-
       - name: generatePadFile
         run: |
           yarn generatePadFile
