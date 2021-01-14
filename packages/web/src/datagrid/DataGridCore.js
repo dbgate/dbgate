@@ -300,6 +300,16 @@ export default function DataGridCore(props) {
     return `Rows: ${allRowCount.toLocaleString()}`;
   }, [selectedCells, allRowCount, grider, visibleRealColumns]);
 
+  const handleSetFormView = React.useMemo(
+    () =>
+      formViewAvailable && display.baseTable && display.baseTable.primaryKey
+        ? (rowData) => {
+            display.switchToFormView(rowData);
+          }
+        : null,
+    [formViewAvailable, display]
+  );
+
   if (!columns || columns.length == 0) return <LoadingInfo wrapper message="Waiting for structure" />;
 
   if (errorMessage) {
@@ -948,13 +958,6 @@ export default function DataGridCore(props) {
   const handleClearFilters = () => {
     display.clearFilters();
   };
-
-  const handleSetFormView =
-    formViewAvailable && display.baseTable && display.baseTable.primaryKey
-      ? (rowData) => {
-          display.switchToFormView(rowData);
-        }
-      : null;
 
   const handleSwitchToFormView =
     formViewAvailable && display.baseTable && display.baseTable.primaryKey
