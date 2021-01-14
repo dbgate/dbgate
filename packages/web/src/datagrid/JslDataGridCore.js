@@ -40,6 +40,7 @@ async function loadRowCount(props) {
 export default function JslDataGridCore(props) {
   const { jslid } = props;
   const [changeIndex, setChangeIndex] = React.useState(0);
+  const [rowCountLoaded, setRowCountLoaded]= React.useState(null);
 
   const showModal = useShowModal();
 
@@ -65,6 +66,7 @@ export default function JslDataGridCore(props) {
     (stats) => {
       if (stats.changeIndex < changeIndex) return;
       setChangeIndex(stats.changeIndex);
+      setRowCountLoaded(stats.rowCount);
     },
     [changeIndex]
   );
@@ -85,6 +87,7 @@ export default function JslDataGridCore(props) {
       loadDataPage={loadDataPage}
       dataPageAvailable={dataPageAvailable}
       loadRowCount={loadRowCount}
+      rowCountLoaded={rowCountLoaded}
       loadNextDataToken={changeIndex}
       onReload={() => setChangeIndex(0)}
       griderFactory={RowsArrayGrider.factory}

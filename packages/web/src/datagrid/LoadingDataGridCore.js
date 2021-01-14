@@ -14,6 +14,7 @@ export default function LoadingDataGridCore(props) {
     griderFactory,
     griderFactoryDeps,
     onChangeGrider,
+    rowCountLoaded,
   } = props;
 
   const [loadProps, setLoadProps] = React.useState({
@@ -131,7 +132,7 @@ export default function LoadingDataGridCore(props) {
       isLoadedAll={isLoadedAll}
       loadedTime={loadedTime}
       exportGrid={exportGrid}
-      allRowCount={allRowCount}
+      allRowCount={rowCountLoaded || allRowCount}
       openQuery={openQuery}
       isLoading={isLoading}
       grider={grider}
