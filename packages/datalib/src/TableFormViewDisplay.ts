@@ -39,7 +39,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
   }
 
   getPrimaryKeyEqualCondition(row = null): Condition {
-    if (!row) row = this.config.formViewKey;
+    if (!row) row = this.config.formViewKeyRequested || this.config.formViewKey;
     if (!row) return null;
     const { primaryKey } = this.gridDisplay.baseTable;
     if (!primaryKey) return null;
@@ -57,7 +57,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
         },
         right: {
           exprType: 'value',
-          value: this.config.formViewKey[columnName],
+          value: row[columnName],
         },
       })),
     };
@@ -164,17 +164,6 @@ export class TableFormViewDisplay extends FormViewDisplay {
     select.where = mergeConditions(select.where, this.getPrimaryKeyOperatorCondition('<'));
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
-  }
-
-  extractKey(row) {
-    if (!row || !this.gridDisplay.baseTable || !this.gridDisplay.baseTable.primaryKey) {
-      return null;
-    }
-    const formViewKey = _.pick(
-      row,
-      this.gridDisplay.baseTable.primaryKey.columns.map((x) => x.columnName)
-    );
-    return formViewKey;
   }
 
   navigate(row) {

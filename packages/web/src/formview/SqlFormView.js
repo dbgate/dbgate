@@ -82,8 +82,8 @@ export default function SqlFormView(props) {
 
   const handleLoadCurrentRow = async () => {
     if (isLoadingData) return;
-    let isLoadedRow = false;
-    if (formDisplay.config.formViewKey) {
+    let newLoadedRow = false;
+    if (formDisplay.config.formViewKeyRequested || formDisplay.config.formViewKey) {
       setLoadProps((oldLoadProps) => ({
         ...oldLoadProps,
         isLoadingData: true,
@@ -96,9 +96,12 @@ export default function SqlFormView(props) {
         rowData: row,
         loadedTime: new Date().getTime(),
       }));
-      isLoadedRow = !!row;
+      newLoadedRow = row;
     }
-    if (!isLoadedRow) {
+    if (formDisplay.config.formViewKeyRequested && newLoadedRow) {
+      formDisplay.cancelRequestKey(newLoadedRow);
+    }
+    if (!newLoadedRow && !formDisplay.config.formViewKeyRequested) {
       await handleNavigate('first');
     }
   };
