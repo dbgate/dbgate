@@ -34,8 +34,16 @@ export default function TabContent({ toolbarPortalRef }) {
   const [mountedTabs, setMountedTabs] = React.useState({});
 
   // cleanup closed tabs
-  if (_.difference(_.keys(mountedTabs), _.map(files, 'tabid')).length > 0) {
-    setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find((x) => x.tabid == k)));
+  if (
+    _.difference(
+      _.keys(mountedTabs),
+      _.map(
+        files.filter((x) => x.closedTime == null),
+        'tabid'
+      )
+    ).length > 0
+  ) {
+    setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find((x) => x.tabid == k && x.closedTime == null)));
   }
 
   const selectedTab = files.find((x) => x.selected);
