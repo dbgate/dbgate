@@ -12,10 +12,13 @@ import FormViewToolbar from './FormViewToolbar';
 import { useShowMenu } from '../modals/showMenu';
 import FormViewContextMenu from './FormViewContextMenu';
 import keycodes from '../utility/keycodes';
-import { CellFormattedValue } from '../datagrid/DataGridRow';
+import { CellFormattedValue, ShowFormButton } from '../datagrid/DataGridRow';
 import { cellFromEvent } from '../datagrid/selection';
 import InplaceEditor from '../datagrid/InplaceEditor';
 import { copyTextToClipboard } from '../utility/clipboard';
+import { FontIcon } from '../icons';
+import openReferenceForm from './openReferenceForm';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const Table = styled.table`
   border-collapse: collapse;
@@ -132,6 +135,7 @@ export default function FormView(props) {
   const focusFieldRef = React.useRef(null);
   const [currentCell, setCurrentCell] = React.useState([0, 0]);
   const cellRefs = React.useRef({});
+  const openNewTab = useOpenNewTab();
 
   const rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
   const columnChunks = _.chunk(formDisplay.columns, rowCount);
@@ -476,12 +480,28 @@ export default function FormView(props) {
                   />
                 ) : (
                   <>
-                    <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} theme={theme} />
+                    <CellFormattedValue
+                      value={rowData && rowData[col.columnName]}
+                      dataType={col.dataType}
+                      theme={theme}
+                    />
                     {!!col.hintColumnName &&
                       rowData &&
                       !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (
                         <HintSpan>{rowData[col.hintColumnName]}</HintSpan>
                       )}
+                    {col.foreignKey && rowData && rowData[col.uniqueName] && (
+                      <ShowFormButton
+                        theme={theme}
+                        className="buttonLike"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openReferenceForm(rowData, col, openNewTab, conid, database);
+                        }}
+                      >
+                        <FontIcon icon="icon form" />
+                      </ShowFormButton>
+                    )}
                   </>
                 )}
               </TableBodyCell>

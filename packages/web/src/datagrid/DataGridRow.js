@@ -129,7 +129,7 @@ const AutoFillPoint = styled.div`
   cursor: crosshair;
 `;
 
-const ShowFormButton = styled.div`
+export const ShowFormButton = styled.div`
   position: absolute;
   right: 0px;
   top: 1px;

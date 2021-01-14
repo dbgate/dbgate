@@ -31,6 +31,7 @@ import useTheme from '../theme/useTheme';
 import { useShowMenu } from '../modals/showMenu';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import axios from '../utility/axios';
+import openReferenceForm from '../formview/openReferenceForm';
 
 const GridContainer = styled.div`
   position: absolute;
@@ -305,33 +306,7 @@ export default function DataGridCore(props) {
       formViewAvailable && display.baseTable && display.baseTable.primaryKey
         ? (rowData, column) => {
             if (column) {
-              const formViewKey = _.fromPairs(
-                column.foreignKey.columns.map(({ refColumnName, columnName }) => [refColumnName, rowData[columnName]])
-              );
-              console.log('formViewKey', formViewKey);
-              openNewTab(
-                {
-                  title: column.foreignKey.refTableName,
-                  icon: 'img table',
-                  tabComponent: 'TableDataTab',
-                  props: {
-                    schemaName: column.foreignKey.refSchemaName,
-                    pureName: column.foreignKey.refTableName,
-                    conid,
-                    database,
-                    objectTypeField: 'tables',
-                  },
-                },
-                {
-                  grid: {
-                    isFormView: true,
-                    formViewKey,
-                  },
-                },
-                {
-                  forceNewTab: true,
-                }
-              );
+              openReferenceForm(rowData, column, openNewTab, conid, database);
             } else {
               display.switchToFormView(rowData);
             }
