@@ -27,13 +27,14 @@ export default function DataGrid(props) {
   const [selection, setSelection] = React.useState([]);
   const [formSelection, setFormSelection] = React.useState(null);
   const [grider, setGrider] = React.useState(null);
+  const [collapsedWidgets, setCollapsedWidgets] = React.useState([]);
   // const [formViewData, setFormViewData] = React.useState(null);
   const isFormView = !!(config && config.isFormView);
 
   return (
     <HorizontalSplitter initialValue="300px" size={managerSize} setSize={setManagerSize}>
       <LeftContainer theme={theme}>
-        <WidgetColumnBar>
+        <WidgetColumnBar onChangeCollapsedWidgets={setCollapsedWidgets}>
           {!isFormView && (
             <WidgetColumnBarItem title="Columns" name="columns" height={props.showReferences ? '40%' : '60%'}>
               <ColumnManager {...props} managerSize={managerSize} />
@@ -44,7 +45,7 @@ export default function DataGrid(props) {
               <ReferenceManager {...props} managerSize={managerSize} />
             </WidgetColumnBarItem>
           )}
-          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed={props.isDetailView}>
+          <WidgetColumnBarItem title="Cell data" name="cellData" collapsed>
             {isFormView ? (
               <CellDataView selectedValue={formSelection} />
             ) : (
@@ -60,7 +61,7 @@ export default function DataGrid(props) {
         ) : (
           <GridCore
             {...props}
-            onSelectionChanged={setSelection}
+            onSelectionChanged={collapsedWidgets.includes('cellData') ? null : setSelection}
             onChangeGrider={setGrider}
             formViewAvailable={!!FormView && !!formDisplay}
           />

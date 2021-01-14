@@ -40,7 +40,7 @@ function WidgetContainer({ widget, visible, splitterVisible, parentHeight, initi
   );
 }
 
-export default function WidgetColumnBar({ children }) {
+export default function WidgetColumnBar({ children, onChangeCollapsedWidgets = undefined }) {
   const childArray = _.isArray(children) ? children : [children];
   const [refNode, dimensions] = useDimensions();
   const [collapsedWidgets, setCollapsedWidgets] = React.useState(() =>
@@ -53,6 +53,9 @@ export default function WidgetColumnBar({ children }) {
     if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter((x) => x != name));
     else setCollapsedWidgets([...collapsedWidgets, name]);
   };
+  React.useEffect(() => {
+    if (onChangeCollapsedWidgets) onChangeCollapsedWidgets(collapsedWidgets);
+  }, [onChangeCollapsedWidgets, collapsedWidgets]);
 
   return (
     <WidgetsMainContainer ref={refNode}>
