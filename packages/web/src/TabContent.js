@@ -5,7 +5,7 @@ import tabs from './tabs';
 import { useOpenedTabs } from './utility/globalState';
 import ErrorBoundary from './utility/ErrorBoundary';
 
-const TabContainer = styled.div`
+const TabContainerStyled = styled.div`
   position: absolute;
   left: 0;
   top: 0;
@@ -16,6 +16,20 @@ const TabContainer = styled.div`
     // @ts-ignore
     props.tabVisible ? 'visible' : 'hidden'};
 `;
+
+function TabContainer({ TabComponent, ...props }) {
+  const { tabVisible, tabid, toolbarPortalRef } = props;
+  return (
+    // @ts-ignore
+    <TabContainerStyled tabVisible={tabVisible}>
+      <ErrorBoundary>
+        <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
+      </ErrorBoundary>
+    </TabContainerStyled>
+  );
+}
+
+const TabContainerMemo = React.memo(TabContainer);
 
 function createTabComponent(selectedTab) {
   const TabComponent = tabs[selectedTab.tabComponent];
@@ -60,12 +74,14 @@ export default function TabContent({ toolbarPortalRef }) {
     const { TabComponent, props } = mountedTabs[tabid];
     const tabVisible = tabid == (selectedTab && selectedTab.tabid);
     return (
-      // @ts-ignore
-      <TabContainer key={tabid} tabVisible={tabVisible}>
-        <ErrorBoundary>
-          <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
-        </ErrorBoundary>
-      </TabContainer>
+      <TabContainerMemo
+        key={tabid}
+        {...props}
+        tabid={tabid}
+        tabVisible={tabVisible}
+        toolbarPortalRef={toolbarPortalRef}
+        TabComponent={TabComponent}
+      />
     );
   });
 }
