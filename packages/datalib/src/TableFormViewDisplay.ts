@@ -33,7 +33,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     super(config, setConfig, cache, setCache, driver, dbinfo);
     this.gridDisplay = new TableGridDisplay(tableName, driver, config, setConfig, cache, setCache, dbinfo);
 
-    this.isLoadedCorrectly = this.gridDisplay.isLoadedCorrectly;
+    this.isLoadedCorrectly = this.gridDisplay.isLoadedCorrectly && !!this.driver;
     this.columns = this.gridDisplay.columns;
     this.baseTable = this.gridDisplay.baseTable;
   }

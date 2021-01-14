@@ -53,13 +53,24 @@ export class FormViewDisplay {
         [uniqueName]: value,
       },
     }));
+    this.reload();
   }
 
   removeFilter(uniqueName) {
+    const reloadRequired = !!this.config.filters[uniqueName];
     this.setConfig((cfg) => ({
       ...cfg,
       formFilterColumns: (cfg.formFilterColumns || []).filter((x) => x != uniqueName),
       filters: _.omit(cfg.filters || [], uniqueName),
+    }));
+    if (reloadRequired) this.reload();
+  }
+
+  reload() {
+    this.setCache((cache) => ({
+      // ...cache,
+      ...createGridCache(),
+      refreshTime: new Date().getTime(),
     }));
   }
 }

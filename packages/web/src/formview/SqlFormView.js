@@ -33,6 +33,7 @@ async function loadRow(props, sql) {
 }
 
 export default function SqlFormView(props) {
+  // console.log('SqlFormView', props);
   const {
     formDisplay,
     changeSetState,
@@ -42,11 +43,11 @@ export default function SqlFormView(props) {
     onReferenceSourceChanged,
     refReloadToken,
   } = props;
-  const [rowData, setRowData] = React.useState(null);
-  const [reloadToken, setReloadToken] = React.useState(0);
-  const [rowCountInfo, setRowCountInfo] = React.useState(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const loadedFiltersRef = React.useRef('');
+  // const [rowData, setRowData] = React.useState(null);
+  // const [reloadToken, setReloadToken] = React.useState(0);
+  // const [rowCountInfo, setRowCountInfo] = React.useState(null);
+  // const [isLoading, setIsLoading] = React.useState(false);
+  // const loadedFiltersRef = React.useRef('');
 
   const confirmSqlModalState = useModalState();
   const [confirmSql, setConfirmSql] = React.useState('');
@@ -56,40 +57,88 @@ export default function SqlFormView(props) {
   const changeSetRef = React.useRef(changeSet);
   changeSetRef.current = changeSet;
 
+  const [loadProps, setLoadProps] = React.useState({
+    isLoadingData: false,
+    isLoadedData: false,
+    rowData: null,
+    isLoadingCount: false,
+    isLoadedCount: false,
+    loadedTime: new Date().getTime(),
+    allRowCount: null,
+    rowCountBefore: null,
+    errorMessage: null,
+  });
+  const {
+    isLoadingData,
+    rowData,
+    isLoadedData,
+    isLoadingCount,
+    isLoadedCount,
+    loadedTime,
+    allRowCount,
+    rowCountBefore,
+    errorMessage,
+  } = loadProps;
+
   const handleLoadCurrentRow = async () => {
-    let isLoaded = false;
+    if (isLoadingData) return;
+    let isLoadedRow = false;
     if (formDisplay.config.formViewKey) {
-      setIsLoading(true);
+      setLoadProps((oldLoadProps) => ({
+        ...oldLoadProps,
+        isLoadingData: true,
+      }));
       const row = await loadRow(props, formDisplay.getCurrentRowQuery());
-      setIsLoading(false);
-      setRowData(row);
-      isLoaded = !!row;
+      setLoadProps((oldLoadProps) => ({
+        ...oldLoadProps,
+        isLoadingData: false,
+        isLoadedData: true,
+        rowData: row,
+        loadedTime: new Date().getTime(),
+      }));
+      isLoadedRow = !!row;
     }
-    if (!isLoaded) {
+    if (!isLoadedRow) {
       await handleNavigate('first');
     }
   };
 
   const handleLoadRowCount = async () => {
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
+      isLoadingCount: true,
+    }));
     const countRow = await loadRow(props, formDisplay.getCountQuery());
     const countBeforeRow = await loadRow(props, formDisplay.getBeforeCountQuery());
 
-    if (countRow && countBeforeRow) {
-      setRowCountInfo({
-        allRowCount: parseInt(countRow.count),
-        rowCountBefore: parseInt(countBeforeRow.count),
-      });
-    }
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
+      isLoadedCount: true,
+      isLoadingCount: false,
+      allRowCount: countRow ? parseInt(countRow.count) : null,
+      rowCountBefore: countBeforeRow ? parseInt(countBeforeRow.count) : null,
+    }));
   };
 
   const handleNavigate = async (command) => {
-    setIsLoading(true);
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
+      isLoadingData: true,
+    }));
     const row = await loadRow(props, formDisplay.navigateRowQuery(command));
-    setIsLoading(false);
-    setRowData(row);
     if (row) {
       formDisplay.navigate(row);
     }
+    setLoadProps((oldLoadProps) => ({
+      ...oldLoadProps,
+      isLoadingData: false,
+      isLoadedData: true,
+      isLoadedCount: false,
+      allRowCount: null,
+      rowCountBefore: null,
+      rowData: row,
+      loadedTime: new Date().getTime(),
+    }));
   };
 
   React.useEffect(() => {
@@ -97,28 +146,57 @@ export default function SqlFormView(props) {
   }, [rowData, refReloadToken]);
 
   React.useEffect(() => {
-    loadedFiltersRef.current = formDisplay ? stableStringify(formDisplay.config) : null;
-  }, [rowData]);
-
-  React.useEffect(() => {
-    if (formDisplay) handleLoadCurrentRow();
-    setRowCountInfo(null);
-    handleLoadRowCount();
-  }, [reloadToken]);
-
-  React.useEffect(() => {
     if (!formDisplay.isLoadedCorrectly) return;
+    if (!isLoadedData && !isLoadingData) handleLoadCurrentRow();
+    if (isLoadedData && !isLoadingCount && !isLoadedCount) handleLoadRowCount();
+  });
 
-    if (
-      formDisplay &&
-      (!formDisplay.isLoadedCurrentRow(rowData) ||
-        loadedFiltersRef.current != stableStringify(formDisplay.config.filters))
-    ) {
-      handleLoadCurrentRow();
+  // React.useEffect(() => {
+  //   loadedFiltersRef.current = formDisplay ? stableStringify(formDisplay.config) : null;
+  // }, [rowData]);
+
+  // React.useEffect(() => {
+  //   if (formDisplay) handleLoadCurrentRow();
+  //   setRowCountInfo(null);
+  //   handleLoadRowCount();
+  // }, [reloadToken]);
+
+  // React.useEffect(() => {
+  //   if (!formDisplay.isLoadedCorrectly) return;
+
+  //   if (
+  //     formDisplay &&
+  //     (!formDisplay.isLoadedCurrentRow(rowData) ||
+  //       loadedFiltersRef.current != stableStringify(formDisplay.config.filters))
+  //   ) {
+  //     handleLoadCurrentRow();
+  //   }
+  //   setRowCountInfo(null);
+  //   handleLoadRowCount();
+  // }, [formDisplay]);
+
+  const reload = () => {
+    setLoadProps({
+      isLoadingData: false,
+      isLoadedData: false,
+      isLoadingCount: false,
+      isLoadedCount: false,
+      rowData: null,
+      loadedTime: new Date().getTime(),
+      allRowCount: null,
+      rowCountBefore: null,
+      errorMessage: null,
+    });
+  };
+
+  React.useEffect(() => {
+    if (props.masterLoadedTime && props.masterLoadedTime > loadedTime) {
+      formDisplay.reload();
     }
-    setRowCountInfo(null);
-    handleLoadRowCount();
-  }, [formDisplay]);
+    if (formDisplay.cache.refreshTime > loadedTime) {
+      reload();
+    }
+  });
 
   const former = React.useMemo(() => new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay), [
     rowData,
@@ -135,7 +213,6 @@ export default function SqlFormView(props) {
   }
 
   async function handleConfirmSql() {
-    setIsLoading(true);
     const resp = await axios.request({
       url: 'database-connections/query-data',
       method: 'post',
@@ -145,7 +222,6 @@ export default function SqlFormView(props) {
       },
       data: { sql: confirmSql },
     });
-    setIsLoading(false);
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
       showModal((modalState) => (
@@ -154,7 +230,8 @@ export default function SqlFormView(props) {
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       setConfirmSql(null);
-      setReloadToken((x) => x + 1);
+      formDisplay.reload();
+      // setReloadToken((x) => x + 1);
     }
   }
 
@@ -194,13 +271,14 @@ export default function SqlFormView(props) {
         onNavigate={handleNavigate}
         former={former}
         onSave={handleSave}
-        isLoading={isLoading}
-        onReload={() => setReloadToken((x) => x + 1)}
+        isLoading={isLoadingData}
+        onReload={() => formDisplay.reload()}
         onReconnect={async () => {
           await axios.post('database-connections/refresh', { conid, database });
-          setReloadToken((x) => x + 1);
+          formDisplay.reload();
         }}
-        {...rowCountInfo}
+        allRowCount={allRowCount}
+        rowCountBefore={rowCountBefore}
       />
       <ConfirmSqlModal
         modalState={confirmSqlModalState}
