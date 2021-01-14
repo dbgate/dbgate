@@ -6,10 +6,12 @@ function fillOne(theme, name, type, add, background, fontName, invFontName, chan
   add[`${name}_font1`] = add[`${fontName}1`];
   add[`${name}_font2`] = add[`${fontName}2`];
   add[`${name}_font3`] = add[`${fontName}3`];
+  add[`${name}_font4`] = add[`${fontName}4`];
 
   add[`${name}_invfont1`] = add[`${invFontName}1`];
   add[`${name}_invfont2`] = add[`${invFontName}2`];
   add[`${name}_invfont3`] = add[`${invFontName}3`];
+  add[`${name}_invfont4`] = add[`${invFontName}4`];
   // add[`${name}_fontDisabled`] = add.fontBlack3;
 
   if (background) {
@@ -51,10 +53,12 @@ function fillThemeCore(theme) {
   add.fontWhite1 = add.fontWhite1 || '#FFFFFF';
   add.fontWhite2 = add.fontWhite2 || darkenByTenth(add.fontWhite1, 0.3);
   add.fontWhite3 = add.fontWhite3 || darkenByTenth(add.fontWhite2, 0.2);
+  add.fontWhite4 = add.fontWhite4 || darkenByTenth(add.fontWhite3, 0.2);
 
   add.fontBlack1 = add.fontBlack1 || '#000000';
   add.fontBlack2 = add.fontBlack2 || lightenByTenth(add.fontBlack1, 0.3);
   add.fontBlack3 = add.fontBlack3 || lightenByTenth(add.fontBlack2, 0.2);
+  add.fontBlack4 = add.fontBlack4 || lightenByTenth(add.fontBlack3, 0.2);
 
   for (const key of _.keys(theme)) {
     const matchType = key.match(/^(.*)_type$/);

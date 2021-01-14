@@ -3,7 +3,12 @@ import React from 'react';
 
 const loadGridConfigFunc = (tabid) => () => {
   const existing = localStorage.getItem(`tabdata_grid_${tabid}`);
-  if (existing) return JSON.parse(existing);
+  if (existing) {
+    return {
+      ...createGridConfig(),
+      ...JSON.parse(existing),
+    };
+  }
   return createGridConfig();
 };
 

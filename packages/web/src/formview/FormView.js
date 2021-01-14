@@ -476,7 +476,7 @@ export default function FormView(props) {
                   />
                 ) : (
                   <>
-                    <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} />
+                    <CellFormattedValue value={rowData && rowData[col.columnName]} dataType={col.dataType} theme={theme} />
                     {!!col.hintColumnName &&
                       rowData &&
                       !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (

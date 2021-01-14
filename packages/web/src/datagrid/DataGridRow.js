@@ -90,11 +90,11 @@ const TableBodyCell = styled.td`
 `;
 
 const HintSpan = styled.span`
-  color: gray;
+  color: ${(props) => props.theme.gridbody_font3};
   margin-left: 5px;
 `;
 const NullSpan = styled.span`
-  color: gray;
+  color: ${(props) => props.theme.gridbody_font3};
   font-style: italic;
 `;
 
@@ -131,11 +131,16 @@ const AutoFillPoint = styled.div`
 
 const ShowFormButton = styled.div`
   position: absolute;
-  right: 2px;
-  top: 2px;
+  right: 0px;
+  top: 1px;
+  color: ${(props) => props.theme.gridbody_font3};
+  background-color: ${(props) => props.theme.gridheader_background};
+  border: 1px solid ${(props) => props.theme.gridheader_background};
   &:hover {
-    background-color: ${(props) => props.theme.gridheader_background_blue[4]};
+    color: ${(props) => props.theme.gridheader_font_hover};
     border: 1px solid ${(props) => props.theme.border};
+    top: 1px;
+    right: 0px;
   }
 `;
 
@@ -154,8 +159,8 @@ function highlightSpecialCharacters(value) {
 
 const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
 
-export function CellFormattedValue({ value, dataType }) {
-  if (value == null) return <NullSpan>(NULL)</NullSpan>;
+export function CellFormattedValue({ value, dataType, theme }) {
+  if (value == null) return <NullSpan theme={theme}>(NULL)</NullSpan>;
   if (_.isDate(value)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return '1';
   if (value === false) return '0';
@@ -172,9 +177,9 @@ export function CellFormattedValue({ value, dataType }) {
   if (_.isPlainObject(value)) {
     if (_.isArray(value.data)) {
       if (value.data.length == 1 && isTypeLogical(dataType)) return value.data[0];
-      return <NullSpan>({value.data.length} bytes)</NullSpan>;
+      return <NullSpan theme={theme}>({value.data.length} bytes)</NullSpan>;
     }
-    return <NullSpan>(RAW)</NullSpan>;
+    return <NullSpan theme={theme}>(RAW)</NullSpan>;
   }
   return value.toString();
 }
@@ -298,8 +303,22 @@ function DataGridRow(props) {
             />
           ) : (
             <>
-              <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} />
-              {hintFieldsAllowed.includes(col.uniqueName) && <HintSpan>{rowData[col.hintColumnName]}</HintSpan>}
+              <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} theme={theme} />
+              {hintFieldsAllowed.includes(col.uniqueName) && (
+                <HintSpan theme={theme}>{rowData[col.hintColumnName]}</HintSpan>
+              )}
+              {col.foreignKey && rowData[col.uniqueName] && (
+                <ShowFormButton
+                  theme={theme}
+                  className="buttonLike"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSetFormView(rowData, col);
+                  }}
+                >
+                  <FontIcon icon="icon form" />
+                </ShowFormButton>
+              )}
             </>
           )}
           {autofillMarkerCell && autofillMarkerCell[1] == col.colIndex && autofillMarkerCell[0] == rowIndex && (
