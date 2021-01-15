@@ -14,6 +14,7 @@ import getAsArray from './getAsArray';
 import axios from './axios';
 import useTheme from '../theme/useTheme';
 import { useForm, useFormFieldTemplate } from './FormProvider';
+import { FontIcon } from '../icons';
 
 export function FormFieldTemplate({ label, children, type }) {
   const FieldTemplate = useFormFieldTemplate();
@@ -32,7 +33,7 @@ export function FormCondition({ condition, children }) {
 
 export function FormTextFieldRaw({ name, focused = false, ...other }) {
   const { values, setFieldValue } = useForm();
-  const handleChange = (event) => {
+  const handleChange = event => {
     setFieldValue(name, event.target.value);
   };
   const textFieldRef = React.useRef(null);
@@ -52,9 +53,20 @@ export function FormTextField({ name, label, focused = false, ...other }) {
   );
 }
 
+export function FormPasswordField({ name, label, focused = false, ...other }) {
+  const FieldTemplate = useFormFieldTemplate();
+  const [showPassword, setShowPassword] = React.useState(false);
+  return (
+    <FieldTemplate label={label} type="text">
+      <FormTextFieldRaw name={name} focused={focused} type={showPassword ? 'text' : 'password'} {...other} />
+      <FontIcon icon="icon eye" onClick={() => setShowPassword(x => !x)} />
+    </FieldTemplate>
+  );
+}
+
 export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefined, ...other }) {
   const { values, setFieldValue } = useForm();
-  const handleChange = (event) => {
+  const handleChange = event => {
     setFieldValue(name, event.target.checked);
   };
   let isChecked = values[name];
@@ -74,7 +86,7 @@ export function FormCheckboxField({ label, ...other }) {
 
 export function FormSelectFieldRaw({ children, name, ...other }) {
   const { values, setFieldValue } = useForm();
-  const handleChange = (event) => {
+  const handleChange = event => {
     setFieldValue(name, event.target.value);
   };
   return (
@@ -130,7 +142,7 @@ export function FormReactSelect({ options, name, isMulti = false, Component = Se
 
   return (
     <Component
-      theme={(t) => ({
+      theme={t => ({
         ...t,
         colors: {
           ...t.colors,
@@ -155,12 +167,10 @@ export function FormReactSelect({ options, name, isMulti = false, Component = Se
       options={options}
       value={
         isMulti
-          ? options.filter((x) => values[name] && values[name].includes(x.value))
-          : options.find((x) => x.value == values[name])
+          ? options.filter(x => values[name] && values[name].includes(x.value))
+          : options.find(x => x.value == values[name])
       }
-      onChange={(item) =>
-        setFieldValue(name, isMulti ? getAsArray(item).map((x) => x.value) : item ? item.value : null)
-      }
+      onChange={item => setFieldValue(name, isMulti ? getAsArray(item).map(x => x.value) : item ? item.value : null)}
       menuPortalTarget={document.body}
       isMulti={isMulti}
       closeMenuOnSelect={!isMulti}
@@ -173,7 +183,7 @@ export function FormConnectionSelect({ name }) {
   const connections = useConnectionList();
   const connectionOptions = React.useMemo(
     () =>
-      (connections || []).map((conn) => ({
+      (connections || []).map(conn => ({
         value: conn._id,
         label: conn.displayName || conn.server,
       })),
@@ -189,7 +199,7 @@ export function FormDatabaseSelect({ conidName, name }) {
   const databases = useDatabaseList({ conid: values[conidName] });
   const databaseOptions = React.useMemo(
     () =>
-      (databases || []).map((db) => ({
+      (databases || []).map(db => ({
         value: db.name,
         label: db.name,
       })),
@@ -205,7 +215,7 @@ export function FormSchemaSelect({ conidName, databaseName, name }) {
   const dbinfo = useDatabaseInfo({ conid: values[conidName], database: values[databaseName] });
   const schemaOptions = React.useMemo(
     () =>
-      ((dbinfo && dbinfo.schemas) || []).map((schema) => ({
+      ((dbinfo && dbinfo.schemas) || []).map(schema => ({
         value: schema.schemaName,
         label: schema.schemaName,
       })),
@@ -222,8 +232,8 @@ export function FormTablesSelect({ conidName, databaseName, schemaName, name }) 
   const tablesOptions = React.useMemo(
     () =>
       [...((dbinfo && dbinfo.tables) || []), ...((dbinfo && dbinfo.views) || [])]
-        .filter((x) => !values[schemaName] || x.schemaName == values[schemaName])
-        .map((x) => ({
+        .filter(x => !values[schemaName] || x.schemaName == values[schemaName])
+        .map(x => ({
           value: x.pureName,
           label: x.pureName,
         })),
@@ -239,7 +249,7 @@ export function FormArchiveFilesSelect({ folderName, name }) {
   const files = useArchiveFiles({ folder: folderName });
   const filesOptions = React.useMemo(
     () =>
-      (files || []).map((x) => ({
+      (files || []).map(x => ({
         value: x.name,
         label: x.name,
       })),
@@ -255,13 +265,13 @@ export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other
   const folders = useArchiveFolders();
   const folderOptions = React.useMemo(
     () => [
-      ...(folders || []).map((folder) => ({
+      ...(folders || []).map(folder => ({
         value: folder.name,
         label: folder.name,
       })),
       ...additionalFolders
-        .filter((x) => !(folders || []).find((y) => y.name == x))
-        .map((folder) => ({
+        .filter(x => !(folders || []).find(y => y.name == x))
+        .map(folder => ({
           value: folder,
           label: folder,
         })),
@@ -269,7 +279,7 @@ export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other
     [folders]
   );
 
-  const handleCreateOption = (folder) => {
+  const handleCreateOption = folder => {
     axios.post('archive/create-folder', { folder });
     setFieldValue(name, folder);
   };

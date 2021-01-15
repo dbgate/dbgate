@@ -1,10 +1,12 @@
 const path = require('path');
 const { pluginsdir } = require('../utility/directories');
+const nativeModules = require('../nativeModules');
 
 const loadedPlugins = {};
 
 const dbgateEnv = {
   dbgateApi: null,
+  nativeModules,
 };
 
 function requirePlugin(packageName, requiredPlugin = null) {
@@ -30,7 +32,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
   return requiredPlugin;
 }
 
-requirePlugin.initialize = (value) => {
+requirePlugin.initializeDbgateApi = value => {
   dbgateEnv.dbgateApi = value;
 };
 

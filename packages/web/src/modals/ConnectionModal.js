@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
+import { FormButton, FormTextField, FormSelectField, FormSubmit, FormPasswordField } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
@@ -17,7 +17,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
   const [isTesting, setIsTesting] = React.useState(false);
   const testIdRef = React.useRef(0);
 
-  const handleTest = async (values) => {
+  const handleTest = async values => {
     setIsTesting(true);
     testIdRef.current += 1;
     const testid = testIdRef.current;
@@ -33,7 +33,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
     setIsTesting(false);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     axios.post('connections/save', values);
     modalState.close();
   };
@@ -44,7 +44,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
         <ModalContent>
           <FormSelectField label="Database engine" name="engine">
             <option value=""></option>
-            {extensions.drivers.map((driver) => (
+            {extensions.drivers.map(driver => (
               <option value={driver.engine} key={driver.engine}>
                 {driver.title}
               </option>
@@ -53,10 +53,16 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
               <option value="mysql">MySQL</option>
               <option value="postgres">Postgre SQL</option> */}
           </FormSelectField>
+          <FormSelectField label="Authentication" name="authType">
+            <option value=""></option>
+            <option value="sspi">Windows Authentication</option>
+            <option value="sql">SQL Server Authentication</option>
+            <option value="tedious">Tedious portable Driver</option>
+          </FormSelectField>
           <FormTextField label="Server" name="server" />
           <FormTextField label="Port" name="port" />
           <FormTextField label="User" name="user" />
-          <FormTextField label="Password" name="password" type="password" />
+          <FormPasswordField label="Password" name="password" />
           <FormTextField label="Display name" name="displayName" />
           {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
             <div>

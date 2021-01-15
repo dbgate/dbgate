@@ -36,6 +36,7 @@
     "http": "^0.0.0",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.15",
+    "msnodesqlv8": "^2.0.10",
     "ncp": "^2.0.0",
     "nedb-promises": "^4.0.1",
     "node-cron": "^2.0.3",
