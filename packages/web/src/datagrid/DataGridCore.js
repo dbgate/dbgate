@@ -66,13 +66,13 @@ const TableHeaderRow = styled.tr`
 `;
 const TableHeaderCell = styled.td`
   // font-weight: bold;
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
   // border-collapse: collapse;
   text-align: left;
   padding: 0;
   // padding: 2px;
   margin: 0;
-  background-color: ${(props) => props.theme.gridheader_background};
+  background-color: ${props => props.theme.gridheader_background};
   overflow: hidden;
 `;
 const TableFilterCell = styled.td`
@@ -91,7 +91,7 @@ const FocusField = styled.input`
 
 const RowCountLabel = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.gridbody_background_yellow[1]};
+  background-color: ${props => props.theme.gridbody_background_yellow[1]};
   right: 40px;
   bottom: 20px;
 `;
@@ -146,8 +146,8 @@ export default function DataGridCore(props) {
 
   const autofillMarkerCell = React.useMemo(
     () =>
-      selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map((x) => x[0])).length == 1
-        ? [_.max(selectedCells.map((x) => x[0])), _.max(selectedCells.map((x) => x[1]))]
+      selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
+        ? [_.max(selectedCells.map(x => x[0])), _.max(selectedCells.map(x => x[1]))]
         : null,
     [selectedCells]
   );
@@ -201,8 +201,8 @@ export default function DataGridCore(props) {
   const gridScrollAreaHeight = containerHeight - 2 * rowHeight;
   const gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
-  const visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(rowHeight));
-  const visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(rowHeight));
+  const visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(Math.max(1, rowHeight)));
+  const visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight)));
   //   const visibleRowCountUpperBound = 20;
   //   const visibleRowCountLowerBound = 20;
   // console.log('containerHeight', containerHeight);
@@ -241,7 +241,7 @@ export default function DataGridCore(props) {
 
   const realColumnUniqueNames = React.useMemo(
     () =>
-      _.range(columnSizes.realCount).map((realIndex) => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName),
+      _.range(columnSizes.realCount).map(realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName),
     [columnSizes, columns]
   );
 
@@ -266,10 +266,10 @@ export default function DataGridCore(props) {
       props.onReferenceClick({
         schemaName: display.baseTable.schemaName,
         pureName: display.baseTable.pureName,
-        columns: display.groupColumns.map((col) => ({
+        columns: display.groupColumns.map(col => ({
           baseName: col,
           refName: col,
-          dataType: _.get(display.baseTable && display.baseTable.columns.find((x) => x.columnName == col), 'dataType'),
+          dataType: _.get(display.baseTable && display.baseTable.columns.find(x => x.columnName == col), 'dataType'),
         })),
       });
     }
@@ -278,8 +278,8 @@ export default function DataGridCore(props) {
   const theme = useTheme();
 
   const rowCountInfo = React.useMemo(() => {
-    if (selectedCells.length > 1 && selectedCells.every((x) => _.isNumber(x[0]) && _.isNumber(x[1]))) {
-      let sum = _.sumBy(selectedCells, (cell) => {
+    if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
+      let sum = _.sumBy(selectedCells, cell => {
         const row = grider.getRowData(cell[0]);
         if (row) {
           const colName = realColumnUniqueNames[cell[1]];
@@ -331,17 +331,17 @@ export default function DataGridCore(props) {
     );
   }
 
-  const handleRowScroll = (value) => {
+  const handleRowScroll = value => {
     setFirstVisibleRowScrollIndex(value);
   };
 
-  const handleColumnScroll = (value) => {
+  const handleColumnScroll = value => {
     setFirstVisibleColumnScrollIndex(value);
   };
 
   const getSelectedFreeData = () => {
     const columns = getSelectedColumns();
-    const rows = getSelectedRowData().map((row) => _.pickBy(row, (v, col) => columns.find((x) => x.columnName == col)));
+    const rows = getSelectedRowData().map(row => _.pickBy(row, (v, col) => columns.find(x => x.columnName == col)));
     return {
       structure: {
         columns,
@@ -379,7 +379,7 @@ export default function DataGridCore(props) {
     );
   };
 
-  const handleContextMenu = (event) => {
+  const handleContextMenu = event => {
     event.preventDefault();
     showMenu(
       event.pageX,
@@ -422,8 +422,8 @@ export default function DataGridCore(props) {
 
       if (event.ctrlKey) {
         if (isRegularCell(cell)) {
-          if (selectedCells.find((x) => x[0] == cell[0] && x[1] == cell[1])) {
-            setSelectedCells(selectedCells.filter((x) => x[0] != cell[0] || x[1] != cell[1]));
+          if (selectedCells.find(x => x[0] == cell[0] && x[1] == cell[1])) {
+            setSelectedCells(selectedCells.filter(x => x[0] != cell[0] || x[1] != cell[1]));
           } else {
             setSelectedCells([...selectedCells, cell]);
           }
@@ -470,7 +470,7 @@ export default function DataGridCore(props) {
     const pasteRows = pastedText
       .replace(/\r/g, '')
       .split('\n')
-      .map((row) => row.split('\t'));
+      .map(row => row.split('\t'));
     const selectedRegular = cellsToRegularCells(selectedCells);
     if (selectedRegular.length <= 1) {
       const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
@@ -489,8 +489,8 @@ export default function DataGridCore(props) {
       }
     }
     if (selectedRegular.length > 1) {
-      const startRow = _.min(selectedRegular.map((x) => x[0]));
-      const startCol = _.min(selectedRegular.map((x) => x[1]));
+      const startRow = _.min(selectedRegular.map(x => x[0]));
+      const startCol = _.min(selectedRegular.map(x => x[1]));
       for (const cell of selectedRegular) {
         const [rowIndex, colIndex] = cell;
         const selectionRow = rowIndex - startRow;
@@ -505,7 +505,7 @@ export default function DataGridCore(props) {
 
   function setNull() {
     grider.beginUpdate();
-    selectedCells.filter(isRegularCell).forEach((cell) => {
+    selectedCells.filter(isRegularCell).forEach(cell => {
       setCellValue(cell, null);
     });
     grider.endUpdate();
@@ -513,17 +513,17 @@ export default function DataGridCore(props) {
 
   function cellsToRegularCells(cells) {
     cells = _.flatten(
-      cells.map((cell) => {
+      cells.map(cell => {
         if (cell[1] == 'header') {
-          return _.range(0, columnSizes.count).map((col) => [cell[0], col]);
+          return _.range(0, columnSizes.count).map(col => [cell[0], col]);
         }
         return [cell];
       })
     );
     cells = _.flatten(
-      cells.map((cell) => {
+      cells.map(cell => {
         if (cell[0] == 'header') {
-          return _.range(0, grider.rowCount).map((row) => [row, cell[1]]);
+          return _.range(0, grider.rowCount).map(row => [row, cell[1]]);
         }
         return [cell];
       })
@@ -533,14 +533,14 @@ export default function DataGridCore(props) {
 
   function copyToClipboard() {
     const cells = cellsToRegularCells(selectedCells);
-    const rowIndexes = _.sortBy(_.uniq(cells.map((x) => x[0])));
-    const lines = rowIndexes.map((rowIndex) => {
-      let colIndexes = _.sortBy(cells.filter((x) => x[0] == rowIndex).map((x) => x[1]));
+    const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
+    const lines = rowIndexes.map(rowIndex => {
+      let colIndexes = _.sortBy(cells.filter(x => x[0] == rowIndex).map(x => x[1]));
       const rowData = grider.getRowData(rowIndex);
       if (!rowData) return '';
       const line = colIndexes
-        .map((col) => realColumnUniqueNames[col])
-        .map((col) => (rowData[col] == null ? '(NULL)' : rowData[col]))
+        .map(col => realColumnUniqueNames[col])
+        .map(col => (rowData[col] == null ? '(NULL)' : rowData[col]))
         .join('\t');
       return line;
     });
@@ -552,7 +552,7 @@ export default function DataGridCore(props) {
     if (autofillDragStartCell) {
       const cell = cellFromEvent(event);
       if (isRegularCell(cell) && (cell[0] == autofillDragStartCell[0] || cell[1] == autofillDragStartCell[1])) {
-        const autoFillStart = [selectedCells[0][0], _.min(selectedCells.map((x) => x[1]))];
+        const autoFillStart = [selectedCells[0][0], _.min(selectedCells.map(x => x[1]))];
         // @ts-ignore
         setAutofillSelectedCells(getCellRange(autoFillStart, cell));
       }
@@ -573,8 +573,8 @@ export default function DataGridCore(props) {
     if (autofillDragStartCell) {
       const currentRowNumber = currentCell[0];
       if (_.isNumber(currentRowNumber)) {
-        const rowIndexes = _.uniq((autofillSelectedCells || []).map((x) => x[0])).filter((x) => x != currentRowNumber);
-        const colNames = selectedCells.map((cell) => realColumnUniqueNames[cell[1]]);
+        const rowIndexes = _.uniq((autofillSelectedCells || []).map(x => x[0])).filter(x => x != currentRowNumber);
+        const colNames = selectedCells.map(cell => realColumnUniqueNames[cell[1]]);
         const changeObject = _.pick(grider.getRowData(currentRowNumber), colNames);
         grider.beginUpdate();
         for (const index of rowIndexes) grider.updateRow(index, changeObject);
@@ -588,24 +588,24 @@ export default function DataGridCore(props) {
   }
 
   function getSelectedRowIndexes() {
-    if (selectedCells.find((x) => x[0] == 'header')) return _.range(0, grider.rowCount);
-    return _.uniq((selectedCells || []).map((x) => x[0])).filter((x) => _.isNumber(x));
+    if (selectedCells.find(x => x[0] == 'header')) return _.range(0, grider.rowCount);
+    return _.uniq((selectedCells || []).map(x => x[0])).filter(x => _.isNumber(x));
   }
 
   function getSelectedColumnIndexes() {
-    if (selectedCells.find((x) => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
-    return _.uniq((selectedCells || []).map((x) => x[1])).filter((x) => _.isNumber(x));
+    if (selectedCells.find(x => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
+    return _.uniq((selectedCells || []).map(x => x[1])).filter(x => _.isNumber(x));
   }
 
   function getSelectedCellsPublished() {
     const regular = cellsToRegularCells(selectedCells);
     // @ts-ignore
     return regular
-      .map((cell) => ({
+      .map(cell => ({
         row: cell[0],
         column: realColumnUniqueNames[cell[1]],
       }))
-      .filter((x) => x.column);
+      .filter(x => x.column);
 
     // return regular.map((cell) => {
     //   const row = cell[0];
@@ -624,12 +624,12 @@ export default function DataGridCore(props) {
   }
 
   function getSelectedRowData() {
-    return _.compact(getSelectedRowIndexes().map((index) => grider.getRowData(index)));
+    return _.compact(getSelectedRowIndexes().map(index => grider.getRowData(index)));
   }
 
   function getSelectedColumns() {
     return _.compact(
-      getSelectedColumnIndexes().map((index) => ({
+      getSelectedColumnIndexes().map(index => ({
         columnName: realColumnUniqueNames[index],
       }))
     );
@@ -715,8 +715,8 @@ export default function DataGridCore(props) {
     }
   };
 
-  const selectTopmostCell = (uniquePath) => {
-    const modelIndex = columns.findIndex((x) => x.uniquePath == uniquePath);
+  const selectTopmostCell = uniquePath => {
+    const modelIndex = columns.findIndex(x => x.uniquePath == uniquePath);
     const realIndex = columnSizes.modelToReal(modelIndex);
     let cell = [firstVisibleRowScrollIndex, realIndex];
     // @ts-ignore
@@ -878,7 +878,7 @@ export default function DataGridCore(props) {
 
   function focusFilterEditor(columnRealIndex) {
     let modelIndex = columnSizes.realToModel(columnRealIndex);
-    setFocusFilterInputs((cols) => ({
+    setFocusFilterInputs(cols => ({
       ...cols,
       [columns[modelIndex].uniqueName]: (cols[columns[modelIndex].uniqueName] || 0) + 1,
     }));
@@ -1004,7 +1004,7 @@ export default function DataGridCore(props) {
         <TableHead>
           <TableHeaderRow ref={headerRowRef}>
             <TableHeaderCell data-row="header" data-col="header" theme={theme} />
-            {visibleRealColumns.map((col) => (
+            {visibleRealColumns.map(col => (
               <TableHeaderCell
                 theme={theme}
                 data-row="header"
@@ -1016,10 +1016,10 @@ export default function DataGridCore(props) {
                   column={col}
                   conid={conid}
                   database={database}
-                  setSort={display.sortable ? (order) => display.setSort(col.uniqueName, order) : null}
+                  setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
                   order={display.getSortOrder(col.uniqueName)}
-                  onResize={(diff) => display.resizeColumn(col.uniqueName, col.widthNumber, diff)}
-                  setGrouping={display.sortable ? (groupFunc) => setGrouping(col.uniqueName, groupFunc) : null}
+                  onResize={diff => display.resizeColumn(col.uniqueName, col.widthNumber, diff)}
+                  setGrouping={display.sortable ? groupFunc => setGrouping(col.uniqueName, groupFunc) : null}
                   grouping={display.getGrouping(col.uniqueName)}
                 />
               </TableHeaderCell>
@@ -1039,7 +1039,7 @@ export default function DataGridCore(props) {
                   </InlineButton>
                 )}
               </TableHeaderCell>
-              {visibleRealColumns.map((col) => (
+              {visibleRealColumns.map(col => (
                 <TableFilterCell
                   key={col.uniqueName}
                   style={{ width: col.widthPx, minWidth: col.widthPx, maxWidth: col.widthPx }}
@@ -1049,7 +1049,7 @@ export default function DataGridCore(props) {
                   <DataFilterControl
                     filterType={getFilterType(col.dataType)}
                     filter={display.getFilter(col.uniqueName)}
-                    setFilter={(value) => display.setFilter(col.uniqueName, value)}
+                    setFilter={value => display.setFilter(col.uniqueName, value)}
                     focusIndex={focusFilterInputs[col.uniqueName]}
                     onFocusGrid={() => {
                       selectTopmostCell(col.uniqueName);
@@ -1062,29 +1062,27 @@ export default function DataGridCore(props) {
           )}
         </TableHead>
         <TableBody ref={tableBodyRef}>
-          {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound).map(
-            (rowIndex) => (
-              <DataGridRow
-                // this component use React.memo
-                // when adding props, check, whether they are correctly memoized and row is not rerendered
-                // uncomment line console.log('RENDER ROW', rowIndex); in  DataGridRow.js for check
-                key={rowIndex}
-                grider={grider}
-                rowIndex={rowIndex}
-                rowHeight={rowHeight}
-                visibleRealColumns={visibleRealColumns}
-                inplaceEditorState={inplaceEditorState}
-                dispatchInsplaceEditor={dispatchInsplaceEditor}
-                autofillSelectedCells={autofillSelectedCells}
-                selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-                autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-                display={display}
-                focusedColumn={display.focusedColumn}
-                frameSelection={frameSelection}
-                onSetFormView={handleSetFormView}
-              />
-            )
-          )}
+          {_.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound).map(rowIndex => (
+            <DataGridRow
+              // this component use React.memo
+              // when adding props, check, whether they are correctly memoized and row is not rerendered
+              // uncomment line console.log('RENDER ROW', rowIndex); in  DataGridRow.js for check
+              key={rowIndex}
+              grider={grider}
+              rowIndex={rowIndex}
+              rowHeight={rowHeight}
+              visibleRealColumns={visibleRealColumns}
+              inplaceEditorState={inplaceEditorState}
+              dispatchInsplaceEditor={dispatchInsplaceEditor}
+              autofillSelectedCells={autofillSelectedCells}
+              selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+              autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+              display={display}
+              focusedColumn={display.focusedColumn}
+              frameSelection={frameSelection}
+              onSetFormView={handleSetFormView}
+            />
+          ))}
         </TableBody>
       </Table>
       <HorizontalScrollBar
