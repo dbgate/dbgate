@@ -6,7 +6,8 @@
   "dependencies": {
     "electron-log": "^4.3.1",
     "electron-store": "^5.1.1",
-    "electron-updater": "^4.3.5"
+    "electron-updater": "^4.3.5",
+    "msnodesqlv8": "^2.0.10"
   },
   "repository": {
     "type": "git",

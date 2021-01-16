@@ -143,7 +143,7 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
       });
-    mainWindow.webContents.on('did-finish-load', function () {
+    mainWindow.webContents.on('did-finish-load', function() {
       hideSplash();
     });
     mainWindow.on('close', () => {
@@ -172,8 +172,13 @@ function createWindow() {
   if (process.env.ELECTRON_START_URL) {
     loadMainWindow();
   } else {
-    const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), ['--dynport']);
-    apiProcess.on('message', (msg) => {
+    const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
+      '--dynport',
+      '--native-modules',
+      path.join(__dirname, 'nativeModules'),
+      // '../../../src/nativeModules'
+    ]);
+    apiProcess.on('message', msg => {
       if (msg.msgtype == 'listening') {
         const { port } = msg;
         global['port'] = port;
@@ -189,7 +194,7 @@ function createWindow() {
   // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
+  mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
@@ -208,7 +213,7 @@ function onAppReady() {
 app.on('ready', onAppReady);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function () {
+app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
@@ -216,7 +221,7 @@ app.on('window-all-closed', function () {
   }
 });
 
-app.on('activate', function () {
+app.on('activate', function() {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {

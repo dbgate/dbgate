@@ -44,7 +44,7 @@ module.exports = {
     raw: true,
   },
   test(req, res) {
-    const subprocess = fork(process.argv[1], ['connectProcess']);
+    const subprocess = fork(process.argv[1], ['connectProcess', ...process.argv.slice(3)]);
     subprocess.on('message', (resp) => {
       // @ts-ignore
       const { msgtype } = resp;

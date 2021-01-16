@@ -28,7 +28,7 @@ class DatastoreProxy {
 
   async ensureSubprocess() {
     if (!this.subprocess) {
-      this.subprocess = fork(process.argv[1], ['jslDatastoreProcess']);
+      this.subprocess = fork(process.argv[1], ['jslDatastoreProcess', ...process.argv.slice(3)]);
 
       // @ts-ignore
       this.subprocess.on('message', ({ msgtype, ...message }) => {
