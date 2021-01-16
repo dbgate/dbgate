@@ -57,7 +57,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
             <option value=""></option>
             <option value="sspi">Windows Authentication</option>
             <option value="sql">SQL Server Authentication</option>
-            <option value="tedious">Tedious portable Driver</option>
+            <option value="tedious">Use &quot;tedious&quot; driver</option>
           </FormSelectField>
           <FormTextField label="Server" name="server" />
           <FormTextField label="Port" name="port" />

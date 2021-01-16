@@ -8,24 +8,27 @@ var config = {
     app: './index.js',
   },
   target: 'node',
+  node: {
+    __dirname: false,
+  },  
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     libraryTarget: 'commonjs2',
   },
 
-  // optimization: {
-  //   minimize: false,
-  // },
+//   optimization: {
+//     minimize: false,
+//   },
 
-  //   module: {
-  //     rules: [
-  //       {
-  //         test: /\.js$/,
-  //         exclude: /node_modules/
-  //       },
-  //     ],
-  //   },
+  module: {
+    rules: [
+      {
+        test: /\.node$/,
+        use: 'node-loader',
+      },
+    ],
+  },
   plugins: [
     new webpack.IgnorePlugin({
       checkResource(resource) {

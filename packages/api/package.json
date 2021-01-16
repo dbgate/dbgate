@@ -54,6 +54,7 @@
     "@types/lodash": "^4.14.149",
     "dbgate-types": "^1.0.0",
     "env-cmd": "^10.1.0",
+    "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
     "typescript": "^3.7.4",
     "webpack": "^4.42.0",
