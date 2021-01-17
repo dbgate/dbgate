@@ -8,8 +8,51 @@ import ModalContent from './ModalContent';
 import useExtensions from '../utility/useExtensions';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
-import { FormProvider } from '../utility/FormProvider';
+import { FormProvider, useForm } from '../utility/FormProvider';
 // import FormikForm from '../utility/FormikForm';
+
+function DriverFields({ extensions }) {
+  const { values, setFieldValue } = useForm();
+  const { authType, engine } = values;
+  const driver = extensions.drivers.find(x => x.engine == engine);
+  // const { authTypes } = driver || {};
+  const [authTypes, setAuthTypes] = React.useState(null);
+  const currentAuthType = authTypes && authTypes.find(x => x.name == authType);
+
+  const loadAuthTypes = async () => {
+    const resp = await axios.post('plugins/auth-types', { engine });
+    setAuthTypes(resp.data);
+    if (resp.data && !currentAuthType) {
+      setFieldValue('authType', resp.data[0].name);
+    }
+  };
+
+  React.useEffect(() => {
+    setAuthTypes(null);
+    loadAuthTypes()
+  }, [values.engine]);
+
+  if (!driver) return null;
+  const disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
+
+  return (
+    <>
+      {!!authTypes && (
+        <FormSelectField label="Authentication" name="authType">
+          {authTypes.map(auth => (
+            <option value={auth.name} key={auth.name}>
+              {auth.title}
+            </option>
+          ))}
+        </FormSelectField>
+      )}
+      <FormTextField label="Server" name="server" disabled={disabledFields.includes('server')} />
+      <FormTextField label="Port" name="port" disabled={disabledFields.includes('port')} />
+      <FormTextField label="User" name="user" disabled={disabledFields.includes('user')} />
+      <FormPasswordField label="Password" name="password" disabled={disabledFields.includes('password')} />
+    </>
+  );
+}
 
 export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState(null);
@@ -40,7 +83,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>{connection ? 'Edit connection' : 'Add connection'}</ModalHeader>
-      <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql' }}>
+      <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}>
         <ModalContent>
           <FormSelectField label="Database engine" name="engine">
             <option value=""></option>
@@ -53,16 +96,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
               <option value="mysql">MySQL</option>
               <option value="postgres">Postgre SQL</option> */}
           </FormSelectField>
-          <FormSelectField label="Authentication" name="authType">
-            <option value=""></option>
-            <option value="sspi">Windows Authentication</option>
-            <option value="sql">SQL Server Authentication</option>
-            <option value="tedious">Use &quot;tedious&quot; driver</option>
-          </FormSelectField>
-          <FormTextField label="Server" name="server" />
-          <FormTextField label="Port" name="port" />
-          <FormTextField label="User" name="user" />
-          <FormPasswordField label="Password" name="password" />
+          <DriverFields extensions={extensions} />
           <FormTextField label="Display name" name="displayName" />
           {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
             <div>

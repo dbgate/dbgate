@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const axios = require('axios');
 const path = require('path');
+const { extractPackageName } = require('dbgate-tools');
 const { pluginsdir, datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const requirePlugin = require('../shell/requirePlugin');
@@ -50,7 +51,7 @@ module.exports = {
       `http://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(filter)}+keywords:dbgateplugin&size=25&from=0`
     );
     const { objects } = resp.data || {};
-    return (objects || []).map((x) => x.package);
+    return (objects || []).map(x => x.package);
   },
 
   info_meta: 'get',
@@ -88,9 +89,7 @@ module.exports = {
     const files = await fs.readdir(pluginsdir());
     const res = [];
     for (const packageName of files) {
-      const manifest = await fs
-        .readFile(path.join(pluginsdir(), packageName, 'package.json'))
-        .then((x) => JSON.parse(x));
+      const manifest = await fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then(x => JSON.parse(x));
       const readmeFile = path.join(pluginsdir(), packageName, 'README.md');
       if (await fs.exists(readmeFile)) {
         manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
@@ -131,6 +130,14 @@ module.exports = {
     return content.commands[command](args);
   },
 
+  authTypes_meta: 'post',
+  async authTypes({ engine }) {
+    const packageName = extractPackageName(engine);
+    const content = requirePlugin(packageName);
+    if (!content.driver || content.driver.engine != engine) return null;
+    return content.driver.getAuthTypes() || null;
+  },
+
   async _init() {
     const installed = await this.installed();
     try {
@@ -142,7 +149,7 @@ module.exports = {
     }
     for (const packageName of preinstallPlugins) {
       if (this.removedPlugins.includes(packageName)) continue;
-      if (installed.find((x) => x.name == packageName)) continue;
+      if (installed.find(x => x.name == packageName)) continue;
       try {
         console.log('Preinstalling plugin', packageName);
         await this.install({ packageName });
