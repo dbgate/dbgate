@@ -18,6 +18,12 @@ export interface WriteTableOptions {
   createIfNotExists?: boolean;
 }
 
+export interface EngineAuthType {
+  title: string;
+  name: string;
+  disabledFields: string[];
+}
+
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -44,6 +50,7 @@ export interface EngineDriver {
   analyseIncremental(pool: any, structure: DatabaseInfo): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   createDumper(): SqlDumper;
+  getAuthTypes(): EngineAuthType[];
 
   analyserClass?: any;
   dumperClass?: any;

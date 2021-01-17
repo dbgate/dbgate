@@ -68,5 +68,8 @@
     "cross-env": "^6.0.3",
     "electron": "11.1.1",
     "electron-builder": "22.9.1"
+  },
+  "optionalDependencies": {
+    "msnodesqlv8": "^2.0.10"
   }
 }

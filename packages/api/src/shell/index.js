@@ -39,6 +39,6 @@ const dbgateApi = {
   loadFile,
 };
 
-requirePlugin.initialize(dbgateApi);
+requirePlugin.initializeDbgateApi(dbgateApi);
 
 module.exports = dbgateApi;

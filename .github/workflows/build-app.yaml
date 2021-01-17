@@ -35,6 +35,9 @@ jobs:
       - name: setCurrentVersion
         run: |
           yarn setCurrentVersion
+      - name: fillNativeModulesElectron
+        run: |
+          yarn fillNativeModulesElectron
       - name: Publish
         run: |
           yarn run build:app

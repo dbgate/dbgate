@@ -25,6 +25,8 @@
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",
     "generatePadFile": "node generatePadFile",
+    "fillNativeModules": "node fillNativeModules",
+    "fillNativeModulesElectron": "node fillNativeModules --eletron",
 
     "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/build/* docker -u 2 && copyfiles \"packages/web/build/**/*\" docker -u 2",
     "prepare:docker": "yarn build:web:docker && yarn build:api && yarn copy:docker:build",
@@ -35,7 +37,7 @@
     "ts:api": "yarn workspace dbgate-api ts",
     "ts:web": "yarn workspace dbgate-web ts",
     "ts": "yarn ts:api && yarn ts:web",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && yarn fillNativeModules"
   },
   "dependencies": {
     "concurrently": "^5.1.0",

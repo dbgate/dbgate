@@ -50,6 +50,7 @@ const iconNames = {
   'icon ok': 'mdi mdi-check-circle',
   'icon markdown': 'mdi mdi-application',
   'icon preview': 'mdi mdi-file-find',
+  'icon eye': 'mdi mdi-eye',
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',

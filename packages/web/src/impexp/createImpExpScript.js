@@ -19,9 +19,9 @@ export function getTargetName(extensions, source, values) {
 
 function extractApiParameters(values, direction, format) {
   const pairs = (format.args || [])
-    .filter((arg) => arg.apiName)
-    .map((arg) => [arg.apiName, values[`${direction}_${format.storageType}_${arg.name}`]])
-    .filter((x) => x[1] != null);
+    .filter(arg => arg.apiName)
+    .map(arg => [arg.apiName, values[`${direction}_${format.storageType}_${arg.name}`]])
+    .filter(x => x[1] != null);
   return _.fromPairs(pairs);
 }
 
@@ -31,7 +31,7 @@ async function getConnection(extensions, storageType, conid, database) {
     const driver = findEngineDriver(conn, extensions);
     return [
       {
-        ..._.pick(conn, ['server', 'engine', 'user', 'password', 'port']),
+        ..._.pick(conn, ['server', 'engine', 'user', 'password', 'port', 'authType']),
         database,
       },
       driver,

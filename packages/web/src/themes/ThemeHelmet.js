@@ -39,7 +39,11 @@ export default function ThemeHelmet() {
           color: ${theme.input_font1};
           border: 1px solid ${theme.border};
         }
-        
+
+        input[disabled] {
+            background-color: ${theme.input_background2};
+          }
+          
         select {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};

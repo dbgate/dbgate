@@ -1,15 +1,58 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormButton, FormTextField, FormSelectField, FormSubmit } from '../utility/forms';
+import { FormButton, FormTextField, FormSelectField, FormSubmit, FormPasswordField } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
 import useExtensions from '../utility/useExtensions';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
-import { FormProvider } from '../utility/FormProvider';
+import { FormProvider, useForm } from '../utility/FormProvider';
 // import FormikForm from '../utility/FormikForm';
+
+function DriverFields({ extensions }) {
+  const { values, setFieldValue } = useForm();
+  const { authType, engine } = values;
+  const driver = extensions.drivers.find(x => x.engine == engine);
+  // const { authTypes } = driver || {};
+  const [authTypes, setAuthTypes] = React.useState(null);
+  const currentAuthType = authTypes && authTypes.find(x => x.name == authType);
+
+  const loadAuthTypes = async () => {
+    const resp = await axios.post('plugins/auth-types', { engine });
+    setAuthTypes(resp.data);
+    if (resp.data && !currentAuthType) {
+      setFieldValue('authType', resp.data[0].name);
+    }
+  };
+
+  React.useEffect(() => {
+    setAuthTypes(null);
+    loadAuthTypes()
+  }, [values.engine]);
+
+  if (!driver) return null;
+  const disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
+
+  return (
+    <>
+      {!!authTypes && (
+        <FormSelectField label="Authentication" name="authType">
+          {authTypes.map(auth => (
+            <option value={auth.name} key={auth.name}>
+              {auth.title}
+            </option>
+          ))}
+        </FormSelectField>
+      )}
+      <FormTextField label="Server" name="server" disabled={disabledFields.includes('server')} />
+      <FormTextField label="Port" name="port" disabled={disabledFields.includes('port')} />
+      <FormTextField label="User" name="user" disabled={disabledFields.includes('user')} />
+      <FormPasswordField label="Password" name="password" disabled={disabledFields.includes('password')} />
+    </>
+  );
+}
 
 export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState(null);
@@ -17,7 +60,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
   const [isTesting, setIsTesting] = React.useState(false);
   const testIdRef = React.useRef(0);
 
-  const handleTest = async (values) => {
+  const handleTest = async values => {
     setIsTesting(true);
     testIdRef.current += 1;
     const testid = testIdRef.current;
@@ -33,18 +76,18 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
     setIsTesting(false);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     axios.post('connections/save', values);
     modalState.close();
   };
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>{connection ? 'Edit connection' : 'Add connection'}</ModalHeader>
-      <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql' }}>
+      <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}>
         <ModalContent>
           <FormSelectField label="Database engine" name="engine">
             <option value=""></option>
-            {extensions.drivers.map((driver) => (
+            {extensions.drivers.map(driver => (
               <option value={driver.engine} key={driver.engine}>
                 {driver.title}
               </option>
@@ -53,10 +96,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
               <option value="mysql">MySQL</option>
               <option value="postgres">Postgre SQL</option> */}
           </FormSelectField>
-          <FormTextField label="Server" name="server" />
-          <FormTextField label="Port" name="port" />
-          <FormTextField label="User" name="user" />
-          <FormTextField label="Password" name="password" type="password" />
+          <DriverFields extensions={extensions} />
           <FormTextField label="Display name" name="displayName" />
           {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
             <div>
