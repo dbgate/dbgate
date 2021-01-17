@@ -1,9 +1,3 @@
-const msnodesqlv8 = () => require('msnodesqlv8');
+const content = require('./nativeModulesContent');
 
-const win32Modules = {
-  msnodesqlv8,
-};
-
-module.exports = {
-  ...(process.platform == 'win32' ? win32Modules : {}),
-};
+module.exports = content;
