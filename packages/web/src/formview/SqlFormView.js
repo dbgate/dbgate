@@ -145,8 +145,8 @@ export default function SqlFormView(props) {
   };
 
   React.useEffect(() => {
-    if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData]);
-  }, [rowData, refReloadToken]);
+    if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
+  }, [onReferenceSourceChanged, rowData, refReloadToken]);
 
   React.useEffect(() => {
     if (!formDisplay.isLoadedCorrectly) return;
