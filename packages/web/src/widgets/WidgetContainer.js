@@ -6,7 +6,7 @@ import FavoritesWidget from './FavoritesWidget';
 import FilesWidget from './FilesWidget';
 import PluginsWidget from './PluginsWidget';
 
-export default function WidgetContainer() {
+function WidgetContainerCore() {
   const currentWidget = useCurrentWidget();
   if (currentWidget === 'database') return <DatabaseWidget />;
   if (currentWidget === 'file') return <FilesWidget />;
@@ -15,3 +15,7 @@ export default function WidgetContainer() {
   if (currentWidget === 'favorites') return <FavoritesWidget />;
   return null;
 }
+
+const WidgetContainer = React.memo(WidgetContainerCore);
+
+export default WidgetContainer;
