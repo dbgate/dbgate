@@ -5,6 +5,7 @@ import Markdown from 'markdown-to-jsx';
 import useTheme from '../theme/useTheme';
 import useFetch from '../utility/useFetch';
 import LoadingInfo from '../widgets/LoadingInfo';
+import compareVersions from 'compare-versions';
 import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtractors';
 import FormStyledButton from '../widgets/FormStyledButton';
 import axios from '../utility/axios';
@@ -72,13 +73,18 @@ function PluginTabCore({ packageName }) {
   const handleUninstall = async () => {
     axios.post('plugins/uninstall', { packageName });
   };
+  const handleUpgrade = async () => {
+    axios.post('plugins/upgrade', { packageName });
+  };
 
   if (info == null) {
     return <LoadingInfo message="Loading extension detail" />;
   }
 
+  const installedFound = installed.find((x) => x.name == packageName);
+  const onlineFound = manifest;
+
   if (manifest == null) {
-    const installedFound = installed.find((x) => x.name == packageName);
     if (installedFound) {
       manifest = installedFound;
       readme = installedFound.readme;
@@ -97,15 +103,21 @@ function PluginTabCore({ packageName }) {
           <HeaderLine>
             <Author>{extractPluginAuthor(manifest)}</Author>
             <Delimiter />
-            <Version>{manifest.version && manifest.version}</Version>
+            <Version>{installedFound ? installedFound.version : manifest.version}</Version>
           </HeaderLine>
           <HeaderLine>
-            {hasPermission('plugins/install') && !installed.find((x) => x.name == packageName) && (
+            {hasPermission('plugins/install') && !installedFound && (
               <FormStyledButton type="button" value="Install" onClick={handleInstall} />
             )}
-            {hasPermission('plugins/install') && !!installed.find((x) => x.name == packageName) && (
+            {hasPermission('plugins/install') && !!installedFound && (
               <FormStyledButton type="button" value="Uninstall" onClick={handleUninstall} />
             )}
+            {hasPermission('plugins/install') &&
+              installedFound &&
+              onlineFound &&
+              compareVersions(onlineFound.version, installedFound.version) > 0 && (
+                <FormStyledButton type="button" value="Upgrade" onClick={handleUpgrade} />
+              )}
           </HeaderLine>
         </HeaderBody>
       </Header>
@@ -122,3 +134,5 @@ export default function PluginTab({ packageName }) {
     </WhitePage>
   );
 }
+
+PluginTab.matchingProps = ['packageName'];

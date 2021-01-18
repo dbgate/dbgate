@@ -106,6 +106,10 @@ module.exports = {
     // );
   },
 
+  async saveRemovePlugins() {
+    await fs.writeFile(path.join(datadir(), 'removed-plugins'), this.removedPlugins.join('\n'));
+  },
+
   install_meta: 'post',
   async install({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
@@ -114,6 +118,8 @@ module.exports = {
       await downloadPackage(packageName, dir);
     }
     socket.emitChanged(`installed-plugins-changed`);
+    this.removedPlugins = this.removedPlugins.filter((x) => x != packageName);
+    await this.saveRemovePlugins();
   },
 
   uninstall_meta: 'post',
@@ -123,7 +129,16 @@ module.exports = {
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
     this.removedPlugins.push(packageName);
-    await fs.writeFile(path.join(datadir(), 'removed-plugins'), this.removedPlugins.join('\n'));
+    await this.saveRemovePlugins();
+  },
+
+  upgrade_meta: 'post',
+  async upgrade({ packageName }) {
+    if (!hasPermission(`plugins/install`)) return;
+    const dir = path.join(pluginsdir(), packageName);
+    await fs.rmdir(dir, { recursive: true });
+    await downloadPackage(packageName, dir);
+    socket.emitChanged(`installed-plugins-changed`);
   },
 
   command_meta: 'post',
