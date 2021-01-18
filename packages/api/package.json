@@ -23,6 +23,7 @@
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
     "byline": "^5.0.0",
+    "compare-versions": "^3.6.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "dbgate-sqltree": "^1.0.0",

@@ -4,6 +4,7 @@ const path = require('path');
 const { extractPackageName } = require('dbgate-tools');
 const { pluginsdir, datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
+const compareVersions = require('compare-versions');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
 const hasPermission = require('../utility/hasPermission');
@@ -26,13 +27,13 @@ const hasPermission = require('../utility/hasPermission');
 //   };
 // }
 
-const preinstallPlugins = [
-  'dbgate-plugin-mssql',
-  'dbgate-plugin-mysql',
-  'dbgate-plugin-postgres',
-  'dbgate-plugin-csv',
-  'dbgate-plugin-excel',
-];
+const preinstallPluginMinimalVersions = {
+  'dbgate-plugin-mssql': '1.0.8',
+  'dbgate-plugin-mysql': '1.0.2',
+  'dbgate-plugin-postgres': '1.0.2',
+  'dbgate-plugin-csv': '1.0.8',
+  'dbgate-plugin-excel': '1.0.6',
+};
 
 module.exports = {
   script_meta: 'get',
@@ -136,8 +137,11 @@ module.exports = {
   async upgrade({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
-    await fs.rmdir(dir, { recursive: true });
-    await downloadPackage(packageName, dir);
+    if (await fs.exists(dir)) {
+      await fs.rmdir(dir, { recursive: true });
+      await downloadPackage(packageName, dir);
+    }
+
     socket.emitChanged(`installed-plugins-changed`);
   },
 
@@ -164,9 +168,21 @@ module.exports = {
     } catch (err) {
       this.removedPlugins = [];
     }
-    for (const packageName of preinstallPlugins) {
+    for (const packageName of Object.keys(preinstallPluginMinimalVersions)) {
       if (this.removedPlugins.includes(packageName)) continue;
-      if (installed.find((x) => x.name == packageName)) continue;
+      const installedVersion = installed.find((x) => x.name == packageName);
+      if (installedVersion) {
+        const requiredVersion = preinstallPluginMinimalVersions[packageName];
+        if (compareVersions(installedVersion.version, requiredVersion) < 0) {
+          console.log(
+            `Upgrading preinstalled plugin, found ${installedVersion.version}, required version ${requiredVersion}`,
+            packageName
+          );
+          await this.upgrade({ packageName });
+        }
+
+        continue;
+      }
       try {
         console.log('Preinstalling plugin', packageName);
         await this.install({ packageName });
