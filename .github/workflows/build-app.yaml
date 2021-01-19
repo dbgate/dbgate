@@ -53,10 +53,16 @@ jobs:
         run: |
           yarn generatePadFile
 
+      - name: Save snap login
+        if: matrix.os == 'ubuntu-18.04'
+        run: 'echo "$SNAPCRAFT_LOGIN" > snapcraft.login'
+        shell: bash
+        env:
+          SNAPCRAFT_LOGIN: ${{secrets.SNAPCRAFT_LOGIN}}
+
       - name: publishSnap
         if: matrix.os == 'ubuntu-18.04'
         run: |
-          echo ${{ secrets.WINCERT_CERTIFICATE }} > snapcraft.login
           snapcraft login --with snapcraft.login
           snapcraft upload --release=beta dist/*.snap
 
