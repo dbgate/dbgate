@@ -139,15 +139,16 @@ SOFTWARE.</EULA>
       <Char_Desc_2000>
 Modern cross-platform data manipulation tool for Microsoft SQL Server, PostgreSQL and MySQL
 Main features: 
-  Quick database browser.
-  Database editor, view and and views, stored procedures, functions, triggers, table relations. 
+  Quick database browser
+  Database editor, view and and views, stored procedures, functions, triggers, table relations
   Export, import - CSV, MS Excel
+  Form view for tables with many columns
   Query designer
-  Advanced data filtering. 
-  Export, import. 
-  JavaScript data scripting.
-  Run queries, code completion. 
-  Display data from referenced tables. 
+  Advanced data filtering 
+  Export, import
+  JavaScript data scripting
+  Run queries, code completion
+  Display data from referenced tables
   Create charts, supports for active charts - are refreshed when underlying source is changed
 </Char_Desc_2000>
     </English>

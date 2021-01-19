@@ -38,6 +38,9 @@ jobs:
       - name: fillNativeModulesElectron
         run: |
           yarn fillNativeModulesElectron
+      - name: Install Snapcraft
+        if: matrix.os == 'ubuntu-18.04'
+        uses: samuelmeuli/action-snapcraft@v1
       - name: Publish
         run: |
           yarn run build:app
@@ -49,6 +52,13 @@ jobs:
       - name: generatePadFile
         run: |
           yarn generatePadFile
+
+      - name: publishSnap
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          echo ${{ secrets.WINCERT_CERTIFICATE }} > snapcraft.login
+          snapcraft login --with snapcraft.login
+          snapcraft upload --release=beta dist/*.snap
 
       - name: Copy artifacts
         run: |
@@ -63,6 +73,7 @@ jobs:
           mv app/dist/*.AppImage artifacts/ || true
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
+          mv app/dist/*.snap artifacts/dbgate-latest.snap || true
 
       # - name: Copy artifacts Linux, MacOs
       #   if: matrix.os != 'windows-2016'
