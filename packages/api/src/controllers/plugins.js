@@ -168,21 +168,31 @@ module.exports = {
     } catch (err) {
       this.removedPlugins = [];
     }
+
     for (const packageName of Object.keys(preinstallPluginMinimalVersions)) {
-      if (this.removedPlugins.includes(packageName)) continue;
       const installedVersion = installed.find((x) => x.name == packageName);
       if (installedVersion) {
+        // plugin installed, test, whether upgrade
         const requiredVersion = preinstallPluginMinimalVersions[packageName];
         if (compareVersions(installedVersion.version, requiredVersion) < 0) {
           console.log(
-            `Upgrading preinstalled plugin, found ${installedVersion.version}, required version ${requiredVersion}`,
-            packageName
+            `Upgrading preinstalled plugin ${packageName}, found ${installedVersion.version}, required version ${requiredVersion}`
           );
           await this.upgrade({ packageName });
+        } else {
+          console.log(
+            `Plugin ${packageName} not upgraded, found ${installedVersion.version}, required version ${requiredVersion}`
+          );
         }
 
         continue;
       }
+
+      if (this.removedPlugins.includes(packageName)) {
+        // plugin was remvoed, don't install again
+        continue;
+      }
+
       try {
         console.log('Preinstalling plugin', packageName);
         await this.install({ packageName });
