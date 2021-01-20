@@ -43,7 +43,12 @@ function getEncryptor() {
 }
 
 function encryptConnection(connection) {
-  if (connection && connection.password && !connection.password.startsWith('crypt:')) {
+  if (
+    connection &&
+    connection.password &&
+    !connection.password.startsWith('crypt:') &&
+    connection.passwordMode != 'saveRaw'
+  ) {
     return {
       ...connection,
       password: 'crypt:' + getEncryptor().encrypt(connection.password),
