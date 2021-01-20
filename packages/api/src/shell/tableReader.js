@@ -1,9 +1,10 @@
 const { quoteFullName, fullNameToString } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const { decryptConnection } = require('../utility/crypting');
 
 async function tableReader({ connection, pureName, schemaName }) {
   const driver = requireEngineDriver(connection);
-  const pool = await driver.connect(connection);
+  const pool = await driver.connect(decryptConnection(connection));
   console.log(`Connected.`);
 
   const fullName = { pureName, schemaName };

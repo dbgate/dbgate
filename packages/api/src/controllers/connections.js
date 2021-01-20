@@ -5,6 +5,7 @@ const nedb = require('nedb-promises');
 
 const { datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
+const { encryptConnection } = require('../utility/crypting');
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
@@ -59,10 +60,11 @@ module.exports = {
   async save(connection) {
     if (portalConnections) return;
     let res;
+    const encrypted = encryptConnection(connection);
     if (connection._id) {
-      res = await this.datastore.update(_.pick(connection, '_id'), connection);
+      res = await this.datastore.update(_.pick(connection, '_id'), encrypted);
     } else {
-      res = await this.datastore.insert(connection);
+      res = await this.datastore.insert(encrypted);
     }
     socket.emitChanged('connection-list-changed');
     return res;

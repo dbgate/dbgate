@@ -40,6 +40,7 @@
     "ncp": "^2.0.0",
     "nedb-promises": "^4.0.1",
     "node-cron": "^2.0.3",
+    "simple-encryptor": "^4.0.0",
     "tar": "^6.0.5",
     "uuid": "^3.4.0"
   },

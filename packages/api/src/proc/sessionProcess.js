@@ -7,6 +7,7 @@ const goSplit = require('../utility/goSplit');
 
 const { jsldir } = require('../utility/directories');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const { decryptConnection } = require('../utility/crypting');
 
 let systemConnection;
 let storedConnection;
@@ -73,7 +74,7 @@ class StreamHandler {
 
     // use this for cancelling - not implemented
     // this.stream = null;
-    
+
     this.plannedStats = false;
     this.resultIndexHolder = resultIndexHolder;
     this.resolve = resolve;
@@ -130,7 +131,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await driver.connect(storedConnection);
+  systemConnection = await driver.connect(decryptConnection(storedConnection));
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }

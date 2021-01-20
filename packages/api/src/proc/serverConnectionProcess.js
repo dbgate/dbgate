@@ -1,6 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const { decryptConnection } = require('../utility/crypting');
 
 let systemConnection;
 let storedConnection;
@@ -47,7 +48,7 @@ async function handleConnect(connection) {
 
   const driver = requireEngineDriver(storedConnection);
   try {
-    systemConnection = await driver.connect(storedConnection);
+    systemConnection = await driver.connect(decryptConnection(storedConnection));
     handleRefresh();
     setInterval(handleRefresh, 30 * 1000);
   } catch (err) {
@@ -66,7 +67,7 @@ function handlePing() {
 
 async function handleCreateDatabase({ name }) {
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await driver.connect(storedConnection);
+  systemConnection = await driver.connect(decryptConnection(storedConnection));
   console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
   await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
   await handleRefresh();
