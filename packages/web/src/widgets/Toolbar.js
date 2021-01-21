@@ -131,7 +131,7 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   return (
     <ToolbarContainer>
-      <ConnectionModal modalState={modalState} />
+      {!!modalState.isOpen && <ConnectionModal modalState={modalState} />}
       {!electron && (
         <ToolbarButtonExternalImage
           // eslint-disable-next-line
