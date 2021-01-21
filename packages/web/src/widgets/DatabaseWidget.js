@@ -16,18 +16,15 @@ import {
   useDatabaseInfo,
   useConfig,
 } from '../utility/metadataLoaders';
-import {
-  SearchBoxWrapper,
-  WidgetsInnerContainer,
-  WidgetsMainContainer,
-  WidgetsOuterContainer,
-  WidgetTitle,
-} from './WidgetStyles';
+import { SearchBoxWrapper, WidgetsInnerContainer } from './WidgetStyles';
 import axios from '../utility/axios';
 import LoadingInfo from './LoadingInfo';
 import SearchInput from './SearchInput';
 import ErrorInfo from './ErrorInfo';
 import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
+import ToolbarButton from './ToolbarButton';
+import useShowModal from '../modals/showModal';
+import ConnectionModal from '../modals/ConnectionModal';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -57,11 +54,16 @@ function ConnectionList() {
     connections && serverStatus
       ? connections.map((conn) => ({ ...conn, status: serverStatus[conn._id] }))
       : connections;
+  const showModal = useShowModal();
 
   const handleRefreshConnections = () => {
     for (const conid of openedConnections) {
       axios.post('server-connections/refresh', { conid });
     }
+  };
+
+  const showNewConnection = () => {
+    showModal((modalState) => <ConnectionModal modalState={modalState} />);
   };
 
   const [filter, setFilter] = React.useState('');
@@ -83,6 +85,11 @@ function ConnectionList() {
           filter={filter}
           isExpandable={(data) => openedConnections.includes(data._id)}
         />
+        {connections && connections.length == 0 && (
+          <ToolbarButton icon="icon new-connection" onClick={showNewConnection}>
+            Add new connection
+          </ToolbarButton>
+        )}
       </WidgetsInnerContainer>
     </>
   );

@@ -32,7 +32,6 @@ const ToolbarContainer = styled.div`
 `;
 
 export default function ToolBar({ toolbarPortalRef }) {
-  const modalState = useModalState();
   const newQuery = useNewQuery();
   const newQueryDesign = useNewQueryDesign();
   const newFreeTable = useNewFreeTable();
@@ -53,7 +52,9 @@ export default function ToolBar({ toolbarPortalRef }) {
   const currentTab = openedTabs.find((x) => x.selected);
 
   React.useEffect(() => {
-    window['dbgate_createNewConnection'] = modalState.open;
+    if (config.runAsPortal == false) {
+      window['dbgate_createNewConnection'] = showNewConnection;
+    }
     window['dbgate_newQuery'] = newQuery;
     window['dbgate_closeAll'] = () => setOpenedTabs([]);
     window['dbgate_showAbout'] = showAbout;
@@ -77,6 +78,10 @@ export default function ToolBar({ toolbarPortalRef }) {
         }}
       />
     ));
+  };
+
+  const showNewConnection = () => {
+    showModal((modalState) => <ConnectionModal modalState={modalState} />);
   };
 
   const switchTheme = () => {
@@ -131,7 +136,6 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   return (
     <ToolbarContainer>
-      {!!modalState.isOpen && <ConnectionModal modalState={modalState} />}
       {!electron && (
         <ToolbarButtonExternalImage
           // eslint-disable-next-line
@@ -147,7 +151,9 @@ export default function ToolBar({ toolbarPortalRef }) {
           </ToolbarButton>
         ))}
       <ToolbarDropDownButton icon="icon add" text="New">
-        {config.runAsPortal == false && <DropDownMenuItem onClick={modalState.open}>Connection</DropDownMenuItem>}
+        {config.runAsPortal == false && (
+          <DropDownMenuItem onClick={showNewConnection}>Connection</DropDownMenuItem>
+        )}
         <DropDownMenuItem onClick={() => newQuery()}>SQL query</DropDownMenuItem>
         {!!currentDatabase && <DropDownMenuItem onClick={() => newQueryDesign()}>Query designer</DropDownMenuItem>}
         <DropDownMenuItem onClick={() => newFreeTable()}>Free table editor</DropDownMenuItem>
