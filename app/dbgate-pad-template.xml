@@ -145,12 +145,28 @@ Main features:
   Form view for tables with many columns
   Query designer
   Advanced data filtering 
-  Export, import
   JavaScript data scripting
   Run queries, code completion
   Display data from referenced tables
   Create charts, supports for active charts - are refreshed when underlying source is changed
 </Char_Desc_2000>
     </English>
+    <Czech>
+      <Char_Desc_250>Správce databází MS SQL Server, MySQL a PostgreSQL</Char_Desc_250>
+      <Char_Desc_2000>
+Moderní multiplatformní nástroj pro práci s databázemi pro Microsoft SQL Server, PostgreSQL a MySQL. 
+Hlavní funkce: 
+  Prohlížení databáze, tabulek, pohledů, uložených procedur a funkcí
+  Export, import - CSV, MS Excel
+  Zobrazení jednoho řádku tabulky "na výšku" - vhodné pro tabulky s mnoha sloupci
+  Grafický návrh dotazů
+  Pokročilé filtrování dat
+  Advanced data filtering 
+  Skriptování pomocí jazyka JavaScript
+  SQL editor, doplňování kódu
+  Zobrazování referencových dat, na základě cizích klíčů
+  Vytváření grafů, podpora aktivních grafů - obnoví se, pokud se změní zdroj dat
+</Char_Desc_2000>
+    </Czech>
   </Program_Descriptions>
 </XML_DIZ_INFO>
