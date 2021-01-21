@@ -64,7 +64,7 @@ jobs:
         if: matrix.os == 'ubuntu-18.04'
         run: |
           snapcraft login --with snapcraft.login
-          snapcraft upload --release=beta app/dist/*.snap
+          snapcraft upload --release=stable app/dist/*.snap
 
       - name: Copy artifacts
         run: |
