@@ -1,4 +1,5 @@
 import P from 'parsimmon';
+import moment from 'moment';
 import { FilterType } from './types';
 import { Condition } from 'dbgate-sqltree';
 import { TransformType } from 'dbgate-types';
@@ -34,7 +35,7 @@ function interpretEscapes(str) {
   });
 }
 
-const binaryCondition = (operator) => (value) => ({
+const binaryCondition = operator => value => ({
   conditionType: 'binary',
   operator,
   left: {
@@ -46,7 +47,7 @@ const binaryCondition = (operator) => (value) => ({
   },
 });
 
-const likeCondition = (conditionType, likeString) => (value) => ({
+const likeCondition = (conditionType, likeString) => value => ({
   conditionType,
   left: {
     exprType: 'placeholder',
@@ -57,7 +58,7 @@ const likeCondition = (conditionType, likeString) => (value) => ({
   },
 });
 
-const compoudCondition = (conditionType) => (conditions) => {
+const compoudCondition = conditionType => conditions => {
   if (conditions.length == 1) return conditions[0];
   return {
     conditionType,
@@ -65,7 +66,7 @@ const compoudCondition = (conditionType) => (conditions) => {
   };
 };
 
-const unaryCondition = (conditionType) => () => {
+const unaryCondition = conditionType => () => {
   return {
     conditionType,
     expr: {
@@ -74,7 +75,7 @@ const unaryCondition = (conditionType) => () => {
   };
 };
 
-const binaryFixedValueCondition = (value) => () => {
+const binaryFixedValueCondition = value => () => {
   return {
     conditionType: 'binary',
     operator: '=',
@@ -88,7 +89,7 @@ const binaryFixedValueCondition = (value) => () => {
   };
 };
 
-const negateCondition = (condition) => {
+const negateCondition = condition => {
   return {
     conditionType: 'not',
     condition,
@@ -113,11 +114,11 @@ function getTransformCondition(transform: TransformType, value) {
   };
 }
 
-const yearCondition = () => (value) => {
+const yearCondition = () => value => {
   return getTransformCondition('YEAR', value);
 };
 
-const yearMonthCondition = () => (value) => {
+const yearMonthCondition = () => value => {
   const m = value.match(/(\d\d\d\d)-(\d\d?)/);
 
   return {
@@ -126,7 +127,7 @@ const yearMonthCondition = () => (value) => {
   };
 };
 
-const yearMonthDayCondition = () => (value) => {
+const yearMonthDayCondition = () => value => {
   const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)/);
 
   return {
@@ -137,6 +138,43 @@ const yearMonthDayCondition = () => (value) => {
       getTransformCondition('DAY', m[3]),
     ],
   };
+};
+
+const fixedIntervalCondition = (start, end) => () => {
+  return {
+    conditionType: 'and',
+    conditions: [
+      {
+        conditionType: 'binary',
+        operator: '>=',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value: start,
+        },
+      },
+      {
+        conditionType: 'binary',
+        operator: '<',
+        left: {
+          exprType: 'placeholder',
+        },
+        right: {
+          exprType: 'value',
+          value: end,
+        },
+      },
+    ],
+  };
+};
+
+const fixedMomentIntervalCondition = (intervalType, diff) => {
+  return fixedIntervalCondition(
+    moment().add(intervalType, diff).startOf(intervalType).toISOString(),
+    moment().add(intervalType, diff).endOf(intervalType).toISOString()
+  );
 };
 
 const createParser = (filterType: FilterType) => {
@@ -172,36 +210,60 @@ const createParser = (filterType: FilterType) => {
     yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
     yearMonthDayNum: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayCondition()),
 
-    value: (r) => P.alt(...allowedValues.map((x) => r[x])),
-    valueTestEq: (r) => r.value.map(binaryCondition('=')),
-    valueTestStr: (r) => r.value.map(likeCondition('like', '%#VALUE#%')),
+    value: r => P.alt(...allowedValues.map(x => r[x])),
+    valueTestEq: r => r.value.map(binaryCondition('=')),
+    valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
 
     comma: () => word(','),
     not: () => word('NOT'),
-    notNull: (r) => r.not.then(r.null).map(unaryCondition('isNotNull')),
+    notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
     null: () => word('NULL').map(unaryCondition('isNull')),
     empty: () => word('EMPTY').map(unaryCondition('isEmpty')),
-    notEmpty: (r) => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
+    notEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
     true: () => word('TRUE').map(binaryFixedValueCondition(1)),
     false: () => word('FALSE').map(binaryFixedValueCondition(0)),
     trueNum: () => word('1').map(binaryFixedValueCondition(1)),
     falseNum: () => word('0').map(binaryFixedValueCondition(0)),
-    eq: (r) => word('=').then(r.value).map(binaryCondition('=')),
-    ne: (r) => word('!=').then(r.value).map(binaryCondition('<>')),
-    lt: (r) => word('<').then(r.value).map(binaryCondition('<')),
-    gt: (r) => word('>').then(r.value).map(binaryCondition('>')),
-    le: (r) => word('<=').then(r.value).map(binaryCondition('<=')),
-    ge: (r) => word('>=').then(r.value).map(binaryCondition('>=')),
-    startsWith: (r) => word('^').then(r.value).map(likeCondition('like', '#VALUE#%')),
-    endsWith: (r) => word('$').then(r.value).map(likeCondition('like', '%#VALUE#')),
-    contains: (r) => word('+').then(r.value).map(likeCondition('like', '%#VALUE#%')),
-    startsWithNot: (r) => word('!^').then(r.value).map(likeCondition('like', '#VALUE#%')).map(negateCondition),
-    endsWithNot: (r) => word('!$').then(r.value).map(likeCondition('like', '%#VALUE#')).map(negateCondition),
-    containsNot: (r) => word('~').then(r.value).map(likeCondition('like', '%#VALUE#%')).map(negateCondition),
 
-    element: (r) => P.alt(...allowedElements.map((x) => r[x])).trim(whitespace),
-    factor: (r) => r.element.sepBy(whitespace).map(compoudCondition('and')),
-    list: (r) => r.factor.sepBy(r.comma).map(compoudCondition('or')),
+    this: () => word('THIS'),
+    last: () => word('LAST'),
+    next: () => word('NEXT'),
+    week: () => word('WEEK'),
+    month: () => word('MONTH'),
+    year: () => word('YEAR'),
+
+    yesterday: () => word('YESTERDAY').map(fixedMomentIntervalCondition('day', -1)),
+    today: () => word('TODAY').map(fixedMomentIntervalCondition('day', 0)),
+    tomorrow: () => word('TOMORROW').map(fixedMomentIntervalCondition('day', 1)),
+
+    lastWeek: r => r.last.then(r.week).map(fixedMomentIntervalCondition('week', -1)),
+    thisWeek: r => r.this.then(r.week).map(fixedMomentIntervalCondition('week', 0)),
+    nextWeek: r => r.next.then(r.week).map(fixedMomentIntervalCondition('week', 1)),
+
+    lastMonth: r => r.last.then(r.month).map(fixedMomentIntervalCondition('month', -1)),
+    thisMonth: r => r.this.then(r.month).map(fixedMomentIntervalCondition('month', 0)),
+    nextMonth: r => r.next.then(r.month).map(fixedMomentIntervalCondition('month', 1)),
+
+    lastYear: r => r.last.then(r.year).map(fixedMomentIntervalCondition('year', -1)),
+    thisYear: r => r.this.then(r.year).map(fixedMomentIntervalCondition('year', 0)),
+    nextYear: r => r.next.then(r.year).map(fixedMomentIntervalCondition('year', 1)),
+
+    eq: r => word('=').then(r.value).map(binaryCondition('=')),
+    ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
+    lt: r => word('<').then(r.value).map(binaryCondition('<')),
+    gt: r => word('>').then(r.value).map(binaryCondition('>')),
+    le: r => word('<=').then(r.value).map(binaryCondition('<=')),
+    ge: r => word('>=').then(r.value).map(binaryCondition('>=')),
+    startsWith: r => word('^').then(r.value).map(likeCondition('like', '#VALUE#%')),
+    endsWith: r => word('$').then(r.value).map(likeCondition('like', '%#VALUE#')),
+    contains: r => word('+').then(r.value).map(likeCondition('like', '%#VALUE#%')),
+    startsWithNot: r => word('!^').then(r.value).map(likeCondition('like', '#VALUE#%')).map(negateCondition),
+    endsWithNot: r => word('!$').then(r.value).map(likeCondition('like', '%#VALUE#')).map(negateCondition),
+    containsNot: r => word('~').then(r.value).map(likeCondition('like', '%#VALUE#%')).map(negateCondition),
+
+    element: r => P.alt(...allowedElements.map(x => r[x])).trim(whitespace),
+    factor: r => r.element.sepBy(whitespace).map(compoudCondition('and')),
+    list: r => r.factor.sepBy(r.comma).map(compoudCondition('or')),
   };
 
   const allowedValues = []; // 'string1', 'string2', 'number', 'noQuotedString'];
@@ -222,7 +284,24 @@ const createParser = (filterType: FilterType) => {
       'containsNot'
     );
   if (filterType == 'logical') allowedElements.push('true', 'false', 'trueNum', 'falseNum');
-  if (filterType == 'datetime') allowedElements.push('yearMonthDayNum', 'yearMonthNum', 'yearNum');
+  if (filterType == 'datetime')
+    allowedElements.push(
+      'yearMonthDayNum',
+      'yearMonthNum',
+      'yearNum',
+      'yesterday',
+      'today',
+      'tomorrow',
+      'lastWeek',
+      'thisWeek',
+      'nextWeek',
+      'lastMonth',
+      'thisMonth',
+      'nextMonth',
+      'lastYear',
+      'thisYear',
+      'nextYear'
+    );
 
   // must be last
   if (filterType == 'string') allowedElements.push('valueTestStr');
@@ -240,5 +319,6 @@ const parsers = {
 
 export function parseFilter(value: string, filterType: FilterType): Condition {
   const ast = parsers[filterType].list.tryParse(value);
+  // console.log('AST', ast);
   return ast;
 }

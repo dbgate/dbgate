@@ -78,7 +78,7 @@ export default function SqlDataGridCore(props) {
     initialValues.sourceDatabaseName = database;
     initialValues.sourceSql = display.getExportQuery();
     initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
-    showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
+    showModal(modalState => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
   function openActiveChart() {
     openNewTab(
@@ -94,7 +94,7 @@ export default function SqlDataGridCore(props) {
       {
         editor: {
           config: { chartType: 'bar' },
-          sql: display.getExportQuery((select) => {
+          sql: display.getExportQuery(select => {
             select.orderBy = null;
           }),
         },
@@ -102,18 +102,22 @@ export default function SqlDataGridCore(props) {
     );
   }
   function openQuery() {
-    openNewTab({
-      title: 'Query',
-      icon: 'img sql-file',
-      tabComponent: 'QueryTab',
-      props: {
-        initialScript: display.getExportQuery(),
-        schemaName: display.baseTable.schemaName,
-        pureName: display.baseTable.pureName,
-        conid,
-        database,
+    openNewTab(
+      {
+        title: 'Query',
+        icon: 'img sql-file',
+        tabComponent: 'QueryTab',
+        props: {
+          schemaName: display.baseTable.schemaName,
+          pureName: display.baseTable.pureName,
+          conid,
+          database,
+        },
       },
-    });
+      {
+        editor: display.getExportQuery(),
+      }
+    );
   }
 
   function handleSave() {
@@ -135,7 +139,7 @@ export default function SqlDataGridCore(props) {
     });
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
-      showModal((modalState) => (
+      showModal(modalState => (
         <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
       ));
     } else {
