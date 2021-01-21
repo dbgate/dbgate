@@ -230,7 +230,7 @@ export default function DataGridCore(props) {
     if (props.onReferenceSourceChanged && (grider.rowCount > 0 || isLoadedAll)) {
       props.onReferenceSourceChanged(getSelectedRowData(), loadedTime);
     }
-  }, [selectedCells, props.refReloadToken, grider.getRowData(0)]);
+  }, [props.onReferenceSourceChanged, selectedCells, props.refReloadToken, grider.getRowData(0)]);
 
   // usePropsCompare({ columnSizes, firstVisibleColumnScrollIndex, gridScrollAreaWidth, columns });
 
