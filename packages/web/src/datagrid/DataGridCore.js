@@ -985,7 +985,7 @@ export default function DataGridCore(props) {
   // console.log('focusFieldRef.current', focusFieldRef.current);
 
   return (
-    <GridContainer ref={containerRef}>
+    <GridContainer ref={containerRef} onContextMenu={handleContextMenu}>
       <FocusField
         type="text"
         ref={focusFieldRef}
