@@ -104,6 +104,7 @@ const RowCountLabel = styled.div`
 const HintSpan = styled.span`
   color: gray;
   margin-left: 5px;
+  margin-right: 16px;
 `;
 
 function isDataCell(cell) {
