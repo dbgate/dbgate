@@ -125,7 +125,7 @@ function SqlObjectList({ conid, database }) {
     );
   }
 
-  if (objectList.length == 0 && (status && status.name) != 'pending') {
+  if (objectList.length == 0 && status && status.name != 'pending' && objects) {
     return (
       <WidgetsInnerContainer>
         <ErrorInfo
@@ -144,7 +144,7 @@ function SqlObjectList({ conid, database }) {
         <InlineButton onClick={handleRefreshDatabase}>Refresh</InlineButton>
       </SearchBoxWrapper>
       <WidgetsInnerContainer>
-        {status && status.name == 'pending' ? (
+        {(status && status.name == 'pending') || !objects ? (
           <LoadingInfo message="Loading database structure" />
         ) : (
           <AppObjectList
