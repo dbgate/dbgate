@@ -7,6 +7,7 @@ import { filterName } from './filterName';
 
 export class TableGridDisplay extends GridDisplay {
   public table: TableInfo;
+  public addAllExpandedColumnsToSelected = false;
 
   constructor(
     public tableName: NamedObjectInfo,
@@ -205,7 +206,7 @@ export class TableGridDisplay extends GridDisplay {
     displayedColumnInfo: DisplayedColumnInfo
   ) {
     for (const column of columns) {
-      if (this.config.addedColumns.includes(column.uniqueName)) {
+      if (this.addAllExpandedColumnsToSelected || this.config.addedColumns.includes(column.uniqueName)) {
         select.columns.push({
           exprType: 'column',
           columnName: column.columnName,

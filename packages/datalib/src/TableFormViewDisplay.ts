@@ -32,10 +32,25 @@ export class TableFormViewDisplay extends FormViewDisplay {
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo);
     this.gridDisplay = new TableGridDisplay(tableName, driver, config, setConfig, cache, setCache, dbinfo);
+    this.gridDisplay.addAllExpandedColumnsToSelected = true;
 
     this.isLoadedCorrectly = this.gridDisplay.isLoadedCorrectly && !!this.driver;
-    this.columns = this.gridDisplay.columns;
+    this.columns = [];
+    this.addDisplayColumns(this.gridDisplay.columns);
     this.baseTable = this.gridDisplay.baseTable;
+  }
+
+  addDisplayColumns(columns: DisplayColumn[]) {
+    for (const col of columns) {
+      this.columns.push(col);
+      if (this.gridDisplay.isExpandedColumn(col.uniqueName)) {
+        const table = this.gridDisplay.getFkTarget(col);
+        if (table) {
+          const subcolumns = this.gridDisplay.getDisplayColumns(table, col.uniquePath);
+          this.addDisplayColumns(subcolumns);
+        }
+      }
+    }
   }
 
   getPrimaryKeyEqualCondition(row = null): Condition {
@@ -235,5 +250,14 @@ export class TableFormViewDisplay extends FormViewDisplay {
       uniqueName: uniqueName,
       columnName: col.columnName,
     };
+  }
+
+  toggleExpandedColumn(uniqueName: string) {
+    this.gridDisplay.toggleExpandedColumn(uniqueName);
+    this.gridDisplay.reload();
+  }
+
+  isExpandedColumn(uniqueName: string) {
+    return this.gridDisplay.isExpandedColumn(uniqueName);
   }
 }

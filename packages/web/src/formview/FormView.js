@@ -16,7 +16,7 @@ import { CellFormattedValue, ShowFormButton } from '../datagrid/DataGridRow';
 import { cellFromEvent } from '../datagrid/selection';
 import InplaceEditor from '../datagrid/InplaceEditor';
 import { copyTextToClipboard } from '../utility/clipboard';
-import { FontIcon } from '../icons';
+import { ExpandIcon, FontIcon } from '../icons';
 import openReferenceForm from './openReferenceForm';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import LoadingInfo from '../widgets/LoadingInfo';
@@ -104,6 +104,10 @@ const RowCountLabel = styled.div`
 const HintSpan = styled.span`
   color: gray;
   margin-left: 5px;
+  margin-right: 16px;
+`;
+
+const ColumnLabelMargin = styled(ColumnLabel)`
   margin-right: 16px;
 `;
 
@@ -416,13 +420,18 @@ export default function FormView(props) {
 
   const [inplaceEditorState, dispatchInsplaceEditor] = React.useReducer((state, action) => {
     switch (action.type) {
-      case 'show':
+      case 'show': {
+        const column = getCellColumn(action.cell);
+        if (!column) return state;
+        if (column.uniquePath.length > 1) return state;
+
         // if (!grider.editable) return {};
         return {
           cell: action.cell,
           text: action.text,
           selectAll: action.selectAll,
         };
+      }
       case 'close': {
         const [row, col] = currentCell || [];
         if (focusFieldRef.current) focusFieldRef.current.focus();
@@ -472,7 +481,7 @@ export default function FormView(props) {
       {columnChunks.map((chunk, chunkIndex) => (
         <Table key={chunkIndex} onMouseDown={handleTableMouseDown}>
           {chunk.map((col, rowIndex) => (
-            <TableRow key={col.columnName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
+            <TableRow key={col.uniqueName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
               <TableHeaderCell
                 theme={theme}
                 data-row={rowIndex}
@@ -481,7 +490,20 @@ export default function FormView(props) {
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
                 ref={element => setCellRef(rowIndex, chunkIndex * 2, element)}
               >
-                <ColumnLabel {...col} />
+                <ColumnLabelMargin {...col} />
+
+                {col.foreignKey && (
+                  <ShowFormButton
+                    theme={theme}
+                    className="buttonLike"
+                    onClick={e => {
+                      e.stopPropagation();
+                      formDisplay.toggleExpandedColumn(col.uniqueName);
+                    }}
+                  >
+                    <ExpandIcon isExpanded={formDisplay.isExpandedColumn(col.uniqueName)} />
+                  </ShowFormButton>
+                )}
               </TableHeaderCell>
               <TableBodyCell
                 theme={theme}
@@ -510,7 +532,7 @@ export default function FormView(props) {
                 ) : (
                   <>
                     {rowData && (
-                      <CellFormattedValue value={rowData[col.columnName]} dataType={col.dataType} theme={theme} />
+                      <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} theme={theme} />
                     )}
                     {!!col.hintColumnName &&
                       rowData &&
