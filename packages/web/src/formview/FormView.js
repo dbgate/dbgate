@@ -26,6 +26,14 @@ const Table = styled.table`
   outline: none;
 `;
 
+const OuterWrapper = styled.div`
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+`;
+
 const Wrapper = styled.div`
   position: absolute;
   left: 0;
@@ -477,97 +485,99 @@ export default function FormView(props) {
   if (!formDisplay || !formDisplay.isLoadedCorrectly) return toolbar;
 
   return (
-    <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>
-      {columnChunks.map((chunk, chunkIndex) => (
-        <Table key={chunkIndex} onMouseDown={handleTableMouseDown}>
-          {chunk.map((col, rowIndex) => (
-            <TableRow key={col.uniqueName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
-              <TableHeaderCell
-                theme={theme}
-                data-row={rowIndex}
-                data-col={chunkIndex * 2}
-                // @ts-ignore
-                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
-                ref={element => setCellRef(rowIndex, chunkIndex * 2, element)}
-              >
-                <ColumnLabelMargin
-                  {...col}
-                  headerText={col.columnName}
-                  style={{ marginLeft: (col.uniquePath.length - 1) * 20 }}
-                  extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
-                />
-
-                {col.foreignKey && (
-                  <ShowFormButton
-                    theme={theme}
-                    className="buttonLike"
-                    onClick={e => {
-                      e.stopPropagation();
-                      formDisplay.toggleExpandedColumn(col.uniqueName);
-                    }}
-                  >
-                    <ExpandIcon isExpanded={formDisplay.isExpandedColumn(col.uniqueName)} />
-                  </ShowFormButton>
-                )}
-              </TableHeaderCell>
-              <TableBodyCell
-                theme={theme}
-                data-row={rowIndex}
-                data-col={chunkIndex * 2 + 1}
-                // @ts-ignore
-                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
-                isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
-                ref={element => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
-              >
-                {inplaceEditorState.cell &&
-                rowIndex == inplaceEditorState.cell[0] &&
-                chunkIndex * 2 + 1 == inplaceEditorState.cell[1] ? (
-                  <InplaceEditor
-                    widthPx={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
-                    inplaceEditorState={inplaceEditorState}
-                    dispatchInsplaceEditor={dispatchInsplaceEditor}
-                    cellValue={rowData[col.uniqueName]}
-                    onSetValue={value => {
-                      former.setCellValue(col.uniqueName, value);
-                    }}
-                    // grider={grider}
-                    // rowIndex={rowIndex}
-                    // uniqueName={col.uniqueName}
+    <OuterWrapper>
+      <Wrapper ref={wrapperRef} onContextMenu={handleContextMenu}>
+        {columnChunks.map((chunk, chunkIndex) => (
+          <Table key={chunkIndex} onMouseDown={handleTableMouseDown}>
+            {chunk.map((col, rowIndex) => (
+              <TableRow key={col.uniqueName} theme={theme} ref={headerRowRef} style={{ height: `${rowHeight}px` }}>
+                <TableHeaderCell
+                  theme={theme}
+                  data-row={rowIndex}
+                  data-col={chunkIndex * 2}
+                  // @ts-ignore
+                  isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+                  ref={element => setCellRef(rowIndex, chunkIndex * 2, element)}
+                >
+                  <ColumnLabelMargin
+                    {...col}
+                    headerText={col.columnName}
+                    style={{ marginLeft: (col.uniquePath.length - 1) * 20 }}
+                    extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
                   />
-                ) : (
-                  <>
-                    {rowData && (
-                      <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} theme={theme} />
-                    )}
-                    {!!col.hintColumnName &&
-                      rowData &&
-                      !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (
-                        <HintSpan>{rowData[col.hintColumnName]}</HintSpan>
+
+                  {col.foreignKey && (
+                    <ShowFormButton
+                      theme={theme}
+                      className="buttonLike"
+                      onClick={e => {
+                        e.stopPropagation();
+                        formDisplay.toggleExpandedColumn(col.uniqueName);
+                      }}
+                    >
+                      <ExpandIcon isExpanded={formDisplay.isExpandedColumn(col.uniqueName)} />
+                    </ShowFormButton>
+                  )}
+                </TableHeaderCell>
+                <TableBodyCell
+                  theme={theme}
+                  data-row={rowIndex}
+                  data-col={chunkIndex * 2 + 1}
+                  // @ts-ignore
+                  isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+                  isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+                  ref={element => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
+                >
+                  {inplaceEditorState.cell &&
+                  rowIndex == inplaceEditorState.cell[0] &&
+                  chunkIndex * 2 + 1 == inplaceEditorState.cell[1] ? (
+                    <InplaceEditor
+                      widthPx={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                      inplaceEditorState={inplaceEditorState}
+                      dispatchInsplaceEditor={dispatchInsplaceEditor}
+                      cellValue={rowData[col.uniqueName]}
+                      onSetValue={value => {
+                        former.setCellValue(col.uniqueName, value);
+                      }}
+                      // grider={grider}
+                      // rowIndex={rowIndex}
+                      // uniqueName={col.uniqueName}
+                    />
+                  ) : (
+                    <>
+                      {rowData && (
+                        <CellFormattedValue value={rowData[col.uniqueName]} dataType={col.dataType} theme={theme} />
                       )}
-                    {col.foreignKey && rowData && rowData[col.uniqueName] && (
-                      <ShowFormButton
-                        theme={theme}
-                        className="buttonLike"
-                        onClick={e => {
-                          e.stopPropagation();
-                          openReferenceForm(rowData, col, openNewTab, conid, database);
-                        }}
-                      >
-                        <FontIcon icon="icon form" />
-                      </ShowFormButton>
-                    )}
-                  </>
-                )}
-              </TableBodyCell>
-            </TableRow>
-          ))}
-        </Table>
-      ))}
+                      {!!col.hintColumnName &&
+                        rowData &&
+                        !(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) && (
+                          <HintSpan>{rowData[col.hintColumnName]}</HintSpan>
+                        )}
+                      {col.foreignKey && rowData && rowData[col.uniqueName] && (
+                        <ShowFormButton
+                          theme={theme}
+                          className="buttonLike"
+                          onClick={e => {
+                            e.stopPropagation();
+                            openReferenceForm(rowData, col, openNewTab, conid, database);
+                          }}
+                        >
+                          <FontIcon icon="icon form" />
+                        </ShowFormButton>
+                      )}
+                    </>
+                  )}
+                </TableBodyCell>
+              </TableRow>
+            ))}
+          </Table>
+        ))}
 
-      <FocusField type="text" ref={focusFieldRef} onKeyDown={handleKeyDown} />
+        <FocusField type="text" ref={focusFieldRef} onKeyDown={handleKeyDown} />
+
+        {toolbar}
+      </Wrapper>
       {rowCountInfo && <RowCountLabel theme={theme}>{rowCountInfo}</RowCountLabel>}
-
-      {toolbar}
-    </Wrapper>
+    </OuterWrapper>
   );
 }
