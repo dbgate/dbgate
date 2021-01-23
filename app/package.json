@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "3.9.0",
+  "version": "3.9.0-beta.3",
   "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "Opensource database administration tool",
