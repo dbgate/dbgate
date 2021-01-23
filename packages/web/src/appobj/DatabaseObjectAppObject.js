@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import React from 'react';
-import { DropDownMenuItem } from '../modals/DropDownMenu';
+import { DropDownMenuDivider, DropDownMenuItem } from '../modals/DropDownMenu';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import fullDisplayName from '../utility/fullDisplayName';
 import { filterName } from 'dbgate-datalib';
@@ -43,8 +43,11 @@ const menus = {
       tab: 'TableStructureTab',
     },
     {
-      label: 'Show CREATE TABLE script',
-      sqlTemplate: 'CREATE TABLE',
+      label: 'Query designer',
+      isQueryDesigner: true,
+    },
+    {
+      isDivider: true,
     },
     {
       label: 'Export',
@@ -59,8 +62,11 @@ const menus = {
       isActiveChart: true,
     },
     {
-      label: 'Query designer',
-      isQueryDesigner: true,
+      isDivider: true,
+    },
+    {
+      label: 'SQL: CREATE TABLE',
+      sqlTemplate: 'CREATE TABLE',
     },
   ],
   views: [
@@ -70,12 +76,15 @@ const menus = {
       forceNewTab: true,
     },
     {
-      label: 'Show CREATE VIEW script',
-      sqlTemplate: 'CREATE OBJECT',
+      label: 'Open structure',
+      tab: 'TableStructureTab',
     },
     {
-      label: 'Show CREATE TABLE script',
-      sqlTemplate: 'CREATE TABLE',
+      label: 'Query designer',
+      isQueryDesigner: true,
+    },
+    {
+      isDivider: true,
     },
     {
       label: 'Export',
@@ -86,31 +95,34 @@ const menus = {
       isOpenFreeTable: true,
     },
     {
-      label: 'Open structure',
-      tab: 'TableStructureTab',
-    },
-    {
       label: 'Open active chart',
       isActiveChart: true,
     },
     {
-      label: 'Query designer',
-      isQueryDesigner: true,
+      isDivider: true,
+    },
+    {
+      label: 'SQL: CREATE VIEW',
+      sqlTemplate: 'CREATE OBJECT',
+    },
+    {
+      label: 'SQL: CREATE TABLE',
+      sqlTemplate: 'CREATE TABLE',
     },
   ],
   procedures: [
     {
-      label: 'Show CREATE PROCEDURE script',
+      label: 'SQL: CREATE PROCEDURE',
       sqlTemplate: 'CREATE OBJECT',
     },
     {
-      label: 'Show EXECUTE script',
+      label: 'SQL: EXECUTE',
       sqlTemplate: 'EXECUTE PROCEDURE',
     },
   ],
   functions: [
     {
-      label: 'Show CREATE FUNCTION script',
+      label: 'SQL: CREATE FUNCTION',
       sqlTemplate: 'CREATE OBJECT',
     },
   ],
@@ -169,103 +181,107 @@ function Menu({ data }) {
 
   return (
     <>
-      {menus[data.objectTypeField].map(menu => (
-        <DropDownMenuItem
-          key={menu.label}
-          onClick={async () => {
-            if (menu.isExport) {
-              showModal(modalState => (
-                <ImportExportModal
-                  modalState={modalState}
-                  initialValues={{
-                    sourceStorageType: 'database',
-                    sourceConnectionId: data.conid,
-                    sourceDatabaseName: data.database,
-                    sourceSchemaName: data.schemaName,
-                    sourceList: [data.pureName],
-                  }}
-                />
-              ));
-            } else if (menu.isOpenFreeTable) {
-              const coninfo = await getConnectionInfo(data);
-              openNewTab({
-                title: data.pureName,
-                icon: 'img free-table',
-                tabComponent: 'FreeTableTab',
-                props: {
-                  initialArgs: {
-                    functionName: 'tableReader',
-                    props: {
-                      connection: {
-                        ...coninfo,
-                        database: data.database,
+      {menus[data.objectTypeField].map(menu =>
+        menu.isDivider ? (
+          <DropDownMenuDivider />
+        ) : (
+          <DropDownMenuItem
+            key={menu.label}
+            onClick={async () => {
+              if (menu.isExport) {
+                showModal(modalState => (
+                  <ImportExportModal
+                    modalState={modalState}
+                    initialValues={{
+                      sourceStorageType: 'database',
+                      sourceConnectionId: data.conid,
+                      sourceDatabaseName: data.database,
+                      sourceSchemaName: data.schemaName,
+                      sourceList: [data.pureName],
+                    }}
+                  />
+                ));
+              } else if (menu.isOpenFreeTable) {
+                const coninfo = await getConnectionInfo(data);
+                openNewTab({
+                  title: data.pureName,
+                  icon: 'img free-table',
+                  tabComponent: 'FreeTableTab',
+                  props: {
+                    initialArgs: {
+                      functionName: 'tableReader',
+                      props: {
+                        connection: {
+                          ...coninfo,
+                          database: data.database,
+                        },
+                        schemaName: data.schemaName,
+                        pureName: data.pureName,
                       },
-                      schemaName: data.schemaName,
-                      pureName: data.pureName,
                     },
                   },
-                },
-              });
-            } else if (menu.isActiveChart) {
-              const driver = await getDriver();
-              const dmp = driver.createDumper();
-              dmp.put('^select * from %f', data);
-              openNewTab(
-                {
-                  title: data.pureName,
-                  icon: 'img chart',
-                  tabComponent: 'ChartTab',
-                  props: {
-                    conid: data.conid,
-                    database: data.database,
+                });
+              } else if (menu.isActiveChart) {
+                const driver = await getDriver();
+                const dmp = driver.createDumper();
+                dmp.put('^select * from %f', data);
+                openNewTab(
+                  {
+                    title: data.pureName,
+                    icon: 'img chart',
+                    tabComponent: 'ChartTab',
+                    props: {
+                      conid: data.conid,
+                      database: data.database,
+                    },
                   },
-                },
-                {
-                  editor: {
-                    config: { chartType: 'bar' },
-                    sql: dmp.s,
+                  {
+                    editor: {
+                      config: { chartType: 'bar' },
+                      sql: dmp.s,
+                    },
+                  }
+                );
+              } else if (menu.isQueryDesigner) {
+                openNewTab(
+                  {
+                    title: data.pureName,
+                    icon: 'img query-design',
+                    tabComponent: 'QueryDesignTab',
+                    props: {
+                      conid: data.conid,
+                      database: data.database,
+                    },
                   },
-                }
-              );
-            } else if (menu.isQueryDesigner) {
-              openNewTab(
-                {
-                  title: data.pureName,
-                  icon: 'img query-design',
-                  tabComponent: 'QueryDesignTab',
-                  props: {
-                    conid: data.conid,
-                    database: data.database,
-                  },
-                },
-                {
-                  editor: {
-                    tables: [
-                      {
-                        ...data,
-                        designerId: uuidv1(),
-                        left: 50,
-                        top: 50,
-                      },
-                    ],
-                  },
-                }
-              );
-            } else {
-              openDatabaseObjectDetail(
-                openNewTab,
-                menu.tab,
-                menu.sqlTemplate,
-                data,
-                menu.forceNewTab,
-                menu.initialData
-              );
-            }
-          }}
-        >
-          {menu.label}
-        </DropDownMenuItem>
-      ))}
+                  {
+                    editor: {
+                      tables: [
+                        {
+                          ...data,
+                          designerId: uuidv1(),
+                          left: 50,
+                          top: 50,
+                        },
+                      ],
+                    },
+                  }
+                );
+              } else {
+                openDatabaseObjectDetail(
+                  openNewTab,
+                  menu.tab,
+                  menu.sqlTemplate,
+                  data,
+                  menu.forceNewTab,
+                  menu.initialData
+                );
+              }
+            }}
+          >
+            {menu.label}
+          </DropDownMenuItem>
+        )
+      )}
     </>
   );
 }
