@@ -26,6 +26,7 @@ import ToolbarButton from './ToolbarButton';
 import useShowModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
 import SubColumnParamList from '../appobj/SubColumnParamList';
+import { ChevronExpandIcon } from '../icons';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -153,6 +154,7 @@ function SqlObjectList({ conid, database }) {
             filter={filter}
             SubItems={SubColumnParamList}
             isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
+            ExpandIconComponent={ChevronExpandIcon}
           />
         )}
       </WidgetsInnerContainer>

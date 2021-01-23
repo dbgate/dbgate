@@ -54,6 +54,9 @@ const iconNames = {
 
   'icon run': 'mdi mdi-play',
   'icon chevron-down': 'mdi mdi-chevron-down',
+  'icon chevron-left': 'mdi mdi-chevron-left',
+  'icon chevron-right': 'mdi mdi-chevron-right',
+  'icon chevron-up': 'mdi mdi-chevron-up',
   'icon plugin': 'mdi mdi-toy-brick',
 
   'img ok': 'mdi mdi-check-circle color-green-8',
@@ -110,4 +113,11 @@ export function ExpandIcon({ isBlank = false, isExpanded = false, ...other }) {
     return <FontIcon icon="icon invisible-box" {...other} />;
   }
   return <FontIcon icon={isExpanded ? 'icon minus-box' : 'icon plus-box'} {...other} />;
+}
+
+export function ChevronExpandIcon({ isBlank = false, isExpanded = false, ...other }) {
+  if (isBlank) {
+    return <FontIcon icon="icon invisible-box" {...other} />;
+  }
+  return <FontIcon icon={isExpanded ? 'icon chevron-down' : 'icon chevron-right'} {...other} />;
 }
