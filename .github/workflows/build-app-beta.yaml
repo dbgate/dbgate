@@ -35,6 +35,9 @@ jobs:
       - name: fillNativeModulesElectron
         run: |
           yarn fillNativeModulesElectron
+      - name: Install Snapcraft
+        if: matrix.os == 'ubuntu-18.04'
+        uses: samuelmeuli/action-snapcraft@v1
       - name: Publish
         run: |
           yarn run build:app
@@ -43,6 +46,19 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
 
+      - name: Save snap login
+        if: matrix.os == 'ubuntu-18.04'
+        run: 'echo "$SNAPCRAFT_LOGIN" > snapcraft.login'
+        shell: bash
+        env:
+          SNAPCRAFT_LOGIN: ${{secrets.SNAPCRAFT_LOGIN}}
+
+      - name: publishSnap
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          snapcraft login --with snapcraft.login
+          snapcraft upload --release=beta app/dist/*.snap
+
       - name: Copy artifacts
         run: |
           mkdir artifacts          
@@ -50,6 +66,7 @@ jobs:
           mv app/dist/*.exe artifacts/ || true
           mv app/dist/*.AppImage artifacts/ || true
           mv app/dist/*.deb artifacts/ || true
+          mv app/dist/*.snap artifacts/ || true
 #          mv app/dist/*.dmg artifacts/ || true
 
       - name: Upload artifacts

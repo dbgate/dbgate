@@ -23,6 +23,8 @@ let splashWindow;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
+// TODO - create settings for this
+// appUpdater.channel = 'beta';
 
 function hideSplash() {
   if (splashWindow) {
