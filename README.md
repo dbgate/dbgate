@@ -12,6 +12,9 @@ DbGate is fast and efficient database administration tool. It is focused to work
 * Support for Microsoft SQL Server, Postgre SQL, MySQL
 * Table data browsing - filtering, sorting, related columns using foreign keys
 * Master/detail views
+* Query designer
+* Form view for comfortable work with tables with many columns
+* Charts
 * Browsing objects - tables, views, procedures, functions
 * Table data editing, with SQL change script preview
 * SQL editor, execute SQL script, SQL code formatter, SQL code completion, SQL join wizard
@@ -47,11 +50,11 @@ Currently following extensions can be implemented using plugins:
 ## How Can I Contribute?
 You're welcome to contribute to this project! Below are some ideas, how to contribute:
 
-* Create plugins for new import/export formats
+* Create plugins for new import/export formats or database engines
 * Bug fixing
 * Test Mac edition
-* Improve linux package build, add to APT repository
-* Auto-upgrade of electron application
+* Create unit tests
+* Whatever else
 
 Any help is appreciated!
 
@@ -61,12 +64,12 @@ Feel free to report issues and open merge requests.
 
 | Feature | Complexity | Schedule |
 |---|---|---|
-| Query designer | medium | december 2020 |
-| Table designer (structure editor) | big | january 2021 |
-| Filter SQL result sets | small | november 2020 |
-| Filtering, sorting in free table editor | small | november 2020 |
-| Using tedious driver instead of mssql | small | january 2021 |
+| Table designer (structure editor) | big | february 2021 |
 | Support for SQLite | big | 2021 |
+| Filtering, sorting in free table editor | small | ??? |
+| Query designer | medium | december 2020 - done |
+| Using tedious driver instead of mssql | small | january 2021 - done |
+| Filter SQL result sets | small | november 2020 - done |
 
 ## How to run development environment
 
