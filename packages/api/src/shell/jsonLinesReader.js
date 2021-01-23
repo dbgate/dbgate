@@ -13,7 +13,7 @@ class ParseStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     const obj = JSON.parse(chunk);
     if (!this.wasHeader) {
-      if (!this.header) this.push({ columns: Object.keys(obj).map((columnName) => ({ columnName })) });
+      if (!this.header) this.push({ columns: Object.keys(obj).map(columnName => ({ columnName })) });
       this.wasHeader = true;
     }
     if (!this.limitRows || this.rowsWritten < this.limitRows) {

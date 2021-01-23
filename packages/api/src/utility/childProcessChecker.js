@@ -1,5 +1,5 @@
 let counter = 0;
- 
+
 function childProcessChecker() {
   setInterval(() => {
     try {

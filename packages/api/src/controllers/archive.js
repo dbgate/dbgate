@@ -18,8 +18,8 @@ module.exports = {
         type: 'jsonl',
       },
       ...folders
-        .filter((x) => x != 'default')
-        .map((name) => ({
+        .filter(x => x != 'default')
+        .map(name => ({
           name,
           type: 'jsonl',
         })),
@@ -39,8 +39,8 @@ module.exports = {
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
     return files
-      .filter((name) => name.endsWith('.jsonl'))
-      .map((name) => ({
+      .filter(name => name.endsWith('.jsonl'))
+      .map(name => ({
         name: name.slice(0, -'.jsonl'.length),
         type: 'jsonl',
       }));
@@ -84,7 +84,7 @@ module.exports = {
       });
       let structure = null;
       const rows = [];
-      liner.on('line', (line) => {
+      liner.on('line', line => {
         const data = JSON.parse(line);
         if (structure) rows.push(data);
         else structure = data;

@@ -11,17 +11,17 @@ const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
   const matches = [...script.matchAll(requireRegex)];
-  return matches.map((x) => x[1]);
+  return matches.map(x => x[1]);
 }
 
-const requirePluginsTemplate = (plugins) =>
+const requirePluginsTemplate = plugins =>
   plugins
     .map(
-      (packageName) => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
+      packageName => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
     )
-    .join('') + `dbgateApi.registerPlugins(${plugins.map((x) => _.camelCase(x)).join(',')});\n`;
+    .join('') + `dbgateApi.registerPlugins(${plugins.map(x => _.camelCase(x)).join(',')});\n`;
 
-const scriptTemplate = (script) => `
+const scriptTemplate = script => `
 const dbgateApi = require(process.env.DBGATE_API);
 ${requirePluginsTemplate(extractPlugins(script))}
 require=null;
@@ -97,20 +97,20 @@ module.exports = {
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       env: {
         DBGATE_API: process.argv[1],
-        ..._.fromPairs(pluginNames.map((name) => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
+        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
       },
     });
-    const pipeDispatcher = (severity) => (data) =>
+    const pipeDispatcher = severity => data =>
       this.dispatchMessage(runid, { severity, message: data.toString().trim() });
 
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
-    subprocess.on('exit', (code) => {
+    subprocess.on('exit', code => {
       this.rejectRequest(runid, { message: 'No data retured, maybe input data source is too big' });
       console.log('... EXIT process', code);
       socket.emit(`runner-done-${runid}`, code);
     });
-    subprocess.on('error', (error) => {
+    subprocess.on('error', error => {
       this.rejectRequest(runid, { message: error && (error.message || error.toString()) });
       console.error('... ERROR subprocess', error);
       this.dispatchMessage({
@@ -138,7 +138,7 @@ module.exports = {
 
   cancel_meta: 'post',
   async cancel({ runid }) {
-    const runner = this.opened.find((x) => x.runid == runid);
+    const runner = this.opened.find(x => x.runid == runid);
     if (!runner) {
       throw new Error('Invalid runner');
     }

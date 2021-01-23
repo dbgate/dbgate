@@ -52,7 +52,7 @@ module.exports = {
       `http://registry.npmjs.com/-/v1/search?text=${encodeURIComponent(filter)}+keywords:dbgateplugin&size=25&from=0`
     );
     const { objects } = resp.data || {};
-    return (objects || []).map((x) => x.package);
+    return (objects || []).map(x => x.package);
   },
 
   info_meta: 'get',
@@ -90,9 +90,7 @@ module.exports = {
     const files = await fs.readdir(pluginsdir());
     const res = [];
     for (const packageName of files) {
-      const manifest = await fs
-        .readFile(path.join(pluginsdir(), packageName, 'package.json'))
-        .then((x) => JSON.parse(x));
+      const manifest = await fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then(x => JSON.parse(x));
       const readmeFile = path.join(pluginsdir(), packageName, 'README.md');
       if (await fs.exists(readmeFile)) {
         manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
@@ -119,7 +117,7 @@ module.exports = {
       await downloadPackage(packageName, dir);
     }
     socket.emitChanged(`installed-plugins-changed`);
-    this.removedPlugins = this.removedPlugins.filter((x) => x != packageName);
+    this.removedPlugins = this.removedPlugins.filter(x => x != packageName);
     await this.saveRemovePlugins();
   },
 
@@ -170,7 +168,7 @@ module.exports = {
     }
 
     for (const packageName of Object.keys(preinstallPluginMinimalVersions)) {
-      const installedVersion = installed.find((x) => x.name == packageName);
+      const installedVersion = installed.find(x => x.name == packageName);
       if (installedVersion) {
         // plugin installed, test, whether upgrade
         const requiredVersion = preinstallPluginMinimalVersions[packageName];

@@ -1,7 +1,6 @@
 const _ = require('lodash');
 const requirePlugin = require('../shell/requirePlugin');
 
-
 /** @returns {import('dbgate-types').EngineDriver} */
 function requireEngineDriver(connection) {
   let engine = null;

@@ -23,7 +23,7 @@ module.exports = {
     if (!hasPermission(`files/${folder}/read`)) return [];
     const dir = path.join(filesdir(), folder);
     if (!(await fs.exists(dir))) return [];
-    const files = (await fs.readdir(dir)).map((file) => ({ folder, file }));
+    const files = (await fs.readdir(dir)).map(file => ({ folder, file }));
     return files;
   },
 
@@ -34,7 +34,7 @@ module.exports = {
     for (const folder of folders) {
       if (!hasPermission(`files/${folder}/read`)) continue;
       const dir = path.join(filesdir(), folder);
-      const files = (await fs.readdir(dir)).map((file) => ({ folder, file }));
+      const files = (await fs.readdir(dir)).map(file => ({ folder, file }));
       res.push(...files);
     }
     return res;

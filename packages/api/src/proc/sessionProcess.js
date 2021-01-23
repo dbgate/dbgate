@@ -181,7 +181,7 @@ async function handleMessage({ msgtype, ...other }) {
 
 function start() {
   childProcessChecker();
-  process.on('message', async (message) => {
+  process.on('message', async message => {
     try {
       await handleMessage(message);
     } catch (e) {

@@ -15,15 +15,14 @@ function extractTarball(tmpFile, destination) {
     fs.createReadStream(tmpFile)
       .pipe(zlib.createGunzip())
       .pipe(tar.extract({ cwd: destination }))
-      .on('error', (err) => reject(err))
+      .on('error', err => reject(err))
       .on('end', () => resolve());
   });
 }
 
-
 function copyDirectory(source, target) {
   return new Promise((resolve, reject) => {
-    ncp(source, target, (err) => {
+    ncp(source, target, err => {
       if (err) reject(err);
       resolve();
     });

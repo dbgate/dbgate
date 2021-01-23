@@ -11,7 +11,7 @@ module.exports = {
   tasks: [],
 
   async unload() {
-    this.tasks.forEach((x) => x.destroy());
+    this.tasks.forEach(x => x.destroy());
     this.tasks = [];
   },
 

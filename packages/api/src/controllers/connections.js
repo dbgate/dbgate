@@ -9,7 +9,7 @@ const { encryptConnection } = require('../utility/crypting');
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
-    return _.compact(process.env.CONNECTIONS.split(',')).map((id) => ({
+    return _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
       _id: id,
       engine: process.env[`ENGINE_${id}`],
       server: process.env[`SERVER_${id}`],
@@ -46,7 +46,7 @@ module.exports = {
   },
   test(req, res) {
     const subprocess = fork(process.argv[1], ['connectProcess', ...process.argv.slice(3)]);
-    subprocess.on('message', (resp) => {
+    subprocess.on('message', resp => {
       // @ts-ignore
       const { msgtype } = resp;
       if (msgtype == 'connected' || msgtype == 'error') {
@@ -80,7 +80,7 @@ module.exports = {
 
   get_meta: 'get',
   async get({ conid }) {
-    if (portalConnections) return portalConnections.find((x) => x._id == conid);
+    if (portalConnections) return portalConnections.find(x => x._id == conid);
     const res = await this.datastore.find({ _id: conid });
     return res[0];
   },

@@ -83,7 +83,7 @@ module.exports = {
 
   executeQuery_meta: 'post',
   async executeQuery({ sesid, sql }) {
-    const session = this.opened.find((x) => x.sesid == sesid);
+    const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }
@@ -107,7 +107,7 @@ module.exports = {
 
   kill_meta: 'post',
   async kill({ sesid }) {
-    const session = this.opened.find((x) => x.sesid == sesid);
+    const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
     }

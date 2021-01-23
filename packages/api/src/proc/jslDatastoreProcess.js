@@ -46,7 +46,7 @@ function start() {
     }
   }, 60 * 1000);
 
-  process.on('message', async (message) => {
+  process.on('message', async message => {
     try {
       await handleMessage(message);
     } catch (e) {

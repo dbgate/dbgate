@@ -4,7 +4,7 @@ const { decryptConnection } = require('../utility/crypting');
 
 function start() {
   childProcessChecker();
-  process.on('message', async (connection) => {
+  process.on('message', async connection => {
     try {
       const driver = requireEngineDriver(connection);
       const conn = await driver.connect(decryptConnection(connection));

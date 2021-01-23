@@ -8,13 +8,13 @@ module.exports = {
   closed: {},
 
   handle_databases(conid, { databases }) {
-    const existing = this.opened.find((x) => x.conid == conid);
+    const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.databases = databases;
     socket.emitChanged(`database-list-changed-${conid}`);
   },
   handle_status(conid, { status }) {
-    const existing = this.opened.find((x) => x.conid == conid);
+    const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.status = status;
     socket.emitChanged(`server-status-changed`);
@@ -22,7 +22,7 @@ module.exports = {
   handle_ping() {},
 
   async ensureOpened(conid) {
-    const existing = this.opened.find((x) => x.conid == conid);
+    const existing = this.opened.find(x => x.conid == conid);
     if (existing) return existing;
     const connection = await connections.get({ conid });
     const subprocess = fork(process.argv[1], ['serverConnectionProcess', ...process.argv.slice(3)]);
@@ -53,11 +53,11 @@ module.exports = {
   },
 
   close(conid, kill = true) {
-    const existing = this.opened.find((x) => x.conid == conid);
+    const existing = this.opened.find(x => x.conid == conid);
     if (existing) {
       existing.disconnected = true;
       if (kill) existing.subprocess.kill();
-      this.opened = this.opened.filter((x) => x.conid != conid);
+      this.opened = this.opened.filter(x => x.conid != conid);
       this.closed[conid] = {
         ...existing.status,
         name: 'error',
