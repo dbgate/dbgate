@@ -152,7 +152,7 @@ function SqlObjectList({ conid, database }) {
             groupFunc={data => _.startCase(data.objectTypeField)}
             filter={filter}
             SubItems={SubColumnParamList}
-            isExpandable={data => data.objectTypeField == 'tables'}
+            isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
           />
         )}
       </WidgetsInnerContainer>

@@ -13,6 +13,7 @@ function ColumnAppObject({ data, commonProps }) {
       title={columnName}
       extInfo={dataType}
       icon={getColumnIcon(data, true)}
+      disableHover
     />
   );
 }

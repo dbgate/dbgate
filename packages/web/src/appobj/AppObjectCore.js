@@ -9,9 +9,13 @@ import useTheme from '../theme/useTheme';
 
 const AppObjectDiv = styled.div`
   padding: 5px;
-  &:hover {
-    background-color: ${props => props.theme.left_background_blue[1]};
-  }
+  ${props =>
+    !props.disableHover &&
+    `
+    &:hover {
+      background-color: ${props.theme.left_background_blue[1]};
+    }
+  `}
   cursor: pointer;
   white-space: nowrap;
   font-weight: ${props => (props.isBold ? 'bold' : 'normal')};
@@ -44,6 +48,7 @@ export function AppObjectCore({
   statusIcon = undefined,
   extInfo = undefined,
   statusTitle = undefined,
+  disableHover = false,
   Menu = undefined,
   ...other
 }) {
@@ -71,6 +76,7 @@ export function AppObjectCore({
       onDragStart={e => {
         e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
       }}
+      disableHover={disableHover}
       {...other}
     >
       {prefix}
