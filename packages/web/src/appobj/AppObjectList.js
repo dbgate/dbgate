@@ -96,15 +96,19 @@ function AppObjectListItem({
 function AppObjectGroup({ group, items }) {
   const [isExpanded, setIsExpanded] = React.useState(true);
   const theme = useTheme();
+  const filtered = items.filter(x => x.component);
+  let countText = filtered.length.toString();
+  if (filtered.length < items.length) countText += `/${items.length}`;
+
   return (
     <>
       <GroupDiv onClick={() => setIsExpanded(!isExpanded)} theme={theme}>
         <ExpandIconHolder>
           <ExpandIcon isExpanded={isExpanded} />
         </ExpandIconHolder>
-        {group} {items && `(${items.filter(x => x.component).length})`}
+        {group} {items && `(${countText})`}
       </GroupDiv>
-      {isExpanded && items.map(x => x.component)}
+      {isExpanded && filtered.map(x => x.component)}
     </>
   );
 }
@@ -141,8 +145,7 @@ export function AppObjectList({
     const listGrouped = _.compact(
       (list || []).map(data => {
         const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
-        if (matcher && !matcher(filter)) return null;
-        const component = createComponent(data);
+        const component = matcher && !matcher(filter) ? null : createComponent(data);
         const group = groupFunc(data);
         return { group, data, component };
       })

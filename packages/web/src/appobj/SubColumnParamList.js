@@ -5,13 +5,15 @@ import { AppObjectCore } from './AppObjectCore';
 import { AppObjectList } from './AppObjectList';
 
 function ColumnAppObject({ data, commonProps }) {
-  const { columnName, dataType } = data;
+  const { columnName, dataType, foreignKey } = data;
+  let extInfo = dataType;
+  if (foreignKey) extInfo += ` -> ${foreignKey.refTableName}`;
   return (
     <AppObjectCore
       {...commonProps}
       data={data}
       title={columnName}
-      extInfo={dataType}
+      extInfo={extInfo}
       icon={getColumnIcon(data, true)}
       disableHover
     />
