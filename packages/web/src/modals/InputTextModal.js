@@ -7,7 +7,7 @@ import ModalFooter from './ModalFooter';
 import { FormProvider } from '../utility/FormProvider';
 
 export default function InputTextModal({ header, label, value, modalState, onConfirm }) {
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { value } = values;
     modalState.close();
     onConfirm(value);

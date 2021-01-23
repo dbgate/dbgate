@@ -8,7 +8,7 @@ const jsonlFormat = {
 
 /** @returns {import('dbgate-types').FileFormatDefinition[]} */
 export function buildFileFormats(plugins) {
-  const res = [ jsonlFormat];
+  const res = [jsonlFormat];
   for (const { content } of plugins) {
     const { fileFormats } = content;
     if (fileFormats) res.push(...fileFormats);
@@ -17,7 +17,7 @@ export function buildFileFormats(plugins) {
 }
 
 export function findFileFormat(extensions, storageType) {
-  return extensions.fileFormats.find((x) => x.storageType == storageType);
+  return extensions.fileFormats.find(x => x.storageType == storageType);
 }
 
 export function getFileFormatDirections(format) {
@@ -29,5 +29,5 @@ export function getFileFormatDirections(format) {
 }
 
 export function getDefaultFileFormat(extensions) {
-  return extensions.fileFormats.find((x) => x.storageType == 'csv') || jsonlFormat;
+  return extensions.fileFormats.find(x => x.storageType == 'csv') || jsonlFormat;
 }

@@ -69,7 +69,7 @@ function ArchiveFileAppObject({ data, commonProps }) {
   );
 }
 
-ArchiveFileAppObject.extractKey = (data) => data.fileName;
-ArchiveFileAppObject.createMatcher = ({ fileName }) => (filter) => filterName(filter, fileName);
+ArchiveFileAppObject.extractKey = data => data.fileName;
+ArchiveFileAppObject.createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
 
 export default ArchiveFileAppObject;

@@ -17,7 +17,7 @@ export function FormProvider({ children, initialValues = {}, template = FormFiel
 export function FormProviderCore({ children, values, setValues, template = FormFieldTemplateDefault }) {
   const [submitAction, setSubmitAction] = React.useState(null);
   const handleEnter = React.useCallback(
-    (e) => {
+    e => {
       if (e.keyCode == keycodes.enter && submitAction && submitAction.action) {
         e.preventDefault();
         submitAction.action(values);
@@ -33,7 +33,7 @@ export function FormProviderCore({ children, values, setValues, template = FormF
   }, [handleEnter]);
   const setFieldValue = React.useCallback(
     (field, value) =>
-      setValues((v) => ({
+      setValues(v => ({
         ...v,
         [field]: value,
       })),

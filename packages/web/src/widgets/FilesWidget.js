@@ -28,7 +28,7 @@ function SavedFilesList() {
         <AppObjectList
           list={files}
           AppObjectComponent={SavedFileAppObject}
-          groupFunc={(data) => _.startCase(data.folder)}
+          groupFunc={data => _.startCase(data.folder)}
         />
       </WidgetsInnerContainer>
     </>

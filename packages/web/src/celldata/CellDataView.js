@@ -9,7 +9,7 @@ import useTheme from '../theme/useTheme';
 
 const Toolbar = styled.div`
   display: flex;
-  background: ${(props) => props.theme.toolbar_background};
+  background: ${props => props.theme.toolbar_background};
   align-items: center;
 `;
 
@@ -65,10 +65,10 @@ export default function CellDataView({ selection = undefined, grider = undefined
     value = selectedValue;
   }
   const autodetectFormatType = React.useMemo(() => autodetect(selection, grider, value), [selection, grider, value]);
-  const autodetectFormat = formats.find((x) => x.type == autodetectFormatType);
+  const autodetectFormat = formats.find(x => x.type == autodetectFormatType);
 
   const usedFormatType = selectedFormatType == 'autodetect' ? autodetectFormatType : selectedFormatType;
-  const usedFormat = formats.find((x) => x.type == usedFormatType);
+  const usedFormat = formats.find(x => x.type == usedFormatType);
 
   const { Component } = usedFormat || {};
 
@@ -76,10 +76,10 @@ export default function CellDataView({ selection = undefined, grider = undefined
     <MainWrapper>
       <Toolbar theme={theme}>
         Format:
-        <SelectField value={selectedFormatType} onChange={(e) => setSelectedFormatType(e.target.value)}>
+        <SelectField value={selectedFormatType} onChange={e => setSelectedFormatType(e.target.value)}>
           <option value="autodetect">Autodetect - {autodetectFormat.title}</option>
 
-          {formats.map((fmt) => (
+          {formats.map(fmt => (
             <option value={fmt.type} key={fmt.type}>
               {fmt.title}
             </option>

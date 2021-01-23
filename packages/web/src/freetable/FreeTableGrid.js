@@ -12,7 +12,7 @@ import WidgetColumnBar, { WidgetColumnBarItem } from '../widgets/WidgetColumnBar
 import useTheme from '../theme/useTheme';
 
 const LeftContainer = styled.div`
-  background-color: ${(props) => props.theme.manager_background};
+  background-color: ${props => props.theme.manager_background};
   display: flex;
   flex: 1;
 `;
@@ -25,7 +25,7 @@ const DataGridContainer = styled.div`
 function extractMacroValuesForMacro(macroValues, macro) {
   if (!macro) return {};
   return {
-    ..._.fromPairs((macro.args || []).filter((x) => x.default != null).map((x) => [x.name, x.default])),
+    ..._.fromPairs((macro.args || []).filter(x => x.default != null).map(x => [x.name, x.default])),
     ..._.mapKeys(macroValues, (v, k) => k.replace(/^.*#/, '')),
   };
 }

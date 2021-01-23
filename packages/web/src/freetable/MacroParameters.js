@@ -6,7 +6,7 @@ import { FormProvider } from '../utility/FormProvider';
 export default function MacroParameters({ args, onChangeValues, macroValues, namePrefix }) {
   if (!args || args.length == 0) return null;
   const initialValues = {
-    ..._.fromPairs(args.filter((x) => x.default != null).map((x) => [`${namePrefix}${x.name}`, x.default])),
+    ..._.fromPairs(args.filter(x => x.default != null).map(x => [`${namePrefix}${x.name}`, x.default])),
     ...macroValues,
   };
   return (

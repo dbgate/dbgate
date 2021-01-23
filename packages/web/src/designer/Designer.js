@@ -11,7 +11,7 @@ import { getTableInfo } from '../utility/metadataLoaders';
 
 const Wrapper = styled.div`
   flex: 1;
-  background-color: ${(props) => props.theme.designer_background};
+  background-color: ${props => props.theme.designer_background};
   overflow: scroll;
 `;
 
@@ -27,12 +27,12 @@ const EmptyInfo = styled.div`
 `;
 
 function fixPositions(tables) {
-  const minLeft = _.min(tables.map((x) => x.left));
-  const minTop = _.min(tables.map((x) => x.top));
+  const minLeft = _.min(tables.map(x => x.left));
+  const minTop = _.min(tables.map(x => x.top));
   if (minLeft < 0 || minTop < 0) {
     const dLeft = minLeft < 0 ? -minLeft : 0;
     const dTop = minTop < 0 ? -minTop : 0;
-    return tables.map((tbl) => ({
+    return tables.map(tbl => ({
       ...tbl,
       left: tbl.left + dLeft,
       top: tbl.top + dTop,
@@ -51,7 +51,7 @@ export default function Designer({ value, onChange, conid, database }) {
   const wrapperRef = React.useRef();
   const [changeToken, setChangeToken] = React.useState(0);
 
-  const handleDrop = (e) => {
+  const handleDrop = e => {
     var data = e.dataTransfer.getData('app_object_drag_data');
     e.preventDefault();
     if (!data) return;
@@ -63,11 +63,11 @@ export default function Designer({ value, onChange, conid, database }) {
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
 
-    onChange((current) => {
+    onChange(current => {
       const foreignKeys = _.compact([
-        ...(json.foreignKeys || []).map((fk) => {
+        ...(json.foreignKeys || []).map(fk => {
           const tables = ((current || {}).tables || []).filter(
-            (tbl) => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
+            tbl => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
           );
           if (tables.length == 1)
             return {
@@ -78,8 +78,8 @@ export default function Designer({ value, onChange, conid, database }) {
           return null;
         }),
         ..._.flatten(
-          ((current || {}).tables || []).map((tbl) =>
-            (tbl.foreignKeys || []).map((fk) => {
+          ((current || {}).tables || []).map(tbl =>
+            (tbl.foreignKeys || []).map(fk => {
               if (fk.refTableName == json.pureName && fk.refSchemaName == json.schemaName) {
                 return {
                   ...fk,
@@ -105,7 +105,7 @@ export default function Designer({ value, onChange, conid, database }) {
                   sourceId: foreignKeys[0].sourceId,
                   targetId: foreignKeys[0].targetId,
                   joinType: 'INNER JOIN',
-                  columns: foreignKeys[0].columns.map((col) => ({
+                  columns: foreignKeys[0].columns.map(col => ({
                     source: col.columnName,
                     target: col.refColumnName,
                   })),
@@ -117,21 +117,21 @@ export default function Designer({ value, onChange, conid, database }) {
   };
 
   const changeTable = React.useCallback(
-    (table) => {
-      onChange((current) => ({
+    table => {
+      onChange(current => ({
         ...current,
-        tables: fixPositions((current.tables || []).map((x) => (x.designerId == table.designerId ? table : x))),
+        tables: fixPositions((current.tables || []).map(x => (x.designerId == table.designerId ? table : x))),
       }));
     },
     [onChange]
   );
 
   const bringToFront = React.useCallback(
-    (table) => {
+    table => {
       onChange(
-        (current) => ({
+        current => ({
           ...current,
-          tables: [...(current.tables || []).filter((x) => x.designerId != table.designerId), table],
+          tables: [...(current.tables || []).filter(x => x.designerId != table.designerId), table],
         }),
         true
       );
@@ -140,43 +140,43 @@ export default function Designer({ value, onChange, conid, database }) {
   );
 
   const removeTable = React.useCallback(
-    (table) => {
-      onChange((current) => ({
+    table => {
+      onChange(current => ({
         ...current,
-        tables: (current.tables || []).filter((x) => x.designerId != table.designerId),
+        tables: (current.tables || []).filter(x => x.designerId != table.designerId),
         references: (current.references || []).filter(
-          (x) => x.sourceId != table.designerId && x.targetId != table.designerId
+          x => x.sourceId != table.designerId && x.targetId != table.designerId
         ),
-        columns: (current.columns || []).filter((x) => x.designerId != table.designerId),
+        columns: (current.columns || []).filter(x => x.designerId != table.designerId),
       }));
     },
     [onChange]
   );
 
   const changeReference = React.useCallback(
-    (ref) => {
-      onChange((current) => ({
+    ref => {
+      onChange(current => ({
         ...current,
-        references: (current.references || []).map((x) => (x.designerId == ref.designerId ? ref : x)),
+        references: (current.references || []).map(x => (x.designerId == ref.designerId ? ref : x)),
       }));
     },
     [onChange]
   );
 
   const removeReference = React.useCallback(
-    (ref) => {
-      onChange((current) => ({
+    ref => {
+      onChange(current => ({
         ...current,
-        references: (current.references || []).filter((x) => x.designerId != ref.designerId),
+        references: (current.references || []).filter(x => x.designerId != ref.designerId),
       }));
     },
     [onChange]
   );
 
   const handleCreateReference = (source, target) => {
-    onChange((current) => {
+    onChange(current => {
       const existingReference = (current.references || []).find(
-        (x) =>
+        x =>
           (x.sourceId == source.designerId && x.targetId == target.designerId) ||
           (x.sourceId == target.designerId && x.targetId == source.designerId)
       );
@@ -184,7 +184,7 @@ export default function Designer({ value, onChange, conid, database }) {
       return {
         ...current,
         references: existingReference
-          ? current.references.map((ref) =>
+          ? current.references.map(ref =>
               ref == existingReference
                 ? {
                     ...existingReference,
@@ -230,8 +230,8 @@ export default function Designer({ value, onChange, conid, database }) {
       schemaName: foreignKey.refSchemaName,
     });
     const newTableDesignerId = uuidv1();
-    onChange((current) => {
-      const fromTable = (current.tables || []).find((x) => x.designerId == designerId);
+    onChange(current => {
+      const fromTable = (current.tables || []).find(x => x.designerId == designerId);
       if (!fromTable) return;
       return {
         ...current,
@@ -251,7 +251,7 @@ export default function Designer({ value, onChange, conid, database }) {
             sourceId: fromTable.designerId,
             targetId: newTableDesignerId,
             joinType: 'INNER JOIN',
-            columns: foreignKey.columns.map((col) => ({
+            columns: foreignKey.columns.map(col => ({
               source: col.columnName,
               target: col.refColumnName,
             })),
@@ -262,12 +262,12 @@ export default function Designer({ value, onChange, conid, database }) {
   };
 
   const handleSelectColumn = React.useCallback(
-    (column) => {
+    column => {
       onChange(
-        (current) => ({
+        current => ({
           ...current,
           columns: (current.columns || []).find(
-            (x) => x.designerId == column.designerId && x.columnName == column.columnName
+            x => x.designerId == column.designerId && x.columnName == column.columnName
           )
             ? current.columns
             : [...cleanupDesignColumns(current.columns), _.pick(column, ['designerId', 'columnName'])],
@@ -280,15 +280,15 @@ export default function Designer({ value, onChange, conid, database }) {
 
   const handleChangeColumn = React.useCallback(
     (column, changeFunc) => {
-      onChange((current) => {
+      onChange(current => {
         const currentColumns = (current || {}).columns || [];
         const existing = currentColumns.find(
-          (x) => x.designerId == column.designerId && x.columnName == column.columnName
+          x => x.designerId == column.designerId && x.columnName == column.columnName
         );
         if (existing) {
           return {
             ...current,
-            columns: currentColumns.map((x) => (x == existing ? changeFunc(existing) : x)),
+            columns: currentColumns.map(x => (x == existing ? changeFunc(existing) : x)),
           };
         } else {
           return {
@@ -311,8 +311,8 @@ export default function Designer({ value, onChange, conid, database }) {
   return (
     <Wrapper theme={theme}>
       {(tables || []).length == 0 && <EmptyInfo>Drag &amp; drop tables or views from left panel here</EmptyInfo>}
-      <Canvas onDragOver={(e) => e.preventDefault()} onDrop={handleDrop} ref={wrapperRef}>
-        {(references || []).map((ref) => (
+      <Canvas onDragOver={e => e.preventDefault()} onDrop={handleDrop} ref={wrapperRef}>
+        {(references || []).map(ref => (
           <DesignerReference
             key={ref.designerId}
             changeToken={changeToken}
@@ -323,7 +323,7 @@ export default function Designer({ value, onChange, conid, database }) {
             designer={value}
           />
         ))}
-        {(tables || []).map((table) => (
+        {(tables || []).map(table => (
           <DesignerTable
             key={table.designerId}
             sourceDragColumn={sourceDragColumn}
@@ -340,7 +340,7 @@ export default function Designer({ value, onChange, conid, database }) {
             onRemoveTable={removeTable}
             setChangeToken={setChangeToken}
             wrapperRef={wrapperRef}
-            onChangeDomTable={(table) => {
+            onChangeDomTable={table => {
               domTablesRef.current[table.designerId] = table;
             }}
             designer={value}

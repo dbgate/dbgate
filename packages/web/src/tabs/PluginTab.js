@@ -18,7 +18,7 @@ const WhitePage = styled.div`
   top: 0;
   right: 0;
   bottom: 0;
-  background-color: ${(props) => props.theme.main_background};
+  background-color: ${props => props.theme.main_background};
   overflow: auto;
   padding: 10px;
 `;
@@ -30,7 +30,7 @@ const Icon = styled.img`
 
 const Header = styled.div`
   display: flex;
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${props => props.theme.border};
   margin-bottom: 20px;
   padding-bottom: 20px;
 `;
@@ -81,7 +81,7 @@ function PluginTabCore({ packageName }) {
     return <LoadingInfo message="Loading extension detail" />;
   }
 
-  const installedFound = installed.find((x) => x.name == packageName);
+  const installedFound = installed.find(x => x.name == packageName);
   const onlineFound = manifest;
 
   if (manifest == null) {

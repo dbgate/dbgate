@@ -47,18 +47,18 @@ export default function FreeTableGridCore(props) {
     initialValues.sourceStorageType = 'jsldata';
     initialValues.sourceJslId = jslid;
     initialValues.sourceList = ['editor-data'];
-    showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
+    showModal(modalState => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
 
   const handleSelectionChanged = React.useCallback(
-    (cells) => {
+    cells => {
       if (onSelectionChanged) onSelectionChanged(cells);
       setSelectedCells(cells);
     },
     [setSelectedCells]
   );
 
-  const handleKeyDown = React.useCallback((event) => {
+  const handleKeyDown = React.useCallback(event => {
     if (event.keyCode == keycodes.escape) {
       setSelectedMacro(null);
     }

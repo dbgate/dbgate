@@ -36,7 +36,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     if (loadFromArgs) {
       try {
         const init = await loadFromArgs();
-        changeTab(tabid, setOpenedTabs, (tab) => ({
+        changeTab(tabid, setOpenedTabs, tab => ({
           ...tab,
           props: _.omit(tab.props, ['initialArgs']),
         }));
@@ -93,7 +93,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
 
   const saveToStorageDebounced = React.useMemo(() => _.debounce(saveToStorage, 5000), [saveToStorage]);
 
-  const handleChange = (newValue) => {
+  const handleChange = newValue => {
     if (_.isFunction(newValue)) {
       valueRef.current = newValue(valueRef.current);
     } else {

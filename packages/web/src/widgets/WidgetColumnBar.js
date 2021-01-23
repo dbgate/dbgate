@@ -19,7 +19,7 @@ function WidgetContainer({ widget, visible, splitterVisible, parentHeight, initi
   const [size, setSize] = React.useState(null);
   const theme = useTheme();
 
-  const handleResizeDown = useSplitterDrag('clientY', (diff) => setSize((v) => v + diff));
+  const handleResizeDown = useSplitterDrag('clientY', diff => setSize(v => v + diff));
 
   React.useEffect(() => {
     if (_.isString(initialSize) && initialSize.endsWith('px')) setSize(parseInt(initialSize.slice(0, -2)));
@@ -44,13 +44,13 @@ export default function WidgetColumnBar({ children, onChangeCollapsedWidgets = u
   const childArray = _.isArray(children) ? children : [children];
   const [refNode, dimensions] = useDimensions();
   const [collapsedWidgets, setCollapsedWidgets] = React.useState(() =>
-    childArray.filter((x) => x && x.props.collapsed).map((x) => x.props.name)
+    childArray.filter(x => x && x.props.collapsed).map(x => x.props.name)
   );
-  const toggleCollapsed = (name) => {
+  const toggleCollapsed = name => {
     // skip collapse last uncollapsed item
-    if (!childArray.find((x) => x.props && x.props.name != name && !collapsedWidgets.includes(x.props.name))) return;
+    if (!childArray.find(x => x.props && x.props.name != name && !collapsedWidgets.includes(x.props.name))) return;
 
-    if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter((x) => x != name));
+    if (collapsedWidgets.includes(name)) setCollapsedWidgets(collapsedWidgets.filter(x => x != name));
     else setCollapsedWidgets([...collapsedWidgets, name]);
   };
   React.useEffect(() => {
@@ -69,7 +69,7 @@ export default function WidgetColumnBar({ children, onChangeCollapsedWidgets = u
               visible={!collapsedWidgets.includes(widget.props.name)}
               widget={widget}
               initialSize={widget.props.height}
-              splitterVisible={!!childArray.slice(index + 1).find((x) => x && !collapsedWidgets.includes(x.props.name))}
+              splitterVisible={!!childArray.slice(index + 1).find(x => x && !collapsedWidgets.includes(x.props.name))}
             />
           </React.Fragment>
         );

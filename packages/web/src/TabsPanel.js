@@ -31,8 +31,8 @@ const DbWrapperHandler = styled.div`
 const DbNameWrapper = styled.div`
   text-align: center;
   font-size: 8pt;
-  border-bottom: 1px solid ${(props) => props.theme.border};
-  border-right: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${props => props.theme.border};
+  border-right: 1px solid ${props => props.theme.border};
   cursor: pointer;
   user-select: none;
   padding: 1px;
@@ -44,9 +44,9 @@ const DbNameWrapper = styled.div`
   // height: 15px;
 
   &:hover {
-    background-color: ${(props) => props.theme.tabs_background3};
+    background-color: ${props => props.theme.tabs_background3};
   }
-  background-color: ${(props) =>
+  background-color: ${props =>
     // @ts-ignore
     props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
@@ -57,7 +57,7 @@ const DbNameWrapper = styled.div`
 // `;
 
 const FileTabItem = styled.div`
-  border-right: 1px solid ${(props) => props.theme.border};
+  border-right: 1px solid ${props => props.theme.border};
   padding-left: 15px;
   padding-right: 15px;
   flex-shrink: 1;
@@ -68,9 +68,9 @@ const FileTabItem = styled.div`
   cursor: pointer;
   user-select: none;
   &:hover {
-    color: ${(props) => props.theme.tabs_font_hover};
+    color: ${props => props.theme.tabs_font_hover};
   }
-  background-color: ${(props) =>
+  background-color: ${props =>
     // @ts-ignore
     props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
@@ -83,7 +83,7 @@ const CloseButton = styled(FontIcon)`
   margin-left: 5px;
   color: gray;
   &:hover {
-    color: ${(props) => props.theme.tabs_font2};
+    color: ${props => props.theme.tabs_font2};
   }
 `;
 
@@ -140,21 +140,21 @@ export default function TabsPanel() {
     if (e.target.closest('.tabCloseButton')) {
       return;
     }
-    setOpenedTabs((files) =>
-      files.map((x) => ({
+    setOpenedTabs(files =>
+      files.map(x => ({
         ...x,
         selected: x.tabid == tabid,
       }))
     );
   };
-  const closeTabFunc = (closeCondition) => (tabid) => {
-    setOpenedTabs((files) => {
-      const active = files.find((x) => x.tabid == tabid);
+  const closeTabFunc = closeCondition => tabid => {
+    setOpenedTabs(files => {
+      const active = files.find(x => x.tabid == tabid);
       if (!active) return files;
-      const lastSelectedIndex = _.findIndex(files, (x) => x.tabid == tabid);
+      const lastSelectedIndex = _.findIndex(files, x => x.tabid == tabid);
       let selectedIndex = lastSelectedIndex;
 
-      const newFiles = files.map((x) => ({
+      const newFiles = files.map(x => ({
         ...x,
         closedTime: x.closedTime || (closeCondition(x, active) ? new Date().getTime() : undefined),
       }));
@@ -180,8 +180,8 @@ export default function TabsPanel() {
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = () => {
     const closedTime = new Date().getTime();
-    setOpenedTabs((tabs) =>
-      tabs.map((tab) => ({
+    setOpenedTabs(tabs =>
+      tabs.map(tab => ({
         ...tab,
         closedTime: tab.closedTime || closedTime,
         selected: false,
@@ -226,8 +226,8 @@ export default function TabsPanel() {
   //   tabs.map(x => x.tooltip)
   // );
   const tabsWithDb = tabs
-    .filter((x) => !x.closedTime)
-    .map((tab) => ({
+    .filter(x => !x.closedTime)
+    .map(tab => ({
       ...tab,
       tabDbName: getTabDbName(tab),
       tabDbKey: getTabDbKey(tab),
@@ -235,7 +235,7 @@ export default function TabsPanel() {
   const tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
   const dbKeys = _.keys(tabsByDb).sort();
 
-  const handleSetDb = async (props) => {
+  const handleSetDb = async props => {
     const { conid, database } = props || {};
     if (conid) {
       const connection = await getConnectionInfo({ conid, database });
@@ -249,7 +249,7 @@ export default function TabsPanel() {
 
   return (
     <>
-      {dbKeys.map((dbKey) => (
+      {dbKeys.map(dbKey => (
         <DbWrapperHandler key={dbKey}>
           <DbNameWrapper
             // @ts-ignore
@@ -260,15 +260,15 @@ export default function TabsPanel() {
             <FontIcon icon={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
           <DbGroupHandler>
-            {_.sortBy(tabsByDb[dbKey], 'title').map((tab) => (
+            {_.sortBy(tabsByDb[dbKey], 'title').map(tab => (
               <FileTabItem
                 {...tab}
                 title={tab.tooltip}
                 key={tab.tabid}
                 theme={theme}
-                onClick={(e) => handleTabClick(e, tab.tabid)}
-                onMouseUp={(e) => handleMouseUp(e, tab.tabid)}
-                onContextMenu={(e) => handleContextMenu(e, tab.tabid, tab.props)}
+                onClick={e => handleTabClick(e, tab.tabid)}
+                onMouseUp={e => handleMouseUp(e, tab.tabid)}
+                onContextMenu={e => handleContextMenu(e, tab.tabid, tab.props)}
               >
                 {<FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />}
                 <FileNameWrapper>{tab.title}</FileNameWrapper>
@@ -276,7 +276,7 @@ export default function TabsPanel() {
                   icon="icon close"
                   className="tabCloseButton"
                   theme={theme}
-                  onClick={(e) => {
+                  onClick={e => {
                     e.preventDefault();
                     closeTab(tab.tabid);
                   }}

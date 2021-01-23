@@ -6,14 +6,14 @@ import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
 
 const IconWrapper = styled.div`
-  color: ${(props) => props.theme.widget_font2};
+  color: ${props => props.theme.widget_font2};
   font-size: ${dimensions.widgetMenu.iconFontSize};
   height: ${dimensions.widgetMenu.iconSize}px;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     props.isSelected &&
     `
@@ -25,7 +25,7 @@ const IconWrapper = styled.div`
     `}
 
   &:hover {
-    color: ${(props) => props.theme.widget_font1};
+    color: ${props => props.theme.widget_font1};
   }
 `;
 

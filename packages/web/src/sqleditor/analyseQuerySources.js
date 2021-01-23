@@ -1,5 +1,5 @@
 export default function analyseQuerySources(sql, sourceNames) {
-  const upperSourceNames = sourceNames.map((x) => x.toUpperCase());
+  const upperSourceNames = sourceNames.map(x => x.toUpperCase());
   const tokens = sql.split(/\s+/);
   const res = [];
   for (let i = 0; i < tokens.length; i += 1) {

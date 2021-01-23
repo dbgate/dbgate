@@ -168,12 +168,12 @@ function Menu({ data }) {
 
   return (
     <>
-      {menus[data.objectTypeField].map((menu) => (
+      {menus[data.objectTypeField].map(menu => (
         <DropDownMenuItem
           key={menu.label}
           onClick={async () => {
             if (menu.isExport) {
-              showModal((modalState) => (
+              showModal(modalState => (
                 <ImportExportModal
                   modalState={modalState}
                   initialValues={{
@@ -303,6 +303,6 @@ function DatabaseObjectAppObject({ data, commonProps }) {
 DatabaseObjectAppObject.extractKey = ({ schemaName, pureName }) =>
   schemaName ? `${schemaName}.${pureName}` : pureName;
 
-DatabaseObjectAppObject.createMatcher = ({ pureName }) => (filter) => filterName(filter, pureName);
+DatabaseObjectAppObject.createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
 
 export default DatabaseObjectAppObject;

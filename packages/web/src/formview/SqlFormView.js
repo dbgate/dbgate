@@ -84,12 +84,12 @@ export default function SqlFormView(props) {
     if (isLoadingData) return;
     let newLoadedRow = false;
     if (formDisplay.config.formViewKeyRequested || formDisplay.config.formViewKey) {
-      setLoadProps((oldLoadProps) => ({
+      setLoadProps(oldLoadProps => ({
         ...oldLoadProps,
         isLoadingData: true,
       }));
       const row = await loadRow(props, formDisplay.getCurrentRowQuery());
-      setLoadProps((oldLoadProps) => ({
+      setLoadProps(oldLoadProps => ({
         ...oldLoadProps,
         isLoadingData: false,
         isLoadedData: true,
@@ -107,14 +107,14 @@ export default function SqlFormView(props) {
   };
 
   const handleLoadRowCount = async () => {
-    setLoadProps((oldLoadProps) => ({
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       isLoadingCount: true,
     }));
     const countRow = await loadRow(props, formDisplay.getCountQuery());
     const countBeforeRow = await loadRow(props, formDisplay.getBeforeCountQuery());
 
-    setLoadProps((oldLoadProps) => ({
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       isLoadedCount: true,
       isLoadingCount: false,
@@ -123,8 +123,8 @@ export default function SqlFormView(props) {
     }));
   };
 
-  const handleNavigate = async (command) => {
-    setLoadProps((oldLoadProps) => ({
+  const handleNavigate = async command => {
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       isLoadingData: true,
     }));
@@ -132,7 +132,7 @@ export default function SqlFormView(props) {
     if (row) {
       formDisplay.navigate(row);
     }
-    setLoadProps((oldLoadProps) => ({
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       isLoadingData: false,
       isLoadedData: true,
@@ -227,7 +227,7 @@ export default function SqlFormView(props) {
     });
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
-      showModal((modalState) => (
+      showModal(modalState => (
         <ErrorMessageModal modalState={modalState} message={errorMessage} title="Error when saving" />
       ));
     } else {

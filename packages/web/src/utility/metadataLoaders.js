@@ -8,14 +8,14 @@ const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
   params: { conid, database },
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
-  transform: (db) => {
-    const allForeignKeys = _.flatten(db.tables.map((x) => x.foreignKeys));
+  transform: db => {
+    const allForeignKeys = _.flatten(db.tables.map(x => x.foreignKeys));
     return {
       ...db,
-      tables: db.tables.map((table) => ({
+      tables: db.tables.map(table => ({
         ...table,
         dependencies: allForeignKeys.filter(
-          (x) => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
+          x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
         ),
       })),
     };
@@ -121,7 +121,7 @@ async function getCore(loader, args) {
       url,
       params,
     });
-    return (transform || ((x) => x))(resp.data);
+    return (transform || (x => x))(resp.data);
   }
 
   const fromCache = cacheGet(key);
@@ -161,7 +161,7 @@ export async function getDbCore(args, objectTypeField = undefined) {
   const db = await getDatabaseInfo(args);
   if (!db) return null;
   return db[objectTypeField || args.objectTypeField].find(
-    (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
+    x => x.pureName == args.pureName && x.schemaName == args.schemaName
   );
 }
 
@@ -169,7 +169,7 @@ export function useDbCore(args, objectTypeField = undefined) {
   const db = useDatabaseInfo(args);
   if (!db) return null;
   return db[objectTypeField || args.objectTypeField].find(
-    (x) => x.pureName == args.pureName && x.schemaName == args.schemaName
+    x => x.pureName == args.pureName && x.schemaName == args.schemaName
   );
 }
 

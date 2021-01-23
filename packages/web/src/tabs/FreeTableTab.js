@@ -1,5 +1,5 @@
 import React from 'react';
-import {  createFreeTableModel } from 'dbgate-datalib';
+import { createFreeTableModel } from 'dbgate-datalib';
 import useUndoReducer from '../utility/useUndoReducer';
 import { useSetOpenedTabs } from '../utility/globalState';
 import useGridConfig from '../utility/useGridConfig';
@@ -21,7 +21,7 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
     tabid,
     loadFromArgs:
       initialArgs && initialArgs.functionName
-        ? () => axios.post('runners/load-reader', initialArgs).then((x) => x.data)
+        ? () => axios.post('runners/load-reader', initialArgs).then(x => x.data)
         : null,
   });
 
@@ -36,7 +36,7 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
 
   const handleSave = async (folder, file) => {
     await axios.post('archive/save-free-table', { folder, file, data: modelState.value });
-    changeTab(tabid, setOpenedTabs, (tab) => ({
+    changeTab(tabid, setOpenedTabs, tab => ({
       ...tab,
       title: file,
       props: { archiveFile: file, archiveFolder: folder },

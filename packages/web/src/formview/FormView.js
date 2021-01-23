@@ -37,24 +37,24 @@ const Wrapper = styled.div`
 `;
 
 const TableRow = styled.tr`
-  background-color: ${(props) => props.theme.gridbody_background};
+  background-color: ${props => props.theme.gridbody_background};
   &:nth-child(6n + 3) {
-    background-color: ${(props) => props.theme.gridbody_background_alt2};
+    background-color: ${props => props.theme.gridbody_background_alt2};
   }
   &:nth-child(6n + 6) {
-    background-color: ${(props) => props.theme.gridbody_background_alt3};
+    background-color: ${props => props.theme.gridbody_background_alt3};
   }
 `;
 
 const TableHeaderCell = styled.td`
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
   text-align: left;
   padding: 2px;
-  background-color: ${(props) => props.theme.gridheader_background};
+  background-color: ${props => props.theme.gridheader_background};
   overflow: hidden;
   position: relative;
 
-  ${(props) =>
+  ${props =>
     props.isSelected &&
     `
     background: initial;
@@ -64,7 +64,7 @@ const TableHeaderCell = styled.td`
 
 const TableBodyCell = styled.td`
   font-weight: normal;
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
   // border-collapse: collapse;
   padding: 2px;
   white-space: nowrap;
@@ -73,14 +73,14 @@ const TableBodyCell = styled.td`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ${(props) =>
+  ${props =>
     props.isSelected &&
     `
     background: initial;
     background-color: ${props.theme.gridbody_selection[4]};
     color: ${props.theme.gridbody_invfont1};`}
 
-  ${(props) =>
+  ${props =>
     !props.isSelected &&
     props.isModifiedCell &&
     `
@@ -96,7 +96,7 @@ const FocusField = styled.input`
 
 const RowCountLabel = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.gridbody_background_yellow[1]};
+  background-color: ${props => props.theme.gridbody_background_yellow[1]};
   right: 40px;
   bottom: 20px;
 `;
@@ -145,7 +145,7 @@ export default function FormView(props) {
   const { rowData, rowStatus } = former;
 
   const handleSwitchToTable = () => {
-    setConfig((cfg) => ({
+    setConfig(cfg => ({
       ...cfg,
       isFormView: false,
       formViewKey: null,
@@ -156,7 +156,7 @@ export default function FormView(props) {
     ? () => formDisplay.filterCellValue(getCellColumn(currentCell), rowData)
     : null;
 
-  const handleContextMenu = (event) => {
+  const handleContextMenu = event => {
     event.preventDefault();
     showMenu(
       event.pageX,
@@ -196,7 +196,7 @@ export default function FormView(props) {
     return [row, col];
   };
 
-  const handleCursorMove = (event) => {
+  const handleCursorMove = event => {
     if (event.ctrlKey) {
       switch (event.keyCode) {
         case keycodes.leftArrow:
@@ -225,7 +225,7 @@ export default function FormView(props) {
     }
   };
 
-  const handleKeyNavigation = (event) => {
+  const handleKeyNavigation = event => {
     if (event.ctrlKey) {
       switch (event.keyCode) {
         case keycodes.upArrow:
@@ -268,7 +268,7 @@ export default function FormView(props) {
     }
   }
 
-  const scrollIntoView = (cell) => {
+  const scrollIntoView = cell => {
     const element = cellRefs.current[`${cell[0]},${cell[1]}`];
     if (element) element.scrollIntoView();
   };
@@ -290,7 +290,7 @@ export default function FormView(props) {
     copyTextToClipboard(text);
   }
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = event => {
     const navigation = handleKeyNavigation(event);
     if (navigation) {
       event.preventDefault();
@@ -374,7 +374,7 @@ export default function FormView(props) {
     }
   };
 
-  const handleTableMouseDown = (event) => {
+  const handleTableMouseDown = event => {
     event.preventDefault();
     if (focusFieldRef.current) focusFieldRef.current.focus();
 
@@ -478,7 +478,7 @@ export default function FormView(props) {
                 data-col={chunkIndex * 2}
                 // @ts-ignore
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
-                ref={(element) => setCellRef(rowIndex, chunkIndex * 2, element)}
+                ref={element => setCellRef(rowIndex, chunkIndex * 2, element)}
               >
                 <ColumnLabel {...col} />
               </TableHeaderCell>
@@ -489,7 +489,7 @@ export default function FormView(props) {
                 // @ts-ignore
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
                 isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
-                ref={(element) => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
+                ref={element => setCellRef(rowIndex, chunkIndex * 2 + 1, element)}
               >
                 {inplaceEditorState.cell &&
                 rowIndex == inplaceEditorState.cell[0] &&
@@ -499,7 +499,7 @@ export default function FormView(props) {
                     inplaceEditorState={inplaceEditorState}
                     dispatchInsplaceEditor={dispatchInsplaceEditor}
                     cellValue={rowData[col.uniqueName]}
-                    onSetValue={(value) => {
+                    onSetValue={value => {
                       former.setCellValue(col.uniqueName, value);
                     }}
                     // grider={grider}
@@ -520,7 +520,7 @@ export default function FormView(props) {
                       <ShowFormButton
                         theme={theme}
                         className="buttonLike"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           openReferenceForm(rowData, col, openNewTab, conid, database);
                         }}

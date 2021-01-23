@@ -8,7 +8,7 @@ export function SelectField({ children = null, options = [], ...other }) {
   return (
     <select {...other}>
       {children}
-      {options.map((x) => (
+      {options.map(x => (
         <option value={x.value} key={x.value}>
           {x.label}
         </option>

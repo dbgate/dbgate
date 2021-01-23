@@ -19,8 +19,8 @@ const StyledSvg = styled.svg`
 
 const ReferenceWrapper = styled.div`
   position: absolute;
-  border: 1px solid ${(props) => props.theme.designer_line};
-  background-color: ${(props) => props.theme.designer_background};
+  border: 1px solid ${props => props.theme.designer_line};
+  background-color: ${props => props.theme.designer_background};
   z-index: 900;
   border-radius: 10px;
   width: 32px;
@@ -35,7 +35,7 @@ const ReferenceText = styled.span`
   transform: translate(-50%, -50%);
   z-index: 900;
   white-space: nowrap;
-  background-color: ${(props) => props.theme.designer_background};
+  background-color: ${props => props.theme.designer_background};
 `;
 
 function ReferenceContextMenu({ remove, setJoinType, isConnected }) {
@@ -88,10 +88,10 @@ export default function DesignerReference({
   possibilities.push({ xsrc: sourceRect.right + buswi, dirsrc: 1, xdst: targetRect.left - buswi, dirdst: -1 });
   possibilities.push({ xsrc: sourceRect.right + buswi, dirsrc: 1, xdst: targetRect.right + buswi, dirdst: 1 });
 
-  let minpos = _.minBy(possibilities, (p) => Math.abs(p.xsrc - p.xdst));
+  let minpos = _.minBy(possibilities, p => Math.abs(p.xsrc - p.xdst));
 
-  let srcY = _.mean(columns.map((x) => sourceTable.getColumnY(x.source)));
-  let dstY = _.mean(columns.map((x) => targetTable.getColumnY(x.target)));
+  let srcY = _.mean(columns.map(x => sourceTable.getColumnY(x.source)));
+  let dstY = _.mean(columns.map(x => targetTable.getColumnY(x.target)));
 
   if (columns.length == 0) {
     srcY = sourceTable.getColumnY('');
@@ -103,7 +103,7 @@ export default function DesignerReference({
 
   const lineStyle = { fill: 'none', stroke: theme.designer_line, strokeWidth: 2 };
 
-  const handleContextMenu = (event) => {
+  const handleContextMenu = event => {
     event.preventDefault();
     showMenu(
       event.pageX,
@@ -111,7 +111,7 @@ export default function DesignerReference({
       <ReferenceContextMenu
         remove={() => onRemoveReference({ designerId })}
         isConnected={isConnectedByReference(designer, { designerId: sourceId }, { designerId: targetId }, reference)}
-        setJoinType={(joinType) => {
+        setJoinType={joinType => {
           onChangeReference({
             ...reference,
             joinType,

@@ -1,4 +1,4 @@
-import { DesignerTableInfo } from "./types";
+import { DesignerTableInfo } from './types';
 
 export default class DomTableRef {
   domTable: Element;

@@ -11,7 +11,7 @@ const TargetStyled = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: ${(props) => props.theme.main_background_blue[3]};
+  background: ${props => props.theme.main_background_blue[3]};
   align-items: center;
   justify-content: space-around;
   z-index: 1000;
@@ -52,8 +52,8 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
           <InfoWrapper>
             Supported file types:{' '}
             {fileFormats
-              .filter((x) => x.readerFunc)
-              .map((x) => x.name)
+              .filter(x => x.readerFunc)
+              .map(x => x.name)
               .join(', ')}
           </InfoWrapper>
         </InfoBox>

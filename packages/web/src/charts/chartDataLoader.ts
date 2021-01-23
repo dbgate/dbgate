@@ -19,7 +19,7 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
   dumpSqlSelect(dmp, select);
   const resp = await axios.post('database-connections/query-data', { conid, database, sql: dmp.s });
   if (resp.data.errorMessage) throw new Error(resp.data.errorMessage);
-  return resp.data.columns.map((x) => x.columnName);
+  return resp.data.columns.map(x => x.columnName);
 }
 
 export async function loadChartData(driver: EngineDriver, conid, database, sql, config) {
@@ -38,7 +38,7 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
         alias: labelColumn,
       },
       // @ts-ignore
-      ...dataColumns.map((columnName) => ({
+      ...dataColumns.map(columnName => ({
         exprType: 'call',
         func: 'SUM',
         args: [
@@ -81,12 +81,12 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
     rows = _.reverse([...rows]);
   }
   if (showRelativeValues) {
-    const maxValues = dataColumns.map((col) => _.max(rows.map((row) => row[col])));
+    const maxValues = dataColumns.map(col => _.max(rows.map(row => row[col])));
     for (const [col, max] of _.zip(dataColumns, maxValues)) {
       if (!max) continue;
       if (!_.isNumber(max)) continue;
       if (!(max > 0)) continue;
-      rows = rows.map((row) => ({
+      rows = rows.map(row => ({
         ...row,
         [col]: (row[col] / max) * 100,
       }));

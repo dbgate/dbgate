@@ -9,12 +9,12 @@ import useTheme from '../theme/useTheme';
 const ButtonDiv = styled.div`
   padding: 5px 15px;
   // margin: 2px;
-  color: ${(props) => props.theme.main_font1};
+  color: ${props => props.theme.main_font1};
   border: 0;
-  border-right: 1px solid ${(props) => props.theme.border};
+  border-right: 1px solid ${props => props.theme.border};
   height: ${dimensions.toolBar.height}px;
 
-  ${(props) =>
+  ${props =>
     !props.disabled &&
     `
   &:hover {
@@ -26,7 +26,7 @@ const ButtonDiv = styled.div`
   }
   `}
 
-  ${(props) =>
+  ${props =>
     props.disabled &&
     `
     color: ${props.theme.main_font3};
@@ -36,12 +36,12 @@ const ButtonDiv = styled.div`
 const StyledIconSpan = styled.span`
   margin-right: 5px;
   // font-size: 18px;
-  color: ${(props) => (props.disabled ? props.theme.main_font3 : props.theme.main_font_link)};
+  color: ${props => (props.disabled ? props.theme.main_font3 : props.theme.main_font_link)};
 `;
 
 const ButtonDivInner = styled.div`
   position: relative;
-  top: ${(props) => props.patchY}px;
+  top: ${props => props.patchY}px;
   white-space: nowrap;
 `;
 

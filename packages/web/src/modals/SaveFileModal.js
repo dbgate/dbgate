@@ -8,7 +8,7 @@ import ModalFooter from './ModalFooter';
 import { FormProvider } from '../utility/FormProvider';
 
 export default function SaveFileModal({ data, folder, format, modalState, name, onSave = undefined }) {
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { name } = values;
     await axios.post('files/save', { folder, file: name, data, format });
     modalState.close();
@@ -19,7 +19,7 @@ export default function SaveFileModal({ data, folder, format, modalState, name, 
       <ModalHeader modalState={modalState}>Save file</ModalHeader>
       <FormProvider initialValues={{ name }}>
         <ModalContent>
-          <FormTextField label="File name" name="name" focused/>
+          <FormTextField label="File name" name="name" focused />
         </ModalContent>
         <ModalFooter>
           <FormSubmit value="Save" onClick={handleSubmit} />

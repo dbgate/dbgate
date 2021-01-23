@@ -16,7 +16,7 @@ const Row = styled.div`
   cursor: pointer;
   white-space: nowrap;
   &:hover {
-    background-color: ${(props) => props.theme.manager_background_blue[1]};
+    background-color: ${props => props.theme.manager_background_blue[1]};
   }
 `;
 
@@ -46,7 +46,7 @@ function ColumnManagerRow(props) {
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       theme={theme}
-      onClick={(e) => {
+      onClick={e => {
         // @ts-ignore
         if (e.target.closest('.expandColumnIcon')) return;
         display.focusColumn(column.uniqueName);
@@ -84,8 +84,8 @@ export default function ColumnManager(props) {
       <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
         {display
           .getColumns(columnFilter)
-          .filter((column) => filterName(columnFilter, column.columnName))
-          .map((column) => (
+          .filter(column => filterName(columnFilter, column.columnName))
+          .map(column => (
             <ColumnManagerRow key={column.uniqueName} display={display} column={column} />
           ))}
       </ManagerInnerContainer>

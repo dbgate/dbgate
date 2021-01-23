@@ -49,7 +49,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const favorites = useFavorites();
   const openFavorite = useOpenFavorite();
 
-  const currentTab = openedTabs.find((x) => x.selected);
+  const currentTab = openedTabs.find(x => x.selected);
 
   React.useEffect(() => {
     if (config.runAsPortal == false) {
@@ -61,11 +61,11 @@ export default function ToolBar({ toolbarPortalRef }) {
   });
 
   const showAbout = () => {
-    showModal((modalState) => <AboutModal modalState={modalState} />);
+    showModal(modalState => <AboutModal modalState={modalState} />);
   };
 
   const showImport = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ImportExportModal
         modalState={modalState}
         importToArchive
@@ -81,7 +81,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   };
 
   const showNewConnection = () => {
-    showModal((modalState) => <ConnectionModal modalState={modalState} />);
+    showModal(modalState => <ConnectionModal modalState={modalState} />);
   };
 
   const switchTheme = () => {
@@ -98,7 +98,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   };
 
   const addToFavorite = () => {
-    showModal((modalState) => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
+    showModal(modalState => <FavoriteModal modalState={modalState} savingTab={currentTab} />);
   };
 
   const newShell = () => {
@@ -114,7 +114,7 @@ export default function ToolBar({ toolbarPortalRef }) {
     const openFavoriteName = hash && hash.startsWith('#favorite=') ? hash.substring('#favorite='.length) : null;
     const openTabdata = hash && hash.startsWith('#tabdata=') ? hash.substring('#tabdata='.length) : null;
     if (openFavoriteName) {
-      const open = (favorites || []).find((x) => x.urlPath == openFavoriteName);
+      const open = (favorites || []).find(x => x.urlPath == openFavoriteName);
       if (open) {
         openFavorite(open);
         window.history.replaceState(null, null, ' ');
@@ -125,10 +125,10 @@ export default function ToolBar({ toolbarPortalRef }) {
         openFavorite(json);
         window.history.replaceState(null, null, ' ');
       } catch (err) {
-        showModal((modalState) => <ErrorMessageModal modalState={modalState} message={err.message} />);
+        showModal(modalState => <ErrorMessageModal modalState={modalState} message={err.message} />);
       }
-    } else if (!openedTabs.find((x) => x.closedTime == null)) {
-      for (const fav of (favorites || []).filter((x) => x.openOnStartup)) {
+    } else if (!openedTabs.find(x => x.closedTime == null)) {
+      for (const fav of (favorites || []).filter(x => x.openOnStartup)) {
         openFavorite(fav);
       }
     }
@@ -144,16 +144,14 @@ export default function ToolBar({ toolbarPortalRef }) {
         />
       )}
       {(favorites || [])
-        .filter((x) => x.showInToolbar)
-        .map((x) => (
+        .filter(x => x.showInToolbar)
+        .map(x => (
           <ToolbarButton key={x.file} onClick={() => openFavorite(x)} icon={x.icon || 'icon favorite'}>
             {x.title}
           </ToolbarButton>
         ))}
       <ToolbarDropDownButton icon="icon add" text="New">
-        {config.runAsPortal == false && (
-          <DropDownMenuItem onClick={showNewConnection}>Connection</DropDownMenuItem>
-        )}
+        {config.runAsPortal == false && <DropDownMenuItem onClick={showNewConnection}>Connection</DropDownMenuItem>}
         <DropDownMenuItem onClick={() => newQuery()}>SQL query</DropDownMenuItem>
         {!!currentDatabase && <DropDownMenuItem onClick={() => newQueryDesign()}>Query designer</DropDownMenuItem>}
         <DropDownMenuItem onClick={() => newFreeTable()}>Free table editor</DropDownMenuItem>

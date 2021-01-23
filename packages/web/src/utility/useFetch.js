@@ -13,7 +13,7 @@ export default function useFetch({
   defaultValue = undefined,
   reloadTrigger = undefined,
   cacheKey = undefined,
-  transform = (x) => x,
+  transform = x => x,
   ...config
 }) {
   const [value, setValue] = React.useState([defaultValue, []]);
@@ -21,7 +21,7 @@ export default function useFetch({
   const socket = useSocket();
 
   const handleReload = React.useCallback(() => {
-    setLoadCounter((counter) => counter + 1);
+    setLoadCounter(counter => counter + 1);
   }, []);
 
   const indicators = [url, stableStringify(data), stableStringify(params), loadCounter];

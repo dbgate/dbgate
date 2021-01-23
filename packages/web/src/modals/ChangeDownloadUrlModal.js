@@ -19,7 +19,7 @@ export default function ChangeDownloadUrlModal({ modalState, url = '', onConfirm
   // };
 
   const handleSubmit = React.useCallback(
-    async (values) => {
+    async values => {
       onConfirm(values.url);
       modalState.close();
     },

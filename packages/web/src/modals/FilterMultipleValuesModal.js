@@ -49,7 +49,7 @@ export default function FilterMultipleValuesModal({ modalState, onFilter }) {
       <ModalHeader modalState={modalState}>Filter multiple values</ModalHeader>
       <ModalContent>
         <Wrapper>
-          <textarea rows={10} ref={editorRef} value={text} onChange={(e) => setText(e.target.value)} />
+          <textarea rows={10} ref={editorRef} value={text} onChange={e => setText(e.target.value)} />
           <OptionsWrapper>
             <RadioGroupItem text="Is one of line" value="is" defaultChecked setMode={setMode} />
             <RadioGroupItem text="Is not one of line" value="is_not" setMode={setMode} />

@@ -28,20 +28,20 @@ const HorizontalMainContainer = styled(SplitterMainBase)`
 `;
 
 export const VerticalSplitHandle = styled.div`
-  background-color: ${(props) => props.theme.border};
+  background-color: ${props => props.theme.border};
   height: ${dimensions.splitter.thickness}px;
   cursor: row-resize;
   &:hover {
-    background-color: ${(props) => props.theme.border_background2};
+    background-color: ${props => props.theme.border_background2};
   }
 `;
 
 export const HorizontalSplitHandle = styled.div`
-  background-color: ${(props) => props.theme.border};
+  background-color: ${props => props.theme.border};
   width: ${dimensions.splitter.thickness}px;
   cursor: col-resize;
   &:hover {
-    background-color: ${(props) => props.theme.border_background2};
+    background-color: ${props => props.theme.border_background2};
   }
 `;
 
@@ -69,13 +69,13 @@ export function useSplitterDrag(axes, onResize) {
 
   React.useEffect(() => {
     if (resizeStart != null) {
-      const handleResizeMove = (e) => {
+      const handleResizeMove = e => {
         e.preventDefault();
         let diff = e[axes] - resizeStart;
         setResizeStart(e[axes]);
         onResize(diff);
       };
-      const handleResizeEnd = (e) => {
+      const handleResizeEnd = e => {
         e.preventDefault();
         setResizeStart(null);
       };
@@ -90,7 +90,7 @@ export function useSplitterDrag(axes, onResize) {
     }
   }, [resizeStart]);
 
-  const handleResizeDown = (e) => {
+  const handleResizeDown = e => {
     setResizeStart(e[axes]);
   };
 
@@ -125,7 +125,7 @@ function SplitterCore({
     else setSize1(dimensions[dimensionField] / 2);
   }, [dimensions]);
 
-  const handleResizeDown = useSplitterDrag(eventField, (diff) => setSize1((v) => v + diff));
+  const handleResizeDown = useSplitterDrag(eventField, diff => setSize1(v => v + diff));
 
   const isSplitter = !!childrenArray[1];
 

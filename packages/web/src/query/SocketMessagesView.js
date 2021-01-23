@@ -23,7 +23,7 @@ export default function SocketMessagesView({
     []
   );
 
-  const handleInfo = React.useCallback((info) => {
+  const handleInfo = React.useCallback(info => {
     cachedMessagesRef.current.push(info);
     displayCachedMessages();
   }, []);

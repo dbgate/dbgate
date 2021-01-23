@@ -7,17 +7,17 @@ import useTheme from '../theme/useTheme';
 // const StyledInputBase=styled.input``;
 // const StyledLabelBase=styled.label``;
 
-const makeStyle = (base) => styled(base)`
+const makeStyle = base => styled(base)`
   // height: ${dimensions.toolBar.height - 5}px;
-  border: 1px solid ${(props) => props.theme.button_background2};
+  border: 1px solid ${props => props.theme.button_background2};
   padding: 5px;
   margin: 2px;
   width: 100px;
-  background-color: ${(props) => props.theme.button_background};
-  color: ${(props) => props.theme.button_font1};
+  background-color: ${props => props.theme.button_background};
+  color: ${props => props.theme.button_font1};
   border-radius: 2px;
 
-  ${(props) =>
+  ${props =>
     !props.disabled &&
     `
   &:hover {
@@ -29,7 +29,7 @@ const makeStyle = (base) => styled(base)`
   }
   `}
 
-  ${(props) =>
+  ${props =>
     props.disabled &&
     `
     background-color: ${props.theme.button_background3};
@@ -70,7 +70,7 @@ export default function FormStyledButton({
 export const StyledThemedLink = styled.a`
   text-decoration: none;
   cursor: pointer;
-  color: ${(props) => props.theme.main_background_blue[7]};
+  color: ${props => props.theme.main_background_blue[7]};
   &:hover {
     text-decoration: underline;
   }

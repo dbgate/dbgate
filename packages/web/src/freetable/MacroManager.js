@@ -25,12 +25,12 @@ export default function MacroManager({ managerSize, selectedMacro, setSelectedMa
         <AppObjectList
           list={_.sortBy(macros, 'title')}
           AppObjectComponent={MacroAppObject}
-          onObjectClick={(macro) => setSelectedMacro(macro)}
-          getCommonProps={(data) => ({
+          onObjectClick={macro => setSelectedMacro(macro)}
+          getCommonProps={data => ({
             isBold: selectedMacro && selectedMacro.name == data.name,
           })}
           filter={filter}
-          groupFunc={(data) => data.group}
+          groupFunc={data => data.group}
         />
         {/* {macros.map((macro) => (
           <MacroListItem key={`${macro.group}/${macro.name}`} macro={macro} />

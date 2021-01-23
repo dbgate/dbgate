@@ -28,7 +28,7 @@ function ArchiveFolderAppObject({ data, commonProps }) {
   );
 }
 
-ArchiveFolderAppObject.extractKey = (data) => data.name;
-ArchiveFolderAppObject.createMatcher = (data) => (filter) => filterName(filter, data.name);
+ArchiveFolderAppObject.extractKey = data => data.name;
+ArchiveFolderAppObject.createMatcher = data => filter => filterName(filter, data.name);
 
 export default ArchiveFolderAppObject;

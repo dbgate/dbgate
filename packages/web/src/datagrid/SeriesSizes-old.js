@@ -120,7 +120,7 @@ export class SeriesSizes {
     );
   }
   getFrozenIndexOnPosition(position) {
-    this.frozenItems.forEach(function(item) {
+    this.frozenItems.forEach(function (item) {
       if (position >= item.position && position <= item.endPosition) return item.frozenIndex;
     });
     return -1;

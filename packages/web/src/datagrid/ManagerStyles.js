@@ -5,4 +5,3 @@ export const ManagerInnerContainer = styled.div`
   overflow-y: auto;
   overflow-x: auto;
 `;
-

@@ -15,7 +15,7 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
   const [config, setConfig] = useGridConfig(tabid);
   const [cache, setCache] = React.useState(createGridCache());
   const [changeSetState, dispatchChangeSet] = useUndoReducer(createChangeSet());
-  const extensions = useExtensions()
+  const extensions = useExtensions();
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo({ conid });
@@ -51,9 +51,9 @@ export default function ViewDataTab({ conid, database, schemaName, pureName, tab
       dispatchChangeSet={dispatchChangeSet}
       toolbarPortalRef={toolbarPortalRef}
       GridCore={SqlDataGridCore}
-      />
+    />
   );
 }
 
 ViewDataTab.matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
-ViewDataTab.allowAddToFavorites = (props) => true;
+ViewDataTab.allowAddToFavorites = props => true;

@@ -78,13 +78,13 @@ export default function SqlEditor({
       if (keyCode == keycodes.j && event.ctrlKey && !readOnly && tabVisible) {
         event.preventDefault();
         const dbinfo = await getDatabaseInfo({ conid, database });
-        showModal((modalState) => (
+        showModal(modalState => (
           <InsertJoinModal
             sql={currentEditorRef.current.editor.getValue()}
             modalState={modalState}
             engine={engine}
             dbinfo={dbinfo}
-            onInsert={(text) => {
+            onInsert={text => {
               const editor = currentEditorRef.current.editor;
               editor.session.insert(editor.getCursorPosition(), text);
             }}

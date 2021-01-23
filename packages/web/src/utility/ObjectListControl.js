@@ -9,7 +9,7 @@ const ObjectListWrapper = styled.div`
 `;
 
 const ObjectListHeader = styled.div`
-  background-color: ${(props) => props.theme.gridheader_background};
+  background-color: ${props => props.theme.gridheader_background};
   padding: 5px;
 `;
 
@@ -36,7 +36,7 @@ export default function ObjectListControl({ collection = [], title, showIfEmpty 
       </ObjectListHeader>
       <ObjectListBody>
         <TableControl rows={collection}>
-          <TableColumn fieldName="displayName" header="Name" formatter={(data) => <NameComponent data={data} />} />
+          <TableColumn fieldName="displayName" header="Name" formatter={data => <NameComponent data={data} />} />
           {children}
         </TableControl>
       </ObjectListBody>

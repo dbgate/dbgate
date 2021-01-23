@@ -26,7 +26,7 @@ export default class ChangeSetGrider extends Grider {
     super();
     this.changeSet = changeSetState && changeSetState.value;
     this.insertedRows = getChangeSetInsertedRows(this.changeSet, display.baseTable);
-    this.setChangeSet = (value) => dispatchChangeSet({ type: 'set', value });
+    this.setChangeSet = value => dispatchChangeSet({ type: 'set', value });
     this.rowCacheIndexes = new Set();
     this.rowDataCache = {};
     this.rowStatusCache = {};
@@ -98,12 +98,12 @@ export default class ChangeSetGrider extends Grider {
   setCellValue(index: number, uniqueName: string, value: any) {
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetField(row, uniqueName, this.getInsertedRowIndex(index));
-    this.applyModification((chs) => setChangeSetValue(chs, definition, value));
+    this.applyModification(chs => setChangeSetValue(chs, definition, value));
   }
 
   deleteRow(index: number) {
     this.requireRowCache(index);
-    this.applyModification((chs) => deleteChangeSetRows(chs, this.rowDefinitionsCache[index]));
+    this.applyModification(chs => deleteChangeSetRows(chs, this.rowDefinitionsCache[index]));
   }
 
   get rowCountInUpdate() {
@@ -117,7 +117,7 @@ export default class ChangeSetGrider extends Grider {
 
   insertRow(): number {
     const res = this.rowCountInUpdate;
-    this.applyModification((chs) => changeSetInsertNewRow(chs, this.display.baseTable));
+    this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTable));
     return res;
   }
 
@@ -131,10 +131,10 @@ export default class ChangeSetGrider extends Grider {
 
   revertRowChanges(index: number) {
     this.requireRowCache(index);
-    this.applyModification((chs) => revertChangeSetRowChanges(chs, this.rowDefinitionsCache[index]));
+    this.applyModification(chs => revertChangeSetRowChanges(chs, this.rowDefinitionsCache[index]));
   }
   revertAllChanges() {
-    this.applyModification((chs) => createChangeSet());
+    this.applyModification(chs => createChangeSet());
   }
   undo() {
     this.dispatchChangeSet({ type: 'undo' });

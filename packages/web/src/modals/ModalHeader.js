@@ -8,13 +8,13 @@ const Wrapper = styled.div`
   padding: 15px;
   display: flex;
   justify-content: space-between;
-  background-color: ${(props) => props.theme.modalheader_background};
+  background-color: ${props => props.theme.modalheader_background};
 `;
 
 const CloseWrapper = styled.div`
   font-size: 12pt;
   &:hover {
-    background-color: ${(props) => props.theme.modalheader_background2};
+    background-color: ${props => props.theme.modalheader_background2};
   }
   padding: 5px 10px;
   border-radius: 10px;

@@ -8,7 +8,7 @@ export function hexToRgb(rgb) {
   if (!rgb.match(/^#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]$/)) {
     throw new Error(`Ivalid RGB color: ${rgb}`);
   }
-  return [rgb.substring(1, 3), rgb.substring(3, 5), rgb.substring(5, 7)].map((x) => parseInt(x, 16));
+  return [rgb.substring(1, 3), rgb.substring(3, 5), rgb.substring(5, 7)].map(x => parseInt(x, 16));
 }
 
 function componentToHex(c) {

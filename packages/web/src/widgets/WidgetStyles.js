@@ -21,7 +21,7 @@ export const WidgetsMainContainer = styled.div`
 
 const StyledWidgetsOuterContainer = styled.div`
   overflow: hidden;
-  // width: ${(props) => props.leftPanelWidth}px;
+  // width: ${props => props.leftPanelWidth}px;
   position: relative;
   flex-direction: column;
   display: flex;
@@ -47,7 +47,7 @@ export const StyledWidgetsInnerContainer = styled.div`
   flex: 1 1;
   overflow-x: auto;
   overflow-y: auto;
-  width: ${(props) => props.leftPanelWidth}px;
+  width: ${props => props.leftPanelWidth}px;
 `;
 
 export function WidgetsInnerContainer({ children }) {
@@ -64,11 +64,11 @@ const StyledWidgetTitle = styled.div`
   padding: 5px;
   font-weight: bold;
   text-transform: uppercase;
-  background-color: ${(props) => props.theme.title_background};
+  background-color: ${props => props.theme.title_background};
   &:hover {
-    background-color: ${(props) => props.theme.title_background2};
+    background-color: ${props => props.theme.title_background2};
   }
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
 `;
 
 export function WidgetTitle({ children, inputRef = undefined, onClick = undefined }) {

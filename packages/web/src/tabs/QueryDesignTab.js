@@ -79,7 +79,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
       dispatchModel({
         type: 'compute',
         useMerge: skipUndoChain,
-        compute: (v) => (_.isFunction(value) ? value(v) : value),
+        compute: v => (_.isFunction(value) ? value(v) : value),
       }),
     [dispatchModel]
   );
@@ -94,14 +94,14 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   }, [sessionId, socket]);
 
   React.useEffect(() => {
-    changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
+    changeTab(tabid, setOpenedTabs, tab => ({ ...tab, busy }));
   }, [busy]);
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
 
   const handleExecute = React.useCallback(async () => {
     if (busy) return;
-    setExecuteNumber((num) => num + 1);
+    setExecuteNumber(num => num + 1);
     setVisibleResultTabs(true);
 
     let sesid = sessionId;
@@ -129,7 +129,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   };
 
   const handleKeyDown = React.useCallback(
-    (e) => {
+    e => {
       if (e.keyCode == keycodes.f5) {
         e.preventDefault();
         handleExecute();
@@ -212,4 +212,4 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
   );
 }
 
-QueryDesignTab.allowAddToFavorites = (props) => true;
+QueryDesignTab.allowAddToFavorites = props => true;

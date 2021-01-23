@@ -17,7 +17,7 @@ function FormArgument({ arg, namePrefix }) {
   if (arg.type == 'select') {
     return (
       <FormSelectField label={arg.label} name={name}>
-        {arg.options.map((opt) =>
+        {arg.options.map(opt =>
           _.isString(opt) ? <option value={opt}>{opt}</option> : <option value={opt.value}>{opt.name}</option>
         )}
       </FormSelectField>
@@ -34,7 +34,7 @@ export default function FormArgumentList({ args, onChangeValues = undefined, nam
   return (
     <FormArgumentsWrapper>
       {' '}
-      {args.map((arg) => (
+      {args.map(arg => (
         <FormArgument arg={arg} key={arg.name} namePrefix={namePrefix} />
       ))}
     </FormArgumentsWrapper>

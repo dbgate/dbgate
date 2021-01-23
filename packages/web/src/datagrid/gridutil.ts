@@ -128,7 +128,7 @@ export function filterCellForRow(cell, row: number): CellAddress | null {
 }
 
 export function filterCellsForRow(cells, row: number): CellAddress[] | null {
-  const res = (cells || []).filter((x) => x[0] == row || _.isString(x[0]));
+  const res = (cells || []).filter(x => x[0] == row || _.isString(x[0]));
   return res.length > 0 ? res : null;
 }
 

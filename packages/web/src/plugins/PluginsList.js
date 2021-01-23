@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   &:hover {
-    background-color: ${(props) => props.theme.left_background_blue[1]};
+    background-color: ${props => props.theme.left_background_blue[1]};
   }
 `;
 
@@ -79,7 +79,7 @@ function PluginsListItem({ packageManifest }) {
 export default function PluginsList({ plugins }) {
   return (
     <>
-      {plugins.map((packageManifest) => (
+      {plugins.map(packageManifest => (
         <PluginsListItem packageManifest={packageManifest} key={packageManifest.name} />
       ))}
     </>

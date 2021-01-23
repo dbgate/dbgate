@@ -17,7 +17,7 @@ function Menu({ data, menuExt = null, title = undefined, disableRename = false }
   const hasPermission = useHasPermission();
   const showModal = useShowModal();
   const handleDelete = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ConfirmModal
         modalState={modalState}
         message={`Really delete file ${title || data.file}?`}
@@ -28,13 +28,13 @@ function Menu({ data, menuExt = null, title = undefined, disableRename = false }
     ));
   };
   const handleRename = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <InputTextModal
         modalState={modalState}
         value={data.file}
         label="New file name"
         header="Rename file"
-        onConfirm={(newFile) => {
+        onConfirm={newFile => {
           axios.post('files/rename', { ...data, newFile });
         }}
       />
@@ -77,7 +77,7 @@ export function SavedFileAppObjectBase({
       title={title || file}
       icon={icon}
       onClick={onClick}
-      Menu={(props) => <Menu {...props} menuExt={menuExt} title={title} disableRename={disableRename} />}
+      Menu={props => <Menu {...props} menuExt={menuExt} title={title} disableRename={disableRename} />}
     />
   );
 }
@@ -123,7 +123,7 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
           <DropDownMenuItem onClick={handleGenerateExecute}>Generate shell execute</DropDownMenuItem>
         ) : null
       }
-      onLoad={(data) => {
+      onLoad={data => {
         newQuery({
           title: file,
           initialData: data,
@@ -147,7 +147,7 @@ export function SavedShellFileAppObject({ data, commonProps }) {
       commonProps={commonProps}
       format="text"
       icon="img shell"
-      onLoad={(data) => {
+      onLoad={data => {
         openNewTab(
           {
             title: file,
@@ -183,7 +183,7 @@ export function SavedChartFileAppObject({ data, commonProps }) {
       commonProps={commonProps}
       format="json"
       icon="img chart"
-      onLoad={(data) => {
+      onLoad={data => {
         openNewTab(
           {
             title: file,
@@ -222,7 +222,7 @@ export function SavedQueryFileAppObject({ data, commonProps }) {
       commonProps={commonProps}
       format="json"
       icon="img query-design"
-      onLoad={(data) => {
+      onLoad={data => {
         openNewTab(
           {
             title: file,
@@ -266,7 +266,7 @@ export function SavedMarkdownFileAppObject({ data, commonProps }) {
       commonProps={commonProps}
       format="text"
       icon="img markdown"
-      onLoad={(data) => {
+      onLoad={data => {
         openNewTab(
           {
             title: file,
@@ -308,7 +308,7 @@ export function SavedFileAppObject({ data, commonProps }) {
   SavedChartFileAppObject,
   SavedMarkdownFileAppObject,
   SavedFileAppObject,
-].forEach((fn) => {
+].forEach(fn => {
   // @ts-ignore
-  fn.extractKey = (data) => data.file;
+  fn.extractKey = data => data.file;
 });

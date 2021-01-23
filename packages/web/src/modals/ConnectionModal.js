@@ -14,10 +14,10 @@ import { FormProvider, useForm } from '../utility/FormProvider';
 function DriverFields({ extensions }) {
   const { values, setFieldValue } = useForm();
   const { authType, engine } = values;
-  const driver = extensions.drivers.find((x) => x.engine == engine);
+  const driver = extensions.drivers.find(x => x.engine == engine);
   // const { authTypes } = driver || {};
   const [authTypes, setAuthTypes] = React.useState(null);
-  const currentAuthType = authTypes && authTypes.find((x) => x.name == authType);
+  const currentAuthType = authTypes && authTypes.find(x => x.name == authType);
 
   const loadAuthTypes = async () => {
     const resp = await axios.post('plugins/auth-types', { engine });
@@ -39,7 +39,7 @@ function DriverFields({ extensions }) {
     <>
       {!!authTypes && (
         <FormSelectField label="Authentication" name="authType">
-          {authTypes.map((auth) => (
+          {authTypes.map(auth => (
             <option value={auth.name} key={auth.name}>
               {auth.title}
             </option>
@@ -66,7 +66,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
   const [isTesting, setIsTesting] = React.useState(false);
   const testIdRef = React.useRef(0);
 
-  const handleTest = async (values) => {
+  const handleTest = async values => {
     setIsTesting(true);
     testIdRef.current += 1;
     const testid = testIdRef.current;
@@ -82,7 +82,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
     setIsTesting(false);
   };
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     axios.post('connections/save', values);
     modalState.close();
   };
@@ -93,7 +93,7 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
         <ModalContent>
           <FormSelectField label="Database engine" name="engine">
             <option value="(select driver)"></option>
-            {extensions.drivers.map((driver) => (
+            {extensions.drivers.map(driver => (
               <option value={driver.engine} key={driver.engine}>
                 {driver.title}
               </option>

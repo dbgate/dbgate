@@ -28,7 +28,7 @@ import ConnectionModal from '../modals/ConnectionModal';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
-  const handleDatabaseClick = (database) => {
+  const handleDatabaseClick = database => {
     setDb({
       ...database,
       connection: data,
@@ -38,7 +38,7 @@ function SubDatabaseList({ data }) {
   const databases = useDatabaseList({ conid: _id });
   return (
     <AppObjectList
-      list={(databases || []).map((db) => ({ ...db, connection: data }))}
+      list={(databases || []).map(db => ({ ...db, connection: data }))}
       AppObjectComponent={DatabaseAppObject}
       // makeAppObj={databaseAppObject({ boldCurrentDatabase: true })}
       onObjectClick={handleDatabaseClick}
@@ -51,9 +51,7 @@ function ConnectionList() {
   const serverStatus = useServerStatus();
   const openedConnections = useOpenedConnections();
   const connectionsWithStatus =
-    connections && serverStatus
-      ? connections.map((conn) => ({ ...conn, status: serverStatus[conn._id] }))
-      : connections;
+    connections && serverStatus ? connections.map(conn => ({ ...conn, status: serverStatus[conn._id] })) : connections;
   const showModal = useShowModal();
 
   const handleRefreshConnections = () => {
@@ -63,7 +61,7 @@ function ConnectionList() {
   };
 
   const showNewConnection = () => {
-    showModal((modalState) => <ConnectionModal modalState={modalState} />);
+    showModal(modalState => <ConnectionModal modalState={modalState} />);
   };
 
   const [filter, setFilter] = React.useState('');
@@ -83,7 +81,7 @@ function ConnectionList() {
           // makeAppObj={connectionAppObject({ boldCurrentDatabase: true })}
           SubItems={SubDatabaseList}
           filter={filter}
-          isExpandable={(data) => openedConnections.includes(data._id)}
+          isExpandable={data => openedConnections.includes(data._id)}
         />
         {connections && connections.length == 0 && (
           <ToolbarButton icon="icon new-connection" onClick={showNewConnection}>
@@ -105,9 +103,9 @@ function SqlObjectList({ conid, database }) {
 
   const [filter, setFilter] = React.useState('');
   const objectList = _.flatten(
-    ['tables', 'views', 'procedures', 'functions'].map((objectTypeField) =>
+    ['tables', 'views', 'procedures', 'functions'].map(objectTypeField =>
       _.sortBy(
-        ((objects || {})[objectTypeField] || []).map((obj) => ({ ...obj, objectTypeField })),
+        ((objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
       )
     )
@@ -147,9 +145,9 @@ function SqlObjectList({ conid, database }) {
           <LoadingInfo message="Loading database structure" />
         ) : (
           <AppObjectList
-            list={objectList.map((x) => ({ ...x, conid, database }))}
+            list={objectList.map(x => ({ ...x, conid, database }))}
             AppObjectComponent={DatabaseObjectAppObject}
-            groupFunc={(data) => _.startCase(data.objectTypeField)}
+            groupFunc={data => _.startCase(data.objectTypeField)}
             filter={filter}
           />
         )}

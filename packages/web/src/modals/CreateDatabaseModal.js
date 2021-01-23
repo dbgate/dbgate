@@ -8,7 +8,7 @@ import ModalFooter from './ModalFooter';
 import { FormProvider } from '../utility/FormProvider';
 
 export default function CreateDatabaseModal({ modalState, conid }) {
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { name } = values;
     axios.post('server-connections/create-database', { conid, name });
 

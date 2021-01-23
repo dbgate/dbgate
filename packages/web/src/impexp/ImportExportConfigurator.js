@@ -53,7 +53,7 @@ const Column = styled.div`
 const Label = styled.div`
   margin: 5px;
   margin-top: 15px;
-  color: ${(props) => props.theme.modal_font2};
+  color: ${props => props.theme.modal_font2};
 `;
 
 const SourceNameWrapper = styled.div`
@@ -67,10 +67,10 @@ const SourceNameButtons = styled.div`
 
 const IconButtonWrapper = styled.div`
   &:hover {
-    background-color: ${(props) => props.theme.modal_background2};
+    background-color: ${props => props.theme.modal_background2};
   }
   cursor: pointer;
-  color: ${(props) => props.theme.modal_font_blue[7]};
+  color: ${props => props.theme.modal_font_blue[7]};
   margin-left: 5px;
 `;
 
@@ -82,12 +82,12 @@ const SqlWrapper = styled.div`
 
 const DragWrapper = styled.div`
   padding: 10px;
-  background: ${(props) => props.theme.modal_background2};
+  background: ${props => props.theme.modal_background2};
 `;
 
 const ArrowWrapper = styled.div`
   font-size: 30px;
-  color: ${(props) => props.theme.modal_font_blue[7]};
+  color: ${props => props.theme.modal_font_blue[7]};
   align-self: center;
 `;
 
@@ -128,7 +128,7 @@ async function addFilesToSourceList(extensions, files, values, setValues, prefer
       await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues);
     }
   }
-  newValues['sourceList'] = [...(values.sourceList || []).filter((x) => !newSources.includes(x)), ...newSources];
+  newValues['sourceList'] = [...(values.sourceList || []).filter(x => !newSources.includes(x)), ...newSources];
   if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
     newValues['sourceStorageType'] = preferedStorageType;
   }
@@ -158,7 +158,7 @@ function ElectronFilesInput() {
         setIsLoading(true);
         await addFilesToSourceList(
           extensions,
-          files.map((full) => ({
+          files.map(full => ({
             fileName: full,
             shortName: path.parse(full).name,
           })),
@@ -197,7 +197,7 @@ function FilesInput({ setPreviewSource = undefined }) {
   const showModal = useShowModal();
   const { values, setValues } = useForm();
   const extensions = useExtensions();
-  const doAddUrl = (url) => {
+  const doAddUrl = url => {
     addFilesToSourceList(
       extensions,
       [
@@ -214,7 +214,7 @@ function FilesInput({ setPreviewSource = undefined }) {
     );
   };
   const handleAddUrl = () =>
-    showModal((modalState) => <ChangeDownloadUrlModal modalState={modalState} onConfirm={doAddUrl} />);
+    showModal(modalState => <ChangeDownloadUrlModal modalState={modalState} onConfirm={doAddUrl} />);
   return (
     <>
       <ButtonsLine>
@@ -245,7 +245,7 @@ function SourceTargetConfig({
       ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
       : [
           { value: 'database', label: 'Database', directions: ['source', 'target'] },
-          ...extensions.fileFormats.map((format) => ({
+          ...extensions.fileFormats.map(format => ({
             value: format.storageType,
             label: `${format.name} files(s)`,
             directions: getFileFormatDirections(format),
@@ -269,7 +269,7 @@ function SourceTargetConfig({
           <FontIcon icon="icon export" /> Target configuration
         </Title>
       )}
-      <FormReactSelect options={types.filter((x) => x.directions.includes(direction))} name={storageTypeField} />
+      <FormReactSelect options={types.filter(x => x.directions.includes(direction))} name={storageTypeField} />
       {(storageType == 'database' || storageType == 'query') && (
         <>
           <Label theme={theme}>Server</Label>
@@ -298,7 +298,7 @@ function SourceTargetConfig({
                   onClick={() =>
                     setFieldValue(
                       'sourceList',
-                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.tables.map((x) => x.pureName))])
+                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.tables.map(x => x.pureName))])
                     )
                   }
                 />
@@ -308,7 +308,7 @@ function SourceTargetConfig({
                   onClick={() =>
                     setFieldValue(
                       'sourceList',
-                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.views.map((x) => x.pureName))])
+                      _.uniq([...(values.sourceList || []), ...(dbinfo && dbinfo.views.map(x => x.pureName))])
                     )
                   }
                 />
@@ -324,7 +324,7 @@ function SourceTargetConfig({
           <SqlWrapper>
             <SqlEditor
               value={values.sourceSql}
-              onChange={(value) => setFieldValue('sourceSql', value)}
+              onChange={value => setFieldValue('sourceSql', value)}
               engine={engine}
               focusOnCreate
             />
@@ -353,7 +353,7 @@ function SourceTargetConfig({
               onClick={() =>
                 setFieldValue(
                   'sourceList',
-                  _.uniq([...(values.sourceList || []), ...(archiveFiles && archiveFiles.map((x) => x.name))])
+                  _.uniq([...(values.sourceList || []), ...(archiveFiles && archiveFiles.map(x => x.name))])
                 )
               }
             />
@@ -366,7 +366,7 @@ function SourceTargetConfig({
 
       {format && format.args && (
         <FormArgumentList
-          args={format.args.filter((arg) => !arg.direction || arg.direction == direction)}
+          args={format.args.filter(arg => !arg.direction || arg.direction == direction)}
           namePrefix={`${direction}_${format.storageType}_`}
         />
       )}
@@ -382,14 +382,14 @@ function SourceName({ name }) {
   const handleDelete = () => {
     setFieldValue(
       'sourceList',
-      values.sourceList.filter((x) => x != name)
+      values.sourceList.filter(x => x != name)
     );
   };
-  const doChangeUrl = (url) => {
+  const doChangeUrl = url => {
     setFieldValue(`sourceFile_${name}`, { fileName: url, isDownload: true });
   };
   const handleChangeUrl = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ChangeDownloadUrlModal modalState={modalState} url={obj.fileName} onConfirm={doChangeUrl} />
     ));
   };
@@ -423,7 +423,7 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   const extensions = useExtensions();
 
   const handleUpload = React.useCallback(
-    (file) => {
+    file => {
       addFilesToSourceList(
         extensions,
         [
@@ -516,36 +516,36 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
           <FontIcon icon="icon tables" /> Map source tables/files
         </Title>
         <TableControl rows={sourceList || []}>
-          <TableColumn fieldName="source" header="Source" formatter={(row) => <SourceName name={row} />} />
+          <TableColumn fieldName="source" header="Source" formatter={row => <SourceName name={row} />} />
           <TableColumn
             fieldName="action"
             header="Action"
-            formatter={(row) => (
+            formatter={row => (
               <SelectField
                 options={getActionOptions(extensions, row, values, targetDbinfo)}
                 value={values[`actionType_${row}`] || getActionOptions(extensions, row, values, targetDbinfo)[0].value}
-                onChange={(e) => setFieldValue(`actionType_${row}`, e.target.value)}
+                onChange={e => setFieldValue(`actionType_${row}`, e.target.value)}
               />
             )}
           />
           <TableColumn
             fieldName="target"
             header="Target"
-            formatter={(row) => (
+            formatter={row => (
               <TextField
                 value={getTargetName(extensions, row, values)}
-                onChange={(e) => setFieldValue(`targetName_${row}`, e.target.value)}
+                onChange={e => setFieldValue(`targetName_${row}`, e.target.value)}
               />
             )}
           />
           <TableColumn
             fieldName="preview"
             header="Preview"
-            formatter={(row) =>
+            formatter={row =>
               supportsPreview ? (
                 <CheckboxField
                   checked={previewSource == row}
-                  onChange={(e) => {
+                  onChange={e => {
                     if (e.target.checked) setPreviewSource(row);
                     else setPreviewSource(null);
                   }}

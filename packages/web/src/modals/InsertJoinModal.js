@@ -34,7 +34,7 @@ const JOIN_TYPES = ['INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN'];
 
 export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onInsert }) {
   const sources = React.useMemo(
-    () => analyseQuerySources(sql, [...dbinfo.tables.map((x) => x.pureName), ...dbinfo.views.map((x) => x.pureName)]),
+    () => analyseQuerySources(sql, [...dbinfo.tables.map(x => x.pureName), ...dbinfo.views.map(x => x.pureName)]),
     [sql, dbinfo]
   );
 
@@ -51,22 +51,22 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
     const source = sources[sourceIndex];
     if (!source) return [];
     /** @type {import('dbgate-types').TableInfo} */
-    const table = dbinfo.tables.find((x) => x.pureName == sources[sourceIndex].name);
+    const table = dbinfo.tables.find(x => x.pureName == sources[sourceIndex].name);
     if (!table) return [];
     return [
-      ...table.foreignKeys.map((fk) => ({
-        baseColumns: fk.columns.map((x) => x.columnName).join(', '),
+      ...table.foreignKeys.map(fk => ({
+        baseColumns: fk.columns.map(x => x.columnName).join(', '),
         refTable: fk.refTableName,
-        refColumns: fk.columns.map((x) => x.refColumnName).join(', '),
+        refColumns: fk.columns.map(x => x.refColumnName).join(', '),
         constraintName: fk.constraintName,
         columnMap: fk.columns,
       })),
-      ...table.dependencies.map((fk) => ({
-        baseColumns: fk.columns.map((x) => x.refColumnName).join(', '),
+      ...table.dependencies.map(fk => ({
+        baseColumns: fk.columns.map(x => x.refColumnName).join(', '),
         refTable: fk.pureName,
-        refColumns: fk.columns.map((x) => x.columnName).join(', '),
+        refColumns: fk.columns.map(x => x.columnName).join(', '),
         constraintName: fk.constraintName,
-        columnMap: fk.columns.map((x) => ({
+        columnMap: fk.columns.map(x => ({
           columnName: x.refColumnName,
           refColumnName: x.columnName,
         })),
@@ -79,18 +79,18 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
     const target = targets[targetIndex];
     if (source && target) {
       return `${JOIN_TYPES[joinIndex]} ${target.refTable}${alias ? ` ${alias}` : ''} ON ${target.columnMap
-        .map((col) => `${source.name}.${col.columnName} = ${alias || target.refTable}.${col.refColumnName}`)
+        .map(col => `${source.name}.${col.columnName} = ${alias || target.refTable}.${col.refColumnName}`)
         .join(' AND ')}`;
     }
     return '';
   }, [joinIndex, sources, targets, sourceIndex, targetIndex, alias]);
 
-  const sourceKeyDown = React.useCallback((event) => {
+  const sourceKeyDown = React.useCallback(event => {
     if (event.keyCode == keycodes.enter || event.keyCode == keycodes.rightArrow) {
       targetRef.current.focus();
     }
   }, []);
-  const targetKeyDown = React.useCallback((event) => {
+  const targetKeyDown = React.useCallback(event => {
     if (event.keyCode == keycodes.leftArrow) {
       sourceRef.current.focus();
     }
@@ -98,7 +98,7 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
       joinRef.current.focus();
     }
   }, []);
-  const joinKeyDown = React.useCallback((event) => {
+  const joinKeyDown = React.useCallback(event => {
     if (event.keyCode == keycodes.leftArrow) {
       targetRef.current.focus();
     }
@@ -107,7 +107,7 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
     }
   }, []);
   const aliasKeyDown = React.useCallback(
-    (event) => {
+    event => {
       if (event.keyCode == keycodes.enter) {
         event.preventDefault();
         modalState.close();
@@ -154,7 +154,7 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
           <FlexColumn>
             <Label>Join</Label>
             <TableControl
-              rows={JOIN_TYPES.map((name) => ({ name }))}
+              rows={JOIN_TYPES.map(name => ({ name }))}
               selectedIndex={joinIndex}
               setSelectedIndex={setJoinIndex}
               tableRef={joinRef}
@@ -165,7 +165,7 @@ export default function InsertJoinModal({ sql, modalState, engine, dbinfo, onIns
             <Label>Alias</Label>
             <TextField
               value={alias}
-              onChange={(e) => setAlias(e.target.value)}
+              onChange={e => setAlias(e.target.value)}
               editorRef={aliasRef}
               onKeyDown={aliasKeyDown}
             />

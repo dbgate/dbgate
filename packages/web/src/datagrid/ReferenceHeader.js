@@ -9,12 +9,12 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: ${(props) => props.theme.gridheader_background_cyan[0]};
+  background: ${props => props.theme.gridheader_background_cyan[0]};
   height: ${dimensions.toolBar.height}px;
   min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
-  border-top: 1px solid ${(props) => props.theme.border};
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-top: 1px solid ${props => props.theme.border};
+  border-bottom: 1px solid ${props => props.theme.border};
 `;
 
 const Header = styled.div`
@@ -34,8 +34,8 @@ export default function ReferenceHeader({ reference, onClose }) {
       <Header>
         <FontIcon icon="img reference" />
         <HeaderText>
-          {reference.pureName} [{reference.columns.map((x) => x.refName).join(', ')}] = master [
-          {reference.columns.map((x) => x.baseName).join(', ')}]
+          {reference.pureName} [{reference.columns.map(x => x.refName).join(', ')}] = master [
+          {reference.columns.map(x => x.baseName).join(', ')}]
         </HeaderText>
       </Header>
       <ToolbarButton icon="icon close" onClick={onClose} patchY={6}>

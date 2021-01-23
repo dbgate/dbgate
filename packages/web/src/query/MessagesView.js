@@ -7,7 +7,7 @@ const MainContainer = styled.div`
   flex: 1;
   display: flex;
   overflow-y: scroll;
-  background-color: ${(props) => props.theme.gridbody_background};
+  background-color: ${props => props.theme.gridbody_background};
 `;
 
 const StyledTable = styled.table`
@@ -18,22 +18,22 @@ const StyledTable = styled.table`
 
 const StyledHeader = styled.td`
   text-align: left;
-  border-bottom: 2px solid ${(props) => props.theme.border};
-  background-color: ${(props) => props.theme.gridheader_background};
+  border-bottom: 2px solid ${props => props.theme.border};
+  background-color: ${props => props.theme.gridheader_background};
   padding: 5px;
 `;
 
 const StyledCell = styled.td`
-  border-top: 1px solid ${(props) => props.theme.border};
+  border-top: 1px solid ${props => props.theme.border};
   padding: 5px;
 `;
 
 const StyledRow = styled.tr`
-  color: ${(props) =>
+  color: ${props =>
     // @ts-ignore
     props.severity == 'error' ? props.theme.gridbody_font_red[5] : props.theme.gridbody_font1};
 
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     props.line != null &&
     `
@@ -55,7 +55,7 @@ function formatDuration(duration) {
 }
 
 function MessagesView({ items, onMessageClick, showProcedure = false, showLine = false }) {
-  const handleClick = (row) => {
+  const handleClick = row => {
     if (onMessageClick) onMessageClick(row);
   };
   const theme = useTheme();

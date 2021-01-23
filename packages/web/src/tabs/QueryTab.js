@@ -55,7 +55,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   }, [sessionId, socket]);
 
   React.useEffect(() => {
-    changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
+    changeTab(tabid, setOpenedTabs, tab => ({ ...tab, busy }));
   }, [busy]);
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
@@ -63,7 +63,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
 
   const handleExecute = async () => {
     if (busy) return;
-    setExecuteNumber((num) => num + 1);
+    setExecuteNumber(num => num + 1);
     setVisibleResultTabs(true);
     const selectedText = editorRef.current.editor.getSelectedText();
 
@@ -104,7 +104,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     }
   };
 
-  const handleMesageClick = (message) => {
+  const handleMesageClick = message => {
     // console.log('EDITOR', editorRef.current.editor);
     if (editorRef.current && editorRef.current.editor) {
       editorRef.current.editor.gotoLine(message.line);
@@ -179,4 +179,4 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   );
 }
 
-QueryTab.allowAddToFavorites = (props) => true;
+QueryTab.allowAddToFavorites = props => true;

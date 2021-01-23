@@ -35,7 +35,7 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   const socket = useSocket();
 
   React.useEffect(() => {
-    changeTab(tabid, setOpenedTabs, (tab) => ({ ...tab, busy }));
+    changeTab(tabid, setOpenedTabs, tab => ({ ...tab, busy }));
   }, [busy]);
 
   const editorRef = React.useRef(null);
@@ -55,14 +55,14 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
 
   const handleExecute = async () => {
     if (busy) return;
-    setExecuteNumber((num) => num + 1);
+    setExecuteNumber(num => num + 1);
     const selectedText = editorRef.current.editor.getSelectedText();
 
     let runid = runnerId;
     const resp = await axios.post('runners/start', {
       script: selectedText
-        ? [...(editorData || '').matchAll(requireRegex)].map((x) => `${x[1]}\n`).join('') +
-          [...(editorData || '').matchAll(initRegex)].map((x) => `${x[1]}\n`).join('') +
+        ? [...(editorData || '').matchAll(requireRegex)].map(x => `${x[1]}\n`).join('') +
+          [...(editorData || '').matchAll(initRegex)].map(x => `${x[1]}\n`).join('') +
           selectedText
         : editorData,
     });
@@ -87,7 +87,7 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   const handleEdit = () => {
     const jsonTextMatch = (editorData || '').match(configRegex);
     if (jsonTextMatch) {
-      showModal((modalState) => (
+      showModal(modalState => (
         <ImportExportModal modalState={modalState} initialValues={JSON.parse(jsonTextMatch[1])} />
       ));
     }
@@ -140,4 +140,4 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
   );
 }
 
-ShellTab.allowAddToFavorites = (props) => true;
+ShellTab.allowAddToFavorites = props => true;

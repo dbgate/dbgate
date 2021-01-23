@@ -19,7 +19,7 @@ import { presetPrimaryColors } from '@ant-design/colors';
 import ErrorInfo from '../widgets/ErrorInfo';
 
 const LeftContainer = styled.div`
-  background-color: ${(props) => props.theme.manager_background};
+  background-color: ${props => props.theme.manager_background};
   display: flex;
   flex: 1;
 `;
@@ -71,7 +71,7 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
 
   React.useEffect(() => {
     if (data) {
-      setAvailableColumnNames(data ? data.structure.columns.map((x) => x.columnName) : []);
+      setAvailableColumnNames(data ? data.structure.columns.map(x => x.columnName) : []);
     }
   }, [data]);
 
@@ -119,21 +119,21 @@ export default function ChartEditor({ data, config, setConfig, sql, conid, datab
                 {availableColumnNames.length > 0 && (
                   <FormSelectField label="Label column" name="labelColumn">
                     <option value=""></option>
-                    {availableColumnNames.map((col) => (
+                    {availableColumnNames.map(col => (
                       <option value={col} key={col}>
                         {col}
                       </option>
                     ))}
                   </FormSelectField>
                 )}
-                {availableColumnNames.map((col) => (
+                {availableColumnNames.map(col => (
                   <React.Fragment key={col}>
                     <FormCheckboxField label={col} name={`dataColumn_${col}`} />
                     {config[`dataColumn_${col}`] && (
                       <FormSelectField label="Color" name={`dataColumnColor_${col}`}>
                         <option value="">Random</option>
 
-                        {_.keys(presetPrimaryColors).map((color) => (
+                        {_.keys(presetPrimaryColors).map(color => (
                           <option value={color} key={color}>
                             {_.startCase(color)}
                           </option>

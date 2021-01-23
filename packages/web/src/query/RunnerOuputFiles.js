@@ -39,12 +39,12 @@ export default function RunnerOutputFiles({ runnerId, executeNumber }) {
   return (
     <TableControl rows={files}>
       <TableColumn fieldName="name" header="Name" />
-      <TableColumn fieldName="size" header="Size" formatter={(row) => formatFileSize(row.size)} />
+      <TableColumn fieldName="size" header="Size" formatter={row => formatFileSize(row.size)} />
       {!electron && (
         <TableColumn
           fieldName="download"
           header="Download"
-          formatter={(row) => (
+          formatter={row => (
             <a href={`${resolveApi()}/runners/data/${runnerId}/${row.name}`} target="_blank" rel="noopener noreferrer">
               download
             </a>
@@ -55,7 +55,7 @@ export default function RunnerOutputFiles({ runnerId, executeNumber }) {
         <TableColumn
           fieldName="copy"
           header="Copy"
-          formatter={(row) => (
+          formatter={row => (
             <a
               href="#"
               onClick={() => {
@@ -75,7 +75,7 @@ export default function RunnerOutputFiles({ runnerId, executeNumber }) {
         <TableColumn
           fieldName="show"
           header="Show"
-          formatter={(row) => (
+          formatter={row => (
             <a
               href="#"
               onClick={() => {

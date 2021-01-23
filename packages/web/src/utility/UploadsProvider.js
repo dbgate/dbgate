@@ -23,8 +23,8 @@ export function useUploadFiles() {
   const extensions = useExtensions();
 
   const handleUploadFiles = React.useCallback(
-    (files) => {
-      files.forEach(async (file) => {
+    files => {
+      files.forEach(async file => {
         if (parseInt(file.size, 10) >= 4 * 1024 * 1024) {
           // to big file
           return;
@@ -56,7 +56,7 @@ export function useUploadFiles() {
           uploadListener(fileData);
         } else {
           if (findFileFormat(extensions, fileData.storageType)) {
-            showModal((modalState) => (
+            showModal(modalState => (
               <ImportExportModal
                 uploadedFile={fileData}
                 modalState={modalState}

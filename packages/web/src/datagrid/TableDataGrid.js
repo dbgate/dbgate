@@ -56,12 +56,12 @@ export default function TableDataGrid({
   const { childConfig } = config;
   const setChildConfig = (value, reference = undefined) => {
     if (_.isFunction(value)) {
-      setConfig((x) => ({
+      setConfig(x => ({
         ...x,
         childConfig: value(x.childConfig),
       }));
     } else {
-      setConfig((x) => ({
+      setConfig(x => ({
         ...x,
         childConfig: value,
         reference: reference === undefined ? x.reference : reference,
@@ -106,7 +106,7 @@ export default function TableDataGrid({
   const [formDisplay, setFormDisplay] = React.useState(createFormDisplay());
 
   React.useEffect(() => {
-    setRefReloadToken((v) => v + 1);
+    setRefReloadToken(v => v + 1);
     if (!reference && display && display.isGrouped) display.clearGrouping();
   }, [reference]);
 
@@ -151,18 +151,18 @@ export default function TableDataGrid({
       const filters = {
         ...filtersBase,
         ..._.fromPairs(
-          reference.columns.map((col) => [
+          reference.columns.map(col => [
             col.refName,
-            selectedRows.map((x) => getFilterValueExpression(x[col.baseName], col.dataType)).join(', '),
+            selectedRows.map(x => getFilterValueExpression(x[col.baseName], col.dataType)).join(', '),
           ])
         ),
       };
       if (stableStringify(filters) != stableStringify(childConfig.filters)) {
-        setChildConfig((cfg) => ({
+        setChildConfig(cfg => ({
           ...cfg,
           filters,
         }));
-        setChildCache((ca) => ({
+        setChildCache(ca => ({
           ...ca,
           refreshTime: new Date().getTime(),
         }));
@@ -192,7 +192,7 @@ export default function TableDataGrid({
         dispatchChangeSet={dispatchChangeSet}
         toolbarPortalRef={toolbarPortalRef}
         showReferences
-        onReferenceClick={(reference) => setChildConfig(createGridConfig(), reference)}
+        onReferenceClick={reference => setChildConfig(createGridConfig(), reference)}
         onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
         refReloadToken={refReloadToken.toString()}
         masterLoadedTime={masterLoadedTime}

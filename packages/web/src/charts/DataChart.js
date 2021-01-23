@@ -27,8 +27,8 @@ function getTimeAxis(labels) {
 
 function getLabels(labelValues, timeAxis, chartType) {
   if (!timeAxis) return labelValues;
-  if (chartType === 'line') return timeAxis.map((x) => x.toDate());
-  return timeAxis.map((x) => x.format('D. M. YYYY'));
+  if (chartType === 'line') return timeAxis.map(x => x.toDate());
+  return timeAxis.map(x => x.format('D. M. YYYY'));
 }
 
 function getOptions(timeAxis, chartType) {
@@ -70,7 +70,7 @@ function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartTyp
   });
   let backgroundColor = null;
   let borderColor = null;
-  const labelValues = freeData.rows.map((x) => x[labelColumn]);
+  const labelValues = freeData.rows.map(x => x[labelColumn]);
   const timeAxis = getTimeAxis(labelValues);
   const labels = getLabels(labelValues, timeAxis, chartType);
   const res = {
@@ -91,7 +91,7 @@ function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartTyp
 
       return {
         label: dataColumn,
-        data: freeData.rows.map((row) => row[dataColumn]),
+        data: freeData.rows.map(row => row[dataColumn]),
         backgroundColor,
         borderColor,
         borderWidth: 1,

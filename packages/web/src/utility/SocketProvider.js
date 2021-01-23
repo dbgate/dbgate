@@ -11,7 +11,7 @@ export function SocketProvider({ children }) {
     // const newSocket = io('http://localhost:3000', { transports: ['websocket'] });
     const newSocket = io(resolveApi());
     setSocket(newSocket);
-    newSocket.on('clean-cache', (reloadTrigger) => cacheClean(reloadTrigger));
+    newSocket.on('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
   }, []);
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 }

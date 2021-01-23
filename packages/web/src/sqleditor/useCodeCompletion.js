@@ -34,7 +34,7 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
         const line = session.getLine(cursor.row).slice(0, cursor.column);
         const dbinfo = await getDatabaseInfo({ conid, database });
 
-        let list = COMMON_KEYWORDS.map((word) => ({
+        let list = COMMON_KEYWORDS.map(word => ({
           name: word,
           value: word,
           caption: word,
@@ -47,17 +47,17 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           if (colMatch) {
             const table = colMatch[1];
             const sources = analyseQuerySources(editor.getValue(), [
-              ...dbinfo.tables.map((x) => x.pureName),
-              ...dbinfo.views.map((x) => x.pureName),
+              ...dbinfo.tables.map(x => x.pureName),
+              ...dbinfo.views.map(x => x.pureName),
             ]);
-            const source = sources.find((x) => (x.alias || x.name) == table);
+            const source = sources.find(x => (x.alias || x.name) == table);
             console.log('sources', sources);
             console.log('table', table, source);
             if (source) {
-              const table = dbinfo.tables.find((x) => x.pureName == source.name);
+              const table = dbinfo.tables.find(x => x.pureName == source.name);
               if (table) {
                 list = [
-                  ...table.columns.map((x) => ({
+                  ...table.columns.map(x => ({
                     name: x.columnName,
                     value: x.columnName,
                     caption: x.columnName,
@@ -70,14 +70,14 @@ export default function useCodeCompletion({ conid, database, tabVisible, current
           } else {
             list = [
               ...list,
-              ...dbinfo.tables.map((x) => ({
+              ...dbinfo.tables.map(x => ({
                 name: x.pureName,
                 value: x.pureName,
                 caption: x.pureName,
                 meta: 'table',
                 score: 1000,
               })),
-              ...dbinfo.views.map((x) => ({
+              ...dbinfo.views.map(x => ({
                 name: x.pureName,
                 value: x.pureName,
                 caption: x.pureName,

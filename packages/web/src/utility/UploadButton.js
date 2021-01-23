@@ -11,7 +11,7 @@ const Wrapper = styled.div`
 export default function UploadButton() {
   const theme = useTheme();
   const uploadFiles = useUploadFiles();
-  const handleChange = (e) => {
+  const handleChange = e => {
     const files = [...e.target.files];
     uploadFiles(files);
   };

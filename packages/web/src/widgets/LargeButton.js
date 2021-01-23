@@ -8,13 +8,13 @@ import { useForm } from '../utility/FormProvider';
 
 const ButtonDiv = styled.div`
   padding: 5px 15px;
-  color: ${(props) => props.theme.main_font1};
-  border: 1px solid ${(props) => props.theme.border};
+  color: ${props => props.theme.main_font1};
+  border: 1px solid ${props => props.theme.border};
   width: 120px;
   height: 60px;
-  background-color: ${(props) => props.theme.toolbar_background};
+  background-color: ${props => props.theme.toolbar_background};
 
-  ${(props) =>
+  ${props =>
     !props.disabled &&
     `
   &:hover {
@@ -26,7 +26,7 @@ const ButtonDiv = styled.div`
   }
   `}
 
-  ${(props) =>
+  ${props =>
     props.disabled &&
     `
     color: ${props.theme.main_font3};

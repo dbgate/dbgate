@@ -27,16 +27,16 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
 
   const showPreview = async () => {
     await saveToStorage();
-    const existing = (openedTabs || []).find((x) => x.props && x.props.sourceTabId == tabid && x.closedTime == null);
+    const existing = (openedTabs || []).find(x => x.props && x.props.sourceTabId == tabid && x.closedTime == null);
     if (existing) {
-      setOpenedTabs((tabs) =>
-        tabs.map((x) => ({
+      setOpenedTabs(tabs =>
+        tabs.map(x => ({
           ...x,
           selected: x.tabid == existing.tabid,
         }))
       );
     } else {
-      const thisTab = (openedTabs || []).find((x) => x.tabid == tabid);
+      const thisTab = (openedTabs || []).find(x => x.tabid == tabid);
       openNewTab({
         title: thisTab.title,
         icon: 'img preview',

@@ -31,7 +31,7 @@ function AvailablePluginsList() {
 
   const setDebouncedFilter = React.useRef(
     // @ts-ignore
-    _.debounce((value) => setSearch(value), 500)
+    _.debounce(value => setSearch(value), 500)
   );
 
   React.useEffect(() => {

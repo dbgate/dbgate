@@ -5,16 +5,16 @@ import useTheme from '../theme/useTheme';
 import dimensions from '../theme/dimensions';
 
 const TabItem = styled.div`
-  border-right: 1px solid ${(props) => props.theme.border};
+  border-right: 1px solid ${props => props.theme.border};
   padding-left: 15px;
   padding-right: 15px;
   display: flex;
   align-items: center;
   cursor: pointer;
   &:hover {
-    color: ${(props) => props.theme.tabs_font_hover};
+    color: ${props => props.theme.tabs_font_hover};
   }
-  background-color: ${(props) =>
+  background-color: ${props =>
     // @ts-ignore
     props.selected ? props.theme.tabs_background1 : 'inherit'};
 `;
@@ -35,7 +35,7 @@ const TabContainer = styled.div`
   top: 0;
    bottom: 0;
 
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     !props.tabVisible && `visibility: hidden;`}
 `;
@@ -44,7 +44,7 @@ const TabsContainer = styled.div`
   display: flex;
   height: ${dimensions.tabsPanel.height}px;
   right: 0;
-  background-color: ${(props) => props.theme.tabs_background2};
+  background-color: ${props => props.theme.tabs_background2};
 `;
 
 const TabContentContainer = styled.div`
@@ -67,7 +67,7 @@ export function TabControl({ children, activePageIndex = undefined, activePageLa
 
   // const [mountedTabs, setMountedTabs] = React.useState({});
 
-  const childrenArray = (_.isArray(children) ? _.flatten(children) : [children]).filter((x) => x);
+  const childrenArray = (_.isArray(children) ? _.flatten(children) : [children]).filter(x => x);
 
   React.useEffect(() => {
     if (activePageIndex != null) setValue(activePageIndex);
@@ -75,7 +75,7 @@ export function TabControl({ children, activePageIndex = undefined, activePageLa
 
   React.useEffect(() => {
     if (activePageLabel != null) {
-      const pageIndex = _.findIndex(childrenArray, (x) => x.props.label == activePageLabel);
+      const pageIndex = _.findIndex(childrenArray, x => x.props.label == activePageLabel);
       if (pageIndex >= 0) setValue(pageIndex);
     }
   }, [activePageLabel]);
@@ -97,7 +97,7 @@ export function TabControl({ children, activePageIndex = undefined, activePageLa
     <MainContainer>
       <TabsContainer theme={theme}>
         {childrenArray
-          .filter((x) => x.props)
+          .filter(x => x.props)
           .map((tab, index) => (
             // @ts-ignore
             <TabItem key={index} onClick={() => setValue(index)} selected={value == index} theme={theme}>

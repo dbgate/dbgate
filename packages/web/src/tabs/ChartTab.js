@@ -30,11 +30,11 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
   }, [modelState]);
 
   const setConfig = React.useCallback(
-    (config) =>
+    config =>
       // @ts-ignore
       dispatchModel({
         type: 'compute',
-        compute: (v) => ({ ...v, config: _.isFunction(config) ? config(v.config) : config }),
+        compute: v => ({ ...v, config: _.isFunction(config) ? config(v.config) : config }),
       }),
     [dispatchModel]
   );
@@ -75,4 +75,4 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
   );
 }
 
-ChartTab.allowAddToFavorites = (props) => true;
+ChartTab.allowAddToFavorites = props => true;

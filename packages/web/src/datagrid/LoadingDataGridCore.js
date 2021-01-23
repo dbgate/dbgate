@@ -32,7 +32,7 @@ export default function LoadingDataGridCore(props) {
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount(props);
-    setLoadProps((oldLoadProps) => ({
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       allRowCount: rowCount,
     }));
@@ -62,7 +62,7 @@ export default function LoadingDataGridCore(props) {
 
   const loadNextData = async () => {
     if (isLoading) return;
-    setLoadProps((oldLoadProps) => ({
+    setLoadProps(oldLoadProps => ({
       ...oldLoadProps,
       isLoading: true,
     }));
@@ -80,7 +80,7 @@ export default function LoadingDataGridCore(props) {
     // }
     // console.log('nextRows', nextRows);
     if (nextRows.errorMessage) {
-      setLoadProps((oldLoadProps) => ({
+      setLoadProps(oldLoadProps => ({
         ...oldLoadProps,
         isLoading: false,
         errorMessage: nextRows.errorMessage,
@@ -91,7 +91,7 @@ export default function LoadingDataGridCore(props) {
         loadedRows: [...loadedRows, ...nextRows],
         loadedTime,
       };
-      setLoadProps((oldLoadProps) => ({
+      setLoadProps(oldLoadProps => ({
         ...oldLoadProps,
         isLoading: false,
         isLoadedAll: oldLoadProps.loadNextDataToken == loadNextDataToken && nextRows.length === 0,
@@ -102,7 +102,7 @@ export default function LoadingDataGridCore(props) {
   };
 
   React.useEffect(() => {
-    setLoadProps((oldProps) => ({
+    setLoadProps(oldProps => ({
       ...oldProps,
       isLoadedAll: false,
     }));

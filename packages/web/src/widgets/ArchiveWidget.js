@@ -32,7 +32,7 @@ function ArchiveFolderList() {
         <AppObjectList
           list={_.sortBy(folders, 'name')}
           AppObjectComponent={ArchiveFolderAppObject}
-          onObjectClick={(archive) => setArchive(archive.name)}
+          onObjectClick={archive => setArchive(archive.name)}
           filter={filter}
         />
       </WidgetsInnerContainer>
@@ -56,7 +56,7 @@ function ArchiveFilesList() {
       </SearchBoxWrapper>
       <WidgetsInnerContainer>
         <AppObjectList
-          list={(files || []).map((file) => ({
+          list={(files || []).map(file => ({
             fileName: file.name,
             folderName: folder,
           }))}

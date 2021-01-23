@@ -17,7 +17,7 @@ const Header = styled.div`
 `;
 
 const LinkContainer = styled.div`
-  color: ${props=>props.theme.manager_font_blue[7]};
+  color: ${props => props.theme.manager_font_blue[7]};
   margin: 5px;
   &:hover {
     text-decoration: underline;
@@ -38,7 +38,7 @@ function ManagerRow({ tableName, columns, icon, onClick }) {
     <LinkContainer onClick={onClick} theme={theme}>
       <FontIcon icon={icon} />
       <NameContainer>
-        {tableName} ({columns.map((x) => x.columnName).join(', ')})
+        {tableName} ({columns.map(x => x.columnName).join(', ')})
       </NameContainer>
     </LinkContainer>
   );
@@ -62,8 +62,8 @@ export default function ReferenceManager(props) {
           <>
             <Header>References tables ({foreignKeys.length})</Header>
             {foreignKeys
-              .filter((fk) => filterName(filter, fk.refTableName))
-              .map((fk) => (
+              .filter(fk => filterName(filter, fk.refTableName))
+              .map(fk => (
                 <ManagerRow
                   key={fk.constraintName}
                   icon="img link"
@@ -73,7 +73,7 @@ export default function ReferenceManager(props) {
                     props.onReferenceClick({
                       schemaName: fk.refSchemaName,
                       pureName: fk.refTableName,
-                      columns: fk.columns.map((col) => ({
+                      columns: fk.columns.map(col => ({
                         baseName: col.columnName,
                         refName: col.refColumnName,
                       })),
@@ -87,8 +87,8 @@ export default function ReferenceManager(props) {
           <>
             <Header>Dependend tables ({dependencies.length})</Header>
             {dependencies
-              .filter((fk) => filterName(filter, fk.pureName))
-              .map((fk) => (
+              .filter(fk => filterName(filter, fk.pureName))
+              .map(fk => (
                 <ManagerRow
                   key={fk.constraintName}
                   icon="img reference"
@@ -98,7 +98,7 @@ export default function ReferenceManager(props) {
                     props.onReferenceClick({
                       schemaName: fk.schemaName,
                       pureName: fk.pureName,
-                      columns: fk.columns.map((col) => ({
+                      columns: fk.columns.map(col => ({
                         baseName: col.refColumnName,
                         refName: col.columnName,
                       })),

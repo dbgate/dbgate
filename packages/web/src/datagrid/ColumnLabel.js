@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { FontIcon } from '../icons';
 
 const Label = styled.span`
-  font-weight: ${(props) => (props.notNull ? 'bold' : 'normal')};
+  font-weight: ${props => (props.notNull ? 'bold' : 'normal')};
   white-space: nowrap;
 `;
 

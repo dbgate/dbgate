@@ -57,7 +57,7 @@ export default function ThemeHelmet() {
         }
 
         ${_.flatten(
-          _.keys(theme.main_palettes).map((color) =>
+          _.keys(theme.main_palettes).map(color =>
             theme.main_palettes[color].map((code, index) => `.color-${color}-${index + 1} { color: ${code} }`)
           )
         ).join('\n')}

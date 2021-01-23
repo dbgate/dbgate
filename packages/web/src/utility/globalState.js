@@ -53,7 +53,7 @@ const [CurrentDatabaseProvider, useCurrentDatabaseCore, useSetCurrentDatabaseCor
 function useSetCurrentDatabase() {
   const setDb = useSetCurrentDatabaseCore();
   const db = useCurrentDatabaseCore();
-  return (value) => {
+  return value => {
     if (_.get(db, 'name') !== _.get(value, 'name') || _.get(db, 'connection._id') != _.get(value, 'connection._id')) {
       setDb(value);
     }

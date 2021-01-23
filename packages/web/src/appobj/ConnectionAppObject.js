@@ -19,10 +19,10 @@ function Menu({ data }) {
   const config = useConfig();
 
   const handleEdit = () => {
-    showModal((modalState) => <ConnectionModal modalState={modalState} connection={data} />);
+    showModal(modalState => <ConnectionModal modalState={modalState} connection={data} />);
   };
   const handleDelete = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ConfirmModal
         modalState={modalState}
         message={`Really delete connection ${data.displayName || data.server}?`}
@@ -31,16 +31,16 @@ function Menu({ data }) {
     ));
   };
   const handleCreateDatabase = () => {
-    showModal((modalState) => <CreateDatabaseModal modalState={modalState} conid={data._id} />);
+    showModal(modalState => <CreateDatabaseModal modalState={modalState} conid={data._id} />);
   };
   const handleRefresh = () => {
     axios.post('server-connections/refresh', { conid: data._id });
   };
   const handleDisconnect = () => {
-    setOpenedConnections((list) => list.filter((x) => x != data._id));
+    setOpenedConnections(list => list.filter(x => x != data._id));
   };
   const handleConnect = () => {
-    setOpenedConnections((list) => [...list, data._id]);
+    setOpenedConnections(list => [...list, data._id]);
   };
   return (
     <>
@@ -72,13 +72,13 @@ function ConnectionAppObject({ data, commonProps }) {
   const extensions = useExtensions();
 
   const isBold = _.get(currentDatabase, 'connection._id') == _id;
-  const onClick = () => setOpenedConnections((c) => [...c, _id]);
+  const onClick = () => setOpenedConnections(c => [...c, _id]);
 
   let statusIcon = null;
   let statusTitle = null;
 
   let extInfo = null;
-  if (extensions.drivers.find((x) => x.engine == engine)) {
+  if (extensions.drivers.find(x => x.engine == engine)) {
     const match = (engine || '').match(/^([^@]*)@/);
     extInfo = match ? match[1] : engine;
   } else {
@@ -113,7 +113,7 @@ function ConnectionAppObject({ data, commonProps }) {
   );
 }
 
-ConnectionAppObject.extractKey = (data) => data._id;
-ConnectionAppObject.createMatcher = ({ displayName, server }) => (filter) => filterName(filter, displayName, server);
+ConnectionAppObject.extractKey = data => data._id;
+ConnectionAppObject.createMatcher = ({ displayName, server }) => filter => filterName(filter, displayName, server);
 
 export default ConnectionAppObject;

@@ -11,13 +11,13 @@ import { FontIcon } from '../icons';
 
 const TableBodyCell = styled.td`
   font-weight: normal;
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
   // border-collapse: collapse;
   padding: 2px;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-  ${(props) =>
+  ${props =>
     props.isSelected &&
     !props.isAutofillSelected &&
     !props.isFocusedColumn &&
@@ -26,20 +26,20 @@ const TableBodyCell = styled.td`
     background-color: ${props.theme.gridbody_selection[4]};
     color: ${props.theme.gridbody_invfont1};`}
 
-  ${(props) =>
+  ${props =>
     props.isFrameSelected &&
     `
       outline: 3px solid ${props.theme.gridbody_selection[4]};
       outline-offset: -3px;`}
   
-  ${(props) =>
+  ${props =>
     props.isAutofillSelected &&
     !props.isFocusedColumn &&
     `
       outline: 3px solid ${props.theme.gridbody_selection[4]};
       outline-offset: -3px;`}
 
-    ${(props) =>
+    ${props =>
     props.isModifiedRow &&
     !props.isInsertedRow &&
     !props.isSelected &&
@@ -48,7 +48,7 @@ const TableBodyCell = styled.td`
     !props.isFocusedColumn &&
     `
   background-color: ${props.theme.gridbody_background_gold[1]};`}
-  ${(props) =>
+  ${props =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isInsertedRow &&
@@ -57,7 +57,7 @@ const TableBodyCell = styled.td`
     `
       background-color: ${props.theme.gridbody_background_orange[1]};`}
 
-  ${(props) =>
+  ${props =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isFocusedColumn &&
@@ -65,7 +65,7 @@ const TableBodyCell = styled.td`
     `
       background-color: ${props.theme.gridbody_background_green[1]};`}
 
-  ${(props) =>
+  ${props =>
     !props.isSelected &&
     !props.isAutofillSelected &&
     !props.isFocusedColumn &&
@@ -74,13 +74,13 @@ const TableBodyCell = styled.td`
       background-color: ${props.theme.gridbody_background_volcano[1]};
   `}
 
-  ${(props) =>
+  ${props =>
     props.isFocusedColumn &&
     `
     background-color: ${props.theme.gridbody_background_yellow[0]};
   `}
   
-    ${(props) =>
+    ${props =>
     props.isDeletedRow &&
     `
       background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
@@ -90,30 +90,30 @@ const TableBodyCell = styled.td`
 `;
 
 const HintSpan = styled.span`
-  color: ${(props) => props.theme.gridbody_font3};
+  color: ${props => props.theme.gridbody_font3};
   margin-left: 5px;
 `;
 const NullSpan = styled.span`
-  color: ${(props) => props.theme.gridbody_font3};
+  color: ${props => props.theme.gridbody_font3};
   font-style: italic;
 `;
 
 const TableBodyRow = styled.tr`
   // height: 35px;
-  background-color: ${(props) => props.theme.gridbody_background};
+  background-color: ${props => props.theme.gridbody_background};
   &:nth-child(6n + 3) {
-    background-color: ${(props) => props.theme.gridbody_background_alt2};
+    background-color: ${props => props.theme.gridbody_background_alt2};
   }
   &:nth-child(6n + 6) {
-    background-color: ${(props) => props.theme.gridbody_background_alt3};
+    background-color: ${props => props.theme.gridbody_background_alt3};
   }
 `;
 
 const TableHeaderCell = styled.td`
-  border: 1px solid ${(props) => props.theme.border};
+  border: 1px solid ${props => props.theme.border};
   text-align: left;
   padding: 2px;
-  background-color: ${(props) => props.theme.gridheader_background};
+  background-color: ${props => props.theme.gridheader_background};
   overflow: hidden;
   position: relative;
 `;
@@ -121,7 +121,7 @@ const TableHeaderCell = styled.td`
 const AutoFillPoint = styled.div`
   width: 8px;
   height: 8px;
-  background-color: ${(props) => props.theme.gridbody_selection[6]};
+  background-color: ${props => props.theme.gridbody_selection[6]};
   position: absolute;
   right: 0px;
   bottom: 0px;
@@ -133,12 +133,12 @@ export const ShowFormButton = styled.div`
   position: absolute;
   right: 0px;
   top: 1px;
-  color: ${(props) => props.theme.gridbody_font3};
-  background-color: ${(props) => props.theme.gridheader_background};
-  border: 1px solid ${(props) => props.theme.gridheader_background};
+  color: ${props => props.theme.gridbody_font3};
+  background-color: ${props => props.theme.gridheader_background};
+  border: 1px solid ${props => props.theme.gridheader_background};
   &:hover {
-    color: ${(props) => props.theme.gridheader_font_hover};
-    border: 1px solid ${(props) => props.theme.border};
+    color: ${props => props.theme.gridheader_font_hover};
+    border: 1px solid ${props => props.theme.border};
     top: 1px;
     right: 0px;
   }
@@ -199,7 +199,7 @@ function RowHeaderCell({ rowIndex, theme, onSetFormView, rowData }) {
       {!!onSetFormView && mouseIn && (
         <ShowFormButton
           theme={theme}
-          onClick={(e) => {
+          onClick={e => {
             e.stopPropagation();
             onSetFormView(rowData);
           }}
@@ -251,12 +251,12 @@ function DataGridRow(props) {
   const rowStatus = grider.getRowStatus(rowIndex);
 
   const hintFieldsAllowed = visibleRealColumns
-    .filter((col) => {
+    .filter(col => {
       if (!col.hintColumnName) return false;
       if (rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) return false;
       return true;
     })
-    .map((col) => col.uniqueName);
+    .map(col => col.uniqueName);
 
   if (!rowData) return null;
 
@@ -264,7 +264,7 @@ function DataGridRow(props) {
     <TableBodyRow style={{ height: `${rowHeight}px` }} theme={theme}>
       <RowHeaderCell rowIndex={rowIndex} theme={theme} onSetFormView={onSetFormView} rowData={rowData} />
 
-      {visibleRealColumns.map((col) => (
+      {visibleRealColumns.map(col => (
         <TableBodyCell
           key={col.uniqueName}
           theme={theme}
@@ -299,7 +299,7 @@ function DataGridRow(props) {
               // grider={grider}
               // rowIndex={rowIndex}
               // uniqueName={col.uniqueName}
-              onSetValue={(value) => grider.setCellValue(rowIndex, col.uniqueName, value)}
+              onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
             />
           ) : (
             <>
@@ -311,7 +311,7 @@ function DataGridRow(props) {
                 <ShowFormButton
                   theme={theme}
                   className="buttonLike"
-                  onClick={(e) => {
+                  onClick={e => {
                     e.stopPropagation();
                     onSetFormView(rowData, col);
                   }}

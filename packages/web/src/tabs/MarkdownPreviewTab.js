@@ -8,7 +8,7 @@ export default function MarkdownPreviewTab({ sourceTabId, tabVisible }) {
   const { editorData, isLoading } = useEditorData({ tabid: sourceTabId, reloadToken });
 
   React.useEffect(() => {
-    if (tabVisible) setReloadToken((x) => x + 1);
+    if (tabVisible) setReloadToken(x => x + 1);
   }, [tabVisible]);
 
   if (isLoading) {

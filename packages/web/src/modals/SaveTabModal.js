@@ -8,9 +8,9 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
 
-  const { savedFile } = openedTabs.find((x) => x.tabid == tabid).props || {};
-  const onSave = (name) =>
-    changeTab(tabid, setOpenedTabs, (tab) => ({
+  const { savedFile } = openedTabs.find(x => x.tabid == tabid).props || {};
+  const onSave = name =>
+    changeTab(tabid, setOpenedTabs, tab => ({
       ...tab,
       title: name,
       props: {
@@ -22,7 +22,7 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
     }));
 
   const handleKeyboard = React.useCallback(
-    (e) => {
+    e => {
       if (e.keyCode == keycodes.s && e.ctrlKey) {
         e.preventDefault();
         modalState.open();

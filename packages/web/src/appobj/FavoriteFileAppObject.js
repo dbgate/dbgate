@@ -12,7 +12,7 @@ export function useOpenFavorite() {
   const openNewTab = useOpenNewTab();
 
   const openFavorite = React.useCallback(
-    async (favorite) => {
+    async favorite => {
       const { icon, tabComponent, title, props, tabdata } = favorite;
       let tabdataNew = tabdata;
       if (props.savedFile) {
@@ -50,7 +50,7 @@ export function FavoriteFileAppObject({ data, commonProps }) {
   const electron = getElectron();
 
   const editFavorite = () => {
-    showModal((modalState) => <FavoriteModal modalState={modalState} editingData={data} />);
+    showModal(modalState => <FavoriteModal modalState={modalState} editingData={data} />);
   };
 
   const editFavoriteJson = async () => {
@@ -87,7 +87,7 @@ export function FavoriteFileAppObject({ data, commonProps }) {
       icon={icon || 'img favorite'}
       title={title}
       disableRename
-      onLoad={async (data) => {
+      onLoad={async data => {
         openFavorite(data);
       }}
       menuExt={
@@ -101,4 +101,4 @@ export function FavoriteFileAppObject({ data, commonProps }) {
   );
 }
 
-FavoriteFileAppObject.extractKey = (data) => data.file;
+FavoriteFileAppObject.extractKey = data => data.file;

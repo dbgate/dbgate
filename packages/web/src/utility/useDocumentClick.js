@@ -1,11 +1,11 @@
 import React from 'react';
 
 export default function useDocumentClick(callback) {
-  const mouseUpListener = React.useCallback((e) => {
+  const mouseUpListener = React.useCallback(e => {
     callback();
     document.removeEventListener('mouseup', mouseUpListener, true);
   }, []);
-  const mouseDownListener = React.useCallback((e) => {
+  const mouseDownListener = React.useCallback(e => {
     document.addEventListener('mouseup', mouseUpListener, true);
     document.removeEventListener('mousedown', mouseDownListener, true);
   }, []);

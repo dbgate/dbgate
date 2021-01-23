@@ -14,7 +14,7 @@ const Row = styled.div`
   // padding: 5px;
   cursor: pointer;
   &:hover {
-    background-color: ${(props) => props.theme.manager_background_blue[1]};
+    background-color: ${props => props.theme.manager_background_blue[1]};
   }
 `;
 const Name = styled.div`
@@ -29,13 +29,13 @@ const Icon = styled(FontIcon)`
   position: relative;
   top: 5px;
   &:hover {
-    background-color: ${(props) => props.theme.manager_background3};
+    background-color: ${props => props.theme.manager_background3};
   }
   padding: 5px;
 `;
 const EditorInput = styled.input`
   width: calc(100% - 10px);
-  background-color: ${(props) =>
+  background-color: ${props =>
     // @ts-ignore
     props.isError ? props.theme.manager_background_red[1] : props.theme.manager_background};
 `;
@@ -53,7 +53,7 @@ function ColumnNameEditor({
   const [value, setValue] = React.useState(defaultValue || '');
   const editorRef = React.useRef(null);
   const isError = value && existingNames && existingNames.includes(value);
-  const handleKeyDown = (event) => {
+  const handleKeyDown = event => {
     if (value && event.keyCode == keycodes.enter && !isError) {
       onEnter(value);
       setValue('');
@@ -82,7 +82,7 @@ function ColumnNameEditor({
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
       value={value}
-      onChange={(ev) => setValue(ev.target.value)}
+      onChange={ev => setValue(ev.target.value)}
       // @ts-ignore
       isError={isError}
       {...other}
@@ -141,17 +141,17 @@ export default function FreeTableColumnEditor(props) {
           index == editingColumn ? (
             <ColumnNameEditor
               defaultValue={column.columnName}
-              onEnter={(columnName) => {
+              onEnter={columnName => {
                 dispatchChangeColumns(
                   props,
-                  (cols) => cols.map((col, i) => (index == i ? { columnName } : col)),
-                  (row) => _.mapKeys(row, (v, k) => (k == column.columnName ? columnName : k))
+                  cols => cols.map((col, i) => (index == i ? { columnName } : col)),
+                  row => _.mapKeys(row, (v, k) => (k == column.columnName ? columnName : k))
                 );
               }}
               onBlur={() => setEditingColumn(null)}
               focusOnCreate
               blurOnEnter
-              existingNames={model.structure.columns.map((x) => x.columnName)}
+              existingNames={model.structure.columns.map(x => x.columnName)}
             />
           ) : (
             <ColumnManagerRow
@@ -159,23 +159,23 @@ export default function FreeTableColumnEditor(props) {
               column={column}
               onEdit={() => setEditingColumn(index)}
               onRemove={() => {
-                dispatchChangeColumns(props, (cols) => cols.filter((c, i) => i != index));
+                dispatchChangeColumns(props, cols => cols.filter((c, i) => i != index));
               }}
               onUp={() => {
-                dispatchChangeColumns(props, (cols) => exchange(cols, index, index - 1));
+                dispatchChangeColumns(props, cols => exchange(cols, index, index - 1));
               }}
               onDown={() => {
-                dispatchChangeColumns(props, (cols) => exchange(cols, index, index + 1));
+                dispatchChangeColumns(props, cols => exchange(cols, index, index + 1));
               }}
             />
           )
         )}
         <ColumnNameEditor
-          onEnter={(columnName) => {
-            dispatchChangeColumns(props, (cols) => [...cols, { columnName }]);
+          onEnter={columnName => {
+            dispatchChangeColumns(props, cols => [...cols, { columnName }]);
           }}
           placeholder="New column"
-          existingNames={model.structure.columns.map((x) => x.columnName)}
+          existingNames={model.structure.columns.map(x => x.columnName)}
         />
       </ManagerInnerContainer>
     </>

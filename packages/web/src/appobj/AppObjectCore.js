@@ -10,11 +10,11 @@ import useTheme from '../theme/useTheme';
 const AppObjectDiv = styled.div`
   padding: 5px;
   &:hover {
-    background-color: ${(props) => props.theme.left_background_blue[1]};
+    background-color: ${props => props.theme.left_background_blue[1]};
   }
   cursor: pointer;
   white-space: nowrap;
-  font-weight: ${(props) => (props.isBold ? 'bold' : 'normal')};
+  font-weight: ${props => (props.isBold ? 'bold' : 'normal')};
 `;
 
 const IconWrap = styled.span`
@@ -28,7 +28,7 @@ const StatusIconWrap = styled.span`
 const ExtInfoWrap = styled.span`
   font-weight: normal;
   margin-left: 5px;
-  color: ${(props) => props.theme.left_font3};
+  color: ${props => props.theme.left_font3};
 `;
 
 export function AppObjectCore({
@@ -50,7 +50,7 @@ export function AppObjectCore({
   const theme = useTheme();
   const showMenu = useShowMenu();
 
-  const handleContextMenu = (event) => {
+  const handleContextMenu = event => {
     if (!Menu) return;
 
     event.preventDefault();
@@ -68,7 +68,7 @@ export function AppObjectCore({
       theme={theme}
       isBold={isBold}
       draggable
-      onDragStart={(e) => {
+      onDragStart={e => {
         e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
       }}
       {...other}

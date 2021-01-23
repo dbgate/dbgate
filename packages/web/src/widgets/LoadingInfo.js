@@ -26,7 +26,7 @@ const LoadingInfoWrapper = styled.div`
   justify-content: space-around;
 `;
 const LoadingInfoBox = styled.div`
-  background-color: ${(props) => props.theme.main_background2};
+  background-color: ${props => props.theme.main_background2};
   padding: 10px;
   border: 1px solid gray;
 `;

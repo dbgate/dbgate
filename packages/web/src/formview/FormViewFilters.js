@@ -44,7 +44,7 @@ function PrimaryKeyFilterEditor({ column, baseTable, formDisplay }) {
     formDisplay.reload();
   };
 
-  const handleKeyDown = (ev) => {
+  const handleKeyDown = ev => {
     if (ev.keyCode == keycodes.enter) {
       applyFilter();
     }
@@ -58,13 +58,10 @@ function PrimaryKeyFilterEditor({ column, baseTable, formDisplay }) {
       <ColumnNameWrapper>
         <div>
           <FontIcon icon="img primary-key" />
-          <ColumnLabel {...baseTable.columns.find((x) => x.columnName == column.columnName)} />
+          <ColumnLabel {...baseTable.columns.find(x => x.columnName == column.columnName)} />
         </div>
         {formDisplay.config.formViewKeyRequested && (
-          <InlineButton
-            square
-            onClick={cancelFilter}
-          >
+          <InlineButton square onClick={cancelFilter}>
             <FontIcon icon="icon delete" />
           </InlineButton>
         )}
@@ -86,11 +83,11 @@ export default function FormViewFilters(props) {
 
   return (
     <ManagerInnerContainer style={{ maxWidth: props.managerSize }}>
-      {baseTable.primaryKey.columns.map((col) => (
+      {baseTable.primaryKey.columns.map(col => (
         <PrimaryKeyFilterEditor key={col.columnName} baseTable={baseTable} column={col} formDisplay={formDisplay} />
       ))}
-      {allFilterNames.map((columnName) => {
-        const column = baseTable.columns.find((x) => x.columnName == columnName);
+      {allFilterNames.map(columnName => {
+        const column = baseTable.columns.find(x => x.columnName == columnName);
         if (!column) return null;
         return (
           <ColumnWrapper key={columnName}>
@@ -108,7 +105,7 @@ export default function FormViewFilters(props) {
             <DataFilterControl
               filterType={getFilterType(column.dataType)}
               filter={filters[column.columnName]}
-              setFilter={(value) => formDisplay.setFilter(column.columnName, value)}
+              setFilter={value => formDisplay.setFilter(column.columnName, value)}
             />
           </ColumnWrapper>
         );

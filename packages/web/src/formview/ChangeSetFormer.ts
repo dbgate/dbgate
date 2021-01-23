@@ -28,7 +28,7 @@ export default class ChangeSetFormer extends Former {
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
-    this.setChangeSet = (value) => dispatchChangeSet({ type: 'set', value });
+    this.setChangeSet = value => dispatchChangeSet({ type: 'set', value });
     this.batchChangeSet = null;
     this.rowDefinition = display.getChangeSetRow(sourceRow);
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, this.rowDefinition);
@@ -51,14 +51,14 @@ export default class ChangeSetFormer extends Former {
     }
   }
 
-  setCellValue( uniqueName: string, value: any) {
+  setCellValue(uniqueName: string, value: any) {
     const row = this.sourceRow;
     const definition = this.display.getChangeSetField(row, uniqueName);
-    this.applyModification((chs) => setChangeSetValue(chs, definition, value));
+    this.applyModification(chs => setChangeSetValue(chs, definition, value));
   }
 
   deleteRow(index: number) {
-    this.applyModification((chs) => deleteChangeSetRows(chs, this.rowDefinition));
+    this.applyModification(chs => deleteChangeSetRows(chs, this.rowDefinition));
   }
 
   beginUpdate() {
@@ -70,10 +70,10 @@ export default class ChangeSetFormer extends Former {
   }
 
   revertRowChanges() {
-    this.applyModification((chs) => revertChangeSetRowChanges(chs, this.rowDefinition));
+    this.applyModification(chs => revertChangeSetRowChanges(chs, this.rowDefinition));
   }
   revertAllChanges() {
-    this.applyModification((chs) => createChangeSet());
+    this.applyModification(chs => createChangeSet());
   }
   undo() {
     this.dispatchChangeSet({ type: 'undo' });

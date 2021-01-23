@@ -8,10 +8,10 @@ import { AppObjectCore } from './AppObjectCore';
 function Menu({ data }) {
   const setOpenedTabs = useSetOpenedTabs();
   const handleDelete = () => {
-    setOpenedTabs((tabs) => tabs.filter((x) => x.tabid != data.tabid));
+    setOpenedTabs(tabs => tabs.filter(x => x.tabid != data.tabid));
   };
   const handleDeleteOlder = () => {
-    setOpenedTabs((tabs) => tabs.filter((x) => !x.closedTime || x.closedTime >= data.closedTime));
+    setOpenedTabs(tabs => tabs.filter(x => !x.closedTime || x.closedTime >= data.closedTime));
   };
   return (
     <>
@@ -26,8 +26,8 @@ function ClosedTabAppObject({ data, commonProps }) {
   const setOpenedTabs = useSetOpenedTabs();
 
   const onClick = () => {
-    setOpenedTabs((files) =>
-      files.map((x) => ({
+    setOpenedTabs(files =>
+      files.map(x => ({
         ...x,
         selected: x.tabid == tabid,
         closedTime: x.tabid == tabid ? undefined : x.closedTime,
@@ -49,6 +49,6 @@ function ClosedTabAppObject({ data, commonProps }) {
   );
 }
 
-ClosedTabAppObject.extractKey = (data) => data.tabid;
+ClosedTabAppObject.extractKey = data => data.tabid;
 
 export default ClosedTabAppObject;

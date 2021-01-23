@@ -17,7 +17,7 @@ export default function useOpenNewTab() {
       const { savedFile } = newTab.props || {};
       if (savedFile) {
         existing = openedTabs.find(
-          (x) =>
+          x =>
             x.props && x.tabComponent == newTab.tabComponent && x.closedTime == null && x.props.savedFile == savedFile
         );
       }
@@ -28,7 +28,7 @@ export default function useOpenNewTab() {
       if (!existing && !forceNewTab && component && component.matchingProps) {
         const testString = stableStringify(_.pick(newTab.props || {}, component.matchingProps));
         existing = openedTabs.find(
-          (x) =>
+          x =>
             x.props &&
             x.tabComponent == newTab.tabComponent &&
             x.closedTime == null &&
@@ -37,8 +37,8 @@ export default function useOpenNewTab() {
       }
 
       if (existing) {
-        setOpenedTabs((tabs) =>
-          tabs.map((x) => ({
+        setOpenedTabs(tabs =>
+          tabs.map(x => ({
             ...x,
             selected: x.tabid == existing.tabid,
           }))
@@ -56,8 +56,8 @@ export default function useOpenNewTab() {
           }
         }
       }
-      setOpenedTabs((files) => [
-        ...(files || []).map((x) => ({ ...x, selected: false })),
+      setOpenedTabs(files => [
+        ...(files || []).map(x => ({ ...x, selected: false })),
         {
           tabid,
           selected: true,

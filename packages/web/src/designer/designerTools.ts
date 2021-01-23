@@ -12,9 +12,8 @@ export function referenceIsConnecting(
   tables2: DesignerTableInfo[]
 ) {
   return (
-    (tables1.find((x) => x.designerId == reference.sourceId) &&
-      tables2.find((x) => x.designerId == reference.targetId)) ||
-    (tables1.find((x) => x.designerId == reference.targetId) && tables2.find((x) => x.designerId == reference.sourceId))
+    (tables1.find(x => x.designerId == reference.sourceId) && tables2.find(x => x.designerId == reference.targetId)) ||
+    (tables1.find(x => x.designerId == reference.targetId) && tables2.find(x => x.designerId == reference.sourceId))
   );
 }
 
@@ -43,7 +42,7 @@ export function findConnectingReference(
 }
 
 export function findQuerySource(designer: DesignerInfo, designerId: string): Source {
-  const table = designer.tables.find((x) => x.designerId == designerId);
+  const table = designer.tables.find(x => x.designerId == designerId);
   if (!table) return null;
   return {
     name: table,
@@ -71,14 +70,14 @@ export function mergeSelectsFromDesigner(select1: Select, select2: Select): Sele
 }
 
 export function findPrimaryTable(tables: DesignerTableInfo[]) {
-  return _.minBy(tables, (x) => x.top);
+  return _.minBy(tables, x => x.top);
 }
 
 export function getReferenceConditions(reference: DesignerReferenceInfo, designer: DesignerInfo): Condition[] {
-  const sourceTable = designer.tables.find((x) => x.designerId == reference.sourceId);
-  const targetTable = designer.tables.find((x) => x.designerId == reference.targetId);
+  const sourceTable = designer.tables.find(x => x.designerId == reference.sourceId);
+  const targetTable = designer.tables.find(x => x.designerId == reference.targetId);
 
-  return reference.columns.map((col) => ({
+  return reference.columns.map(col => ({
     conditionType: 'binary',
     operator: '=',
     left: {
@@ -123,19 +122,19 @@ export function isConnectedByReference(
   const creator = new DesignerComponentCreator({
     ...designer,
     references: withoutRef
-      ? designer.references.filter((x) => x.designerId != withoutRef.designerId)
+      ? designer.references.filter(x => x.designerId != withoutRef.designerId)
       : designer.references,
   });
-  const arrays = creator.components.map((x) => x.thisAndSubComponentsTables);
-  const array1 = arrays.find((a) => a.find((x) => x.designerId == table1.designerId));
-  const array2 = arrays.find((a) => a.find((x) => x.designerId == table2.designerId));
+  const arrays = creator.components.map(x => x.thisAndSubComponentsTables);
+  const array1 = arrays.find(a => a.find(x => x.designerId == table1.designerId));
+  const array2 = arrays.find(a => a.find(x => x.designerId == table2.designerId));
   return array1 == array2;
 }
 
 export function findDesignerFilterType({ designerId, columnName }, designer) {
-  const table = (designer.tables || []).find((x) => x.designerId == designerId);
+  const table = (designer.tables || []).find(x => x.designerId == designerId);
   if (table) {
-    const column = (table.columns || []).find((x) => x.columnName == columnName);
+    const column = (table.columns || []).find(x => x.columnName == columnName);
     if (column) {
       const { dataType } = column;
       return getFilterType(dataType);

@@ -1,4 +1,3 @@
-
 export class LoadingToken {
   constructor() {
     this.isCanceled = false;
@@ -10,9 +9,9 @@ export class LoadingToken {
 }
 
 export function sleep(milliseconds) {
-  return new Promise((resolve) => window.setTimeout(() => resolve(null), milliseconds));
+  return new Promise(resolve => window.setTimeout(() => resolve(null), milliseconds));
 }
 
 export function changeTab(tabid, setOpenedTabs, changeFunc) {
-  setOpenedTabs((files) => files.map((tab) => (tab.tabid == tabid ? changeFunc(tab) : tab)));
+  setOpenedTabs(files => files.map(tab => (tab.tabid == tabid ? changeFunc(tab) : tab)));
 }

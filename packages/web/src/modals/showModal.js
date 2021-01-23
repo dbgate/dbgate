@@ -22,11 +22,7 @@ export function ModalLayer() {
   return (
     <div>
       {modals.map((modal, index) => (
-        <ShowModalComponent
-          key={index}
-          renderModal={modal}
-          onClose={() => setModals((x) => x.filter((y) => y != modal))}
-        />
+        <ShowModalComponent key={index} renderModal={modal} onClose={() => setModals(x => x.filter(y => y != modal))} />
       ))}
     </div>
   );
@@ -34,7 +30,7 @@ export function ModalLayer() {
 
 export default function useShowModal() {
   const [modals, setModals] = React.useContext(Context);
-  const showModal = (renderModal) => {
+  const showModal = renderModal => {
     setModals([...modals, renderModal]);
   };
   return showModal;

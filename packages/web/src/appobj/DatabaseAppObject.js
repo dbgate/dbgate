@@ -32,7 +32,7 @@ function Menu({ data }) {
   };
 
   const handleImport = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ImportExportModal
         modalState={modalState}
         initialValues={{
@@ -46,7 +46,7 @@ function Menu({ data }) {
   };
 
   const handleExport = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <ImportExportModal
         modalState={modalState}
         initialValues={{
@@ -85,6 +85,6 @@ function DatabaseAppObject({ data, commonProps }) {
   );
 }
 
-DatabaseAppObject.extractKey = (props) => props.name;
+DatabaseAppObject.extractKey = props => props.name;
 
 export default DatabaseAppObject;

@@ -10,7 +10,7 @@ import CellDataView from '../celldata/CellDataView';
 import useTheme from '../theme/useTheme';
 
 const LeftContainer = styled.div`
-  background-color: ${(props) => props.theme.manager_background};
+  background-color: ${props => props.theme.manager_background};
   display: flex;
   flex: 1;
 `;

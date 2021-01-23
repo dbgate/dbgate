@@ -9,7 +9,7 @@ function MacroAppObject({ data, commonProps }) {
   return <AppObjectCore {...commonProps} data={data} title={title} icon={'img macro'} />;
 }
 
-MacroAppObject.extractKey = (data) => data.name;
-MacroAppObject.createMatcher = ({ name, title }) => (filter) => filterName(filter, name, title);
+MacroAppObject.extractKey = data => data.name;
+MacroAppObject.createMatcher = ({ name, title }) => filter => filterName(filter, name, title);
 
 export default MacroAppObject;

@@ -19,8 +19,8 @@ const Container = styled.div`
   height: ${dimensions.toolBar.height}px;
   min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
-  border-top: 1px solid ${(props) => props.theme.border};
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-top: 1px solid ${props => props.theme.border};
+  border-bottom: 1px solid ${props => props.theme.border};
 `;
 
 const Header = styled.div`

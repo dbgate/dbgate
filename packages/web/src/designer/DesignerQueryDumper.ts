@@ -26,7 +26,7 @@ export class DesignerQueryDumper {
   constructor(public designer: DesignerInfo, public components: DesignerComponent[]) {}
 
   get topLevelTables(): DesignerTableInfo[] {
-    return _.flatten(this.components.map((x) => x.tables));
+    return _.flatten(this.components.map(x => x.tables));
   }
 
   dumpComponent(component: DesignerComponent) {
@@ -81,15 +81,15 @@ export class DesignerQueryDumper {
   addConditions(select: Select, tables: DesignerTableInfo[]) {
     for (const column of this.designer.columns || []) {
       if (!column.filter) continue;
-      const table = (this.designer.tables || []).find((x) => x.designerId == column.designerId);
+      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
       if (!table) continue;
-      if (!tables.find((x) => x.designerId == table.designerId)) continue;
+      if (!tables.find(x => x.designerId == table.designerId)) continue;
 
       const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
       if (condition) {
         select.where = mergeConditions(
           select.where,
-          _.cloneDeepWith(condition, (expr) => {
+          _.cloneDeepWith(condition, expr => {
             if (expr.exprType == 'placeholder')
               return {
                 exprType: 'column',
@@ -105,15 +105,15 @@ export class DesignerQueryDumper {
   addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {
     for (const column of this.designer.columns || []) {
       if (!column.groupFilter) continue;
-      const table = (this.designer.tables || []).find((x) => x.designerId == column.designerId);
+      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
       if (!table) continue;
-      if (!tables.find((x) => x.designerId == table.designerId)) continue;
+      if (!tables.find(x => x.designerId == table.designerId)) continue;
 
       const condition = parseFilter(column.groupFilter, findDesignerFilterType(column, this.designer));
       if (condition) {
         select.having = mergeConditions(
           select.having,
-          _.cloneDeepWith(condition, (expr) => {
+          _.cloneDeepWith(condition, expr => {
             if (expr.exprType == 'placeholder') {
               return this.getColumnOutputExpression(column, selectIsGrouped);
             }
@@ -174,20 +174,20 @@ export class DesignerQueryDumper {
       }
     }
 
-    const topLevelColumns = (this.designer.columns || []).filter((col) =>
-      topLevelTables.find((tbl) => tbl.designerId == col.designerId)
+    const topLevelColumns = (this.designer.columns || []).filter(col =>
+      topLevelTables.find(tbl => tbl.designerId == col.designerId)
     );
-    const selectIsGrouped = !!topLevelColumns.find((x) => x.isGrouped || (x.aggregate && x.aggregate != '---'));
-    const outputColumns = topLevelColumns.filter((x) => x.isOutput);
+    const selectIsGrouped = !!topLevelColumns.find(x => x.isGrouped || (x.aggregate && x.aggregate != '---'));
+    const outputColumns = topLevelColumns.filter(x => x.isOutput);
     if (outputColumns.length == 0) {
       res.selectAll = true;
     } else {
-      res.columns = outputColumns.map((col) => this.getColumnOutputExpression(col, selectIsGrouped));
+      res.columns = outputColumns.map(col => this.getColumnOutputExpression(col, selectIsGrouped));
     }
 
-    const groupedColumns = topLevelColumns.filter((x) => x.isGrouped);
+    const groupedColumns = topLevelColumns.filter(x => x.isGrouped);
     if (groupedColumns.length > 0) {
-      res.groupBy = groupedColumns.map((col) => ({
+      res.groupBy = groupedColumns.map(col => ({
         exprType: 'column',
         columnName: col.columnName,
         source: findQuerySource(this.designer, col.designerId),
@@ -195,11 +195,11 @@ export class DesignerQueryDumper {
     }
 
     const orderColumns = _.sortBy(
-      topLevelColumns.filter((x) => x.sortOrder),
-      (x) => Math.abs(x.sortOrder)
+      topLevelColumns.filter(x => x.sortOrder),
+      x => Math.abs(x.sortOrder)
     );
     if (orderColumns.length > 0) {
-      res.orderBy = orderColumns.map((col) => ({
+      res.orderBy = orderColumns.map(col => ({
         exprType: 'column',
         direction: col.sortOrder < 0 ? 'DESC' : 'ASC',
         columnName: col.columnName,

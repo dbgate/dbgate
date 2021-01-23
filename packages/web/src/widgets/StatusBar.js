@@ -8,7 +8,7 @@ import { useDatabaseStatus } from '../utility/metadataLoaders';
 
 const Container = styled.div`
   display: flex;
-  color: ${(props) => props.theme.statusbar_font1};
+  color: ${props => props.theme.statusbar_font1};
   align-items: stretch;
 `;
 
@@ -19,13 +19,13 @@ const Item = styled.div`
 `;
 
 const ErrorWrapper = styled.span`
-  color: ${(props) =>
+  color: ${props =>
     // @ts-ignore
     props.theme.statusbar_font_red[5]};
 `;
 
 const InfoWrapper = styled.span`
-  color: ${(props) =>
+  color: ${props =>
     // @ts-ignore
     props.theme.statusbar_font_green[5]};
 `;

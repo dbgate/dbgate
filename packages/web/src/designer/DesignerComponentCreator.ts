@@ -28,7 +28,7 @@ export class DesignerComponent {
     return this.parentComponent ? this.parentComponent.myAndParentTables : [];
   }
   get thisAndSubComponentsTables() {
-    return [...this.tables, ..._.flatten(this.subComponents.map((x) => x.thisAndSubComponentsTables))];
+    return [...this.tables, ..._.flatten(this.subComponents.map(x => x.thisAndSubComponentsTables))];
   }
 }
 
@@ -49,7 +49,7 @@ export class DesignerComponentCreator {
       root = findPrimaryTable(this.toAdd);
     }
     if (!root) return null;
-    _.remove(this.toAdd, (x) => x == root);
+    _.remove(this.toAdd, x => x == root);
     const res = new DesignerComponent();
     res.tables.push(root);
 
@@ -60,7 +60,7 @@ export class DesignerComponentCreator {
         if (ref) {
           res.tables.push(test);
           res.nonPrimaryReferences.push(ref);
-          _.remove(this.toAdd, (x) => x == test);
+          _.remove(this.toAdd, x => x == test);
           found = true;
           break;
         }

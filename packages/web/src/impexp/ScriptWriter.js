@@ -39,7 +39,7 @@ export default class ScriptWriter {
   getScript(schedule = null) {
     const packageNames = this.packageNames;
     let prefix = _.uniq(packageNames)
-      .map((packageName) => `// @require ${packageName}\n`)
+      .map(packageName => `// @require ${packageName}\n`)
       .join('');
     if (schedule) prefix += `// @schedule ${schedule}`;
     if (prefix) prefix += '\n';

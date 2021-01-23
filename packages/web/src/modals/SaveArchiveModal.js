@@ -14,7 +14,7 @@ const SelectWrapper = styled.div`
 `;
 
 export default function SaveArchiveModal({ file = 'new-table', folder = 'default', modalState, onSave }) {
-  const handleSubmit = async (values) => {
+  const handleSubmit = async values => {
     const { file, folder } = values;
     modalState.close();
     if (onSave) onSave(folder, file);

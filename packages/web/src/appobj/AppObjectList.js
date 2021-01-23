@@ -22,7 +22,7 @@ const GroupDiv = styled.div`
   user-select: none;
   padding: 5px;
   &:hover {
-    background-color: ${(props) => props.theme.left_background_blue[1]};
+    background-color: ${props => props.theme.left_background_blue[1]};
   }
   cursor: pointer;
   white-space: nowrap;
@@ -57,7 +57,7 @@ function AppObjectListItem({
   };
 
   if (SubItems) {
-    commonProps.onClick2 = () => setIsExpanded((v) => !v);
+    commonProps.onClick2 = () => setIsExpanded(v => !v);
   }
   if (onObjectClick) {
     commonProps.onClick3 = onObjectClick;
@@ -90,9 +90,9 @@ function AppObjectGroup({ group, items }) {
         <ExpandIconHolder>
           <ExpandIcon isExpanded={isExpanded} />
         </ExpandIconHolder>
-        {group} {items && `(${items.filter((x) => x.component).length})`}
+        {group} {items && `(${items.filter(x => x.component).length})`}
       </GroupDiv>
-      {isExpanded && items.map((x) => x.component)}
+      {isExpanded && items.map(x => x.component)}
     </>
   );
 }
@@ -108,7 +108,7 @@ export function AppObjectList({
   isExpandable = undefined,
   getCommonProps = undefined,
 }) {
-  const createComponent = (data) => (
+  const createComponent = data => (
     <AppObjectListItem
       key={AppObjectComponent.extractKey(data)}
       AppObjectComponent={AppObjectComponent}
@@ -123,7 +123,7 @@ export function AppObjectList({
 
   if (groupFunc) {
     const listGrouped = _.compact(
-      (list || []).map((data) => {
+      (list || []).map(data => {
         const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
         if (matcher && !matcher(filter)) return null;
         const component = createComponent(data);
@@ -132,12 +132,12 @@ export function AppObjectList({
       })
     );
     const groups = _.groupBy(listGrouped, 'group');
-    return (groupOrdered || _.keys(groups)).map((group) => (
+    return (groupOrdered || _.keys(groups)).map(group => (
       <AppObjectGroup key={group} group={group} items={groups[group]} />
     ));
   }
 
-  return (list || []).map((data) => {
+  return (list || []).map(data => {
     const matcher = AppObjectComponent.createMatcher && AppObjectComponent.createMatcher(data);
     if (matcher && !matcher(filter)) return null;
     return createComponent(data);

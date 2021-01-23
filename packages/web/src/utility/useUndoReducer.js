@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 
-const reducer = (options) => (state, action) => {
+const reducer = options => (state, action) => {
   const { mergeNearActions } = options || {};
 
   const useMerge =

@@ -31,10 +31,10 @@ export default function PluginsProvider({ children }) {
         newPlugins[installed.name] = moduleContent;
       }
     }
-    setPlugins((x) =>
+    setPlugins(x =>
       _.pick(
         { ...x, ...newPlugins },
-        installedPlugins.map((y) => y.name)
+        installedPlugins.map(y => y.name)
       )
     );
   };
@@ -51,12 +51,12 @@ export function usePlugins() {
   return React.useMemo(
     () =>
       installed
-        .map((manifest) => ({
+        .map(manifest => ({
           packageName: manifest.name,
           manifest,
           content: loaded[manifest.name],
         }))
-        .filter((x) => x.content),
+        .filter(x => x.content),
     [installed, loaded]
   );
 }

@@ -15,20 +15,20 @@ import InputTextModal from '../modals/InputTextModal';
 const Wrapper = styled.div`
   position: absolute;
   // background-color: white;
-  background-color: ${(props) => props.theme.designtable_background};
-  border: 1px solid ${(props) => props.theme.border};
+  background-color: ${props => props.theme.designtable_background};
+  border: 1px solid ${props => props.theme.border};
 `;
 
 const Header = styled.div`
   font-weight: bold;
   text-align: center;
   padding: 2px;
-  background: ${(props) =>
+  background: ${props =>
     // @ts-ignore
     props.objectTypeField == 'views'
       ? props.theme.designtable_background_magenta[2]
       : props.theme.designtable_background_blue[2]};
-  border-bottom: 1px solid ${(props) => props.theme.border};
+  border-bottom: 1px solid ${props => props.theme.border};
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -44,7 +44,7 @@ const ColumnsWrapper = styled.div`
 const HeaderLabel = styled.div``;
 
 const CloseWrapper = styled.div`
-  ${(props) =>
+  ${props =>
     `
   background-color: ${props.theme.toolbar_background} ;
 
@@ -63,7 +63,7 @@ const CloseWrapper = styled.div`
 //   }
 
 const ColumnLine = styled.div`
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     !props.isDragSource &&
     // @ts-ignore
@@ -74,14 +74,14 @@ const ColumnLine = styled.div`
     }
     `}
 
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     props.isDragSource &&
     `
     background-color: ${props.theme.designtable_background_cyan[2]};
     `}
 
-  ${(props) =>
+  ${props =>
     // @ts-ignore
     props.isDragTarget &&
     `
@@ -113,7 +113,7 @@ function ColumnContextMenu({ setSortOrder, addReference }) {
 
 function ColumnDesignerIcons({ column, designerId, designer }) {
   const designerColumn = (designer.columns || []).find(
-    (x) => x.designerId == designerId && x.columnName == column.columnName
+    x => x.designerId == designerId && x.columnName == column.columnName
   );
   if (!designerColumn) return null;
   return (
@@ -155,7 +155,7 @@ export default function DesignerTable({
   const moveStartXRef = React.useRef(null);
   const moveStartYRef = React.useRef(null);
 
-  const handleMove = React.useCallback((e) => {
+  const handleMove = React.useCallback(e => {
     let diffX = e.clientX - moveStartXRef.current;
     let diffY = e.clientY - moveStartYRef.current;
     moveStartXRef.current = e.clientX;
@@ -180,11 +180,11 @@ export default function DesignerTable({
 
   const changeTokenDebounced = React.useRef(
     // @ts-ignore
-    _.debounce(() => setChangeToken((x) => x + 1), 100)
+    _.debounce(() => setChangeToken(x => x + 1), 100)
   );
 
   const handleMoveEnd = React.useCallback(
-    (e) => {
+    e => {
       if (movingPositionRef.current) {
         onChangeTable({
           ...table,
@@ -217,7 +217,7 @@ export default function DesignerTable({
   }, [movingPosition == null, handleMove, handleMoveEnd]);
 
   const headerMouseDown = React.useCallback(
-    (e) => {
+    e => {
       e.preventDefault();
       moveStartXRef.current = e.clientX;
       moveStartYRef.current = e.clientY;
@@ -235,13 +235,13 @@ export default function DesignerTable({
   };
 
   const handleSetTableAlias = () => {
-    showModal((modalState) => (
+    showModal(modalState => (
       <InputTextModal
         modalState={modalState}
         value={alias || ''}
         label="New alias"
         header="Set table alias"
-        onConfirm={(newAlias) => {
+        onConfirm={newAlias => {
           onChangeTable({
             ...table,
             alias: newAlias,
@@ -251,7 +251,7 @@ export default function DesignerTable({
     ));
   };
 
-  const handleHeaderContextMenu = (event) => {
+  const handleHeaderContextMenu = event => {
     event.preventDefault();
     showMenu(
       event.pageX,
@@ -272,20 +272,20 @@ export default function DesignerTable({
     );
   };
 
-  const handleColumnContextMenu = (column) => (event) => {
+  const handleColumnContextMenu = column => event => {
     event.preventDefault();
     const foreignKey = findForeignKeyForColumn(table, column);
     showMenu(
       event.pageX,
       event.pageY,
       <ColumnContextMenu
-        setSortOrder={(sortOrder) => {
+        setSortOrder={sortOrder => {
           onChangeColumn(
             {
               ...column,
               designerId,
             },
-            (col) => ({ ...col, sortOrder })
+            col => ({ ...col, sortOrder })
           );
         }}
         addReference={
@@ -307,7 +307,7 @@ export default function DesignerTable({
         top: movingPosition ? movingPosition.top : top,
       }}
       onMouseDown={() => onBringToFront(table)}
-      ref={(dom) => dispatchDomColumn('', dom)}
+      ref={dom => dispatchDomColumn('', dom)}
     >
       <Header
         onMouseDown={headerMouseDown}
@@ -322,13 +322,13 @@ export default function DesignerTable({
         </CloseWrapper>
       </Header>
       <ColumnsWrapper>
-        {(columns || []).map((column) => (
+        {(columns || []).map(column => (
           <ColumnLine
             onContextMenu={handleColumnContextMenu(column)}
             key={column.columnName}
             theme={theme}
             draggable
-            ref={(dom) => dispatchDomColumn(column.columnName, dom)}
+            ref={dom => dispatchDomColumn(column.columnName, dom)}
             // @ts-ignore
             isDragSource={
               sourceDragColumn &&
@@ -341,7 +341,7 @@ export default function DesignerTable({
               targetDragColumn.designerId == designerId &&
               targetDragColumn.columnName == column.columnName
             }
-            onDragStart={(e) => {
+            onDragStart={e => {
               const dragData = {
                 ...column,
                 designerId,
@@ -349,11 +349,11 @@ export default function DesignerTable({
               setSourceDragColumn(dragData);
               e.dataTransfer.setData('designer_column_drag_data', JSON.stringify(dragData));
             }}
-            onDragEnd={(e) => {
+            onDragEnd={e => {
               setTargetDragColumn(null);
               setSourceDragColumn(null);
             }}
-            onDragOver={(e) => {
+            onDragOver={e => {
               if (sourceDragColumn) {
                 e.preventDefault();
                 setTargetDragColumn({
@@ -362,7 +362,7 @@ export default function DesignerTable({
                 });
               }
             }}
-            onDrop={(e) => {
+            onDrop={e => {
               var data = e.dataTransfer.getData('designer_column_drag_data');
               e.preventDefault();
               if (!data) return;
@@ -370,7 +370,7 @@ export default function DesignerTable({
               setTargetDragColumn(null);
               setSourceDragColumn(null);
             }}
-            onMouseDown={(e) =>
+            onMouseDown={e =>
               onSelectColumn({
                 ...column,
                 designerId,
@@ -380,17 +380,17 @@ export default function DesignerTable({
             <CheckboxField
               checked={
                 !!(designer.columns || []).find(
-                  (x) => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
+                  x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
                 )
               }
-              onChange={(e) => {
+              onChange={e => {
                 if (e.target.checked) {
                   onChangeColumn(
                     {
                       ...column,
                       designerId,
                     },
-                    (col) => ({ ...col, isOutput: true })
+                    col => ({ ...col, isOutput: true })
                   );
                 } else {
                   onChangeColumn(
@@ -398,7 +398,7 @@ export default function DesignerTable({
                       ...column,
                       designerId,
                     },
-                    (col) => ({ ...col, isOutput: false })
+                    col => ({ ...col, isOutput: false })
                   );
                 }
               }}

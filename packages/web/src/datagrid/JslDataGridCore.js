@@ -40,7 +40,7 @@ async function loadRowCount(props) {
 export default function JslDataGridCore(props) {
   const { jslid } = props;
   const [changeIndex, setChangeIndex] = React.useState(0);
-  const [rowCountLoaded, setRowCountLoaded]= React.useState(null);
+  const [rowCountLoaded, setRowCountLoaded] = React.useState(null);
 
   const showModal = useShowModal();
 
@@ -59,11 +59,11 @@ export default function JslDataGridCore(props) {
       initialValues.sourceJslId = jslid;
       initialValues.sourceList = ['query-data'];
     }
-    showModal((modalState) => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
+    showModal(modalState => <ImportExportModal modalState={modalState} initialValues={initialValues} />);
   }
 
   const handleJslDataStats = React.useCallback(
-    (stats) => {
+    stats => {
       if (stats.changeIndex < changeIndex) return;
       setChangeIndex(stats.changeIndex);
       setRowCountLoaded(stats.rowCount);

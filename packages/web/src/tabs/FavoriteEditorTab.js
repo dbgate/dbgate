@@ -42,7 +42,7 @@ export default function FavoriteEditorTab({ tabid, tabVisible, savedFile, toolba
       const data = JSON.parse(editorData);
       openFavorite(data);
     } catch (err) {
-      showModal((modalState) => (
+      showModal(modalState => (
         <ErrorMessageModal modalState={modalState} message={err.message} title="Error parsing JSON" />
       ));
     }
@@ -65,7 +65,7 @@ export default function FavoriteEditorTab({ tabid, tabVisible, savedFile, toolba
         data,
       });
     } catch (err) {
-      showModal((modalState) => (
+      showModal(modalState => (
         <ErrorMessageModal modalState={modalState} message={err.message} title="Error parsing JSON" />
       ));
     }

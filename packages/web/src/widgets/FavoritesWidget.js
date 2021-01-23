@@ -18,8 +18,8 @@ function ClosedTabsList() {
       <WidgetsInnerContainer>
         <AppObjectList
           list={_.sortBy(
-            tabs.filter((x) => x.closedTime),
-            (x) => -x.closedTime
+            tabs.filter(x => x.closedTime),
+            x => -x.closedTime
           )}
           AppObjectComponent={ClosedTabAppObject}
         />

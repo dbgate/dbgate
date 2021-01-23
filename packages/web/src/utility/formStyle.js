@@ -28,7 +28,7 @@ export const FormRowTiny = styled.div`
 `;
 
 export const FormLabelTiny = styled.div`
-  color: ${(props) => props.theme.manager_font3};
+  color: ${props => props.theme.manager_font3};
 `;
 
 export const FormValueTiny = styled.div`

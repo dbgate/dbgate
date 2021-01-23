@@ -20,13 +20,13 @@ import ErrorBoundary from '../utility/ErrorBoundary';
 // `;
 
 const StyledModal = styled(Modal)`
-  border: 1px solid ${(props) => props.theme.border};
-  background: ${(props) => props.theme.modal_background};
+  border: 1px solid ${props => props.theme.border};
+  background: ${props => props.theme.modal_background};
   overflow: auto;
   webkitoverflowscrolling: touch;
   outline: none;
 
-  ${(props) =>
+  ${props =>
     props.fullScreen &&
     `
     position: fixed;
@@ -38,7 +38,7 @@ const StyledModal = styled(Modal)`
       // height: 100%;
     `}
 
-  ${(props) =>
+  ${props =>
     !props.fullScreen &&
     `
     border-radius: 10px;
@@ -50,7 +50,7 @@ const StyledModal = styled(Modal)`
         
         // z-index:1200;
 
-  ${(props) =>
+  ${props =>
     props.isFlex &&
     `
           display: flex;

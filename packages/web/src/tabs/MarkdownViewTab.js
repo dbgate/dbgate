@@ -33,4 +33,4 @@ export default function MarkdownViewTab({ savedFile }) {
   return <MarkdownExtendedView>{text || ''}</MarkdownExtendedView>;
 }
 
-MarkdownViewTab.allowAddToFavorites = (props) => true;
+MarkdownViewTab.allowAddToFavorites = props => true;

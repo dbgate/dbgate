@@ -52,7 +52,7 @@ const WidgetColumnWrapper = styled.div`
   display: flex;
   flex: 1;
   overflow: hidden;
-  border-left: 1px solid ${(props) => props.theme.border};
+  border-left: 1px solid ${props => props.theme.border};
 `;
 
 const FormWrapper = styled.div`
@@ -67,7 +67,7 @@ const FormWrapper = styled.div`
 `;
 
 const ContentWrapper = styled.div`
-  border-top: 1px solid ${(props) => props.theme.border};
+  border-top: 1px solid ${props => props.theme.border};
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -80,9 +80,9 @@ const Footer = styled.div`
   left: 0;
   right: 0;
   bottom: 0px;
-  background-color: ${(props) => props.theme.modalheader_background};
+  background-color: ${props => props.theme.modalheader_background};
 
-  border-top: 1px solid ${(props) => props.theme.border};
+  border-top: 1px solid ${props => props.theme.border};
   // padding: 15px;
 `;
 
@@ -155,13 +155,13 @@ export default function ImportExportModal({
     }
   }, [runnerId, socket]);
 
-  const handleExecute = async (values) => {
+  const handleExecute = async values => {
     if (busy) return;
 
     setBusy(true);
     const script = await createImpExpScript(extensions, values);
 
-    setExecuteNumber((num) => num + 1);
+    setExecuteNumber(num => num + 1);
 
     let runid = runnerId;
     const resp = await axios.post('runners/start', { script });

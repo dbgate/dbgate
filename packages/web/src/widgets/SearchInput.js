@@ -9,7 +9,7 @@ const StyledInput = styled.input`
 `;
 
 export default function SearchInput({ placeholder, filter, setFilter, inputRef = undefined }) {
-  const handleKeyDown = (ev) => {
+  const handleKeyDown = ev => {
     if (ev.keyCode == keycodes.escape) {
       setFilter('');
     }
@@ -20,8 +20,8 @@ export default function SearchInput({ placeholder, filter, setFilter, inputRef =
       type="text"
       placeholder={placeholder}
       value={filter}
-      onChange={(e) => setFilter(e.target.value)}
-      onFocus={(e) => e.target.select()}
+      onChange={e => setFilter(e.target.value)}
+      onFocus={e => e.target.select()}
       onKeyDown={handleKeyDown}
     />
   );

@@ -93,7 +93,7 @@ export default function SetFilterModal({ modalState, onFilter, filterType, condi
     return `${condition}${value}`;
   };
 
-  const handleOk = (values) => {
+  const handleOk = values => {
     const { value1, condition1, value2, condition2, joinOperator } = values;
     const term1 = createTerm(condition1, value1);
     const term2 = createTerm(condition2, value2);

@@ -29,7 +29,7 @@ const IconWrapper = styled.span`
 `;
 
 const ResizeHandle = styled.div`
-  background-color: ${(props) => props.theme.border};
+  background-color: ${props => props.theme.border};
   width: 2px;
   cursor: col-resize;
   z-index: 1;
