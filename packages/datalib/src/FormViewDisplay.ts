@@ -24,7 +24,7 @@ export class FormViewDisplay {
 
   addFilterColumn(column) {
     if (!column) return;
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       formFilterColumns: [...(cfg.formFilterColumns || []), column.uniqueName],
     }));
@@ -35,7 +35,7 @@ export class FormViewDisplay {
     const value = rowData[column.uniqueName];
     const expr = getFilterValueExpression(value, column.dataType);
     if (expr) {
-      this.setConfig((cfg) => ({
+      this.setConfig(cfg => ({
         ...cfg,
         filters: {
           ...cfg.filters,
@@ -46,7 +46,7 @@ export class FormViewDisplay {
   }
 
   setFilter(uniqueName, value) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       filters: {
         ...cfg.filters,
@@ -58,16 +58,16 @@ export class FormViewDisplay {
 
   removeFilter(uniqueName) {
     const reloadRequired = !!this.config.filters[uniqueName];
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
-      formFilterColumns: (cfg.formFilterColumns || []).filter((x) => x != uniqueName),
+      formFilterColumns: (cfg.formFilterColumns || []).filter(x => x != uniqueName),
       filters: _.omit(cfg.filters || [], uniqueName),
     }));
     if (reloadRequired) this.reload();
   }
 
   reload() {
-    this.setCache((cache) => ({
+    this.setCache(cache => ({
       // ...cache,
       ...createGridCache(),
       refreshTime: new Date().getTime(),
@@ -84,7 +84,7 @@ export class FormViewDisplay {
   requestKeyValue(columnName, value) {
     if (this.getKeyValue(columnName) == value) return;
 
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       formViewKeyRequested: {
         ...cfg.formViewKey,
@@ -101,13 +101,13 @@ export class FormViewDisplay {
     }
     const formViewKey = _.pick(
       row,
-      this.baseTable.primaryKey.columns.map((x) => x.columnName)
+      this.baseTable.primaryKey.columns.map(x => x.columnName)
     );
     return formViewKey;
   }
 
   cancelRequestKey(rowData) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       formViewKeyRequested: null,
       formViewKey: rowData ? this.extractKey(rowData) : cfg.formViewKey,

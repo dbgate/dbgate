@@ -71,7 +71,7 @@ export abstract class GridDisplay {
   }
 
   focusColumn(uniqueName: string) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       focusedColumn: uniqueName,
     }));
@@ -90,11 +90,11 @@ export abstract class GridDisplay {
   }
 
   get allColumns() {
-    return this.getColumns(null).filter((col) => col.isChecked || col.uniquePath.length == 1);
+    return this.getColumns(null).filter(col => col.isChecked || col.uniquePath.length == 1);
   }
 
   reload() {
-    this.setCache((cache) => ({
+    this.setCache(cache => ({
       // ...cache,
       ...createGridCache(),
       refreshTime: new Date().getTime(),
@@ -104,34 +104,34 @@ export abstract class GridDisplay {
   includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
     // console.log('includeInColumnSet', field, uniqueName, isIncluded);
     if (isIncluded) {
-      this.setConfig((cfg) => ({
+      this.setConfig(cfg => ({
         ...cfg,
         [field]: [...(cfg[field] || []), uniqueName],
       }));
     } else {
-      this.setConfig((cfg) => ({
+      this.setConfig(cfg => ({
         ...cfg,
-        [field]: (cfg[field] || []).filter((x) => x != uniqueName),
+        [field]: (cfg[field] || []).filter(x => x != uniqueName),
       }));
     }
   }
 
   showAllColumns() {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       hiddenColumns: [],
     }));
   }
 
   hideAllColumns() {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
-      hiddenColumns: this.columns.map((x) => x.uniqueName),
+      hiddenColumns: this.columns.map(x => x.uniqueName),
     }));
   }
 
   get hiddenColumnIndexes() {
-    return (this.config.hiddenColumns || []).map((x) => _.findIndex(this.columns, (y) => y.uniqueName == x));
+    return (this.config.hiddenColumns || []).map(x => _.findIndex(this.columns, y => y.uniqueName == x));
   }
 
   isColumnChecked(column: DisplayColumn) {
@@ -179,10 +179,10 @@ export abstract class GridDisplay {
   applySortOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
     if (this.config.sort?.length > 0) {
       select.orderBy = this.config.sort
-        .map((col) => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
-        .map((col) => ({ ...col, expr: select.columns.find((x) => x.alias == col.uniqueName) }))
-        .filter((col) => col.dispInfo && col.expr)
-        .map((col) => ({
+        .map(col => ({ ...col, dispInfo: displayedColumnInfo[col.uniqueName] }))
+        .map(col => ({ ...col, expr: select.columns.find(x => x.alias == col.uniqueName) }))
+        .filter(col => col.dispInfo && col.expr)
+        .map(col => ({
           ...col.expr,
           direction: col.order,
         }));
@@ -194,16 +194,14 @@ export abstract class GridDisplay {
   }
 
   get groupColumns() {
-    return this.isGrouped
-      ? _.keys(_.pickBy(this.config.grouping, (v) => v == 'GROUP' || v.startsWith('GROUP:')))
-      : null;
+    return this.isGrouped ? _.keys(_.pickBy(this.config.grouping, v => v == 'GROUP' || v.startsWith('GROUP:'))) : null;
   }
 
   applyGroupOnSelect(select: Select, displayedColumnInfo: DisplayedColumnInfo) {
     const groupColumns = this.groupColumns;
     if (groupColumns && groupColumns.length > 0) {
       // @ts-ignore
-      select.groupBy = groupColumns.map((col) => {
+      select.groupBy = groupColumns.map(col => {
         const colExpr: Expression = {
           exprType: 'column',
           columnName: displayedColumnInfo[col].columnName,
@@ -257,16 +255,16 @@ export abstract class GridDisplay {
           };
         }
       }
-      select.columns = select.columns.filter((x) => x.alias);
+      select.columns = select.columns.filter(x => x.alias);
     }
   }
 
   getColumns(columnFilter) {
-    return this.columns.filter((col) => filterName(columnFilter, col.columnName));
+    return this.columns.filter(col => filterName(columnFilter, col.columnName));
   }
 
   getGridColumns() {
-    return this.getColumns(null).filter((x) => this.isColumnChecked(x));
+    return this.getColumns(null).filter(x => this.isColumnChecked(x));
   }
 
   isExpandedColumn(uniqueName: string) {
@@ -282,7 +280,7 @@ export abstract class GridDisplay {
   }
 
   setFilter(uniqueName, value) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       filters: {
         ...cfg.filters,
@@ -293,7 +291,7 @@ export abstract class GridDisplay {
   }
 
   setFilters(dct) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       filters: {
         ...cfg.filters,
@@ -304,7 +302,7 @@ export abstract class GridDisplay {
   }
 
   setSort(uniqueName, order) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       sort: [{ uniqueName, order }],
     }));
@@ -312,7 +310,7 @@ export abstract class GridDisplay {
   }
 
   setGrouping(uniqueName, groupFunc: GroupFunc) {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       grouping: groupFunc
         ? {
@@ -327,7 +325,7 @@ export abstract class GridDisplay {
   getGrouping(uniqueName): GroupFunc {
     if (this.isGrouped) {
       if (this.config.grouping[uniqueName]) return this.config.grouping[uniqueName];
-      const column = this.baseTable.columns.find((x) => x.columnName == uniqueName);
+      const column = this.baseTable.columns.find(x => x.columnName == uniqueName);
       if (isTypeLogical(column?.dataType)) return 'COUNT DISTINCT';
       if (column?.autoIncrement) return 'COUNT';
       return 'MAX';
@@ -336,7 +334,7 @@ export abstract class GridDisplay {
   }
 
   clearGrouping() {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       grouping: {},
     }));
@@ -344,7 +342,7 @@ export abstract class GridDisplay {
   }
 
   getSortOrder(uniqueName) {
-    return this.config.sort.find((x) => x.uniqueName == uniqueName)?.order;
+    return this.config.sort.find(x => x.uniqueName == uniqueName)?.order;
   }
 
   get filterCount() {
@@ -352,7 +350,7 @@ export abstract class GridDisplay {
   }
 
   clearFilters() {
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       filters: {},
     }));
@@ -365,7 +363,7 @@ export abstract class GridDisplay {
   }
 
   getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
-    const col = this.columns.find((x) => x.uniqueName == uniqueName);
+    const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
     if (!this.baseTable) return null;
     if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;
@@ -398,7 +396,7 @@ export abstract class GridDisplay {
     const select: Select = {
       commandType: 'select',
       from: { name, alias: 'basetbl' },
-      columns: columns.map((col) => ({
+      columns: columns.map(col => ({
         exprType: 'column',
         alias: col.columnName,
         source: { alias: 'basetbl' },
@@ -413,7 +411,7 @@ export abstract class GridDisplay {
       ],
     };
     const displayedColumnInfo = _.keyBy(
-      this.columns.map((col) => ({ ...col, sourceAlias: 'basetbl' })),
+      this.columns.map(col => ({ ...col, sourceAlias: 'basetbl' })),
       'uniqueName'
     );
     this.processReferences(select, displayedColumnInfo, options);
@@ -442,7 +440,7 @@ export abstract class GridDisplay {
   }
 
   resizeColumn(uniqueName: string, computedSize: number, diff: number) {
-    this.setConfig((cfg) => {
+    this.setConfig(cfg => {
       const columnWidths = {
         ...cfg.columnWidths,
       };
@@ -495,7 +493,7 @@ export abstract class GridDisplay {
     if (!filters) return null;
     const conditions = [];
     for (const name in filters) {
-      const column = this.columns.find((x) => (x.columnName = name));
+      const column = this.columns.find(x => (x.columnName = name));
       if (!column) continue;
       const filterType = getFilterType(column.dataType);
       try {
@@ -525,13 +523,13 @@ export abstract class GridDisplay {
     if (!primaryKey) return;
     const { columns } = primaryKey;
 
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       isFormView: true,
       formViewKey: rowData
         ? _.pick(
             rowData,
-            columns.map((x) => x.columnName)
+            columns.map(x => x.columnName)
           )
         : null,
       formViewKeyRequested: null,

@@ -48,9 +48,9 @@ export function evaluateCondition(condition: Condition, values) {
     case 'isNotEmpty':
       return !isEmpty(evaluateExpression(condition.expr, values));
     case 'and':
-      return condition.conditions.every((cond) => evaluateCondition(cond, values));
+      return condition.conditions.every(cond => evaluateCondition(cond, values));
     case 'or':
-      return condition.conditions.some((cond) => evaluateCondition(cond, values));
+      return condition.conditions.some(cond => evaluateCondition(cond, values));
     case 'like':
       return isLike(evaluateExpression(condition.left, values), evaluateExpression(condition.right, values));
       break;

@@ -36,8 +36,8 @@ export class TableGridDisplay extends GridDisplay {
     this.baseTable = this.table;
     if (this.table && this.table.columns) {
       this.changeSetKeyFields = this.table.primaryKey
-        ? this.table.primaryKey.columns.map((x) => x.columnName)
-        : this.table.columns.map((x) => x.columnName);
+        ? this.table.primaryKey.columns.map(x => x.columnName)
+        : this.table.columns.map(x => x.columnName);
     }
   }
 
@@ -45,15 +45,15 @@ export class TableGridDisplay extends GridDisplay {
     return (
       this.dbinfo &&
       this.dbinfo.tables &&
-      this.dbinfo.tables.find((x) => x.pureName == pureName && x.schemaName == schemaName)
+      this.dbinfo.tables.find(x => x.pureName == pureName && x.schemaName == schemaName)
     );
   }
 
   getDisplayColumns(table: TableInfo, parentPath: string[]) {
     return (
       table?.columns
-        ?.map((col) => this.getDisplayColumn(table, col, parentPath))
-        ?.map((col) => ({
+        ?.map(col => this.getDisplayColumn(table, col, parentPath))
+        ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
           hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
@@ -80,7 +80,7 @@ export class TableGridDisplay extends GridDisplay {
 
   addReferenceToSelect(select: Select, parentAlias: string, column: DisplayColumn) {
     const childAlias = `${column.uniqueName}_ref`;
-    if ((select.from.relations || []).find((x) => x.alias == childAlias)) return;
+    if ((select.from.relations || []).find(x => x.alias == childAlias)) return;
     const table = this.getFkTarget(column);
     if (table && table.primaryKey) {
       select.from.relations = [
@@ -120,7 +120,7 @@ export class TableGridDisplay extends GridDisplay {
         }
         const table = this.getFkTarget(column);
         if (table && table.columns && table.columns.length > 0 && table.primaryKey) {
-          const hintColumn = table.columns.find((x) => x?.dataType?.toLowerCase()?.includes('char'));
+          const hintColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
           if (hintColumn) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
             this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
@@ -177,7 +177,7 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   getColumns(columnFilter) {
-    return this.enrichExpandedColumns(this.columns.filter((col) => filterName(columnFilter, col.columnName)));
+    return this.enrichExpandedColumns(this.columns.filter(col => filterName(columnFilter, col.columnName)));
   }
 
   getDisplayColumn(table: TableInfo, col: ColumnInfo, parentPath: string[]) {
@@ -191,10 +191,10 @@ export class TableGridDisplay extends GridDisplay {
       headerText: uniquePath.length == 1 ? col.columnName : `${table.pureName}.${col.columnName}`,
       uniqueName,
       uniquePath,
-      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find((x) => x.columnName == col.columnName),
+      isPrimaryKey: table.primaryKey && !!table.primaryKey.columns.find(x => x.columnName == col.columnName),
       foreignKey:
         table.foreignKeys &&
-        table.foreignKeys.find((fk) => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
+        table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
     };
   }
 

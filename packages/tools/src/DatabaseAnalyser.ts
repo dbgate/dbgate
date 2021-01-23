@@ -3,7 +3,7 @@ import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
 
-const fp_pick = (arg) => (array) => _pick(array, arg);
+const fp_pick = arg => array => _pick(array, arg);
 export class DatabaseAnalyser {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
@@ -51,14 +51,14 @@ export class DatabaseAnalyser {
     const res = {};
     for (const field of ['tables', 'views', 'functions', 'procedures', 'triggers']) {
       const removedIds = this.modifications
-        .filter((x) => x.action == 'remove' && x.objectTypeField == field)
-        .map((x) => extractObjectId(x));
+        .filter(x => x.action == 'remove' && x.objectTypeField == field)
+        .map(x => extractObjectId(x));
       const newArray = newlyAnalysed[field] || [];
-      const addedChangedIds = newArray.map((x) => extractObjectId(x));
+      const addedChangedIds = newArray.map(x => extractObjectId(x));
       const removeAllIds = [...removedIds, ...addedChangedIds];
       res[field] = _sortBy(
-        [...this.structure[field].filter((x) => !removeAllIds.includes(extractObjectId(x))), ...newArray],
-        (x) => x.pureName
+        [...this.structure[field].filter(x => !removeAllIds.includes(extractObjectId(x))), ...newArray],
+        x => x.pureName
       );
     }
 
@@ -87,7 +87,7 @@ export class DatabaseAnalyser {
   }
 
   static byTableFilter(table) {
-    return (x) => x.pureName == table.pureName && x.schemaName == x.schemaName;
+    return x => x.pureName == table.pureName && x.schemaName == x.schemaName;
   }
 
   static extractPrimaryKeys(table, pkColumns) {
@@ -101,7 +101,7 @@ export class DatabaseAnalyser {
   }
   static extractForeignKeys(table, fkColumns) {
     const grouped = _groupBy(fkColumns.filter(DatabaseAnalyser.byTableFilter(table)), 'constraintName');
-    return Object.keys(grouped).map((constraintName) => ({
+    return Object.keys(grouped).map(constraintName => ({
       constraintName,
       constraintType: 'foreignKey',
       ..._pick(grouped[constraintName][0], [

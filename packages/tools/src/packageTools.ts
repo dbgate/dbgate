@@ -37,12 +37,12 @@ export function extractShellApiFunctionName(functionName) {
 
 export function findEngineDriver(connection, extensions: ExtensionsDirectory): EngineDriver {
   if (_isString(connection)) {
-    return extensions.drivers.find((x) => x.engine == connection);
+    return extensions.drivers.find(x => x.engine == connection);
   }
   if (_isPlainObject(connection)) {
     const { engine } = connection;
     if (engine) {
-      return extensions.drivers.find((x) => x.engine == engine);
+      return extensions.drivers.find(x => x.engine == engine);
     }
   }
   return null;

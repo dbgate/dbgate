@@ -6,17 +6,17 @@ import moment from 'moment';
 import { MacroDefinition, MacroSelectedCell } from './MacroDefinition';
 
 const getMacroFunction = {
-  transformValue: (code) => `
+  transformValue: code => `
 (value, args, modules, rowIndex, row, columnName) => {
     ${code}
 }
 `,
-  transformRows: (code) => `
+  transformRows: code => `
 (rows, args, modules, selectedCells, cols, columns) => {
   ${code}
 }
 `,
-  transformData: (code) => `
+  transformData: code => `
 (rows, args, modules, selectedCells, cols, columns) => {
   ${code}
 }
@@ -83,8 +83,8 @@ function runTramsformValue(
 }
 
 function removePreviewRowFlags(rows) {
-  rows = rows.filter((row) => row.__rowStatus != 'deleted');
-  rows = rows.map((row) => {
+  rows = rows.filter(row => row.__rowStatus != 'deleted');
+  rows = rows.map(row => {
     if (row.__rowStatus || row.__modifiedFields || row.__insertedFields || row.__deletedFields)
       return _.omit(row, ['__rowStatus', '__modifiedFields', '__insertedFields', '__deletedFields']);
     return row;
@@ -107,7 +107,7 @@ function runTramsformRows(
       macroArgs,
       modules,
       selectedCells,
-      data.structure.columns.map((x) => x.columnName),
+      data.structure.columns.map(x => x.columnName),
       data.structure.columns
     );
     if (!preview) {
@@ -136,11 +136,11 @@ function runTramsformData(
       macroArgs,
       modules,
       selectedCells,
-      data.structure.columns.map((x) => x.columnName),
+      data.structure.columns.map(x => x.columnName),
       data.structure.columns
     );
     if (cols && !columns) {
-      columns = cols.map((columnName) => ({ columnName }));
+      columns = cols.map(columnName => ({ columnName }));
     }
     columns = _.uniqBy(columns, 'columnName');
     if (!preview) {

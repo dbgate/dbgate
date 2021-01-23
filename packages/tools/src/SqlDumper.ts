@@ -7,9 +7,9 @@ import {
   TableInfo,
   TransformType,
 } from 'dbgate-types';
-import _isString from 'lodash/isString'
-import _isNumber from 'lodash/isNumber'
-import _isDate from 'lodash/isDate'
+import _isString from 'lodash/isString';
+import _isNumber from 'lodash/isNumber';
+import _isDate from 'lodash/isDate';
 
 export class SqlDumper {
   s = '';
@@ -95,7 +95,7 @@ export class SqlDumper {
   }
   putFormattedList(c, collection) {
     if (!collection) return;
-    this.putCollection(', ', collection, (item) => this.putFormattedValue(c, item));
+    this.putCollection(', ', collection, item => this.putFormattedValue(c, item));
   }
   put(format: string, ...args) {
     let i = 0;
@@ -203,7 +203,7 @@ export class SqlDumper {
 
   createTable(table: TableInfo) {
     this.put('^create ^table %f ( &>&n', table);
-    this.putCollection(',&n', table.columns, (col) => {
+    this.putCollection(',&n', table.columns, col => {
       this.put('%i ', col.columnName);
       this.columnDefinition(col);
     });
@@ -214,11 +214,11 @@ export class SqlDumper {
       }
       this.put(
         ' ^primary ^key (%,i)',
-        table.primaryKey.columns.map((x) => x.columnName)
+        table.primaryKey.columns.map(x => x.columnName)
       );
     }
     if (table.foreignKeys) {
-      table.foreignKeys.forEach((fk) => {
+      table.foreignKeys.forEach(fk => {
         this.put(',&n');
         this.createForeignKeyFore(fk);
       });
@@ -247,9 +247,9 @@ export class SqlDumper {
     if (fk.constraintName != null) this.put('^constraint %i ', fk.constraintName);
     this.put(
       '^foreign ^key (%,i) ^references %f (%,i)',
-      fk.columns.map((x) => x.columnName),
+      fk.columns.map(x => x.columnName),
       { schemaName: fk.refSchemaName, pureName: fk.refTableName },
-      fk.columns.map((x) => x.refColumnName)
+      fk.columns.map(x => x.refColumnName)
     );
     if (fk.deleteAction) this.put(' ^on ^delete %k', fk.deleteAction);
     if (fk.updateAction) this.put(' ^on ^update %k', fk.updateAction);

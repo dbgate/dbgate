@@ -23,8 +23,8 @@ export class ViewGridDisplay extends GridDisplay {
   getDisplayColumns(view: ViewInfo) {
     return (
       view?.columns
-        ?.map((col) => this.getDisplayColumn(view, col))
-        ?.map((col) => ({
+        ?.map(col => this.getDisplayColumn(view, col))
+        ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
         })) || []

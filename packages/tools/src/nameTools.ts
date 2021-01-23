@@ -39,13 +39,13 @@ export function findObjectLike(
   if (schemaName) {
     // @ts-ignore
     return dbinfo[objectTypeField].find(
-      (x) => equalStringLike(x.pureName, pureName) && equalStringLike(x.schemaName, schemaName)
+      x => equalStringLike(x.pureName, pureName) && equalStringLike(x.schemaName, schemaName)
     );
   }
   // @ts-ignore
-  return dbinfo[objectTypeField].find((x) => equalStringLike(x.pureName, pureName));
+  return dbinfo[objectTypeField].find(x => equalStringLike(x.pureName, pureName));
 }
 
 export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo) {
-  return (table.foreignKeys || []).find((fk) => fk.columns.find((col) => col.columnName == column.columnName));
+  return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column.columnName));
 }

@@ -15,7 +15,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
   writable.structure = null;
   writable.columnNames = null;
 
-  writable.addRow = async (row) => {
+  writable.addRow = async row => {
     if (writable.structure) {
       writable.buffer.push(row);
     } else {
@@ -44,8 +44,8 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     }
 
     writable.columnNames = _intersection(
-      structure.columns.map((x) => x.columnName),
-      writable.structure.columns.map((x) => x.columnName)
+      structure.columns.map(x => x.columnName),
+      writable.structure.columns.map(x => x.columnName)
     );
   };
 
@@ -56,14 +56,14 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     const dmp = driver.createDumper();
 
     dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
-    dmp.putCollection(',', writable.columnNames, (col) => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
+    dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
     dmp.putRaw(')\n VALUES\n');
 
     let wasRow = false;
     for (const row of rows) {
       if (wasRow) dmp.putRaw(',\n');
       dmp.putRaw('(');
-      dmp.putCollection(',', writable.columnNames, (col) => dmp.putValue(row[col]));
+      dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col]));
       dmp.putRaw(')');
       wasRow = true;
     }
@@ -84,7 +84,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     callback();
   };
 
-  writable._final = async (callback) => {
+  writable._final = async callback => {
     await writable.send();
     callback();
   };

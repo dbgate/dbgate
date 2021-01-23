@@ -45,7 +45,7 @@ export function findExistingChangeSetItem(
     return [
       'inserts',
       changeSet.inserts.find(
-        (x) =>
+        x =>
           x.pureName == definition.pureName &&
           x.schemaName == definition.schemaName &&
           x.insertedRowIndex == definition.insertedRowIndex
@@ -53,7 +53,7 @@ export function findExistingChangeSetItem(
     ];
   } else {
     const inUpdates = changeSet.updates.find(
-      (x) =>
+      x =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         _.isEqual(x.condition, definition.condition)
@@ -61,7 +61,7 @@ export function findExistingChangeSetItem(
     if (inUpdates) return ['updates', inUpdates];
 
     const inDeletes = changeSet.deletes.find(
-      (x) =>
+      x =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
         _.isEqual(x.condition, definition.condition)
@@ -86,7 +86,7 @@ export function setChangeSetValue(
   if (existingItem) {
     return {
       ...changeSet,
-      [fieldName]: changeSet[fieldName].map((item) =>
+      [fieldName]: changeSet[fieldName].map(item =>
         item == existingItem
           ? {
               ...item,
@@ -167,8 +167,8 @@ export function batchUpdateChangeSet(
 
 function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
   return _.keys(item.fields)
-    .filter((targetColumn) => allowNulls || item.fields[targetColumn] != null)
-    .map((targetColumn) => ({
+    .filter(targetColumn => allowNulls || item.fields[targetColumn] != null)
+    .map(targetColumn => ({
       targetColumn,
       exprType: 'value',
       value: item.fields[targetColumn],
@@ -183,11 +183,11 @@ function insertToSql(
   if (fields.length == 0) return null;
   let autoInc = false;
   if (dbinfo) {
-    const table = dbinfo.tables.find((x) => x.schemaName == item.schemaName && x.pureName == item.pureName);
+    const table = dbinfo.tables.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
     if (table) {
-      const autoIncCol = table.columns.find((x) => x.autoIncrement);
+      const autoIncCol = table.columns.find(x => x.autoIncrement);
       console.log('autoIncCol', autoIncCol);
-      if (autoIncCol && fields.find((x) => x.targetColumn == autoIncCol.columnName)) {
+      if (autoIncCol && fields.find(x => x.targetColumn == autoIncCol.columnName)) {
         autoInc = true;
       }
     }
@@ -222,7 +222,7 @@ function insertToSql(
 function extractCondition(item: ChangeSetItem): Condition {
   return {
     conditionType: 'and',
-    conditions: _.keys(item.condition).map((columnName) => ({
+    conditions: _.keys(item.condition).map(columnName => ({
       conditionType: 'binary',
       operator: '=',
       left: {
@@ -273,7 +273,7 @@ function deleteToSql(item: ChangeSetItem): Delete {
 export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Command[] {
   return _.compact(
     _.flatten([
-      ...changeSet.inserts.map((item) => insertToSql(item, dbinfo)) as any,
+      ...(changeSet.inserts.map(item => insertToSql(item, dbinfo)) as any),
       ...changeSet.updates.map(updateToSql),
       ...changeSet.deletes.map(deleteToSql),
     ])
@@ -289,7 +289,7 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
   if (item)
     return {
       ...changeSet,
-      [field]: changeSet[field].filter((x) => x != item),
+      [field]: changeSet[field].filter(x => x != item),
     };
   return changeSet;
 }
@@ -321,8 +321,8 @@ export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetR
 export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjectInfo) {
   if (!name) return [];
   if (!changeSet) return [];
-  const rows = changeSet.inserts.filter((x) => x.pureName == name.pureName && x.schemaName == name.schemaName);
-  const maxIndex = _.maxBy(rows, (x) => x.insertedRowIndex)?.insertedRowIndex;
+  const rows = changeSet.inserts.filter(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+  const maxIndex = _.maxBy(rows, x => x.insertedRowIndex)?.insertedRowIndex;
   if (maxIndex == null) return [];
   const res = Array(maxIndex + 1).fill({});
   for (const row of rows) {

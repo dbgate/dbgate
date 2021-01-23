@@ -288,5 +288,5 @@ export function splitPostgresQuery(sql: string, options?: SplitOptions): string[
     }
   } while (context.unread !== '');
   publishStatement(context);
-  return context.output.map((v) => v.value);
+  return context.output.map(v => v.value);
 }

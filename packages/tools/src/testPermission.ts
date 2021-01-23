@@ -4,7 +4,7 @@ import _isString from 'lodash/isString';
 export function compilePermissions(permissions: string[] | string) {
   if (!permissions) return null;
   if (_isString(permissions)) permissions = permissions.split(',');
-  return permissions.map((x) => new RegExp('^' + _escapeRegExp(x).replace(/\\\*/g, '.*') + '$'));
+  return permissions.map(x => new RegExp('^' + _escapeRegExp(x).replace(/\\\*/g, '.*') + '$'));
 }
 
 export function testPermission(tested: string, permissions: RegExp[]) {

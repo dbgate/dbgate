@@ -31,7 +31,7 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       break;
     case 'and':
     case 'or':
-      dmp.putCollection(` ^${condition.conditionType} `, condition.conditions, (cond) => {
+      dmp.putCollection(` ^${condition.conditionType} `, condition.conditions, cond => {
         dmp.putRaw('(');
         dumpSqlCondition(dmp, cond);
         dmp.putRaw(')');

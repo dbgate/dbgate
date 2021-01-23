@@ -16,7 +16,7 @@ export class JslGridDisplay extends GridDisplay {
     this.filterable = true;
 
     this.columns = columns
-      .map((col) => ({
+      .map(col => ({
         columnName: col.columnName,
         headerText: col.columnName,
         uniqueName: col.columnName,
@@ -26,7 +26,7 @@ export class JslGridDisplay extends GridDisplay {
         pureName: null,
         schemaName: null,
       }))
-      ?.map((col) => ({
+      ?.map(col => ({
         ...col,
         isChecked: this.isColumnChecked(col),
       }));

@@ -44,12 +44,12 @@ export function dumpSqlRelation(dmp: SqlDumper, from: Relation) {
   dumpSqlSourceDef(dmp, from);
   if (from.conditions && from.conditions.length > 0) {
     dmp.put(' ^on ');
-    dmp.putCollection(' ^and ', from.conditions, (cond) => dumpSqlCondition(dmp, cond));
+    dmp.putCollection(' ^and ', from.conditions, cond => dumpSqlCondition(dmp, cond));
   }
 }
 
 export function dumpSqlFromDefinition(dmp: SqlDumper, from: FromDefinition) {
   dumpSqlSourceDef(dmp, from);
   dmp.put(' ');
-  if (from.relations) from.relations.forEach((rel) => dumpSqlRelation(dmp, rel));
+  if (from.relations) from.relations.forEach(rel => dumpSqlRelation(dmp, rel));
 }

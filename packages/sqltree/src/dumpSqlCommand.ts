@@ -18,7 +18,7 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   if (cmd.columns) {
     if (cmd.selectAll) dmp.put('&n,');
     dmp.put('&>&n');
-    dmp.putCollection(',&n', cmd.columns, (fld) => {
+    dmp.putCollection(',&n', cmd.columns, fld => {
       dumpSqlExpression(dmp, fld);
       if (fld.alias) dmp.put(' ^as %i', fld.alias);
     });
@@ -33,7 +33,7 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   }
   if (cmd.groupBy) {
     dmp.put('&n^group ^by ');
-    dmp.putCollection(', ', cmd.groupBy, (expr) => dumpSqlExpression(dmp, expr));
+    dmp.putCollection(', ', cmd.groupBy, expr => dumpSqlExpression(dmp, expr));
     dmp.put('&n');
   }
   if (cmd.having) {
@@ -43,7 +43,7 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   }
   if (cmd.orderBy) {
     dmp.put('&n^order ^by ');
-    dmp.putCollection(', ', cmd.orderBy, (expr) => {
+    dmp.putCollection(', ', cmd.orderBy, expr => {
       dumpSqlExpression(dmp, expr);
       dmp.put(' %k', expr.direction);
     });
@@ -67,7 +67,7 @@ export function dumpSqlUpdate(dmp: SqlDumper, cmd: Update) {
 
   dmp.put('&n^set ');
   dmp.put('&>');
-  dmp.putCollection(', ', cmd.fields, (col) => {
+  dmp.putCollection(', ', cmd.fields, col => {
     dmp.put('%i=', col.targetColumn);
     dumpSqlExpression(dmp, col);
   });
@@ -95,9 +95,9 @@ export function dumpSqlInsert(dmp: SqlDumper, cmd: Insert) {
   dmp.put(
     '^insert ^into %f (%,i) ^values (',
     cmd.targetTable,
-    cmd.fields.map((x) => x.targetColumn)
+    cmd.fields.map(x => x.targetColumn)
   );
-  dmp.putCollection(',', cmd.fields, (x) => dumpSqlExpression(dmp, x));
+  dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
   dmp.put(')');
 }
 

@@ -1,4 +1,4 @@
-import { SqlDumper } from "./SqlDumper";
+import { SqlDumper } from './SqlDumper';
 
 const dialect = {
   limitSelect: true,

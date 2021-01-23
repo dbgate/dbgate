@@ -168,7 +168,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
 
   navigate(row) {
     const formViewKey = this.extractKey(row);
-    this.setConfig((cfg) => ({
+    this.setConfig(cfg => ({
       ...cfg,
       formViewKey,
     }));
@@ -226,7 +226,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
   }
 
   getChangeSetField(row, uniqueName): ChangeSetFieldDefinition {
-    const col = this.columns.find((x) => x.uniqueName == uniqueName);
+    const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
     if (!this.baseTable) return null;
     if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;

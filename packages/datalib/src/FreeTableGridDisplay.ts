@@ -21,15 +21,15 @@ export class FreeTableGridDisplay extends GridDisplay {
   getDisplayColumns(model: FreeTableModel) {
     return (
       model?.structure?.columns
-        ?.map((col) => this.getDisplayColumn(col))
-        ?.map((col) => ({
+        ?.map(col => this.getDisplayColumn(col))
+        ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
         })) || []
     );
   }
 
-  getDisplayColumn( col: ColumnInfo) {
+  getDisplayColumn(col: ColumnInfo) {
     const uniquePath = [col.columnName];
     const uniqueName = uniquePath.join('.');
     return {

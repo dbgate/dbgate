@@ -31,7 +31,7 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
     case 'call':
       dmp.put('%s(', expr.func);
       if (expr.argsPrefix) dmp.put('%s ', expr.argsPrefix);
-      dmp.putCollection(',', expr.args, (x) => dumpSqlExpression(dmp, x));
+      dmp.putCollection(',', expr.args, x => dumpSqlExpression(dmp, x));
       dmp.put(')');
       break;
 
