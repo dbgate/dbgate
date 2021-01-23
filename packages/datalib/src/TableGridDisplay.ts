@@ -8,6 +8,7 @@ import { filterName } from './filterName';
 export class TableGridDisplay extends GridDisplay {
   public table: TableInfo;
   public addAllExpandedColumnsToSelected = false;
+  public hintBaseColumns: DisplayColumn[];
 
   constructor(
     public tableName: NamedObjectInfo,
@@ -114,7 +115,7 @@ export class TableGridDisplay extends GridDisplay {
   addHintsToSelect(select: Select): boolean {
     let res = false;
     const groupColumns = this.groupColumns;
-    for (const column of this.getGridColumns()) {
+    for (const column of this.hintBaseColumns || this.getGridColumns()) {
       if (column.foreignKey) {
         if (groupColumns && !groupColumns.includes(column.uniqueName)) {
           continue;

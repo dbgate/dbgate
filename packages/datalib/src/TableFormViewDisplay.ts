@@ -38,6 +38,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     this.columns = [];
     this.addDisplayColumns(this.gridDisplay.columns);
     this.baseTable = this.gridDisplay.baseTable;
+    this.gridDisplay.hintBaseColumns = this.columns;
   }
 
   addDisplayColumns(columns: DisplayColumn[]) {
