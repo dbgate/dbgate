@@ -9,11 +9,16 @@ const Label = styled.span`
   white-space: nowrap;
 `;
 
+export function getColumnIcon(column, forceIcon = false) {
+  if (column.autoIncrement) return 'img autoincrement';
+  if (column.foreignKey) return 'img foreign-key';
+  if (forceIcon) return 'img column';
+  return null;
+}
+
 /** @param column {import('dbgate-datalib').DisplayColumn|import('dbgate-types').ColumnInfo} */
 export default function ColumnLabel(column) {
-  let icon = column.forceIcon ? 'img column' : null;
-  if (column.autoIncrement) icon = 'img autoincrement';
-  if (column.foreignKey) icon = 'img foreign-key';
+  const icon = getColumnIcon(column, column.forceIcon);
   return (
     <Label {...column}>
       {icon ? <FontIcon icon={icon} /> : null} {column.headerText || column.columnName}

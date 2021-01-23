@@ -37,6 +37,7 @@ function AppObjectListItem({
   isExpandable,
   SubItems,
   getCommonProps,
+  expandOnClick,
 }) {
   const [isExpanded, setIsExpanded] = React.useState(false);
 
@@ -51,12 +52,22 @@ function AppObjectListItem({
   let commonProps = {
     prefix: SubItems ? (
       <ExpandIconHolder2>
-        {expandable ? <ExpandIcon isExpanded={isExpanded} /> : <ExpandIcon isBlank />}
+        {expandable ? (
+          <ExpandIcon
+            isExpanded={isExpanded}
+            onClick={e => {
+              setIsExpanded(v => !v);
+              e.stopPropagation();
+            }}
+          />
+        ) : (
+          <ExpandIcon isBlank />
+        )}
       </ExpandIconHolder2>
     ) : null,
   };
 
-  if (SubItems) {
+  if (SubItems && expandOnClick) {
     commonProps.onClick2 = () => setIsExpanded(v => !v);
   }
   if (onObjectClick) {
@@ -107,6 +118,7 @@ export function AppObjectList({
   groupOrdered = undefined,
   isExpandable = undefined,
   getCommonProps = undefined,
+  expandOnClick = false,
 }) {
   const createComponent = data => (
     <AppObjectListItem
@@ -118,6 +130,7 @@ export function AppObjectList({
       SubItems={SubItems}
       isExpandable={isExpandable}
       getCommonProps={getCommonProps}
+      expandOnClick={expandOnClick}
     />
   );
 

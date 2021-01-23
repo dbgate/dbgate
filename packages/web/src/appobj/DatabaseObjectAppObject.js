@@ -12,6 +12,7 @@ import { findEngineDriver } from 'dbgate-tools';
 import useExtensions from '../utility/useExtensions';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import uuidv1 from 'uuid/v1';
+import { AppObjectList } from './AppObjectList';
 
 const icons = {
   tables: 'img table',

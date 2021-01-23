@@ -107,7 +107,10 @@ module.exports = {
     if (existing) {
       existing.subprocess.send({ msgtype: 'ping' });
     }
-    return { status: 'ok' };
+    return {
+      status: 'ok',
+      connectionStatus: existing ? existing.status : null,
+    };
   },
 
   refresh_meta: 'post',

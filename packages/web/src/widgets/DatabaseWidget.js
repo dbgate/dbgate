@@ -25,6 +25,7 @@ import WidgetColumnBar, { WidgetColumnBarItem } from './WidgetColumnBar';
 import ToolbarButton from './ToolbarButton';
 import useShowModal from '../modals/showModal';
 import ConnectionModal from '../modals/ConnectionModal';
+import SubColumnParamList from '../appobj/SubColumnParamList';
 
 function SubDatabaseList({ data }) {
   const setDb = useSetCurrentDatabase();
@@ -82,6 +83,7 @@ function ConnectionList() {
           SubItems={SubDatabaseList}
           filter={filter}
           isExpandable={data => openedConnections.includes(data._id)}
+          expandOnClick
         />
         {connections && connections.length == 0 && (
           <ToolbarButton icon="icon new-connection" onClick={showNewConnection}>
@@ -149,6 +151,8 @@ function SqlObjectList({ conid, database }) {
             AppObjectComponent={DatabaseObjectAppObject}
             groupFunc={data => _.startCase(data.objectTypeField)}
             filter={filter}
+            SubItems={SubColumnParamList}
+            isExpandable={data => data.objectTypeField == 'tables'}
           />
         )}
       </WidgetsInnerContainer>

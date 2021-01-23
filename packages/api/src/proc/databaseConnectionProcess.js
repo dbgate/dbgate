@@ -121,6 +121,7 @@ function start() {
   setInterval(() => {
     const time = new Date().getTime();
     if (time - lastPing > 60 * 1000) {
+      console.log('Database connection not alive, exiting');
       process.exit(0);
     }
   }, 60 * 1000);
