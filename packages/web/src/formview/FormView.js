@@ -490,7 +490,12 @@ export default function FormView(props) {
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
                 ref={element => setCellRef(rowIndex, chunkIndex * 2, element)}
               >
-                <ColumnLabelMargin {...col} />
+                <ColumnLabelMargin
+                  {...col}
+                  headerText={col.columnName}
+                  style={{ marginLeft: (col.uniquePath.length - 1) * 20 }}
+                  extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
+                />
 
                 {col.foreignKey && (
                   <ShowFormButton
