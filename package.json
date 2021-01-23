@@ -27,10 +27,9 @@
     "generatePadFile": "node generatePadFile",
     "fillNativeModules": "node fillNativeModules",
     "fillNativeModulesElectron": "node fillNativeModules --eletron",
-
+    "prettier": "prettier --write packages/api/src && prettier --write packages/datalib/src && prettier --write packages/filterparser/src && prettier --write packages/sqltree/src && prettier --write packages/tools/src && prettier --write packages/types && prettier --write packages/web/src",
     "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/build/* docker -u 2 && copyfiles \"packages/web/build/**/*\" docker -u 2",
     "prepare:docker": "yarn build:web:docker && yarn build:api && yarn copy:docker:build",
-
     "prepare": "yarn build:lib",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",
     "lib": "concurrently --kill-others-on-fail \"yarn start:sqltree\" \"yarn start:filterparser\" \"yarn start:datalib\" \"yarn start:tools\"",
@@ -45,6 +44,7 @@
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
-    "copyfiles": "^2.2.0"
+    "copyfiles": "^2.2.0",
+    "prettier": "^2.2.1"
   }
 }
