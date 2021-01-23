@@ -11,7 +11,7 @@ module.exports = {
   requests: {},
 
   handle_structure(conid, database, { structure }) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
     socket.emitChanged(`database-structure-changed-${conid}-${database}`);
@@ -26,7 +26,7 @@ module.exports = {
     delete this.requests[msgid];
   },
   handle_status(conid, database, { status }) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     if (existing.status == status) return;
     existing.status = status;
@@ -36,7 +36,7 @@ module.exports = {
   handle_ping() {},
 
   async ensureOpened(conid, database) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
     const connection = await connections.get({ conid });
     const subprocess = fork(process.argv[1], ['databaseConnectionProcess', ...process.argv.slice(3)]);
@@ -82,13 +82,16 @@ module.exports = {
   async queryData({ conid, database, sql }) {
     console.log(`Processing query, conid=${conid}, database=${database}, sql=${sql}`);
     const opened = await this.ensureOpened(conid, database);
+    // if (opened && opened.status && opened.status.name == 'error') {
+    //   return opened.status;
+    // }
     const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
     return res;
   },
 
   status_meta: 'get',
   async status({ conid, database }) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing.status;
     const lastClosed = this.closed[`${conid}/${database}`];
     if (lastClosed) return lastClosed.status;
@@ -100,7 +103,7 @@ module.exports = {
 
   ping_meta: 'post',
   async ping({ conid, database }) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) {
       existing.subprocess.send({ msgtype: 'ping' });
     }
@@ -116,11 +119,11 @@ module.exports = {
   },
 
   close(conid, database, kill = true) {
-    const existing = this.opened.find((x) => x.conid == conid && x.database == database);
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) {
       existing.disconnected = true;
       if (kill) existing.subprocess.kill();
-      this.opened = this.opened.filter((x) => x.conid != conid || x.database != database);
+      this.opened = this.opened.filter(x => x.conid != conid || x.database != database);
       this.closed[`${conid}/${database}`] = {
         status: {
           ...existing.status,
