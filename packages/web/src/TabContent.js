@@ -47,28 +47,32 @@ export default function TabContent({ toolbarPortalRef }) {
 
   const [mountedTabs, setMountedTabs] = React.useState({});
 
-  // cleanup closed tabs
-  if (
-    _.difference(
-      _.keys(mountedTabs),
-      _.map(
-        files.filter(x => x.closedTime == null),
-        'tabid'
-      )
-    ).length > 0
-  ) {
-    setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find(x => x.tabid == k && x.closedTime == null)));
-  }
+  const selectedTab = files.find(x => x.selected && x.closedTime == null);
 
-  const selectedTab = files.find(x => x.selected);
-  if (selectedTab) {
-    const { tabid } = selectedTab;
-    if (tabid && !mountedTabs[tabid])
-      setMountedTabs({
-        ...mountedTabs,
-        [tabid]: createTabComponent(selectedTab),
-      });
-  }
+  React.useEffect(() => {
+    // cleanup closed tabs
+
+    if (
+      _.difference(
+        _.keys(mountedTabs),
+        _.map(
+          files.filter(x => x.closedTime == null),
+          'tabid'
+        )
+      ).length > 0
+    ) {
+      setMountedTabs(_.pickBy(mountedTabs, (v, k) => files.find(x => x.tabid == k && x.closedTime == null)));
+    }
+
+    if (selectedTab) {
+      const { tabid } = selectedTab;
+      if (tabid && !mountedTabs[tabid])
+        setMountedTabs({
+          ...mountedTabs,
+          [tabid]: createTabComponent(selectedTab),
+        });
+    }
+  }, [mountedTabs, files]);
 
   return _.keys(mountedTabs).map(tabid => {
     const { TabComponent, props } = mountedTabs[tabid];
