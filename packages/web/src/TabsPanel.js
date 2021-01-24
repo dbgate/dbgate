@@ -159,6 +159,10 @@ export default function TabsPanel() {
         closedTime: x.closedTime || (closeCondition(x, active) ? new Date().getTime() : undefined),
       }));
 
+      if (newFiles.find(x => x.selected && x.closedTime == null)) {
+        return newFiles;
+      }
+
       while (selectedIndex >= 0 && newFiles[selectedIndex].closedTime) selectedIndex -= 1;
 
       if (selectedIndex < 0) {
@@ -166,14 +170,18 @@ export default function TabsPanel() {
         while (selectedIndex < newFiles.length && newFiles[selectedIndex].closedTime) selectedIndex += 1;
       }
 
-      if (selectedIndex != lastSelectedIndex) {
-        return newFiles.map((x, index) => ({
-          ...x,
-          selected: index == selectedIndex,
-        }));
-      }
+      if (selectedIndex < 0 || selectedIndex >= newFiles.length)
+        selectedIndex = _.findIndex(newFiles, x => x.closedTime == null);
 
-      return newFiles;
+      return newFiles.map((x, index) => ({
+        ...x,
+        selected: index == selectedIndex,
+      }));
+
+      // if (selectedIndex != lastSelectedIndex) {
+      // }
+
+      // return newFiles;
     });
   };
 
