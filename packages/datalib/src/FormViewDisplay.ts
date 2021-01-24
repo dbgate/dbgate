@@ -41,6 +41,9 @@ export class FormViewDisplay {
           ...cfg.filters,
           [column.uniqueName]: expr,
         },
+        addedColumns: cfg.addedColumns.includes(column.uniqueName)
+          ? cfg.addedColumns
+          : [...cfg.addedColumns, column.uniqueName],
       }));
     }
   }

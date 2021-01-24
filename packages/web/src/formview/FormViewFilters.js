@@ -86,17 +86,18 @@ export default function FormViewFilters(props) {
       {baseTable.primaryKey.columns.map(col => (
         <PrimaryKeyFilterEditor key={col.columnName} baseTable={baseTable} column={col} formDisplay={formDisplay} />
       ))}
-      {allFilterNames.map(columnName => {
-        const column = baseTable.columns.find(x => x.columnName == columnName);
+      {allFilterNames.map(uniqueName => {
+        const column = formDisplay.columns.find(x => x.uniqueName == uniqueName)
+        // const column = baseTable.columns.find(x => x.columnName == columnName);
         if (!column) return null;
         return (
-          <ColumnWrapper key={columnName}>
+          <ColumnWrapper key={uniqueName}>
             <ColumnNameWrapper>
               <ColumnLabel {...column} />
               <InlineButton
                 square
                 onClick={() => {
-                  formDisplay.removeFilter(column.columnName);
+                  formDisplay.removeFilter(column.uniqueName);
                 }}
               >
                 <FontIcon icon="icon delete" />
@@ -104,8 +105,8 @@ export default function FormViewFilters(props) {
             </ColumnNameWrapper>
             <DataFilterControl
               filterType={getFilterType(column.dataType)}
-              filter={filters[column.columnName]}
-              setFilter={value => formDisplay.setFilter(column.columnName, value)}
+              filter={filters[column.uniqueName]}
+              setFilter={value => formDisplay.setFilter(column.uniqueName, value)}
             />
           </ColumnWrapper>
         );
