@@ -140,7 +140,7 @@ const yearMonthDayCondition = () => value => {
   };
 };
 
-const fixedIntervalCondition = (start, end) => () => {
+const createIntervalCondition = (start, end) => {
   return {
     conditionType: 'and',
     conditions: [
@@ -157,7 +157,7 @@ const fixedIntervalCondition = (start, end) => () => {
       },
       {
         conditionType: 'binary',
-        operator: '<',
+        operator: '<=',
         left: {
           exprType: 'placeholder',
         },
@@ -170,11 +170,40 @@ const fixedIntervalCondition = (start, end) => () => {
   };
 };
 
-const fixedMomentIntervalCondition = (intervalType, diff) => {
-  return fixedIntervalCondition(
-    moment().add(intervalType, diff).startOf(intervalType).toISOString(),
-    moment().add(intervalType, diff).endOf(intervalType).toISOString()
+const createDateIntervalCondition = (start, end) => {
+  return createIntervalCondition(start.format('YYYY-MM-DDTHH:mm:ss.SSS'), end.format('YYYY-MM-DDTHH:mm:ss.SSS'));
+};
+
+const fixedMomentIntervalCondition = (intervalType, diff) => () => {
+  return createDateIntervalCondition(
+    moment().add(intervalType, diff).startOf(intervalType),
+    moment().add(intervalType, diff).endOf(intervalType)
   );
+};
+
+const yearMonthDayMinuteCondition = () => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)\s+(\d\d?):(\d\d?)/);
+  const year = m[1];
+  const month = m[2];
+  const day = m[3];
+  const hour = m[4];
+  const minute = m[5];
+  const dateObject = new Date(year, month - 1, day, hour, minute);
+
+  return createDateIntervalCondition(moment(dateObject).startOf('minute'), moment(dateObject).endOf('minute'));
+};
+
+const yearMonthDaySecondCondition = () => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)(T|\s+)(\d\d?):(\d\d?):(\d\d?)/);
+  const year = m[1];
+  const month = m[2];
+  const day = m[3];
+  const hour = m[5];
+  const minute = m[6];
+  const second = m[7];
+  const dateObject = new Date(year, month - 1, day, hour, minute, second);
+
+  return createDateIntervalCondition(moment(dateObject).startOf('second'), moment(dateObject).endOf('second'));
 };
 
 const createParser = (filterType: FilterType) => {
@@ -209,6 +238,8 @@ const createParser = (filterType: FilterType) => {
     yearNum: () => P.regexp(/\d\d\d\d/).map(yearCondition()),
     yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
     yearMonthDayNum: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayCondition()),
+    yearMonthDayMinute: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteCondition()),
+    yearMonthDaySecond: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDaySecondCondition()),
 
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
@@ -286,6 +317,8 @@ const createParser = (filterType: FilterType) => {
   if (filterType == 'logical') allowedElements.push('true', 'false', 'trueNum', 'falseNum');
   if (filterType == 'datetime')
     allowedElements.push(
+      'yearMonthDaySecond',
+      'yearMonthDayMinute',
       'yearMonthDayNum',
       'yearMonthNum',
       'yearNum',

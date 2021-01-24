@@ -45,6 +45,7 @@ export class FormViewDisplay {
           ? cfg.addedColumns
           : [...cfg.addedColumns, column.uniqueName],
       }));
+      this.reload();
     }
   }
 
