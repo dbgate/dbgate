@@ -9,6 +9,7 @@ export interface ColumnReference {
 }
 
 export interface ConstraintInfo extends NamedObjectInfo {
+  groupId?: string;
   constraintName: string;
   constraintType: string;
 }
@@ -27,6 +28,7 @@ export interface ForeignKeyInfo extends ColumnsConstraintInfo {
 }
 
 export interface ColumnInfo {
+  groupId?: string;
   columnName: string;
   notNull: boolean;
   autoIncrement: boolean;
@@ -42,6 +44,7 @@ export interface ColumnInfo {
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
+  groupId?: string;
   objectId?: string;
   createDate?: string;
   modifyDate?: string;

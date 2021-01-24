@@ -8,3 +8,4 @@ export * from './driverBase';
 export * from './SqlDumper';
 export * from './testPermission';
 export * from './splitPostgresQuery';
+export * from './diffTools';
