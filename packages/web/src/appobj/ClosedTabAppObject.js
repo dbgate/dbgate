@@ -4,6 +4,7 @@ import moment from 'moment';
 import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { AppObjectCore } from './AppObjectCore';
+import { setSelectedTabFunc } from '../utility/common';
 
 function Menu({ data }) {
   const setOpenedTabs = useSetOpenedTabs();
@@ -27,11 +28,15 @@ function ClosedTabAppObject({ data, commonProps }) {
 
   const onClick = () => {
     setOpenedTabs(files =>
-      files.map(x => ({
-        ...x,
-        selected: x.tabid == tabid,
-        closedTime: x.tabid == tabid ? undefined : x.closedTime,
-      }))
+      setSelectedTabFunc(
+        files.map(
+          x => ({
+            ...x,
+            closedTime: x.tabid == tabid ? undefined : x.closedTime,
+          }),
+          tabid
+        )
+      )
     );
   };
 

@@ -10,6 +10,7 @@ import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
 import useOpenNewTab from '../utility/useOpenNewTab';
+import { setSelectedTabFunc } from '../utility/common';
 
 export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const { editorData, setEditorData, isLoading, saveToStorage } = useEditorData({ tabid });
@@ -29,12 +30,7 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
     await saveToStorage();
     const existing = (openedTabs || []).find(x => x.props && x.props.sourceTabId == tabid && x.closedTime == null);
     if (existing) {
-      setOpenedTabs(tabs =>
-        tabs.map(x => ({
-          ...x,
-          selected: x.tabid == existing.tabid,
-        }))
-      );
+      setOpenedTabs(tabs => setSelectedTabFunc(tabs, existing.tabid));
     } else {
       const thisTab = (openedTabs || []).find(x => x.tabid == tabid);
       openNewTab({

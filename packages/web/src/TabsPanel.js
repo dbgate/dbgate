@@ -9,6 +9,7 @@ import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
 import usePropsCompare from './utility/usePropsCompare';
 import { useShowMenu } from './modals/showMenu';
+import { setSelectedTabFunc } from './utility/common';
 
 // const files = [
 //   { name: 'app.js' },
@@ -140,19 +141,12 @@ export default function TabsPanel() {
     if (e.target.closest('.tabCloseButton')) {
       return;
     }
-    setOpenedTabs(files =>
-      files.map(x => ({
-        ...x,
-        selected: x.tabid == tabid,
-      }))
-    );
+    setOpenedTabs(files => setSelectedTabFunc(files, tabid));
   };
   const closeTabFunc = closeCondition => tabid => {
     setOpenedTabs(files => {
       const active = files.find(x => x.tabid == tabid);
       if (!active) return files;
-      const lastSelectedIndex = _.findIndex(files, x => x.tabid == tabid);
-      let selectedIndex = lastSelectedIndex;
 
       const newFiles = files.map(x => ({
         ...x,
@@ -163,25 +157,12 @@ export default function TabsPanel() {
         return newFiles;
       }
 
-      while (selectedIndex >= 0 && newFiles[selectedIndex].closedTime) selectedIndex -= 1;
-
-      if (selectedIndex < 0) {
-        selectedIndex = lastSelectedIndex;
-        while (selectedIndex < newFiles.length && newFiles[selectedIndex].closedTime) selectedIndex += 1;
-      }
-
-      if (selectedIndex < 0 || selectedIndex >= newFiles.length)
-        selectedIndex = _.findIndex(newFiles, x => x.closedTime == null);
+      const selectedIndex = _.findLastIndex(newFiles, x => x.closedTime == null);
 
       return newFiles.map((x, index) => ({
         ...x,
         selected: index == selectedIndex,
       }));
-
-      // if (selectedIndex != lastSelectedIndex) {
-      // }
-
-      // return newFiles;
     });
   };
 

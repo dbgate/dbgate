@@ -15,3 +15,10 @@ export function sleep(milliseconds) {
 export function changeTab(tabid, setOpenedTabs, changeFunc) {
   setOpenedTabs(files => files.map(tab => (tab.tabid == tabid ? changeFunc(tab) : tab)));
 }
+
+export function setSelectedTabFunc(files, tabid) {
+  return [
+    ...(files || []).filter(x => x.tabid != tabid).map(x => ({ ...x, selected: false })),
+    ...(files || []).filter(x => x.tabid == tabid).map(x => ({ ...x, selected: true })),
+  ];
+}

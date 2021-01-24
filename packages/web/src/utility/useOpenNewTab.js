@@ -5,6 +5,7 @@ import stableStringify from 'json-stable-stringify';
 import _ from 'lodash';
 import { useOpenedTabs, useSetOpenedTabs } from './globalState';
 import tabs from '../tabs';
+import { setSelectedTabFunc } from './common';
 
 export default function useOpenNewTab() {
   const setOpenedTabs = useSetOpenedTabs();
@@ -37,12 +38,7 @@ export default function useOpenNewTab() {
       }
 
       if (existing) {
-        setOpenedTabs(tabs =>
-          tabs.map(x => ({
-            ...x,
-            selected: x.tabid == existing.tabid,
-          }))
-        );
+        setOpenedTabs(tabs => setSelectedTabFunc(tabs, existing.tabid));
         return;
       }
 
