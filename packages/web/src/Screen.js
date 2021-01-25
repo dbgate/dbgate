@@ -16,7 +16,7 @@ import DragAndDropFileTarget from './DragAndDropFileTarget';
 import { useUploadsZone } from './utility/UploadsProvider';
 import useTheme from './theme/useTheme';
 import { MenuLayer } from './modals/showMenu';
-import ErrorBoundary from './utility/ErrorBoundary';
+import ErrorBoundary, { ErrorBoundaryTest } from './utility/ErrorBoundary';
 
 const BodyDiv = styled.div`
   position: fixed;
@@ -106,39 +106,41 @@ export default function Screen() {
 
   return (
     <div {...getRootProps()}>
-      <ToolBarDiv theme={theme}>
-        <ToolBar toolbarPortalRef={toolbarPortalRef} />
-      </ToolBarDiv>
-      <IconBar theme={theme}>
-        <WidgetIconPanel />
-      </IconBar>
-      {!!currentWidget && (
-        <LeftPanel theme={theme}>
-          <ErrorBoundary>
-            <WidgetContainer />
-          </ErrorBoundary>
-        </LeftPanel>
-      )}
-      {!!currentWidget && (
-        <ScreenHorizontalSplitHandle
-          onMouseDown={onSplitDown}
-          theme={theme}
-          style={{ left: leftPanelWidth + dimensions.widgetMenu.iconSize }}
-        />
-      )}
-      <TabsPanelContainer contentLeft={contentLeft} theme={theme}>
-        <TabsPanel></TabsPanel>
-      </TabsPanelContainer>
-      <BodyDiv contentLeft={contentLeft} theme={theme}>
-        <TabContent toolbarPortalRef={toolbarPortalRef} />
-      </BodyDiv>
-      <StausBarContainer theme={theme}>
-        <StatusBar />
-      </StausBarContainer>
-      <ModalLayer />
-      <MenuLayer />
+      <ErrorBoundary>
+        <ToolBarDiv theme={theme}>
+          <ToolBar toolbarPortalRef={toolbarPortalRef} />
+        </ToolBarDiv>
+        <IconBar theme={theme}>
+          <WidgetIconPanel />
+        </IconBar>
+        {!!currentWidget && (
+          <LeftPanel theme={theme}>
+            <ErrorBoundary>
+              <WidgetContainer />
+            </ErrorBoundary>
+          </LeftPanel>
+        )}
+        {!!currentWidget && (
+          <ScreenHorizontalSplitHandle
+            onMouseDown={onSplitDown}
+            theme={theme}
+            style={{ left: leftPanelWidth + dimensions.widgetMenu.iconSize }}
+          />
+        )}
+        <TabsPanelContainer contentLeft={contentLeft} theme={theme}>
+          <TabsPanel></TabsPanel>
+        </TabsPanelContainer>
+        <BodyDiv contentLeft={contentLeft} theme={theme}>
+          <TabContent toolbarPortalRef={toolbarPortalRef} />
+        </BodyDiv>
+        <StausBarContainer theme={theme}>
+          <StatusBar />
+        </StausBarContainer>
+        <ModalLayer />
+        <MenuLayer />
 
-      <DragAndDropFileTarget inputProps={getInputProps()} isDragActive={isDragActive} />
+        <DragAndDropFileTarget inputProps={getInputProps()} isDragActive={isDragActive} />
+      </ErrorBoundary>
     </div>
   );
 }
