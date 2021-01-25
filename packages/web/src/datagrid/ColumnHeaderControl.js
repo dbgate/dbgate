@@ -9,6 +9,7 @@ import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { FontIcon } from '../icons';
 import useTheme from '../theme/useTheme';
+import useOpenNewTab from '../utility/useOpenNewTab';
 
 const HeaderDiv = styled.div`
   display: flex;
@@ -52,11 +53,11 @@ export default function ColumnHeaderControl({
 }) {
   const onResizeDown = useSplitterDrag('clientX', onResize);
   const { foreignKey } = column;
-  const setOpenedTabs = useSetOpenedTabs();
+  const openNewTab = useOpenNewTab();
   const theme = useTheme();
 
   const openReferencedTable = () => {
-    openDatabaseObjectDetail(setOpenedTabs, 'TableDataTab', null, {
+    openDatabaseObjectDetail(openNewTab, 'TableDataTab', null, {
       schemaName: foreignKey.refSchemaName,
       pureName: foreignKey.refTableName,
       conid,
