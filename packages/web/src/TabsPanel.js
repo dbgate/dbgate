@@ -249,7 +249,7 @@ export default function TabsPanel() {
             <FontIcon icon={getDbIcon(dbKey)} /> {tabsByDb[dbKey][0].tabDbName}
           </DbNameWrapper>
           <DbGroupHandler>
-            {_.sortBy(tabsByDb[dbKey], 'title').map(tab => (
+            {_.sortBy(tabsByDb[dbKey], ['title', 'tabid']).map(tab => (
               <FileTabItem
                 {...tab}
                 title={tab.tooltip}
