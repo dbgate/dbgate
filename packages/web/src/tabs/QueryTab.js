@@ -21,8 +21,19 @@ import useEditorData from '../utility/useEditorData';
 import applySqlTemplate from '../utility/applySqlTemplate';
 import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
+import useTimerLabel from '../utility/useTimerLabel';
+import { StatusBarItem } from '../widgets/StatusBar';
 
-export default function QueryTab({ tabid, conid, database, initialArgs, tabVisible, toolbarPortalRef, ...other }) {
+export default function QueryTab({
+  tabid,
+  conid,
+  database,
+  initialArgs,
+  tabVisible,
+  toolbarPortalRef,
+  statusbarPortalRef,
+  ...other
+}) {
   const [sessionId, setSessionId] = React.useState(null);
   const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
@@ -31,6 +42,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   const [busy, setBusy] = React.useState(false);
   const saveFileModalState = useModalState();
   const extensions = useExtensions();
+  const timerLabel = useTimerLabel();
   const { editorData, setEditorData, isLoading } = useEditorData({
     tabid,
     loadFromArgs:
@@ -43,6 +55,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
+    timerLabel.stop();
   }, []);
 
   React.useEffect(() => {
@@ -77,6 +90,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
       setSessionId(sesid);
     }
     setBusy(true);
+    timerLabel.start();
     await axios.post('sessions/execute-query', {
       sesid,
       sql: selectedText || editorData,
@@ -95,6 +109,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     });
     setSessionId(null);
     setBusy(false);
+    timerLabel.stop();
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
@@ -167,6 +182,10 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
           />,
           toolbarPortalRef.current
         )}
+      {statusbarPortalRef &&
+        statusbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}

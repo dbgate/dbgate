@@ -10,9 +10,10 @@ const Container = styled.div`
   display: flex;
   color: ${props => props.theme.statusbar_font1};
   align-items: stretch;
+  justify-content: space-between;
 `;
 
-const Item = styled.div`
+export const StatusBarItem = styled.div`
   padding: 2px 10px;
   //   margin: auto;
   //   flex-grow: 0;
@@ -30,62 +31,72 @@ const InfoWrapper = styled.span`
     props.theme.statusbar_font_green[5]};
 `;
 
-export default function StatusBar() {
+const StatusbarContainer = styled.div`
+  display: flex;
+  // align-items: flex-end;
+  // display: flex;
+  // user-select: none;
+`;
+
+export default function StatusBar({ statusbarPortalRef }) {
   const { name, connection } = useCurrentDatabase() || {};
   const status = useDatabaseStatus(connection ? { conid: connection._id, database: name } : {});
   const { displayName, server, user, engine } = connection || {};
   const theme = useTheme();
   return (
     <Container theme={theme}>
-      {name && (
-        <Item>
-          <FontIcon icon="icon database" /> {name}
-        </Item>
-      )}
-      {(displayName || server) && (
-        <Item>
-          <FontIcon icon="icon server" /> {displayName || server}
-        </Item>
-      )}
+      <StatusbarContainer>
+        {name && (
+          <StatusBarItem>
+            <FontIcon icon="icon database" /> {name}
+          </StatusBarItem>
+        )}
+        {(displayName || server) && (
+          <StatusBarItem>
+            <FontIcon icon="icon server" /> {displayName || server}
+          </StatusBarItem>
+        )}
 
-      {user && (
-        <Item>
-          <FontIcon icon="icon account" /> {user}
-        </Item>
-      )}
+        {user && (
+          <StatusBarItem>
+            <FontIcon icon="icon account" /> {user}
+          </StatusBarItem>
+        )}
 
-      {connection && status && (
-        <Item>
-          {status.name == 'pending' && (
+        {connection && status && (
+          <StatusBarItem>
+            {status.name == 'pending' && (
+              <>
+                <FontIcon icon="icon loading" /> Loading
+              </>
+            )}
+            {status.name == 'ok' && (
+              <>
+                <InfoWrapper theme={theme}>
+                  <FontIcon icon="icon ok" />
+                </InfoWrapper>{' '}
+                Connected
+              </>
+            )}
+            {status.name == 'error' && (
+              <>
+                <ErrorWrapper theme={theme}>
+                  <FontIcon icon="icon error" />
+                </ErrorWrapper>{' '}
+                Error
+              </>
+            )}
+          </StatusBarItem>
+        )}
+        {!connection && (
+          <StatusBarItem>
             <>
-              <FontIcon icon="icon loading" /> Loading
+              <FontIcon icon="icon disconnected" /> Not connected
             </>
-          )}
-          {status.name == 'ok' && (
-            <>
-              <InfoWrapper theme={theme}>
-                <FontIcon icon="icon ok" />
-              </InfoWrapper>{' '}
-              Connected
-            </>
-          )}
-          {status.name == 'error' && (
-            <>
-              <ErrorWrapper theme={theme}>
-                <FontIcon icon="icon error" />
-              </ErrorWrapper>{' '}
-              Error
-            </>
-          )}
-        </Item>
-      )}
-      {!connection && (
-        <Item>
-          <>
-            <FontIcon icon="icon disconnected" /> Not connected
-          </>
-        </Item>
-      )}
+          </StatusBarItem>
+        )}
+      </StatusbarContainer>
+      <StatusbarContainer ref={statusbarPortalRef}></StatusbarContainer>
     </Container>
   );
 }
