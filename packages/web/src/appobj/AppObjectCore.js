@@ -49,6 +49,7 @@ export function AppObjectCore({
   extInfo = undefined,
   statusTitle = undefined,
   disableHover = false,
+  children = null,
   Menu = undefined,
   ...other
 }) {
@@ -63,31 +64,34 @@ export function AppObjectCore({
   };
 
   return (
-    <AppObjectDiv
-      onContextMenu={handleContextMenu}
-      onClick={() => {
-        if (onClick) onClick(data);
-        if (onClick2) onClick2(data);
-        if (onClick3) onClick3(data);
-      }}
-      theme={theme}
-      isBold={isBold}
-      draggable
-      onDragStart={e => {
-        e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
-      }}
-      disableHover={disableHover}
-      {...other}
-    >
-      {prefix}
-      <IconWrap>{isBusy ? <FontIcon icon="icon loading" /> : <FontIcon icon={icon} />}</IconWrap>
-      {title}
-      {statusIcon && (
-        <StatusIconWrap>
-          <FontIcon icon={statusIcon} title={statusTitle} />
-        </StatusIconWrap>
-      )}
-      {extInfo && <ExtInfoWrap theme={theme}>{extInfo}</ExtInfoWrap>}
-    </AppObjectDiv>
+    <>
+      <AppObjectDiv
+        onContextMenu={handleContextMenu}
+        onClick={() => {
+          if (onClick) onClick(data);
+          if (onClick2) onClick2(data);
+          if (onClick3) onClick3(data);
+        }}
+        theme={theme}
+        isBold={isBold}
+        draggable
+        onDragStart={e => {
+          e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
+        }}
+        disableHover={disableHover}
+        {...other}
+      >
+        {prefix}
+        <IconWrap>{isBusy ? <FontIcon icon="icon loading" /> : <FontIcon icon={icon} />}</IconWrap>
+        {title}
+        {statusIcon && (
+          <StatusIconWrap>
+            <FontIcon icon={statusIcon} title={statusTitle} />
+          </StatusIconWrap>
+        )}
+        {extInfo && <ExtInfoWrap theme={theme}>{extInfo}</ExtInfoWrap>}
+      </AppObjectDiv>
+      {children}
+    </>
   );
 }

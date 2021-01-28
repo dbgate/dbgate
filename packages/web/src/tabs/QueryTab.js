@@ -24,6 +24,24 @@ import useExtensions from '../utility/useExtensions';
 import useTimerLabel from '../utility/useTimerLabel';
 import { StatusBarItem } from '../widgets/StatusBar';
 
+function createSqlPreview(sql) {
+  if (!sql) return undefined;
+  let data = sql.substring(0, 500);
+  data = data.replace(/\[[^\]]+\]\./g, '');
+  data = data.replace(/\[a-zA-Z0-9_]+\./g, '');
+  data = data.replace(/\/\*.*\*\//g, '');
+  data = data.replace(/[\[\]]/g, '');
+  data = data.replace(/--[^\n]*\n/g, '');
+
+  for (let step = 1; step <= 5; step++) {
+    data = data.replace(/\([^\(^\)]+\)/g, '');
+  }
+  data = data.replace(/\s+/g, ' ');
+  data = data.trim();
+  data = data.replace(/^(.{50}[^\s]*).*/, '$1');
+  return data;
+}
+
 export default function QueryTab({
   tabid,
   conid,
@@ -73,6 +91,23 @@ export default function QueryTab({
 
   useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo({ conid });
+
+  const updateContentPreviewDebounced = React.useRef(
+    _.debounce(
+      // @ts-ignore
+      sql =>
+        changeTab(tabid, setOpenedTabs, tab => ({
+          ...tab,
+          contentPreview: createSqlPreview(sql),
+        })),
+      500
+    )
+  );
+
+  React.useEffect(() => {
+    // @ts-ignore
+    updateContentPreviewDebounced.current(editorData);
+  }, [editorData]);
 
   const handleExecute = async () => {
     if (busy) return;
