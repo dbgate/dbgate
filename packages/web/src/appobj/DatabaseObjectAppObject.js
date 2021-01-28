@@ -149,7 +149,7 @@ export async function openDatabaseObjectDetail(
 
   openNewTab(
     {
-      title: pureName,
+      title: 'Query #',
       tooltip,
       icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
       tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,

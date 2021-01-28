@@ -145,6 +145,7 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, statusba
         format="text"
         folder="shell"
         tabid={tabid}
+        fileExtension='js'
       />
     </>
   );

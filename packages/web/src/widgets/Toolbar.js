@@ -25,6 +25,7 @@ import tabs from '../tabs';
 import FavoriteModal from '../modals/FavoriteModal';
 import { useOpenFavorite } from '../appobj/FavoriteFileAppObject';
 import ErrorMessageModal from '../modals/ErrorMessageModal';
+import useOpenElectronFile from '../utility/useOpenElectronFile';
 
 const ToolbarContainer = styled.div`
   display: flex;
@@ -48,6 +49,7 @@ export default function ToolBar({ toolbarPortalRef }) {
   const electron = getElectron();
   const favorites = useFavorites();
   const openFavorite = useOpenFavorite();
+  const openElectronFile = useOpenElectronFile();
 
   const currentTab = openedTabs.find(x => x.selected);
 
@@ -58,6 +60,7 @@ export default function ToolBar({ toolbarPortalRef }) {
     window['dbgate_newQuery'] = newQuery;
     window['dbgate_closeAll'] = () => setOpenedTabs([]);
     window['dbgate_showAbout'] = showAbout;
+    window['dbgate_openFile'] = openElectronFile;
   });
 
   const showAbout = () => {

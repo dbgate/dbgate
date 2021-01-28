@@ -228,6 +228,7 @@ export default function QueryTab({
         format="text"
         folder="sql"
         tabid={tabid}
+        fileExtension='sql'
       />
     </>
   );

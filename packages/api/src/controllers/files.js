@@ -78,6 +78,11 @@ module.exports = {
     }
   },
 
+  saveAs_meta: 'post',
+  async saveAs({ filePath, data, format }) {
+    await fs.writeFile(filePath, serialize(format, data));
+  },
+
   favorites_meta: 'get',
   async favorites() {
     if (!hasPermission(`files/favorites/read`)) return [];

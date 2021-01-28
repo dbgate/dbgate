@@ -63,6 +63,7 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
         format="json"
         folder="charts"
         tabid={tabid}
+        fileExtension='chart'
       />
       {toolbarPortalRef &&
         toolbarPortalRef.current &&

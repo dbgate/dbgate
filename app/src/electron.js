@@ -52,6 +52,12 @@ function buildMenu() {
           },
         },
         {
+          label: 'Open file',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
+          },
+        },
+        {
           label: 'Close all tabs',
           click() {
             mainWindow.webContents.executeJavaScript('dbgate_closeAll()');

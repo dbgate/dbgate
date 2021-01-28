@@ -225,6 +225,7 @@ export default function QueryDesignTab({
         format="json"
         folder="query"
         tabid={tabid}
+        fileExtension='qdesign'
       />
     </>
   );

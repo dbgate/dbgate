@@ -124,6 +124,15 @@ function getDbIcon(key) {
   return 'icon file';
 }
 
+function buildTooltip(tab) {
+  let res = tab.tooltip;
+  if (tab.props && tab.props.savedFilePath) {
+    if (res) res += '\n';
+    res += tab.props.savedFilePath;
+  }
+  return res;
+}
+
 export default function TabsPanel() {
   // const formatDbKey = (conid, database) => `${database}-${conid}`;
   const theme = useTheme();
@@ -252,7 +261,7 @@ export default function TabsPanel() {
             {_.sortBy(tabsByDb[dbKey], ['title', 'tabid']).map(tab => (
               <FileTabItem
                 {...tab}
-                title={tab.tooltip}
+                title={buildTooltip(tab)}
                 key={tab.tabid}
                 theme={theme}
                 onClick={e => handleTabClick(e, tab.tabid)}

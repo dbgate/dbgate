@@ -23,11 +23,16 @@ export default function useOpenNewTab() {
     async (newTab, initialData = undefined, options) => {
       let existing = null;
 
-      const { savedFile } = newTab.props || {};
-      if (savedFile) {
+      const { savedFile, savedFolder, savedFilePath } = newTab.props || {};
+      if (savedFile || savedFilePath) {
         existing = openedTabs.find(
           x =>
-            x.props && x.tabComponent == newTab.tabComponent && x.closedTime == null && x.props.savedFile == savedFile
+            x.props &&
+            x.tabComponent == newTab.tabComponent &&
+            x.closedTime == null &&
+            x.props.savedFile == savedFile &&
+            x.props.savedFolder == savedFolder &&
+            x.props.savedFilePath == savedFilePath
         );
       }
 

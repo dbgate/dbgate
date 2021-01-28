@@ -75,6 +75,7 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
         format="text"
         folder="markdown"
         tabid={tabid}
+        fileExtension='md'
       />
     </>
   );

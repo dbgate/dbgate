@@ -4,22 +4,22 @@ import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
 import keycodes from '../utility/keycodes';
 import SaveFileModal from './SaveFileModal';
 
-export default function SaveTabModal({ data, folder, format, modalState, tabid, tabVisible }) {
+export default function SaveTabModal({ data, folder, format, modalState, tabid, tabVisible, fileExtension }) {
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
 
-  const { savedFile } = openedTabs.find(x => x.tabid == tabid).props || {};
-  const onSave = name =>
+  const { savedFile, savedFilePath } = openedTabs.find(x => x.tabid == tabid).props || {};
+  const onSave = (title, newProps) => {
     changeTab(tabid, setOpenedTabs, tab => ({
       ...tab,
-      title: name,
+      title,
       props: {
         ...tab.props,
-        savedFile: name,
-        savedFolder: folder,
         savedFormat: format,
+        ...newProps,
       },
     }));
+  };
 
   const handleKeyboard = React.useCallback(
     e => {
@@ -47,6 +47,8 @@ export default function SaveTabModal({ data, folder, format, modalState, tabid, 
       format={format}
       modalState={modalState}
       name={savedFile || 'newFile'}
+      filePath={savedFilePath}
+      fileExtension={fileExtension}
       onSave={onSave}
     />
   );
