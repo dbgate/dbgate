@@ -15,8 +15,6 @@ const Container = styled.div`
 
 export const StatusBarItem = styled.div`
   padding: 2px 10px;
-  //   margin: auto;
-  //   flex-grow: 0;
 `;
 
 const ErrorWrapper = styled.span`
@@ -33,9 +31,6 @@ const InfoWrapper = styled.span`
 
 const StatusbarContainer = styled.div`
   display: flex;
-  // align-items: flex-end;
-  // display: flex;
-  // user-select: none;
 `;
 
 export default function StatusBar({ statusbarPortalRef }) {
