@@ -51,12 +51,28 @@ function buildMenu() {
             mainWindow.webContents.executeJavaScript(`dbgate_newQuery()`);
           },
         },
+        {
+          label: 'Close all tabs',
+          click() {
+            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
+          },
+        },
+        { type: 'separator' },
+        { role: 'minimize' },
+        { role: 'close' },
       ],
     },
-    {
-      label: 'Edit',
-      submenu: [{ role: 'copy' }, { role: 'paste' }],
-    },
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     { role: 'undo' },
+    //     { role: 'redo' },
+    //     { type: 'separator' },
+    //     { role: 'cut' },
+    //     { role: 'copy' },
+    //     { role: 'paste' },
+    //   ],
+    // },
     {
       label: 'View',
       submenu: [
@@ -69,20 +85,6 @@ function buildMenu() {
         { role: 'zoomout' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
-      ],
-    },
-    {
-      role: 'window',
-      submenu: [
-        {
-          label: 'Close all tabs',
-          click() {
-            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
-          },
-        },
-        { type: 'separator' },
-        { role: 'minimize' },
-        { role: 'close' },
       ],
     },
     {
