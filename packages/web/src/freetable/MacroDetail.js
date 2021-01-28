@@ -15,7 +15,7 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ddeeee;
+  background: ${props => props.theme.gridheader_background_cyan[0]};
   height: ${dimensions.toolBar.height}px;
   min-height: ${dimensions.toolBar.height}px;
   overflow: hidden;
