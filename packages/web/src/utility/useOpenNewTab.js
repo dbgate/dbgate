@@ -7,6 +7,14 @@ import { useOpenedTabs, useSetOpenedTabs } from './globalState';
 import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 
+function findFreeNumber(numbers) {
+  if (numbers.length == 0) return 1;
+  return _.max(numbers) + 1;
+  // let res = 1;
+  // while (numbers.includes(res)) res += 1;
+  // return res;
+}
+
 export default function useOpenNewTab() {
   const setOpenedTabs = useSetOpenedTabs();
   const openedTabs = useOpenedTabs();
@@ -48,7 +56,7 @@ export default function useOpenNewTab() {
           .filter(x => x.closedTime == null && x.title && x.title.startsWith(newTab.title))
           .map(x => parseInt(x.title.substring(newTab.title.length)));
 
-        newTab.title = `${newTab.title}${numbers.length > 0 ? _.max(numbers) + 1 : 1}`;
+        newTab.title = `${newTab.title}${findFreeNumber(numbers)}`;
       }
 
       const tabid = uuidv1();
