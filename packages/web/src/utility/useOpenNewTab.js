@@ -45,7 +45,7 @@ export default function useOpenNewTab() {
       // new tab will be created
       if (newTab.title.endsWith('#')) {
         const numbers = openedTabs
-          .filter(x => x.title && x.title.startsWith(newTab.title))
+          .filter(x => x.closedTime == null && x.title && x.title.startsWith(newTab.title))
           .map(x => parseInt(x.title.substring(newTab.title.length)));
 
         newTab.title = `${newTab.title}${numbers.length > 0 ? _.max(numbers) + 1 : 1}`;
