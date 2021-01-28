@@ -353,7 +353,7 @@ export default function DataGridCore(props) {
   const handleOpenFreeTable = () => {
     openNewTab(
       {
-        title: 'selection',
+        title: 'Data #',
         icon: 'img free-table',
         tabComponent: 'FreeTableTab',
         props: {},
@@ -365,7 +365,7 @@ export default function DataGridCore(props) {
   const handleOpenChart = () => {
     openNewTab(
       {
-        title: 'Chart',
+        title: 'Chart #',
         icon: 'img chart',
         tabComponent: 'ChartTab',
         props: {},

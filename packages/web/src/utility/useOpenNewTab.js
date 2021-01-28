@@ -42,6 +42,15 @@ export default function useOpenNewTab() {
         return;
       }
 
+      // new tab will be created
+      if (newTab.title.endsWith('#')) {
+        const numbers = openedTabs
+          .filter(x => x.title && x.title.startsWith(newTab.title))
+          .map(x => parseInt(x.title.substring(newTab.title.length)));
+
+        newTab.title = `${newTab.title}${numbers.length > 0 ? _.max(numbers) + 1 : 1}`;
+      }
+
       const tabid = uuidv1();
       if (initialData) {
         for (const key of _.keys(initialData)) {
@@ -61,7 +70,7 @@ export default function useOpenNewTab() {
         },
       ]);
     },
-    [setOpenedTabs]
+    [setOpenedTabs, openedTabs]
   );
 
   return openNewTab;

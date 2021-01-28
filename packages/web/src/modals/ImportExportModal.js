@@ -100,7 +100,7 @@ function GenerateSctriptButton({ modalState }) {
     const code = await createImpExpScript(extensions, values);
     openNewTab(
       {
-        title: 'Shell',
+        title: 'Shell #',
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },

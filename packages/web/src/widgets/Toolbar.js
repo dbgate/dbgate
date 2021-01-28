@@ -91,7 +91,7 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   const newMarkdown = () => {
     openNewTab({
-      title: 'Page',
+      title: 'Page #',
       tabComponent: 'MarkdownEditorTab',
       icon: 'img markdown',
     });
@@ -103,7 +103,7 @@ export default function ToolBar({ toolbarPortalRef }) {
 
   const newShell = () => {
     openNewTab({
-      title: 'Shell',
+      title: 'Shell #',
       icon: 'img shell',
       tabComponent: 'ShellTab',
     });

@@ -20,7 +20,7 @@ function Menu({ data }) {
 
   const handleNewQuery = () => {
     openNewTab({
-      title: 'Query',
+      title: 'Query #',
       icon: 'img sql-file',
       tooltip,
       tabComponent: 'QueryTab',

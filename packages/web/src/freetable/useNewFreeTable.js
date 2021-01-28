@@ -6,7 +6,7 @@ export default function useNewFreeTable() {
 
   return ({ title = undefined, ...props } = {}) =>
     openNewTab({
-      title: title || 'Table',
+      title: title || 'Data #',
       icon: 'img free-table',
       tabComponent: 'FreeTableTab',
       props,
