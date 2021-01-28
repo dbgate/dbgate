@@ -25,8 +25,18 @@ import QueryDesignColumns from '../designer/QueryDesignColumns';
 import { findEngineDriver } from 'dbgate-tools';
 import { generateDesignedQuery } from '../designer/designerTools';
 import useUndoReducer from '../utility/useUndoReducer';
+import { StatusBarItem } from '../widgets/StatusBar';
+import useTimerLabel from '../utility/useTimerLabel';
 
-export default function QueryDesignTab({ tabid, conid, database, tabVisible, toolbarPortalRef, ...other }) {
+export default function QueryDesignTab({
+  tabid,
+  conid,
+  database,
+  tabVisible,
+  toolbarPortalRef,
+  statusbarPortalRef,
+  ...other
+}) {
   const [sessionId, setSessionId] = React.useState(null);
   const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
@@ -49,6 +59,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     },
     { mergeNearActions: true }
   );
+  const timerLabel = useTimerLabel();
 
   React.useEffect(() => {
     // @ts-ignore
@@ -61,6 +72,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
+    timerLabel.stop();
   }, []);
 
   const generatePreview = (value, engine) => {
@@ -114,6 +126,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
       setSessionId(sesid);
     }
     setBusy(true);
+    timerLabel.start();
     await axios.post('sessions/execute-query', {
       sesid,
       sql: sqlPreview,
@@ -126,6 +139,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     });
     setSessionId(null);
     setBusy(false);
+    timerLabel.stop();
   };
 
   const handleKeyDown = React.useCallback(
@@ -200,6 +214,10 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
           />,
           toolbarPortalRef.current
         )}
+      {statusbarPortalRef &&
+        statusbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}

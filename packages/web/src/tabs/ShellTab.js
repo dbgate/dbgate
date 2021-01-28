@@ -16,16 +16,19 @@ import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
+import useTimerLabel from '../utility/useTimerLabel';
+import { StatusBarItem } from '../widgets/StatusBar';
 
 const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
 const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
 const initRegex = /([^\n]+\/\/\s*@init)/g;
 
-export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
+export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, statusbarPortalRef, ...other }) {
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
   const { editorData, setEditorData, isLoading } = useEditorData({ tabid });
   const saveFileModalState = useModalState();
+  const timerLabel = useTimerLabel();
 
   const setOpenedTabs = useSetOpenedTabs();
 
@@ -42,6 +45,7 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
 
   const handleRunnerDone = React.useCallback(() => {
     setBusy(false);
+    timerLabel.stop();
   }, []);
 
   React.useEffect(() => {
@@ -69,12 +73,14 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
     runid = resp.data.runid;
     setRunnerId(runid);
     setBusy(true);
+    timerLabel.start();
   };
 
   const handleCancel = () => {
     axios.post('runners/cancel', {
       runid: runnerId,
     });
+    timerLabel.stop();
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
@@ -128,6 +134,10 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, ...other
           />,
           toolbarPortalRef.current
         )}
+      {statusbarPortalRef &&
+        statusbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
         modalState={saveFileModalState}
         tabVisible={tabVisible}
