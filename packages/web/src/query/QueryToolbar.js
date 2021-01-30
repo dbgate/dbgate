@@ -2,7 +2,7 @@ import React from 'react';
 import useHasPermission from '../utility/useHasPermission';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function QueryToolbar({ execute, isDatabaseDefined, busy, save, format, isConnected, kill }) {
+export default function QueryToolbar({ execute, isDatabaseDefined, busy, format, isConnected, kill }) {
   const hasPermission = useHasPermission();
   return (
     <>
@@ -15,11 +15,11 @@ export default function QueryToolbar({ execute, isDatabaseDefined, busy, save, f
       <ToolbarButton disabled={!isConnected} onClick={kill} icon="icon close">
         Kill
       </ToolbarButton>
-      {hasPermission('files/sql/write') && (
+      {/* {hasPermission('files/sql/write') && (
         <ToolbarButton onClick={save} icon="icon save">
           Save
         </ToolbarButton>
-      )}
+      )} */}
       <ToolbarButton onClick={format} icon="icon format-code">
         Format
       </ToolbarButton>

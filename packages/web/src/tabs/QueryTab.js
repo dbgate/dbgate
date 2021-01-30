@@ -23,6 +23,7 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
 import useTimerLabel from '../utility/useTimerLabel';
 import { StatusBarItem } from '../widgets/StatusBar';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
 function createSqlPreview(sql) {
   if (!sql) return undefined;
@@ -58,7 +59,6 @@ export default function QueryTab({
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
-  const saveFileModalState = useModalState();
   const extensions = useExtensions();
   const timerLabel = useTimerLabel();
   const { editorData, setEditorData, isLoading } = useEditorData({
@@ -201,7 +201,7 @@ export default function QueryTab({
           </ResultTabs>
         )}
       </VerticalSplitter>
-      {toolbarPortalRef &&
+      {/* {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
@@ -216,19 +216,31 @@ export default function QueryTab({
             kill={handleKill}
           />,
           toolbarPortalRef.current
-        )}
+        )} */}
       {statusbarPortalRef &&
         statusbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <QueryToolbar
+          isDatabaseDefined={conid && database}
+          execute={handleExecute}
+          busy={busy}
+          // cancel={handleCancel}
+          format={handleFormatCode}
+          // save={saveFileModalState.open}
+          isConnected={!!sessionId}
+          kill={handleKill}
+        />
+      </ToolbarPortal>
       <SaveTabModal
-        modalState={saveFileModalState}
+        toolbarPortalRef={toolbarPortalRef}
         tabVisible={tabVisible}
         data={editorData}
         format="text"
         folder="sql"
         tabid={tabid}
-        fileExtension='sql'
+        fileExtension="sql"
       />
     </>
   );

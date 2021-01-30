@@ -15,7 +15,6 @@ import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
 import SaveTabModal from '../modals/SaveTabModal';
-import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import useEditorData from '../utility/useEditorData';
 import LoadingInfo from '../widgets/LoadingInfo';
@@ -27,6 +26,7 @@ import { generateDesignedQuery } from '../designer/designerTools';
 import useUndoReducer from '../utility/useUndoReducer';
 import { StatusBarItem } from '../widgets/StatusBar';
 import useTimerLabel from '../utility/useTimerLabel';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
 export default function QueryDesignTab({
   tabid,
@@ -43,7 +43,6 @@ export default function QueryDesignTab({
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
-  const saveFileModalState = useModalState();
   const extensions = useExtensions();
   const connection = useConnectionInfo({ conid });
   const engine = findEngineDriver(connection, extensions);
@@ -196,36 +195,32 @@ export default function QueryDesignTab({
           )}
         </ResultTabs>
       </VerticalSplitter>
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(
-          <QueryDesignToolbar
-            modelState={modelState}
-            dispatchModel={dispatchModel}
-            isDatabaseDefined={conid && database}
-            execute={handleExecute}
-            busy={busy}
-            // cancel={handleCancel}
-            // format={handleFormatCode}
-            save={saveFileModalState.open}
-            isConnected={!!sessionId}
-            kill={handleKill}
-          />,
-          toolbarPortalRef.current
-        )}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <QueryDesignToolbar
+          modelState={modelState}
+          dispatchModel={dispatchModel}
+          isDatabaseDefined={conid && database}
+          execute={handleExecute}
+          busy={busy}
+          // cancel={handleCancel}
+          // format={handleFormatCode}
+          isConnected={!!sessionId}
+          kill={handleKill}
+        />
+      </ToolbarPortal>
       {statusbarPortalRef &&
         statusbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
-        modalState={saveFileModalState}
+        // modalState={saveFileModalState}
         tabVisible={tabVisible}
+        toolbarPortalRef={toolbarPortalRef}
         data={modelState.value}
         format="json"
         folder="query"
         tabid={tabid}
-        fileExtension='qdesign'
+        fileExtension="qdesign"
       />
     </>
   );

@@ -34,11 +34,10 @@ export default function SaveFileModal({
     }
   };
 
-  const handleSaveAs = async filePath => {
+  const handleSaveToDisk = async filePath => {
     const path = window.require('path');
-
     const parsed = path.parse(filePath);
-    if (!parsed.ext) filePath += `.${fileExtension}`;
+    // if (!parsed.ext) filePath += `.${fileExtension}`;
 
     await axios.post('files/save-as', { filePath, data, format });
     modalState.close();
@@ -67,11 +66,15 @@ export default function SaveFileModal({
               value="Save to disk"
               onClick={() => {
                 const file = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
-                  filters: { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
-                  defaultPath: filePath,
+                  filters: [
+                    { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
+                    { name: `All files`, extensions: ['*'] },
+                  ],
+                  defaultPath: filePath || `${name}.${fileExtension}`,
+                  properties: ['showOverwriteConfirmation'],
                 });
                 if (file) {
-                  handleSaveAs(file);
+                  handleSaveToDisk(file);
                 }
               }}
             />

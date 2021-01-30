@@ -14,10 +14,10 @@ import useShowModal from '../modals/showModal';
 import ImportExportModal from '../modals/ImportExportModal';
 import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
-import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
 import useTimerLabel from '../utility/useTimerLabel';
 import { StatusBarItem } from '../widgets/StatusBar';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
 const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
 const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
@@ -27,7 +27,6 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, statusba
   const [busy, setBusy] = React.useState(false);
   const showModal = useShowModal();
   const { editorData, setEditorData, isLoading } = useEditorData({ tabid });
-  const saveFileModalState = useModalState();
   const timerLabel = useTimerLabel();
 
   const setOpenedTabs = useSetOpenedTabs();
@@ -120,32 +119,27 @@ export default function ShellTab({ tabid, tabVisible, toolbarPortalRef, statusba
         />
         <RunnerOutputPane runnerId={runnerId} executeNumber={executeNumber} />
       </VerticalSplitter>
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(
-          <ShellToolbar
-            execute={handleExecute}
-            busy={busy}
-            cancel={handleCancel}
-            edit={handleEdit}
-            editAvailable={configRegex.test(editorData || '')}
-            save={saveFileModalState.open}
-          />,
-          toolbarPortalRef.current
-        )}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <ShellToolbar
+          execute={handleExecute}
+          busy={busy}
+          cancel={handleCancel}
+          edit={handleEdit}
+          editAvailable={configRegex.test(editorData || '')}
+        />
+      </ToolbarPortal>
       {statusbarPortalRef &&
         statusbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
-        modalState={saveFileModalState}
+        toolbarPortalRef={toolbarPortalRef}
         tabVisible={tabVisible}
         data={editorData}
         format="text"
         folder="shell"
         tabid={tabid}
-        fileExtension='js'
+        fileExtension="js"
       />
     </>
   );

@@ -1,17 +1,9 @@
 import React from 'react';
-import useHasPermission from '../utility/useHasPermission';
 import ToolbarButton from '../widgets/ToolbarButton';
 
-export default function ChartToolbar({ save, modelState, dispatchModel }) {
-  const hasPermission = useHasPermission();
-
+export default function ChartToolbar({ modelState, dispatchModel }) {
   return (
     <>
-      {hasPermission('files/charts/write') && (
-        <ToolbarButton onClick={save} icon="icon save">
-          Save
-        </ToolbarButton>
-      )}
       <ToolbarButton disabled={!modelState.canUndo} onClick={() => dispatchModel({ type: 'undo' })} icon="icon undo">
         Undo
       </ToolbarButton>
