@@ -15,7 +15,7 @@ import useEditorData from '../utility/useEditorData';
 export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, toolbarPortalRef, tabid, initialArgs }) {
   const [config, setConfig] = useGridConfig(tabid);
   const [modelState, dispatchModel] = useUndoReducer(createFreeTableModel());
-  const saveFileModalState = useModalState();
+  const saveArchiveModalState = useModalState();
   const setOpenedTabs = useSetOpenedTabs();
   const { initialData, setEditorData, errorMessage, isLoading } = useEditorData({
     tabid,
@@ -59,9 +59,9 @@ export default function FreeDataTab({ archiveFolder, archiveFile, tabVisible, to
         dispatchModel={dispatchModel}
         tabVisible={tabVisible}
         toolbarPortalRef={toolbarPortalRef}
-        onSave={() => saveFileModalState.open()}
+        onSave={() => saveArchiveModalState.open()}
       />
-      <SaveArchiveModal modalState={saveFileModalState} folder={archiveFolder} file={archiveFile} onSave={handleSave} />
+      <SaveArchiveModal modalState={saveArchiveModalState} folder={archiveFolder} file={archiveFile} onSave={handleSave} />
     </>
   );
 }
