@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FontIcon } from './icons';
 import useTheme from './theme/useTheme';
+import getElectron from './utility/getElectron';
 import useExtensions from './utility/useExtensions';
 
 const TargetStyled = styled.div`
@@ -41,6 +42,9 @@ const TitleWrapper = styled.div`
 export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
   const theme = useTheme();
   const { fileFormats } = useExtensions();
+  const electron = getElectron();
+  const fileTypeNames = fileFormats.filter(x => x.readerFunc).map(x => x.name);
+  if (electron) fileTypeNames.push('SQL');
   return (
     !!isDragActive && (
       <TargetStyled theme={theme}>
@@ -49,13 +53,7 @@ export default function DragAndDropFileTarget({ isDragActive, inputProps }) {
             <FontIcon icon="icon cloud-upload" />
           </IconWrapper>
           <TitleWrapper>Drop the files to upload to DbGate</TitleWrapper>
-          <InfoWrapper>
-            Supported file types:{' '}
-            {fileFormats
-              .filter(x => x.readerFunc)
-              .map(x => x.name)
-              .join(', ')}
-          </InfoWrapper>
+          <InfoWrapper>Supported file types: {fileTypeNames.join(', ')}</InfoWrapper>
         </InfoBox>
         <input {...inputProps} />
       </TargetStyled>

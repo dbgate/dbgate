@@ -8,8 +8,12 @@ export default function SaveFileToolbarButton({ tabid, save, saveAs }) {
   if (save) {
     return (
       <ToolbarDropDownButton icon="icon save" text="Save">
-        <DropDownMenuItem onClick={save}>Save</DropDownMenuItem>
-        <DropDownMenuItem onClick={saveAs}>Save As</DropDownMenuItem>
+        <DropDownMenuItem onClick={save} keyText="Ctrl+S">
+          Save
+        </DropDownMenuItem>
+        <DropDownMenuItem onClick={saveAs} keyText="Ctrl+Shift+S">
+          Save As
+        </DropDownMenuItem>
       </ToolbarDropDownButton>
     );
   }

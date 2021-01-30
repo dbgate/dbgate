@@ -3,8 +3,10 @@ import { useDropzone } from 'react-dropzone';
 import ImportExportModal from '../modals/ImportExportModal';
 import useShowModal from '../modals/showModal';
 import { findFileFormat } from './fileformats';
+import getElectron from './getElectron';
 import resolveApi from './resolveApi';
 import useExtensions from './useExtensions';
+import { useOpenElectronFileCore, canOpenByElectron } from './useOpenElectronFile';
 
 const UploadsContext = React.createContext(null);
 
@@ -21,6 +23,8 @@ export function useUploadFiles() {
   const { uploadListener } = useUploadsProvider();
   const showModal = useShowModal();
   const extensions = useExtensions();
+  const electron = getElectron();
+  const openElectronFileCore = useOpenElectronFileCore();
 
   const handleUploadFiles = React.useCallback(
     files => {
@@ -31,6 +35,12 @@ export function useUploadFiles() {
         }
 
         console.log('FILE', file);
+
+        if (electron && canOpenByElectron(file.path)) {
+          openElectronFileCore(file.path);
+          return;
+        }
+
         const formData = new FormData();
         formData.append('data', file);
 
