@@ -43,6 +43,8 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
         setValue(init);
         valueRef.current = init;
         initialDataRef.current = init;
+        // mark as not saved
+        changeCounterRef.current += 1;
       } catch (err) {
         const message = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
         setErrorMessage(message);

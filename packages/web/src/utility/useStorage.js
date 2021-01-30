@@ -15,6 +15,8 @@ export default function useStorage(key, storageObject, initialValue) {
       return initialValue;
     }
   });
+
+  // use storedValue to ref, so that setValue with function argument works without changeing setValue itself
   const storedValueRef = React.useRef(storedValue);
   storedValueRef.current = storedValue;
 
