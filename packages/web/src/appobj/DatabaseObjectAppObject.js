@@ -149,7 +149,7 @@ export async function openDatabaseObjectDetail(
 
   openNewTab(
     {
-      title: 'Query #',
+      title: sqlTemplate ? 'Query #' : pureName,
       tooltip,
       icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
       tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
@@ -245,7 +245,7 @@ function Menu({ data }) {
               } else if (menu.isQueryDesigner) {
                 openNewTab(
                   {
-                    title: data.pureName,
+                    title: 'Query #',
                     icon: 'img query-design',
                     tabComponent: 'QueryDesignTab',
                     props: {

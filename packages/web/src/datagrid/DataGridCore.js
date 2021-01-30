@@ -312,7 +312,7 @@ export default function DataGridCore(props) {
             }
           }
         : null,
-    [formViewAvailable, display]
+    [formViewAvailable, display, openNewTab]
   );
 
   if (!columns || columns.length == 0) return <LoadingInfo wrapper message="Waiting for structure" />;
