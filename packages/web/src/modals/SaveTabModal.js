@@ -77,14 +77,14 @@ export default function SaveTabModal({
     const electron = getElectron();
     if (electron) {
       const { ipcRenderer } = electron;
-      window['tabExports'][tabid] = {
+      window['dbgate_tabExports'][tabid] = {
         save: handleSaveRef.current,
         saveAs: saveFileModalState.open,
       };
       ipcRenderer.send('update-menu');
 
       return () => {
-        delete window['tabExports'][tabid];
+        delete window['dbgate_tabExports'][tabid];
         ipcRenderer.send('update-menu');
       };
     }

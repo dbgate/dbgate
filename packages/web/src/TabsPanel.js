@@ -225,7 +225,7 @@ export default function TabsPanel() {
     if (electron) {
       const { ipcRenderer } = electron;
       const activeTab = tabs.find(x => x.selected);
-      window['activeTabId'] = activeTab ? activeTab.tabid : null;
+      window['dbgate_activeTabId'] = activeTab ? activeTab.tabid : null;
       ipcRenderer.send('update-menu');
     }
   }, [tabs]);

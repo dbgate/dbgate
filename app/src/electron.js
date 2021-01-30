@@ -152,8 +152,7 @@ function buildMenu() {
 }
 
 ipcMain.on('update-menu', async (event, arg) => {
-  const commands = await mainWindow.webContents.executeJavaScript(`getCurrentTabCommands()`);
-  console.log('getCurrentTabCommands', commands);
+  const commands = await mainWindow.webContents.executeJavaScript(`dbgate_getCurrentTabCommands()`);
   mainMenu.getMenuItemById('save').enabled = !!commands.save;
   mainMenu.getMenuItemById('saveAs').enabled = !!commands.saveAs;
 });

@@ -23,14 +23,14 @@ import localStorageGarbageCollector from './utility/localStorageGarbageCollector
 // import 'ace-builds/src-noconflict/snippets/mysql';
 
 localStorageGarbageCollector();
-window['tabExports'] = {};
-window['getCurrentTabCommands'] = () => {
-  const tabid = window['activeTabId'];
-  return _.mapValues(window['tabExports'][tabid] || {}, v => !!v);
+window['dbgate_tabExports'] = {};
+window['dbgate_getCurrentTabCommands'] = () => {
+  const tabid = window['dbgate_activeTabId'];
+  return _.mapValues(window['dbgate_tabExports'][tabid] || {}, v => !!v);
 };
 window['dbgate_tabCommand'] = cmd => {
-  const tabid = window['activeTabId'];
-  const commands = window['tabExports'][tabid];
+  const tabid = window['dbgate_activeTabId'];
+  const commands = window['dbgate_tabExports'][tabid];
   const func = (commands || {})[cmd];
   if (func) func();
 };
