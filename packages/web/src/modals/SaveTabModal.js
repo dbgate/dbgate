@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from '../utility/axios';
 import { changeTab } from '../utility/common';
+import getElectron from '../utility/getElectron';
 import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
 import keycodes from '../utility/keycodes';
 import SaveFileToolbarButton from '../utility/SaveFileToolbarButton';
@@ -71,6 +72,23 @@ export default function SaveTabModal({
       };
     }
   }, [tabVisible, handleKeyboard, canSave]);
+
+  React.useEffect(() => {
+    const electron = getElectron();
+    if (electron) {
+      const { ipcRenderer } = electron;
+      window['tabExports'][tabid] = {
+        save: handleSaveRef.current,
+        saveAs: saveFileModalState.open,
+      };
+      ipcRenderer.send('update-menu');
+
+      return () => {
+        delete window['tabExports'][tabid];
+        ipcRenderer.send('update-menu');
+      };
+    }
+  }, []);
 
   return (
     <>

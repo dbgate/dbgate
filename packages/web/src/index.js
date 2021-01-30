@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
 import './index.css';
 import '@mdi/font/css/materialdesignicons.css';
 import App from './App';
@@ -22,6 +23,17 @@ import localStorageGarbageCollector from './utility/localStorageGarbageCollector
 // import 'ace-builds/src-noconflict/snippets/mysql';
 
 localStorageGarbageCollector();
+window['tabExports'] = {};
+window['getCurrentTabCommands'] = () => {
+  const tabid = window['activeTabId'];
+  return _.mapValues(window['tabExports'][tabid] || {}, v => !!v);
+};
+window['dbgate_tabCommand'] = cmd => {
+  const tabid = window['activeTabId'];
+  const commands = window['tabExports'][tabid];
+  const func = (commands || {})[cmd];
+  if (func) func();
+};
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

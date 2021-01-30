@@ -1,6 +1,6 @@
 const electron = require('electron');
 const os = require('os');
-const { Menu } = require('electron');
+const { Menu, ipcMain } = require('electron');
 const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const Store = require('electron-store');
@@ -20,6 +20,7 @@ const store = new Store();
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let splashWindow;
+let mainMenu;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -50,6 +51,22 @@ function buildMenu() {
           click() {
             mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
           },
+        },
+        {
+          label: 'Save',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
+          },
+          accelerator: 'Ctrl+S',
+          id: 'save',
+        },
+        {
+          label: 'Save As',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('saveAs')`);
+          },
+          accelerator: 'Ctrl+Shift+S',
+          id: 'saveAs',
         },
         { type: 'separator' },
         { role: 'close' },
@@ -134,6 +151,13 @@ function buildMenu() {
   return Menu.buildFromTemplate(template);
 }
 
+ipcMain.on('update-menu', async (event, arg) => {
+  const commands = await mainWindow.webContents.executeJavaScript(`getCurrentTabCommands()`);
+  console.log('getCurrentTabCommands', commands);
+  mainMenu.getMenuItemById('save').enabled = !!commands.save;
+  mainMenu.getMenuItemById('saveAs').enabled = !!commands.saveAs;
+});
+
 function createWindow() {
   const bounds = store.get('winBounds');
 
@@ -150,7 +174,8 @@ function createWindow() {
     },
   });
 
-  mainWindow.setMenu(buildMenu());
+  mainMenu = buildMenu();
+  mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
     const startUrl =

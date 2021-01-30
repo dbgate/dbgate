@@ -10,6 +10,7 @@ import useTheme from './theme/useTheme';
 import usePropsCompare from './utility/usePropsCompare';
 import { useShowMenu } from './modals/showMenu';
 import { setSelectedTabFunc } from './utility/common';
+import getElectron from './utility/getElectron';
 
 // const files = [
 //   { name: 'app.js' },
@@ -218,6 +219,16 @@ export default function TabsPanel() {
       />
     );
   };
+
+  React.useEffect(() => {
+    const electron = getElectron();
+    if (electron) {
+      const { ipcRenderer } = electron;
+      const activeTab = tabs.find(x => x.selected);
+      window['activeTabId'] = activeTab ? activeTab.tabid : null;
+      ipcRenderer.send('update-menu');
+    }
+  }, [tabs]);
 
   // console.log(
   //   't',
