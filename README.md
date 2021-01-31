@@ -6,7 +6,7 @@
 
 DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL and SQL Server.
 
-* Try it online - https://demo.dbgate.org - online demo application
+* Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download it from [dbgate.org](https://dbgate.org)
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
@@ -93,8 +93,7 @@ Some dbgate packages can be used also without DbGate. You can find them on [NPM 
 
 * [api](https://github.com/dbgate/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS [![NPM version](https://img.shields.io/npm/v/dbgate-api.svg)](https://www.npmjs.com/package/dbgate-api)
 * [datalib](https://github.com/dbgate/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes
-* [app](https://github.com/dbgate/dbgate/tree/master/app) - application (JavaScript)
-structure, creating specific queries (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-engines.svg)](https://www.npmjs.com/package/dbgate-engines)
+* [app](https://github.com/dbgate/dbgate/tree/master/app) - application (JavaScript) structure, creating specific queries (JavaScript)
 * [filterparser](https://github.com/dbgate/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon
 * [sqltree](https://github.com/dbgate/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript) [![NPM version](https://img.shields.io/npm/v/dbgate-sqltree.svg)](https://www.npmjs.com/package/dbgate-sqltree)
 * [types](https://github.com/dbgate/dbgate/tree/master/packages/types) - common TypeScript definitions [![NPM version](https://img.shields.io/npm/v/dbgate-types.svg)](https://www.npmjs.com/package/dbgate-types)
