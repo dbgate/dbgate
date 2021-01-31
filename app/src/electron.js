@@ -139,6 +139,12 @@ function buildMenu() {
           },
         },
         {
+          label: 'Report problem or feature request',
+          click() {
+            require('electron').shell.openExternal('https://github.com/dbshell/dbgate/issues/new');
+          },
+        },
+        {
           label: 'About',
           click() {
             mainWindow.webContents.executeJavaScript(`dbgate_showAbout()`);
