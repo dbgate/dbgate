@@ -36,7 +36,7 @@ export function useUploadFiles() {
 
         console.log('FILE', file);
 
-        if (electron && canOpenByElectron(file.path)) {
+        if (electron && canOpenByElectron(file.path, extensions)) {
           openElectronFileCore(file.path);
           return;
         }

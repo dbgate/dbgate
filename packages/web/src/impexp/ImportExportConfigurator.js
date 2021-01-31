@@ -411,7 +411,11 @@ function SourceName({ name }) {
   );
 }
 
-export default function ImportExportConfigurator({ uploadedFile = undefined, onChangePreview = undefined }) {
+export default function ImportExportConfigurator({
+  uploadedFile = undefined,
+  openedFile = undefined,
+  onChangePreview = undefined,
+}) {
   const { values, setFieldValue, setValues } = useForm();
   const targetDbinfo = useDatabaseInfo({ conid: values.targetConnectionId, database: values.targetDatabaseName });
   const sourceConnectionInfo = useConnectionInfo({ conid: values.sourceConnectionId });
@@ -452,6 +456,21 @@ export default function ImportExportConfigurator({ uploadedFile = undefined, onC
   React.useEffect(() => {
     if (uploadedFile) {
       handleUpload(uploadedFile);
+    }
+    if (openedFile) {
+      addFilesToSourceList(
+        extensions,
+        [
+          {
+            fileName: openedFile.filePath,
+            shortName: openedFile.shortName,
+          },
+        ],
+        values,
+        setValues,
+        !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
+        setPreviewSource
+      );
     }
   }, []);
 

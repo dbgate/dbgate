@@ -129,7 +129,7 @@ function buildMenu() {
         {
           label: 'DbGate on GitHub',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbshell/dbgate');
+            require('electron').shell.openExternal('https://github.com/dbgate/dbgate');
           },
         },
         {
@@ -141,7 +141,7 @@ function buildMenu() {
         {
           label: 'Report problem or feature request',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbshell/dbgate/issues/new');
+            require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
         {
