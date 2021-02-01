@@ -44,14 +44,14 @@ export default function FavoritesWidget() {
   const hasPermission = useHasPermission();
   return (
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" height="20%">
-        <ClosedTabsList />
-      </WidgetColumnBarItem>
       {hasPermission('files/favorites/read') && (
-        <WidgetColumnBarItem title="Favorites" name="favorites" height="15%">
+        <WidgetColumnBarItem title="Favorites" name="favorites" height="20%">
           <FavoritesList />
         </WidgetColumnBarItem>
       )}
+      <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs">
+        <ClosedTabsList />
+      </WidgetColumnBarItem>
     </WidgetColumnBar>
   );
 }

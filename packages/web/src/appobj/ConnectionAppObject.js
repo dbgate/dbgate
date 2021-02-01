@@ -40,7 +40,7 @@ function Menu({ data }) {
     setOpenedConnections(list => list.filter(x => x != data._id));
   };
   const handleConnect = () => {
-    setOpenedConnections(list => [...list, data._id]);
+    setOpenedConnections(list => _.uniq([...list, data._id]));
   };
   return (
     <>
@@ -72,7 +72,7 @@ function ConnectionAppObject({ data, commonProps }) {
   const extensions = useExtensions();
 
   const isBold = _.get(currentDatabase, 'connection._id') == _id;
-  const onClick = () => setOpenedConnections(c => [...c, _id]);
+  const onClick = () => setOpenedConnections(c => _.uniq([...c, _id]));
 
   let statusIcon = null;
   let statusTitle = null;

@@ -100,7 +100,7 @@ function GenerateSctriptButton({ modalState }) {
     const code = await createImpExpScript(extensions, values);
     openNewTab(
       {
-        title: 'Shell',
+        title: 'Shell #',
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },
@@ -120,6 +120,7 @@ export default function ImportExportModal({
   modalState,
   initialValues,
   uploadedFile = undefined,
+  openedFile = undefined,
   importToArchive = false,
 }) {
   const [executeNumber, setExecuteNumber] = React.useState(0);
@@ -195,7 +196,11 @@ export default function ImportExportModal({
           <ModalHeader modalState={modalState}>Import/Export {busy && <FontIcon icon="icon loading" />}</ModalHeader>
           <Wrapper>
             <ContentWrapper theme={theme}>
-              <ImportExportConfigurator uploadedFile={uploadedFile} onChangePreview={setPreviewReader} />
+              <ImportExportConfigurator
+                uploadedFile={uploadedFile}
+                openedFile={openedFile}
+                onChangePreview={setPreviewReader}
+              />
             </ContentWrapper>
             <WidgetColumnWrapper theme={theme}>
               <WidgetColumnBar>

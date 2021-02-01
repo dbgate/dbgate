@@ -104,7 +104,7 @@ export function SavedSqlFileAppObject({ data, commonProps }) {
 
     openNewTab(
       {
-        title: 'Shell',
+        title: 'Shell #',
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },

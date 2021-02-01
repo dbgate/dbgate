@@ -14,7 +14,7 @@ export default function useNewQuery() {
   return ({ title = undefined, initialData = undefined, ...props } = {}) =>
     openNewTab(
       {
-        title: title || 'Query',
+        title: title || 'Query #',
         icon: 'img sql-file',
         tooltip,
         tabComponent: 'QueryTab',
@@ -40,7 +40,7 @@ export function useNewQueryDesign() {
   return ({ title = undefined, initialData = undefined, ...props } = {}) =>
     openNewTab(
       {
-        title: title || 'Query',
+        title: title || 'Query #',
         icon: 'img query-design',
         tooltip,
         tabComponent: 'QueryDesignTab',

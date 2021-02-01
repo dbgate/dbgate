@@ -4,17 +4,16 @@ import { createFreeTableModel } from 'dbgate-datalib';
 import useUndoReducer from '../utility/useUndoReducer';
 import ReactDOM from 'react-dom';
 import { useUpdateDatabaseForTab } from '../utility/globalState';
-import useModalState from '../modals/useModalState';
 import LoadingInfo from '../widgets/LoadingInfo';
 import ErrorInfo from '../widgets/ErrorInfo';
 import useEditorData from '../utility/useEditorData';
 import SaveTabModal from '../modals/SaveTabModal';
 import ChartEditor from '../charts/ChartEditor';
 import ChartToolbar from '../charts/ChartToolbar';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
 export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database, tabid }) {
   const [modelState, dispatchModel] = useUndoReducer(createFreeTableModel());
-  const saveFileModalState = useModalState();
   const { initialData, setEditorData, errorMessage, isLoading } = useEditorData({
     tabid,
   });
@@ -57,20 +56,17 @@ export default function ChartTab({ tabVisible, toolbarPortalRef, conid, database
         database={database}
       />
       <SaveTabModal
-        modalState={saveFileModalState}
         tabVisible={tabVisible}
+        toolbarPortalRef={toolbarPortalRef}
         data={modelState.value}
         format="json"
         folder="charts"
         tabid={tabid}
+        fileExtension="chart"
       />
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(
-          <ChartToolbar save={saveFileModalState.open} modelState={modelState} dispatchModel={dispatchModel} />,
-          toolbarPortalRef.current
-        )}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <ChartToolbar modelState={modelState} dispatchModel={dispatchModel} />
+      </ToolbarPortal>
     </>
   );
 }

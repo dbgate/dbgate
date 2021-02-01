@@ -1,7 +1,6 @@
 {
   "name": "dbgate",
-  "version": "3.9.3",
-  "private": true,
+  "version": "3.9.4-beta.5",
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "Opensource database administration tool",
   "dependencies": {
@@ -11,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbshell/dbgate.git"
+    "url": "https://github.com/dbgate/dbgate.git"
   },
   "build": {
     "appId": "org.dbgate",
@@ -68,7 +67,7 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "11.1.1",
+    "electron": "11.2.1",
     "electron-builder": "22.9.1"
   },
   "optionalDependencies": {

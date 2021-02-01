@@ -49,3 +49,15 @@ export function findObjectLike(
 export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo) {
   return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column.columnName));
 }
+
+export function makeUniqueColumnNames(res: ColumnInfo[]) {
+  const usedNames = new Set();
+  for (let i = 0; i < res.length; i++) {
+    if (usedNames.has(res[i].columnName)) {
+      let suffix = 2;
+      while (usedNames.has(`${res[i].columnName}${suffix}`)) suffix++;
+      res[i].columnName = `${res[i].columnName}${suffix}`;
+    }
+    usedNames.add(res[i].columnName);
+  }
+}

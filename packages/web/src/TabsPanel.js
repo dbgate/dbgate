@@ -10,6 +10,7 @@ import useTheme from './theme/useTheme';
 import usePropsCompare from './utility/usePropsCompare';
 import { useShowMenu } from './modals/showMenu';
 import { setSelectedTabFunc } from './utility/common';
+import getElectron from './utility/getElectron';
 
 // const files = [
 //   { name: 'app.js' },
@@ -124,6 +125,15 @@ function getDbIcon(key) {
   return 'icon file';
 }
 
+function buildTooltip(tab) {
+  let res = tab.tooltip;
+  if (tab.props && tab.props.savedFilePath) {
+    if (res) res += '\n';
+    res += tab.props.savedFilePath;
+  }
+  return res;
+}
+
 export default function TabsPanel() {
   // const formatDbKey = (conid, database) => `${database}-${conid}`;
   const theme = useTheme();
@@ -210,6 +220,16 @@ export default function TabsPanel() {
     );
   };
 
+  React.useEffect(() => {
+    const electron = getElectron();
+    if (electron) {
+      const { ipcRenderer } = electron;
+      const activeTab = tabs.find(x => x.selected);
+      window['dbgate_activeTabId'] = activeTab ? activeTab.tabid : null;
+      ipcRenderer.send('update-menu');
+    }
+  }, [tabs]);
+
   // console.log(
   //   't',
   //   tabs.map(x => x.tooltip)
@@ -252,7 +272,7 @@ export default function TabsPanel() {
             {_.sortBy(tabsByDb[dbKey], ['title', 'tabid']).map(tab => (
               <FileTabItem
                 {...tab}
-                title={tab.tooltip}
+                title={buildTooltip(tab)}
                 key={tab.tabid}
                 theme={theme}
                 onClick={e => handleTabClick(e, tab.tabid)}

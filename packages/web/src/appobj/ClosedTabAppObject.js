@@ -5,6 +5,14 @@ import { DropDownMenuItem } from '../modals/DropDownMenu';
 import { useSetOpenedTabs } from '../utility/globalState';
 import { AppObjectCore } from './AppObjectCore';
 import { setSelectedTabFunc } from '../utility/common';
+import styled from 'styled-components';
+import { FontIcon } from '../icons';
+import useTheme from '../theme/useTheme';
+
+const InfoDiv = styled.div`
+  margin-left: 30px;
+  color: ${props => props.theme.left_font3};
+`;
 
 function Menu({ data }) {
   const setOpenedTabs = useSetOpenedTabs();
@@ -25,17 +33,16 @@ function Menu({ data }) {
 function ClosedTabAppObject({ data, commonProps }) {
   const { tabid, props, selected, icon, title, closedTime, busy } = data;
   const setOpenedTabs = useSetOpenedTabs();
+  const theme = useTheme();
 
   const onClick = () => {
     setOpenedTabs(files =>
       setSelectedTabFunc(
-        files.map(
-          x => ({
-            ...x,
-            closedTime: x.tabid == tabid ? undefined : x.closedTime,
-          }),
-          tabid
-        )
+        files.map(x => ({
+          ...x,
+          closedTime: x.tabid == tabid ? undefined : x.closedTime,
+        })),
+        tabid
       )
     );
   };
@@ -50,7 +57,14 @@ function ClosedTabAppObject({ data, commonProps }) {
       onClick={onClick}
       isBusy={busy}
       Menu={Menu}
-    />
+    >
+      {data.props && data.props.database && (
+        <InfoDiv theme={theme}>
+          <FontIcon icon="icon database" /> {data.props.database}
+        </InfoDiv>
+      )}
+      {data.contentPreview && <InfoDiv theme={theme}>{data.contentPreview}</InfoDiv>}
+    </AppObjectCore>
   );
 }
 

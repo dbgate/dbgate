@@ -1,6 +1,6 @@
 const electron = require('electron');
 const os = require('os');
-const { Menu } = require('electron');
+const { Menu, ipcMain } = require('electron');
 const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
 const Store = require('electron-store');
@@ -20,6 +20,7 @@ const store = new Store();
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let splashWindow;
+let mainMenu;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -46,17 +47,62 @@ function buildMenu() {
           },
         },
         {
+          label: 'Open file',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
+          },
+        },
+        {
+          label: 'Save',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
+          },
+          accelerator: 'Ctrl+S',
+          id: 'save',
+        },
+        {
+          label: 'Save As',
+          click() {
+            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('saveAs')`);
+          },
+          accelerator: 'Ctrl+Shift+S',
+          id: 'saveAs',
+        },
+        { type: 'separator' },
+        { role: 'close' },
+      ],
+    },
+    {
+      label: 'Window',
+      submenu: [
+        {
           label: 'New query',
           click() {
             mainWindow.webContents.executeJavaScript(`dbgate_newQuery()`);
           },
         },
+        { type: 'separator' },
+        {
+          label: 'Close all tabs',
+          click() {
+            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
+          },
+        },
+        { role: 'minimize' },
       ],
     },
-    {
-      label: 'Edit',
-      submenu: [{ role: 'copy' }, { role: 'paste' }],
-    },
+
+    // {
+    //   label: 'Edit',
+    //   submenu: [
+    //     { role: 'undo' },
+    //     { role: 'redo' },
+    //     { type: 'separator' },
+    //     { role: 'cut' },
+    //     { role: 'copy' },
+    //     { role: 'paste' },
+    //   ],
+    // },
     {
       label: 'View',
       submenu: [
@@ -72,20 +118,6 @@ function buildMenu() {
       ],
     },
     {
-      role: 'window',
-      submenu: [
-        {
-          label: 'Close all tabs',
-          click() {
-            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
-          },
-        },
-        { type: 'separator' },
-        { role: 'minimize' },
-        { role: 'close' },
-      ],
-    },
-    {
       role: 'help',
       submenu: [
         {
@@ -97,13 +129,19 @@ function buildMenu() {
         {
           label: 'DbGate on GitHub',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbshell/dbgate');
+            require('electron').shell.openExternal('https://github.com/dbgate/dbgate');
           },
         },
         {
           label: 'DbGate on docker hub',
           click() {
             require('electron').shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
+          },
+        },
+        {
+          label: 'Report problem or feature request',
+          click() {
+            require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
         {
@@ -118,6 +156,12 @@ function buildMenu() {
 
   return Menu.buildFromTemplate(template);
 }
+
+ipcMain.on('update-menu', async (event, arg) => {
+  const commands = await mainWindow.webContents.executeJavaScript(`dbgate_getCurrentTabCommands()`);
+  mainMenu.getMenuItemById('save').enabled = !!commands.save;
+  mainMenu.getMenuItemById('saveAs').enabled = !!commands.saveAs;
+});
 
 function createWindow() {
   const bounds = store.get('winBounds');
@@ -135,7 +179,8 @@ function createWindow() {
     },
   });
 
-  mainWindow.setMenu(buildMenu());
+  mainMenu = buildMenu();
+  mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
     const startUrl =

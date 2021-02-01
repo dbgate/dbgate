@@ -11,10 +11,10 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import { useOpenedTabs, useSetOpenedTabs } from '../utility/globalState';
 import useOpenNewTab from '../utility/useOpenNewTab';
 import { setSelectedTabFunc } from '../utility/common';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
 export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef, ...other }) {
   const { editorData, setEditorData, isLoading, saveToStorage } = useEditorData({ tabid });
-  const saveFileModalState = useModalState();
   const openedTabs = useOpenedTabs();
   const setOpenedTabs = useSetOpenedTabs();
   const openNewTab = useOpenNewTab();
@@ -61,20 +61,17 @@ export default function MarkdownEditorTab({ tabid, tabVisible, toolbarPortalRef,
         onKeyDown={handleKeyDown}
         mode="markdown"
       />
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
-        tabVisible &&
-        ReactDOM.createPortal(
-          <MarkdownToolbar save={saveFileModalState.open} showPreview={showPreview} />,
-          toolbarPortalRef.current
-        )}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <MarkdownToolbar showPreview={showPreview} />
+      </ToolbarPortal>
       <SaveTabModal
-        modalState={saveFileModalState}
         tabVisible={tabVisible}
+        toolbarPortalRef={toolbarPortalRef}
         data={editorData}
         format="text"
         folder="markdown"
         tabid={tabid}
+        fileExtension="md"
       />
     </>
   );

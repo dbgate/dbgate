@@ -15,7 +15,6 @@ import keycodes from '../utility/keycodes';
 import { changeTab } from '../utility/common';
 import useSocket from '../utility/SocketProvider';
 import SaveTabModal from '../modals/SaveTabModal';
-import useModalState from '../modals/useModalState';
 import sqlFormatter from 'sql-formatter';
 import useEditorData from '../utility/useEditorData';
 import LoadingInfo from '../widgets/LoadingInfo';
@@ -25,15 +24,25 @@ import QueryDesignColumns from '../designer/QueryDesignColumns';
 import { findEngineDriver } from 'dbgate-tools';
 import { generateDesignedQuery } from '../designer/designerTools';
 import useUndoReducer from '../utility/useUndoReducer';
+import { StatusBarItem } from '../widgets/StatusBar';
+import useTimerLabel from '../utility/useTimerLabel';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
-export default function QueryDesignTab({ tabid, conid, database, tabVisible, toolbarPortalRef, ...other }) {
+export default function QueryDesignTab({
+  tabid,
+  conid,
+  database,
+  tabVisible,
+  toolbarPortalRef,
+  statusbarPortalRef,
+  ...other
+}) {
   const [sessionId, setSessionId] = React.useState(null);
   const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
-  const saveFileModalState = useModalState();
   const extensions = useExtensions();
   const connection = useConnectionInfo({ conid });
   const engine = findEngineDriver(connection, extensions);
@@ -49,6 +58,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     },
     { mergeNearActions: true }
   );
+  const timerLabel = useTimerLabel();
 
   React.useEffect(() => {
     // @ts-ignore
@@ -61,6 +71,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
+    timerLabel.stop();
   }, []);
 
   const generatePreview = (value, engine) => {
@@ -114,6 +125,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
       setSessionId(sesid);
     }
     setBusy(true);
+    timerLabel.start();
     await axios.post('sessions/execute-query', {
       sesid,
       sql: sqlPreview,
@@ -126,6 +138,7 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
     });
     setSessionId(null);
     setBusy(false);
+    timerLabel.stop();
   };
 
   const handleKeyDown = React.useCallback(
@@ -182,31 +195,32 @@ export default function QueryDesignTab({ tabid, conid, database, tabVisible, too
           )}
         </ResultTabs>
       </VerticalSplitter>
-      {toolbarPortalRef &&
-        toolbarPortalRef.current &&
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <QueryDesignToolbar
+          modelState={modelState}
+          dispatchModel={dispatchModel}
+          isDatabaseDefined={conid && database}
+          execute={handleExecute}
+          busy={busy}
+          // cancel={handleCancel}
+          // format={handleFormatCode}
+          isConnected={!!sessionId}
+          kill={handleKill}
+        />
+      </ToolbarPortal>
+      {statusbarPortalRef &&
+        statusbarPortalRef.current &&
         tabVisible &&
-        ReactDOM.createPortal(
-          <QueryDesignToolbar
-            modelState={modelState}
-            dispatchModel={dispatchModel}
-            isDatabaseDefined={conid && database}
-            execute={handleExecute}
-            busy={busy}
-            // cancel={handleCancel}
-            // format={handleFormatCode}
-            save={saveFileModalState.open}
-            isConnected={!!sessionId}
-            kill={handleKill}
-          />,
-          toolbarPortalRef.current
-        )}
+        ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
       <SaveTabModal
-        modalState={saveFileModalState}
+        // modalState={saveFileModalState}
         tabVisible={tabVisible}
+        toolbarPortalRef={toolbarPortalRef}
         data={modelState.value}
         format="json"
         folder="query"
         tabid={tabid}
+        fileExtension="qdesign"
       />
     </>
   );

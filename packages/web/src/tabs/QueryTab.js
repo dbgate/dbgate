@@ -21,16 +21,46 @@ import useEditorData from '../utility/useEditorData';
 import applySqlTemplate from '../utility/applySqlTemplate';
 import LoadingInfo from '../widgets/LoadingInfo';
 import useExtensions from '../utility/useExtensions';
+import useTimerLabel from '../utility/useTimerLabel';
+import { StatusBarItem } from '../widgets/StatusBar';
+import ToolbarPortal from '../utility/ToolbarPortal';
 
-export default function QueryTab({ tabid, conid, database, initialArgs, tabVisible, toolbarPortalRef, ...other }) {
+function createSqlPreview(sql) {
+  if (!sql) return undefined;
+  let data = sql.substring(0, 500);
+  data = data.replace(/\[[^\]]+\]\./g, '');
+  data = data.replace(/\[a-zA-Z0-9_]+\./g, '');
+  data = data.replace(/\/\*.*\*\//g, '');
+  data = data.replace(/[\[\]]/g, '');
+  data = data.replace(/--[^\n]*\n/g, '');
+
+  for (let step = 1; step <= 5; step++) {
+    data = data.replace(/\([^\(^\)]+\)/g, '');
+  }
+  data = data.replace(/\s+/g, ' ');
+  data = data.trim();
+  data = data.replace(/^(.{50}[^\s]*).*/, '$1');
+  return data;
+}
+
+export default function QueryTab({
+  tabid,
+  conid,
+  database,
+  initialArgs,
+  tabVisible,
+  toolbarPortalRef,
+  statusbarPortalRef,
+  ...other
+}) {
   const [sessionId, setSessionId] = React.useState(null);
   const [visibleResultTabs, setVisibleResultTabs] = React.useState(false);
   const [executeNumber, setExecuteNumber] = React.useState(0);
   const setOpenedTabs = useSetOpenedTabs();
   const socket = useSocket();
   const [busy, setBusy] = React.useState(false);
-  const saveFileModalState = useModalState();
   const extensions = useExtensions();
+  const timerLabel = useTimerLabel();
   const { editorData, setEditorData, isLoading } = useEditorData({
     tabid,
     loadFromArgs:
@@ -43,6 +73,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
 
   const handleSessionDone = React.useCallback(() => {
     setBusy(false);
+    timerLabel.stop();
   }, []);
 
   React.useEffect(() => {
@@ -61,6 +92,23 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
   useUpdateDatabaseForTab(tabVisible, conid, database);
   const connection = useConnectionInfo({ conid });
 
+  const updateContentPreviewDebounced = React.useRef(
+    _.debounce(
+      // @ts-ignore
+      sql =>
+        changeTab(tabid, setOpenedTabs, tab => ({
+          ...tab,
+          contentPreview: createSqlPreview(sql),
+        })),
+      500
+    )
+  );
+
+  React.useEffect(() => {
+    // @ts-ignore
+    updateContentPreviewDebounced.current(editorData);
+  }, [editorData]);
+
   const handleExecute = async () => {
     if (busy) return;
     setExecuteNumber(num => num + 1);
@@ -77,6 +125,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
       setSessionId(sesid);
     }
     setBusy(true);
+    timerLabel.start();
     await axios.post('sessions/execute-query', {
       sesid,
       sql: selectedText || editorData,
@@ -95,6 +144,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
     });
     setSessionId(null);
     setBusy(false);
+    timerLabel.stop();
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
@@ -151,7 +201,7 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
           </ResultTabs>
         )}
       </VerticalSplitter>
-      {toolbarPortalRef &&
+      {/* {toolbarPortalRef &&
         toolbarPortalRef.current &&
         tabVisible &&
         ReactDOM.createPortal(
@@ -166,14 +216,31 @@ export default function QueryTab({ tabid, conid, database, initialArgs, tabVisib
             kill={handleKill}
           />,
           toolbarPortalRef.current
-        )}
+        )} */}
+      {statusbarPortalRef &&
+        statusbarPortalRef.current &&
+        tabVisible &&
+        ReactDOM.createPortal(<StatusBarItem>{timerLabel.text}</StatusBarItem>, statusbarPortalRef.current)}
+      <ToolbarPortal toolbarPortalRef={toolbarPortalRef} tabVisible={tabVisible}>
+        <QueryToolbar
+          isDatabaseDefined={conid && database}
+          execute={handleExecute}
+          busy={busy}
+          // cancel={handleCancel}
+          format={handleFormatCode}
+          // save={saveFileModalState.open}
+          isConnected={!!sessionId}
+          kill={handleKill}
+        />
+      </ToolbarPortal>
       <SaveTabModal
-        modalState={saveFileModalState}
+        toolbarPortalRef={toolbarPortalRef}
         tabVisible={tabVisible}
         data={editorData}
         format="text"
         folder="sql"
         tabid={tabid}
+        fileExtension="sql"
       />
     </>
   );

@@ -83,7 +83,7 @@ export default function SqlDataGridCore(props) {
   function openActiveChart() {
     openNewTab(
       {
-        title: 'Chart',
+        title: 'Chart #',
         icon: 'img chart',
         tabComponent: 'ChartTab',
         props: {
@@ -104,7 +104,7 @@ export default function SqlDataGridCore(props) {
   function openQuery() {
     openNewTab(
       {
-        title: 'Query',
+        title: 'Query #',
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
         props: {

@@ -100,6 +100,7 @@ export default function Screen() {
     ? dimensions.widgetMenu.iconSize + leftPanelWidth + dimensions.splitter.thickness
     : dimensions.widgetMenu.iconSize;
   const toolbarPortalRef = React.useRef();
+  const statusbarPortalRef = React.useRef();
   const onSplitDown = useSplitterDrag('clientX', diff => setLeftPanelWidth(v => v + diff));
 
   const { getRootProps, getInputProps, isDragActive } = useUploadsZone();
@@ -131,10 +132,10 @@ export default function Screen() {
           <TabsPanel></TabsPanel>
         </TabsPanelContainer>
         <BodyDiv contentLeft={contentLeft} theme={theme}>
-          <TabContent toolbarPortalRef={toolbarPortalRef} />
+          <TabContent toolbarPortalRef={toolbarPortalRef} statusbarPortalRef={statusbarPortalRef} />
         </BodyDiv>
         <StausBarContainer theme={theme}>
-          <StatusBar />
+          <StatusBar statusbarPortalRef={statusbarPortalRef} />
         </StausBarContainer>
         <ModalLayer />
         <MenuLayer />

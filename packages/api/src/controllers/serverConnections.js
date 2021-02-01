@@ -8,6 +8,7 @@ const lock = new AsyncLock();
 module.exports = {
   opened: [],
   closed: {},
+  lastPinged: {},
 
   handle_databases(conid, { databases }) {
     const existing = this.opened.find(x => x.conid == conid);
@@ -88,7 +89,12 @@ module.exports = {
   ping_meta: 'post',
   async ping({ connections }) {
     await Promise.all(
-      connections.map(async conid => {
+      _.uniq(connections).map(async conid => {
+        const last = this.lastPinged[conid];
+        if (last && new Date().getTime() - last < 30 * 1000) {
+          return Promise.resolve();
+        }
+        this.lastPinged[conid] = new Date().getTime();
         const opened = await this.ensureOpened(conid);
         opened.subprocess.send({ msgtype: 'ping' });
       })

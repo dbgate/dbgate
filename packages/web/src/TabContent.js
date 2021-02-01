@@ -18,12 +18,18 @@ const TabContainerStyled = styled.div`
 `;
 
 function TabContainer({ TabComponent, ...props }) {
-  const { tabVisible, tabid, toolbarPortalRef } = props;
+  const { tabVisible, tabid, toolbarPortalRef, statusbarPortalRef } = props;
   return (
     // @ts-ignore
     <TabContainerStyled tabVisible={tabVisible}>
       <ErrorBoundary>
-        <TabComponent {...props} tabid={tabid} tabVisible={tabVisible} toolbarPortalRef={toolbarPortalRef} />
+        <TabComponent
+          {...props}
+          tabid={tabid}
+          tabVisible={tabVisible}
+          toolbarPortalRef={toolbarPortalRef}
+          statusbarPortalRef={statusbarPortalRef}
+        />
       </ErrorBoundary>
     </TabContainerStyled>
   );
@@ -42,7 +48,7 @@ function createTabComponent(selectedTab) {
   return null;
 }
 
-export default function TabContent({ toolbarPortalRef }) {
+export default function TabContent({ toolbarPortalRef, statusbarPortalRef }) {
   const files = useOpenedTabs();
 
   const [mountedTabs, setMountedTabs] = React.useState({});
@@ -84,6 +90,7 @@ export default function TabContent({ toolbarPortalRef }) {
         tabid={tabid}
         tabVisible={tabVisible}
         toolbarPortalRef={toolbarPortalRef}
+        statusbarPortalRef={statusbarPortalRef}
         TabComponent={TabComponent}
       />
     );
