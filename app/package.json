@@ -1,7 +1,6 @@
 {
   "name": "dbgate",
   "version": "3.9.4-beta.5",
-  "private": true,
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "Opensource database administration tool",
   "dependencies": {
@@ -58,15 +57,11 @@
   "scripts": {
     "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
     "start:local": "cross-env electron .",
-    "start:dbgate": "dbgate",
     "dist": "electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn predist",
     "postinstall": "electron-builder install-app-deps",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/build/*\" packages && copyfiles \"../packages/web/build/**/*\" packages"
-  },
-  "bin": {
-    "dbgate": "./src/dbgate"
   },
   "main": "src/electron.js",
   "devDependencies": {
