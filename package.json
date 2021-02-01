@@ -46,6 +46,5 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "prettier": "^2.2.1"
-  },
-  "version": "0.0.0"
+  }
 }
