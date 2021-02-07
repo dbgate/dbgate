@@ -18,4 +18,7 @@ if (argument && argument.endsWith('Process')) {
   main.start(argument);
 }
 
-module.exports = shell;
+module.exports = {
+  ...shell,
+  mainModule: main,
+};

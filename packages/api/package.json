@@ -9,7 +9,7 @@
   },
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
-  "license": "GPL",
+  "license": "MIT",
   "keywords": [
     "sql",
     "json",
