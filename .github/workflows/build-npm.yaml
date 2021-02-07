@@ -44,7 +44,7 @@ jobs:
 
       - name: Publish types
         working-directory: packages/types
-        run: |
-          npm publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
