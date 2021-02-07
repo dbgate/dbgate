@@ -8,13 +8,13 @@ function changeDependencies(deps, version) {
   }
 }
 
-function changePackageFile(path, version) {
-  const text = fs.readFileSync(path.join(path, 'package.json'), { encoding: 'utf-8' });
+function changePackageFile(packagePath, version) {
+  const text = fs.readFileSync(path.join(packagePath, 'package.json'), { encoding: 'utf-8' });
   const json = JSON.parse(packageJson);
   json.version = version;
   changeDependencies(json.dependencies, version);
   changeDependencies(json.devDependencies, version);
-  fs.writeFileSync(path.join(path, 'package.json'), JSON.stringify(json, null, 2), { encoding: 'utf-8' });
+  fs.writeFileSync(path.join(packagePath, 'package.json'), JSON.stringify(json, null, 2), { encoding: 'utf-8' });
 }
 
 const packageJson = fs.readFileSync('package.json', { encoding: 'utf-8' });
