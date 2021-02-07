@@ -4,13 +4,13 @@ const path = require('path');
 function changeDependencies(deps, version) {
   if (!deps) return;
   for (const key of Object.keys(deps)) {
-    if (key.startsWith('dbate-')) deps[key] = version;
+    if (key.startsWith('dbgate-')) deps[key] = version;
   }
 }
 
 function changePackageFile(packagePath, version) {
   const text = fs.readFileSync(path.join(packagePath, 'package.json'), { encoding: 'utf-8' });
-  const json = JSON.parse(packageJson);
+  const json = JSON.parse(text);
   json.version = version;
   changeDependencies(json.dependencies, version);
   changeDependencies(json.devDependencies, version);
