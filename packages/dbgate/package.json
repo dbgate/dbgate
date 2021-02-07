@@ -13,9 +13,5 @@
     "sql",
     "dbgate",
     "web"
-  ],
-  "dependencies": {
-    "dbgate-api": "3.9.5",
-    "dbgate-web": "3.9.5"
-  }
+  ]
 }
