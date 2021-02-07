@@ -48,3 +48,38 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm publish
+
+      - name: Publish tools
+        working-directory: packages/tools
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+
+      - name: Publish sqltree
+        working-directory: packages/sqltree
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+                    
+      - name: Publish api
+        working-directory: packages/api
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+                              
+      - name: Publish web
+        working-directory: packages/web
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+                                        
+      - name: Publish dbgate
+        working-directory: packages/dbgate
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish

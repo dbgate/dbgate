@@ -1,7 +1,6 @@
 {
   "name": "dbgate-web",
   "version": "1.0.0",
-  "private": true,
   "dependencies": {
     "@ant-design/colors": "^5.0.0",
     "@mdi/font": "^5.8.55",
@@ -38,10 +37,14 @@
     "styled-components": "^4.4.1",
     "uuid": "^3.4.0"
   },
+  "files": [
+    "build"
+  ],
   "scripts": {
     "start": "cross-env BROWSER=none PORT=5000 react-scripts start",
     "build:docker": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
     "build:app": "cross-env PUBLIC_URL=. CI=false react-scripts build",
+    "build": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ts": "tsc"

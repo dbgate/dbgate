@@ -9,6 +9,9 @@
   "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "MIT",
+  "bin": {
+    "dbgate": "./bin/dbgate.js"
+  },
   "keywords": [
     "sql",
     "dbgate",

@@ -8,6 +8,7 @@ const io = require('socket.io');
 const fs = require('fs');
 const findFreePort = require('find-free-port');
 const childProcessChecker = require('./utility/childProcessChecker');
+const path = require('path');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -91,6 +92,14 @@ function start(argument = null) {
     childProcessChecker();
 
     findFreePort(53911, function (err, port) {
+      server.listen(port, () => {
+        console.log(`DbGate API listening on port ${port}`);
+        process.send({ msgtype: 'listening', port });
+      });
+    });
+  } else if (argument == 'startNodeWeb') {
+    app.use(express.static(path.join(__dirname, '../../dbgate-web/build')));
+    findFreePort(5000, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
         process.send({ msgtype: 'listening', port });
