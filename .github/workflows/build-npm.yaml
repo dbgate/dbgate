@@ -1,0 +1,46 @@
+name: Docker image
+
+# on: [push]
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+    # - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+# on:
+#   push:
+#     branches:
+#       - production
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-18.04]
+        # os: [macOS-10.14, windows-2016, ubuntu-18.04]
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: Use Node.js 10.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+      - name: yarn install
+        run: |
+          yarn install
+      - name: setCurrentVersion
+        run: |
+          yarn setCurrentVersion
+      - name: Prepare docker image
+        run: |
+          yarn run prepare:docker

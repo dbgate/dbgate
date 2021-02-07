@@ -1,0 +1,21 @@
+{
+  "name": "dbgate",
+  "version": "1.0.7",
+  "homepage": "https://dbgate.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbshell/dbgate.git"
+  },
+  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
+  "author": "Jan Prochazka",
+  "license": "MIT",
+  "keywords": [
+    "sql",
+    "dbgate",
+    "web"
+  ],
+  "dependencies": {
+    "dbgate-api": "3.9.5",
+    "dbgate-web": "3.9.5"
+  }
+}
