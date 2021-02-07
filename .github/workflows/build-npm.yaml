@@ -1,4 +1,4 @@
-name: Docker image
+name: NPM packages
 
 # on: [push]
 
@@ -41,6 +41,10 @@ jobs:
       - name: setCurrentVersion
         run: |
           yarn setCurrentVersion
+
       - name: Publish types
         working-directory: packages/types
-        run: npm publish
+        run: |
+          npm publish
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
