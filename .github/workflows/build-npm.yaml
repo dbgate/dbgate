@@ -36,6 +36,8 @@ jobs:
         with:
           node-version: 10.x
       - name: yarn install
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           yarn install
       - name: setCurrentVersion
