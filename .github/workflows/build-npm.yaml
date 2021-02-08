@@ -71,7 +71,21 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm publish
-                              
+
+      - name: Publish datalib
+        working-directory: packages/datalib
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+
+      - name: Publish filterparser
+        working-directory: packages/filterparser
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish
+
       - name: Publish web
         working-directory: packages/web
         env:
