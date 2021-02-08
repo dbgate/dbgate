@@ -1,5 +1,5 @@
 {
-  "version": "3.9.6-alpha.8",
+  "version": "3.9.5",
   "name": "dbgate-sqltree",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -29,7 +29,7 @@
   ],
   "devDependencies": {
     "@types/node": "^13.7.0",
-    "dbgate-types": "^3.9.6-alpha.8",
+    "dbgate-types": "^3.9.5",
     "typescript": "^3.7.5"
   },
   "dependencies": {

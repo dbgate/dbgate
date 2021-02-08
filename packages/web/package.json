@@ -1,6 +1,6 @@
 {
   "name": "dbgate-web",
-  "version": "3.9.6-alpha.8",
+  "version": "3.9.5",
   "files": [
     "build"
   ],
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@types/react": "^16.9.17",
     "@types/styled-components": "^4.4.2",
-    "dbgate-types": "^3.9.6-alpha.8",
+    "dbgate-types": "^3.9.5",
     "typescript": "^3.7.4",
     "@ant-design/colors": "^5.0.0",
     "@mdi/font": "^5.8.55",
@@ -41,9 +41,9 @@
     "chart.js": "^2.9.4",
     "compare-versions": "^3.6.0",
     "cross-env": "^6.0.3",
-    "dbgate-datalib": "^3.9.6-alpha.8",
-    "dbgate-sqltree": "^3.9.6-alpha.8",
-    "dbgate-tools": "^3.9.6-alpha.8",
+    "dbgate-datalib": "^3.9.5",
+    "dbgate-sqltree": "^3.9.5",
+    "dbgate-tools": "^3.9.5",
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.17.0",
     "json-stable-stringify": "^1.0.1",

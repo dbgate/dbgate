@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "3.9.6-alpha.8",
+  "version": "3.9.5",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -19,7 +19,7 @@
     "web"
   ],
   "dependencies": {
-    "dbgate-api": "^3.9.6-alpha.8",
-    "dbgate-web": "^3.9.6-alpha.8"
+    "dbgate-api": "^3.9.5",
+    "dbgate-web": "^3.9.5"
   }
 }

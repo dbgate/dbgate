@@ -1,7 +1,7 @@
 {
   "name": "dbgate-api",
   "main": "src/index.js",
-  "version": "3.9.6-alpha.9",
+  "version": "3.9.5",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -26,8 +26,8 @@
     "compare-versions": "^3.6.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
-    "dbgate-sqltree": "^3.9.6-alpha.9",
-    "dbgate-tools": "^3.9.6-alpha.9",
+    "dbgate-sqltree": "^3.9.5",
+    "dbgate-tools": "^3.9.5",
     "eslint": "^6.8.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
-    "dbgate-types": "^3.9.6-alpha.9",
+    "dbgate-types": "^3.9.5",
     "env-cmd": "^10.1.0",
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
