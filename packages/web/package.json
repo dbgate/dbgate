@@ -1,7 +1,36 @@
 {
   "name": "dbgate-web",
   "version": "3.9.6-alpha.8",
-  "dependencies": {
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "start": "cross-env BROWSER=none PORT=5000 react-scripts start",
+    "build:docker": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
+    "build:app": "cross-env PUBLIC_URL=. CI=false react-scripts build",
+    "build": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
+    "prepublishOnly": "yarn build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "ts": "tsc"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.17",
+    "@types/styled-components": "^4.4.2",
+    "dbgate-types": "^3.9.6-alpha.8",
+    "typescript": "^3.7.4",
     "@ant-design/colors": "^5.0.0",
     "@mdi/font": "^5.8.55",
     "@testing-library/jest-dom": "^4.2.4",
@@ -36,36 +65,5 @@
     "sql-formatter": "^2.3.3",
     "styled-components": "^4.4.1",
     "uuid": "^3.4.0"
-  },
-  "files": [
-    "build"
-  ],
-  "scripts": {
-    "start": "cross-env BROWSER=none PORT=5000 react-scripts start",
-    "build:docker": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
-    "build:app": "cross-env PUBLIC_URL=. CI=false react-scripts build",
-    "build": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
-    "prepublishOnly": "yarn build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "ts": "tsc"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@types/react": "^16.9.17",
-    "@types/styled-components": "^4.4.2",
-    "dbgate-types": "^3.9.6-alpha.8",
-    "typescript": "^3.7.4"
   }
 }

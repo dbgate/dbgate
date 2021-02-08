@@ -15,7 +15,7 @@ After installing, you can run dbgate with command:
 dbgate
 ```
 
-Open http://localhost:5000 in your browser
+Then open http://localhost:5000 in your browser
 
 ## Download electron app
 You can also download binary packages from https://dbgate.org . Or run from source code, as described on [github](https://github.com/dbgate/dbgate)
