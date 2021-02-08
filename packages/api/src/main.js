@@ -83,9 +83,11 @@ function start(argument = null) {
     // server static files inside docker container
     app.use(express.static('/home/dbgate-docker/build'));
   } else {
-    app.get('/', (req, res) => {
-      res.send('DbGate API');
-    });
+    if (argument != 'startNodeWeb') {
+      app.get('/', (req, res) => {
+        res.send('DbGate API');
+      });
+    }
   }
 
   if (argument == '--dynport') {
@@ -102,7 +104,6 @@ function start(argument = null) {
     findFreePort(5000, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
-        process.send({ msgtype: 'listening', port });
       });
     });
   } else {
