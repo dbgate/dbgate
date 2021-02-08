@@ -1,7 +1,7 @@
 ---
 name: Feature request
-about: Suggest an idea for this project
-title: ''
+about: Suggest an idea for DbGate
+title: 'FEAT: '
 labels: ''
 assignees: ''
 
