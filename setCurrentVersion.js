@@ -35,3 +35,6 @@ changePackageFile('packages/sqltree', json.version);
 changePackageFile('packages/types', json.version);
 changePackageFile('packages/tools', json.version);
 changePackageFile('packages/web', json.version);
+changePackageFile('packages/datalib', json.version);
+changePackageFile('packages/dbgate', json.version);
+changePackageFile('packages/filterparser', json.version);
