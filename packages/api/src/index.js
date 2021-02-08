@@ -1,5 +1,4 @@
 const shell = require('./shell');
-const main = require('./main');
 
 const argument = process.argv[2];
 if (argument && argument.endsWith('Process')) {
@@ -8,11 +7,12 @@ if (argument && argument.endsWith('Process')) {
   const module = proc[argument];
   module.start();
 } else if (!module['parent'] && !process.argv.includes('--checkParent')) {
+  const main = require('./main');
 
   main.start(argument);
 }
 
 module.exports = {
   ...shell,
-  mainModule: main,
+  getMainModule: () => require('./main'),
 };

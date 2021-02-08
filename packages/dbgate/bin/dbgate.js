@@ -2,4 +2,4 @@
 
 const dbgateApi = require('dbgate-api');
 
-dbgateApi.mainModule.start('startNodeWeb');
+dbgateApi.getMainModule().start('startNodeWeb');
