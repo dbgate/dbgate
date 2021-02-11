@@ -32,7 +32,7 @@ dbgateApi.runScript(run);
 
 ```
 
-Silly example, runs without any dependencies. Copy [fakeObjectReader](https://github.com/dbshell/dbgate/blob/master/packages/api/src/shell/fakeObjectReader.js) to [consoleObjectWriter](https://github.com/dbshell/dbgate/blob/master/packages/api/src/shell/consoleObjectWriter.js) .
+Silly example, runs without any dependencies. Copy [fakeObjectReader](https://github.com/dbgate/dbgate/blob/master/packages/api/src/shell/fakeObjectReader.js) to [consoleObjectWriter](https://github.com/dbgate/dbgate/blob/master/packages/api/src/shell/consoleObjectWriter.js) .
 
 ```javascript
 

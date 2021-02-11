@@ -25,4 +25,4 @@ You can use some functionality of dbgate from your JavaScript code. See [dbgate-
 
 ## Screenshot
 
-![Screenshot](https://raw.githubusercontent.com/dbshell/dbgate/master/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)

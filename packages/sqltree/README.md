@@ -37,7 +37,7 @@ console.log("Generated query:", sql);
 
 ```
 
-See [TypeScript definitions](https://github.com/dbshell/dbgate/blob/master/packages/sqltree/src/types.ts) for complete list of available SQL command options.
+See [TypeScript definitions](https://github.com/dbgate/dbgate/blob/master/packages/sqltree/src/types.ts) for complete list of available SQL command options.
 
 ## Installation
 
