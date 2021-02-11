@@ -1,13 +1,13 @@
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { decryptConnection } = require('../utility/crypting');
+const connectUtility = require('../utility/connectUtility');
 
 function start() {
   childProcessChecker();
   process.on('message', async connection => {
     try {
       const driver = requireEngineDriver(connection);
-      const conn = await driver.connect(decryptConnection(connection));
+      const conn = await connectUtility(driver, connection);
       const res = await driver.getVersion(conn);
       process.send({ msgtype: 'connected', ...res });
     } catch (e) {

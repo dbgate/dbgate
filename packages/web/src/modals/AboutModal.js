@@ -70,7 +70,7 @@ export default function AboutModal({ modalState }) {
             <Link label="Web" href="https://dbgate.org">
               dbgate.org
             </Link>
-            <Link label="Source codes" href="https://github.com/dbshell/dbgate/">
+            <Link label="Source codes" href="https://github.com/dbgate/dbgate/">
               github
             </Link>
             <Link label="Docker container" href="https://hub.docker.com/r/dbgate/dbgate">

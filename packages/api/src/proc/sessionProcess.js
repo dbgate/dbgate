@@ -8,6 +8,7 @@ const goSplit = require('../utility/goSplit');
 const { jsldir } = require('../utility/directories');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
+const connectUtility = require('../utility/connectUtility');
 
 let systemConnection;
 let storedConnection;
@@ -131,7 +132,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await driver.connect(decryptConnection(storedConnection));
+  systemConnection = await connectUtility(driver, storedConnection);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }

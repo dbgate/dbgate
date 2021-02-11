@@ -1,7 +1,7 @@
 const stableStringify = require('json-stable-stringify');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { decryptConnection } = require('../utility/crypting');
+const connectUtility = require('../utility/connectUtility');
 
 let systemConnection;
 let storedConnection;
@@ -60,7 +60,7 @@ async function handleConnect({ connection, structure }) {
 
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await checkedAsyncCall(driver.connect(decryptConnection(storedConnection)));
+  systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection));
   if (structure) {
     analysedStructure = structure;
     handleIncrementalRefresh();

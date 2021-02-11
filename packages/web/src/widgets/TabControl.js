@@ -28,16 +28,21 @@ const TabNameWrapper = styled.span`
 //   props.tabVisible ? 'visible' : 'none'};
 
 const TabContainer = styled.div`
+  ${props =>
+    // @ts-ignore
+    !props.isInline &&
+    `
   position: absolute;
   display: flex;
   left: 0;
   right: 0
   top: 0;
-   bottom: 0;
+  bottom: 0;
+  `}
 
   ${props =>
     // @ts-ignore
-    !props.tabVisible && `visibility: hidden;`}
+    !props.tabVisible && (props.isInline ? `display:none` : `visibility: hidden;`)}
 `;
 
 const TabsContainer = styled.div`
@@ -62,7 +67,7 @@ export function TabPage({ key, label, children }) {
   return children;
 }
 
-export function TabControl({ children, activePageIndex = undefined, activePageLabel = undefined }) {
+export function TabControl({ children, activePageIndex = undefined, activePageLabel = undefined, isInline = false }) {
   const [value, setValue] = React.useState(0);
 
   // const [mountedTabs, setMountedTabs] = React.useState({});
@@ -112,6 +117,7 @@ export function TabControl({ children, activePageIndex = undefined, activePageLa
             <TabContainer
               // @ts-ignore
               tabVisible={tabVisible}
+              isInline={isInline}
               key={tab.props.key}
             >
               {childrenArray[index] && childrenArray[index].props.children}

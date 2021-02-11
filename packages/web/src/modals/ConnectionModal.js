@@ -1,7 +1,14 @@
 import React from 'react';
 import axios from '../utility/axios';
 import ModalBase from './ModalBase';
-import { FormButton, FormTextField, FormSelectField, FormSubmit, FormPasswordField } from '../utility/forms';
+import {
+  FormButton,
+  FormTextField,
+  FormSelectField,
+  FormSubmit,
+  FormPasswordField,
+  FormCheckboxField,
+} from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
 import ModalContent from './ModalContent';
@@ -9,6 +16,7 @@ import useExtensions from '../utility/useExtensions';
 import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
 import { FormProvider, useForm } from '../utility/FormProvider';
+import { TabControl, TabPage } from '../widgets/TabControl';
 // import FormikForm from '../utility/FormikForm';
 
 function DriverFields({ extensions }) {
@@ -60,6 +68,20 @@ function DriverFields({ extensions }) {
   );
 }
 
+function SshTunnelFields() {
+  const { values } = useForm();
+  const { useSshTunnel } = values;
+  return (
+    <>
+      <FormCheckboxField label="Use SSH tunnel" name="useSshTunnel" />
+      <FormTextField label="SSH Host" name="sshHost" disabled={!useSshTunnel} />
+      <FormTextField label="SSH Port" name="sshPort" disabled={!useSshTunnel} />
+      <FormTextField label="SSH Login" name="sshLogin" disabled={!useSshTunnel} />
+      <FormPasswordField label="SSH Password" name="sshPassword" disabled={!useSshTunnel} />
+    </>
+  );
+}
+
 export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState(null);
   const extensions = useExtensions();
@@ -90,31 +112,38 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>{connection ? 'Edit connection' : 'Add connection'}</ModalHeader>
       <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}>
-        <ModalContent>
-          <FormSelectField label="Database engine" name="engine">
-            <option value="(select driver)"></option>
-            {extensions.drivers.map(driver => (
-              <option value={driver.engine} key={driver.engine}>
-                {driver.title}
-              </option>
-            ))}
-            {/* <option value="mssql">Microsoft SQL Server</option>
+        <ModalContent noPadding>
+          <TabControl isInline>
+            <TabPage label="Main" key="main">
+              <FormSelectField label="Database engine" name="engine">
+                <option value="(select driver)"></option>
+                {extensions.drivers.map(driver => (
+                  <option value={driver.engine} key={driver.engine}>
+                    {driver.title}
+                  </option>
+                ))}
+                {/* <option value="mssql">Microsoft SQL Server</option>
               <option value="mysql">MySQL</option>
               <option value="postgres">Postgre SQL</option> */}
-          </FormSelectField>
-          <DriverFields extensions={extensions} />
-          <FormTextField label="Display name" name="displayName" />
-          {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
-            <div>
-              Connected: <FontIcon icon="img ok" /> {sqlConnectResult.version}
-            </div>
-          )}
-          {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error' && (
-            <div>
-              Connect failed: <FontIcon icon="img error" /> {sqlConnectResult.error}
-            </div>
-          )}
-          {isTesting && <LoadingInfo message="Testing connection" />}
+              </FormSelectField>
+              <DriverFields extensions={extensions} />
+              <FormTextField label="Display name" name="displayName" />
+              {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
+                <div>
+                  Connected: <FontIcon icon="img ok" /> {sqlConnectResult.version}
+                </div>
+              )}
+              {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error' && (
+                <div>
+                  Connect failed: <FontIcon icon="img error" /> {sqlConnectResult.error}
+                </div>
+              )}
+              {isTesting && <LoadingInfo message="Testing connection" />}
+            </TabPage>
+            <TabPage label="SSH Tunnel" key="sshTunnel">
+              <SshTunnelFields />
+            </TabPage>
+          </TabControl>
         </ModalContent>
 
         <ModalFooter>
