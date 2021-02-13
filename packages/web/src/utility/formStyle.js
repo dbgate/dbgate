@@ -52,3 +52,33 @@ export function FormFieldTemplateTiny({ label, children, type }) {
     </FormRowTiny>
   );
 }
+
+export const FormRowLarge = styled.div`
+  margin: 5px;
+`;
+
+export const FormLabelLarge = styled.div`
+  color: ${props => props.theme.manager_font3};
+`;
+
+export const FormValueLarge = styled.div`
+  margin-left: 15px;
+  margin-top: 3px;
+`;
+
+export function FormFieldTemplateLarge({ label, children, type }) {
+  const theme = useTheme();
+  if (type == 'checkbox') {
+    return (
+      <FormRowTiny>
+        {children} {label}
+      </FormRowTiny>
+    );
+  }
+  return (
+    <FormRowTiny>
+      <FormLabelTiny theme={theme}>{label}</FormLabelTiny>
+      <FormValueTiny>{children}</FormValueTiny>
+    </FormRowTiny>
+  );
+}

@@ -20,6 +20,7 @@ import { FormProvider, useForm } from '../utility/FormProvider';
 import { TabControl, TabPage } from '../widgets/TabControl';
 import { usePlatformInfo } from '../utility/metadataLoaders';
 import getElectron from '../utility/getElectron';
+import { FormFieldTemplateLarge } from '../utility/formStyle';
 // import FormikForm from '../utility/FormikForm';
 
 function DriverFields({ extensions }) {
@@ -154,7 +155,10 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
   return (
     <ModalBase modalState={modalState}>
       <ModalHeader modalState={modalState}>{connection ? 'Edit connection' : 'Add connection'}</ModalHeader>
-      <FormProvider initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}>
+      <FormProvider
+        initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}
+        template={FormFieldTemplateLarge}
+      >
         <ModalContent noPadding>
           <TabControl isInline>
             <TabPage label="Main" key="main">

@@ -7,7 +7,10 @@ const { getSshTunnelProxy } = require('./sshTunnelProxy');
 async function connectUtility(driver, storedConnection) {
   let connection = decryptConnection(storedConnection);
   if (connection.useSshTunnel) {
-    const localPort = await getSshTunnelProxy(connection);
+    const tunnel = await getSshTunnelProxy(connection);
+    if (tunnel.state == 'error') {
+      throw new Error(tunnel.message);
+    }
     // const sshConfig = {
     //   endHost: connection.sshHost || '',
     //   endPort: connection.sshPort || 22,
@@ -35,7 +38,7 @@ async function connectUtility(driver, storedConnection) {
     connection = {
       ...connection,
       server: '127.0.0.1',
-      port: localPort,
+      port: tunnel.localPort,
     };
   }
 

@@ -8,7 +8,16 @@ const platformInfo = require('./platformInfo');
 const sshConnectionCache = {};
 const sshTunnelCache = {};
 
-const CONNECTION_FIELDS = ['sshHost', 'sshPort', 'sshLogin', 'sshPassword'];
+const CONNECTION_FIELDS = [
+  'sshHost',
+  'sshPort',
+  'sshLogin',
+  'sshPassword',
+  'sshMode',
+  'sshKeyFile',
+  'sshBastionHost',
+  'sshKeyFilePassword',
+];
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
 async function getSshConnection(connection) {
@@ -38,7 +47,7 @@ async function getSshConnection(connection) {
 async function getSshTunnel(connection) {
   const sshConn = await getSshConnection(connection);
   const tunnelCacheKey = stableStringify(_.pick(connection, TUNNEL_FIELDS));
-  if (sshTunnelCache[tunnelCacheKey]) return sshTunnelCache[tunnelCacheKey].localPort;
+  if (sshTunnelCache[tunnelCacheKey]) return sshTunnelCache[tunnelCacheKey];
 
   const localPort = await portfinder.getPortPromise({ port: 10000, stopPort: 60000 });
   // workaround for `getPortPromise` not releasing the port quickly enough
@@ -48,17 +57,24 @@ async function getSshTunnel(connection) {
     toPort: connection.port,
     toHost: connection.server,
   };
-  const tunnel = await sshConn.forward(tunnelConfig);
-  console.log(
-    `Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
-  );
+  try {
+    const tunnel = await sshConn.forward(tunnelConfig);
+    console.log(
+      `Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
+    );
 
-  sshTunnelCache[tunnelCacheKey] = {
-    tunnel,
-    localPort,
-  };
-
-  return localPort;
+    sshTunnelCache[tunnelCacheKey] = {
+      state: 'ok',
+      localPort,
+    };
+    return sshTunnelCache[tunnelCacheKey];
+  } catch (err) {
+    // error is not cached
+    return {
+      state: 'error',
+      message: err.message,
+    };
+  }
 }
 
 module.exports = {
