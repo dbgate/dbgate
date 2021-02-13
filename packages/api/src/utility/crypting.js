@@ -54,7 +54,7 @@ function encryptPasswordField(connection, field) {
       [field]: 'crypt:' + getEncryptor().encrypt(connection[field]),
     };
   }
-  return connection;
+return connection;
 }
 
 function decryptPasswordField(connection, field) {
