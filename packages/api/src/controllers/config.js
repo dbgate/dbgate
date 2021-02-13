@@ -1,4 +1,5 @@
 const currentVersion = require('../currentVersion');
+const platformInfo = require('../utility/platformInfo');
 
 module.exports = {
   get_meta: 'get',
@@ -31,4 +32,10 @@ module.exports = {
       ...currentVersion,
     };
   },
+
+  platformInfo_meta: 'get',
+  async platformInfo() {
+    return platformInfo;
+  },
+  
 };

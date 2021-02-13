@@ -46,6 +46,12 @@ const configLoader = () => ({
   reloadTrigger: 'config-changed',
 });
 
+const platformInfoLoader = () => ({
+  url: 'config/platform-info',
+  params: {},
+  reloadTrigger: 'platform-info-changed',
+});
+
 const favoritesLoader = () => ({
   url: 'files/favorites',
   params: {},
@@ -251,6 +257,13 @@ export function getConfig() {
 }
 export function useConfig() {
   return useCore(configLoader, {}) || {};
+}
+
+export function getPlatformInfo() {
+  return getCore(platformInfoLoader, {}) || {};
+}
+export function usePlatformInfo() {
+  return useCore(platformInfoLoader, {}) || {};
 }
 
 export function getArchiveFiles(args) {

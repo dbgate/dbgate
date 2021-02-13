@@ -24,6 +24,7 @@ const requirePluginsTemplate = plugins =>
 
 const scriptTemplate = script => `
 const dbgateApi = require(process.env.DBGATE_API);
+dbgateApi.registerProcessCommunication();
 ${requirePluginsTemplate(extractPlugins(script))}
 require=null;
 async function run() {
@@ -36,6 +37,7 @@ dbgateApi.runScript(run);
 
 const loaderScriptTemplate = (functionName, props, runid) => `
 const dbgateApi = require(process.env.DBGATE_API);
+dbgateApi.registerProcessCommunication();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
 require=null;
 async function run() {

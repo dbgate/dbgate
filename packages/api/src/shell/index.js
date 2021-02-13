@@ -17,6 +17,7 @@ const requirePlugin = require('./requirePlugin');
 const download = require('./download');
 const executeQuery = require('./executeQuery');
 const loadFile = require('./loadFile');
+const registerProcessCommunication = require('./registerProcessCommunication');
 
 const dbgateApi = {
   queryReader,
@@ -37,6 +38,7 @@ const dbgateApi = {
   registerPlugins,
   executeQuery,
   loadFile,
+  registerProcessCommunication,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);

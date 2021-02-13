@@ -15,6 +15,13 @@ import axios from './axios';
 import useTheme from '../theme/useTheme';
 import { useForm, useFormFieldTemplate } from './FormProvider';
 import { FontIcon } from '../icons';
+import getElectron from './getElectron';
+import InlineButton from '../widgets/InlineButton';
+import styled from 'styled-components';
+
+const FlexContainer = styled.div`
+  display: flex;
+`;
 
 export function FormFieldTemplate({ label, children, type }) {
   const FieldTemplate = useFormFieldTemplate();
@@ -319,5 +326,34 @@ export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other
       Component={Creatable}
       onCreateOption={handleCreateOption}
     />
+  );
+}
+
+export function FormElectronFileSelectorRaw({ name }) {
+  const { values, setFieldValue } = useForm();
+  const handleBrowse = () => {
+    const electron = getElectron();
+    if (!electron) return;
+    const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+      defaultPath: values[name],
+      properties: ['showHiddenFiles'],
+    });
+    const filePath = filePaths && filePaths[0];
+    if (filePath) setFieldValue(name, filePath);
+  };
+  return (
+    <FlexContainer>
+      <TextField value={values[name]} onClick={handleBrowse} readOnly />
+      <InlineButton onClick={handleBrowse}>Browse</InlineButton>
+    </FlexContainer>
+  );
+}
+
+export function FormElectronFileSelector({ label, name, ...other }) {
+  const FieldTemplate = useFormFieldTemplate();
+  return (
+    <FieldTemplate label={label} type="select">
+      <FormElectronFileSelectorRaw name={name} {...other} />
+    </FieldTemplate>
   );
 }

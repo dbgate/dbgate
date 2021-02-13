@@ -31,7 +31,7 @@ async function getConnection(extensions, storageType, conid, database) {
     const driver = findEngineDriver(conn, extensions);
     return [
       {
-        ..._.pick(conn, ['server', 'engine', 'user', 'password', 'port', 'authType']),
+        ..._.omit(conn, ['_id', 'displayName']),
         database,
       },
       driver,

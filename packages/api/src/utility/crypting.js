@@ -42,28 +42,42 @@ function getEncryptor() {
   return _encryptor;
 }
 
-function encryptConnection(connection) {
+function encryptPasswordField(connection, field) {
   if (
     connection &&
-    connection.password &&
-    !connection.password.startsWith('crypt:') &&
+    connection[field] &&
+    !connection[field].startsWith('crypt:') &&
     connection.passwordMode != 'saveRaw'
   ) {
     return {
       ...connection,
-      password: 'crypt:' + getEncryptor().encrypt(connection.password),
+      [field]: 'crypt:' + getEncryptor().encrypt(connection[field]),
     };
   }
   return connection;
 }
 
-function decryptConnection(connection) {
-  if (connection && connection.password && connection.password.startsWith('crypt:')) {
+function decryptPasswordField(connection, field) {
+  if (connection && connection[field] && connection[field].startsWith('crypt:')) {
     return {
       ...connection,
-      password: getEncryptor().decrypt(connection.password.substring('crypt:'.length)),
+      [field]: getEncryptor().decrypt(connection[field].substring('crypt:'.length)),
     };
   }
+  return connection;
+}
+
+function encryptConnection(connection) {
+  connection = encryptPasswordField(connection, 'password');
+  connection = encryptPasswordField(connection, 'sshPassword');
+  connection = encryptPasswordField(connection, 'sshKeyFilePassword');
+  return connection;
+}
+
+function decryptConnection(connection) {
+  connection = decryptPasswordField(connection, 'password');
+  connection = decryptPasswordField(connection, 'sshPassword');
+  connection = decryptPasswordField(connection, 'sshKeyFilePassword');
   return connection;
 }
 

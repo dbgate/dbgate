@@ -37,6 +37,15 @@
         "github"
       ]
     },
+    "snap": {
+      "publish": [
+        "github",
+        "snapStore"
+      ],
+      "environment": {
+        "ELECTRON_SNAP": "true"
+      }
+    },
     "win": {
       "target": [
         "nsis"

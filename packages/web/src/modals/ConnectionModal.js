@@ -8,6 +8,7 @@ import {
   FormSubmit,
   FormPasswordField,
   FormCheckboxField,
+  FormElectronFileSelector,
 } from '../utility/forms';
 import ModalHeader from './ModalHeader';
 import ModalFooter from './ModalFooter';
@@ -17,6 +18,8 @@ import LoadingInfo from '../widgets/LoadingInfo';
 import { FontIcon } from '../icons';
 import { FormProvider, useForm } from '../utility/FormProvider';
 import { TabControl, TabPage } from '../widgets/TabControl';
+import { usePlatformInfo } from '../utility/metadataLoaders';
+import getElectron from '../utility/getElectron';
 // import FormikForm from '../utility/FormikForm';
 
 function DriverFields({ extensions }) {
@@ -69,15 +72,55 @@ function DriverFields({ extensions }) {
 }
 
 function SshTunnelFields() {
-  const { values } = useForm();
-  const { useSshTunnel } = values;
+  const { values, setFieldValue } = useForm();
+  const { useSshTunnel, sshMode, sshKeyfile } = values;
+  const platformInfo = usePlatformInfo();
+  const electron = getElectron();
+
+  React.useEffect(() => {
+    if (useSshTunnel && !sshMode) {
+      setFieldValue('sshMode', 'userPassword');
+    }
+    if (useSshTunnel && sshMode == 'keyFile' && !sshKeyfile) {
+      setFieldValue('sshKeyfile', platformInfo.defaultKeyFile);
+    }
+  }, [useSshTunnel, sshMode]);
+
   return (
     <>
       <FormCheckboxField label="Use SSH tunnel" name="useSshTunnel" />
-      <FormTextField label="SSH Host" name="sshHost" disabled={!useSshTunnel} />
-      <FormTextField label="SSH Port" name="sshPort" disabled={!useSshTunnel} />
-      <FormTextField label="SSH Login" name="sshLogin" disabled={!useSshTunnel} />
-      <FormPasswordField label="SSH Password" name="sshPassword" disabled={!useSshTunnel} />
+      <FormTextField label="Host" name="sshHost" disabled={!useSshTunnel} />
+      <FormTextField label="Port" name="sshPort" disabled={!useSshTunnel} />
+      <FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={!useSshTunnel} />
+
+      <FormSelectField label="SSH Authentication" name="sshMode" disabled={!useSshTunnel}>
+        <option value="userPassword">Username &amp; password</option>
+        <option value="agent">SSH agent</option>
+        {!!electron && <option value="keyFile">Key file</option>}
+      </FormSelectField>
+
+      <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} />
+
+      {sshMode == 'userPassword' && <FormPasswordField label="Password" name="sshPassword" disabled={!useSshTunnel} />}
+      {useSshTunnel &&
+        sshMode == 'agent' &&
+        (platformInfo.sshAuthSock ? (
+          <div>
+            <FontIcon icon="img ok" /> SSH Agent found
+          </div>
+        ) : (
+          <div>
+            <FontIcon icon="img error" /> SSH Agent not found
+          </div>
+        ))}
+
+      {sshMode == 'keyFile' && (
+        <FormElectronFileSelector label="Private key file" name="sshKeyfile" disabled={!useSshTunnel} />
+      )}
+
+      {sshMode == 'keyFile' && (
+        <FormPasswordField label="Key file passphrase" name="sshKeyfilePassword" disabled={!useSshTunnel} />
+      )}
     </>
   );
 }

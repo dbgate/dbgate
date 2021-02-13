@@ -1,7 +1,9 @@
 const { SSHConnection } = require('node-ssh-forward');
+const fs = require('fs-extra');
 const portfinder = require('portfinder');
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
+const platformInfo = require('./platformInfo');
 
 const sshConnectionCache = {};
 const sshTunnelCache = {};
@@ -16,11 +18,14 @@ async function getSshConnection(connection) {
   const sshConfig = {
     endHost: connection.sshHost || '',
     endPort: connection.sshPort || 22,
-    bastionHost: '',
-    agentForward: false,
-    passphrase: undefined,
+    bastionHost: connection.sshBastionHost || '',
+    agentForward: connection.sshMode == 'agent',
+    passphrase: connection.sshMode == 'keyFile' ? connection.sshKeyFilePassword : undefined,
     username: connection.sshLogin,
-    password: connection.sshPassword,
+    password: connection.sshMode == 'userPassword' ? connection.sshPassword : undefined,
+    agentSocket: connection.sshMode == 'agent' ? platformInfo.sshAuthSock : undefined,
+    privateKey:
+      connection.sshMode == 'keyFile' && connection.sshKeyFile ? await fs.readFile(connection.sshKeyFile) : undefined,
     skipAutoPrivateKey: true,
     noReadline: true,
   };
