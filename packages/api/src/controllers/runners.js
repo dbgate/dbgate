@@ -7,6 +7,7 @@ const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -123,8 +124,10 @@ module.exports = {
       subprocess,
     };
     this.opened.push(newOpened);
-    // @ts-ignore
-    subprocess.on('message', ({ msgtype, ...message }) => {
+    subprocess.on('message', message => {
+      // @ts-ignore
+      const { msgtype } = message;
+      if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](runid, message);
     });
     return newOpened;

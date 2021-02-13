@@ -3,6 +3,7 @@ const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
+const { handleProcessCommunication } = require('../utility/processComm');
 const lock = new AsyncLock();
 
 module.exports = {
@@ -43,8 +44,10 @@ module.exports = {
       this.opened.push(newOpened);
       delete this.closed[conid];
       socket.emitChanged(`server-status-changed`);
-      // @ts-ignore
-      subprocess.on('message', ({ msgtype, ...message }) => {
+      subprocess.on('message', message => {
+        // @ts-ignore
+        const { msgtype } = message;
+        if (handleProcessCommunication(message, subprocess)) return;
         if (newOpened.disconnected) return;
         this[`handle_${msgtype}`](conid, message);
       });

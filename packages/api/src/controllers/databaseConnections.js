@@ -3,6 +3,7 @@ const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { DatabaseAnalyser } = require('dbgate-tools');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -50,8 +51,10 @@ module.exports = {
       status: { name: 'pending' },
     };
     this.opened.push(newOpened);
-    // @ts-ignore
-    subprocess.on('message', ({ msgtype, ...message }) => {
+    subprocess.on('message', message => {
+      // @ts-ignore
+      const { msgtype } = message;
+      if (handleProcessCommunication(message, subprocess)) return;
       if (newOpened.disconnected) return;
       this[`handle_${msgtype}`](conid, database, message);
     });

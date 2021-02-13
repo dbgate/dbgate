@@ -4,6 +4,7 @@ const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const jsldata = require('./jsldata');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -73,8 +74,10 @@ module.exports = {
       sesid,
     };
     this.opened.push(newOpened);
-    // @ts-ignore
-    subprocess.on('message', ({ msgtype, ...message }) => {
+    subprocess.on('message', message => {
+      // @ts-ignore
+      const { msgtype } = message;
+      if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](sesid, message);
     });
     subprocess.send({ msgtype: 'connect', ...connection, database });

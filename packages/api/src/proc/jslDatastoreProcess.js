@@ -1,5 +1,6 @@
 const childProcessChecker = require('../utility/childProcessChecker');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 let lastPing = null;
 let datastore = new JsonLinesDatastore();
@@ -47,6 +48,7 @@ function start() {
   }, 60 * 1000);
 
   process.on('message', async message => {
+    if (handleProcessCommunication(message)) return;
     try {
       await handleMessage(message);
     } catch (e) {

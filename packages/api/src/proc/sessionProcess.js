@@ -9,6 +9,7 @@ const { jsldir } = require('../utility/directories');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
 const connectUtility = require('../utility/connectUtility');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 let systemConnection;
 let storedConnection;
@@ -183,6 +184,7 @@ async function handleMessage({ msgtype, ...other }) {
 function start() {
   childProcessChecker();
   process.on('message', async message => {
+    if (handleProcessCommunication(message)) return;
     try {
       await handleMessage(message);
     } catch (e) {

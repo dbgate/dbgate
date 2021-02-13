@@ -2,6 +2,7 @@ const stableStringify = require('json-stable-stringify');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 let systemConnection;
 let storedConnection;
@@ -127,6 +128,7 @@ function start() {
   }, 60 * 1000);
 
   process.on('message', async message => {
+    if (handleProcessCommunication(message)) return;
     try {
       await handleMessage(message);
     } catch (e) {

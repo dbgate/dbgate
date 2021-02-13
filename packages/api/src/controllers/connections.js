@@ -6,6 +6,7 @@ const nedb = require('nedb-promises');
 const { datadir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
+const { handleProcessCommunication } = require('../utility/processComm');
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
@@ -47,6 +48,7 @@ module.exports = {
   test(req, res) {
     const subprocess = fork(process.argv[1], ['connectProcess', ...process.argv.slice(3)]);
     subprocess.on('message', resp => {
+      if (handleProcessCommunication(resp, subprocess)) return;
       // @ts-ignore
       const { msgtype } = resp;
       if (msgtype == 'connected' || msgtype == 'error') {
