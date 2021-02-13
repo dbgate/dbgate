@@ -135,13 +135,16 @@ function DriverFields({ extensions }) {
 
 function SshTunnelFields() {
   const { values, setFieldValue } = useForm();
-  const { useSshTunnel, sshMode, sshKeyfile } = values;
+  const { useSshTunnel, sshMode, sshPort, sshKeyfile } = values;
   const platformInfo = usePlatformInfo();
   const electron = getElectron();
 
   React.useEffect(() => {
     if (useSshTunnel && !sshMode) {
       setFieldValue('sshMode', 'userPassword');
+    }
+    if (useSshTunnel && !sshPort) {
+      setFieldValue('sshPort', '22');
     }
     if (useSshTunnel && sshMode == 'keyFile' && !sshKeyfile) {
       setFieldValue('sshKeyfile', platformInfo.defaultKeyFile);
@@ -170,9 +173,26 @@ function SshTunnelFields() {
         {!!electron && <option value="keyFile">Key file</option>}
       </FormSelectField>
 
-      <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} />
+      {sshMode != 'userPassword' && <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} />}
 
-      {sshMode == 'userPassword' && <FormPasswordField label="Password" name="sshPassword" disabled={!useSshTunnel} />}
+      {sshMode == 'userPassword' && (
+        <FormRowLarge>
+          <FlexCol6
+            //@ts-ignore
+            marginRight={5}
+          >
+            <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+          </FlexCol6>
+          <FlexCol6>
+            <FormPasswordField
+              label="Password"
+              name="sshPassword"
+              disabled={!useSshTunnel}
+              templateProps={{ noMargin: true }}
+            />
+          </FlexCol6>
+        </FormRowLarge>
+      )}
 
       {sshMode == 'keyFile' && (
         <FormRowLarge>
