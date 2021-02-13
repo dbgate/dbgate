@@ -26,3 +26,27 @@ code {
 .icon-invisible {
   visibility: hidden;
 }
+
+.largeFormMarker input[type='text'] {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.largeFormMarker input[type='password'] {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.largeFormMarker select {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}

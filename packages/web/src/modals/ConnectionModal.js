@@ -21,7 +21,28 @@ import { TabControl, TabPage } from '../widgets/TabControl';
 import { usePlatformInfo } from '../utility/metadataLoaders';
 import getElectron from '../utility/getElectron';
 import { FormFieldTemplateLarge } from '../utility/formStyle';
+import styled from 'styled-components';
 // import FormikForm from '../utility/FormikForm';
+
+const FlexContainer = styled.div`
+  display: flex;
+`;
+
+const TestResultContainer = styled.div`
+  margin-left: 10px;
+  align-self: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const ButtonsContainer = styled.div`
+  flex-shrink: 0;
+`;
+
+const AgentInfoWrap = styled.div`
+  margin-left: 20px;
+`;
 
 function DriverFields({ extensions }) {
   const { values, setFieldValue } = useForm();
@@ -103,17 +124,6 @@ function SshTunnelFields() {
       <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} />
 
       {sshMode == 'userPassword' && <FormPasswordField label="Password" name="sshPassword" disabled={!useSshTunnel} />}
-      {useSshTunnel &&
-        sshMode == 'agent' &&
-        (platformInfo.sshAuthSock ? (
-          <div>
-            <FontIcon icon="img ok" /> SSH Agent found
-          </div>
-        ) : (
-          <div>
-            <FontIcon icon="img error" /> SSH Agent not found
-          </div>
-        ))}
 
       {sshMode == 'keyFile' && (
         <FormElectronFileSelector label="Private key file" name="sshKeyfile" disabled={!useSshTunnel} />
@@ -121,6 +131,20 @@ function SshTunnelFields() {
 
       {sshMode == 'keyFile' && (
         <FormPasswordField label="Key file passphrase" name="sshKeyfilePassword" disabled={!useSshTunnel} />
+      )}
+
+      {useSshTunnel && sshMode == 'agent' && (
+        <AgentInfoWrap>
+          {platformInfo.sshAuthSock ? (
+            <div>
+              <FontIcon icon="img ok" /> SSH Agent found
+            </div>
+          ) : (
+            <div>
+              <FontIcon icon="img error" /> SSH Agent not found
+            </div>
+          )}
+        </AgentInfoWrap>
       )}
     </>
   );
@@ -175,6 +199,26 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
               </FormSelectField>
               <DriverFields extensions={extensions} />
               <FormTextField label="Display name" name="displayName" />
+            </TabPage>
+            <TabPage label="SSH Tunnel" key="sshTunnel">
+              <SshTunnelFields />
+            </TabPage>
+          </TabControl>
+        </ModalContent>
+
+        <ModalFooter>
+          <FlexContainer>
+            <ButtonsContainer>
+              {isTesting ? (
+                <FormButton value="Cancel" onClick={handleCancel} />
+              ) : (
+                <FormButton value="Test" onClick={handleTest} />
+              )}
+
+              <FormSubmit value="Save" onClick={handleSubmit} />
+            </ButtonsContainer>
+
+            <TestResultContainer>
               {!isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected' && (
                 <div>
                   Connected: <FontIcon icon="img ok" /> {sqlConnectResult.version}
@@ -185,22 +229,13 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
                   Connect failed: <FontIcon icon="img error" /> {sqlConnectResult.error}
                 </div>
               )}
-              {isTesting && <LoadingInfo message="Testing connection" />}
-            </TabPage>
-            <TabPage label="SSH Tunnel" key="sshTunnel">
-              <SshTunnelFields />
-            </TabPage>
-          </TabControl>
-        </ModalContent>
-
-        <ModalFooter>
-          {isTesting ? (
-            <FormButton value="Cancel" onClick={handleCancel} />
-          ) : (
-            <FormButton value="Test" onClick={handleTest} />
-          )}
-
-          <FormSubmit value="Save" onClick={handleSubmit} />
+              {isTesting && (
+                <div>
+                  <FontIcon icon="icon loading" /> Testing connection
+                </div>
+              )}
+            </TestResultContainer>
+          </FlexContainer>
         </ModalFooter>
       </FormProvider>
     </ModalBase>

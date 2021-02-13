@@ -50,6 +50,10 @@ export default function ThemeHelmet() {
           border: 1px solid ${theme.border};
         }
 
+        select[disabled] {
+          background-color: ${theme.input_background2};
+        }
+
         textarea {
           background-color: ${theme.input_background};
           color: ${theme.input_font1};

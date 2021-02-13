@@ -65,7 +65,7 @@ export function FormPasswordFieldRaw({ name, focused = false, ...other }) {
   const isCrypted = value && value.startsWith('crypt:');
 
   return (
-    <>
+    <FlexContainer>
       <TextField
         {...other}
         value={isCrypted ? '' : value}
@@ -74,9 +74,12 @@ export function FormPasswordFieldRaw({ name, focused = false, ...other }) {
         placeholder={isCrypted ? '(Password is encrypted)' : undefined}
         type={isCrypted || showPassword ? 'text' : 'password'}
       />
-
-      {!isCrypted && <FontIcon icon="icon eye" onClick={() => setShowPassword(x => !x)} />}
-    </>
+      {!isCrypted && (
+        <InlineButton onClick={() => setShowPassword(x => !x)}>
+          <FontIcon icon="icon eye" />
+        </InlineButton>
+      )}
+    </FlexContainer>
   );
 }
 
@@ -110,9 +113,10 @@ export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefine
 }
 
 export function FormCheckboxField({ label, ...other }) {
+  const { values, setFieldValue } = useForm();
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="checkbox">
+    <FieldTemplate label={label} type="checkbox" onLabelClick={() => setFieldValue(other.name, !values[other.name])}>
       <FormCheckboxFieldRaw {...other} />
     </FieldTemplate>
   );
@@ -329,7 +333,7 @@ export function FormArchiveFolderSelect({ name, additionalFolders = [], ...other
   );
 }
 
-export function FormElectronFileSelectorRaw({ name }) {
+export function FormElectronFileSelectorRaw({ name, ...other }) {
   const { values, setFieldValue } = useForm();
   const handleBrowse = () => {
     const electron = getElectron();
@@ -343,7 +347,7 @@ export function FormElectronFileSelectorRaw({ name }) {
   };
   return (
     <FlexContainer>
-      <TextField value={values[name]} onClick={handleBrowse} readOnly />
+      <TextField value={values[name]} onClick={handleBrowse} {...other} readOnly />
       <InlineButton onClick={handleBrowse}>Browse</InlineButton>
     </FlexContainer>
   );
