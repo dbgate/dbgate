@@ -83,19 +83,19 @@ export function FormPasswordFieldRaw({ name, focused = false, ...other }) {
   );
 }
 
-export function FormTextField({ name, label, focused = false, ...other }) {
+export function FormTextField({ name, label, focused = false, templateProps = undefined, ...other }) {
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="text">
+    <FieldTemplate label={label} type="text" {...templateProps}>
       <FormTextFieldRaw name={name} focused={focused} {...other} />
     </FieldTemplate>
   );
 }
 
-export function FormPasswordField({ name, label, focused = false, ...other }) {
+export function FormPasswordField({ name, label, focused = false, templateProps = undefined, ...other }) {
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="text">
+    <FieldTemplate label={label} type="text" {...templateProps}>
       <FormPasswordFieldRaw name={name} focused={focused} {...other} />
     </FieldTemplate>
   );
@@ -112,11 +112,16 @@ export function FormCheckboxFieldRaw({ name = undefined, defaultValue = undefine
   // return <Field {...other} as={CheckboxField} />;
 }
 
-export function FormCheckboxField({ label, ...other }) {
+export function FormCheckboxField({ label, templateProps = undefined, ...other }) {
   const { values, setFieldValue } = useForm();
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="checkbox" onLabelClick={() => setFieldValue(other.name, !values[other.name])}>
+    <FieldTemplate
+      label={label}
+      type="checkbox"
+      onLabelClick={() => setFieldValue(other.name, !values[other.name])}
+      {...templateProps}
+    >
       <FormCheckboxFieldRaw {...other} />
     </FieldTemplate>
   );
@@ -134,10 +139,10 @@ export function FormSelectFieldRaw({ children, name, ...other }) {
   );
 }
 
-export function FormSelectField({ label, name, children = null, ...other }) {
+export function FormSelectField({ label, name, children = null, templateProps = undefined, ...other }) {
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="select">
+    <FieldTemplate label={label} type="select" {...templateProps}>
       <FormSelectFieldRaw name={name} {...other}>
         {children}
       </FormSelectFieldRaw>
@@ -353,10 +358,10 @@ export function FormElectronFileSelectorRaw({ name, ...other }) {
   );
 }
 
-export function FormElectronFileSelector({ label, name, ...other }) {
+export function FormElectronFileSelector({ label, name, templateProps = undefined, ...other }) {
   const FieldTemplate = useFormFieldTemplate();
   return (
-    <FieldTemplate label={label} type="select">
+    <FieldTemplate label={label} type="select" {...templateProps}>
       <FormElectronFileSelectorRaw name={name} {...other} />
     </FieldTemplate>
   );

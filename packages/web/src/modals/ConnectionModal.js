@@ -20,8 +20,9 @@ import { FormProvider, useForm } from '../utility/FormProvider';
 import { TabControl, TabPage } from '../widgets/TabControl';
 import { usePlatformInfo } from '../utility/metadataLoaders';
 import getElectron from '../utility/getElectron';
-import { FormFieldTemplateLarge } from '../utility/formStyle';
+import { FormFieldTemplateLarge, FormRowLarge } from '../utility/formStyle';
 import styled from 'styled-components';
+import { FlexCol3, FlexCol6, FlexCol9 } from '../utility/flexGrid';
 // import FormikForm from '../utility/FormikForm';
 
 const FlexContainer = styled.div`
@@ -79,10 +80,49 @@ function DriverFields({ extensions }) {
           ))}
         </FormSelectField>
       )}
-      <FormTextField label="Server" name="server" disabled={disabledFields.includes('server')} />
-      <FormTextField label="Port" name="port" disabled={disabledFields.includes('port')} />
-      <FormTextField label="User" name="user" disabled={disabledFields.includes('user')} />
-      <FormPasswordField label="Password" name="password" disabled={disabledFields.includes('password')} />
+      <FormRowLarge>
+        <FlexCol9
+          //@ts-ignore
+          marginRight={5}
+        >
+          <FormTextField
+            label="Server"
+            name="server"
+            disabled={disabledFields.includes('server')}
+            templateProps={{ noMargin: true }}
+          />
+        </FlexCol9>
+        <FlexCol3>
+          <FormTextField
+            label="Port"
+            name="port"
+            disabled={disabledFields.includes('port')}
+            templateProps={{ noMargin: true }}
+          />
+        </FlexCol3>
+      </FormRowLarge>
+      <FormRowLarge>
+        <FlexCol6
+          //@ts-ignore
+          marginRight={5}
+        >
+          <FormTextField
+            label="User"
+            name="user"
+            disabled={disabledFields.includes('user')}
+            templateProps={{ noMargin: true }}
+          />
+        </FlexCol6>
+        <FlexCol6>
+          <FormPasswordField
+            label="Password"
+            name="password"
+            disabled={disabledFields.includes('password')}
+            templateProps={{ noMargin: true }}
+          />
+        </FlexCol6>
+      </FormRowLarge>
+
       {!disabledFields.includes('password') && (
         <FormSelectField label="Password mode" name="passwordMode">
           <option value="saveEncrypted">Save and encrypt</option>
@@ -111,8 +151,17 @@ function SshTunnelFields() {
   return (
     <>
       <FormCheckboxField label="Use SSH tunnel" name="useSshTunnel" />
-      <FormTextField label="Host" name="sshHost" disabled={!useSshTunnel} />
-      <FormTextField label="Port" name="sshPort" disabled={!useSshTunnel} />
+      <FormRowLarge>
+        <FlexCol9
+          //@ts-ignore
+          marginRight={5}
+        >
+          <FormTextField label="Host" name="sshHost" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+        </FlexCol9>
+        <FlexCol3>
+          <FormTextField label="Port" name="sshPort" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+        </FlexCol3>
+      </FormRowLarge>
       <FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={!useSshTunnel} />
 
       <FormSelectField label="SSH Authentication" name="sshMode" disabled={!useSshTunnel}>
@@ -126,11 +175,27 @@ function SshTunnelFields() {
       {sshMode == 'userPassword' && <FormPasswordField label="Password" name="sshPassword" disabled={!useSshTunnel} />}
 
       {sshMode == 'keyFile' && (
-        <FormElectronFileSelector label="Private key file" name="sshKeyfile" disabled={!useSshTunnel} />
-      )}
-
-      {sshMode == 'keyFile' && (
-        <FormPasswordField label="Key file passphrase" name="sshKeyfilePassword" disabled={!useSshTunnel} />
+        <FormRowLarge>
+          <FlexCol6
+            //@ts-ignore
+            marginRight={5}
+          >
+            <FormElectronFileSelector
+              label="Private key file"
+              name="sshKeyfile"
+              disabled={!useSshTunnel}
+              templateProps={{ noMargin: true }}
+            />
+          </FlexCol6>
+          <FlexCol6>
+            <FormPasswordField
+              label="Key file passphrase"
+              name="sshKeyfilePassword"
+              disabled={!useSshTunnel}
+              templateProps={{ noMargin: true }}
+            />
+          </FlexCol6>
+        </FormRowLarge>
       )}
 
       {useSshTunnel && sshMode == 'agent' && (

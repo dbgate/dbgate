@@ -55,8 +55,18 @@ export function FormFieldTemplateTiny({ label, children, onLabelClick, type }) {
   );
 }
 
+const FormRowLargeTemplate = styled.div`
+  ${props =>
+    // @ts-ignore
+    !props.noMargin &&
+    `
+  margin: 20px;
+  `}
+`;
+
 export const FormRowLarge = styled.div`
   margin: 20px;
+  display: flex;
 `;
 
 export const FormLabelLarge = styled.div`
@@ -66,21 +76,28 @@ export const FormLabelLarge = styled.div`
 
 export const FormValueLarge = styled.div``;
 
-export function FormFieldTemplateLarge({ label, onLabelClick, children, type }) {
+export function FormFieldTemplateLarge({ label, onLabelClick, children, type, noMargin = false }) {
   const theme = useTheme();
   if (type == 'checkbox') {
     return (
-      <FormRowLarge>
+      <FormRowLargeTemplate
+        // @ts-ignore
+        noMargin={noMargin}
+      >
         {children} <span onClick={onLabelClick}>{label}</span>
-      </FormRowLarge>
+      </FormRowLargeTemplate>
     );
   }
   return (
-    <FormRowLarge className="largeFormMarker">
+    <FormRowLargeTemplate
+      className="largeFormMarker"
+      // @ts-ignore
+      noMargin={noMargin}
+    >
       <FormLabelLarge theme={theme} onClick={onLabelClick}>
         {label}
       </FormLabelLarge>
       <FormValueLarge>{children}</FormValueLarge>
-    </FormRowLarge>
+    </FormRowLargeTemplate>
   );
 }
