@@ -148,7 +148,7 @@ export default function QueryTab({
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
-    if (keyCode == keycodes.f5) {
+    if (keyCode == keycodes.f5 || (keyCode == keycodes.enter && event.ctrlKey)) {
       event.preventDefault();
       handleExecute();
     }
