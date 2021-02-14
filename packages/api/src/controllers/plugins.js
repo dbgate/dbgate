@@ -28,9 +28,9 @@ const hasPermission = require('../utility/hasPermission');
 // }
 
 const preinstallPluginMinimalVersions = {
-  'dbgate-plugin-mssql': '1.0.10',
-  'dbgate-plugin-mysql': '1.0.4',
-  'dbgate-plugin-postgres': '1.0.3',
+  'dbgate-plugin-mssql': '1.1.0',
+  'dbgate-plugin-mysql': '1.1.0',
+  'dbgate-plugin-postgres': '1.1.0',
   'dbgate-plugin-csv': '1.0.8',
   'dbgate-plugin-excel': '1.0.6',
 };
