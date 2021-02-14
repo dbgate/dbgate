@@ -9,7 +9,7 @@
 DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL and SQL Server.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
-* Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org)
+* Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
