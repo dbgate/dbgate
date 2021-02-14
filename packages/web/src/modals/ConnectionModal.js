@@ -43,6 +43,7 @@ const ButtonsContainer = styled.div`
 
 const AgentInfoWrap = styled.div`
   margin-left: 20px;
+  margin-bottom: 20px;
 `;
 
 function DriverFields({ extensions }) {

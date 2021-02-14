@@ -14,22 +14,26 @@ const ButtonDiv = styled.div`
   display: inline-block;
   cursor: pointer;
   vertical-align: middle;
-  color: ${props => props.theme.inlinebtn_font1};
+  color: ${props => (props.disabled ? props.theme.inlinebtn_font3 : props.theme.inlinebtn_font1)};
   font-size: 12px;
   padding: 3px;
   margin: 0;
   text-decoration: none;
-  &:hover {
-    border: 1px solid ${props => props.theme.inlinebtn_font2};
-  }
-  &:active:hover {
-    background: linear-gradient(
-      to bottom,
-      ${props => props.theme.inlinebtn_background3} 5%,
-      ${props => props.theme.inlinebtn_background} 100%
-    );
-    background-color: ${props => props.theme.inlinebtn_background3};
-  }
+  ${props =>
+    !props.disabled &&
+    `
+    &:hover {
+      border: 1px solid ${props.theme.inlinebtn_font2};
+    }
+    &:active:hover {
+      background: linear-gradient(
+        to bottom,
+        ${props.theme.inlinebtn_background3} 5%,
+        ${props.theme.inlinebtn_background} 100%
+      );
+      background-color: ${props.theme.inlinebtn_background3};
+    }
+  `}
   display: flex;
 
   ${props =>

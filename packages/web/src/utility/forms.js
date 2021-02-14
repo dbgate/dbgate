@@ -75,7 +75,7 @@ export function FormPasswordFieldRaw({ name, focused = false, ...other }) {
         type={isCrypted || showPassword ? 'text' : 'password'}
       />
       {!isCrypted && (
-        <InlineButton onClick={() => setShowPassword(x => !x)}>
+        <InlineButton onClick={() => setShowPassword(x => !x)} disabled={other.disabled}>
           <FontIcon icon="icon eye" />
         </InlineButton>
       )}
@@ -119,7 +119,9 @@ export function FormCheckboxField({ label, templateProps = undefined, ...other }
     <FieldTemplate
       label={label}
       type="checkbox"
-      onLabelClick={other.disabled ? undefined : () => setFieldValue(other.name, !values[other.name])}
+      labelProps={
+        other.disabled ? { disabled: true } : { onClick: () => setFieldValue(other.name, !values[other.name]) }
+      }
       {...templateProps}
     >
       <FormCheckboxFieldRaw {...other} />
@@ -353,7 +355,7 @@ export function FormElectronFileSelectorRaw({ name, ...other }) {
   return (
     <FlexContainer>
       <TextField value={values[name]} onClick={handleBrowse} {...other} readOnly />
-      <InlineButton onClick={handleBrowse}>Browse</InlineButton>
+      <InlineButton onClick={handleBrowse} disabled={other.disabled}>Browse</InlineButton>
     </FlexContainer>
   );
 }

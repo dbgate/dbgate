@@ -14,10 +14,10 @@ export const FormLabel = styled.div`
 
 export const FormValue = styled.div``;
 
-export function FormFieldTemplateDefault({ label, children, onLabelClick, type }) {
+export function FormFieldTemplateDefault({ label, children, labelProps, type }) {
   return (
     <FormRow>
-      <FormLabel onClick={onLabelClick}>{label}</FormLabel>
+      <FormLabel {...labelProps}>{label}</FormLabel>
       <FormValue>{children}</FormValue>
     </FormRow>
   );
@@ -36,19 +36,33 @@ export const FormValueTiny = styled.div`
   margin-top: 3px;
 `;
 
-export function FormFieldTemplateTiny({ label, children, onLabelClick, type }) {
+const FormLabelSpan = styled.span`
+  ${props =>
+    // @ts-ignore
+    props.disabled &&
+    `
+  color: ${props.theme.manager_font3};
+`}
+`;
+
+export function FormFieldTemplateTiny({ label, children, labelProps, type }) {
   const theme = useTheme();
   if (type == 'checkbox') {
     return (
       <FormRowTiny>
-        {children} <span onClick={onLabelClick}>{label}</span>
+        {children}{' '}
+        <FormLabelSpan theme={theme} {...labelProps}>
+          {label}
+        </FormLabelSpan>
       </FormRowTiny>
     );
   }
   return (
     <FormRowTiny>
-      <FormLabelTiny theme={theme} onClick={onLabelClick}>
-        {label}
+      <FormLabelTiny theme={theme}>
+        <FormLabelSpan theme={theme} {...labelProps}>
+          {label}
+        </FormLabelSpan>
       </FormLabelTiny>
       <FormValueTiny>{children}</FormValueTiny>
     </FormRowTiny>
@@ -76,7 +90,7 @@ export const FormLabelLarge = styled.div`
 
 export const FormValueLarge = styled.div``;
 
-export function FormFieldTemplateLarge({ label, onLabelClick, children, type, noMargin = false }) {
+export function FormFieldTemplateLarge({ label, labelProps, children, type, noMargin = false }) {
   const theme = useTheme();
   if (type == 'checkbox') {
     return (
@@ -84,7 +98,10 @@ export function FormFieldTemplateLarge({ label, onLabelClick, children, type, no
         // @ts-ignore
         noMargin={noMargin}
       >
-        {children} <span onClick={onLabelClick}>{label}</span>
+        {children}{' '}
+        <FormLabelSpan {...labelProps} theme={theme}>
+          {label}
+        </FormLabelSpan>
       </FormRowLargeTemplate>
     );
   }
@@ -94,8 +111,10 @@ export function FormFieldTemplateLarge({ label, onLabelClick, children, type, no
       // @ts-ignore
       noMargin={noMargin}
     >
-      <FormLabelLarge theme={theme} onClick={onLabelClick}>
-        {label}
+      <FormLabelLarge theme={theme}>
+        <FormLabelSpan theme={theme} {...labelProps}>
+          {label}
+        </FormLabelSpan>
       </FormLabelLarge>
       <FormValueLarge>{children}</FormValueLarge>
     </FormRowLargeTemplate>
