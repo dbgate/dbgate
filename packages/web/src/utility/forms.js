@@ -119,7 +119,7 @@ export function FormCheckboxField({ label, templateProps = undefined, ...other }
     <FieldTemplate
       label={label}
       type="checkbox"
-      onLabelClick={() => setFieldValue(other.name, !values[other.name])}
+      onLabelClick={other.disabled ? undefined : () => setFieldValue(other.name, !values[other.name])}
       {...templateProps}
     >
       <FormCheckboxFieldRaw {...other} />

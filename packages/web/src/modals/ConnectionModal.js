@@ -98,6 +98,7 @@ function DriverFields({ extensions }) {
             name="port"
             disabled={disabledFields.includes('port')}
             templateProps={{ noMargin: true }}
+            placeholder={driver && driver.defaultPort}
           />
         </FlexCol3>
       </FormRowLarge>
@@ -235,6 +236,22 @@ function SshTunnelFields() {
   );
 }
 
+function SslFields() {
+  const { values } = useForm();
+  const { useSsl } = values;
+  const electron = getElectron();
+
+  return (
+    <>
+      <FormCheckboxField label="Use SSL" name="useSsl" />
+      <FormElectronFileSelector label="CA Cert (optional)" name="sslCaFile" disabled={!useSsl || !electron} />
+      <FormElectronFileSelector label="Certificate (optional)" name="sslCertFile" disabled={!useSsl || !electron} />
+      <FormElectronFileSelector label="Key file (optional)" name="sslKeyFile" disabled={!useSsl || !electron} />
+      <FormCheckboxField label="Reject unauthorized" name="sslRejectUnauthorized" disabled={!useSsl} />
+    </>
+  );
+}
+
 export default function ConnectionModal({ modalState, connection = undefined }) {
   const [sqlConnectResult, setSqlConnectResult] = React.useState(null);
   const extensions = useExtensions();
@@ -287,6 +304,9 @@ export default function ConnectionModal({ modalState, connection = undefined }) 
             </TabPage>
             <TabPage label="SSH Tunnel" key="sshTunnel">
               <SshTunnelFields />
+            </TabPage>
+            <TabPage label="SSL" key="ssl">
+              <SslFields />
             </TabPage>
           </TabControl>
         </ModalContent>
