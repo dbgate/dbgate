@@ -9,6 +9,9 @@ import useShowModal from '../modals/showModal';
 import InsertJoinModal from '../modals/InsertJoinModal';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
 import useTheme from '../theme/useTheme';
+import { useShowMenu } from '../modals/showMenu';
+import SqlEditorContextMenu from './SqlEditorContextMenu';
+import sqlFormatter from 'sql-formatter';
 
 const Wrapper = styled.div`
   position: absolute;
@@ -53,10 +56,12 @@ export default function SqlEditor({
   focusOnCreate = false,
   conid = undefined,
   database = undefined,
+  onExecute = undefined,
 }) {
   const [containerRef, { height, width }] = useDimensions();
   const ownEditorRef = React.useRef(null);
   const theme = useTheme();
+  const showMenu = useShowMenu();
 
   const currentEditorRef = editorRef || ownEditorRef;
   const showModal = useShowModal();
@@ -73,23 +78,27 @@ export default function SqlEditor({
       currentEditorRef.current.editor.focus();
   }, [tabVisible, focusOnCreate]);
 
+  const handleInsertJoin = async () => {
+    const dbinfo = await getDatabaseInfo({ conid, database });
+    showModal(modalState => (
+      <InsertJoinModal
+        sql={currentEditorRef.current.editor.getValue()}
+        modalState={modalState}
+        engine={engine}
+        dbinfo={dbinfo}
+        onInsert={text => {
+          const editor = currentEditorRef.current.editor;
+          editor.session.insert(editor.getCursorPosition(), text);
+        }}
+      />
+    ));
+  };
+
   const handleKeyDown = React.useCallback(
-    async (data, hash, keyString, keyCode, event) => {
+    (data, hash, keyString, keyCode, event) => {
       if (keyCode == keycodes.j && event.ctrlKey && !readOnly && tabVisible) {
         event.preventDefault();
-        const dbinfo = await getDatabaseInfo({ conid, database });
-        showModal(modalState => (
-          <InsertJoinModal
-            sql={currentEditorRef.current.editor.getValue()}
-            modalState={modalState}
-            engine={engine}
-            dbinfo={dbinfo}
-            onInsert={text => {
-              const editor = currentEditorRef.current.editor;
-              editor.session.insert(editor.getCursorPosition(), text);
-            }}
-          />
-        ));
+        handleInsertJoin();
       }
 
       if (onKeyDown) onKeyDown(data, hash, keyString, keyCode, event);
@@ -100,11 +109,39 @@ export default function SqlEditor({
   React.useEffect(() => {
     if ((onKeyDown || !readOnly) && currentEditorRef.current) {
       currentEditorRef.current.editor.keyBinding.addKeyboardHandler(handleKeyDown);
+
+      return () => {
+        currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(handleKeyDown);
+      };
     }
-    return () => {
-      currentEditorRef.current.editor.keyBinding.removeKeyboardHandler(handleKeyDown);
-    };
   }, [handleKeyDown]);
+
+  const handleFormatCode = () => {
+    currentEditorRef.current.editor.setValue(sqlFormatter.format(editorRef.current.editor.getValue()));
+    currentEditorRef.current.editor.clearSelection();
+  };
+
+  const menuRefs = React.useRef(null);
+  menuRefs.current = {
+    execute: onExecute,
+    insertJoin: !readOnly ? handleInsertJoin : null,
+    toggleComment: !readOnly ? () => currentEditorRef.current.editor.execCommand('togglecomment') : null,
+    formatCode: !readOnly ? handleFormatCode : null,
+  };
+  const handleContextMenu = React.useCallback(event => {
+    event.preventDefault();
+    showMenu(event.pageX, event.pageY, <SqlEditorContextMenu {...menuRefs.current} />);
+  }, []);
+
+  React.useEffect(() => {
+    if (currentEditorRef.current) {
+      currentEditorRef.current.editor.container.addEventListener('contextmenu', handleContextMenu);
+
+      return () => {
+        currentEditorRef.current.editor.container.removeEventListener('contextmenu', handleContextMenu);
+      };
+    }
+  }, [handleContextMenu]);
 
   return (
     <Wrapper ref={containerRef}>

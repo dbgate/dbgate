@@ -24,6 +24,7 @@ import useExtensions from '../utility/useExtensions';
 import useTimerLabel from '../utility/useTimerLabel';
 import { StatusBarItem } from '../widgets/StatusBar';
 import ToolbarPortal from '../utility/ToolbarPortal';
+import { useShowMenu } from '../modals/showMenu';
 
 function createSqlPreview(sql) {
   if (!sql) return undefined;
@@ -131,6 +132,8 @@ export default function QueryTab({
       sql: selectedText || editorData,
     });
   };
+  // const handleExecuteRef = React.useRef(handleExecute);
+  // handleExecuteRef.current = handleExecute;
 
   // const handleCancel = () => {
   //   axios.post('sessions/cancel', {
@@ -186,6 +189,7 @@ export default function QueryTab({
           editorRef={editorRef}
           conid={conid}
           database={database}
+          onExecute={handleExecute}
         />
         {visibleResultTabs && (
           <ResultTabs sessionId={sessionId} executeNumber={executeNumber}>
