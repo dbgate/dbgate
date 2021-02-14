@@ -1,3 +1,4 @@
+[![NPM version](https://img.shields.io/npm/v/dbgate.svg)](https://www.npmjs.com/package/dbgate)
 [![dbgate](https://snapcraft.io/dbgate/badge.svg)](https://snapcraft.io/dbgate)
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
@@ -8,7 +9,8 @@
 DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL and SQL Server.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
-* Download it from [dbgate.org](https://dbgate.org)
+* Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org)
+* Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
@@ -93,11 +95,11 @@ yarn start:app:local
 Some dbgate packages can be used also without DbGate. You can find them on [NPM repository](https://www.npmjs.com/search?q=keywords:dbgate)
 
 * [api](https://github.com/dbgate/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS [![NPM version](https://img.shields.io/npm/v/dbgate-api.svg)](https://www.npmjs.com/package/dbgate-api)
-* [datalib](https://github.com/dbgate/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes
+* [datalib](https://github.com/dbgate/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes [![NPM version](https://img.shields.io/npm/v/dbgate-datalib.svg)](https://www.npmjs.com/package/dbgate-datalib)
 * [app](https://github.com/dbgate/dbgate/tree/master/app) - application (JavaScript) structure, creating specific queries (JavaScript)
-* [filterparser](https://github.com/dbgate/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon
+* [filterparser](https://github.com/dbgate/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon [![NPM version](https://img.shields.io/npm/v/dbgate-filterparser.svg)](https://www.npmjs.com/package/dbgate-filterparser)
 * [sqltree](https://github.com/dbgate/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript) [![NPM version](https://img.shields.io/npm/v/dbgate-sqltree.svg)](https://www.npmjs.com/package/dbgate-sqltree)
 * [types](https://github.com/dbgate/dbgate/tree/master/packages/types) - common TypeScript definitions [![NPM version](https://img.shields.io/npm/v/dbgate-types.svg)](https://www.npmjs.com/package/dbgate-types)
-* [web](https://github.com/dbgate/dbgate/tree/master/packages/web) - frontend in React (JavaScript)
+* [web](https://github.com/dbgate/dbgate/tree/master/packages/web) - frontend in React (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-web.svg)](https://www.npmjs.com/package/dbgate-web)
 * [tools](https://github.com/dbgate/dbgate/tree/master/packages/tools) - various tools [![NPM version](https://img.shields.io/npm/v/dbgate-tools.svg)](https://www.npmjs.com/package/dbgate-tools)
 
