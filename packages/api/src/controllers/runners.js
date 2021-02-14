@@ -96,10 +96,10 @@ module.exports = {
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(scriptFile, ['--checkParent', ...process.argv.slice(3)], {
+      cwd: directory,
       stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
       env: {
         DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
-        DBGATE_CWD: directory,
         ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
       },
     });
