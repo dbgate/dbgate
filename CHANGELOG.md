@@ -1,6 +1,6 @@
 # ChangeLog
 
-### 3.9.6 (in progress)
+### 3.9.6
 - ADDED: Connect using SSH Tunnel
 - ADDED: Connect using SSL
 - ADDED: Database connection dialog redesigned
