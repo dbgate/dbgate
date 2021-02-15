@@ -9,6 +9,9 @@ async function connectUtility(driver, storedConnection) {
   const connection = {
     ...decryptConnection(storedConnection),
   };
+
+  if (!connection.port && driver.defaultPort) connection.port = driver.defaultPort.toString();
+
   if (connection.useSshTunnel) {
     const tunnel = await getSshTunnelProxy(connection);
     if (tunnel.state == 'error') {
@@ -18,8 +21,6 @@ async function connectUtility(driver, storedConnection) {
     connection.server = '127.0.0.1';
     connection.port = tunnel.localPort;
   }
-
-  if (!connection.port && driver.defaultPort) connection.port = driver.defaultPort.toString();
 
   // SSL functionality - copied from https://github.com/beekeeper-studio/beekeeper-studio
   if (connection.useSsl) {
