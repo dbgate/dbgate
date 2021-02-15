@@ -8,7 +8,6 @@ const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
-const platformInfo = require('../utility/platformInfo');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -23,20 +22,7 @@ const requirePluginsTemplate = plugins =>
     )
     .join('') + `dbgateApi.registerPlugins(${plugins.map(x => _.camelCase(x)).join(',')});\n`;
 
-// workaround - not working env in SNAP    
-const expandEnvParamsScript = platformInfo.isSnap
-  ? `
-for(let i=0;i<process.argv.length;i+=1) {
-  const arg=process.argv[i];
-  if (arg.startsWith('--env.')) {
-    process.env[arg.substring(6)] = process.argv[i+1]
-  }
-}
-`
-  : '';
-
 const scriptTemplate = script => `
-${expandEnvParamsScript};
 const dbgateApi = require(process.env.DBGATE_API);
 dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractPlugins(script))}
@@ -50,7 +36,6 @@ dbgateApi.runScript(run);
 `;
 
 const loaderScriptTemplate = (functionName, props, runid) => `
-${expandEnvParamsScript};
 const dbgateApi = require(process.env.DBGATE_API);
 dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractShellApiPlugins(functionName, props))}
@@ -62,10 +47,6 @@ await dbgateApi.copyStream(reader, writer);
 }
 dbgateApi.runScript(run);
 `;
-
-function envToParams(env) {
-  return _.flatten(_.keys(env).map(key => [`--env.${key}`, env[key]]));
-}
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedRunner[]} */
@@ -114,19 +95,15 @@ module.exports = {
     const pluginNames = fs.readdirSync(pluginsdir());
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
-    const env = {
-      DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
-      ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
-    };
-    const subprocess = fork(
-      scriptFile,
-      ['--checkParent', ...process.argv.slice(3), ...(platformInfo.isSnap ? envToParams(env) : [])],
-      {
-        cwd: directory,
-        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-        env: platformInfo.isSnap ? undefined : env,
-      }
-    );
+    const subprocess = fork(scriptFile, ['--checkParent', ...process.argv.slice(3)], {
+      cwd: directory,
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      env: {
+        ...process.env,
+        DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
+        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
+      },
+    });
     const pipeDispatcher = severity => data =>
       this.dispatchMessage(runid, { severity, message: data.toString().trim() });
 
