@@ -20,9 +20,11 @@
     top: 0;
     bottom: var(--statusbar-height);
     width: var(--widget-icon-size);
+    background: var(--theme-widget_background);
   }
   .statusbar {
     position: fixed;
+    background: var(--theme-statusbar_background);
     height: var(--statusbar-height);
     left: 0;
     right: 0;

@@ -1,6 +1,8 @@
 <script>
   import FontIcon from '../icons/FontIcon.svelte';
 
+  let selectedWidget = 'database';
+
   const widgets = [
     {
       icon: 'icon database',
@@ -43,7 +45,7 @@
 </script>
 
 {#each widgets as item}
-  <div class="wrapper">
+  <div class="wrapper" class:selected={item.name == selectedWidget} on:click={e => (selectedWidget = item.name)}>
     <FontIcon icon={item.icon} />
   </div>
 {/each}
@@ -55,5 +57,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--theme-widget_font2);
+  }
+  .wrapper:hover {
+    color: var(--theme-widget_font1);
+  }
+  .wrapper.selected {
+    color: var(--theme-widget_font1);
+    background: var(--theme-widget_background3);
   }
 </style>
