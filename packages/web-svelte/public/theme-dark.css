@@ -1,0 +1,5 @@
+.theme-dark .statusbar { background-color: blue }
+.theme-dark .iconbar { 
+    background-color: #222;
+    color: #b3b3b3;
+}
