@@ -1,7 +1,6 @@
 <script>
   import FontIcon from '../icons/FontIcon.svelte';
-
-  let selectedWidget = 'database';
+  import { selectedWidget } from '../stores';
 
   const widgets = [
     {
@@ -42,10 +41,15 @@
     //   name: 'settings',
     // },
   ];
+
+  function handleChangeWidget(name) {
+    selectedWidget.set(name == $selectedWidget ? null : name);
+  }
+  //const handleChangeWidget= e => (selectedWidget.set(item.name))
 </script>
 
 {#each widgets as item}
-  <div class="wrapper" class:selected={item.name == selectedWidget} on:click={e => (selectedWidget = item.name)}>
+  <div class="wrapper" class:selected={item.name == $selectedWidget} on:click={() => handleChangeWidget(item.name)}>
     <FontIcon icon={item.icon} />
   </div>
 {/each}
