@@ -11,7 +11,7 @@
   export let extInfo;
 </script>
 
-<div class="main" class:isBold draggable>
+<div class="main" class:isBold draggable on:click>
   {prefix || ''}
   {#if isBusy}
     <FontIcon icon="icon loading" />
