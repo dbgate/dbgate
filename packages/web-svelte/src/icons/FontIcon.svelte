@@ -1,5 +1,6 @@
 <script>
   export let icon;
+  export let title = null;
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -101,4 +102,4 @@
   };
 </script>
 
-<span class={iconNames[icon] || icon} />
+<span class={iconNames[icon] || icon} {title} />
