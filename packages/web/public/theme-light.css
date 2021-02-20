@@ -21,5 +21,14 @@
 
   --theme-border: #ccc;
 
+  --theme-bg-hover: #bae7ff;
+
   --theme-bg-statusbar-inv: blue;
+
+  --theme-icon-blue: #096dd9;
+  --theme-icon-green: #237804;
+  --theme-icon-red: #cf1322;
+  --theme-icon-gold: #d48806;
+  --theme-icon-yellow: #d4b106;
+  --theme-icon-magenta: #c41d7f;
 }

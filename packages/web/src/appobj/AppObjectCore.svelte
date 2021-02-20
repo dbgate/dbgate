@@ -12,7 +12,7 @@
 </script>
 
 <div class="main" class:isBold draggable>
-  {prefix}
+  {prefix || ''}
   {#if isBusy}
     <FontIcon icon="icon loading" />
   {:else}
@@ -39,6 +39,10 @@
     white-space: nowrap;
     font-weight: normal;
   }
+  .main:hover {
+    background-color: var(--theme-bg-hover);
+
+  }
   .isBold {
     font-weight: bold;
   }
@@ -48,6 +52,6 @@
   .ext-info {
     font-weight: normal;
     margin-left: 5px;
-    color: vra(--theme-font-3);
+    color: var(--theme-font-3);
   }
 </style>
