@@ -1,7 +1,7 @@
 <script lang="ts">
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
-  import { leftPanelWidth, selectedWidget } from './stores';
+  import { selectedWidget } from './stores';
 </script>
 
 <div class="theme-light">
@@ -10,7 +10,7 @@
   </div>
   <div class="statusbar" />
   {#if $selectedWidget}
-    <div class="leftpanel" style="width: {$leftPanelWidth}px">
+    <div class="leftpanel">
       <WidgetContainer />
     </div>
   {/if}
@@ -38,6 +38,7 @@
     top: 0;
     left: var(--dim-widget-icon-size);
     bottom: var(--dim-statusbar-height);
+    width: var(--dim-left-panel-width);
     background-color: var(--theme-bg-2);
     display: flex;
   }
