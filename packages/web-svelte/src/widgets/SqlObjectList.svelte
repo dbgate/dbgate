@@ -2,8 +2,14 @@
   import InlineButton from './InlineButton.svelte';
   import SearchInput from './SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionList } from '../utility/metadataLoaders';
-import SearchBoxWrapper from './SearchBoxWrapper.svelte';
+  import { useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import SearchBoxWrapper from './SearchBoxWrapper.svelte';
+
+  export let conid;
+  export let database;
+
+  $: objects = useDatabaseInfo({ conid, database });
+  $: status = useDatabaseStatus({ conid, database });
 
   const connections = useConnectionList();
   $: console.log('CONNECTIONS', $connections);
