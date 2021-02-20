@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
   import { selectedWidget } from '../stores';
 
@@ -43,7 +43,7 @@
   ];
 
   function handleChangeWidget(name) {
-    selectedWidget.set(name == $selectedWidget ? null : name);
+    $selectedWidget = name == $selectedWidget ? null : name;
   }
   //const handleChangeWidget= e => (selectedWidget.set(item.name))
 </script>

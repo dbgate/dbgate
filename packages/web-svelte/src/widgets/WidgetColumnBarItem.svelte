@@ -1,5 +1,7 @@
-<script>
+<script lang="ts">
   export let title;
+  export let name;
+  export let height = null;
   export let visible = true;
 </script>
 

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import InlineButton from './InlineButton.svelte';
   import SearchInput from './SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -11,8 +11,7 @@
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
 
-  const connections = useConnectionList();
-  $: console.log('CONNECTIONS', $connections);
+  $: console.log('objects', $objects);
 </script>
 
 <SearchBoxWrapper>

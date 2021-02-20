@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { selectedWidget } from '../stores';
   import DatabaseWidget from './DatabaseWidget.svelte';
 

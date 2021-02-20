@@ -1,4 +1,4 @@
-<script>
+ <script lang="ts">
   import ConnectionList from './ConnectionList.svelte';
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';

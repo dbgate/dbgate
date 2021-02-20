@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   export let disabled;
   export let square;
 </script>
