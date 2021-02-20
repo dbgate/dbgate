@@ -1,0 +1,25 @@
+.theme-dark {
+  --theme-font-1: #000000;
+  --theme-font-2: #4d4d4d;
+  --theme-font-3: #808080;
+  --theme-font-4: #b3b3b3;
+
+  --theme-bg-1: #ededed;
+  --theme-bg-2: #d4d4d4;
+  --theme-bg-3: #bbbbbb;
+  --theme-bg-4: #a2a2a2;
+
+  --theme-font-inv-1: #FFFFFF;
+  --theme-font-inv-2: #b3b3b3;
+  --theme-font-inv-3: #808080;
+  --theme-font-inv-4: #4d4d4d;
+
+  --theme-bg-inv-1: #222;
+  --theme-bg-inv-2: #3c3c3c;
+  --theme-bg-inv-3: #565656;
+  --theme-bg-inv-4: #707070;
+
+  --theme-border: #ccc;
+
+  --theme-bg-statusbar-inv: blue;
+}

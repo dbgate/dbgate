@@ -61,13 +61,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--theme-widget_font2);
+    color: var(--theme-font-inv-2);
   }
   .wrapper:hover {
-    color: var(--theme-widget_font1);
+    color: var(--theme-font-inv-1);
   }
   .wrapper.selected {
-    color: var(--theme-widget_font1);
-    background: var(--theme-widget_background3);
+    color: var(--theme-font-inv-1);
+    background: var(--theme-bg-inv-3);
   }
 </style>

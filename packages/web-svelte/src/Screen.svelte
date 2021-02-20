@@ -4,7 +4,7 @@
   import { leftPanelWidth, selectedWidget } from './stores';
 </script>
 
-<div class="theme-dark">
+<div class="theme-light">
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -17,22 +17,18 @@
 </div>
 
 <style>
-  :root {
-    --widget-icon-size: 50px;
-    --statusbar-height: 20px;
-  }
   .iconbar {
     position: fixed;
     left: 0;
     top: 0;
-    bottom: var(--statusbar-height);
-    width: var(--widget-icon-size);
-    background: var(--theme-widget_background);
+    bottom: var(--dim-statusbar-height);
+    width: var(--dim-widget-icon-size);
+    background: var(--theme-bg-inv-1);
   }
   .statusbar {
     position: fixed;
-    background: var(--theme-statusbar_background);
-    height: var(--statusbar-height);
+    background: var(--theme-bg-statusbar-inv);
+    height: var(--dim-statusbar-height);
     left: 0;
     right: 0;
     bottom: 0;
@@ -40,9 +36,9 @@
   .leftpanel {
     position: fixed;
     top: 0;
-    left: var(--widget-icon-size);
-    bottom: var(--statusbar-height);
-    background-color: var(--theme-left_background);
+    left: var(--dim-widget-icon-size);
+    bottom: var(--dim-statusbar-height);
+    background-color: var(--theme-bg-2);
     display: flex;
   }
 </style>
