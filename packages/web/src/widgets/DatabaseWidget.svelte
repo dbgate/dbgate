@@ -1,5 +1,6 @@
  <script lang="ts">
   import ConnectionList from './ConnectionList.svelte';
+import SqlObjectListWrapper from './SqlObjectListWrapper.svelte';
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
@@ -10,7 +11,6 @@
     <ConnectionList />
   </WidgetColumnBarItem>
   <WidgetColumnBarItem title="Tables, views, functions" name="dbObjects">
-    TABLES
-    <!-- <SqlObjectListWrapper /> -->
+    <SqlObjectListWrapper /> 
   </WidgetColumnBarItem>
 </WidgetColumnBar>

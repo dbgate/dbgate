@@ -2,6 +2,7 @@
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
   import { selectedWidget } from './stores';
+  import TabsPanel from './widgets/TabsPanel.svelte';
 </script>
 
 <div class="theme-light">
@@ -14,6 +15,9 @@
       <WidgetContainer />
     </div>
   {/if}
+  <div class="tabs">
+    <TabsPanel />
+  </div>
 </div>
 
 <style>
@@ -41,5 +45,20 @@
     width: var(--dim-left-panel-width);
     background-color: var(--theme-bg-2);
     display: flex;
+  }
+  .tabs {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width) + var(--dim-splitter-thickness));
+    height: var(--dim-tabs-panel-height);
+    right: 0;
+    background-color: var(--theme-bg-2);
+    border-top: 1px solid var(--theme-border);
+
+    overflow-x: auto;
+  }
+  .tabs::-webkit-scrollbar {
+    height: 7px;
   }
 </style>
