@@ -6,15 +6,22 @@
   export let commonProps;
   export let data;
 
-  function getStatusIcon(opened, data) {
+  let statusIcon = null;
+  let statusTitle = null;
+
+  $: {
     const { _id, status } = data;
-    if (opened.includes(_id)) {
-      if (!status) return 'icon loading';
-      if (status.name == 'pending') return 'icon loading';
-      if (status.name == 'ok') return 'img ok';
-      return 'img error';
+    if ($openedConnections.includes(_id)) {
+      if (!status) statusIcon = 'icon loading';
+      else if (status.name == 'pending') statusIcon = 'icon loading';
+      else if (status.name == 'ok') statusIcon = 'img ok';
+      else statusIcon = 'img error';
+      if (status && status.name == 'error') {
+        statusTitle = status.message;
+      }
     }
   }
+
 </script>
 
 <AppObjectCore
@@ -22,7 +29,7 @@
   title={data.displayName || data.server}
   icon="img server"
   isBold={_.get($currentDatabase, 'connection._id') == data._id}
-  statusIcon={getStatusIcon($openedConnections, data)}
-  statusTitle={data.status && data.status.name == 'error' ? data.status.message : null}
+  statusIcon={statusIcon}
+  statusTitle={statusTitle}
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
 />
