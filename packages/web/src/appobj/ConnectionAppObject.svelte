@@ -6,7 +6,7 @@
   export let commonProps;
   export let data;
 
-  function getStatusIcon(opened) {
+  function getStatusIcon(opened, data) {
     const { _id, status } = data;
     if (opened.includes(_id)) {
       if (!status) return 'icon loading';
@@ -22,7 +22,7 @@
   title={data.displayName || data.server}
   icon="img server"
   isBold={_.get($currentDatabase, 'connection._id') == data._id}
-  statusIcon={getStatusIcon($openedConnections)}
+  statusIcon={getStatusIcon($openedConnections, data)}
   statusTitle={data.status && data.status.name == 'error' ? data.status.message : null}
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
 />
