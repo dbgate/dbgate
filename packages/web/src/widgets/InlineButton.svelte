@@ -1,6 +1,6 @@
 <script lang="ts">
-  export let disabled;
-  export let square;
+  export let disabled = false;
+  export let square = false;
 </script>
 
 <div class="outer buttonLike" class:disabled class:square>

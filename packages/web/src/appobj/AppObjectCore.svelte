@@ -1,18 +1,19 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
 
-  export let isBold;
-  export let prefix;
   export let icon;
-  export let isBusy;
   export let title;
-  export let statusIcon;
-  export let statusTitle;
-  export let extInfo;
+
+  export let isBold = false;
+  export let prefix = '';
+  export let isBusy = false;
+  export let statusIcon = undefined;
+  export let statusTitle = undefined;
+  export let extInfo = undefined;
 </script>
 
 <div class="main" class:isBold draggable on:click>
-  {prefix || ''}
+  {prefix}
   {#if isBusy}
     <FontIcon icon="icon loading" />
   {:else}
@@ -41,7 +42,6 @@
   }
   .main:hover {
     background-color: var(--theme-bg-hover);
-
   }
   .isBold {
     font-weight: bold;

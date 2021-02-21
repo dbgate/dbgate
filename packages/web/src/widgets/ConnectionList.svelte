@@ -7,6 +7,7 @@
   import SearchBoxWrapper from './SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import ConnectionAppObject from '../appobj/ConnectionAppObject.svelte';
+  import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -25,5 +26,7 @@
   <AppObjectList
     list={_.sortBy(connectionsWithStatus, ({ displayName, server }) => (displayName || server || '').toUpperCase())}
     component={ConnectionAppObject}
+    subItemsComponent={SubDatabaseList}
+    expandOnClick
   />
 </WidgetsInnerContainer>

@@ -31,5 +31,6 @@
   isBold={_.get($currentDatabase, 'connection._id') == data._id}
   statusIcon={statusIcon}
   statusTitle={statusTitle}
+  on:click
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
 />
