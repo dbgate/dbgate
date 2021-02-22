@@ -29,6 +29,9 @@
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",
     "dbgate-types": "^3.9.5",
+    "dbgate-datalib": "^3.9.5",
+    "dbgate-sqltree": "^3.9.5",
+    "dbgate-tools": "^3.9.5",
     "lodash": "^4.17.15"
   },
   "dependencies": {

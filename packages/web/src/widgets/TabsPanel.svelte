@@ -24,6 +24,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { currentDatabase, openedTabs } from '../stores';
+  import { setSelectedTab } from '../utility/common';
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
@@ -40,6 +41,65 @@
 
   $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
   $: dbKeys = _.keys(tabsByDb).sort();
+
+  const handleTabClick = (e, tabid) => {
+    if (e.target.closest('.tabCloseButton')) {
+      return;
+    }
+    setSelectedTab(tabid);
+  };
+
+  const closeTabFunc = closeCondition => tabid => {
+    openedTabs.update(files => {
+      const active = files.find(x => x.tabid == tabid);
+      if (!active) return files;
+
+      const newFiles = files.map(x => ({
+        ...x,
+        closedTime: x.closedTime || (closeCondition(x, active) ? new Date().getTime() : undefined),
+      }));
+
+      if (newFiles.find(x => x.selected && x.closedTime == null)) {
+        return newFiles;
+      }
+
+      const selectedIndex = _.findLastIndex(newFiles, x => x.closedTime == null);
+
+      return newFiles.map((x, index) => ({
+        ...x,
+        selected: index == selectedIndex,
+      }));
+    });
+  };
+
+  const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
+  const closeAll = () => {
+    const closedTime = new Date().getTime();
+    openedTabs.update(tabs =>
+      tabs.map(tab => ({
+        ...tab,
+        closedTime: tab.closedTime || closedTime,
+        selected: false,
+      }))
+    );
+  };
+  const closeWithSameDb = closeTabFunc(
+    (x, active) =>
+      _.get(x, 'props.conid') == _.get(active, 'props.conid') &&
+      _.get(x, 'props.database') == _.get(active, 'props.database')
+  );
+  const closeWithOtherDb = closeTabFunc(
+    (x, active) =>
+      _.get(x, 'props.conid') != _.get(active, 'props.conid') ||
+      _.get(x, 'props.database') != _.get(active, 'props.database')
+  );
+  const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
+  const handleMouseUp = (e, tabid) => {
+    if (e.button == 1) {
+      e.preventDefault();
+      closeTab(tabid);
+    }
+  };
 </script>
 
 {#each dbKeys as dbKey}
@@ -50,12 +110,17 @@
     </div>
     <div class="db-group">
       {#each _.sortBy(tabsByDb[dbKey], ['title', 'tabid']) as tab}
-        <div class="file-tab-item" class:selected={tab.selected}>
+        <div
+          class="file-tab-item"
+          class:selected={tab.selected}
+          on:click={e => handleTabClick(e, tab.tabid)}
+          on:mouseup={e => handleMouseUp(e, tab.tabid)}
+        >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">
             {tab.title}
           </span>
-          <span class="close-button tabCloseButton">
+          <span class="close-button tabCloseButton" on:click={e => closeTab(tab.tabid)}>
             <FontIcon icon="icon close" />
           </span>
         </div>

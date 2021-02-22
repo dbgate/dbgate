@@ -4,4 +4,5 @@
   --dim-left-panel-width: 300px;
   --dim-tabs-panel-height: 53px;
   --dim-splitter-thickness: 3px;
+  --dim-content-left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width) + var(--dim-splitter-thickness));
 }

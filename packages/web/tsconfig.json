@@ -10,6 +10,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "strict": false
+    "strict": false,
+    "target": "es6",
   }
 }

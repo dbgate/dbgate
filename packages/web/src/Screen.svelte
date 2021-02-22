@@ -3,6 +3,7 @@
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
   import { selectedWidget } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
+import TabContent from './TabContent.svelte';
 </script>
 
 <div class="theme-light">
@@ -17,6 +18,9 @@
   {/if}
   <div class="tabs">
     <TabsPanel />
+  </div>
+  <div class="content">
+    <TabContent />
   </div>
 </div>
 
@@ -50,7 +54,7 @@
     display: flex;
     position: fixed;
     top: 0;
-    left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width) + var(--dim-splitter-thickness));
+    left: var(--dim-content-left);
     height: var(--dim-tabs-panel-height);
     right: 0;
     background-color: var(--theme-bg-2);
@@ -60,5 +64,13 @@
   }
   .tabs::-webkit-scrollbar {
     height: 7px;
+  }
+  .content {
+    position: fixed;
+    top: var(--dim-tabs-panel-height);
+    left: var(--dim-content-left);
+    bottom: var(--dim-statusbar-height);
+    right: 0;
+    background-color: var(--theme-bg-1);
   }
 </style>

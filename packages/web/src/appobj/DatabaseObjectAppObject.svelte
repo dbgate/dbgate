@@ -18,7 +18,7 @@
     const { schemaName, pureName, conid, database, objectTypeField } = data;
     openNewTab({
       title: data.pureName,
-      icon: 'icon table',
+      icon: 'img table',
       tabComponent: 'TableDataTab',
       props: {
         schemaName,
