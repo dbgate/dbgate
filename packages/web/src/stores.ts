@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { ExtensionsDirectory } from 'dbgate-types';
 
 interface TabDefinition {
   title: string;
@@ -23,5 +24,6 @@ export const selectedWidget = writable('database');
 export const openedConnections = writable([]);
 export const currentDatabase = writable(null);
 export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
+export const extensions = writable<ExtensionsDirectory>(null);
 
 // export const leftPanelWidth = writable(300);

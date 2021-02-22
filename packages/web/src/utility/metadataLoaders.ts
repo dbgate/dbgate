@@ -350,11 +350,11 @@ export function useArchiveFolders(args) {
   return useCore(archiveFoldersLoader, args);
 }
 
-export function getInstalledPlugins(args) {
+export function getInstalledPlugins(args = {}) {
   return getCore(installedPluginsLoader, args) || [];
 }
-export function useInstalledPlugins(args) {
-  return useCore(installedPluginsLoader, args) || [];
+export function useInstalledPlugins(args = {}) {
+  return useCore(installedPluginsLoader, args);
 }
 
 export function getFiles(args) {
