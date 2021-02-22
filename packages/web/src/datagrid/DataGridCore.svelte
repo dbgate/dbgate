@@ -1,9 +1,64 @@
-<div class="container">
+<script lang="ts">
+  import { GridDisplay } from 'dbgate-datalib';
+  import _ from 'lodash';
+  import ColumnHeaderControl from './ColumnHeaderControl.svelte';
+  import { countColumnSizes, countVisibleRealColumns } from './gridutil';
+
+  export let loadNextData = undefined;
+  export let grider = undefined;
+  export let display: GridDisplay = undefined;
+  export let conid = undefined;
+  export let database = undefined;
+
+  let containerHeight = 0;
+  let containerWidth = 0;
+  let rowHeight = 0;
+  let firstVisibleRowScrollIndex = 0;
+  let firstVisibleColumnScrollIndex = 0;
+  // $: firstVisibleRowScrollIndex = 0;
+  $: visibleRowCountUpperBound = 25;
+
+  // $: console.log('grider', grider);
+  $: columns = display.allColumns;
+
+  $: columnSizes = countColumnSizes(grider, columns, containerWidth, display);
+
+  $: headerColWidth = 40;
+
+  $: gridScrollAreaHeight = containerHeight - 2 * rowHeight;
+  $: gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
+
+  $: visibleRealColumns = countVisibleRealColumns(
+    columnSizes,
+    firstVisibleColumnScrollIndex,
+    gridScrollAreaWidth,
+    columns
+  );
+
+  $: console.log('visibleRealColumns', visibleRealColumns);
+
+  $: realColumnUniqueNames = _.range(columnSizes.realCount).map(
+    realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
+  );
+
+  $: {
+    if (loadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
+      loadNextData();
+    }
+  }
+</script>
+
+<div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
   <input type="text" class="focus-field" />
   <table class="table">
     <thead>
       <tr>
-        <td class="header=cell" data-row="header" data-col="header" />
+        <td class="header-cell" data-row="header" data-col="header" />
+        {#each visibleRealColumns as col (col.uniqueName)}
+          <td class="header-cell" data-row="header" data-col={col.colIndex}>
+            <ColumnHeaderControl column={col} {conid} {database} />
+          </td>
+        {/each}
       </tr>
     </thead>
     <tbody />

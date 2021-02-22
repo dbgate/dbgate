@@ -65,4 +65,4 @@
   };
 </script>
 
-<DataGridCore />
+<DataGridCore {...$$props} loadNextData={handleLoadNextData} {grider} />
