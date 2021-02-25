@@ -19,6 +19,7 @@
   let domInput;
   let parentCommand;
   let filter = '';
+
   $: selectedIndex = true ? 0 : filter;
 
   onMount(() => domInput.focus());
@@ -64,7 +65,7 @@
     width: 500px;
     max-height: 500px;
     background: var(--theme-bg-2);
-    padding: 4px;
+    padding: 5px;
   }
   .search {
     display: flex;
@@ -73,7 +74,7 @@
     width: 100%;
   }
   .command {
-    padding: 3px;
+    padding: 5px;
   }
   .command:hover {
     background: var(--theme-bg-3);

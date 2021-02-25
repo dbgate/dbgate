@@ -7,7 +7,7 @@
   import CommandPalette from './commands/CommandPalette.svelte';
 </script>
 
-<div class={$currentTheme}>
+<div class={`${$currentTheme} root`}>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -31,6 +31,9 @@
 </div>
 
 <style>
+  .root {
+    color: var(--theme-font-1);
+  }
   .iconbar {
     position: fixed;
     left: 0;
@@ -53,7 +56,7 @@
     left: var(--dim-widget-icon-size);
     bottom: var(--dim-statusbar-height);
     width: var(--dim-left-panel-width);
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-bg-1);
     display: flex;
   }
   .tabs {

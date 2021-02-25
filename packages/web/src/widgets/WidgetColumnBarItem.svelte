@@ -16,7 +16,7 @@
     padding: 5px;
     font-weight: bold;
     text-transform: uppercase;
-    background-color: var(--theme-bg-4);
+    background-color: var(--theme-bg-2);
     border: 1px solid var(--theme-border);
   }
   .title:hover {
