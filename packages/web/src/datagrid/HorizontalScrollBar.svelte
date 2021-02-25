@@ -17,6 +17,12 @@
     const res = ratio * (maximum - minimum + 1) + minimum;
     dispatch('scroll', Math.floor(res + 0.3));
   }
+
+  export function scroll(value) {
+    const position01 = (value - minimum) / (maximum - minimum + 1);
+    const position = position01 * (contentSize - width);
+    if (node) node.scrollLeft = Math.floor(position);
+  }
 </script>
 
 <div bind:clientWidth={width} bind:this={node} on:scroll={handleScroll} class="main">

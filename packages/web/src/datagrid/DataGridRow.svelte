@@ -1,5 +1,6 @@
 <script lang="ts">
   import DataGridCell from './DataGridCell.svelte';
+  import { cellIsSelected } from './gridutil';
 
   import RowHeaderCell from './RowHeaderCell.svelte';
 
@@ -7,6 +8,9 @@
   export let rowIndex;
   export let visibleRealColumns: any[];
   export let grider;
+  export let frameSelection = undefined;
+  export let selectedCells = undefined;
+  export let autofillSelectedCells = undefined;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -23,7 +27,15 @@
 <tr style={`height: ${rowHeight}px`}>
   <RowHeaderCell {rowIndex} />
   {#each visibleRealColumns as col (col.uniqueName)}
-    <DataGridCell {rowIndex} {rowData} {col} {hintFieldsAllowed} />
+    <DataGridCell
+      {rowIndex}
+      {rowData}
+      {col}
+      {hintFieldsAllowed}
+      isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+      isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
+      isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
+    />
   {/each}
 </tr>
 

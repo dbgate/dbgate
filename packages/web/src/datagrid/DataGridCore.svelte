@@ -3,8 +3,15 @@
   import _ from 'lodash';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
-  import { countColumnSizes, countVisibleRealColumns } from './gridutil';
+  import {
+    cellIsSelected,
+    countColumnSizes,
+    countVisibleRealColumns,
+    filterCellForRow,
+    filterCellsForRow,
+  } from './gridutil';
   import HorizontalScrollBar from './HorizontalScrollBar.svelte';
+  import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
 
   export let loadNextData = undefined;
@@ -12,12 +19,32 @@
   export let display: GridDisplay = undefined;
   export let conid = undefined;
   export let database = undefined;
+  export let frameSelection = undefined;
+
+  const wheelRowCount = 5;
 
   let containerHeight = 0;
   let containerWidth = 0;
   let rowHeight = 0;
   let firstVisibleRowScrollIndex = 0;
   let firstVisibleColumnScrollIndex = 0;
+
+  let domFocusField;
+  let domHorizontalScroll;
+  let domVerticalScroll;
+
+  let currentCell = topLeftCell;
+  let selectedCells = [topLeftCell];
+  let dragStartCell = nullCell;
+  let shiftDragStartCell = nullCell;
+  let autofillDragStartCell = nullCell;
+  let autofillSelectedCells = emptyCellArray;
+
+  $: autofillMarkerCell =
+    selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
+      ? [_.max(selectedCells.map(x => x[0])), _.max(selectedCells.map(x => x[1]))]
+      : null;
+
   // $: firstVisibleRowScrollIndex = 0;
   // $: visibleRowCountUpperBound = 25;
 
@@ -57,11 +84,119 @@
       loadNextData();
     }
   }
+
+  function handleGridMouseDown(event) {
+    if (event.target.closest('.buttonLike')) return;
+    if (event.target.closest('.resizeHandleControl')) return;
+    if (event.target.closest('input')) return;
+
+    // event.target.closest('table').focus();
+    event.preventDefault();
+    if (domFocusField) domFocusField.focus();
+    const cell = cellFromEvent(event);
+
+    if (event.button == 2 && cell && cellIsSelected(cell[0], cell[1], selectedCells)) return;
+
+    const autofill = event.target.closest('div.autofillHandleMarker');
+    if (autofill) {
+      autofillDragStartCell = cell;
+    } else {
+      currentCell = cell;
+
+      if (event.ctrlKey) {
+        if (isRegularCell(cell)) {
+          if (selectedCells.find(x => x[0] == cell[0] && x[1] == cell[1])) {
+            selectedCells = selectedCells.filter(x => x[0] != cell[0] || x[1] != cell[1]);
+          } else {
+            selectedCells = [...selectedCells, cell];
+          }
+        }
+      } else {
+        selectedCells = getCellRange(cell, cell);
+        dragStartCell = cell;
+
+        // if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
+        //   // @ts-ignore
+        //   dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+        // } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+        //   // @ts-ignore
+        //   dispatchInsplaceEditor({ type: 'close' });
+        // }
+      }
+    }
+
+    if (display.focusedColumn) display.focusColumn(null);
+  }
+
+  function handleGridMouseMove(event) {
+    if (autofillDragStartCell) {
+      const cell = cellFromEvent(event);
+      if (isRegularCell(cell) && (cell[0] == autofillDragStartCell[0] || cell[1] == autofillDragStartCell[1])) {
+        const autoFillStart = [selectedCells[0][0], _.min(selectedCells.map(x => x[1]))];
+        // @ts-ignore
+        autofillSelectedCells = getCellRange(autoFillStart, cell);
+      }
+    } else if (dragStartCell) {
+      const cell = cellFromEvent(event);
+      currentCell = cell;
+      selectedCells = getCellRange(dragStartCell, cell);
+    }
+  }
+
+  function handleGridMouseUp(event) {
+    if (dragStartCell) {
+      const cell = cellFromEvent(event);
+      currentCell = cell;
+      selectedCells = getCellRange(dragStartCell, cell);
+      dragStartCell = null;
+    }
+    if (autofillDragStartCell) {
+      const currentRowNumber = currentCell[0];
+      if (_.isNumber(currentRowNumber)) {
+        const rowIndexes = _.uniq((autofillSelectedCells || []).map(x => x[0])).filter(x => x != currentRowNumber);
+        const colNames = selectedCells.map(cell => realColumnUniqueNames[cell[1]]);
+        const changeObject = _.pick(grider.getRowData(currentRowNumber), colNames);
+        grider.beginUpdate();
+        for (const index of rowIndexes) grider.updateRow(index, changeObject);
+        grider.endUpdate();
+      }
+
+      autofillDragStartCell = null;
+      autofillSelectedCells = [];
+      selectedCells = autofillSelectedCells;
+    }
+  }
+
+  function handleGridWheel(event) {
+    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
+    if (event.deltaY > 0) {
+      newFirstVisibleRowScrollIndex += wheelRowCount;
+    }
+    if (event.deltaY < 0) {
+      newFirstVisibleRowScrollIndex -= wheelRowCount;
+    }
+    let rowCount = grider.rowCount;
+    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
+      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
+    }
+    if (newFirstVisibleRowScrollIndex < 0) {
+      newFirstVisibleRowScrollIndex = 0;
+    }
+    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
+
+    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+  }
 </script>
 
 <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
-  <input type="text" class="focus-field" />
-  <table class="table">
+  <input type="text" class="focus-field" bind:this={domFocusField} />
+  <table
+    class="table"
+    on:mousedown={handleGridMouseDown}
+    on:mousemove={handleGridMouseMove}
+    on:mouseup={handleGridMouseUp}
+    on:wheel={handleGridWheel}
+  >
     <thead>
       <tr>
         <td
@@ -85,7 +220,16 @@
     </thead>
     <tbody>
       {#each _.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound) as rowIndex (rowIndex)}
-        <DataGridRow {rowIndex} {grider} {visibleRealColumns} {rowHeight} />
+        <DataGridRow
+          {rowIndex}
+          {grider}
+          {visibleRealColumns}
+          {rowHeight}
+          {autofillSelectedCells}
+          selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+          autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+          {frameSelection}
+        />
       {/each}
     </tbody>
   </table>
@@ -94,12 +238,14 @@
     maximum={maxScrollColumn}
     viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
     on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+    bind:this={domHorizontalScroll}
   />
   <VerticalScrollBar
     minimum={0}
     maximum={grider.rowCount - visibleRowCountUpperBound + 2}
     viewportRatio={visibleRowCountUpperBound / grider.rowCount}
     on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+    bind:this={domVerticalScroll}
   />
 </div>
 

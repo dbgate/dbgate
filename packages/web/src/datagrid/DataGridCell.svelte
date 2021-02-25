@@ -31,6 +31,7 @@
   export let isModifiedCell = false;
   export let isInserted = false;
   export let isDeleted = false;
+  export let isAutofillSelected = false;
 
   $: value = (rowData || {})[col.uniqueName];
 </script>
@@ -44,6 +45,7 @@
   class:isModifiedCell
   class:isInserted
   class:isDeleted
+  class:isAutofillSelected
   style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
 >
   {#if value == null}
@@ -98,6 +100,10 @@
     background: var(--theme-bg-selected);
   }
   td.isFrameSelected {
+    outline: 3px solid var(--theme-bg-selected);
+    outline-offset: -3px;
+  }
+  td.isAutofillSelected {
     outline: 3px solid var(--theme-bg-selected);
     outline-offset: -3px;
   }
