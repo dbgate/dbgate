@@ -25,5 +25,8 @@ export const openedConnections = writable([]);
 export const currentDatabase = writable(null);
 export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
 export const extensions = writable<ExtensionsDirectory>(null);
+export const visibleCommandPalette = writable(false);
+export const commands = writable({});
+export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 
 // export const leftPanelWidth = writable(300);

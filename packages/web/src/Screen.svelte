@@ -1,12 +1,13 @@
 <script lang="ts">
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
-  import { selectedWidget } from './stores';
+  import { currentTheme, selectedWidget, visibleCommandPalette } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
-import TabContent from './TabContent.svelte';
+  import TabContent from './TabContent.svelte';
+  import CommandPalette from './commands/CommandPalette.svelte';
 </script>
 
-<div class="theme-light">
+<div class={$currentTheme}>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -22,6 +23,11 @@ import TabContent from './TabContent.svelte';
   <div class="content">
     <TabContent />
   </div>
+  {#if $visibleCommandPalette}
+    <div class="commads">
+      <CommandPalette />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -72,5 +78,10 @@ import TabContent from './TabContent.svelte';
     bottom: var(--dim-statusbar-height);
     right: 0;
     background-color: var(--theme-bg-1);
+  }
+  .commads {
+    position: fixed;
+    top: 0;
+    left: var(--dim-widget-icon-size);
   }
 </style>

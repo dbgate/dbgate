@@ -5,6 +5,7 @@
   "exclude": ["node_modules/*", "public/*"],
 
   "compilerOptions": {
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
