@@ -2,6 +2,7 @@
   import { GridDisplay } from 'dbgate-datalib';
   import _ from 'lodash';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
+  import DataGridRow from './DataGridRow.svelte';
   import { countColumnSizes, countVisibleRealColumns } from './gridutil';
 
   export let loadNextData = undefined;
@@ -55,13 +56,22 @@
       <tr>
         <td class="header-cell" data-row="header" data-col="header" />
         {#each visibleRealColumns as col (col.uniqueName)}
-          <td class="header-cell" data-row="header" data-col={col.colIndex}>
+          <td
+            class="header-cell"
+            data-row="header"
+            data-col={col.colIndex}
+            style={`width:${col.widthPx}; min-width:${col.widthPx}; max-width:${col.widthPx}`}
+          >
             <ColumnHeaderControl column={col} {conid} {database} />
           </td>
         {/each}
       </tr>
     </thead>
-    <tbody />
+    <tbody>
+      {#each _.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound) as rowIndex (rowIndex)}
+        <DataGridRow {rowIndex} {grider} {visibleRealColumns} />
+      {/each}
+    </tbody>
   </table>
 </div>
 
@@ -84,11 +94,11 @@
     outline: none;
   }
   .header-cell {
-    border: 1px solid var(---theme-border);
+    border: 1px solid var(--theme-border);
     text-align: left;
     padding: 0;
     margin: 0;
-    background-color: var(---theme-bg-1);
+    background-color: var(--theme-bg-2);
     overflow: hidden;
   }
   .filter-cell {
@@ -104,7 +114,7 @@
   }
   .row-count-label {
     position: absolute;
-    background-color: var(---theme-bg-2);
+    background-color: var(--theme-bg-2);
     right: 40px;
     bottom: 20px;
   }

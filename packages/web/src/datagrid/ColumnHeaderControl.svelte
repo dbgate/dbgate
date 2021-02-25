@@ -34,7 +34,7 @@
     z-index: 1;
   }
   .grouping {
-    color: green;
+    color: var(--theme-font-alt);
     white-space: nowrap;
   }
 </style>
