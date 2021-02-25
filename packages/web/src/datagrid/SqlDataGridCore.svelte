@@ -57,7 +57,9 @@
   export let config;
   let loadedRows = [];
 
+  // $: console.log('loadedRows BIND', loadedRows);
   $: grider = new ChangeSetGrider(loadedRows, null, null, display);
+  // $: console.log('GRIDER', grider);
 </script>
 
 <LoadingDataGridCore {...$$props} {loadDataPage} {dataPageAvailable} {loadRowCount} bind:loadedRows {grider} />

@@ -44,6 +44,7 @@
   class:isModifiedCell
   class:isInserted
   class:isDeleted
+  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
 >
   {#if value == null}
     <span class="null">(NULL)</span>

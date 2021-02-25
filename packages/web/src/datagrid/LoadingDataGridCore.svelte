@@ -22,6 +22,7 @@
     const loadStart = new Date().getTime();
 
     // loadedTimeRef.current = loadStart;
+    // console.log('LOAD NEXT ROWS', loadedRows);
 
     const nextRows = await loadDataPage($$props, loadedRows.length, 100);
     // if (loadedTimeRef.current !== loadStart) {
@@ -35,7 +36,7 @@
       errorMessage = nextRows.errorMessage;
     } else {
       // if (allRowCount == null) handleLoadRowCount();
-      loadedRows = [loadedRows, ...nextRows];
+      loadedRows = [...loadedRows, ...nextRows];
       isLoadedAll = nextRows.length === 0;
       //   const loadedInfo = {
       //     loadedRows: [...loadedRows, ...nextRows],
@@ -49,19 +50,21 @@
       //     ...loadedInfo,
       //   }));
     }
+
+    // console.log('LOADED', nextRows, loadedRows);
   }
 
   // $: griderProps = { ...$$props, sourceRows: loadProps.loadedRows };
   // $: grider = griderFactory(griderProps);
 
-  const handleLoadNextData = () => {
+  function handleLoadNextData() {
     if (!isLoadedAll && !errorMessage && !grider.disableLoadNextPage) {
       if (dataPageAvailable($$props)) {
         // If not, callbacks to load missing metadata are dispatched
         loadNextData();
       }
     }
-  };
+  }
 </script>
 
 <DataGridCore {...$$props} loadNextData={handleLoadNextData} {grider} />

@@ -42,9 +42,9 @@
   );
 
   // $: console.log('visibleRealColumns', visibleRealColumns);
-  $: console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
-  $: console.log('rowHeight', rowHeight);
-  $: console.log('containerHeight', containerHeight);
+  // $: console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
+  // $: console.log('rowHeight', rowHeight);
+  // $: console.log('containerHeight', containerHeight);
 
   $: realColumnUniqueNames = _.range(columnSizes.realCount).map(
     realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
@@ -64,13 +64,19 @@
   <table class="table">
     <thead>
       <tr>
-        <td class="header-cell" data-row="header" data-col="header" bind:clientHeight={rowHeight} />
+        <td
+          class="header-cell"
+          data-row="header"
+          data-col="header"
+          bind:clientHeight={rowHeight}
+          style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+        />
         {#each visibleRealColumns as col (col.uniqueName)}
           <td
             class="header-cell"
             data-row="header"
             data-col={col.colIndex}
-            style={`width:${col.widthPx}; min-width:${col.widthPx}; max-width:${col.widthPx}`}
+            style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
           >
             <ColumnHeaderControl column={col} {conid} {database} />
           </td>

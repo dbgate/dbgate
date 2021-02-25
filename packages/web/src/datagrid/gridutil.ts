@@ -89,7 +89,7 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
 
   const visibleRealColumnIndexes = [];
   const modelIndexes = {};
-  /** @type {(import('dbgate-datalib').DisplayColumn & {widthPx: string; colIndex: number})[]} */
+  /** @type {(import('dbgate-datalib').DisplayColumn & {width: number; colIndex: number})[]} */
   const realColumns = [];
 
   // frozen columns
@@ -112,12 +112,11 @@ export function countVisibleRealColumns(columnSizes, firstVisibleColumnScrollInd
 
     let col = columns[modelColumnIndex];
     if (!col) continue;
-    const widthNumber = columnSizes.getSizeByRealIndex(colIndex);
+    const width = columnSizes.getSizeByRealIndex(colIndex);
     realColumns.push({
       ...col,
       colIndex,
-      widthNumber,
-      widthPx: `${widthNumber}px`,
+      width,
     });
   }
   return realColumns;
