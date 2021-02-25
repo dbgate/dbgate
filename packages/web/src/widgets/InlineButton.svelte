@@ -11,9 +11,12 @@
 
 <style>
   .outer {
-    background: linear-gradient(to bottom, var(--theme-bg-2) 5%, var(--theme-bg-3) 100%);
-    background-color: var(--theme-bg-2);
-    border: 1px solid var(--theme-bg-3);
+    --bg-1: var(--theme-bg-1);
+    --bg-2: var(--theme-bg-3);
+
+    background: linear-gradient(to bottom, var(--bg-1) 5%, var(--bg-2) 100%);
+    background-color: var(--bg-1);
+    border: 1px solid var(--bg-2);
     display: inline-block;
     cursor: pointer;
     vertical-align: middle;
@@ -30,9 +33,9 @@
   }
 
   .outer:hover:not(.disabled) {
-    border: 1px solid var(--theme-bg-2);
-    background: linear-gradient(to bottom, var(--theme-bg-3) 5%, var(--theme-bg-2) 100%);
-    background-color: var(--theme-bg-3);
+    border: 1px solid var(--bg-1);
+    background: linear-gradient(to bottom, var(--bg-2) 5%, var(--bg-1) 100%);
+    background-color: var(--bg-2);
   }
 
   .inner {

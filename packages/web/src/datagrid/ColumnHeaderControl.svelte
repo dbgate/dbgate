@@ -1,15 +1,36 @@
 <script lang="ts">
+  import FontIcon from '../icons/FontIcon.svelte';
+  import DropDownButton from '../widgets/DropDownButton.svelte';
+
   import ColumnLabel from './ColumnLabel.svelte';
 
+  export let column;
   export let conid = undefined;
   export let database = undefined;
-  export let column;
+  export let grouping = undefined;
+  export let order = undefined;
 </script>
 
 <div class="header">
   <div class="label">
+    {#if grouping}
+      <span class="grouping">
+        {grouping == 'COUNT DISTINCT' ? 'distinct' : grouping.toLowerCase()}
+      </span>
+    {/if}
     <ColumnLabel {...column} />
   </div>
+  {#if order == 'ASC'}
+    <span class="icon">
+      <FontIcon icon="img sort-asc" />
+    </span>
+  {/if}
+  {#if order == 'DESC'}
+    <span class="icon">
+      <FontIcon icon="img sort-desc" />
+    </span>
+  {/if}
+  <DropDownButton />
 </div>
 
 <style>

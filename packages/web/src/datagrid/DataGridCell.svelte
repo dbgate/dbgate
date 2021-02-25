@@ -79,7 +79,7 @@
     {value.toString()}
   {/if}
 
-  {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName)}
+  {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData}
     <span class="hint">{rowData[col.hintColumnName]}</span>
   {/if}
 </td>

@@ -4,6 +4,8 @@
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
   import { countColumnSizes, countVisibleRealColumns } from './gridutil';
+  import HorizontalScrollBar from './HorizontalScrollBar.svelte';
+  import VerticalScrollBar from './VerticalScrollBar.svelte';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -17,7 +19,7 @@
   let firstVisibleRowScrollIndex = 0;
   let firstVisibleColumnScrollIndex = 0;
   // $: firstVisibleRowScrollIndex = 0;
-  $: visibleRowCountUpperBound = 25;
+  // $: visibleRowCountUpperBound = 25;
 
   // $: console.log('grider', grider);
   $: columns = display.allColumns;
@@ -29,6 +31,9 @@
   $: gridScrollAreaHeight = containerHeight - 2 * rowHeight;
   $: gridScrollAreaWidth = containerWidth - columnSizes.frozenSize - headerColWidth - 32;
 
+  $: visibleRowCountUpperBound = Math.ceil(gridScrollAreaHeight / Math.floor(Math.max(1, rowHeight)));
+  $: visibleRowCountLowerBound = Math.floor(gridScrollAreaHeight / Math.ceil(Math.max(1, rowHeight)));
+
   $: visibleRealColumns = countVisibleRealColumns(
     columnSizes,
     firstVisibleColumnScrollIndex,
@@ -36,11 +41,16 @@
     columns
   );
 
-  $: console.log('visibleRealColumns', visibleRealColumns);
+  // $: console.log('visibleRealColumns', visibleRealColumns);
+  $: console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
+  $: console.log('rowHeight', rowHeight);
+  $: console.log('containerHeight', containerHeight);
 
   $: realColumnUniqueNames = _.range(columnSizes.realCount).map(
     realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
   );
+
+  $: maxScrollColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
 
   $: {
     if (loadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
@@ -54,7 +64,7 @@
   <table class="table">
     <thead>
       <tr>
-        <td class="header-cell" data-row="header" data-col="header" />
+        <td class="header-cell" data-row="header" data-col="header" bind:clientHeight={rowHeight} />
         {#each visibleRealColumns as col (col.uniqueName)}
           <td
             class="header-cell"
@@ -69,10 +79,22 @@
     </thead>
     <tbody>
       {#each _.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound) as rowIndex (rowIndex)}
-        <DataGridRow {rowIndex} {grider} {visibleRealColumns} />
+        <DataGridRow {rowIndex} {grider} {visibleRealColumns} {rowHeight} />
       {/each}
     </tbody>
   </table>
+  <HorizontalScrollBar
+    minimum={0}
+    maximum={maxScrollColumn}
+    viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
+    on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+  />
+  <VerticalScrollBar
+    minimum={0}
+    maximum={grider.rowCount - visibleRowCountUpperBound + 2}
+    viewportRatio={visibleRowCountUpperBound / grider.rowCount}
+    on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+  />
 </div>
 
 <style>
@@ -98,7 +120,7 @@
     text-align: left;
     padding: 0;
     margin: 0;
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-bg-1);
     overflow: hidden;
   }
   .filter-cell {

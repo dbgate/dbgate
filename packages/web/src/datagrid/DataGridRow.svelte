@@ -20,7 +20,7 @@
     .map(col => col.uniqueName);
 </script>
 
-<tr>
+<tr style={`height: ${rowHeight}px`}>
   <RowHeaderCell {rowIndex} />
   {#each visibleRealColumns as col (col.uniqueName)}
     <DataGridCell {rowIndex} {rowData} {col} {hintFieldsAllowed} />
