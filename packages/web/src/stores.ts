@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { ExtensionsDirectory } from 'dbgate-types';
 
 interface TabDefinition {
@@ -28,5 +28,6 @@ export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(false);
 export const commands = writable({});
 export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
+export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 
 // export const leftPanelWidth = writable(300);

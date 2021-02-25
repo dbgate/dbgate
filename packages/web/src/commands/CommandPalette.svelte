@@ -2,7 +2,9 @@
   registerCommand({
     id: 'commandPalette.show',
     text: 'Command palette: Show',
+    keyText: 'F1',
     onClick: () => visibleCommandPalette.set(true),
+    enabledStore: derived(visibleCommandPalette, $visibleCommandPalette => !$visibleCommandPalette),
   });
 </script>
 
@@ -10,6 +12,7 @@
   import { filterName } from 'dbgate-datalib';
 
   import _ from 'lodash';
+  import { derived } from 'svelte/store';
   import { onMount } from 'svelte';
   import { commands, visibleCommandPalette } from '../stores';
   import { clickOutside } from '../utility/clickOutside';
@@ -24,7 +27,10 @@
 
   onMount(() => domInput.focus());
 
-  $: sortedComands = _.sortBy(Object.values($commands), 'text');
+  $: sortedComands = _.sortBy(
+    Object.values($commands).filter(x => x.enabled),
+    'text'
+  );
 
   $: filteredItems = (parentCommand ? parentCommand.getSubCommands() : sortedComands).filter(x =>
     filterName(filter, x.text)
@@ -55,7 +61,10 @@
   </div>
   {#each filteredItems as command, index}
     <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
-      {command.text}
+      <div>{command.text}</div>
+      {#if command.keyText}
+        <div class="shortcut">{command.keyText}</div>
+      {/if}
     </div>
   {/each}
 </div>
@@ -75,11 +84,16 @@
   }
   .command {
     padding: 5px;
+    display: flex;
+    justify-content: space-between;
   }
   .command:hover {
     background: var(--theme-bg-3);
   }
   .command.selected {
     background: var(--theme-bg-selected);
+  }
+  .shortcut {
+    background: var(--theme-bg-3);
   }
 </style>

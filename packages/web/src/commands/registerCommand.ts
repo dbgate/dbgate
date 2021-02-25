@@ -8,6 +8,7 @@ export interface SubCommand {
 export interface GlobalCommand {
   id: string;
   text: string;
+  keyText?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;
   enabledStore?: any;

@@ -5,6 +5,7 @@
   export let dataPageAvailable;
   export let loadRowCount;
   export let grider;
+  export let display;
   // export let griderFactory;
 
   export let loadedRows = [];
@@ -14,6 +15,7 @@
   let allRowCount = null;
   let errorMessage = null;
   let loadNextDataToken = 0;
+  let domComponent;
 
   async function loadNextData() {
     if (isLoading) return;
@@ -65,6 +67,26 @@
       }
     }
   }
+
+  function reload() {
+    allRowCount = null;
+    isLoading = false;
+    loadedRows = [];
+    isLoadedAll = false;
+    loadedTime = new Date().getTime();
+    errorMessage = null;
+    loadNextDataToken = 0;
+  }
+
+  $: if (display.cache.refreshTime > loadedTime) {
+    reload();
+  }
 </script>
 
-<DataGridCore {...$$props} loadNextData={handleLoadNextData} {grider} />
+<DataGridCore
+  {...$$props}
+  loadNextData={handleLoadNextData}
+  {grider}
+  bind:this={domComponent}
+  instance={domComponent}
+/>

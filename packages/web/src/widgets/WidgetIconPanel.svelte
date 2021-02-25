@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { update } from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
   import { selectedWidget, visibleCommandPalette } from '../stores';
 

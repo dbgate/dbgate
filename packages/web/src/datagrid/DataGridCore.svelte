@@ -1,6 +1,20 @@
+<script lang="ts" context="module">
+  const currentDataGrid = writable(null);
+
+  registerCommand({
+    id: 'dataGrid.refresh',
+    text: 'Data grid: Refresh',
+    keyText: 'F5',
+    enabledStore: derived([currentDataGrid], ([grid]) => grid != null),
+    onClick: () => get(currentDataGrid).refresh(),
+  });
+</script>
+
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
   import _ from 'lodash';
+  import { writable, get, derived } from 'svelte/store';
+  import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
   import {
@@ -20,6 +34,7 @@
   export let conid = undefined;
   export let database = undefined;
   export let frameSelection = undefined;
+  export let instance = undefined;
 
   const wheelRowCount = 5;
 
@@ -186,10 +201,21 @@
 
     domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
   }
+
+  export function refresh() {
+    display.reload();
+  }
 </script>
 
 <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
-  <input type="text" class="focus-field" bind:this={domFocusField} />
+  <input
+    type="text"
+    class="focus-field"
+    bind:this={domFocusField}
+    on:focus={() => {
+      currentDataGrid.set(instance);
+    }}
+  />
   <table
     class="table"
     on:mousedown={handleGridMouseDown}

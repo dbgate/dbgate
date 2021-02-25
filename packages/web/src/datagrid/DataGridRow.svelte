@@ -11,6 +11,7 @@
   export let frameSelection = undefined;
   export let selectedCells = undefined;
   export let autofillSelectedCells = undefined;
+  export let autofillMarkerCell = undefined;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
