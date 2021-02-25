@@ -32,7 +32,7 @@
   export let isInserted = false;
   export let isDeleted = false;
 
-  $: value = rowData[col.uniqueName];
+  $: value = (rowData || {})[col.uniqueName];
 </script>
 
 <td

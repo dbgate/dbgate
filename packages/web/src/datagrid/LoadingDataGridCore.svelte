@@ -4,40 +4,39 @@
   export let loadDataPage;
   export let dataPageAvailable;
   export let loadRowCount;
-  export let griderFactory;
+  export let grider;
+  // export let griderFactory;
 
-  let loadProps = {
-    isLoading: false,
-    loadedRows: [],
-    isLoadedAll: false,
-    loadedTime: new Date().getTime(),
-    allRowCount: null,
-    errorMessage: null,
-    loadNextDataToken: 0,
-  };
+  export let loadedRows = [];
+  let isLoading = false;
+  let isLoadedAll = false;
+  let loadedTime = new Date().getTime();
+  let allRowCount = null;
+  let errorMessage = null;
+  let loadNextDataToken = 0;
 
   async function loadNextData() {
-    if (loadProps.isLoading) return;
-    loadProps.isLoading = true;
+    if (isLoading) return;
+    isLoading = true;
 
     const loadStart = new Date().getTime();
 
     // loadedTimeRef.current = loadStart;
 
-    const nextRows = await loadDataPage($$props, loadProps.loadedRows.length, 100);
+    const nextRows = await loadDataPage($$props, loadedRows.length, 100);
     // if (loadedTimeRef.current !== loadStart) {
     //   // new load was dispatched
     //   return;
     // }
 
-    loadProps.isLoading = false;
+    isLoading = false;
 
     if (nextRows.errorMessage) {
-      loadProps.errorMessage = nextRows.errorMessage;
+      errorMessage = nextRows.errorMessage;
     } else {
       // if (allRowCount == null) handleLoadRowCount();
-      loadProps.loadedRows = [...loadProps.loadedRows, ...nextRows];
-      loadProps.isLoadedAll = nextRows.length === 0;
+      loadedRows = [loadedRows, ...nextRows];
+      isLoadedAll = nextRows.length === 0;
       //   const loadedInfo = {
       //     loadedRows: [...loadedRows, ...nextRows],
       //     loadedTime,
@@ -52,11 +51,11 @@
     }
   }
 
-  $: griderProps = { ...$$props, sourceRows: loadProps.loadedRows };
-  $: grider = griderFactory(griderProps);
+  // $: griderProps = { ...$$props, sourceRows: loadProps.loadedRows };
+  // $: grider = griderFactory(griderProps);
 
   const handleLoadNextData = () => {
-    if (!loadProps.isLoadedAll && !loadProps.errorMessage && !grider.disableLoadNextPage) {
+    if (!isLoadedAll && !errorMessage && !grider.disableLoadNextPage) {
       if (dataPageAvailable($$props)) {
         // If not, callbacks to load missing metadata are dispatched
         loadNextData();

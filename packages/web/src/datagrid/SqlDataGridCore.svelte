@@ -50,16 +50,14 @@
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
 
   export let conid;
+  export let display;
   export let database;
   export let schemaName;
   export let pureName;
   export let config;
+  let loadedRows = [];
+
+  $: grider = new ChangeSetGrider(loadedRows, null, null, display);
 </script>
 
-<LoadingDataGridCore
-  {...$$props}
-  {loadDataPage}
-  {dataPageAvailable}
-  {loadRowCount}
-  griderFactory={ChangeSetGrider.factory}
-/>
+<LoadingDataGridCore {...$$props} {loadDataPage} {dataPageAvailable} {loadRowCount} bind:loadedRows {grider} />
