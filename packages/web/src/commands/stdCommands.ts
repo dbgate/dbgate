@@ -1,11 +1,12 @@
-import { currentTheme } from '../stores';
+import { currentTheme, extensions } from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
+import { ThemeDefinition } from 'dbgate-types';
 
-function themeCommand(text, css) {
+function themeCommand(theme: ThemeDefinition) {
   return {
-    text: text,
-    onClick: () => currentTheme.set(css),
+    text: theme.themeName,
+    onClick: () => currentTheme.set(theme.className),
     // onPreview: () => {
     //   const old = get(currentTheme);
     //   currentTheme.set(css);
@@ -19,5 +20,5 @@ function themeCommand(text, css) {
 registerCommand({
   id: 'theme.changeTheme',
   text: 'Theme: Change',
-  getSubCommands: () => [themeCommand('Light', 'theme-light'), themeCommand('Dark', 'theme-dark')],
+  getSubCommands: () => get(extensions).themes.map(themeCommand),
 });

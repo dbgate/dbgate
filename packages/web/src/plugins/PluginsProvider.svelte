@@ -38,6 +38,7 @@
     const extensions = {
       plugins,
       fileFormats: buildFileFormats(plugins),
+      themes: buildThemes(plugins),
       drivers: buildDrivers(plugins),
     };
     return extensions;
@@ -50,6 +51,7 @@
   import axios from '../utility/axios';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats } from './fileformats';
+  import { buildThemes } from './themes';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();
