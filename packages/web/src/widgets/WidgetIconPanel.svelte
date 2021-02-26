@@ -1,7 +1,7 @@
 <script lang="ts">
   import { update } from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { selectedWidget, visibleCommandPalette } from '../stores';
+  import { selectedWidget, visibleCommandPalette, visibleToolbar } from '../stores';
 
   const widgets = [
     {
@@ -49,9 +49,11 @@
   //const handleChangeWidget= e => (selectedWidget.set(item.name))
 </script>
 
-<div class="wrapper mb-3" on:click={() => ($visibleCommandPalette = true)}>
-  <FontIcon icon="icon menu" />
-</div>
+{#if !$visibleToolbar}
+  <div class="wrapper mb-3" on:click={() => ($visibleCommandPalette = true)}>
+    <FontIcon icon="icon menu" />
+  </div>
+{/if}
 {#each widgets as item}
   <div class="wrapper" class:selected={item.name == $selectedWidget} on:click={() => handleChangeWidget(item.name)}>
     <FontIcon icon={item.icon} />
