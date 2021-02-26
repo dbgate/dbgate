@@ -1,3 +1,5 @@
+import { openedTabs } from '../stores';
+
 export class LoadingToken {
   constructor() {
     this.isCanceled = false;
@@ -21,4 +23,8 @@ export function setSelectedTabFunc(files, tabid) {
     ...(files || []).filter(x => x.tabid != tabid).map(x => ({ ...x, selected: false })),
     ...(files || []).filter(x => x.tabid == tabid).map(x => ({ ...x, selected: true })),
   ];
+}
+
+export function setSelectedTab(tabid) {
+  openedTabs.update(tabs => setSelectedTabFunc(tabs, tabid));
 }

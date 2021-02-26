@@ -155,10 +155,10 @@ export default class ChangeSetGrider extends Grider {
     return this.insertedRows.length > 0;
   }
 
-  static factory({ sourceRows, changeSetState, dispatchChangeSet, display }): ChangeSetGrider {
-    return new ChangeSetGrider(sourceRows, changeSetState, dispatchChangeSet, display);
-  }
-  static factoryDeps({ sourceRows, changeSetState, dispatchChangeSet, display }) {
-    return [sourceRows, changeSetState ? changeSetState.value : null, dispatchChangeSet, display];
-  }
+  // static factory({ sourceRows, changeSetState, dispatchChangeSet, display }): ChangeSetGrider {
+  //   return new ChangeSetGrider(sourceRows, changeSetState, dispatchChangeSet, display);
+  // }
+  // static factoryDeps({ sourceRows, changeSetState, dispatchChangeSet, display }) {
+  //   return [sourceRows, changeSetState ? changeSetState.value : null, dispatchChangeSet, display];
+  // }
 }

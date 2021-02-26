@@ -21,6 +21,11 @@ export interface FileFormatDefinition {
   getOutputParams?: (sourceName, values) => any;
 }
 
+export interface ThemeDefinition {
+  className: string;
+  themeName: string;
+}
+
 export interface PluginDefinition {
   packageName: string;
   manifest: any;
@@ -31,4 +36,5 @@ export interface ExtensionsDirectory {
   plugins: PluginDefinition[];
   fileFormats: FileFormatDefinition[];
   drivers: EngineDriver[];
+  themes: ThemeDefinition[];
 }

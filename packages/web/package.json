@@ -1,69 +1,41 @@
 {
   "name": "dbgate-web",
-  "version": "3.9.5",
-  "files": [
-    "build"
-  ],
+  "version": "1.0.0",
   "scripts": {
-    "start": "cross-env BROWSER=none PORT=5000 react-scripts start",
-    "build:docker": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
-    "build:app": "cross-env PUBLIC_URL=. CI=false react-scripts build",
-    "build": "cross-env CI=false REACT_APP_API_URL=ORIGIN react-scripts build",
-    "prepublishOnly": "yarn build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "ts": "tsc"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public",
+    "validate": "svelte-check"
   },
   "devDependencies": {
-    "@types/react": "^16.9.17",
-    "@types/styled-components": "^4.4.2",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^6.0.0",
+    "@tsconfig/svelte": "^1.0.0",
+    "rollup": "^2.3.4",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-check": "^1.0.0",
+    "svelte-preprocess": "^4.0.0",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.3",
+    "socket.io-client": "^2.3.0",
+    "sql-formatter": "^2.3.3",
+    "uuid": "^3.4.0",
+    "json-stable-stringify": "^1.0.1",
+    "localforage": "^1.9.0",
     "dbgate-types": "^3.9.5",
-    "typescript": "^3.7.4",
-    "@ant-design/colors": "^5.0.0",
-    "@mdi/font": "^5.8.55",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "ace-builds": "^1.4.8",
-    "axios": "^0.19.0",
-    "chart.js": "^2.9.4",
-    "compare-versions": "^3.6.0",
-    "cross-env": "^6.0.3",
     "dbgate-datalib": "^3.9.5",
     "dbgate-sqltree": "^3.9.5",
     "dbgate-tools": "^3.9.5",
-    "eslint": "^6.8.0",
-    "eslint-plugin-react": "^7.17.0",
-    "json-stable-stringify": "^1.0.1",
-    "localforage": "^1.9.0",
-    "markdown-to-jsx": "^7.1.0",
-    "randomcolor": "^0.6.2",
-    "react": "^16.12.0",
-    "react-ace": "^8.0.0",
-    "react-chartjs-2": "^2.11.1",
-    "react-dom": "^16.12.0",
-    "react-dropzone": "^11.2.3",
-    "react-helmet": "^6.1.0",
-    "react-json-view": "^1.19.1",
-    "react-modal": "^3.11.1",
-    "react-scripts": "3.3.0",
-    "react-select": "^3.1.0",
-    "resize-observer-polyfill": "^1.5.1",
-    "socket.io-client": "^2.3.0",
-    "sql-formatter": "^2.3.3",
-    "styled-components": "^4.4.1",
-    "uuid": "^3.4.0"
+    "lodash": "^4.17.15"
+  },
+  "dependencies": {
+    "@mdi/font": "^5.9.55",
+    "sirv-cli": "^1.0.0"
   }
 }
