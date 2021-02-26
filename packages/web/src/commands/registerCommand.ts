@@ -7,7 +7,8 @@ export interface SubCommand {
 
 export interface GlobalCommand {
   id: string;
-  text: string;
+  category: string;
+  name: string;
   keyText?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;
@@ -15,6 +16,7 @@ export interface GlobalCommand {
   icon?: string;
   toolbar?: boolean;
   enabled?: boolean;
+  showDisabled?: boolean;
 }
 
 export default function registerCommand(command: GlobalCommand) {

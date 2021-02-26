@@ -3,8 +3,11 @@
 
   registerCommand({
     id: 'dataGrid.refresh',
-    text: 'Data grid: Refresh',
+    category: 'Data grid',
+    name: 'Refresh',
     keyText: 'F5',
+    toolbar: true,
+    icon: 'icon reload',
     enabledStore: derived([currentDataGrid], ([grid]) => grid != null),
     onClick: () => get(currentDataGrid).refresh(),
   });

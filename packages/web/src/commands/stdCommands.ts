@@ -1,6 +1,6 @@
-import { currentTheme, extensions } from '../stores';
+import { currentTheme, extensions, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
-import { get } from 'svelte/store';
+import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 
 function themeCommand(theme: ThemeDefinition) {
@@ -19,6 +19,23 @@ function themeCommand(theme: ThemeDefinition) {
 
 registerCommand({
   id: 'theme.changeTheme',
-  text: 'Theme: Change',
+  category: 'Theme',
+  name: 'Change',
   getSubCommands: () => get(extensions).themes.map(themeCommand),
+});
+
+registerCommand({
+  id: 'toolbar.show',
+  category: 'Toolbar',
+  name: 'Show',
+  onClick: () => visibleToolbar.set(1),
+  enabledStore: derived(visibleToolbar, $visibleToolbar => !$visibleToolbar),
+});
+
+registerCommand({
+  id: 'toolbar.hide',
+  category: 'Toolbar',
+  name: 'Hide',
+  onClick: () => visibleToolbar.set(0),
+  enabledStore: derived(visibleToolbar, $visibleToolbar => $visibleToolbar),
 });

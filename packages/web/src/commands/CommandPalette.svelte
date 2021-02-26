@@ -1,8 +1,12 @@
 <script context="module">
   registerCommand({
     id: 'commandPalette.show',
-    text: 'Command palette: Show',
+    category: 'Command palette',
+    name: 'Show',
     keyText: 'F1',
+    toolbar: true,
+    showDisabled: true,
+    icon: 'icon menu',
     onClick: () => visibleCommandPalette.set(true),
     enabledStore: derived(visibleCommandPalette, $visibleCommandPalette => !$visibleCommandPalette),
   });
@@ -61,7 +65,7 @@
   </div>
   {#each filteredItems as command, index}
     <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
-      <div>{command.text}</div>
+      <div>{command.category}: {command.name}</div>
       {#if command.keyText}
         <div class="shortcut">{command.keyText}</div>
       {/if}

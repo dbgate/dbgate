@@ -1,10 +1,11 @@
 <script lang="ts">
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
-  import { currentTheme, selectedWidget, visibleCommandPalette } from './stores';
+  import { currentTheme, selectedWidget, visibleCommandPalette, visibleToolbar } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
   import TabContent from './TabContent.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
+  import Toolbar from './widgets/Toolbar.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>
@@ -28,6 +29,11 @@
       <CommandPalette />
     </div>
   {/if}
+  {#if $visibleToolbar}
+    <div class="toolbar">
+      <Toolbar />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -37,7 +43,7 @@
   .iconbar {
     position: fixed;
     left: 0;
-    top: 0;
+    top: var(--dim-header-top);
     bottom: var(--dim-statusbar-height);
     width: var(--dim-widget-icon-size);
     background: var(--theme-bg-inv-1);
@@ -52,7 +58,7 @@
   }
   .leftpanel {
     position: fixed;
-    top: 0;
+    top: var(--dim-header-top);
     left: var(--dim-widget-icon-size);
     bottom: var(--dim-statusbar-height);
     width: var(--dim-left-panel-width);
@@ -62,7 +68,7 @@
   .tabs {
     display: flex;
     position: fixed;
-    top: 0;
+    top: var(--dim-header-top);
     left: var(--dim-content-left);
     height: var(--dim-tabs-panel-height);
     right: 0;
@@ -76,7 +82,7 @@
   }
   .content {
     position: fixed;
-    top: var(--dim-tabs-panel-height);
+    top: var(--dim-content-top);
     left: var(--dim-content-left);
     bottom: var(--dim-statusbar-height);
     right: 0;
@@ -84,7 +90,14 @@
   }
   .commads {
     position: fixed;
-    top: 0;
+    top: var(--dim-header-top);
     left: var(--dim-widget-icon-size);
+  }
+  .toolbar {
+    position: fixed;
+    top: 0;
+    height: var(--dim-toolbar-height);
+    left: 0;
+    right: 0;
   }
 </style>
