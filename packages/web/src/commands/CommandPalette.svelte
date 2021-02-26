@@ -67,7 +67,7 @@
   </div>
   {#each filteredItems as command, index}
     <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
-      <div>{command.category}: {command.name}</div>
+      <div>{command.text}</div>
       {#if command.keyText}
         <div class="shortcut">{command.keyText}</div>
       {/if}

@@ -9,6 +9,7 @@ export interface GlobalCommand {
   id: string;
   category: string;
   name: string;
+  text: string /* category: name */;
   keyText?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;
@@ -26,6 +27,7 @@ export default function registerCommand(command: GlobalCommand) {
   commands.update(x => ({
     ...x,
     [command.id]: {
+      text: `${command.category}: ${command.name}`,
       ...command,
       enabled: !enabledStore,
     },

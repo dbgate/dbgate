@@ -32,7 +32,6 @@
     display: flex;
   }
   .button.disabled {
-    background: var(--theme-bg-2);
     color: var(--theme-font-3);
   }
   .button:hover {
