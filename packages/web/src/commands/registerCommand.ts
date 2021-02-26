@@ -17,6 +17,8 @@ export interface GlobalCommand {
   toolbar?: boolean;
   enabled?: boolean;
   showDisabled?: boolean;
+  toolbarName?: string;
+  toolbarOrder?: number;
 }
 
 export default function registerCommand(command: GlobalCommand) {

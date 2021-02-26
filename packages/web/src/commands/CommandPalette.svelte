@@ -3,6 +3,8 @@
     id: 'commandPalette.show',
     category: 'Command palette',
     name: 'Show',
+    toolbarName: 'Menu',
+    toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
     showDisabled: true,
