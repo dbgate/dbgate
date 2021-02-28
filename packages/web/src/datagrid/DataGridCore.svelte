@@ -15,6 +15,7 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
+  import { get_current_component } from 'svelte/internal';
   import _ from 'lodash';
   import { writable, get, derived } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -37,9 +38,9 @@
   export let conid = undefined;
   export let database = undefined;
   export let frameSelection = undefined;
-  export let instance = undefined;
 
   const wheelRowCount = 5;
+  const instance = get_current_component();
 
   let containerHeight = 0;
   let containerWidth = 0;

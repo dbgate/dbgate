@@ -9,7 +9,7 @@ export interface GlobalCommand {
   id: string;
   category: string;
   name: string;
-  text: string /* category: name */;
+  text?: string /* category: name */;
   keyText?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;

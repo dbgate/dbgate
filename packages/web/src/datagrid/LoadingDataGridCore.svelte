@@ -15,7 +15,6 @@
   let allRowCount = null;
   let errorMessage = null;
   let loadNextDataToken = 0;
-  let domComponent;
 
   async function loadNextData() {
     if (isLoading) return;
@@ -87,6 +86,4 @@
   {...$$props}
   loadNextData={handleLoadNextData}
   {grider}
-  bind:this={domComponent}
-  instance={domComponent}
 />
