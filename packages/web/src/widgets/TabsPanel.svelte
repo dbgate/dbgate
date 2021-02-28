@@ -102,7 +102,7 @@
     }
   };
 
-  const tabContextMenu = (tabid, props) => () => {
+  const getContextMenu = (tabid, props) => () => {
     const { conid, database } = props || {};
     const res = [
       {
@@ -147,7 +147,7 @@
           class:selected={tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
-          use:contextMenu={tabContextMenu(tab.tabid, tab.props)}
+          use:contextMenu={getContextMenu(tab.tabid, tab.props)}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">

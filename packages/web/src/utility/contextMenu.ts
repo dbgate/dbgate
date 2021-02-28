@@ -15,5 +15,8 @@ export default function contextMenu(node, items) {
     destroy() {
       node.removeEventListener('contextmenu', handleContextMenu);
     },
+    update(value) {
+      items = value;
+    },
   };
 }

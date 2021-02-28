@@ -1,7 +1,38 @@
+<script context="module">
+  const getContextMenu = (data, $openedConnections) => () => {
+    const handleRefresh = () => {
+      axios.post('server-connections/refresh', { conid: data._id });
+    };
+    const handleDisconnect = () => {
+      openedConnections.update(list => list.filter(x => x != data._id));
+    };
+    const handleConnect = () => {
+      openedConnections.update(list => _.uniq([...list, data._id]));
+    };
+
+    return [
+      !$openedConnections.includes(data._id) && {
+        text: 'Connect',
+        onClick: handleConnect,
+      },
+      $openedConnections.includes(data._id) &&
+        data.status && {
+          text: 'Refresh',
+          onClick: handleRefresh,
+        },
+      $openedConnections.includes(data._id) && {
+        text: 'Disconnect',
+        onClick: handleDisconnect,
+      },
+    ];
+  };
+</script>
+
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, openedConnections } from '../stores';
+  import axios from '../utility/axios';
 
   export let commonProps;
   export let data;
@@ -35,8 +66,27 @@
       if (status && status.name == 'error') {
         statusTitle = status.message;
       }
+    } else {
+      statusIcon = null;
+      statusTitle = null;
     }
   }
+
+  // const handleEdit = () => {
+  //   showModal(modalState => <ConnectionModal modalState={modalState} connection={data} />);
+  // };
+  // const handleDelete = () => {
+  //   showModal(modalState => (
+  //     <ConfirmModal
+  //       modalState={modalState}
+  //       message={`Really delete connection ${data.displayName || data.server}?`}
+  //       onConfirm={() => axios.post('connections/delete', data)}
+  //     />
+  //   ));
+  // };
+  // const handleCreateDatabase = () => {
+  //   showModal(modalState => <CreateDatabaseModal modalState={modalState} conid={data._id} />);
+  // };
 </script>
 
 <AppObjectCore
@@ -47,6 +97,7 @@
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
+  menu={getContextMenu(data, $openedConnections)}
   on:click
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
 />

@@ -1,5 +1,6 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
+  import contextMenu from '../utility/contextMenu';
 
   export let icon;
   export let title;
@@ -10,9 +11,10 @@
   export let statusIcon = undefined;
   export let statusTitle = undefined;
   export let extInfo = undefined;
+  export let menu = undefined;
 </script>
 
-<div class="main" class:isBold draggable on:click>
+<div class="main" class:isBold draggable on:click use:contextMenu={menu}>
   {prefix}
   {#if isBusy}
     <FontIcon icon="icon loading" />
