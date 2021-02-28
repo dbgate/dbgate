@@ -102,12 +102,36 @@
     }
   };
 
-  const tabContextMenu = tabid => () => [
-    {
-      text: 'Close',
-      onClick: () => closeTab(tabid),
-    },
-  ];
+  const tabContextMenu = (tabid, props) => () => {
+    const { conid, database } = props || {};
+    const res = [
+      {
+        text: 'Close',
+        onClick: () => closeTab(tabid),
+      },
+      {
+        text: 'Close all',
+        onClick: closeAll,
+      },
+      {
+        text: 'Close others',
+        onClick: () => closeOthers(tabid),
+      },
+    ];
+    if (conid && database) {
+      res.push(
+        {
+          text: `Close with same DB - ${database}`,
+          onClick: () => closeWithSameDb(tabid),
+        },
+        {
+          text: `Close with other DB than ${database}`,
+          onClick: () => closeWithOtherDb(tabid),
+        }
+      );
+    }
+    return res;
+  };
 </script>
 
 {#each dbKeys as dbKey}
@@ -123,7 +147,7 @@
           class:selected={tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
-          use:contextMenu={tabContextMenu(tab.tabid)}
+          use:contextMenu={tabContextMenu(tab.tabid, tab.props)}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">
