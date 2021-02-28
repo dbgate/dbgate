@@ -6,11 +6,13 @@
   import { useConnectionList, useServerStatus } from '../utility/metadataLoaders';
   import SearchBoxWrapper from './SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
-  import ConnectionAppObject from '../appobj/ConnectionAppObject.svelte';
+  import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
+
+  let filter = '';
 
   $: connectionsWithStatus =
     $connections && $serverStatus
@@ -19,14 +21,15 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search connection" />
+  <SearchInput placeholder="Search connection" bind:value={filter} />
   <InlineButton>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList
     list={_.sortBy(connectionsWithStatus, ({ displayName, server }) => (displayName || server || '').toUpperCase())}
-    component={ConnectionAppObject}
+    module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick
+    {filter}
   />
 </WidgetsInnerContainer>

@@ -26,6 +26,9 @@
       },
     ];
   };
+
+  export const extractKey = data => data._id;
+  export const createMatcher = ({ displayName, server }) => filter => filterName(filter, displayName, server);
 </script>
 
 <script lang="ts">
@@ -33,6 +36,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, openedConnections } from '../stores';
   import axios from '../utility/axios';
+  import { filterName } from 'dbgate-datalib';
 
   export let commonProps;
   export let data;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let component;
+  export let module;
   export let data;
   export let subItemsComponent;
   export let expandOnClick;
@@ -13,7 +13,7 @@
   }
 </script>
 
-<svelte:component this={component} {data} on:click={handleExpand} />
+<svelte:component this={module.default} {data} on:click={handleExpand} />
 
 {#if isExpanded && subItemsComponent}
   <svelte:component this={subItemsComponent} {data} />

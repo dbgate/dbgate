@@ -6,7 +6,7 @@
   import SearchBoxWrapper from './SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
-  import DatabaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
+  import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
   import { currentDatabase } from '../stores';
 
   export let conid;
@@ -30,5 +30,5 @@
   <InlineButton>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <AppObjectList list={objectList.map(x => ({ ...x, conid, database }))} component={DatabaseObjectAppObject} />
+  <AppObjectList list={objectList.map(x => ({ ...x, conid, database }))} module={databaseObjectAppObject} />
 </WidgetsInnerContainer>
