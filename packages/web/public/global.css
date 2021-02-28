@@ -28,6 +28,10 @@ body {
   background-color: var(--theme-bg-2);
 }
 
+.icon-invisible {
+  visibility: hidden;
+}
+
 /* html, body {
 	position: relative;
 	width: 100%;

@@ -12,6 +12,8 @@
   export let conid;
   export let database;
 
+  let filter = '';
+
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
 
@@ -26,9 +28,14 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search connection" />
+  <SearchInput placeholder="Search connection" bind:value={filter} />
   <InlineButton>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <AppObjectList list={objectList.map(x => ({ ...x, conid, database }))} module={databaseObjectAppObject} />
+  <AppObjectList
+    list={objectList.map(x => ({ ...x, conid, database }))}
+    module={databaseObjectAppObject}
+    groupFunc={data => _.startCase(data.objectTypeField)}
+    {filter}
+  />
 </WidgetsInnerContainer>

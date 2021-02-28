@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+  export const extractKey = props => props.name;
+</script>
+
 <script lang="ts">
   import _ from 'lodash';
 

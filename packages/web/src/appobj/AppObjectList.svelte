@@ -1,10 +1,14 @@
-<script lang="ts">
+<script>
+  import _ from 'lodash';
+  import AppObjectGroup from './AppObjectGroup.svelte';
+
   import AppObjectListItem from './AppObjectListItem.svelte';
 
   export let list;
   export let module;
   export let subItemsComponent = undefined;
   export let expandOnClick = false;
+  export let isExpandable = undefined;
   export let filter;
 
   export let groupFunc = undefined;
@@ -14,8 +18,27 @@
     if (matcher && !matcher(filter)) return false;
     return true;
   });
+
+  $: listGrouped = groupFunc
+    ? _.compact(
+        (list || []).map(data => {
+          const matcher = module.createMatcher && module.createMatcher(data);
+          const isMatched = matcher && !matcher(filter) ? false : true;
+          const group = groupFunc(data);
+          return { group, data, isMatched };
+        })
+      )
+    : null;
+
+  $: groups = groupFunc ? _.groupBy(listGrouped, 'group') : null;
 </script>
 
-{#each filtered as data}
-  <AppObjectListItem {module} {subItemsComponent} {expandOnClick} {data} on:objectClick />
-{/each}
+{#if groupFunc}
+  {#each _.keys(groups) as group (group)}
+    <AppObjectGroup {group} {module} items={groups[group]} />
+  {/each}
+{:else}
+  {#each filtered as data (module.extractKey(data))}
+    <AppObjectListItem {module} {subItemsComponent} {expandOnClick} {data} {isExpandable} on:objectClick />
+  {/each}
+{/if}

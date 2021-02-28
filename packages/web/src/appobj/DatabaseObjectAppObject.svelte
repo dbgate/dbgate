@@ -1,8 +1,14 @@
+<script lang="ts" context="module">
+  export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
+  export const createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
+</script>
+
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, openedConnections } from '../stores';
   import openNewTab from '../utility/openNewTab';
+  import { filterName } from 'dbgate-datalib';
 
   export let commonProps;
   export let data;

@@ -6,7 +6,6 @@
   export let title;
 
   export let isBold = false;
-  export let prefix = '';
   export let isBusy = false;
   export let statusIcon = undefined;
   export let statusTitle = undefined;
@@ -15,7 +14,7 @@
 </script>
 
 <div class="main" class:isBold draggable on:click use:contextMenu={menu}>
-  {prefix}
+  <slot name="prefix" />
   {#if isBusy}
     <FontIcon icon="icon loading" />
   {:else}

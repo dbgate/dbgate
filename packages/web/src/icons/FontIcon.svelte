@@ -102,4 +102,4 @@
   };
 </script>
 
-<span class={iconNames[icon] || icon} {title} />
+<span class={iconNames[icon] || icon} {title} on:click />

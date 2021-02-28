@@ -102,6 +102,8 @@
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
   menu={getContextMenu(data, $openedConnections)}
-  on:click
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
-/>
+  on:click
+>
+  <slot name="prefix" slot="prefix" />
+</AppObjectCore>
