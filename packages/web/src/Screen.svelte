@@ -1,11 +1,13 @@
-<script lang="ts">
+<script>
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
-  import { currentTheme, selectedWidget, visibleCommandPalette, visibleToolbar } from './stores';
+  import { currentTheme, leftPanelWidth, selectedWidget, visibleCommandPalette, visibleToolbar } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
   import TabContent from './TabContent.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
+  import splitterDrag from './utility/splitterDrag';
+  import { update } from 'lodash';
 </script>
 
 <div class={`${$currentTheme} root`}>
@@ -24,6 +26,11 @@
   <div class="content">
     <TabContent />
   </div>
+  <div
+    class="horizontal-split-handle splitter"
+    use:splitterDrag={'clientX'}
+    on:resizeSplitter={e => leftPanelWidth.update(x => x + e.detail)}
+  />
   {#if $visibleCommandPalette}
     <div class="commads">
       <CommandPalette />
@@ -99,5 +106,12 @@
     height: var(--dim-toolbar-height);
     left: 0;
     right: 0;
+  }
+
+  .splitter {
+    position: absolute;
+    top: var(--dim-header-top);
+    bottom: var(--dim-statusbar-height);
+    left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width));
   }
 </style>

@@ -21,7 +21,7 @@
   import { derived } from 'svelte/store';
   import { onMount } from 'svelte';
   import { commands, visibleCommandPalette } from '../stores';
-  import { clickOutside } from '../utility/clickOutside';
+  import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
   import registerCommand from './registerCommand';
 
