@@ -1,0 +1,13 @@
+<script>
+  import { currentDropDownMenu } from '../src/stores';
+  import DropDownMenu from './DropDownMenu.svelte';
+</script>
+
+{#if $currentDropDownMenu}
+  <DropDownMenu
+    left={$currentDropDownMenu.left}
+    top={$currentDropDownMenu.top}
+    items={$currentDropDownMenu.items}
+    on:close={() => ($currentDropDownMenu = null)}
+  />
+{/if}

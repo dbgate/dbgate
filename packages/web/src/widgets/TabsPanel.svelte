@@ -25,6 +25,7 @@
 
   import { currentDatabase, openedTabs } from '../stores';
   import { setSelectedTab } from '../utility/common';
+  import contextMenu from '../utility/contextMenu';
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
@@ -100,6 +101,13 @@
       closeTab(tabid);
     }
   };
+
+  const tabContextMenu = tabid => () => [
+    {
+      text: 'Close',
+      onClick: () => closeTab(tabid),
+    },
+  ];
 </script>
 
 {#each dbKeys as dbKey}
@@ -115,6 +123,7 @@
           class:selected={tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
+          use:contextMenu={tabContextMenu(tab.tabid)}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">

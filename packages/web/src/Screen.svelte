@@ -7,7 +7,7 @@
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
-  import { update } from 'lodash';
+  import CurrentDropDownMenu from '../modals/CurrentDropDownMenu.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>
@@ -43,6 +43,7 @@
       <Toolbar />
     </div>
   {/if}
+  <CurrentDropDownMenu />
 </div>
 
 <style>

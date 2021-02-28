@@ -46,6 +46,7 @@
     if (command.getSubCommands) {
       parentCommand = command;
       domInput.focus();
+      filter = '';
       selectedIndex = 0;
     } else {
       $visibleCommandPalette = false;
