@@ -26,11 +26,13 @@
   <div class="content">
     <TabContent />
   </div>
-  <div
-    class="horizontal-split-handle splitter"
-    use:splitterDrag={'clientX'}
-    on:resizeSplitter={e => leftPanelWidth.update(x => x + e.detail)}
-  />
+  {#if $selectedWidget}
+    <div
+      class="horizontal-split-handle splitter"
+      use:splitterDrag={'clientX'}
+      on:resizeSplitter={e => leftPanelWidth.update(x => x + e.detail)}
+    />
+  {/if}
   {#if $visibleCommandPalette}
     <div class="commads">
       <CommandPalette />
