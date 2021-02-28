@@ -7,7 +7,7 @@
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
-  import CurrentDropDownMenu from '../modals/CurrentDropDownMenu.svelte';
+  import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>

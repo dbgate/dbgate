@@ -1,5 +1,5 @@
 <script>
-  import clickOutside from '../src/utility/clickOutside';
+  import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
 
   export let items;

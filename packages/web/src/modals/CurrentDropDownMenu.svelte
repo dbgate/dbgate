@@ -1,5 +1,5 @@
 <script>
-  import { currentDropDownMenu } from '../src/stores';
+  import { currentDropDownMenu } from '../stores';
   import DropDownMenu from './DropDownMenu.svelte';
 </script>
 
