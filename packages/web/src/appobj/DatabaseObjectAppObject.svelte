@@ -10,7 +10,6 @@
   import openNewTab from '../utility/openNewTab';
   import { filterName } from 'dbgate-datalib';
 
-  export let commonProps;
   export let data;
 
   const icons = {
@@ -38,7 +37,7 @@
 </script>
 
 <AppObjectCore
-  {...commonProps}
+  {...$$restProps}
   {data}
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={icons[data.objectTypeField]}

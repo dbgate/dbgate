@@ -1,12 +1,21 @@
+<script lang="ts" context="module">
+  function getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc) {
+    if (!subItemsComponent) return null;
+    if (!expandable) return 'icon invisible-box';
+    return expandIconFunc(isExpanded);
+  }
+</script>
+
 <script lang="ts">
-  import ExpandIcon from '../icons/ExpandIcon.svelte';
   import { tick } from 'svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
 
   export let module;
   export let data;
   export let subItemsComponent;
   export let expandOnClick;
   export let isExpandable = undefined;
+  export let expandIconFunc = plusExpandIcon;
 
   let isExpanded = false;
 
@@ -22,19 +31,13 @@
   $: if (!expandable && isExpanded) isExpanded = false;
 </script>
 
-{#if subItemsComponent}
-  <svelte:component this={module.default} {data} on:click={handleExpand}>
-    <span class="expand-icon" slot="prefix">
-      {#if expandable}
-        <ExpandIcon {isExpanded} />
-      {:else}
-        <ExpandIcon isBlank />
-      {/if}
-    </span>
-  </svelte:component>
-{:else}
-  <svelte:component this={module.default} {data} on:click={handleExpand} />
-{/if}
+<svelte:component
+  this={module.default}
+  {data}
+  on:click={handleExpand}
+  on:expand={handleExpand}
+  expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
+/>
 
 {#if isExpanded && subItemsComponent}
   <div class="subitems">
@@ -43,9 +46,6 @@
 {/if}
 
 <style>
-  .expand-icon {
-    margin-right: 3px;
-  }
   .subitems {
     margin-left: 28px;
   }

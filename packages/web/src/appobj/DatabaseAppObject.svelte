@@ -10,11 +10,10 @@
   import AppObjectCore from './AppObjectCore.svelte';
 
   export let data;
-  export let commonProps;
 </script>
 
 <AppObjectCore
-  {...commonProps}
+  {...$$restProps}
   {data}
   title={data.name}
   icon="img database"

@@ -1,6 +1,9 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
   import contextMenu from '../utility/contextMenu';
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
 
   export let icon;
   export let title;
@@ -11,10 +14,19 @@
   export let statusTitle = undefined;
   export let extInfo = undefined;
   export let menu = undefined;
+  export let expandIcon = undefined;
+
+  function handleExpand() {
+    dispatch('expand');
+  }
 </script>
 
 <div class="main" class:isBold draggable on:click use:contextMenu={menu}>
-  <slot name="prefix" />
+  {#if expandIcon}
+    <span class="expand-icon" on:click={handleExpand}>
+      <FontIcon icon={expandIcon} />
+    </span>
+  {/if}
   {#if isBusy}
     <FontIcon icon="icon loading" />
   {:else}
@@ -54,5 +66,8 @@
     font-weight: normal;
     margin-left: 5px;
     color: var(--theme-font-3);
+  }
+  .expand-icon {
+    margin-right: 3px;
   }
 </style>

@@ -38,7 +38,6 @@
   import axios from '../utility/axios';
   import { filterName } from 'dbgate-datalib';
 
-  export let commonProps;
   export let data;
 
   let statusIcon = null;
@@ -94,7 +93,7 @@
 </script>
 
 <AppObjectCore
-  {...commonProps}
+  {...$$restProps}
   title={data.displayName || data.server}
   icon="img server"
   isBold={_.get($currentDatabase, 'connection._id') == data._id}
@@ -104,6 +103,4 @@
   menu={getContextMenu(data, $openedConnections)}
   on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
   on:click
->
-  <slot name="prefix" slot="prefix" />
-</AppObjectCore>
+/>
