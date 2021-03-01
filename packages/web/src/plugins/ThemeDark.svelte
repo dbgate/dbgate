@@ -55,5 +55,8 @@
     --theme-icon-gold: #e8b339;
     --theme-icon-yellow: #e8d639;
     --theme-icon-magenta: #e0529c;
+
+    --theme-icon-inv-green: #8fd460;
+    --theme-icon-inv-red: #e84749;
   }
 </style>

@@ -8,13 +8,16 @@
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
+  import StatusBar from './widgets/StatusBar.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
-  <div class="statusbar" />
+  <div class="statusbar">
+    <StatusBar />
+  </div>
   {#if $selectedWidget}
     <div class="leftpanel">
       <WidgetContainer />

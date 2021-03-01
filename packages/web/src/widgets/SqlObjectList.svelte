@@ -11,7 +11,7 @@
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from './ErrorInfo.svelte';
   import axios from '../utility/axios';
-import LoadingInfo from './LoadingInfo.svelte';
+  import LoadingInfo from './LoadingInfo.svelte';
 
   export let conid;
   export let database;

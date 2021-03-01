@@ -21,3 +21,12 @@
 .color-icon-magenta {
   color: var(--theme-icon-magenta);
 }
+
+
+.color-icon-inv-green {
+  color: var(--theme-icon-inv-green);
+}
+
+.color-icon-inv-red {
+  color: var(--theme-icon-inv-red);
+}

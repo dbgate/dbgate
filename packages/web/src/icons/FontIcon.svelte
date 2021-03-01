@@ -63,8 +63,10 @@
     'icon menu': 'mdi mdi-menu',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
+    'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
     'img alert': 'mdi mdi-alert-circle color-icon-blue',
     'img error': 'mdi mdi-close-circle color-icon-red',
+    'img error-inv': 'mdi mdi-close-circle color-icon-inv-red',
     'img warn': 'mdi mdi-alert color-icon-gold',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
 
