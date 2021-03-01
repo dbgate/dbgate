@@ -1,5 +1,6 @@
 import App from './App.svelte';
 import './utility/connectionsPinger';
+import './utility/changeCurrentDbByTab';
 import './commands/stdCommands';
 
 const app = new App({
