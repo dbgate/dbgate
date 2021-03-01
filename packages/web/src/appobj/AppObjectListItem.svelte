@@ -26,6 +26,10 @@
     }
   }
 
+  function handleExpandButton() {
+    isExpanded = !isExpanded;
+  }
+
   $: expandable = data && isExpandable && isExpandable(data);
 
   $: if (!expandable && isExpanded) isExpanded = false;
@@ -35,7 +39,7 @@
   this={module.default}
   {data}
   on:click={handleExpand}
-  on:expand={handleExpand}
+  on:expand={handleExpandButton}
   expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
 />
 

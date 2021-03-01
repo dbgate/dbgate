@@ -1,4 +1,8 @@
 <script>
+  import { plusExpandIcon } from '../icons/expandIcons';
+
+  import FontIcon from '../icons/FontIcon.svelte';
+
   import AppObjectListItem from './AppObjectListItem.svelte';
 
   export let group;
@@ -12,13 +16,17 @@
 </script>
 
 <div class="group" on:click={() => (isExpanded = !isExpanded)}>
+  <span class="expand-icon">
+    <FontIcon icon={plusExpandIcon(isExpanded)} />
+  </span>
+
   {group}
   {items && `(${countText})`}
 </div>
 
 {#if isExpanded}
   {#each filtered as item (module.extractKey(item.data))}
-    <AppObjectListItem {module} data={item.data} on:objectClick />
+    <AppObjectListItem {...$$restProps} {module} data={item.data} on:objectClick />
   {/each}
 {/if}
 
@@ -33,5 +41,8 @@
 
   .group:hover {
     background-color: var(--theme-bg-hover);
+  }
+  .expand-icon {
+    margin-right: 3px;
   }
 </style>

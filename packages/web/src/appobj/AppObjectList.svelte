@@ -10,6 +10,7 @@
   export let expandOnClick = false;
   export let isExpandable = undefined;
   export let filter;
+  export let expandIconFunc = undefined;
 
   export let groupFunc = undefined;
 
@@ -35,10 +36,18 @@
 
 {#if groupFunc}
   {#each _.keys(groups) as group (group)}
-    <AppObjectGroup {group} {module} items={groups[group]} />
+    <AppObjectGroup {group} {module} items={groups[group]} {expandIconFunc} {isExpandable} {subItemsComponent} />
   {/each}
 {:else}
   {#each filtered as data (module.extractKey(data))}
-    <AppObjectListItem {module} {subItemsComponent} {expandOnClick} {data} {isExpandable} on:objectClick />
+    <AppObjectListItem
+      {module}
+      {subItemsComponent}
+      {expandOnClick}
+      {data}
+      {isExpandable}
+      on:objectClick
+      {expandIconFunc}
+    />
   {/each}
 {/if}

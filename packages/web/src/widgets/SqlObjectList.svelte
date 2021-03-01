@@ -7,7 +7,8 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
-  import { currentDatabase } from '../stores';
+  import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
+  import { chevronExpandIcon } from '../icons/expandIcons';
 
   export let conid;
   export let database;
@@ -28,7 +29,7 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search connection" bind:value={filter} />
+  <SearchInput placeholder="Search tables or objects" bind:value={filter} />
   <InlineButton>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
@@ -36,6 +37,9 @@
     list={objectList.map(x => ({ ...x, conid, database }))}
     module={databaseObjectAppObject}
     groupFunc={data => _.startCase(data.objectTypeField)}
+    subItemsComponent={SubColumnParamList}
+    isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
+    expandIconFunc={chevronExpandIcon}
     {filter}
   />
 </WidgetsInnerContainer>

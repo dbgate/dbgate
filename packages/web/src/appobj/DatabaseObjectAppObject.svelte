@@ -42,4 +42,5 @@
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={icons[data.objectTypeField]}
   on:click={handleClick}
+  on:expand
 />

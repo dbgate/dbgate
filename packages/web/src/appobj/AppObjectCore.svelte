@@ -23,7 +23,7 @@
 
 <div class="main" class:isBold draggable on:click use:contextMenu={menu}>
   {#if expandIcon}
-    <span class="expand-icon" on:click={handleExpand}>
+    <span class="expand-icon" on:click|stopPropagation={handleExpand}>
       <FontIcon icon={expandIcon} />
     </span>
   {/if}
