@@ -1,6 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import { currentDatabase } from '../stores';
+import ErrorInfo from './ErrorInfo.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
@@ -11,5 +12,7 @@
 {#if conid && database}
   <SqlObjectList {conid} {database} />
 {:else}
-  <WidgetsInnerContainer>Database not selected</WidgetsInnerContainer>
+  <WidgetsInnerContainer>
+    <ErrorInfo message="Database not selected" icon="img alert" />
+  </WidgetsInnerContainer>
 {/if}

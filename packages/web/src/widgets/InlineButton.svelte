@@ -3,7 +3,7 @@
   export let square = false;
 </script>
 
-<div class="outer buttonLike" class:disabled class:square>
+<div class="outer buttonLike" class:disabled class:square on:click>
   <div class="inner">
     <slot />
   </div>
@@ -33,10 +33,14 @@
   }
 
   .outer:hover:not(.disabled) {
-    border: 1px solid var(--bg-1);
+    border: 1px solid var(--theme-font-1);
+  }
+
+  .outer:active:not(.disabled) {
     background: linear-gradient(to bottom, var(--bg-2) 5%, var(--bg-1) 100%);
     background-color: var(--bg-2);
   }
+
 
   .inner {
     margin: auto;

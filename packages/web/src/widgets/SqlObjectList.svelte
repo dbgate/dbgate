@@ -9,6 +9,9 @@
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
   import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
+  import ErrorInfo from './ErrorInfo.svelte';
+  import axios from '../utility/axios';
+import LoadingInfo from './LoadingInfo.svelte';
 
   export let conid;
   export let database;
@@ -26,20 +29,43 @@
       )
     )
   );
+
+  const handleRefreshDatabase = () => {
+    axios.post('database-connections/refresh', { conid, database });
+  };
 </script>
 
-<SearchBoxWrapper>
-  <SearchInput placeholder="Search tables or objects" bind:value={filter} />
-  <InlineButton>Refresh</InlineButton>
-</SearchBoxWrapper>
-<WidgetsInnerContainer>
-  <AppObjectList
-    list={objectList.map(x => ({ ...x, conid, database }))}
-    module={databaseObjectAppObject}
-    groupFunc={data => _.startCase(data.objectTypeField)}
-    subItemsComponent={SubColumnParamList}
-    isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
-    expandIconFunc={chevronExpandIcon}
-    {filter}
-  />
-</WidgetsInnerContainer>
+{#if $status && $status.name == 'error'}
+  <WidgetsInnerContainer>
+    <ErrorInfo message={$status.message} icon="img error" />
+    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+  </WidgetsInnerContainer>
+{:else if objectList.length == 0 && $status && $status.name != 'pending' && $objects}
+  <WidgetsInnerContainer>
+    <ErrorInfo
+      message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
+      icon="img alert"
+    />
+    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+  </WidgetsInnerContainer>
+{:else}
+  <SearchBoxWrapper>
+    <SearchInput placeholder="Search tables or objects" bind:value={filter} />
+    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+  </SearchBoxWrapper>
+  <WidgetsInnerContainer>
+    {#if ($status && $status.name == 'pending' && $objects) || !$objects}
+      <LoadingInfo message="Loading database structure" />
+    {:else}
+      <AppObjectList
+        list={objectList.map(x => ({ ...x, conid, database }))}
+        module={databaseObjectAppObject}
+        groupFunc={data => _.startCase(data.objectTypeField)}
+        subItemsComponent={SubColumnParamList}
+        isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
+        expandIconFunc={chevronExpandIcon}
+        {filter}
+      />
+    {/if}
+  </WidgetsInnerContainer>
+{/if}
