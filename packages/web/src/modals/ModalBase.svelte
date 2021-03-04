@@ -4,8 +4,8 @@
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
 
-  export let fullScreen;
-  export let noPadding;
+  export let fullScreen = false;
+  export let noPadding = false;
   export let modalId;
 
   function handleCloseModal() {

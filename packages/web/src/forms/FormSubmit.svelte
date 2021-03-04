@@ -6,10 +6,15 @@
   const dispatch = createEventDispatcher();
 
   const { submitActionRef } = getFormContext();
-  
+  const { values } = getFormContext();
+
+  function handleClick() {
+    dispatch('click', $values);
+  }
+
   submitActionRef.current = () => {
-    dispatch('click');
+    handleClick();
   };
 </script>
 
-<FormStyledButton type="submit" on:click {...$$props} />
+<FormStyledButton type="submit" on:click={handleClick} {...$$props} />

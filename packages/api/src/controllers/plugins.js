@@ -149,7 +149,7 @@ module.exports = {
     return content.commands[command](args);
   },
 
-  authTypes_meta: 'post',
+  authTypes_meta: 'get',
   async authTypes({ engine }) {
     const packageName = extractPackageName(engine);
     const content = requirePlugin(packageName);

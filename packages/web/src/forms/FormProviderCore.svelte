@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   import { getContext, setContext } from 'svelte';
+
   const contextKey = 'formProviderContextKey';
 
   export function getFormContext(): any {
@@ -11,9 +12,16 @@
   import keycodes from '../utility/keycodes';
 
   export let values;
+  export let template;
+
+  const setFieldValue = (name, value) => {
+    values.update(x => ({ ...x, [name]: value }));
+  };
 
   const context = {
     values,
+    template,
+    setFieldValue,
     submitActionRef: { current: null },
   };
 

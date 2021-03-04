@@ -27,6 +27,7 @@ export interface EngineAuthType {
 export interface EngineDriver {
   engine: string;
   title: string;
+  defaultPort?: number;
   connect({ server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);

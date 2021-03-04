@@ -119,6 +119,11 @@ const allFilesLoader = () => ({
   params: {},
   reloadTrigger: `all-files-changed`,
 });
+const authTypesLoader = ({ engine }) => ({
+  url: 'plugins/auth-types',
+  params: { engine },
+  reloadTrigger: `installed-plugins-changed`,
+});
 
 async function getCore(loader, args) {
   const { url, params, reloadTrigger, transform } = loader(args);
@@ -376,4 +381,11 @@ export function getFavorites(args) {
 }
 export function useFavorites(args) {
   return useCore(favoritesLoader, args);
+}
+
+export function getAuthTypes(args) {
+  return getCore(authTypesLoader, args);
+}
+export function useAuthTypes(args) {
+  return useCore(authTypesLoader, args);
 }

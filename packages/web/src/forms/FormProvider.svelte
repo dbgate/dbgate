@@ -2,11 +2,12 @@
   import { writable } from 'svelte/store';
   import FormProviderCore from './FormProviderCore.svelte';
 
-  export let initivalValues = {};
+  export let initialValues = {};
+  export let template;
 
-  const values = writable(initivalValues);
+  const values = writable(initialValues);
 </script>
 
-<FormProviderCore {values}>
+<FormProviderCore {values} {template}>
   <slot />
 </FormProviderCore>
