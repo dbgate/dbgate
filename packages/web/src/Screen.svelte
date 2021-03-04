@@ -9,6 +9,7 @@
   import splitterDrag from './utility/splitterDrag';
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
   import StatusBar from './widgets/StatusBar.svelte';
+  import ModalLayer from './modals/ModalLayer.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>
@@ -47,6 +48,7 @@
     </div>
   {/if}
   <CurrentDropDownMenu />
+  <ModalLayer />
 </div>
 
 <style>

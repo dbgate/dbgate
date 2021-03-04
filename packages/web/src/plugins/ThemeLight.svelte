@@ -41,6 +41,11 @@
     --theme-bg-selected: #91d5ff; /* blue-3 */
 
     --theme-bg-statusbar-inv: blue;
+    --theme-bg-modalheader: #eff;
+
+    --theme-bg-button-inv: #337ab7;
+    --theme-bg-button-inv-2: #4d8bc0;
+    --theme-bg-button-inv-3: #679cc9;
 
     --theme-icon-blue: #096dd9; /* blue-7 */
     --theme-icon-green: #237804; /* green-7 */
@@ -51,5 +56,6 @@
 
     --theme-icon-inv-green: #8fd460;
     --theme-icon-inv-red: #e84749;
+
   }
 </style>

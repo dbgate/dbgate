@@ -48,6 +48,11 @@
     --theme-bg-selected: #15395b; /* blue-3 */
 
     --theme-bg-statusbar-inv: blue;
+    --theme-bg-modalheader: rgb(43, 60, 61);
+
+    --theme-bg-button-inv: #004488;
+    --theme-bg-button-inv-2: #1a5794;
+    --theme-bg-button-inv-3: #346aa0;
 
     --theme-icon-blue: #3c9ae8;
     --theme-icon-green: #8fd460;

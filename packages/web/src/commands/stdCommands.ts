@@ -2,6 +2,8 @@ import { currentTheme, extensions, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
 import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
+import ConnectionModal from '../modals/ConnectionModal.svelte';
+import { showModal } from '../modals/modalTools';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -38,4 +40,14 @@ registerCommand({
   name: 'Hide',
   onClick: () => visibleToolbar.set(0),
   enabledStore: derived(visibleToolbar, $visibleToolbar => $visibleToolbar),
+});
+
+registerCommand({
+  id: 'new.connection',
+  toolbar: true,
+  icon: 'icon connection',
+  toolbarName: 'Add connection',
+  category: 'New',
+  name: 'Connection',
+  onClick: () => showModal(ConnectionModal),
 });
