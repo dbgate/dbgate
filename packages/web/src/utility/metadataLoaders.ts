@@ -335,10 +335,10 @@ export function useConfig() {
 }
 
 export function getPlatformInfo() {
-  return getCore(platformInfoLoader, {}) || {};
+  return getCore(platformInfoLoader, {});
 }
 export function usePlatformInfo() {
-  return useCore(platformInfoLoader, {}) || {};
+  return useCore(platformInfoLoader, {});
 }
 
 export function getArchiveFiles(args) {

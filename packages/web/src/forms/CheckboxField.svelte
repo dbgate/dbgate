@@ -1,1 +1,1 @@
-<input type="checkbox" {...$$restProps} />
+<input type="checkbox" {...$$restProps} on:change />

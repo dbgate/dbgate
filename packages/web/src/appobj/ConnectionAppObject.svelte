@@ -9,8 +9,15 @@
     const handleConnect = () => {
       openedConnections.update(list => _.uniq([...list, data._id]));
     };
+    const handleEdit = () => {
+      showModal(ConnectionModal, { connection: data });
+    };
 
     return [
+      {
+        text: 'Edit',
+        onClick: handleEdit,
+      },
       !$openedConnections.includes(data._id) && {
         text: 'Connect',
         onClick: handleConnect,
@@ -37,6 +44,8 @@
   import { currentDatabase, extensions, openedConnections } from '../stores';
   import axios from '../utility/axios';
   import { filterName } from 'dbgate-datalib';
+  import { showModal } from '../modals/modalTools';
+  import ConnectionModal from '../modals/ConnectionModal.svelte';
 
   export let data;
 

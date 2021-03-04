@@ -210,6 +210,7 @@
   }
   .file-name {
     margin-left: 5px;
+    white-space: nowrap;
   }
   .close-button {
     margin-left: 5px;

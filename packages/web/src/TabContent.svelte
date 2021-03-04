@@ -4,7 +4,7 @@
     if (tabComponent) {
       return {
         tabComponent,
-        props: selectedTab.props,
+        props: selectedTab && selectedTab.props,
       };
     }
     return null;
@@ -38,11 +38,15 @@
   $: {
     if (selectedTab) {
       const { tabid } = selectedTab;
-      if (tabid && !mountedTabs[tabid])
-        mountedTabs = {
-          ...mountedTabs,
-          [tabid]: createTabComponent(selectedTab),
-        };
+      if (tabid && !mountedTabs[tabid]) {
+        const newTab = createTabComponent(selectedTab);
+        if (newTab) {
+          mountedTabs = {
+            ...mountedTabs,
+            [tabid]: newTab,
+          };
+        }
+      }
     }
   }
 </script>
