@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FormPasswordField from '../forms/FormPasswordField.svelte';
+
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
 
@@ -27,6 +29,17 @@
   ]}
 />
 
+{#if $authTypes}
+  <FormSelectField
+    label="Authentication"
+    name="authType"
+    options={$authTypes.map(auth => ({
+      value: auth.name,
+      label: auth.title,
+    }))}
+  />
+{/if}
+
 <div class="row">
   <div class="col-9 mr-1">
     <FormTextField
@@ -46,6 +59,38 @@
     />
   </div>
 </div>
+
+<div class="row">
+  <div class="col-6 mr-1">
+    <FormTextField
+      label="User"
+      name="user"
+      disabled={disabledFields.includes('user')}
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+  <div class="col-6 mr-1">
+    <FormPasswordField
+      label="Password"
+      name="password"
+      disabled={disabledFields.includes('password')}
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+</div>
+
+{#if !disabledFields.includes('password')}
+  <FormSelectField
+    label="Password mode"
+    name="passwordMode"
+    options={[
+      { value: 'saveEncrypted', label: 'Save and encrypt' },
+      { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+    ]}
+  />
+{/if}
+
+<FormTextField label="Display name" name="displayName" />
 
 <style>
   .row {

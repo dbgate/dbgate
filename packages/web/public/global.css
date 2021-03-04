@@ -79,3 +79,51 @@ body {
   box-sizing: border-box;
   border-radius: 4px;
 }
+
+body *::-webkit-scrollbar {
+  height: 0.8em;
+  width: 0.8em;
+}
+body *::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background-color: var(--theme-bg-1);
+}
+body *::-webkit-scrollbar-corner {
+  border-radius: 1px;
+  background-color: var(--theme-bg-2);
+}
+
+body *::-webkit-scrollbar-thumb {
+  border-radius: 1px;
+  background-color: var(--theme-bg-3);
+}
+
+body *::-webkit-scrollbar-thumb:hover {
+  background-color: var(--theme-bg-4);
+}
+
+input {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}
+
+input[disabled] {
+  background-color: var(--theme-bg-1);
+}
+
+select {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}
+
+select[disabled] {
+  background-color: var(--theme-bg-1);
+}
+
+textarea {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}
