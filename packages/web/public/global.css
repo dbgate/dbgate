@@ -35,6 +35,27 @@ body {
   display: flex;
 }
 
+.col-9 {
+  flex-basis: 75%;
+  max-width: 75%;
+}
+.col-8 {
+  flex-basis: 66.6667%;
+  max-width: 66.6667%;
+}
+.col-6 {
+  flex-basis: 50%;
+  max-width: 50%;
+}
+.col-4 {
+  flex-basis: 33.3333%;
+  max-width: 33.3333%;
+}
+.col-3 {
+  flex-basis: 25%;
+  max-width: 25%;
+}
+
 /* html, body {
 	position: relative;
 	width: 100%;

@@ -2,6 +2,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { closeModal } from './modalTools';
   import clickOutside from '../utility/clickOutside';
+  import keycodes from '../utility/keycodes';
 
   export let fullScreen;
   export let noPadding;
@@ -9,6 +10,12 @@
 
   function handleCloseModal() {
     closeModal(modalId);
+  }
+
+  function handleEscape(e) {
+    if (e.keyCode == keycodes.escape) {
+      closeModal(modalId);
+    }
   }
 </script>
 
@@ -30,6 +37,8 @@
     </div>
   </div>
 </div>
+
+<svelte:window on:keydown={handleEscape} />
 
 <style>
   .bglayer {

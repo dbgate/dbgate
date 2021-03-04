@@ -8,7 +8,7 @@
   export let value;
 
   function handleClick() {
-    if (disabled) dispatch('click');
+    if (!disabled) dispatch('click');
   }
 </script>
 
