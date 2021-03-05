@@ -2,6 +2,10 @@
 </script>
 
 <script lang="ts">
+import { createMultiLineFilter } from 'dbgate-filterparser';
+
+  import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal.svelte';
+
   import { showModal } from '../modals/modalTools';
   import SetFilterModal from '../modals/SetFilterModal.svelte';
   import keycodes from '../utility/keycodes';
@@ -18,6 +22,12 @@
   function openFilterWindow(condition1) {
     showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
   }
+
+  const filterMultipleValues = () => {
+    showModal(FilterMultipleValuesModal, {
+      onFilter: (mode, text) => setFilter(createMultiLineFilter(mode, text)),
+    });
+  };
 
   function createMenu() {
     switch (filterType) {
