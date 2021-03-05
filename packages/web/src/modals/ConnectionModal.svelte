@@ -12,10 +12,9 @@
   import FormFieldTemplateLarge from './FormFieldTemplateLarge.svelte';
 
   import ModalBase from './ModalBase.svelte';
-  import { closeModal } from './modalTools';
+  import { closeCurrentModal, closeModal } from './modalTools';
 
   export let connection;
-  export let modalId;
 
   let isTesting;
   let sqlConnectResult;
@@ -40,7 +39,7 @@
 
   async function handleSubmit(e) {
     axios.post('connections/save', e.detail);
-    closeModal(modalId);
+    closeCurrentModal();
   }
 </script>
 
@@ -48,7 +47,7 @@
   template={FormFieldTemplateLarge}
   initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}
 >
-  <ModalBase {...$$restProps} {modalId} noPadding>
+  <ModalBase {...$$restProps} noPadding>
     <div slot="header">Add connection</div>
 
     <TabControl

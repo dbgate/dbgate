@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getFormContext } from './FormProviderCore.svelte';
-  import FromSelectFieldRaw from './FromSelectFieldRaw.svelte';
+  import FormSelectFieldRaw from './FormSelectFieldRaw.svelte';
 
   export let label;
   export let name;
@@ -10,5 +10,5 @@
 </script>
 
 <svelte:component this={template} type="select" {label} {...templateProps}>
-  <FromSelectFieldRaw {name} {...$$restProps} />
+  <FormSelectFieldRaw {name} {...$$restProps} />
 </svelte:component>

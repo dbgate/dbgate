@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getFormContext } from './FormProviderCore.svelte';
-  import FromCheckboxFieldRaw from './FromCheckboxFieldRaw.svelte';
+  import FormCheckboxFieldRaw from './FormCheckboxFieldRaw.svelte';
 
   export let label;
   export let name;
@@ -18,5 +18,5 @@
   {...templateProps}
   labelProps={disabled ? { disabled: true } : { onClick: () => setFieldValue(name, !$values[name]) }}
 >
-  <FromCheckboxFieldRaw {name} {...$$restProps} {disabled} />
+  <FormCheckboxFieldRaw {name} {...$$restProps} {disabled} />
 </svelte:component>

@@ -45,6 +45,7 @@
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
+  import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
   import {
     cellIsSelected,
     countColumnSizes,
@@ -56,6 +57,9 @@
   import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
   import LoadingInfo from '../widgets/LoadingInfo.svelte';
+  import InlineButton from '../widgets/InlineButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import DataFilterControl from './DataFilterControl.svelte';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -296,6 +300,36 @@
           </td>
         {/each}
       </tr>
+      {#if display.filterable}
+        <tr>
+          <td
+            class="header-cell"
+            data-row="filter"
+            data-col="header"
+            style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+          >
+            {#if display.filterCount > 0}
+              <InlineButton on:click={() => display.clearFilters()} square>
+                <FontIcon icon="icon filter-off" />
+              </InlineButton>
+            {/if}
+          </td>
+          {#each visibleRealColumns as col (col.uniqueName)}
+            <td
+              class="filter-cell"
+              data-row="filter"
+              data-col={col.colIndex}
+              style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+            >
+              <DataFilterControl
+                filterType={getFilterType(col.dataType)}
+                filter={display.getFilter(col.uniqueName)}
+                setFilter={value => display.setFilter(col.uniqueName, value)}
+              />
+            </td>
+          {/each}
+        </tr>
+      {/if}
     </thead>
     <tbody>
       {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}

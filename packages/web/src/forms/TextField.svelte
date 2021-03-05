@@ -9,4 +9,4 @@
   if (focused) onMount(() => domEditor.focus());
 </script>
 
-<input type="text" {...$$restProps} bind:value on:change bind:this={domEditor} />
+<input type="text" {...$$restProps} bind:value on:change on:input bind:this={domEditor} />

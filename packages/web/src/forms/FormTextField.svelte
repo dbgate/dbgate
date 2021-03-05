@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getFormContext } from './FormProviderCore.svelte';
-  import FromTextFieldRaw from './FromTextFieldRaw.svelte';
+  import FormTextFieldRaw from './FormTextFieldRaw.svelte';
 
   export let label;
   export let name;
@@ -11,5 +11,5 @@
 </script>
 
 <svelte:component this={template} type="text" {label} {...templateProps}>
-  <FromTextFieldRaw {name} {...$$restProps} {focused} />
+  <FormTextFieldRaw {name} {...$$restProps} {focused} />
 </svelte:component>

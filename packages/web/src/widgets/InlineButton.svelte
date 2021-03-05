@@ -1,9 +1,15 @@
 <script lang="ts">
   export let disabled = false;
   export let square = false;
+
+  let domButton;
+
+  export function getBoundingClientRect() {
+    return domButton.getBoundingClientRect();
+  }
 </script>
 
-<div class="outer buttonLike" class:disabled class:square on:click>
+<div class="outer buttonLike" class:disabled class:square on:click bind:this={domButton}>
   <div class="inner">
     <slot />
   </div>
@@ -40,7 +46,6 @@
     background: linear-gradient(to bottom, var(--bg-2) 5%, var(--bg-1) 100%);
     background-color: var(--bg-2);
   }
-
 
   .inner {
     margin: auto;
