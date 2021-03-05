@@ -1,8 +1,5 @@
 <script lang="ts">
-  import FormButton from '../forms/FormButton.svelte';
-  import FormProvider from '../forms/FormProvider.svelte';
-  import FormSubmit from '../forms/FormSubmit.svelte';
-import TextAreaField from '../forms/TextAreaField.svelte';
+  import TextAreaField from '../forms/TextAreaField.svelte';
   import FormStyledButton from '../widgets/FormStyledButton.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';

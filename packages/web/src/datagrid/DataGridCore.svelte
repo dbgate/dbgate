@@ -379,6 +379,7 @@
     right: 0;
     bottom: 0;
     user-select: none;
+    overflow: hidden;
   }
   .table {
     position: absolute;
