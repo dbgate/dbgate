@@ -298,19 +298,17 @@
       </tr>
     </thead>
     <tbody>
-      {#each _.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound) as rowIndex (rowIndex)}
-        {#if rowIndex < grider.rowCount}
-          <DataGridRow
-            {rowIndex}
-            {grider}
-            {visibleRealColumns}
-            {rowHeight}
-            {autofillSelectedCells}
-            selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-            autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-            {frameSelection}
-          />
-        {/if}
+      {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
+        <DataGridRow
+          {rowIndex}
+          {grider}
+          {visibleRealColumns}
+          {rowHeight}
+          {autofillSelectedCells}
+          selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+          autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+          {frameSelection}
+        />
       {/each}
     </tbody>
   </table>
