@@ -15,28 +15,35 @@
   let allRowCount = null;
   let errorMessage = null;
   let loadNextDataToken = 0;
+  const loadedTimeRef = { current: null };
+
+  const handleLoadRowCount = async () => {
+    const rowCount = await loadRowCount($$props);
+    allRowCount = rowCount;
+  };
 
   async function loadNextData() {
     if (isLoading) return;
     isLoading = true;
 
     const loadStart = new Date().getTime();
+    // await new Promise(resolve => setTimeout(resolve, 5000));
 
-    // loadedTimeRef.current = loadStart;
+    loadedTimeRef.current = loadStart;
     // console.log('LOAD NEXT ROWS', loadedRows);
 
     const nextRows = await loadDataPage($$props, loadedRows.length, 100);
-    // if (loadedTimeRef.current !== loadStart) {
-    //   // new load was dispatched
-    //   return;
-    // }
+    if (loadedTimeRef.current !== loadStart) {
+      // new load was dispatched
+      return;
+    }
 
     isLoading = false;
 
     if (nextRows.errorMessage) {
       errorMessage = nextRows.errorMessage;
     } else {
-      // if (allRowCount == null) handleLoadRowCount();
+      if (allRowCount == null) handleLoadRowCount();
       loadedRows = [...loadedRows, ...nextRows];
       isLoadedAll = nextRows.length === 0;
       //   const loadedInfo = {
@@ -82,8 +89,4 @@
   }
 </script>
 
-<DataGridCore
-  {...$$props}
-  loadNextData={handleLoadNextData}
-  {grider}
-/>
+<DataGridCore {...$$props} loadNextData={handleLoadNextData} {grider} {isLoading} {allRowCount} />

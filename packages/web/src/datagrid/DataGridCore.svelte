@@ -11,6 +11,30 @@
     enabledStore: derived([currentDataGrid], ([grid]) => grid != null),
     onClick: () => get(currentDataGrid).refresh(),
   });
+
+  function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
+    if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
+      let sum = _.sumBy(selectedCells, cell => {
+        const row = grider.getRowData(cell[0]);
+        if (row) {
+          const colName = realColumnUniqueNames[cell[1]];
+          if (colName) {
+            const data = row[colName];
+            if (!data) return 0;
+            let num = +data;
+            if (_.isNaN(num)) return 0;
+            return num;
+          }
+        }
+        return 0;
+      });
+      let count = selectedCells.length;
+      let rowCount = selectedRowData.length;
+      return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
+    }
+    if (allRowCount == null) return 'Loading row count...';
+    return `Rows: ${allRowCount.toLocaleString()}`;
+  }
 </script>
 
 <script lang="ts">
@@ -31,6 +55,7 @@
   import HorizontalScrollBar from './HorizontalScrollBar.svelte';
   import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
+  import LoadingInfo from '../widgets/LoadingInfo.svelte';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -38,6 +63,8 @@
   export let conid = undefined;
   export let database = undefined;
   export let frameSelection = undefined;
+  export let isLoading = false;
+  export let allRowCount = undefined;
 
   const wheelRowCount = 5;
   const instance = get_current_component();
@@ -209,6 +236,28 @@
   export function refresh() {
     display.reload();
   }
+
+  function getSelectedRowIndexes() {
+    if (selectedCells.find(x => x[0] == 'header')) return _.range(0, grider.rowCount);
+    return _.uniq((selectedCells || []).map(x => x[0])).filter(x => _.isNumber(x));
+  }
+
+  function getSelectedColumnIndexes() {
+    if (selectedCells.find(x => x[1] == 'header')) return _.range(0, realColumnUniqueNames.length);
+    return _.uniq((selectedCells || []).map(x => x[1])).filter(x => _.isNumber(x));
+  }
+
+  function getSelectedRowData() {
+    return _.compact(getSelectedRowIndexes().map(index => grider.getRowData(index)));
+  }
+
+  function getSelectedColumns() {
+    return _.compact(
+      getSelectedColumnIndexes().map(index => ({
+        columnName: realColumnUniqueNames[index],
+      }))
+    );
+  }
 </script>
 
 <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
@@ -250,16 +299,18 @@
     </thead>
     <tbody>
       {#each _.range(firstVisibleRowScrollIndex, firstVisibleRowScrollIndex + visibleRowCountUpperBound) as rowIndex (rowIndex)}
-        <DataGridRow
-          {rowIndex}
-          {grider}
-          {visibleRealColumns}
-          {rowHeight}
-          {autofillSelectedCells}
-          selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-          autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-          {frameSelection}
-        />
+        {#if rowIndex < grider.rowCount}
+          <DataGridRow
+            {rowIndex}
+            {grider}
+            {visibleRealColumns}
+            {rowHeight}
+            {autofillSelectedCells}
+            selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+            autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+            {frameSelection}
+          />
+        {/if}
       {/each}
     </tbody>
   </table>
@@ -277,6 +328,15 @@
     on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
     bind:this={domVerticalScroll}
   />
+  {#if allRowCount}
+    <div class="row-count-label">
+      {getRowCountInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData(), allRowCount)}
+    </div>
+  {/if}
+
+  {#if isLoading}
+    <LoadingInfo wrapper message="Loading data" />
+  {/if}
 </div>
 
 <style>
