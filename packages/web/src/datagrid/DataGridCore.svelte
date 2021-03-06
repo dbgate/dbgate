@@ -1,6 +1,8 @@
 <script lang="ts" context="module">
   const currentDataGrid = writable(null);
 
+  const currentDataGridChangeSet = memberStore(currentDataGrid, grid => grid?.getChangeSetStore() || nullStore);
+
   registerCommand({
     id: 'dataGrid.refresh',
     category: 'Data grid',
@@ -8,7 +10,7 @@
     keyText: 'F5',
     toolbar: true,
     icon: 'icon reload',
-    enabledStore: derived([currentDataGrid], ([grid]) => grid != null),
+    enabledStore: derived(currentDataGrid, grid => grid != null),
     onClick: () => get(currentDataGrid).refresh(),
   });
 
@@ -19,8 +21,25 @@
     keyText: 'Ctrl+S',
     toolbar: true,
     icon: 'icon save',
-    enabledStore: derived([currentDataGrid], ([grid]) => grid?.getGrider()?.allowSave),
+    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
     onClick: () => get(currentDataGrid).save(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.revertRowChanges',
+    category: 'Data grid',
+    name: 'Revert row changes',
+    keyText: 'Ctrl+R',
+    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
+    onClick: () => get(currentDataGrid).revertRowChanges(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.revertAllChanges',
+    category: 'Data grid',
+    name: 'Revert all changes',
+    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
+    onClick: () => get(currentDataGrid).revertAllChanges(),
   });
 
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
@@ -49,7 +68,7 @@
 </script>
 
 <script lang="ts">
-  import { GridDisplay } from 'dbgate-datalib';
+  import { changeSetContainsChanges, GridDisplay } from 'dbgate-datalib';
   import { get_current_component } from 'svelte/internal';
   import _ from 'lodash';
   import { writable, get, derived } from 'svelte/store';
@@ -76,6 +95,7 @@
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import { nullStore } from '../stores';
+  import memberStore from '../utility/memberStore';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -91,6 +111,7 @@
 
   export let isLoadedAll;
   export let loadedTime;
+  export let changeSetStore;
 
   const wheelRowCount = 5;
   const instance = get_current_component();
@@ -122,6 +143,22 @@
 
   export function getGrider() {
     return grider;
+  }
+
+  export function getChangeSetStore() {
+    return changeSetStore;
+  }
+
+  export function revertRowChanges() {
+    grider.beginUpdate();
+    for (const index of getSelectedRowIndexes()) {
+      if (_.isNumber(index)) grider.revertRowChanges(index);
+    }
+    grider.endUpdate();
+  }
+
+  export function revertAllChanges() {
+    grider.revertAllChanges();
   }
 
   $: autofillMarkerCell =
