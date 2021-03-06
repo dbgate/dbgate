@@ -11,18 +11,18 @@
   export let managerSize;
   export let display: GridDisplay;
 
-  let columnFilter;
+  let filter;
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search columns" bind:value={columnFilter} />
+  <SearchInput placeholder="Search columns" bind:value={filter} />
   <InlineButton on:click={() => display.hideAllColumns()}>Hide</InlineButton>
   <InlineButton on:click={() => display.showAllColumns()}>Show</InlineButton>
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
   {#each display
-    .getColumns(columnFilter)
-    .filter(column => filterName(columnFilter, column.columnName)) as column (column.uniqueName)}
+    .getColumns(filter)
+    .filter(column => filterName(filter, column.columnName)) as column (column.uniqueName)}
     <ColumnManagerRow {display} {column} />
   {/each}
 </ManagerInnerContainer>

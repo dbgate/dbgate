@@ -2,7 +2,9 @@
   export let title;
   export let name;
   export let height = null;
-  export let visible = true;
+  export let collapsed = null;
+
+  let visible = !collapsed;
 </script>
 
 <div class="title" on:click={() => (visible = !visible)}>{title}</div>

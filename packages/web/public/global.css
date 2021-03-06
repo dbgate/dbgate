@@ -34,6 +34,12 @@ body {
 .flex {
   display: flex;
 }
+.nowrap {
+  white-space: nowrap;
+}
+.bold {
+  font-weight: bold;
+}
 
 .col-9 {
   flex-basis: 75%;
