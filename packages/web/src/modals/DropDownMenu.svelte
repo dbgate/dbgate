@@ -1,10 +1,41 @@
+<script context="module">
+  function getElementOffset(element) {
+    var de = document.documentElement;
+    var box = element.getBoundingClientRect();
+    var top = box.top + window.pageYOffset - de.clientTop;
+    var left = box.left + window.pageXOffset - de.clientLeft;
+    return { top: top, left: left };
+  }
+
+  function fixPopupPlacement(element) {
+    const { width, height } = element.getBoundingClientRect();
+    let offset = getElementOffset(element);
+
+    let newLeft = null;
+    let newTop = null;
+
+    if (offset.left + width > window.innerWidth) {
+      newLeft = offset.left - width;
+    }
+    if (offset.top + height > window.innerHeight) {
+      newTop = offset.top - height;
+    }
+
+    if (newLeft != null) element.style.left = `${newLeft}px`;
+    if (newTop != null) element.style.top = `${newTop}px`;
+  }
+</script>
+
 <script>
   import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
+  import { onMount } from 'svelte';
 
   export let items;
   export let top;
   export let left;
+
+  let element;
 
   const dispatch = createEventDispatcher();
 
@@ -12,9 +43,18 @@
     dispatch('close');
     if (item.onClick) item.onClick();
   }
+
+  onMount(() => {
+    fixPopupPlacement(element);
+  });
 </script>
 
-<ul style={`left: ${left}px; top: ${top}px`} use:clickOutside on:clickOutside={() => dispatch('close')}>
+<ul
+  style={`left: ${left}px; top: ${top}px`}
+  use:clickOutside
+  on:clickOutside={() => dispatch('close')}
+  bind:this={element}
+>
   {#each items as item}
     {#if item.divider}
       <li class="divider" />

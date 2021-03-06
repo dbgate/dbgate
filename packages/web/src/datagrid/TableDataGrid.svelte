@@ -98,6 +98,7 @@
   };
 
   const handleCloseReference = () => {
+    display.clearGrouping();
     setChildConfig(null, null);
   };
 
@@ -112,7 +113,13 @@
       gridCoreComponent={SqlDataGridCore}
       {display}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
-      onReferenceClick={reference => setChildConfig(createGridConfig(), reference)}
+      onReferenceClick={value => {
+        if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {
+          // reference not changed
+          return;
+        }
+        setChildConfig(createGridConfig(), value);
+      }}
     />
   </div>
   <div slot="2" class="reference-container">

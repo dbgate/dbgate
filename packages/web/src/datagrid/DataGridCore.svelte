@@ -46,6 +46,7 @@
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
   import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
+  import stableStringify from 'json-stable-stringify';
   import { tick } from 'svelte';
   import {
     cellIsSelected,
@@ -71,6 +72,7 @@
   export let isLoading = false;
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
+  export let onReferenceClick = undefined;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -156,6 +158,22 @@
     const _unused = selectedCells;
     if (onReferenceSourceChanged && (grider.rowCount > 0 || isLoadedAll)) {
       onReferenceSourceChanged(getSelectedRowData(), loadedTime);
+    }
+  }
+
+  // $: console.log('DISPLAY.config', display.config);
+  $: {
+    if (display.groupColumns && display.baseTable) {
+      onReferenceClick({
+        referenceId: stableStringify(display && display.groupColumns),
+        schemaName: display.baseTable.schemaName,
+        pureName: display.baseTable.pureName,
+        columns: display.groupColumns.map(col => ({
+          baseName: col,
+          refName: col,
+          dataType: _.get(display.baseTable && display.baseTable.columns.find(x => x.columnName == col), 'dataType'),
+        })),
+      });
     }
   }
 
