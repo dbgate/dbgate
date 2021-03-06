@@ -12,6 +12,7 @@
 
   export let managerSize;
   export let display: GridDisplay;
+  export let onReferenceClick = (ref) => {};
 
   const dispatch = createEventDispatcher();
 
@@ -31,7 +32,7 @@
       <div
         class="link"
         on:click={() =>
-          dispatch('referenceclick', {
+          onReferenceClick({
             schemaName: fk.refSchemaName,
             pureName: fk.refTableName,
             columns: fk.columns.map(col => ({
@@ -50,12 +51,12 @@
   {/if}
 
   {#if dependencies.length > 0}
-    <div class="bold nowrap ml-1">References tables ({dependencies.length})</div>
+    <div class="bold nowrap ml-1">Dependend tables ({dependencies.length})</div>
     {#each dependencies.filter(fk => filterName(filter, fk.pureName)) as fk}
       <div
         class="link"
         on:click={() =>
-          dispatch('referenceclick', {
+          onReferenceClick({
             schemaName: fk.schemaName,
             pureName: fk.pureName,
             columns: fk.columns.map(col => ({

@@ -6,6 +6,7 @@
   export let loadRowCount;
   export let grider;
   export let display;
+  export let masterLoadedTime = undefined;
   // export let griderFactory;
 
   export let loadedRows = [];
@@ -87,6 +88,20 @@
   $: if (display.cache.refreshTime > loadedTime) {
     reload();
   }
+
+  $: {
+    if (masterLoadedTime && masterLoadedTime > loadedTime) {
+      display.reload();
+    }
+  }
 </script>
 
-<DataGridCore {...$$props} loadNextData={handleLoadNextData} {grider} {isLoading} {allRowCount} />
+<DataGridCore
+  {...$$props}
+  loadNextData={handleLoadNextData}
+  {grider}
+  {isLoading}
+  {allRowCount}
+  {isLoadedAll}
+  {loadedTime}
+/>

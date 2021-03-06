@@ -70,6 +70,10 @@
   export let frameSelection = undefined;
   export let isLoading = false;
   export let allRowCount = undefined;
+  export let onReferenceSourceChanged = undefined;
+
+  export let isLoadedAll;
+  export let loadedTime;
 
   const wheelRowCount = 5;
   const instance = get_current_component();
@@ -146,6 +150,13 @@
         }
       }
     });
+  }
+
+  $: {
+    const _unused = selectedCells;
+    if (onReferenceSourceChanged && (grider.rowCount > 0 || isLoadedAll)) {
+      onReferenceSourceChanged(getSelectedRowData(), loadedTime);
+    }
   }
 
   function scrollIntoView(cell) {
