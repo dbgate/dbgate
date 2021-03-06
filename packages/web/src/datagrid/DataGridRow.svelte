@@ -12,6 +12,7 @@
   export let selectedCells = undefined;
   export let autofillSelectedCells = undefined;
   export let autofillMarkerCell = undefined;
+  export let focusedColumn = undefined;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -36,6 +37,7 @@
       isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
       isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
       isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
+      isFocusedColumn={col.uniqueName == focusedColumn}
     />
   {/each}
 </tr>

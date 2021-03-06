@@ -46,6 +46,7 @@
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
   import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
+  import { tick } from 'svelte';
   import {
     cellIsSelected,
     countColumnSizes,
@@ -132,6 +133,51 @@
   $: {
     if (loadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
       loadNextData();
+    }
+  }
+
+  $: {
+    if (display && display.focusedColumn) {
+      const invMap = _.invert(realColumnUniqueNames);
+      const colIndex = invMap[display.focusedColumn];
+      if (colIndex) {
+        scrollIntoView([null, colIndex]);
+      }
+    }
+  }
+
+  function scrollIntoView(cell) {
+    const [row, col] = cell;
+
+    if (row != null) {
+      let newRow = null;
+      const rowCount = grider.rowCount;
+      if (rowCount == 0) return;
+
+      if (row < firstVisibleRowScrollIndex) newRow = row;
+      else if (row + 1 >= firstVisibleRowScrollIndex + visibleRowCountLowerBound)
+        newRow = row - visibleRowCountLowerBound + 2;
+
+      if (newRow < 0) newRow = 0;
+      if (newRow >= rowCount) newRow = rowCount - 1;
+
+      if (newRow != null) {
+        firstVisibleRowScrollIndex = newRow;
+        domVerticalScroll.scroll(newRow);
+      }
+    }
+
+    if (col != null) {
+      if (col >= columnSizes.frozenCount) {
+        let newColumn = columnSizes.scrollInView(
+          firstVisibleColumnScrollIndex,
+          col - columnSizes.frozenCount,
+          gridScrollAreaWidth
+        );
+        firstVisibleColumnScrollIndex = newColumn;
+
+        domHorizontalScroll.scroll(newColumn);
+      }
     }
   }
 
@@ -341,6 +387,7 @@
           {autofillSelectedCells}
           selectedCells={filterCellsForRow(selectedCells, rowIndex)}
           autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+          focusedColumn={display.focusedColumn}
           {frameSelection}
         />
       {/each}

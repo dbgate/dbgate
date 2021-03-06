@@ -32,6 +32,7 @@
   export let isInserted = false;
   export let isDeleted = false;
   export let isAutofillSelected = false;
+  export let isFocusedColumn = false;
 
   $: value = (rowData || {})[col.uniqueName];
 </script>
@@ -46,6 +47,7 @@
   class:isInserted
   class:isDeleted
   class:isAutofillSelected
+  class:isFocusedColumn
   style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
 >
   {#if value == null}
@@ -106,6 +108,9 @@
   td.isAutofillSelected {
     outline: 3px solid var(--theme-bg-selected);
     outline-offset: -3px;
+  }
+  td.isFocusedColumn {
+    background: var(--theme-bg-alt);
   }
   td.isModifiedRow {
     background: var(--theme-bg-gold);

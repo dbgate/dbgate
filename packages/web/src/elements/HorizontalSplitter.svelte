@@ -15,7 +15,7 @@
   export let isSplitter = true;
   export let initialValue = undefined;
 
-  let size = 0;
+  export let size = 0;
   let clientWidth;
 
   $: size = computeSplitterSize(initialValue, clientWidth);
