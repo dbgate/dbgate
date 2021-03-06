@@ -24,6 +24,7 @@
     --theme-bg-orange: #ffe7ba; /*orange-2 */
     --theme-bg-green: #d9f7be; /* green-2 */
     --theme-bg-volcano: #ffd8bf; /* volcano-2 */
+    --theme-bg-red: #ffccc7; /* red-2 */
 
     --theme-font-inv-1: #ffffff;
     --theme-font-inv-2: #b3b3b3;

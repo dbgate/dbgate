@@ -2,7 +2,7 @@
 </script>
 
 <script>
-  import { createMultiLineFilter } from 'dbgate-filterparser';
+  import { createMultiLineFilter, parseFilter } from 'dbgate-filterparser';
   import splitterDrag from '../utility/splitterDrag';
 
   import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal.svelte';
@@ -20,6 +20,8 @@
   export let showResizeSplitter = false;
 
   let value;
+  let isError;
+  let isOk;
 
   function openFilterWindow(condition1) {
     showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
@@ -145,11 +147,25 @@
   };
 
   $: value = filter;
+
+  $: {
+    try {
+      isOk = false;
+      isError = false;
+      if (value) {
+        parseFilter(value, filterType);
+        isOk = true;
+      }
+    } catch (err) {
+      isError = true;
+    }
+  }
+
   // $: if (value != filter) setFilter(value);
 </script>
 
 <div class="flex">
-  <input type="text" readOnly={isReadOnly} bind:value on:keydown={handleKeyDown} />
+  <input type="text" readOnly={isReadOnly} bind:value on:keydown={handleKeyDown} class:isError class:isOk />
   <DropDownButton icon="icon filter" menu={createMenu} />
   {#if showResizeSplitter}
     <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
@@ -160,5 +176,13 @@
   input {
     flex: 1;
     min-width: 10px;
+  }
+
+  input.isError {
+    background-color: var(--theme-bg-red);
+  }
+
+  input.isOk {
+    background-color: var(--theme-bg-green);
   }
 </style>
