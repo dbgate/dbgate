@@ -97,6 +97,15 @@
     onClick: () => get(currentDataGrid).reconnect(),
   });
 
+  registerCommand({
+    id: 'dataGrid.copyToClipboard',
+    category: 'Data grid',
+    name: 'Copy to clipboard',
+    keyText: 'Ctrl+C',
+    enabledStore: derived(currentDataGrid, grid => grid != null),
+    onClick: () => get(currentDataGrid).copyToClipboard(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -153,6 +162,7 @@
   import { nullStore } from '../stores';
   import memberStore from '../utility/memberStore';
   import axios from '../utility/axios';
+  import { copyTextToClipboard } from '../utility/clipboard';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -257,6 +267,23 @@
   export async function reconnect() {
     await axios.post('database-connections/refresh', { conid, database });
     display.reload();
+  }
+
+  export function copyToClipboard() {
+    const cells = cellsToRegularCells(selectedCells);
+    const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
+    const lines = rowIndexes.map(rowIndex => {
+      let colIndexes = _.sortBy(cells.filter(x => x[0] == rowIndex).map(x => x[1]));
+      const rowData = grider.getRowData(rowIndex);
+      if (!rowData) return '';
+      const line = colIndexes
+        .map(col => realColumnUniqueNames[col])
+        .map(col => (rowData[col] == null ? '(NULL)' : rowData[col]))
+        .join('\t');
+      return line;
+    });
+    const text = lines.join('\r\n');
+    copyTextToClipboard(text);
   }
 
   $: autofillMarkerCell =
@@ -662,6 +689,26 @@
     return [row, col];
   }
 
+  function cellsToRegularCells(cells) {
+    cells = _.flatten(
+      cells.map(cell => {
+        if (cell[1] == 'header') {
+          return _.range(0, columnSizes.count).map(col => [cell[0], col]);
+        }
+        return [cell];
+      })
+    );
+    cells = _.flatten(
+      cells.map(cell => {
+        if (cell[0] == 'header') {
+          return _.range(0, grider.rowCount).map(row => [row, cell[1]]);
+        }
+        return [cell];
+      })
+    );
+    return cells.filter(isRegularCell);
+  }
+
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show':
@@ -692,6 +739,7 @@
   function createMenu() {
     return [
       { command: 'dataGrid.refresh' },
+      { command: 'dataGrid.copyToClipboard' },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },
