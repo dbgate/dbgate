@@ -137,13 +137,15 @@
   }
 
   $: {
-    if (display && display.focusedColumn) {
-      const invMap = _.invert(realColumnUniqueNames);
-      const colIndex = invMap[display.focusedColumn];
-      if (colIndex) {
-        scrollIntoView([null, colIndex]);
+    tick().then(() => {
+      if (display && display.focusedColumn) {
+        const invMap = _.invert(realColumnUniqueNames);
+        const colIndex = invMap[display.focusedColumn];
+        if (colIndex) {
+          scrollIntoView([null, colIndex]);
+        }
       }
-    }
+    });
   }
 
   function scrollIntoView(cell) {
