@@ -1,7 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import { currentDatabase } from '../stores';
-import ErrorInfo from './ErrorInfo.svelte';
+import ErrorInfo from '../elements/ErrorInfo.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 

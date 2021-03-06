@@ -56,8 +56,8 @@
   import HorizontalScrollBar from './HorizontalScrollBar.svelte';
   import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
-  import LoadingInfo from '../widgets/LoadingInfo.svelte';
-  import InlineButton from '../widgets/InlineButton.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import InlineButton from '../elements/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import DataFilterControl from './DataFilterControl.svelte';
 

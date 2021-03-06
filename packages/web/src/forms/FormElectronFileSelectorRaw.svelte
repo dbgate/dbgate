@@ -1,7 +1,7 @@
 <script lang="ts">
   import getElectron from '../utility/getElectron';
 
-  import InlineButton from '../widgets/InlineButton.svelte';
+  import InlineButton from '../elements/InlineButton.svelte';
 
   import { getFormContext } from './FormProviderCore.svelte';
   import TextField from './TextField.svelte';

@@ -1,17 +1,17 @@
 <script lang="ts">
-  import InlineButton from './InlineButton.svelte';
-  import SearchInput from './SearchInput.svelte';
+  import InlineButton from '../elements/InlineButton.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
-  import SearchBoxWrapper from './SearchBoxWrapper.svelte';
+  import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
   import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
-  import ErrorInfo from './ErrorInfo.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
   import axios from '../utility/axios';
-  import LoadingInfo from './LoadingInfo.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   export let conid;
   export let database;

@@ -1,6 +1,6 @@
 <script lang="ts">
   import TextAreaField from '../forms/TextAreaField.svelte';
-  import FormStyledButton from '../widgets/FormStyledButton.svelte';
+  import FormStyledButton from '../elements/FormStyledButton.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 

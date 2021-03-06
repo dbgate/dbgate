@@ -10,7 +10,7 @@ import { createMultiLineFilter } from 'dbgate-filterparser';
   import SetFilterModal from '../modals/SetFilterModal.svelte';
   import keycodes from '../utility/keycodes';
 
-  import DropDownButton from '../widgets/DropDownButton.svelte';
+  import DropDownButton from '../elements/DropDownButton.svelte';
 
   export let isReadOnly = false;
   export let filterType;

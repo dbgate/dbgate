@@ -1,6 +1,6 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
-  import DropDownButton from '../widgets/DropDownButton.svelte';
+  import DropDownButton from '../elements/DropDownButton.svelte';
 
   import ColumnLabel from './ColumnLabel.svelte';
 
