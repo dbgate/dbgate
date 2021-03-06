@@ -689,6 +689,54 @@
     return [row, col];
   }
 
+  function handlePaste(event) {
+    var pastedText = undefined;
+    // @ts-ignore
+    if (window.clipboardData && window.clipboardData.getData) {
+      // IE
+      // @ts-ignore
+      pastedText = window.clipboardData.getData('Text');
+    } else if (event.clipboardData && event.clipboardData.getData) {
+      pastedText = event.clipboardData.getData('text/plain');
+    }
+    event.preventDefault();
+    grider.beginUpdate();
+    const pasteRows = pastedText
+      .replace(/\r/g, '')
+      .split('\n')
+      .map(row => row.split('\t'));
+    const selectedRegular = cellsToRegularCells(selectedCells);
+    if (selectedRegular.length <= 1) {
+      const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
+      const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
+      let rowIndex = startRow;
+      for (const rowData of pasteRows) {
+        if (rowIndex >= grider.rowCountInUpdate) {
+          grider.insertRow();
+        }
+        let colIndex = startCol;
+        for (const cell of rowData) {
+          setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
+          colIndex += 1;
+        }
+        rowIndex += 1;
+      }
+    }
+    if (selectedRegular.length > 1) {
+      const startRow: number = _.min(selectedRegular.map(x => x[0]));
+      const startCol: number = _.min(selectedRegular.map(x => x[1]));
+      for (const cell of selectedRegular) {
+        const [rowIndex, colIndex] = cell;
+        const selectionRow = rowIndex - startRow;
+        const selectionCol = colIndex - startCol;
+        const pasteRow = pasteRows[selectionRow % pasteRows.length];
+        const pasteCell = pasteRow[selectionCol % pasteRow.length];
+        setCellValue(cell, pasteCell);
+      }
+    }
+    grider.endUpdate();
+  }
+
   function cellsToRegularCells(cells) {
     cells = _.flatten(
       cells.map(cell => {
@@ -768,6 +816,7 @@
     on:focus={() => {
       currentDataGrid.set(instance);
     }}
+    on:paste={handlePaste}
   />
   <table
     class="table"
