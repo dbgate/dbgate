@@ -1,14 +1,17 @@
-<script lang="ts">
+<script>
   import FontIcon from '../icons/FontIcon.svelte';
   import DropDownButton from '../elements/DropDownButton.svelte';
+  import splitterDrag from '../utility/splitterDrag';
 
   import ColumnLabel from './ColumnLabel.svelte';
 
   export let column;
   export let conid = undefined;
   export let database = undefined;
+  export let setSort;
   export let grouping = undefined;
   export let order = undefined;
+  export let setGrouping;
 </script>
 
 <div class="header">
@@ -31,6 +34,7 @@
     </span>
   {/if}
   <DropDownButton />
+  <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
 </div>
 
 <style>
@@ -48,12 +52,12 @@
   .icon {
     margin-left: 3px;
   }
-  .resizer {
+  /* .resizer {
     background-color: var(--theme-border);
     width: 2px;
     cursor: col-resize;
     z-index: 1;
-  }
+  } */
   .grouping {
     color: var(--theme-font-alt);
     white-space: nowrap;

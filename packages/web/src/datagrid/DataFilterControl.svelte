@@ -1,8 +1,9 @@
-<script lang="ts" context="module">
+<script context="module">
 </script>
 
-<script lang="ts">
-import { createMultiLineFilter } from 'dbgate-filterparser';
+<script>
+  import { createMultiLineFilter } from 'dbgate-filterparser';
+  import splitterDrag from '../utility/splitterDrag';
 
   import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal.svelte';
 
@@ -16,6 +17,7 @@ import { createMultiLineFilter } from 'dbgate-filterparser';
   export let filterType;
   export let filter;
   export let setFilter;
+  export let showResizeSplitter = false;
 
   let value;
 
@@ -149,6 +151,9 @@ import { createMultiLineFilter } from 'dbgate-filterparser';
 <div class="flex">
   <input type="text" readOnly={isReadOnly} bind:value on:keydown={handleKeyDown} />
   <DropDownButton icon="icon filter" menu={createMenu} />
+  {#if showResizeSplitter}
+    <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
+  {/if}
 </div>
 
 <style>

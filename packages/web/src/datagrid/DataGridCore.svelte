@@ -355,7 +355,19 @@
             data-col={col.colIndex}
             style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
           >
-            <ColumnHeaderControl column={col} {conid} {database} />
+            <ColumnHeaderControl
+              column={col}
+              {conid}
+              {database}
+              setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
+              order={display.getSortOrder(col.uniqueName)}
+              on:resizeSplitter={e => {
+                // @ts-ignore
+                display.resizeColumn(col.uniqueName, col.width, e.detail);
+              }}
+              setGrouping={display.sortable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+              grouping={display.getGrouping(col.uniqueName)}
+            />
           </td>
         {/each}
       </tr>
@@ -384,6 +396,11 @@
                 filterType={getFilterType(col.dataType)}
                 filter={display.getFilter(col.uniqueName)}
                 setFilter={value => display.setFilter(col.uniqueName, value)}
+                showResizeSplitter
+                on:resizeSplitter={e => {
+                  // @ts-ignore
+                  display.resizeColumn(col.uniqueName, col.width, e.detail);
+                }}
               />
             </td>
           {/each}
