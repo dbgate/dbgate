@@ -107,7 +107,7 @@
 </script>
 
 <VerticalSplitter isSplitter={!!reference}>
-  <div slot="1">
+  <svelte:fragment slot="1">
     <DataGrid
       {...$$props}
       gridCoreComponent={SqlDataGridCore}
@@ -121,7 +121,7 @@
         setChildConfig(createGridConfig(), value);
       }}
     />
-  </div>
+  </svelte:fragment>
   <div slot="2" class="reference-container">
     {#if reference}
       <ReferenceHeader {reference} on:close={handleCloseReference} />

@@ -26,9 +26,9 @@
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>
-  <div slot="2">
+  <svelte:fragment slot="2">
     <svelte:component this={gridCoreComponent} {...$$props} />
-  </div>
+  </svelte:fragment>
 </HorizontalSplitter>
 
 <style>
