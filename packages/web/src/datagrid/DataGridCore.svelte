@@ -12,6 +12,17 @@
     onClick: () => get(currentDataGrid).refresh(),
   });
 
+  registerCommand({
+    id: 'dataGrid.save',
+    category: 'Data grid',
+    name: 'Save',
+    keyText: 'Ctrl+S',
+    toolbar: true,
+    icon: 'icon save',
+    enabledStore: derived([currentDataGrid], ([grid]) => grid?.getGrider()?.allowSave),
+    onClick: () => get(currentDataGrid).save(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -62,6 +73,9 @@
   import InlineButton from '../elements/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import DataFilterControl from './DataFilterControl.svelte';
+  import createReducer from '../utility/createReducer';
+  import keycodes from '../utility/keycodes';
+  import { nullStore } from '../stores';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -73,6 +87,7 @@
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
+  export let onSave;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -96,6 +111,18 @@
   let shiftDragStartCell = nullCell;
   let autofillDragStartCell = nullCell;
   let autofillSelectedCells = emptyCellArray;
+
+  export function refresh() {
+    display.reload();
+  }
+
+  export function save() {
+    if (onSave) onSave();
+  }
+
+  export function getGrider() {
+    return grider;
+  }
 
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
@@ -228,6 +255,7 @@
     if (autofill) {
       autofillDragStartCell = cell;
     } else {
+      const oldCurrentCell = currentCell;
       currentCell = cell;
 
       if (event.ctrlKey) {
@@ -242,13 +270,11 @@
         selectedCells = getCellRange(cell, cell);
         dragStartCell = cell;
 
-        // if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
-        //   // @ts-ignore
-        //   dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
-        // } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
-        //   // @ts-ignore
-        //   dispatchInsplaceEditor({ type: 'close' });
-        // }
+        if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, oldCurrentCell)) {
+          dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+        } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+          dispatchInsplaceEditor({ type: 'close' });
+        }
       }
     }
 
@@ -314,10 +340,6 @@
     domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
   }
 
-  export function refresh() {
-    display.reload();
-  }
-
   function getSelectedRowIndexes() {
     if (selectedCells.find(x => x[0] == 'header')) return _.range(0, grider.rowCount);
     return _.uniq((selectedCells || []).map(x => x[0])).filter(x => _.isNumber(x));
@@ -339,6 +361,206 @@
       }))
     );
   }
+
+  function handleGridKeyDown(event) {
+    if (event.keyCode == keycodes.f5) {
+      event.preventDefault();
+      display.reload();
+    }
+
+    // if (event.keyCode == keycodes.f4) {
+    //   event.preventDefault();
+    //   handleSwitchToFormView();
+    // }
+
+    // if (event.keyCode == keycodes.s && event.ctrlKey) {
+    //   event.preventDefault();
+    //   handleSave();
+    //   // this.saveAndFocus();
+    // }
+
+    if (event.keyCode == keycodes.n0 && event.ctrlKey) {
+      event.preventDefault();
+      setNull();
+    }
+
+    // if (event.keyCode == keycodes.r && event.ctrlKey) {
+    //   event.preventDefault();
+    //   revertRowChanges();
+    // }
+
+    // if (event.keyCode == keycodes.f && event.ctrlKey) {
+    //   event.preventDefault();
+    //   filterSelectedValue();
+    // }
+
+    // if (event.keyCode == keycodes.z && event.ctrlKey) {
+    //   event.preventDefault();
+    //   undo();
+    // }
+
+    // if (event.keyCode == keycodes.y && event.ctrlKey) {
+    //   event.preventDefault();
+    //   redo();
+    // }
+
+    // if (event.keyCode == keycodes.c && event.ctrlKey) {
+    //   event.preventDefault();
+    //   copyToClipboard();
+    // }
+
+    // if (event.keyCode == keycodes.delete && event.ctrlKey) {
+    //   event.preventDefault();
+    //   deleteSelectedRows();
+    //   // this.saveAndFocus();
+    // }
+
+    // if (event.keyCode == keycodes.insert && !event.ctrlKey) {
+    //   event.preventDefault();
+    //   insertNewRow();
+    //   // this.saveAndFocus();
+    // }
+
+    if ($inplaceEditorState.cell) return;
+
+    if (
+      !event.ctrlKey &&
+      !event.altKey &&
+      ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+        (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        event.keyCode == keycodes.dash)
+    ) {
+      // @ts-ignore
+      event.preventDefault();
+      dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+      // console.log('event', event.nativeEvent);
+    }
+
+    if (event.keyCode == keycodes.f2) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+    }
+
+    if (event.shiftKey) {
+      if (!isRegularCell(shiftDragStartCell)) {
+        shiftDragStartCell = currentCell;
+      }
+    } else {
+      shiftDragStartCell = nullCell;
+    }
+
+    handleCursorMove(event);
+
+    if (event.shiftKey) {
+      selectedCells = getCellRange(shiftDragStartCell || currentCell, currentCell);
+    }
+  }
+
+  function handleCursorMove(event) {
+    if (!isRegularCell(currentCell)) return null;
+    let rowCount = grider.rowCount;
+    if (event.ctrlKey) {
+      switch (event.keyCode) {
+        case keycodes.upArrow:
+        case keycodes.pageUp:
+          return moveCurrentCell(0, currentCell[1], event);
+        case keycodes.downArrow:
+        case keycodes.pageDown:
+          return moveCurrentCell(rowCount - 1, currentCell[1], event);
+        case keycodes.leftArrow:
+          return moveCurrentCell(currentCell[0], 0, event);
+        case keycodes.rightArrow:
+          return moveCurrentCell(currentCell[0], columnSizes.realCount - 1, event);
+        case keycodes.home:
+          return moveCurrentCell(0, 0, event);
+        case keycodes.end:
+          return moveCurrentCell(rowCount - 1, columnSizes.realCount - 1, event);
+        case keycodes.a:
+          selectedCells = [['header', 'header']];
+          event.preventDefault();
+          return ['header', 'header'];
+      }
+    } else {
+      switch (event.keyCode) {
+        case keycodes.upArrow:
+          // if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
+          return moveCurrentCell(currentCell[0] - 1, currentCell[1], event);
+        case keycodes.downArrow:
+        case keycodes.enter:
+          return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+        case keycodes.leftArrow:
+          return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+        case keycodes.rightArrow:
+          return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+        case keycodes.home:
+          return moveCurrentCell(currentCell[0], 0, event);
+        case keycodes.end:
+          return moveCurrentCell(currentCell[0], columnSizes.realCount - 1, event);
+        case keycodes.pageUp:
+          return moveCurrentCell(currentCell[0] - visibleRowCountLowerBound, currentCell[1], event);
+        case keycodes.pageDown:
+          return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
+      }
+    }
+    return null;
+  }
+
+  function setNull() {
+    grider.beginUpdate();
+    selectedCells.filter(isRegularCell).forEach(cell => {
+      setCellValue(cell, null);
+    });
+    grider.endUpdate();
+  }
+
+  function setCellValue(cell, value) {
+    grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
+  }
+
+  function moveCurrentCell(row, col, event = null) {
+    const rowCount = grider.rowCount;
+
+    if (row < 0) row = 0;
+    if (row >= rowCount) row = rowCount - 1;
+    if (col < 0) col = 0;
+    if (col >= columnSizes.realCount) col = columnSizes.realCount - 1;
+    currentCell = [row, col];
+    // setSelectedCells([...(event.ctrlKey ? selectedCells : []), [row, col]]);
+    selectedCells = [[row, col]];
+    scrollIntoView([row, col]);
+    // this.selectedCells.push(this.currentCell);
+    // this.scrollIntoView(this.currentCell);
+
+    if (event) event.preventDefault();
+    return [row, col];
+  }
+
+  const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
+    switch (action.type) {
+      case 'show':
+        if (!grider.editable) return {};
+        return {
+          cell: action.cell,
+          text: action.text,
+          selectAll: action.selectAll,
+        };
+      case 'close': {
+        const [row, col] = currentCell || [];
+        if (domFocusField) domFocusField.focus();
+        // @ts-ignore
+        if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
+        // if (action.mode == 'save') setTimeout(handleSave, 0);
+        return {};
+      }
+      case 'shouldSave': {
+        return {
+          ...state,
+          shouldSave: true,
+        };
+      }
+    }
+    return {};
+  }, {});
 </script>
 
 <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
@@ -346,6 +568,7 @@
     type="text"
     class="focus-field"
     bind:this={domFocusField}
+    on:keydown={handleGridKeyDown}
     on:focus={() => {
       currentDataGrid.set(instance);
     }}
@@ -436,6 +659,8 @@
           selectedCells={filterCellsForRow(selectedCells, rowIndex)}
           autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
           focusedColumn={display.focusedColumn}
+          inplaceEditorState={$inplaceEditorState}
+          {dispatchInsplaceEditor}
           {frameSelection}
         />
       {/each}

@@ -44,6 +44,12 @@
 </script>
 
 <script lang="ts">
+  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
+  import { scriptToSql } from 'dbgate-sqltree';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import { showModal } from '../modals/modalTools';
+
   import axios from '../utility/axios';
   import ChangeSetGrider from './ChangeSetGrider';
 
@@ -55,11 +61,47 @@
   export let schemaName;
   export let pureName;
   export let config;
+  export let changeSetState;
+  export let dispatchChangeSet;
+
   let loadedRows = [];
 
   // $: console.log('loadedRows BIND', loadedRows);
-  $: grider = new ChangeSetGrider(loadedRows, null, null, display);
+  $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
   // $: console.log('GRIDER', grider);
+
+  async function handleConfirmSql(sql) {
+    const resp = await axios.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      display.reload();
+    }
+  }
+
+  function handleSave() {
+    const script = changeSetToSql(changeSetState && changeSetState.value, display.dbinfo);
+    const sql = scriptToSql(display.driver, script);
+    showModal(ConfirmSqlModal, { sql, onConfirm: () => handleConfirmSql(sql) });
+  }
 </script>
 
-<LoadingDataGridCore {...$$props} {loadDataPage} {dataPageAvailable} {loadRowCount} bind:loadedRows {grider} />
+<LoadingDataGridCore
+  {...$$props}
+  {loadDataPage}
+  {dataPageAvailable}
+  {loadRowCount}
+  bind:loadedRows
+  {grider}
+  onSave={handleSave}
+/>

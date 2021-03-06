@@ -1,6 +1,7 @@
 <script lang="ts">
   import DataGridCell from './DataGridCell.svelte';
   import { cellIsSelected } from './gridutil';
+  import InplaceEditor from './InplaceEditor.svelte';
 
   import RowHeaderCell from './RowHeaderCell.svelte';
 
@@ -13,6 +14,8 @@
   export let autofillSelectedCells = undefined;
   export let autofillMarkerCell = undefined;
   export let focusedColumn = undefined;
+  export let inplaceEditorState;
+  export let dispatchInsplaceEditor;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -29,16 +32,32 @@
 <tr style={`height: ${rowHeight}px`}>
   <RowHeaderCell {rowIndex} />
   {#each visibleRealColumns as col (col.uniqueName)}
-    <DataGridCell
-      {rowIndex}
-      {rowData}
-      {col}
-      {hintFieldsAllowed}
-      isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
-      isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
-      isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
-      isFocusedColumn={col.uniqueName == focusedColumn}
-    />
+    {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
+      <InplaceEditor
+        width={col.width}
+        {inplaceEditorState}
+        {dispatchInsplaceEditor}
+        cellValue={rowData[col.uniqueName]}
+        onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
+      />
+    {:else}
+      <DataGridCell
+        {rowIndex}
+        {rowData}
+        {col}
+        {hintFieldsAllowed}
+        isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+        isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
+        isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
+        isFocusedColumn={col.uniqueName == focusedColumn}
+        isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+        isModifiedRow={rowStatus.status == 'updated'}
+        isInserted={rowStatus.status == 'inserted' ||
+          (rowStatus.insertedFields && rowStatus.insertedFields.has(col.uniqueName))}
+        isDeleted={rowStatus.status == 'deleted' ||
+          (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))}
+      />
+    {/if}
   {/each}
 </tr>
 

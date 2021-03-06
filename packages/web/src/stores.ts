@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, readable } from 'svelte/store';
 import { ExtensionsDirectory } from 'dbgate-types';
 
 interface TabDefinition {
@@ -37,6 +37,7 @@ export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
+export const nullStore = readable(null, () => {});
 
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');

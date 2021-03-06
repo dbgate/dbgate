@@ -2,9 +2,16 @@
   import App from '../App.svelte';
   import TableDataGrid from '../datagrid/TableDataGrid.svelte';
   import useGridConfig from '../utility/useGridConfig';
-  import { createGridCache, createGridConfig, TableFormViewDisplay, TableGridDisplay } from 'dbgate-datalib';
+  import {
+    createChangeSet,
+    createGridCache,
+    createGridConfig,
+    TableFormViewDisplay,
+    TableGridDisplay,
+  } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
+  import createUndoReducer from '../utility/createUndoReducer';
 
   export let tabid;
   export let conid;
@@ -14,6 +21,17 @@
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
+
+  const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
 </script>
 
-<TableDataGrid {...$$props} config={$config} setConfig={config.update} cache={$cache} setCache={cache.update} />
+<TableDataGrid
+  {...$$props}
+  config={$config}
+  setConfig={config.update}
+  cache={$cache}
+  setCache={cache.update}
+  changeSetState={$changeSetStore}
+  {changeSetStore}
+  {dispatchChangeSet}
+/>
