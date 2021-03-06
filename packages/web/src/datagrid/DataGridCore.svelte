@@ -42,6 +42,61 @@
     onClick: () => get(currentDataGrid).revertAllChanges(),
   });
 
+  registerCommand({
+    id: 'dataGrid.deleteSelectedRows',
+    category: 'Data grid',
+    name: 'Delete selected rows',
+    keyText: 'Ctrl+Delete',
+    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
+    onClick: () => get(currentDataGrid).deleteSelectedRows(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.insertNewRow',
+    category: 'Data grid',
+    name: 'Insert new row',
+    keyText: 'Insert',
+    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
+    onClick: () => get(currentDataGrid).insertNewRow(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.setNull',
+    category: 'Data grid',
+    name: 'Set NULL',
+    keyText: 'Ctrl+0',
+    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
+    onClick: () => get(currentDataGrid).setNull(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.undo',
+    category: 'Data grid',
+    name: 'Undo',
+    keyText: 'Ctrl+Z',
+    icon: 'icon undo',
+    toolbar: true,
+    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSet?.canUndo),
+    onClick: () => get(currentDataGrid).undo(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.redo',
+    category: 'Data grid',
+    name: 'Redo',
+    keyText: 'Ctrl+Y',
+    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSet?.canRedo),
+    onClick: () => get(currentDataGrid).redo(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.reconnect',
+    category: 'Data grid',
+    name: 'Reconnect',
+    enabledStore: derived(currentDataGrid, grid => grid != null),
+    onClick: () => get(currentDataGrid).reconnect(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -77,6 +132,7 @@
   import DataGridRow from './DataGridRow.svelte';
   import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
   import stableStringify from 'json-stable-stringify';
+  import contextMenu from '../utility/contextMenu';
   import { tick } from 'svelte';
   import {
     cellIsSelected,
@@ -96,6 +152,7 @@
   import keycodes from '../utility/keycodes';
   import { nullStore } from '../stores';
   import memberStore from '../utility/memberStore';
+  import axios from '../utility/axios';
 
   export let loadNextData = undefined;
   export let grider = undefined;
@@ -159,6 +216,47 @@
 
   export function revertAllChanges() {
     grider.revertAllChanges();
+  }
+
+  export function deleteSelectedRows() {
+    grider.beginUpdate();
+    for (const index of getSelectedRowIndexes()) {
+      if (_.isNumber(index)) grider.deleteRow(index);
+    }
+    grider.endUpdate();
+  }
+
+  export function insertNewRow() {
+    if (grider.canInsert) {
+      const rowIndex = grider.insertRow();
+      const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
+      // @ts-ignore
+      currentCell = cell;
+      // @ts-ignore
+      selectedCells = [cell];
+      scrollIntoView(cell);
+    }
+  }
+
+  export function setNull() {
+    grider.beginUpdate();
+    selectedCells.filter(isRegularCell).forEach(cell => {
+      setCellValue(cell, null);
+    });
+    grider.endUpdate();
+  }
+
+  export function undo() {
+    grider.undo();
+  }
+
+  export function redo() {
+    grider.redo();
+  }
+
+  export async function reconnect() {
+    await axios.post('database-connections/refresh', { conid, database });
+    display.reload();
   }
 
   $: autofillMarkerCell =
@@ -416,10 +514,10 @@
     //   // this.saveAndFocus();
     // }
 
-    if (event.keyCode == keycodes.n0 && event.ctrlKey) {
-      event.preventDefault();
-      setNull();
-    }
+    // if (event.keyCode == keycodes.n0 && event.ctrlKey) {
+    //   event.preventDefault();
+    //   setNull();
+    // }
 
     // if (event.keyCode == keycodes.r && event.ctrlKey) {
     //   event.preventDefault();
@@ -542,14 +640,6 @@
     return null;
   }
 
-  function setNull() {
-    grider.beginUpdate();
-    selectedCells.filter(isRegularCell).forEach(cell => {
-      setCellValue(cell, null);
-    });
-    grider.endUpdate();
-  }
-
   function setCellValue(cell, value) {
     grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value);
   }
@@ -598,9 +688,30 @@
     }
     return {};
   }, {});
+
+  function createMenu() {
+    return [
+      { command: 'dataGrid.refresh' },
+      { divider: true },
+      { command: 'dataGrid.save' },
+      { command: 'dataGrid.revertRowChanges' },
+      { command: 'dataGrid.revertAllChanges' },
+      { command: 'dataGrid.deleteSelectedRows' },
+      { command: 'dataGrid.insertNewRow' },
+      { command: 'dataGrid.setNull' },
+      { divider: true },
+      { command: 'dataGrid.undo' },
+      { command: 'dataGrid.redo' },
+    ];
+  }
 </script>
 
-<div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight}>
+<div
+  class="container"
+  bind:clientWidth={containerWidth}
+  bind:clientHeight={containerHeight}
+  use:contextMenu={createMenu}
+>
   <input
     type="text"
     class="focus-field"

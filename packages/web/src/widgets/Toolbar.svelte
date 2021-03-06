@@ -1,3 +1,11 @@
+<script context="module">
+  function getCommandTitle(command) {
+    let res = command.text;
+    if (command.keyText) res += ` (${command.keyText})`;
+    return res;
+  }
+</script>
+
 <script>
   import _ from 'lodash';
   import App from '../App.svelte';
@@ -12,9 +20,14 @@
 
 <div class="container">
   {#each list as command}
-    <ToolbarButton icon={command.icon} on:click={command.onClick} disabled={!command.enabled}
-      >{command.toolbarName || command.name}</ToolbarButton
+    <ToolbarButton
+      icon={command.icon}
+      on:click={command.onClick}
+      disabled={!command.enabled}
+      title={getCommandTitle(command)}
     >
+      {command.toolbarName || command.name}
+    </ToolbarButton>
   {/each}
 </div>
 

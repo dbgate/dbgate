@@ -4,6 +4,7 @@
 
   export let disabled;
   export let icon;
+  export let title;
 
   const dispatch = createEventDispatcher();
 
@@ -13,7 +14,7 @@
   }
 </script>
 
-<div class="button" on:click={handleClick} class:disabled>
+<div class="button" on:click={handleClick} class:disabled {title}>
   <div class="inner">
     <span class="icon" class:disabled><FontIcon {icon} /></span>
     <slot />

@@ -48,6 +48,7 @@ registerCommand({
   icon: 'icon connection',
   toolbarName: 'Add connection',
   category: 'New',
+  toolbarOrder: 1,
   name: 'Connection',
   onClick: () => showModal(ConnectionModal),
 });

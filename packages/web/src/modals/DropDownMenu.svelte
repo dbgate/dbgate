@@ -24,12 +24,30 @@
     if (newLeft != null) element.style.left = `${newLeft}px`;
     if (newTop != null) element.style.top = `${newTop}px`;
   }
+
+  function mapItem(item, commands) {
+    if (item.command) {
+      const command = commands[item.command];
+      if (command) {
+        return {
+          text: command.name,
+          keyText: command.keyText,
+          onClick: command.onClick,
+          disabled: !command.enabled,
+        };
+      }
+      return null;
+    }
+    return item;
+  }
 </script>
 
 <script>
+  import _ from 'lodash';
   import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
+  import { commands } from '../stores';
 
   export let items;
   export let top;
@@ -55,12 +73,12 @@
   on:clickOutside={() => dispatch('close')}
   bind:this={element}
 >
-  {#each items as item}
+  {#each _.compact(items.map(x => mapItem(x, $commands))) as item}
     {#if item.divider}
       <li class="divider" />
     {:else}
       <li>
-        <a on:click={() => handleClick(item)}>
+        <a on:click={() => handleClick(item)} class:disabled={item.disabled}>
           {item.text}
           {#if item.keyText}
             <span class="keyText">{item.keyText}</span>
@@ -86,6 +104,7 @@
     min-width: 160px;
     z-index: 1050;
     cursor: default;
+    white-space: nowrap;
   }
 
   .keyText {
@@ -103,7 +122,11 @@
     color: #262626;
   }
 
-  a:hover {
+  a.disabled {
+    color: gray;
+  }
+
+  a:hover:not(.disabled) {
     background-color: #f5f5f5;
     text-decoration: none;
     color: #262626;
