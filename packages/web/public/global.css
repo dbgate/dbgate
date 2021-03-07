@@ -40,6 +40,9 @@ body {
 .bold {
   font-weight: bold;
 }
+.flex1 {
+  flex: 1;
+}
 
 .col-9 {
   flex-basis: 75%;

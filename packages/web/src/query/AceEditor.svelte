@@ -5,12 +5,12 @@
   let clientHeight;
 </script>
 
-<div bind:clientWidth bind:clientHeight>
+<div bind:clientWidth bind:clientHeight class="ace-container">
   <AceEditorCore {...$$props} width={clientWidth} height={clientHeight} />
 </div>
 
 <style>
-  div {
+  .ace-container {
     position: absolute;
     left: 0;
     top: 0;

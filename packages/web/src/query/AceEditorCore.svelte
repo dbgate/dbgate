@@ -32,12 +32,15 @@
     paste: string;
   }>();
 
-  export let height: number;
-  export let width: number;
-
+  /**
+   * translation of vue component to svelte:
+   * @link https://github.com/chairuosen/vue2-ace-editor/blob/91051422b36482eaf94271f1a263afa4b998f099/index.js
+   **/
   export let value: string = ''; // String, required
   export let mode: string = 'text'; // String
   export let theme: string = 'github'; // String
+  export let height: number;
+  export let width: number;
   export let options: any = {}; // Object
 
   let editor: ace.Editor;
@@ -89,7 +92,7 @@
       }
     });
 
-  $: if (height !== null && width !== null) {
+  $: if (height != null && width != null) {
     resizeOnNextTick();
   }
 

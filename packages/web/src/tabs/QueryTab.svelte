@@ -7,12 +7,11 @@
   export let conid;
   export let database;
 
-  // $: connection = useConnectionInfo({ conid });
-  // engine={$connection && $connection.engine} 
+  $: connection = useConnectionInfo({ conid });
 </script>
 
 <VerticalSplitter>
   <svelte:fragment slot="1">
-    <SqlEditor />
+    <SqlEditor engine={$connection && $connection.engine} />
   </svelte:fragment>
 </VerticalSplitter>
