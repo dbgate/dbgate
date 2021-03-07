@@ -6,7 +6,7 @@
 </script>
 
 <div bind:clientWidth bind:clientHeight class="ace-container">
-  <AceEditorCore {...$$props} width={clientWidth} height={clientHeight} />
+  <AceEditorCore {...$$props} width={clientWidth} height={clientHeight} on:input/>
 </div>
 
 <style>

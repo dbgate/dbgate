@@ -13,5 +13,7 @@
     "strictNullChecks": false,
     "strict": false,
     "target": "es6",
+    // "allowJs": true,
+    // "checkJs": true,
   }
 }

@@ -18,4 +18,4 @@
   }
 </script>
 
-<AceEditor {mode} />
+<AceEditor {mode} {...$$props} on:input />
