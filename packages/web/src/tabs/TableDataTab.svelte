@@ -1,3 +1,8 @@
+<script lang="ts" context="module">
+  export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
+  export const allowAddToFavorites = props => true;
+</script>
+
 <script lang="ts">
   import App from '../App.svelte';
   import TableDataGrid from '../datagrid/TableDataGrid.svelte';

@@ -1,6 +1,6 @@
 <script context="module" lang="ts">
   function createTabComponent(selectedTab) {
-    const tabComponent = tabs[selectedTab.tabComponent];
+    const tabComponent = tabs[selectedTab.tabComponent]?.default;
     if (tabComponent) {
       return {
         tabComponent,

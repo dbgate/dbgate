@@ -1,4 +1,4 @@
-import TableDataTab from './TableDataTab.svelte';
+import * as TableDataTab from './TableDataTab.svelte';
 // import ViewDataTab from './ViewDataTab';
 // import TableStructureTab from './TableStructureTab';
 // import QueryTab from './QueryTab';

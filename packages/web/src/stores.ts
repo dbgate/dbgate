@@ -9,6 +9,7 @@ interface TabDefinition {
   selected: boolean;
   busy: boolean;
   tabid: string;
+  tabComponent: string;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {
