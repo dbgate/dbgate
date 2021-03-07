@@ -13,7 +13,14 @@
 
     const commandsValue = get(commands);
     const command: any = Object.values(commandsValue).find(
-      (x: any) => x.enabled && x.keyText && x.keyText.toLowerCase() == keyText.toLowerCase()
+      (x: any) =>
+        x.enabled &&
+        x.keyText &&
+        x.keyText
+          .toLowerCase()
+          .split('|')
+          .map(x => x.trim())
+          .includes(keyText.toLowerCase())
     );
 
     if (command) {
