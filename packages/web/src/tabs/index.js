@@ -1,7 +1,7 @@
 import * as TableDataTab from './TableDataTab.svelte';
 // import ViewDataTab from './ViewDataTab';
 // import TableStructureTab from './TableStructureTab';
-// import QueryTab from './QueryTab';
+import * as QueryTab from './QueryTab.svelte';
 // import ShellTab from './ShellTab';
 // import InfoPageTab from './InfoPageTab';
 // import ArchiveFileTab from './ArchiveFileTab';
@@ -16,18 +16,18 @@ import * as TableDataTab from './TableDataTab.svelte';
 
 export default {
   TableDataTab,
-//   ViewDataTab,
-//   TableStructureTab,
-//   QueryTab,
-//   InfoPageTab,
-//   ShellTab,
-//   ArchiveFileTab,
-//   FreeTableTab,
-//   PluginTab,
-//   ChartTab,
-//   MarkdownEditorTab,
-//   MarkdownViewTab,
-//   MarkdownPreviewTab,
-//   FavoriteEditorTab,
-//   QueryDesignTab,
+  //   ViewDataTab,
+  //   TableStructureTab,
+  QueryTab,
+  //   InfoPageTab,
+  //   ShellTab,
+  //   ArchiveFileTab,
+  //   FreeTableTab,
+  //   PluginTab,
+  //   ChartTab,
+  //   MarkdownEditorTab,
+  //   MarkdownViewTab,
+  //   MarkdownPreviewTab,
+  //   FavoriteEditorTab,
+  //   QueryDesignTab,
 };

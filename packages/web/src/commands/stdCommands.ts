@@ -4,6 +4,7 @@ import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import { showModal } from '../modals/modalTools';
+import newQuery from '../query/newQuery';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -51,4 +52,15 @@ registerCommand({
   toolbarOrder: 1,
   name: 'Connection',
   onClick: () => showModal(ConnectionModal),
+});
+
+registerCommand({
+  id: 'new.query',
+  category: 'New',
+  icon: 'icon file',
+  toolbar: true,
+  toolbarOrder: 2,
+  name: 'Query',
+  keyText: 'Ctrl+Q',
+  onClick: () => newQuery(),
 });
