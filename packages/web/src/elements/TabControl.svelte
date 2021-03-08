@@ -9,6 +9,13 @@
   export let tabs: TabDef[];
   export let value = 0;
   export let isInline = false;
+
+  export function setValue(index) {
+    value = index;
+  }
+  export function getValue() {
+    return value;
+  }
 </script>
 
 <div class="main">

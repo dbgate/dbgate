@@ -18,12 +18,10 @@
   let displayedMessages = [];
 
   const displayCachedMessages = _.throttle(() => {
-    console.log('THROTTLE', cachedMessagesRef.current);
     displayedMessages = [...cachedMessagesRef.current];
   }, 500);
 
   const handleInfo = info => {
-    console.log('ACCEPTED', info);
     cachedMessagesRef.current.push(info);
     displayCachedMessages();
   };
@@ -40,15 +38,12 @@
 
   $: {
     if (executeNumber >= 0) {
-      console.log('CLEAR');
       displayedMessages = [];
       cachedMessagesRef.current = [];
     }
   }
 
   $: $effect;
-
-  $: console.log('displayedMessages', displayedMessages);
 </script>
 
 {#if !displayedMessages || displayedMessages.length == 0}

@@ -15,7 +15,7 @@
   let loadedTime = new Date().getTime();
   let allRowCount = null;
   let errorMessage = null;
-  let loadNextDataToken = 0;
+  const loadNextDataRef = { current: false };
   const loadedTimeRef = { current: null };
 
   const handleLoadRowCount = async () => {
@@ -23,8 +23,9 @@
     allRowCount = rowCount;
   };
 
-  async function loadNextData() {
+  export async function loadNextData() {
     if (isLoading) return;
+    loadNextDataRef.current = false;
     isLoading = true;
 
     const loadStart = new Date().getTime();
@@ -60,6 +61,9 @@
       //   }));
     }
 
+    if (loadNextDataRef.current) {
+      loadNextData();
+    }
     // console.log('LOADED', nextRows, loadedRows);
   }
 
@@ -82,7 +86,8 @@
     isLoadedAll = false;
     loadedTime = new Date().getTime();
     errorMessage = null;
-    loadNextDataToken = 0;
+    loadNextDataRef.current = false;
+    // loadNextDataToken = 0;
   }
 
   $: if (display.cache.refreshTime > loadedTime) {

@@ -48,6 +48,7 @@
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import memberStore from '../utility/memberStore';
   import useEffect from '../utility/useEffect';
+  import ResultTabs from '../query/ResultTabs.svelte';
 
   export let tabid;
   export let conid;
@@ -71,15 +72,17 @@
   $: connection = useConnectionInfo({ conid });
 
   $: effect = useEffect(() => {
-    if (sessionId) {
-      const sid = sessionId;
+    return onSession(sessionId);
+  });
+  function onSession(sid) {
+    if (sid) {
       socket.on(`session-done-${sid}`, handleSessionDone);
       return () => {
         socket.off(`session-done-${sid}`, handleSessionDone);
       };
     }
     return () => {};
-  });
+  }
   $: $effect;
 
   $: {
@@ -161,12 +164,16 @@
     />
   </svelte:fragment>
   <svelte:fragment slot="2">
-    <SocketMessageView
-      eventName={sessionId ? `session-info-${sessionId}` : null}
-      on:messageClick={handleMesageClick}
-      {executeNumber}
-      showProcedure
-      showLine
-    />
+    <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber}>
+      <svelte:fragment slot="0">
+        <SocketMessageView
+          eventName={sessionId ? `session-info-${sessionId}` : null}
+          on:messageClick={handleMesageClick}
+          {executeNumber}
+          showProcedure
+          showLine
+        />
+      </svelte:fragment>
+    </ResultTabs>
   </svelte:fragment>
 </VerticalSplitter>

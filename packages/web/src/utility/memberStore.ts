@@ -8,7 +8,6 @@ export default function memberStore(store, extractStore) {
     if (unsubscribeSub) unsubscribeSub();
     unsubscribeSub = subStore.subscribe(subValue => {
       if (res) {
-        console.log('subValue', subValue);
         res.set(subValue);
       } else {
         res = writable(subValue);
