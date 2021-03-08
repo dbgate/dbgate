@@ -47,6 +47,10 @@
   let clientWidth;
   let clientHeight;
 
+  export function getEditor(): ace.Editor {
+    return editor;
+  }
+
   const requireEditorPlugins = () => {};
   requireEditorPlugins();
 

@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import AceEditor from './AceEditor.svelte';
+  import * as ace from 'ace-builds/src-noconflict/ace';
   export let engine;
   let domEditor;
 
@@ -18,9 +19,9 @@
     mode = engineToMode[match ? match[1] : engine] || 'sql';
   }
 
-  export function getSelectedText() {
-    return domEditor.getSelectedText()
+  export function getEditor(): ace.Editor {
+    return domEditor.getEditor();
   }
 </script>
 
-<AceEditor {mode} {...$$props} on:input on:focus on:blur bind:this={domEditor}/>
+<AceEditor {mode} {...$$props} on:input on:focus on:blur bind:this={domEditor} />
