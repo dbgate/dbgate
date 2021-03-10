@@ -164,7 +164,7 @@
   import axios from '../utility/axios';
   import { copyTextToClipboard } from '../utility/clipboard';
 
-  export let loadNextData = undefined;
+  export let onLoadNextData = undefined;
   export let grider = undefined;
   export let display: GridDisplay = undefined;
   export let conid = undefined;
@@ -286,6 +286,12 @@
     copyTextToClipboard(text);
   }
 
+  export function loadNextDataIfNeeded() {
+    if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
+      onLoadNextData();
+    }
+  }
+
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
       ? [_.max(selectedCells.map(x => x[0])), _.max(selectedCells.map(x => x[1]))]
@@ -326,8 +332,8 @@
   $: maxScrollColumn = columnSizes.scrollInView(0, columns.length - 1 - columnSizes.frozenCount, gridScrollAreaWidth);
 
   $: {
-    if (loadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
-      loadNextData();
+    if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount && rowHeight > 0) {
+      onLoadNextData();
     }
   }
 

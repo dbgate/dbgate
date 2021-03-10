@@ -15,15 +15,22 @@
   let loadedTime = new Date().getTime();
   let allRowCount = null;
   let errorMessage = null;
+  let domGrid;
+
   const loadNextDataRef = { current: false };
   const loadedTimeRef = { current: null };
+
+  export function resetLoadedAll() {
+    isLoadedAll = false;
+    domGrid.loadNextDataIfNeeded();
+  }
 
   const handleLoadRowCount = async () => {
     const rowCount = await loadRowCount($$props);
     allRowCount = rowCount;
   };
 
-  export async function loadNextData() {
+  async function loadNextData() {
     if (isLoading) return;
     loadNextDataRef.current = false;
     isLoading = true;
@@ -102,8 +109,9 @@
 </script>
 
 <DataGridCore
+  bind:this={domGrid}
   {...$$props}
-  loadNextData={handleLoadNextData}
+  onLoadNextData={handleLoadNextData}
   {grider}
   {isLoading}
   {allRowCount}
