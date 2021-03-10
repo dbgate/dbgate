@@ -37,6 +37,7 @@
   cache={$cache}
   setCache={cache.update}
   changeSetState={$changeSetStore}
+  focusOnVisible
   {changeSetStore}
   {dispatchChangeSet}
 />

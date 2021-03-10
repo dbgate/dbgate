@@ -121,7 +121,13 @@ module.exports = {
   getStats_meta: 'get',
   getStats({ jslid }) {
     const file = `${getJslFileName(jslid)}.stats`;
-    if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf-8'));
+    if (fs.existsSync(file)) {
+      try {
+        return JSON.parse(fs.readFileSync(file, 'utf-8'));
+      } catch (e) {
+        return {};
+      }
+    }
     return {};
   },
 

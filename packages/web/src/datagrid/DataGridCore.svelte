@@ -13,7 +13,7 @@
     keyText: 'F5',
     toolbar: true,
     icon: 'icon reload',
-    enabledStore: derived(currentDataGrid, grid => grid != null),
+    enabledStore: derived(currentDataGrid, grid => grid?.getDisplay().supportsReload),
     onClick: () => get(currentDataGrid).refresh(),
   });
 
@@ -179,6 +179,7 @@
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
   export let onSave;
+  export let focusOnVisible = false;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -224,6 +225,10 @@
 
   export function getChangeSetStore() {
     return changeSetStore;
+  }
+
+  export function getDisplay() {
+    return display;
   }
 
   export function revertRowChanges() {
@@ -382,7 +387,7 @@
     }
   }
 
-  $: if ($tabVisible && domFocusField) {
+  $: if ($tabVisible && domFocusField && focusOnVisible) {
     domFocusField.focus();
   }
 
