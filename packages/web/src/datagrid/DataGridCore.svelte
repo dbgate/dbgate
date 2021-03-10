@@ -1,5 +1,8 @@
 <script lang="ts" context="module">
-  const currentDataGrid = writable(null);
+  const lastFocusedDataGrid = writable(null);
+  const currentDataGrid = derived([lastFocusedDataGrid, activeTabId], ([grid, tabid]) =>
+    grid?.getTabId() == tabid ? grid : null
+  );
 
   const currentDataGridChangeSet = memberStore(currentDataGrid, grid => grid?.getChangeSetStore() || nullStore);
 
@@ -134,6 +137,7 @@
 <script lang="ts">
   import { changeSetContainsChanges, GridDisplay } from 'dbgate-datalib';
   import { get_current_component } from 'svelte/internal';
+  import { getContext } from 'svelte';
   import _ from 'lodash';
   import { writable, get, derived } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -159,7 +163,7 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { nullStore } from '../stores';
+  import { activeTabId, nullStore } from '../stores';
   import memberStore from '../utility/memberStore';
   import axios from '../utility/axios';
   import { copyTextToClipboard } from '../utility/clipboard';
@@ -182,6 +186,8 @@
 
   const wheelRowCount = 5;
   const instance = get_current_component();
+  const tabid = getContext('tabid');
+  const tabVisible: any = getContext('tabVisible');
 
   let containerHeight = 0;
   let containerWidth = 0;
@@ -202,6 +208,10 @@
 
   export function refresh() {
     display.reload();
+  }
+
+  export function getTabId() {
+    return tabid;
   }
 
   export function save() {
@@ -370,6 +380,10 @@
         })),
       });
     }
+  }
+
+  $: if ($tabVisible && domFocusField) {
+    domFocusField.focus();
   }
 
   function scrollIntoView(cell) {
@@ -820,7 +834,7 @@
     bind:this={domFocusField}
     on:keydown={handleGridKeyDown}
     on:focus={() => {
-      currentDataGrid.set(instance);
+      lastFocusedDataGrid.set(instance);
     }}
     on:paste={handlePaste}
   />

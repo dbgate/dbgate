@@ -1,7 +1,16 @@
 <script lang="ts">
+  import { setContext } from 'svelte';
+  import { writable } from 'svelte/store';
+
   export let tabid;
   export let tabVisible;
   export let tabComponent;
+
+  const tabVisibleStore = writable(tabVisible);
+  setContext('tabid', tabid);
+  setContext('tabVisible', tabVisibleStore);
+
+  $: tabVisibleStore.set(tabVisible);
 </script>
 
 <div class:tabVisible>

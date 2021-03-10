@@ -1,5 +1,8 @@
 <script lang="ts" context="module">
-  const currentQuery = writable(null);
+  const lastFocusedQuery = writable(null);
+  const currentQuery = derived([lastFocusedQuery, activeTabId], ([query, tabid]) =>
+    query?.getTabId() == tabid ? query : null
+  );
   const currentQueryStatus = memberStore(currentQuery, query => query?.getStatus() || nullStore);
 
   registerCommand({
@@ -31,7 +34,7 @@
 
 <script lang="ts">
   import { get_current_component } from 'svelte/internal';
-  import { onDestroy } from 'svelte';
+  import { getContext } from 'svelte';
 
   import { writable, derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -39,7 +42,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { extensions, nullStore } from '../stores';
+  import { activeTabId, extensions, nullStore } from '../stores';
   import applySqlTemplate from '../utility/applySqlTemplate';
   import axios from '../utility/axios';
   import { changeTab } from '../utility/common';
@@ -56,6 +59,7 @@
   export let initialArgs;
 
   const instance = get_current_component();
+  const tabVisible: any = getContext('tabVisible');
 
   let busy = false;
   let executeNumber = 0;
@@ -94,6 +98,14 @@
       busy,
       isConnected: !!sessionId,
     });
+  }
+
+  $: if ($tabVisible && domEditor) {
+    domEditor?.getEditor()?.focus();
+  }
+
+  export function getTabId() {
+    return tabid;
   }
 
   export async function execute() {
@@ -159,7 +171,7 @@
       engine={$connection && $connection.engine}
       value={$editorState.value || ''}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => currentQuery.set(instance)}
+      on:focus={() => lastFocusedQuery.set(instance)}
       bind:this={domEditor}
     />
   </svelte:fragment>
