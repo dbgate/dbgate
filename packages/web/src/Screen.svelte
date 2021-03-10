@@ -3,7 +3,7 @@
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
   import { currentTheme, leftPanelWidth, selectedWidget, visibleCommandPalette, visibleToolbar } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
-  import TabContent from './TabContent.svelte';
+  import TabRegister from './TabRegister.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';
@@ -28,7 +28,7 @@
     <TabsPanel />
   </div>
   <div class="content">
-    <TabContent />
+    <TabRegister />
   </div>
   {#if $selectedWidget}
     <div
