@@ -4,7 +4,7 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import TabControl from '../elements/TabControl.svelte';
   import ConnectionModalDriverFields from './ConnectionModalDriverFields.svelte';
   import ConnectionModalSshTunnelFields from './ConnectionModalSshTunnelFields.svelte';
@@ -25,7 +25,7 @@
     isTesting = true;
     testIdRef.current += 1;
     const testid = testIdRef.current;
-    const resp = await axios.post('connections/test', e.detail);
+    const resp = await axiosInstance.post('connections/test', e.detail);
     if (testIdRef.current != testid) return;
 
     isTesting = false;
@@ -38,7 +38,7 @@
   }
 
   async function handleSubmit(e) {
-    axios.post('connections/save', e.detail);
+    axiosInstance.post('connections/save', e.detail);
     closeCurrentModal();
   }
 </script>

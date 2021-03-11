@@ -61,7 +61,7 @@
   import useEditorData from '../query/useEditorData';
   import { activeTabId, extensions, nullStore } from '../stores';
   import applySqlTemplate from '../utility/applySqlTemplate';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
@@ -133,7 +133,7 @@
 
     let sesid = sessionId;
     if (!sesid) {
-      const resp = await axios.post('sessions/create', {
+      const resp = await axiosInstance.post('sessions/create', {
         conid,
         database,
       });
@@ -142,14 +142,14 @@
     }
     busy = true;
     // timerLabel.start();
-    await axios.post('sessions/execute-query', {
+    await axiosInstance.post('sessions/execute-query', {
       sesid,
       sql: selectedText || $editorValue,
     });
   }
 
   export async function kill() {
-    await axios.post('sessions/kill', {
+    await axiosInstance.post('sessions/kill', {
       sesid: sessionId,
     });
     sessionId = null;

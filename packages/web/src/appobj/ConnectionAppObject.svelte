@@ -1,7 +1,7 @@
 <script context="module">
   const getContextMenu = (data, $openedConnections) => () => {
     const handleRefresh = () => {
-      axios.post('server-connections/refresh', { conid: data._id });
+      axiosInstance.post('server-connections/refresh', { conid: data._id });
     };
     const handleDisconnect = () => {
       openedConnections.update(list => list.filter(x => x != data._id));
@@ -42,7 +42,7 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, openedConnections } from '../stores';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import { filterName } from 'dbgate-datalib';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';

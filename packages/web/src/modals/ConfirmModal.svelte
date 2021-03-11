@@ -1,0 +1,28 @@
+<script lang="ts">
+  import FormStyledButton from '../elements/FormStyledButton.svelte';
+
+  import FormProvider from '../forms/FormProvider.svelte';
+  import FormSubmit from '../forms/FormSubmit.svelte';
+  import ModalBase from './ModalBase.svelte';
+  import { closeCurrentModal } from './modalTools';
+
+  export let message;
+  export let onConfirm;
+</script>
+
+<FormProvider>
+  <ModalBase {...$$restProps}>
+    {message}
+
+    <svelte:fragment slot="footer">
+      <FormSubmit
+        value="OK"
+        on:click={() => {
+          closeCurrentModal();
+          onConfirm();
+        }}
+      />
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+    </svelte:fragment>
+  </ModalBase>
+</FormProvider>

@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   const dbgateEnv = {
-    axios,
+    axios: axiosInstance,
   };
 
   async function loadPlugins(pluginsDict, installedPlugins) {
@@ -8,7 +8,7 @@
     for (const installed of installedPlugins || []) {
       if (!_.keys(pluginsDict).includes(installed.name)) {
         console.log('Loading module', installed.name);
-        const resp = await axios.request({
+        const resp = await axiosInstance.request({
           method: 'get',
           url: 'plugins/script',
           params: {
@@ -48,7 +48,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import { extensions } from '../stores';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats } from './fileformats';
   import { buildThemes } from './themes';

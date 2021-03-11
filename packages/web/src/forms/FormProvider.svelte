@@ -1,9 +1,10 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
+  import FormFieldTemplateLarge from '../modals/FormFieldTemplateLarge.svelte';
   import FormProviderCore from './FormProviderCore.svelte';
 
   export let initialValues = {};
-  export let template;
+  export let template = FormFieldTemplateLarge;
 
   const values = writable(initialValues);
 </script>

@@ -1,4 +1,4 @@
-import axios from './axios';
+import axiosInstance from './axiosInstance';
 import _ from 'lodash';
 import { cacheGet, cacheSet, getCachedPromise } from './cache';
 import stableStringify from 'json-stable-stringify';
@@ -130,7 +130,7 @@ async function getCore(loader, args) {
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
-    const resp = await axios.request({
+    const resp = await axiosInstance.request({
       method: 'get',
       url,
       params,
@@ -154,7 +154,7 @@ function useCore(loader, args) {
     subscribe: onChange => {
       async function handleReload() {
         async function doLoad() {
-          const resp = await axios.request({
+          const resp = await axiosInstance.request({
             method: 'get',
             params,
             url,
@@ -331,7 +331,7 @@ export function getConfig() {
   return getCore(configLoader, {}) || {};
 }
 export function useConfig() {
-  return useCore(configLoader, {}) || {};
+  return useCore(configLoader, {});
 }
 
 export function getPlatformInfo() {

@@ -4,7 +4,7 @@
 
     const sql = display.getPageQuery(offset, limit);
 
-    const response = await axios.request({
+    const response = await axiosInstance.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -29,7 +29,7 @@
 
     const sql = display.getCountQuery();
 
-    const response = await axios.request({
+    const response = await axiosInstance.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -50,7 +50,7 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
@@ -71,7 +71,7 @@
   // $: console.log('GRIDER', grider);
 
   async function handleConfirmSql(sql) {
-    const resp = await axios.request({
+    const resp = await axiosInstance.request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {

@@ -10,7 +10,7 @@
   import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   export let conid;
@@ -31,7 +31,7 @@
   );
 
   const handleRefreshDatabase = () => {
-    axios.post('database-connections/refresh', { conid, database });
+    axiosInstance.post('database-connections/refresh', { conid, database });
   };
 </script>
 

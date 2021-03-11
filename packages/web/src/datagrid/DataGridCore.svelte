@@ -165,7 +165,7 @@
   import keycodes from '../utility/keycodes';
   import { activeTabId, nullStore } from '../stores';
   import memberStore from '../utility/memberStore';
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
 
   export let onLoadNextData = undefined;
@@ -280,7 +280,7 @@
   }
 
   export async function reconnect() {
-    await axios.post('database-connections/refresh', { conid, database });
+    await axiosInstance.post('database-connections/refresh', { conid, database });
     display.reload();
   }
 

@@ -2,7 +2,7 @@
   async function loadDataPage(props, offset, limit) {
     const { jslid, display } = props;
 
-    const response = await axios.post('jsldata/get-rows', {
+    const response = await axiosInstance.post('jsldata/get-rows', {
       jslid,
       offset,
       limit,
@@ -19,7 +19,7 @@
   async function loadRowCount(props) {
     const { jslid } = props;
 
-    const response = await axios.request({
+    const response = await axiosInstance.request({
       url: 'jsldata/get-stats',
       method: 'get',
       params: {
@@ -33,7 +33,7 @@
 <script lang="ts">
   import _ from 'lodash';
 
-  import axios from '../utility/axios';
+  import axiosInstance from '../utility/axiosInstance';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
