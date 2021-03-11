@@ -8,7 +8,7 @@ import * as ShellTab from './ShellTab.svelte';
 // import FreeTableTab from './FreeTableTab';
 // import PluginTab from './PluginTab';
 // import ChartTab from './ChartTab';
-// import MarkdownEditorTab from './MarkdownEditorTab';
+import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 // import MarkdownViewTab from './MarkdownViewTab';
 // import MarkdownPreviewTab from './MarkdownPreviewTab';
 // import FavoriteEditorTab from './FavoriteEditorTab';
@@ -25,7 +25,7 @@ export default {
   //   FreeTableTab,
   //   PluginTab,
   //   ChartTab,
-  //   MarkdownEditorTab,
+  MarkdownEditorTab,
   //   MarkdownViewTab,
   //   MarkdownPreviewTab,
   //   FavoriteEditorTab,

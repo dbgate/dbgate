@@ -1,15 +1,15 @@
 <script lang="ts" context="module">
-  const lastFocusedShell = writable(null);
-  const currentShell = derived([lastFocusedShell, activeTabId], ([shell, tabid]) =>
-    shell?.getTabId() == tabid ? shell : null
+  const lastFocusedEditor = writable(null);
+  const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
+    editor?.getTabId() == tabid ? editor : null
   );
-  const currentShellStatus = memberStore(currentShell, shell => shell?.getStatus() || nullStore);
+  const currentEditorStatus = memberStore(currentEditor, editor => editor?.getStatus() || nullStore);
 
   registerFileCommands({
     idPrefix: 'shell',
     category: 'Shell',
-    editorStore: currentShell,
-    editorStatusStore: currentShellStatus,
+    editorStore: currentEditor,
+    editorStatusStore: currentEditorStatus,
     folder: 'shell',
     format: 'text',
     fileExtension: 'js',
@@ -165,7 +165,7 @@
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => lastFocusedShell.set(instance)}
+      on:focus={() => lastFocusedEditor.set(instance)}
       bind:this={domEditor}
       mode="javascript"
     />

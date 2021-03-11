@@ -6,6 +6,7 @@ import ConnectionModal from '../modals/ConnectionModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
 import saveTabFile, { saveTabEnabledStore } from '../utility/saveTabFile';
+import openNewTab from '../utility/openNewTab';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -66,11 +67,39 @@ registerCommand({
   onClick: () => newQuery(),
 });
 
+registerCommand({
+  id: 'new.shell',
+  category: 'New',
+  icon: 'img shell',
+  name: 'JavaScript Shell',
+  onClick: () => {
+    openNewTab({
+      title: 'Shell #',
+      icon: 'img shell',
+      tabComponent: 'ShellTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.markdown',
+  category: 'New',
+  icon: 'img markdown',
+  name: 'Markdown page',
+  onClick: () => {
+    openNewTab({
+      title: 'Page #',
+      icon: 'img markdown',
+      tabComponent: 'MarkdownEditorTab',
+    });
+  },
+});
+
 export function registerFileCommands({
   idPrefix,
   category,
   editorStore,
-  editorStatusStore,
+  editorStatusStore = undefined,
   folder,
   format,
   fileExtension,

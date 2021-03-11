@@ -1,22 +1,22 @@
 <script lang="ts" context="module">
-  const lastFocusedQuery = writable(null);
-  const currentQuery = derived([lastFocusedQuery, activeTabId], ([query, tabid]) =>
-    query?.getTabId() == tabid ? query : null
+  const lastFocusedEditor = writable(null);
+  const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
+    editor?.getTabId() == tabid ? editor : null
   );
-  const currentQueryStatus = memberStore(currentQuery, query => query?.getStatus() || nullStore);
+  const currentEditorStatus = memberStore(currentEditor, editor => editor?.getStatus() || nullStore);
 
   registerCommand({
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
-    enabledStore: derived(currentQuery, query => query != null),
-    onClick: () => get(currentQuery).formatCode(),
+    enabledStore: derived(currentEditor, query => query != null),
+    onClick: () => get(currentEditor).formatCode(),
   });
   registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
-    editorStore: currentQuery,
-    editorStatusStore: currentQueryStatus,
+    editorStore: currentEditor,
+    editorStatusStore: currentEditorStatus,
     folder: 'sql',
     format: 'text',
     fileExtension: 'sql',
@@ -207,7 +207,7 @@
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => lastFocusedQuery.set(instance)}
+      on:focus={() => lastFocusedEditor.set(instance)}
       bind:this={domEditor}
     />
   </svelte:fragment>
