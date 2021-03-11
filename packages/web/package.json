@@ -13,30 +13,31 @@
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "ace-builds": "^1.4.8",
+    "dbgate-datalib": "^3.9.5",
+    "dbgate-sqltree": "^3.9.5",
+    "dbgate-tools": "^3.9.5",
+    "dbgate-types": "^3.9.5",
+    "json-stable-stringify": "^1.0.1",
+    "localforage": "^1.9.0",
+    "lodash": "^4.17.15",
     "rollup": "^2.3.4",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "socket.io-client": "^2.3.0",
+    "sql-formatter": "^2.3.3",
     "svelte": "^3.35.0",
     "svelte-check": "^1.0.0",
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3",
-    "socket.io-client": "^2.3.0",
-    "sql-formatter": "^2.3.3",
-    "uuid": "^3.4.0",
-    "json-stable-stringify": "^1.0.1",
-    "localforage": "^1.9.0",
-    "dbgate-types": "^3.9.5",
-    "dbgate-datalib": "^3.9.5",
-    "dbgate-sqltree": "^3.9.5",
-    "dbgate-tools": "^3.9.5",
-    "lodash": "^4.17.15"
+    "uuid": "^3.4.0"
   },
   "dependencies": {
     "@mdi/font": "^5.9.55",
-    "sirv-cli": "^1.0.0"
+    "sirv-cli": "^1.0.0",
+    "svelte-select": "^3.17.0"
   }
 }

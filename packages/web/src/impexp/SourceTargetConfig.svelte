@@ -8,6 +8,8 @@
   import { useArchiveFiles, useDatabaseInfo } from '../utility/metadataLoaders';
   import FormConnectionSelect from './FormConnectionSelect.svelte';
   import FormDatabaseSelect from './FormDatabaseSelect.svelte';
+  import FormSchemaSelect from './FormSchemaSelect.svelte';
+  import FormTablesSelect from './FormTablesSelect.svelte';
 
   export let direction;
   export let storageTypeField;
@@ -62,6 +64,22 @@
   {#if storageType == 'database' || storageType == 'query'}
     <FormConnectionSelect name={connectionIdField} label="Server" />
     <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" />
+  {/if}
+  {#if storageType == 'database'}
+    <FormSchemaSelect
+      conidName={connectionIdField}
+      databaseName={databaseNameField}
+      name={schemaNameField}
+      label="Schema"
+    />
+    {#if tablesField}
+      <FormTablesSelect
+        conidName={connectionIdField}
+        schemaName={schemaNameField}
+        databaseName={databaseNameField}
+        name={tablesField}
+      />
+    {/if}
   {/if}
 </div>
 
