@@ -46,6 +46,22 @@
     enabledStore: derived(currentQuery, query => query != null),
     onClick: () => get(currentQuery).formatCode(),
   });
+  registerCommand({
+    id: 'query.find',
+    category: 'Query',
+    name: 'Find',
+    keyText: 'Ctrl+F',
+    enabledStore: derived(currentQuery, query => query != null),
+    onClick: () => get(currentQuery).find(),
+  });
+  registerCommand({
+    id: 'query.replace',
+    category: 'Query',
+    keyText: 'Ctrl+H',
+    name: 'Replace',
+    enabledStore: derived(currentQuery, query => query != null),
+    onClick: () => get(currentQuery).replace(),
+  });
   registerSaveCommands({
     idPrefix: 'query',
     category: 'Query',
@@ -178,6 +194,14 @@
     domEditor.getEditor().execCommand('togglecomment');
   }
 
+  export function find() {
+    domEditor.getEditor().execCommand('find');
+  }
+
+  export function replace() {
+    domEditor.getEditor().execCommand('replace');
+  }
+
   export function formatCode() {
     const editor = domEditor.getEditor();
     editor.setValue(sqlFormatter.format(editor.getValue()));
@@ -209,8 +233,12 @@
       { command: 'query.execute' },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },
+      { divider: true },
       { command: 'query.save' },
       { command: 'query.saveAs' },
+      { divider: true },
+      { command: 'query.find' },
+      { command: 'query.replace' },
     ];
   }
 </script>
