@@ -8,6 +8,8 @@
   export let fullScreen = false;
   export let noPadding = false;
   export let modalId;
+  export let skipBody = false;
+  export let skipFooter = false;
 
   function handleCloseModal() {
     closeModal(modalId);
@@ -31,18 +33,26 @@
 <div id="myModal" class="bglayer">
   <!-- Modal content -->
   <div class="window" class:fullScreen use:clickOutside on:clickOutside={handleCloseModal}>
-    <div class="header">
-      <div><slot name="header" /></div>
-      <div class="close" on:click={handleCloseModal}>
-        <FontIcon icon="icon close" />
+    {#if $$slots.header}
+      <div class="header">
+        <div><slot name="header" /></div>
+        <div class="close" on:click={handleCloseModal}>
+          <FontIcon icon="icon close" />
+        </div>
       </div>
-    </div>
-    <div class="content" class:noPadding>
+    {/if}
+    {#if !skipBody}
+      <div class="content" class:noPadding>
+        <slot />
+      </div>
+    {:else}
       <slot />
-    </div>
-    <div class="footer">
-      <slot name="footer" />
-    </div>
+    {/if}
+    {#if !skipFooter}
+      <div class="footer">
+        <slot name="footer" />
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -63,16 +73,24 @@
 
   .window {
     background-color: var(--theme-bg-0);
-    margin: auto;
-    margin-top: 15vh;
     border: 1px solid var(--theme-border);
-    width: 50%;
     overflow: auto;
     outline: none;
   }
 
   .window:not(.fullScreen) {
     border-radius: 10px;
+    margin: auto;
+    margin-top: 15vh;
+    width: 50%;
+  }
+
+  .window.fullScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
   }
 
   .close {

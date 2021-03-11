@@ -109,6 +109,15 @@
     onClick: () => get(currentDataGrid).copyToClipboard(),
   });
 
+  registerCommand({
+    id: 'dataGrid.export',
+    category: 'Data grid',
+    name: 'Export',
+    keyText: 'Ctrl+E',
+    enabledStore: derived(currentDataGrid, grid => grid != null && grid.exportEnabled()),
+    onClick: () => get(currentDataGrid).exportGrid(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -180,6 +189,7 @@
   export let onReferenceClick = undefined;
   export let onSave;
   export let focusOnVisible = false;
+  export let onExportGrid = null;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -229,6 +239,14 @@
 
   export function getDisplay() {
     return display;
+  }
+
+  export function exportGrid() {
+    if (onExportGrid) onExportGrid();
+  }
+
+  export function exportEnabled() {
+    return !!onExportGrid;
   }
 
   export function revertRowChanges() {
@@ -813,6 +831,7 @@
     return [
       { command: 'dataGrid.refresh' },
       { command: 'dataGrid.copyToClipboard' },
+      { command: 'dataGrid.export' },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },

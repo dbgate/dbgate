@@ -48,6 +48,7 @@
   import { scriptToSql } from 'dbgate-sqltree';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
@@ -98,6 +99,16 @@
       engine: display.engine,
     });
   }
+
+  function exportGrid() {
+    const initialValues: any = {};
+    initialValues.sourceStorageType = 'query';
+    initialValues.sourceConnectionId = conid;
+    initialValues.sourceDatabaseName = database;
+    initialValues.sourceSql = display.getExportQuery();
+    initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
+    showModal(ImportExportModal, { initialValues });
+  }
 </script>
 
 <LoadingDataGridCore
@@ -105,6 +116,7 @@
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
+  onExportGrid={exportGrid}
   bind:loadedRows
   {grider}
   onSave={handleSave}
