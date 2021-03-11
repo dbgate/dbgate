@@ -6,69 +6,24 @@
   const currentQueryStatus = memberStore(currentQuery, query => query?.getStatus() || nullStore);
 
   registerCommand({
-    id: 'query.execute',
-    category: 'Query',
-    name: 'Execute',
-    icon: 'icon run',
-    toolbar: true,
-    keyText: 'F5 | Ctrl+Enter',
-    enabledStore: derived(
-      [currentQuery, currentQueryStatus],
-      ([query, status]) => query != null && !(status as any).busy
-    ),
-    onClick: () => get(currentQuery).execute(),
-  });
-  registerCommand({
-    id: 'query.kill',
-    category: 'Query',
-    name: 'Kill',
-    icon: 'icon close',
-    toolbar: true,
-    enabledStore: derived(
-      [currentQuery, currentQueryStatus],
-      ([query, status]) => query != null && status && (status as any).isConnected
-    ),
-    onClick: () => get(currentQuery).kill(),
-  });
-  registerCommand({
-    id: 'query.toggleComment',
-    category: 'Query',
-    name: 'Toggle comment',
-    keyText: 'Ctrl+/',
-    disableHandleKeyText: 'Ctrl+/',
-    enabledStore: derived(currentQuery, query => query != null),
-    onClick: () => get(currentQuery).toggleComment(),
-  });
-  registerCommand({
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
     enabledStore: derived(currentQuery, query => query != null),
     onClick: () => get(currentQuery).formatCode(),
   });
-  registerCommand({
-    id: 'query.find',
-    category: 'Query',
-    name: 'Find',
-    keyText: 'Ctrl+F',
-    enabledStore: derived(currentQuery, query => query != null),
-    onClick: () => get(currentQuery).find(),
-  });
-  registerCommand({
-    id: 'query.replace',
-    category: 'Query',
-    keyText: 'Ctrl+H',
-    name: 'Replace',
-    enabledStore: derived(currentQuery, query => query != null),
-    onClick: () => get(currentQuery).replace(),
-  });
-  registerSaveCommands({
+  registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
     editorStore: currentQuery,
+    editorStatusStore: currentQueryStatus,
     folder: 'sql',
     format: 'text',
     fileExtension: 'sql',
+
+    execute: true,
+    toggleComment:true,
+    findReplace:true
   });
 </script>
 
@@ -93,7 +48,7 @@
   import memberStore from '../utility/memberStore';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
-  import saveTabFile, { registerSaveCommands, saveTabEnabledStore } from '../utility/saveTabFile';
+  import { registerFileCommands } from '../commands/stdCommands';
 
   export let tabid;
   export let conid;

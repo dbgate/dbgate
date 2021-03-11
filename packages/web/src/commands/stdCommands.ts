@@ -5,6 +5,7 @@ import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
+import saveTabFile, { saveTabEnabledStore } from '../utility/saveTabFile';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -64,3 +65,94 @@ registerCommand({
   keyText: 'Ctrl+Q',
   onClick: () => newQuery(),
 });
+
+export function registerFileCommands({
+  idPrefix,
+  category,
+  editorStore,
+  editorStatusStore,
+  folder,
+  format,
+  fileExtension,
+  execute = false,
+  toggleComment = false,
+  findReplace = false,
+}) {
+  registerCommand({
+    id: idPrefix + '.save',
+    category,
+    name: 'Save',
+    keyText: 'Ctrl+S',
+    icon: 'icon save',
+    toolbar: true,
+    enabledStore: saveTabEnabledStore(editorStore),
+    onClick: () => saveTabFile(editorStore, false, folder, format, fileExtension),
+  });
+  registerCommand({
+    id: idPrefix + '.saveAs',
+    category,
+    name: 'Save As',
+    keyText: 'Ctrl+Shift+S',
+    enabledStore: saveTabEnabledStore(editorStore),
+    onClick: () => saveTabFile(editorStore, true, folder, format, fileExtension),
+  });
+
+  if (execute) {
+    registerCommand({
+      id: idPrefix + '.execute',
+      category,
+      name: 'Execute',
+      icon: 'icon run',
+      toolbar: true,
+      keyText: 'F5 | Ctrl+Enter',
+      enabledStore: derived(
+        [editorStore, editorStatusStore],
+        ([editor, status]) => editor != null && !(status as any).busy
+      ),
+      onClick: () => (get(editorStore) as any).execute(),
+    });
+    registerCommand({
+      id: idPrefix + '.kill',
+      category,
+      name: 'Kill',
+      icon: 'icon close',
+      toolbar: true,
+      enabledStore: derived(
+        [editorStore, editorStatusStore],
+        ([query, status]) => query != null && status && (status as any).isConnected
+      ),
+      onClick: () => (get(editorStore) as any).kill(),
+    });
+  }
+
+  if (toggleComment) {
+    registerCommand({
+      id: idPrefix + '.toggleComment',
+      category,
+      name: 'Toggle comment',
+      keyText: 'Ctrl+/',
+      disableHandleKeyText: 'Ctrl+/',
+      enabledStore: derived(editorStore, query => query != null),
+      onClick: () => (get(editorStore) as any).toggleComment(),
+    });
+  }
+
+  if (findReplace) {
+    registerCommand({
+      id: idPrefix + '.find',
+      category,
+      name: 'Find',
+      keyText: 'Ctrl+F',
+      enabledStore: derived(editorStore, query => query != null),
+      onClick: () => (get(editorStore) as any).find(),
+    });
+    registerCommand({
+      id: idPrefix + '.replace',
+      category,
+      keyText: 'Ctrl+H',
+      name: 'Replace',
+      enabledStore: derived(editorStore, query => query != null),
+      onClick: () => (get(editorStore) as any).replace(),
+    });
+  }
+}

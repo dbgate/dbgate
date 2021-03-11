@@ -52,24 +52,3 @@ export default function saveTabFile(editorStore, saveAs, folder, format, fileExt
     });
   }
 }
-
-export function registerSaveCommands({ idPrefix, category, editorStore, folder, format, fileExtension }) {
-  registerCommand({
-    id: idPrefix + '.save',
-    category,
-    name: 'Save',
-    keyText: 'Ctrl+S',
-    icon: 'icon save',
-    toolbar: true,
-    enabledStore: saveTabEnabledStore(editorStore),
-    onClick: () => saveTabFile(editorStore, false, folder, format, fileExtension),
-  });
-  registerCommand({
-    id: idPrefix + '.saveAs',
-    category,
-    name: 'Save As',
-    keyText: 'Ctrl+Shift+S',
-    enabledStore: saveTabEnabledStore(editorStore),
-    onClick: () => saveTabFile(editorStore, true, folder, format, fileExtension),
-  });
-}
