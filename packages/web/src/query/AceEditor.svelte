@@ -44,6 +44,7 @@
   export let theme: string = 'github'; // String
   export let options: any = {}; // Object
   export let menu;
+  export let readOnly;
 
   let editor: ace.Editor;
   let contentBackup: string = '';
@@ -106,7 +107,7 @@
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
-    handleCommandKeyDown(event);
+    if (event) handleCommandKeyDown(event);
   };
 
   onMount(() => {
@@ -148,6 +149,7 @@
     editor.onFocus = () => dispatch('focus');
     editor.onPaste = text => dispatch('paste', text);
     editor.onSelectionChange = obj => dispatch('selectionChange', obj);
+    editor.setReadOnly(readOnly);
     editor.on('change', function () {
       const content = editor.getValue();
       value = content;

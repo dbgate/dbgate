@@ -3,6 +3,7 @@
   import { closeModal } from './modalTools';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
+  import { onMount } from 'svelte';
 
   export let fullScreen = false;
   export let noPadding = false;
@@ -17,6 +18,13 @@
       closeModal(modalId);
     }
   }
+
+  onMount(() => {
+    const oldFocus = document.activeElement;
+    return () => {
+      if (oldFocus) oldFocus.focus();
+    };
+  });
 </script>
 
 <!-- The Modal -->

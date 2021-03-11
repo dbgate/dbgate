@@ -92,7 +92,11 @@
   function handleSave() {
     const script = changeSetToSql(changeSetState && changeSetState.value, display.dbinfo);
     const sql = scriptToSql(display.driver, script);
-    showModal(ConfirmSqlModal, { sql, onConfirm: () => handleConfirmSql(sql) });
+    showModal(ConfirmSqlModal, {
+      sql,
+      onConfirm: () => handleConfirmSql(sql),
+      engine: display.engine,
+    });
   }
 </script>
 
