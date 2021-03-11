@@ -31,6 +31,7 @@
 
     if (command) {
       e.preventDefault();
+      e.stopPropagation();
       command.onClick();
     }
   }

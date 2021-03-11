@@ -46,6 +46,14 @@
     enabledStore: derived(currentQuery, query => query != null),
     onClick: () => get(currentQuery).formatCode(),
   });
+  registerSaveCommands({
+    idPrefix: 'query',
+    category: 'Query',
+    editorStore: currentQuery,
+    folder: 'sql',
+    format: 'text',
+    fileExtension: 'sql',
+  });
 </script>
 
 <script lang="ts">
@@ -69,6 +77,7 @@
   import memberStore from '../utility/memberStore';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
+  import saveTabFile, { registerSaveCommands, saveTabEnabledStore } from '../utility/saveTabFile';
 
   export let tabid;
   export let conid;
@@ -161,6 +170,10 @@
     return status;
   }
 
+  export function getData() {
+    return $editorState.value || '';
+  }
+
   export function toggleComment() {
     domEditor.getEditor().execCommand('togglecomment');
   }
@@ -192,7 +205,13 @@
   });
 
   function createMenu() {
-    return [{ command: 'query.execute' }, { command: 'query.toggleComment' }, { command: 'query.formatCode' }];
+    return [
+      { command: 'query.execute' },
+      { command: 'query.toggleComment' },
+      { command: 'query.formatCode' },
+      { command: 'query.save' },
+      { command: 'query.saveAs' },
+    ];
   }
 </script>
 
