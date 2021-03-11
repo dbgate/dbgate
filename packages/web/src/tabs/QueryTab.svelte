@@ -30,11 +30,28 @@
     ),
     onClick: () => get(currentQuery).kill(),
   });
+  registerCommand({
+    id: 'query.toggleComment',
+    category: 'Query',
+    name: 'Toggle comment',
+    keyText: 'Ctrl+/',
+    disableHandleKeyText: 'Ctrl+/',
+    enabledStore: derived(currentQuery, query => query != null),
+    onClick: () => get(currentQuery).toggleComment(),
+  });
+  registerCommand({
+    id: 'query.formatCode',
+    category: 'Query',
+    name: 'Format code',
+    enabledStore: derived(currentQuery, query => query != null),
+    onClick: () => get(currentQuery).formatCode(),
+  });
 </script>
 
 <script lang="ts">
   import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
+  import sqlFormatter from 'sql-formatter';
 
   import { writable, derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -144,6 +161,16 @@
     return status;
   }
 
+  export function toggleComment() {
+    domEditor.getEditor().execCommand('togglecomment');
+  }
+
+  export function formatCode() {
+    const editor = domEditor.getEditor();
+    editor.setValue(sqlFormatter.format(editor.getValue()));
+    editor.clearSelection();
+  }
+
   const handleMesageClick = message => {
     // console.log('EDITOR', editorRef.current.editor);
     if (domEditor.getEditor()) {
@@ -163,6 +190,10 @@
         ? () => applySqlTemplate(initialArgs.sqlTemplate, $extensions, $$props)
         : null,
   });
+
+  function createMenu() {
+    return [{ command: 'query.execute' }, { command: 'query.toggleComment' }, { command: 'query.formatCode' }];
+  }
 </script>
 
 <VerticalSplitter isSplitter={visibleResultTabs}>
@@ -170,6 +201,7 @@
     <SqlEditor
       engine={$connection && $connection.engine}
       value={$editorState.value || ''}
+      menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
       on:focus={() => lastFocusedQuery.set(instance)}
       bind:this={domEditor}

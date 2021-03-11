@@ -17,10 +17,24 @@
     if (key.startsWith('archive://')) return 'icon archive';
     return 'icon file';
   }
+
+  registerCommand({
+    id: 'tabs.nextTab',
+    category: 'Tabs',
+    name: 'Next tab',
+    keyText: 'Ctrl+Tab',
+    enabledStore: derived(openedTabs, tabs => tabs.filter(x => !x.closedTime).length >= 2),
+    onClick: () => {
+      const tabs = get(openedTabs).filter(x => x.closedTime == null);
+      if (tabs.length >= 2) setSelectedTab(tabs[tabs.length - 2].tabid);
+    },
+  });
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
+  import { derived, get } from 'svelte/store';
+  import registerCommand from '../commands/registerCommand';
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { currentDatabase, openedTabs } from '../stores';

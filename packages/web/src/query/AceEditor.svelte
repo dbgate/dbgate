@@ -15,6 +15,9 @@
   import 'ace-builds/src-noconflict/theme-twilight';
   import 'ace-builds/src-noconflict/ext-searchbox';
   import 'ace-builds/src-noconflict/ext-language_tools';
+  import { currentDropDownMenu } from '../stores';
+  import _ from 'lodash';
+  import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -40,6 +43,7 @@
   export let mode: string = 'text'; // String
   export let theme: string = 'github'; // String
   export let options: any = {}; // Object
+  export let menu;
 
   let editor: ace.Editor;
   let contentBackup: string = '';
@@ -53,13 +57,6 @@
 
   const requireEditorPlugins = () => {};
   requireEditorPlugins();
-
-  onDestroy(() => {
-    if (editor) {
-      editor.destroy();
-      editor.container.remove();
-    }
-  });
 
   $: watchValue(value);
   function watchValue(val: string) {
@@ -101,6 +98,17 @@
     resizeOnNextTick();
   }
 
+  const handleContextMenu = e => {
+    e.preventDefault();
+    const left = e.pageX;
+    const top = e.pageY;
+    currentDropDownMenu.set({ left, top, items: _.isFunction(menu) ? menu() : menu });
+  };
+
+  const handleKeyDown = (data, hash, keyString, keyCode, event) => {
+    handleCommandKeyDown(event);
+  };
+
   onMount(() => {
     editor = ace.edit(EDITOR_ID);
 
@@ -114,6 +122,18 @@
     setEventCallBacks();
     if (options) {
       editor.setOptions(options);
+    }
+
+    editor.container.addEventListener('contextmenu', handleContextMenu);
+    editor.keyBinding.addKeyboardHandler(handleKeyDown);
+  });
+
+  onDestroy(() => {
+    if (editor) {
+      editor.container.removeEventListener('contextmenu', handleContextMenu);
+      editor.keyBinding.removeKeyboardHandler(handleKeyDown);
+      editor.destroy();
+      editor.container.remove();
     }
   });
 

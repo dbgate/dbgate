@@ -20,6 +20,7 @@ export interface GlobalCommand {
   showDisabled?: boolean;
   toolbarName?: string;
   toolbarOrder?: number;
+  disableHandleKeyText?: string;
 }
 
 export default function registerCommand(command: GlobalCommand) {

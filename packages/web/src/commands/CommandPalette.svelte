@@ -31,7 +31,13 @@
 
   $: selectedIndex = true ? 0 : filter;
 
-  onMount(() => domInput.focus());
+  onMount(() => {
+    const oldFocus = document.activeElement;
+    domInput.focus();
+    return () => {
+      if (oldFocus) oldFocus.focus();
+    };
+  });
 
   $: sortedComands = _.sortBy(
     Object.values($commands).filter(x => x.enabled),

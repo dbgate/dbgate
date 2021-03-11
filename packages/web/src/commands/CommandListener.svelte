@@ -1,8 +1,8 @@
-<script lang="ts">
+<script lang="ts" context="module">
   import { commands } from '../stores';
   import { get } from 'svelte/store';
 
-  function handleKeyDown(e) {
+  export function handleCommandKeyDown(e) {
     let keyText = '';
     if (e.ctrlKey) keyText += 'Ctrl+';
     if (e.shiftKey) keyText += 'Shift+';
@@ -20,7 +20,13 @@
           .toLowerCase()
           .split('|')
           .map(x => x.trim())
-          .includes(keyText.toLowerCase())
+          .includes(keyText.toLowerCase()) &&
+        (x.disableHandleKeyText == null ||
+          !x.disableHandleKeyText
+            .toLowerCase()
+            .split('|')
+            .map(x => x.trim())
+            .includes(keyText.toLowerCase()))
     );
 
     if (command) {
@@ -30,4 +36,4 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeyDown} />
+<svelte:window on:keydown={handleCommandKeyDown} />
