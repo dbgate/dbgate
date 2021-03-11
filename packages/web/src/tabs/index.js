@@ -2,7 +2,7 @@ import * as TableDataTab from './TableDataTab.svelte';
 // import ViewDataTab from './ViewDataTab';
 // import TableStructureTab from './TableStructureTab';
 import * as QueryTab from './QueryTab.svelte';
-// import ShellTab from './ShellTab';
+import * as ShellTab from './ShellTab.svelte';
 // import InfoPageTab from './InfoPageTab';
 // import ArchiveFileTab from './ArchiveFileTab';
 // import FreeTableTab from './FreeTableTab';
@@ -20,7 +20,7 @@ export default {
   //   TableStructureTab,
   QueryTab,
   //   InfoPageTab,
-  //   ShellTab,
+  ShellTab,
   //   ArchiveFileTab,
   //   FreeTableTab,
   //   PluginTab,

@@ -119,7 +119,7 @@ export function registerFileCommands({
       toolbar: true,
       enabledStore: derived(
         [editorStore, editorStatusStore],
-        ([query, status]) => query != null && status && (status as any).isConnected
+        ([query, status]) => query != null && status && (status as any).canKill
       ),
       onClick: () => (get(editorStore) as any).kill(),
     });

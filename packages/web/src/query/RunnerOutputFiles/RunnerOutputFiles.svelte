@@ -14,13 +14,13 @@
   export let runnerId;
   export let executeNumber;
 
+  const electron = getElectron();
+
   let files = [];
 
   $: if (executeNumber >= 0) files = [];
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
-
-  const electron = getElectron();
 
   function registerRunnerDone(rid) {
     if (rid) {
@@ -43,39 +43,39 @@
 
 {#if !files || files.length == 0}
   <ErrorInfo message="No output files" icon="img alert" />
+{:else}
+  <TableControl
+    rows={files}
+    columns={[
+      { fieldName: 'name', header: 'Name' },
+      { fieldName: 'size', header: 'Size', formatter: row => formatFileSize(row.size) },
+      !electron && {
+        fieldName: 'download',
+        header: 'Download',
+        component: DownloadLink,
+        getProps: row => ({
+          row,
+          runnerId,
+        }),
+      },
+      !electron && {
+        fieldName: 'copy',
+        header: 'Copy',
+        component: CopyLink,
+        getProps: row => ({
+          row,
+          runnerId,
+        }),
+      },
+      !electron && {
+        fieldName: 'show',
+        header: 'Show',
+        component: ShowLink,
+        getProps: row => ({
+          row,
+          runnerId,
+        }),
+      },
+    ]}
+  />
 {/if}
-
-<TableControl
-  rows={files}
-  columns={[
-    { fieldName: 'name', header: 'Name' },
-    { fieldName: 'size', header: 'Size', formatter: row => formatFileSize(row.size) },
-    !electron && {
-      fieldName: 'download',
-      header: 'Download',
-      component: DownloadLink,
-      getProps: row => ({
-        row,
-        runnerId,
-      }),
-    },
-    !electron && {
-      fieldName: 'copy',
-      header: 'Copy',
-      component: CopyLink,
-      getProps: row => ({
-        row,
-        runnerId,
-      }),
-    },
-    !electron && {
-      fieldName: 'show',
-      header: 'Show',
-      component: ShowLink,
-      getProps: row => ({
-        row,
-        runnerId,
-      }),
-    },
-  ]}
-/>

@@ -67,7 +67,7 @@
 
   const status = writable({
     busy,
-    isConnected: false,
+    canKill: false,
   });
 
   $: connection = useConnectionInfo({ conid });
@@ -93,7 +93,7 @@
   $: {
     status.set({
       busy,
-      isConnected: !!sessionId,
+      canKill: !!sessionId,
     });
   }
 
@@ -186,6 +186,8 @@
   function createMenu() {
     return [
       { command: 'query.execute' },
+      { command: 'query.kill' },
+      { divider: true },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },
       { divider: true },

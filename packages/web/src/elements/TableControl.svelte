@@ -47,13 +47,15 @@
         }}
       >
         {#each columnList as col}
-          {#if col.component}
-            <svelte:component this={col.component} {...col.getProps(row)} />
-          {:else if col.formatter}
-            {col.formatter(row)}
-          {:else}
-            {row[col.fieldName]}
-          {/if}
+          <td>
+            {#if col.component}
+              <svelte:component this={col.component} {...col.getProps(row)} />
+            {:else if col.formatter}
+              {col.formatter(row)}
+            {:else}
+              {row[col.fieldName]}
+            {/if}
+          </td>
         {/each}
       </tr>
     {/each}

@@ -9,18 +9,18 @@
 </script>
 
 <HorizontalSplitter>
-  <div class="container">
+  <div class="container" slot="1">
     <WidgetTitle>Messages</WidgetTitle>
     <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
   </div>
-  <div class="container">
+  <div class="container" slot="2">
     <WidgetTitle>Output files</WidgetTitle>
     <RunnerOutputFiles {runnerId} {executeNumber} />
   </div>
 </HorizontalSplitter>
 
 <style>
-  div {
+  .container {
     flex: 1;
     display: flex;
     flex-direction: column;
