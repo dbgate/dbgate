@@ -10,6 +10,7 @@
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
   import StatusBar from './widgets/StatusBar.svelte';
   import ModalLayer from './modals/ModalLayer.svelte';
+  import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
 </script>
 
 <div class={`${$currentTheme} root`}>
@@ -49,6 +50,7 @@
   {/if}
   <CurrentDropDownMenu />
   <ModalLayer />
+  <!-- <DragAndDropFileTarget /> -->
 </div>
 
 <style>
