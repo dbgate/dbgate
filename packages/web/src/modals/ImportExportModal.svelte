@@ -84,7 +84,7 @@
     </svelte:fragment>
 
     <div class="wrapper">
-      <HorizontalSplitter>
+      <HorizontalSplitter initialValue="70%">
         <svelte:fragment slot="1">
           <ImportExportConfigurator />
         </svelte:fragment>
