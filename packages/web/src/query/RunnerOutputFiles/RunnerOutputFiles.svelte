@@ -58,7 +58,7 @@
           runnerId,
         }),
       },
-      !electron && {
+      electron && {
         fieldName: 'copy',
         header: 'Copy',
         component: CopyLink,
@@ -67,7 +67,7 @@
           runnerId,
         }),
       },
-      !electron && {
+      electron && {
         fieldName: 'show',
         header: 'Show',
         component: ShowLink,

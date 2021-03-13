@@ -8,11 +8,16 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import LargeFormButton from '../forms/LargeFormButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import createImpExpScript from '../impexp/createImpExpScript';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, extensions } from '../stores';
+  import { currentArchive, extensions, selectedWidget } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
+  import openNewTab from '../utility/openNewTab';
+  import socket from '../utility/socket';
+  import useEffect from '../utility/useEffect';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ModalBase from './ModalBase.svelte';
@@ -28,41 +33,70 @@
   export let openedFile = undefined;
   export let importToArchive = false;
 
+  const refreshArchiveFolderRef = { current: null };
+
   $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
 
-  const handleGenerateScript = async () => {
-    // const code = await createImpExpScript(extensions, values);
-    // openNewTab(
-    //   {
-    //     title: 'Shell #',
-    //     icon: 'img shell',
-    //     tabComponent: 'ShellTab',
-    //   },
-    //   { editor: code }
-    // );
-    // modalState.close();
+  $: effect = useEffect(() => registerRunnerDone(runnerId));
+
+  function registerRunnerDone(rid) {
+    if (rid) {
+      socket.on(`runner-done-${rid}`, handleRunnerDone);
+      return () => {
+        socket.off(`runner-done-${rid}`, handleRunnerDone);
+      };
+    } else {
+      return () => {};
+    }
+  }
+
+  $: $effect;
+
+  const handleRunnerDone = () => {
+    busy = false;
+    if (refreshArchiveFolderRef.current) {
+      axiosInstance.post('archive/refresh-folders', {});
+      axiosInstance.post('archive/refresh-files', { folder: refreshArchiveFolderRef.current });
+      $currentArchive = refreshArchiveFolderRef.current;
+      $selectedWidget = 'archive';
+    }
   };
 
-  const handleExecute = async values => {
-    // if (busy) return;
-    // setBusy(true);
-    // const script = await createImpExpScript(extensions, values);
-    // setExecuteNumber(num => num + 1);
-    // let runid = runnerId;
-    // const resp = await axios.post('runners/start', { script });
-    // runid = resp.data.runid;
-    // setRunnerId(runid);
-    // if (values.targetStorageType == 'archive') {
-    //   refreshArchiveFolderRef.current = values.targetArchiveFolder;
-    // } else {
-    //   refreshArchiveFolderRef.current = null;
-    // }
+  const handleGenerateScript = async e => {
+    closeCurrentModal();
+    const code = await createImpExpScript($extensions, e.detail);
+    openNewTab(
+      {
+        title: 'Shell #',
+        icon: 'img shell',
+        tabComponent: 'ShellTab',
+      },
+      { editor: code }
+    );
+  };
+
+  const handleExecute = async e => {
+    if (busy) return;
+    const values = e.detail;
+    busy = true;
+    const script = await createImpExpScript($extensions, values);
+    executeNumber += 1;
+    let runid = runnerId;
+    const resp = await axiosInstance.post('runners/start', { script });
+    runid = resp.data.runid;
+    runnerId = runid;
+
+    if (values.targetStorageType == 'archive') {
+      refreshArchiveFolderRef.current = values.targetArchiveFolder;
+    } else {
+      refreshArchiveFolderRef.current = null;
+    }
   };
 
   const handleCancel = () => {
-    // axios.post('runners/cancel', {
-    //   runid: runnerId,
-    // });
+    axiosInstance.post('runners/cancel', {
+      runid: runnerId,
+    });
   };
 </script>
 
@@ -85,9 +119,9 @@
 
     <div class="wrapper">
       <HorizontalSplitter initialValue="70%">
-        <svelte:fragment slot="1">
+        <div class="content" slot="1">
           <ImportExportConfigurator />
-        </svelte:fragment>
+        </div>
 
         <svelte:fragment slot="2">
           <WidgetColumnBar>
@@ -144,5 +178,14 @@
     bottom: 0px;
     border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
+  }
+
+  .content {
+    border-top: 1px solid var(--theme-border);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 </style>

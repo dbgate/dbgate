@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   const lastFocusedEditor = writable(null);
   const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
-    editor?.getTabId() == tabid ? editor : null
+    editor?.getTabId && editor?.getTabId() == tabid ? editor : null
   );
   const currentEditorStatus = memberStore(currentEditor, editor => editor?.getStatus() || nullStore);
 

@@ -31,6 +31,9 @@ body {
 .icon-invisible {
   visibility: hidden;
 }
+.space-between {
+  justify-content: space-between;
+}
 .flex {
   display: flex;
 }

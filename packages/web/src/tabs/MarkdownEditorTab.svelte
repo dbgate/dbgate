@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   const lastFocusedEditor = writable(null);
   const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
-    editor?.getTabId() == tabid ? editor : null
+    editor?.getTabId && editor?.getTabId() == tabid ? editor : null
   );
 
   registerFileCommands({
@@ -53,9 +53,7 @@
 
   const instance = get_current_component();
 
-
   let domEditor;
-
 
   $: if ($tabVisible && domEditor) {
     domEditor?.getEditor()?.focus();
