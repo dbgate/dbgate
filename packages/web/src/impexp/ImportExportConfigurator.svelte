@@ -1,11 +1,48 @@
-<script lang="ts">
-  import { writable } from 'svelte/store';
+<script lang="ts" context="module">
+  async function addFileToSourceListDefault({ fileName, shortName, isDownload }, newSources, newValues) {
+    const sourceName = shortName;
+    newSources.push(sourceName);
+    newValues[`sourceFile_${sourceName}`] = {
+      fileName,
+      isDownload,
+    };
+  }
 
+  async function addFilesToSourceList(extensions, files, values, valuesStore, preferedStorageType, setPreviewSource) {
+    const newSources = [];
+    const newValues = {};
+    const storage = preferedStorageType || values.sourceStorageType;
+    for (const file of getAsArray(files)) {
+      const format = findFileFormat(extensions, storage);
+      if (format) {
+        await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues);
+      }
+    }
+    newValues['sourceList'] = [...(values.sourceList || []).filter(x => !newSources.includes(x)), ...newSources];
+    if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
+      newValues['sourceStorageType'] = preferedStorageType;
+    }
+    valuesStore.set({
+      ...values,
+      ...newValues,
+    });
+    if (setPreviewSource && newSources.length == 1) {
+      setPreviewSource(newSources[0]);
+    }
+  }
+</script>
+
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { writable } from 'svelte/store';
   import TableControl from '../elements/TableControl.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
-
   import FontIcon from '../icons/FontIcon.svelte';
+  import { findFileFormat } from '../plugins/fileformats';
+  import { extensions } from '../stores';
+  import getAsArray from '../utility/getAsArray';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { setUploadListener } from '../utility/uploadFiles';
   import PreviewCheckBox from './PreviewCheckBox.svelte';
   import SourceAction from './SourceAction.svelte';
   import SourceName from './SourceName.svelte';
@@ -13,13 +50,60 @@
   import SourceTargetConfig from './SourceTargetConfig.svelte';
   import TargetName from './TargetName.svelte';
 
+  export let uploadedFile = undefined;
+  export let openedFile = undefined;
+
   const { values } = getFormContext();
 
   $: targetDbinfo = useDatabaseInfo({ conid: $values.targetConnectionId, database: $values.targetDatabaseName });
   $: sourceConnectionInfo = useConnectionInfo({ conid: $values.sourceConnectionId });
+  $: sourceList = $values.sourceList;
 
   const previewSource = writable(null);
 
+  const handleUpload = file => {
+    addFilesToSourceList(
+      $extensions,
+      [
+        {
+          fileName: file.filePath,
+          shortName: file.shortName,
+        },
+      ],
+      $values,
+      values,
+      !sourceList || sourceList.length == 0 ? file.storageType : null,
+      previewSource.set
+    );
+    // setFieldValue('sourceList', [...(sourceList || []), file.originalName]);
+  };
+
+  onMount(() => {
+    setUploadListener(handleUpload);
+    if (uploadedFile) {
+      handleUpload(uploadedFile);
+    }
+    if (openedFile) {
+      handleUpload(openedFile);
+      // addFilesToSourceList(
+      //   $extensions,
+      //   [
+      //     {
+      //       fileName: openedFile.filePath,
+      //       shortName: openedFile.shortName,
+      //     },
+      //   ],
+      //   $values,
+      //   values,
+      //   !sourceList || sourceList.length == 0 ? openedFile.storageType : null,
+      //   previewSource.set
+      // );
+    }
+
+    return () => {
+      setUploadListener(null);
+    };
+  });
   //   engine={sourceEngine}
   //       {setPreviewSource}
 </script>

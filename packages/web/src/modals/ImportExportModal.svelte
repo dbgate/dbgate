@@ -120,7 +120,7 @@
     <div class="wrapper">
       <HorizontalSplitter initialValue="70%">
         <div class="content" slot="1">
-          <ImportExportConfigurator />
+          <ImportExportConfigurator {uploadedFile} {openedFile} />
         </div>
 
         <svelte:fragment slot="2">

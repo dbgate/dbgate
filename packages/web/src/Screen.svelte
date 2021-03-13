@@ -1,7 +1,14 @@
 <script>
   import WidgetContainer from './widgets/WidgetContainer.svelte';
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
-  import { currentTheme, leftPanelWidth, selectedWidget, visibleCommandPalette, visibleToolbar } from './stores';
+  import {
+    currentTheme,
+    isFileDragActive,
+    leftPanelWidth,
+    selectedWidget,
+    visibleCommandPalette,
+    visibleToolbar,
+  } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
   import TabRegister from './TabRegister.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
@@ -11,9 +18,10 @@
   import StatusBar from './widgets/StatusBar.svelte';
   import ModalLayer from './modals/ModalLayer.svelte';
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
+  import dragDropFileTarget from './utility/dragDropFileTarget';
 </script>
 
-<div class={`${$currentTheme} root`}>
+<div class={`${$currentTheme} root`} use:dragDropFileTarget>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -50,7 +58,9 @@
   {/if}
   <CurrentDropDownMenu />
   <ModalLayer />
-  <!-- <DragAndDropFileTarget /> -->
+  {#if $isFileDragActive}
+    <DragAndDropFileTarget />
+  {/if}
 </div>
 
 <style>

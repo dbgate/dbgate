@@ -40,6 +40,7 @@ export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
 export const nullStore = readable(null, () => {});
 export const currentArchive = writable('default');
+export const isFileDragActive = writable(false);
 
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
