@@ -78,6 +78,7 @@
         schemaName={schemaNameField}
         databaseName={databaseNameField}
         name={tablesField}
+        label="Tables / views"
       />
     {/if}
   {/if}

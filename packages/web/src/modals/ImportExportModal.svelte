@@ -1,4 +1,5 @@
 <script lang="ts">
+  import moment from 'moment';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import LargeButton from '../elements/LargeButton.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -8,8 +9,10 @@
   import LargeFormButton from '../forms/LargeFormButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
+  import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles';
   import SocketMessageView from '../query/SocketMessageView.svelte';
+  import { currentArchive, extensions } from '../stores';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ModalBase from './ModalBase.svelte';
@@ -24,6 +27,8 @@
   export let uploadedFile = undefined;
   export let openedFile = undefined;
   export let importToArchive = false;
+
+  $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
 
   const handleGenerateScript = async () => {
     // const code = await createImpExpScript(extensions, values);
@@ -61,7 +66,15 @@
   };
 </script>
 
-<FormProvider>
+<FormProvider
+  initialValues={{
+    sourceStorageType: 'database',
+    targetStorageType: importToArchive ? 'archive' : getDefaultFileFormat($extensions).storageType,
+    sourceArchiveFolder: $currentArchive,
+    targetArchiveFolder,
+    ...initialValues,
+  }}
+>
   <ModalBase {...$$restProps} fullScreen skipBody skipFooter>
     <svelte:fragment slot="header">
       Import/Export

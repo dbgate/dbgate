@@ -14,8 +14,4 @@
   }));
 </script>
 
-{#if databaseOptions.length == 0}
-  <div>Not available</div>
-{:else}
-  <FormSelectField {...$$restProps} options={databaseOptions} />
-{/if}
+<FormSelectField {...$$restProps} options={databaseOptions} />

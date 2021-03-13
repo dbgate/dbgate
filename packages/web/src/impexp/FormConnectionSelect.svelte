@@ -1,5 +1,5 @@
 <script lang="ts">
-import FormSelectField from '../forms/FormSelectField.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
 
   import { useConnectionList } from '../utility/metadataLoaders';
 
@@ -10,8 +10,4 @@ import FormSelectField from '../forms/FormSelectField.svelte';
   }));
 </script>
 
-{#if connectionOptions.length == 0}
-  <div>Not available</div>
-{:else}
-  <FormSelectField {...$$restProps} options={connectionOptions} />
-{/if}
+<FormSelectField {...$$restProps} options={connectionOptions} />
