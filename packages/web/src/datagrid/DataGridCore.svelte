@@ -13,7 +13,7 @@
     keyText: 'F5',
     toolbar: true,
     icon: 'icon reload',
-    enabledStore: derived(currentDataGrid, grid => grid?.getDisplay().supportsReload),
+    enabledStore: derived(currentDataGrid, grid => grid?.getDisplay()?.supportsReload),
     onClick: () => get(currentDataGrid).refresh(),
   });
 
@@ -24,7 +24,10 @@
     keyText: 'Ctrl+S',
     toolbar: true,
     icon: 'icon save',
-    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
+    enabledStore: derived(
+      [currentDataGrid, currentDataGridChangeSet],
+      ([grid, changeSet]) => grid?.getGeneralAllowSave() || changeSetContainsChanges((changeSet as any)?.value)
+    ),
     onClick: () => get(currentDataGrid).save(),
   });
 
@@ -194,6 +197,7 @@
   export let isLoadedAll;
   export let loadedTime;
   export let changeSetStore;
+  export let generalAllowSave = false;
 
   const wheelRowCount = 5;
   const instance = get_current_component();
@@ -323,6 +327,10 @@
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
       onLoadNextData();
     }
+  }
+
+  export function getGeneralAllowSave() {
+    return generalAllowSave;
   }
 
   $: autofillMarkerCell =

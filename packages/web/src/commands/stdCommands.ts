@@ -95,6 +95,20 @@ registerCommand({
   },
 });
 
+registerCommand({
+  id: 'new.freetable',
+  category: 'New',
+  icon: 'img markdown',
+  name: 'Free table editor',
+  onClick: () => {
+    openNewTab({
+      title: 'Data #',
+      icon: 'img free-table',
+      tabComponent: 'FreeTableTab',
+    });
+  },
+});
+
 export function registerFileCommands({
   idPrefix,
   category,

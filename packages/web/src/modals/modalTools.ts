@@ -1,4 +1,5 @@
 import { openedModals } from '../stores';
+import { get } from 'svelte/store';
 import uuidv1 from 'uuid/v1';
 import _ from 'lodash';
 
@@ -12,5 +13,10 @@ export function closeModal(modalId) {
 }
 
 export function closeCurrentModal() {
-  openedModals.update(x => _.dropRight(x));
+  openedModals.update(modals => modals.slice(0, modals.length - 1));
+}
+
+export function getActiveModalId() {
+  const modals = get(openedModals);
+  return modals[modals.length - 1]?.modalId;
 }

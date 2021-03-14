@@ -10,5 +10,5 @@
 </script>
 
 <svelte:component this={template} type="select" {label} {...templateProps}>
-  <FormSelectFieldRaw {name} {...$$restProps} />
+  <FormSelectFieldRaw {name} {...$$restProps} on:change />
 </svelte:component>

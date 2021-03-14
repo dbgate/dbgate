@@ -4,13 +4,18 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import FreeTableGrid from '../freetable/FreeTableGrid.svelte';
+  import { showModal } from '../modals/modalTools';
+  import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
   import axiosInstance from '../utility/axiosInstance';
+  import { changeTab } from '../utility/common';
   import createUndoReducer from '../utility/createUndoReducer';
   import useGridConfig from '../utility/useGridConfig';
 
   export let tabid;
   export let initialArgs;
+  export let archiveFolder;
+  export let archiveFile;
 
   const config = useGridConfig(tabid);
   const [modelState, dispatchModel] = createUndoReducer(createFreeTableModel());
@@ -31,7 +36,22 @@
 
   $: setEditorData($modelState.value);
 
-  function handleSave() {}
+  function handleSave() {
+    showModal(SaveArchiveModal, {
+      folder: archiveFolder,
+      file: archiveFile,
+      onSave: doSave,
+    });
+  }
+
+  const doSave = async (folder, file) => {
+    await axiosInstance.post('archive/save-free-table', { folder, file, data: $modelState.value });
+    changeTab(tabid, tab => ({
+      ...tab,
+      title: file,
+      props: { archiveFile: file, archiveFolder: folder },
+    }));
+  };
 </script>
 
 {#if isLoading}
@@ -45,5 +65,7 @@
     modelState={$modelState}
     {dispatchModel}
     onSave={handleSave}
+    generalAllowSave
+    focusOnVisible
   />
 {/if}

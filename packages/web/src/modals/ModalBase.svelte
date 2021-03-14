@@ -1,6 +1,6 @@
 <script>
   import FontIcon from '../icons/FontIcon.svelte';
-  import { closeModal } from './modalTools';
+  import { closeModal, getActiveModalId } from './modalTools';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
   import { onMount } from 'svelte';
@@ -12,12 +12,14 @@
   export let skipFooter = false;
 
   function handleCloseModal() {
-    closeModal(modalId);
+    if (modalId == getActiveModalId()) {
+      closeModal(modalId);
+    }
   }
 
   function handleEscape(e) {
     if (e.keyCode == keycodes.escape) {
-      closeModal(modalId);
+      handleCloseModal();
     }
   }
 
