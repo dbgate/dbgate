@@ -348,10 +348,10 @@ export function useArchiveFiles(args) {
   return useCore(archiveFilesLoader, args);
 }
 
-export function getArchiveFolders(args) {
+export function getArchiveFolders(args={}) {
   return getCore(archiveFoldersLoader, args);
 }
-export function useArchiveFolders(args) {
+export function useArchiveFolders(args={}) {
   return useCore(archiveFoldersLoader, args);
 }
 
