@@ -16,12 +16,12 @@
   export let macroValues;
   export let config;
   export let setConfig;
+  export let selectedCellsPublished;
 
-  let selectedCells = [];
   const cache = writable(createGridCache());
 
   $: grider = macroPreview
-    ? new MacroPreviewGrider(modelState.value, macroPreview, macroValues, selectedCells)
+    ? new MacroPreviewGrider(modelState.value, macroPreview, macroValues, selectedCellsPublished)
     : new FreeTableGrider(modelState, dispatchModel);
   $: display = new FreeTableGridDisplay(grider.model || modelState.value, config, setConfig, $cache, cache.update);
 

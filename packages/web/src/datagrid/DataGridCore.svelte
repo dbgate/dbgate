@@ -190,6 +190,7 @@
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
+  export let onSelectionChanged = undefined;
   export let onSave;
   export let focusOnVisible = false;
   export let onExportGrid = null;
@@ -415,6 +416,30 @@
 
   $: if ($tabVisible && domFocusField && focusOnVisible) {
     domFocusField.focus();
+  }
+
+  const lastPublishledRef = { current: '' };
+  $: if (onSelectionChanged) {
+    const published = getCellsPublished(selectedCells);
+    const stringified = stableStringify(published);
+    if (lastPublishledRef.current != stringified) {
+      // console.log('PUBLISH', published);
+      // console.log('lastPublishledRef.current', lastPublishledRef.current);
+      // console.log('stringified', stringified);
+      lastPublishledRef.current = stringified;
+      onSelectionChanged(published);
+    }
+  }
+
+  function getCellsPublished(cells) {
+    const regular = cellsToRegularCells(cells);
+    // @ts-ignore
+    return regular
+      .map(cell => ({
+        row: cell[0],
+        column: realColumnUniqueNames[cell[1]],
+      }))
+      .filter(x => x.column);
   }
 
   function scrollIntoView(cell) {

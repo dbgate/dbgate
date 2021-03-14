@@ -19,6 +19,9 @@
       {
         label: 'Macro detail',
         component: MacroInfoTab,
+        props: {
+          onExecute,
+        },
       },
       {
         label: 'JavaScript',

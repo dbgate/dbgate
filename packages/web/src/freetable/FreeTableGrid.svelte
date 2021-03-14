@@ -1,5 +1,6 @@
 <script lang="ts" context="module">
   function extractMacroValuesForMacro(macroValues, macro) {
+    // return {};
     if (!macro) return {};
     return {
       ..._.fromPairs((macro.args || []).filter(x => x.default != null).map(x => [x.name, x.default])),
@@ -28,6 +29,7 @@
   export let dispatchModel;
 
   let managerSize;
+  let selectedCellsPublished = [];
 
   const selectedMacro = writable(null);
   setContext('selectedMacro', selectedMacro);
@@ -37,10 +39,10 @@
   const handleExecuteMacro = () => {
     const newModel = runMacro(
       $selectedMacro,
-      extractMacroValuesForMacro(macroValues, selectedMacro),
+      extractMacroValuesForMacro($macroValues, $selectedMacro),
       modelState.value,
       false,
-      [] // selectedCells
+      selectedCellsPublished
     );
     dispatchModel({ type: 'set', value: newModel });
     $selectedMacro = null;
@@ -62,7 +64,13 @@
   <div class="grid" slot="2">
     <VerticalSplitter initialValue="70%" isSplitter={!!$selectedMacro}>
       <svelte:fragment slot="1">
-        <FreeTableGridCore {...$$props} />
+        <FreeTableGridCore
+          {...$$props}
+          onSelectionChanged={value => (selectedCellsPublished = value)}
+          macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
+          {selectedCellsPublished}
+          macroPreview={$selectedMacro}
+        />
       </svelte:fragment>
 
       <!-- macroPreview={selectedMacro}
