@@ -4,7 +4,7 @@ import * as TableDataTab from './TableDataTab.svelte';
 import * as QueryTab from './QueryTab.svelte';
 import * as ShellTab from './ShellTab.svelte';
 // import InfoPageTab from './InfoPageTab';
-// import ArchiveFileTab from './ArchiveFileTab';
+import * as ArchiveFileTab from './ArchiveFileTab.svelte';
 // import FreeTableTab from './FreeTableTab';
 // import PluginTab from './PluginTab';
 // import ChartTab from './ChartTab';
@@ -21,7 +21,7 @@ export default {
   QueryTab,
   //   InfoPageTab,
   ShellTab,
-  //   ArchiveFileTab,
+  ArchiveFileTab,
   //   FreeTableTab,
   //   PluginTab,
   //   ChartTab,
