@@ -19,7 +19,7 @@ function getParsedLocalStorage(key) {
   return null;
 }
 
-export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null }) {
+export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null, onInitialData = null }) {
   const localStorageKey = `tabdata_editor_${tabid}`;
   let changeCounter = 0;
   let savedCounter = 0;
@@ -32,7 +32,6 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
 
   const editorValue = derived(editorState, $state => $state.value);
 
-  let initialData = null;
   let value = null;
 
   // const valueRef = React.useRef(null);
@@ -49,8 +48,8 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
           ...x,
           value: init,
         }));
+        if (onInitialData) onInitialData(init);
         value = init;
-        initialData = init;
         // mark as not saved
         changeCounter += 1;
       } catch (err) {
@@ -68,11 +67,11 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
           ...x,
           value: initFallback,
         }));
+        if (onInitialData) onInitialData(initFallback);
         value = initFallback;
         // move to local forage
         await localforage.setItem(localStorageKey, initFallback);
         localStorage.removeItem(localStorageKey);
-        initialData = initFallback;
       } else {
         const init = await localforage.getItem(localStorageKey);
         if (init) {
@@ -80,8 +79,8 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
             ...x,
             value: init,
           }));
+          if (onInitialData) onInitialData(init);
           value = init;
-          initialData = init;
         }
       }
     }
@@ -140,7 +139,6 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     editorState,
     editorValue,
     setEditorData,
-    initialData,
     saveToStorage,
     saveToStorageSync,
     initialLoad,
