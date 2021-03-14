@@ -9,10 +9,12 @@
 </script>
 
 <script lang="ts">
+  import FormFieldTemplateLarge from '../modals/FormFieldTemplateLarge.svelte';
+
   import keycodes from '../utility/keycodes';
 
   export let values;
-  export let template;
+  export let template = FormFieldTemplateLarge;
 
   const setFieldValue = (name, value) => {
     values.update(x => ({ ...x, [name]: value }));

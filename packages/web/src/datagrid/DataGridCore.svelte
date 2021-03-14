@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   const lastFocusedDataGrid = writable(null);
   const currentDataGrid = derived([lastFocusedDataGrid, activeTabId], ([grid, tabid]) =>
-    grid?.getTabId() == tabid ? grid : null
+    grid?.getTabId && grid?.getTabId() == tabid ? grid : null
   );
 
   const currentDataGridChangeSet = memberStore(currentDataGrid, grid => grid?.getChangeSetStore() || nullStore);

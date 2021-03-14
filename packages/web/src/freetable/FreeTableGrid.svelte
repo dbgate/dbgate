@@ -16,10 +16,35 @@
   import ColumnManager from '../datagrid/ColumnManager.svelte';
   import ReferenceManager from '../datagrid/ReferenceManager.svelte';
   import FreeTableGridCore from './FreeTableGridCore.svelte';
-import FreeTableColumnEditor from './FreeTableColumnEditor.svelte';
+  import FreeTableColumnEditor from './FreeTableColumnEditor.svelte';
+  import MacroManager from './MacroManager.svelte';
+  import { setContext } from 'svelte';
+  import { writable } from 'svelte/store';
+  import MacroDetail from './MacroDetail.svelte';
+  import { runMacro } from 'dbgate-datalib';
+  import _ from 'lodash';
+
+  export let modelState;
+  export let dispatchModel;
 
   let managerSize;
-  let selectedMacro;
+
+  const selectedMacro = writable(null);
+  setContext('selectedMacro', selectedMacro);
+  const macroValues = writable({});
+  setContext('macroValues', macroValues);
+
+  const handleExecuteMacro = () => {
+    const newModel = runMacro(
+      $selectedMacro,
+      extractMacroValuesForMacro(macroValues, selectedMacro),
+      modelState.value,
+      false,
+      [] // selectedCells
+    );
+    dispatchModel({ type: 'set', value: newModel });
+    $selectedMacro = null;
+  };
 </script>
 
 <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
@@ -29,13 +54,13 @@ import FreeTableColumnEditor from './FreeTableColumnEditor.svelte';
         <FreeTableColumnEditor {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <!-- <WidgetColumnBarItem title="Macros" name="macros">
+      <WidgetColumnBarItem title="Macros" name="macros">
         <MacroManager {...$$props} {managerSize} />
-      </WidgetColumnBarItem> -->
+      </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>
   <div class="grid" slot="2">
-    <VerticalSplitter initialValue="70%">
+    <VerticalSplitter initialValue="70%" isSplitter={!!$selectedMacro}>
       <svelte:fragment slot="1">
         <FreeTableGridCore {...$$props} />
       </svelte:fragment>
@@ -45,15 +70,11 @@ import FreeTableColumnEditor from './FreeTableColumnEditor.svelte';
       onSelectionChanged={setSelectedCells}
       {setSelectedMacro} -->
 
-      <!-- {#if selectedMacro}
-        <MacroDetail
-          {selectedMacro}
-          {setSelectedMacro}
-          onChangeValues={setMacroValues}
-          {macroValues}
-          onExecute={handleExecuteMacro}
-        />
-      {/if} -->
+      <svelte:fragment slot="2">
+        {#if $selectedMacro}
+          <MacroDetail onExecute={handleExecuteMacro} />
+        {/if}
+      </svelte:fragment>
     </VerticalSplitter>
   </div>
 </HorizontalSplitter>
