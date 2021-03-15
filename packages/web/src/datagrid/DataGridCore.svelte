@@ -85,6 +85,8 @@
     category: 'Data grid',
     name: 'Redo',
     keyText: 'Ctrl+Y',
+    icon: 'icon redo',
+    toolbar: true,
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canRedo,
     onClick: () => getCurrentDataGrid().redo(),
   });
