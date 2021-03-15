@@ -1,7 +1,8 @@
 <script lang="ts" context="module">
   import { commands } from '../stores';
   import { get } from 'svelte/store';
-  
+  import { runGroupCommand } from './runCommand';
+
   export function handleCommandKeyDown(e) {
     let keyText = '';
     if (e.ctrlKey) keyText += 'Ctrl+';
@@ -12,10 +13,8 @@
     // console.log('keyText', keyText);
 
     const commandsValue = get(commands);
-    const command: any = Object.values(commandsValue).find(
+    const commandsFiltered: any = Object.values(commandsValue).filter(
       (x: any) =>
-        x.enabled &&
-        !x.isGroupCommand &&
         x.keyText &&
         x.keyText
           .toLowerCase()
@@ -30,10 +29,23 @@
             .includes(keyText.toLowerCase()))
     );
 
-    if (command) {
+    if (commandsFiltered.length > 0) {
       e.preventDefault();
       e.stopPropagation();
-      command.onClick();
+    }
+
+    const notGroup = commandsFiltered.filter(x => x.enabled && !x.isGroupCommand);
+    if (notGroup.length == 1) {
+      const command = notGroup[0];
+      if (command.onClick) command.onClick();
+      return;
+    }
+
+    const group = commandsFiltered.filter(x => x.enabled && x.isGroupCommand);
+
+    if (group.length == 1) {
+      const command = group[0];
+      runGroupCommand(command.group);
     }
   }
 </script>

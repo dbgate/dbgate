@@ -90,15 +90,3 @@ commands.subscribe(value => {
   }
 });
 export const getCommands = () => commandsValue;
-export function runCommand(id) {
-  const command = commandsValue[id];
-  if (command) {
-    if (command.isGroupCommand) {
-      const values = Object.values(commandsValue) as GlobalCommand[];
-      const real = values.find(x => x.group == command.group && !x.isGroupCommand && x.enabled);
-      if (real && real.onClick) real.onClick();
-    }
-    command.onClick();
-  }
-}
-window['dbgate_runCommand'] = runCommand;

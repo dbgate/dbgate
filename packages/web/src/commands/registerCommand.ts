@@ -12,6 +12,7 @@ export interface GlobalCommand {
   name: string;
   text?: string /* category: name */;
   keyText?: string;
+  keyTextFromGroup?: string; // automatically filled from group
   group?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;

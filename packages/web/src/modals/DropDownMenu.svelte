@@ -31,7 +31,7 @@
       if (command) {
         return {
           text: command.name,
-          keyText: command.keyText,
+          keyText: command.keyText || command.keyTextFromGroup,
           onClick: command.onClick,
           disabled: !command.enabled,
         };

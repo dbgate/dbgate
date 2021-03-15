@@ -30,6 +30,9 @@ export default async function invalidateCommands() {
         if (!command.isGroupCommand) continue;
         const groupSources = values.filter(x => x.group == command.group && !x.isGroupCommand && x.enabled);
         command.enabled = groupSources.length > 0;
+        for(const source of groupSources) {
+          source.keyTextFromGroup = command.keyText;
+        }
       }
     }
     return res || dct;

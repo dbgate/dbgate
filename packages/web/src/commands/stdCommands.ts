@@ -134,7 +134,7 @@ export function registerFileCommands({
     group: 'save',
     category,
     name: 'Save',
-    keyText: 'Ctrl+S',
+    // keyText: 'Ctrl+S',
     icon: 'icon save',
     toolbar: true,
     testEnabled: () => getCurrentEditor() != null,

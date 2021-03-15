@@ -1,7 +1,7 @@
 <script context="module">
   function getCommandTitle(command) {
     let res = command.text;
-    if (command.keyText) res += ` (${command.keyText})`;
+    if (command.keyText || command.keyTextFromGroup) res += ` (${command.keyText || command.keyTextFromGroup})`;
     return res;
   }
 </script>

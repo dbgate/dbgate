@@ -19,7 +19,7 @@
     group: 'save',
     category: 'Data grid',
     name: 'Save',
-    keyText: 'Ctrl+S',
+    // keyText: 'Ctrl+S',
     toolbar: true,
     icon: 'icon save',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.allowSave,
