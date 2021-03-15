@@ -207,7 +207,10 @@
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => {lastFocusedEditor = instance; invalidateCommands(); }}
+      on:focus={() => {
+        lastFocusedEditor = instance;
+        invalidateCommands();
+      }}
       bind:this={domEditor}
     />
   </svelte:fragment>
