@@ -1,15 +1,12 @@
 <script lang="ts" context="module">
-  const lastFocusedEditor = writable(null);
-  const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
-    editor?.getTabId && editor?.getTabId() == tabid ? editor : null
-  );
-  const currentEditorStatus = memberStore(currentEditor, editor => editor?.getStatus() || nullStore);
+  let lastFocusedEditor = null;
+  const getCurrentEditor = () =>
+    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
 
   registerFileCommands({
     idPrefix: 'shell',
     category: 'Shell',
-    editorStore: currentEditor,
-    editorStatusStore: currentEditorStatus,
+    getCurrentEditor,
     folder: 'shell',
     format: 'text',
     fileExtension: 'js',
@@ -28,6 +25,7 @@
   import { getContext, get_current_component } from 'svelte/internal';
 
   import { derived, writable } from 'svelte/store';
+  import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
@@ -35,7 +33,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, nullStore } from '../stores';
+  import { activeTabId, getActiveTabId, nullStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import memberStore from '../utility/memberStore';
   import socket from '../utility/socket';
@@ -54,16 +52,21 @@
 
   let domEditor;
 
-  const status = writable({
-    busy,
-    canKill: false,
-  });
+  // const status = writable({
+  //   busy,
+  //   canKill: false,
+  // });
+
+  // $: {
+  //   status.set({
+  //     busy,
+  //     canKill: busy,
+  //   });
+  // }
 
   $: {
-    status.set({
-      busy,
-      canKill: busy,
-    });
+    busy;
+    invalidateCommands();
   }
 
   $: if ($tabVisible && domEditor) {
@@ -90,9 +93,9 @@
     // timerLabel.stop();
   }
 
-  export function getStatus() {
-    return status;
-  }
+  // export function getStatus() {
+  //   return status;
+  // }
 
   export function getData() {
     return $editorState.value || '';
@@ -112,6 +115,10 @@
 
   export function getTabId() {
     return tabid;
+  }
+
+  export function isBusy() {
+    return busy;
   }
 
   export async function execute() {
@@ -165,7 +172,10 @@
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => lastFocusedEditor.set(instance)}
+      on:focus={() => {
+        lastFocusedEditor = instance;
+        invalidateCommands();
+      }}
       bind:this={domEditor}
       mode="javascript"
     />

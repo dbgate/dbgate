@@ -1,5 +1,6 @@
 import { writable, derived, readable } from 'svelte/store';
 import { ExtensionsDirectory } from 'dbgate-types';
+import invalidateCommands from './commands/invalidateCommands';
 
 interface TabDefinition {
   title: string;
@@ -34,6 +35,7 @@ export const visibleCommandPalette = writable(false);
 export const commands = writable({});
 export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
+
 export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
 export const currentDropDownMenu = writable(null);
@@ -45,3 +47,31 @@ export const isFileDragActive = writable(false);
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
+
+let activeTabIdValue = null;
+activeTabId.subscribe(value => {
+  activeTabIdValue = value;
+  invalidateCommands();
+});
+export const getActiveTabId = () => activeTabIdValue;
+
+let visibleCommandPaletteValue = null;
+visibleCommandPalette.subscribe(value => {
+  visibleCommandPaletteValue = value;
+  invalidateCommands();
+});
+export const getVisibleCommandPalette = () => visibleCommandPaletteValue;
+
+let visibleToolbarValue = null;
+visibleToolbar.subscribe(value => {
+  visibleToolbarValue = value;
+  invalidateCommands();
+});
+export const getVisibleToolbar = () => visibleToolbarValue;
+
+let openedTabsValue = null;
+openedTabs.subscribe(value => {
+  openedTabsValue = value;
+  invalidateCommands();
+});
+export const getOpenedTabs = () => openedTabsValue;

@@ -10,7 +10,7 @@
     showDisabled: true,
     icon: 'icon menu',
     onClick: () => visibleCommandPalette.set(true),
-    enabledStore: derived(visibleCommandPalette, $visibleCommandPalette => !$visibleCommandPalette),
+    testEnabled: () => !getVisibleCommandPalette(),
   });
 </script>
 
@@ -20,7 +20,7 @@
   import _ from 'lodash';
   import { derived } from 'svelte/store';
   import { onMount } from 'svelte';
-  import { commands, visibleCommandPalette } from '../stores';
+  import { commands, getVisibleCommandPalette, visibleCommandPalette } from '../stores';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
   import registerCommand from './registerCommand';

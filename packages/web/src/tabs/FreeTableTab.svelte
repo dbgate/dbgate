@@ -65,7 +65,6 @@
     modelState={$modelState}
     {dispatchModel}
     onSave={handleSave}
-    generalAllowSave
     focusOnVisible
   />
 {/if}

@@ -6,12 +6,11 @@ import { changeTab } from './common';
 import SaveFileModal from '../modals/SaveFileModal.svelte';
 import registerCommand from '../commands/registerCommand';
 
-export function saveTabEnabledStore(editorStore) {
-  return derived(editorStore, editor => editor != null);
-}
+// export function saveTabEnabledStore(editorStore) {
+//   return derived(editorStore, editor => editor != null);
+// }
 
-export default function saveTabFile(editorStore, saveAs, folder, format, fileExtension) {
-  const editor: any = get(editorStore);
+export default function saveTabFile(editor, saveAs, folder, format, fileExtension) {
   const tabs = get(openedTabs);
   const tabid = editor.getTabId();
   const data = editor.getData();

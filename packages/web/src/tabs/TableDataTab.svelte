@@ -17,6 +17,7 @@
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
   import createUndoReducer from '../utility/createUndoReducer';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let tabid;
   export let conid;
@@ -28,6 +29,11 @@
   const cache = writable(createGridCache());
 
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
+
+  $: {
+    $changeSetStore;
+    invalidateCommands();
+  }
 </script>
 
 <TableDataGrid

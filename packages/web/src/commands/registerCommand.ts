@@ -13,7 +13,8 @@ export interface GlobalCommand {
   keyText?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;
-  enabledStore?: any;
+  testEnabled?: () => boolean;
+  // enabledStore?: any;
   icon?: string;
   toolbar?: boolean;
   enabled?: boolean;
@@ -24,24 +25,24 @@ export interface GlobalCommand {
 }
 
 export default function registerCommand(command: GlobalCommand) {
-  const { enabledStore } = command;
+  const { testEnabled } = command;
   commands.update(x => ({
     ...x,
     [command.id]: {
       text: `${command.category}: ${command.name}`,
       ...command,
-      enabled: !enabledStore,
+      enabled: !testEnabled,
     },
   }));
-  if (enabledStore) {
-    enabledStore.subscribe(value => {
-      commands.update(x => ({
-        ...x,
-        [command.id]: {
-          ...x[command.id],
-          enabled: value,
-        },
-      }));
-    });
-  }
+  // if (enabledStore) {
+  //   enabledStore.subscribe(value => {
+  //     commands.update(x => ({
+  //       ...x,
+  //       [command.id]: {
+  //         ...x[command.id],
+  //         enabled: value,
+  //       },
+  //     }));
+  //   });
+  // }
 }

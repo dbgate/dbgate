@@ -1,13 +1,12 @@
 <script lang="ts" context="module">
-  const lastFocusedEditor = writable(null);
-  const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
-    editor?.getTabId && editor?.getTabId() == tabid ? editor : null
-  );
+  let lastFocusedEditor = null;
+  const getCurrentEditor = () =>
+    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
 
   registerFileCommands({
     idPrefix: 'markdown',
     category: 'Markdown',
-    editorStore: currentEditor,
+    getCurrentEditor,
     folder: 'markdown',
     format: 'text',
     fileExtension: 'md',
@@ -23,8 +22,8 @@
     icon: 'icon run',
     toolbar: true,
     keyText: 'F5 | Ctrl+Enter',
-    enabledStore: derived(currentEditor, query => query != null),
-    onClick: () => (get(currentEditor) as any).preview(),
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().preview(),
   });
 </script>
 
@@ -39,11 +38,12 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, nullStore } from '../stores';
+  import { activeTabId, getActiveTabId, nullStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import memberStore from '../utility/memberStore';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
+import invalidateCommands from '../commands/invalidateCommands';
 
   export let tabid;
 
@@ -100,7 +100,10 @@
   value={$editorState.value || ''}
   menu={createMenu()}
   on:input={e => setEditorData(e.detail)}
-  on:focus={() => lastFocusedEditor.set(instance)}
+  on:focus={() => {
+    lastFocusedEditor = instance;
+    invalidateCommands();
+  }}
   bind:this={domEditor}
   mode="markdown"
 />

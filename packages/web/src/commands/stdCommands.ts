@@ -1,4 +1,4 @@
-import { currentTheme, extensions, visibleToolbar } from '../stores';
+import { currentTheme, extensions, getVisibleToolbar, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
 import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
@@ -34,7 +34,7 @@ registerCommand({
   category: 'Toolbar',
   name: 'Show',
   onClick: () => visibleToolbar.set(1),
-  enabledStore: derived(visibleToolbar, $visibleToolbar => !$visibleToolbar),
+  testEnabled: () => !getVisibleToolbar(),
 });
 
 registerCommand({
@@ -42,7 +42,7 @@ registerCommand({
   category: 'Toolbar',
   name: 'Hide',
   onClick: () => visibleToolbar.set(0),
-  enabledStore: derived(visibleToolbar, $visibleToolbar => $visibleToolbar),
+  testEnabled: () => getVisibleToolbar(),
 });
 
 registerCommand({
@@ -112,8 +112,7 @@ registerCommand({
 export function registerFileCommands({
   idPrefix,
   category,
-  editorStore,
-  editorStatusStore = undefined,
+  getCurrentEditor,
   folder,
   format,
   fileExtension,
@@ -128,16 +127,16 @@ export function registerFileCommands({
     keyText: 'Ctrl+S',
     icon: 'icon save',
     toolbar: true,
-    enabledStore: saveTabEnabledStore(editorStore),
-    onClick: () => saveTabFile(editorStore, false, folder, format, fileExtension),
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => saveTabFile(getCurrentEditor(), false, folder, format, fileExtension),
   });
   registerCommand({
     id: idPrefix + '.saveAs',
     category,
     name: 'Save As',
     keyText: 'Ctrl+Shift+S',
-    enabledStore: saveTabEnabledStore(editorStore),
-    onClick: () => saveTabFile(editorStore, true, folder, format, fileExtension),
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => saveTabFile(getCurrentEditor(), true, folder, format, fileExtension),
   });
 
   if (execute) {
@@ -148,11 +147,8 @@ export function registerFileCommands({
       icon: 'icon run',
       toolbar: true,
       keyText: 'F5 | Ctrl+Enter',
-      enabledStore: derived(
-        [editorStore, editorStatusStore],
-        ([editor, status]) => editor != null && !(status as any).busy
-      ),
-      onClick: () => (get(editorStore) as any).execute(),
+      testEnabled: () => getCurrentEditor() != null && !getCurrentEditor()?.isBusy(),
+      onClick: () => getCurrentEditor().execute(),
     });
     registerCommand({
       id: idPrefix + '.kill',
@@ -160,11 +156,8 @@ export function registerFileCommands({
       name: 'Kill',
       icon: 'icon close',
       toolbar: true,
-      enabledStore: derived(
-        [editorStore, editorStatusStore],
-        ([query, status]) => query != null && status && (status as any).canKill
-      ),
-      onClick: () => (get(editorStore) as any).kill(),
+      testEnabled: () => getCurrentEditor() != null && getCurrentEditor()?.canKill(),
+      onClick: () => getCurrentEditor().kill(),
     });
   }
 
@@ -175,8 +168,8 @@ export function registerFileCommands({
       name: 'Toggle comment',
       keyText: 'Ctrl+/',
       disableHandleKeyText: 'Ctrl+/',
-      enabledStore: derived(editorStore, query => query != null),
-      onClick: () => (get(editorStore) as any).toggleComment(),
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().toggleComment(),
     });
   }
 
@@ -186,16 +179,16 @@ export function registerFileCommands({
       category,
       name: 'Find',
       keyText: 'Ctrl+F',
-      enabledStore: derived(editorStore, query => query != null),
-      onClick: () => (get(editorStore) as any).find(),
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().find(),
     });
     registerCommand({
       id: idPrefix + '.replace',
       category,
       keyText: 'Ctrl+H',
       name: 'Replace',
-      enabledStore: derived(editorStore, query => query != null),
-      onClick: () => (get(editorStore) as any).replace(),
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().replace(),
     });
   }
 }

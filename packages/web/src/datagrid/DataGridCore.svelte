@@ -1,10 +1,7 @@
 <script lang="ts" context="module">
-  const lastFocusedDataGrid = writable(null);
-  const currentDataGrid = derived([lastFocusedDataGrid, activeTabId], ([grid, tabid]) =>
-    grid?.getTabId && grid?.getTabId() == tabid ? grid : null
-  );
-
-  const currentDataGridChangeSet = memberStore(currentDataGrid, grid => grid?.getChangeSetStore() || nullStore);
+  let lastFocusedDataGrid = null;
+  const getCurrentDataGrid = () =>
+    lastFocusedDataGrid?.getTabId && lastFocusedDataGrid?.getTabId() == getActiveTabId() ? lastFocusedDataGrid : null;
 
   registerCommand({
     id: 'dataGrid.refresh',
@@ -13,8 +10,8 @@
     keyText: 'F5',
     toolbar: true,
     icon: 'icon reload',
-    enabledStore: derived(currentDataGrid, grid => grid?.getDisplay()?.supportsReload),
-    onClick: () => get(currentDataGrid).refresh(),
+    testEnabled: () => getCurrentDataGrid()?.getDisplay()?.supportsReload,
+    onClick: () => getCurrentDataGrid().refresh(),
   });
 
   registerCommand({
@@ -24,11 +21,8 @@
     keyText: 'Ctrl+S',
     toolbar: true,
     icon: 'icon save',
-    enabledStore: derived(
-      [currentDataGrid, currentDataGridChangeSet],
-      ([grid, changeSet]) => grid?.getGeneralAllowSave() || changeSetContainsChanges((changeSet as any)?.value)
-    ),
-    onClick: () => get(currentDataGrid).save(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.allowSave,
+    onClick: () => getCurrentDataGrid().save(),
   });
 
   registerCommand({
@@ -36,16 +30,16 @@
     category: 'Data grid',
     name: 'Revert row changes',
     keyText: 'Ctrl+R',
-    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
-    onClick: () => get(currentDataGrid).revertRowChanges(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
+    onClick: () => getCurrentDataGrid().revertRowChanges(),
   });
 
   registerCommand({
     id: 'dataGrid.revertAllChanges',
     category: 'Data grid',
     name: 'Revert all changes',
-    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSetContainsChanges(changeSet?.value)),
-    onClick: () => get(currentDataGrid).revertAllChanges(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
+    onClick: () => getCurrentDataGrid().revertAllChanges(),
   });
 
   registerCommand({
@@ -53,8 +47,8 @@
     category: 'Data grid',
     name: 'Delete selected rows',
     keyText: 'Ctrl+Delete',
-    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
-    onClick: () => get(currentDataGrid).deleteSelectedRows(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    onClick: () => getCurrentDataGrid().deleteSelectedRows(),
   });
 
   registerCommand({
@@ -62,8 +56,8 @@
     category: 'Data grid',
     name: 'Insert new row',
     keyText: 'Insert',
-    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
-    onClick: () => get(currentDataGrid).insertNewRow(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    onClick: () => getCurrentDataGrid().insertNewRow(),
   });
 
   registerCommand({
@@ -71,8 +65,8 @@
     category: 'Data grid',
     name: 'Set NULL',
     keyText: 'Ctrl+0',
-    enabledStore: derived(currentDataGrid, grid => grid?.getGrider()?.editable),
-    onClick: () => get(currentDataGrid).setNull(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    onClick: () => getCurrentDataGrid().setNull(),
   });
 
   registerCommand({
@@ -82,8 +76,8 @@
     keyText: 'Ctrl+Z',
     icon: 'icon undo',
     toolbar: true,
-    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSet?.canUndo),
-    onClick: () => get(currentDataGrid).undo(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canUndo,
+    onClick: () => getCurrentDataGrid().undo(),
   });
 
   registerCommand({
@@ -91,16 +85,16 @@
     category: 'Data grid',
     name: 'Redo',
     keyText: 'Ctrl+Y',
-    enabledStore: derived(currentDataGridChangeSet, (changeSet: any) => changeSet?.canRedo),
-    onClick: () => get(currentDataGrid).redo(),
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.canRedo,
+    onClick: () => getCurrentDataGrid().redo(),
   });
 
   registerCommand({
     id: 'dataGrid.reconnect',
     category: 'Data grid',
     name: 'Reconnect',
-    enabledStore: derived(currentDataGrid, grid => grid != null),
-    onClick: () => get(currentDataGrid).reconnect(),
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().reconnect(),
   });
 
   registerCommand({
@@ -108,8 +102,8 @@
     category: 'Data grid',
     name: 'Copy to clipboard',
     keyText: 'Ctrl+C',
-    enabledStore: derived(currentDataGrid, grid => grid != null),
-    onClick: () => get(currentDataGrid).copyToClipboard(),
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
 
   registerCommand({
@@ -117,8 +111,8 @@
     category: 'Data grid',
     name: 'Export',
     keyText: 'Ctrl+E',
-    enabledStore: derived(currentDataGrid, grid => grid != null && grid.exportEnabled()),
-    onClick: () => get(currentDataGrid).exportGrid(),
+    testEnabled: () => getCurrentDataGrid()?.exportEnabled(),
+    onClick: () => getCurrentDataGrid().exportGrid(),
   });
 
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
@@ -175,10 +169,11 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { activeTabId, nullStore } from '../stores';
+  import { activeTabId, getActiveTabId, nullStore } from '../stores';
   import memberStore from '../utility/memberStore';
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -198,7 +193,7 @@
   export let isLoadedAll;
   export let loadedTime;
   export let changeSetStore;
-  export let generalAllowSave = false;
+  // export let generalAllowSave = false;
 
   const wheelRowCount = 5;
   const instance = get_current_component();
@@ -330,9 +325,9 @@
     }
   }
 
-  export function getGeneralAllowSave() {
-    return generalAllowSave;
-  }
+  // export function getGeneralAllowSave() {
+  //   return generalAllowSave;
+  // }
 
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
@@ -891,7 +886,8 @@
     bind:this={domFocusField}
     on:keydown={handleGridKeyDown}
     on:focus={() => {
-      lastFocusedDataGrid.set(instance);
+      lastFocusedDataGrid = instance;
+      invalidateCommands();
     }}
     on:paste={handlePaste}
   />

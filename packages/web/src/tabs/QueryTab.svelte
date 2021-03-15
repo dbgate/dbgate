@@ -1,22 +1,19 @@
 <script lang="ts" context="module">
-  const lastFocusedEditor = writable(null);
-  const currentEditor = derived([lastFocusedEditor, activeTabId], ([editor, tabid]) =>
-    editor?.getTabId && editor?.getTabId() == tabid ? editor : null
-  );
-  const currentEditorStatus = memberStore(currentEditor, editor => editor?.getStatus() || nullStore);
+  let lastFocusedEditor = null;
+  const getCurrentEditor = () =>
+    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
 
   registerCommand({
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
-    enabledStore: derived(currentEditor, query => query != null),
-    onClick: () => get(currentEditor).formatCode(),
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().formatCode(),
   });
   registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
-    editorStore: currentEditor,
-    editorStatusStore: currentEditorStatus,
+    getCurrentEditor,
     folder: 'sql',
     format: 'text',
     fileExtension: 'sql',
@@ -38,7 +35,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, extensions, nullStore } from '../stores';
+  import { activeTabId, extensions, getActiveTabId, nullStore } from '../stores';
   import applySqlTemplate from '../utility/applySqlTemplate';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
@@ -49,6 +46,7 @@
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
   import { registerFileCommands } from '../commands/stdCommands';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let tabid;
   export let conid;
@@ -64,11 +62,6 @@
   let sessionId = null;
 
   let domEditor;
-
-  const status = writable({
-    busy,
-    canKill: false,
-  });
 
   $: connection = useConnectionInfo({ conid });
 
@@ -91,14 +84,21 @@
   }
 
   $: {
-    status.set({
-      busy,
-      canKill: !!sessionId,
-    });
+    busy;
+    sessionId;
+    invalidateCommands();
   }
 
   $: if ($tabVisible && domEditor) {
     domEditor?.getEditor()?.focus();
+  }
+
+  export function canKill() {
+    return !!sessionId;
+  }
+
+  export function isBusy() {
+    return busy;
   }
 
   export function getTabId() {
@@ -137,9 +137,9 @@
     // timerLabel.stop();
   }
 
-  export function getStatus() {
-    return status;
-  }
+  // export function getStatus() {
+  //   return status;
+  // }
 
   export function getData() {
     return $editorState.value || '';
@@ -207,7 +207,7 @@
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
-      on:focus={() => lastFocusedEditor.set(instance)}
+      on:focus={() => {lastFocusedEditor = instance; invalidateCommands(); }}
       bind:this={domEditor}
     />
   </svelte:fragment>
