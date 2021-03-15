@@ -44,8 +44,8 @@
     'text'
   );
 
-  $: filteredItems = (parentCommand ? parentCommand.getSubCommands() : sortedComands).filter(x =>
-    filterName(filter, x.text)
+  $: filteredItems = (parentCommand ? parentCommand.getSubCommands() : sortedComands).filter(
+    x => !x.isGroupCommand && filterName(filter, x.text)
   );
 
   function handleCommand(command) {

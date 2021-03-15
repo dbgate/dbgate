@@ -7,10 +7,12 @@ export interface SubCommand {
 
 export interface GlobalCommand {
   id: string;
-  category: string;
+  category: string; // null for group commands
+  isGroupCommand?: boolean;
   name: string;
   text?: string /* category: name */;
   keyText?: string;
+  group?: string;
   getSubCommands?: () => SubCommand[];
   onClick?: Function;
   testEnabled?: () => boolean;
@@ -20,6 +22,7 @@ export interface GlobalCommand {
   enabled?: boolean;
   showDisabled?: boolean;
   toolbarName?: string;
+  menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
 }
@@ -46,3 +49,4 @@ export default function registerCommand(command: GlobalCommand) {
   //   });
   // }
 }
+

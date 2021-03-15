@@ -1,5 +1,6 @@
 import { tick } from 'svelte';
 import { commands } from '../stores';
+import { GlobalCommand } from './registerCommand';
 
 let isInvalidated = false;
 
@@ -12,17 +13,23 @@ export default async function invalidateCommands() {
 
   commands.update(dct => {
     let res = null;
-    for (const key of Object.keys(dct)) {
-      const command = dct[key];
+    for (const command of Object.values(dct) as GlobalCommand[]) {
+      if (command.isGroupCommand) continue;
       const { testEnabled } = command;
       let enabled = command.enabled;
       if (testEnabled) enabled = testEnabled();
       if (enabled != command.enabled) {
         if (!res) res = { ...dct };
-        res[key] = {
-          ...command,
-          enabled,
-        };
+        res[command.id].enabled = enabled;
+      }
+    }
+    if (res) {
+      const values = Object.values(res) as GlobalCommand[];
+      // test enabled for group commands
+      for (const command of values) {
+        if (!command.isGroupCommand) continue;
+        const groupSources = values.filter(x => x.group == command.group && !x.isGroupCommand && x.enabled);
+        command.enabled = groupSources.length > 0;
       }
     }
     return res || dct;

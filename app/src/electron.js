@@ -27,6 +27,8 @@ autoUpdater.logger = log;
 // TODO - create settings for this
 // appUpdater.channel = 'beta';
 
+let commands = {};
+
 function hideSplash() {
   if (splashWindow) {
     splashWindow.destroy();
@@ -35,31 +37,40 @@ function hideSplash() {
   mainWindow.show();
 }
 
+function commandItem(id) {
+  const command = commands[id];
+  return {
+    id,
+    label: command ? command.menuName || command.toolbarName || command.name : id,
+    accelerator: command ? command.keyText : undefined,
+    enabled: command ? command.enabled : false,
+    click() {
+      mainWindow.webContents.executeJavaScript(`dbgate_runCommand('${id}')`);
+    },
+  };
+}
+
 function buildMenu() {
   const template = [
     {
       label: 'File',
       submenu: [
-        {
-          label: 'Connect to database',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_createNewConnection()`);
-          },
-        },
+        commandItem('new.connection'),
         {
           label: 'Open file',
           click() {
             mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
           },
         },
-        {
-          label: 'Save',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
-          },
-          accelerator: 'Ctrl+S',
-          id: 'save',
-        },
+        commandItem('group.save'),
+        // {
+        //   label: 'Save',
+        //   click() {
+        //     mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
+        //   },
+        //   accelerator: 'Ctrl+S',
+        //   id: 'save',
+        // },
         {
           label: 'Save As',
           click() {
@@ -157,10 +168,22 @@ function buildMenu() {
   return Menu.buildFromTemplate(template);
 }
 
-ipcMain.on('update-menu', async (event, arg) => {
-  const commands = await mainWindow.webContents.executeJavaScript(`dbgate_getCurrentTabCommands()`);
-  mainMenu.getMenuItemById('save').enabled = !!commands.save;
-  mainMenu.getMenuItemById('saveAs').enabled = !!commands.saveAs;
+ipcMain.on('update-commands', async (event, arg) => {
+  commands = JSON.parse(arg);
+  for (const key of Object.keys(commands)) {
+    const menu = mainMenu.getMenuItemById(key);
+    if (!menu) continue;
+    const command = commands[key];
+
+    // rebuild menu
+    if (menu.label != command.text || menu.accelerator != command.keyText) {
+      mainMenu = buildMenu();
+      mainWindow.setMenu(mainMenu);
+      return;
+    }
+
+    menu.enabled = command.enabled;
+  }
 });
 
 function createWindow() {

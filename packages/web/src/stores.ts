@@ -1,6 +1,8 @@
 import { writable, derived, readable } from 'svelte/store';
 import { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
+import getElectron from './utility/getElectron';
+import { GlobalCommand } from './commands/registerCommand';
 
 interface TabDefinition {
   title: string;
@@ -44,6 +46,8 @@ export const nullStore = readable(null, () => {});
 export const currentArchive = writable('default');
 export const isFileDragActive = writable(false);
 
+const electron = getElectron();
+
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
@@ -75,3 +79,26 @@ openedTabs.subscribe(value => {
   invalidateCommands();
 });
 export const getOpenedTabs = () => openedTabsValue;
+
+let commandsValue = null;
+commands.subscribe(value => {
+  commandsValue = value;
+
+  if (electron) {
+    const { ipcRenderer } = electron;
+    ipcRenderer.send('update-commands', JSON.stringify(value));
+  }
+});
+export const getCommands = () => commandsValue;
+export function runCommand(id) {
+  const command = commandsValue[id];
+  if (command) {
+    if (command.isGroupCommand) {
+      const values = Object.values(commandsValue) as GlobalCommand[];
+      const real = values.find(x => x.group == command.group && !x.isGroupCommand && x.enabled);
+      if (real && real.onClick) real.onClick();
+    }
+    command.onClick();
+  }
+}
+window['dbgate_runCommand'] = runCommand;

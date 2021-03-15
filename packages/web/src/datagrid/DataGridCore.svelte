@@ -16,6 +16,7 @@
 
   registerCommand({
     id: 'dataGrid.save',
+    group: 'save',
     category: 'Data grid',
     name: 'Save',
     keyText: 'Ctrl+S',

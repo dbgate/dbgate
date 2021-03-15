@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   import { commands } from '../stores';
   import { get } from 'svelte/store';
-
+  
   export function handleCommandKeyDown(e) {
     let keyText = '';
     if (e.ctrlKey) keyText += 'Ctrl+';
@@ -15,6 +15,7 @@
     const command: any = Object.values(commandsValue).find(
       (x: any) =>
         x.enabled &&
+        !x.isGroupCommand &&
         x.keyText &&
         x.keyText
           .toLowerCase()

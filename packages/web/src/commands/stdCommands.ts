@@ -5,7 +5,7 @@ import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
-import saveTabFile, { saveTabEnabledStore } from '../utility/saveTabFile';
+import saveTabFile from '../utility/saveTabFile';
 import openNewTab from '../utility/openNewTab';
 
 function themeCommand(theme: ThemeDefinition) {
@@ -109,6 +109,15 @@ registerCommand({
   },
 });
 
+registerCommand({
+  id: 'group.save',
+  category: null,
+  isGroupCommand: true,
+  name: 'Save',
+  keyText: 'Ctrl+S',
+  group: 'save',
+});
+
 export function registerFileCommands({
   idPrefix,
   category,
@@ -122,6 +131,7 @@ export function registerFileCommands({
 }) {
   registerCommand({
     id: idPrefix + '.save',
+    group: 'save',
     category,
     name: 'Save',
     keyText: 'Ctrl+S',
