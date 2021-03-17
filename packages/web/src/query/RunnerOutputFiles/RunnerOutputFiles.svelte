@@ -5,6 +5,7 @@
   import axiosInstance from '../../utility/axiosInstance';
   import formatFileSize from '../../utility/formatFileSize';
   import getElectron from '../../utility/getElectron';
+  import resolveApi from '../../utility/resolveApi';
   import socket from '../../utility/socket';
   import useEffect from '../../utility/useEffect';
   import CopyLink from './CopyLink.svelte';
@@ -52,30 +53,69 @@
       !electron && {
         fieldName: 'download',
         header: 'Download',
-        component: DownloadLink,
-        getProps: row => ({
-          row,
-          runnerId,
-        }),
+        slot: 0,
+        // component: DownloadLink,
+        // getProps: row => ({
+        //   row,
+        //   runnerId,
+        // }),
       },
       electron && {
         fieldName: 'copy',
         header: 'Copy',
-        component: CopyLink,
-        getProps: row => ({
-          row,
-          runnerId,
-        }),
+        slot: 1,
+        // component: CopyLink,
+        // getProps: row => ({
+        //   row,
+        //   runnerId,
+        // }),
       },
       electron && {
         fieldName: 'show',
         header: 'Show',
-        component: ShowLink,
-        getProps: row => ({
-          row,
-          runnerId,
-        }),
+        slot: 2,
+        // component: ShowLink,
+        // getProps: row => ({
+        //   row,
+        //   runnerId,
+        // }),
       },
     ]}
-  />
+  >
+    <a
+      slot="0"
+      let:row
+      href={`${resolveApi()}/runners/data/${runnerId}/${row.name}`}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      download
+    </a>
+
+    <a
+      slot="1"
+      let:row
+      href="#"
+      on:click={() => {
+        const file = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {});
+        if (file) {
+          const fs = window.require('fs');
+          fs.copyFile(row.path, file, () => {});
+        }
+      }}
+    >
+      save
+    </a>
+
+    <a
+      slot="2"
+      let:row
+      href="#"
+      on:click={() => {
+        electron.remote.shell.showItemInFolder(row.path);
+      }}
+    >
+      show
+    </a>
+  </TableControl>
 {/if}

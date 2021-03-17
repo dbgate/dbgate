@@ -10,6 +10,7 @@
     component?: any;
     getProps?: any;
     formatter?: any;
+    slot?: number;
   }
 
   export let columns: TableColumn[];
@@ -52,6 +53,16 @@
               <svelte:component this={col.component} {...col.getProps(row)} />
             {:else if col.formatter}
               {col.formatter(row)}
+            {:else if col.slot != null}
+              {#if col.slot == 0}<slot name="0" {row} {index} />
+              {:else if col.slot == 1}<slot name="1" {row} {index} />
+              {:else if col.slot == 2}<slot name="2" {row} {index} />
+              {:else if col.slot == 3}<slot name="3" {row} {index} />
+              {:else if col.slot == 4}<slot name="4" {row} {index} />
+              {:else if col.slot == 5}<slot name="5" {row} {index} />
+              {:else if col.slot == 6}<slot name="6" {row} {index} />
+              {:else if col.slot == 7}<slot name="7" {row} {index} />
+              {/if}
             {:else}
               {row[col.fieldName]}
             {/if}

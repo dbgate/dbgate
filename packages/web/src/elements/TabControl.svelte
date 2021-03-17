@@ -33,14 +33,17 @@
     {#each tabs as tab, index}
       <div class="container" class:isInline class:tabVisible={index == value}>
         <svelte:component this={tab.component} {...tab.props} />
-        {#if tab.slot == 0}<slot name="0" />{/if}
-        {#if tab.slot == 1}<slot name="1" />{/if}
-        {#if tab.slot == 2}<slot name="2" />{/if}
-        {#if tab.slot == 3}<slot name="3" />{/if}
-        {#if tab.slot == 4}<slot name="4" />{/if}
-        {#if tab.slot == 5}<slot name="5" />{/if}
-        {#if tab.slot == 6}<slot name="6" />{/if}
-        {#if tab.slot == 7}<slot name="7" />{/if}
+        {#if tab.slot != null}
+          {#if tab.slot == 0}<slot name="0" />
+          {:else if tab.slot == 1}<slot name="1" />
+          {:else if tab.slot == 2}<slot name="2" />
+          {:else if tab.slot == 3}<slot name="3" />
+          {:else if tab.slot == 4}<slot name="4" />
+          {:else if tab.slot == 5}<slot name="5" />
+          {:else if tab.slot == 6}<slot name="6" />
+          {:else if tab.slot == 7}<slot name="7" />
+          {/if}
+        {/if}
       </div>
     {/each}
   </div>
