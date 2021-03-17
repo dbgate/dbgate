@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import TableControl from '../elements/TableControl.svelte';
 
