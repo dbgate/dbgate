@@ -1,6 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import createRef from '../utility/createRef';
 
   import socket from '../utility/socket';
 
@@ -13,16 +14,16 @@
   export let eventName;
   export let executeNumber;
 
-  const cachedMessagesRef = { current: [] };
+  const cachedMessagesRef = createRef([]);
 
   let displayedMessages = [];
 
   const displayCachedMessages = _.throttle(() => {
-    displayedMessages = [...cachedMessagesRef.current];
+    displayedMessages = [...cachedMessagesRef.get()];
   }, 500);
 
   const handleInfo = info => {
-    cachedMessagesRef.current.push(info);
+    cachedMessagesRef.get().push(info);
     displayCachedMessages();
   };
 
@@ -39,7 +40,7 @@
   $: {
     if (executeNumber >= 0) {
       displayedMessages = [];
-      cachedMessagesRef.current = [];
+      cachedMessagesRef.set([]);
     }
   }
 

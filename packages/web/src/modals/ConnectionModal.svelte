@@ -13,27 +13,28 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, closeModal } from './modalTools';
+  import createRef from '../utility/createRef';
 
   export let connection;
 
   let isTesting;
   let sqlConnectResult;
 
-  const testIdRef = { current: 0 };
+  const testIdRef = createRef(0);
 
   async function handleTest(e) {
     isTesting = true;
-    testIdRef.current += 1;
-    const testid = testIdRef.current;
+    testIdRef.update(x => x + 1);
+    const testid = testIdRef.get();
     const resp = await axiosInstance.post('connections/test', e.detail);
-    if (testIdRef.current != testid) return;
+    if (testIdRef.get() != testid) return;
 
     isTesting = false;
     sqlConnectResult = resp.data;
   }
 
   function handleCancelTest() {
-    testIdRef.current += 1; // invalidate current test
+    testIdRef.update(x => x + 1); // invalidate current test
     isTesting = false;
   }
 

@@ -15,6 +15,7 @@
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { currentArchive, extensions, selectedWidget } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
+  import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
@@ -33,7 +34,7 @@
   export let openedFile = undefined;
   export let importToArchive = false;
 
-  const refreshArchiveFolderRef = { current: null };
+  const refreshArchiveFolderRef = createRef(null);
 
   $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
 
@@ -54,10 +55,10 @@
 
   const handleRunnerDone = () => {
     busy = false;
-    if (refreshArchiveFolderRef.current) {
+    if (refreshArchiveFolderRef.get()) {
       axiosInstance.post('archive/refresh-folders', {});
-      axiosInstance.post('archive/refresh-files', { folder: refreshArchiveFolderRef.current });
-      $currentArchive = refreshArchiveFolderRef.current;
+      axiosInstance.post('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
+      $currentArchive = refreshArchiveFolderRef.get();
       $selectedWidget = 'archive';
     }
   };
@@ -87,9 +88,9 @@
     runnerId = runid;
 
     if (values.targetStorageType == 'archive') {
-      refreshArchiveFolderRef.current = values.targetArchiveFolder;
+      refreshArchiveFolderRef.set(values.targetArchiveFolder);
     } else {
-      refreshArchiveFolderRef.current = null;
+      refreshArchiveFolderRef.set(null);
     }
   };
 

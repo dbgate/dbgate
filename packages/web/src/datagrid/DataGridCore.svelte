@@ -177,6 +177,7 @@
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
+  import createRef from '../utility/createRef';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -416,15 +417,15 @@
     domFocusField.focus();
   }
 
-  const lastPublishledRef = { current: '' };
+  const lastPublishledRef = createRef('');
   $: if (onSelectionChanged) {
     const published = getCellsPublished(selectedCells);
     const stringified = stableStringify(published);
-    if (lastPublishledRef.current != stringified) {
+    if (lastPublishledRef.get() != stringified) {
       // console.log('PUBLISH', published);
       // console.log('lastPublishledRef.current', lastPublishledRef.current);
       // console.log('stringified', stringified);
-      lastPublishledRef.current = stringified;
+      lastPublishledRef.set(stringified);
       onSelectionChanged(published);
     }
   }

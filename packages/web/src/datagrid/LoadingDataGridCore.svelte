@@ -1,4 +1,6 @@
 <script lang="ts">
+  import createRef from '../utility/createRef';
+
   import DataGridCore from './DataGridCore.svelte';
 
   export let loadDataPage;
@@ -17,8 +19,8 @@
   let errorMessage = null;
   let domGrid;
 
-  const loadNextDataRef = { current: false };
-  const loadedTimeRef = { current: null };
+  const loadNextDataRef = createRef(false);
+  const loadedTimeRef = createRef(null);
 
   export function resetLoadedAll() {
     isLoadedAll = false;
@@ -32,17 +34,17 @@
 
   async function loadNextData() {
     if (isLoading) return;
-    loadNextDataRef.current = false;
+    loadNextDataRef.set(false);
     isLoading = true;
 
     const loadStart = new Date().getTime();
     // await new Promise(resolve => setTimeout(resolve, 5000));
 
-    loadedTimeRef.current = loadStart;
+    loadedTimeRef.set(loadStart);
     // console.log('LOAD NEXT ROWS', loadedRows);
 
     const nextRows = await loadDataPage($$props, loadedRows.length, 100);
-    if (loadedTimeRef.current !== loadStart) {
+    if (loadedTimeRef.get() !== loadStart) {
       // new load was dispatched
       return;
     }
@@ -68,7 +70,7 @@
       //   }));
     }
 
-    if (loadNextDataRef.current) {
+    if (loadNextDataRef.get()) {
       loadNextData();
     }
     // console.log('LOADED', nextRows, loadedRows);
@@ -93,7 +95,7 @@
     isLoadedAll = false;
     loadedTime = new Date().getTime();
     errorMessage = null;
-    loadNextDataRef.current = false;
+    loadNextDataRef.set(false);
     // loadNextDataToken = 0;
   }
 

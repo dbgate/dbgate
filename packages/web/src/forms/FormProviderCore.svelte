@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import FormFieldTemplateLarge from '../modals/FormFieldTemplateLarge.svelte';
+  import createRef from '../utility/createRef';
 
   import keycodes from '../utility/keycodes';
 
@@ -24,15 +25,15 @@
     values,
     template,
     setFieldValue,
-    submitActionRef: { current: null },
+    submitActionRef: createRef(null),
   };
 
   setContext(contextKey, context);
 
   function handleEnter(e) {
-    if (e.keyCode == keycodes.enter && context.submitActionRef.current) {
+    if (e.keyCode == keycodes.enter && context.submitActionRef.get()) {
       e.preventDefault();
-      context.submitActionRef.current(values);
+      context.submitActionRef.get()(values);
     }
   }
 </script>

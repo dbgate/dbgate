@@ -12,9 +12,9 @@
     dispatch('click', $values);
   }
 
-  submitActionRef.current = () => {
+  submitActionRef.set(() => {
     handleClick();
-  };
+  });
 </script>
 
 <FormStyledButton type="submit" on:click={handleClick} {...$$props} />

@@ -1,6 +1,7 @@
 <script lang="ts">
   import keycodes from '../utility/keycodes';
   import { onMount } from 'svelte';
+  import createRef from '../utility/createRef';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
@@ -12,29 +13,29 @@
 
   const widthCopy = width;
 
-  const isChangedRef = { current: !!inplaceEditorState.text };
+  const isChangedRef = createRef(!!inplaceEditorState.text);
 
   function handleKeyDown(event) {
     switch (event.keyCode) {
       case keycodes.escape:
-        isChangedRef.current = false;
+        isChangedRef.set(false);
         dispatchInsplaceEditor({ type: 'close' });
         break;
       case keycodes.enter:
-        if (isChangedRef.current) {
+        if (isChangedRef.get()) {
           // grider.setCellValue(rowIndex, uniqueName, editor.value);
           onSetValue(domEditor.value);
-          isChangedRef.current = false;
+          isChangedRef.set(false);
         }
         domEditor.blur();
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;
       case keycodes.s:
         if (event.ctrlKey) {
-          if (isChangedRef.current) {
+          if (isChangedRef.get()) {
             onSetValue(domEditor.value);
             // grider.setCellValue(rowIndex, uniqueName, editor.value);
-            isChangedRef.current = false;
+            isChangedRef.set(false);
           }
           event.preventDefault();
           dispatchInsplaceEditor({ type: 'close', mode: 'save' });
@@ -44,10 +45,10 @@
   }
 
   function handleBlur() {
-    if (isChangedRef.current) {
+    if (isChangedRef.get()) {
       onSetValue(domEditor.value);
       // grider.setCellValue(rowIndex, uniqueName, editor.value);
-      isChangedRef.current = false;
+      isChangedRef.set(false);
     }
     dispatchInsplaceEditor({ type: 'close' });
   }
@@ -63,7 +64,7 @@
 
 <input
   type="text"
-  on:change={() => (isChangedRef.current = true)}
+  on:change={() => isChangedRef.set(true)}
   on:keydown={handleKeyDown}
   on:blur={handleBlur}
   bind:this={domEditor}
