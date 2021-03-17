@@ -3,6 +3,7 @@ import registerCommand from './registerCommand';
 import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
+import AboutModal from '../modals/AboutModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
@@ -43,6 +44,14 @@ registerCommand({
   name: 'Hide',
   onClick: () => visibleToolbar.set(0),
   testEnabled: () => getVisibleToolbar(),
+});
+
+registerCommand({
+  id: 'about.show',
+  category: 'About',
+  name: 'Show',
+  toolbarName: 'About',
+  onClick: () => showModal(AboutModal),
 });
 
 registerCommand({
@@ -118,6 +127,15 @@ registerCommand({
   group: 'save',
 });
 
+registerCommand({
+  id: 'group.saveAs',
+  category: null,
+  isGroupCommand: true,
+  name: 'Save As',
+  keyText: 'Ctrl+Shift+S',
+  group: 'saveAs',
+});
+
 export function registerFileCommands({
   idPrefix,
   category,
@@ -142,9 +160,9 @@ export function registerFileCommands({
   });
   registerCommand({
     id: idPrefix + '.saveAs',
+    group: 'saveAs',
     category,
     name: 'Save As',
-    keyText: 'Ctrl+Shift+S',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => saveTabFile(getCurrentEditor(), true, folder, format, fileExtension),
   });

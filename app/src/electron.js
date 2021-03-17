@@ -63,22 +63,7 @@ function buildMenu() {
           },
         },
         commandItem('group.save'),
-        // {
-        //   label: 'Save',
-        //   click() {
-        //     mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
-        //   },
-        //   accelerator: 'Ctrl+S',
-        //   id: 'save',
-        // },
-        {
-          label: 'Save As',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('saveAs')`);
-          },
-          accelerator: 'Ctrl+Shift+S',
-          id: 'saveAs',
-        },
+        commandItem('group.saveAs'),
         { type: 'separator' },
         { role: 'close' },
       ],
@@ -86,19 +71,10 @@ function buildMenu() {
     {
       label: 'Window',
       submenu: [
-        {
-          label: 'New query',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_newQuery()`);
-          },
-        },
+        commandItem('new.query'),
         { type: 'separator' },
-        {
-          label: 'Close all tabs',
-          click() {
-            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
-          },
-        },
+       
+        commandItem('tabs.closeAll'),
         { role: 'minimize' },
       ],
     },
@@ -155,12 +131,7 @@ function buildMenu() {
             require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
-        {
-          label: 'About',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_showAbout()`);
-          },
-        },
+        commandItem('about.show'),
       ],
     },
   ];

@@ -1,69 +1,4 @@
 <script lang="ts" context="module">
-  function getTabDbName(tab) {
-    if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
-    if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
-    return '(no DB)';
-  }
-
-  function getTabDbKey(tab) {
-    if (tab.props && tab.props.conid && tab.props.database)
-      return `database://${tab.props.database}-${tab.props.conid}`;
-    if (tab.props && tab.props.archiveFolder) return `archive://${tab.props.archiveFolder}`;
-    return '_no';
-  }
-
-  function getDbIcon(key) {
-    if (key.startsWith('database://')) return 'icon database';
-    if (key.startsWith('archive://')) return 'icon archive';
-    return 'icon file';
-  }
-
-  registerCommand({
-    id: 'tabs.nextTab',
-    category: 'Tabs',
-    name: 'Next tab',
-    keyText: 'Ctrl+Tab',
-    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
-    onClick: () => {
-      const tabs = get(openedTabs).filter(x => x.closedTime == null);
-      if (tabs.length >= 2) setSelectedTab(tabs[tabs.length - 2].tabid);
-    },
-  });
-</script>
-
-<script lang="ts">
-  import _ from 'lodash';
-  import { derived, get } from 'svelte/store';
-  import registerCommand from '../commands/registerCommand';
-  import FontIcon from '../icons/FontIcon.svelte';
-
-  import { currentDatabase, getOpenedTabs, openedTabs } from '../stores';
-  import { setSelectedTab } from '../utility/common';
-  import contextMenu from '../utility/contextMenu';
-
-  $: currentDbKey =
-    $currentDatabase && $currentDatabase.name && $currentDatabase.connection
-      ? `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
-      : '_no';
-
-  $: tabsWithDb = $openedTabs
-    .filter(x => !x.closedTime)
-    .map(tab => ({
-      ...tab,
-      tabDbName: getTabDbName(tab),
-      tabDbKey: getTabDbKey(tab),
-    }));
-
-  $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
-  $: dbKeys = _.keys(tabsByDb).sort();
-
-  const handleTabClick = (e, tabid) => {
-    if (e.target.closest('.tabCloseButton')) {
-      return;
-    }
-    setSelectedTab(tabid);
-  };
-
   const closeTabFunc = closeCondition => tabid => {
     openedTabs.update(files => {
       const active = files.find(x => x.tabid == tabid);
@@ -109,6 +44,80 @@
       _.get(x, 'props.database') != _.get(active, 'props.database')
   );
   const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
+
+  function getTabDbName(tab) {
+    if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
+    if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
+    return '(no DB)';
+  }
+
+  function getTabDbKey(tab) {
+    if (tab.props && tab.props.conid && tab.props.database)
+      return `database://${tab.props.database}-${tab.props.conid}`;
+    if (tab.props && tab.props.archiveFolder) return `archive://${tab.props.archiveFolder}`;
+    return '_no';
+  }
+
+  function getDbIcon(key) {
+    if (key.startsWith('database://')) return 'icon database';
+    if (key.startsWith('archive://')) return 'icon archive';
+    return 'icon file';
+  }
+
+  registerCommand({
+    id: 'tabs.nextTab',
+    category: 'Tabs',
+    name: 'Next tab',
+    keyText: 'Ctrl+Tab',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
+    onClick: () => {
+      const tabs = get(openedTabs).filter(x => x.closedTime == null);
+      if (tabs.length >= 2) setSelectedTab(tabs[tabs.length - 2].tabid);
+    },
+  });
+
+  registerCommand({
+    id: 'tabs.closeAll',
+    category: 'Tabs',
+    name: 'Close all tabs',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
+    onClick: closeAll,
+  });
+</script>
+
+<script lang="ts">
+  import _ from 'lodash';
+  import { derived, get } from 'svelte/store';
+  import registerCommand from '../commands/registerCommand';
+  import FontIcon from '../icons/FontIcon.svelte';
+
+  import { currentDatabase, getOpenedTabs, openedTabs } from '../stores';
+  import { setSelectedTab } from '../utility/common';
+  import contextMenu from '../utility/contextMenu';
+
+  $: currentDbKey =
+    $currentDatabase && $currentDatabase.name && $currentDatabase.connection
+      ? `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
+      : '_no';
+
+  $: tabsWithDb = $openedTabs
+    .filter(x => !x.closedTime)
+    .map(tab => ({
+      ...tab,
+      tabDbName: getTabDbName(tab),
+      tabDbKey: getTabDbKey(tab),
+    }));
+
+  $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
+  $: dbKeys = _.keys(tabsByDb).sort();
+
+  const handleTabClick = (e, tabid) => {
+    if (e.target.closest('.tabCloseButton')) {
+      return;
+    }
+    setSelectedTab(tabid);
+  };
+
   const handleMouseUp = (e, tabid) => {
     if (e.button == 1) {
       e.preventDefault();
