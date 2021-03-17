@@ -56,12 +56,7 @@ function buildMenu() {
       label: 'File',
       submenu: [
         commandItem('new.connection'),
-        {
-          label: 'Open file',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
-          },
-        },
+        commandItem('file.open'),
         commandItem('group.save'),
         commandItem('group.saveAs'),
         { type: 'separator' },
@@ -70,13 +65,7 @@ function buildMenu() {
     },
     {
       label: 'Window',
-      submenu: [
-        commandItem('new.query'),
-        { type: 'separator' },
-       
-        commandItem('tabs.closeAll'),
-        { role: 'minimize' },
-      ],
+      submenu: [commandItem('new.query'), { type: 'separator' }, commandItem('tabs.closeAll'), { role: 'minimize' }],
     },
 
     // {

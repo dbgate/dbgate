@@ -8,6 +8,10 @@ import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
 import openNewTab from '../utility/openNewTab';
+import getElectron from '../utility/getElectron';
+import { openElectronFile } from '../utility/openElectronFile';
+
+const electron = getElectron();
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -135,6 +139,16 @@ registerCommand({
   keyText: 'Ctrl+Shift+S',
   group: 'saveAs',
 });
+
+if (electron) {
+  registerCommand({
+    id: 'file.open',
+    category: 'File',
+    name: 'Open',
+    keyText: 'Ctrl+O',
+    onClick: openElectronFile,
+  });
+}
 
 export function registerFileCommands({
   idPrefix,

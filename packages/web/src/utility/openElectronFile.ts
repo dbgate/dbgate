@@ -1,6 +1,9 @@
 import { showModal } from '../modals/modalTools';
+import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
+import getElectron from './getElectron';
+import { extensions } from '../stores';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -43,5 +46,29 @@ export function openElectronFileCore(filePath, extensions) {
         },
       });
     }
+  }
+}
+
+function getFileFormatFilters(extensions) {
+  return extensions.fileFormats.filter(x => x.readerFunc).map(x => ({ name: x.name, extensions: [x.extension] }));
+}
+
+function getFileFormatExtensions(extensions) {
+  return extensions.fileFormats.filter(x => x.readerFunc).map(x => x.extension);
+}
+
+export function openElectronFile() {
+  const electron = getElectron();
+  const ext = get(extensions);
+  const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+    filters: [
+      { name: `All supported files`, extensions: ['sql', ...getFileFormatExtensions(ext)] },
+      { name: `SQL files`, extensions: ['sql'] },
+      ...getFileFormatFilters(ext),
+    ],
+  });
+  const filePath = filePaths && filePaths[0];
+  if (canOpenByElectron(filePath, ext)) {
+    openElectronFileCore(filePath, ext);
   }
 }
