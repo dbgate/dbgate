@@ -1,7 +1,7 @@
 <script lang="ts">
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
-  import RunnerOutputFiles from './RunnerOutputFiles';
+  import RunnerOutputFiles from './RunnerOutputFiles.svelte';
   import SocketMessageView from './SocketMessageView.svelte';
 
   export let runnerId;

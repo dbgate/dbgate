@@ -1,16 +1,13 @@
 <script lang="ts">
-  import ErrorInfo from '../../elements/ErrorInfo.svelte';
-  import TableControl from '../../elements/TableControl.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import TableControl from '../elements/TableControl.svelte';
 
-  import axiosInstance from '../../utility/axiosInstance';
-  import formatFileSize from '../../utility/formatFileSize';
-  import getElectron from '../../utility/getElectron';
-  import resolveApi from '../../utility/resolveApi';
-  import socket from '../../utility/socket';
-  import useEffect from '../../utility/useEffect';
-  import CopyLink from './CopyLink.svelte';
-  import DownloadLink from './DownloadLink.svelte';
-  import ShowLink from './ShowLink.svelte';
+  import axiosInstance from '../utility/axiosInstance';
+  import formatFileSize from '../utility/formatFileSize';
+  import getElectron from '../utility/getElectron';
+  import resolveApi from '../utility/resolveApi';
+  import socket from '../utility/socket';
+  import useEffect from '../utility/useEffect';
 
   export let runnerId;
   export let executeNumber;
@@ -54,31 +51,16 @@
         fieldName: 'download',
         header: 'Download',
         slot: 0,
-        // component: DownloadLink,
-        // getProps: row => ({
-        //   row,
-        //   runnerId,
-        // }),
       },
       electron && {
         fieldName: 'copy',
         header: 'Copy',
         slot: 1,
-        // component: CopyLink,
-        // getProps: row => ({
-        //   row,
-        //   runnerId,
-        // }),
       },
       electron && {
         fieldName: 'show',
         header: 'Show',
         slot: 2,
-        // component: ShowLink,
-        // getProps: row => ({
-        //   row,
-        //   runnerId,
-        // }),
       },
     ]}
   >

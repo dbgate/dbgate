@@ -11,7 +11,7 @@
   import createImpExpScript from '../impexp/createImpExpScript';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
-  import RunnerOutputFiles from '../query/RunnerOutputFiles';
+  import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { currentArchive, extensions, selectedWidget } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
