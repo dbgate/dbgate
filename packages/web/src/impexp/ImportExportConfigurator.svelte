@@ -8,7 +8,14 @@
     };
   }
 
-  async function addFilesToSourceList(extensions, files, values, valuesStore, preferedStorageType, setPreviewSource) {
+  export async function addFilesToSourceList(
+    extensions,
+    files,
+    values,
+    valuesStore,
+    preferedStorageType = undefined,
+    setPreviewSource = undefined
+  ) {
     const newSources = [];
     const newValues = {};
     const storage = preferedStorageType || values.sourceStorageType;
@@ -118,6 +125,7 @@
       archiveFolderField="sourceArchiveFolder"
       schemaNameField="sourceSchemaName"
       tablesField="sourceList"
+      setPreviewSource={previewSource.set}
     />
     <div class="arrow">
       <FontIcon icon="icon arrow-right" />

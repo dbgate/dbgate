@@ -4,12 +4,14 @@ import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
+import ImportExportModal from '../modals/ImportExportModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
 import openNewTab from '../utility/openNewTab';
 import getElectron from '../utility/getElectron';
 import { openElectronFile } from '../utility/openElectronFile';
+import { getDefaultFileFormat } from '../plugins/fileformats';
 
 const electron = getElectron();
 
@@ -149,6 +151,19 @@ if (electron) {
     onClick: openElectronFile,
   });
 }
+
+registerCommand({
+  id: 'file.import',
+  category: 'File',
+  name: 'Import data',
+  toolbar: true,
+  icon: 'icon import',
+  onClick: () =>
+    showModal(ImportExportModal, {
+      importToArchive: true,
+      initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
+    }),
+});
 
 export function registerFileCommands({
   idPrefix,
