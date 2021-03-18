@@ -1,5 +1,5 @@
 import * as TableDataTab from './TableDataTab.svelte';
-// import ViewDataTab from './ViewDataTab';
+import * as ViewDataTab from './ViewDataTab.svelte';
 // import TableStructureTab from './TableStructureTab';
 import * as QueryTab from './QueryTab.svelte';
 import * as ShellTab from './ShellTab.svelte';
@@ -16,7 +16,7 @@ import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 
 export default {
   TableDataTab,
-  //   ViewDataTab,
+  ViewDataTab,
   //   TableStructureTab,
   QueryTab,
   //   InfoPageTab,

@@ -9,7 +9,7 @@
   export let gridCoreComponent;
 
   export let isDetailView = false;
-  export let showReferences = true;
+  export let showReferences = false;
 
   let managerSize;
 </script>
@@ -21,7 +21,13 @@
         <ColumnManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="References" name="references" height="30%" collapsed={isDetailView}>
+      <WidgetColumnBarItem
+        title="References"
+        name="references"
+        height="30%"
+        collapsed={isDetailView}
+        skip={!showReferences}
+      >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>

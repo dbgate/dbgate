@@ -6,6 +6,7 @@ import { cacheClean } from './cache';
 import socket from './socket';
 import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
+import { derived } from 'svelte/store';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
@@ -247,11 +248,14 @@ export async function getDbCore(args, objectTypeField = undefined) {
 }
 
 export function useDbCore(args, objectTypeField = undefined) {
-  const db = useDatabaseInfo(args);
-  if (!db) return null;
-  return db[objectTypeField || args.objectTypeField].find(
-    x => x.pureName == args.pureName && x.schemaName == args.schemaName
-  );
+  const dbStore = useDatabaseInfo(args);
+  if (!dbStore) return null;
+  return derived(dbStore, db => {
+    if (!db) return null;
+    return db[objectTypeField || args.objectTypeField].find(
+      x => x.pureName == args.pureName && x.schemaName == args.schemaName
+    );
+  });
 }
 
 /** @returns {Promise<import('dbgate-types').TableInfo>} */

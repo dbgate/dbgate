@@ -27,11 +27,12 @@
     {
       collapsed,
       height,
+      skip,
     },
     dynamicProps
   );
 
-  $: updateWidgetItemDefinition(widgetItemIndex, { collapsed: !visible, height });
+  $: updateWidgetItemDefinition(widgetItemIndex, { collapsed: !visible, height, skip });
 
   $: setInitialSize(height, $widgetColumnBarHeight);
 

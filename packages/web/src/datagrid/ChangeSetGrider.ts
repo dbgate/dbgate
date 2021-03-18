@@ -143,10 +143,10 @@ export default class ChangeSetGrider extends Grider {
     this.dispatchChangeSet({ type: 'redo' });
   }
   get canUndo() {
-    return this.changeSetState.canUndo;
+    return this.changeSetState?.canUndo;
   }
   get canRedo() {
-    return this.changeSetState.canRedo;
+    return this.changeSetState?.canRedo;
   }
   get containsChanges() {
     return changeSetContainsChanges(this.changeSet);
