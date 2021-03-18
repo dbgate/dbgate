@@ -28,7 +28,7 @@
 
   const tableRefs = {};
   const referenceRefs = {};
-  $: domTables = _.mapValues(tableRefs, (tbl: any) => tbl.getDomTable());
+  $: domTables = _.pickBy(_.mapValues(tableRefs, (tbl: any) => tbl?.getDomTable()));
 
   function fixPositions(tables) {
     const minLeft = _.min(tables.map(x => x.left));

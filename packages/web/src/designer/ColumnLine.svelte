@@ -5,6 +5,7 @@
 
   import CheckboxField from '../forms/CheckboxField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import contextMenu from '../utility/contextMenu';
   export let column;
   export let table;
   export let designer;
@@ -14,10 +15,34 @@
   export let sourceDragColumn$;
   export let targetDragColumn$;
   export let onCreateReference;
+  export let onAddReferenceByColumn;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
   );
+
+  function createMenu() {
+    const foreignKey = findForeignKeyForColumn(table, column);
+    const setSortOrder = sortOrder => {
+      onChangeColumn(
+        {
+          ...column,
+          designerId,
+        },
+        col => ({ ...col, sortOrder })
+      );
+    };
+    const addReference = () => {
+      onAddReferenceByColumn(designerId, foreignKey);
+    };
+
+    return [
+      { text: 'Sort ascending', onClick: () => setSortOrder(1) },
+      { text: 'Sort descending', onClick: () => setSortOrder(-1) },
+      { text: 'Unsort', onClick: () => setSortOrder(0) },
+      foreignKey && { text: 'Add reference', onClick: addReference },
+    ];
+  }
 </script>
 
 <div
@@ -59,6 +84,7 @@
   class:isDragTarget={$targetDragColumn$ &&
     $targetDragColumn$.designerId == designerId &&
     $targetDragColumn$.columnName == column.columnName}
+  use:contextMenu={createMenu}
 >
   <CheckboxField
     checked={!!(designer.columns || []).find(

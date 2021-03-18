@@ -2,6 +2,9 @@
   import { tick } from 'svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import { showModal } from '../modals/modalTools';
+  import contextMenu from '../utility/contextMenu';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
   import DomTableRef from './DomTableRef';
@@ -65,6 +68,36 @@
     domRefs[''] = domWrapper;
     return new DomTableRef(table, domRefs, domCanvas);
   }
+
+  const handleSetTableAlias = () => {
+    showModal(InputTextModal, {
+      value: alias || '',
+      label: 'New alias',
+      header: 'Set table alias',
+      onConfirm: newAlias => {
+        onChangeTable({
+          ...table,
+          alias: newAlias,
+        });
+      },
+    });
+  };
+
+  function createMenu() {
+    return [
+      { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
+      { divider: true },
+      { text: 'Set table alias', onClick: handleSetTableAlias },
+      alias && {
+        text: 'Remove table alias',
+        onClick: () =>
+          onChangeTable({
+            ...table,
+            alias: null,
+          }),
+      },
+    ];
+  }
 </script>
 
 <div
@@ -77,6 +110,7 @@
     class:isTable={objectTypeField == 'tables'}
     class:isView={objectTypeField == 'views'}
     use:moveDrag={[handleMoveStart, handleMove, handleMoveEnd]}
+    use:contextMenu={createMenu}
   >
     <div>{alias || pureName}</div>
     <div class="close" on:click={() => onRemoveTable(table)}>
@@ -94,6 +128,7 @@
         {sourceDragColumn$}
         {targetDragColumn$}
         {onCreateReference}
+        {onAddReferenceByColumn}
         bind:domLine={columnRefs[column.columnName]}
       />
     {/each}
