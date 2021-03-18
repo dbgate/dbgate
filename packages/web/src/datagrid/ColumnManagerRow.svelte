@@ -2,7 +2,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
 
   import FontIcon from '../icons/FontIcon.svelte';
-  import ColumnLabel from './ColumnLabel.svelte';
+  import ColumnLabel from '../elements/ColumnLabel.svelte';
 
   export let column;
   export let display;

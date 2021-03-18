@@ -1,10 +1,5 @@
-<script lang="ts">
-  import _ from 'lodash';
-
-  import { compact } from 'lodash';
-  import { onMount } from 'svelte';
-
-  interface TableColumn {
+<script lang="ts" context="module">
+  export interface TableControlColumn {
     fieldName: string;
     header: string;
     component?: any;
@@ -12,8 +7,15 @@
     formatter?: any;
     slot?: number;
   }
+</script>
 
-  export let columns: TableColumn[];
+<script lang="ts">
+  import _ from 'lodash';
+
+  import { compact } from 'lodash';
+  import { onMount } from 'svelte';
+
+  export let columns: TableControlColumn[];
   export let rows;
   export let focusOnCreate = false;
   export let selectable = false;
@@ -54,7 +56,8 @@
             {:else if col.formatter}
               {col.formatter(row)}
             {:else if col.slot != null}
-              {#if col.slot == 0}<slot name="0" {row} {index} />
+              {#if col.slot == -1}<slot name="-1" {row} {index} />
+              {:else if col.slot == 0}<slot name="0" {row} {index} />
               {:else if col.slot == 1}<slot name="1" {row} {index} />
               {:else if col.slot == 2}<slot name="2" {row} {index} />
               {:else if col.slot == 3}<slot name="3" {row} {index} />
@@ -64,7 +67,7 @@
               {:else if col.slot == 7}<slot name="7" {row} {index} />
               {/if}
             {:else}
-              {row[col.fieldName]}
+              {row[col.fieldName] || ''}
             {/if}
           </td>
         {/each}

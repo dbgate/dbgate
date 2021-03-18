@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-  import { getColumnIcon } from '../datagrid/ColumnLabel.svelte';
+  import { getColumnIcon } from '../elements/ColumnLabel.svelte';
 
   import AppObjectCore from './AppObjectCore.svelte';
 

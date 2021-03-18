@@ -3,7 +3,7 @@
   import DropDownButton from '../elements/DropDownButton.svelte';
   import splitterDrag from '../utility/splitterDrag';
 
-  import ColumnLabel from './ColumnLabel.svelte';
+  import ColumnLabel from '../elements/ColumnLabel.svelte';
   import { isTypeDateTime } from 'dbgate-tools';
   import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject.svelte';
 

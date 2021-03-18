@@ -1,4 +1,5 @@
 import { commands } from '../stores';
+import invalidateCommands from './invalidateCommands';
 
 export interface SubCommand {
   text: string;
@@ -38,6 +39,7 @@ export default function registerCommand(command: GlobalCommand) {
       enabled: !testEnabled,
     },
   }));
+  invalidateCommands();
   // if (enabledStore) {
   //   enabledStore.subscribe(value => {
   //     commands.update(x => ({
@@ -50,4 +52,3 @@ export default function registerCommand(command: GlobalCommand) {
   //   });
   // }
 }
-
