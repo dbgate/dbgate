@@ -135,11 +135,9 @@
             <WidgetColumnBarItem title="Messages" name="messages">
               <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
             </WidgetColumnBarItem>
-            {#if $previewReaderStore}
-              <WidgetColumnBarItem title="Preview" name="preview">
-                <PreviewDataGrid reader={$previewReaderStore} />
-              </WidgetColumnBarItem>
-            {/if}
+            <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
+              <PreviewDataGrid reader={$previewReaderStore} />
+            </WidgetColumnBarItem>
             <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
               <FormTextField label="Schedule" name="schedule" />
               <FormTextField label="Start variable index" name="startVariableIndex" />
