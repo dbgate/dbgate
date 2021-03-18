@@ -103,6 +103,7 @@
 
 <AppObjectCore
   {...$$restProps}
+  {data}
   title={data.displayName || data.server}
   icon="img server"
   isBold={_.get($currentDatabase, 'connection._id') == data._id}

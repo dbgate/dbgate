@@ -195,14 +195,79 @@
       }
     });
   };
+
+  const handleDrop = e => {
+    var data = e.dataTransfer.getData('app_object_drag_data');
+    e.preventDefault();
+    if (!data) return;
+    const rect = e.target.getBoundingClientRect();
+    var json = JSON.parse(data);
+    const { objectTypeField } = json;
+    if (objectTypeField != 'tables' && objectTypeField != 'views') return;
+    json.designerId = uuidv1();
+    json.left = e.clientX - rect.left;
+    json.top = e.clientY - rect.top;
+
+    onChange(current => {
+      const foreignKeys = _.compact([
+        ...(json.foreignKeys || []).map(fk => {
+          const tables = ((current || {}).tables || []).filter(
+            tbl => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
+          );
+          if (tables.length == 1)
+            return {
+              ...fk,
+              sourceId: json.designerId,
+              targetId: tables[0].designerId,
+            };
+          return null;
+        }),
+        ..._.flatten(
+          ((current || {}).tables || []).map(tbl =>
+            (tbl.foreignKeys || []).map(fk => {
+              if (fk.refTableName == json.pureName && fk.refSchemaName == json.schemaName) {
+                return {
+                  ...fk,
+                  sourceId: tbl.designerId,
+                  targetId: json.designerId,
+                };
+              }
+              return null;
+            })
+          )
+        ),
+      ]);
+
+      return {
+        ...current,
+        tables: [...((current || {}).tables || []), json],
+        references:
+          foreignKeys.length == 1
+            ? [
+                ...((current || {}).references || []),
+                {
+                  designerId: uuidv1(),
+                  sourceId: foreignKeys[0].sourceId,
+                  targetId: foreignKeys[0].targetId,
+                  joinType: 'INNER JOIN',
+                  columns: foreignKeys[0].columns.map(col => ({
+                    source: col.columnName,
+                    target: col.refColumnName,
+                  })),
+                },
+              ]
+            : (current || {}).references,
+      };
+    });
+  };
 </script>
 
-<div class="wrapper" bind:this={domWrapper}>
+<div class="wrapper">
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
 
-  <div class="canvas">
+  <div class="canvas" bind:this={domWrapper} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
     <!-- {#each references || [] as ref (ref.designerId)}
       <DesignerReference
         {changeToken}

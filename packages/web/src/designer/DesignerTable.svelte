@@ -1,5 +1,6 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
+  import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
 
   export let table;
@@ -27,13 +28,34 @@
   $: objectTypeField = table?.objectTypeField;
   $: left = table?.left;
   $: top = table?.top;
+
+  function handleMoveStart() {
+    movingPosition = { left, top };
+  }
+  function handleMove(x, y) {
+    movingPosition.left += x;
+    movingPosition.top += y;
+  }
+  function handleMoveEnd() {
+    onChangeTable({
+      ...table,
+      left: movingPosition.left,
+      top: movingPosition.top,
+    });
+    movingPosition = null;
+  }
 </script>
 
 <div
   class="wrapper"
   style={`left: ${movingPosition ? movingPosition.left : left}px; top:${movingPosition ? movingPosition.top : top}px`}
 >
-  <div class="header" class:isTable={objectTypeField == 'tables'} class:isView={objectTypeField == 'views'}>
+  <div
+    class="header"
+    class:isTable={objectTypeField == 'tables'}
+    class:isView={objectTypeField == 'views'}
+    use:moveDrag={[handleMoveStart, handleMove, handleMoveEnd]}
+  >
     <div>{alias || pureName}</div>
     <div class="close" on:click={() => onRemoveTable(table)}>
       <FontIcon icon="icon close" />

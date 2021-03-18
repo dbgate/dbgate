@@ -7,6 +7,7 @@
 
   export let icon;
   export let title;
+  export let data;
 
   export let isBold = false;
   export let isBusy = false;
@@ -21,7 +22,16 @@
   }
 </script>
 
-<div class="main" class:isBold draggable on:click use:contextMenu={menu}>
+<div
+  class="main"
+  class:isBold
+  draggable={true}
+  on:click
+  use:contextMenu={menu}
+  on:dragstart={e => {
+    e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
+  }}
+>
   {#if expandIcon}
     <span class="expand-icon" on:click|stopPropagation={handleExpand}>
       <FontIcon icon={expandIcon} />
