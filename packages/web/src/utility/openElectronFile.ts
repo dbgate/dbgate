@@ -4,6 +4,7 @@ import newQuery from '../query/newQuery';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { extensions } from '../stores';
+import { getUploadListener } from './uploadFiles';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -20,6 +21,7 @@ export function openElectronFileCore(filePath, extensions) {
   const path = window.require('path');
   const fs = window.require('fs');
   const parsed = path.parse(filePath);
+  const uploadListener = getUploadListener();
 
   if (nameLower.endsWith('.sql')) {
     const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
@@ -34,17 +36,25 @@ export function openElectronFileCore(filePath, extensions) {
   }
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) {
-      showModal(ImportExportModal, {
-        openedFile: {
+      if (uploadListener) {
+        uploadListener({
           filePath,
           storageType: format.storageType,
           shortName: parsed.name,
-        },
-        importToArchive: true,
-        initialValues: {
-          sourceStorageType: format.storageType,
-        },
-      });
+        });
+      } else {
+        showModal(ImportExportModal, {
+          openedFile: {
+            filePath,
+            storageType: format.storageType,
+            shortName: parsed.name,
+          },
+          importToArchive: true,
+          initialValues: {
+            sourceStorageType: format.storageType,
+          },
+        });
+      }
     }
   }
 }

@@ -12,5 +12,17 @@
 <WidgetTitle on:click={() => (visible = !visible)}>{title}</WidgetTitle>
 
 {#if visible}
-  <slot />
+  <div>
+    <slot />
+  </div>
 {/if}
+
+<style>
+  div {
+    overflow: hidden;
+    position: relative;
+    flex-direction: column;
+    display: flex;
+    min-height: 100px;
+  }
+</style>

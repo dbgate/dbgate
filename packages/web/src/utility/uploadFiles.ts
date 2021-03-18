@@ -13,6 +13,10 @@ export function setUploadListener(value) {
   uploadListener = value;
 }
 
+export function getUploadListener() {
+  return uploadListener;
+}
+
 export default function uploadFiles(files) {
   const ext = get(extensions);
   const electron = getElectron();

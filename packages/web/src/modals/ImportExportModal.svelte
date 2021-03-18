@@ -1,5 +1,6 @@
 <script lang="ts">
   import moment from 'moment';
+  import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import LargeButton from '../elements/LargeButton.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -10,6 +11,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import createImpExpScript from '../impexp/createImpExpScript';
   import ImportExportConfigurator from '../impexp/ImportExportConfigurator.svelte';
+  import PreviewDataGrid from '../impexp/PreviewDataGrid.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
@@ -27,7 +29,8 @@
   let busy = false;
   let executeNumber = 0;
   let runnerId = null;
-  let previewReader = null;
+
+  const previewReaderStore = writable(null);
 
   export let initialValues;
   export let uploadedFile = undefined;
@@ -121,7 +124,7 @@
     <div class="wrapper">
       <HorizontalSplitter initialValue="70%">
         <div class="content" slot="1">
-          <ImportExportConfigurator {uploadedFile} {openedFile} />
+          <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
         </div>
 
         <svelte:fragment slot="2">
@@ -132,9 +135,9 @@
             <WidgetColumnBarItem title="Messages" name="messages">
               <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
             </WidgetColumnBarItem>
-            {#if previewReader}
+            {#if $previewReaderStore}
               <WidgetColumnBarItem title="Preview" name="preview">
-                <!-- <PreviewDataGrid reader={previewReader} /> -->
+                <PreviewDataGrid reader={$previewReaderStore} />
               </WidgetColumnBarItem>
             {/if}
             <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>

@@ -43,30 +43,48 @@
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
   import TableControl from '../elements/TableControl.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
+  import TextField from '../forms/TextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { findFileFormat } from '../plugins/fileformats';
   import { extensions } from '../stores';
   import getAsArray from '../utility/getAsArray';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { setUploadListener } from '../utility/uploadFiles';
-  import PreviewCheckBox from './PreviewCheckBox.svelte';
+  import { createPreviewReader, getTargetName } from './createImpExpScript';
   import SourceAction from './SourceAction.svelte';
   import SourceName from './SourceName.svelte';
 
   import SourceTargetConfig from './SourceTargetConfig.svelte';
-  import TargetName from './TargetName.svelte';
 
   export let uploadedFile = undefined;
   export let openedFile = undefined;
+  export let previewReaderStore;
 
-  const { values } = getFormContext();
+  const { values, setFieldValue } = getFormContext();
 
   $: targetDbinfo = useDatabaseInfo({ conid: $values.targetConnectionId, database: $values.targetDatabaseName });
   $: sourceConnectionInfo = useConnectionInfo({ conid: $values.sourceConnectionId });
+  $: sourceEngine = $sourceConnectionInfo?.engine;
   $: sourceList = $values.sourceList;
 
   const previewSource = writable(null);
+
+  $: supportsPreview =
+    !!findFileFormat($extensions, $values.sourceStorageType) || $values.sourceStorageType == 'archive';
+
+  $: handleChangePreviewSource($previewSource);
+
+  const handleChangePreviewSource = async source => {
+    console.log('SOURCE', source);
+    if (source && supportsPreview) {
+      const reader = await createPreviewReader($extensions, $values, source);
+      if (previewReaderStore) previewReaderStore.set(reader);
+    } else {
+      if (previewReaderStore) previewReaderStore.set(null);
+    }
+  };
 
   const handleUpload = file => {
     addFilesToSourceList(
@@ -125,6 +143,7 @@
       archiveFolderField="sourceArchiveFolder"
       schemaNameField="sourceSchemaName"
       tablesField="sourceList"
+      engine={sourceEngine}
       setPreviewSource={previewSource.set}
     />
     <div class="arrow">
@@ -161,17 +180,39 @@
         {
           fieldName: 'target',
           header: 'Target',
-          component: TargetName,
-          getProps: row => ({ name: row }),
+          slot: 1,
         },
         {
           fieldName: 'preview',
           header: 'Preview',
-          component: PreviewCheckBox,
-          getProps: row => ({ name: row, previewSource }),
+          slot: 0,
         },
       ]}
-    />
+    >
+      <svelte:fragment slot="0" let:row>
+        {#if supportsPreview}
+          <CheckboxField
+            checked={$previewSource == row}
+            on:change={e => {
+              // @ts-ignore
+              if (e.target.checked) $previewSource = row;
+              else $previewSource = null;
+            }}
+          />
+        {/if}
+      </svelte:fragment>
+      <svelte:fragment slot="1" let:row>
+        <TextField
+          value={getTargetName($extensions, row, $values)}
+          on:input={e =>
+            setFieldValue(
+              `targetName_${row}`,
+              // @ts-ignore
+              e.target.value
+            )}
+        />
+      </svelte:fragment>
+    </TableControl>
   </div>
 </div>
 
