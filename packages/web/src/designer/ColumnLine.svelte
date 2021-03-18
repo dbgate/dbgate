@@ -10,13 +10,14 @@
   export let designer;
   export let designerId;
   export let onChangeColumn;
+  export let domLine;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
   );
 </script>
 
-<div>
+<div bind:this={domLine}>
   <CheckboxField
     checked={!!(designer.columns || []).find(
       x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput

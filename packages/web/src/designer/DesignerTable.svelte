@@ -1,7 +1,10 @@
 <script lang="ts">
+import { tick } from 'svelte';
+
   import FontIcon from '../icons/FontIcon.svelte';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
+  import DomTableRef from './DomTableRef';
 
   export let table;
   export let onChangeTable;
@@ -15,15 +18,20 @@
   export let setSourceDragColumn;
   export let targetDragColumn;
   export let setTargetDragColumn;
-  export let onChangeDomTable;
-  export let domWrapper;
+  // export let onChangeDomTable;
+  export let domCanvas;
+  export let domTablesRef;
   export let designer;
+  export let onMoveReferences;
 
   let movingPosition = null;
+  let domWrapper;
+
+  const columnRefs = {};
 
   $: pureName = table?.pureName;
   $: alias = table?.alias;
-  $: columns = table?.columns;
+  $: columns = table?.columns as any[];
   $: designerId = table?.designerId;
   $: objectTypeField = table?.objectTypeField;
   $: left = table?.left;
@@ -35,6 +43,7 @@
   function handleMove(x, y) {
     movingPosition.left += x;
     movingPosition.top += y;
+    tick().then(onMoveReferences);
   }
   function handleMoveEnd() {
     onChangeTable({
@@ -43,12 +52,20 @@
       top: movingPosition.top,
     });
     movingPosition = null;
+    tick().then(onMoveReferences);
+  }
+
+  export function getDomTable() {
+    const domRefs = { ...columnRefs };
+    domRefs[''] = domWrapper;
+    return new DomTableRef(table, domRefs, domCanvas);
   }
 </script>
 
 <div
   class="wrapper"
   style={`left: ${movingPosition ? movingPosition.left : left}px; top:${movingPosition ? movingPosition.top : top}px`}
+  bind:this={domWrapper}
 >
   <div
     class="header"
@@ -63,7 +80,14 @@
   </div>
   <div class="columns">
     {#each columns || [] as column}
-      <ColumnLine {column} {table} {designer} {designerId} {onChangeColumn} />
+      <ColumnLine
+        {column}
+        {table}
+        {designer}
+        {designerId}
+        {onChangeColumn}
+        bind:domLine={columnRefs[column.columnName]}
+      />
     {/each}
   </div>
 </div>

@@ -8,16 +8,22 @@
   import { getTableInfo } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
+  import createRef from '../utility/createRef';
+  import DesignerReference from './DesignerReference.svelte';
 
   export let value;
   export let onChange;
   export let conid;
   export let database;
 
-  let domWrapper;
+  let domCanvas;
 
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
+
+  const tableRefs = {};
+  const referenceRefs = {};
+  $: domTables = _.mapValues(tableRefs, (tbl: any) => tbl.getDomTable());
 
   function fixPositions(tables) {
     const minLeft = _.min(tables.map(x => x.left));
@@ -260,6 +266,12 @@
       };
     });
   };
+
+  function handleMoveReferences() {
+    for(const ref of Object.values(referenceRefs) as any[]) {
+      ref.recomputePosition();
+    }
+  }
 </script>
 
 <div class="wrapper">
@@ -267,18 +279,18 @@
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
 
-  <div class="canvas" bind:this={domWrapper} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
-    <!-- {#each references || [] as ref (ref.designerId)}
+  <div class="canvas" bind:this={domCanvas} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
+    {#each references || [] as ref (ref.designerId)}
       <DesignerReference
-        {changeToken}
-        {domTablesRef}
+        bind:this={referenceRefs[ref.designerId]}
+        {domTables}
         reference={ref}
         onChangeReference={changeReference}
         onRemoveReference={removeReference}
         designer={value}
       />
-        {/each} 
-
+    {/each}
+    <!-- 
                 {sourceDragColumn}
         {setSourceDragColumn}
         {targetDragColumn}
@@ -287,21 +299,21 @@
                 {setChangeToken}
         onChangeDomTable={table => {
           domTablesRef.current[table.designerId] = table;
-        }}
-
-  -->
+        }} -->
 
     {#each tables || [] as table (table.designerId)}
       <DesignerTable
+        bind:this={tableRefs[table.designerId]}
         onCreateReference={handleCreateReference}
         onSelectColumn={handleSelectColumn}
         onChangeColumn={handleChangeColumn}
         onAddReferenceByColumn={handleAddReferenceByColumn}
+        onMoveReferences={handleMoveReferences}
         {table}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
         onRemoveTable={removeTable}
-        {domWrapper}
+        {domCanvas}
         designer={value}
       />
     {/each}
