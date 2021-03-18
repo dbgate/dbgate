@@ -12,7 +12,7 @@ import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 // import MarkdownViewTab from './MarkdownViewTab';
 // import MarkdownPreviewTab from './MarkdownPreviewTab';
 // import FavoriteEditorTab from './FavoriteEditorTab';
-// import QueryDesignTab from './QueryDesignTab';
+import * as QueryDesignTab from './QueryDesignTab.svelte';
 
 export default {
   TableDataTab,
@@ -29,5 +29,5 @@ export default {
   //   MarkdownViewTab,
   //   MarkdownPreviewTab,
   //   FavoriteEditorTab,
-  //   QueryDesignTab,
+  QueryDesignTab,
 };

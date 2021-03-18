@@ -32,6 +32,8 @@
     --theme-bg-green: #1d3712; /* green-2 */
     --theme-bg-volcano: #441d12; /* volcano-2 */
     --theme-bg-red: #431418; /* red-2 */
+    --theme-bg-blue: #15395b; /* blue-3 */
+    --theme-bg-magenta: #551c3b; /* magenta-3 */
 
     --theme-font-inv-1: #ffffff;
     --theme-font-inv-2: #b3b3b3;
