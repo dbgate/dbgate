@@ -11,13 +11,55 @@
   export let designerId;
   export let onChangeColumn;
   export let domLine;
+  export let sourceDragColumn$;
+  export let targetDragColumn$;
+  export let onCreateReference;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
   );
 </script>
 
-<div bind:this={domLine}>
+<div
+  class="line"
+  bind:this={domLine}
+  draggable={true}
+  on:dragstart={e => {
+    const dragData = {
+      ...column,
+      designerId,
+    };
+    sourceDragColumn$.set(dragData);
+    e.dataTransfer.setData('designer_column_drag_data', JSON.stringify(dragData));
+  }}
+  on:dragend={e => {
+    sourceDragColumn$.set(null);
+    targetDragColumn$.set(null);
+  }}
+  on:dragover={e => {
+    if ($sourceDragColumn$) {
+      e.preventDefault();
+      targetDragColumn$.set({
+        ...column,
+        designerId,
+      });
+    }
+  }}
+  on:drop={e => {
+    var data = e.dataTransfer.getData('designer_column_drag_data');
+    e.preventDefault();
+    if (!data) return;
+    onCreateReference($sourceDragColumn$, $targetDragColumn$);
+    sourceDragColumn$.set(null);
+    targetDragColumn$.set(null);
+  }}
+  class:isDragSource={$sourceDragColumn$ &&
+    $sourceDragColumn$.designerId == designerId &&
+    $sourceDragColumn$.columnName == column.columnName}
+  class:isDragTarget={$targetDragColumn$ &&
+    $targetDragColumn$.designerId == designerId &&
+    $targetDragColumn$.columnName == column.columnName}
+>
   <CheckboxField
     checked={!!(designer.columns || []).find(
       x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
@@ -56,3 +98,15 @@
     <FontIcon icon="img group" />
   {/if}
 </div>
+
+<style>
+  .line:hover {
+    background: var(--theme-bg-1);
+  }
+  .line.isDragSource {
+    background: var(--theme-bg-gold);
+  }
+  .line.isDragTarget {
+    background: var(--theme-bg-gold);
+  }
+</style>

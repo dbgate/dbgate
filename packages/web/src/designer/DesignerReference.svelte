@@ -1,5 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
+  import { isConnectedByReference } from './designerTools';
+  import contextMenu from '../utility/contextMenu';
 
   export let reference;
   export let onRemoveReference;
@@ -15,8 +17,6 @@
 
   const buswi = 10;
   const extwi = 25;
-
-  // const lineStyle = { fill: 'none', stroke: 'black', strokeWidth: 2 };
 
   export function recomputePosition() {
     const { designerId, sourceId, targetId, columns, joinType } = reference;
@@ -60,6 +60,35 @@
     domTables;
     recomputePosition();
   }
+
+  function createMenu() {
+    const isConnected = isConnectedByReference(
+      designer,
+      { designerId: reference?.sourceId },
+      { designerId: reference?.targetId },
+      reference
+    );
+    const setJoinType = joinType => {
+      onChangeReference({
+        ...reference,
+        joinType,
+      });
+    };
+
+    return [
+      { text: 'Remove', onClick: () => onRemoveReference(reference) },
+      !isConnected && [
+        { divider: true },
+        { onClick: () => setJoinType('INNER JOIN'), text: 'Set INNER JOIN' },
+        { onClick: () => setJoinType('LEFT JOIN'), text: 'Set LEFT JOIN' },
+        { onClick: () => setJoinType('RIGHT JOIN'), text: 'Set RIGHT JOIN' },
+        { onClick: () => setJoinType('FULL OUTER JOIN'), text: 'Set FULL OUTER JOIN' },
+        { onClick: () => setJoinType('CROSS JOIN'), text: 'Set CROSS JOIN' },
+        { onClick: () => setJoinType('WHERE EXISTS'), text: 'Set WHERE EXISTS' },
+        { onClick: () => setJoinType('WHERE NOT EXISTS'), text: 'Set WHERE NOT EXISTS' },
+      ],
+    ];
+  }
 </script>
 
 {#if src && dst && minpos}
@@ -88,7 +117,20 @@
 `}
       />
     {/each}
-  </svg>>
+  </svg>
+
+  <div
+    use:contextMenu={createMenu}
+    class="wrapper"
+    style={`left: ${(src.x + extwi * minpos.dirsrc + dst.x + extwi * minpos.dirdst) / 2 - 16}px;
+            top: ${(src.y + dst.y) / 2 - 16}px`}
+  >
+    <div class="text">
+      {_.snakeCase(reference?.joinType || 'CROSS JOIN')
+        .replace('_', '\xa0')
+        .replace('_', '\xa0')}
+    </div>
+  </div>
 {/if}
 
 <style>
@@ -105,5 +147,26 @@
     fill: none;
     stroke: var(--theme-bg-4);
     stroke-width: 2;
+  }
+
+  .wrapper {
+    position: absolute;
+    border: 1px solid var(--theme-border);
+    background-color: var(--theme-bg-1);
+    z-index: 900;
+    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .text {
+    position: relative;
+    float: left;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 900;
+    white-space: nowrap;
+    background-color: var(--theme-bg-1);
   }
 </style>

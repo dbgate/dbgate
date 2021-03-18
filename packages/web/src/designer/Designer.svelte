@@ -10,6 +10,8 @@
   import _ from 'lodash';
   import createRef from '../utility/createRef';
   import DesignerReference from './DesignerReference.svelte';
+  import { writable } from 'svelte/store';
+  import { tick } from 'svelte';
 
   export let value;
   export let onChange;
@@ -17,6 +19,9 @@
   export let database;
 
   let domCanvas;
+
+  const sourceDragColumn$ = writable(null);
+  const targetDragColumn$ = writable(null);
 
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
@@ -40,15 +45,20 @@
     return tables;
   }
 
+  function callChange(changeFunc, skipUndoChain = undefined) {
+    onChange(changeFunc, skipUndoChain);
+    tick().then(recomputeReferencePositions);
+  }
+
   const changeTable = table => {
-    onChange(current => ({
+    callChange(current => ({
       ...current,
       tables: fixPositions((current.tables || []).map(x => (x.designerId == table.designerId ? table : x))),
     }));
   };
 
   const bringToFront = table => {
-    onChange(
+    callChange(
       current => ({
         ...current,
         tables: [...(current.tables || []).filter(x => x.designerId != table.designerId), table],
@@ -58,7 +68,7 @@
   };
 
   const removeTable = table => {
-    onChange(current => ({
+    callChange(current => ({
       ...current,
       tables: (current.tables || []).filter(x => x.designerId != table.designerId),
       references: (current.references || []).filter(
@@ -69,21 +79,21 @@
   };
 
   const changeReference = ref => {
-    onChange(current => ({
+    callChange(current => ({
       ...current,
       references: (current.references || []).map(x => (x.designerId == ref.designerId ? ref : x)),
     }));
   };
 
   const removeReference = ref => {
-    onChange(current => ({
+    callChange(current => ({
       ...current,
       references: (current.references || []).filter(x => x.designerId != ref.designerId),
     }));
   };
 
   const handleCreateReference = (source, target) => {
-    onChange(current => {
+    callChange(current => {
       const existingReference = (current.references || []).find(
         x =>
           (x.sourceId == source.designerId && x.targetId == target.designerId) ||
@@ -139,7 +149,7 @@
       schemaName: foreignKey.refSchemaName,
     });
     const newTableDesignerId = uuidv1();
-    onChange(current => {
+    callChange(current => {
       const fromTable = (current.tables || []).find(x => x.designerId == designerId);
       if (!fromTable) return;
       return {
@@ -171,7 +181,7 @@
   };
 
   const handleSelectColumn = column => {
-    onChange(
+    callChange(
       current => ({
         ...current,
         columns: (current.columns || []).find(
@@ -185,7 +195,7 @@
   };
 
   const handleChangeColumn = (column, changeFunc) => {
-    onChange(current => {
+    callChange(current => {
       const currentColumns = (current || {}).columns || [];
       const existing = currentColumns.find(x => x.designerId == column.designerId && x.columnName == column.columnName);
       if (existing) {
@@ -214,7 +224,7 @@
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
 
-    onChange(current => {
+    callChange(current => {
       const foreignKeys = _.compact([
         ...(json.foreignKeys || []).map(fk => {
           const tables = ((current || {}).tables || []).filter(
@@ -267,9 +277,9 @@
     });
   };
 
-  function handleMoveReferences() {
-    for(const ref of Object.values(referenceRefs) as any[]) {
-      ref.recomputePosition();
+  function recomputeReferencePositions() {
+    for (const ref of Object.values(referenceRefs) as any[]) {
+      if (ref) ref.recomputePosition();
     }
   }
 </script>
@@ -308,13 +318,15 @@
         onSelectColumn={handleSelectColumn}
         onChangeColumn={handleChangeColumn}
         onAddReferenceByColumn={handleAddReferenceByColumn}
-        onMoveReferences={handleMoveReferences}
+        onMoveReferences={recomputeReferencePositions}
         {table}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
         onRemoveTable={removeTable}
         {domCanvas}
         designer={value}
+        {sourceDragColumn$}
+        {targetDragColumn$}
       />
     {/each}
   </div>

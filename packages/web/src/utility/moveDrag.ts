@@ -3,6 +3,7 @@ export default function moveDrag(node, [onStart, onMove, onEnd]) {
   let startY = null;
 
   const handleMoveDown = e => {
+    if (e.button != 0) return;
     startX = e.clientX;
     startY = e.clientY;
     document.addEventListener('mousemove', handleMoveMove, true);

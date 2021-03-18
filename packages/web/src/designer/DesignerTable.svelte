@@ -1,5 +1,5 @@
 <script lang="ts">
-import { tick } from 'svelte';
+  import { tick } from 'svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
   import moveDrag from '../utility/moveDrag';
@@ -14,11 +14,16 @@ import { tick } from 'svelte';
   export let onAddReferenceByColumn;
   export let onSelectColumn;
   export let onChangeColumn;
-  export let sourceDragColumn;
-  export let setSourceDragColumn;
-  export let targetDragColumn;
-  export let setTargetDragColumn;
+
+  // export let sourceDragColumn;
+  // export let setSourceDragColumn;
+  // export let targetDragColumn;
+  // export let setTargetDragColumn;
   // export let onChangeDomTable;
+
+  export let sourceDragColumn$;
+  export let targetDragColumn$;
+
   export let domCanvas;
   export let domTablesRef;
   export let designer;
@@ -86,6 +91,9 @@ import { tick } from 'svelte';
         {designer}
         {designerId}
         {onChangeColumn}
+        {sourceDragColumn$}
+        {targetDragColumn$}
+        {onCreateReference}
         bind:domLine={columnRefs[column.columnName]}
       />
     {/each}
