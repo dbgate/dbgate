@@ -1,6 +1,6 @@
 <script lang="ts">
   import { writable } from 'svelte/store';
-  import FormFieldTemplateLarge from '../modals/FormFieldTemplateLarge.svelte';
+  import FormFieldTemplateLarge from './FormFieldTemplateLarge.svelte';
   import FormProviderCore from './FormProviderCore.svelte';
 
   export let initialValues = {};

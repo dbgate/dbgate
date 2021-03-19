@@ -4,7 +4,7 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextFieldRaw from '../forms/FormTextFieldRaw.svelte';
-  import FormFieldTemplateLarge from './FormFieldTemplateLarge.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import SetFilterModal_Select from './SetFilterModal_Select.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';

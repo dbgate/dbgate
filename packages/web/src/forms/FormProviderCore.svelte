@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-  import FormFieldTemplateLarge from '../modals/FormFieldTemplateLarge.svelte';
+  import FormFieldTemplateLarge from './FormFieldTemplateLarge.svelte';
   import createRef from '../utility/createRef';
 
   import keycodes from '../utility/keycodes';

@@ -4,7 +4,7 @@
   import { writable } from 'svelte/store';
   import FormArgumentList from '../forms/FormArgumentList.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import FormFieldTemplateRow from '../modals/FormFieldTemplateRow.svelte';
+  import FormFieldTemplateRow from '../forms/FormFieldTemplateRow.svelte';
 
   export let args = [];
   const macroValues = getContext('macroValues');

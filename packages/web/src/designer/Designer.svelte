@@ -12,11 +12,13 @@
   import DesignerReference from './DesignerReference.svelte';
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
+  import contextMenu from '../utility/contextMenu';
 
   export let value;
   export let onChange;
   export let conid;
   export let database;
+  // export let menu;
 
   let domCanvas;
 

@@ -9,7 +9,7 @@
   import ConnectionModalDriverFields from './ConnectionModalDriverFields.svelte';
   import ConnectionModalSshTunnelFields from './ConnectionModalSshTunnelFields.svelte';
   import ConnectionModalSslFields from './ConnectionModalSslFields.svelte';
-  import FormFieldTemplateLarge from './FormFieldTemplateLarge.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, closeModal } from './modalTools';
