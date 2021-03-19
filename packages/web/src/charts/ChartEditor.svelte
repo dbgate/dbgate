@@ -85,6 +85,7 @@
     }
   }
   $: {
+    $extensions;
     if (config.labelColumn && sql && conid && database) {
       handleLoadData();
     }

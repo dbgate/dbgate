@@ -49,7 +49,7 @@
   }
 
   function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType, dataColumnColors) {
-    if (!freeData || !labelColumn || !dataColumns || !freeData.rows || dataColumns.length == 0) return [{}, {}];
+    if (!freeData || !labelColumn || !dataColumns || !freeData.rows || dataColumns.length == 0) return null;
     const colors = randomcolor({
       count: _.max([freeData.rows.length, dataColumns.length, 1]),
       seed: colorSeed,
@@ -106,8 +106,8 @@
   let clientWidth;
   let clientHeight;
 
-  $: dataColumns = extractDataColumns(values);
-  $: dataColumnColors = extractDataColumnColors(values, dataColumns);
+  $: dataColumns = extractDataColumns($values);
+  $: dataColumnColors = extractDataColumnColors($values, dataColumns);
 
   $: chartData = createChartData(
     data,
@@ -120,13 +120,17 @@
 </script>
 
 <div class="wrapper" bind:clientWidth bind:clientHeight>
-  <ChartCore
-    width={clientWidth}
-    height={clientHeight}
-    data={chartData[0]}
-    type={$values.chartType}
-    options={chartData[1]}
-  />
+  {#if chartData}
+    {#key `${$values.chartType}|${clientWidth}|${clientHeight}`}
+      <ChartCore
+        width={clientWidth}
+        height={clientHeight}
+        data={chartData[0]}
+        type={$values.chartType}
+        options={chartData[1]}
+      />
+    {/key}
+  {/if}
 </div>
 
 <style>
