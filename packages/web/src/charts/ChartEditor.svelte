@@ -21,8 +21,7 @@
   import _ from 'lodash';
 
   export let data;
-  export let config;
-  export let setConfig;
+  export let configStore;
   export let conid;
   export let database;
   export let sql;
@@ -30,6 +29,8 @@
   let availableColumnNames = [];
   let error = null;
   let loadedData = null;
+
+  $: config = $configStore;
 
   const getDriver = async () => {
     const conn = await getConnectionInfo({ conid });
@@ -61,18 +62,6 @@
     };
   };
 
-  const configStore = writable(config);
-  const changingRef = createRef(false);
-  $: {
-    if (!changingRef.get()) {
-      $configStore = config;
-    }
-  }
-  // $: {
-  //   changingRef.set(true);
-  //   setConfig($configStore);
-  //   changingRef.set(false);
-  // }
   $: {
     $extensions;
     if (sql && conid && database) {

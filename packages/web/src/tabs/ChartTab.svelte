@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
+  import { derived } from 'svelte/store';
   import ChartEditor from '../charts/ChartEditor.svelte';
 
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -38,6 +39,15 @@
       type: 'compute',
       compute: v => ({ ...v, config: _.isFunction(config) ? config(v.config) : config }),
     });
+
+  const configDerivedStore = derived(modelState, ($modelState: any) =>
+    $modelState.value ? $modelState.value.config || {} : {}
+  );
+  const configStore = {
+    ...configDerivedStore,
+    update: setConfig,
+    set: setConfig,
+  };
 </script>
 
 {#if $editorState.isLoading}
@@ -47,8 +57,7 @@
 {:else}
   <ChartEditor
     data={$modelState.value && $modelState.value.data}
-    config={$modelState.value ? $modelState.value.config || {} : {}}
-    {setConfig}
+    {configStore}
     sql={$modelState.value && $modelState.value.sql}
     {conid}
     {database}
