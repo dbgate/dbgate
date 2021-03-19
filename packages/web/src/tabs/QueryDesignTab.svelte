@@ -42,6 +42,9 @@
   import createReducer from '../utility/createReducer';
   import createUndoReducer from '../utility/createUndoReducer';
   import _ from 'lodash';
+  import { findEngineDriver } from 'dbgate-tools';
+  import { generateDesignedQuery } from '../designer/designerTools';
+  import QueryDesignColumns from '../elements/QueryDesignColumns.svelte';
 
   export let tabid;
   export let conid;
@@ -60,6 +63,7 @@
   let domEditor;
 
   $: connection = useConnectionInfo({ conid });
+  $: engine = findEngineDriver($connection, $extensions);
 
   $: effect = useEffect(() => {
     return onSession(sessionId);
@@ -84,6 +88,10 @@
     sessionId;
     invalidateCommands();
   }
+
+  $: setEditorData($modelState.value);
+
+  $: generatePreview($modelState.value, engine);
 
   export function canKill() {
     return !!sessionId;
@@ -132,6 +140,12 @@
     return $editorState.value || '';
   }
 
+  const generatePreview = (value, engine) => {
+    if (!engine || !value) return;
+    const sql = generateDesignedQuery(value, engine);
+    sqlPreview = sqlFormatter.format(sql);
+  };
+
   const handleSessionDone = () => {
     busy = false;
     // timerLabel.stop();
@@ -152,8 +166,6 @@
     },
   });
 
-  $: setEditorData($modelState.value);
-
   const [modelState, dispatchModel] = createUndoReducer({
     tables: [],
     references: [],
@@ -169,21 +181,50 @@
   //   )}
 </script>
 
-<QueryDesigner
-  value={$modelState.value || {}}
-  {conid}
-  {database}
-  engine={$connection && $connection.engine}
-  onChange={handleChange}
-/>
-<!-- 
 <VerticalSplitter initialValue="70%">
-  <ResultTabs {sessionId} {executeNumber}>
-    <TabPage label="Columns" key="columns">
-      <QueryDesignColumns value={modelState.value || {}} onChange={handleChange} />
-    </TabPage>
-    <TabPage label="SQL" key="sql">
-      <SqlEditor value={sqlPreview} {engine} readOnly />
-    </TabPage>
-  </ResultTabs>
-</VerticalSplitter> -->
+  <svelte:fragment slot="1">
+    <QueryDesigner
+      value={$modelState.value || {}}
+      {conid}
+      {database}
+      engine={$connection && $connection.engine}
+      onChange={handleChange}
+    />
+  </svelte:fragment>
+
+  <svelte:fragment slot="2">
+    <ResultTabs
+      tabs={[
+        {
+          label: 'Columns',
+          component: QueryDesignColumns,
+          props: {
+            value: $modelState.value || {},
+            onChange: handleChange,
+          },
+        },
+        {
+          label: 'SQL',
+          component: SqlEditor,
+          props: {
+            engine: $connection && $connection.engine,
+            readOnly: true,
+            value: sqlPreview,
+          },
+        },
+        visibleResultTabs && { label: 'Messages', slot: 0 },
+      ]}
+      {sessionId}
+      {executeNumber}
+    >
+      <svelte:fragment slot="0">
+        <SocketMessageView
+          eventName={sessionId ? `session-info-${sessionId}` : null}
+          {executeNumber}
+          showProcedure
+          showLine
+        />
+      </svelte:fragment>
+    </ResultTabs>
+  </svelte:fragment>
+</VerticalSplitter>

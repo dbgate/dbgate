@@ -16,6 +16,7 @@
   export let targetDragColumn$;
   export let onCreateReference;
   export let onAddReferenceByColumn;
+  export let onSelectColumn;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
@@ -84,13 +85,18 @@
   class:isDragTarget={$targetDragColumn$ &&
     $targetDragColumn$.designerId == designerId &&
     $targetDragColumn$.columnName == column.columnName}
+  on:mousedown={e =>
+    onSelectColumn({
+      ...column,
+      designerId,
+    })}
   use:contextMenu={createMenu}
 >
   <CheckboxField
     checked={!!(designer.columns || []).find(
       x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
     )}
-    onChange={e => {
+    on:change={e => {
       if (e.target.checked) {
         onChangeColumn(
           {

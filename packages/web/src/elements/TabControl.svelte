@@ -1,4 +1,6 @@
 <script lang="ts">
+  import _ from 'lodash';
+
   interface TabDef {
     label: string;
     slot?: number;
@@ -20,7 +22,7 @@
 
 <div class="main">
   <div class="tabs">
-    {#each tabs as tab, index}
+    {#each _.compact(tabs) as tab, index}
       <div class="tab-item" class:selected={value == index} on:click={() => (value = index)}>
         <span class="ml-2">
           {tab.label}
@@ -30,7 +32,7 @@
   </div>
 
   <div class="content-container">
-    {#each tabs as tab, index}
+    {#each _.compact(tabs) as tab, index}
       <div class="container" class:isInline class:tabVisible={index == value}>
         <svelte:component this={tab.component} {...tab.props} />
         {#if tab.slot != null}

@@ -28,7 +28,7 @@
   export let targetDragColumn$;
 
   export let domCanvas;
-  export let domTablesRef;
+  // export let domTablesRef;
   export let designer;
   export let onMoveReferences;
 
@@ -104,6 +104,7 @@
   class="wrapper"
   style={`left: ${movingPosition ? movingPosition.left : left}px; top:${movingPosition ? movingPosition.top : top}px`}
   bind:this={domWrapper}
+  on:mousedown={() => onBringToFront(table)}
 >
   <div
     class="header"
@@ -125,6 +126,7 @@
         {designer}
         {designerId}
         {onChangeColumn}
+        {onSelectColumn}
         {sourceDragColumn$}
         {targetDragColumn$}
         {onCreateReference}
