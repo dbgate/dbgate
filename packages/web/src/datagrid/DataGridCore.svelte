@@ -486,7 +486,12 @@
     if (domFocusField) domFocusField.focus();
     const cell = cellFromEvent(event);
 
-    if (event.button == 2 && cell && cellIsSelected(cell[0], cell[1], selectedCells)) return;
+    if (event.button == 2) {
+      if (cell && !cellIsSelected(cell[0], cell[1], selectedCells)) {
+        selectedCells = [cell];
+      }
+      return;
+    }
 
     const autofill = event.target.closest('div.autofillHandleMarker');
     if (autofill) {

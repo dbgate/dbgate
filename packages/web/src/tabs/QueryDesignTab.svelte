@@ -93,6 +93,8 @@
 
   $: generatePreview($modelState.value, engine);
 
+  $: if ($tabVisible) lastFocusedEditor = instance;
+
   export function canKill() {
     return !!sessionId;
   }

@@ -131,7 +131,7 @@
   const handleKeyDown = ev => {
     if (isReadOnly) return;
     if (ev.keyCode == keycodes.enter) {
-      setFilter(value);
+      applyFilter();
     }
     if (ev.keyCode == keycodes.escape) {
       setFilter('');
@@ -145,6 +145,22 @@
     //     if (this.props.onControlKey) this.props.onControlKey(ev.keyCode);
     // }
   };
+
+  function handlePaste(event) {
+    var pastedText = undefined;
+    // @ts-ignore
+    if (window.clipboardData && window.clipboardData.getData) {
+      // IE
+      // @ts-ignore
+      pastedText = window.clipboardData.getData('Text');
+    } else if (event.clipboardData && event.clipboardData.getData) {
+      pastedText = event.clipboardData.getData('text/plain');
+    }
+    if (pastedText && pastedText.includes('\n')) {
+      event.preventDefault();
+      setFilter(createMultiLineFilter('is', pastedText));
+    }
+  }
 
   $: value = filter;
 
@@ -161,11 +177,25 @@
     }
   }
 
+  function applyFilter() {
+    setFilter(value);
+  }
+
   // $: if (value != filter) setFilter(value);
 </script>
 
 <div class="flex">
-  <input type="text" readOnly={isReadOnly} bind:value on:keydown={handleKeyDown} class:isError class:isOk />
+  <input
+    type="text"
+    autocomplete="off"
+    readOnly={isReadOnly}
+    bind:value
+    on:keydown={handleKeyDown}
+    on:blur={applyFilter}
+    on:paste={handlePaste}
+    class:isError
+    class:isOk
+  />
   <DropDownButton icon="icon filter" menu={createMenu} />
   {#if showResizeSplitter}
     <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />

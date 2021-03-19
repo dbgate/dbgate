@@ -32,6 +32,8 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import ImportExportModal from '../modals/ImportExportModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
   import socket from '../utility/socket';
@@ -69,12 +71,28 @@
   $: $effect;
 
   $: grider = new RowsArrayGrider(loadedRows);
+
+  function exportGrid() {
+    const initialValues = {} as any;
+    const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
+    if (archiveMatch) {
+      initialValues.sourceStorageType = 'archive';
+      initialValues.sourceArchiveFolder = archiveMatch[1];
+      initialValues.sourceList = [archiveMatch[2]];
+    } else {
+      initialValues.sourceStorageType = 'jsldata';
+      initialValues.sourceJslId = jslid;
+      initialValues.sourceList = ['query-data'];
+    }
+    showModal(ImportExportModal, { initialValues });
+  }
 </script>
 
 <LoadingDataGridCore
   bind:this={domGrid}
   {...$$props}
   bind:loadedRows
+  onExportGrid={exportGrid}
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
