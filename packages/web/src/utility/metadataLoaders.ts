@@ -383,7 +383,7 @@ export function useAllFiles(args) {
 export function getFavorites(args) {
   return getCore(favoritesLoader, args);
 }
-export function useFavorites(args) {
+export function useFavorites(args = {}) {
   return useCore(favoritesLoader, args);
 }
 

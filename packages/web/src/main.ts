@@ -6,7 +6,6 @@ import localStorageGarbageCollector from './utility/localStorageGarbageCollector
 
 localStorageGarbageCollector();
 
-
 const app = new App({
   target: document.body,
   props: {},
