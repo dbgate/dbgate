@@ -20,7 +20,7 @@
 {#each plugins as packageManifest (packageManifest.name)}
   <div class="wrapper" on:click={() => openPlugin(packageManifest)}>
     <img class="icon" src={extractPluginIcon(packageManifest)} />
-    <div class="ml-1">
+    <div class="ml-2">
       <div class="flex">
         <div class="bold">{packageManifest.name}</div>
         <div class="ml-1">{packageManifest.version}</div>

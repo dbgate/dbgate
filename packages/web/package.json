@@ -42,6 +42,7 @@
     "@mdi/font": "^5.9.55",
     "file-selector": "^0.2.4",
     "sirv-cli": "^1.0.0",
+    "svelte-markdown": "^0.1.4",
     "svelte-select": "^3.17.0"
   }
 }

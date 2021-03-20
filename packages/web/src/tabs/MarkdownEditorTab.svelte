@@ -30,26 +30,17 @@
 <script lang="ts">
   import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
-  import { get, derived, writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
-  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import AceEditor from '../query/AceEditor.svelte';
-  import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, getActiveTabId, nullStore } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
-  import memberStore from '../utility/memberStore';
-  import socket from '../utility/socket';
-  import useEffect from '../utility/useEffect';
-import invalidateCommands from '../commands/invalidateCommands';
+  import { getActiveTabId } from '../stores';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
-
-  let runnerId;
 
   const instance = get_current_component();
 
