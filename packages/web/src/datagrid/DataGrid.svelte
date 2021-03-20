@@ -7,11 +7,15 @@
 
   export let config;
   export let gridCoreComponent;
+  export let formViewComponent;
+  export let formDisplay;
 
   export let isDetailView = false;
   export let showReferences = false;
 
   let managerSize;
+
+  $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
 </script>
 
 <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
@@ -33,7 +37,15 @@
     </WidgetColumnBar>
   </div>
   <svelte:fragment slot="2">
-    <svelte:component this={gridCoreComponent} {...$$props} />
+    {#if isFormView}
+      <svelte:component this={formViewComponent} {...$$props} />
+    {:else}
+      <svelte:component
+        this={gridCoreComponent}
+        {...$$props}
+        formViewAvailable={!!formViewComponent && !!formDisplay}
+      />
+    {/if}
   </svelte:fragment>
 </HorizontalSplitter>
 

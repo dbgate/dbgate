@@ -23,6 +23,7 @@
   export let rowIndex;
   export let col;
   export let rowData;
+  export let colIndex = undefined;
   export let hintFieldsAllowed = undefined;
 
   export let isSelected = false;
@@ -39,7 +40,7 @@
 
 <td
   data-row={rowIndex}
-  data-col={col.colIndex}
+  data-col={colIndex == null ? col.colIndex : colIndex}
   class:isSelected
   class:isFrameSelected
   class:isModifiedRow

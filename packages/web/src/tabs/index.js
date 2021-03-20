@@ -9,7 +9,7 @@ import * as PluginTab from './PluginTab.svelte';
 import * as ChartTab from './ChartTab.svelte';
 import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 import * as MarkdownViewTab from './MarkdownViewTab.svelte';
-// import MarkdownPreviewTab from './MarkdownPreviewTab';
+import * as MarkdownPreviewTab from './MarkdownPreviewTab.svelte';
 import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
 import * as QueryDesignTab from './QueryDesignTab.svelte';
 
@@ -25,7 +25,7 @@ export default {
   ChartTab,
   MarkdownEditorTab,
   MarkdownViewTab,
-  //   MarkdownPreviewTab,
+  MarkdownPreviewTab,
   FavoriteEditorTab,
   QueryDesignTab,
 };

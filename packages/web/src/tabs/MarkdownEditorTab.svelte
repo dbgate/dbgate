@@ -35,8 +35,10 @@
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { getActiveTabId } from '../stores';
+  import { getActiveTabId, openedTabs } from '../stores';
   import invalidateCommands from '../commands/invalidateCommands';
+  import openNewTab from '../utility/openNewTab';
+  import { setSelectedTab } from '../utility/common';
 
   export let tabid;
 
@@ -70,7 +72,25 @@
     return tabid;
   }
 
-  const { editorState, editorValue, setEditorData } = useEditorData({ tabid });
+  export async function preview() {
+    await saveToStorage();
+    const existing = ($openedTabs || []).find(x => x.props && x.props.sourceTabId == tabid && x.closedTime == null);
+    if (existing) {
+      setSelectedTab(existing.tabid);
+    } else {
+      const thisTab = ($openedTabs || []).find(x => x.tabid == tabid);
+      openNewTab({
+        title: thisTab.title,
+        icon: 'img preview',
+        tabComponent: 'MarkdownPreviewTab',
+        props: {
+          sourceTabId: tabid,
+        },
+      });
+    }
+  }
+
+  const { editorState, editorValue, setEditorData, saveToStorage } = useEditorData({ tabid });
 
   function createMenu() {
     return [

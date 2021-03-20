@@ -118,6 +118,15 @@
     onClick: () => getCurrentDataGrid().exportGrid(),
   });
 
+  registerCommand({
+    id: 'dataGrid.switchToForm',
+    category: 'Data grid',
+    name: 'Switch to form',
+    keyText: 'F4',
+    testEnabled: () => getCurrentDataGrid()?.formViewEnabled(),
+    onClick: () => getCurrentDataGrid().switchToForm(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -193,6 +202,7 @@
   export let onSave;
   export let focusOnVisible = false;
   export let onExportGrid = null;
+  export let formViewAvailable = false;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -327,6 +337,16 @@
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
       onLoadNextData();
     }
+  }
+
+  export function formViewEnabled() {
+    return formViewAvailable && display.baseTable && display.baseTable.primaryKey;
+  }
+
+  export function switchToForm() {
+    const cell = currentCell;
+    const rowData = isRegularCell(cell) ? grider.getRowData(cell[0]) : null;
+    display.switchToFormView(rowData);
   }
 
   // export function getGeneralAllowSave() {
@@ -869,6 +889,7 @@
       { command: 'dataGrid.refresh' },
       { command: 'dataGrid.copyToClipboard' },
       { command: 'dataGrid.export' },
+      { command: 'dataGrid.switchToForm' },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },

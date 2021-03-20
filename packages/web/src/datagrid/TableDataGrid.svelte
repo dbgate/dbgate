@@ -13,6 +13,7 @@
   import DataGrid from './DataGrid.svelte';
   import ReferenceHeader from './ReferenceHeader.svelte';
   import SqlDataGridCore from './SqlDataGridCore.svelte';
+  import SqlFormView from '../formview/SqlFormView.svelte';
 
   export let conid;
   export let database;
@@ -44,16 +45,19 @@
         setCache,
         $dbinfo
       )
-    : // ? new TableFormViewDisplay(
-      //     { schemaName, pureName },
-      //     findEngineDriver(connection, $extensions),
-      //     $config,
-      //     config.update,
-      //     $cache,
-      //     cache.update,
-      //     $dbinfo
-      //   )
-      null;
+    : null;
+
+  $: formDisplay = connection
+    ? new TableFormViewDisplay(
+        { schemaName, pureName },
+        findEngineDriver($connection, $extensions),
+        config,
+        setConfig,
+        cache,
+        setCache,
+        $dbinfo
+      )
+    : null;
 
   const setChildConfig = (value, reference = undefined) => {
     if (_.isFunction(value)) {
@@ -111,7 +115,9 @@
     <DataGrid
       {...$$props}
       gridCoreComponent={SqlDataGridCore}
+      formViewComponent={SqlFormView}
       {display}
+      {formDisplay}
       showReferences
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
       onReferenceClick={value => {
