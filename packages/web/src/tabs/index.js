@@ -3,7 +3,6 @@ import * as ViewDataTab from './ViewDataTab.svelte';
 import * as TableStructureTab from './TableStructureTab.svelte';
 import * as QueryTab from './QueryTab.svelte';
 import * as ShellTab from './ShellTab.svelte';
-// import InfoPageTab from './InfoPageTab';
 import * as ArchiveFileTab from './ArchiveFileTab.svelte';
 import * as FreeTableTab from './FreeTableTab.svelte';
 // import PluginTab from './PluginTab';
@@ -19,7 +18,6 @@ export default {
   ViewDataTab,
   TableStructureTab,
   QueryTab,
-  //   InfoPageTab,
   ShellTab,
   ArchiveFileTab,
   FreeTableTab,
