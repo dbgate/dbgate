@@ -4,6 +4,7 @@
   import DatabaseWidget from './DatabaseWidget.svelte';
   import FilesWidget from './FilesWidget.svelte';
   import PluginsWidget from './PluginsWidget.svelte';
+  import FavoritesWidget from './FavoritesWidget.svelte';
 </script>
 
 {#if $selectedWidget == 'database'}
@@ -17,4 +18,7 @@
 {/if}
 {#if $selectedWidget == 'plugins'}
   <PluginsWidget />
+{/if}
+{#if $selectedWidget == 'favorites'}
+  <FavoritesWidget />
 {/if}
