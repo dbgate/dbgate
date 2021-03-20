@@ -77,11 +77,25 @@
   $: folder = data?.folder;
   $: handler = HANDLERS[folder] as FileTypeHandler;
 
+  const showMarkdownPage = () => {
+    openNewTab({
+      title: data.file,
+      icon: 'img markdown',
+      tabComponent: 'MarkdownViewTab',
+      props: {
+        savedFile: data.file,
+        savedFolder: 'markdown',
+        savedFormat: 'text',
+      },
+    });
+  };
+
   function createMenu() {
     return [
       { text: 'Open', onClick: openTab },
       hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
       hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
+      folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
     ];
   }
 
