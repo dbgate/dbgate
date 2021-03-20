@@ -190,30 +190,33 @@ export function registerFileCommands({
   folder,
   format,
   fileExtension,
+  save = true,
   execute = false,
   toggleComment = false,
   findReplace = false,
   undoRedo = false,
 }) {
-  registerCommand({
-    id: idPrefix + '.save',
-    group: 'save',
-    category,
-    name: 'Save',
-    // keyText: 'Ctrl+S',
-    icon: 'icon save',
-    toolbar: true,
-    testEnabled: () => getCurrentEditor() != null,
-    onClick: () => saveTabFile(getCurrentEditor(), false, folder, format, fileExtension),
-  });
-  registerCommand({
-    id: idPrefix + '.saveAs',
-    group: 'saveAs',
-    category,
-    name: 'Save As',
-    testEnabled: () => getCurrentEditor() != null,
-    onClick: () => saveTabFile(getCurrentEditor(), true, folder, format, fileExtension),
-  });
+  if (save) {
+    registerCommand({
+      id: idPrefix + '.save',
+      group: 'save',
+      category,
+      name: 'Save',
+      // keyText: 'Ctrl+S',
+      icon: 'icon save',
+      toolbar: true,
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => saveTabFile(getCurrentEditor(), false, folder, format, fileExtension),
+    });
+    registerCommand({
+      id: idPrefix + '.saveAs',
+      group: 'saveAs',
+      category,
+      name: 'Save As',
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => saveTabFile(getCurrentEditor(), true, folder, format, fileExtension),
+    });
+  }
 
   if (execute) {
     registerCommand({

@@ -10,7 +10,7 @@ import * as ChartTab from './ChartTab.svelte';
 import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
 // import MarkdownViewTab from './MarkdownViewTab';
 // import MarkdownPreviewTab from './MarkdownPreviewTab';
-// import FavoriteEditorTab from './FavoriteEditorTab';
+import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
 import * as QueryDesignTab from './QueryDesignTab.svelte';
 
 export default {
@@ -26,6 +26,6 @@ export default {
   MarkdownEditorTab,
   //   MarkdownViewTab,
   //   MarkdownPreviewTab,
-  //   FavoriteEditorTab,
+  FavoriteEditorTab,
   QueryDesignTab,
 };
