@@ -142,6 +142,24 @@ registerCommand({
   group: 'saveAs',
 });
 
+registerCommand({
+  id: 'group.undo',
+  category: null,
+  isGroupCommand: true,
+  name: 'Undo',
+  keyText: 'Ctrl+Z',
+  group: 'undo',
+});
+
+registerCommand({
+  id: 'group.redo',
+  category: null,
+  isGroupCommand: true,
+  name: 'Redo',
+  keyText: 'Ctrl+Y',
+  group: 'redo',
+});
+
 if (electron) {
   registerCommand({
     id: 'file.open',
@@ -175,6 +193,7 @@ export function registerFileCommands({
   execute = false,
   toggleComment = false,
   findReplace = false,
+  undoRedo = false,
 }) {
   registerCommand({
     id: idPrefix + '.save',
@@ -246,6 +265,24 @@ export function registerFileCommands({
       name: 'Replace',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().replace(),
+    });
+  }
+  if (undoRedo) {
+    registerCommand({
+      id: idPrefix + '.undo',
+      category,
+      name: 'Undo',
+      group: 'undo',
+      testEnabled: () => getCurrentEditor()?.canUndo(),
+      onClick: () => getCurrentEditor().undo(),
+    });
+    registerCommand({
+      id: idPrefix + '.redo',
+      category,
+      group: 'redo',
+      name: 'Replace',
+      testEnabled: () => getCurrentEditor()?.canRedo(),
+      onClick: () => getCurrentEditor().redo(),
     });
   }
 }

@@ -12,6 +12,7 @@
     fileExtension: 'qdesign',
 
     execute: true,
+    undoRedo: true,
   });
 </script>
 
@@ -86,6 +87,7 @@
   $: {
     busy;
     sessionId;
+    $editorState;
     invalidateCommands();
   }
 
@@ -142,6 +144,22 @@
     return $editorState.value || '';
   }
 
+  export function canUndo() {
+    return $modelState.canUndo;
+  }
+
+  export function undo() {
+    dispatchModel({ type: 'undo' });
+  }
+
+  export function canRedo() {
+    return $modelState.canRedo;
+  }
+
+  export function redo() {
+    dispatchModel({ type: 'redo' });
+  }
+
   const generatePreview = (value, engine) => {
     if (!engine || !value) return;
     const sql = generateDesignedQuery(value, engine);
@@ -181,6 +199,18 @@
   //       />
   //     </TabPage>
   //   )}
+  function createMenu() {
+    return [
+      { command: 'designer.execute' },
+      { command: 'designer.kill' },
+      { divider: true },
+      { command: 'designer.save' },
+      { command: 'designer.saveAs' },
+      { divider: true },
+      { command: 'designer.undo' },
+      { command: 'designer.redo' },
+    ];
+  }
 </script>
 
 <VerticalSplitter initialValue="70%">
@@ -191,6 +221,7 @@
       {database}
       engine={$connection && $connection.engine}
       onChange={handleChange}
+      menu={createMenu}
     />
   </svelte:fragment>
 

@@ -58,6 +58,7 @@
   const dispatch = createEventDispatcher();
 
   function handleClick(item) {
+    if (item.disabled) return;
     dispatch('close');
     if (item.onClick) item.onClick();
   }

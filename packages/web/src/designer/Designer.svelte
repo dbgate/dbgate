@@ -18,7 +18,7 @@
   export let onChange;
   export let conid;
   export let database;
-  // export let menu;
+   export let menu;
 
   let domCanvas;
 
@@ -286,7 +286,7 @@
   }
 </script>
 
-<div class="wrapper">
+<div class="wrapper" use:contextMenu={menu}>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
