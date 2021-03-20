@@ -87,7 +87,7 @@
   $: {
     busy;
     sessionId;
-    $editorState;
+    $modelState;
     invalidateCommands();
   }
 

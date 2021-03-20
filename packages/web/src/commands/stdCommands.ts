@@ -280,7 +280,7 @@ export function registerFileCommands({
       id: idPrefix + '.redo',
       category,
       group: 'redo',
-      name: 'Replace',
+      name: 'Redo',
       testEnabled: () => getCurrentEditor()?.canRedo(),
       onClick: () => getCurrentEditor().redo(),
     });

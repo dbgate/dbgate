@@ -100,6 +100,7 @@
   import { extractDataColumnColors, extractDataColumns } from './chartDataLoader';
 
   export let data;
+  export let menu;
 
   const { values } = getFormContext();
 
@@ -128,6 +129,7 @@
         data={chartData[0]}
         type={$values.chartType}
         options={chartData[1]}
+        {menu}
       />
     {/key}
   {/if}

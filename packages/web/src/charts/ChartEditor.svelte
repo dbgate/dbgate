@@ -25,6 +25,7 @@
   export let conid;
   export let database;
   export let sql;
+  export let menu;
 
   let availableColumnNames = [];
   let error = null;
@@ -145,7 +146,7 @@
     </div>
 
     <svelte:fragment slot="2">
-      <DataChart data={data || loadedData} />
+      <DataChart data={data || loadedData} {menu} />
     </svelte:fragment>
   </HorizontalSplitter>
 </FormProviderCore>
