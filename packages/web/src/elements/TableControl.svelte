@@ -14,6 +14,7 @@
 
   import { compact } from 'lodash';
   import { onMount } from 'svelte';
+  import keycodes from '../utility/keycodes';
 
   export let columns: TableControlColumn[];
   export let rows;
@@ -21,16 +22,31 @@
   export let selectable = false;
   export let selectedIndex = 0;
 
-  $: columnList = _.compact(_.flatten(columns));
+  export let domTable;
 
-  let domTable;
+  $: columnList = _.compact(_.flatten(columns));
 
   onMount(() => {
     if (focusOnCreate) domTable.focus();
   });
+
+  const handleKeyDown = event => {
+    if (event.keyCode == keycodes.downArrow) {
+      selectedIndex = Math.min(selectedIndex + 1, rows.length - 1);
+    }
+    if (event.keyCode == keycodes.upArrow) {
+      selectedIndex = Math.max(0, selectedIndex - 1);
+    }
+  };
 </script>
 
-<table bind:this={domTable} class:selectable>
+<table
+  bind:this={domTable}
+  class:selectable
+  on:keydown
+  tabindex={selectable ? -1 : undefined}
+  on:keydown={handleKeyDown}
+>
   <thead>
     <tr>
       {#each columnList as col}

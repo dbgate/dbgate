@@ -10,6 +10,14 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().formatCode(),
   });
+  registerCommand({
+    id: 'query.insertSqlJoin',
+    category: 'Query',
+    name: 'Insert SQL Join',
+    keyText: 'Ctrl+J',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().insertSqlJoin(),
+  });
   registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
@@ -25,7 +33,7 @@
 </script>
 
 <script lang="ts">
-  import { get_current_component } from 'svelte/internal';
+  import { get_current_component, insert } from 'svelte/internal';
   import { getContext } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
@@ -39,7 +47,7 @@
   import applySqlTemplate from '../utility/applySqlTemplate';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
-  import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import memberStore from '../utility/memberStore';
@@ -47,6 +55,8 @@
   import ResultTabs from '../query/ResultTabs.svelte';
   import { registerFileCommands } from '../commands/stdCommands';
   import invalidateCommands from '../commands/invalidateCommands';
+  import { showModal } from '../modals/modalTools';
+  import InsertJoinModal from '../modals/InsertJoinModal.svelte';
 
   export let tabid;
   export let conid;
@@ -163,6 +173,19 @@
     editor.clearSelection();
   }
 
+  export async function insertSqlJoin() {
+    const dbinfo = await getDatabaseInfo({ conid, database });
+    showModal(InsertJoinModal, {
+      sql: getData(),
+      engine: $connection && $connection.engine,
+      dbinfo,
+      onInsert: text => {
+        const editor = domEditor.getEditor();
+        editor.session.insert(editor.getCursorPosition(), text);
+      },
+    });
+  }
+
   const handleMesageClick = message => {
     // console.log('EDITOR', editorRef.current.editor);
     if (domEditor.getEditor()) {
@@ -190,6 +213,7 @@
       { divider: true },
       { command: 'query.toggleComment' },
       { command: 'query.formatCode' },
+      { command: 'query.insertSqlJoin' },
       { divider: true },
       { command: 'query.save' },
       { command: 'query.saveAs' },

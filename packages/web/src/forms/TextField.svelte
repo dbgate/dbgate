@@ -3,10 +3,9 @@
 
   export let value;
   export let focused;
-
-  let domEditor;
+  export let domEditor;
 
   if (focused) onMount(() => domEditor.focus());
 </script>
 
-<input type="text" {...$$restProps} bind:value on:change on:input bind:this={domEditor} />
+<input type="text" {...$$restProps} bind:value on:change on:input bind:this={domEditor} on:keydown />
