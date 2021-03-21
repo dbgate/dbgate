@@ -40,7 +40,6 @@
   let errorMessage = null;
 
   const handleLoadCurrentRow = async () => {
-    console.log('LOAD ROW');
     if (isLoadingData) return;
     let newLoadedRow = false;
     if (formDisplay.config.formViewKeyRequested || formDisplay.config.formViewKey) {

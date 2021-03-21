@@ -36,6 +36,7 @@
   import { getActiveTabId } from '../stores';
   import contextMenu from '../utility/contextMenu';
   import createReducer from '../utility/createReducer';
+  import resizeObserver from '../utility/resizeObserver';
 
   export let config;
   export let setConfig;
@@ -159,6 +160,8 @@
   function createMenu() {
     return [{ command: 'dataForm.switchToTable' }];
   }
+
+  $: console.log('rowHeight', rowHeight);
 </script>
 
 <div class="outer">
@@ -167,27 +170,20 @@
       <table on:mousedown={handleTableMouseDown}>
         {#each chunk as col, rowIndex}
           <tr>
-            {#if chunkIndex == 0 && rowIndex == 0}
-              <td
-                class="header-cell"
-                data-row={rowIndex}
-                data-col={chunkIndex * 2}
-                bind:clientHeight={rowHeight}
-                style={`height: ${rowHeight}px`}
-                bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
-                class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
-              >
-                <ColumnLabel {...col} headerText={col.columnName} />
-              </td>
-            {:else}
-              <td
-                class="header-cell"
-                data-row={rowIndex}
-                data-col={chunkIndex * 2}
-                style={`height: ${rowHeight}px`}
-                class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
-                bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
-              >
+            <td
+              class="header-cell"
+              data-row={rowIndex}
+              data-col={chunkIndex * 2}
+              style={`height: ${rowHeight}px`}
+              class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+              bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
+              use:resizeObserver={chunkIndex == 0 && rowIndex == 0}
+              on:resize={e => {
+                // @ts-ignore
+                if (rowHeight == 1) rowHeight = e.detail.height;
+              }}
+            >
+              <div class="header-cell-inner">
                 {#if col.foreignKey}
                   <FontIcon
                     icon={plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))}
@@ -201,8 +197,8 @@
                 {/if}
                 <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
                 <ColumnLabel {...col} headerText={col.columnName} />
-              </td>
-            {/if}
+              </div>
+            </td>
             <DataGridCell
               {rowIndex}
               {col}
@@ -287,6 +283,10 @@
   }
   .header-cell.isSelected {
     background: var(--theme-bg-selected);
+  }
+
+  .header-cell-inner {
+    display: flex;
   }
 
   .focus-field {
