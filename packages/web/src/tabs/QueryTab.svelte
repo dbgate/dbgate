@@ -204,6 +204,8 @@
   <svelte:fragment slot="1">
     <SqlEditor
       engine={$connection && $connection.engine}
+      {conid}
+      {database}
       value={$editorState.value || ''}
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
