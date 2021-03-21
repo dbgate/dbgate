@@ -26,6 +26,80 @@
     onClick: () => getCurrentDataForm().save(),
   });
 
+  registerCommand({
+    id: 'dataForm.copyToClipboard',
+    category: 'Data grid',
+    name: 'Copy to clipboard',
+    keyText: 'Ctrl+C',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().copyToClipboard(),
+  });
+
+  registerCommand({
+    id: 'dataForm.revertRowChanges',
+    category: 'Data form',
+    name: 'Revert row changes',
+    keyText: 'Ctrl+R',
+    testEnabled: () => getCurrentDataForm()?.getFormer()?.containsChanges,
+    onClick: () => getCurrentDataForm().getFormer().revertRowChanges(),
+  });
+
+  registerCommand({
+    id: 'dataForm.setNull',
+    category: 'Data form',
+    name: 'Set NULL',
+    keyText: 'Ctrl+0',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().setNull(),
+  });
+
+  registerCommand({
+    id: 'dataForm.undo',
+    category: 'Data form',
+    name: 'Undo',
+    group: 'undo',
+    icon: 'icon undo',
+    toolbar: true,
+    testEnabled: () => getCurrentDataForm()?.getFormer()?.canUndo,
+    onClick: () => getCurrentDataForm().getFormer().undo(),
+  });
+
+  registerCommand({
+    id: 'dataForm.redo',
+    category: 'Data form',
+    name: 'Redo',
+    group: 'redo',
+    icon: 'icon redo',
+    toolbar: true,
+    testEnabled: () => getCurrentDataForm()?.getFormer()?.canRedo,
+    onClick: () => getCurrentDataForm().getFormer().redo(),
+  });
+
+  registerCommand({
+    id: 'dataGdataFormrid.reconnect',
+    category: 'Data grid',
+    name: 'Reconnect',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().reconnect(),
+  });
+
+  registerCommand({
+    id: 'dataForm.filterSelected',
+    category: 'Data form',
+    name: 'Filter this value',
+    keyText: 'Ctrl+F',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().filterSelectedValue(),
+  });
+
+  registerCommand({
+    id: 'dataForm.addToFilter',
+    category: 'Data form',
+    name: 'Add to filter',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().addToFilter(),
+  });
+
   function isDataCell(cell) {
     return cell[1] % 2 == 1;
   }
@@ -45,16 +119,20 @@
   import InplaceEditor from '../datagrid/InplaceEditor.svelte';
   import { cellFromEvent } from '../datagrid/selection';
   import ColumnLabel from '../elements/ColumnLabel.svelte';
-import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { getActiveTabId } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
+  import { copyTextToClipboard } from '../utility/clipboard';
   import contextMenu from '../utility/contextMenu';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import resizeObserver from '../utility/resizeObserver';
 
+  export let conid;
+  export let database;
   export let config;
   export let setConfig;
   export let focusOnVisible = false;
@@ -110,6 +188,32 @@ import LoadingInfo from '../elements/LoadingInfo.svelte';
       return;
     }
     if (onSave) onSave();
+  }
+
+  export function setNull() {
+    if (isDataCell(currentCell)) {
+      setCellValue(currentCell, null);
+    }
+  }
+
+  export function copyToClipboard() {
+    const column = getCellColumn(currentCell);
+    if (!column) return;
+    const text = currentCell[1] % 2 == 1 ? rowData[column.uniqueName] : column.columnName;
+    copyTextToClipboard(text);
+  }
+
+  export async function reconnect() {
+    await axiosInstance.post('database-connections/refresh', { conid, database });
+    formDisplay.reload();
+  }
+
+  export function filterSelectedValue() {
+    formDisplay.filterCellValue(getCellColumn(currentCell), rowData);
+  }
+
+  export function addToFilter() {
+    formDisplay.addFilterColumn(getCellColumn(currentCell));
   }
 
   const handleTableMouseDown = event => {
