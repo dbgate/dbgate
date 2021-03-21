@@ -19,6 +19,7 @@
   import moment from 'moment';
   import _ from 'lodash';
   import { isTypeLogical } from 'dbgate-tools';
+  import ShowFormButton from '../formview/ShowFormButton.svelte';
 
   export let rowIndex;
   export let col;
@@ -36,6 +37,7 @@
   export let isFocusedColumn = false;
   export let domCell = undefined;
   export let hideContent = false;
+  export let onSetFormView;
 
   $: value = (rowData || {})[col.uniqueName];
 </script>
@@ -93,6 +95,10 @@
 
     {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData}
       <span class="hint">{rowData[col.hintColumnName]}</span>
+    {/if}
+
+    {#if col.foreignKey && rowData[col.uniqueName]}
+      <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
     {/if}
   {/if}
 </td>

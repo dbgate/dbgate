@@ -38,6 +38,7 @@
   export let masterLoadedTime;
   export let conid;
   export let database;
+  export let onReferenceSourceChanged;
 
   let isLoadingData = false;
   let isLoadedData = false;
@@ -128,6 +129,8 @@
 
   $: former = new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay);
 
+  $: if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
+
   async function handleConfirmSql(sql) {
     const resp = await axiosInstance.request({
       url: 'database-connections/query-data',
@@ -158,4 +161,12 @@
   }
 </script>
 
-<FormView {...$$props} {former} isLoading={isLoadingData} {allRowCount} {rowCountBefore} onSave={handleSave} />
+<FormView
+  {...$$props}
+  {former}
+  isLoading={isLoadingData}
+  {allRowCount}
+  {rowCountBefore}
+  onSave={handleSave}
+  onNavigate={handleNavigate}
+/>

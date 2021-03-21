@@ -1,4 +1,6 @@
 <script lang="ts">
+  import openReferenceForm from '../formview/openReferenceForm';
+
   import DataGridCell from './DataGridCell.svelte';
   import { cellIsSelected } from './gridutil';
   import InplaceEditor from './InplaceEditor.svelte';
@@ -16,6 +18,7 @@
   export let focusedColumn = undefined;
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
+  export let onSetFormView;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -30,7 +33,7 @@
 </script>
 
 <tr style={`height: ${rowHeight}px`}>
-  <RowHeaderCell {rowIndex} />
+  <RowHeaderCell {rowIndex} onShowForm={onSetFormView ? () => onSetFormView(rowData, null) : null} />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
       <td>
@@ -58,6 +61,7 @@
           (rowStatus.insertedFields && rowStatus.insertedFields.has(col.uniqueName))}
         isDeleted={rowStatus.status == 'deleted' ||
           (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))}
+        {onSetFormView}
       />
     {/if}
   {/each}

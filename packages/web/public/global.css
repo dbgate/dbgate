@@ -32,6 +32,7 @@ body {
   visibility: hidden;
 }
 .space-between {
+  display: flex;
   justify-content: space-between;
 }
 .flex {

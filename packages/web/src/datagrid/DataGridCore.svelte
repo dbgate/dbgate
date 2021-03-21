@@ -209,6 +209,7 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
   import { clearLastFocusedFormView } from '../formview/FormView.svelte';
+  import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -844,6 +845,14 @@
     return cells.filter(isRegularCell);
   }
 
+  function handleSetFormView(rowData, column) {
+    if (column) {
+      openReferenceForm(rowData, column, conid, database);
+    } else {
+      openPrimaryKeyForm(rowData, display.baseTable, conid, database);
+    }
+  }
+
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show':
@@ -1000,6 +1009,7 @@
           inplaceEditorState={$inplaceEditorState}
           {dispatchInsplaceEditor}
           {frameSelection}
+          onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
         />
       {/each}
     </tbody>

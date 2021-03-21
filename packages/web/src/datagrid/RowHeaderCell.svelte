@@ -1,9 +1,23 @@
 <script lang="ts">
+  import ShowFormButton from '../formview/ShowFormButton.svelte';
+
   export let rowIndex;
+  export let onShowForm;
+
+  let mouseIn = false;
 </script>
 
-<td data-row={rowIndex} data-col="header">
+<td
+  data-row={rowIndex}
+  data-col="header"
+  on:mouseenter={() => (mouseIn = true)}
+  on:mouseleave={() => (mouseIn = false)}
+>
   {rowIndex + 1}
+
+  {#if mouseIn && onShowForm}
+    <ShowFormButton on:click={onShowForm} />
+  {/if}
 </td>
 
 <style>

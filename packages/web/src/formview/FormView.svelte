@@ -100,6 +100,50 @@
     onClick: () => getCurrentDataForm().addToFilter(),
   });
 
+  registerCommand({
+    id: 'dataForm.goToFirst',
+    category: 'Data form',
+    name: 'First',
+    keyText: 'Ctrl+Home',
+    toolbar: true,
+    icon: 'icon arrow-begin',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().navigate('begin'),
+  });
+
+  registerCommand({
+    id: 'dataForm.goToPrevious',
+    category: 'Data form',
+    name: 'Previous',
+    keyText: 'Ctrl+ArrowUp',
+    toolbar: true,
+    icon: 'icon arrow-left',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().navigate('previous'),
+  });
+
+  registerCommand({
+    id: 'dataForm.goToNext',
+    category: 'Data form',
+    name: 'Next',
+    keyText: 'Ctrl+ArrowDown',
+    toolbar: true,
+    icon: 'icon arrow-right',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().navigate('next'),
+  });
+
+  registerCommand({
+    id: 'dataForm.goToLast',
+    category: 'Data form',
+    name: 'Last',
+    keyText: 'Ctrl+End',
+    toolbar: true,
+    icon: 'icon arrow-end',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().navigate('end'),
+  });
+
   function isDataCell(cell) {
     return cell[1] % 2 == 1;
   }
@@ -130,6 +174,7 @@
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import resizeObserver from '../utility/resizeObserver';
+  import openReferenceForm from './openReferenceForm';
 
   export let conid;
   export let database;
@@ -142,6 +187,7 @@
   export let former;
   export let formDisplay;
   export let onSave;
+  export let onNavigate;
 
   let wrapperHeight = 1;
   let rowHeight = 1;
@@ -161,9 +207,17 @@
   $: rowData = former?.rowData;
   $: rowStatus = former?.rowStatus;
 
-  $: rowCount = Math.floor((wrapperHeight - 20) / rowHeight);
+  $: rowCount = Math.floor((wrapperHeight - 22) / (rowHeight + 2));
 
   $: columnChunks = _.chunk(formDisplay.columns, rowCount) as any[][];
+
+  $: rowCountInfo = getRowCountInfo(rowCountBefore, allRowCount);
+
+  function getRowCountInfo(rowCountBefore, allRowCount) {
+    if (rowData == null) return 'No data';
+    if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
+    return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+  }
 
   export function getTabId() {
     return tabid;
@@ -171,6 +225,10 @@
 
   export function getFormer() {
     return former;
+  }
+
+  export function navigate(command) {
+    if (onNavigate) onNavigate(command);
   }
 
   export function switchToTable() {
@@ -293,7 +351,24 @@
     return {};
   }, {});
   function createMenu() {
-    return [{ command: 'dataForm.switchToTable' }];
+    return [
+      { command: 'dataForm.switchToTable' },
+      { divider: true },
+      { command: 'dataForm.filterSelected' },
+      { command: 'dataForm.addToFilter' },
+      { divider: true },
+      { command: 'dataForm.save' },
+      { command: 'dataForm.revertRowChanges' },
+      { command: 'dataForm.setNull' },
+      { divider: true },
+      { command: 'dataForm.undo' },
+      { command: 'dataForm.redo' },
+      { divider: true },
+      { command: 'dataForm.goToFirst' },
+      { command: 'dataForm.goToPrevious' },
+      { command: 'dataForm.goToNext' },
+      { command: 'dataForm.goToLast' },
+    ];
   }
 
   function handleKeyDown(event) {
@@ -363,6 +438,10 @@
         return moveCurrentCell(rowCount - 1, columnChunks.length * 2 - 1);
     }
   };
+
+  function handleSetFormView(rowData, column) {
+    openReferenceForm(rowData, column, conid, database);
+  }
 </script>
 
 {#if isLoading}
@@ -400,7 +479,11 @@
                     <FontIcon icon="icon invisible-box" />
                   {/if}
                   <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
-                  <ColumnLabel {...col} headerText={col.columnName} />
+                  <ColumnLabel
+                    {...col}
+                    headerText={col.columnName}
+                    extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
+                  />
                 </div>
               </td>
               <DataGridCell
@@ -411,9 +494,11 @@
                 isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
                 isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
                 bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
-                hideContent={$inplaceEditorState.cell &&
-                  rowIndex == $inplaceEditorState.cell[0] &&
-                  chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+                onSetFormView={handleSetFormView}
+                hideContent={!rowData ||
+                  ($inplaceEditorState.cell &&
+                    rowIndex == $inplaceEditorState.cell[0] &&
+                    chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
               >
                 {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
                   <InplaceEditor
@@ -443,6 +528,11 @@
         on:keydown={handleKeyDown}
       />
     </div>
+    {#if rowCountInfo}
+      <div class="row-count-label">
+        {rowCountInfo}
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -500,5 +590,12 @@
     position: absolute;
     left: -1000px;
     top: -1000px;
+  }
+
+  .row-count-label {
+    position: absolute;
+    background-color: var(--theme-bg-2);
+    right: 40px;
+    bottom: 20px;
   }
 </style>

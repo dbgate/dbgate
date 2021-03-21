@@ -1,5 +1,6 @@
 <script lang="ts">
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
+  import FormViewFilters from '../formview/FormViewFilters.svelte';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ColumnManager from './ColumnManager.svelte';
@@ -21,8 +22,12 @@
 <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height={showReferences ? '40%' : '60%'}>
+      <WidgetColumnBarItem title="Columns" name="columns" height={showReferences ? '40%' : '60%'} skip={isFormView}>
         <ColumnManager {...$$props} {managerSize} />
+      </WidgetColumnBarItem>
+
+      <WidgetColumnBarItem title="Filters" name="filters" height="30%" skip={!isFormView}>
+        <FormViewFilters {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
