@@ -68,7 +68,7 @@
   on:keydown={handleKeyDown}
   on:blur={handleBlur}
   bind:this={domEditor}
-  style={`width:${widthCopy}px;min-width:${widthCopy}px;max-width:${widthCopy}px`}
+  style={widthCopy ? `width:${widthCopy}px;min-width:${widthCopy}px;max-width:${widthCopy}px` : undefined}
 />
 
 <style>

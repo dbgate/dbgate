@@ -11,6 +11,10 @@
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().switchToTable(),
   });
+
+  function isDataCell(cell) {
+    return cell[1] % 2 == 1;
+  }
 </script>
 
 <script lang="ts">
@@ -23,10 +27,15 @@
 
   import registerCommand from '../commands/registerCommand';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
+  import InplaceEditor from '../datagrid/InplaceEditor.svelte';
+  import { cellFromEvent } from '../datagrid/selection';
   import ColumnLabel from '../elements/ColumnLabel.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   import { getActiveTabId } from '../stores';
   import contextMenu from '../utility/contextMenu';
+  import createReducer from '../utility/createReducer';
 
   export let config;
   export let setConfig;
@@ -44,6 +53,7 @@
   const instance = get_current_component();
   const tabid = getContext('tabid');
   const tabVisible: any = getContext('tabVisible');
+  const domCells = {};
 
   let domFocusField;
 
@@ -70,6 +80,82 @@
     }));
   }
 
+  const handleTableMouseDown = event => {
+    if (event.target.closest('.buttonLike')) return;
+    if (event.target.closest('.resizeHandleControl')) return;
+    if (event.target.closest('input')) return;
+
+    event.preventDefault();
+    if (domFocusField) domFocusField.focus();
+
+    // event.target.closest('table').focus();
+    event.preventDefault();
+    const cell = cellFromEvent(event);
+
+    if (isDataCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
+      // @ts-ignore
+      if (rowData) {
+        dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+      }
+    } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+      // @ts-ignore
+      dispatchInsplaceEditor({ type: 'close' });
+    }
+
+    // @ts-ignore
+    currentCell = cell;
+  };
+
+  function getCellColumn(cell) {
+    const chunk = columnChunks[Math.floor(cell[1] / 2)];
+    if (!chunk) return;
+    const column = chunk[cell[0]];
+    return column;
+  }
+
+  function setCellValue(cell, value) {
+    const column = getCellColumn(cell);
+    if (!column) return;
+    former.setCellValue(column.uniqueName, value);
+  }
+
+  const getCellWidth = (row, col) => {
+    const element = domCells[`${row},${col}`];
+    if (element) return element.getBoundingClientRect().width;
+    return 100;
+  };
+
+  const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
+    switch (action.type) {
+      case 'show': {
+        const column = getCellColumn(action.cell);
+        if (!column) return state;
+        if (column.uniquePath.length > 1) return state;
+
+        // if (!grider.editable) return {};
+        return {
+          cell: action.cell,
+          text: action.text,
+          selectAll: action.selectAll,
+        };
+      }
+      case 'close': {
+        const [row, col] = currentCell || [];
+        if (domFocusField) domFocusField.focus();
+        // @ts-ignore
+        if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
+        // if (action.mode == 'save') setTimeout(handleSave, 0);
+        return {};
+      }
+      case 'shouldSave': {
+        return {
+          ...state,
+          shouldSave: true,
+        };
+      }
+    }
+    return {};
+  }, {});
   function createMenu() {
     return [{ command: 'dataForm.switchToTable' }];
   }
@@ -78,7 +164,7 @@
 <div class="outer">
   <div class="wrapper" use:contextMenu={createMenu} bind:clientHeight={wrapperHeight}>
     {#each columnChunks as chunk, chunkIndex}
-      <table>
+      <table on:mousedown={handleTableMouseDown}>
         {#each chunk as col, rowIndex}
           <tr>
             {#if chunkIndex == 0 && rowIndex == 0}
@@ -88,11 +174,32 @@
                 data-col={chunkIndex * 2}
                 bind:clientHeight={rowHeight}
                 style={`height: ${rowHeight}px`}
+                bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
+                class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
               >
                 <ColumnLabel {...col} headerText={col.columnName} />
               </td>
             {:else}
-              <td class="header-cell" data-row={rowIndex} data-col={chunkIndex * 2} style={`height: ${rowHeight}px`}>
+              <td
+                class="header-cell"
+                data-row={rowIndex}
+                data-col={chunkIndex * 2}
+                style={`height: ${rowHeight}px`}
+                class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+                bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
+              >
+                {#if col.foreignKey}
+                  <FontIcon
+                    icon={plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))}
+                    on:click={e => {
+                      e.stopPropagation();
+                      formDisplay.toggleExpandedColumn(col.uniqueName);
+                    }}
+                  />
+                {:else}
+                  <FontIcon icon="icon invisible-box" />
+                {/if}
+                <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
                 <ColumnLabel {...col} headerText={col.columnName} />
               </td>
             {/if}
@@ -103,7 +210,23 @@
               colIndex={chunkIndex * 2 + 1}
               isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
               isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
-            />
+              bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
+              hideContent={$inplaceEditorState.cell &&
+                rowIndex == $inplaceEditorState.cell[0] &&
+                chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+            >
+              {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+                <InplaceEditor
+                  width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                  inplaceEditorState={$inplaceEditorState}
+                  {dispatchInsplaceEditor}
+                  cellValue={rowData[col.uniqueName]}
+                  onSetValue={value => {
+                    former.setCellValue(col.uniqueName, value);
+                  }}
+                />
+              {/if}
+            </DataGridCell>
           </tr>
         {/each}
       </table>
@@ -161,6 +284,9 @@
     margin: 0;
     background-color: var(--theme-bg-1);
     overflow: hidden;
+  }
+  .header-cell.isSelected {
+    background: var(--theme-bg-selected);
   }
 
   .focus-field {

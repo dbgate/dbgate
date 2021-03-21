@@ -27,6 +27,7 @@
   export let formDisplay;
   export let changeSetState;
   export let dispatchChangeSet;
+  export let masterLoadedTime;
 
   let isLoadingData = false;
   let isLoadedData = false;
@@ -39,6 +40,7 @@
   let errorMessage = null;
 
   const handleLoadCurrentRow = async () => {
+    console.log('LOAD ROW');
     if (isLoadingData) return;
     let newLoadedRow = false;
     if (formDisplay.config.formViewKeyRequested || formDisplay.config.formViewKey) {
@@ -94,6 +96,18 @@
     allRowCount = null;
     rowCountBefore = null;
     errorMessage = null;
+  }
+
+  $: {
+    if (masterLoadedTime && masterLoadedTime > loadedTime) {
+      formDisplay.reload();
+    }
+  }
+
+  $: {
+    if (formDisplay.cache.refreshTime > loadedTime) {
+      reload();
+    }
   }
 
   $: {

@@ -532,9 +532,9 @@
         selectedCells = getCellRange(cell, cell);
         dragStartCell = cell;
 
-        if (isRegularCell(cell) && !_.isEqual(cell, inplaceEditorState.cell) && _.isEqual(cell, oldCurrentCell)) {
+        if (isRegularCell(cell) && !_.isEqual(cell, $inplaceEditorState.cell) && _.isEqual(cell, oldCurrentCell)) {
           dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
-        } else if (!_.isEqual(cell, inplaceEditorState.cell)) {
+        } else if (!_.isEqual(cell, $inplaceEditorState.cell)) {
           dispatchInsplaceEditor({ type: 'close' });
         }
       }

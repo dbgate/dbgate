@@ -34,11 +34,14 @@
   export let isDeleted = false;
   export let isAutofillSelected = false;
   export let isFocusedColumn = false;
+  export let domCell = undefined;
+  export let hideContent = false;
 
   $: value = (rowData || {})[col.uniqueName];
 </script>
 
 <td
+  bind:this={domCell}
   data-row={rowIndex}
   data-col={colIndex == null ? col.colIndex : colIndex}
   class:isSelected
@@ -51,42 +54,46 @@
   class:isFocusedColumn
   style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
 >
-  {#if value == null}
-    <span class="null">(NULL)</span>
-  {:else if _.isDate(value)}
-    {moment(value).format('YYYY-MM-DD HH:mm:ss')}
-  {:else if value === true}
-    1
-  {:else if value === false}
-    0
-  {:else if _.isNumber(value)}
-    {#if value >= 10000 || value <= -10000}
-      {value.toLocaleString()}
+  {#if hideContent}
+    <slot />
+  {:else}
+    {#if value == null}
+      <span class="null">(NULL)</span>
+    {:else if _.isDate(value)}
+      {moment(value).format('YYYY-MM-DD HH:mm:ss')}
+    {:else if value === true}
+      1
+    {:else if value === false}
+      0
+    {:else if _.isNumber(value)}
+      {#if value >= 10000 || value <= -10000}
+        {value.toLocaleString()}
+      {:else}
+        {value.toString()}
+      {/if}
+    {:else if _.isString(value)}
+      {#if dateTimeRegex.test(value)}
+        {moment(value).format('YYYY-MM-DD HH:mm:ss')}
+      {:else}
+        {highlightSpecialCharacters(value)}
+      {/if}
+    {:else if _.isPlainObject(value)}
+      {#if _.isArray(value.data)}
+        {#if value.data.length == 1 && isTypeLogical(col.dataType)}
+          {value.data[0]}
+        {:else}
+          <span class="null">({value.data.length} bytes)</span>
+        {/if}
+      {:else}
+        <span class="null">(RAW)</span>
+      {/if}
     {:else}
       {value.toString()}
     {/if}
-  {:else if _.isString(value)}
-    {#if dateTimeRegex.test(value)}
-      {moment(value).format('YYYY-MM-DD HH:mm:ss')}
-    {:else}
-      {highlightSpecialCharacters(value)}
-    {/if}
-  {:else if _.isPlainObject(value)}
-    {#if _.isArray(value.data)}
-      {#if value.data.length == 1 && isTypeLogical(col.dataType)}
-        {value.data[0]}
-      {:else}
-        <span class="null">({value.data.length} bytes)</span>
-      {/if}
-    {:else}
-      <span class="null">(RAW)</span>
-    {/if}
-  {:else}
-    {value.toString()}
-  {/if}
 
-  {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData}
-    <span class="hint">{rowData[col.hintColumnName]}</span>
+    {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData}
+      <span class="hint">{rowData[col.hintColumnName]}</span>
+    {/if}
   {/if}
 </td>
 

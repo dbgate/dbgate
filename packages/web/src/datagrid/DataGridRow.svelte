@@ -33,13 +33,15 @@
   <RowHeaderCell {rowIndex} />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
-      <InplaceEditor
-        width={col.width}
-        {inplaceEditorState}
-        {dispatchInsplaceEditor}
-        cellValue={rowData[col.uniqueName]}
-        onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
-      />
+      <td>
+        <InplaceEditor
+          width={col.width}
+          {inplaceEditorState}
+          {dispatchInsplaceEditor}
+          cellValue={rowData[col.uniqueName]}
+          onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
+        />
+      </td>
     {:else}
       <DataGridCell
         {rowIndex}
