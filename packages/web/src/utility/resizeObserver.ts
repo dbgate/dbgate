@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export default function resizeObserver(node, observerEnabled) {
   const measure = () => {
@@ -18,7 +19,7 @@ export default function resizeObserver(node, observerEnabled) {
 
   function doUpdate() {
     if (observerEnabled && !resizeObserver) {
-      resizeObserver = new window['ResizeObserver'](() => {
+      resizeObserver = new ResizeObserver(() => {
         measure();
       });
       resizeObserver.observe(node);
