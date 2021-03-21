@@ -2,6 +2,9 @@
   let lastFocusedDataGrid = null;
   const getCurrentDataGrid = () =>
     lastFocusedDataGrid?.getTabId && lastFocusedDataGrid?.getTabId() == getActiveTabId() ? lastFocusedDataGrid : null;
+  export function clearLastFocusedDataGrid() {
+    lastFocusedDataGrid = null;
+  }
 
   registerCommand({
     id: 'dataGrid.refresh',
@@ -205,6 +208,7 @@
   import { copyTextToClipboard } from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
+  import { clearLastFocusedFormView } from '../formview/FormView.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -666,7 +670,6 @@
   }
 
   function handleGridKeyDown(event) {
-
     if ($inplaceEditorState.cell) return;
 
     if (
@@ -903,6 +906,7 @@
     on:keydown={handleGridKeyDown}
     on:focus={() => {
       lastFocusedDataGrid = instance;
+      clearLastFocusedFormView();
       invalidateCommands();
     }}
     on:paste={handlePaste}

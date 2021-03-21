@@ -20,6 +20,14 @@
 </script>
 
 <script lang="ts">
+  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
+  import { scriptToSql } from 'dbgate-sqltree';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+
+  import { showModal } from '../modals/modalTools';
+
   import axiosInstance from '../utility/axiosInstance';
   import ChangeSetFormer from './ChangeSetFormer';
   import FormView from './FormView.svelte';
@@ -28,6 +36,8 @@
   export let changeSetState;
   export let dispatchChangeSet;
   export let masterLoadedTime;
+  export let conid;
+  export let database;
 
   let isLoadingData = false;
   let isLoadedData = false;
@@ -117,6 +127,35 @@
   }
 
   $: former = new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay);
+
+  async function handleConfirmSql(sql) {
+    const resp = await axiosInstance.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      formDisplay.reload();
+    }
+  }
+
+  function handleSave() {
+    const script = changeSetToSql(changeSetState && changeSetState.value, formDisplay.dbinfo);
+    const sql = scriptToSql(formDisplay.driver, script);
+    showModal(ConfirmSqlModal, {
+      sql,
+      onConfirm: () => handleConfirmSql(sql),
+      engine: formDisplay.engine,
+    });
+  }
 </script>
 
-<FormView {...$$props} {former} isLoading={isLoadingData} {allRowCount} {rowCountBefore} />
+<FormView {...$$props} {former} isLoading={isLoadingData} {allRowCount} {rowCountBefore} onSave={handleSave} />
