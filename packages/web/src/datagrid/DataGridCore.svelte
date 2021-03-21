@@ -127,6 +127,24 @@
     onClick: () => getCurrentDataGrid().switchToForm(),
   });
 
+  registerCommand({
+    id: 'dataGrid.filterSelected',
+    category: 'Data grid',
+    name: 'Filter selected value',
+    keyText: 'Ctrl+F',
+    testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
+    onClick: () => getCurrentDataGrid().filterSelectedValue(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.clearFilter',
+    category: 'Data grid',
+    name: 'Clear filter',
+    keyText: 'Ctrl+I',
+    testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
+    onClick: () => getCurrentDataGrid().clearFilter(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -347,6 +365,29 @@
     const cell = currentCell;
     const rowData = isRegularCell(cell) ? grider.getRowData(cell[0]) : null;
     display.switchToFormView(rowData);
+  }
+
+  export function filterSelectedValue() {
+    const flts = {};
+    for (const cell of selectedCells) {
+      if (!isRegularCell(cell)) continue;
+      const modelIndex = columnSizes.realToModel(cell[1]);
+      const columnName = columns[modelIndex].uniqueName;
+      let value = grider.getRowData(cell[0])[columnName];
+      let svalue = getFilterValueExpression(value, columns[modelIndex].dataType);
+      if (_.has(flts, columnName)) flts[columnName] += ',' + svalue;
+      else flts[columnName] = svalue;
+    }
+
+    display.setFilters(flts);
+  }
+
+  export function clearFilter() {
+    display.clearFilters();
+  }
+
+  export function clearFilterEnabled() {
+    return display.filterCount > 0;
   }
 
   // export function getGeneralAllowSave() {
@@ -625,63 +666,6 @@
   }
 
   function handleGridKeyDown(event) {
-    if (event.keyCode == keycodes.f5) {
-      event.preventDefault();
-      display.reload();
-    }
-
-    // if (event.keyCode == keycodes.f4) {
-    //   event.preventDefault();
-    //   handleSwitchToFormView();
-    // }
-
-    // if (event.keyCode == keycodes.s && event.ctrlKey) {
-    //   event.preventDefault();
-    //   handleSave();
-    //   // this.saveAndFocus();
-    // }
-
-    // if (event.keyCode == keycodes.n0 && event.ctrlKey) {
-    //   event.preventDefault();
-    //   setNull();
-    // }
-
-    // if (event.keyCode == keycodes.r && event.ctrlKey) {
-    //   event.preventDefault();
-    //   revertRowChanges();
-    // }
-
-    // if (event.keyCode == keycodes.f && event.ctrlKey) {
-    //   event.preventDefault();
-    //   filterSelectedValue();
-    // }
-
-    // if (event.keyCode == keycodes.z && event.ctrlKey) {
-    //   event.preventDefault();
-    //   undo();
-    // }
-
-    // if (event.keyCode == keycodes.y && event.ctrlKey) {
-    //   event.preventDefault();
-    //   redo();
-    // }
-
-    // if (event.keyCode == keycodes.c && event.ctrlKey) {
-    //   event.preventDefault();
-    //   copyToClipboard();
-    // }
-
-    // if (event.keyCode == keycodes.delete && event.ctrlKey) {
-    //   event.preventDefault();
-    //   deleteSelectedRows();
-    //   // this.saveAndFocus();
-    // }
-
-    // if (event.keyCode == keycodes.insert && !event.ctrlKey) {
-    //   event.preventDefault();
-    //   insertNewRow();
-    //   // this.saveAndFocus();
-    // }
 
     if ($inplaceEditorState.cell) return;
 
@@ -898,6 +882,8 @@
       { command: 'dataGrid.insertNewRow' },
       { command: 'dataGrid.setNull' },
       { divider: true },
+      { command: 'dataGrid.filterSelected' },
+      { command: 'dataGrid.clearFilter' },
       { command: 'dataGrid.undo' },
       { command: 'dataGrid.redo' },
     ];
