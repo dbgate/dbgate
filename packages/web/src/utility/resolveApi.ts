@@ -1,3 +1,8 @@
+let apiUrl = null;
+try {
+  apiUrl = process.env.API_URL;
+} catch {}
+
 export default function resolveApi() {
   if (window['require']) {
     const electron = window['require']('electron');
@@ -10,12 +15,8 @@ export default function resolveApi() {
     }
   }
 
-  // // eslint-disable-next-line
-  // const apiUrl = process.env.REACT_APP_API_URL;
-  // if (apiUrl) {
-  //   if (apiUrl == 'ORIGIN') return window.location.origin;
-  //   return apiUrl;
-  // }
-
-  return 'http://localhost:3000';
+  if (apiUrl) {
+    return apiUrl;
+  }
+  return window.location.origin;
 }

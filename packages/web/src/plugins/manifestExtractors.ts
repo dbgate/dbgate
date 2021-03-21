@@ -12,8 +12,7 @@ export function extractPluginIcon(packageManifest) {
       return `https://raw.githubusercontent.com/${match[1]}/${match[2]}/master/icon.svg`;
     }
   }
-  // eslint-disable-next-line no-undef
-  return `${process.env.PUBLIC_URL}/unknown.svg`;
+  return 'unknown.svg';
 }
 
 export function extractPluginAuthor(packageManifest) {

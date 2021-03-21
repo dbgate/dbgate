@@ -6,6 +6,7 @@ import copy from 'rollup-plugin-copy';
 import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
+import replace from '@rollup/plugin-replace';
 import css from 'rollup-plugin-css-only';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -43,16 +44,18 @@ export default {
     copy({
       targets: [
         {
-          src:
-            '../../node_modules/@mdi/font/css/materialdesignicons.css',
+          src: '../../node_modules/@mdi/font/css/materialdesignicons.css',
           dest: 'public/build/fonts/',
         },
         {
-			src:
-			  '../../node_modules/@mdi/font/fonts/*',
-			dest: 'public/build/fonts/',
-		  },
-		],
+          src: '../../node_modules/@mdi/font/fonts/*',
+          dest: 'public/build/fonts/',
+        },
+      ],
+    }),
+
+    replace({
+      'process.env.API_URL': JSON.stringify(process.env.API_URL),
     }),
 
     svelte({

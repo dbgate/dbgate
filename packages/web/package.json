@@ -2,8 +2,8 @@
   "name": "dbgate-web",
   "version": "1.0.0",
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "cross-env API_URL=ORIGIN rollup -c",
+    "dev": "cross-env API_URL=http://localhost:3000 rollup -c -w",
     "start": "sirv public",
     "validate": "svelte-check"
   },
@@ -11,10 +11,12 @@
     "@ant-design/colors": "^5.0.0",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-replace": "^2.4.1",
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.0",
     "ace-builds": "^1.4.8",
     "chart.js": "^2.9.4",
+    "cross-env": "^7.0.3",
     "dbgate-datalib": "^3.9.5",
     "dbgate-sqltree": "^3.9.5",
     "dbgate-tools": "^3.9.5",

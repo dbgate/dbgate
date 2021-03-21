@@ -12,6 +12,8 @@ node_modules
 build
 dist
 
+app/packages/web/public
+
 # misc
 .DS_Store
 .env.local
