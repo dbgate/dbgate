@@ -148,6 +148,38 @@
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
 
+  registerCommand({
+    id: 'dataGrid.openQuery',
+    category: 'Data grid',
+    name: 'Open query',
+    testEnabled: () => getCurrentDataGrid()?.openQueryEnabled(),
+    onClick: () => getCurrentDataGrid().openQuery(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.openFreeTable',
+    category: 'Data grid',
+    name: 'Open selection in free table editor',
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().openFreeTable(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.openChartFromSelection',
+    category: 'Data grid',
+    name: 'Open chart from selection',
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().openChartFromSelection(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.openActiveChart',
+    category: 'Data grid',
+    name: 'Open active chart',
+    testEnabled: () => getCurrentDataGrid()?.openActiveChartEnabled(),
+    onClick: () => getCurrentDataGrid().openActiveChart(),
+  });
+
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -210,6 +242,7 @@
   import createRef from '../utility/createRef';
   import { clearLastFocusedFormView } from '../formview/FormView.svelte';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
+  import openNewTab from '../utility/openNewTab';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -225,6 +258,8 @@
   export let onSave;
   export let focusOnVisible = false;
   export let onExportGrid = null;
+  export let onOpenQuery = null;
+  export let onOpenActiveChart=null;
   export let formViewAvailable = false;
 
   export let isLoadedAll;
@@ -395,6 +430,51 @@
     return display.filterCount > 0;
   }
 
+  export function openQuery() {
+    if (onOpenQuery) onOpenQuery();
+  }
+
+  export function openQueryEnabled() {
+    return onOpenQuery != null;
+  }
+
+  export function openActiveChart() {
+    if (onOpenActiveChart) onOpenActiveChart();
+  }
+
+  export function openActiveChartEnabled() {
+    return onOpenActiveChart != null;
+  }
+
+  export function openFreeTable() {
+    openNewTab(
+      {
+        title: 'Data #',
+        icon: 'img free-table',
+        tabComponent: 'FreeTableTab',
+        props: {},
+      },
+      { editor: getSelectedFreeData() }
+    );
+  }
+
+  export function openChartFromSelection() {
+    openNewTab(
+      {
+        title: 'Chart #',
+        icon: 'img chart',
+        tabComponent: 'ChartTab',
+        props: {},
+      },
+      {
+        editor: {
+          data: getSelectedFreeData(),
+          config: { chartType: 'bar' },
+        },
+      }
+    );
+  }
+
   // export function getGeneralAllowSave() {
   //   return generalAllowSave;
   // }
@@ -495,6 +575,17 @@
       onSelectionChanged(published);
     }
   }
+
+  const getSelectedFreeData = () => {
+    const columns = getSelectedColumns();
+    const rows = getSelectedRowData().map(row => _.pickBy(row, (v, col) => columns.find(x => x.columnName == col)));
+    return {
+      structure: {
+        columns,
+      },
+      rows,
+    };
+  };
 
   function getCellsPublished(cells) {
     const regular = cellsToRegularCells(cells);
@@ -898,6 +989,11 @@
       { command: 'dataGrid.clearFilter' },
       { command: 'dataGrid.undo' },
       { command: 'dataGrid.redo' },
+      { divider: true },
+      { command: 'dataGrid.openQuery' },
+      { command: 'dataGrid.openFreeTable' },
+      { command: 'dataGrid.openChartFromSelection' },
+      { command: 'dataGrid.openActiveChart' },
     ];
   }
 </script>

@@ -52,6 +52,7 @@
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
+  import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
@@ -109,6 +110,47 @@
     initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
     showModal(ImportExportModal, { initialValues });
   }
+
+  function openQuery() {
+    openNewTab(
+      {
+        title: 'Query #',
+        icon: 'img sql-file',
+        tabComponent: 'QueryTab',
+        props: {
+          schemaName: display.baseTable.schemaName,
+          pureName: display.baseTable.pureName,
+          conid,
+          database,
+        },
+      },
+      {
+        editor: display.getExportQuery(),
+      }
+    );
+  }
+
+  function openActiveChart() {
+    openNewTab(
+      {
+        title: 'Chart #',
+        icon: 'img chart',
+        tabComponent: 'ChartTab',
+        props: {
+          conid,
+          database,
+        },
+      },
+      {
+        editor: {
+          config: { chartType: 'bar' },
+          sql: display.getExportQuery(select => {
+            select.orderBy = null;
+          }),
+        },
+      }
+    );
+  }
 </script>
 
 <LoadingDataGridCore
@@ -117,6 +159,8 @@
   {dataPageAvailable}
   {loadRowCount}
   onExportGrid={exportGrid}
+  onOpenQuery={openQuery}
+  onOpenActiveChart={openActiveChart}
   bind:loadedRows
   {grider}
   onSave={handleSave}
