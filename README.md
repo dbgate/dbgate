@@ -40,7 +40,7 @@ There are many database managers now, so why DbGate?
 ## Design goals
 * Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) .
 * Minimal dependencies
-    * Frontend - React, styled-components, socket.io
+    * Frontend - Svelte, socket.io
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
     * App - electron
@@ -100,6 +100,6 @@ Some dbgate packages can be used also without DbGate. You can find them on [NPM 
 * [filterparser](https://github.com/dbgate/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon [![NPM version](https://img.shields.io/npm/v/dbgate-filterparser.svg)](https://www.npmjs.com/package/dbgate-filterparser)
 * [sqltree](https://github.com/dbgate/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript) [![NPM version](https://img.shields.io/npm/v/dbgate-sqltree.svg)](https://www.npmjs.com/package/dbgate-sqltree)
 * [types](https://github.com/dbgate/dbgate/tree/master/packages/types) - common TypeScript definitions [![NPM version](https://img.shields.io/npm/v/dbgate-types.svg)](https://www.npmjs.com/package/dbgate-types)
-* [web](https://github.com/dbgate/dbgate/tree/master/packages/web) - frontend in React (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-web.svg)](https://www.npmjs.com/package/dbgate-web)
+* [web](https://github.com/dbgate/dbgate/tree/master/packages/web) - frontend in Svelte (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-web.svg)](https://www.npmjs.com/package/dbgate-web)
 * [tools](https://github.com/dbgate/dbgate/tree/master/packages/tools) - various tools [![NPM version](https://img.shields.io/npm/v/dbgate-tools.svg)](https://www.npmjs.com/package/dbgate-tools)
 
