@@ -46,6 +46,7 @@ export const openedModals = writable([]);
 export const nullStore = readable(null, () => {});
 export const currentArchive = writable('default');
 export const isFileDragActive = writable(false);
+export const selectedCellsCallback = writable(null);
 
 const electron = getElectron();
 

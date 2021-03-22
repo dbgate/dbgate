@@ -33,6 +33,11 @@
       name: 'favorites',
       title: 'Favorites',
     },
+    {
+      icon: 'icon cell-data',
+      name: 'cell-data',
+      title: 'Selected cell data detail view',
+    },
     // {
     //   icon: 'fa-cog',
     //   name: 'settings',
@@ -56,7 +61,7 @@
 {/if}
 {#each widgets as item}
   <div class="wrapper" class:selected={item.name == $selectedWidget} on:click={() => handleChangeWidget(item.name)}>
-    <FontIcon icon={item.icon} />
+    <FontIcon icon={item.icon} title={item.title} />
   </div>
 {/each}
 

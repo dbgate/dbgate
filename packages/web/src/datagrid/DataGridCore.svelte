@@ -234,7 +234,7 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { activeTabId, getActiveTabId, nullStore } from '../stores';
+  import { activeTabId, getActiveTabId, nullStore, selectedCellsCallback } from '../stores';
   import memberStore from '../utility/memberStore';
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
@@ -259,7 +259,7 @@
   export let focusOnVisible = false;
   export let onExportGrid = null;
   export let onOpenQuery = null;
-  export let onOpenActiveChart=null;
+  export let onOpenActiveChart = null;
   export let formViewAvailable = false;
 
   export let isLoadedAll;
@@ -563,16 +563,13 @@
     domFocusField.focus();
   }
 
-  const lastPublishledRef = createRef('');
-  $: if (onSelectionChanged) {
-    const published = getCellsPublished(selectedCells);
-    const stringified = stableStringify(published);
-    if (lastPublishledRef.get() != stringified) {
-      // console.log('PUBLISH', published);
-      // console.log('lastPublishledRef.current', lastPublishledRef.current);
-      // console.log('stringified', stringified);
-      lastPublishledRef.set(stringified);
-      onSelectionChanged(published);
+  const lastPublishledSelectedCellsRef = createRef('');
+  $: {
+    const stringified = stableStringify(selectedCells);
+    if (lastPublishledSelectedCellsRef.get() != stringified) {
+      lastPublishledSelectedCellsRef.set(stringified);
+      if (onSelectionChanged) onSelectionChanged(getCellsPublished(selectedCells));
+      $selectedCellsCallback = () => getCellsPublished(selectedCells);
     }
   }
 
@@ -589,13 +586,20 @@
 
   function getCellsPublished(cells) {
     const regular = cellsToRegularCells(cells);
-    // @ts-ignore
-    return regular
-      .map(cell => ({
-        row: cell[0],
-        column: realColumnUniqueNames[cell[1]],
-      }))
+    const res = regular
+      .map(cell => {
+        const row = cell[0];
+        const rowData = grider.getRowData(row);
+        const column = realColumnUniqueNames[cell[1]];
+        return {
+          row,
+          rowData,
+          column,
+          value: rowData && rowData[column],
+        };
+      })
       .filter(x => x.column);
+    return res;
   }
 
   function scrollIntoView(cell) {

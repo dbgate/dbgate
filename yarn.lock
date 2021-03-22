@@ -7022,6 +7022,11 @@ svelte-check@^1.0.0:
     svelte-preprocess "^4.0.0"
     typescript "*"
 
+svelte-json-tree@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/svelte-json-tree/-/svelte-json-tree-0.1.0.tgz#2711e36162046a10766dfbef69739168a5eaafa6"
+  integrity sha512-ufKWvS94z5m6Je9Hu0yosvdALy0mOPcaexbTcQQ/jW+3Rzi4oaHkOeg4RQ3cNpOlOQlIs0lfsF9FBlyquZ7XuQ==
+
 svelte-markdown@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/svelte-markdown/-/svelte-markdown-0.1.4.tgz#03bec6dcd8ff1c09126e7c62c8a5a481905881d7"

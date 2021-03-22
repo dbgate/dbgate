@@ -5,6 +5,7 @@
   import FilesWidget from './FilesWidget.svelte';
   import PluginsWidget from './PluginsWidget.svelte';
   import FavoritesWidget from './FavoritesWidget.svelte';
+import CellDataWidget from './CellDataWidget.svelte';
 </script>
 
 {#if $selectedWidget == 'database'}
@@ -21,4 +22,7 @@
 {/if}
 {#if $selectedWidget == 'favorites'}
   <FavoritesWidget />
+{/if}
+{#if $selectedWidget == 'cell-data'}
+  <CellDataWidget />
 {/if}

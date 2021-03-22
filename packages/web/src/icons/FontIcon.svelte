@@ -15,6 +15,7 @@
     'icon share': 'mdi mdi-share-variant',
     'icon add': 'mdi mdi-plus-circle',
     'icon connection': 'mdi mdi-connection',
+    'icon cell-data': 'mdi mdi-details',
 
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',
