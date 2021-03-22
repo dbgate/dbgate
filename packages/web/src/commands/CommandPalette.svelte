@@ -72,22 +72,28 @@
   <div class="search">
     <input type="text" bind:this={domInput} bind:value={filter} on:keydown={handleKeyDown} />
   </div>
-  {#each filteredItems as command, index}
-    <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
-      <div>{command.text}</div>
-      {#if command.keyText}
-        <div class="shortcut">{command.keyText}</div>
-      {/if}
-    </div>
-  {/each}
+  <div class="content">
+    {#each filteredItems as command, index}
+      <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
+        <div>{command.text}</div>
+        {#if command.keyText}
+          <div class="shortcut">{command.keyText}</div>
+        {/if}
+      </div>
+    {/each}
+  </div>
 </div>
 
 <style>
   .main {
     width: 500px;
-    max-height: 500px;
     background: var(--theme-bg-2);
     padding: 5px;
+  }
+
+  .content {
+    max-height: 400px;
+    overflow-y: scroll;
   }
   .search {
     display: flex;
