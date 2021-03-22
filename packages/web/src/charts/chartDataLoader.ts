@@ -1,8 +1,7 @@
 import { dumpSqlSelect, Select } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
-import axios from '../utility/axios';
+import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
-import { extractDataColumns } from './DataChart';
 
 export async function loadChartStructure(driver: EngineDriver, conid, database, sql) {
   const select: Select = {
@@ -17,7 +16,7 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  const resp = await axios.post('database-connections/query-data', { conid, database, sql: dmp.s });
+  const resp = await axiosInstance.post('database-connections/query-data', { conid, database, sql: dmp.s });
   if (resp.data.errorMessage) throw new Error(resp.data.errorMessage);
   return resp.data.columns.map(x => x.columnName);
 }
@@ -75,7 +74,7 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  const resp = await axios.post('database-connections/query-data', { conid, database, sql: dmp.s });
+  const resp = await axiosInstance.post('database-connections/query-data', { conid, database, sql: dmp.s });
   let { rows, columns } = resp.data;
   if (truncateFrom == 'end' && rows) {
     rows = _.reverse([...rows]);
@@ -102,4 +101,22 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
     columns,
     rows,
   };
+}
+
+export function extractDataColumns(values) {
+  const dataColumns = [];
+  for (const key in values) {
+    if (key.startsWith('dataColumn_') && values[key]) {
+      dataColumns.push(key.substring('dataColumn_'.length));
+    }
+  }
+  return dataColumns;
+}
+export function extractDataColumnColors(values, dataColumns) {
+  const res = {};
+  for (const column of dataColumns) {
+    const color = values[`dataColumnColor_${column}`];
+    if (color) res[column] = color;
+  }
+  return res;
 }

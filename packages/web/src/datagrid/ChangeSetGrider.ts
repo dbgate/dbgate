@@ -143,10 +143,10 @@ export default class ChangeSetGrider extends Grider {
     this.dispatchChangeSet({ type: 'redo' });
   }
   get canUndo() {
-    return this.changeSetState.canUndo;
+    return this.changeSetState?.canUndo;
   }
   get canRedo() {
-    return this.changeSetState.canRedo;
+    return this.changeSetState?.canRedo;
   }
   get containsChanges() {
     return changeSetContainsChanges(this.changeSet);
@@ -155,10 +155,10 @@ export default class ChangeSetGrider extends Grider {
     return this.insertedRows.length > 0;
   }
 
-  static factory({ sourceRows, changeSetState, dispatchChangeSet, display }): ChangeSetGrider {
-    return new ChangeSetGrider(sourceRows, changeSetState, dispatchChangeSet, display);
-  }
-  static factoryDeps({ sourceRows, changeSetState, dispatchChangeSet, display }) {
-    return [sourceRows, changeSetState ? changeSetState.value : null, dispatchChangeSet, display];
-  }
+  // static factory({ sourceRows, changeSetState, dispatchChangeSet, display }): ChangeSetGrider {
+  //   return new ChangeSetGrider(sourceRows, changeSetState, dispatchChangeSet, display);
+  // }
+  // static factoryDeps({ sourceRows, changeSetState, dispatchChangeSet, display }) {
+  //   return [sourceRows, changeSetState ? changeSetState.value : null, dispatchChangeSet, display];
+  // }
 }

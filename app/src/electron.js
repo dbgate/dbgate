@@ -27,6 +27,8 @@ autoUpdater.logger = log;
 // TODO - create settings for this
 // appUpdater.channel = 'beta';
 
+let commands = {};
+
 function hideSplash() {
   if (splashWindow) {
     splashWindow.destroy();
@@ -35,61 +37,35 @@ function hideSplash() {
   mainWindow.show();
 }
 
+function commandItem(id) {
+  const command = commands[id];
+  return {
+    id,
+    label: command ? command.menuName || command.toolbarName || command.name : id,
+    accelerator: command ? command.keyText : undefined,
+    enabled: command ? command.enabled : false,
+    click() {
+      mainWindow.webContents.executeJavaScript(`dbgate_runCommand('${id}')`);
+    },
+  };
+}
+
 function buildMenu() {
   const template = [
     {
       label: 'File',
       submenu: [
-        {
-          label: 'Connect to database',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_createNewConnection()`);
-          },
-        },
-        {
-          label: 'Open file',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_openFile()`);
-          },
-        },
-        {
-          label: 'Save',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('save')`);
-          },
-          accelerator: 'Ctrl+S',
-          id: 'save',
-        },
-        {
-          label: 'Save As',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_tabCommand('saveAs')`);
-          },
-          accelerator: 'Ctrl+Shift+S',
-          id: 'saveAs',
-        },
+        commandItem('new.connection'),
+        commandItem('file.open'),
+        commandItem('group.save'),
+        commandItem('group.saveAs'),
         { type: 'separator' },
         { role: 'close' },
       ],
     },
     {
       label: 'Window',
-      submenu: [
-        {
-          label: 'New query',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_newQuery()`);
-          },
-        },
-        { type: 'separator' },
-        {
-          label: 'Close all tabs',
-          click() {
-            mainWindow.webContents.executeJavaScript('dbgate_closeAll()');
-          },
-        },
-        { role: 'minimize' },
-      ],
+      submenu: [commandItem('new.query'), { type: 'separator' }, commandItem('tabs.closeAll'), { role: 'minimize' }],
     },
 
     // {
@@ -144,12 +120,7 @@ function buildMenu() {
             require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
-        {
-          label: 'About',
-          click() {
-            mainWindow.webContents.executeJavaScript(`dbgate_showAbout()`);
-          },
-        },
+        commandItem('about.show'),
       ],
     },
   ];
@@ -157,10 +128,22 @@ function buildMenu() {
   return Menu.buildFromTemplate(template);
 }
 
-ipcMain.on('update-menu', async (event, arg) => {
-  const commands = await mainWindow.webContents.executeJavaScript(`dbgate_getCurrentTabCommands()`);
-  mainMenu.getMenuItemById('save').enabled = !!commands.save;
-  mainMenu.getMenuItemById('saveAs').enabled = !!commands.saveAs;
+ipcMain.on('update-commands', async (event, arg) => {
+  commands = JSON.parse(arg);
+  for (const key of Object.keys(commands)) {
+    const menu = mainMenu.getMenuItemById(key);
+    if (!menu) continue;
+    const command = commands[key];
+
+    // rebuild menu
+    if (menu.label != command.text || menu.accelerator != command.keyText) {
+      mainMenu = buildMenu();
+      mainWindow.setMenu(mainMenu);
+      return;
+    }
+
+    menu.enabled = command.enabled;
+  }
 });
 
 function createWindow() {
@@ -186,7 +169,7 @@ function createWindow() {
     const startUrl =
       process.env.ELECTRON_START_URL ||
       url.format({
-        pathname: path.join(__dirname, '../packages/web/build/index.html'),
+        pathname: path.join(__dirname, '../packages/web/public/index.html'),
         protocol: 'file:',
         slashes: true,
       });

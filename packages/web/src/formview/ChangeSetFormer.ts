@@ -19,6 +19,7 @@ export default class ChangeSetFormer extends Former {
   private batchChangeSet: ChangeSet;
   public rowDefinition: ChangeSetRowDefinition;
   public rowStatus;
+  public rowData: {};
 
   constructor(
     public sourceRow: any,

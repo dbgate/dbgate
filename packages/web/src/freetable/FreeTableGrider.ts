@@ -64,12 +64,12 @@ export default class FreeTableGrider extends Grider {
     }
   }
 
-  static factory({ modelState, dispatchModel }): FreeTableGrider {
-    return new FreeTableGrider(modelState, dispatchModel);
-  }
-  static factoryDeps({ modelState, dispatchModel }) {
-    return [modelState, dispatchModel];
-  }
+  // static factory({ modelState, dispatchModel }): FreeTableGrider {
+  //   return new FreeTableGrider(modelState, dispatchModel);
+  // }
+  // static factoryDeps({ modelState, dispatchModel }) {
+  //   return [modelState, dispatchModel];
+  // }
   undo() {
     this.dispatchModel({ type: 'undo' });
   }

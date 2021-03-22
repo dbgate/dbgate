@@ -1,0 +1,47 @@
+<script lang="ts">
+  import { setContext } from 'svelte';
+  import { writable } from 'svelte/store';
+  import createRef from '../utility/createRef';
+
+  let definitions = [];
+  const dynamicPropsCollection = [];
+  let clientHeight;
+
+  const widgetColumnBarHeight = writable(0);
+
+  setContext('widgetColumnBarHeight', widgetColumnBarHeight);
+  setContext('pushWidgetItemDefinition', (item, dynamicProps) => {
+    dynamicPropsCollection.push(dynamicProps);
+    definitions = [...definitions, item];
+    return definitions.length - 1;
+  });
+  setContext('updateWidgetItemDefinition', (index, item) => {
+    definitions[index] = item;
+  });
+
+  $: $widgetColumnBarHeight = clientHeight;
+
+  $: computeDynamicProps(definitions);
+
+  function computeDynamicProps(defs: any[]) {
+    for (let index = 0; index < defs.length; index++) {
+      const definition = defs[index];
+      const splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
+      dynamicPropsCollection[index].set({ splitterVisible });
+    }
+  }
+</script>
+
+<div class="main-container" bind:clientHeight>
+  <slot />
+</div>
+
+<style>
+  .main-container {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    user-select: none;
+  }
+</style>

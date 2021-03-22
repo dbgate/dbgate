@@ -1,0 +1,32 @@
+.color-icon-blue {
+  color: var(--theme-icon-blue);
+}
+
+.color-icon-green {
+  color: var(--theme-icon-green);
+}
+
+.color-icon-red {
+  color: var(--theme-icon-red);
+}
+
+.color-icon-gold {
+  color: var(--theme-icon-gold);
+}
+
+.color-icon-yellow {
+  color: var(--theme-icon-yellow);
+}
+
+.color-icon-magenta {
+  color: var(--theme-icon-magenta);
+}
+
+
+.color-icon-inv-green {
+  color: var(--theme-icon-inv-green);
+}
+
+.color-icon-inv-red {
+  color: var(--theme-icon-inv-red);
+}

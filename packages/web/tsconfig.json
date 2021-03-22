@@ -1,28 +1,19 @@
 {
+  // "extends": "@tsconfig/svelte/tsconfig.json",
+
+  "include": ["src/**/*"],
+  "exclude": ["node_modules/*", "public/*"],
+
   "compilerOptions": {
-    "module": "esnext",
-    "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
-    "jsx": "react",
+    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "Node",
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-  },
-  "include": [
-    "src"
-  ]
+    "strict": false,
+    "target": "es6",
+    // "allowJs": true,
+    // "checkJs": true,
+  }
 }

@@ -1,0 +1,142 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, Segoe WPC, Segoe UI, HelveticaNeue-Light, Ubuntu, Droid Sans,
+    sans-serif;
+  font-size: 14px;
+  /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+	  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+	  sans-serif; 
+	  */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.horizontal-split-handle {
+  background-color: var(--theme-border);
+  width: var(--dim-splitter-thickness);
+  cursor: col-resize;
+}
+.horizontal-split-handle:hover {
+  background-color: var(--theme-bg-2);
+}
+
+.vertical-split-handle {
+  background-color: var(--theme-border);
+  height: var(--dim-splitter-thickness);
+  cursor: row-resize;
+}
+.vertical-split-handle:hover {
+  background-color: var(--theme-bg-2);
+}
+
+.icon-invisible {
+  visibility: hidden;
+}
+.space-between {
+  display: flex;
+  justify-content: space-between;
+}
+.flex {
+  display: flex;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.bold {
+  font-weight: bold;
+}
+.flex1 {
+  flex: 1;
+}
+
+.col-9 {
+  flex-basis: 75%;
+  max-width: 75%;
+}
+.col-8 {
+  flex-basis: 66.6667%;
+  max-width: 66.6667%;
+}
+.col-6 {
+  flex-basis: 50%;
+  max-width: 50%;
+}
+.col-4 {
+  flex-basis: 33.3333%;
+  max-width: 33.3333%;
+}
+.col-3 {
+  flex-basis: 25%;
+  max-width: 25%;
+}
+
+.largeFormMarker input[type='text'] {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.largeFormMarker input[type='password'] {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+.largeFormMarker select {
+  width: 100%;
+  padding: 10px 10px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border-radius: 4px;
+}
+
+body *::-webkit-scrollbar {
+  height: 0.8em;
+  width: 0.8em;
+}
+body *::-webkit-scrollbar-track {
+  border-radius: 1px;
+  background-color: var(--theme-bg-1);
+}
+body *::-webkit-scrollbar-corner {
+  border-radius: 1px;
+  background-color: var(--theme-bg-2);
+}
+
+body *::-webkit-scrollbar-thumb {
+  border-radius: 1px;
+  background-color: var(--theme-bg-3);
+}
+
+body *::-webkit-scrollbar-thumb:hover {
+  background-color: var(--theme-bg-4);
+}
+
+input {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}
+
+input[disabled] {
+  background-color: var(--theme-bg-1);
+}
+
+select {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}
+
+select[disabled] {
+  background-color: var(--theme-bg-1);
+}
+
+textarea {
+  background-color: var(--theme-bg-0);
+  color: var(--theme-font-1);
+  border: 1px solid var(--theme-border);
+}

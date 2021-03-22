@@ -1,0 +1,22 @@
+:root {
+  --dim-widget-icon-size: 60px;
+  --dim-statusbar-height: 20px;
+  --dim-left-panel-width: 300px;
+  --dim-tabs-panel-height: 53px;
+  --dim-tabs-height: 33px;
+  --dim-splitter-thickness: 3px;
+
+  --dim-visible-left-panel: 1; /* set from JS */
+  --dim-content-left: calc(
+    var(--dim-widget-icon-size) + var(--dim-visible-left-panel) *
+      (var(--dim-left-panel-width) + var(--dim-splitter-thickness))
+  );
+
+  --dim-visible-toolbar: 1; /* set from JS */
+
+  --dim-toolbar-height: 30px;
+  --dim-header-top: calc(var(--dim-toolbar-height) * var(--dim-visible-toolbar));
+  --dim-content-top: calc(var(--dim-header-top) + var(--dim-tabs-panel-height));
+
+  --dim-large-form-margin: 20px;
+}

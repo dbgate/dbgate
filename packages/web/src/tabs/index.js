@@ -1,25 +1,23 @@
-import TableDataTab from './TableDataTab';
-import ViewDataTab from './ViewDataTab';
-import TableStructureTab from './TableStructureTab';
-import QueryTab from './QueryTab';
-import ShellTab from './ShellTab';
-import InfoPageTab from './InfoPageTab';
-import ArchiveFileTab from './ArchiveFileTab';
-import FreeTableTab from './FreeTableTab';
-import PluginTab from './PluginTab';
-import ChartTab from './ChartTab';
-import MarkdownEditorTab from './MarkdownEditorTab';
-import MarkdownViewTab from './MarkdownViewTab';
-import MarkdownPreviewTab from './MarkdownPreviewTab';
-import FavoriteEditorTab from './FavoriteEditorTab';
-import QueryDesignTab from './QueryDesignTab';
+import * as TableDataTab from './TableDataTab.svelte';
+import * as ViewDataTab from './ViewDataTab.svelte';
+import * as TableStructureTab from './TableStructureTab.svelte';
+import * as QueryTab from './QueryTab.svelte';
+import * as ShellTab from './ShellTab.svelte';
+import * as ArchiveFileTab from './ArchiveFileTab.svelte';
+import * as FreeTableTab from './FreeTableTab.svelte';
+import * as PluginTab from './PluginTab.svelte';
+import * as ChartTab from './ChartTab.svelte';
+import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
+import * as MarkdownViewTab from './MarkdownViewTab.svelte';
+import * as MarkdownPreviewTab from './MarkdownPreviewTab.svelte';
+import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
+import * as QueryDesignTab from './QueryDesignTab.svelte';
 
 export default {
   TableDataTab,
   ViewDataTab,
   TableStructureTab,
   QueryTab,
-  InfoPageTab,
   ShellTab,
   ArchiveFileTab,
   FreeTableTab,

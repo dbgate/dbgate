@@ -10,11 +10,4 @@ export default class RowsArrayGrider extends Grider {
   get rowCount() {
     return this.rows.length;
   }
-
-  static factory({ sourceRows }): RowsArrayGrider {
-    return new RowsArrayGrider(sourceRows);
-  }
-  static factoryDeps({ sourceRows }) {
-    return [sourceRows];
-  }
 }

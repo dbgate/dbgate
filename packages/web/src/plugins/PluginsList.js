@@ -1,87 +1,87 @@
-import React from 'react';
-import styled from 'styled-components';
-import useTheme from '../theme/useTheme';
-import { useSetOpenedTabs } from '../utility/globalState';
-import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtractors';
-import useOpenNewTab from '../utility/useOpenNewTab';
+// import React from 'react';
+// import styled from 'styled-components';
+// import useTheme from '../theme/useTheme';
+// import { useSetOpenedTabs } from '../utility/globalState';
+// import { extractPluginIcon, extractPluginAuthor } from '../plugins/manifestExtractors';
+// import useOpenNewTab from '../utility/useOpenNewTab';
 
-const Wrapper = styled.div`
-  margin: 1px 3px 10px 5px;
-  display: flex;
-  align-items: center;
-  &:hover {
-    background-color: ${props => props.theme.left_background_blue[1]};
-  }
-`;
+// const Wrapper = styled.div`
+//   margin: 1px 3px 10px 5px;
+//   display: flex;
+//   align-items: center;
+//   &:hover {
+//     background-color: ${props => props.theme.left_background_blue[1]};
+//   }
+// `;
 
-const Texts = styled.div`
-  margin-left: 10px;
-`;
+// const Texts = styled.div`
+//   margin-left: 10px;
+// `;
 
-const Name = styled.div`
-  font-weight: bold;
-`;
+// const Name = styled.div`
+//   font-weight: bold;
+// `;
 
-const Line = styled.div`
-  display: flex;
-`;
+// const Line = styled.div`
+//   display: flex;
+// `;
 
-const Icon = styled.img`
-  width: 50px;
-  height: 50px;
-`;
+// const Icon = styled.img`
+//   width: 50px;
+//   height: 50px;
+// `;
 
-const Description = styled.div`
-  font-style: italic;
-`;
+// const Description = styled.div`
+//   font-style: italic;
+// `;
 
-const Author = styled.div`
-  font-weight: bold;
-`;
+// const Author = styled.div`
+//   font-weight: bold;
+// `;
 
-const Version = styled.div`
-  margin-left: 5px;
-`;
+// const Version = styled.div`
+//   margin-left: 5px;
+// `;
 
-function openPlugin(openNewTab, packageManifest) {
-  openNewTab({
-    title: packageManifest.name,
-    icon: 'icon plugin',
-    tabComponent: 'PluginTab',
-    props: {
-      packageName: packageManifest.name,
-    },
-  });
-}
+// function openPlugin(openNewTab, packageManifest) {
+//   openNewTab({
+//     title: packageManifest.name,
+//     icon: 'icon plugin',
+//     tabComponent: 'PluginTab',
+//     props: {
+//       packageName: packageManifest.name,
+//     },
+//   });
+// }
 
-function PluginsListItem({ packageManifest }) {
-  const openNewTab = useOpenNewTab();
-  const theme = useTheme();
-  return (
-    <Wrapper onClick={() => openPlugin(openNewTab, packageManifest)} theme={theme}>
-      <Icon src={extractPluginIcon(packageManifest)} />
-      <Texts>
-        <Line>
-          <Name>{packageManifest.name}</Name>
-          <Version>{packageManifest.version}</Version>
-        </Line>
-        <Line>
-          <Description>{packageManifest.description}</Description>
-        </Line>
-        <Line>
-          <Author>{extractPluginAuthor(packageManifest)}</Author>
-        </Line>
-      </Texts>
-    </Wrapper>
-  );
-}
+// function PluginsListItem({ packageManifest }) {
+//   const openNewTab = useOpenNewTab();
+//   const theme = useTheme();
+//   return (
+//     <Wrapper onClick={() => openPlugin(openNewTab, packageManifest)} theme={theme}>
+//       <Icon src={extractPluginIcon(packageManifest)} />
+//       <Texts>
+//         <Line>
+//           <Name>{packageManifest.name}</Name>
+//           <Version>{packageManifest.version}</Version>
+//         </Line>
+//         <Line>
+//           <Description>{packageManifest.description}</Description>
+//         </Line>
+//         <Line>
+//           <Author>{extractPluginAuthor(packageManifest)}</Author>
+//         </Line>
+//       </Texts>
+//     </Wrapper>
+//   );
+// }
 
-export default function PluginsList({ plugins }) {
-  return (
-    <>
-      {plugins.map(packageManifest => (
-        <PluginsListItem packageManifest={packageManifest} key={packageManifest.name} />
-      ))}
-    </>
-  );
-}
+// export default function PluginsList({ plugins }) {
+//   return (
+//     <>
+//       {plugins.map(packageManifest => (
+//         <PluginsListItem packageManifest={packageManifest} key={packageManifest.name} />
+//       ))}
+//     </>
+//   );
+// }

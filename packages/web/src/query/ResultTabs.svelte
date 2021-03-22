@@ -1,0 +1,66 @@
+<script lang="ts">
+  import _ from 'lodash';
+
+  import { tick } from 'svelte';
+
+  import JslDataGrid from '../datagrid/JslDataGrid.svelte';
+  import TabControl from '../elements/TabControl.svelte';
+  import socket from '../utility/socket';
+  import useEffect from '../utility/useEffect';
+
+  export let tabs = [];
+  export let sessionId;
+  export let executeNumber;
+
+  let resultInfos = [];
+  let domTabs;
+
+  const handleResultSet = async props => {
+    const { jslid, resultIndex } = props;
+    resultInfos = [...resultInfos, { jslid, resultIndex }];
+    await tick();
+    const currentTab = allTabs[domTabs.getValue()];
+    if (!currentTab?.isResult) domTabs.setValue(_.findIndex(allTabs, x => x.isResult));
+  };
+
+  $: allTabs = [
+    ...tabs,
+    ...resultInfos.map((info, index) => ({
+      label: `Result ${index + 1}`,
+      isResult: true,
+      component: JslDataGrid,
+      props: { jslid: info.jslid },
+    })),
+  ];
+
+  $: {
+    if (executeNumber >= 0) {
+      resultInfos = [];
+    }
+  }
+
+  $: effect = useEffect(() => {
+    return onSession(sessionId);
+  });
+  function onSession(sid) {
+    if (sid) {
+      socket.on(`session-recordset-${sid}`, handleResultSet);
+      return () => {
+        socket.off(`session-recordset-${sid}`, handleResultSet);
+      };
+    }
+    return () => {};
+  }
+  $: $effect;
+</script>
+
+<TabControl bind:this={domTabs} tabs={allTabs}>
+  <slot name="0" slot="0" />
+  <slot name="1" slot="1" />
+  <slot name="2" slot="2" />
+  <slot name="3" slot="3" />
+  <slot name="4" slot="4" />
+  <slot name="5" slot="5" />
+  <slot name="6" slot="6" />
+  <slot name="7" slot="7" />
+</TabControl>

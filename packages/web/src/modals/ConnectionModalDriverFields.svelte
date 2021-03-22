@@ -1,0 +1,100 @@
+<script lang="ts">
+  import FormPasswordField from '../forms/FormPasswordField.svelte';
+
+  import { getFormContext } from '../forms/FormProviderCore.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
+
+  import FormTextField from '../forms/FormTextField.svelte';
+  import { extensions } from '../stores';
+  import { useAuthTypes } from '../utility/metadataLoaders';
+
+  const { values } = getFormContext();
+  $: authType = $values.authType;
+  $: engine = $values.engine;
+  $: authTypes = useAuthTypes({ engine });
+  $: currentAuthType = $authTypes && $authTypes.find(x => x.name == authType);
+  $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
+  $: driver = $extensions.drivers.find(x => x.engine == engine);
+</script>
+
+<FormSelectField
+  label="Database engine"
+  name="engine"
+  options={[
+    { label: '(select driver)', value: '' },
+    ...$extensions.drivers.map(driver => ({
+      value: driver.engine,
+      label: driver.title,
+    })),
+  ]}
+/>
+
+{#if $authTypes}
+  <FormSelectField
+    label="Authentication"
+    name="authType"
+    options={$authTypes.map(auth => ({
+      value: auth.name,
+      label: auth.title,
+    }))}
+  />
+{/if}
+
+<div class="row">
+  <div class="col-9 mr-1">
+    <FormTextField
+      label="Server"
+      name="server"
+      disabled={disabledFields.includes('server')}
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+  <div class="col-3 mr-1">
+    <FormTextField
+      label="Port"
+      name="port"
+      disabled={disabledFields.includes('port')}
+      templateProps={{ noMargin: true }}
+      placeholder={driver && driver.defaultPort}
+    />
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-6 mr-1">
+    <FormTextField
+      label="User"
+      name="user"
+      disabled={disabledFields.includes('user')}
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+  <div class="col-6 mr-1">
+    <FormPasswordField
+      label="Password"
+      name="password"
+      disabled={disabledFields.includes('password')}
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+</div>
+
+{#if !disabledFields.includes('password')}
+  <FormSelectField
+    label="Password mode"
+    name="passwordMode"
+    options={[
+      { value: 'saveEncrypted', label: 'Save and encrypt' },
+      { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+    ]}
+  />
+{/if}
+
+<FormTextField label="Display name" name="displayName" />
+
+<style>
+  .row {
+    margin: var(--dim-large-form-margin);
+    display: flex;
+  }
+</style>

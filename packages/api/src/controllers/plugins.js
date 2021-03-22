@@ -29,7 +29,7 @@ const hasPermission = require('../utility/hasPermission');
 
 const preinstallPluginMinimalVersions = {
   'dbgate-plugin-mssql': '1.1.0',
-  'dbgate-plugin-mysql': '1.1.0',
+  'dbgate-plugin-mysql': '1.1.1',
   'dbgate-plugin-postgres': '1.1.0',
   'dbgate-plugin-csv': '1.0.8',
   'dbgate-plugin-excel': '1.0.6',
@@ -149,7 +149,7 @@ module.exports = {
     return content.commands[command](args);
   },
 
-  authTypes_meta: 'post',
+  authTypes_meta: 'get',
   async authTypes({ engine }) {
     const packageName = extractPackageName(engine);
     const content = requirePlugin(packageName);

@@ -68,10 +68,10 @@
     "start": "cross-env ELECTRON_START_URL=http://localhost:5000 electron .",
     "start:local": "cross-env electron .",
     "dist": "electron-builder",
-    "build": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn dist",
-    "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build:app && cd ../../app && yarn predist",
+    "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
+    "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "electron-builder install-app-deps",
-    "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/build/*\" packages && copyfiles \"../packages/web/build/**/*\" packages"
+    "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages"
   },
   "main": "src/electron.js",
   "devDependencies": {

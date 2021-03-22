@@ -1,0 +1,156 @@
+<script lang="ts">
+  import _ from 'lodash';
+  import FormArchiveFilesSelect from '../forms/FormArchiveFilesSelect.svelte';
+
+  import FormArchiveFolderSelect from '../forms/FormArchiveFolderSelect.svelte';
+  import FormArgumentList from '../forms/FormArgumentList.svelte';
+
+  import { getFormContext } from '../forms/FormProviderCore.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
+
+  import FontIcon from '../icons/FontIcon.svelte';
+  import { findFileFormat, getFileFormatDirections } from '../plugins/fileformats';
+  import SqlEditor from '../query/SqlEditor.svelte';
+  import { extensions } from '../stores';
+  import { useArchiveFiles, useDatabaseInfo } from '../utility/metadataLoaders';
+  import FilesInput from './FilesInput.svelte';
+  import FormConnectionSelect from './FormConnectionSelect.svelte';
+  import FormDatabaseSelect from './FormDatabaseSelect.svelte';
+  import FormSchemaSelect from './FormSchemaSelect.svelte';
+  import FormTablesSelect from './FormTablesSelect.svelte';
+
+  export let direction;
+  export let storageTypeField;
+
+  export let connectionIdField;
+  export let databaseNameField;
+  export let archiveFolderField;
+  export let schemaNameField;
+  export let tablesField = undefined;
+  export let engine = undefined;
+  export let setPreviewSource = undefined;
+
+  const { values, setFieldValue } = getFormContext();
+
+  $: types =
+    $values[storageTypeField] == 'jsldata'
+      ? [{ value: 'jsldata', label: 'Query result data', directions: ['source'] }]
+      : [
+          { value: 'database', label: 'Database', directions: ['source', 'target'] },
+          ...$extensions.fileFormats.map(format => ({
+            value: format.storageType,
+            label: `${format.name} files(s)`,
+            directions: getFileFormatDirections(format),
+          })),
+          { value: 'query', label: 'SQL Query', directions: ['source'] },
+          { value: 'archive', label: 'Archive', directions: ['source', 'target'] },
+        ];
+
+  $: storageType = $values[storageTypeField];
+  $: dbinfo = useDatabaseInfo({ conid: $values[connectionIdField], database: $values[databaseNameField] });
+  $: archiveFiles = useArchiveFiles({ folder: $values[archiveFolderField] });
+  $: format = findFileFormat($extensions, storageType);
+</script>
+
+<div class="column">
+  {#if direction == 'source'}
+    <div class="title">
+      <FontIcon icon="icon import" /> Source configuration
+    </div>
+  {/if}
+  {#if direction == 'target'}
+    <div class="title">
+      <FontIcon icon="icon export" /> Target configuration
+    </div>
+  {/if}
+
+  <FormSelectField
+    options={types.filter(x => x.directions.includes(direction))}
+    name={storageTypeField}
+    label="Storage type"
+  />
+
+  {#if storageType == 'database' || storageType == 'query'}
+    <FormConnectionSelect name={connectionIdField} label="Server" />
+    <FormDatabaseSelect conidName={connectionIdField} name={databaseNameField} label="Database" />
+  {/if}
+  {#if storageType == 'database'}
+    <FormSchemaSelect
+      conidName={connectionIdField}
+      databaseName={databaseNameField}
+      name={schemaNameField}
+      label="Schema"
+    />
+    {#if tablesField}
+      <FormTablesSelect
+        conidName={connectionIdField}
+        schemaName={schemaNameField}
+        databaseName={databaseNameField}
+        name={tablesField}
+        label="Tables / views"
+      />
+    {/if}
+  {/if}
+  {#if storageType == 'query'}
+    <div class="label">Query</div>
+    <div class="sqlwrap">
+      <SqlEditor
+        value={$values.sourceSql}
+        on:input={e => setFieldValue('sourceSql', e.detail)}
+        {engine}
+        focusOnCreate
+      />
+    </div>
+  {/if}
+
+  {#if storageType == 'archive'}
+    <FormArchiveFolderSelect
+      label="Archive folder"
+      name={archiveFolderField}
+      additionalFolders={_.compact([$values[archiveFolderField]])}
+    />
+  {/if}
+
+  {#if storageType == 'archive' && direction == 'source'}
+    <FormArchiveFilesSelect label="Source files" folderName={$values[archiveFolderField]} name={tablesField} />
+  {/if}
+
+  {#if format && direction == 'source'}
+    <FilesInput {setPreviewSource} />
+  {/if}
+
+  {#if format && format.args}
+    <FormArgumentList
+      args={format.args.filter(arg => !arg.direction || arg.direction == direction)}
+      namePrefix={`${direction}_${format.storageType}_`}
+    />
+  {/if}
+</div>
+
+<style>
+  .title {
+    font-size: 20px;
+    text-align: center;
+    margin: 10px 0px;
+  }
+
+  .column {
+    margin: 10px;
+    flex: 1;
+  }
+
+  .sqlwrap {
+    position: relative;
+    height: 100px;
+    width: 20vw;
+    margin-left: var(--dim-large-form-margin);
+    margin-bottom: var(--dim-large-form-margin);
+  }
+
+  .label {
+    margin-left: var(--dim-large-form-margin);
+    margin-top: var(--dim-large-form-margin);
+    margin-bottom: 3px;
+    color: var(--theme-font-3);
+  }
+</style>

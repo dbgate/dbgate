@@ -1,0 +1,53 @@
+<script lang="ts">
+  import { createGridCache, createGridConfig, FreeTableGridDisplay } from 'dbgate-datalib';
+  import { writable } from 'svelte/store';
+
+  import DataGridCore from '../datagrid/DataGridCore.svelte';
+  import RowsArrayGrider from '../datagrid/RowsArrayGrider';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import axiosInstance from '../utility/axiosInstance';
+
+  export let reader;
+
+  let isLoading = false;
+  let model = null;
+  let grider = null;
+  let errorMessage = null;
+
+  const config = writable(createGridConfig());
+  const cache = writable(createGridCache());
+
+  const handleLoadInitialData = async sourceReader => {
+    try {
+      if (!sourceReader) {
+        model = null;
+        grider = null;
+        return;
+      }
+      errorMessage = null;
+      isLoading = true;
+      const resp = await axiosInstance.post('runners/load-reader', sourceReader);
+      // @ts-ignore
+      model = resp.data;
+      grider = new RowsArrayGrider(resp.data.rows);
+      isLoading = false;
+    } catch (err) {
+      isLoading = false;
+      errorMessage = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
+      console.error(err.response);
+    }
+  };
+
+  $: handleLoadInitialData(reader);
+
+  $: display = new FreeTableGridDisplay(model, $config, config.update, $cache, cache.update);
+</script>
+
+{#if isLoading}
+  <LoadingInfo wrapper message="Loading data" />
+{:else if errorMessage}
+  <ErrorInfo message={errorMessage} />
+{:else if grider}
+  <DataGridCore {...$$props} {grider} {display} />
+{/if}
