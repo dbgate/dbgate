@@ -37,6 +37,7 @@ export const visibleCommandPalette = writable(false);
 export const commands = writable({});
 export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
+export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 
 export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
@@ -90,3 +91,9 @@ commands.subscribe(value => {
   }
 });
 export const getCommands = () => commandsValue;
+
+let activeTabValue = null;
+activeTab.subscribe(value => {
+  activeTabValue = value;
+});
+export const getActiveTab = () => activeTabValue;

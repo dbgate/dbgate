@@ -36,13 +36,14 @@
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import getElectron from '../utility/getElectron';
+  import FavoriteModal from '../modals/FavoriteModal.svelte';
 
   export let data;
 
   const electron = getElectron();
 
   const editFavorite = () => {
-    // showModal(modalState => <FavoriteModal modalState={modalState} editingData={data} />);
+    showModal(FavoriteModal, { editingData: data });
   };
 
   const editFavoriteJson = async () => {

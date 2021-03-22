@@ -83,6 +83,20 @@
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
     onClick: closeAll,
   });
+
+  registerCommand({
+    id: 'tabs.share',
+    category: 'Tabs',
+    name: 'Share',
+    icon: 'icon share',
+    toolbar: true,
+    testEnabled: () =>
+      getActiveTab()?.tabComponent &&
+      tabs[getActiveTab()?.tabComponent] &&
+      tabs[getActiveTab()?.tabComponent].allowAddToFavorites &&
+      tabs[getActiveTab()?.tabComponent].allowAddToFavorites(getActiveTab()?.props),
+    onClick: () => showModal(FavoriteModal, { savingTab: getActiveTab() }),
+  });
 </script>
 
 <script lang="ts">
@@ -90,8 +104,11 @@
   import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import FontIcon from '../icons/FontIcon.svelte';
+  import FavoriteModal from '../modals/FavoriteModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
-  import { currentDatabase, getOpenedTabs, openedTabs } from '../stores';
+  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs } from '../stores';
+  import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
 
