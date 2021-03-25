@@ -49,6 +49,10 @@ export const currentArchive = writable('default');
 export const isFileDragActive = writable(false);
 export const selectedCellsCallback = writable(null);
 
+export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
+  $extensions.themes.find(x => x.className == $currentTheme)
+);
+
 const electron = getElectron();
 
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');

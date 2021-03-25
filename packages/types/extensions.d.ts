@@ -24,6 +24,7 @@ export interface FileFormatDefinition {
 export interface ThemeDefinition {
   className: string;
   themeName: string;
+  themeType: 'light' | 'dark';
 }
 
 export interface PluginDefinition {

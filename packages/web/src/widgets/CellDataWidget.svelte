@@ -55,14 +55,14 @@
   $: usedFormatType = selectedFormatType == 'autodetect' ? autodetectFormatType : selectedFormatType;
   $: usedFormat = formats.find(x => x.type == usedFormatType);
 
-  $: selection = $selectedCellsCallback();
+  $: selection = $selectedCellsCallback ? $selectedCellsCallback() : [];
 </script>
 
 <div class="wrapper">
   <WidgetTitle>Cell data view</WidgetTitle>
   <div class="main">
     <div class="toolbar">
-      Format:
+      Format:<span>&nbsp;</span>
       <SelectField
         isNative
         value={selectedFormatType}
@@ -93,7 +93,7 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   .main {
     display: flex;
     flex: 1;
@@ -104,6 +104,8 @@
     display: flex;
     background: var(--theme-bg-1);
     align-items: center;
+    border-bottom: 1px solid var(--thene-border);
+    margin: 2px;
   }
 
   .data {

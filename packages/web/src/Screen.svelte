@@ -3,6 +3,7 @@
   import WidgetIconPanel from './widgets/WidgetIconPanel.svelte';
   import {
     currentTheme,
+    currentThemeDefinition,
     isFileDragActive,
     leftPanelWidth,
     selectedWidget,
@@ -19,9 +20,11 @@
   import ModalLayer from './modals/ModalLayer.svelte';
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
   import dragDropFileTarget from './utility/dragDropFileTarget';
+
+  $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 </script>
 
-<div class={`${$currentTheme} root`} use:dragDropFileTarget>
+<div class={`${$currentTheme} ${currentThemeType} root`} use:dragDropFileTarget>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -126,6 +129,7 @@
     height: var(--dim-toolbar-height);
     left: 0;
     right: 0;
+    background: var(--theme-bg-1);
   }
 
   .splitter {

@@ -15,7 +15,7 @@
   import 'ace-builds/src-noconflict/theme-twilight';
   import 'ace-builds/src-noconflict/ext-searchbox';
   import 'ace-builds/src-noconflict/ext-language_tools';
-  import { currentDropDownMenu } from '../stores';
+  import { currentDropDownMenu, currentThemeDefinition } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
 
@@ -41,7 +41,7 @@
    **/
   export let value: string = ''; // String, required
   export let mode: string = 'text'; // String
-  export let theme: string = 'github'; // String
+  // export let theme: string = 'github'; // String
   export let options: any = {}; // Object
   export let menu;
   export let readOnly;
@@ -51,6 +51,8 @@
 
   let clientWidth;
   let clientHeight;
+
+  $: theme = $currentThemeDefinition?.themeType == 'dark' ? 'twilight' : 'github';
 
   export function getEditor(): ace.Editor {
     return editor;

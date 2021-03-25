@@ -1,11 +1,12 @@
 <script context="module">
   export const className = 'theme-dark';
   export const themeName = 'Dark';
+  export const themeType = 'dark';
 </script>
 
 <style>
   :global(.theme-dark) {
-    --theme-font-1: #ddd;
+    --theme-font-1: #e3e3e3;
     --theme-font-2: #919191;
     --theme-font-3: #5e5e5e;
     --theme-font-4: #2b2b2b;

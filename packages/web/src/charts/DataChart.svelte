@@ -48,8 +48,9 @@
     return {};
   }
 
-  function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType, dataColumnColors) {
+  function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType, dataColumnColors, themeDef) {
     if (!freeData || !labelColumn || !dataColumns || !freeData.rows || dataColumns.length == 0) return null;
+    const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
     const colors = randomcolor({
       count: _.max([freeData.rows.length, dataColumns.length, 1]),
       seed: colorSeed,
@@ -65,8 +66,8 @@
         if (chartType == 'line' || chartType == 'bar') {
           const color = dataColumnColors[dataColumn];
           if (color) {
-            backgroundColor = presetPalettes[color][4] + '80';
-            borderColor = presetPalettes[color][7];
+            backgroundColor = palettes[color][4] + '80';
+            borderColor = palettes[color][7];
           } else {
             backgroundColor = colors[columnIndex] + '80';
             borderColor = colors[columnIndex];
@@ -98,6 +99,7 @@
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import { generate, presetPalettes, presetDarkPalettes, presetPrimaryColors } from '@ant-design/colors';
   import { extractDataColumnColors, extractDataColumns } from './chartDataLoader';
+  import { currentThemeDefinition } from '../stores';
 
   export let data;
   export let menu;
@@ -116,7 +118,8 @@
     dataColumns,
     $values.colorSeed || '5',
     $values.chartType,
-    dataColumnColors
+    dataColumnColors,
+    $currentThemeDefinition
   );
 </script>
 
