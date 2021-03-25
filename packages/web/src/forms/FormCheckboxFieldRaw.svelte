@@ -3,6 +3,7 @@
   import CheckboxField from './CheckboxField.svelte';
 
   export let name;
+  export let defaultValue;
 
   const { values, setFieldValue } = getFormContext();
   function handleChange(e) {
@@ -10,4 +11,4 @@
   }
 </script>
 
-<CheckboxField {...$$restProps} checked={$values[name]} on:change={handleChange} />
+<CheckboxField {...$$restProps} checked={$values[name] ?? defaultValue} on:change={handleChange} />

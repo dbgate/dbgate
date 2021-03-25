@@ -74,10 +74,12 @@
   $: supportsPreview =
     !!findFileFormat($extensions, $values.sourceStorageType) || $values.sourceStorageType == 'archive';
 
-  $: handleChangePreviewSource($previewSource);
+  $: {
+    $values;
+    handleChangePreviewSource($previewSource);
+  }
 
   const handleChangePreviewSource = async source => {
-    console.log('SOURCE', source);
     if (source && supportsPreview) {
       const reader = await createPreviewReader($extensions, $values, source);
       if (previewReaderStore) previewReaderStore.set(reader);
