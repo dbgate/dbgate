@@ -8,9 +8,16 @@
 
 <script>
   import _ from 'lodash';
-  import App from '../App.svelte';
+  import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
+  import runCommand from '../commands/runCommand';
   import { commands } from '../stores';
+  import getElectron from '../utility/getElectron';
+  import { useFavorites } from '../utility/metadataLoaders';
   import ToolbarButton from './ToolbarButton.svelte';
+
+  const electron = getElectron();
+
+  $: favorites = useFavorites();
 
   $: list = _.sortBy(
     Object.values($commands).filter(x => (x.enabled || x.showDisabled) && x.toolbar && x.onClick),
@@ -19,6 +26,15 @@
 </script>
 
 <div class="container">
+  {#if !electron}
+    <ToolbarButton externalImage="logo192.png" on:click={() => runCommand('about.show')} />
+  {/if}
+  {#each ($favorites || []).filter(x => x.showInToolbar) as item}
+    <ToolbarButton on:click={() => openFavorite(item)} icon={item.icon || 'icon favorite'}>
+      {item.title}
+    </ToolbarButton>
+  {/each}
+
   {#each list as command}
     <ToolbarButton
       icon={command.icon}

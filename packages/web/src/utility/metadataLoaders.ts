@@ -332,7 +332,7 @@ export function useConnectionList() {
 }
 
 export function getConfig() {
-  return getCore(configLoader, {}) || {};
+  return getCore(configLoader, {});
 }
 export function useConfig() {
   return useCore(configLoader, {});

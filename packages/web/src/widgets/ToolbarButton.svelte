@@ -2,9 +2,10 @@
   import { createEventDispatcher } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
-  export let disabled;
-  export let icon;
-  export let title;
+  export let disabled = false;
+  export let icon = null;
+  export let title = null;
+  export let externalImage = null;
 
   const dispatch = createEventDispatcher();
 
@@ -16,8 +17,12 @@
 
 <div class="button" on:click={handleClick} class:disabled {title}>
   <div class="inner">
-    <span class="icon" class:disabled><FontIcon {icon} /></span>
-    <slot />
+    {#if externalImage}
+      <img src={externalImage} />
+    {:else}
+      <span class="icon" class:disabled><FontIcon {icon} /></span>
+      <slot />
+    {/if}
   </div>
 </div>
 
@@ -53,5 +58,9 @@
     top: 2px; */
     white-space: nowrap;
     align-self: center;
+  }
+  img {
+    width: 20px;
+    height: 20px;
   }
 </style>

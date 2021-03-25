@@ -3,6 +3,7 @@ import { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
 import { GlobalCommand } from './commands/registerCommand';
+import { useConfig } from './utility/metadataLoaders';
 
 interface TabDefinition {
   title: string;
@@ -98,3 +99,11 @@ activeTab.subscribe(value => {
   activeTabValue = value;
 });
 export const getActiveTab = () => activeTabValue;
+
+const currentConfigStore = useConfig();
+let currentConfigValue = null;
+currentConfigStore.subscribe(value => {
+  currentConfigValue = value;
+  invalidateCommands();
+});
+export const getCurrentConfig = () => currentConfigValue;

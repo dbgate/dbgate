@@ -12,6 +12,7 @@ import openNewTab from '../utility/openNewTab';
 import getElectron from '../utility/getElectron';
 import { openElectronFile } from '../utility/openElectronFile';
 import { getDefaultFileFormat } from '../plugins/fileformats';
+import { getCurrentConfig } from '../stores';
 
 const electron = getElectron();
 
@@ -63,11 +64,12 @@ registerCommand({
 registerCommand({
   id: 'new.connection',
   toolbar: true,
-  icon: 'icon connection',
+  icon: 'icon new-connection',
   toolbarName: 'Add connection',
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal,
   onClick: () => showModal(ConnectionModal),
 });
 
