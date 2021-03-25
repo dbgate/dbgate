@@ -1,5 +1,6 @@
 <script context="module">
   const getContextMenu = (data, $openedConnections) => () => {
+    const config = getCurrentConfig();
     const handleRefresh = () => {
       axiosInstance.post('server-connections/refresh', { conid: data._id });
     };
@@ -12,12 +13,24 @@
     const handleEdit = () => {
       showModal(ConnectionModal, { connection: data });
     };
+    const handleDelete = () => {
+      showModal(ConfirmModal, {
+        message: `Really delete connection ${data.displayName || data.server}?`,
+        onConfirm: () => axiosInstance.post('connections/delete', data),
+      });
+    };
 
     return [
-      {
-        text: 'Edit',
-        onClick: handleEdit,
-      },
+      config.runAsPortal == false && [
+        {
+          text: 'Edit',
+          onClick: handleEdit,
+        },
+        {
+          text: 'Delete',
+          onClick: handleDelete,
+        },
+      ],
       !$openedConnections.includes(data._id) && {
         text: 'Connect',
         onClick: handleConnect,
@@ -41,11 +54,12 @@
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, openedConnections } from '../stores';
+  import { currentDatabase, extensions, getCurrentConfig, openedConnections } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { filterName } from 'dbgate-datalib';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let data;
 
