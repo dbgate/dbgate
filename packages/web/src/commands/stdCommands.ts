@@ -13,6 +13,7 @@ import getElectron from '../utility/getElectron';
 import { openElectronFile } from '../utility/openElectronFile';
 import { getDefaultFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig } from '../stores';
+import './recentDatabaseSwitch';
 
 const electron = getElectron();
 

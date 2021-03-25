@@ -4,6 +4,7 @@ import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
 import { GlobalCommand } from './commands/registerCommand';
 import { useConfig } from './utility/metadataLoaders';
+import _ from 'lodash';
 
 interface TabDefinition {
   title: string;
@@ -39,6 +40,7 @@ export const commands = writable({});
 export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
+export const recentDatabases = writableWithStorage([], 'recentDatabases');
 
 export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
@@ -111,3 +113,9 @@ currentConfigStore.subscribe(value => {
   invalidateCommands();
 });
 export const getCurrentConfig = () => currentConfigValue;
+
+let recentDatabasesValue = null;
+recentDatabases.subscribe(value => {
+  recentDatabasesValue = value;
+});
+export const getRecentDatabases = () => _.compact(recentDatabasesValue);

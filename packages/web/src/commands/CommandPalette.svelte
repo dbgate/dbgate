@@ -18,7 +18,6 @@
   import { filterName } from 'dbgate-datalib';
 
   import _ from 'lodash';
-  import { derived } from 'svelte/store';
   import { onMount } from 'svelte';
   import { commands, getVisibleCommandPalette, visibleCommandPalette } from '../stores';
   import clickOutside from '../utility/clickOutside';
@@ -28,6 +27,7 @@
   let domInput;
   let parentCommand;
   let filter = '';
+  const domItems = {};
 
   $: selectedIndex = true ? 0 : filter;
 
@@ -65,7 +65,12 @@
     if (e.keyCode == keycodes.downArrow && selectedIndex < filteredItems.length - 1) selectedIndex++;
     if (e.keyCode == keycodes.enter) handleCommand(filteredItems[selectedIndex]);
     if (e.keyCode == keycodes.escape) $visibleCommandPalette = false;
+
+    if (e.keyCode == keycodes.pageDown) selectedIndex = Math.min(selectedIndex + 15, filteredItems.length - 1);
+    if (e.keyCode == keycodes.pageUp) selectedIndex = Math.max(selectedIndex - 15, 0);
   }
+
+  $: if (domItems[selectedIndex]) domItems[selectedIndex].scrollIntoView({ block: 'nearest', inline: 'nearest' });
 </script>
 
 <div class="main" use:clickOutside on:clickOutside={() => ($visibleCommandPalette = false)}>
@@ -80,7 +85,12 @@
   </div>
   <div class="content">
     {#each filteredItems as command, index}
-      <div class="command" class:selected={index == selectedIndex} on:click={() => handleCommand(command)}>
+      <div
+        class="command"
+        class:selected={index == selectedIndex}
+        on:click={() => handleCommand(command)}
+        bind:this={domItems[index]}
+      >
         <div>{command.text}</div>
         {#if command.keyText}
           <div class="shortcut">{command.keyText}</div>
