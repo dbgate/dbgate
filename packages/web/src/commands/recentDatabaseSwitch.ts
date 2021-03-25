@@ -8,7 +8,7 @@ currentDatabase.subscribe(value => {
   recentDatabases.update(list => {
     const res = [
       value,
-      ..._.compact(list).filter(x => x.name != value.name || x.connection?._id != value.connection?.id),
+      ..._.compact(list).filter(x => x.name != value.name || x.connection?._id != value.connection?._id),
     ].slice(0, 10);
     return res;
   });

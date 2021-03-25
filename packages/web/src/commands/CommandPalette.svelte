@@ -25,11 +25,11 @@
   import registerCommand from './registerCommand';
 
   let domInput;
-  let parentCommand;
   let filter = '';
   const domItems = {};
 
   $: selectedIndex = true ? 0 : filter;
+  $: parentCommand = _.isPlainObject($visibleCommandPalette) ? $visibleCommandPalette : null;
 
   onMount(() => {
     const oldFocus = document.activeElement;
@@ -50,7 +50,7 @@
 
   function handleCommand(command) {
     if (command.getSubCommands) {
-      parentCommand = command;
+      $visibleCommandPalette = command;
       domInput.focus();
       filter = '';
       selectedIndex = 0;

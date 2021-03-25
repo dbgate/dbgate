@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import { commands } from '../stores';
+  import { commands, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
 
@@ -38,6 +38,7 @@
     if (notGroup.length == 1) {
       const command = notGroup[0];
       if (command.onClick) command.onClick();
+      else if (command.getSubCommands) visibleCommandPalette.set(command);
       return;
     }
 
