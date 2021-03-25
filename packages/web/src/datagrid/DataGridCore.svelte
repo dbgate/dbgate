@@ -243,6 +243,7 @@
   import { clearLastFocusedFormView } from '../formview/FormView.svelte';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
   import openNewTab from '../utility/openNewTab';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -261,6 +262,7 @@
   export let onOpenQuery = null;
   export let onOpenActiveChart = null;
   export let formViewAvailable = false;
+  export let errorMessage = undefined;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -1002,142 +1004,154 @@
   }
 </script>
 
-<div
-  class="container"
-  bind:clientWidth={containerWidth}
-  bind:clientHeight={containerHeight}
-  use:contextMenu={createMenu}
->
-  <input
-    type="text"
-    class="focus-field"
-    bind:this={domFocusField}
-    on:keydown={handleGridKeyDown}
-    on:focus={() => {
-      lastFocusedDataGrid = instance;
-      clearLastFocusedFormView();
-      invalidateCommands();
-    }}
-    on:paste={handlePaste}
-  />
-  <table
-    class="table"
-    on:mousedown={handleGridMouseDown}
-    on:mousemove={handleGridMouseMove}
-    on:mouseup={handleGridMouseUp}
-    on:wheel={handleGridWheel}
+{#if !columns || columns.length == 0}
+  <LoadingInfo wrapper message="Waiting for structure" />
+{:else if errorMessage}
+  <ErrorInfo message={errorMessage} />
+{:else if grider.errors && grider.errors.length > 0}
+  <div>
+    {#each grider.errors as err}
+      <ErrorInfo message={err} key={index} isSmall />
+    {/each}
+  </div>
+{:else}
+  <div
+    class="container"
+    bind:clientWidth={containerWidth}
+    bind:clientHeight={containerHeight}
+    use:contextMenu={createMenu}
   >
-    <thead>
-      <tr>
-        <td
-          class="header-cell"
-          data-row="header"
-          data-col="header"
-          bind:clientHeight={rowHeight}
-          style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-        />
-        {#each visibleRealColumns as col (col.uniqueName)}
-          <td
-            class="header-cell"
-            data-row="header"
-            data-col={col.colIndex}
-            style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
-          >
-            <ColumnHeaderControl
-              column={col}
-              {conid}
-              {database}
-              setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
-              order={display.getSortOrder(col.uniqueName)}
-              on:resizeSplitter={e => {
-                // @ts-ignore
-                display.resizeColumn(col.uniqueName, col.width, e.detail);
-              }}
-              setGrouping={display.sortable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
-              grouping={display.getGrouping(col.uniqueName)}
-            />
-          </td>
-        {/each}
-      </tr>
-      {#if display.filterable}
+    <input
+      type="text"
+      class="focus-field"
+      bind:this={domFocusField}
+      on:keydown={handleGridKeyDown}
+      on:focus={() => {
+        lastFocusedDataGrid = instance;
+        clearLastFocusedFormView();
+        invalidateCommands();
+      }}
+      on:paste={handlePaste}
+    />
+    <table
+      class="table"
+      on:mousedown={handleGridMouseDown}
+      on:mousemove={handleGridMouseMove}
+      on:mouseup={handleGridMouseUp}
+      on:wheel={handleGridWheel}
+    >
+      <thead>
         <tr>
           <td
             class="header-cell"
-            data-row="filter"
+            data-row="header"
             data-col="header"
+            bind:clientHeight={rowHeight}
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          >
-            {#if display.filterCount > 0}
-              <InlineButton on:click={() => display.clearFilters()} square>
-                <FontIcon icon="icon filter-off" />
-              </InlineButton>
-            {/if}
-          </td>
+          />
           {#each visibleRealColumns as col (col.uniqueName)}
             <td
-              class="filter-cell"
-              data-row="filter"
+              class="header-cell"
+              data-row="header"
               data-col={col.colIndex}
               style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
             >
-              <DataFilterControl
-                filterType={getFilterType(col.dataType)}
-                filter={display.getFilter(col.uniqueName)}
-                setFilter={value => display.setFilter(col.uniqueName, value)}
-                showResizeSplitter
+              <ColumnHeaderControl
+                column={col}
+                {conid}
+                {database}
+                setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
+                order={display.getSortOrder(col.uniqueName)}
                 on:resizeSplitter={e => {
                   // @ts-ignore
                   display.resizeColumn(col.uniqueName, col.width, e.detail);
                 }}
+                setGrouping={display.sortable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                grouping={display.getGrouping(col.uniqueName)}
               />
             </td>
           {/each}
         </tr>
-      {/if}
-    </thead>
-    <tbody>
-      {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
-        <DataGridRow
-          {rowIndex}
-          {grider}
-          {visibleRealColumns}
-          {rowHeight}
-          {autofillSelectedCells}
-          selectedCells={filterCellsForRow(selectedCells, rowIndex)}
-          autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-          focusedColumn={display.focusedColumn}
-          inplaceEditorState={$inplaceEditorState}
-          {dispatchInsplaceEditor}
-          {frameSelection}
-          onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
-        />
-      {/each}
-    </tbody>
-  </table>
-  <HorizontalScrollBar
-    minimum={0}
-    maximum={maxScrollColumn}
-    viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
-    on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
-    bind:this={domHorizontalScroll}
-  />
-  <VerticalScrollBar
-    minimum={0}
-    maximum={grider.rowCount - visibleRowCountUpperBound + 2}
-    viewportRatio={visibleRowCountUpperBound / grider.rowCount}
-    on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
-    bind:this={domVerticalScroll}
-  />
-  {#if allRowCount}
-    <div class="row-count-label">
-      {getRowCountInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData(), allRowCount)}
-    </div>
-  {/if}
+        {#if display.filterable}
+          <tr>
+            <td
+              class="header-cell"
+              data-row="filter"
+              data-col="header"
+              style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
+            >
+              {#if display.filterCount > 0}
+                <InlineButton on:click={() => display.clearFilters()} square>
+                  <FontIcon icon="icon filter-off" />
+                </InlineButton>
+              {/if}
+            </td>
+            {#each visibleRealColumns as col (col.uniqueName)}
+              <td
+                class="filter-cell"
+                data-row="filter"
+                data-col={col.colIndex}
+                style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+              >
+                <DataFilterControl
+                  filterType={getFilterType(col.dataType)}
+                  filter={display.getFilter(col.uniqueName)}
+                  setFilter={value => display.setFilter(col.uniqueName, value)}
+                  showResizeSplitter
+                  on:resizeSplitter={e => {
+                    // @ts-ignore
+                    display.resizeColumn(col.uniqueName, col.width, e.detail);
+                  }}
+                />
+              </td>
+            {/each}
+          </tr>
+        {/if}
+      </thead>
+      <tbody>
+        {#each _.range(firstVisibleRowScrollIndex, Math.min(firstVisibleRowScrollIndex + visibleRowCountUpperBound, grider.rowCount)) as rowIndex (rowIndex)}
+          <DataGridRow
+            {rowIndex}
+            {grider}
+            {visibleRealColumns}
+            {rowHeight}
+            {autofillSelectedCells}
+            selectedCells={filterCellsForRow(selectedCells, rowIndex)}
+            autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
+            focusedColumn={display.focusedColumn}
+            inplaceEditorState={$inplaceEditorState}
+            {dispatchInsplaceEditor}
+            {frameSelection}
+            onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}
+          />
+        {/each}
+      </tbody>
+    </table>
+    <HorizontalScrollBar
+      minimum={0}
+      maximum={maxScrollColumn}
+      viewportRatio={gridScrollAreaWidth / columnSizes.getVisibleScrollSizeSum()}
+      on:scroll={e => (firstVisibleColumnScrollIndex = e.detail)}
+      bind:this={domHorizontalScroll}
+    />
+    <VerticalScrollBar
+      minimum={0}
+      maximum={grider.rowCount - visibleRowCountUpperBound + 2}
+      viewportRatio={visibleRowCountUpperBound / grider.rowCount}
+      on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
+      bind:this={domVerticalScroll}
+    />
+    {#if allRowCount}
+      <div class="row-count-label">
+        {getRowCountInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData(), allRowCount)}
+      </div>
+    {/if}
 
-  {#if isLoading}
-    <LoadingInfo wrapper message="Loading data" />
-  {/if}
-</div>
+    {#if isLoading}
+      <LoadingInfo wrapper message="Loading data" />
+    {/if}
+  </div>
+{/if}
 
 <style>
   .container {

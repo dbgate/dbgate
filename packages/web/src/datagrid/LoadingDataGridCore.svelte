@@ -114,6 +114,7 @@
   bind:this={domGrid}
   {...$$props}
   onLoadNextData={handleLoadNextData}
+  {errorMessage}
   {grider}
   {isLoading}
   {allRowCount}
