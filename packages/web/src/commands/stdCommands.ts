@@ -78,6 +78,7 @@ registerCommand({
   toolbar: true,
   toolbarOrder: 2,
   name: 'Query',
+  toolbarName: 'New query',
   keyText: 'Ctrl+Q',
   onClick: () => newQuery(),
 });

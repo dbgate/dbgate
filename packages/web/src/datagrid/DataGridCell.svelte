@@ -93,11 +93,11 @@
       {value.toString()}
     {/if}
 
-    {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData}
+    {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData && rowData[col.hintColumnName]}
       <span class="hint">{rowData[col.hintColumnName]}</span>
     {/if}
 
-    {#if col.foreignKey && rowData[col.uniqueName]}
+    {#if col.foreignKey && rowData && rowData[col.uniqueName]}
       <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
     {/if}
   {/if}

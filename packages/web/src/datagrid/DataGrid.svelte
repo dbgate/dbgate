@@ -10,6 +10,7 @@
   export let gridCoreComponent;
   export let formViewComponent;
   export let formDisplay;
+  export let display;
 
   export let isDetailView = false;
   export let showReferences = false;
@@ -35,7 +36,7 @@
         name="references"
         height="30%"
         collapsed={isDetailView}
-        skip={!showReferences}
+        skip={!showReferences || !display.hasReferences}
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>

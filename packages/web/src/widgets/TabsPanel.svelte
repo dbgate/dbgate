@@ -111,6 +111,7 @@
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
@@ -172,11 +173,27 @@
     }
     return res;
   };
+
+  const handleSetDb = async props => {
+    const { conid, database } = props || {};
+    if (conid) {
+      const connection = await getConnectionInfo({ conid, database });
+      if (connection) {
+        $currentDatabase = { connection, name: database };
+        return;
+      }
+    }
+    $currentDatabase = null;
+  };
 </script>
 
 {#each dbKeys as dbKey}
   <div class="db-wrapper">
-    <div class="db-name" class:selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}>
+    <div
+      class="db-name"
+      class:selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
+      on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
+    >
       <FontIcon icon={getDbIcon(dbKey)} />
       {tabsByDb[dbKey][0].tabDbName}
     </div>

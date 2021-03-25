@@ -9,14 +9,14 @@
 {#if isSmall}
   <div class="container-small">
     <FontIcon {icon} />
-    {message}
+    {message || 'Unknown error'}
   </div>
 {:else}
   <div class="container">
     <div class="icon">
       <FontIcon {icon} />
     </div>
-    {message}
+    {message || 'Unknown error'}
   </div>
 {/if}
 
