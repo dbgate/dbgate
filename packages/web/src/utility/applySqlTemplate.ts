@@ -2,14 +2,32 @@ import { getDbCore, getConnectionInfo, getSqlObjectInfo } from './metadataLoader
 import sqlFormatter from 'sql-formatter';
 import { driverBase, findEngineDriver } from 'dbgate-tools';
 
+async function generateTableSql(extensions, props, dumpProc, format = false) {
+  const tableInfo = await getDbCore(props, props.objectTypeField || 'tables');
+  const connection = await getConnectionInfo(props);
+  const driver = findEngineDriver(connection, extensions) || driverBase;
+  const dmp = driver.createDumper();
+  if (tableInfo) dumpProc(dmp, tableInfo);
+  return format ? sqlFormatter.format(dmp.s) : dmp.s;
+}
+
 export default async function applySqlTemplate(sqlTemplate, extensions, props) {
   if (sqlTemplate == 'CREATE TABLE') {
-    const tableInfo = await getDbCore(props, props.objectTypeField || 'tables');
-    const connection = await getConnectionInfo(props);
-    const driver = findEngineDriver(connection, extensions) || driverBase;
-    const dmp = driver.createDumper();
-    if (tableInfo) dmp.createTable(tableInfo);
-    return dmp.s;
+    return generateTableSql(extensions, props, (dmp, tableInfo) => dmp.createTable(tableInfo));
+  }
+  if (sqlTemplate == 'SELECT') {
+    return generateTableSql(
+      extensions,
+      props,
+      (dmp, tableInfo) => {
+        dmp.put(
+          '^select %,i ^from %f',
+          tableInfo.columns.map(x => x.columnName),
+          tableInfo
+        );
+      },
+      true
+    );
   }
   if (sqlTemplate == 'CREATE OBJECT') {
     const objectInfo = await getSqlObjectInfo(props);

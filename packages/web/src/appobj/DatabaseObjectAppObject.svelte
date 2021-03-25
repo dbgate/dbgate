@@ -61,6 +61,10 @@
         label: 'SQL: CREATE TABLE',
         sqlTemplate: 'CREATE TABLE',
       },
+      {
+        label: 'SQL: SELECT',
+        sqlTemplate: 'SELECT',
+      },
     ],
     views: [
       {
@@ -101,6 +105,10 @@
       {
         label: 'SQL: CREATE TABLE',
         sqlTemplate: 'CREATE TABLE',
+      },
+      {
+        label: 'SQL: SELECT',
+        sqlTemplate: 'SELECT',
       },
     ],
     procedures: [
