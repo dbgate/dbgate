@@ -9,6 +9,7 @@
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import { openedConnections } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -19,11 +20,17 @@
     $connections && $serverStatus
       ? $connections.map(conn => ({ ...conn, status: $serverStatus[conn._id] }))
       : $connections;
+
+  const handleRefreshConnections = () => {
+    for (const conid of $openedConnections) {
+      axiosInstance.post('server-connections/refresh', { conid });
+    }
+  };
 </script>
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search connection" bind:value={filter} />
-  <InlineButton>Refresh</InlineButton>
+  <InlineButton on:click={handleRefreshConnections}>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList
