@@ -19,15 +19,14 @@
   export let setFilter;
   export let showResizeSplitter = false;
   export let onFocusGrid;
+  export let onGetReference;
 
   let value;
   let isError;
   let isOk;
   let domInput;
 
-  export function focus() {
-    domInput.focus();
-  }
+  $: if (onGetReference && domInput) onGetReference(domInput);
 
   function openFilterWindow(condition1) {
     showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
@@ -193,6 +192,7 @@
 
 <div class="flex">
   <input
+    bind:this={domInput}
     type="text"
     autocomplete="off"
     readOnly={isReadOnly}
@@ -200,7 +200,6 @@
     on:keydown={handleKeyDown}
     on:blur={applyFilter}
     on:paste={handlePaste}
-    bind:this={domInput}
     class:isError
     class:isOk
   />

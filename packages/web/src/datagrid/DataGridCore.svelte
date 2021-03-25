@@ -290,7 +290,7 @@
   let shiftDragStartCell = nullCell;
   let autofillDragStartCell = nullCell;
   let autofillSelectedCells = emptyCellArray;
-  const domFilterControls = {};
+  const domFilterControlsRef = createRef({});
 
   export function refresh() {
     display.reload();
@@ -991,7 +991,7 @@
 
   function focusFilterEditor(columnRealIndex) {
     let modelIndex = columnSizes.realToModel(columnRealIndex);
-    const domFilter = domFilterControls[columns[modelIndex].uniqueName];
+    const domFilter = domFilterControlsRef.get()[columns[modelIndex].uniqueName];
     if (domFilter) domFilter.focus();
     return ['filter', columnRealIndex];
   }
@@ -1030,7 +1030,7 @@
 {:else if grider.errors && grider.errors.length > 0}
   <div>
     {#each grider.errors as err}
-      <ErrorInfo message={err} key={index} isSmall />
+      <ErrorInfo message={err} isSmall />
     {/each}
   </div>
 {:else}
@@ -1113,7 +1113,7 @@
                 style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
               >
                 <DataFilterControl
-                  bind:this={domFilterControls[col.uniqueName]}
+                  onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
                   filterType={getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
