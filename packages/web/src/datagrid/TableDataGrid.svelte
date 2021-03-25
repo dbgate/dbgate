@@ -119,6 +119,7 @@
       {display}
       {formDisplay}
       showReferences
+      showMacros
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
       onReferenceClick={value => {
         if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {

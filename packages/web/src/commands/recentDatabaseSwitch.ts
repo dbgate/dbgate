@@ -3,7 +3,6 @@ import { recentDatabases, currentDatabase, getRecentDatabases } from '../stores'
 import registerCommand from './registerCommand';
 
 currentDatabase.subscribe(value => {
-  console.log('DB', value);
   if (!value) return;
   recentDatabases.update(list => {
     const res = [

@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  function extractMacroValuesForMacro(macroValues, macro) {
+  export function extractMacroValuesForMacro(macroValues, macro) {
     // return {};
     if (!macro) return {};
     return {

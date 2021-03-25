@@ -11,11 +11,17 @@
 
   let filter = '';
   export let managerSize;
+  export let macroCondition;
 </script>
 
 <ManagerInnerContainer width={managerSize}>
   <SearchBoxWrapper>
     <SearchInput placeholder="Search macros" bind:value={filter} />
   </SearchBoxWrapper>
-  <AppObjectList list={_.sortBy(macros, 'title')} module={macroAppObject} {filter} groupFunc={data => data.group} />
+  <AppObjectList
+    list={_.sortBy(macros, 'title').filter(x => (macroCondition ? macroCondition(x) : true))}
+    module={macroAppObject}
+    {filter}
+    groupFunc={data => data.group}
+  />
 </ManagerInnerContainer>

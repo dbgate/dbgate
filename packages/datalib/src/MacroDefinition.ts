@@ -19,4 +19,6 @@ export interface MacroDefinition {
 export interface MacroSelectedCell {
   column: string;
   row: number;
+  rowData: any;
+  value: any;
 }

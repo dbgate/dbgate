@@ -66,11 +66,26 @@
   export let changeSetState;
   export let dispatchChangeSet;
 
+  export let macroPreview;
+  export let macroValues;
+  export let selectedCellsPublished;
+
+  // export let onChangeGrider = undefined;
+
   let loadedRows = [];
 
   // $: console.log('loadedRows BIND', loadedRows);
-  $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
+  $: grider = new ChangeSetGrider(
+    loadedRows,
+    changeSetState,
+    dispatchChangeSet,
+    display,
+    macroPreview,
+    macroValues,
+    selectedCellsPublished
+  );
   // $: console.log('GRIDER', grider);
+  // $: if (onChangeGrider) onChangeGrider(grider);
 
   async function handleConfirmSql(sql) {
     const resp = await axiosInstance.request({
@@ -162,6 +177,7 @@
   onOpenQuery={openQuery}
   onOpenActiveChart={openActiveChart}
   bind:loadedRows
+  frameSelection={!!macroPreview}
   {grider}
   onSave={handleSave}
 />

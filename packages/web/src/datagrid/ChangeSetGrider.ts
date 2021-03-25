@@ -7,8 +7,12 @@ import {
   findExistingChangeSetItem,
   getChangeSetInsertedRows,
   GridDisplay,
+  MacroDefinition,
+  MacroSelectedCell,
   revertChangeSetRowChanges,
   setChangeSetValue,
+  compileMacroFunction,
+  runMacroOnValue,
 } from 'dbgate-datalib';
 import Grider, { GriderRowStatus } from './Grider';
 
@@ -21,8 +25,18 @@ export default class ChangeSetGrider extends Grider {
   private rowStatusCache;
   private rowDefinitionsCache;
   private batchChangeSet: ChangeSet;
+  private _errors = null;
+  private compiledMacroFunc;
 
-  constructor(public sourceRows: any[], public changeSetState, public dispatchChangeSet, public display: GridDisplay) {
+  constructor(
+    public sourceRows: any[],
+    public changeSetState,
+    public dispatchChangeSet,
+    public display: GridDisplay,
+    public macro: MacroDefinition,
+    public macroArgs: {},
+    public selectedCells: MacroSelectedCell[]
+  ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
     this.insertedRows = getChangeSetInsertedRows(this.changeSet, display.baseTable);
@@ -32,6 +46,11 @@ export default class ChangeSetGrider extends Grider {
     this.rowStatusCache = {};
     this.rowDefinitionsCache = {};
     this.batchChangeSet = null;
+    this.compiledMacroFunc = compileMacroFunction(macro, this._errors);
+  }
+
+  get errors() {
+    return this._errors;
   }
 
   getRowSource(index: number) {
@@ -49,7 +68,11 @@ export default class ChangeSetGrider extends Grider {
     const insertedRowIndex = this.getInsertedRowIndex(index);
     const rowDefinition = this.display.getChangeSetRow(row, insertedRowIndex);
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
-    const rowUpdated = matchedChangeSetItem ? { ...row, ...matchedChangeSetItem.fields } : row;
+    const rowUpdated = matchedChangeSetItem
+      ? { ...row, ...matchedChangeSetItem.fields }
+      : this.compiledMacroFunc
+      ? { ...row }
+      : row;
     let status = 'regular';
     if (matchedChangeSetItem && matchedField == 'updates') status = 'updated';
     if (matchedField == 'deletes') status = 'deleted';
@@ -59,6 +82,23 @@ export default class ChangeSetGrider extends Grider {
       modifiedFields:
         matchedChangeSetItem && matchedChangeSetItem.fields ? new Set(Object.keys(matchedChangeSetItem.fields)) : null,
     };
+
+    if (this.compiledMacroFunc) {
+      for (const cell of this.selectedCells) {
+        if (cell.row != index) continue;
+        const newValue = runMacroOnValue(
+          this.compiledMacroFunc,
+          this.macroArgs,
+          rowUpdated[cell.column],
+          index,
+          rowUpdated,
+          cell.column,
+          this._errors
+        );
+        rowUpdated[cell.column] = newValue;
+      }
+    }
+
     this.rowDataCache[index] = rowUpdated;
     this.rowStatusCache[index] = rowStatus;
     this.rowDefinitionsCache[index] = rowDefinition;
