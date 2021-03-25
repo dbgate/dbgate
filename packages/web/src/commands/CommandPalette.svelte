@@ -70,7 +70,13 @@
 
 <div class="main" use:clickOutside on:clickOutside={() => ($visibleCommandPalette = false)}>
   <div class="search">
-    <input type="text" bind:this={domInput} bind:value={filter} on:keydown={handleKeyDown} />
+    <input
+      type="text"
+      bind:this={domInput}
+      bind:value={filter}
+      on:keydown={handleKeyDown}
+      placeholder={parentCommand?.text || ''}
+    />
   </div>
   <div class="content">
     {#each filteredItems as command, index}

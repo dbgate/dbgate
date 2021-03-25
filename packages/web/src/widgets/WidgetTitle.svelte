@@ -7,10 +7,10 @@
     padding: 5px;
     font-weight: bold;
     text-transform: uppercase;
-    background-color: var(--theme-bg-2);
-    border: 1px solid var(--theme-border);
+    background-color: var(--theme-bg-1);
+    border: 2px solid var(--theme-border);
   }
   div:hover {
-    background-color: var(--theme-bg-3);
+    background-color: var(--theme-bg-2);
   }
 </style>

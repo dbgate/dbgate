@@ -7,9 +7,9 @@
 <style>
   :global(.theme-dark) {
     --theme-font-1: #e3e3e3;
-    --theme-font-2: #919191;
-    --theme-font-3: #5e5e5e;
-    --theme-font-4: #2b2b2b;
+    --theme-font-2: #b5b5b5;
+    --theme-font-3: #888888;
+    --theme-font-4: #5a5a5a;
     --theme-font-hover: #8dcff8; /* blue-9 */
     --theme-font-link: #65b7f3; /* blue-8 */
     --theme-font-alt: #b2e58b; /* green-9 */
