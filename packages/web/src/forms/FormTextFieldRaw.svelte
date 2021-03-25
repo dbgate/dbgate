@@ -3,8 +3,13 @@
   import TextField from './TextField.svelte';
 
   export let name;
+  export let defaultValue;
 
   const { values, setFieldValue } = getFormContext();
 </script>
 
-<TextField {...$$restProps} value={$values[name]} on:input={e => setFieldValue(name, e.target['value'])} />
+<TextField
+  {...$$restProps}
+  value={$values[name] ?? defaultValue}
+  on:input={e => setFieldValue(name, e.target['value'])}
+/>

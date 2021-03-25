@@ -59,6 +59,58 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     code: `return modules.lodash[args.type](value)`,
   },
   {
+    title: 'Pad left',
+    name: 'padLeft',
+    group: 'Text',
+    args: [
+      {
+        type: 'text',
+        label: 'Character',
+        name: 'character',
+        default: '0',
+      },
+      {
+        type: 'text',
+        label: 'Length',
+        name: 'length',
+        default: '3',
+      },
+    ],
+    description: 'Returns string of a specified length in which the beginning of the current string is padded with spaces or other character',
+    type: 'transformValue',
+    code: `return modules.lodash.padStart(value, +args.length, args.character)`,
+  },
+  {
+    title: 'Pad right',
+    name: 'padRight',
+    group: 'Text',
+    args: [
+      {
+        type: 'text',
+        label: 'Character',
+        name: 'character',
+        default: '0',
+      },
+      {
+        type: 'text',
+        label: 'Length',
+        name: 'length',
+        default: '3',
+      },
+    ],
+    description: 'Returns string of a specified length in which the end of the current string is padded with spaces or other character',
+    type: 'transformValue',
+    code: `return modules.lodash.padEnd(value, +args.length, args.character)`,
+  },
+  {
+    title: 'Trim',
+    name: 'trim',
+    group: 'Text',
+    description: 'Removes leading and trailing whitespace ',
+    type: 'transformValue',
+    code: `return modules.lodash.trim(value)`,
+  },
+  {
     title: 'Row index',
     name: 'rowIndex',
     group: 'Tools',
