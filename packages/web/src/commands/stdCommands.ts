@@ -35,6 +35,7 @@ registerCommand({
   id: 'theme.changeTheme',
   category: 'Theme',
   name: 'Change',
+  toolbarName: 'Change theme',
   getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 

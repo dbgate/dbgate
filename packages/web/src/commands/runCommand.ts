@@ -1,4 +1,4 @@
-import { getCommands } from '../stores';
+import { getCommands, visibleCommandPalette } from '../stores';
 import { GlobalCommand } from './registerCommand';
 
 export default function runCommand(id) {
@@ -11,6 +11,8 @@ export default function runCommand(id) {
     } else {
       if (command.onClick) {
         command.onClick();
+      } else if (command.getSubCommands) {
+        visibleCommandPalette.set(command);
       }
     }
   }

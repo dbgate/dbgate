@@ -91,6 +91,7 @@ function buildMenu() {
         { role: 'zoomout' },
         { type: 'separator' },
         { role: 'togglefullscreen' },
+        commandItem('theme.changeTheme'),
       ],
     },
     {
