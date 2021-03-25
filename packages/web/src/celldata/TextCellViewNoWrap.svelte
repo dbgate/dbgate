@@ -1,5 +1,6 @@
 <script lang="ts">
+  import TextCellView from './TextCellView.svelte';
   export let selection;
 </script>
 
-<textarea class="flex1" wrap="no" readonly value={selection[0].value} />
+<TextCellView wrap="no" {selection} />

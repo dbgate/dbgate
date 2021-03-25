@@ -4,13 +4,13 @@
       type: 'textWrap',
       title: 'Text (wrap)',
       component: TextCellViewWrap,
-      single: true,
+      single: false,
     },
     {
       type: 'text',
       title: 'Text (no wrap)',
       component: TextCellViewNoWrap,
-      single: true,
+      single: false,
     },
     {
       type: 'json',
