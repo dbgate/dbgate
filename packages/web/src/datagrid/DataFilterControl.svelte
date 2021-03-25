@@ -18,10 +18,16 @@
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
+  export let onFocusGrid;
 
   let value;
   let isError;
   let isOk;
+  let domInput;
+
+  export function focus() {
+    domInput.focus();
+  }
 
   function openFilterWindow(condition1) {
     showModal(SetFilterModal, { condition1, filterType, onFilter: setFilter });
@@ -136,11 +142,11 @@
     if (ev.keyCode == keycodes.escape) {
       setFilter('');
     }
-    // if (ev.keyCode == keycodes.downArrow) {
-    //   if (onFocusGrid) onFocusGrid();
-    //   // ev.stopPropagation();
-    //   ev.preventDefault();
-    // }
+    if (ev.keyCode == keycodes.downArrow) {
+      if (onFocusGrid) onFocusGrid();
+      // ev.stopPropagation();
+      ev.preventDefault();
+    }
     // if (ev.keyCode == KeyCodes.DownArrow || ev.keyCode == KeyCodes.UpArrow) {
     //     if (this.props.onControlKey) this.props.onControlKey(ev.keyCode);
     // }
@@ -178,6 +184,7 @@
   }
 
   function applyFilter() {
+    if ((filter || '') == (value || '')) return;
     setFilter(value);
   }
 
@@ -193,6 +200,7 @@
     on:keydown={handleKeyDown}
     on:blur={applyFilter}
     on:paste={handlePaste}
+    bind:this={domInput}
     class:isError
     class:isOk
   />

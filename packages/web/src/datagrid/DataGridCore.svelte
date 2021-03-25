@@ -290,6 +290,7 @@
   let shiftDragStartCell = nullCell;
   let autofillDragStartCell = nullCell;
   let autofillSelectedCells = emptyCellArray;
+  const domFilterControls = {};
 
   export function refresh() {
     display.reload();
@@ -830,7 +831,7 @@
     } else {
       switch (event.keyCode) {
         case keycodes.upArrow:
-          // if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
+          if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
           return moveCurrentCell(currentCell[0] - 1, currentCell[1], event);
         case keycodes.downArrow:
         case keycodes.enter:
@@ -950,6 +951,17 @@
     }
   }
 
+  const selectTopmostCell = uniquePath => {
+    const modelIndex = columns.findIndex(x => x.uniquePath == uniquePath);
+    const realIndex = columnSizes.modelToReal(modelIndex);
+    let cell = [firstVisibleRowScrollIndex, realIndex];
+    // @ts-ignore
+    currentCell = cell;
+    // @ts-ignore
+    selectedCells = [cell];
+    domFocusField.focus();
+  };
+
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show':
@@ -976,6 +988,13 @@
     }
     return {};
   }, {});
+
+  function focusFilterEditor(columnRealIndex) {
+    let modelIndex = columnSizes.realToModel(columnRealIndex);
+    const domFilter = domFilterControls[columns[modelIndex].uniqueName];
+    if (domFilter) domFilter.focus();
+    return ['filter', columnRealIndex];
+  }
 
   function createMenu() {
     return [
@@ -1094,6 +1113,7 @@
                 style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
               >
                 <DataFilterControl
+                  bind:this={domFilterControls[col.uniqueName]}
                   filterType={getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
@@ -1101,6 +1121,9 @@
                   on:resizeSplitter={e => {
                     // @ts-ignore
                     display.resizeColumn(col.uniqueName, col.width, e.detail);
+                  }}
+                  onFocusGrid={() => {
+                    selectTopmostCell(col.uniqueName);
                   }}
                 />
               </td>
