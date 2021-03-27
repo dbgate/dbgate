@@ -34,7 +34,7 @@ module.exports = {
     socket.emitChanged(`database-status-changed-${conid}-${database}`);
   },
 
-  handle_ping() {},
+  handle_ping() { },
 
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
@@ -152,6 +152,17 @@ module.exports = {
     //   message: 'Not connected',
     // };
   },
+
+  sqlPreview_meta: 'post',
+  async sqlPreview({ conid, database, objects, options }) {
+    // wait for structure
+    await this.structure({ conid, database })
+
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'sqlPreview', objects, options });
+    return res.sql;
+  },
+
 
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {

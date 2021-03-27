@@ -54,7 +54,7 @@
 
   async function generatePreview(options, objects) {
     busy = true;
-    const response = await axiosInstance.post('sqlgen/preview', { conid, database, objects, options });
+    const response = await axiosInstance.post('database-connections/sql-preview', { conid, database, objects, options });
     if (_.isString(response.data)) {
       sqlPreview = response.data;
     }
