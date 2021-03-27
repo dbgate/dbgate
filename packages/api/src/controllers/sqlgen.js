@@ -11,9 +11,9 @@ module.exports = {
     const structure = await databaseConnections.structure({ conid, database })
     const connection = await connections.get({ conid })
     const driver = requireEngineDriver(connection);
-    const dmp = driver.createDumper()
+    const dmp = driver.createDumper();
     const generator = new SqlGenerator(structure, options, objects, dmp);
-    generator.dump();
+    await generator.dump();
     return dmp.s;
   },
 };

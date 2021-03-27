@@ -43,7 +43,7 @@ export class SqlGenerator {
     return false;
   }
 
-  dump() {
+  async dump() {
     if (this.options.createTables) {
       for (const table of this.tables) {
         this.dmp.createTable(table);
