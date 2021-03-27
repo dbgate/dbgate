@@ -69,6 +69,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     }
     dmp.putRaw(';');
     // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
+    // console.log(dmp.s);
     await driver.query(pool, dmp.s);
   };
 

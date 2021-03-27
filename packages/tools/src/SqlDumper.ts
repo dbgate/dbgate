@@ -46,11 +46,12 @@ export class SqlDumper {
   }
   putValue(value) {
     if (value === null) this.putRaw('NULL');
-    if (value === true) this.putRaw('1');
-    if (value === false) this.putRaw('0');
+    else if (value === true) this.putRaw('1');
+    else if (value === false) this.putRaw('0');
     else if (_isString(value)) this.putStringValue(value);
     else if (_isNumber(value)) this.putRaw(value.toString());
     else if (_isDate(value)) this.putStringValue(new Date(value).toISOString());
+    else this.putRaw('NULL');
   }
   putCmd(format, ...args) {
     this.put(format, ...args);

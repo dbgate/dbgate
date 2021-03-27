@@ -35,6 +35,7 @@
   import useEditorData from '../query/useEditorData';
   import { activeTabId, getActiveTabId, nullStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
+import { changeTab } from '../utility/common';
   import memberStore from '../utility/memberStore';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
@@ -75,8 +76,13 @@
     domEditor?.getEditor()?.focus();
   }
 
-  $: effect = useEffect(() => registerRunnerDone(runnerId));
+  $: {
+    changeTab(tabid, tab => ({ ...tab, busy }));
+  }
 
+  $: effect = useEffect(() => registerRunnerDone(runnerId));
+  $: $effect;
+  
   function registerRunnerDone(rid) {
     if (rid) {
       socket.on(`runner-done-${rid}`, handleRunnerDone);
@@ -87,8 +93,6 @@
       return () => {};
     }
   }
-
-  $: $effect;
 
   function handleRunnerDone() {
     busy = false;
