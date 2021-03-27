@@ -19,6 +19,18 @@
         onConfirm: () => axiosInstance.post('connections/delete', data),
       });
     };
+    const handleCreateDatabase = () => {
+      showModal(InputTextModal, {
+        header: 'Create database',
+        value: 'newdb',
+        label: 'Database name',
+        onConfirm: name =>
+          axiosInstance.post('server-connections/create-database', {
+            conid: data._id,
+            name,
+          }),
+      });
+    };
 
     return [
       config.runAsPortal == false && [
@@ -44,6 +56,10 @@
         text: 'Disconnect',
         onClick: handleDisconnect,
       },
+      $openedConnections.includes(data._id) && {
+        text: 'Create database',
+        onClick: handleCreateDatabase,
+      },
     ];
   };
 
@@ -60,6 +76,7 @@
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let data;
 

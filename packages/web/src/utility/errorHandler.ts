@@ -20,7 +20,7 @@ window.onunhandledrejection = async e => {
       window.location.reload();
     }
   } else {
-    if (window.confirm('Sorry, DbGate has crashed.\nPress OK for reload application')) {
+    if (window.confirm('Sorry, DbGate has crashed.\nPress OK for reload application\nPress Cancel and inspect Console in Developer tools for error details')) {
       localStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
       window.location.reload();
     }

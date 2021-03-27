@@ -38,12 +38,12 @@ export function findObjectLike(
   if (!dbinfo) return null;
   if (schemaName) {
     // @ts-ignore
-    return dbinfo[objectTypeField].find(
+    return dbinfo[objectTypeField]?.find(
       x => equalStringLike(x.pureName, pureName) && equalStringLike(x.schemaName, schemaName)
     );
   }
   // @ts-ignore
-  return dbinfo[objectTypeField].find(x => equalStringLike(x.pureName, pureName));
+  return dbinfo[objectTypeField]?.find(x => equalStringLike(x.pureName, pureName));
 }
 
 export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo) {
