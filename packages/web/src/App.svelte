@@ -3,9 +3,10 @@
 
   import PluginsProvider from './plugins/PluginsProvider.svelte';
   import Screen from './Screen.svelte';
-  import './utility/errorHandler';
+  import ErrorHandler from './utility/ErrorHandler.svelte';
 </script>
 
+<ErrorHandler />
 <PluginsProvider />
 <CommandListener />
 <Screen />
