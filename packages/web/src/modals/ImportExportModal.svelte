@@ -162,7 +162,6 @@
 
 <style>
   .content {
-    border-top: 1px solid var(--theme-border);
     flex: 1;
     display: flex;
     flex-direction: column;

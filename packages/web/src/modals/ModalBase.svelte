@@ -34,7 +34,7 @@
   <!-- Modal content -->
   <div class="window" class:fullScreen use:clickOutside on:clickOutside={handleCloseModal}>
     {#if $$slots.header}
-      <div class="header">
+      <div class="header" class:fullScreen>
         <div><slot name="header" /></div>
         <div class="close" on:click={handleCloseModal}>
           <FontIcon icon="icon close" />
@@ -105,6 +105,10 @@
     display: flex;
     justify-content: space-between;
     background-color: var(--theme-bg-modalheader);
+  }
+
+  .header.fullScreen {
+    border-bottom: 1px solid var(--theme-border);
   }
 
   .content:not(.fullScreen) {

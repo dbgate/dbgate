@@ -8,6 +8,7 @@
   export let group;
   export let items;
   export let module;
+  export let checkedObjectsStore = null;
 
   let isExpanded = true;
 
@@ -26,7 +27,7 @@
 
 {#if isExpanded}
   {#each filtered as item (module.extractKey(item.data))}
-    <AppObjectListItem {...$$restProps} {module} data={item.data} on:objectClick />
+    <AppObjectListItem {...$$restProps} {module} data={item.data} {checkedObjectsStore} on:objectClick />
   {/each}
 {/if}
 

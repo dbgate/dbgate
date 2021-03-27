@@ -16,6 +16,7 @@
   export let expandOnClick;
   export let isExpandable = undefined;
   export let expandIconFunc = plusExpandIcon;
+  export let checkedObjectsStore = null;
 
   let isExpanded = false;
 
@@ -41,6 +42,8 @@
   on:click={handleExpand}
   on:expand={handleExpandButton}
   expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
+  {checkedObjectsStore}
+  {module}
 />
 
 {#if isExpanded && subItemsComponent}

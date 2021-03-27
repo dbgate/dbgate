@@ -198,11 +198,8 @@ registerCommand({
   testEnabled: () => getCurrentDatabase() != null,
   onClick: () =>
     showModal(SqlGeneratorModal, {
-      importToArchive: true,
-      initialValues: {
-        conid: getCurrentDatabase()?.connection?._id,
-        database: getCurrentDatabase()?.name,
-      },
+      conid: getCurrentDatabase()?.connection?._id,
+      database: getCurrentDatabase()?.name,
     }),
 });
 
