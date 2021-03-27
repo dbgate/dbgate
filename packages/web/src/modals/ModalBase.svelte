@@ -8,8 +8,6 @@
   export let fullScreen = false;
   export let noPadding = false;
   export let modalId;
-  export let skipBody = false;
-  export let skipFooter = false;
 
   function handleCloseModal() {
     if (modalId == getActiveModalId()) {
@@ -43,18 +41,14 @@
         </div>
       </div>
     {/if}
-    {#if !skipBody}
-      <div class="content" class:noPadding>
-        <slot />
-      </div>
-    {:else}
+
+    <div class="content" class:noPadding class:fullScreen>
       <slot />
-    {/if}
-    {#if !skipFooter}
-      <div class="footer">
-        <slot name="footer" />
-      </div>
-    {/if}
+    </div>
+
+    <div class="footer" class:fullScreen>
+      <slot name="footer" />
+    </div>
   </div>
 </div>
 
@@ -113,18 +107,37 @@
     background-color: var(--theme-bg-modalheader);
   }
 
-  .content {
+  .content:not(.fullScreen) {
     border-bottom: 1px solid var(--theme-border);
     border-top: 1px solid var(--theme-border);
   }
 
-  .content:not(.noPadding) {
+  .content:not(.noPadding):not(.fullScreen) {
     padding: 15px;
   }
 
-  .footer {
+  .content.fullScreen {
+    display: flex;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 100px;
+  }
+
+  .footer:not(.fullScreen) {
     border-bottom: 1px solid var(--theme-border);
     padding: 15px;
+    background-color: var(--theme-bg-modalheader);
+  }
+
+  .footer.fullScreen {
+    position: fixed;
+    height: 100px;
+    left: 0;
+    right: 0;
+    bottom: 0px;
+    border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
   }
 </style>

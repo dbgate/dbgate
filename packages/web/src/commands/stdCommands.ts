@@ -5,6 +5,7 @@ import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
+import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
 import newQuery from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
@@ -12,7 +13,7 @@ import openNewTab from '../utility/openNewTab';
 import getElectron from '../utility/getElectron';
 import { openElectronFile } from '../utility/openElectronFile';
 import { getDefaultFileFormat } from '../plugins/fileformats';
-import { getCurrentConfig } from '../stores';
+import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 
 const electron = getElectron();
@@ -185,6 +186,23 @@ registerCommand({
     showModal(ImportExportModal, {
       importToArchive: true,
       initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
+    }),
+});
+
+registerCommand({
+  id: 'sql.generator',
+  category: 'SQL',
+  name: 'SQL Generator',
+  toolbar: true,
+  icon: 'icon sql-generator',
+  testEnabled: () => getCurrentDatabase() != null,
+  onClick: () =>
+    showModal(SqlGeneratorModal, {
+      importToArchive: true,
+      initialValues: {
+        conid: getCurrentDatabase()?.connection?._id,
+        database: getCurrentDatabase()?.name,
+      },
     }),
 });
 

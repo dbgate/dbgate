@@ -113,7 +113,7 @@
     ...initialValues,
   }}
 >
-  <ModalBase {...$$restProps} fullScreen skipBody skipFooter>
+  <ModalBase {...$$restProps} fullScreen>
     <svelte:fragment slot="header">
       Import/Export
       {#if busy}
@@ -121,33 +121,31 @@
       {/if}
     </svelte:fragment>
 
-    <div class="wrapper">
-      <HorizontalSplitter initialValue="70%">
-        <div class="content" slot="1">
-          <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
-        </div>
+    <HorizontalSplitter initialValue="70%">
+      <div class="content" slot="1">
+        <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
+      </div>
 
-        <svelte:fragment slot="2">
-          <WidgetColumnBar>
-            <WidgetColumnBarItem title="Output files" name="output" height="20%">
-              <RunnerOutputFiles {runnerId} {executeNumber} />
-            </WidgetColumnBarItem>
-            <WidgetColumnBarItem title="Messages" name="messages">
-              <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
-            </WidgetColumnBarItem>
-            <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
-              <PreviewDataGrid reader={$previewReaderStore} />
-            </WidgetColumnBarItem>
-            <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
-              <FormTextField label="Schedule" name="schedule" />
-              <FormTextField label="Start variable index" name="startVariableIndex" />
-            </WidgetColumnBarItem>
-          </WidgetColumnBar>
-        </svelte:fragment>
-      </HorizontalSplitter>
-    </div>
+      <svelte:fragment slot="2">
+        <WidgetColumnBar>
+          <WidgetColumnBarItem title="Output files" name="output" height="20%">
+            <RunnerOutputFiles {runnerId} {executeNumber} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Messages" name="messages">
+            <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
+            <PreviewDataGrid reader={$previewReaderStore} />
+          </WidgetColumnBarItem>
+          <WidgetColumnBarItem title="Advanced configuration" name="config" collapsed>
+            <FormTextField label="Schedule" name="schedule" />
+            <FormTextField label="Start variable index" name="startVariableIndex" />
+          </WidgetColumnBarItem>
+        </WidgetColumnBar>
+      </svelte:fragment>
+    </HorizontalSplitter>
 
-    <div class="footer">
+    <svelte:fragment slot="footer">
       <div class="flex m-2">
         {#if busy}
           <LargeButton icon="icon close" on:click={handleCancel}>Cancel</LargeButton>
@@ -158,30 +156,11 @@
 
         <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
       </div>
-    </div>
+    </svelte:fragment>
   </ModalBase>
 </FormProvider>
 
 <style>
-  .wrapper {
-    display: flex;
-
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    bottom: 100px;
-  }
-  .footer {
-    position: fixed;
-    height: 100px;
-    left: 0;
-    right: 0;
-    bottom: 0px;
-    border-top: 1px solid var(--theme-border);
-    background-color: var(--theme-bg-modalheader);
-  }
-
   .content {
     border-top: 1px solid var(--theme-border);
     flex: 1;

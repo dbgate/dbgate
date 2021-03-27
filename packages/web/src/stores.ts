@@ -119,3 +119,10 @@ recentDatabases.subscribe(value => {
   recentDatabasesValue = value;
 });
 export const getRecentDatabases = () => _.compact(recentDatabasesValue);
+
+let currentDatabaseValue = null;
+currentDatabase.subscribe(value => {
+  currentDatabaseValue = value;
+  invalidateCommands();
+});
+export const getCurrentDatabase = () => currentDatabaseValue;
