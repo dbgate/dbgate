@@ -18,13 +18,11 @@ window.onunhandledrejection = async e => {
         console.error('Error clearing app data', err);
       }
       window.location.reload();
-    } else {
+    }
+  } else {
+    if (window.confirm('Sorry, DbGate has crashed.\nPress OK for reload application')) {
       localStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
       window.location.reload();
     }
-  } else {
-    window.alert('Sorry, DbGate has crashed.\nAfter OK DbGate will be reloaded');
-    localStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
-    window.location.reload();
   }
 };
