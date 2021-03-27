@@ -19,7 +19,9 @@
 <WidgetColumnBar>
   {#if hasPermission('files/favorites/read')}
     <WidgetColumnBarItem title="Favorites" name="favorites" height="20%">
-      <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
+      <WidgetsInnerContainer>
+        <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
+      </WidgetsInnerContainer>
     </WidgetColumnBarItem>
   {/if}
   <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs">

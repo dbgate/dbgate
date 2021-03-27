@@ -85,10 +85,10 @@
   });
 
   registerCommand({
-    id: 'tabs.share',
+    id: 'tabs.addToFavorites',
     category: 'Tabs',
-    name: 'Share',
-    icon: 'icon share',
+    name: 'Favorites',
+    icon: 'icon favorite',
     toolbar: true,
     testEnabled: () =>
       getActiveTab()?.tabComponent &&

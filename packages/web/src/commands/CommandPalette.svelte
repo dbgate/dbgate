@@ -63,7 +63,11 @@
   function handleKeyDown(e) {
     if (e.keyCode == keycodes.upArrow && selectedIndex > 0) selectedIndex--;
     if (e.keyCode == keycodes.downArrow && selectedIndex < filteredItems.length - 1) selectedIndex++;
-    if (e.keyCode == keycodes.enter) handleCommand(filteredItems[selectedIndex]);
+    if (e.keyCode == keycodes.enter) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleCommand(filteredItems[selectedIndex]);
+    }
     if (e.keyCode == keycodes.escape) $visibleCommandPalette = false;
 
     if (e.keyCode == keycodes.pageDown) selectedIndex = Math.min(selectedIndex + 15, filteredItems.length - 1);
