@@ -1,4 +1,4 @@
-import { DatabaseInfo, FunctionInfo, ProcedureInfo, TableInfo, ViewInfo } from 'dbgate-types';
+import { DatabaseInfo, EngineDriver, FunctionInfo, ProcedureInfo, TableInfo, ViewInfo } from 'dbgate-types';
 import { SqlDumper } from './SqlDumper';
 
 interface SqlGeneratorOptions {
@@ -31,7 +31,9 @@ export class SqlGenerator {
     public dbinfo: DatabaseInfo,
     public options: SqlGeneratorOptions,
     public objects: SqlGeneratorObject[],
-    public dmp: SqlDumper
+    public dmp: SqlDumper,
+    public driver: EngineDriver,
+    public pool
   ) {
     this.tables = this.extract('tables');
     this.views = this.extract('views');
@@ -50,6 +52,38 @@ export class SqlGenerator {
         if (this.checkDumper()) return;
       }
     }
+    if (this.options.insert) {
+      for (const table of this.tables) {
+        await this.insertTableData(table);
+        if (this.checkDumper()) return;
+      }
+    }
+  }
+
+  async insertTableData(table: TableInfo) {
+    const dmp = this.driver.createDumper();
+    dmp.put('^select * ^from %f', table);
+    const readable = await this.driver.readQuery(this.pool, dmp.s, table);
+    await this.processReadable(table, readable);
+  }
+
+  processReadable(table: TableInfo, readable) {
+    const columnNames = table.columns.map(x => x.columnName);
+    return new Promise(resolve => {
+      readable.on('data', chunk => {
+        // const chunk = readable.read();
+        // if (!chunk) return;
+        this.dmp.put(
+          '^insert ^into %f (%,i) ^values (%,v);&n',
+          table,
+          columnNames,
+          columnNames.map(col => chunk[col])
+        );
+      });
+      readable.on('end', () => {
+        resolve(undefined);
+      });
+    });
   }
 
   extract(objectTypeField) {

@@ -100,7 +100,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
   const driver = requireEngineDriver(storedConnection);
 
   const dmp = driver.createDumper();
-  const generator = new SqlGenerator(analysedStructure, options, objects, dmp);
+  const generator = new SqlGenerator(analysedStructure, options, objects, dmp, driver, systemConnection);
   await generator.dump();
   process.send({ msgtype: 'response', msgid, sql: dmp.s });
 }
