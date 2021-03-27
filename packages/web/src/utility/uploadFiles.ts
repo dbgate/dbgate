@@ -6,6 +6,7 @@ import resolveApi from './resolveApi';
 import { findFileFormat } from '../plugins/fileformats';
 import { showModal } from '../modals/modalTools';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
+import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
 let uploadListener;
 
@@ -21,15 +22,20 @@ export default function uploadFiles(files) {
   const ext = get(extensions);
   const electron = getElectron();
   files.forEach(async file => {
-    if (parseInt(file.size, 10) >= 4 * 1024 * 1024) {
-      // to big file
+    if (electron && canOpenByElectron(file.path, ext)) {
+      openElectronFileCore(file.path, ext);
       return;
     }
 
-    console.log('FILE', file);
-
-    if (electron && canOpenByElectron(file.path, ext)) {
-      openElectronFileCore(file.path, ext);
+    const maxSize = 32 * 1024 * 1024;
+    if (parseInt(file.size, 10) >= maxSize) {
+      showModal(ErrorMessageModal, {
+        title: 'Upload error',
+        message: `File is too big, current size is ${Math.round(
+          file.size / 1024
+        ).toLocaleString()} KB, max allowed size is ${Math.round(maxSize / 1024).toLocaleString()} KB`,
+      });
+      // to big file
       return;
     }
 
