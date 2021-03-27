@@ -31,6 +31,7 @@
     category: 'Data grid',
     name: 'Copy to clipboard',
     keyText: 'Ctrl+C',
+    disableHandleKeyText: 'Ctrl+C',
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().copyToClipboard(),
   });
@@ -353,6 +354,7 @@
   function createMenu() {
     return [
       { command: 'dataForm.switchToTable' },
+      { command: 'dataForm.copyToClipboard' },
       { divider: true },
       { command: 'dataForm.filterSelected' },
       { command: 'dataForm.addToFilter' },
@@ -526,6 +528,7 @@
           invalidateCommands();
         }}
         on:keydown={handleKeyDown}
+        on:copy={copyToClipboard}
       />
     </div>
     {#if rowCountInfo}

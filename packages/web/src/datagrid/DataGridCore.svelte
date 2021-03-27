@@ -108,6 +108,7 @@
     category: 'Data grid',
     name: 'Copy to clipboard',
     keyText: 'Ctrl+C',
+    disableHandleKeyText: 'Ctrl+C',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
@@ -1051,6 +1052,7 @@
         invalidateCommands();
       }}
       on:paste={handlePaste}
+      on:copy={copyToClipboard}
     />
     <table
       class="table"

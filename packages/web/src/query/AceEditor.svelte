@@ -52,6 +52,10 @@
   let clientWidth;
   let clientHeight;
 
+  const stdOptions = {
+    showPrintMargin: false,
+  };
+
   $: theme = $currentThemeDefinition?.themeType == 'dark' ? 'twilight' : 'github';
 
   export function getEditor(): ace.Editor {
@@ -86,7 +90,10 @@
   $: watchOptions(options);
   function watchOptions(newOption: any) {
     if (editor) {
-      editor.setOptions(newOption);
+      editor.setOptions({
+        ...stdOptions,
+        newOption,
+      });
     }
   }
 
@@ -124,7 +131,10 @@
     contentBackup = value;
     setEventCallBacks();
     if (options) {
-      editor.setOptions(options);
+      editor.setOptions({
+        ...stdOptions,
+        options,
+      });
     }
 
     editor.container.addEventListener('contextmenu', handleContextMenu);
@@ -141,16 +151,17 @@
   });
 
   function setEventCallBacks() {
-    editor.onBlur = () => dispatch('blur');
-    editor.onChangeMode = obj => dispatch('changeMode', obj);
-    editor.onCommandKey = (err, hashId, keyCode) => dispatch('commandKey', { err, hashId, keyCode });
-    editor.onCopy = () => dispatch('copy');
-    editor.onCursorChange = () => dispatch('cursorChange');
-    editor.onCut = () => dispatch('cut');
-    editor.onDocumentChange = (obj: { data: any }) => dispatch('documentChange', obj);
-    editor.onFocus = () => dispatch('focus');
-    editor.onPaste = text => dispatch('paste', text);
-    editor.onSelectionChange = obj => dispatch('selectionChange', obj);
+    // editor.onBlur = () => dispatch('blur');
+    // editor.onChangeMode = obj => dispatch('changeMode', obj);
+    // editor.onCommandKey = (err, hashId, keyCode) => dispatch('commandKey', { err, hashId, keyCode });
+    // editor.onCopy = () => dispatch('copy');
+    // editor.onCursorChange = () => dispatch('cursorChange');
+    // editor.onCut = () => dispatch('cut');
+    // editor.onDocumentChange = (obj: { data: any }) => dispatch('documentChange', obj);
+    // editor.onFocus = () => dispatch('focus');
+    // editor.onPaste = text => dispatch('paste', text);
+    // editor.onSelectionChange = obj => dispatch('selectionChange', obj);
+
     editor.setReadOnly(readOnly);
     editor.on('change', function () {
       const content = editor.getValue();
