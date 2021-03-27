@@ -46,6 +46,7 @@
   import { findEngineDriver } from 'dbgate-tools';
   import { generateDesignedQuery } from '../designer/designerTools';
   import QueryDesignColumns from '../elements/QueryDesignColumns.svelte';
+  import useTimerLabel from '../utility/useTimerLabel';
 
   export let tabid;
   export let conid;
@@ -54,6 +55,7 @@
 
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
+  const timerLabel = useTimerLabel();
 
   let busy = false;
   let executeNumber = 0;
@@ -124,7 +126,7 @@
       sessionId = sesid;
     }
     busy = true;
-    // timerLabel.start();
+    timerLabel.start();
     await axiosInstance.post('sessions/execute-query', {
       sesid,
       sql: sqlPreview,
@@ -137,7 +139,7 @@
     });
     sessionId = null;
     busy = false;
-    // timerLabel.stop();
+    timerLabel.stop();
   }
 
   export function getData() {
@@ -168,7 +170,7 @@
 
   const handleSessionDone = () => {
     busy = false;
-    // timerLabel.stop();
+    timerLabel.stop();
   };
 
   const handleChange = (value, skipUndoChain) =>

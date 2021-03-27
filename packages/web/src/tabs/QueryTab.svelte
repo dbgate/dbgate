@@ -57,6 +57,7 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import { showModal } from '../modals/modalTools';
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
+  import useTimerLabel from '../utility/useTimerLabel';
 
   export let tabid;
   export let conid;
@@ -65,6 +66,7 @@
 
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
+  const timerLabel = useTimerLabel();
 
   let busy = false;
   let executeNumber = 0;
@@ -131,7 +133,7 @@
       sessionId = sesid;
     }
     busy = true;
-    // timerLabel.start();
+    timerLabel.start();
     await axiosInstance.post('sessions/execute-query', {
       sesid,
       sql: selectedText || $editorValue,
@@ -144,7 +146,7 @@
     });
     sessionId = null;
     busy = false;
-    // timerLabel.stop();
+    timerLabel.stop();
   }
 
   // export function getStatus() {
@@ -195,7 +197,7 @@
 
   const handleSessionDone = () => {
     busy = false;
-    // timerLabel.stop();
+    timerLabel.stop();
   };
 
   const { editorState, editorValue, setEditorData } = useEditorData({

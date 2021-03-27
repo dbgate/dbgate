@@ -92,7 +92,7 @@
     if (editor) {
       editor.setOptions({
         ...stdOptions,
-        newOption,
+        ...newOption,
       });
     }
   }
@@ -133,7 +133,7 @@
     if (options) {
       editor.setOptions({
         ...stdOptions,
-        options,
+        ...options,
       });
     }
 
@@ -158,12 +158,17 @@
     // editor.onCursorChange = () => dispatch('cursorChange');
     // editor.onCut = () => dispatch('cut');
     // editor.onDocumentChange = (obj: { data: any }) => dispatch('documentChange', obj);
-    // editor.onFocus = () => dispatch('focus');
+    // editor.onFocus = () => {
+    //   dispatch('focus');
+    //   return false;
+    // };
     // editor.onPaste = text => dispatch('paste', text);
     // editor.onSelectionChange = obj => dispatch('selectionChange', obj);
 
+    editor.on('focus', () => dispatch('focus'));
+
     editor.setReadOnly(readOnly);
-    editor.on('change', function () {
+    editor.on('change', () => {
       const content = editor.getValue();
       value = content;
       dispatch('input', content);

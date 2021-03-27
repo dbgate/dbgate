@@ -38,10 +38,12 @@
   import memberStore from '../utility/memberStore';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
+  import useTimerLabel from '../utility/useTimerLabel';
 
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
+  const timerLabel = useTimerLabel();
 
   let runnerId;
 
@@ -90,7 +92,7 @@
 
   function handleRunnerDone() {
     busy = false;
-    // timerLabel.stop();
+    timerLabel.stop();
   }
 
   // export function getStatus() {
@@ -138,14 +140,14 @@
     runid = resp.data.runid;
     runnerId = runid;
     busy = true;
-    //timerLabel.start();
+    timerLabel.start();
   }
 
   export function kill() {
     axiosInstance.post('runners/cancel', {
       runid: runnerId,
     });
-    // timerLabel.stop();
+    timerLabel.stop();
   }
 
   const { editorState, editorValue, setEditorData } = useEditorData({ tabid });

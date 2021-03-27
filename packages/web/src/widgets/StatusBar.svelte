@@ -1,12 +1,27 @@
+<script lang="ts" context="module">
+  const statusBarTabInfo = writable({});
+
+  export function updateStatuBarInfo(tabid, info) {
+    statusBarTabInfo.update(x => ({
+      ...x,
+      [tabid]: info,
+    }));
+  }
+</script>
+
 <script lang="ts">
+  import { writable } from 'svelte/store';
+
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import { currentDatabase } from '../stores';
+  import { activeTabId, currentDatabase } from '../stores';
   import { useDatabaseStatus } from '../utility/metadataLoaders';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
   $: status = useDatabaseStatus(connection ? { conid: connection._id, database: databaseName } : {});
+
+  $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
 </script>
 
 <div class="main">
@@ -45,6 +60,16 @@
         <FontIcon icon="icon disconnected" /> Not connected
       </div>
     {/if}
+  </div>
+  <div class="container">
+    {#each contextItems || [] as item}
+      <div class="item">
+        {#if item.icon}
+          <FontIcon icon={item.icon} />
+        {/if}
+        {item.text}
+      </div>
+    {/each}
   </div>
 </div>
 
