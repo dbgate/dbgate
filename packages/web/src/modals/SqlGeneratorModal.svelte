@@ -27,6 +27,7 @@
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
+  import WidgetTitle from '../widgets/WidgetTitle.svelte';
 
   export let conid;
   export let database;
@@ -90,25 +91,31 @@
 
     <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
       <svelte:fragment slot="1">
-        <WidgetColumnBar>
-          <WidgetColumnBarItem title="Choose objects" name="objects" height="60%">
-            <SearchBoxWrapper>
-              <SearchInput placeholder="Search tables or objects" bind:value={objectsFilter} />
-            </SearchBoxWrapper>
+        <div>
+          <WidgetTitle>Choose objects</WidgetTitle>
+          <SearchBoxWrapper>
+            <SearchInput placeholder="Search tables or objects" bind:value={objectsFilter} />
+          </SearchBoxWrapper>
 
-            <WidgetsInnerContainer>
-              <AppObjectList
-                list={objectList.map(x => ({ ...x, conid, database }))}
-                module={databaseObjectAppObject}
-                groupFunc={data => _.startCase(data.objectTypeField)}
-                isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
-                filter={objectsFilter}
-                {checkedObjectsStore}
-              />
-            </WidgetsInnerContainer>
-          </WidgetColumnBarItem>
+          <WidgetsInnerContainer>
+            <AppObjectList
+              list={objectList.map(x => ({ ...x, conid, database }))}
+              module={databaseObjectAppObject}
+              groupFunc={data => _.startCase(data.objectTypeField)}
+              isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
+              filter={objectsFilter}
+              {checkedObjectsStore}
+            />
+          </WidgetsInnerContainer>
+        </div>
+      </svelte:fragment>
 
-          <WidgetColumnBarItem title="Settings" name="settings">
+      <svelte:fragment slot="2">
+        <HorizontalSplitter initialValue="~300px">
+          <svelte:fragment slot="1">
+            <SqlEditor readOnly value={sqlPreview} />
+          </svelte:fragment>
+          <svelte:fragment slot="2">
             <WidgetsInnerContainer>
               <FormValues let:values>
                 <FormCheckboxField label="Drop tables" name="dropTables" />
@@ -143,12 +150,8 @@
           <HashCheckBox label='Create' hashName={`gensql.create${objTypePascal}`} onChange={onChange} /> -->
               </FormValues>
             </WidgetsInnerContainer>
-          </WidgetColumnBarItem>
-        </WidgetColumnBar>
-      </svelte:fragment>
-
-      <svelte:fragment slot="2">
-        <SqlEditor readOnly value={sqlPreview} />
+          </svelte:fragment>
+        </HorizontalSplitter>
       </svelte:fragment>
     </HorizontalSplitter>
 

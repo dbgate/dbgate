@@ -1,5 +1,7 @@
 <script context="module">
   export function computeSplitterSize(initialValue, clientSize) {
+    if (_.isString(initialValue) && initialValue.startsWith('~') && initialValue.endsWith('px'))
+      return clientSize - parseInt(initialValue.slice(1, -2));
     if (_.isString(initialValue) && initialValue.endsWith('px')) return parseInt(initialValue.slice(0, -2));
     if (_.isString(initialValue) && initialValue.endsWith('%'))
       return (clientSize * parseFloat(initialValue.slice(0, -1))) / 100;
