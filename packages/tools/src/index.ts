@@ -9,3 +9,4 @@ export * from './SqlDumper';
 export * from './testPermission';
 export * from './splitPostgresQuery';
 export * from './SqlGenerator';
+export * from './structureTools';

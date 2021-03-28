@@ -10,7 +10,7 @@ export interface ColumnReference {
 
 export interface ConstraintInfo extends NamedObjectInfo {
   constraintName: string;
-  constraintType: string;
+  constraintType: 'primaryKey' | 'foreignKey' | 'index' | 'check' | 'unique';
 }
 
 export interface ColumnsConstraintInfo extends ConstraintInfo {
@@ -26,7 +26,18 @@ export interface ForeignKeyInfo extends ColumnsConstraintInfo {
   deleteAction: string;
 }
 
-export interface ColumnInfo {
+export interface IndexInfo extends ColumnsConstraintInfo {
+  isUnique: boolean;
+  indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
+}
+
+export interface UniqueInfo extends ColumnsConstraintInfo {}
+
+export interface CheckInfo extends ConstraintInfo {
+  definition: string;
+}
+
+export interface ColumnInfo extends NamedObjectInfo {
   columnName: string;
   notNull: boolean;
   autoIncrement: boolean;
@@ -58,6 +69,8 @@ export interface TableInfo extends DatabaseObjectInfo {
   primaryKey?: PrimaryKeyInfo;
   foreignKeys: ForeignKeyInfo[];
   dependencies?: ForeignKeyInfo[];
+  indexes?: IndexInfo[];
+  checks?: CheckInfo[];
 }
 
 export interface ViewInfo extends SqlObjectInfo {

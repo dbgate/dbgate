@@ -7,23 +7,13 @@ import socket from './socket';
 import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
+import { extendDatabaseInfo } from 'dbgate-tools';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
   params: { conid, database },
   reloadTrigger: `database-structure-changed-${conid}-${database}`,
-  transform: (db: DatabaseInfo) => {
-    const allForeignKeys = _.flatten(db.tables.map(x => x.foreignKeys));
-    return {
-      ...db,
-      tables: db.tables.map(table => ({
-        ...table,
-        dependencies: allForeignKeys.filter(
-          x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
-        ),
-      })),
-    };
-  },
+  transform: extendDatabaseInfo,
 });
 
 // const tableInfoLoader = ({ conid, database, schemaName, pureName }) => ({

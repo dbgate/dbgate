@@ -1,5 +1,15 @@
-import { DatabaseInfo, EngineDriver, FunctionInfo, ProcedureInfo, TableInfo, ViewInfo } from 'dbgate-types';
+import {
+  DatabaseInfo,
+  EngineDriver,
+  FunctionInfo,
+  ProcedureInfo,
+  TableInfo,
+  TriggerInfo,
+  ViewInfo,
+} from 'dbgate-types';
+import _ from 'lodash';
 import { SqlDumper } from './SqlDumper';
+import { extendDatabaseInfo } from './structureTools';
 
 interface SqlGeneratorOptions {
   dropTables: boolean;
@@ -14,6 +24,22 @@ interface SqlGeneratorOptions {
   disableConstraints: boolean;
   omitNulls: boolean;
   truncate: boolean;
+
+  dropViews: boolean;
+  checkIfViewExists: boolean;
+  createViews: boolean;
+
+  dropProcedures: boolean;
+  checkIfProcedureExists: boolean;
+  createProcedures: boolean;
+
+  dropFunctions: boolean;
+  checkIfFunctionExists: boolean;
+  createFunctions: boolean;
+
+  dropTriggers: boolean;
+  checkIfTriggerExists: boolean;
+  createTriggers: boolean;
 }
 
 interface SqlGeneratorObject {
@@ -27,57 +53,177 @@ export class SqlGenerator {
   private views: ViewInfo[];
   private procedures: ProcedureInfo[];
   private functions: FunctionInfo[];
+  private triggers: TriggerInfo[];
+  public dbinfo: DatabaseInfo;
+
   constructor(
-    public dbinfo: DatabaseInfo,
+    dbinfo: DatabaseInfo,
     public options: SqlGeneratorOptions,
     public objects: SqlGeneratorObject[],
     public dmp: SqlDumper,
     public driver: EngineDriver,
     public pool
   ) {
+    this.dbinfo = extendDatabaseInfo(dbinfo);
     this.tables = this.extract('tables');
     this.views = this.extract('views');
     this.procedures = this.extract('procedures');
     this.functions = this.extract('functions');
+    this.triggers = this.extract('triggers');
+  }
+
+  async dump() {
+    this.dropObjects(this.procedures, 'Procedure');
+    if (this.checkDumper()) return;
+    this.dropObjects(this.functions, 'Function');
+    if (this.checkDumper()) return;
+    this.dropObjects(this.views, 'View');
+    if (this.checkDumper()) return;
+    this.dropObjects(this.triggers, 'Trigger');
+    if (this.checkDumper()) return;
+
+    this.dropTables();
+    if (this.checkDumper()) return;
+
+    this.createTables();
+    if (this.checkDumper()) return;
+
+    this.truncateTables();
+    if (this.checkDumper()) return;
+
+    await this.insertData();
+    if (this.checkDumper()) return;
+
+    this.createForeignKeys();
+    if (this.checkDumper()) return;
+
+    this.createObjects(this.procedures, 'Procedure');
+    if (this.checkDumper()) return;
+    this.createObjects(this.functions, 'Function');
+    if (this.checkDumper()) return;
+    this.createObjects(this.views, 'View');
+    if (this.checkDumper()) return;
+    this.createObjects(this.triggers, 'Trigger');
+    if (this.checkDumper()) return;
+  }
+
+  createForeignKeys() {
+    const fks = [];
+    if (this.options.createForeignKeys) fks.push(..._.flatten(this.tables.map(x => x.foreignKeys || [])));
+    if (this.options.createReferences) fks.push(..._.flatten(this.tables.map(x => x.dependencies || [])));
+    for (const fk of _.uniqBy(fks, 'constraintName')) {
+      this.dmp.createForeignKey(fk);
+      if (this.checkDumper()) return;
+    }
+  }
+
+  truncateTables() {
+    if (this.options.truncate) {
+      for (const table of this.tables) {
+        this.dmp.truncateTable(table);
+        if (this.checkDumper()) return;
+      }
+    }
+  }
+
+  createTables() {
+    if (this.options.createTables) {
+      for (const table of this.tables) {
+        this.dmp.createTable({
+          ...table,
+          foreignKeys: [],
+          dependencies: [],
+          indexes: [],
+        });
+        if (this.checkDumper()) return;
+      }
+    }
+    if (this.options.createIndexes) {
+      for (const index of _.flatten(this.tables.map(x => x.indexes || []))) {
+        this.dmp.createIndex(index);
+      }
+    }
+  }
+
+  async insertData() {
+    if (!this.options.insert) return;
+
+    this.enableConstraints(false);
+
+    for (const table of this.tables) {
+      await this.insertTableData(table);
+      if (this.checkDumper()) return;
+    }
+
+    this.enableConstraints(true);
   }
 
   checkDumper() {
     return false;
   }
 
-  async dump() {
-    if (this.options.createTables) {
-      for (const table of this.tables) {
-        this.dmp.createTable(table);
+  dropObjects(list, name) {
+    if (this.options[`drop${name}s`]) {
+      for (const item of list) {
+        this.dmp[`drop${name}`](item, { testIfExists: this.options[`checkIf${name}Exists`] });
         if (this.checkDumper()) return;
       }
     }
-    if (this.options.insert) {
-      for (const table of this.tables) {
-        await this.insertTableData(table);
+  }
+
+  createObjects(list, name) {
+    if (this.options[`create${name}s`]) {
+      for (const item of list) {
+        this.dmp[`create${name}`](item);
         if (this.checkDumper()) return;
+      }
+    }
+  }
+
+  dropTables() {
+    if (this.options.dropReferences) {
+      for (const fk of _.flatten(this.tables.map(x => x.dependencies || []))) {
+        this.dmp.dropForeignKey(fk);
+      }
+    }
+
+    if (this.options.dropTables) {
+      for (const table of this.tables) {
+        this.dmp.dropTable(table, { testIfExists: this.options.checkIfTableExists });
       }
     }
   }
 
   async insertTableData(table: TableInfo) {
-    const dmp = this.driver.createDumper();
-    dmp.put('^select * ^from %f', table);
-    const readable = await this.driver.readQuery(this.pool, dmp.s, table);
+    const dmpLocal = this.driver.createDumper();
+    dmpLocal.put('^select * ^from %f', table);
+
+    const autoinc = table.columns.find(x => x.autoIncrement);
+    if (autoinc && !this.options.skipAutoincrementColumn) {
+      this.dmp.allowIdentityInsert(table, true);
+    }
+
+    const readable = await this.driver.readQuery(this.pool, dmpLocal.s, table);
     await this.processReadable(table, readable);
+
+    if (autoinc && !this.options.skipAutoincrementColumn) {
+      this.dmp.allowIdentityInsert(table, false);
+    }
   }
 
   processReadable(table: TableInfo, readable) {
-    const columnNames = table.columns.map(x => x.columnName);
+    const columnsFiltered = this.options.skipAutoincrementColumn
+      ? table.columns.filter(x => !x.autoIncrement)
+      : table.columns;
+    const columnNames = columnsFiltered.map(x => x.columnName);
     return new Promise(resolve => {
       readable.on('data', chunk => {
-        // const chunk = readable.read();
-        // if (!chunk) return;
+        const columnNamesCopy = this.options.omitNulls ? columnNames.filter(col => chunk[col] != null) : columnNames;
         this.dmp.put(
           '^insert ^into %f (%,i) ^values (%,v);&n',
           table,
-          columnNames,
-          columnNames.map(col => chunk[col])
+          columnNamesCopy,
+          columnNamesCopy.map(col => chunk[col])
         );
       });
       readable.on('end', () => {
@@ -92,5 +238,17 @@ export class SqlGenerator {
         y => x.pureName == y.pureName && x.schemaName == y.schemaName && y.objectTypeField == objectTypeField
       )
     );
+  }
+
+  enableConstraints(enabled) {
+    if (this.options.disableConstraints) {
+      if (this.driver.dialect.enableConstraintsPerTable) {
+        for (const table of this.tables) {
+          this.dmp.enableConstraints(table, enabled);
+        }
+      } else {
+        this.dmp.enableConstraints(null, enabled);
+      }
+    }
   }
 }

@@ -5,4 +5,7 @@ export interface SqlDialect {
   offsetFetchRangeSyntax?: boolean;
   quoteIdentifier(s: string): string;
   fallbackDataType?: string;
+  explicitDropConstraint?: boolean;
+  anonymousPrimaryKey?: boolean;
+  enableConstraintsPerTable?: boolean;
 }

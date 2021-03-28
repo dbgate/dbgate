@@ -3,6 +3,7 @@
   import { writable } from 'svelte/store';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as databaseObjectAppObject from '../appobj/DatabaseObjectAppObject.svelte';
+  import uuidv1 from 'uuid/v1';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
 
@@ -18,6 +19,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import axiosInstance from '../utility/axiosInstance';
+  import createRef from '../utility/createRef';
   import { useDatabaseInfo } from '../utility/metadataLoaders';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
@@ -35,7 +37,11 @@
   let sqlPreview = '';
 
   const checkedObjectsStore = writable([]);
-  const valuesStore = writable({});
+  const valuesStore = writable({
+    checkIfTableExists: true,
+    disableConstraints: true,
+  });
+  const loadRef = createRef(null);
 
   $: console.log('checkedObjectsStore', $checkedObjectsStore);
 
@@ -53,8 +59,19 @@
   );
 
   async function generatePreview(options, objects) {
+    const loadid = uuidv1();
+    loadRef.set(loadid);
     busy = true;
-    const response = await axiosInstance.post('database-connections/sql-preview', { conid, database, objects, options });
+    const response = await axiosInstance.post('database-connections/sql-preview', {
+      conid,
+      database,
+      objects,
+      options,
+    });
+    if (loadRef.get() != loadid) {
+      // newer load exists
+      return;
+    }
     if (_.isString(response.data)) {
       sqlPreview = response.data;
     }
@@ -96,8 +113,8 @@
               <FormValues let:values>
                 <FormCheckboxField label="Drop tables" name="dropTables" />
                 {#if values.dropTables}
-                  <div class="ml-1">
-                    <FormCheckboxField label="Test if exists" name="checkIfTableExists" defaultValue={true} />
+                  <div class="ml-2">
+                    <FormCheckboxField label="Test if exists" name="checkIfTableExists" />
                   </div>
                 {/if}
                 <FormCheckboxField label="Drop references" name="dropReferences" />
@@ -109,9 +126,9 @@
 
                 <FormCheckboxField label="Insert" name="insert" />
                 {#if values.insert}
-                  <div class="ml-1">
+                  <div class="ml-2">
                     <FormCheckboxField label="Skip autoincrement column" name="skipAutoincrementColumn" />
-                    <FormCheckboxField label="Disable constraints" name="disableConstraints" defaultValue={true} />
+                    <FormCheckboxField label="Disable constraints" name="disableConstraints" />
                     <FormCheckboxField label="Omit NULL values" name="omitNulls" />
                   </div>
                 {/if}

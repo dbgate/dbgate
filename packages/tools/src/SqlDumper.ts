@@ -1,11 +1,20 @@
 import {
   ColumnInfo,
+  ConstraintInfo,
   EngineDriver,
   ForeignKeyInfo,
+  FunctionInfo,
   NamedObjectInfo,
+  PrimaryKeyInfo,
+  ProcedureInfo,
   SqlDialect,
   TableInfo,
   TransformType,
+  TriggerInfo,
+  ViewInfo,
+  IndexInfo,
+  UniqueInfo,
+  CheckInfo,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
@@ -261,4 +270,189 @@ export class SqlDumper {
   }
 
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean) {}
+  enableConstraints(table: NamedObjectInfo, enabled: boolean) {}
+
+  comment(value: string) {
+    if (!value) return;
+    for (const line of value.split('\n')) {
+      this.put(' -- %s', line.trimRight());
+    }
+  }
+
+  createView(obj: ViewInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropView(obj: ViewInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^view  %f', obj);
+  }
+  alterView(obj: ViewInfo) {
+    this.putRaw(obj.createSql.replace(/create\s+view/i, 'ALTER VIEW'));
+    this.endCommand();
+  }
+  changeViewSchema(obj: ViewInfo, newSchema: string) {}
+  renameView(obj: ViewInfo, newSchema: string) {}
+
+  createProcedure(obj: ProcedureInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropProcedure(obj: ProcedureInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^procedure  %f', obj);
+  }
+  alterProcedure(obj: ProcedureInfo) {
+    this.putRaw(obj.createSql.replace(/create\s+procedure/i, 'ALTER PROCEDURE'));
+    this.endCommand();
+  }
+  changeProcedureSchema(obj: ProcedureInfo, newSchema: string) {}
+  renameProcedure(obj: ProcedureInfo, newSchema: string) {}
+
+  createFunction(obj: FunctionInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropFunction(obj: FunctionInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^function  %f', obj);
+  }
+  alterFunction(obj: FunctionInfo) {
+    this.putRaw(obj.createSql.replace(/create\s+function/i, 'ALTER FUNCTION'));
+    this.endCommand();
+  }
+  changeFunctionSchema(obj: FunctionInfo, newSchema: string) {}
+  renameFunction(obj: FunctionInfo, newSchema: string) {}
+
+  createTrigger(obj: TriggerInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropTrigger(obj: TriggerInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^trigger  %f', obj);
+  }
+  alterTrigger(obj: TriggerInfo) {
+    this.putRaw(obj.createSql.replace(/create\s+trigger/i, 'ALTER TRIGGER'));
+    this.endCommand();
+  }
+  changeTriggerSchema(obj: TriggerInfo, newSchema: string) {}
+  renameTrigger(obj: TriggerInfo, newSchema: string) {}
+
+  dropConstraint(cnt: ConstraintInfo) {
+    this.putCmd('^alter ^table %f ^drop ^constraint %i', cnt, cnt.constraintName);
+  }
+  dropForeignKey(fk: ForeignKeyInfo) {
+    if (this.dialect.explicitDropConstraint) {
+      this.putCmd('^alter ^table %f ^drop ^foreign ^key %i', fk, fk.constraintName);
+    } else {
+      this.dropConstraint(fk);
+    }
+  }
+  createForeignKey(fk: ForeignKeyInfo) {
+    this.put('^alter ^table %f ^add ', fk);
+    this.createForeignKeyFore(fk);
+    this.endCommand();
+  }
+  dropPrimaryKey(pk: PrimaryKeyInfo) {
+    if (this.dialect.explicitDropConstraint) {
+      this.putCmd('^alter ^table %f ^drop ^primary ^key', pk);
+    } else {
+      this.dropConstraint(pk);
+    }
+  }
+  createPrimaryKey(pk: PrimaryKeyInfo) {
+    this.putCmd(
+      '^alter ^table %f ^add ^constraint %i ^primary ^key (%,i)',
+      pk,
+      pk.constraintName,
+      pk.columns.map(x => x.columnName)
+    );
+  }
+
+  dropIndex(ix: IndexInfo) {}
+  createIndex(ix: IndexInfo) {}
+
+  dropUnique(uq: UniqueInfo) {
+    this.dropConstraint(uq);
+  }
+  createUniqueCore(uq: UniqueInfo) {
+    this.put(
+      '^constraint %i ^unique (%,i)',
+      uq.constraintName,
+      uq.columns.map(x => x.columnName)
+    );
+  }
+
+  createUnique(uq: UniqueInfo) {
+    this.put('^alter ^table %f ^add ', uq);
+    this.createUniqueCore(uq);
+    this.endCommand();
+  }
+
+  dropCheck(ch: CheckInfo) {
+    this.dropConstraint(ch);
+  }
+
+  createCheckCore(ch: CheckInfo) {
+    this.put('^constraint %i ^check (%s)', ch.constraintName, ch.definition);
+  }
+
+  createCheck(ch: CheckInfo) {
+    this.put('^alter ^table %f ^add ', ch);
+    this.createCheckCore(ch);
+    this.endCommand();
+  }
+
+  renameConstraint(constraint: ConstraintInfo, newName: string) {}
+
+  createColumn(table: TableInfo, column: ColumnInfo, constraints: ConstraintInfo[]) {
+    this.put('^alter ^table %f ^add %i ', table, column.columnName);
+    this.columnDefinition(column);
+    this.inlineConstraints(constraints);
+    this.endCommand();
+  }
+
+  inlineConstraints(constrains: ConstraintInfo[]) {
+    if (constrains == null) return;
+    for (const cnt of constrains) {
+      if (cnt.constraintType == 'primaryKey') {
+        if (cnt.constraintName != null && !this.dialect.anonymousPrimaryKey) {
+          this.put(' ^constraint %i', cnt.constraintName);
+        }
+        this.put(' ^primary ^key ');
+      }
+    }
+  }
+
+  dropColumn(column: ColumnInfo) {
+    this.putCmd('^alter ^table %f ^drop ^column %i', column, column.columnName);
+  }
+
+  renameColumn(column: ColumnInfo, newName: string) {}
+
+  changeColumn(oldcol: ColumnInfo, newcol: ColumnInfo, constraints: ConstraintInfo[]) {}
+
+  dropTable(obj: TableInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^table %f', obj);
+  }
+
+  changeTableSchema(obj: TableInfo, schema: string) {}
+
+  renameTable(obj: TableInfo, newname: string) {}
+
+  beginTransaction() {
+    this.putCmd('^begin ^transaction');
+  }
+
+  commitTransaction() {
+    this.putCmd('^commit');
+  }
+
+  alterProlog() {}
+  alterEpilog() {}
+
+  selectTableIntoNewTable(sourceName: NamedObjectInfo, targetName: NamedObjectInfo) {
+    this.putCmd('^select * ^into %f ^from %f', targetName, sourceName);
+  }
+
+  truncateTable(name: NamedObjectInfo) {
+    this.putCmd('^delete ^from %f', name);
+  }
 }
