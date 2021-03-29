@@ -19,7 +19,7 @@
     "cross-env": "^7.0.3",
     "dbgate-datalib": "^3.9.5",
     "dbgate-sqltree": "^3.9.5",
-    "dbgate-tools": "^3.9.5",
+    "dbgate-tools": "^4.0.0-rc.1",
     "dbgate-types": "^3.9.5",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",

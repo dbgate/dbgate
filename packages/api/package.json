@@ -27,7 +27,7 @@
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "dbgate-sqltree": "^3.9.5",
-    "dbgate-tools": "^3.9.5",
+    "dbgate-tools": "^4.0.0-rc.1",
     "eslint": "^6.8.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
