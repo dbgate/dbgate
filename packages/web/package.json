@@ -4,9 +4,12 @@
   "scripts": {
     "build": "cross-env API_URL=ORIGIN rollup -c",
     "dev": "cross-env API_URL=http://localhost:3000 rollup -c -w",
-    "start": "sirv public",
-    "validate": "svelte-check"
+    "validate": "svelte-check",
+    "prepublishOnly": "yarn build"
   },
+  "files": [
+    "public"
+  ],
   "devDependencies": {
     "@ant-design/colors": "^5.0.0",
     "@rollup/plugin-commonjs": "^17.0.0",
@@ -42,7 +45,6 @@
     "@mdi/font": "^5.9.55",
     "file-selector": "^0.2.4",
     "resize-observer-polyfill": "^1.5.1",
-    "sirv-cli": "^1.0.0",
     "svelte-json-tree": "^0.1.0",
     "svelte-markdown": "^0.1.4",
     "svelte-select": "^3.17.0"

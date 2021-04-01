@@ -100,7 +100,7 @@ function start(argument = null) {
       });
     });
   } else if (argument == 'startNodeWeb') {
-    app.use(express.static(path.join(__dirname, '../../dbgate-web/build')));
+    app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
     findFreePort(5000, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
