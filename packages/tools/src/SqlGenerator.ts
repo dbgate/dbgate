@@ -55,6 +55,8 @@ export class SqlGenerator {
   private functions: FunctionInfo[];
   private triggers: TriggerInfo[];
   public dbinfo: DatabaseInfo;
+  public isTruncated = false;
+  public isUnhandledException = false;
 
   constructor(
     dbinfo: DatabaseInfo,
@@ -72,39 +74,50 @@ export class SqlGenerator {
     this.triggers = this.extract('triggers');
   }
 
+  private handleException = error => {
+    console.log('Unhandled error', error);
+    this.isUnhandledException = true;
+  };
+
   async dump() {
-    this.dropObjects(this.procedures, 'Procedure');
-    if (this.checkDumper()) return;
-    this.dropObjects(this.functions, 'Function');
-    if (this.checkDumper()) return;
-    this.dropObjects(this.views, 'View');
-    if (this.checkDumper()) return;
-    this.dropObjects(this.triggers, 'Trigger');
-    if (this.checkDumper()) return;
+    try {
+      process.on('uncaughtException', this.handleException);
 
-    this.dropTables();
-    if (this.checkDumper()) return;
+      this.dropObjects(this.procedures, 'Procedure');
+      if (this.checkDumper()) return;
+      this.dropObjects(this.functions, 'Function');
+      if (this.checkDumper()) return;
+      this.dropObjects(this.views, 'View');
+      if (this.checkDumper()) return;
+      this.dropObjects(this.triggers, 'Trigger');
+      if (this.checkDumper()) return;
 
-    this.createTables();
-    if (this.checkDumper()) return;
+      this.dropTables();
+      if (this.checkDumper()) return;
 
-    this.truncateTables();
-    if (this.checkDumper()) return;
+      this.createTables();
+      if (this.checkDumper()) return;
 
-    await this.insertData();
-    if (this.checkDumper()) return;
+      this.truncateTables();
+      if (this.checkDumper()) return;
 
-    this.createForeignKeys();
-    if (this.checkDumper()) return;
+      await this.insertData();
+      if (this.checkDumper()) return;
 
-    this.createObjects(this.procedures, 'Procedure');
-    if (this.checkDumper()) return;
-    this.createObjects(this.functions, 'Function');
-    if (this.checkDumper()) return;
-    this.createObjects(this.views, 'View');
-    if (this.checkDumper()) return;
-    this.createObjects(this.triggers, 'Trigger');
-    if (this.checkDumper()) return;
+      this.createForeignKeys();
+      if (this.checkDumper()) return;
+
+      this.createObjects(this.procedures, 'Procedure');
+      if (this.checkDumper()) return;
+      this.createObjects(this.functions, 'Function');
+      if (this.checkDumper()) return;
+      this.createObjects(this.views, 'View');
+      if (this.checkDumper()) return;
+      this.createObjects(this.triggers, 'Trigger');
+      if (this.checkDumper()) return;
+    } finally {
+      process.off('uncaughtException', this.handleException);
+    }
   }
 
   createForeignKeys() {
@@ -159,6 +172,15 @@ export class SqlGenerator {
   }
 
   checkDumper() {
+    if (this.dmp.s.length > 4000000) {
+      if (!this.isTruncated) {
+        this.dmp.putRaw('\n');
+        this.dmp.comment(' *************** SQL is truncated ******************');
+        this.dmp.putRaw('\n');
+      }
+      this.isTruncated = true;
+      return true;
+    }
     return false;
   }
 
@@ -216,8 +238,19 @@ export class SqlGenerator {
       ? table.columns.filter(x => !x.autoIncrement)
       : table.columns;
     const columnNames = columnsFiltered.map(x => x.columnName);
+    let isClosed = false;
+
     return new Promise(resolve => {
       readable.on('data', chunk => {
+        if (isClosed) return;
+
+        if (this.checkDumper()) {
+          isClosed = true;
+          resolve(undefined);
+          readable.destroy();
+          return;
+        }
+
         const columnNamesCopy = this.options.omitNulls ? columnNames.filter(col => chunk[col] != null) : columnNames;
         this.dmp.put(
           '^insert ^into %f (%,i) ^values (%,v);&n',

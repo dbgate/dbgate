@@ -160,7 +160,7 @@ module.exports = {
 
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'sqlPreview', objects, options });
-    return res.sql;
+    return res;
   },
 
 

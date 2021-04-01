@@ -3,7 +3,7 @@ const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const { SqlGenerator } = require('dbgate-tools')
+const { SqlGenerator } = require('dbgate-tools');
 
 let systemConnection;
 let storedConnection;
@@ -94,15 +94,25 @@ async function handleQueryData({ msgid, sql }) {
   }
 }
 
-
 async function handleSqlPreview({ msgid, objects, options }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
-  const dmp = driver.createDumper();
-  const generator = new SqlGenerator(analysedStructure, options, objects, dmp, driver, systemConnection);
-  await generator.dump();
-  process.send({ msgtype: 'response', msgid, sql: dmp.s });
+  try {
+    const dmp = driver.createDumper();
+    const generator = new SqlGenerator(analysedStructure, options, objects, dmp, driver, systemConnection);
+
+    await generator.dump();
+    process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
+    if (generator.isUnhandledException) {
+      setTimeout(() => {
+        console.log('Exiting because of unhandled exception');
+        process.exit(0);
+      }, 500);
+    }
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, isError: true, errorMessage: err.message });
+  }
 }
 
 // async function handleRunCommand({ msgid, sql }) {

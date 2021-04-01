@@ -51,6 +51,9 @@ body {
 .flex1 {
   flex: 1;
 }
+.relative {
+  position: relative;
+}
 
 .col-9 {
   flex-basis: 75%;

@@ -29,6 +29,8 @@
   import { closeCurrentModal } from './modalTools';
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
   import openNewTab from '../utility/openNewTab';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   export let conid;
   export let database;
@@ -51,6 +53,8 @@
   let objectsFilter = '';
   let sqlPreview = '';
   let initialized = false;
+  let error = null;
+  let truncated = false;
 
   $: dbinfo = useDatabaseInfo({ conid, database });
 
@@ -90,8 +94,16 @@
       // newer load exists
       return;
     }
-    if (_.isString(response.data)) {
-      sqlPreview = response.data;
+    const { sql, isTruncated, isError, errorMessage } = response.data || {};
+
+    truncated = isTruncated;
+    if (isError) {
+      error = errorMessage || 'Unknown error';
+    } else {
+      error = null;
+      if (_.isString(sql)) {
+        sqlPreview = sql;
+      }
     }
     busy = false;
   }
@@ -148,7 +160,21 @@
       <svelte:fragment slot="2">
         <HorizontalSplitter initialValue="~300px">
           <svelte:fragment slot="1">
-            <SqlEditor readOnly value={sqlPreview} />
+            {#if error}
+              <ErrorInfo message={error} />
+            {:else}
+              <div class="flexcol flex1">
+                {#if truncated}
+                  <ErrorInfo icon="img warn" message="SQL truncated, file size limit exceed" />
+                {/if}
+                <div class="relative flex1">
+                  <SqlEditor readOnly value={sqlPreview} />
+                </div>
+              </div>
+              {#if busy}
+                <LoadingInfo wrapper message="Loading SQL preview" />
+              {/if}
+            {/if}
           </svelte:fragment>
           <svelte:fragment slot="2">
             <div class="flexcol flex1">
