@@ -12,7 +12,7 @@ export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   };
 }
 
-function fillTableExtendedInfo(db: DatabaseInfo) {
+function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
   return {
     ...db,
     tables: (db.tables || []).map(obj => ({
