@@ -38,9 +38,7 @@
     "svelte-preprocess": "^4.0.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3",
-    "uuid": "^3.4.0"
-  },
-  "dependencies": {
+    "uuid": "^3.4.0",
     "@mdi/font": "^5.9.55",
     "file-selector": "^0.2.4",
     "resize-observer-polyfill": "^1.5.1",
