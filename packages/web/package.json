@@ -4,6 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "cross-env API_URL=http://localhost:3000 rollup -c -w",
+    "start": "sirv public",
     "validate": "svelte-check",
     "prepublishOnly": "yarn build"
   },
@@ -34,6 +35,7 @@
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "sirv-cli": "^1.0.0",
     "socket.io-client": "^2.3.0",
     "sql-formatter": "^2.3.3",
     "svelte": "^3.35.0",

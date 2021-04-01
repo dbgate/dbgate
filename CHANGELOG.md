@@ -1,5 +1,7 @@
 # ChangeLog
 
+### 4.0.2
+- FIX: fixed docker and NPM build
 ### 4.0.0
 - CHANGED: Excahnged React with Svelte. Changed theme colors. Huge speed and memory optimalization
 - ADDED: SQL Generator (CREATE, INSERT, DROP)
