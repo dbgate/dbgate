@@ -79,9 +79,9 @@ function start(argument = null) {
 
   app.use('/runners/data', express.static(rundir()));
 
-  if (fs.existsSync('/home/dbgate-docker/build')) {
+  if (fs.existsSync('/home/dbgate-docker/public')) {
     // server static files inside docker container
-    app.use(express.static('/home/dbgate-docker/build'));
+    app.use(express.static('/home/dbgate-docker/public'));
   } else {
     if (argument != 'startNodeWeb') {
       app.get('/', (req, res) => {
