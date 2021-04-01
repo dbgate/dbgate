@@ -34,7 +34,7 @@ module.exports = {
     socket.emitChanged(`database-status-changed-${conid}-${database}`);
   },
 
-  handle_ping() { },
+  handle_ping() {},
 
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
@@ -106,10 +106,14 @@ module.exports = {
 
   ping_meta: 'post',
   async ping({ conid, database }) {
-    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    let existing = this.opened.find(x => x.conid == conid && x.database == database);
+
     if (existing) {
       existing.subprocess.send({ msgtype: 'ping' });
+    } else {
+      existing = await this.ensureOpened(conid, database);
     }
+    
     return {
       status: 'ok',
       connectionStatus: existing ? existing.status : null,
@@ -156,13 +160,12 @@ module.exports = {
   sqlPreview_meta: 'post',
   async sqlPreview({ conid, database, objects, options }) {
     // wait for structure
-    await this.structure({ conid, database })
+    await this.structure({ conid, database });
 
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'sqlPreview', objects, options });
     return res;
   },
-
 
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {
