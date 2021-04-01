@@ -1,6 +1,6 @@
 {
   "name": "dbgate-web",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "scripts": {
     "build": "cross-env API_URL=ORIGIN rollup -c",
     "dev": "cross-env API_URL=http://localhost:3000 rollup -c -w",
@@ -17,10 +17,10 @@
     "ace-builds": "^1.4.8",
     "chart.js": "^2.9.4",
     "cross-env": "^7.0.3",
-    "dbgate-datalib": "^3.9.5",
-    "dbgate-sqltree": "^3.9.5",
-    "dbgate-tools": "^4.0.0-rc.1",
-    "dbgate-types": "^3.9.5",
+    "dbgate-datalib": "^4.0.0",
+    "dbgate-sqltree": "^4.0.0",
+    "dbgate-tools": "^4.0.0",
+    "dbgate-types": "^4.0.0",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",
     "lodash": "^4.17.15",
