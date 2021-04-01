@@ -239,10 +239,15 @@ export class SqlGenerator {
       : table.columns;
     const columnNames = columnsFiltered.map(x => x.columnName);
     let isClosed = false;
+    let isHeaderRead = false;
 
     return new Promise(resolve => {
       readable.on('data', chunk => {
         if (isClosed) return;
+        if (!isHeaderRead) {
+          isHeaderRead = true;
+          return;
+        }
 
         if (this.checkDumper()) {
           isClosed = true;
