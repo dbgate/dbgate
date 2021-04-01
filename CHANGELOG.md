@@ -1,5 +1,16 @@
 # ChangeLog
 
+### 4.0.0
+- CHANGED: Excahnged React with Svelte. Changed theme colors. Huge speed and memory optimalization
+- ADDED: SQL Generator (CREATE, INSERT, DROP)
+- ADDED: Command palette (F1). Introduced commands, extended some context menus
+- ADDED: New keyboard shortcuts
+- ADDED: Switch to recent database feature
+- ADDED: Macros from free table editor are available also in table data editor
+- CHANGED: Cell data preview is now in left widgets panel
+- CHANGED: Toolbar refactor
+- FIX: Solved reconnecting expired connection
+
 ### 3.9.6
 - ADDED: Connect using SSH Tunnel
 - ADDED: Connect using SSL
