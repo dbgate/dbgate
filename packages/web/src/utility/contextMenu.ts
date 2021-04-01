@@ -5,9 +5,11 @@ export default function contextMenu(node, items) {
   const handleContextMenu = e => {
     e.preventDefault();
     e.stopPropagation();
-    const left = e.pageX;
-    const top = e.pageY;
-    currentDropDownMenu.set({ left, top, items: _.isFunction(items) ? items() : items });
+    if (items) {
+      const left = e.pageX;
+      const top = e.pageY;
+      currentDropDownMenu.set({ left, top, items: _.isFunction(items) ? items() : items });
+    }
   };
 
   node.addEventListener('contextmenu', handleContextMenu);

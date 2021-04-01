@@ -17,6 +17,7 @@
   export let isExpandable = undefined;
   export let expandIconFunc = plusExpandIcon;
   export let checkedObjectsStore = null;
+  export let disableContextMenu = false;
 
   let isExpanded = false;
 
@@ -44,6 +45,7 @@
   expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
   {checkedObjectsStore}
   {module}
+  {disableContextMenu}
 />
 
 {#if isExpanded && subItemsComponent}

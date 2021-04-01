@@ -12,6 +12,7 @@
   export let filter;
   export let expandIconFunc = undefined;
   export let checkedObjectsStore = null;
+  export let disableContextMenu = false;
 
   export let groupFunc = undefined;
 
@@ -46,6 +47,7 @@
       {subItemsComponent}
       {checkedObjectsStore}
       {groupFunc}
+      {disableContextMenu}
     />
   {/each}
 {:else}
@@ -59,6 +61,7 @@
       on:objectClick
       {expandIconFunc}
       {checkedObjectsStore}
+      {disableContextMenu}
     />
   {/each}
 {/if}

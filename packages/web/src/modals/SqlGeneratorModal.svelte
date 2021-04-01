@@ -131,6 +131,10 @@
   <ModalBase {...$$restProps} fullScreen>
     <svelte:fragment slot="header">
       SQL Generator
+      <span class="dbname">
+        <FontIcon icon="icon database" />
+        {database}
+      </span>
       {#if busy}
         <FontIcon icon="icon loading" />
       {/if}
@@ -151,6 +155,7 @@
               groupFunc={data => _.startCase(data.objectTypeField)}
               isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
               filter={objectsFilter}
+              disableContextMenu
               {checkedObjectsStore}
             />
           </WidgetsInnerContainer>
@@ -244,5 +249,9 @@
     font-size: 20px;
     margin: 5px;
     margin-top: 20px;
+  }
+
+  .dbname {
+    color: var(--theme-font-3);
   }
 </style>

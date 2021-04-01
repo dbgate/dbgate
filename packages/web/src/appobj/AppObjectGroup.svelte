@@ -12,6 +12,7 @@
   export let items;
   export let module;
   export let checkedObjectsStore = null;
+  export let disableContextMenu = false;
 
   let isExpanded = true;
 
@@ -52,7 +53,14 @@
   {/if}
 
   {#each filtered as item (module.extractKey(item.data))}
-    <AppObjectListItem {...$$restProps} {module} data={item.data} {checkedObjectsStore} on:objectClick />
+    <AppObjectListItem
+      {...$$restProps}
+      {module}
+      data={item.data}
+      {checkedObjectsStore}
+      on:objectClick
+      {disableContextMenu}
+    />
   {/each}
 {/if}
 

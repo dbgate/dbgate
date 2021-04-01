@@ -19,6 +19,7 @@
   export let menu = undefined;
   export let expandIcon = undefined;
   export let checkedObjectsStore = null;
+  export let disableContextMenu = false;
 
   $: isChecked = checkedObjectsStore && $checkedObjectsStore.find(x => module.extractKey(data) == module.extractKey(x));
 
@@ -52,7 +53,7 @@
   class:isBold
   draggable={true}
   on:click={handleClick}
-  use:contextMenu={menu}
+  use:contextMenu={disableContextMenu ? null : menu}
   on:dragstart={e => {
     e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
   }}
