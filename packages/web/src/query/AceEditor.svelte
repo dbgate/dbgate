@@ -18,6 +18,7 @@
   import { currentDropDownMenu, currentThemeDefinition } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
+  import resizeObserver from '../utility/resizeObserver';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -177,7 +178,16 @@
   }
 </script>
 
-<div bind:clientWidth bind:clientHeight class="ace-container">
+<div
+  use:resizeObserver={true}
+  on:resize={e => {
+    // @ts-ignore
+    clientWidth = e.detail.width;
+    // @ts-ignore
+    clientHeight = e.detail.height;
+  }}
+  class="ace-container"
+>
   <div id={EDITOR_ID} style="width:{clientWidth}px;height:{clientHeight}px" />
 </div>
 

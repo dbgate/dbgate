@@ -255,7 +255,7 @@ export function registerFileCommands({
       name: 'Kill',
       icon: 'icon close',
       toolbar: true,
-      testEnabled: () => getCurrentEditor() != null && getCurrentEditor()?.canKill(),
+      testEnabled: () => getCurrentEditor()?.canKill && getCurrentEditor().canKill(),
       onClick: () => getCurrentEditor().kill(),
     });
   }

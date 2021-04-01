@@ -1069,7 +1069,9 @@
             data-col="header"
             bind:clientHeight={rowHeight}
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          />
+          >
+            &nbsp;
+          </td>
           {#each visibleRealColumns as col (col.uniqueName)}
             <td
               class="header-cell"
