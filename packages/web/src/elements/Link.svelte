@@ -1,12 +1,17 @@
 <script lang="ts">
   import getElectron from '../utility/getElectron';
 
-  export let href;
+  export let href = undefined;
+  export let onClick = undefined;
 
   const electron = getElectron();
 </script>
 
-{#if electron}
+{#if onClick}
+  <a on:click={onClick}>
+    <slot />
+  </a>
+{:else if electron}
   <a on:click={() => electron.shell.openExternal(href)}>
     <slot />
   </a>

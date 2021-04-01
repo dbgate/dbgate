@@ -70,6 +70,7 @@ export interface TableInfo extends DatabaseObjectInfo {
   foreignKeys: ForeignKeyInfo[];
   dependencies?: ForeignKeyInfo[];
   indexes?: IndexInfo[];
+  uniques?: UniqueInfo[];
   checks?: CheckInfo[];
 }
 

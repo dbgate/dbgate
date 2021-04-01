@@ -15,7 +15,7 @@
 <ModalBase {...$$restProps}>
   <svelte:fragment slot="header">About DbGate</svelte:fragment>
   <div class="flex">
-    <img src="/logo192.png" />
+    <img src="logo192.png" />
     <div>
       <div class="m-1">
         Version: <span>{version}</span>

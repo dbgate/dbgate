@@ -9,7 +9,7 @@
 <div class="row">
   {#if type == 'checkbox'}
     <slot />
-    <span {...labelProps} on:click={labelProps.onClick} class:disabled>{label}</span>
+    <span {...labelProps} on:click={labelProps.onClick} class:disabled class="checkLabel">{label}</span>
   {:else}
     <div class="label" {...labelProps} on:click={labelProps.onClick}>
       <div class="label">
@@ -29,6 +29,10 @@
   .label {
     margin-bottom: 3px;
     color: var(--theme-font-3);
+  }
+  .checkLabel {
+    cursor: default;
+    user-select: none;
   }
   .disabled {
     color: var(--theme-font-3);

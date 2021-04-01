@@ -45,6 +45,7 @@
       {isExpandable}
       {subItemsComponent}
       {checkedObjectsStore}
+      {groupFunc}
     />
   {/each}
 {:else}

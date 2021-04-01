@@ -38,6 +38,10 @@ body {
 .flex {
   display: flex;
 }
+.flexcol {
+  display: flex;
+  flex-direction: column;
+}
 .nowrap {
   white-space: nowrap;
 }

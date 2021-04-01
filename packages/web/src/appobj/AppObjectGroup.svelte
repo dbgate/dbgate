@@ -1,4 +1,6 @@
 <script>
+  import Link from '../elements/Link.svelte';
+
   import { plusExpandIcon } from '../icons/expandIcons';
 
   import FontIcon from '../icons/FontIcon.svelte';
@@ -6,6 +8,7 @@
   import AppObjectListItem from './AppObjectListItem.svelte';
 
   export let group;
+  export let groupFunc;
   export let items;
   export let module;
   export let checkedObjectsStore = null;
@@ -14,6 +17,20 @@
 
   $: filtered = items.filter(x => x.isMatched);
   $: countText = filtered.length < items.length ? `${filtered.length}/${items.length}` : `${items.length}`;
+
+  function handleCheckAll(isChecked) {
+    checkedObjectsStore.update(checkList => {
+      const res = isChecked
+        ? [
+            ...checkList,
+            ...filtered
+              .filter(x => !checkList.find(y => module.extractKey(x.data) == module.extractKey(y)))
+              .map(x => x.data),
+          ]
+        : checkList.filter(x => groupFunc(x) != group);
+      return res;
+    });
+  }
 </script>
 
 <div class="group" on:click={() => (isExpanded = !isExpanded)}>
@@ -26,6 +43,14 @@
 </div>
 
 {#if isExpanded}
+  {#if checkedObjectsStore}
+    <div class="ml-2">
+      <Link onClick={() => handleCheckAll(true)}>Check all</Link>
+      |
+      <Link onClick={() => handleCheckAll(false)}>Uncheck all</Link>
+    </div>
+  {/if}
+
   {#each filtered as item (module.extractKey(item.data))}
     <AppObjectListItem {...$$restProps} {module} data={item.data} {checkedObjectsStore} on:objectClick />
   {/each}

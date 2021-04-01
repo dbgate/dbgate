@@ -15,13 +15,62 @@ export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
 function fillTableExtendedInfo(db: DatabaseInfo) {
   return {
     ...db,
-    tables: db.tables.map(table => ({
-      ...table,
-      columns: (table.columns || []).map(column => ({
-        pureName: table.pureName,
-        schemaName: table.schemaName,
+    tables: (db.tables || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'tables',
+      columns: (obj.columns || []).map(column => ({
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
         ...column,
       })),
+      primaryKey: obj.primaryKey
+        ? {
+            ...obj.primaryKey,
+            pureName: obj.pureName,
+            schemaName: obj.schemaName,
+            constraintType: 'primaryKey',
+          }
+        : undefined,
+      foreignKeys: (obj.foreignKeys || []).map(cnt => ({
+        ...cnt,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+        constraintType: 'foreignKey',
+      })),
+      indexes: (obj.indexes || []).map(cnt => ({
+        ...cnt,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+        constraintType: 'index',
+      })),
+      checks: (obj.checks || []).map(cnt => ({
+        ...cnt,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+        constraintType: 'check',
+      })),
+      uniques: (obj.uniques || []).map(cnt => ({
+        ...cnt,
+        pureName: obj.pureName,
+        schemaName: obj.schemaName,
+        constraintType: 'unique',
+      })),
+    })),
+    views: (db.views || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'views',
+    })),
+    procedures: (db.procedures || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'procedures',
+    })),
+    functions: (db.functions || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'functions',
+    })),
+    triggers: (db.triggers || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'triggers',
     })),
   };
 }
