@@ -28,6 +28,7 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let conid;
   export let database;
@@ -93,6 +94,24 @@
       sqlPreview = response.data;
     }
     busy = false;
+  }
+
+  function editSql() {
+    openNewTab(
+      {
+        title: 'Query #',
+        icon: 'img sql-file',
+        tabComponent: 'QueryTab',
+        props: {
+          conid,
+          database,
+        },
+      },
+      {
+        editor: sqlPreview,
+      }
+    );
+    closeCurrentModal();
   }
 </script>
 
@@ -187,6 +206,7 @@
 
     <svelte:fragment slot="footer">
       <div class="flex m-2">
+        <LargeButton on:click={editSql} icon="icon sql-file">Edit SQL</LargeButton>
         <LargeButton on:click={closeCurrentModal} icon="icon close">Close</LargeButton>
       </div>
     </svelte:fragment>

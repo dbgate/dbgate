@@ -65,6 +65,27 @@
         label: 'SQL: SELECT',
         sqlTemplate: 'SELECT',
       },
+      {
+        label: 'SQL Generator: CREATE TABLE',
+        sqlGeneratorProps: {
+          createTables: true,
+          createIndexes: true,
+          createForeignKeys: true,
+        },
+      },
+      {
+        label: 'SQL Generator: DROP TABLE',
+        sqlGeneratorProps: {
+          dropTables: true,
+          dropReferences: true,
+        },
+      },
+      {
+        label: 'SQL Generator: INSERT',
+        sqlGeneratorProps: {
+          insert: true,
+        },
+      },
     ],
     views: [
       {
@@ -110,6 +131,18 @@
         label: 'SQL: SELECT',
         sqlTemplate: 'SELECT',
       },
+      {
+        label: 'SQL Generator: CREATE VIEW',
+        sqlGeneratorProps: {
+          createViews: true,
+        },
+      },
+      {
+        label: 'SQL Generator: DROP VIEW',
+        sqlGeneratorProps: {
+          dropViews: true,
+        },
+      },
     ],
     procedures: [
       {
@@ -120,11 +153,35 @@
         label: 'SQL: EXECUTE',
         sqlTemplate: 'EXECUTE PROCEDURE',
       },
+      {
+        label: 'SQL Generator: CREATE PROCEDURE',
+        sqlGeneratorProps: {
+          createProcedures: true,
+        },
+      },
+      {
+        label: 'SQL Generator: DROP PROCEDURE',
+        sqlGeneratorProps: {
+          dropProcedures: true,
+        },
+      },
     ],
     functions: [
       {
         label: 'SQL: CREATE FUNCTION',
         sqlTemplate: 'CREATE OBJECT',
+      },
+      {
+        label: 'SQL Generator: CREATE FUNCTION',
+        sqlGeneratorProps: {
+          createFunctions: true,
+        },
+      },
+      {
+        label: 'SQL Generator: DROP FUNCTION',
+        sqlGeneratorProps: {
+          dropFunctions: true,
+        },
       },
     ],
   };
@@ -175,6 +232,7 @@
   import { showModal } from '../modals/modalTools';
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';
+  import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 
   export let data;
 
@@ -298,6 +356,13 @@
                 },
               }
             );
+          } else if (menu.sqlGeneratorProps) {
+            showModal(SqlGeneratorModal, {
+              initialObjects: [data],
+              initialConfig: menu.sqlGeneratorProps,
+              conid: data.conid,
+              database: data.database,
+            });
           } else {
             openDatabaseObjectDetail(menu.tab, menu.sqlTemplate, data, menu.forceNewTab, menu.initialData);
           }
