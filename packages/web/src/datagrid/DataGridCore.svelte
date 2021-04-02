@@ -245,6 +245,7 @@
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import resizeObserver from '../utility/resizeObserver';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1067,11 +1068,13 @@
             class="header-cell"
             data-row="header"
             data-col="header"
-            bind:clientHeight={rowHeight}
+            use:resizeObserver={true}
+            on:resize={e => {
+              // @ts-ignore
+              rowHeight = e.detail.height;
+            }}
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          >
-            &nbsp;
-          </td>
+          />
           {#each visibleRealColumns as col (col.uniqueName)}
             <td
               class="header-cell"

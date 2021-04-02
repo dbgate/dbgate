@@ -459,7 +459,7 @@
                 class="header-cell"
                 data-row={rowIndex}
                 data-col={chunkIndex * 2}
-                style={`height: ${rowHeight}px`}
+                style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
                 class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
                 bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
                 use:resizeObserver={chunkIndex == 0 && rowIndex == 0}
@@ -561,6 +561,7 @@
     right: 0;
     display: flex;
     overflow-x: scroll;
+    align-items: flex-start;
   }
 
   tr {
