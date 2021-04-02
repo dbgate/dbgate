@@ -28,6 +28,8 @@
   export let schemaName;
   export let pureName;
 
+  let loadedRows;
+
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
 
@@ -50,12 +52,15 @@
           $config,
           config.update,
           $cache,
-          cache.update
+          cache.update,
+          loadedRows
         )
       : null;
+  // $: console.log('LOADED ROWS MONGO', loadedRows);
 </script>
 
 <DataGrid
+  bind:loadedRows
   {...$$props}
   config={$config}
   setConfig={config.update}

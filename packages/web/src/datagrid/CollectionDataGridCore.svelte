@@ -11,6 +11,7 @@
       },
       data: {
         options: {
+          pureName: props.pureName,
           limit,
           skip: offset,
         },
@@ -22,9 +23,10 @@
   }
 
   function dataPageAvailable(props) {
-    const { display } = props;
-    const sql = display.getPageQuery(0, 1);
-    return !!sql;
+    return true;
+    // const { display } = props;
+    // const sql = display.getPageQuery(0, 1);
+    // return !!sql;
   }
 
   async function loadRowCount(props) {
@@ -39,6 +41,7 @@
       },
       data: {
         options: {
+          pureName: props.pureName,
           countDocuments: true,
         },
       },
@@ -77,7 +80,7 @@
 
   // export let onChangeGrider = undefined;
 
-  let loadedRows = [];
+  export let loadedRows = [];
 
   // $: console.log('loadedRows BIND', loadedRows);
   $: grider = new ChangeSetGrider(

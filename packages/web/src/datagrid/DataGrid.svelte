@@ -27,6 +27,8 @@
   export let showReferences = false;
   export let showMacros;
 
+  export let loadedRows;
+
   let selectedCellsPublished = [];
 
   const selectedMacro = writable(null);
@@ -93,6 +95,7 @@
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
             {selectedCellsPublished}
+            bind:loadedRows
           />
         {/if}
       </svelte:fragment>

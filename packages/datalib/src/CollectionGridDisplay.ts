@@ -10,37 +10,41 @@ export class CollectionGridDisplay extends GridDisplay {
     config: GridConfig,
     setConfig: ChangeConfigFunc,
     cache: GridCache,
-    setCache: ChangeCacheFunc
+    setCache: ChangeCacheFunc,
+    loadedRows
   ) {
     super(config, setConfig, cache, setCache, driver);
-    this.columns = []; 
+    this.columns = this.getDisplayColumns(loadedRows || []);
     this.filterable = true;
     this.sortable = true;
     this.editable = false;
     this.supportsReload = true;
   }
 
-  // getDisplayColumns(view: ViewInfo) {
-  //   return (
-  //     view?.columns
-  //       ?.map(col => this.getDisplayColumn(view, col))
-  //       ?.map(col => ({
-  //         ...col,
-  //         isChecked: this.isColumnChecked(col),
-  //       })) || []
-  //   );
-  // }
+  getDisplayColumns(rows) {
+    const res = [];
+    for (const row of rows) {
+      for (const name of Object.keys(row)) {
+        if (res.find(x => x.columnName == name)) continue;
+        res.push(this.getDisplayColumn(name));
+      }
+    }
+    return (
+      res.map(col => ({
+        ...col,
+        isChecked: this.isColumnChecked(col),
+      })) || []
+    );
+  }
 
-  // getDisplayColumn(view: ViewInfo, col: ColumnInfo) {
-  //   const uniquePath = [col.columnName];
-  //   const uniqueName = uniquePath.join('.');
-  //   return {
-  //     ...col,
-  //     pureName: view.pureName,
-  //     schemaName: view.schemaName,
-  //     headerText: col.columnName,
-  //     uniqueName,
-  //     uniquePath,
-  //   };
-  // }
+  getDisplayColumn(columnName: string) {
+    const uniquePath = [columnName];
+    const uniqueName = uniquePath.join('.');
+    return {
+      columnName,
+      headerText: columnName,
+      uniqueName,
+      uniquePath,
+    };
+  }
 }

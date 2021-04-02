@@ -96,7 +96,7 @@ module.exports = {
   async collectionData({ conid, database, options }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'collectionData', options });
-    return res;
+    return res.result;
   },
 
   status_meta: 'get',
