@@ -69,7 +69,7 @@
         name="references"
         height="30%"
         collapsed={isDetailView}
-        skip={!showReferences || !display.hasReferences}
+        skip={!showReferences || !display?.hasReferences}
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>

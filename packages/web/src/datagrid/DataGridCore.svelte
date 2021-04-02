@@ -269,6 +269,7 @@
   export let isLoadedAll;
   export let loadedTime;
   export let changeSetStore;
+  export let isDynamicStructure = false;
   // export let generalAllowSave = false;
 
   const wheelRowCount = 5;
@@ -1025,7 +1026,7 @@
   }
 </script>
 
-{#if !columns || columns.length == 0}
+{#if !isDynamicStructure && (!columns || columns.length == 0)}
   <LoadingInfo wrapper message="Waiting for structure" />
 {:else if errorMessage}
   <ErrorInfo message={errorMessage} />

@@ -74,6 +74,8 @@ export interface TableInfo extends DatabaseObjectInfo {
   checks?: CheckInfo[];
 }
 
+export interface CollectionInfo extends DatabaseObjectInfo {}
+
 export interface ViewInfo extends SqlObjectInfo {
   columns: ColumnInfo[];
 }
@@ -91,6 +93,7 @@ export interface SchemaInfo {
 
 export interface DatabaseInfoObjects {
   tables: TableInfo[];
+  collections: CollectionInfo[];
   views: ViewInfo[];
   procedures: ProcedureInfo[];
   functions: FunctionInfo[];

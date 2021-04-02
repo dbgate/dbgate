@@ -56,6 +56,10 @@ function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
         constraintType: 'unique',
       })),
     })),
+    collections: (db.collections || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'collections',
+    })),
     views: (db.views || []).map(obj => ({
       ...obj,
       objectTypeField: 'views',

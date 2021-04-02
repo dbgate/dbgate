@@ -49,7 +49,7 @@ export class DatabaseAnalyser {
     }
 
     const res = {};
-    for (const field of ['tables', 'views', 'functions', 'procedures', 'triggers']) {
+    for (const field of ['tables', 'collections', 'views', 'functions', 'procedures', 'triggers']) {
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
         .map(x => extractObjectId(x));
@@ -78,6 +78,7 @@ export class DatabaseAnalyser {
   static createEmptyStructure(): DatabaseInfo {
     return {
       tables: [],
+      collections: [],
       views: [],
       functions: [],
       procedures: [],

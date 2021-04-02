@@ -17,7 +17,7 @@ module.exports = {
   listObjects_meta: 'get',
   async listObjects({ conid, database }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
-    const types = ['tables', 'views', 'procedures', 'functions', 'triggers'];
+    const types = ['tables', 'collections', 'views', 'procedures', 'functions', 'triggers'];
     return types.reduce(
       (res, type) => ({
         ...res,

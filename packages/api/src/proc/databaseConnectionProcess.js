@@ -94,6 +94,17 @@ async function handleQueryData({ msgid, sql }) {
   }
 }
 
+async function handleCollectionData({ msgid, options }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.readCollection(systemConnection, options);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleSqlPreview({ msgid, objects, options }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -129,6 +140,7 @@ function handlePing() {
 const messageHandlers = {
   connect: handleConnect,
   queryData: handleQueryData,
+  collectionData: handleCollectionData,
   sqlPreview: handleSqlPreview,
   ping: handlePing,
   // runCommand: handleRunCommand,

@@ -24,6 +24,14 @@ export interface EngineAuthType {
   disabledFields: string[];
 }
 
+export interface ReadCollectionOptions {
+  pureName: string;
+  schemaName?: string;
+  
+  countDocuments?: boolean;
+  skip?: number;
+  limit?: number;
+}
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -52,6 +60,7 @@ export interface EngineDriver {
   dialect: SqlDialect;
   createDumper(): SqlDumper;
   getAuthTypes(): EngineAuthType[];
+  readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
 
   analyserClass?: any;
   dumperClass?: any;

@@ -4,6 +4,7 @@
 
   const icons = {
     tables: 'img table',
+    collections: 'img collection',
     views: 'img view',
     procedures: 'img procedure',
     functions: 'img function',
@@ -11,6 +12,7 @@
 
   const defaultTabs = {
     tables: 'TableDataTab',
+    collections: 'CollectionDataTab',
     views: 'ViewDataTab',
   };
 

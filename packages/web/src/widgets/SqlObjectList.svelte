@@ -21,8 +21,10 @@
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
 
+  // $: console.log('objects', $objects);
+
   $: objectList = _.flatten(
-    ['tables', 'views', 'procedures', 'functions'].map(objectTypeField =>
+    ['tables', 'collections', 'views', 'procedures', 'functions'].map(objectTypeField =>
       _.sortBy(
         (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']

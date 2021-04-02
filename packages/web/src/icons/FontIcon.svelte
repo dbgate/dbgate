@@ -92,6 +92,7 @@
 
     'img database': 'mdi mdi-database color-icon-gold',
     'img table': 'mdi mdi-table color-icon-blue',
+    'img collection': 'mdi mdi-table color-icon-red',
     'img view': 'mdi mdi-table color-icon-magenta',
     'img procedure': 'mdi mdi-cog color-icon-blue',
     'img function': 'mdi mdi-function-variant',

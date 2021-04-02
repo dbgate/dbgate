@@ -1,4 +1,5 @@
 import * as TableDataTab from './TableDataTab.svelte';
+import * as CollectionDataTab from './CollectionDataTab.svelte';
 import * as ViewDataTab from './ViewDataTab.svelte';
 import * as TableStructureTab from './TableStructureTab.svelte';
 import * as QueryTab from './QueryTab.svelte';
@@ -15,6 +16,7 @@ import * as QueryDesignTab from './QueryDesignTab.svelte';
 
 export default {
   TableDataTab,
+  CollectionDataTab,
   ViewDataTab,
   TableStructureTab,
   QueryTab,
