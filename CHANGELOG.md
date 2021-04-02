@@ -1,5 +1,7 @@
 # ChangeLog
 
+### 4.0.3
+- FIX: fixes for FireFox (mainly incorrent handle of bind:clientHeight, replaces with resizeobserver)
 ### 4.0.2
 - FIX: fixed docker and NPM build
 ### 4.0.0

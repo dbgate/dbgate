@@ -2,7 +2,7 @@ import { DatabaseInfo } from 'dbgate-types';
 import _ from 'lodash';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
-  const allForeignKeys = _.flatten(db.tables.map(x => x.foreignKeys));
+  const allForeignKeys = _.flatten(db.tables.map(x => x.foreignKeys || []));
   return {
     ...db,
     tables: db.tables.map(table => ({
