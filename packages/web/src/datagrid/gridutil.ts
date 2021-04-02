@@ -6,7 +6,7 @@ import Grider from './Grider';
 
 export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {
   const columnSizes = new SeriesSizes();
-  if (!grider || !columns) return columnSizes;
+  if (!grider || !columns || !display) return columnSizes;
 
   let canvas = document.createElement('canvas');
   let context = canvas.getContext('2d');

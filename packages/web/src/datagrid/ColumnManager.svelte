@@ -21,8 +21,8 @@
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
   {#each display
-    .getColumns(filter)
-    .filter(column => filterName(filter, column.columnName)) as column (column.uniqueName)}
+    ?.getColumns(filter)
+    ?.filter(column => filterName(filter, column.columnName)) || [] as column (column.uniqueName)}
     <ColumnManagerRow {display} {column} />
   {/each}
 </ManagerInnerContainer>

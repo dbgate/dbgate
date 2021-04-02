@@ -268,6 +268,11 @@ export function useViewInfo(args) {
   return useDbCore(args, 'views');
 }
 
+/** @returns {import('dbgate-types').CollectionInfo} */
+export function useCollectionInfo(args) {
+  return useDbCore(args, 'collections');
+}
+
 export function getSqlObjectInfo(args) {
   return getDbCore(args);
 }

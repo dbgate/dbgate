@@ -494,7 +494,7 @@
   // $: visibleRowCountUpperBound = 25;
 
   // $: console.log('grider', grider);
-  $: columns = display.allColumns;
+  $: columns = display?.allColumns || [];
 
   $: columnSizes = countColumnSizes(grider, columns, containerWidth, display);
 
@@ -551,7 +551,7 @@
 
   // $: console.log('DISPLAY.config', display.config);
   $: {
-    if (display.groupColumns && display.baseTable) {
+    if (display?.groupColumns && display?.baseTable) {
       onReferenceClick({
         referenceId: stableStringify(display && display.groupColumns),
         schemaName: display.baseTable.schemaName,
@@ -1026,7 +1026,7 @@
   }
 </script>
 
-{#if !isDynamicStructure && (!columns || columns.length == 0)}
+{#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
   <LoadingInfo wrapper message="Waiting for structure" />
 {:else if errorMessage}
   <ErrorInfo message={errorMessage} />

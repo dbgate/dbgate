@@ -5,19 +5,22 @@
 
 <script lang="ts">
   import App from '../App.svelte';
-  import TableDataGrid from '../datagrid/TableDataGrid.svelte';
+  import DataGrid from '../datagrid/DataGrid.svelte';
   import useGridConfig from '../utility/useGridConfig';
   import {
     createChangeSet,
     createGridCache,
     createGridConfig,
     TableFormViewDisplay,
-    TableGridDisplay,
+    CollectionGridDisplay,
   } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
   import createUndoReducer from '../utility/createUndoReducer';
   import invalidateCommands from '../commands/invalidateCommands';
+  import CollectionDataGridCore from '../datagrid/CollectionDataGridCore.svelte';
+  import { useCollectionInfo, useConnectionInfo } from '../utility/metadataLoaders';
+  import { extensions } from '../stores';
 
   export let tabid;
   export let conid;
@@ -34,9 +37,25 @@
     $changeSetStore;
     invalidateCommands();
   }
+
+  $: connection = useConnectionInfo({ conid });
+  $: collectionInfo = useCollectionInfo({ conid, database, schemaName, pureName });
+
+  $: display =
+    $collectionInfo && $connection
+      ? new CollectionGridDisplay(
+          $collectionInfo,
+          findEngineDriver($connection, $extensions),
+          //@ts-ignore
+          $config,
+          config.update,
+          $cache,
+          cache.update
+        )
+      : null;
 </script>
 
-<TableDataGrid
+<DataGrid
   {...$$props}
   config={$config}
   setConfig={config.update}
@@ -44,6 +63,8 @@
   setCache={cache.update}
   changeSetState={$changeSetStore}
   focusOnVisible
+  {display}
   {changeSetStore}
   {dispatchChangeSet}
+  gridCoreComponent={CollectionDataGridCore}
 />

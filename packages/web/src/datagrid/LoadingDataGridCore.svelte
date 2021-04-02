@@ -99,12 +99,12 @@
     // loadNextDataToken = 0;
   }
 
-  $: if (display.cache.refreshTime > loadedTime) {
+  $: if (display?.cache?.refreshTime > loadedTime) {
     reload();
   }
 
   $: {
-    if (masterLoadedTime && masterLoadedTime > loadedTime) {
+    if (masterLoadedTime && masterLoadedTime > loadedTime && display) {
       display.reload();
     }
   }

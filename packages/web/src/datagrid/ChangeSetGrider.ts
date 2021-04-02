@@ -39,7 +39,7 @@ export default class ChangeSetGrider extends Grider {
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
-    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display.baseTable);
+    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display?.baseTable);
     this.setChangeSet = value => dispatchChangeSet({ type: 'set', value });
     this.rowCacheIndexes = new Set();
     this.rowDataCache = {};
@@ -66,7 +66,7 @@ export default class ChangeSetGrider extends Grider {
     if (this.rowCacheIndexes.has(index)) return;
     const row = this.getRowSource(index);
     const insertedRowIndex = this.getInsertedRowIndex(index);
-    const rowDefinition = this.display.getChangeSetRow(row, insertedRowIndex);
+    const rowDefinition = this.display?.getChangeSetRow(row, insertedRowIndex);
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
     const rowUpdated = matchedChangeSetItem
       ? { ...row, ...matchedChangeSetItem.fields }
