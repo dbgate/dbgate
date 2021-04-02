@@ -246,6 +246,7 @@
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import resizeObserver from '../utility/resizeObserver';
+  import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -279,7 +280,7 @@
 
   let containerHeight = 0;
   let containerWidth = 0;
-  let rowHeight = 0;
+  $: rowHeight = $dataGridRowHeight;
   let firstVisibleRowScrollIndex = 0;
   let firstVisibleColumnScrollIndex = 0;
 
@@ -1069,11 +1070,6 @@
             class="header-cell"
             data-row="header"
             data-col="header"
-            use:resizeObserver={true}
-            on:resize={e => {
-              // @ts-ignore
-              rowHeight = e.detail.height;
-            }}
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
           />
           {#each visibleRealColumns as col (col.uniqueName)}

@@ -161,6 +161,7 @@
   import registerCommand from '../commands/registerCommand';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
   import { clearLastFocusedDataGrid } from '../datagrid/DataGridCore.svelte';
+  import { dataGridRowHeight } from '../datagrid/DataGridRowHeightMeter.svelte';
   import InplaceEditor from '../datagrid/InplaceEditor.svelte';
   import { cellFromEvent } from '../datagrid/selection';
   import ColumnLabel from '../elements/ColumnLabel.svelte';
@@ -191,7 +192,7 @@
   export let onNavigate;
 
   let wrapperHeight = 1;
-  let rowHeight = 1;
+  $: rowHeight = $dataGridRowHeight;
   let currentCell = [0, 0];
 
   const instance = get_current_component();
@@ -462,11 +463,6 @@
                 style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
                 class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
                 bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
-                use:resizeObserver={chunkIndex == 0 && rowIndex == 0}
-                on:resize={e => {
-                  // @ts-ignore
-                  if (rowHeight == 1) rowHeight = e.detail.height;
-                }}
               >
                 <div class="header-cell-inner">
                   {#if col.foreignKey}
