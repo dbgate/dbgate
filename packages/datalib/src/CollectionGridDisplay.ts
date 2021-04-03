@@ -59,12 +59,14 @@ export class CollectionGridDisplay extends GridDisplay {
 
   getColumnsForObject(basePath, obj, res: any[]) {
     for (const name of getObjectKeys(obj)) {
-      let column = res.find(x => x.columnName == name);
+      const uniqueName = [...basePath, name].join('.');
+      let column = res.find(x => x.uniqueName == uniqueName);
       if (!column) {
         column = this.getDisplayColumn(basePath, name);
         if (basePath.length > 0) {
-          const lastIndex1 = _.findLastIndex(res, x => x.parentIdentifier == column.parentIdentifier);
-          const lastIndex2 = _.findLastIndex(res, x => x.headerText == column.parentIdentifier);
+          const lastIndex1 = _.findLastIndex(res, x => x.parentHeaderText.startsWith(column.parentHeaderText));
+          const lastIndex2 = _.findLastIndex(res, x => x.headerText == column.parentHeaderText);
+          // console.log(uniqueName, lastIndex1, lastIndex2);
           if (lastIndex1 >= 0) res.splice(lastIndex1 + 1, 0, column);
           else if (lastIndex2 >= 0) res.splice(lastIndex2 + 1, 0, column);
           else res.push(column);
@@ -91,7 +93,7 @@ export class CollectionGridDisplay extends GridDisplay {
       uniqueName,
       uniquePath,
       isStructured: true,
-      parentIdentifier: createHeaderText(basePath),
+      parentHeaderText: createHeaderText(basePath),
     };
   }
 }
