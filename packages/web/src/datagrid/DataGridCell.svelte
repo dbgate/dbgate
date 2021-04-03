@@ -39,7 +39,7 @@
   export let hideContent = false;
   export let onSetFormView;
 
-  $: value = (rowData || {})[col.uniqueName];
+  $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 </script>
 
 <td

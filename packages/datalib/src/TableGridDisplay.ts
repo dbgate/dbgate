@@ -59,6 +59,7 @@ export class TableGridDisplay extends GridDisplay {
           ...col,
           isChecked: this.isColumnChecked(col),
           hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
+          isExpandable: !!col.foreignKey,
         })) || []
     );
   }

@@ -61,7 +61,9 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
         continue;
       }
 
-      const text = row[uqName];
+      const value = row[uqName];
+      let text = value;
+      if (_.isArray(value)) text = `[${value.length} items]`;
       const width = context.measureText(text).width + 8;
       // console.log('colName', colName, text, width);
       columnSizes.putSizeOverride(colIndex, width);

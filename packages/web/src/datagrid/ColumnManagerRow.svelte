@@ -18,7 +18,7 @@
 >
   <span class="expandColumnIcon">
     <FontIcon
-      icon={column.foreignKey ? plusExpandIcon(display.isExpandedColumn(column.uniqueName)) : 'icon invisible-box'}
+      icon={column.isExpandable ? plusExpandIcon(display.isExpandedColumn(column.uniqueName)) : 'icon invisible-box'}
       on:click={() => display.toggleExpandedColumn(column.uniqueName)}
     />
   </span>

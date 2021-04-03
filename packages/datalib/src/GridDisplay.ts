@@ -18,9 +18,11 @@ export interface DisplayColumn {
   autoIncrement?: boolean;
   isPrimaryKey?: boolean;
   foreignKey?: ForeignKeyInfo;
+  isExpandable?: boolean;
   isChecked?: boolean;
   hintColumnName?: string;
   dataType?: string;
+  isStructured?: boolean;
 }
 
 export interface DisplayedColumnEx extends DisplayColumn {
@@ -59,6 +61,7 @@ export abstract class GridDisplay {
   editable = false;
   isLoadedCorrectly = true;
   supportsReload = false;
+  isDynamicStructure = false;
 
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
@@ -66,7 +69,7 @@ export abstract class GridDisplay {
       this.includeInColumnSet('hiddenColumns', uniqueName, !isVisible);
     } else {
       this.includeInColumnSet('addedColumns', uniqueName, isVisible);
-      this.reload();
+      if (!this.isDynamicStructure) this.reload();
     }
   }
 
