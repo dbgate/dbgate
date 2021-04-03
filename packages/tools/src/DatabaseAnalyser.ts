@@ -40,7 +40,7 @@ export class DatabaseAnalyser {
     return this._runAnalysis();
   }
 
-  mergeAnalyseResult(newlyAnalysed, extractObjectId) {
+  mergeAnalyseResult(newlyAnalysed) {
     if (this.structure == null) {
       return {
         ...DatabaseAnalyser.createEmptyStructure(),
@@ -52,12 +52,12 @@ export class DatabaseAnalyser {
     for (const field of ['tables', 'views', 'functions', 'procedures', 'triggers']) {
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
-        .map(x => extractObjectId(x));
+        .map(x => x.objectId);
       const newArray = newlyAnalysed[field] || [];
-      const addedChangedIds = newArray.map(x => extractObjectId(x));
+      const addedChangedIds = newArray.map(x => x.objectId);
       const removeAllIds = [...removedIds, ...addedChangedIds];
       res[field] = _sortBy(
-        [...this.structure[field].filter(x => !removeAllIds.includes(extractObjectId(x))), ...newArray],
+        [...this.structure[field].filter(x => !removeAllIds.includes(x.objectId)), ...newArray],
         x => x.pureName
       );
     }
