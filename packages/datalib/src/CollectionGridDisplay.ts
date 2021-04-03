@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
+import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc, DisplayColumn } from './GridDisplay';
 import { EngineDriver, ViewInfo, ColumnInfo, CollectionInfo } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
 
@@ -16,7 +16,7 @@ function getObjectKeys(obj) {
 }
 
 function createHeaderText(path) {
-  let res = path[0];
+  let res = `${path[0]}`;
   for (let i = 1; i < path.length; i++) {
     const name = path[i];
     if (_.isNumber(name)) res += `[${name}]`;
@@ -24,6 +24,7 @@ function createHeaderText(path) {
   }
   return res;
 }
+
 export class CollectionGridDisplay extends GridDisplay {
   constructor(
     public collection: CollectionInfo,
@@ -56,12 +57,20 @@ export class CollectionGridDisplay extends GridDisplay {
     );
   }
 
-  getColumnsForObject(basePath, obj, res) {
+  getColumnsForObject(basePath, obj, res: any[]) {
     for (const name of getObjectKeys(obj)) {
       let column = res.find(x => x.columnName == name);
       if (!column) {
         column = this.getDisplayColumn(basePath, name);
-        res.push(column);
+        if (basePath.length > 0) {
+          const lastIndex1 = _.findLastIndex(res, x => x.parentIdentifier == column.parentIdentifier);
+          const lastIndex2 = _.findLastIndex(res, x => x.headerText == column.parentIdentifier);
+          if (lastIndex1 >= 0) res.splice(lastIndex1 + 1, 0, column);
+          else if (lastIndex2 >= 0) res.splice(lastIndex2 + 1, 0, column);
+          else res.push(column);
+        } else {
+          res.push(column);
+        }
       }
       if (_.isPlainObject(obj[name]) || _.isArray(obj[name])) {
         column.isExpandable = true;
@@ -82,6 +91,7 @@ export class CollectionGridDisplay extends GridDisplay {
       uniqueName,
       uniquePath,
       isStructured: true,
+      parentIdentifier: createHeaderText(basePath),
     };
   }
 }
