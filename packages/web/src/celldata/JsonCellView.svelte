@@ -1,4 +1,5 @@
 <script lang="ts">
+  import _ from 'lodash';
   import JSONTree from 'svelte-json-tree';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
 
@@ -8,7 +9,8 @@
   let error = null;
 
   $: try {
-    json = JSON.parse(selection[0].value);
+    const value = selection[0].value;
+    json = _.isPlainObject(value) || _.isArray(value) ? value : JSON.parse(value);
     error = null;
   } catch (err) {
     error = err.message;
@@ -16,7 +18,7 @@
 </script>
 
 {#if error}
-  <ErrorInfo message="Error parsing JSON" />
+  <ErrorInfo message="Error parsing JSON" alignTop />
 {:else}
   <div class="outer">
     <div class="inner">

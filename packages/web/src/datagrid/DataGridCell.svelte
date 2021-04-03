@@ -59,8 +59,10 @@
   {#if hideContent}
     <slot />
   {:else}
-    {#if value == null}
+    {#if value === null}
       <span class="null">(NULL)</span>
+    {:else if value === undefined}
+      <span class="null">(No field)</span>
     {:else if _.isDate(value)}
       {moment(value).format('YYYY-MM-DD HH:mm:ss')}
     {:else if value === true}
@@ -79,16 +81,12 @@
       {:else}
         {highlightSpecialCharacters(value)}
       {/if}
+    {:else if value.type == 'Buffer' && _.isArray(value.data)}
+      <span class="null">({value.data.length} bytes)</span>
     {:else if _.isPlainObject(value)}
-      {#if _.isArray(value.data)}
-        {#if value.data.length == 1 && isTypeLogical(col.dataType)}
-          {value.data[0]}
-        {:else}
-          <span class="null">({value.data.length} bytes)</span>
-        {/if}
-      {:else}
-        <span class="null">(RAW)</span>
-      {/if}
+      <span class="null">(JSON)</span>
+    {:else if _.isArray(value)}
+      <span class="null">[{value.length} items]</span>
     {:else}
       {value.toString()}
     {/if}
@@ -103,6 +101,15 @@
   {/if}
 </td>
 
+<!-- {#if _.isArray(value.data)}
+{#if value.data.length == 1 && isTypeLogical(col.dataType)}
+  {value.data[0]}
+{:else}
+  <span class="null">({value.data.length} bytes)</span>
+{/if}
+{:else}
+<span class="null">(RAW)</span>
+{/if} -->
 <style>
   td {
     font-weight: normal;

@@ -25,6 +25,9 @@
     if (_.isString(value)) {
       if (value.startsWith('[') || value.startsWith('{')) return 'json';
     }
+    if (_.isPlainObject(value) || _.isArray(value)) {
+      return 'json';
+    }
     return 'textWrap';
   }
 
@@ -75,11 +78,11 @@
     </div>
     <div class="data">
       {#if usedFormat.single && selection?.length != 1}
-        <ErrorInfo message="Must be selected one cell" />
+        <ErrorInfo message="Must be selected one cell" alignTop />
       {:else if usedFormat == null}
-        <ErrorInfo message="Format not selected" />
+        <ErrorInfo message="Format not selected" alignTop />
       {:else if !selection || selection.length == 0}
-        <ErrorInfo message="No data selected" />
+        <ErrorInfo message="No data selected" alignTop />
       {:else}
         <svelte:component this={usedFormat?.component} {selection} />
       {/if}
