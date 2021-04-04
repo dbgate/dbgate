@@ -38,6 +38,7 @@
   export let domCell = undefined;
   export let hideContent = false;
   export let onSetFormView;
+  export let isDynamicStructure = false;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 </script>
@@ -66,12 +67,26 @@
     {:else if _.isDate(value)}
       {moment(value).format('YYYY-MM-DD HH:mm:ss')}
     {:else if value === true}
-      1
+      {#if isDynamicStructure}
+        <span class="value">true</span>
+      {:else}
+        1
+      {/if}
     {:else if value === false}
-      0
+      {#if isDynamicStructure}
+        <span class="value">false</span>
+      {:else}
+        0
+      {/if}
     {:else if _.isNumber(value)}
       {#if value >= 10000 || value <= -10000}
-        {value.toLocaleString()}
+        {#if isDynamicStructure}
+          <span class="value">{value.toLocaleString()}</span>
+        {:else}
+          {value.toLocaleString()}
+        {/if}
+      {:else if isDynamicStructure}
+        <span class="value">{value.toString()}</span>
       {:else}
         {value.toString()}
       {/if}
@@ -156,5 +171,8 @@
   .null {
     color: var(--theme-font-3);
     font-style: italic;
+  }
+  .value {
+    color: var(--theme-icon-green);
   }
 </style>

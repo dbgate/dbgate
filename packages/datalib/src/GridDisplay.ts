@@ -22,6 +22,7 @@ export interface DisplayColumn {
   isChecked?: boolean;
   hintColumnName?: string;
   dataType?: string;
+  filterType?: boolean;
   isStructured?: boolean;
 }
 

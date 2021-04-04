@@ -124,6 +124,29 @@
           { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
           { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
         ];
+      case 'mongo':
+        return [
+          { onClick: () => setFilter(''), text: 'Clear Filter' },
+          { onClick: () => filterMultipleValues(), text: 'Filter multiple values' },
+          { onClick: () => openFilterWindow('='), text: 'Equals...' },
+          { onClick: () => openFilterWindow('['), text: 'Does Not Equal...' },
+          { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
+          { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' },
+          { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
+          { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
+          { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
+          { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+          { divider: true },
+          { onClick: () => openFilterWindow('+'), text: 'Contains...' },
+          { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
+          { onClick: () => openFilterWindow('^'), text: 'Begins With...' },
+          { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
+          { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
+          { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
+          { divider: true },
+          { onClick: () => setFilter('TRUE'), text: 'Is True' },
+          { onClick: () => setFilter('FALSE'), text: 'Is False' },
+        ];
     }
 
     // return [
@@ -178,6 +201,7 @@
         isOk = true;
       }
     } catch (err) {
+      // console.error(err);
       isError = true;
     }
   }

@@ -94,6 +94,7 @@ export class CollectionGridDisplay extends GridDisplay {
       uniquePath,
       isStructured: true,
       parentHeaderText: createHeaderText(basePath),
+      filterType: 'mongo',
     };
   }
 }

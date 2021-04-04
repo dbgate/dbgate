@@ -19,6 +19,7 @@
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
   export let onSetFormView;
+  export let isDynamicStructure = false;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -62,6 +63,7 @@
         isDeleted={rowStatus.status == 'deleted' ||
           (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))}
         {onSetFormView}
+        {isDynamicStructure}
       />
     {/if}
   {/each}

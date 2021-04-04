@@ -245,7 +245,6 @@
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import resizeObserver from '../utility/resizeObserver';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
 
   export let onLoadNextData = undefined;
@@ -1033,7 +1032,7 @@
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
   <LoadingInfo wrapper message="Waiting for structure" />
 {:else if errorMessage}
-  <ErrorInfo message={errorMessage} />
+  <ErrorInfo message={errorMessage} alignTop />
 {:else if grider.errors && grider.errors.length > 0}
   <div>
     {#each grider.errors as err}
@@ -1121,7 +1120,7 @@
               >
                 <DataFilterControl
                   onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
-                  filterType={getFilterType(col.dataType)}
+                  filterType={col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
                   showResizeSplitter
@@ -1146,6 +1145,7 @@
             {visibleRealColumns}
             {rowHeight}
             {autofillSelectedCells}
+            {isDynamicStructure}
             selectedCells={filterCellsForRow(selectedCells, rowIndex)}
             autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
             focusedColumn={display.focusedColumn}

@@ -1,6 +1,26 @@
 <script context="module" lang="ts">
   async function loadDataPage(props, offset, limit) {
-    const { conid, database } = props;
+    const { conid, database, display } = props;
+
+    const filters = display?.config?.filters;
+
+    const conditions = [];
+    for (const uniqueName in filters) {
+      if (!filters[uniqueName]) continue;
+      try {
+        const ast = parseFilter(filters[uniqueName], 'mongo');
+        const cond = _.cloneDeepWith(ast, expr => {
+          if (expr.__placeholder__) {
+            return {
+              [uniqueName]: expr.__placeholder__,
+            };
+          }
+        });
+        conditions.push(cond);
+      } catch (err) {
+        // error in filter
+      }
+    }
 
     const response = await axiosInstance.request({
       url: 'database-connections/collection-data',
@@ -14,6 +34,12 @@
           pureName: props.pureName,
           limit,
           skip: offset,
+          condition:
+            conditions.length > 0
+              ? {
+                  $and: conditions,
+                }
+              : undefined,
         },
       },
     });
@@ -53,7 +79,9 @@
 
 <script lang="ts">
   import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
+  import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
+  import _ from 'lodash';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';

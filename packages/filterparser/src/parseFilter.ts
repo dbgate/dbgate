@@ -3,37 +3,8 @@ import moment from 'moment';
 import { FilterType } from './types';
 import { Condition } from 'dbgate-sqltree';
 import { TransformType } from 'dbgate-types';
-
-const whitespace = P.regexp(/\s*/m);
-
-function token(parser) {
-  return parser.skip(whitespace);
-}
-
-function word(str) {
-  return P.string(str).thru(token);
-}
-
-function interpretEscapes(str) {
-  let escapes = {
-    b: '\b',
-    f: '\f',
-    n: '\n',
-    r: '\r',
-    t: '\t',
-  };
-  return str.replace(/\\(u[0-9a-fA-F]{4}|[^u])/, (_, escape) => {
-    let type = escape.charAt(0);
-    let hex = escape.slice(1);
-    if (type === 'u') {
-      return String.fromCharCode(parseInt(hex, 16));
-    }
-    if (escapes.hasOwnProperty(type)) {
-      return escapes[type];
-    }
-    return type;
-  });
-}
+import { interpretEscapes, token, word, whitespace } from './common';
+import { mongoParser } from './mongoParser';
 
 const binaryCondition = operator => value => ({
   conditionType: 'binary',
@@ -239,7 +210,8 @@ const createParser = (filterType: FilterType) => {
     yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
     yearMonthDayNum: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayCondition()),
     yearMonthDayMinute: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteCondition()),
-    yearMonthDaySecond: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDaySecondCondition()),
+    yearMonthDaySecond: () =>
+      P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDaySecondCondition()),
 
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
@@ -348,9 +320,11 @@ const parsers = {
   string: createParser('string'),
   datetime: createParser('datetime'),
   logical: createParser('logical'),
+  mongo: mongoParser,
 };
 
 export function parseFilter(value: string, filterType: FilterType): Condition {
+  // console.log('PARSING', value, 'WITH', filterType);
   const ast = parsers[filterType].list.tryParse(value);
   // console.log('AST', ast);
   return ast;
