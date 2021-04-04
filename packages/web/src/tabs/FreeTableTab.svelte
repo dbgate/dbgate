@@ -4,7 +4,6 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
-  import FreeTableGrid from '../freetable/FreeTableGrid.svelte';
   import FreeTableGridCore from '../freetable/FreeTableGridCore.svelte';
   import { showModal } from '../modals/modalTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';

@@ -68,7 +68,7 @@
 
   export let macroPreview;
   export let macroValues;
-  export let selectedCellsPublished;
+  export let selectedCellsPublished = () => [];
 
   // export let onChangeGrider = undefined;
 
@@ -82,7 +82,7 @@
     display,
     macroPreview,
     macroValues,
-    selectedCellsPublished
+    selectedCellsPublished()
   );
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
@@ -177,6 +177,7 @@
   onOpenQuery={openQuery}
   onOpenActiveChart={openActiveChart}
   bind:loadedRows
+  bind:selectedCellsPublished
   frameSelection={!!macroPreview}
   {grider}
   onSave={handleSave}

@@ -258,7 +258,7 @@
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
-  export let onSelectionChanged = undefined;
+  // export let onSelectedCellsPublishedChanged = undefined;
   export let onSave;
   export let focusOnVisible = false;
   export let onExportGrid = null;
@@ -271,6 +271,7 @@
   export let loadedTime;
   export let changeSetStore;
   export let isDynamicStructure = false;
+  export let selectedCellsPublished = () => [];
   // export let generalAllowSave = false;
 
   const wheelRowCount = 5;
@@ -575,8 +576,10 @@
     const stringified = stableStringify(selectedCells);
     if (lastPublishledSelectedCellsRef.get() != stringified) {
       lastPublishledSelectedCellsRef.set(stringified);
-      if (onSelectionChanged) onSelectionChanged(getCellsPublished(selectedCells));
-      $selectedCellsCallback = () => getCellsPublished(selectedCells);
+      const cellsValue = () => getCellsPublished(selectedCells);
+      selectedCellsPublished = cellsValue;
+      $selectedCellsCallback = cellsValue;
+      // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
     }
   }
 

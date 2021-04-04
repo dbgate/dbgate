@@ -21,7 +21,7 @@
   const cache = writable(createGridCache());
 
   $: grider = macroPreview
-    ? new MacroPreviewGrider(modelState.value, macroPreview, macroValues, selectedCellsPublished)
+    ? new MacroPreviewGrider(modelState.value, macroPreview, macroValues, selectedCellsPublished())
     : new FreeTableGrider(modelState, dispatchModel);
   $: display = new FreeTableGridDisplay(grider.model || modelState.value, config, setConfig, $cache, cache.update);
 
@@ -36,4 +36,12 @@
   }
 </script>
 
-<DataGridCore {...$$props} {grider} {display} frameSelection={!!macroPreview} {exportGrid} onExportGrid={exportGrid} />
+<DataGridCore
+  {...$$props}
+  {grider}
+  {display}
+  frameSelection={!!macroPreview}
+  {exportGrid}
+  onExportGrid={exportGrid}
+  bind:selectedCellsPublished
+/>

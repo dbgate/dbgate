@@ -9,6 +9,8 @@
   export let grider;
   export let display;
   export let masterLoadedTime = undefined;
+  export let selectedCellsPublished;
+
   // export let griderFactory;
 
   export let loadedRows = [];
@@ -120,4 +122,5 @@
   {allRowCount}
   {isLoadedAll}
   {loadedTime}
+  bind:selectedCellsPublished
 />

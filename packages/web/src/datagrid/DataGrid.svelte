@@ -43,7 +43,7 @@
 
   export let loadedRows;
 
-  let selectedCellsPublished = [];
+  let selectedCellsPublished = () => [];
 
   const selectedMacro = writable(null);
   setContext('selectedMacro', selectedMacro);
@@ -55,7 +55,7 @@
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
 
   const handleExecuteMacro = () => {
-    onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished);
+    onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished());
     $selectedMacro = null;
 
     // const newChangeSet = runMacroOnChangeSet(
@@ -117,11 +117,10 @@
             this={gridCoreComponent}
             {...$$props}
             formViewAvailable={!!formViewComponent && !!formDisplay}
-            onSelectionChanged={value => (selectedCellsPublished = value)}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
-            {selectedCellsPublished}
             bind:loadedRows
+            bind:selectedCellsPublished
           />
         {/if}
       </svelte:fragment>
