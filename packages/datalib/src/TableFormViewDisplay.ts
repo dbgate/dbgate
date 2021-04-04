@@ -18,7 +18,7 @@ import stableStringify from 'json-stable-stringify';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 
 export class TableFormViewDisplay extends FormViewDisplay {
-  // use utility functions from GridDisplay and publish result in FromViewDisplat interface
+  // use utility functions from GridDisplay and publish result in FromViewDisplay interface
   private gridDisplay: TableGridDisplay;
 
   constructor(

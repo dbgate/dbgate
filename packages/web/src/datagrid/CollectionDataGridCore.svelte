@@ -1,11 +1,9 @@
 <script context="module" lang="ts">
-  async function loadDataPage(props, offset, limit) {
-    const { conid, database, display } = props;
-
-    const filters = display?.config?.filters;
+  function buildCondition(props) {
+    const filters = props?.display?.config?.filters;
 
     const conditions = [];
-    for (const uniqueName in filters) {
+    for (const uniqueName in filters || {}) {
       if (!filters[uniqueName]) continue;
       try {
         const ast = parseFilter(filters[uniqueName], 'mongo');
@@ -22,6 +20,16 @@
       }
     }
 
+    return conditions.length > 0
+      ? {
+          $and: conditions,
+        }
+      : undefined;
+  }
+
+  async function loadDataPage(props, offset, limit) {
+    const { conid, database } = props;
+
     const response = await axiosInstance.request({
       url: 'database-connections/collection-data',
       method: 'post',
@@ -34,12 +42,7 @@
           pureName: props.pureName,
           limit,
           skip: offset,
-          condition:
-            conditions.length > 0
-              ? {
-                  $and: conditions,
-                }
-              : undefined,
+          condition: buildCondition(props),
         },
       },
     });
@@ -69,6 +72,7 @@
         options: {
           pureName: props.pureName,
           countDocuments: true,
+          condition: buildCondition(props),
         },
       },
     });
@@ -82,6 +86,7 @@
   import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -216,5 +221,4 @@
   frameSelection={!!macroPreview}
   {grider}
   onSave={handleSave}
-  isDynamicStructure
 />

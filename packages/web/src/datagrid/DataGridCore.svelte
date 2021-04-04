@@ -246,6 +246,7 @@
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
+  import FormStyledButton from '../elements/FormStyledButton.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1033,6 +1034,13 @@
   <LoadingInfo wrapper message="Waiting for structure" />
 {:else if errorMessage}
   <ErrorInfo message={errorMessage} alignTop />
+{:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
+  <div>
+    <ErrorInfo alignTop message="No rows loaded, check filter or add new documents" />
+    {#if display.filterCount > 0}
+      <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
+    {/if}
+  </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>
     {#each grider.errors as err}

@@ -38,6 +38,7 @@
   export let showReferences = false;
   export let showMacros;
   export let freeTableColumn = false;
+  export let isDynamicStructure = false;
   export let macroCondition;
   export let onRunMacro;
 

@@ -72,4 +72,5 @@
   {changeSetStore}
   {dispatchChangeSet}
   gridCoreComponent={CollectionDataGridCore}
+  isDynamicStructure
 />
