@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { createGridCache, createGridConfig, TableFormViewDisplay, TableGridDisplay } from 'dbgate-datalib';
+  import {
+    createGridCache,
+    createGridConfig,
+    runMacroOnChangeSet,
+    TableFormViewDisplay,
+    TableGridDisplay,
+  } from 'dbgate-datalib';
   import { getFilterValueExpression } from 'dbgate-filterparser';
   import { findEngineDriver } from 'dbgate-tools';
   import _ from 'lodash';
@@ -19,6 +25,9 @@
   export let database;
   export let schemaName;
   export let pureName;
+
+  export let changeSetState;
+  export let dispatchChangeSet;
 
   export let config;
   export let setConfig;
@@ -106,6 +115,13 @@
     setChildConfig(null, null);
   };
 
+  function handleRunMacro(macro, params, cells) {
+    const newChangeSet = runMacroOnChangeSet(macro, params, cells, changeSetState?.value, display);
+    if (newChangeSet) {
+      dispatchChangeSet({ type: 'set', value: newChangeSet });
+    }
+  }
+
   $: reference = config.reference;
   $: childConfig = config.childConfig;
 </script>
@@ -120,6 +136,8 @@
       {formDisplay}
       showReferences
       showMacros
+      onRunMacro={handleRunMacro}
+      macroCondition={macro => macro.type == 'transformValue'}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
       onReferenceClick={value => {
         if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {

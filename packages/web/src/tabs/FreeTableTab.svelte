@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { createFreeTableModel } from 'dbgate-datalib';
+  import { createFreeTableModel, runMacro } from 'dbgate-datalib';
+  import DataGrid from '../datagrid/DataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import FreeTableGrid from '../freetable/FreeTableGrid.svelte';
+  import FreeTableGridCore from '../freetable/FreeTableGridCore.svelte';
   import { showModal } from '../modals/modalTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
@@ -52,6 +54,11 @@
       props: { archiveFile: file, archiveFolder: folder },
     }));
   };
+
+  function handleRunMacro(macro, params, cells) {
+    const newModel = runMacro(macro, params, $modelState.value, false, cells);
+    dispatchModel({ type: 'set', value: newModel });
+  }
 </script>
 
 {#if isLoading}
@@ -59,12 +66,16 @@
 {:else if errorMessage}
   <ErrorInfo message={errorMessage} />
 {:else}
-  <FreeTableGrid
+  <DataGrid
     config={$config}
     setConfig={config.update}
     modelState={$modelState}
     {dispatchModel}
     onSave={handleSave}
     focusOnVisible
+    gridCoreComponent={FreeTableGridCore}
+    freeTableColumn
+    showMacros
+    onRunMacro={handleRunMacro}
   />
 {/if}
