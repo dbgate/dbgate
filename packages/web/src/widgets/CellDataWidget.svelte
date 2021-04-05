@@ -18,6 +18,12 @@
       component: JsonCellView,
       single: true,
     },
+    {
+      type: 'jsonRow',
+      title: 'Json - Row',
+      component: JsonRowView,
+      single: false,
+    },
   ];
 
   function autodetect(selection) {
@@ -41,6 +47,7 @@
   import { onMount } from 'svelte';
 
   import JsonCellView from '../celldata/JsonCellView.svelte';
+  import JsonRowView from '../celldata/JsonRowView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';

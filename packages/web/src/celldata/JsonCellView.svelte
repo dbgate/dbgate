@@ -4,13 +4,22 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let selection;
+  export let showWholeRow = false;
 
   let json = null;
   let error = null;
 
   $: try {
-    const value = selection[0].value;
-    json = _.isPlainObject(value) || _.isArray(value) ? value : JSON.parse(value);
+    if (showWholeRow) {
+      if (selection?.length == 1) {
+        json = selection[0].rowData;
+      } else {
+        json = selection.map(x => x.rowData);
+      }
+    } else {
+      const value = selection[0].value;
+      json = _.isPlainObject(value) || _.isArray(value) ? value : JSON.parse(value);
+    }
     error = null;
   } catch (err) {
     error = err.message;
