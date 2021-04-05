@@ -21,6 +21,7 @@
   import CollectionDataGridCore from '../datagrid/CollectionDataGridCore.svelte';
   import { useCollectionInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
+import CollectionFormView from '../formview/CollectionFormView.svelte';
 
   export let tabid;
   export let conid;
@@ -72,5 +73,6 @@
   {changeSetStore}
   {dispatchChangeSet}
   gridCoreComponent={CollectionDataGridCore}
+  formViewComponent={CollectionFormView}
   isDynamicStructure
 />
