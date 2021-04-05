@@ -6,6 +6,7 @@ export interface ChangeSetItem {
   pureName: string;
   schemaName?: string;
   insertedRowIndex?: number;
+  document?: any;
   condition?: { [column: string]: string };
   fields?: { [column: string]: string };
 }
@@ -77,6 +78,7 @@ export function setChangeSetValue(
   definition: ChangeSetFieldDefinition,
   value: string
 ): ChangeSet {
+  console.log('SET', changeSet, definition, value);
   if (!changeSet || !definition) return changeSet;
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'deletes') {
@@ -332,6 +334,7 @@ export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjec
 }
 
 export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectInfo): ChangeSet {
+  console.log('INSERT', name);
   const insertedRows = getChangeSetInsertedRows(changeSet, name);
   return {
     ...changeSet,

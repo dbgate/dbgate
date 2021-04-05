@@ -39,7 +39,7 @@ export default class ChangeSetGrider extends Grider {
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
-    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display?.baseTable);
+    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display?.baseTableOrCollection);
     this.setChangeSet = value => dispatchChangeSet({ type: 'set', value });
     this.rowCacheIndexes = new Set();
     this.rowDataCache = {};
@@ -47,6 +47,8 @@ export default class ChangeSetGrider extends Grider {
     this.rowDefinitionsCache = {};
     this.batchChangeSet = null;
     this.compiledMacroFunc = compileMacroFunction(macro, this._errors);
+
+    console.log('changeSet', this.changeSet);
   }
 
   get errors() {
@@ -110,7 +112,7 @@ export default class ChangeSetGrider extends Grider {
   }
 
   get canInsert() {
-    return !!this.display.baseTable;
+    return !!this.display.baseTableOrCollection;
   }
 
   getRowData(index: number) {
@@ -157,7 +159,7 @@ export default class ChangeSetGrider extends Grider {
 
   insertRow(): number {
     const res = this.rowCountInUpdate;
-    this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTable));
+    this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTableOrCollection));
     return res;
   }
 

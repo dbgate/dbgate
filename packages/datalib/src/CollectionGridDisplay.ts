@@ -39,9 +39,11 @@ export class CollectionGridDisplay extends GridDisplay {
     this.columns = this.getDisplayColumns(loadedRows || []);
     this.filterable = true;
     this.sortable = true;
-    this.editable = false;
+    this.editable = true;
     this.supportsReload = true;
     this.isDynamicStructure = true;
+    this.changeSetKeyFields = ['_id'];
+    this.baseCollection = collection;
   }
 
   getDisplayColumns(rows) {
@@ -95,6 +97,8 @@ export class CollectionGridDisplay extends GridDisplay {
       isStructured: true,
       parentHeaderText: createHeaderText(basePath),
       filterType: 'mongo',
+      pureName: this.collection.pureName,
+      schemaName: this.collection.schemaName,
     };
   }
 }

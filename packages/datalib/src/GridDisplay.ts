@@ -1,6 +1,14 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import {
+  ForeignKeyInfo,
+  TableInfo,
+  ColumnInfo,
+  EngineDriver,
+  NamedObjectInfo,
+  DatabaseInfo,
+  CollectionInfo,
+} from 'dbgate-types';
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
@@ -56,6 +64,10 @@ export abstract class GridDisplay {
   ) {}
   columns: DisplayColumn[];
   baseTable?: TableInfo;
+  baseCollection?: CollectionInfo;
+  get baseTableOrCollection(): NamedObjectInfo {
+    return this.baseTable || this.baseCollection;
+  }
   changeSetKeyFields: string[] = null;
   sortable = false;
   filterable = false;
@@ -391,8 +403,12 @@ export abstract class GridDisplay {
   getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
     const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
-    if (!this.baseTable) return null;
-    if (this.baseTable.pureName != col.pureName || this.baseTable.schemaName != col.schemaName) return null;
+    const baseTableOrCollection = this.baseTableOrCollection;
+    if (!baseTableOrCollection) return null;
+    if (baseTableOrCollection.pureName != col.pureName || baseTableOrCollection.schemaName != col.schemaName) {
+      return null;
+    }
+
     return {
       ...this.getChangeSetRow(row, insertedRowIndex),
       uniqueName: uniqueName,
@@ -401,10 +417,11 @@ export abstract class GridDisplay {
   }
 
   getChangeSetRow(row, insertedRowIndex): ChangeSetRowDefinition {
-    if (!this.baseTable) return null;
+    const baseTableOrCollection = this.baseTableOrCollection;
+    if (!baseTableOrCollection) return null;
     return {
-      pureName: this.baseTable.pureName,
-      schemaName: this.baseTable.schemaName,
+      pureName: baseTableOrCollection.pureName,
+      schemaName: baseTableOrCollection.schemaName,
       insertedRowIndex,
       condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };

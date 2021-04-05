@@ -98,9 +98,10 @@
 
 <style>
   .toolbar {
-    background: var(--theme-bg-3);
+    background: var(--theme-bg-1);
     display: flex;
     border-bottom: 1px solid var(--theme-border);
+    border-top: 2px solid var(--theme-border);
     margin-bottom: 3px;
   }
 
