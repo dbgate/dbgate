@@ -1,6 +1,5 @@
 <script>
   import { getContext, setContext } from 'svelte';
-  import contextKey from './context';
   import JSONArrow from './JSONArrow.svelte';
   import JSONNode from './JSONNode.svelte';
   import JSONKey from './JSONKey.svelte';
@@ -12,8 +11,8 @@
   export let getPreviewValue = getValue;
   export let expanded = false, expandable = true;
 
-  const context = getContext(contextKey);
-  setContext(contextKey, { ...context, colon })
+  const context = getContext('json-tree-context-key');
+  setContext('json-tree-context-key', { ...context, colon })
 
   $: slicedKeys = expanded ? keys: previewKeys.slice(0, 5);
 

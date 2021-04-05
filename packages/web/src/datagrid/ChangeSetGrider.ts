@@ -33,9 +33,9 @@ export default class ChangeSetGrider extends Grider {
     public changeSetState,
     public dispatchChangeSet,
     public display: GridDisplay,
-    public macro: MacroDefinition,
-    public macroArgs: {},
-    public selectedCells: MacroSelectedCell[]
+    public macro: MacroDefinition = null,
+    public macroArgs: {} = {},
+    public selectedCells: MacroSelectedCell[] = []
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;

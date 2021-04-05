@@ -1,6 +1,5 @@
 <script>
   import { getContext, setContext } from 'svelte';
-  import contextKey from './context';
   import JSONArrow from './JSONArrow.svelte';
   import JSONNode from './JSONNode.svelte';
   import JSONKey from './JSONKey.svelte';
@@ -10,8 +9,8 @@
 
   $: stack = value.stack.split('\n');
 
-  const context = getContext(contextKey);
-  setContext(contextKey, { ...context, colon: ':' })
+  const context = getContext('json-tree-context-key');
+  setContext('json-tree-context-key', { ...context, colon: ':' })
 
   $: if (!isParentExpanded) {
     expanded = false;

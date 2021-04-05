@@ -3,6 +3,7 @@
 
   export let key, value, isParentExpanded, isParentArray, nodeType;
   export let expanded = false;
+  export let labelOverride = null;
 
   $: keys = Object.getOwnPropertyNames(value);
 
@@ -10,6 +11,7 @@
     return value[key];
   }
 </script>
+
 <JSONNested
   {key}
   {expanded}
@@ -18,7 +20,7 @@
   {keys}
   previewKeys={keys}
   {getValue}
-  label="{nodeType} "
+  label={labelOverride || `${nodeType} `}
   bracketOpen={'{'}
   bracketClose={'}'}
 />

@@ -1,16 +1,23 @@
-<script>
+<script lang="ts">
   import JSONNode from './JSONNode.svelte';
   import { setContext } from 'svelte';
-  import contextKey from './context';
+  import contextMenu from '../utility/contextMenu';
 
-  setContext(contextKey, {});
+  setContext('json-tree-context-key', {});
 
   export let key = '';
   export let value;
+  export let expanded = false;
+  export let labelOverride = null;
+  export let menu;
+
+  export let isDeleted;
+  export let isInserted;
+  export let isModified;
 </script>
 
-<ul>
-  <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} expanded={true} />
+<ul use:contextMenu={menu} class:isDeleted class:isInserted class:isModified>
+  <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} {expanded} {labelOverride} />
 </ul>
 
 <style>
@@ -35,10 +42,23 @@
     line-height: var(--li-line-height);
     display: var(--li-display, list-item);
     list-style: none;
+    white-space: nowrap;
   }
   ul,
   ul :global(ul) {
     padding: 0;
     margin: 0;
+  }
+  ul.isDeleted {
+    background: var(--theme-bg-volcano);
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
+  }
+  ul.isModified {
+    background: var(--theme-bg-gold);
+  }
+  ul.isInserted {
+    background: var(--theme-bg-green);
   }
 </style>

@@ -14,27 +14,30 @@
 </script>
 
 <script lang="ts">
+  import _ from 'lodash';
+
   import { getContext, onMount } from 'svelte';
   import { get_current_component } from 'svelte/internal';
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
+  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
 
   import { loadCollectionDataPage } from '../datagrid/CollectionDataGridCore.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Pager from '../elements/Pager.svelte';
-  import TextField from '../forms/TextField.svelte';
-  import FontIcon from '../icons/FontIcon.svelte';
 
-  import JSONTree from '../jsontree/JSONTree.svelte';
   import { getActiveTabId } from '../stores';
   import contextMenu from '../utility/contextMenu';
+  import CollectionJsonRow from './CollectionJsonRow.svelte';
 
   export let conid;
   export let database;
   export let cache;
   export let display;
   export let setConfig;
+
+  export let changeSetState;
+  export let dispatchChangeSet;
 
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
@@ -43,7 +46,7 @@
   let isLoading = false;
   let loadedTime = null;
 
-  export let loadedRows = null;
+  export let loadedRows = [];
   let skip = 0;
   let limit = 50;
 
@@ -78,17 +81,21 @@
     invalidateCommands();
   });
 
-  function createMenu() {
-    return [{ command: 'dataJson.switchToTable' }];
-  }
+  const commonMenu = [{ command: 'dataJson.switchToTable' }];
+
+  $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
+
+  $: console.log('GRIDER', grider);
 </script>
 
-<div class="flexcol flex1">
+<div class="flexcol flex1" use:contextMenu={commonMenu}>
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
-  <div class="json" use:contextMenu={createMenu}>
-    <JSONTree value={loadedRows} />
+  <div class="json">
+    {#each _.range(0, grider.rowCount) as rowIndex}
+      <CollectionJsonRow {grider} {rowIndex} />
+    {/each}
   </div>
 </div>
 

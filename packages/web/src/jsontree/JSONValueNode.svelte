@@ -1,12 +1,11 @@
 <script>
   import { getContext } from 'svelte';
-  import contextKey from './context';
 
   import JSONKey from './JSONKey.svelte';
 
   export let key, value, valueGetter = null, isParentExpanded, isParentArray, nodeType;
 
-  const { colon } = getContext(contextKey);
+  const { colon } = getContext('json-tree-context-key');
 </script>
 <style>
   li {
