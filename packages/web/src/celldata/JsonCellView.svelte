@@ -1,7 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import JsonTree from '../json-tree/JSONTree.svelte';
+  import JsonTree from '../jsontree/JSONTree.svelte';
 
   export let selection;
   export let showWholeRow = false;
