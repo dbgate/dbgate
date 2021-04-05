@@ -5,8 +5,14 @@
 
   setContext(contextKey, {});
 
-  export let key = '', value;
+  export let key = '',
+    value;
 </script>
+
+<ul>
+  <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} expanded={true} />
+</ul>
+
 <style>
   ul {
     --string-color: var(--json-tree-string-color, #cb3f41);
@@ -30,11 +36,9 @@
     display: var(--li-display, list-item);
     list-style: none;
   }
-  ul, ul :global(ul) {
+  ul,
+  ul :global(ul) {
     padding: 0;
     margin: 0;
   }
 </style>
-<ul>
-  <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} />
-</ul>

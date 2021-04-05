@@ -8,7 +8,11 @@
   import ErrorNode from './ErrorNode.svelte';
   import objType from './objType';
 
-  export let key, value, isParentExpanded, isParentArray;
+  export let key,
+    value,
+    isParentExpanded,
+    isParentArray,
+    expanded = false;
   $: nodeType = objType(value);
   $: componentType = getComponent(nodeType);
   $: valueGetter = getValueGetter(nodeType);
@@ -62,4 +66,13 @@
   }
 </script>
 
-<svelte:component this={componentType} {key} {value} {isParentExpanded} {isParentArray} {nodeType} {valueGetter} />
+<svelte:component
+  this={componentType}
+  {key}
+  {value}
+  {isParentExpanded}
+  {isParentArray}
+  {nodeType}
+  {valueGetter}
+  {expanded}
+/>
