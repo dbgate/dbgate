@@ -2068,6 +2068,13 @@ date-fns@^2.0.1:
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.9.0.tgz#d0b175a5c37ed5f17b97e2272bbc1fa5aec677d2"
   integrity sha512-khbFLu/MlzLjEzy9Gh8oY1hNt/Dvxw3J6Rbc28cVoYWQaC1S3YI4xwkF9ZWcjDLscbZlY9hISMr66RFzZagLsA==
 
+dbgate-tools@^4.0.0:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/dbgate-tools/-/dbgate-tools-4.0.2.tgz#927e0e100fed7331750c1969f19f3e824e700d0f"
+  integrity sha512-A3gjsf25CPMwALHe3jCzViblY3xZYfYC+bFKArG0gp6LxnYYEqc7EvJtO1p+TVAawCwoM/OJLqkOSSQtGnTg5A==
+  dependencies:
+    lodash "^4.17.15"
+
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -7016,11 +7023,6 @@ svelte-check@^1.0.0:
     source-map "^0.7.3"
     svelte-preprocess "^4.0.0"
     typescript "*"
-
-svelte-json-tree@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/svelte-json-tree/-/svelte-json-tree-0.1.0.tgz#2711e36162046a10766dfbef69739168a5eaafa6"
-  integrity sha512-ufKWvS94z5m6Je9Hu0yosvdALy0mOPcaexbTcQQ/jW+3Rzi4oaHkOeg4RQ3cNpOlOQlIs0lfsF9FBlyquZ7XuQ==
 
 svelte-markdown@^0.1.4:
   version "0.1.4"

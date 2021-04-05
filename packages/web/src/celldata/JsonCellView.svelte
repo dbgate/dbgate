@@ -1,7 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
-  import JSONTree from 'svelte-json-tree';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import JsonTree from '../json-tree/JSONTree.svelte';
 
   export let selection;
   export let showWholeRow = false;
@@ -31,7 +31,7 @@
 {:else}
   <div class="outer">
     <div class="inner">
-      <JSONTree value={json} />
+      <JsonTree value={json} />
     </div>
   </div>
 {/if}

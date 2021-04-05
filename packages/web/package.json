@@ -13,6 +13,7 @@
   ],
   "devDependencies": {
     "@ant-design/colors": "^5.0.0",
+    "@mdi/font": "^5.9.55",
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "@rollup/plugin-replace": "^2.4.1",
@@ -25,10 +26,12 @@
     "dbgate-sqltree": "^4.0.0",
     "dbgate-tools": "^4.0.0",
     "dbgate-types": "^4.0.0",
+    "file-selector": "^0.2.4",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",
     "lodash": "^4.17.15",
     "randomcolor": "^0.6.2",
+    "resize-observer-polyfill": "^1.5.1",
     "rollup": "^2.3.4",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-css-only": "^3.1.0",
@@ -40,15 +43,11 @@
     "sql-formatter": "^2.3.3",
     "svelte": "^3.35.0",
     "svelte-check": "^1.0.0",
+    "svelte-markdown": "^0.1.4",
     "svelte-preprocess": "^4.0.0",
+    "svelte-select": "^3.17.0",
     "tslib": "^2.0.0",
     "typescript": "^3.9.3",
-    "uuid": "^3.4.0",
-    "@mdi/font": "^5.9.55",
-    "file-selector": "^0.2.4",
-    "resize-observer-polyfill": "^1.5.1",
-    "svelte-json-tree": "^0.1.0",
-    "svelte-markdown": "^0.1.4",
-    "svelte-select": "^3.17.0"
+    "uuid": "^3.4.0"
   }
 }
