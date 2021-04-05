@@ -1,5 +1,23 @@
+<script lang="ts" context="module">
+  let lastFocusedEditor = null;
+  const getCurrentEditor = () =>
+    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+
+  registerCommand({
+    id: 'dataJson.switchToTable',
+    category: 'Data Json',
+    name: 'Switch to table',
+    keyText: 'F4',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().switchToTable(),
+  });
+</script>
+
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { getContext, onMount } from 'svelte';
+  import { get_current_component } from 'svelte/internal';
+  import invalidateCommands from '../commands/invalidateCommands';
+  import registerCommand from '../commands/registerCommand';
 
   import { loadCollectionDataPage } from '../datagrid/CollectionDataGridCore.svelte';
   import InlineButton from '../elements/InlineButton.svelte';
@@ -9,11 +27,18 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import JSONTree from '../jsontree/JSONTree.svelte';
+  import { getActiveTabId } from '../stores';
+  import contextMenu from '../utility/contextMenu';
 
   export let conid;
   export let database;
   export let cache;
   export let display;
+  export let setConfig;
+
+  const instance = get_current_component();
+  const tabVisible: any = getContext('tabVisible');
+  const tabid = getContext('tabid');
 
   let isLoading = false;
   let loadedTime = null;
@@ -34,16 +59,35 @@
     loadData();
   }
 
+  $: if ($tabVisible) lastFocusedEditor = instance;
+
+  export function getTabId() {
+    return tabid;
+  }
+
+  export function switchToTable() {
+    setConfig(cfg => ({
+      ...cfg,
+      isJsonView: false,
+    }));
+  }
+
   onMount(() => {
     loadData();
+    if ($tabVisible) lastFocusedEditor = instance;
+    invalidateCommands();
   });
+
+  function createMenu() {
+    return [{ command: 'dataJson.switchToTable' }];
+  }
 </script>
 
 <div class="flexcol flex1">
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
-  <div class="json">
+  <div class="json" use:contextMenu={createMenu}>
     <JSONTree value={loadedRows} />
   </div>
 </div>
