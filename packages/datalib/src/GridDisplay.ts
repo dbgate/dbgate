@@ -294,6 +294,14 @@ export abstract class GridDisplay {
     this.reload();
   }
 
+  removeFilter(uniqueName) {
+    this.setConfig(cfg => ({
+      ...cfg,
+      filters: _.omit(cfg.filters, [uniqueName]),
+    }));
+    this.reload();
+  }
+
   setFilters(dct) {
     this.setConfig(cfg => ({
       ...cfg,

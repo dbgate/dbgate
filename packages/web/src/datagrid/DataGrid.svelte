@@ -25,6 +25,7 @@
   import ColumnManager from './ColumnManager.svelte';
   import ReferenceManager from './ReferenceManager.svelte';
   import FreeTableColumnEditor from '../freetable/FreeTableColumnEditor.svelte';
+  import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
 
   export let config;
   export let gridCoreComponent;
@@ -83,6 +84,10 @@
         skip={freeTableColumn || isFormView}
       >
         <ColumnManager {...$$props} {managerSize} />
+      </WidgetColumnBarItem>
+
+      <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%" skip={!isDynamicStructure}>
+        <JsonViewFilters {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Columns" name="freeColumns" height="40%" skip={!freeTableColumn}>
