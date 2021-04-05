@@ -1,14 +1,23 @@
 <script>
+  import { onMount } from 'svelte';
+
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import AceEditor from '../query/AceEditor.svelte';
+  import ErrorMessageModal from './ErrorMessageModal.svelte';
 
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal } from './modalTools';
+  import { closeCurrentModal, showModal } from './modalTools';
 
   export let onSave;
-  export let value;
+  export let json;
+
+  let value;
+
+  onMount(() => {
+    value = JSON.stringify(json, undefined, 2);
+  });
 </script>
 
 <FormProvider>
@@ -23,12 +32,18 @@
       <FormSubmit
         value="Save"
         on:click={() => {
-          if (onSave(value)) {
-            closeCurrentModal();
+          try {
+            const parsed = JSON.parse(value);
+            if (onSave(parsed)) {
+              closeCurrentModal();
+            }
+          } catch (err) {
+            showModal(ErrorMessageModal, { message: err.message });
+            return;
           }
         }}
       />
-      <FormStyledButton type="button" value="Close" onClick={closeCurrentModal} />
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
     </div>
   </ModalBase>
 </FormProvider>

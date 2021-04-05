@@ -169,12 +169,12 @@
   <svelte:fragment slot="footer">
     <FormStyledButton
       value="OK"
-      onClick={() => {
+      on:click={() => {
         closeCurrentModal();
         onInsert(sqlPreview);
       }}
     />
-    <FormStyledButton type="button" value="Close" onClick={closeCurrentModal} />
+    <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
   </svelte:fragment>
 </ModalBase>
 

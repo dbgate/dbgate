@@ -28,7 +28,7 @@
           onConfirm();
         }}
       />
-      <FormStyledButton type="button" value="Close" onClick={closeCurrentModal} />
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
     </div>
   </ModalBase>
 </FormProvider>

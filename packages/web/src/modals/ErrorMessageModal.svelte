@@ -23,7 +23,7 @@
     </div>
 
     <div slot="footer">
-      <FormStyledButton type="button" value="Close" onClick={closeCurrentModal} />
+      <FormSubmit value="Close" on:click={closeCurrentModal} />
     </div>
   </ModalBase>
 </FormProvider>

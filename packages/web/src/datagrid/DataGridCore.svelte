@@ -141,6 +141,14 @@
   });
 
   registerCommand({
+    id: 'dataGrid.editJsonDocument',
+    category: 'Data grid',
+    name: 'Edit row as JSON document',
+    testEnabled: () => getCurrentDataGrid()?.editJsonEnabled(),
+    onClick: () => getCurrentDataGrid().editJsonDocument(),
+  });
+
+  registerCommand({
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
@@ -256,6 +264,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -274,7 +283,7 @@
   export let onOpenQuery = null;
   export let onOpenActiveChart = null;
   export let formViewAvailable = false;
-  export let jsonViewAvailable=false;
+  export let jsonViewAvailable = false;
   export let errorMessage = undefined;
 
   export let isLoadedAll;
@@ -500,6 +509,15 @@
         },
       }
     );
+  }
+
+  export function editJsonEnabled() {
+    return grider.editable && isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+  }
+
+  export function editJsonDocument() {
+    const rowIndex = selectedCells[0][0];
+    editJsonRowDocument(grider, rowIndex);
   }
 
   // export function getGeneralAllowSave() {
@@ -1029,6 +1047,7 @@
       { command: 'dataGrid.export' },
       { command: 'dataGrid.switchToForm' },
       { command: 'dataGrid.switchToJson' },
+      { command: 'dataGrid.editJsonDocument' },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },

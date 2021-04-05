@@ -24,6 +24,6 @@
 </script>
 
 <div class="flex">
-  <TextField {...$$restProps} value={$values[name]} onClick={handleBrowse} readOnly {disabled} />
+  <TextField {...$$restProps} value={$values[name]} on:click={handleBrowse} readOnly {disabled} />
   <InlineButton on:click={handleBrowse} {disabled}>Browse</InlineButton>
 </div>

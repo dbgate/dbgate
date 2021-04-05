@@ -78,7 +78,6 @@ export function setChangeSetValue(
   definition: ChangeSetFieldDefinition,
   value: string
 ): ChangeSet {
-  console.log('SET', changeSet, definition, value);
   if (!changeSet || !definition) return changeSet;
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'deletes') {
@@ -114,6 +113,43 @@ export function setChangeSetValue(
         fields: {
           [definition.uniqueName]: value,
         },
+      },
+    ],
+  };
+}
+
+export function setChangeSetRowData(changeSet: ChangeSet, definition: ChangeSetRowDefinition, document: any): ChangeSet {
+  if (!changeSet || !definition) return changeSet;
+  let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  if (fieldName == 'deletes') {
+    changeSet = revertChangeSetRowChanges(changeSet, definition);
+    [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
+  }
+  if (existingItem) {
+    return {
+      ...changeSet,
+      [fieldName]: changeSet[fieldName].map(item =>
+        item == existingItem
+          ? {
+              ...item,
+              fields: {},
+              document,
+            }
+          : item
+      ),
+    };
+  }
+
+  return {
+    ...changeSet,
+    [fieldName]: [
+      ...changeSet[fieldName],
+      {
+        pureName: definition.pureName,
+        schemaName: definition.schemaName,
+        condition: definition.condition,
+        insertedRowIndex: definition.insertedRowIndex,
+        document,
       },
     ],
   };

@@ -11,11 +11,23 @@ import {
   MacroSelectedCell,
   revertChangeSetRowChanges,
   setChangeSetValue,
+  setChangeSetRowData,
   compileMacroFunction,
   runMacroOnValue,
 } from 'dbgate-datalib';
 import Grider, { GriderRowStatus } from './Grider';
 
+function getRowFromItem(row, matchedChangeSetItem) {
+  return matchedChangeSetItem.document
+    ? {
+        ...matchedChangeSetItem.document,
+        ...matchedChangeSetItem.fields,
+      }
+    : {
+        ...row,
+        ...matchedChangeSetItem.fields,
+      };
+}
 export default class ChangeSetGrider extends Grider {
   public insertedRows: any[];
   public changeSet: ChangeSet;
@@ -71,7 +83,7 @@ export default class ChangeSetGrider extends Grider {
     const rowDefinition = this.display?.getChangeSetRow(row, insertedRowIndex);
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
     const rowUpdated = matchedChangeSetItem
-      ? { ...row, ...matchedChangeSetItem.fields }
+      ? getRowFromItem(row, matchedChangeSetItem)
       : this.compiledMacroFunc
       ? { ...row }
       : row;
@@ -141,6 +153,12 @@ export default class ChangeSetGrider extends Grider {
     const row = this.getRowSource(index);
     const definition = this.display.getChangeSetField(row, uniqueName, this.getInsertedRowIndex(index));
     this.applyModification(chs => setChangeSetValue(chs, definition, value));
+  }
+
+  setRowData(index: number, document: any) {
+    const row = this.getRowSource(index);
+    const definition = this.display.getChangeSetRow(row, this.getInsertedRowIndex(index));
+    this.applyModification(chs => setChangeSetRowData(chs, definition, document));
   }
 
   deleteRow(index: number) {

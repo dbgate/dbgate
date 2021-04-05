@@ -94,7 +94,7 @@
   </div>
   <div class="json">
     {#each _.range(0, grider.rowCount) as rowIndex}
-      <CollectionJsonRow {grider} {rowIndex} />
+      <CollectionJsonRow {grider} {rowIndex} {commonMenu} />
     {/each}
   </div>
 </div>
