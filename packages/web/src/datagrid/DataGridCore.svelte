@@ -359,7 +359,7 @@
     grider.endUpdate();
   }
 
-  export function insertNewRow() {
+  export async function insertNewRow() {
     if (grider.canInsert) {
       const rowIndex = grider.insertRow();
       const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
@@ -367,6 +367,7 @@
       currentCell = cell;
       // @ts-ignore
       selectedCells = [cell];
+      await tick();
       scrollIntoView(cell);
     }
   }
