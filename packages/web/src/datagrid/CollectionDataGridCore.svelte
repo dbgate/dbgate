@@ -87,7 +87,7 @@
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
@@ -128,15 +128,15 @@
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
 
-  async function handleConfirmSql(sql) {
+  async function handleConfirmChange(changeSet) {
     const resp = await axiosInstance.request({
-      url: 'database-connections/query-data',
+      url: 'database-connections/update-collection',
       method: 'post',
       params: {
         conid,
         database,
       },
-      data: { sql },
+      data: { changeSet },
     });
     const { errorMessage } = resp.data || {};
     if (errorMessage) {
@@ -148,11 +148,10 @@
   }
 
   function handleSave() {
-    const script = changeSetToSql(changeSetState && changeSetState.value, display.dbinfo);
-    const sql = scriptToSql(display.driver, script);
-    showModal(ConfirmSqlModal, {
-      sql,
-      onConfirm: () => handleConfirmSql(sql),
+    const json = changeSetState && changeSetState.value;
+    showModal(ConfirmNoSqlModal, {
+      json,
+      onConfirm: () => handleConfirmChange(json),
       engine: display.engine,
     });
   }

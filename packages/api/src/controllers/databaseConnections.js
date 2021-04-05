@@ -99,6 +99,13 @@ module.exports = {
     return res.result;
   },
 
+  updateCollection_meta: 'post',
+  async updateCollection({ conid, database, changeSet }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'updateCollection', changeSet });
+    return res.result;
+  },
+
   status_meta: 'get',
   async status({ conid, database }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);

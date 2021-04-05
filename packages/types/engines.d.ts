@@ -61,6 +61,7 @@ export interface EngineDriver {
   createDumper(): SqlDumper;
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
+  updateCollection(pool: any, changeSet: any): Promise<any>;
 
   analyserClass?: any;
   dumperClass?: any;
