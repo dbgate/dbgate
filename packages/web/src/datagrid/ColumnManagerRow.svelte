@@ -6,6 +6,7 @@
 
   export let column;
   export let display;
+  export let isJsonView = false;
 </script>
 
 <div
@@ -13,21 +14,25 @@
   on:click={e => {
     // @ts-ignore
     if (e.target.closest('.expandColumnIcon')) return;
-    display.focusColumn(column.uniqueName);
+    if (isJsonView) display.showFilter(column.uniqueName);
+    else display.focusColumn(column.uniqueName);
   }}
 >
-  <span class="expandColumnIcon">
+  <span class="expandColumnIcon" style={`margin-right: ${5 + (column.uniquePath.length - 1) * 10}px`}>
     <FontIcon
       icon={column.isExpandable ? plusExpandIcon(display.isExpandedColumn(column.uniqueName)) : 'icon invisible-box'}
       on:click={() => display.toggleExpandedColumn(column.uniqueName)}
     />
   </span>
-  <input
-    type="checkbox"
-    style={`margin-left: ${5 + (column.uniquePath.length - 1) * 10}px`}
-    checked={column.isChecked}
-    on:change={() => display.setColumnVisibility(column.uniquePath, !column.isChecked)}
-  />
+  {#if isJsonView}
+    <FontIcon icon="img column" />
+  {:else}
+    <input
+      type="checkbox"
+      checked={column.isChecked}
+      on:change={() => display.setColumnVisibility(column.uniquePath, !column.isChecked)}
+    />
+  {/if}
   <ColumnLabel {...column} />
 </div>
 

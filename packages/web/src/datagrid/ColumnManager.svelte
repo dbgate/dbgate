@@ -10,6 +10,7 @@
 
   export let managerSize;
   export let display: GridDisplay;
+  export let isJsonView = false;
 
   let filter;
 </script>
@@ -23,6 +24,6 @@
   {#each display
     ?.getColumns(filter)
     ?.filter(column => filterName(filter, column.columnName)) || [] as column (column.uniqueName)}
-    <ColumnManagerRow {display} {column} />
+    <ColumnManagerRow {display} {column} {isJsonView} />
   {/each}
 </ManagerInnerContainer>

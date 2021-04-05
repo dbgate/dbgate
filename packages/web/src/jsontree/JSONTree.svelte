@@ -5,8 +5,8 @@
 
   setContext(contextKey, {});
 
-  export let key = '',
-    value;
+  export let key = '';
+  export let value;
 </script>
 
 <ul>

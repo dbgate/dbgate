@@ -29,7 +29,8 @@
 
   export let config;
   export let gridCoreComponent;
-  export let formViewComponent;
+  export let formViewComponent = null;
+  export let jsonViewComponent = null;
   export let formDisplay;
   export let display;
   export let changeSetState;
@@ -55,6 +56,7 @@
   let managerSize;
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
+  $: isJsonView = !!config.isJsonView;
 
   const handleExecuteMacro = () => {
     onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished());
@@ -83,7 +85,7 @@
         height={showReferences ? '40%' : '60%'}
         skip={freeTableColumn || isFormView}
       >
-        <ColumnManager {...$$props} {managerSize} />
+        <ColumnManager {...$$props} {managerSize} {isJsonView} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%" skip={!isDynamicStructure}>
@@ -118,11 +120,14 @@
       <svelte:fragment slot="1">
         {#if isFormView}
           <svelte:component this={formViewComponent} {...$$props} />
+        {:else if isJsonView}
+          <svelte:component this={jsonViewComponent} {...$$props} bind:loadedRows />
         {:else}
           <svelte:component
             this={gridCoreComponent}
             {...$$props}
             formViewAvailable={!!formViewComponent && !!formDisplay}
+            jsonViewAvailable={!!jsonViewComponent}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
             bind:loadedRows

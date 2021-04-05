@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  function buildCondition(props) {
+  export function buildGridMongoCondition(props) {
     const filters = props?.display?.config?.filters;
 
     const conditions = [];
@@ -27,7 +27,7 @@
       : undefined;
   }
 
-  async function loadDataPage(props, offset, limit) {
+  export async function loadCollectionDataPage(props, offset, limit) {
     const { conid, database } = props;
 
     const response = await axiosInstance.request({
@@ -42,7 +42,7 @@
           pureName: props.pureName,
           limit,
           skip: offset,
-          condition: buildCondition(props),
+          condition: buildGridMongoCondition(props),
         },
       },
     });
@@ -72,7 +72,7 @@
         options: {
           pureName: props.pureName,
           countDocuments: true,
-          condition: buildCondition(props),
+          condition: buildGridMongoCondition(props),
         },
       },
     });
@@ -211,7 +211,7 @@
 
 <LoadingDataGridCore
   {...$$props}
-  {loadDataPage}
+  loadDataPage={loadCollectionDataPage}
   {dataPageAvailable}
   {loadRowCount}
   onExportGrid={exportGrid}

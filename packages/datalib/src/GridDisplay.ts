@@ -294,6 +294,20 @@ export abstract class GridDisplay {
     this.reload();
   }
 
+  showFilter(uniqueName) {
+    this.setConfig(cfg => {
+      if (!cfg.filters.uniqueName)
+        return {
+          ...cfg,
+          filters: {
+            ..._.omitBy(cfg.filters, v => !v),
+            [uniqueName]: '',
+          },
+        };
+      return cfg;
+    });
+  }
+
   removeFilter(uniqueName) {
     this.setConfig(cfg => ({
       ...cfg,
@@ -545,6 +559,13 @@ export abstract class GridDisplay {
           )
         : null,
       formViewKeyRequested: null,
+    }));
+  }
+
+  switchToJsonView() {
+    this.setConfig(cfg => ({
+      ...cfg,
+      isJsonView: true,
     }));
   }
 }

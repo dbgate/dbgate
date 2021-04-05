@@ -132,6 +132,15 @@
   });
 
   registerCommand({
+    id: 'dataGrid.switchToJson',
+    category: 'Data grid',
+    name: 'Switch to JSON',
+    keyText: 'F4',
+    testEnabled: () => getCurrentDataGrid()?.jsonViewEnabled(),
+    onClick: () => getCurrentDataGrid().switchToJson(),
+  });
+
+  registerCommand({
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
@@ -265,6 +274,7 @@
   export let onOpenQuery = null;
   export let onOpenActiveChart = null;
   export let formViewAvailable = false;
+  export let jsonViewAvailable=false;
   export let errorMessage = undefined;
 
   export let isLoadedAll;
@@ -409,10 +419,18 @@
     return formViewAvailable && display.baseTable && display.baseTable.primaryKey;
   }
 
+  export function jsonViewEnabled() {
+    return jsonViewAvailable;
+  }
+
   export function switchToForm() {
     const cell = currentCell;
     const rowData = isRegularCell(cell) ? grider.getRowData(cell[0]) : null;
     display.switchToFormView(rowData);
+  }
+
+  export function switchToJson() {
+    display.switchToJsonView();
   }
 
   export function filterSelectedValue() {
@@ -1009,6 +1027,7 @@
       { command: 'dataGrid.copyToClipboard' },
       { command: 'dataGrid.export' },
       { command: 'dataGrid.switchToForm' },
+      { command: 'dataGrid.switchToJson' },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },
