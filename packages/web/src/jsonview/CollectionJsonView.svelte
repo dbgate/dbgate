@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('CollectionJsonView');
 
   registerCommand({
     id: 'dataJson.switchToTable',
@@ -16,17 +14,15 @@
 <script lang="ts">
   import _ from 'lodash';
 
-  import { getContext, onMount } from 'svelte';
-  import { get_current_component } from 'svelte/internal';
-  import invalidateCommands from '../commands/invalidateCommands';
+  import { onMount } from 'svelte';
   import registerCommand from '../commands/registerCommand';
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   import { loadCollectionDataPage } from '../datagrid/CollectionDataGridCore.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Pager from '../elements/Pager.svelte';
 
-  import { getActiveTabId } from '../stores';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import CollectionJsonRow from './CollectionJsonRow.svelte';
 
@@ -39,9 +35,7 @@
   export let changeSetState;
   export let dispatchChangeSet;
 
-  const instance = get_current_component();
-  const tabVisible: any = getContext('tabVisible');
-  const tabid = getContext('tabid');
+  export const activator = createActivator('CollectionJsonView', true);
 
   let isLoading = false;
   let loadedTime = null;
@@ -62,12 +56,6 @@
     loadData();
   }
 
-  $: if ($tabVisible) lastFocusedEditor = instance;
-
-  export function getTabId() {
-    return tabid;
-  }
-
   export function switchToTable() {
     setConfig(cfg => ({
       ...cfg,
@@ -77,8 +65,6 @@
 
   onMount(() => {
     loadData();
-    if ($tabVisible) lastFocusedEditor = instance;
-    invalidateCommands();
   });
 
   registerMenu({ command: 'dataJson.switchToTable' });
