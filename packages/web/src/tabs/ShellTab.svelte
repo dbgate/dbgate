@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('ShellTab');
 
   registerFileCommands({
     idPrefix: 'shell',
@@ -22,21 +20,18 @@
 </script>
 
 <script lang="ts">
-  import { getContext, get_current_component } from 'svelte/internal';
+  import { getContext  } from 'svelte';
 
-  import { derived, writable } from 'svelte/store';
   import invalidateCommands from '../commands/invalidateCommands';
-  import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, getActiveTabId, nullStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-import { changeTab } from '../utility/common';
-  import memberStore from '../utility/memberStore';
+  import { changeTab } from '../utility/common';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
@@ -48,7 +43,7 @@ import { changeTab } from '../utility/common';
 
   let runnerId;
 
-  const instance = get_current_component();
+  export const activator = createActivator('ShellTab', false);
 
   let busy = false;
   let executeNumber = 0;
@@ -82,7 +77,7 @@ import { changeTab } from '../utility/common';
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
   $: $effect;
-  
+
   function registerRunnerDone(rid) {
     if (rid) {
       socket.on(`runner-done-${rid}`, handleRunnerDone);
@@ -117,10 +112,6 @@ import { changeTab } from '../utility/common';
 
   export function replace() {
     domEditor.getEditor().execCommand('replace');
-  }
-
-  export function getTabId() {
-    return tabid;
   }
 
   export function isBusy() {
@@ -179,7 +170,7 @@ import { changeTab } from '../utility/common';
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
       on:focus={() => {
-        lastFocusedEditor = instance;
+        activator.activate();
         invalidateCommands();
       }}
       bind:this={domEditor}

@@ -12,7 +12,7 @@ import registerCommand from '../commands/registerCommand';
 
 export default function saveTabFile(editor, saveAs, folder, format, fileExtension) {
   const tabs = get(openedTabs);
-  const tabid = editor.getTabId();
+  const tabid = editor.activator.tabid;
   const data = editor.getData();
   const { savedFile, savedFilePath } = tabs.find(x => x.tabid == tabid).props || {};
 

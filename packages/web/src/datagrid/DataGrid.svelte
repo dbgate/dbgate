@@ -56,7 +56,7 @@
   let managerSize;
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
-  $: isJsonView = !!config.isJsonView;
+  $: isJsonView = !!config?.isJsonView;
 
   const handleExecuteMacro = () => {
     onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished());

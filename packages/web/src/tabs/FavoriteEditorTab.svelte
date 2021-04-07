@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('FavoriteEditorTab');
 
   registerFileCommands({
     idPrefix: 'favoriteJsonEditor',
@@ -33,26 +31,25 @@
 </script>
 
 <script lang="ts">
-  import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
   import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { getActiveTabId } from '../stores';
   import invalidateCommands from '../commands/invalidateCommands';
   import axiosInstance from '../utility/axiosInstance';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let tabid;
   export let savedFile;
 
   const tabVisible: any = getContext('tabVisible');
 
-  const instance = get_current_component();
+  export const activator = createActivator('FavoriteEditorTab', false);
 
   let domEditor;
 
@@ -117,7 +114,7 @@
   menu={createMenu()}
   on:input={e => setEditorData(e.detail)}
   on:focus={() => {
-    lastFocusedEditor = instance;
+    activator.activate();
     invalidateCommands();
   }}
   bind:this={domEditor}

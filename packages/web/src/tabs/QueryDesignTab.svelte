@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('QueryDesignTab');
 
   registerFileCommands({
     idPrefix: 'designer',
@@ -17,44 +15,35 @@
 </script>
 
 <script lang="ts">
-  import { get_current_component } from 'svelte/internal';
-  import { getContext } from 'svelte';
   import sqlFormatter from 'sql-formatter';
-
-  import { writable, derived, get } from 'svelte/store';
-  import registerCommand from '../commands/registerCommand';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, extensions, getActiveTabId, nullStore } from '../stores';
-  import applySqlTemplate from '../utility/applySqlTemplate';
+  import { extensions } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import memberStore from '../utility/memberStore';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
   import { registerFileCommands } from '../commands/stdCommands';
   import invalidateCommands from '../commands/invalidateCommands';
   import QueryDesigner from '../designer/QueryDesigner.svelte';
-  import createReducer from '../utility/createReducer';
   import createUndoReducer from '../utility/createUndoReducer';
   import _ from 'lodash';
   import { findEngineDriver } from 'dbgate-tools';
   import { generateDesignedQuery } from '../designer/designerTools';
   import QueryDesignColumns from '../elements/QueryDesignColumns.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let tabid;
   export let conid;
   export let database;
   export let initialArgs;
 
-  const instance = get_current_component();
-  const tabVisible: any = getContext('tabVisible');
   const timerLabel = useTimerLabel();
 
   let busy = false;
@@ -63,7 +52,7 @@
   let sessionId = null;
   let sqlPreview = '';
 
-  let domEditor;
+  export const activator = createActivator('QueryDesignTab', true);
 
   $: connection = useConnectionInfo({ conid });
   $: engine = findEngineDriver($connection, $extensions);
@@ -96,8 +85,6 @@
   $: setEditorData($modelState.value);
 
   $: generatePreview($modelState.value, engine);
-
-  $: if ($tabVisible) lastFocusedEditor = instance;
 
   export function canKill() {
     return !!sessionId;

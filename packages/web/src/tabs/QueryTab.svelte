@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('QueryTab');
 
   registerCommand({
     id: 'query.formatCode',
@@ -33,24 +31,21 @@
 </script>
 
 <script lang="ts">
-  import { get_current_component, insert } from 'svelte/internal';
   import { getContext } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
-  import { writable, derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { activeTabId, extensions, getActiveTabId, nullStore } from '../stores';
+  import { extensions } from '../stores';
   import applySqlTemplate from '../utility/applySqlTemplate';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import memberStore from '../utility/memberStore';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
   import { registerFileCommands } from '../commands/stdCommands';
@@ -58,13 +53,15 @@
   import { showModal } from '../modals/modalTools';
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let tabid;
   export let conid;
   export let database;
   export let initialArgs;
 
-  const instance = get_current_component();
+  export const activator = createActivator('QueryTab', false);
+
   const tabVisible: any = getContext('tabVisible');
   const timerLabel = useTimerLabel();
 
@@ -236,7 +233,7 @@
       menu={createMenu()}
       on:input={e => setEditorData(e.detail)}
       on:focus={() => {
-        lastFocusedEditor = instance;
+        activator.activate();
         invalidateCommands();
       }}
       bind:this={domEditor}

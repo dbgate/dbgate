@@ -220,7 +220,6 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';

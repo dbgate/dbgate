@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('ChartTab');
 
   registerFileCommands({
     idPrefix: 'chart',
@@ -17,8 +15,6 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { getContext } from 'svelte';
-  import { get_current_component } from 'svelte/internal';
   import { derived } from 'svelte/store';
   import ChartEditor from '../charts/ChartEditor.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
@@ -29,15 +25,14 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import useEditorData from '../query/useEditorData';
-  import { getActiveTabId } from '../stores';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
 
   export let tabid;
   export let conid;
   export let database;
 
-  const instance = get_current_component();
-  const tabVisible: any = getContext('tabVisible');
+  export const activator = createActivator('ChartTab', true);
 
   export function getData() {
     return $editorState.value || '';
@@ -57,8 +52,6 @@
   });
 
   $: setEditorData($modelState.value);
-
-  $: if ($tabVisible) lastFocusedEditor = instance;
 
   $: {
     $modelState;
@@ -95,10 +88,6 @@
 
   export function redo() {
     dispatchModel({ type: 'redo' });
-  }
-
-  export function getTabId() {
-    return tabid;
   }
 
   function createMenu() {

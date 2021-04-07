@@ -149,7 +149,6 @@
   import _ from 'lodash';
 
   import { getContext } from 'svelte';
-  import { get_current_component } from 'svelte/internal';
 
   import invalidateCommands from '../commands/invalidateCommands';
 
@@ -189,7 +188,6 @@
   $: rowHeight = $dataGridRowHeight;
   let currentCell = [0, 0];
 
-  const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
   const domCells = {};
 

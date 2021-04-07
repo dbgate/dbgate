@@ -1,7 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedEditor = null;
-  const getCurrentEditor = () =>
-    lastFocusedEditor?.getTabId && lastFocusedEditor?.getTabId() == getActiveTabId() ? lastFocusedEditor : null;
+  const getCurrentEditor = () => getActiveComponent('MarkdownEditorTab');
 
   registerFileCommands({
     idPrefix: 'markdown',
@@ -28,23 +26,23 @@
 </script>
 
 <script lang="ts">
-  import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
   import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { getActiveTabId, openedTabs } from '../stores';
+  import { openedTabs } from '../stores';
   import invalidateCommands from '../commands/invalidateCommands';
   import openNewTab from '../utility/openNewTab';
   import { setSelectedTab } from '../utility/common';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
 
-  const instance = get_current_component();
+  export const activator = createActivator('MarkdownEditorTab', false);
 
   let domEditor;
 
@@ -112,7 +110,7 @@
   menu={createMenu()}
   on:input={e => setEditorData(e.detail)}
   on:focus={() => {
-    lastFocusedEditor = instance;
+    activator.activate();
     invalidateCommands();
   }}
   bind:this={domEditor}
