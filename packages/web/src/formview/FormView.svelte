@@ -1,10 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedFormView = null;
-  const getCurrentDataForm = () =>
-    lastFocusedFormView?.getTabId && lastFocusedFormView?.getTabId() == getActiveTabId() ? lastFocusedFormView : null;
-  export function clearLastFocusedFormView() {
-    lastFocusedFormView = null;
-  }
+  const getCurrentDataForm = () => getActiveComponent('FormView');
 
   registerCommand({
     id: 'dataForm.switchToTable',
@@ -160,7 +155,6 @@
 
   import registerCommand from '../commands/registerCommand';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
-  import { clearLastFocusedDataGrid } from '../datagrid/DataGridCore.svelte';
   import { dataGridRowHeight } from '../datagrid/DataGridRowHeightMeter.svelte';
   import InplaceEditor from '../datagrid/InplaceEditor.svelte';
   import { cellFromEvent } from '../datagrid/selection';
@@ -169,10 +163,10 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import { getActiveTabId } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
   import contextMenu from '../utility/contextMenu';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import resizeObserver from '../utility/resizeObserver';
@@ -196,7 +190,6 @@
   let currentCell = [0, 0];
 
   const instance = get_current_component();
-  const tabid = getContext('tabid');
   const tabVisible: any = getContext('tabVisible');
   const domCells = {};
 
@@ -219,10 +212,6 @@
     if (rowData == null) return 'No data';
     if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
     return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
-  }
-
-  export function getTabId() {
-    return tabid;
   }
 
   export function getFormer() {
@@ -275,6 +264,8 @@
   export function addToFilter() {
     formDisplay.addFilterColumn(getCellColumn(currentCell));
   }
+
+  export const activator = createActivator('FormView', false, 'DataGridCore');
 
   const handleTableMouseDown = event => {
     if (event.target.closest('.buttonLike')) return;
@@ -519,8 +510,7 @@
         class="focus-field"
         bind:this={domFocusField}
         on:focus={() => {
-          lastFocusedFormView = instance;
-          clearLastFocusedDataGrid();
+          activator.activate();
           invalidateCommands();
         }}
         on:keydown={handleKeyDown}

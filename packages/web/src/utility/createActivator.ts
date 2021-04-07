@@ -1,10 +1,15 @@
 import { getContext } from 'svelte';
 import { get_current_component, onMount, setContext } from 'svelte/internal';
 import invalidateCommands from '../commands/invalidateCommands';
+import getAsArray from './getAsArray';
 
 const lastActiveDictionary = {};
 
-export default function createActivator(name, activateOnTabVisible) {
+export default function createActivator(
+  name: string,
+  activateOnTabVisible: boolean,
+  mutualExclusive: string | string[] = []
+) {
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
   const tabid = getContext('tabid');
@@ -28,6 +33,9 @@ export default function createActivator(name, activateOnTabVisible) {
 
   const activate = () => {
     lastActiveDictionary[name] = instance;
+    for (const comp of getAsArray(mutualExclusive)) {
+      delete lastActiveDictionary[comp];
+    }
     if (parentActivatorInstance) {
       parentActivatorInstance.activator.activate();
     }

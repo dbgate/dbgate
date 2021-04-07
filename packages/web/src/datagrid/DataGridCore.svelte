@@ -1,10 +1,5 @@
 <script lang="ts" context="module">
-  let lastFocusedDataGrid = null;
-  const getCurrentDataGrid = () =>
-    lastFocusedDataGrid?.getTabId && lastFocusedDataGrid?.getTabId() == getActiveTabId() ? lastFocusedDataGrid : null;
-  export function clearLastFocusedDataGrid() {
-    lastFocusedDataGrid = null;
-  }
+  const getCurrentDataGrid = () => getActiveComponent('DataGridCore');
 
   registerCommand({
     id: 'dataGrid.refresh',
@@ -224,11 +219,10 @@
 </script>
 
 <script lang="ts">
-  import { changeSetContainsChanges, GridDisplay } from 'dbgate-datalib';
+  import { GridDisplay } from 'dbgate-datalib';
   import { get_current_component } from 'svelte/internal';
   import { getContext } from 'svelte';
   import _ from 'lodash';
-  import { writable, get, derived } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
@@ -252,19 +246,18 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { activeTabId, getActiveTabId, nullStore, selectedCellsCallback } from '../stores';
-  import memberStore from '../utility/memberStore';
+  import { selectedCellsCallback } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
-  import { clearLastFocusedFormView } from '../formview/FormView.svelte';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -293,9 +286,9 @@
   export let selectedCellsPublished = () => [];
   // export let generalAllowSave = false;
 
+  export const activator = createActivator('DataGridCore', false, 'FormView');
+
   const wheelRowCount = 5;
-  const instance = get_current_component();
-  const tabid = getContext('tabid');
   const tabVisible: any = getContext('tabVisible');
 
   let containerHeight = 0;
@@ -1099,8 +1092,7 @@
       bind:this={domFocusField}
       on:keydown={handleGridKeyDown}
       on:focus={() => {
-        lastFocusedDataGrid = instance;
-        clearLastFocusedFormView();
+        activator.activate();
         invalidateCommands();
       }}
       on:paste={handlePaste}
