@@ -8,7 +8,7 @@
   <DropDownMenu
     left={$currentDropDownMenu.left}
     top={$currentDropDownMenu.top}
-    items={_.compact(_.flatten($currentDropDownMenu.items))}
+    items={$currentDropDownMenu.items}
     on:close={() => ($currentDropDownMenu = null)}
   />
 {/if}

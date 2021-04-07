@@ -48,6 +48,7 @@
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import { commands } from '../stores';
+  import { extractMenuItems } from '../utility/contextMenu';
 
   export let items;
   export let top;
@@ -66,6 +67,8 @@
   onMount(() => {
     fixPopupPlacement(element);
   });
+
+  $: extracted = extractMenuItems(items);
 </script>
 
 <ul
@@ -74,7 +77,7 @@
   on:clickOutside={() => dispatch('close')}
   bind:this={element}
 >
-  {#each _.compact(items.map(x => mapItem(x, $commands))) as item}
+  {#each _.compact(extracted.map(x => mapItem(x, $commands))) as item}
     {#if item.divider}
       <li class="divider" />
     {:else}

@@ -13,7 +13,7 @@
     const rect = domButton.getBoundingClientRect();
     const left = rect.left;
     const top = rect.bottom;
-    currentDropDownMenu.set({ left, top, items: _.isFunction(menu) ? menu() : menu });
+    currentDropDownMenu.set({ left, top, items: menu });
   }
 </script>
 
