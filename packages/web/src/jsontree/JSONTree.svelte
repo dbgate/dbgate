@@ -1,22 +1,24 @@
 <script lang="ts">
   import JSONNode from './JSONNode.svelte';
   import { setContext } from 'svelte';
-  import contextMenu from '../utility/contextMenu';
+  import contextMenu, { getContextMenu } from '../utility/contextMenu';
 
   setContext('json-tree-context-key', {});
 
   export let key = '';
+  export let menu = null;
   export let value;
   export let expanded = false;
   export let labelOverride = null;
-  export let menu;
 
   export let isDeleted;
   export let isInserted;
   export let isModified;
+
+  const parentMenu = getContextMenu();
 </script>
 
-<ul use:contextMenu={menu} class:isDeleted class:isInserted class:isModified>
+<ul use:contextMenu={[parentMenu, menu]} class:isDeleted class:isInserted class:isModified>
   <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} {expanded} {labelOverride} />
 </ul>
 

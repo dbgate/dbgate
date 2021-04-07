@@ -60,7 +60,7 @@ export default class ChangeSetGrider extends Grider {
     this.batchChangeSet = null;
     this.compiledMacroFunc = compileMacroFunction(macro, this._errors);
 
-    console.log('changeSet', this.changeSet);
+    // console.log('changeSet', this.changeSet);
   }
 
   get errors() {

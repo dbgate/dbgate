@@ -27,7 +27,7 @@
   import Pager from '../elements/Pager.svelte';
 
   import { getActiveTabId } from '../stores';
-  import contextMenu from '../utility/contextMenu';
+  import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import CollectionJsonRow from './CollectionJsonRow.svelte';
 
   export let conid;
@@ -81,20 +81,21 @@
     invalidateCommands();
   });
 
-  const commonMenu = [{ command: 'dataJson.switchToTable' }];
+  registerMenu({ command: 'dataJson.switchToTable' });
+  const menu = getContextMenu();
 
   $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
 
-  $: console.log('GRIDER', grider);
+  // $: console.log('GRIDER', grider);
 </script>
 
-<div class="flexcol flex1" use:contextMenu={commonMenu}>
+<div class="flexcol flex1" use:contextMenu={menu}>
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
   <div class="json">
     {#each _.range(0, grider.rowCount) as rowIndex}
-      <CollectionJsonRow {grider} {rowIndex} {commonMenu} />
+      <CollectionJsonRow {grider} {rowIndex} />
     {/each}
   </div>
 </div>

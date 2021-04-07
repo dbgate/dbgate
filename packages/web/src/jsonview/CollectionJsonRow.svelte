@@ -20,10 +20,10 @@
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { getContextMenu, registerMenu } from '../utility/contextMenu';
 
   export let rowIndex;
   export let grider;
-  export let commonMenu;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -32,20 +32,16 @@
     editJsonRowDocument(grider, rowIndex);
   }
 
-  function createMenu() {
-    return [
-      ...commonMenu,
-      { text: 'Edit document', onClick: handleEditDocument },
-      { text: 'Delete document', onClick: () => grider.deleteRow(rowIndex) },
-      { text: 'Revert row changes', onClick: () => grider.revertRowChanges(rowIndex) },
-    ];
-  }
+  registerMenu([
+    { text: 'Edit document', onClick: handleEditDocument },
+    { text: 'Delete document', onClick: () => grider.deleteRow(rowIndex) },
+    { text: 'Revert row changes', onClick: () => grider.revertRowChanges(rowIndex) },
+  ]);
 </script>
 
 <JSONTree
   value={rowData}
   labelOverride="({rowIndex + 1}) "
-  menu={createMenu}
   isModified={rowStatus.status == 'updated'}
   isInserted={rowStatus.status == 'inserted'}
   isDeleted={rowStatus.status == 'deleted'}

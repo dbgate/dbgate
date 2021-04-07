@@ -4,10 +4,10 @@ import { currentDropDownMenu } from '../stores';
 
 export function registerMenu(items) {
   const parentMenu = getContext('componentContextMenu');
-  setContext('componentContextMenu', parentMenu ? [parentMenu, items] : items);
+  setContext('componentContextMenu', [parentMenu, items]);
 }
 
-export default function contextMenu(node, items) {
+export default function contextMenu(node, items = []) {
   const handleContextMenu = e => {
     e.preventDefault();
     e.stopPropagation();
@@ -46,4 +46,8 @@ export function extractMenuItems(menu) {
   const res = [];
   doExtractMenuItems(menu, res);
   return res;
+}
+
+export function getContextMenu(): any {
+  return getContext('componentContextMenu');
 }
