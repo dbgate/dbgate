@@ -1,4 +1,14 @@
 <script context="module" lang="ts">
+  const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
+
+  registerCommand({
+    id: 'dataGrid.openActiveChart',
+    category: 'Data grid',
+    name: 'Open active chart',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().openActiveChart(),
+  });
+
   async function loadDataPage(props, offset, limit) {
     const { display, conid, database } = props;
 
@@ -46,12 +56,14 @@
 <script lang="ts">
   import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
   import { scriptToSql } from 'dbgate-sqltree';
+  import registerCommand from '../commands/registerCommand';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
@@ -71,6 +83,8 @@
   export let selectedCellsPublished = () => [];
 
   // export let onChangeGrider = undefined;
+
+  export const activator = createActivator('SqlDataGridCore', false);
 
   let loadedRows = [];
 
@@ -145,7 +159,7 @@
     );
   }
 
-  function openActiveChart() {
+  export function openActiveChart() {
     openNewTab(
       {
         title: 'Chart #',
@@ -175,7 +189,6 @@
   {loadRowCount}
   onExportGrid={exportGrid}
   onOpenQuery={openQuery}
-  onOpenActiveChart={openActiveChart}
   bind:loadedRows
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}

@@ -185,14 +185,6 @@
     onClick: () => getCurrentDataGrid().openChartFromSelection(),
   });
 
-  registerCommand({
-    id: 'dataGrid.openActiveChart',
-    category: 'Data grid',
-    name: 'Open active chart',
-    testEnabled: () => getCurrentDataGrid()?.openActiveChartEnabled(),
-    onClick: () => getCurrentDataGrid().openActiveChart(),
-  });
-
   function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -273,7 +265,6 @@
   export let focusOnVisible = false;
   export let onExportGrid = null;
   export let onOpenQuery = null;
-  export let onOpenActiveChart = null;
   export let formViewAvailable = false;
   export let jsonViewAvailable = false;
   export let errorMessage = undefined;
@@ -464,14 +455,6 @@
 
   export function openQueryEnabled() {
     return onOpenQuery != null;
-  }
-
-  export function openActiveChart() {
-    if (onOpenActiveChart) onOpenActiveChart();
-  }
-
-  export function openActiveChartEnabled() {
-    return onOpenActiveChart != null;
   }
 
   export function openFreeTable() {
@@ -1037,9 +1020,9 @@
       { command: 'dataGrid.refresh' },
       { command: 'dataGrid.copyToClipboard' },
       { command: 'dataGrid.export' },
-      { command: 'dataGrid.switchToForm' },
-      { command: 'dataGrid.switchToJson' },
-      { command: 'dataGrid.editJsonDocument' },
+      { command: 'dataGrid.switchToForm', hideDisabled: true },
+      { command: 'dataGrid.switchToJson', hideDisabled: true },
+      { command: 'dataGrid.editJsonDocument', hideDisabled: true },
       { divider: true },
       { command: 'dataGrid.save' },
       { command: 'dataGrid.revertRowChanges' },
@@ -1056,7 +1039,7 @@
       { command: 'dataGrid.openQuery' },
       { command: 'dataGrid.openFreeTable' },
       { command: 'dataGrid.openChartFromSelection' },
-      { command: 'dataGrid.openActiveChart' },
+      { command: 'dataGrid.openActiveChart', hideDisabled: true },
     ];
   }
 </script>

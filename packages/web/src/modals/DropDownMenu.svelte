@@ -34,6 +34,7 @@
           keyText: command.keyText || command.keyTextFromGroup,
           onClick: command.onClick,
           disabled: !command.enabled,
+          hideDisabled: item.hideDisabled,
         };
       }
       return null;
@@ -69,6 +70,8 @@
   });
 
   $: extracted = extractMenuItems(items);
+  $: compacted = _.compact(extracted.map(x => mapItem(x, $commands)));
+  $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
 </script>
 
 <ul
@@ -77,7 +80,7 @@
   on:clickOutside={() => dispatch('close')}
   bind:this={element}
 >
-  {#each _.compact(extracted.map(x => mapItem(x, $commands))) as item}
+  {#each filtered as item}
     {#if item.divider}
       <li class="divider" />
     {:else}
