@@ -31,20 +31,31 @@ export default function contextMenu(node, items = []) {
   };
 }
 
-function doExtractMenuItems(menu, res, tagged) {
+function doExtractMenuItems(menu, res) {
   if (_.isFunction(menu)) {
-    doExtractMenuItems(menu(), res, tagged);
+    doExtractMenuItems(menu(), res);
   } else if (_.isArray(menu)) {
     for (const item of menu) {
-      doExtractMenuItems(item, res, tagged);
+      doExtractMenuItems(item, res);
     }
   } else if (_.isPlainObject(menu)) {
-    if (menu.tag) {
-      tagged.push({
-        ...menu,
-        tags: getAsArray(menu.tag),
-      });
-    } else if (menu.placeTag) {
+    res.push(menu);
+  }
+}
+
+function processTags(items) {
+  const res = [];
+  const tagged = [];
+
+  for (const menu of items.filter(x => x.tag)) {
+    tagged.push({
+      ...menu,
+      tags: getAsArray(menu.tag),
+    });
+  }
+
+  for (const menu of items.filter(x => !x.tag)) {
+    if (menu.placeTag) {
       const placeTags = getAsArray(menu.placeTag);
       for (let index = 0; index < tagged.length; ) {
         const current = tagged[index];
@@ -59,15 +70,17 @@ function doExtractMenuItems(menu, res, tagged) {
       res.push(menu);
     }
   }
-}
-
-export function extractMenuItems(menu) {
-  const res = [];
-  const tagged = [];
-  doExtractMenuItems(menu, res, tagged);
 
   // append tagged, which were not appended by placeTag
   res.push(...tagged);
+
+  return res;
+}
+
+export function extractMenuItems(menu) {
+  let res = [];
+  doExtractMenuItems(menu, res);
+  res = processTags(res);
   return res;
 }
 

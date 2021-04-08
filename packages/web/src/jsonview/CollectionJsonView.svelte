@@ -51,6 +51,8 @@
     loadData();
   });
 
+  registerMenu({ placeTag: 'switch' });
+
   const menu = getContextMenu();
 
   $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
@@ -58,7 +60,7 @@
   // $: console.log('GRIDER', grider);
 </script>
 
-<div class="flexcol flex1" use:contextMenu={[{ placeTag: 'switch' }, menu]}>
+<div class="flexcol flex1" use:contextMenu={menu}>
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
