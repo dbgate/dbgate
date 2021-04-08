@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-  export function buildGridMongoCondition(props) {
+  function buildGridMongoCondition(props) {
     const filters = props?.display?.config?.filters;
 
     const conditions = [];
@@ -27,6 +27,19 @@
       : undefined;
   }
 
+  function buildMongoSort(props) {
+    const sort = props?.display?.config?.sort;
+
+    if (sort?.length > 0) {
+      return _.zipObject(
+        sort.map(col => col.uniqueName),
+        sort.map(col => (col.order == 'DESC' ? -1 : 1))
+      );
+    }
+
+    return null;
+  }
+
   export async function loadCollectionDataPage(props, offset, limit) {
     const { conid, database } = props;
 
@@ -43,6 +56,7 @@
           limit,
           skip: offset,
           condition: buildGridMongoCondition(props),
+          sort: buildMongoSort(props),
         },
       },
     });
