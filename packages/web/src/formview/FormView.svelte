@@ -1,15 +1,6 @@
 <script lang="ts" context="module">
   const getCurrentDataForm = () => getActiveComponent('FormView');
 
-  registerCommand({
-    id: 'dataForm.switchToTable',
-    category: 'Data form',
-    name: 'Switch to table',
-    keyText: 'F4',
-    testEnabled: () => getCurrentDataForm() != null,
-    onClick: () => getCurrentDataForm().switchToTable(),
-  });
-
   // registerCommand({
   //   id: 'dataForm.save',
   //   group: 'save',
@@ -219,14 +210,6 @@
     if (onNavigate) onNavigate(command);
   }
 
-  export function switchToTable() {
-    setConfig(cfg => ({
-      ...cfg,
-      isFormView: false,
-      formViewKey: null,
-    }));
-  }
-
   // export function save() {
   //   if ($inplaceEditorState.cell) {
   //     // @ts-ignore
@@ -341,7 +324,7 @@
     return {};
   }, {});
   registerMenu(
-    { command: 'dataForm.switchToTable' },
+    { placeTag: 'switch' },
     { command: 'dataForm.copyToClipboard' },
     { divider: true },
     { command: 'dataForm.filterSelected' },

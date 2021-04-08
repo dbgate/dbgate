@@ -96,23 +96,6 @@
     onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
 
-  registerCommand({
-    id: 'dataGrid.switchToForm',
-    category: 'Data grid',
-    name: 'Switch to form',
-    keyText: 'F4',
-    testEnabled: () => getCurrentDataGrid()?.formViewEnabled(),
-    onClick: () => getCurrentDataGrid().switchToForm(),
-  });
-
-  registerCommand({
-    id: 'dataGrid.switchToJson',
-    category: 'Data grid',
-    name: 'Switch to JSON',
-    keyText: 'F4',
-    testEnabled: () => getCurrentDataGrid()?.jsonViewEnabled(),
-    onClick: () => getCurrentDataGrid().switchToJson(),
-  });
 
   registerCommand({
     id: 'dataGrid.editJsonDocument',
@@ -234,7 +217,6 @@
   // export let onSelectedCellsPublishedChanged = undefined;
   export let focusOnVisible = false;
   export let formViewAvailable = false;
-  export let jsonViewAvailable = false;
   export let errorMessage = undefined;
 
   export let isLoadedAll;
@@ -358,24 +340,6 @@
     if (onLoadNextData && firstVisibleRowScrollIndex + visibleRowCountUpperBound >= grider.rowCount) {
       onLoadNextData();
     }
-  }
-
-  export function formViewEnabled() {
-    return formViewAvailable && display.baseTable && display.baseTable.primaryKey;
-  }
-
-  export function jsonViewEnabled() {
-    return jsonViewAvailable;
-  }
-
-  export function switchToForm() {
-    const cell = currentCell;
-    const rowData = isRegularCell(cell) ? grider.getRowData(cell[0]) : null;
-    display.switchToFormView(rowData);
-  }
-
-  export function switchToJson() {
-    display.switchToJsonView();
   }
 
   export function filterSelectedValue() {
@@ -958,10 +922,7 @@
   registerMenu(
     { command: 'dataGrid.refresh' },
     { command: 'dataGrid.copyToClipboard' },
-    { command: 'dataGrid.export' },
-    { command: 'dataGrid.switchToForm', hideDisabled: true },
-    { command: 'dataGrid.switchToJson', hideDisabled: true },
-    { command: 'dataGrid.editJsonDocument', hideDisabled: true },
+    { placeTag: 'switch' },
     { divider: true },
     { placeTag: 'save' },
     { command: 'dataGrid.revertRowChanges' },

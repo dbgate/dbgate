@@ -1,4 +1,33 @@
 <script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('DataGrid');
+
+  registerCommand({
+    id: 'dataGrid.switchToForm',
+    category: 'Data grid',
+    name: 'Switch to form',
+    keyText: 'F4',
+    testEnabled: () => getCurrentEditor()?.switchViewEnabled('form'),
+    onClick: () => getCurrentEditor().switchToView('form'),
+  });
+
+  registerCommand({
+    id: 'dataGrid.switchToJson',
+    category: 'Data grid',
+    name: 'Switch to JSON',
+    keyText: 'F4',
+    testEnabled: () => getCurrentEditor()?.switchViewEnabled('json'),
+    onClick: () => getCurrentEditor().switchToView('json'),
+  });
+
+  registerCommand({
+    id: 'dataGrid.switchToTable',
+    category: 'Data grid',
+    name: 'Switch to table',
+    keyText: 'F4',
+    testEnabled: () => getCurrentEditor()?.switchViewEnabled('table'),
+    onClick: () => getCurrentEditor().switchToView('table'),
+  });
+
   function extractMacroValuesForMacro(macroValues, macro) {
     // return {};
     if (!macro) return {};
@@ -12,22 +41,25 @@
 <script lang="ts">
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
-  import { runMacroOnChangeSet } from 'dbgate-datalib';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormViewFilters from '../formview/FormViewFilters.svelte';
   import MacroDetail from '../freetable/MacroDetail.svelte';
   import MacroManager from '../freetable/MacroManager.svelte';
-  import createRef from '../utility/createRef';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ColumnManager from './ColumnManager.svelte';
   import ReferenceManager from './ReferenceManager.svelte';
   import FreeTableColumnEditor from '../freetable/FreeTableColumnEditor.svelte';
   import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import _ from 'lodash';
+  import registerCommand from '../commands/registerCommand';
+  import { registerMenu } from '../utility/contextMenu';
 
   export let config;
+  export let setConfig;
   export let gridCoreComponent;
   export let formViewComponent = null;
   export let jsonViewComponent = null;
@@ -46,6 +78,8 @@
 
   export let loadedRows;
 
+  export const activator = createActivator('DataGrid', false);
+
   let selectedCellsPublished = () => [];
 
   const selectedMacro = writable(null);
@@ -61,19 +95,36 @@
   const handleExecuteMacro = () => {
     onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished());
     $selectedMacro = null;
-
-    // const newChangeSet = runMacroOnChangeSet(
-    //   $selectedMacro,
-    //   extractMacroValuesForMacro($macroValues, $selectedMacro),
-    //   selectedCellsPublished,
-    //   changeSetState?.value,
-    //   display
-    // );
-    // if (newChangeSet) {
-    //   dispatchChangeSet({ type: 'set', value: newChangeSet });
-    // }
-    // $selectedMacro = null;
   };
+
+  export function switchViewEnabled(view) {
+    if (view == 'form') return !!formViewComponent && !!formDisplay && !isFormView && display?.baseTable?.primaryKey;
+    if (view == 'table') return !!(isFormView || isJsonView);
+    if (view == 'json') return !!jsonViewComponent && !isJsonView;
+  }
+
+  export function switchToView(view) {
+    if (view == 'form') {
+      display.switchToFormView(selectedCellsPublished()[0]?.rowData);
+    }
+    if (view == 'table') {
+      setConfig(cfg => ({
+        ...cfg,
+        isFormView: false,
+        isJsonView: false,
+        formViewKey: null,
+      }));
+    }
+    if (view == 'json') {
+      display.switchToJsonView();
+    }
+  }
+
+  registerMenu(
+    { command: 'dataGrid.switchToForm', tag: 'switch', hideDisabled: true },
+    { command: 'dataGrid.switchToTable', tag: 'switch', hideDisabled: true },
+    { command: 'dataGrid.switchToJson', tag: 'switch', hideDisabled: true }
+  );
 </script>
 
 <HorizontalSplitter initialValue="300px" bind:size={managerSize}>
@@ -127,7 +178,6 @@
             this={gridCoreComponent}
             {...$$props}
             formViewAvailable={!!formViewComponent && !!formDisplay}
-            jsonViewAvailable={!!jsonViewComponent}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
             bind:loadedRows

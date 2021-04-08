@@ -1,14 +1,5 @@
 <script lang="ts" context="module">
   const getCurrentEditor = () => getActiveComponent('CollectionJsonView');
-
-  registerCommand({
-    id: 'dataJson.switchToTable',
-    category: 'Data Json',
-    name: 'Switch to table',
-    keyText: 'F4',
-    testEnabled: () => getCurrentEditor() != null,
-    onClick: () => getCurrentEditor().switchToTable(),
-  });
 </script>
 
 <script lang="ts">
@@ -56,18 +47,10 @@
     loadData();
   }
 
-  export function switchToTable() {
-    setConfig(cfg => ({
-      ...cfg,
-      isJsonView: false,
-    }));
-  }
-
   onMount(() => {
     loadData();
   });
 
-  registerMenu({ command: 'dataJson.switchToTable' });
   const menu = getContextMenu();
 
   $: grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
@@ -75,7 +58,7 @@
   // $: console.log('GRIDER', grider);
 </script>
 
-<div class="flexcol flex1" use:contextMenu={menu}>
+<div class="flexcol flex1" use:contextMenu={[{ placeTag: 'switch' }, menu]}>
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
