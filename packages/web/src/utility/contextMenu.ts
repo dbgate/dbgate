@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import { getContext, setContext } from 'svelte';
 import { currentDropDownMenu } from '../stores';
+import getAsArray from './getAsArray';
 
-export function registerMenu(items) {
+export function registerMenu(...items) {
   const parentMenu = getContext('componentContextMenu');
-  setContext('componentContextMenu', [parentMenu, items]);
+  setContext('componentContextMenu', [parentMenu, ...items]);
 }
 
 export default function contextMenu(node, items = []) {
@@ -30,21 +31,43 @@ export default function contextMenu(node, items = []) {
   };
 }
 
-function doExtractMenuItems(menu, res) {
+function doExtractMenuItems(menu, res, tagged) {
   if (_.isFunction(menu)) {
-    doExtractMenuItems(menu(), res);
+    doExtractMenuItems(menu(), res, tagged);
   } else if (_.isArray(menu)) {
     for (const item of menu) {
-      doExtractMenuItems(item, res);
+      doExtractMenuItems(item, res, tagged);
     }
   } else if (_.isPlainObject(menu)) {
-    res.push(menu);
+    if (menu.tag) {
+      tagged.push({
+        ...menu,
+        tags: getAsArray(menu.tag),
+      });
+    } else if (menu.placeTag) {
+      const placeTags = getAsArray(menu.placeTag);
+      for (let index = 0; index < tagged.length; ) {
+        const current = tagged[index];
+        if (_.intersection(placeTags, current.tags).length > 0) {
+          tagged.splice(index, 1);
+          res.push(current);
+        } else {
+          index++;
+        }
+      }
+    } else {
+      res.push(menu);
+    }
   }
 }
 
 export function extractMenuItems(menu) {
   const res = [];
-  doExtractMenuItems(menu, res);
+  const tagged = [];
+  doExtractMenuItems(menu, res, tagged);
+
+  // append tagged, which were not appended by placeTag
+  res.push(...tagged);
   return res;
 }
 

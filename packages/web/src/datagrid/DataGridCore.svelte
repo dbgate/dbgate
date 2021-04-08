@@ -219,7 +219,7 @@
   import DataGridRow from './DataGridRow.svelte';
   import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
   import stableStringify from 'json-stable-stringify';
-  import contextMenu from '../utility/contextMenu';
+  import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import { tick } from 'svelte';
   import {
     cellIsSelected,
@@ -301,10 +301,6 @@
 
   export function refresh() {
     display.reload();
-  }
-
-  export function getTabId() {
-    return tabid;
   }
 
   export function save() {
@@ -1015,33 +1011,33 @@
     return ['filter', columnRealIndex];
   }
 
-  function createMenu() {
-    return [
-      { command: 'dataGrid.refresh' },
-      { command: 'dataGrid.copyToClipboard' },
-      { command: 'dataGrid.export' },
-      { command: 'dataGrid.switchToForm', hideDisabled: true },
-      { command: 'dataGrid.switchToJson', hideDisabled: true },
-      { command: 'dataGrid.editJsonDocument', hideDisabled: true },
-      { divider: true },
-      { command: 'dataGrid.save' },
-      { command: 'dataGrid.revertRowChanges' },
-      { command: 'dataGrid.revertAllChanges' },
-      { command: 'dataGrid.deleteSelectedRows' },
-      { command: 'dataGrid.insertNewRow' },
-      { command: 'dataGrid.setNull' },
-      { divider: true },
-      { command: 'dataGrid.filterSelected' },
-      { command: 'dataGrid.clearFilter' },
-      { command: 'dataGrid.undo' },
-      { command: 'dataGrid.redo' },
-      { divider: true },
-      { command: 'dataGrid.openQuery' },
-      { command: 'dataGrid.openFreeTable' },
-      { command: 'dataGrid.openChartFromSelection' },
-      { command: 'dataGrid.openActiveChart', hideDisabled: true },
-    ];
-  }
+  registerMenu(
+    { command: 'dataGrid.refresh' },
+    { command: 'dataGrid.copyToClipboard' },
+    { command: 'dataGrid.export' },
+    { command: 'dataGrid.switchToForm', hideDisabled: true },
+    { command: 'dataGrid.switchToJson', hideDisabled: true },
+    { command: 'dataGrid.editJsonDocument', hideDisabled: true },
+    { divider: true },
+    { command: 'dataGrid.save' },
+    { command: 'dataGrid.revertRowChanges' },
+    { command: 'dataGrid.revertAllChanges' },
+    { command: 'dataGrid.deleteSelectedRows' },
+    { command: 'dataGrid.insertNewRow' },
+    { command: 'dataGrid.setNull' },
+    { divider: true },
+    { command: 'dataGrid.filterSelected' },
+    { command: 'dataGrid.clearFilter' },
+    { command: 'dataGrid.undo' },
+    { command: 'dataGrid.redo' },
+    { divider: true },
+    { command: 'dataGrid.openQuery' },
+    { command: 'dataGrid.openFreeTable' },
+    { command: 'dataGrid.openChartFromSelection' },
+    { placeTag: 'chart' }
+  );
+
+  const menu = getContextMenu();
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1062,12 +1058,7 @@
     {/each}
   </div>
 {:else}
-  <div
-    class="container"
-    bind:clientWidth={containerWidth}
-    bind:clientHeight={containerHeight}
-    use:contextMenu={createMenu}
-  >
+  <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight} use:contextMenu={menu}>
     <input
       type="text"
       class="focus-field"

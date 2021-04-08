@@ -31,13 +31,19 @@ export interface GlobalCommand {
 
 export default function registerCommand(command: GlobalCommand) {
   const { testEnabled } = command;
-  commands.update(x => ({
-    ...x,
-    [command.id]: {
-      text: `${command.category}: ${command.name}`,
-      ...command,
-      enabled: !testEnabled,
-    },
-  }));
+  commands.update(x => {
+    if (x[command.id]) {
+      console.error(`Command ${command.id} already registered`);
+      return x;
+    }
+    return {
+      ...x,
+      [command.id]: {
+        text: `${command.category}: ${command.name}`,
+        ...command,
+        enabled: !testEnabled,
+      },
+    };
+  });
   invalidateCommandDefinitions();
 }

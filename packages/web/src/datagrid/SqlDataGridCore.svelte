@@ -63,6 +63,7 @@
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
+  import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
@@ -180,6 +181,8 @@
       }
     );
   }
+
+  registerMenu({ command: 'dataGrid.openActiveChart', tag: 'chart' });
 </script>
 
 <LoadingDataGridCore
