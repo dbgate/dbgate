@@ -1,4 +1,15 @@
 <script context="module" lang="ts">
+  const getCurrentEditor = () => getActiveComponent('JslDataGridCore');
+
+  registerCommand({
+    id: 'jslTableGrid.export',
+    category: 'Data grid',
+    name: 'Export',
+    keyText: 'Ctrl+E',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().exportGrid(),
+  });
+
   async function loadDataPage(props, offset, limit) {
     const { jslid, display } = props;
 
@@ -32,10 +43,13 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
+  import { registerMenu } from '../utility/contextMenu';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
@@ -43,6 +57,8 @@
   import RowsArrayGrider from './RowsArrayGrider';
 
   export let jslid;
+
+  export const activator = createActivator('JslDataGridCore', false);
 
   let loadedRows = [];
   let domGrid;
@@ -72,7 +88,7 @@
 
   $: grider = new RowsArrayGrider(loadedRows);
 
-  function exportGrid() {
+  export function exportGrid() {
     const initialValues = {} as any;
     const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
     if (archiveMatch) {
@@ -86,13 +102,14 @@
     }
     showModal(ImportExportModal, { initialValues });
   }
+
+  registerMenu({ command: 'jslTableGrid.export', tag: 'export' });
 </script>
 
 <LoadingDataGridCore
   bind:this={domGrid}
   {...$$props}
   bind:loadedRows
-  onExportGrid={exportGrid}
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}

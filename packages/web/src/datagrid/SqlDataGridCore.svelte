@@ -17,6 +17,15 @@
     onClick: () => getCurrentEditor().openQuery(),
   });
 
+  registerCommand({
+    id: 'sqlDataGrid.export',
+    category: 'Data grid',
+    name: 'Export',
+    keyText: 'Ctrl+E',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().exportGrid(),
+  });
+
   async function loadDataPage(props, offset, limit) {
     const { display, conid, database } = props;
 
@@ -110,7 +119,7 @@
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
 
-  function exportGrid() {
+  export function exportGrid() {
     const initialValues: any = {};
     initialValues.sourceStorageType = 'query';
     initialValues.sourceConnectionId = conid;
@@ -163,7 +172,8 @@
 
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
-    { command: 'sqlDataGrid.openQuery', tag: 'export' }
+    { command: 'sqlDataGrid.openQuery', tag: 'export' },
+    { command: 'sqlDataGrid.export', tag: 'export' }
   );
 </script>
 
@@ -172,7 +182,6 @@
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
-  onExportGrid={exportGrid}
   bind:loadedRows
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}

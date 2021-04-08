@@ -97,15 +97,6 @@
   });
 
   registerCommand({
-    id: 'dataGrid.export',
-    category: 'Data grid',
-    name: 'Export',
-    keyText: 'Ctrl+E',
-    testEnabled: () => getCurrentDataGrid()?.exportEnabled(),
-    onClick: () => getCurrentDataGrid().exportGrid(),
-  });
-
-  registerCommand({
     id: 'dataGrid.switchToForm',
     category: 'Data grid',
     name: 'Switch to form',
@@ -242,7 +233,6 @@
   export let onReferenceClick = undefined;
   // export let onSelectedCellsPublishedChanged = undefined;
   export let focusOnVisible = false;
-  export let onExportGrid = null;
   export let formViewAvailable = false;
   export let jsonViewAvailable = false;
   export let errorMessage = undefined;
@@ -291,14 +281,6 @@
 
   export function getDisplay() {
     return display;
-  }
-
-  export function exportGrid() {
-    if (onExportGrid) onExportGrid();
-  }
-
-  export function exportEnabled() {
-    return !!onExportGrid;
   }
 
   export function revertRowChanges() {

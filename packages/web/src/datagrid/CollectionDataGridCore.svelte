@@ -127,16 +127,6 @@
   );
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
-
-  function exportGrid() {
-    const initialValues: any = {};
-    initialValues.sourceStorageType = 'query';
-    initialValues.sourceConnectionId = conid;
-    initialValues.sourceDatabaseName = database;
-    initialValues.sourceSql = display.getExportQuery();
-    initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
-    showModal(ImportExportModal, { initialValues });
-  }
 </script>
 
 <LoadingDataGridCore
@@ -144,7 +134,6 @@
   loadDataPage={loadCollectionDataPage}
   {dataPageAvailable}
   {loadRowCount}
-  onExportGrid={exportGrid}
   bind:loadedRows
   frameSelection={!!macroPreview}
   {grider}
