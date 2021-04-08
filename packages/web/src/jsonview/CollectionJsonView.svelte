@@ -60,7 +60,7 @@
   // $: console.log('GRIDER', grider);
 </script>
 
-<div class="flexcol flex1" use:contextMenu={menu}>
+<div class="wrapper" use:contextMenu={menu}>
   <div class="toolbar">
     <Pager bind:skip bind:limit on:load={() => display.reload()} />
   </div>
@@ -86,5 +86,17 @@
 
   .json {
     overflow: auto;
+    flex: 1;
+    /* position: relative; */
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
   }
 </style>

@@ -186,6 +186,23 @@
         },
       },
     ],
+    collections: [
+      {
+        label: 'Open data',
+        tab: 'CollectionDataTab',
+        forceNewTab: true,
+      },
+      {
+        label: 'Open JSON',
+        tab: 'CollectionDataTab',
+        forceNewTab: true,
+        initialData: {
+          grid: {
+            isJsonView: true,
+          },
+        },
+      },
+    ],
   };
 
   export async function openDatabaseObjectDetail(
