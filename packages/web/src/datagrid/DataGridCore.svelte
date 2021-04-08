@@ -150,14 +150,6 @@
   });
 
   registerCommand({
-    id: 'dataGrid.openQuery',
-    category: 'Data grid',
-    name: 'Open query',
-    testEnabled: () => getCurrentDataGrid()?.openQueryEnabled(),
-    onClick: () => getCurrentDataGrid().openQuery(),
-  });
-
-  registerCommand({
     id: 'dataGrid.openFreeTable',
     category: 'Data grid',
     name: 'Open selection in free table editor',
@@ -251,7 +243,6 @@
   // export let onSelectedCellsPublishedChanged = undefined;
   export let focusOnVisible = false;
   export let onExportGrid = null;
-  export let onOpenQuery = null;
   export let formViewAvailable = false;
   export let jsonViewAvailable = false;
   export let errorMessage = undefined;
@@ -426,14 +417,6 @@
 
   export function clearFilterEnabled() {
     return display.filterCount > 0;
-  }
-
-  export function openQuery() {
-    if (onOpenQuery) onOpenQuery();
-  }
-
-  export function openQueryEnabled() {
-    return onOpenQuery != null;
   }
 
   export function openFreeTable() {
@@ -1010,7 +993,7 @@
     { command: 'dataGrid.undo' },
     { command: 'dataGrid.redo' },
     { divider: true },
-    { command: 'dataGrid.openQuery' },
+    { placeTag: 'export' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
     { placeTag: 'chart' }

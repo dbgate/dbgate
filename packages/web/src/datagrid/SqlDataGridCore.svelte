@@ -2,11 +2,19 @@
   const getCurrentEditor = () => getActiveComponent('SqlDataGridCore');
 
   registerCommand({
-    id: 'dataGrid.openActiveChart',
+    id: 'sqlDataGrid.openActiveChart',
     category: 'Data grid',
     name: 'Open active chart',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().openActiveChart(),
+  });
+
+  registerCommand({
+    id: 'sqlDataGrid.openQuery',
+    category: 'Data grid',
+    name: 'Open query',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().openQuery(),
   });
 
   async function loadDataPage(props, offset, limit) {
@@ -112,7 +120,7 @@
     showModal(ImportExportModal, { initialValues });
   }
 
-  function openQuery() {
+  export function openQuery() {
     openNewTab(
       {
         title: 'Query #',
@@ -153,7 +161,10 @@
     );
   }
 
-  registerMenu({ command: 'dataGrid.openActiveChart', tag: 'chart' });
+  registerMenu(
+    { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
+    { command: 'sqlDataGrid.openQuery', tag: 'export' }
+  );
 </script>
 
 <LoadingDataGridCore
@@ -162,7 +173,6 @@
   {dataPageAvailable}
   {loadRowCount}
   onExportGrid={exportGrid}
-  onOpenQuery={openQuery}
   bind:loadedRows
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}
