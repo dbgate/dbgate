@@ -15,6 +15,14 @@
     testEnabled: () => getCurrentEditor()?.canSave(),
     onClick: () => getCurrentEditor().save(),
   });
+
+  registerCommand({
+    id: 'collectionTable.newJson',
+    category: 'Collection data',
+    name: 'Add JSON document',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().addJsonDocument(),
+  });
 </script>
 
 <script lang="ts">
@@ -44,6 +52,8 @@
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
+  import EditJsonModal from '../modals/EditJsonModal.svelte';
+  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
 
   export let tabid;
   export let conid;
@@ -115,7 +125,19 @@
     });
   }
 
-  registerMenu({ command: 'collectionTable.save', tag: 'save' });
+  export function addJsonDocument() {
+    showModal(EditJsonModal, {
+      json: {},
+      onSave: value => {
+        const grider = new ChangeSetGrider(loadedRows, $changeSetStore, dispatchChangeSet, display);
+        const newRowIndex = grider.insertRow();
+        grider.setRowData(newRowIndex, value);
+        return true;
+      },
+    });
+  }
+
+  registerMenu({ command: 'collectionTable.save', tag: 'save' }, { command: 'collectionTable.newJson', tag: 'edit' });
 </script>
 
 <DataGrid

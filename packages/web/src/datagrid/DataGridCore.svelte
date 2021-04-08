@@ -96,7 +96,6 @@
     onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
 
-
   registerCommand({
     id: 'dataGrid.editJsonDocument',
     category: 'Data grid',
@@ -930,11 +929,13 @@
     { command: 'dataGrid.deleteSelectedRows' },
     { command: 'dataGrid.insertNewRow' },
     { command: 'dataGrid.setNull' },
+    { placeTag: 'edit' },
     { divider: true },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo' },
     { command: 'dataGrid.redo' },
+    { command: 'dataGrid.editJsonDocument' },
     { divider: true },
     { placeTag: 'export' },
     { command: 'dataGrid.openFreeTable' },
