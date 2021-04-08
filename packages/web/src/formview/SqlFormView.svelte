@@ -131,34 +131,34 @@
 
   $: if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
 
-  async function handleConfirmSql(sql) {
-    const resp = await axiosInstance.request({
-      url: 'database-connections/query-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
-    });
-    const { errorMessage } = resp.data || {};
-    if (errorMessage) {
-      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
-    } else {
-      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
-      formDisplay.reload();
-    }
-  }
+  // async function handleConfirmSql(sql) {
+  //   const resp = await axiosInstance.request({
+  //     url: 'database-connections/query-data',
+  //     method: 'post',
+  //     params: {
+  //       conid,
+  //       database,
+  //     },
+  //     data: { sql },
+  //   });
+  //   const { errorMessage } = resp.data || {};
+  //   if (errorMessage) {
+  //     showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+  //   } else {
+  //     dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+  //     formDisplay.reload();
+  //   }
+  // }
 
-  function handleSave() {
-    const script = changeSetToSql(changeSetState && changeSetState.value, formDisplay.dbinfo);
-    const sql = scriptToSql(formDisplay.driver, script);
-    showModal(ConfirmSqlModal, {
-      sql,
-      onConfirm: () => handleConfirmSql(sql),
-      engine: formDisplay.engine,
-    });
-  }
+  // function handleSave() {
+  //   const script = changeSetToSql(changeSetState && changeSetState.value, formDisplay.dbinfo);
+  //   const sql = scriptToSql(formDisplay.driver, script);
+  //   showModal(ConfirmSqlModal, {
+  //     sql,
+  //     onConfirm: () => handleConfirmSql(sql),
+  //     engine: formDisplay.engine,
+  //   });
+  // }
 </script>
 
 <FormView
@@ -167,6 +167,5 @@
   isLoading={isLoadingData}
   {allRowCount}
   {rowCountBefore}
-  onSave={handleSave}
   onNavigate={handleNavigate}
 />

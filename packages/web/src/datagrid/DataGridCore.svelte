@@ -13,18 +13,6 @@
   });
 
   registerCommand({
-    id: 'dataGrid.save',
-    group: 'save',
-    category: 'Data grid',
-    name: 'Save',
-    // keyText: 'Ctrl+S',
-    toolbar: true,
-    icon: 'icon save',
-    testEnabled: () => getCurrentDataGrid()?.getGrider()?.allowSave,
-    onClick: () => getCurrentDataGrid().save(),
-  });
-
-  registerCommand({
     id: 'dataGrid.revertRowChanges',
     category: 'Data grid',
     name: 'Revert row changes',
@@ -261,7 +249,6 @@
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
   // export let onSelectedCellsPublishedChanged = undefined;
-  export let onSave;
   export let focusOnVisible = false;
   export let onExportGrid = null;
   export let onOpenQuery = null;
@@ -301,10 +288,6 @@
 
   export function refresh() {
     display.reload();
-  }
-
-  export function save() {
-    if (onSave) onSave();
   }
 
   export function getGrider() {
@@ -490,10 +473,6 @@
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
   }
-
-  // export function getGeneralAllowSave() {
-  //   return generalAllowSave;
-  // }
 
   $: autofillMarkerCell =
     selectedCells && selectedCells.length > 0 && _.uniq(selectedCells.map(x => x[0])).length == 1
@@ -994,12 +973,12 @@
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
       }
-      case 'shouldSave': {
-        return {
-          ...state,
-          shouldSave: true,
-        };
-      }
+      // case 'shouldSave': {
+      //   return {
+      //     ...state,
+      //     shouldSave: true,
+      //   };
+      // }
     }
     return {};
   }, {});
@@ -1019,7 +998,7 @@
     { command: 'dataGrid.switchToJson', hideDisabled: true },
     { command: 'dataGrid.editJsonDocument', hideDisabled: true },
     { divider: true },
-    { command: 'dataGrid.save' },
+    { placeTag: 'save' },
     { command: 'dataGrid.revertRowChanges' },
     { command: 'dataGrid.revertAllChanges' },
     { command: 'dataGrid.deleteSelectedRows' },

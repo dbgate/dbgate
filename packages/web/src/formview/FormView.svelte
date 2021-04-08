@@ -10,16 +10,16 @@
     onClick: () => getCurrentDataForm().switchToTable(),
   });
 
-  registerCommand({
-    id: 'dataForm.save',
-    group: 'save',
-    category: 'Data form',
-    name: 'Save',
-    toolbar: true,
-    icon: 'icon save',
-    testEnabled: () => getCurrentDataForm()?.getFormer()?.allowSave,
-    onClick: () => getCurrentDataForm().save(),
-  });
+  // registerCommand({
+  //   id: 'dataForm.save',
+  //   group: 'save',
+  //   category: 'Data form',
+  //   name: 'Save',
+  //   toolbar: true,
+  //   icon: 'icon save',
+  //   testEnabled: () => getCurrentDataForm()?.getFormer()?.allowSave,
+  //   onClick: () => getCurrentDataForm().save(),
+  // });
 
   registerCommand({
     id: 'dataForm.copyToClipboard',
@@ -164,7 +164,7 @@
 
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
-  import contextMenu from '../utility/contextMenu';
+  import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
@@ -181,7 +181,6 @@
   export let isLoading;
   export let former;
   export let formDisplay;
-  export let onSave;
   export let onNavigate;
 
   let wrapperHeight = 1;
@@ -228,14 +227,14 @@
     }));
   }
 
-  export function save() {
-    if ($inplaceEditorState.cell) {
-      // @ts-ignore
-      dispatchInsplaceEditor({ type: 'shouldSave' });
-      return;
-    }
-    if (onSave) onSave();
-  }
+  // export function save() {
+  //   if ($inplaceEditorState.cell) {
+  //     // @ts-ignore
+  //     dispatchInsplaceEditor({ type: 'shouldSave' });
+  //     return;
+  //   }
+  //   if (onSave) onSave();
+  // }
 
   export function setNull() {
     if (isDataCell(currentCell)) {
@@ -332,36 +331,35 @@
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
       }
-      case 'shouldSave': {
-        return {
-          ...state,
-          shouldSave: true,
-        };
-      }
+      // case 'shouldSave': {
+      //   return {
+      //     ...state,
+      //     shouldSave: true,
+      //   };
+      // }
     }
     return {};
   }, {});
-  function createMenu() {
-    return [
-      { command: 'dataForm.switchToTable' },
-      { command: 'dataForm.copyToClipboard' },
-      { divider: true },
-      { command: 'dataForm.filterSelected' },
-      { command: 'dataForm.addToFilter' },
-      { divider: true },
-      { command: 'dataForm.save' },
-      { command: 'dataForm.revertRowChanges' },
-      { command: 'dataForm.setNull' },
-      { divider: true },
-      { command: 'dataForm.undo' },
-      { command: 'dataForm.redo' },
-      { divider: true },
-      { command: 'dataForm.goToFirst' },
-      { command: 'dataForm.goToPrevious' },
-      { command: 'dataForm.goToNext' },
-      { command: 'dataForm.goToLast' },
-    ];
-  }
+  registerMenu(
+    { command: 'dataForm.switchToTable' },
+    { command: 'dataForm.copyToClipboard' },
+    { divider: true },
+    { command: 'dataForm.filterSelected' },
+    { command: 'dataForm.addToFilter' },
+    { divider: true },
+    { placeTag: 'save' },
+    { command: 'dataForm.revertRowChanges' },
+    { command: 'dataForm.setNull' },
+    { divider: true },
+    { command: 'dataForm.undo' },
+    { command: 'dataForm.redo' },
+    { divider: true },
+    { command: 'dataForm.goToFirst' },
+    { command: 'dataForm.goToPrevious' },
+    { command: 'dataForm.goToNext' },
+    { command: 'dataForm.goToLast' }
+  );
+  const menu = getContextMenu();
 
   function handleKeyDown(event) {
     if ($inplaceEditorState.cell) return;
@@ -437,7 +435,7 @@
 </script>
 
 <div class="outer">
-  <div class="wrapper" use:contextMenu={createMenu} bind:clientHeight={wrapperHeight}>
+  <div class="wrapper" use:contextMenu={menu} bind:clientHeight={wrapperHeight}>
     {#each columnChunks as chunk, chunkIndex}
       <table on:mousedown={handleTableMouseDown}>
         {#each chunk as col, rowIndex}

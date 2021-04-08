@@ -1,6 +1,20 @@
 <script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('CollectionDataTab');
+
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
+
+  registerCommand({
+    id: 'collectionTable.save',
+    group: 'save',
+    category: 'Collection data',
+    name: 'Save',
+    // keyText: 'Ctrl+S',
+    toolbar: true,
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor()?.canSave(),
+    onClick: () => getCurrentEditor().save(),
+  });
 </script>
 
 <script lang="ts">
@@ -13,6 +27,7 @@
     createGridConfig,
     TableFormViewDisplay,
     CollectionGridDisplay,
+    changeSetContainsChanges,
   } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
@@ -22,6 +37,13 @@
   import { useCollectionInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
   import CollectionJsonView from '../jsonview/CollectionJsonView.svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import axiosInstance from '../utility/axiosInstance';
+  import { showModal } from '../modals/modalTools';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
+  import registerCommand from '../commands/registerCommand';
+  import { registerMenu } from '../utility/contextMenu';
 
   export let tabid;
   export let conid;
@@ -30,6 +52,8 @@
   export let pureName;
 
   let loadedRows;
+
+  export const activator = createActivator('CollectionDataTab', true);
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
@@ -58,6 +82,40 @@
         )
       : null;
   // $: console.log('LOADED ROWS MONGO', loadedRows);
+
+  async function handleConfirmChange(changeSet) {
+    const resp = await axiosInstance.request({
+      url: 'database-connections/update-collection',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { changeSet },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+    } else {
+      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+      display?.reload();
+    }
+  }
+
+  export function canSave() {
+    return changeSetContainsChanges($changeSetStore?.value);
+  }
+
+  export function save() {
+    const json = $changeSetStore?.value;
+    showModal(ConfirmNoSqlModal, {
+      json,
+      onConfirm: () => handleConfirmChange(json),
+      engine: display.engine,
+    });
+  }
+
+  registerMenu({ command: 'collectionTable.save', tag: 'save' });
 </script>
 
 <DataGrid

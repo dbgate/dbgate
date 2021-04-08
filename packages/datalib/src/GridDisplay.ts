@@ -110,11 +110,7 @@ export abstract class GridDisplay {
   }
 
   reload() {
-    this.setCache(cache => ({
-      // ...cache,
-      ...createGridCache(),
-      refreshTime: new Date().getTime(),
-    }));
+    this.setCache(reloadDataCacheFunc);
   }
 
   includeInColumnSet(field: keyof GridConfigColumns, uniqueName: string, isIncluded: boolean) {
@@ -585,4 +581,12 @@ export abstract class GridDisplay {
       isJsonView: true,
     }));
   }
+}
+
+export function reloadDataCacheFunc(cache: GridCache): GridCache {
+  return {
+    // ...cache,
+    ...createGridCache(),
+    refreshTime: new Date().getTime(),
+  };
 }

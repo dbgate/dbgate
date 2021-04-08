@@ -1,5 +1,22 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('FreeTableTab');
+
+  registerCommand({
+    id: 'freeTable.save',
+    group: 'save',
+    category: 'Table data',
+    name: 'Save',
+    // keyText: 'Ctrl+S',
+    toolbar: true,
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().save(),
+  });
+</script>
+
 <script lang="ts">
   import { createFreeTableModel, runMacro } from 'dbgate-datalib';
+  import registerCommand from '../commands/registerCommand';
   import DataGrid from '../datagrid/DataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
@@ -10,6 +27,8 @@
   import useEditorData from '../query/useEditorData';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
+  import { registerMenu } from '../utility/contextMenu';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
   import useGridConfig from '../utility/useGridConfig';
 
@@ -17,6 +36,8 @@
   export let initialArgs;
   export let archiveFolder;
   export let archiveFile;
+
+  export const activator = createActivator('FreeTableTab', true);
 
   const config = useGridConfig(tabid);
   const [modelState, dispatchModel] = createUndoReducer(createFreeTableModel());
@@ -37,7 +58,7 @@
 
   $: setEditorData($modelState.value);
 
-  function handleSave() {
+  export function save() {
     showModal(SaveArchiveModal, {
       folder: archiveFolder,
       file: archiveFile,
@@ -58,6 +79,8 @@
     const newModel = runMacro(macro, params, $modelState.value, false, cells);
     dispatchModel({ type: 'set', value: newModel });
   }
+
+  registerMenu({ command: 'freeTable.save', tag: 'save' });
 </script>
 
 {#if isLoading}
@@ -70,7 +93,6 @@
     setConfig={config.update}
     modelState={$modelState}
     {dispatchModel}
-    onSave={handleSave}
     focusOnVisible
     gridCoreComponent={FreeTableGridCore}
     freeTableColumn

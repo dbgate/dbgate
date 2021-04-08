@@ -128,34 +128,6 @@
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
 
-  async function handleConfirmChange(changeSet) {
-    const resp = await axiosInstance.request({
-      url: 'database-connections/update-collection',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { changeSet },
-    });
-    const { errorMessage } = resp.data || {};
-    if (errorMessage) {
-      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
-    } else {
-      dispatchChangeSet({ type: 'reset', value: createChangeSet() });
-      display.reload();
-    }
-  }
-
-  function handleSave() {
-    const json = changeSetState && changeSetState.value;
-    showModal(ConfirmNoSqlModal, {
-      json,
-      onConfirm: () => handleConfirmChange(json),
-      engine: display.engine,
-    });
-  }
-
   function exportGrid() {
     const initialValues: any = {};
     initialValues.sourceStorageType = 'query';
@@ -219,5 +191,4 @@
   bind:loadedRows
   frameSelection={!!macroPreview}
   {grider}
-  onSave={handleSave}
 />
