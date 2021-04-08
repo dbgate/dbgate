@@ -13,8 +13,19 @@
   // });
 
   registerCommand({
+    id: 'dataForm.refresh',
+    category: 'Data form',
+    name: 'Refresh',
+    keyText: 'F5',
+    toolbar: true,
+    icon: 'icon reload',
+    testEnabled: () => getCurrentDataForm() != null,
+    onClick: () => getCurrentDataForm().refresh(),
+  });
+
+  registerCommand({
     id: 'dataForm.copyToClipboard',
-    category: 'Data grid',
+    category: 'Data form',
     name: 'Copy to clipboard',
     keyText: 'Ctrl+C',
     disableHandleKeyText: 'Ctrl+C',
@@ -63,7 +74,7 @@
   });
 
   registerCommand({
-    id: 'dataGdataFormrid.reconnect',
+    id: 'dataForm.reconnect',
     category: 'Data grid',
     name: 'Reconnect',
     testEnabled: () => getCurrentDataForm() != null,
@@ -206,6 +217,10 @@
     return former;
   }
 
+  // export function getFormDisplay() {
+  //   return formDisplay;
+  // }
+
   export function navigate(command) {
     if (onNavigate) onNavigate(command);
   }
@@ -234,6 +249,10 @@
 
   export async function reconnect() {
     await axiosInstance.post('database-connections/refresh', { conid, database });
+    formDisplay.reload();
+  }
+
+  export async function refresh() {
     formDisplay.reload();
   }
 
