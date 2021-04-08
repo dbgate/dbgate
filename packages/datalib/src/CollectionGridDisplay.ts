@@ -25,6 +25,62 @@ function createHeaderText(path) {
   return res;
 }
 
+function getColumnsForObject(basePath, obj, res: any[], display) {
+  for (const name of getObjectKeys(obj)) {
+    const uniqueName = [...basePath, name].join('.');
+    let column = res.find(x => x.uniqueName == uniqueName);
+    if (!column) {
+      column = getDisplayColumn(basePath, name, display);
+      if (basePath.length > 0) {
+        const lastIndex1 = _.findLastIndex(res, x => x.parentHeaderText.startsWith(column.parentHeaderText));
+        const lastIndex2 = _.findLastIndex(res, x => x.headerText == column.parentHeaderText);
+        // console.log(uniqueName, lastIndex1, lastIndex2);
+        if (lastIndex1 >= 0) res.splice(lastIndex1 + 1, 0, column);
+        else if (lastIndex2 >= 0) res.splice(lastIndex2 + 1, 0, column);
+        else res.push(column);
+      } else {
+        res.push(column);
+      }
+    }
+    if (_.isPlainObject(obj[name]) || _.isArray(obj[name])) {
+      column.isExpandable = true;
+    }
+
+    if (display.isExpandedColumn(column.uniqueName)) {
+      getColumnsForObject([...basePath, name], obj[name], res, display);
+    }
+  }
+}
+
+function getDisplayColumn(basePath, columnName, display) {
+  const uniquePath = [...basePath, columnName];
+  const uniqueName = uniquePath.join('.');
+  return {
+    columnName,
+    headerText: createHeaderText(uniquePath),
+    uniqueName,
+    uniquePath,
+    isStructured: true,
+    parentHeaderText: createHeaderText(basePath),
+    filterType: 'mongo',
+    pureName: display.collection?.pureName,
+    schemaName: display.collection?.schemaName,
+  };
+}
+
+export function analyseCollectionDisplayColumns(rows, display) {
+  const res = [];
+  for (const row of rows || []) {
+    getColumnsForObject([], row, res, display);
+  }
+  return (
+    res.map(col => ({
+      ...col,
+      isChecked: display.isColumnChecked(col),
+    })) || []
+  );
+}
+
 export class CollectionGridDisplay extends GridDisplay {
   constructor(
     public collection: CollectionInfo,
@@ -36,7 +92,7 @@ export class CollectionGridDisplay extends GridDisplay {
     loadedRows
   ) {
     super(config, setConfig, cache, setCache, driver);
-    this.columns = this.getDisplayColumns(loadedRows || []);
+    this.columns = analyseCollectionDisplayColumns(loadedRows, this);
     this.filterable = true;
     this.sortable = true;
     this.editable = true;
@@ -44,61 +100,5 @@ export class CollectionGridDisplay extends GridDisplay {
     this.isDynamicStructure = true;
     this.changeSetKeyFields = ['_id'];
     this.baseCollection = collection;
-  }
-
-  getDisplayColumns(rows) {
-    const res = [];
-    for (const row of rows) {
-      this.getColumnsForObject([], row, res);
-    }
-    return (
-      res.map(col => ({
-        ...col,
-        isChecked: this.isColumnChecked(col),
-      })) || []
-    );
-  }
-
-  getColumnsForObject(basePath, obj, res: any[]) {
-    for (const name of getObjectKeys(obj)) {
-      const uniqueName = [...basePath, name].join('.');
-      let column = res.find(x => x.uniqueName == uniqueName);
-      if (!column) {
-        column = this.getDisplayColumn(basePath, name);
-        if (basePath.length > 0) {
-          const lastIndex1 = _.findLastIndex(res, x => x.parentHeaderText.startsWith(column.parentHeaderText));
-          const lastIndex2 = _.findLastIndex(res, x => x.headerText == column.parentHeaderText);
-          // console.log(uniqueName, lastIndex1, lastIndex2);
-          if (lastIndex1 >= 0) res.splice(lastIndex1 + 1, 0, column);
-          else if (lastIndex2 >= 0) res.splice(lastIndex2 + 1, 0, column);
-          else res.push(column);
-        } else {
-          res.push(column);
-        }
-      }
-      if (_.isPlainObject(obj[name]) || _.isArray(obj[name])) {
-        column.isExpandable = true;
-      }
-
-      if (this.isExpandedColumn(column.uniqueName)) {
-        this.getColumnsForObject([...basePath, name], obj[name], res);
-      }
-    }
-  }
-
-  getDisplayColumn(basePath, columnName) {
-    const uniquePath = [...basePath, columnName];
-    const uniqueName = uniquePath.join('.');
-    return {
-      columnName,
-      headerText: createHeaderText(uniquePath),
-      uniqueName,
-      uniquePath,
-      isStructured: true,
-      parentHeaderText: createHeaderText(basePath),
-      filterType: 'mongo',
-      pureName: this.collection.pureName,
-      schemaName: this.collection.schemaName,
-    };
   }
 }

@@ -36,6 +36,7 @@
   $: {
     if (executeNumber >= 0) {
       resultInfos = [];
+      if (domTabs) domTabs.setValue(0);
     }
   }
 

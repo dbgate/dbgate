@@ -5,7 +5,7 @@
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().formatCode(),
   });
   registerCommand({
@@ -13,7 +13,7 @@
     category: 'Query',
     name: 'Insert SQL Join',
     keyText: 'Ctrl+J',
-    testEnabled: () => getCurrentEditor() != null,
+    testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
   registerFileCommands({
@@ -54,6 +54,8 @@
   import InsertJoinModal from '../modals/InsertJoinModal.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { findEngineDriver } from 'dbgate-tools';
+  import AceEditor from '../query/AceEditor.svelte';
 
   export let tabid;
   export let conid;
@@ -73,6 +75,7 @@
   let domEditor;
 
   $: connection = useConnectionInfo({ conid });
+  $: driver = findEngineDriver($connection, $extensions);
 
   $: effect = useEffect(() => {
     return onSession(sessionId);
@@ -100,6 +103,10 @@
 
   $: if ($tabVisible && domEditor) {
     domEditor?.getEditor()?.focus();
+  }
+
+  export function isSqlEditor() {
+    return !driver?.dialect?.nosql;
   }
 
   export function canKill() {
@@ -225,19 +232,33 @@
 
 <VerticalSplitter isSplitter={visibleResultTabs}>
   <svelte:fragment slot="1">
-    <SqlEditor
-      engine={$connection && $connection.engine}
-      {conid}
-      {database}
-      value={$editorState.value || ''}
-      menu={createMenu()}
-      on:input={e => setEditorData(e.detail)}
-      on:focus={() => {
-        activator.activate();
-        invalidateCommands();
-      }}
-      bind:this={domEditor}
-    />
+    {#if driver?.dialect?.nosql}
+      <AceEditor
+        mode="javascript"
+        value={$editorState.value || ''}
+        menu={createMenu()}
+        on:input={e => setEditorData(e.detail)}
+        on:focus={() => {
+          activator.activate();
+          invalidateCommands();
+        }}
+        bind:this={domEditor}
+      />
+    {:else}
+      <SqlEditor
+        engine={$connection && $connection.engine}
+        {conid}
+        {database}
+        value={$editorState.value || ''}
+        menu={createMenu()}
+        on:input={e => setEditorData(e.detail)}
+        on:focus={() => {
+          activator.activate();
+          invalidateCommands();
+        }}
+        bind:this={domEditor}
+      />
+    {/if}
   </svelte:fragment>
   <svelte:fragment slot="2">
     <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber}>

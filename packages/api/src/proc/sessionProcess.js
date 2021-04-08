@@ -17,12 +17,12 @@ let afterConnectCallbacks = [];
 // let currentHandlers = [];
 
 class TableWriter {
-  constructor(columns, resultIndex) {
+  constructor(structure, resultIndex) {
     this.jslid = uuidv1();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     this.currentRowCount = 0;
     this.currentChangeIndex = 1;
-    fs.writeFileSync(this.currentFile, JSON.stringify({ columns }) + '\n');
+    fs.writeFileSync(this.currentFile, JSON.stringify(structure) + '\n');
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
     this.writeCurrentStats(false, false);
     this.resultIndex = resultIndex;
@@ -92,7 +92,7 @@ class StreamHandler {
 
   recordset(columns) {
     this.closeCurrentWriter();
-    this.currentWriter = new TableWriter(columns, this.resultIndexHolder.value);
+    this.currentWriter = new TableWriter(Array.isArray(columns) ? { columns } : columns, this.resultIndexHolder.value);
     this.resultIndexHolder.value += 1;
 
     // this.writeCurrentStats();

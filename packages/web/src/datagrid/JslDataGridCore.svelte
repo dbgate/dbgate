@@ -60,7 +60,7 @@
 
   export const activator = createActivator('JslDataGridCore', false);
 
-  let loadedRows = [];
+  export let loadedRows = [];
   let domGrid;
 
   let changeIndex = 0;

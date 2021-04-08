@@ -21,7 +21,7 @@ function requirePlugin(packageName, requiredPlugin = null) {
       // @ts-ignore
       module = __non_webpack_require__(modulePath);
     } catch (err) {
-      console.error('Failed load webpacked module', err);
+      console.log('Failed load webpacked module', err.message);
       module = require(modulePath);
     }
     requiredPlugin = module.__esModule ? module.default : module;

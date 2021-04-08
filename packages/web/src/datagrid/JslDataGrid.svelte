@@ -10,20 +10,27 @@
 
   export let jslid;
 
+  let loadedRows;
+
   $: info = useFetch({
     params: { jslid },
     url: 'jsldata/get-info',
     defaultValue: {},
   });
 
-  $: columns = ($info && $info.columns) || [];
+  // $: columns = ($info && $info.columns) || [];
   const config = writable(createGridConfig());
   const cache = writable(createGridCache());
 
-  $: display = new JslGridDisplay(jslid, columns, $config, config.update, $cache, cache.update);
-
+  $: display = new JslGridDisplay(jslid, $info, $config, config.update, $cache, cache.update, loadedRows);
 </script>
 
 {#key jslid}
-  <DataGrid {display} {jslid} gridCoreComponent={JslDataGridCore} />
+  <DataGrid
+    {display}
+    {jslid}
+    gridCoreComponent={JslDataGridCore}
+    bind:loadedRows
+    isDynamicStructure={$info?.__isDynamicStructure}
+  />
 {/key}
