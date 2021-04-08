@@ -15,7 +15,11 @@
   const { values, setFieldValue } = getFormContext();
   $: dbinfo = useDatabaseInfo({ conid: $values[conidName], database: $values[databaseName] });
 
-  $: tablesOptions = [...(($dbinfo && $dbinfo.tables) || []), ...(($dbinfo && $dbinfo.views) || [])]
+  $: tablesOptions = [
+    ...(($dbinfo && $dbinfo.tables) || []),
+    ...(($dbinfo && $dbinfo.views) || []),
+    ...(($dbinfo && $dbinfo.collections) || []),
+  ]
     .filter(x => !$values[schemaName] || x.schemaName == $values[schemaName])
     .map(x => ({
       value: x.pureName,

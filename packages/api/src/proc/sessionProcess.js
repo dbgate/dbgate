@@ -22,7 +22,13 @@ class TableWriter {
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     this.currentRowCount = 0;
     this.currentChangeIndex = 1;
-    fs.writeFileSync(this.currentFile, JSON.stringify(structure) + '\n');
+    fs.writeFileSync(
+      this.currentFile,
+      JSON.stringify({
+        ...structure,
+        __isStreamHeader: true,
+      }) + '\n'
+    );
     this.currentStream = fs.createWriteStream(this.currentFile, { flags: 'a' });
     this.writeCurrentStats(false, false);
     this.resultIndex = resultIndex;

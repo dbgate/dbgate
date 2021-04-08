@@ -87,7 +87,7 @@
         schemaName={schemaNameField}
         databaseName={databaseNameField}
         name={tablesField}
-        label="Tables / views"
+        label="Tables / views / collections"
       />
     {/if}
   {/if}

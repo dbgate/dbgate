@@ -8,10 +8,16 @@ class StringifyStream extends stream.Transform {
     this.wasHeader = false;
   }
   _transform(chunk, encoding, done) {
+    let skip = false;
     if (!this.wasHeader) {
-      if (this.header) this.push(JSON.stringify(chunk) + '\n');
+      skip =
+        (chunk.__isStreamHeader ||
+          // TODO remove isArray test
+          Array.isArray(chunk.columns)) &&
+        !this.header;
       this.wasHeader = true;
-    } else {
+    }
+    if (!skip) {
       this.push(JSON.stringify(chunk) + '\n');
     }
     done();

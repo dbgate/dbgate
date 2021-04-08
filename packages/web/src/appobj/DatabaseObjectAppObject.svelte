@@ -202,6 +202,10 @@
           },
         },
       },
+      {
+        label: 'Export',
+        isExport: true,
+      },
     ],
   };
 
