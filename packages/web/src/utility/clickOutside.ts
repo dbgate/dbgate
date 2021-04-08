@@ -5,11 +5,11 @@ export default function clickOutside(node) {
     }
   };
 
-  document.addEventListener('click', handleClick, true);
+  document.addEventListener('mousedown', handleClick, true);
 
   return {
     destroy() {
-      document.removeEventListener('click', handleClick, true);
+      document.removeEventListener('mousedown', handleClick, true);
     },
   };
 }
