@@ -21,7 +21,7 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import axiosInstance from '../utility/axiosInstance';
-import { registerMenu } from '../utility/contextMenu';
+  import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import FreeTableGrider from './FreeTableGrider';
   import MacroPreviewGrider from './MacroPreviewGrider';
