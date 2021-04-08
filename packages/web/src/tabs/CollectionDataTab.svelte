@@ -118,11 +118,17 @@
 
   export function save() {
     const json = $changeSetStore?.value;
-    showModal(ConfirmNoSqlModal, {
-      json,
-      onConfirm: () => handleConfirmChange(json),
-      engine: display.engine,
-    });
+    const driver = findEngineDriver($connection, $extensions);
+    const script = driver.getCollectionUpdateScript ? driver.getCollectionUpdateScript(json) : null;
+    if (script) {
+      showModal(ConfirmNoSqlModal, {
+        script,
+        onConfirm: () => handleConfirmChange(json),
+        engine: display.engine,
+      });
+    } else {
+      handleConfirmChange(json);
+    }
   }
 
   export function addJsonDocument() {

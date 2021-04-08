@@ -3,11 +3,12 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import JSONTree from '../jsontree/JSONTree.svelte';
+  import AceEditor from '../query/AceEditor.svelte';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
-  export let json;
+  export let script;
   export let onConfirm;
 </script>
 
@@ -16,7 +17,7 @@
     <div slot="header">Save changes</div>
 
     <div class="editor">
-      <JSONTree value={json} />
+      <AceEditor mode="javascript" readOnly value={script} />
     </div>
 
     <div slot="footer">
@@ -37,6 +38,5 @@
     position: relative;
     height: 30vh;
     width: 40vw;
-    overflow: scroll;
   }
 </style>

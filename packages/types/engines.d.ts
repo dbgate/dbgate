@@ -27,11 +27,12 @@ export interface EngineAuthType {
 export interface ReadCollectionOptions {
   pureName: string;
   schemaName?: string;
-  
+
   countDocuments?: boolean;
   skip?: number;
   limit?: number;
 }
+
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -62,6 +63,7 @@ export interface EngineDriver {
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
   updateCollection(pool: any, changeSet: any): Promise<any>;
+  getCollectionUpdateScript(changeSet: any): string;
 
   analyserClass?: any;
   dumperClass?: any;
