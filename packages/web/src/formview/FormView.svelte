@@ -263,7 +263,7 @@
     formDisplay.addFilterColumn(getCellColumn(currentCell));
   }
 
-  export const activator = createActivator('FormView', false, 'DataGridCore');
+  export const activator = createActivator('FormView', false);
 
   const handleTableMouseDown = event => {
     if (event.target.closest('.buttonLike')) return;
@@ -436,91 +436,91 @@
   }
 </script>
 
-{#if isLoading}
-  <LoadingInfo wrapper message="Loading data" />
-{:else}
-  <div class="outer">
-    <div class="wrapper" use:contextMenu={createMenu} bind:clientHeight={wrapperHeight}>
-      {#each columnChunks as chunk, chunkIndex}
-        <table on:mousedown={handleTableMouseDown}>
-          {#each chunk as col, rowIndex}
-            <tr>
-              <td
-                class="header-cell"
-                data-row={rowIndex}
-                data-col={chunkIndex * 2}
-                style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
-                class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
-                bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
-              >
-                <div class="header-cell-inner">
-                  {#if col.foreignKey}
-                    <FontIcon
-                      icon={plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))}
-                      on:click={e => {
-                        e.stopPropagation();
-                        formDisplay.toggleExpandedColumn(col.uniqueName);
-                      }}
-                    />
-                  {:else}
-                    <FontIcon icon="icon invisible-box" />
-                  {/if}
-                  <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
-                  <ColumnLabel
-                    {...col}
-                    headerText={col.columnName}
-                    extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
-                  />
-                </div>
-              </td>
-              <DataGridCell
-                {rowIndex}
-                {col}
-                {rowData}
-                colIndex={chunkIndex * 2 + 1}
-                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
-                isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
-                bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
-                onSetFormView={handleSetFormView}
-                hideContent={!rowData ||
-                  ($inplaceEditorState.cell &&
-                    rowIndex == $inplaceEditorState.cell[0] &&
-                    chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
-              >
-                {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
-                  <InplaceEditor
-                    width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
-                    inplaceEditorState={$inplaceEditorState}
-                    {dispatchInsplaceEditor}
-                    cellValue={rowData[col.uniqueName]}
-                    onSetValue={value => {
-                      former.setCellValue(col.uniqueName, value);
+<div class="outer">
+  <div class="wrapper" use:contextMenu={createMenu} bind:clientHeight={wrapperHeight}>
+    {#each columnChunks as chunk, chunkIndex}
+      <table on:mousedown={handleTableMouseDown}>
+        {#each chunk as col, rowIndex}
+          <tr>
+            <td
+              class="header-cell"
+              data-row={rowIndex}
+              data-col={chunkIndex * 2}
+              style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
+              class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
+              bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
+            >
+              <div class="header-cell-inner">
+                {#if col.foreignKey}
+                  <FontIcon
+                    icon={plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))}
+                    on:click={e => {
+                      e.stopPropagation();
+                      formDisplay.toggleExpandedColumn(col.uniqueName);
                     }}
                   />
+                {:else}
+                  <FontIcon icon="icon invisible-box" />
                 {/if}
-              </DataGridCell>
-            </tr>
-          {/each}
-        </table>
-      {/each}
-      <input
-        type="text"
-        class="focus-field"
-        bind:this={domFocusField}
-        on:focus={() => {
-          activator.activate();
-          invalidateCommands();
-        }}
-        on:keydown={handleKeyDown}
-        on:copy={copyToClipboard}
-      />
-    </div>
-    {#if rowCountInfo}
-      <div class="row-count-label">
-        {rowCountInfo}
-      </div>
-    {/if}
+                <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
+                <ColumnLabel
+                  {...col}
+                  headerText={col.columnName}
+                  extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
+                />
+              </div>
+            </td>
+            <DataGridCell
+              {rowIndex}
+              {col}
+              {rowData}
+              colIndex={chunkIndex * 2 + 1}
+              isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+              isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+              bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
+              onSetFormView={handleSetFormView}
+              hideContent={!rowData ||
+                ($inplaceEditorState.cell &&
+                  rowIndex == $inplaceEditorState.cell[0] &&
+                  chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
+            >
+              {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+                <InplaceEditor
+                  width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                  inplaceEditorState={$inplaceEditorState}
+                  {dispatchInsplaceEditor}
+                  cellValue={rowData[col.uniqueName]}
+                  onSetValue={value => {
+                    former.setCellValue(col.uniqueName, value);
+                  }}
+                />
+              {/if}
+            </DataGridCell>
+          </tr>
+        {/each}
+      </table>
+    {/each}
+    <input
+      type="text"
+      class="focus-field"
+      bind:this={domFocusField}
+      on:focus={() => {
+        activator.activate();
+        invalidateCommands();
+      }}
+      on:keydown={handleKeyDown}
+      on:copy={copyToClipboard}
+    />
   </div>
+  {#if rowCountInfo}
+    <div class="row-count-label">
+      {rowCountInfo}
+    </div>
+  {/if}
+</div>
+
+{#if isLoading}
+  <LoadingInfo wrapper message="Loading data" />
 {/if}
 
 <style>

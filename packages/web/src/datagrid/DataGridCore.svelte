@@ -276,7 +276,7 @@
   export let selectedCellsPublished = () => [];
   // export let generalAllowSave = false;
 
-  export const activator = createActivator('DataGridCore', false, 'FormView');
+  export const activator = createActivator('DataGridCore', false);
 
   const wheelRowCount = 5;
   const tabVisible: any = getContext('tabVisible');

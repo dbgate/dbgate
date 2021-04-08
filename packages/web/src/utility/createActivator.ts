@@ -1,15 +1,18 @@
 import { getContext } from 'svelte';
 import { get_current_component, onMount, setContext } from 'svelte/internal';
 import invalidateCommands from '../commands/invalidateCommands';
-import getAsArray from './getAsArray';
 
 const lastActiveDictionary = {};
 
-export default function createActivator(
-  name: string,
-  activateOnTabVisible: boolean,
-  mutualExclusive: string | string[] = []
-) {
+function isParent(parent, child) {
+  while (child && child.activator) {
+    if (parent == child) return true;
+    child = child.activator.parentActivatorInstance;
+  }
+  return false;
+}
+
+export default function createActivator(name: string, activateOnTabVisible: boolean) {
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
   const tabid = getContext('tabid');
@@ -32,13 +35,20 @@ export default function createActivator(
   });
 
   const activate = () => {
-    lastActiveDictionary[name] = instance;
-    for (const comp of getAsArray(mutualExclusive)) {
-      delete lastActiveDictionary[comp];
+    const toDelete = [];
+    for (const key in lastActiveDictionary) {
+      if (isParent(lastActiveDictionary[key], instance)) continue;
+      if (isParent(instance, lastActiveDictionary[key])) continue;
+      toDelete.push(key);
     }
+    for (const del of toDelete) {
+      delete lastActiveDictionary[del];
+    }
+    lastActiveDictionary[name] = instance;
     if (parentActivatorInstance) {
       parentActivatorInstance.activator.activate();
     }
+    // console.log('Active components', lastActiveDictionary);
   };
 
   const getTabVisible = () => tabVisibleValue;
@@ -47,6 +57,7 @@ export default function createActivator(
     activate,
     tabid,
     getTabVisible,
+    parentActivatorInstance,
   };
 }
 
