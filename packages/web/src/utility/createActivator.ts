@@ -21,17 +21,19 @@ export default function createActivator(name: string, activateOnTabVisible: bool
   let tabVisibleValue;
 
   onMount(() => {
-    const unsubscribeTabVisible = tabVisible.subscribe(value => {
-      tabVisibleValue = value;
-      if (activateOnTabVisible) {
-        activate();
-      }
-    });
-    invalidateCommands();
+    if (tabVisible) {
+      const unsubscribeTabVisible = tabVisible.subscribe(value => {
+        tabVisibleValue = value;
+        if (activateOnTabVisible) {
+          activate();
+        }
+      });
+      invalidateCommands();
 
-    return () => {
-      unsubscribeTabVisible();
-    };
+      return () => {
+        unsubscribeTabVisible();
+      };
+    }
   });
 
   const activate = () => {
