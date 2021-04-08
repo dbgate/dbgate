@@ -71,7 +71,11 @@ async function handleCreateDatabase({ name }) {
   const driver = requireEngineDriver(storedConnection);
   systemConnection = await connectUtility(driver, storedConnection);
   console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
-  await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
+  if (driver.createDatabase) {
+    await driver.createDatabase(systemConnection, name);
+  } else {
+    await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
+  }
   await handleRefresh();
 }
 

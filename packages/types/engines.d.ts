@@ -64,6 +64,7 @@ export interface EngineDriver {
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
   updateCollection(pool: any, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any): string;
+  createDatabase(pool: any, name: string): Promise;
 
   analyserClass?: any;
   dumperClass?: any;
