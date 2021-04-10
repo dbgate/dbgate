@@ -45,6 +45,12 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
     if (procedureInfo) dmp.put('^execute %f', procedureInfo);
     return dmp.s;
   }
+  if (scriptTemplate == 'dropCollection') {
+    return `db.collection('${props.pureName}').drop()`;
+  }
+  if (scriptTemplate == 'findCollection') {
+    return `db.collection('${props.pureName}').find()`;
+  }
 
   return null;
 }

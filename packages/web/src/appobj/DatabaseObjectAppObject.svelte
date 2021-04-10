@@ -206,6 +206,17 @@
         label: 'Export',
         isExport: true,
       },
+      {
+        divider: true,
+      },
+      {
+        label: 'JS: dropCollection()',
+        scriptTemplate: 'dropCollection',
+      },
+      {
+        label: 'JS: find()',
+        scriptTemplate: 'findCollection',
+      },
     ],
   };
 
