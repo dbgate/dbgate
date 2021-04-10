@@ -6,23 +6,27 @@
     getProps?: any;
     formatter?: any;
     slot?: number;
+    isHighlighted?: Function;
   }
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
 
-  import { compact } from 'lodash';
   import { onMount } from 'svelte';
   import keycodes from '../utility/keycodes';
+  import { createEventDispatcher } from 'svelte';
 
   export let columns: TableControlColumn[];
   export let rows;
   export let focusOnCreate = false;
   export let selectable = false;
   export let selectedIndex = 0;
+  export let clickable = false;
 
   export let domTable;
+
+  const dispatch = createEventDispatcher();
 
   $: columnList = _.compact(_.flatten(columns));
 
@@ -58,15 +62,19 @@
     {#each rows as row, index}
       <tr
         class:selected={selectable && selectedIndex == index}
+        class:clickable
         on:click={() => {
           if (selectable) {
             selectedIndex = index;
             domTable.focus();
           }
+          if (clickable) {
+            dispatch('clickrow', row);
+          }
         }}
       >
         {#each columnList as col}
-          <td>
+          <td class:isHighlighted={col.isHighlighted && col.isHighlighted(row)}>
             {#if col.component}
               <svelte:component this={col.component} {...col.getProps(row)} />
             {:else if col.formatter}
@@ -106,6 +114,9 @@
   tbody tr.selected {
     background: var(--theme-bg-selected);
   }
+  tbody tr.clickable:hover {
+    background: var(--theme-bg-hover);
+  }
   thead td {
     border: 1px solid var(--theme-border);
     background-color: var(--theme-bg-1);
@@ -114,5 +125,9 @@
   tbody td {
     border: 1px solid var(--theme-border);
     padding: 5px;
+  }
+
+  td.isHighlighted {
+    background-color: var(--theme-bg-1);
   }
 </style>

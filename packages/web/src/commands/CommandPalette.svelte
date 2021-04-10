@@ -19,7 +19,7 @@
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
-  import { commands, getVisibleCommandPalette, visibleCommandPalette } from '../stores';
+  import { commands, commandsCustomized, getVisibleCommandPalette, visibleCommandPalette } from '../stores';
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
   import registerCommand from './registerCommand';
@@ -40,7 +40,7 @@
   });
 
   $: sortedComands = _.sortBy(
-    Object.values($commands).filter(x => x.enabled),
+    Object.values($commandsCustomized).filter(x => x.enabled),
     'text'
   );
 

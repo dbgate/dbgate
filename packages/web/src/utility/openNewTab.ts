@@ -20,7 +20,6 @@ export default async function openNewTab(newTab, initialData = undefined, option
 
   let existing = null;
 
-
   const { savedFile, savedFolder, savedFilePath } = newTab.props || {};
   if (savedFile || savedFilePath) {
     existing = oldTabs.find(

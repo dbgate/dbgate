@@ -203,6 +203,20 @@ registerCommand({
     }),
 });
 
+registerCommand({
+  id: 'settings.commands',
+  category: 'Settings',
+  name: 'Keyboard shortcuts',
+  onClick: () => {
+    openNewTab({
+      title: 'Keyboard Shortcuts',
+      icon: 'icon keyboard',
+      tabComponent: 'CommandListTab',
+      props: {},
+    });
+  },
+});
+
 export function registerFileCommands({
   idPrefix,
   category,

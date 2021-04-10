@@ -17,6 +17,7 @@
     'icon connection': 'mdi mdi-connection',
     'icon cell-data': 'mdi mdi-details',
     'icon sql-generator': 'mdi mdi-cog-transfer',
+    'icon keyboard': 'mdi mdi-keyboard-settings',
 
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',

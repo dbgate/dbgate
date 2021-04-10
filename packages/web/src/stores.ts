@@ -41,6 +41,16 @@ export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
+export const customKeyboardShortcuts = writableWithStorage({}, 'customKeyboardShortcuts');
+export const commandsCustomized = derived(
+  [commands, customKeyboardShortcuts],
+  ([$commands, $customKeyboardShortcuts]) =>
+    _.mapValues($commands, (v, k) => ({
+      // @ts-ignore
+      ...v,
+      ...$customKeyboardShortcuts[k],
+    }))
+);
 
 export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
 export const leftPanelWidth = writable(300);

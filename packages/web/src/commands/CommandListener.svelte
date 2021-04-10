@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  import { commands, visibleCommandPalette } from '../stores';
+  import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
 
@@ -12,7 +12,7 @@
 
     // console.log('keyText', keyText);
 
-    const commandsValue = get(commands);
+    const commandsValue = get(commandsCustomized);
     const commandsFiltered: any = Object.values(commandsValue).filter(
       (x: any) =>
         x.keyText &&

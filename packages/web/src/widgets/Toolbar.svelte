@@ -10,7 +10,7 @@
   import _ from 'lodash';
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
   import runCommand from '../commands/runCommand';
-  import { commands } from '../stores';
+  import { commands, commandsCustomized } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useFavorites } from '../utility/metadataLoaders';
   import ToolbarButton from './ToolbarButton.svelte';
@@ -20,7 +20,7 @@
   $: favorites = useFavorites();
 
   $: list = _.sortBy(
-    Object.values($commands).filter(x => (x.enabled || x.showDisabled) && x.toolbar && x.onClick),
+    Object.values($commandsCustomized).filter(x => (x.enabled || x.showDisabled) && x.toolbar && x.onClick),
     x => (x.toolbarOrder == null ? 100 : x.toolbarOrder)
   );
 </script>

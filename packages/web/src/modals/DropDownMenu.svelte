@@ -48,7 +48,7 @@
   import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
-  import { commands } from '../stores';
+  import { commands, commandsCustomized } from '../stores';
   import { extractMenuItems } from '../utility/contextMenu';
 
   export let items;
@@ -70,7 +70,7 @@
   });
 
   $: extracted = extractMenuItems(items);
-  $: compacted = _.compact(extracted.map(x => mapItem(x, $commands)));
+  $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
   $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
 </script>
 

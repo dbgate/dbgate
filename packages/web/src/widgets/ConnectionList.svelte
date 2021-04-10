@@ -8,7 +8,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
-  import { commands, openedConnections } from '../stores';
+  import { commands, commandsCustomized, openedConnections } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import ToolbarButton from './ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
@@ -43,7 +43,7 @@
     isExpandable={data => $openedConnections.includes(data._id)}
     {filter}
   />
-  {#if $connections && $connections.length == 0 && $commands['new.connection']?.enabled}
+  {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
     <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>
       Add new connection
     </ToolbarButton>
