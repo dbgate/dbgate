@@ -5,6 +5,7 @@
 
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import getElectron from '../utility/getElectron';
+  import FormPasswordField from '../forms/FormPasswordField.svelte';
 
   const { values, setFieldValue } = getFormContext();
   const electron = getElectron();
@@ -15,5 +16,10 @@
 <FormCheckboxField label="Use SSL" name="useSsl" />
 <FormElectronFileSelector label="CA Cert (optional)" name="sslCaFile" disabled={!useSsl || !electron} />
 <FormElectronFileSelector label="Certificate (optional)" name="sslCertFile" disabled={!useSsl || !electron} />
+<FormPasswordField
+  label="Certificate key file password (optional)"
+  name="sslCertFilePassword"
+  disabled={!useSsl || !electron}
+/>
 <FormElectronFileSelector label="Key file (optional)" name="sslKeyFile" disabled={!useSsl || !electron} />
 <FormCheckboxField label="Reject unauthorized" name="sslRejectUnauthorized" disabled={!useSsl} />

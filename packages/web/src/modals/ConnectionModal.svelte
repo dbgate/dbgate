@@ -86,7 +86,7 @@
           </div>
         {/if}
         {#if !isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'error'}
-          <div>
+          <div class="error-result">
             Connect failed: <FontIcon icon="img error" />
             {sqlConnectResult.error}
           </div>
@@ -112,5 +112,9 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .error-result {
+    white-space: normal;
   }
 </style>

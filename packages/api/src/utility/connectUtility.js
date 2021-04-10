@@ -38,6 +38,10 @@ async function connectUtility(driver, storedConnection) {
       connection.ssl.key = await fs.readFile(connection.sslKeyFile);
     }
 
+    if (connection.sslCertFilePassword) {
+      connection.ssl.password = connection.sslCertFilePassword;
+    }
+
     if (!connection.ssl.key && !connection.ssl.ca && !connection.ssl.cert) {
       // TODO: provide this as an option in settings
       // or per-connection as 'reject self-signed certs'
