@@ -42,7 +42,7 @@
             label: `${format.name} files(s)`,
             directions: getFileFormatDirections(format),
           })),
-          { value: 'query', label: 'SQL Query', directions: ['source'] },
+          { value: 'query', label: 'Query', directions: ['source'] },
           { value: 'archive', label: 'Archive', directions: ['source', 'target'] },
         ];
 

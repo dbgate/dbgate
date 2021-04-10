@@ -1,4 +1,23 @@
 <script context="module" lang="ts">
+  const getCurrentEditor = () => getActiveComponent('CollectionDataGridCore');
+
+  registerCommand({
+    id: 'collectionDataGrid.openQuery',
+    category: 'Data grid',
+    name: 'Open query',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().openQuery(),
+  });
+
+  registerCommand({
+    id: 'collectionDataGrid.export',
+    category: 'Data grid',
+    name: 'Export',
+    keyText: 'Ctrl+E',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().exportGrid(),
+  });
+
   function buildGridMongoCondition(props) {
     const filters = props?.display?.config?.filters;
 
@@ -100,6 +119,7 @@
   import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
+  import registerCommand from '../commands/registerCommand';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
@@ -107,6 +127,8 @@
   import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
+  import { registerMenu } from '../utility/contextMenu';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
@@ -129,6 +151,8 @@
 
   export let loadedRows = [];
 
+  export const activator = createActivator('CollectionDataGridCore', false);
+
   // $: console.log('loadedRows BIND', loadedRows);
   $: grider = new ChangeSetGrider(
     loadedRows,
@@ -141,6 +165,44 @@
   );
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
+
+  function getExportQuery() {
+    return `db.collection('${pureName}')
+      .find(${JSON.stringify(buildGridMongoCondition($$props) || {})})
+      .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
+  }
+
+  export function exportGrid() {
+    const initialValues: any = {};
+    initialValues.sourceStorageType = 'query';
+    initialValues.sourceConnectionId = conid;
+    initialValues.sourceDatabaseName = database;
+    initialValues.sourceSql = getExportQuery();
+    initialValues.sourceList = [pureName];
+    showModal(ImportExportModal, { initialValues });
+  }
+
+  export function openQuery() {
+    openNewTab(
+      {
+        title: 'Query #',
+        icon: 'img sql-file',
+        tabComponent: 'QueryTab',
+        props: {
+          conid,
+          database,
+        },
+      },
+      {
+        editor: getExportQuery(),
+      }
+    );
+  }
+
+  registerMenu(
+    { command: 'collectionDataGrid.openQuery', tag: 'export' },
+    { command: 'collectionDataGrid.export', tag: 'export' }
+  );
 </script>
 
 <LoadingDataGridCore
