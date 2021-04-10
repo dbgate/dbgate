@@ -11,11 +11,11 @@ async function generateTableSql(extensions, props, dumpProc, format = false) {
   return format ? sqlFormatter.format(dmp.s) : dmp.s;
 }
 
-export default async function applySqlTemplate(sqlTemplate, extensions, props) {
-  if (sqlTemplate == 'CREATE TABLE') {
+export default async function applyScriptTemplate(scriptTemplate, extensions, props) {
+  if (scriptTemplate == 'CREATE TABLE') {
     return generateTableSql(extensions, props, (dmp, tableInfo) => dmp.createTable(tableInfo));
   }
-  if (sqlTemplate == 'SELECT') {
+  if (scriptTemplate == 'SELECT') {
     return generateTableSql(
       extensions,
       props,
@@ -29,14 +29,14 @@ export default async function applySqlTemplate(sqlTemplate, extensions, props) {
       true
     );
   }
-  if (sqlTemplate == 'CREATE OBJECT') {
+  if (scriptTemplate == 'CREATE OBJECT') {
     const objectInfo = await getSqlObjectInfo(props);
     if (objectInfo) {
       if (objectInfo.requiresFormat && objectInfo.createSql) return sqlFormatter.format(objectInfo.createSql);
       else return objectInfo.createSql;
     }
   }
-  if (sqlTemplate == 'EXECUTE PROCEDURE') {
+  if (scriptTemplate == 'EXECUTE PROCEDURE') {
     const procedureInfo = await getSqlObjectInfo(props);
     const connection = await getConnectionInfo(props);
 

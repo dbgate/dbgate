@@ -61,11 +61,11 @@
       },
       {
         label: 'SQL: CREATE TABLE',
-        sqlTemplate: 'CREATE TABLE',
+        scriptTemplate: 'CREATE TABLE',
       },
       {
         label: 'SQL: SELECT',
-        sqlTemplate: 'SELECT',
+        scriptTemplate: 'SELECT',
       },
       {
         label: 'SQL Generator: CREATE TABLE',
@@ -123,15 +123,15 @@
       },
       {
         label: 'SQL: CREATE VIEW',
-        sqlTemplate: 'CREATE OBJECT',
+        scriptTemplate: 'CREATE OBJECT',
       },
       {
         label: 'SQL: CREATE TABLE',
-        sqlTemplate: 'CREATE TABLE',
+        scriptTemplate: 'CREATE TABLE',
       },
       {
         label: 'SQL: SELECT',
-        sqlTemplate: 'SELECT',
+        scriptTemplate: 'SELECT',
       },
       {
         label: 'SQL Generator: CREATE VIEW',
@@ -149,11 +149,11 @@
     procedures: [
       {
         label: 'SQL: CREATE PROCEDURE',
-        sqlTemplate: 'CREATE OBJECT',
+        scriptTemplate: 'CREATE OBJECT',
       },
       {
         label: 'SQL: EXECUTE',
-        sqlTemplate: 'EXECUTE PROCEDURE',
+        scriptTemplate: 'EXECUTE PROCEDURE',
       },
       {
         label: 'SQL Generator: CREATE PROCEDURE',
@@ -171,7 +171,7 @@
     functions: [
       {
         label: 'SQL: CREATE FUNCTION',
-        sqlTemplate: 'CREATE OBJECT',
+        scriptTemplate: 'CREATE OBJECT',
       },
       {
         label: 'SQL Generator: CREATE FUNCTION',
@@ -211,7 +211,7 @@
 
   export async function openDatabaseObjectDetail(
     tabComponent,
-    sqlTemplate,
+    scriptTemplate,
     { schemaName, pureName, conid, database, objectTypeField },
     forceNewTab,
     initialData
@@ -224,17 +224,17 @@
 
     openNewTab(
       {
-        title: sqlTemplate ? 'Query #' : pureName,
+        title: scriptTemplate ? 'Query #' : pureName,
         tooltip,
-        icon: sqlTemplate ? 'img sql-file' : icons[objectTypeField],
-        tabComponent: sqlTemplate ? 'QueryTab' : tabComponent,
+        icon: scriptTemplate ? 'img sql-file' : icons[objectTypeField],
+        tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         props: {
           schemaName,
           pureName,
           conid,
           database,
           objectTypeField,
-          initialArgs: sqlTemplate ? { sqlTemplate } : null,
+          initialArgs: scriptTemplate ? { scriptTemplate } : null,
         },
       },
       initialData,
@@ -387,7 +387,7 @@
               database: data.database,
             });
           } else {
-            openDatabaseObjectDetail(menu.tab, menu.sqlTemplate, data, menu.forceNewTab, menu.initialData);
+            openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
           }
         },
       };

@@ -40,7 +40,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import applySqlTemplate from '../utility/applySqlTemplate';
+  import applyScriptTemplate from '../utility/applyScriptTemplate';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
@@ -207,8 +207,8 @@
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     loadFromArgs:
-      initialArgs && initialArgs.sqlTemplate
-        ? () => applySqlTemplate(initialArgs.sqlTemplate, $extensions, $$props)
+      initialArgs && initialArgs.scriptTemplate
+        ? () => applyScriptTemplate(initialArgs.scriptTemplate, $extensions, $$props)
         : null,
   });
 
