@@ -64,6 +64,9 @@
           (rowStatus.deletedFields && rowStatus.deletedFields.has(col.uniqueName))}
         {onSetFormView}
         {isDynamicStructure}
+        isAutoFillMarker={autofillMarkerCell &&
+          autofillMarkerCell[1] == col.colIndex &&
+          autofillMarkerCell[0] == rowIndex}
       />
     {/if}
   {/each}

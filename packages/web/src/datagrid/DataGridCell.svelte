@@ -39,6 +39,7 @@
   export let hideContent = false;
   export let onSetFormView;
   export let isDynamicStructure = false;
+  export let isAutoFillMarker = false;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 </script>
@@ -114,6 +115,10 @@
       <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
     {/if}
   {/if}
+
+  {#if isAutoFillMarker}
+    <div class="autoFillMarker autofillHandleMarker" />
+  {/if}
 </td>
 
 <!-- {#if _.isArray(value.data)}
@@ -174,5 +179,16 @@
   }
   .value {
     color: var(--theme-icon-green);
+  }
+
+  .autoFillMarker {
+    width: 8px;
+    height: 8px;
+    background: var(--theme-bg-selected-point);
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    overflow: visible;
+    cursor: crosshair;
   }
 </style>
