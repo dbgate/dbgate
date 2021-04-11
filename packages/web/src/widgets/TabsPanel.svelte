@@ -101,13 +101,14 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import { tick } from 'svelte';
   import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import FontIcon from '../icons/FontIcon.svelte';
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs } from '../stores';
+  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
@@ -128,6 +129,8 @@
 
   $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
   $: dbKeys = _.keys(tabsByDb).sort();
+
+  $: scrollInViewTab($activeTabId);
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -185,6 +188,14 @@
     }
     $currentDatabase = null;
   };
+
+  async function scrollInViewTab(tabid) {
+    await tick();
+    const element = document.getElementById(`file-tab-item-${tabid}`);
+    if (element) {
+      element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    }
+  }
 </script>
 
 {#each dbKeys as dbKey}
@@ -200,6 +211,7 @@
     <div class="db-group">
       {#each _.sortBy(tabsByDb[dbKey], ['title', 'tabid']) as tab}
         <div
+          id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"
           class:selected={tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
