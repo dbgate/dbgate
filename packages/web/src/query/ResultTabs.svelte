@@ -1,17 +1,24 @@
 <script lang="ts">
   import _ from 'lodash';
 
-  import { tick } from 'svelte';
+  import { onMount, tick } from 'svelte';
 
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import TabControl from '../elements/TabControl.svelte';
+  import { allResultsInOneTabDefault } from '../stores';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
+  import AllResultsTab from './AllResultsTab.svelte';
 
   export let tabs = [];
   export let sessionId;
   export let executeNumber;
 
+  onMount(() => {
+    allResultsInOneTab = $allResultsInOneTabDefault;
+  });
+
+  let allResultsInOneTab = null;
   let resultInfos = [];
   let domTabs;
 
@@ -23,14 +30,28 @@
     if (!currentTab?.isResult) domTabs.setValue(_.findIndex(allTabs, x => x.isResult));
   };
 
+  $: oneTab = allResultsInOneTab ?? $allResultsInOneTabDefault;
+
   $: allTabs = [
     ...tabs,
-    ...resultInfos.map((info, index) => ({
-      label: `Result ${index + 1}`,
-      isResult: true,
-      component: JslDataGrid,
-      props: { jslid: info.jslid },
-    })),
+
+    ...(oneTab
+      ? [
+          {
+            label: 'Results',
+            isResult: true,
+            component: AllResultsTab,
+            props: {
+              resultInfos,
+            },
+          },
+        ]
+      : resultInfos.map((info, index) => ({
+          label: `Result ${index + 1}`,
+          isResult: true,
+          component: JslDataGrid,
+          props: { jslid: info.jslid },
+        }))),
   ];
 
   $: {
@@ -53,9 +74,22 @@
     return () => {};
   }
   $: $effect;
+
+  function setOneTabValue(value) {
+    allResultsInOneTab = value;
+    $allResultsInOneTabDefault = value;
+  }
 </script>
 
-<TabControl bind:this={domTabs} tabs={allTabs}>
+<TabControl
+  bind:this={domTabs}
+  tabs={allTabs}
+  menu={[
+    oneTab
+      ? { text: 'Every result in single tab', onClick: () => setOneTabValue(false) }
+      : { text: 'All results in one tab', onClick: () => setOneTabValue(true) },
+  ]}
+>
   <slot name="0" slot="0" />
   <slot name="1" slot="1" />
   <slot name="2" slot="2" />

@@ -42,6 +42,7 @@ export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
 export const customKeyboardShortcuts = writableWithStorage({}, 'customKeyboardShortcuts');
+export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const commandsCustomized = derived(
   [commands, customKeyboardShortcuts],
   ([$commands, $customKeyboardShortcuts]) =>

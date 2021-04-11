@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
+  import DropDownButton from './DropDownButton.svelte';
 
   interface TabDef {
     label: string;
@@ -10,6 +11,7 @@
 
   export let tabs: TabDef[];
   export let value = 0;
+  export let menu = null;
   export let isInline = false;
 
   export function setValue(index) {
@@ -29,6 +31,9 @@
         </span>
       </div>
     {/each}
+    {#if menu}
+      <DropDownButton {menu} />
+    {/if}
   </div>
 
   <div class="content-container">

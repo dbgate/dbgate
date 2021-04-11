@@ -66,7 +66,8 @@
         {isDynamicStructure}
         isAutoFillMarker={autofillMarkerCell &&
           autofillMarkerCell[1] == col.colIndex &&
-          autofillMarkerCell[0] == rowIndex}
+          autofillMarkerCell[0] == rowIndex &&
+          grider.editable}
       />
     {/if}
   {/each}
