@@ -72,6 +72,7 @@
   }
   .iconbar {
     position: fixed;
+    display: flex;
     left: 0;
     top: var(--dim-header-top);
     bottom: var(--dim-statusbar-height);
