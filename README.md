@@ -6,7 +6,7 @@
 
 # DbGate - database administration tool
 
-DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL and SQL Server.
+DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL, SQL Server and MongoDB.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
@@ -15,13 +15,15 @@ DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL an
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
 ## Features
-* Connect to Microsoft SQL Server, Postgre SQL, MySQL
+* Connect to Microsoft SQL Server, Postgre SQL, MySQL, MongoDB
 * Table data editing, with SQL change script preview
 * Master/detail views
 * Query designer
 * Form view for comfortable work with tables with many columns
-* Explore tables, views, procedures, functions
+* JSON view on MognoDB collections
+* Explore tables, views, procedures, functions, MongoDB collections
 * SQL editor, execute SQL script, SQL code formatter, SQL code completion, SQL join wizard
+* Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
 * Import, export from/to CSV, Excel, JSON
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
