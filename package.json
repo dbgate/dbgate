@@ -3,7 +3,8 @@
   "version": "4.1.0",
   "name": "dbgate-all",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "plugins/*"
   ],
   "scripts": {
     "start:api": "yarn workspace dbgate-api start",
@@ -22,6 +23,7 @@
     "build:app": "cd app && yarn install && yarn build",
     "build:api": "yarn workspace dbgate-api build",
     "build:web:docker": "yarn workspace dbgate-web build",
+    "build:plugins:frontend": "yarn workspace dbgate-plugin-csv build:frontend && yarn workspace dbgate-plugin-excel build:frontend && yarn workspace dbgate-plugin-mysql build:frontend && yarn workspace dbgate-plugin-mssql build:frontend && yarn workspace dbgate-plugin-mongo build:frontend && yarn workspace dbgate-plugin-postgres build:frontend &&",
     "build:app:local": "cd app && yarn build:local",
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",
