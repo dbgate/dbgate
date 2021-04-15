@@ -23,7 +23,11 @@
     <div class="ml-2">
       <div class="flex">
         <div class="bold">{packageManifest.name}</div>
-        <div class="ml-1">{packageManifest.version}</div>
+        {#if packageManifest.isPackaged}
+          <div class="ml-1 builtin">(builtin)</div>
+        {:else}
+          <div class="ml-1">{packageManifest.version}</div>
+        {/if}
       </div>
       <div>
         {packageManifest.description}
@@ -47,5 +51,9 @@
   .icon {
     width: 50px;
     height: 50px;
+  }
+
+  .builtin {
+    color: var(--theme-font-3);
   }
 </style>

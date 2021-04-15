@@ -2,6 +2,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const cleanDirectory = require('./cleanDirectory');
+const _isRunOnSource = require('./_isRunOnSource');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
@@ -39,6 +40,13 @@ const pluginsdir = dirFunc('plugins');
 const archivedir = dirFunc('archive');
 const filesdir = dirFunc('files');
 
+function packagedPluginsDir() {
+  if (_isRunOnSource()) {
+    return path.resolve(__dirname, '../../../../plugins');
+  }
+  return path.resolve(__dirname, '../plugins');
+}
+
 module.exports = {
   datadir,
   jsldir,
@@ -48,4 +56,5 @@ module.exports = {
   ensureDirectory,
   pluginsdir,
   filesdir,
+  packagedPluginsDir,
 };

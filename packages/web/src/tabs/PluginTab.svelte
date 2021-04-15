@@ -5,7 +5,7 @@
 <script lang="ts">
   import compareVersions from 'compare-versions';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
-import Markdown from '../elements/Markdown.svelte';
+  import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';
 
   import axiosInstance from '../utility/axiosInstance';
@@ -24,6 +24,7 @@ import Markdown from '../elements/Markdown.svelte';
   });
   $: readme = $info?.readme;
   $: manifest = $info?.manifest;
+  $: isPackaged = $info?.isPackaged;
 
   const handleInstall = async () => {
     axiosInstance.post('plugins/install', { packageName });
@@ -59,17 +60,21 @@ import Markdown from '../elements/Markdown.svelte';
           <span> | </span>
           <span>{installedFound ? installedFound.version : manifest.version}</span>
         </div>
-        <div class="mt-1">
-          {#if hasPermission('plugins/install') && !installedFound}
-            <FormStyledButton type="button" value="Install" on:click={handleInstall} />
-          {/if}
-          {#if hasPermission('plugins/install') && installedFound}
-            <FormStyledButton type="button" value="Uninstall" on:click={handleUninstall} />
-          {/if}
-          {#if hasPermission('plugins/install') && installedFound && onlineFound && compareVersions(onlineFound.version, installedFound.version) > 0}
-            <FormStyledButton type="button" value="Upgrade" on:click={handleUpgrade} />
-          {/if}
-        </div>
+        {#if isPackaged}
+          <div class="mt-2">Plugin is part of DbGate installation</div>
+        {:else}
+          <div class="mt-1">
+            {#if hasPermission('plugins/install') && !installedFound}
+              <FormStyledButton type="button" value="Install" on:click={handleInstall} />
+            {/if}
+            {#if hasPermission('plugins/install') && installedFound}
+              <FormStyledButton type="button" value="Uninstall" on:click={handleUninstall} />
+            {/if}
+            {#if hasPermission('plugins/install') && installedFound && onlineFound && compareVersions(onlineFound.version, installedFound.version) > 0}
+              <FormStyledButton type="button" value="Upgrade" on:click={handleUpgrade} />
+            {/if}
+          </div>
+        {/if}
       </div>
     </div>
     <Markdown source={readme} />

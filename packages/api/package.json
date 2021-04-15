@@ -33,7 +33,7 @@
     "express-basic-auth": "^1.2.0",
     "express-fileupload": "^1.2.0",
     "find-free-port": "^2.0.0",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.1.0",
     "http": "^0.0.0",
     "json-stable-stringify": "^1.0.1",
     "line-reader": "^0.4.0",
@@ -56,6 +56,7 @@
     "build": "webpack"
   },
   "devDependencies": {
+    "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.149",
     "dbgate-types": "^4.0.0",
     "env-cmd": "^10.1.0",

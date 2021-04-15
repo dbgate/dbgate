@@ -1,6 +1,8 @@
 const path = require('path');
-const { pluginsdir } = require('../utility/directories');
+const fs = require('fs');
+const { pluginsdir, packagedPluginsDir } = require('../utility/directories');
 const nativeModules = require('../nativeModules');
+const _isRunOnSource = require('../utility/_isRunOnSource');
 
 const loadedPlugins = {};
 
@@ -9,13 +11,25 @@ const dbgateEnv = {
   nativeModules,
 };
 
+function getModulePath(packageName) {
+  const packagedModulePath = _isRunOnSource()
+    ? path.join(packagedPluginsDir(), packageName, 'src', 'backend', 'index.js')
+    : path.join(packagedPluginsDir(), packageName, 'dist', 'backend.js');
+
+  if (fs.existsSync(packagedModulePath)) {
+    return packagedModulePath;
+  }
+
+  return path.join(pluginsdir(), packageName, 'dist', 'backend.js');
+}
+
 function requirePlugin(packageName, requiredPlugin = null) {
   if (!packageName) throw new Error('Missing packageName in plugin');
   if (loadedPlugins[packageName]) return loadedPlugins[packageName];
 
   if (requiredPlugin == null) {
     let module;
-    const modulePath = path.join(pluginsdir(), packageName, 'dist', 'backend.js');
+    const modulePath = getModulePath(packageName);
     console.log(`Loading module ${packageName} from ${modulePath}`);
     try {
       // @ts-ignore
