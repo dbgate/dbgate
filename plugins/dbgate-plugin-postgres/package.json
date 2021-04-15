@@ -21,6 +21,7 @@
   ],
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",
+    "build:frontend:watch": "webpack --watch --config webpack-frontend.config",
     "build:backend": "webpack --config webpack-backend.config.js",
     "build": "yarn build:frontend && yarn build:backend",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-postgres",
