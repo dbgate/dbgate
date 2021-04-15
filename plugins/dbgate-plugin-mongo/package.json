@@ -4,9 +4,12 @@
   "version": "1.0.1",
   "license": "MIT",
   "author": "Jan Prochazka",
-  "homepage": "https://github.com/dbgate/dbgate-plugin-mongo",
+  "homepage": "https://dbgate.org",
   "description": "MongoDB connect plugin for DbGate",
-  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate"
+  },
   "keywords": [
     "dbgate",
     "dbgateplugin",
@@ -14,7 +17,8 @@
     "mongodb"
   ],
   "files": [
-    "dist"
+    "dist",
+    "icon.svg"    
   ],
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",
@@ -34,5 +38,8 @@
     "mongodb": "^3.6.5",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "mongodb-client-encryption": "^1.2.3"
   }
 }

@@ -2,13 +2,12 @@
   "name": "dbgate-plugin-excel",
   "main": "dist/backend.js",
   "version": "1.0.8",
-  "homepage": "https://github.com/dbgate/dbgate-plugin-excel",
   "description": "MS Excel import/export plugin for DbGate",
+  "homepage": "https://dbgate.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbgate/dbgate-plugin-excel.git"
+    "url": "https://github.com/dbgate/dbgate"
   },
-  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "license": "GPL",
   "keywords": [
@@ -19,7 +18,8 @@
     "dbgateplugin"
   ],
   "files": [
-    "dist"
+    "dist",
+    "icon.svg"    
   ],
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",

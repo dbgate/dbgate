@@ -11,6 +11,10 @@ export function extractPluginIcon(packageManifest) {
     if (match) {
       return `https://raw.githubusercontent.com/${match[1]}/${match[2]}/master/icon.svg`;
     }
+
+    if (tested == 'https://dbgate.org') {
+      return `https://github.com/dbgate/dbgate/raw/master/plugins/${packageManifest.name}/icon.svg`;
+    }
   }
   return 'unknown.svg';
 }

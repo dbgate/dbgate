@@ -99,6 +99,7 @@ module.exports = {
 
     const res = [];
     for (const packageName of _.union(files1, files2)) {
+      if (!/^dbgate-plugin-.*$/.test(packageName)) continue;
       const isPackaged = files1.includes(packageName);
       const manifest = await fs
         .readFile(path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'package.json'), {

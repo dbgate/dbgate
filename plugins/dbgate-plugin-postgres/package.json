@@ -4,12 +4,11 @@
   "version": "1.2.2",
   "license": "MIT",
   "description": "PostgreSQL connector plugin for DbGate",
-  "homepage": "https://github.com/dbgate/dbgate-plugin-postgres",
+  "homepage": "https://dbgate.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbgate/dbgate-plugin-postgres.git"
+    "url": "https://github.com/dbgate/dbgate"
   },
-  "funding": "https://www.paypal.com/paypalme/JanProchazkaCz/30eur",
   "author": "Jan Prochazka",
   "keywords": [
     "dbgate",
@@ -17,7 +16,8 @@
     "postgresql"
   ],
   "files": [
-    "dist"
+    "dist",
+    "icon.svg"    
   ],
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",

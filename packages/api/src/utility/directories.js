@@ -44,7 +44,7 @@ function packagedPluginsDir() {
   if (_isRunOnSource()) {
     return path.resolve(__dirname, '../../../../plugins');
   }
-  return path.resolve(__dirname, '../plugins');
+  return path.resolve(__dirname, '../../plugins/dist');
 }
 
 module.exports = {
