@@ -67,7 +67,8 @@ module.exports = {
       const { latest } = infoResp.data['dist-tags'];
       const manifest = infoResp.data.versions[latest];
       const { readme } = infoResp.data;
-      const isPackaged = await fs.pathExists(path.join(packagedPluginsDir(), packageName));
+      // @ts-ignore
+      const isPackaged = await fs.exists(path.join(packagedPluginsDir(), packageName));
 
       return {
         readme,
@@ -107,7 +108,8 @@ module.exports = {
         })
         .then(x => JSON.parse(x));
       const readmeFile = path.join(pluginsdir(), packageName, 'README.md');
-      if (await fs.pathExists(readmeFile)) {
+      // @ts-ignore
+      if (await fs.exists(readmeFile)) {
         manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
       }
       manifest.isPackaged = isPackaged;
@@ -129,7 +131,8 @@ module.exports = {
   async install({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
-    if (!(await fs.pathExists(dir))) {
+    // @ts-ignore
+    if (!(await fs.exists(dir))) {
       await downloadPackage(packageName, dir);
     }
     socket.emitChanged(`installed-plugins-changed`);
@@ -151,7 +154,8 @@ module.exports = {
   async upgrade({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
-    if (await fs.pathExists(dir)) {
+    // @ts-ignore
+    if (await fs.exists(dir)) {
       await fs.rmdir(dir, { recursive: true });
       await downloadPackage(packageName, dir);
     }
