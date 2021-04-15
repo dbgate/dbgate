@@ -30,6 +30,7 @@ module.exports = {
 fs.writeFileSync('packages/api/src/currentVersion.js', text);
 
 changePackageFile('app', json.version);
+
 changePackageFile('packages/api', json.version);
 changePackageFile('packages/sqltree', json.version);
 changePackageFile('packages/types', json.version);
@@ -38,3 +39,10 @@ changePackageFile('packages/web', json.version);
 changePackageFile('packages/datalib', json.version);
 changePackageFile('packages/dbgate', json.version);
 changePackageFile('packages/filterparser', json.version);
+
+changePackageFile('plugins/dbgate-plugin-csv', json.version);
+changePackageFile('plugins/dbgate-plugin-excel', json.version);
+changePackageFile('plugins/dbgate-plugin-mssql', json.version);
+changePackageFile('plugins/dbgate-plugin-mysql', json.version);
+changePackageFile('plugins/dbgate-plugin-mongo', json.version);
+changePackageFile('plugins/dbgate-plugin-postgres', json.version);

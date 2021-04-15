@@ -89,3 +89,33 @@ jobs:
         working-directory: packages/dbgate
         run: |
           npm publish
+
+      - name: Publish dbgate-plugin-csv
+        working-directory: plugins/dbgate-plugin-csv
+        run: |
+          npm publish
+
+      - name: Publish dbgate-plugin-excel
+        working-directory: plugins/dbgate-plugin-excel
+        run: |
+          npm publish
+
+      - name: Publish dbgate-plugin-mssql
+        working-directory: plugins/dbgate-plugin-mssql
+        run: |
+          npm publish
+
+      - name: Publish dbgate-plugin-mysql
+        working-directory: plugins/dbgate-plugin-mysql
+        run: |
+          npm publish
+
+      - name: Publish dbgate-plugin-mongo
+        working-directory: plugins/dbgate-plugin-mongo
+        run: |
+          npm publish
+
+      - name: Publish dbgate-plugin-postgres
+        working-directory: plugins/dbgate-plugin-postgres
+        run: |
+          npm publish

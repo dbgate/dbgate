@@ -48,6 +48,10 @@ function packagedPluginsDir() {
   if (platformInfo.isDocker) {
     return path.resolve(__dirname, 'plugins');
   }
+  if (process.argv[2] == 'startNodeWeb') {
+    // node_modules
+    return path.resolve(__dirname, '../../..');
+  }
   return path.resolve(__dirname, '../../plugins');
 }
 
