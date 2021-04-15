@@ -2,40 +2,13 @@ const fs = require('fs-extra');
 const axios = require('axios');
 const path = require('path');
 const { extractPackageName } = require('dbgate-tools');
-const { pluginsdir, datadir, packagedPluginsDir } = require('../utility/directories');
+const { pluginsdir, packagedPluginsDir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const compareVersions = require('compare-versions');
 const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
 const hasPermission = require('../utility/hasPermission');
 const _ = require('lodash');
-
-// async function loadPackageInfo(dir) {
-//   const readmeFile = path.join(dir, 'README.md');
-//   const packageFile = path.join(dir, 'package.json');
-
-//   if (!(await fs.exists(packageFile))) {
-//     return null;
-//   }
-
-//   let readme = null;
-//   let manifest = null;
-//   if (await fs.exists(readmeFile)) readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
-//   if (await fs.exists(packageFile)) manifest = JSON.parse(await fs.readFile(packageFile, { encoding: 'utf-8' }));
-//   return {
-//     readme,
-//     manifest,
-//   };
-// }
-
-// const preinstallPluginMinimalVersions = {
-//   'dbgate-plugin-mssql': '1.2.2',
-//   'dbgate-plugin-mysql': '1.2.2',
-//   'dbgate-plugin-postgres': '1.2.2',
-//   'dbgate-plugin-mongo': '1.0.1',
-//   'dbgate-plugin-csv': '1.0.9',
-//   'dbgate-plugin-excel': '1.0.8',
-// };
 
 module.exports = {
   script_meta: 'get',
@@ -81,16 +54,6 @@ module.exports = {
         error: err.message,
       };
     }
-
-    // const dir = path.join(pluginstmpdir(), packageName);
-    // if (!(await fs.exists(dir))) {
-    //   await downloadPackage(packageName, dir);
-    // }
-    // return await loadPackageInfo(dir);
-    // return await {
-    //   ...loadPackageInfo(dir),
-    //   installed: loadPackageInfo(path.join(pluginsdir(), packageName)),
-    // };
   },
 
   installed_meta: 'get',
@@ -107,7 +70,7 @@ module.exports = {
           encoding: 'utf-8',
         })
         .then(x => JSON.parse(x));
-      const readmeFile = path.join(pluginsdir(), packageName, 'README.md');
+      const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
       // @ts-ignore
       if (await fs.exists(readmeFile)) {
         manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
@@ -116,11 +79,6 @@ module.exports = {
       res.push(manifest);
     }
     return res;
-    // const res = await Promise.all(
-    //   files.map((packageName) =>
-    //     fs.readFile(path.join(pluginsdir(), packageName, 'package.json')).then((x) => JSON.parse(x))
-    //   )
-    // );
   },
 
   // async saveRemovePlugins() {
