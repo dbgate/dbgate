@@ -6,11 +6,17 @@
 
 # DbGate - database administration tool
 
-DbGate is fast and easy to use database manager. Works with MySQL, PostgreSQL, SQL Server and MongoDB.
+DbGate modern, fast and easy to use database manager
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
+
+Supported databases:
+* MySQL
+* PostgreSQL
+* SQL Server
+* MongoDB
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
@@ -58,6 +64,8 @@ Currently following extensions can be implemented using plugins:
 - File format parsers/writers
 - Database engine connectors
 
+Basic set of plugins is part of DbGate git repository and is installed with app. Additional plugins pust be downloaded from NPM (this task is handled by DbGate)
+
 ## How to run development environment
 
 ```sh
@@ -65,7 +73,7 @@ yarn
 yarn start
 ```
 
-If you want to make modifications in TypeScript packages, run TypeScript compiler in watch mode in seconds terminal:
+If you want to make modifications in libraries or plugins, run library compiler in watch mode in the second terminal:
 ```sh
 yarn lib
 ```
@@ -80,7 +88,7 @@ yarn start
 ```
 
 ## How to run built electron app locally
-This mode is very similar to production run of electron app. Electron app forks process with API on dynamically allocated port, works with compiled javascript files (doesn't use localhost:5000)
+This mode is very similar to production run of electron app. Electron app forks process with API on dynamically allocated port, works with compiled javascript files and uses compiled version of plugins (doesn't use localhost:5000)
 
 ```sh
 cd app
