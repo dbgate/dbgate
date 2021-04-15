@@ -13,8 +13,10 @@ build
 dist
 
 app/packages/web/public
+app/packages/plugins
 docker/public
 docker/bundle.js
+docker/plugins
 
 # misc
 .DS_Store

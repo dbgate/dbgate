@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cleanDirectory = require('./cleanDirectory');
 const _isRunOnSource = require('./_isRunOnSource');
+const platformInfo = require('./platformInfo');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
@@ -44,7 +45,10 @@ function packagedPluginsDir() {
   if (_isRunOnSource()) {
     return path.resolve(__dirname, '../../../../plugins');
   }
-  return path.resolve(__dirname, '../../plugins/dist');
+  if (platformInfo.isDocker) {
+    return path.resolve(__dirname, 'plugins');
+  }
+  return path.resolve(__dirname, '../../plugins');
 }
 
 module.exports = {
