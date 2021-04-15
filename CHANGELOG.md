@@ -1,5 +1,13 @@
 # ChangeLog
 
+### 4.1.1
+- CHANGED: Default plugins are now part of installation
+### 4.1.0
+- ADDED: MongoDB support
+- ADDED: Configurable keyboard shortcuts
+- ADDED: JSON row cell data view
+- FIX: Fixed some problems from migration to Svelte
+
 ### 4.0.3
 - FIX: fixes for FireFox (mainly incorrent handle of bind:clientHeight, replaces with resizeobserver)
 ### 4.0.2
