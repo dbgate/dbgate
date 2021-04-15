@@ -27,11 +27,12 @@
     "build:backend": "webpack --config webpack-backend.config.js",
     "build": "yarn build:frontend && yarn build:backend",
     "plugin": "yarn build && dbgate-plugin dbgate-plugin-excel",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-excel",
     "plugout": "dbgate-plugout dbgate-plugin-excel",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "dbgate-plugin-tools": "^1.0.0",
+    "dbgate-plugin-tools": "^1.0.7",
     "lodash": "^4.17.20",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",

@@ -27,11 +27,12 @@
     "build": "yarn build:frontend && yarn build:backend",
     "prepublishOnly": "yarn build",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mssql",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mssql",
     "plugout": "dbgate-plugout dbgate-plugin-mssql"
   },
   "devDependencies": {
     "async-lock": "^1.2.6",
-    "dbgate-plugin-tools": "^1.0.4",
+    "dbgate-plugin-tools": "^1.0.7",
     "dbgate-tools": "^4.0.3-rc.1",
     "tedious": "^9.2.3",
     "webpack": "^4.42.0",

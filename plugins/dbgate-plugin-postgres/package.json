@@ -25,11 +25,12 @@
     "build:backend": "webpack --config webpack-backend.config.js",
     "build": "yarn build:frontend && yarn build:backend",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-postgres",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-postgres",
     "plugout": "dbgate-plugout dbgate-plugin-postgres",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "dbgate-plugin-tools": "^1.0.4",
+    "dbgate-plugin-tools": "^1.0.7",
     "dbgate-tools": "^4.0.3-rc.1",
     "lodash": "^4.17.15",
     "pg": "^7.17.0",

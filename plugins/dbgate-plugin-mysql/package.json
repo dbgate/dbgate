@@ -26,12 +26,13 @@
     "build:backend": "webpack --config webpack-backend.config.js",
     "build": "yarn build:frontend && yarn build:backend",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mysql",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mysql",
     "plugout": "dbgate-plugout dbgate-plugin-mysql",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "@verycrazydog/mysql-parser": "^1.2.0",
-    "dbgate-plugin-tools": "^1.0.4",
+    "dbgate-plugin-tools": "^1.0.7",
     "dbgate-tools": "^4.0.3-rc.1",
     "mysql2": "^2.2.5",
     "webpack": "^4.42.0",

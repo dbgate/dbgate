@@ -25,6 +25,7 @@
     "build:web:docker": "yarn workspace dbgate-web build",
     "build:plugins:frontend": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn build:frontend",
     "build:plugins:frontend:watch": "workspaces-run --parallel --only=\"dbgate-plugin-*\" -- yarn build:frontend:watch",
+    "plugins:copydist": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn copydist",
     "build:app:local": "cd app && yarn build:local",
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",

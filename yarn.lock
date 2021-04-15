@@ -2478,10 +2478,10 @@ date-utils@*:
   resolved "https://registry.yarnpkg.com/date-utils/-/date-utils-1.2.21.tgz#61fb16cdc1274b3c9acaaffe9fc69df8720a2b64"
   integrity sha1-YfsWzcEnSzyayq/+n8ad+HIKK2Q=
 
-dbgate-plugin-tools@^1.0.0, dbgate-plugin-tools@^1.0.4:
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.4.tgz#ab89920126f397550a7e79c5f09fa568f1b83b14"
-  integrity sha512-SWtN2KyptwvMAaoCyaLqvnraBranfd925exdub5Rx9bsPGYQ5v+Hx3v4SWYvK4k7qpqyJglxXaRN8RIMPN6Apg==
+dbgate-plugin-tools@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.7.tgz#b03d456dd0bfee77281189898e51e15b9593a35c"
+  integrity sha512-KI5MfU+gqD067SXBo+5PPSj0415znfKczKCjRbFNCWbFnvDp5aV0816Lk6ZNTHAAMXuZe6gGHey92Ky+BLEsXQ==
   dependencies:
     ncp "^2.0.0"
     pacote "^11.1.13"

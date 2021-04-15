@@ -22,12 +22,13 @@
     "build:backend": "webpack --config webpack-backend.config.js",
     "build": "yarn build:frontend && yarn build:backend",
     "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-mongo",
+    "copydist": "yarn build && yarn pack && dbgate-copydist ../dist/dbgate-plugin-mongo",
     "plugout": "dbgate-plugout dbgate-plugin-mongo",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "byline": "^5.0.0",
-    "dbgate-plugin-tools": "^1.0.4",
+    "dbgate-plugin-tools": "^1.0.7",
     "dbgate-tools": "^4.1.0-rc.1",
     "is-promise": "^4.0.0",
     "mongodb": "^3.6.5",
