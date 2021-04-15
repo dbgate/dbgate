@@ -1,6 +1,6 @@
 {
   "name": "dbgate-plugin-csv",
-  "main": "dist/backend.js",
+  "main": "src/backend/index.js",
   "version": "1.0.9",
   "homepage": "https://dbgate.org",
   "description": "CSV import/export plugin for DbGate",
@@ -9,7 +9,7 @@
     "url": "https://github.com/dbgate/dbgate"
   },
   "author": "Jan Prochazka",
-  "license": "GPL",
+  "license": "MIT",
   "keywords": [
     "csv",
     "import",
@@ -31,8 +31,11 @@
     "plugout": "dbgate-plugout dbgate-plugin-csv",
     "prepublishOnly": "yarn build"
   },
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "csv": "^5.3.2"
+  },
   "devDependencies": {
-    "csv": "^5.3.2",
     "dbgate-plugin-tools": "^1.0.7",
     "lodash": "^4.17.20",
     "webpack": "^4.42.0",
