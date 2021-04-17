@@ -51,7 +51,7 @@ function packagedPluginsDir() {
     // node_modules
     return global['dbgateApiPackagedPluginsPath'];
   }
-  if (platformInfo.isElectron) {
+  if (platformInfo.isElectronBundle) {
     return path.resolve(__dirname, '../../plugins');
   }
   return null;

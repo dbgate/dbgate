@@ -205,6 +205,7 @@ function createWindow() {
   } else {
     const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
       '--dynport',
+      '--is-electron-bundle',
       '--native-modules',
       path.join(__dirname, 'nativeModules'),
       // '../../../src/nativeModules'

@@ -11,23 +11,23 @@ const isDocker = fs.existsSync('/home/dbgate-docker/build');
 const isDevMode = p.env.DEVMODE == '1';
 const isNpmDist = p.argv[2] == 'startNodeWeb';
 
-function moduleAvailable(name) {
-  try {
-    require.resolve(name);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
+// function moduleAvailable(name) {
+//   try {
+//     require.resolve(name);
+//     return true;
+//   } catch (e) {
+//     return false;
+//   }
+// }
 
-const isElectron = moduleAvailable('electron');
+const isElectronBundle = p.argv.indexOf('--is-electron-bundle') >= 0;
 
 const platformInfo = {
   isWindows,
   isMac,
   isLinux,
   isDocker,
-  isElectron,
+  isElectronBundle,
   isDevMode,
   isNpmDist,
   isSnap: p.env.ELECTRON_SNAP == 'true',
