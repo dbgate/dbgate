@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const { pluginsdir, packagedPluginsDir } = require('../utility/directories');
 const nativeModules = require('../nativeModules');
-const _isRunOnSource = require('../utility/_isRunOnSource');
+const platformInfo = require('../utility/platformInfo');
 
 const loadedPlugins = {};
 
@@ -12,7 +12,7 @@ const dbgateEnv = {
 };
 
 function getModulePath(packageName) {
-  const packagedModulePath = _isRunOnSource()
+  const packagedModulePath = platformInfo.isDevMode
     ? path.join(packagedPluginsDir(), packageName, 'src', 'backend', 'index.js')
     : path.join(packagedPluginsDir(), packageName, 'dist', 'backend.js');
 

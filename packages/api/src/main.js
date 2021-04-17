@@ -28,6 +28,7 @@ const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
 
 const { rundir } = require('./utility/directories');
+const platformInfo = require('./utility/platformInfo');
 
 function start(argument = null) {
   // console.log('process.argv', process.argv);
@@ -79,11 +80,11 @@ function start(argument = null) {
 
   app.use('/runners/data', express.static(rundir()));
 
-  if (fs.existsSync('/home/dbgate-docker/public')) {
+  if (platformInfo.isDocker) {
     // server static files inside docker container
     app.use(express.static('/home/dbgate-docker/public'));
   } else {
-    if (argument != 'startNodeWeb') {
+    if (!platformInfo.isNpmDist) {
       app.get('/', (req, res) => {
         res.send('DbGate API');
       });
@@ -99,7 +100,7 @@ function start(argument = null) {
         process.send({ msgtype: 'listening', port });
       });
     });
-  } else if (argument == 'startNodeWeb') {
+  } else if (platformInfo.isNpmDist) {
     app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
     findFreePort(5000, function (err, port) {
       server.listen(port, () => {

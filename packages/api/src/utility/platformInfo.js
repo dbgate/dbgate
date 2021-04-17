@@ -8,12 +8,28 @@ const isWindows = platform === 'win32';
 const isMac = platform === 'darwin';
 const isLinux = platform === 'linux';
 const isDocker = fs.existsSync('/home/dbgate-docker/build');
+const isDevMode = p.env.DEVMODE == '1';
+const isNpmDist = p.argv[2] == 'startNodeWeb';
+
+function moduleAvailable(name) {
+  try {
+    require.resolve(name);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+const isElectron = moduleAvailable('electron');
 
 const platformInfo = {
   isWindows,
   isMac,
   isLinux,
   isDocker,
+  isElectron,
+  isDevMode,
+  isNpmDist,
   isSnap: p.env.ELECTRON_SNAP == 'true',
   isPortable: isWindows && p.env.PORTABLE_EXECUTABLE_DIR,
   isAppImage: p.env.DESKTOPINTEGRATION === 'AppImageLauncher',

@@ -49,9 +49,9 @@
     "uuid": "^3.4.0"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "start:portal": "env-cmd nodemon src/index.js",
-    "start:covid": "env-cmd -f .covid-env nodemon src/index.js",
+    "start": "env-cmd node src/index.js",
+    "start:portal": "env-cmd -f .env-portal node src/index.js",
+    "start:covid": "env-cmd -f .env-covid node src/index.js",
     "ts": "tsc",
     "build": "webpack"
   },

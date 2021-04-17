@@ -2,7 +2,6 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const cleanDirectory = require('./cleanDirectory');
-const _isRunOnSource = require('./_isRunOnSource');
 const platformInfo = require('./platformInfo');
 
 const createDirectories = {};
@@ -42,17 +41,20 @@ const archivedir = dirFunc('archive');
 const filesdir = dirFunc('files');
 
 function packagedPluginsDir() {
-  if (_isRunOnSource()) {
+  if (platformInfo.isDevMode) {
     return path.resolve(__dirname, '../../../../plugins');
   }
   if (platformInfo.isDocker) {
     return '/home/dbgate-docker/plugins';
   }
-  if (process.argv[2] == 'startNodeWeb') {
+  if (platformInfo.isNpmDist) {
     // node_modules
     return global['dbgateApiPackagedPluginsPath'];
   }
-  return path.resolve(__dirname, '../../plugins');
+  if (platformInfo.isElectron) {
+    return path.resolve(__dirname, '../../plugins');
+  }
+  return null;
 }
 
 module.exports = {
