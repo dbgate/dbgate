@@ -133,7 +133,7 @@
       <WidgetColumnBarItem
         title="Columns"
         name="columns"
-        height={showReferences ? '40%' : '60%'}
+        height='45%'
         skip={freeTableColumn || isFormView}
       >
         <ColumnManager {...$$props} {managerSize} {isJsonView} />
@@ -161,7 +161,7 @@
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed={isDetailView}>
+      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed>
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
