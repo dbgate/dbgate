@@ -1,7 +1,7 @@
 {
   "name": "dbgate-plugin-csv",
   "main": "src/backend/index.js",
-  "version": "1.0.9",
+  "version": "4.1.1",
   "homepage": "https://dbgate.org",
   "description": "CSV import/export plugin for DbGate",
   "repository": {
@@ -19,7 +19,7 @@
   ],
   "files": [
     "dist",
-    "icon.svg"    
+    "icon.svg"
   ],
   "scripts": {
     "build:frontend": "webpack --config webpack-frontend.config",

@@ -1,6 +1,6 @@
 {
   "name": "dbgate",
-  "version": "4.0.0",
+  "version": "4.1.1",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
     "web"
   ],
   "dependencies": {
-    "dbgate-api": "^4.0.0",
-    "dbgate-web": "^4.0.0",
+    "dbgate-api": "^4.1.1",
+    "dbgate-web": "^4.1.1",
     "dbgate-plugin-csv": "^4.1.1",
     "dbgate-plugin-excel": "^4.1.1",
     "dbgate-plugin-mongo": "^4.1.1",

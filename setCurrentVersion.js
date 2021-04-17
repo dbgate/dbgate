@@ -4,7 +4,7 @@ const path = require('path');
 function changeDependencies(deps, version) {
   if (!deps) return;
   for (const key of Object.keys(deps)) {
-    if (key.startsWith('dbgate-')) deps[key] = `^${version}`;
+    if (key.startsWith('dbgate-') && key != 'dbgate-plugin-tools') deps[key] = `^${version}`;
   }
 }
 

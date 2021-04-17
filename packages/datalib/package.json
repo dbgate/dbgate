@@ -1,5 +1,5 @@
 {
-  "version": "4.0.0",
+  "version": "4.1.1",
   "name": "dbgate-datalib",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -12,11 +12,11 @@
     "lib"
   ],
   "dependencies": {
-    "dbgate-sqltree": "^4.0.0",
-    "dbgate-filterparser": "^4.0.0"
+    "dbgate-sqltree": "^4.1.1",
+    "dbgate-filterparser": "^4.1.1"
   },
   "devDependencies": {
-    "dbgate-types": "^4.0.0",
+    "dbgate-types": "^4.1.1",
     "@types/node": "^13.7.0",
     "typescript": "^3.7.5"
   }
