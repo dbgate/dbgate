@@ -48,6 +48,8 @@
     'icon arrow-begin': 'mdi mdi-arrow-collapse-left',
     'icon arrow-end': 'mdi mdi-arrow-collapse-right',
     'icon arrow-right': 'mdi mdi-arrow-right',
+    'icon triple-left': 'mdi mdi-chevron-triple-left',
+    'icon triple-right': 'mdi mdi-chevron-triple-right',
     'icon format-code': 'mdi mdi-code-tags-check',
     'icon show-wizard': 'mdi mdi-comment-edit',
     'icon disconnected': 'mdi mdi-lan-disconnect',

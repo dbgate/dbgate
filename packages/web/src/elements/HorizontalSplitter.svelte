@@ -16,6 +16,7 @@
 
   export let isSplitter = true;
   export let initialValue = undefined;
+  export let hideFirst = false;
 
   export let size = 0;
   let clientWidth;
@@ -24,11 +25,15 @@
 </script>
 
 <div class="container" bind:clientWidth>
-  <div class="child1" style={isSplitter ? `width:${size}px; min-width:${size}px; max-width:${size}px}` : `flex:1`}>
-    <slot name="1" />
-  </div>
+  {#if !hideFirst}
+    <div class="child1" style={isSplitter ? `width:${size}px; min-width:${size}px; max-width:${size}px}` : `flex:1`}>
+      <slot name="1" />
+    </div>
+  {/if}
   {#if isSplitter}
-    <div class="horizontal-split-handle" use:splitterDrag={'clientX'} on:resizeSplitter={e => (size += e.detail)} />
+    {#if !hideFirst}
+      <div class="horizontal-split-handle" use:splitterDrag={'clientX'} on:resizeSplitter={e => (size += e.detail)} />
+    {/if}
     <div class="child2">
       <slot name="2" />
     </div>

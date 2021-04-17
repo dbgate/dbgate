@@ -88,6 +88,7 @@
   setContext('macroValues', macroValues);
 
   let managerSize;
+  let collapsedLeftColumnStore = writable(false);
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
   $: isJsonView = !!config?.isJsonView;
@@ -127,15 +128,10 @@
   );
 </script>
 
-<HorizontalSplitter initialValue="300px" bind:size={managerSize}>
+<HorizontalSplitter initialValue="300px" bind:size={managerSize} hideFirst={$collapsedLeftColumnStore}>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem
-        title="Columns"
-        name="columns"
-        height='45%'
-        skip={freeTableColumn || isFormView}
-      >
+      <WidgetColumnBarItem title="Columns" name="columns" height="45%" skip={freeTableColumn || isFormView}>
         <ColumnManager {...$$props} {managerSize} {isJsonView} />
       </WidgetColumnBarItem>
 
@@ -177,6 +173,7 @@
           <svelte:component
             this={gridCoreComponent}
             {...$$props}
+            {collapsedLeftColumnStore}
             formViewAvailable={!!formViewComponent && !!formDisplay}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}

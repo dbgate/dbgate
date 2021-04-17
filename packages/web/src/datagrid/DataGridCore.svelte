@@ -202,6 +202,7 @@
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import CollapseButton from './CollapseButton.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -223,6 +224,7 @@
   export let changeSetStore;
   export let isDynamicStructure = false;
   export let selectedCellsPublished = () => [];
+  export let collapsedLeftColumnStore;
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
@@ -565,6 +567,7 @@
   function handleGridMouseDown(event) {
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('.resizeHandleControl')) return;
+    if (event.target.closest('.collapseButtonMarker')) return;
     if (event.target.closest('input')) return;
 
     // event.target.closest('table').focus();
@@ -991,7 +994,12 @@
             data-row="header"
             data-col="header"
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
-          />
+          >
+            <CollapseButton
+              collapsed={$collapsedLeftColumnStore}
+              on:click={() => collapsedLeftColumnStore.update(x => !x)}
+            />
+          </td>
           {#each visibleRealColumns as col (col.uniqueName)}
             <td
               class="header-cell"
