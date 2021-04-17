@@ -7,7 +7,7 @@ const platform = p.env.OS_OVERRIDE ? p.env.OS_OVERRIDE : p.platform;
 const isWindows = platform === 'win32';
 const isMac = platform === 'darwin';
 const isLinux = platform === 'linux';
-const isDocker = fs.existsSync('/home/dbgate-docker/build');
+const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = p.env.DEVMODE == '1';
 const isNpmDist = p.argv[2] == 'startNodeWeb';
 
