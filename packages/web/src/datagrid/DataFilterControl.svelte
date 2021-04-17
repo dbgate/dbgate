@@ -226,6 +226,7 @@
     on:paste={handlePaste}
     class:isError
     class:isOk
+    placeholder='Filter'
   />
   <DropDownButton icon="icon filter" menu={createMenu} />
   {#if showResizeSplitter}
