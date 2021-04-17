@@ -20,6 +20,12 @@
   ],
   "dependencies": {
     "dbgate-api": "^4.0.0",
-    "dbgate-web": "^4.0.0"
+    "dbgate-web": "^4.0.0",
+    "dbgate-plugin-csv": "^4.1.1",
+    "dbgate-plugin-excel": "^4.1.1",
+    "dbgate-plugin-mongo": "^4.1.1",
+    "dbgate-plugin-mysql": "^4.1.1",
+    "dbgate-plugin-mssql": "^4.1.1",
+    "dbgate-plugin-postgres": "^4.1.1"
   }
 }

@@ -50,7 +50,7 @@ function packagedPluginsDir() {
   }
   if (process.argv[2] == 'startNodeWeb') {
     // node_modules
-    return path.resolve(__dirname, '../../..');
+    return global['dbgateApiPackagedPluginsPath'];
   }
   return path.resolve(__dirname, '../../plugins');
 }
