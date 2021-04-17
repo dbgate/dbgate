@@ -46,7 +46,7 @@ function packagedPluginsDir() {
     return path.resolve(__dirname, '../../../../plugins');
   }
   if (platformInfo.isDocker) {
-    return path.resolve(__dirname, 'plugins');
+    return '/home/dbgate-docker/plugins';
   }
   if (process.argv[2] == 'startNodeWeb') {
     // node_modules
