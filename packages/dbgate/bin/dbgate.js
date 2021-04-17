@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 const path = require('path');
-const dbgateApi = require('dbgate-api');
 
-global.dbgateApiModulePath = require.resolve('dbgate-api');
+global.dbgateApiModulePath = path.dirname(path.dirname(require.resolve('dbgate-api')));
 global.dbgateApiPackagedPluginsPath = path.dirname(global.dbgateApiModulePath);
+
+const dbgateApi = require('dbgate-api');
 
 dbgateApi.getMainModule().start();
