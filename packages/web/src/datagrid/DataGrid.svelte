@@ -28,6 +28,15 @@
     onClick: () => getCurrentEditor().switchToView('table'),
   });
 
+  registerCommand({
+    id: 'dataGrid.toggleLeftPanel',
+    category: 'Data grid',
+    name: 'Toggle left panel',
+    keyText: 'Ctrl+L',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().toggleLeftPanel(),
+  });
+
   function extractMacroValuesForMacro(macroValues, macro) {
     // return {};
     if (!macro) return {};
@@ -121,10 +130,15 @@
     }
   }
 
+  export function toggleLeftPanel() {
+    collapsedLeftColumnStore.update(x => !x);
+  }
+
   registerMenu(
     { command: 'dataGrid.switchToForm', tag: 'switch', hideDisabled: true },
     { command: 'dataGrid.switchToTable', tag: 'switch', hideDisabled: true },
-    { command: 'dataGrid.switchToJson', tag: 'switch', hideDisabled: true }
+    { command: 'dataGrid.switchToJson', tag: 'switch', hideDisabled: true },
+    { command: 'dataGrid.toggleLeftPanel', tag: 'switch' }
   );
 </script>
 
