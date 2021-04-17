@@ -60,9 +60,15 @@ function packagedPluginsDir() {
 const packagedPluginList =
   packagedPluginsDir() != null ? fs.readdirSync(packagedPluginsDir()).filter(x => x.startsWith('dbgate-plugin-')) : [];
 
-function getPluginPath(packageName) {
-  if (packagedPluginList.includes(packageName)) return path.join(packagedPluginsDir(), packageName);
-  return path.join(pluginsdir(), packageName);
+function getPluginBackendPath(packageName) {
+  if (packagedPluginList.includes(packageName)) {
+    if (platformInfo.isDevMode) {
+      return path.join(packagedPluginsDir(), packageName, 'src', 'backend', 'index.js');
+    }
+    return path.join(packagedPluginsDir(), packageName, 'dist', 'backend.js');
+  }
+
+  return path.join(pluginsdir(), packageName, 'dist', 'backend.js');
 }
 
 module.exports = {
@@ -76,5 +82,5 @@ module.exports = {
   filesdir,
   packagedPluginsDir,
   packagedPluginList,
-  getPluginPath,
+  getPluginBackendPath,
 };

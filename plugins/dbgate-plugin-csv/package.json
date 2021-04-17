@@ -18,6 +18,7 @@
     "dbgateplugin"
   ],
   "files": [
+    "src",
     "dist",
     "icon.svg"
   ],

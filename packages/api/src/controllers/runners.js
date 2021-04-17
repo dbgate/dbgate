@@ -5,7 +5,7 @@ const uuidv1 = require('uuid/v1');
 const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const { rundir, uploadsdir, pluginsdir, getPluginPath, packagedPluginList } = require('../utility/directories');
+const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 
@@ -101,7 +101,7 @@ module.exports = {
       env: {
         ...process.env,
         DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
-        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginPath(name)])),
+        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
       },
     });
     const pipeDispatcher = severity => data =>
