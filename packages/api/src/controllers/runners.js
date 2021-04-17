@@ -5,7 +5,7 @@ const uuidv1 = require('uuid/v1');
 const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const { rundir, uploadsdir, pluginsdir } = require('../utility/directories');
+const { rundir, uploadsdir, pluginsdir, getPluginPath, packagedPluginList } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 
@@ -92,7 +92,7 @@ module.exports = {
     const scriptFile = path.join(uploadsdir(), runid + '.js');
     fs.writeFileSync(`${scriptFile}`, scriptText);
     fs.mkdirSync(directory);
-    const pluginNames = fs.readdirSync(pluginsdir());
+    const pluginNames = _.union(fs.readdirSync(pluginsdir()), packagedPluginList);
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(scriptFile, ['--checkParent', ...process.argv.slice(3)], {
@@ -101,7 +101,7 @@ module.exports = {
       env: {
         ...process.env,
         DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
-        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, path.join(pluginsdir(), name)])),
+        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginPath(name)])),
       },
     });
     const pipeDispatcher = severity => data =>

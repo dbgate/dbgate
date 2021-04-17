@@ -57,6 +57,14 @@ function packagedPluginsDir() {
   return null;
 }
 
+const packagedPluginList =
+  packagedPluginsDir() != null ? fs.readdirSync(packagedPluginsDir()).filter(x => x.startsWith('dbgate-plugin-')) : [];
+
+function getPluginPath(packageName) {
+  if (packagedPluginList.includes(packageName)) return path.join(packagedPluginsDir(), packageName);
+  return path.join(pluginsdir(), packageName);
+}
+
 module.exports = {
   datadir,
   jsldir,
@@ -67,4 +75,6 @@ module.exports = {
   pluginsdir,
   filesdir,
   packagedPluginsDir,
+  packagedPluginList,
+  getPluginPath,
 };
