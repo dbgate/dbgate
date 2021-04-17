@@ -2,7 +2,6 @@ const fs = require('fs');
 
 let fillContent = '';
 
-// if (!process.argv.includes('--electron')) {
 if (process.platform == 'win32') {
   fillContent += `content.msnodesqlv8 = () => require('msnodesqlv8');`;
 }

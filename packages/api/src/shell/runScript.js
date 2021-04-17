@@ -1,7 +1,8 @@
 const childProcessChecker = require('../utility/childProcessChecker');
+const processArgs = require('../utility/processArgs');
 
 async function runScript(func) {
-  if (process.argv.includes('--checkParent')) {
+  if (processArgs.checkParent) {
     childProcessChecker();
   }
   try {

@@ -65,7 +65,7 @@ module.exports = {
   async create({ conid, database }) {
     const sesid = uuidv1();
     const connection = await connections.get({ conid });
-    const subprocess = fork(process.argv[1], ['sessionProcess', ...process.argv.slice(3)]);
+    const subprocess = fork(process.argv[1], ['--start-process', 'sessionProcess', ...process.argv.slice(3)]);
     const newOpened = {
       conid,
       database,

@@ -29,8 +29,9 @@ const scheduler = require('./controllers/scheduler');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
+const processArgs = require('./utility/processArgs');
 
-function start(argument = null) {
+function start() {
   // console.log('process.argv', process.argv);
 
   const app = express();
@@ -91,7 +92,7 @@ function start(argument = null) {
     }
   }
 
-  if (argument == '--dynport') {
+  if (processArgs.dynport) {
     childProcessChecker();
 
     findFreePort(53911, function (err, port) {

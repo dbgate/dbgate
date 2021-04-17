@@ -6,4 +6,4 @@ const dbgateApi = require('dbgate-api');
 global.dbgateApiModulePath = require.resolve('dbgate-api');
 global.dbgateApiPackagedPluginsPath = path.dirname(global.dbgateApiModulePath);
 
-dbgateApi.getMainModule().start('startNodeWeb');
+dbgateApi.getMainModule().start();

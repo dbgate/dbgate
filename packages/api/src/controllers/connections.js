@@ -46,7 +46,7 @@ module.exports = {
     raw: true,
   },
   test(req, res) {
-    const subprocess = fork(process.argv[1], ['connectProcess', ...process.argv.slice(3)]);
+    const subprocess = fork(process.argv[1], ['--start-process', 'connectProcess', ...process.argv.slice(3)]);
     subprocess.on('message', resp => {
       if (handleProcessCommunication(resp, subprocess)) return;
       // @ts-ignore

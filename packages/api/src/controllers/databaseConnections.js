@@ -40,7 +40,11 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
     const connection = await connections.get({ conid });
-    const subprocess = fork(process.argv[1], ['databaseConnectionProcess', ...process.argv.slice(3)]);
+    const subprocess = fork(process.argv[1], [
+      '--start-process',
+      'databaseConnectionProcess',
+      ...process.argv.slice(3),
+    ]);
     const lastClosed = this.closed[`${conid}/${database}`];
     const newOpened = {
       conid,
@@ -127,7 +131,7 @@ module.exports = {
     } else {
       existing = await this.ensureOpened(conid, database);
     }
-    
+
     return {
       status: 'ok',
       connectionStatus: existing ? existing.status : null,

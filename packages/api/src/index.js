@@ -1,15 +1,14 @@
 const shell = require('./shell');
+const processArgs = require('./utility/processArgs');
 
-const argument = process.argv[2];
-if (argument && argument.endsWith('Process')) {
+if (processArgs.startProcess) {
   const proc = require('./proc');
-
-  const module = proc[argument];
+  const module = proc[processArgs.startProcess];
   module.start();
-} else if (!module['parent'] && !process.argv.includes('--checkParent')) {
+} else if (!module['parent'] && !processArgs.checkParent) {
   const main = require('./main');
 
-  main.start(argument);
+  main.start();
 }
 
 module.exports = {
