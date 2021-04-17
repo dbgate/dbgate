@@ -35,7 +35,7 @@
   $: allTabs = [
     ...tabs,
 
-    ...(oneTab
+    ...(oneTab && resultInfos.length > 0
       ? [
           {
             label: 'Results',
@@ -84,7 +84,7 @@
 <TabControl
   bind:this={domTabs}
   tabs={allTabs}
-  menu={[
+  menu={resultInfos.length > 0 && [
     oneTab
       ? { text: 'Every result in single tab', onClick: () => setOneTabValue(false) }
       : { text: 'All results in one tab', onClick: () => setOneTabValue(true) },
