@@ -16,7 +16,6 @@
     "dbgate"
   ],
   "scripts": {
-    "postinstall": "yarn build",
     "build": "tsc",
     "start": "tsc --watch",
     "test": "jest",

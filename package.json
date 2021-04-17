@@ -40,7 +40,7 @@
     "ts:api": "yarn workspace dbgate-api ts",
     "ts:web": "yarn workspace dbgate-web ts",
     "ts": "yarn ts:api && yarn ts:web",
-    "postinstall": "patch-package && yarn fillNativeModules && yarn build:plugins:frontend"
+    "postinstall": "yarn build:lib && patch-package && yarn fillNativeModules && yarn build:plugins:frontend"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
