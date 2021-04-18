@@ -6,6 +6,7 @@
   import _ from 'lodash';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import { currentDatabase, extensions } from '../stores';
   import openNewTab from '../utility/openNewTab';
@@ -53,11 +54,21 @@
     });
   };
 
+  const handleSqlGenerator = () => {
+    const { connection, name } = data;
+
+    showModal(SqlGeneratorModal, {
+      conid: connection._id,
+      database: name,
+    });
+  };
+
   function createMenu() {
     return [
       { onClick: handleNewQuery, text: 'New query' },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
+      { onClick: handleSqlGenerator, text: 'SQL Generator' },
     ];
   }
 </script>
