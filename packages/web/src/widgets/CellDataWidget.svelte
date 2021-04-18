@@ -27,6 +27,9 @@
   ];
 
   function autodetect(selection) {
+    if (selection[0]?.engine?.dialect?.nosql) {
+      return 'jsonRow';
+    }
     const value = selection.length == 1 ? selection[0].value : null;
     if (_.isString(value)) {
       if (value.startsWith('[') || value.startsWith('{')) return 'json';

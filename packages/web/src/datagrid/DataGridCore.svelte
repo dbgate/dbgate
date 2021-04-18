@@ -523,6 +523,7 @@
           rowData,
           column,
           value: rowData && rowData[column],
+          engine: display?.driver,
         };
       })
       .filter(x => x.column);
