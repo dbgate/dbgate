@@ -1,5 +1,8 @@
 <script lang="ts">
+  import { getIntSettingsValue } from '../settings/settingsTools';
+
   import createRef from '../utility/createRef';
+  import { useSettings } from '../utility/metadataLoaders';
 
   import DataGridCore from './DataGridCore.svelte';
 
@@ -23,6 +26,7 @@
 
   const loadNextDataRef = createRef(false);
   const loadedTimeRef = createRef(null);
+  const settings = useSettings();
 
   export function resetLoadedAll() {
     isLoadedAll = false;
@@ -45,7 +49,11 @@
     loadedTimeRef.set(loadStart);
     // console.log('LOAD NEXT ROWS', loadedRows);
 
-    const nextRows = await loadDataPage($$props, loadedRows.length, 100);
+    const nextRows = await loadDataPage(
+      $$props,
+      loadedRows.length,
+      getIntSettingsValue($settings, 'dataGrid.pageSize', 100, 5, 1000)
+    );
     if (loadedTimeRef.get() !== loadStart) {
       // new load was dispatched
       return;

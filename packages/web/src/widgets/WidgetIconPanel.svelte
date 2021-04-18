@@ -59,7 +59,7 @@
     const rect = domSettings.getBoundingClientRect();
     const left = rect.right;
     const top = rect.top;
-    const items = [{ command: 'settings.commands' }, { command: 'theme.changeTheme' }];
+    const items = [{ command: 'settings.commands' }, { command: 'theme.changeTheme' }, { command: 'settings.show' }];
     currentDropDownMenu.set({ left, top, items });
   }
 </script>

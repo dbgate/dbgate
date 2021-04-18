@@ -66,6 +66,7 @@
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
+  import { useSettings } from '../utility/metadataLoaders';
 
   export let config;
   export let setConfig;
@@ -97,7 +98,13 @@
   setContext('macroValues', macroValues);
 
   let managerSize;
-  let collapsedLeftColumnStore = writable(false);
+  let collapsedLeftColumnStore = writable(null);
+
+  const settings = useSettings();
+
+  $: if ($collapsedLeftColumnStore == null && $settings) {
+    $collapsedLeftColumnStore = !!$settings['dataGrid.hideLeftColumn'];
+  }
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
   $: isJsonView = !!config?.isJsonView;

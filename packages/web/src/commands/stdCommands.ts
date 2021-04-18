@@ -4,6 +4,7 @@ import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
+import SettingsModal from '../settings/SettingsModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
@@ -217,6 +218,14 @@ if (hasPermission('settings/change')) {
         props: {},
       });
     },
+  });
+
+  registerCommand({
+    id: 'settings.show',
+    category: 'Settings',
+    name: 'Change',
+    toolbarName: 'Change settings',
+    onClick: () => showModal(SettingsModal),
   });
 }
 
