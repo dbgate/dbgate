@@ -31,6 +31,18 @@
           }),
       });
     };
+    const handleNewQuery = () => {
+      const tooltip = `${data.displayName || data.server}`;
+      openNewTab({
+        title: 'Query #',
+        icon: 'img sql-file',
+        tooltip,
+        tabComponent: 'QueryTab',
+        props: {
+          conid: data._id,
+        },
+      });
+    };
 
     return [
       config.runAsPortal == false && [
@@ -47,6 +59,7 @@
         text: 'Connect',
         onClick: handleConnect,
       },
+      { onClick: handleNewQuery, text: 'New query' },
       $openedConnections.includes(data._id) &&
         data.status && {
           text: 'Refresh',
@@ -77,6 +90,7 @@
   import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let data;
 
