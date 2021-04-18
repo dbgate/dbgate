@@ -1,4 +1,4 @@
-export function createBulkInsertStream(driver, stream, pool, name, options) {
+function createBulkInsertStream(driver, stream, pool, name, options) {
   const collectionName = name.pureName;
   const db = pool.__getDatabase();
 
@@ -12,9 +12,12 @@ export function createBulkInsertStream(driver, stream, pool, name, options) {
   writable.addRow = (row) => {
     if (!writable.wasHeader) {
       writable.wasHeader = true;
-      if (row.__isStreamHeader || 
+      if (
+        row.__isStreamHeader ||
         // TODO remove isArray test
-        Array.isArray(row.columns)) return;
+        Array.isArray(row.columns)
+      )
+        return;
     }
     writable.buffer.push(row);
   };
@@ -56,3 +59,5 @@ export function createBulkInsertStream(driver, stream, pool, name, options) {
 
   return writable;
 }
+
+module.exports = createBulkInsertStream;
