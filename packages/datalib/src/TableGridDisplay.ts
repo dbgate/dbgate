@@ -17,7 +17,8 @@ export class TableGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    dbinfo: DatabaseInfo
+    dbinfo: DatabaseInfo,
+    public displayOptions: any
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo);
 
@@ -168,7 +169,7 @@ export class TableGridDisplay extends GridDisplay {
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {
     this.addJoinsFromExpandedColumns(select, this.columns, 'basetbl', displayedColumnInfo);
-    if (!options.isExport) {
+    if (!options.isExport && this.displayOptions.showHintColumns) {
       this.addHintsToSelect(select);
     }
   }

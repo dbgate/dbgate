@@ -28,10 +28,20 @@ export class TableFormViewDisplay extends FormViewDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    dbinfo: DatabaseInfo
+    dbinfo: DatabaseInfo,
+    displayOptions
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo);
-    this.gridDisplay = new TableGridDisplay(tableName, driver, config, setConfig, cache, setCache, dbinfo);
+    this.gridDisplay = new TableGridDisplay(
+      tableName,
+      driver,
+      config,
+      setConfig,
+      cache,
+      setCache,
+      dbinfo,
+      displayOptions
+    );
     this.gridDisplay.addAllExpandedColumnsToSelected = true;
 
     this.isLoadedCorrectly = this.gridDisplay.isLoadedCorrectly && !!this.driver;

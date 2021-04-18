@@ -26,7 +26,8 @@
 
       <div class="heading">Data grid</div>
       <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
-      <FormTextField name="dataGrid.pageSize" label="Page size" defaultValue="100" />
+      <FormTextField name="dataGrid.pageSize" label="Page size (number of rows for incremental loading)" defaultValue="100" />
+      <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
 
       <div slot="footer">
         <FormSubmit value="OK" on:click={handleOk} />

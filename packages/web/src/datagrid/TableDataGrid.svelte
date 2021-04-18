@@ -20,6 +20,7 @@
   import ReferenceHeader from './ReferenceHeader.svelte';
   import SqlDataGridCore from './SqlDataGridCore.svelte';
   import SqlFormView from '../formview/SqlFormView.svelte';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let conid;
   export let database;
@@ -52,7 +53,8 @@
         setConfig,
         cache,
         setCache,
-        $dbinfo
+        $dbinfo,
+        { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) }
       )
     : null;
 
@@ -64,7 +66,8 @@
         setConfig,
         cache,
         setCache,
-        $dbinfo
+        $dbinfo,
+        { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) }
       )
     : null;
 
