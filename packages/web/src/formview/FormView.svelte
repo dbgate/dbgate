@@ -477,6 +477,7 @@
               colIndex={chunkIndex * 2 + 1}
               isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
               isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+              allowHintField={!(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName))}
               bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
               onSetFormView={handleSetFormView}
               hideContent={!rowData ||

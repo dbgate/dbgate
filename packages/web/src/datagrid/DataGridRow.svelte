@@ -51,7 +51,7 @@
         {rowIndex}
         {rowData}
         {col}
-        {hintFieldsAllowed}
+        allowHintField={hintFieldsAllowed?.includes(col.uniqueName)}
         isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
         isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
         isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}

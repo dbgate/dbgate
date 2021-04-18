@@ -25,7 +25,7 @@
   export let col;
   export let rowData;
   export let colIndex = undefined;
-  export let hintFieldsAllowed = undefined;
+  export let allowHintField = false;
 
   export let isSelected = false;
   export let isFrameSelected = false;
@@ -107,7 +107,7 @@
       {value.toString()}
     {/if}
 
-    {#if hintFieldsAllowed && hintFieldsAllowed.includes(col.uniqueName) && rowData && rowData[col.hintColumnName]}
+    {#if allowHintField && rowData && rowData[col.hintColumnName]}
       <span class="hint">{rowData[col.hintColumnName]}</span>
     {/if}
 

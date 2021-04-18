@@ -21,5 +21,5 @@
 {#if $settings}
   <Screen />
 {:else}
-  <LoadingInfo message="Loading settings..." />
+  <LoadingInfo message="Loading settings..." wrapper />
 {/if}

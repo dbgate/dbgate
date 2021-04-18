@@ -39,7 +39,7 @@
     <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
     <FormTextField
       name="dataGrid.pageSize"
-      label="Page size (number of rows for incremental loading)"
+      label="Page size (number of rows for incremental loading, must be between 5 and 1000)"
       defaultValue="100"
     />
     <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
