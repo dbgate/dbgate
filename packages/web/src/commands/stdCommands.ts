@@ -46,7 +46,7 @@ registerCommand({
   id: 'toolbar.show',
   category: 'Toolbar',
   name: 'Show',
-  onClick: () => visibleToolbar.set(1),
+  onClick: () => visibleToolbar.set(true),
   testEnabled: () => !getVisibleToolbar(),
 });
 
@@ -54,7 +54,7 @@ registerCommand({
   id: 'toolbar.hide',
   category: 'Toolbar',
   name: 'Hide',
-  onClick: () => visibleToolbar.set(0),
+  onClick: () => visibleToolbar.set(false),
   testEnabled: () => getVisibleToolbar(),
 });
 

@@ -51,7 +51,7 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
   }))
 );
 
-export const visibleToolbar = writableWithStorage(1, 'visibleToolbar');
+export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);

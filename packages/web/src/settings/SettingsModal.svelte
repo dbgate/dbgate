@@ -1,4 +1,6 @@
 <script lang="ts">
+  import _ from 'lodash';
+
   import FormButton from '../forms/FormButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
@@ -8,34 +10,46 @@
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
+  import { getCurrentSettings, getVisibleToolbar, visibleToolbar } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-  import { useSettings } from '../utility/metadataLoaders';
-
-  const settings = useSettings();
 
   function handleOk(e) {
-    axiosInstance.post('config/update-settings', e.detail);
+    axiosInstance.post(
+      'config/update-settings',
+      _.omitBy(e.detail, (v, k) => k.startsWith(':'))
+    );
+    visibleToolbar.set(!!e.detail[':visibleToolbar']);
     closeCurrentModal();
   }
 </script>
 
-{#if $settings}
-  <FormProvider initialValues={$settings}>
-    <ModalBase {...$$restProps}>
-      <div slot="header">Settings</div>
+<FormProvider
+  initialValues={{
+    ...getCurrentSettings(),
+    ':visibleToolbar': getVisibleToolbar(),
+  }}
+>
+  <ModalBase {...$$restProps}>
+    <div slot="header">Settings</div>
 
-      <div class="heading">Data grid</div>
-      <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
-      <FormTextField name="dataGrid.pageSize" label="Page size (number of rows for incremental loading)" defaultValue="100" />
-      <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
+    <div class="heading">Appearance</div>
+    <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
 
-      <div slot="footer">
-        <FormSubmit value="OK" on:click={handleOk} />
-        <FormButton value="Cancel" on:click={closeCurrentModal} />
-      </div>
-    </ModalBase>
-  </FormProvider>
-{/if}
+    <div class="heading">Data grid</div>
+    <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
+    <FormTextField
+      name="dataGrid.pageSize"
+      label="Page size (number of rows for incremental loading)"
+      defaultValue="100"
+    />
+    <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
+
+    <div slot="footer">
+      <FormSubmit value="OK" on:click={handleOk} />
+      <FormButton value="Cancel" on:click={closeCurrentModal} />
+    </div>
+  </ModalBase>
+</FormProvider>
 
 <style>
   .heading {
