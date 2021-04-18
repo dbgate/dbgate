@@ -224,7 +224,7 @@ if (hasPermission('settings/change')) {
     id: 'settings.show',
     category: 'Settings',
     name: 'Change',
-    toolbarName: 'Change settings',
+    toolbarName: 'Settings',
     onClick: () => showModal(SettingsModal),
   });
 }
