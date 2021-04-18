@@ -1,6 +1,8 @@
 import _ from 'lodash';
+import { getCurrentSettings } from '../stores';
 
-export function getIntSettingsValue(settings, name, defaultValue, min = null, max = null) {
+export function getIntSettingsValue(name, defaultValue, min = null, max = null) {
+  const settings = getCurrentSettings();
   const parsed = parseInt(settings[name]);
   if (_.isNaN(parsed)) {
     return defaultValue;
@@ -11,4 +13,11 @@ export function getIntSettingsValue(settings, name, defaultValue, min = null, ma
     return parsed;
   }
   return defaultValue;
+}
+
+export function getBoolSettingsValue(name, defaultValue) {
+  const settings = getCurrentSettings();
+  const res = settings[name];
+  if (res == null) return defaultValue;
+  return !!res;
 }

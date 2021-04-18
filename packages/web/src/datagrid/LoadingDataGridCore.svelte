@@ -26,7 +26,6 @@
 
   const loadNextDataRef = createRef(false);
   const loadedTimeRef = createRef(null);
-  const settings = useSettings();
 
   export function resetLoadedAll() {
     isLoadedAll = false;
@@ -52,7 +51,7 @@
     const nextRows = await loadDataPage(
       $$props,
       loadedRows.length,
-      getIntSettingsValue($settings, 'dataGrid.pageSize', 100, 5, 1000)
+      getIntSettingsValue('dataGrid.pageSize', 100, 5, 1000)
     );
     if (loadedTimeRef.get() !== loadStart) {
       // new load was dispatched
