@@ -10,7 +10,8 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { customKeyboardShortcuts } from '../stores';
+  import { commandsSettings } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
   import KeyboardModal from './KeyboardModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
@@ -41,13 +42,15 @@
         value="OK"
         on:click={e => {
           closeCurrentModal();
-          customKeyboardShortcuts.update(list => ({
-            ...list,
-            [command.id]: {
-              keyText: e.detail.keyText,
-              customKeyboardShortcut: true,
+          axiosInstance.post('config/update-settings', {
+            commands: {
+              ...$commandsSettings,
+              [command.id]: {
+                keyText: e.detail.keyText,
+                customKeyboardShortcut: true,
+              },
             },
-          }));
+          });
         }}
       />
       <FormStyledButton
@@ -55,7 +58,9 @@
         value="Reset"
         on:click={() => {
           closeCurrentModal();
-          customKeyboardShortcuts.update(list => _.omit(list, [command.id]));
+          axiosInstance.post('config/update-settings', {
+            commands: _.omit($commandsSettings, [command.id]),
+          });
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />

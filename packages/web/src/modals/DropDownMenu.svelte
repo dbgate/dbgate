@@ -30,9 +30,12 @@
       const command = commands[item.command];
       if (command) {
         return {
-          text: command.name,
+          text: command.menuName || command.toolbarName || command.name,
           keyText: command.keyText || command.keyTextFromGroup,
-          onClick: command.onClick,
+          onClick: () => {
+            if (command.getSubCommands) visibleCommandPalette.set(command);
+            else if (command.onClick) command.onClick();
+          },
           disabled: !command.enabled,
           hideDisabled: item.hideDisabled,
         };
@@ -48,7 +51,7 @@
   import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
-  import { commands, commandsCustomized } from '../stores';
+  import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { extractMenuItems } from '../utility/contextMenu';
 
   export let items;

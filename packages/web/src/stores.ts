@@ -3,7 +3,7 @@ import { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
 import { GlobalCommand } from './commands/registerCommand';
-import { useConfig } from './utility/metadataLoaders';
+import { useConfig, useSettings } from './utility/metadataLoaders';
 import _ from 'lodash';
 
 interface TabDefinition {
@@ -41,15 +41,15 @@ export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
-export const customKeyboardShortcuts = writableWithStorage({}, 'customKeyboardShortcuts');
+export const commandsSettings = derived(useSettings(), (config: any) => (config || {}).commands || {});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const commandsCustomized = derived(
-  [commands, customKeyboardShortcuts],
-  ([$commands, $customKeyboardShortcuts]) =>
+  [commands, commandsSettings],
+  ([$commands, $commandsSettings]) =>
     _.mapValues($commands, (v, k) => ({
       // @ts-ignore
       ...v,
-      ...$customKeyboardShortcuts[k],
+      ...$commandsSettings[k],
     }))
 );
 

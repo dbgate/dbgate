@@ -15,6 +15,7 @@ import { openElectronFile } from '../utility/openElectronFile';
 import { getDefaultFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
+import hasPermission from '../utility/hasPermission';
 
 const electron = getElectron();
 
@@ -203,19 +204,21 @@ registerCommand({
     }),
 });
 
-registerCommand({
-  id: 'settings.commands',
-  category: 'Settings',
-  name: 'Keyboard shortcuts',
-  onClick: () => {
-    openNewTab({
-      title: 'Keyboard Shortcuts',
-      icon: 'icon keyboard',
-      tabComponent: 'CommandListTab',
-      props: {},
-    });
-  },
-});
+if (hasPermission('settings/change')) {
+  registerCommand({
+    id: 'settings.commands',
+    category: 'Settings',
+    name: 'Keyboard shortcuts',
+    onClick: () => {
+      openNewTab({
+        title: 'Keyboard Shortcuts',
+        icon: 'icon keyboard',
+        tabComponent: 'CommandListTab',
+        props: {},
+      });
+    },
+  });
+}
 
 export function registerFileCommands({
   idPrefix,

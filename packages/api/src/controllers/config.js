@@ -1,3 +1,10 @@
+const fs = require('fs-extra');
+const path = require('path');
+const { datadir } = require('../utility/directories');
+const hasPermission = require('../utility/hasPermission');
+const socket = require('../utility/socket');
+const _ = require('lodash');
+
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 
@@ -37,5 +44,30 @@ module.exports = {
   async platformInfo() {
     return platformInfo;
   },
-  
+
+  getSettings_meta: 'get',
+  async getSettings() {
+    try {
+      return JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
+    } catch (err) {
+      return {};
+    }
+  },
+
+  updateSettings_meta: 'post',
+  async updateSettings(values) {
+    if (!hasPermission(`settings/change`)) return false;
+    const oldSettings = await this.getSettings();
+    try {
+      const updated = {
+        ...oldSettings,
+        ...values,
+      };
+      await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
+      socket.emitChanged(`settings-changed`);
+      return updated;
+    } catch (err) {
+      return false;
+    }
+  },
 };

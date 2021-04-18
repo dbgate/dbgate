@@ -40,6 +40,12 @@ const configLoader = () => ({
   reloadTrigger: 'config-changed',
 });
 
+const settingsLoader = () => ({
+  url: 'config/get-settings',
+  params: {},
+  reloadTrigger: 'settings-changed',
+});
+
 const platformInfoLoader = () => ({
   url: 'config/platform-info',
   params: {},
@@ -331,6 +337,13 @@ export function getConfig() {
 }
 export function useConfig() {
   return useCore(configLoader, {});
+}
+
+export function getSettings() {
+  return getCore(settingsLoader, {});
+}
+export function useSettings() {
+  return useCore(settingsLoader, {});
 }
 
 export function getPlatformInfo() {
