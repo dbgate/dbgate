@@ -2,7 +2,6 @@
 [![dbgate](https://snapcraft.io/dbgate/badge.svg)](https://snapcraft.io/dbgate)
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Donate](https://img.shields.io/badge/donate-paypal-blue.svg)](https://paypal.me/JanProchazkaCz/30eur)
 
 # DbGate - database administration tool
 
