@@ -13,6 +13,7 @@
   export let display;
   export let masterLoadedTime = undefined;
   export let selectedCellsPublished;
+  export let rowCountLoaded = null;
 
   // export let griderFactory;
 
@@ -126,7 +127,7 @@
   {errorMessage}
   {grider}
   {isLoading}
-  {allRowCount}
+  allRowCount={rowCountLoaded || allRowCount}
   {isLoadedAll}
   {loadedTime}
   bind:selectedCellsPublished
