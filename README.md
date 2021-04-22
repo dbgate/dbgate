@@ -25,7 +25,7 @@ Supported databases:
 * Master/detail views
 * Query designer
 * Form view for comfortable work with tables with many columns
-* JSON view on MognoDB collections
+* JSON view on MongoDB collections
 * Explore tables, views, procedures, functions, MongoDB collections
 * SQL editor, execute SQL script, SQL code formatter, SQL code completion, SQL join wizard
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
