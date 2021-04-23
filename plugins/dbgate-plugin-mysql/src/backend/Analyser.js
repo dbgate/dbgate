@@ -79,8 +79,13 @@ class Analyser extends DatabaseAnalyser {
   async getViewTexts(allViewNames) {
     const res = {};
     for (const viewName of this.getRequestedViewNames(allViewNames)) {
-      const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
-      res[viewName] = resp.rows[0]['Create View'];
+      try {
+        const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
+        res[viewName] = resp.rows[0]['Create View'];
+      } catch(err) {
+        console.log('ERROR', err);
+        res[viewName] = `${err}`;
+      }
     }
     return res;
   }
