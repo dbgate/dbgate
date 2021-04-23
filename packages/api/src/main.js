@@ -9,6 +9,7 @@ const fs = require('fs');
 const findFreePort = require('find-free-port');
 const childProcessChecker = require('./utility/childProcessChecker');
 const path = require('path');
+const crypto = require('crypto');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -31,6 +32,8 @@ const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const processArgs = require('./utility/processArgs');
 
+let authorization = null;
+
 function start() {
   // console.log('process.argv', process.argv);
 
@@ -50,6 +53,13 @@ function start() {
       })
     );
   }
+
+  app.use(function (req, res, next) {
+    if (authorization && req.headers.authorization != authorization) {
+      return res.status(403).json({ error: 'Not authorized!' });
+    }
+    next();
+  });
 
   app.use(cors());
   app.use(bodyParser.json({ limit: '50mb' }));
@@ -95,10 +105,12 @@ function start() {
   if (processArgs.dynport) {
     childProcessChecker();
 
+    authorization = crypto.randomBytes(32).toString('hex');
+
     findFreePort(53911, function (err, port) {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
-        process.send({ msgtype: 'listening', port });
+        process.send({ msgtype: 'listening', port, authorization });
       });
     });
   } else if (platformInfo.isNpmDist) {

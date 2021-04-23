@@ -212,8 +212,9 @@ function createWindow() {
     ]);
     apiProcess.on('message', msg => {
       if (msg.msgtype == 'listening') {
-        const { port } = msg;
+        const { port, authorization } = msg;
         global['port'] = port;
+        global['authorization'] = authorization;
         loadMainWindow();
       }
     });

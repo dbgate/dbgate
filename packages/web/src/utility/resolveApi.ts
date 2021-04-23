@@ -20,3 +20,16 @@ export default function resolveApi() {
   }
   return window.location.origin;
 }
+
+export function resolveApiHeaders() {
+  if (window['require']) {
+    const electron = window['require']('electron');
+
+    if (electron) {
+      return {
+        Authorization: electron.remote.getGlobal('authorization'),
+      };
+    }
+  }
+  return {};
+}
