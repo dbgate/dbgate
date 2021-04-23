@@ -21,7 +21,14 @@
       "artifactName": "dbgate-mac-${version}.${ext}",
       "publish": [
         "github"
-      ]
+      ],
+      "target": {
+        "target": "default",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      }
     },
     "linux": {
       "target": [
