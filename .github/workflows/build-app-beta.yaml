@@ -2,7 +2,7 @@ name: Electron app
 
 on:
   push:
-    tags:
+  tags:
       - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
 
 jobs:
@@ -11,8 +11,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-2016]
-        # os: [macOS-10.14, windows-2016, ubuntu-18.04]
+        # os: [ubuntu-18.04, windows-2016]
+        os: [macOS-10.14, windows-2016, ubuntu-18.04]
 
     steps:
       - name: Context
