@@ -6,7 +6,7 @@ const http = require('http');
 const cors = require('cors');
 const io = require('socket.io');
 const fs = require('fs');
-const findFreePort = require('find-free-port');
+const getPort = require('get-port');
 const childProcessChecker = require('./utility/childProcessChecker');
 const path = require('path');
 const crypto = require('crypto');
@@ -107,7 +107,7 @@ function start() {
 
     authorization = crypto.randomBytes(32).toString('hex');
 
-    findFreePort(53911, function (err, port) {
+    getPort().then(port => {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
         process.send({ msgtype: 'listening', port, authorization });
@@ -115,7 +115,7 @@ function start() {
     });
   } else if (platformInfo.isNpmDist) {
     app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
-    findFreePort(5000, function (err, port) {
+    getPort({ port: 5000 }).then(port => {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
       });
