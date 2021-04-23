@@ -55,7 +55,8 @@
     },
     "win": {
       "target": [
-        "nsis"
+        "nsis",
+        "zip"
       ],
       "artifactName": "dbgate-windows-${version}.${ext}",
       "icon": "icon.ico",
