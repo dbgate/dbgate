@@ -161,6 +161,13 @@
     if (allRowCount == null) return 'Loading row count...';
     return `Rows: ${allRowCount.toLocaleString()}`;
   }
+
+  function getCopiedValue(value) {
+    if (value === null) return '(NULL)';
+    if (value === undefined) return '(NoField)';
+    if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
+    return value;
+  }
 </script>
 
 <script lang="ts">
@@ -329,7 +336,7 @@
       if (!rowData) return '';
       const line = colIndexes
         .map(col => realColumnUniqueNames[col])
-        .map(col => (rowData[col] == null ? '(NULL)' : rowData[col]))
+        .map(col => getCopiedValue(rowData[col]))
         .join('\t');
       return line;
     });

@@ -1,7 +1,15 @@
+<script lang="ts" context="module">
+  function getEditedValue(value) {
+    if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
+    return value;
+  }
+</script>
+
 <script lang="ts">
   import keycodes from '../utility/keycodes';
   import { onMount } from 'svelte';
   import createRef from '../utility/createRef';
+  import _ from 'lodash';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
@@ -54,7 +62,7 @@
   }
 
   onMount(() => {
-    domEditor.value = inplaceEditorState.text || cellValue;
+    domEditor.value = inplaceEditorState.text || getEditedValue(cellValue);
     domEditor.focus();
     if (inplaceEditorState.selectAll) {
       domEditor.select();

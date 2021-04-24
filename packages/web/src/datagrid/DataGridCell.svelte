@@ -100,7 +100,7 @@
     {:else if value.type == 'Buffer' && _.isArray(value.data)}
       <span class="null">({value.data.length} bytes)</span>
     {:else if _.isPlainObject(value)}
-      <span class="null">(JSON)</span>
+      <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
     {:else if _.isArray(value)}
       <span class="null">[{value.length} items]</span>
     {:else}
