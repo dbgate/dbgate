@@ -7,6 +7,7 @@ const { getSshTunnelProxy } = require('./sshTunnelProxy');
 
 async function connectUtility(driver, storedConnection) {
   const connection = {
+    database: storedConnection.defaultDatabase,
     ...decryptConnection(storedConnection),
   };
 

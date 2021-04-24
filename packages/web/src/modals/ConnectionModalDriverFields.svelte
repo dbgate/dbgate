@@ -112,6 +112,8 @@
   {/if}
 {/if}
 
+<FormTextField label="Default database" name="defaultDatabase" />
+
 <FormTextField label="Display name" name="displayName" />
 
 <style>
