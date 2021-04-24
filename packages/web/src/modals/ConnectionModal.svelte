@@ -39,7 +39,10 @@
   }
 
   async function handleSubmit(e) {
-    axiosInstance.post('connections/save', e.detail);
+    axiosInstance.post('connections/save', {
+      ...e.detail,
+      singleDatabase: e.detail.defaultDatabase ? e.detail.singleDatabase : false,
+    });
     closeCurrentModal();
   }
 </script>
