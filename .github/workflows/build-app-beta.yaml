@@ -64,6 +64,7 @@ jobs:
           mkdir artifacts          
 
           mv app/dist/*.exe artifacts/ || true
+          mv app/dist/*.zip artifacts/ || true
           mv app/dist/*.AppImage artifacts/ || true
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.snap artifacts/ || true
