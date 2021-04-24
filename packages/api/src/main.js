@@ -33,6 +33,7 @@ const platformInfo = require('./utility/platformInfo');
 const processArgs = require('./utility/processArgs');
 
 let authorization = null;
+let checkLocalhostOrigin = null;
 
 function start() {
   // console.log('process.argv', process.argv);
@@ -57,6 +58,22 @@ function start() {
   app.use(function (req, res, next) {
     if (authorization && req.headers.authorization != authorization) {
       return res.status(403).json({ error: 'Not authorized!' });
+    }
+    if (checkLocalhostOrigin) {
+      if (
+        req.headers.origin &&
+        req.headers.origin != checkLocalhostOrigin &&
+        req.headers.origin != `http://${checkLocalhostOrigin}`
+      ) {
+        console.log('API origin check FAILED');
+        console.log('HEADERS', { ...req.headers, authorization: '***' });
+        return res.status(403).json({ error: 'Not authorized!' });
+      }
+      if (!req.headers.origin && req.headers.host != checkLocalhostOrigin) {
+        console.log('API host check FAILED');
+        console.log('HEADERS', { ...req.headers, authorization: '***' });
+        return res.status(403).json({ error: 'Not authorized!' });
+      }
     }
     next();
   });
@@ -108,6 +125,7 @@ function start() {
     authorization = crypto.randomBytes(32).toString('hex');
 
     getPort().then(port => {
+      checkLocalhostOrigin = `localhost:${port}`;
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
         process.send({ msgtype: 'listening', port, authorization });
