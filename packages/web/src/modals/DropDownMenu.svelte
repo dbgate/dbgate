@@ -16,9 +16,17 @@
 
     if (offset.left + width > window.innerWidth) {
       newLeft = offset.left - width;
+
+      if (newLeft < 0) newLeft = 0;
     }
+
     if (offset.top + height > window.innerHeight) {
       newTop = offset.top - height;
+
+      if (newTop < 0) newTop = 0;
+      if (newTop + height > window.innerHeight) {
+        element.style.height = `${window.innerHeight - newTop}px`;
+      }
     }
 
     if (newLeft != null) element.style.left = `${newLeft}px`;
@@ -115,6 +123,7 @@
     z-index: 1050;
     cursor: default;
     white-space: nowrap;
+    overflow-y: auto;
   }
 
   .keyText {
