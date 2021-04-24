@@ -1,5 +1,5 @@
 <script context="module">
-  const getContextMenu = (data, $openedConnections) => () => {
+  const getContextMenu = (data, $openedConnections, $extensions) => () => {
     const config = getCurrentConfig();
     const handleRefresh = () => {
       axiosInstance.post('server-connections/refresh', { conid: data._id });
@@ -55,24 +55,27 @@
           onClick: handleDelete,
         },
       ],
-      !$openedConnections.includes(data._id) && {
-        text: 'Connect',
-        onClick: handleConnect,
-      },
-      { onClick: handleNewQuery, text: 'New query' },
-      $openedConnections.includes(data._id) &&
-        data.status && {
-          text: 'Refresh',
-          onClick: handleRefresh,
+      !data.singleDatabase && [
+        !$openedConnections.includes(data._id) && {
+          text: 'Connect',
+          onClick: handleConnect,
         },
-      $openedConnections.includes(data._id) && {
-        text: 'Disconnect',
-        onClick: handleDisconnect,
-      },
-      $openedConnections.includes(data._id) && {
-        text: 'Create database',
-        onClick: handleCreateDatabase,
-      },
+        { onClick: handleNewQuery, text: 'New query' },
+        $openedConnections.includes(data._id) &&
+          data.status && {
+            text: 'Refresh',
+            onClick: handleRefresh,
+          },
+        $openedConnections.includes(data._id) && {
+          text: 'Disconnect',
+          onClick: handleDisconnect,
+        },
+        $openedConnections.includes(data._id) && {
+          text: 'Create database',
+          onClick: handleCreateDatabase,
+        },
+      ],
+      data.singleDatabase && [{ divider: true }, getDatabaseMenuItems(data, data.defaultDatabase, $extensions)],
     ];
   };
 
@@ -91,6 +94,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
 
   export let data;
 
@@ -149,13 +153,20 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.displayName || data.server}
-  icon="img server"
-  isBold={_.get($currentDatabase, 'connection._id') == data._id}
+  title={data.singleDatabase
+    ? data.displayName || `${data.defaultDatabase} on ${data.server}`
+    : data.displayName || data.server}
+  icon={data.singleDatabase ? 'img database' : 'img server'}
+  isBold={data.singleDatabase
+    ? _.get($currentDatabase, 'connection._id') == data._id && _.get($currentDatabase, 'name') == data.defaultDatabase
+    : _.get($currentDatabase, 'connection._id') == data._id}
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
-  menu={getContextMenu(data, $openedConnections)}
-  on:click={() => ($openedConnections = _.uniq([...$openedConnections, data._id]))}
+  menu={getContextMenu(data, $openedConnections, $extensions)}
+  on:click={() => {
+    if (data.singleDatabase) $currentDatabase = { connection: data, name: data.defaultDatabase };
+    else $openedConnections = _.uniq([...$openedConnections, data._id]);
+  }}
   on:click
 />

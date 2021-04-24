@@ -40,7 +40,7 @@
     module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick
-    isExpandable={data => $openedConnections.includes(data._id)}
+    isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
     {filter}
   />
   {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}

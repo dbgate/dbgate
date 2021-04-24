@@ -1,5 +1,57 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
+
+  export function getDatabaseMenuItems(connection, name, $extensions) {
+    const handleNewQuery = () => {
+      const tooltip = `${connection.displayName || connection.server}\n${name}`;
+      openNewTab({
+        title: 'Query #',
+        icon: 'img sql-file',
+        tooltip,
+        tabComponent: 'QueryTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
+    const handleImport = () => {
+      showModal(ImportExportModal, {
+        initialValues: {
+          sourceStorageType: getDefaultFileFormat($extensions).storageType,
+          targetStorageType: 'database',
+          targetConnectionId: connection._id,
+          targetDatabaseName: name,
+        },
+      });
+    };
+
+    const handleExport = () => {
+      showModal(ImportExportModal, {
+        initialValues: {
+          targetStorageType: getDefaultFileFormat($extensions).storageType,
+          sourceStorageType: 'database',
+          sourceConnectionId: connection._id,
+          sourceDatabaseName: name,
+        },
+      });
+    };
+
+    const handleSqlGenerator = () => {
+      showModal(SqlGeneratorModal, {
+        conid: connection._id,
+        database: name,
+      });
+    };
+
+    return [
+      { onClick: handleNewQuery, text: 'New query' },
+      { onClick: handleImport, text: 'Import' },
+      { onClick: handleExport, text: 'Export' },
+      { onClick: handleSqlGenerator, text: 'SQL Generator' },
+    ];
+  }
 </script>
 
 <script lang="ts">
@@ -13,63 +65,8 @@
   import AppObjectCore from './AppObjectCore.svelte';
   export let data;
 
-  const handleNewQuery = () => {
-    const { connection, name } = data;
-    const tooltip = `${connection.displayName || connection.server}\n${name}`;
-    openNewTab({
-      title: 'Query #',
-      icon: 'img sql-file',
-      tooltip,
-      tabComponent: 'QueryTab',
-      props: {
-        conid: connection._id,
-        database: name,
-      },
-    });
-  };
-
-  const handleImport = () => {
-    const { connection, name } = data;
-
-    showModal(ImportExportModal, {
-      initialValues: {
-        sourceStorageType: getDefaultFileFormat($extensions).storageType,
-        targetStorageType: 'database',
-        targetConnectionId: connection._id,
-        targetDatabaseName: name,
-      },
-    });
-  };
-
-  const handleExport = () => {
-    const { connection, name } = data;
-
-    showModal(ImportExportModal, {
-      initialValues: {
-        targetStorageType: getDefaultFileFormat($extensions).storageType,
-        sourceStorageType: 'database',
-        sourceConnectionId: connection._id,
-        sourceDatabaseName: name,
-      },
-    });
-  };
-
-  const handleSqlGenerator = () => {
-    const { connection, name } = data;
-
-    showModal(SqlGeneratorModal, {
-      conid: connection._id,
-      database: name,
-    });
-  };
-
   function createMenu() {
-    return [
-      { onClick: handleNewQuery, text: 'New query' },
-      { onClick: handleImport, text: 'Import' },
-      { onClick: handleExport, text: 'Export' },
-      { onClick: handleSqlGenerator, text: 'SQL Generator' },
-    ];
+    return getDatabaseMenuItems(data.connection, data.name, $extensions);
   }
 </script>
 

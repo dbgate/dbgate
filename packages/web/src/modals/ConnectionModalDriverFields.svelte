@@ -1,4 +1,6 @@
 <script lang="ts">
+  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+
   import FormPasswordField from '../forms/FormPasswordField.svelte';
 
   import { getFormContext } from '../forms/FormProviderCore.svelte';
@@ -17,6 +19,7 @@
   $: currentAuthType = $authTypes && $authTypes.find(x => x.name == authType);
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
+  $: defaultDatabase = $values.defaultDatabase;
 </script>
 
 <FormSelectField
@@ -44,11 +47,7 @@
 {/if}
 
 {#if driver?.supportsDatabaseUrl && useDatabaseUrl}
-  <FormTextField
-    label="Database URL"
-    name="databaseUrl"
-    placeholder={driver?.databaseUrlPlaceholder}
-  />
+  <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
 {:else}
   {#if $authTypes}
     <FormSelectField
@@ -113,6 +112,10 @@
 {/if}
 
 <FormTextField label="Default database" name="defaultDatabase" />
+
+{#if defaultDatabase}
+  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
+{/if}
 
 <FormTextField label="Display name" name="displayName" />
 
