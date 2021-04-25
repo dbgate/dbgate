@@ -8,14 +8,11 @@ class Analyser extends DatabaseAnalyser {
   async _runAnalysis() {
     const collections = await this.pool.__getDatabase().listCollections().toArray();
 
-    const res = this.mergeAnalyseResult(
-      {
-        collections: collections.map((x) => ({
-          pureName: x.name,
-        })),
-      },
-      (x) => x.pureName
-    );
+    const res = this.mergeAnalyseResult({
+      collections: collections.map((x) => ({
+        pureName: x.name,
+      })),
+    });
     // console.log('MERGED', res);
     return res;
   }

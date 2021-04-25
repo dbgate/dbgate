@@ -3,28 +3,28 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 
-let sqlite3;
+let Database;
 
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, user, password, database }) {
-    const pool = new NativePool({
-      server,
-      port,
-      user,
-      password,
-      database,
-    });
-    await pool.connect();
+  async connect({ databaseFile }) {
+    const pool = new Database(databaseFile);
     return pool;
   },
   // @ts-ignore
   async query(pool, sql) {
+    const stmt = pool.prepare(sql);
+    // stmt.raw();
+    const columns = stmt.columns();
+    const rows = stmt.all();
     return {
-      rows: [],
-      columns: [],
+      rows,
+      columns: columns.map((col) => ({
+        columnName: col.name,
+        dataType: col.type,
+      })),
     };
   },
   async stream(pool, sql, options) {
@@ -47,16 +47,13 @@ const driver = {
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
   async getVersion(pool) {
-    return { version: '1.0.0' };
-  },
-  async listDatabases(pool) {
-    return [{ name: 'db1' }, { name: 'db2' }];
+    return { version: 'SQLite 3' };
   },
 };
 
 driver.initialize = (dbgateEnv) => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['better-sqlite3']) {
-    sqlite3 = dbgateEnv.nativeModules['better-sqlite3']();
+    Database = dbgateEnv.nativeModules['better-sqlite3']();
   }
 };
 

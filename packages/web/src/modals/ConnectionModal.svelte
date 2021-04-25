@@ -51,7 +51,7 @@
   async function handleSubmit(e) {
     axiosInstance.post('connections/save', {
       ...e.detail,
-      singleDatabase: e.detail.defaultDatabase ? e.detail.singleDatabase : false,
+      singleDatabase: driver?.isFileDatabase || (e.detail.defaultDatabase ? e.detail.singleDatabase : false),
     });
     closeCurrentModal();
   }

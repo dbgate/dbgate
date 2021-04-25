@@ -6,10 +6,11 @@
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   $: conid = _.get($currentDatabase, 'connection._id');
+  $: singleDatabase = _.get($currentDatabase, 'connection.singleDatabase');
   $: database = _.get($currentDatabase, 'name');
 </script>
 
-{#if conid && database}
+{#if conid && (database || singleDatabase)}
   <SqlObjectList {conid} {database} />
 {:else}
   <WidgetsInnerContainer>
