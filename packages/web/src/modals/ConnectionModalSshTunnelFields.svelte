@@ -11,6 +11,7 @@
   import getElectron from '../utility/getElectron';
   import { usePlatformInfo } from '../utility/metadataLoaders';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { extensions } from '../stores';
 
   const { values, setFieldValue } = getFormContext();
   const electron = getElectron();

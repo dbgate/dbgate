@@ -16,11 +16,19 @@
   import createRef from '../utility/createRef';
   import Link from '../elements/Link.svelte';
   import ErrorMessageModal from './ErrorMessageModal.svelte';
+  import { writable } from 'svelte/store';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
+  import { extensions } from '../stores';
 
   export let connection;
 
   let isTesting;
   let sqlConnectResult;
+
+  const values = writable(connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' });
+
+  $: engine = $values.engine;
+  $: driver = $extensions.drivers.find(x => x.engine == engine);
 
   const testIdRef = createRef(0);
 
@@ -49,10 +57,7 @@
   }
 </script>
 
-<FormProvider
-  template={FormFieldTemplateLarge}
-  initialValues={connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' }}
->
+<FormProviderCore template={FormFieldTemplateLarge} {values}>
   <ModalBase {...$$restProps} noPadding>
     <div slot="header">Add connection</div>
 
@@ -63,11 +68,11 @@
           label: 'Main',
           component: ConnectionModalDriverFields,
         },
-        {
+        !driver?.isFileDatabase && {
           label: 'SSH Tunnel',
           component: ConnectionModalSshTunnelFields,
         },
-        {
+        !driver?.isFileDatabase && {
           label: 'SSL',
           component: ConnectionModalSslFields,
         },
@@ -114,7 +119,7 @@
       </div>
     </div>
   </ModalBase>
-</FormProvider>
+</FormProviderCore>
 
 <style>
   .buttons {

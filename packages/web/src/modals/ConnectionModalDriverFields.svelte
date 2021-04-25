@@ -1,5 +1,6 @@
 <script lang="ts">
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import FormElectronFileSelector from '../forms/FormElectronFileSelector.svelte';
 
   import FormPasswordField from '../forms/FormPasswordField.svelte';
 
@@ -9,7 +10,7 @@
 
   import FormTextField from '../forms/FormTextField.svelte';
   import { extensions } from '../stores';
-import getElectron from '../utility/getElectron';
+  import getElectron from '../utility/getElectron';
   import { useAuthTypes } from '../utility/metadataLoaders';
 
   const { values } = getFormContext();
@@ -39,87 +40,91 @@ import getElectron from '../utility/getElectron';
   ]}
 />
 
-{#if driver?.supportsDatabaseUrl}
-  <div class="radio">
-    <FormRadioGroupField
-      name="useDatabaseUrl"
-      options={[
-        { label: 'Fill database connection details', value: '', default: true },
-        { label: 'Use database URL', value: '1' },
-      ]}
-    />
-  </div>
-{/if}
-
-{#if driver?.supportsDatabaseUrl && useDatabaseUrl}
-  <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
+{#if driver?.isFileDatabase}
+  <FormElectronFileSelector label="Database file" name="databaseFile" disabled={!electron} />
 {:else}
-  {#if $authTypes}
-    <FormSelectField
-      label="Authentication"
-      name="authType"
-      options={$authTypes.map(auth => ({
-        value: auth.name,
-        label: auth.title,
-      }))}
-    />
+  {#if driver?.supportsDatabaseUrl}
+    <div class="radio">
+      <FormRadioGroupField
+        name="useDatabaseUrl"
+        options={[
+          { label: 'Fill database connection details', value: '', default: true },
+          { label: 'Use database URL', value: '1' },
+        ]}
+      />
+    </div>
   {/if}
 
-  <div class="row">
-    <div class="col-9 mr-1">
-      <FormTextField
-        label="Server"
-        name="server"
-        disabled={disabledFields.includes('server')}
-        templateProps={{ noMargin: true }}
+  {#if driver?.supportsDatabaseUrl && useDatabaseUrl}
+    <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
+  {:else}
+    {#if $authTypes}
+      <FormSelectField
+        label="Authentication"
+        name="authType"
+        options={$authTypes.map(auth => ({
+          value: auth.name,
+          label: auth.title,
+        }))}
       />
-    </div>
-    <div class="col-3 mr-1">
-      <FormTextField
-        label="Port"
-        name="port"
-        disabled={disabledFields.includes('port')}
-        templateProps={{ noMargin: true }}
-        placeholder={driver && driver.defaultPort}
-      />
-    </div>
-  </div>
+    {/if}
 
-  <div class="row">
-    <div class="col-6 mr-1">
-      <FormTextField
-        label="User"
-        name="user"
-        disabled={disabledFields.includes('user')}
-        templateProps={{ noMargin: true }}
-      />
+    <div class="row">
+      <div class="col-9 mr-1">
+        <FormTextField
+          label="Server"
+          name="server"
+          disabled={disabledFields.includes('server')}
+          templateProps={{ noMargin: true }}
+        />
+      </div>
+      <div class="col-3 mr-1">
+        <FormTextField
+          label="Port"
+          name="port"
+          disabled={disabledFields.includes('port')}
+          templateProps={{ noMargin: true }}
+          placeholder={driver && driver.defaultPort}
+        />
+      </div>
     </div>
-    <div class="col-6 mr-1">
-      <FormPasswordField
-        label="Password"
-        name="password"
-        disabled={disabledFields.includes('password')}
-        templateProps={{ noMargin: true }}
-      />
-    </div>
-  </div>
 
-  {#if !disabledFields.includes('password')}
-    <FormSelectField
-      label="Password mode"
-      name="passwordMode"
-      options={[
-        { value: 'saveEncrypted', label: 'Save and encrypt' },
-        { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
-      ]}
-    />
+    <div class="row">
+      <div class="col-6 mr-1">
+        <FormTextField
+          label="User"
+          name="user"
+          disabled={disabledFields.includes('user')}
+          templateProps={{ noMargin: true }}
+        />
+      </div>
+      <div class="col-6 mr-1">
+        <FormPasswordField
+          label="Password"
+          name="password"
+          disabled={disabledFields.includes('password')}
+          templateProps={{ noMargin: true }}
+        />
+      </div>
+    </div>
+
+    {#if !disabledFields.includes('password')}
+      <FormSelectField
+        label="Password mode"
+        name="passwordMode"
+        options={[
+          { value: 'saveEncrypted', label: 'Save and encrypt' },
+          { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+        ]}
+      />
+    {/if}
   {/if}
-{/if}
 
-<FormTextField label="Default database" name="defaultDatabase" />
+  <FormTextField label="Default database" name="defaultDatabase" />
 
-{#if defaultDatabase}
-  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
+  {#if defaultDatabase}
+    <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
+  {/if}
 {/if}
 
 <FormTextField label="Display name" name="displayName" />
