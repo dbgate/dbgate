@@ -141,7 +141,10 @@ const driver = {
   async getVersion(client) {
     const { rows } = await this.query(client, 'SELECT version()');
     const { version } = rows[0];
-    return { version };
+    return {
+      version,
+      versionText: (version || '').replace(/\s*\(.*$/, ''),
+    };
   },
   // async analyseFull(pool) {
   //   const analyser = new PostgreAnalyser(pool, this);

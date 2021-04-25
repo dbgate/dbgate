@@ -65,7 +65,7 @@
       <div class="item flex" title={$serverVersion.version}>
         <FontIcon icon="icon version" />
         <div class="version ml-1">
-          {$serverVersion.version}
+          {$serverVersion.versionText || $serverVersion.version}
         </div>
       </div>
     {/if}

@@ -178,7 +178,10 @@ const driver = {
   },
   async getVersion(pool) {
     const status = await pool.__getDatabase().admin().serverInfo();
-    return status;
+    return {
+      ...status,
+      versionText: `MongoDB ${status.version}`,
+    };
   },
   async listDatabases(pool) {
     const res = await pool.__getDatabase().admin().listDatabases();

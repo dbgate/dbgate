@@ -171,7 +171,10 @@ const driver = {
   async getVersion(connection) {
     const { rows } = await this.query(connection, "show variables like 'version'");
     const version = rows[0].Value;
-    return { version };
+    return {
+      version,
+      versionText: `MySQL ${version}`,
+    };
   },
   async listDatabases(connection) {
     const { rows } = await this.query(connection, 'show databases');

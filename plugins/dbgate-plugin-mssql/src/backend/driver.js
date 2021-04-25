@@ -11,6 +11,24 @@ const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = re
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
 let msnodesqlv8;
 
+const versionQuery = `
+SELECT 
+  @@VERSION AS version, 
+  SERVERPROPERTY ('productversion') as productVersion,
+  CASE 
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '8%' THEN 'SQL Server 2000'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '9%' THEN 'SQL Server 2005'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.0%' THEN 'SQL Server 2008'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '10.5%' THEN 'SQL Server 2008 R2'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '11%' THEN 'SQL Server 2012'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '12%' THEN 'SQL Server 2014'
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '13%' THEN 'SQL Server 2016'     
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '14%' THEN 'SQL Server 2017' 
+  WHEN CONVERT(VARCHAR(128), SERVERPROPERTY ('productversion')) like '15%' THEN 'SQL Server 2019' 
+  ELSE 'Unknown'
+  END AS versionText
+`;
+
 const windowsAuthTypes = [
   {
     title: 'Windows',
@@ -79,18 +97,16 @@ const driver = {
     }
   },
   async getVersion(pool) {
-    const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
+    const res = (await this.query(pool, versionQuery)).rows[0];
 
-    const { productVersion } = (
-      await this.query(pool, "SELECT SERVERPROPERTY ('productversion') as productVersion")
-    ).rows[0];
-    let productVersionNumber = 0;
-    if (productVersion) {
-      const splitted = productVersion.split('.');
+    if (res.productVersion) {
+      const splitted = res.productVersion.split('.');
       const number = parseInt(splitted[0]) || 0;
-      productVersionNumber = number;
+      res.productVersionNumber = number;
+    } else {
+      res.productVersionNumber = 0;
     }
-    return { version, productVersion, productVersionNumber };
+    return res;
   },
   async listDatabases(pool) {
     const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');
