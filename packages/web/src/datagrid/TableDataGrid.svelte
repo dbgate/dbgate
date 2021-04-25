@@ -43,7 +43,7 @@
 
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
-  // $: serverVersion = useDatabaseServerVersion({ conid, database });
+  $: serverVersion = useDatabaseServerVersion({ conid, database });
 
   // $: console.log('serverVersion', $serverVersion);
 
@@ -53,31 +53,35 @@
 
   // $: console.log('display', display);
 
-  $: display = connection
-    ? new TableGridDisplay(
-        { schemaName, pureName },
-        findEngineDriver($connection, $extensions),
-        config,
-        setConfig,
-        cache,
-        setCache,
-        $dbinfo,
-        { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) }
-      )
-    : null;
+  $: display =
+    connection && $serverVersion
+      ? new TableGridDisplay(
+          { schemaName, pureName },
+          findEngineDriver($connection, $extensions),
+          config,
+          setConfig,
+          cache,
+          setCache,
+          $dbinfo,
+          { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
+          $serverVersion
+        )
+      : null;
 
-  $: formDisplay = connection
-    ? new TableFormViewDisplay(
-        { schemaName, pureName },
-        findEngineDriver($connection, $extensions),
-        config,
-        setConfig,
-        cache,
-        setCache,
-        $dbinfo,
-        { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) }
-      )
-    : null;
+  $: formDisplay =
+    connection && $serverVersion
+      ? new TableFormViewDisplay(
+          { schemaName, pureName },
+          findEngineDriver($connection, $extensions),
+          config,
+          setConfig,
+          cache,
+          setCache,
+          $dbinfo,
+          { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
+          $serverVersion
+        )
+      : null;
 
   const setChildConfig = (value, reference = undefined) => {
     if (_.isFunction(value)) {

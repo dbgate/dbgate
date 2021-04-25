@@ -1,6 +1,14 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
-import { ForeignKeyInfo, TableInfo, ColumnInfo, EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import {
+  ForeignKeyInfo,
+  TableInfo,
+  ColumnInfo,
+  EngineDriver,
+  NamedObjectInfo,
+  DatabaseInfo,
+  SqlDialect,
+} from 'dbgate-types';
 import { parseFilter, getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
 import { filterName } from './filterName';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
@@ -12,6 +20,7 @@ export class FormViewDisplay {
   isLoadedCorrectly = true;
   columns: DisplayColumn[];
   public baseTable: TableInfo;
+  dialect: SqlDialect;
 
   constructor(
     public config: GridConfig,
@@ -19,8 +28,11 @@ export class FormViewDisplay {
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
     public driver?: EngineDriver,
-    public dbinfo: DatabaseInfo = null
-  ) {}
+    public dbinfo: DatabaseInfo = null,
+    public serverVersion = null
+  ) {
+    this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(serverVersion)) || driver?.dialect;
+  }
 
   addFilterColumn(column) {
     if (!column) return;

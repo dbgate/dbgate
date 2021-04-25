@@ -1,6 +1,7 @@
 export interface SqlDialect {
   rangeSelect?: boolean;
   limitSelect?: boolean;
+  rowNumberOverPaging?: boolean;
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
   quoteIdentifier(s: string): string;

@@ -11,7 +11,7 @@
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';
   import { extensions } from '../stores';
-  import { useConnectionInfo, useViewInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
   import useGridConfig from '../utility/useGridConfig';
 
   export let tabid;
@@ -22,12 +22,13 @@
 
   $: connection = useConnectionInfo({ conid });
   $: viewInfo = useViewInfo({ conid, database, schemaName, pureName });
+  $: serverVersion = useDatabaseServerVersion({ conid, database });
 
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
 
   $: display =
-    $viewInfo && $connection
+    $viewInfo && $connection && $serverVersion
       ? new ViewGridDisplay(
           $viewInfo,
           findEngineDriver($connection, $extensions),
@@ -35,7 +36,8 @@
           $config,
           config.update,
           $cache,
-          cache.update
+          cache.update,
+          $serverVersion
         )
       : null;
 </script>

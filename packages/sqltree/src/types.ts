@@ -92,6 +92,13 @@ export interface NotExistsCondition {
   subQuery: Select;
 }
 
+export interface BetweenCondition {
+  conditionType: 'between';
+  expr: Expression;
+  left: Expression;
+  right: Expression;
+}
+
 export type Condition =
   | BinaryCondition
   | NotCondition
@@ -99,7 +106,8 @@ export type Condition =
   | CompoudCondition
   | LikeCondition
   | ExistsCondition
-  | NotExistsCondition;
+  | NotExistsCondition
+  | BetweenCondition;
 
 export interface Source {
   name?: NamedObjectInfo;
@@ -153,13 +161,19 @@ export interface TranformExpression {
   transform: TransformType;
 }
 
+export interface RowNumberExpression {
+  exprType: 'rowNumber';
+  orderBy: OrderByExpression[];
+}
+
 export type Expression =
   | ColumnRefExpression
   | ValueExpression
   | PlaceholderExpression
   | RawExpression
   | CallExpression
-  | TranformExpression;
+  | TranformExpression
+  | RowNumberExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };
 
 export type ResultField = Expression & { alias?: string };

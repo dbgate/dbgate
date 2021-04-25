@@ -61,6 +61,7 @@ export interface EngineDriver {
   analyseFull(pool: any): Promise<DatabaseInfo>;
   analyseIncremental(pool: any, structure: DatabaseInfo): Promise<DatabaseInfo>;
   dialect: SqlDialect;
+  dialectByVersion(version): SqlDialect;
   createDumper(): SqlDumper;
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;

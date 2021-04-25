@@ -18,9 +18,10 @@ export class TableGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
-    public displayOptions: any
+    public displayOptions: any,
+    serverVersion
   ) {
-    super(config, setConfig, cache, setCache, driver, dbinfo);
+    super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
 
     this.table = this.findTable(tableName);
     if (!this.table) {

@@ -38,5 +38,14 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
     case 'transform':
       dmp.transform(expr.transform, () => dumpSqlExpression(dmp, expr.expr));
       break;
+
+    case 'rowNumber':
+      dmp.put(" ^row_number() ^over (^order ^by ");
+      dmp.putCollection(', ', expr.orderBy, x => {
+        dumpSqlExpression(dmp, x);
+        dmp.put(' %k', x.direction);
+      });
+      dmp.put(")");
+      break;
   }
 }

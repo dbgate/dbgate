@@ -10,9 +10,10 @@ export class ViewGridDisplay extends GridDisplay {
     config: GridConfig,
     setConfig: ChangeConfigFunc,
     cache: GridCache,
-    setCache: ChangeCacheFunc
+    setCache: ChangeCacheFunc,
+    serverVersion
   ) {
-    super(config, setConfig, cache, setCache, driver);
+    super(config, setConfig, cache, setCache, driver, serverVersion);
     this.columns = this.getDisplayColumns(view);
     this.filterable = true;
     this.sortable = true;

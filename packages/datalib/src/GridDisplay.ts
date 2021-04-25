@@ -8,6 +8,7 @@ import {
   NamedObjectInfo,
   DatabaseInfo,
   CollectionInfo,
+  SqlDialect,
 } from 'dbgate-types';
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from './filterName';
@@ -60,8 +61,12 @@ export abstract class GridDisplay {
     public cache: GridCache,
     protected setCache: ChangeCacheFunc,
     public driver?: EngineDriver,
-    public dbinfo: DatabaseInfo = null
-  ) {}
+    public dbinfo: DatabaseInfo = null,
+    public serverVersion = null
+  ) {
+    this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(serverVersion)) || driver?.dialect;
+  }
+  dialect: SqlDialect;
   columns: DisplayColumn[];
   baseTable?: TableInfo;
   baseCollection?: CollectionInfo;
@@ -460,12 +465,75 @@ export abstract class GridDisplay {
     return select;
   }
 
+  getRowNumberOverSelect(select: Select, offset: number, count: number): Select {
+    const innerSelect: Select = {
+      commandType: 'select',
+      from: select.from,
+      where: select.where,
+      columns: [
+        ...select.columns,
+        {
+          alias: '_rowNumber',
+          exprType: 'rowNumber',
+          orderBy: select.orderBy
+            ? select.orderBy.map(x =>
+                x.exprType != 'column'
+                  ? x
+                  : x.source
+                  ? x
+                  : {
+                      ...x,
+                      source: { alias: 'basetbl' },
+                    }
+              )
+            : [
+                {
+                  ...select.columns[0],
+                  direction: 'ASC',
+                },
+              ],
+        },
+      ],
+    };
+
+    const res: Select = {
+      commandType: 'select',
+      selectAll: true,
+      from: {
+        subQuery: innerSelect,
+        alias: '_RowNumberResult',
+      },
+      where: {
+        conditionType: 'between',
+        expr: {
+          exprType: 'column',
+          columnName: '_RowNumber',
+          source: {
+            alias: '_RowNumberResult',
+          },
+        },
+        left: {
+          exprType: 'value',
+          value: offset + 1,
+        },
+        right: {
+          exprType: 'value',
+          value: offset + count,
+        },
+      },
+    };
+
+    return res;
+  }
+
   getPageQuery(offset: number, count: number) {
     if (!this.driver) return null;
-    const select = this.createSelect();
+    let select = this.createSelect();
     if (!select) return null;
-    if (this.driver.dialect.rangeSelect) select.range = { offset: offset, limit: count };
-    else if (this.driver.dialect.limitSelect) select.topRecords = count;
+    if (this.dialect.rangeSelect) select.range = { offset: offset, limit: count };
+    else if (this.dialect.rowNumberOverPaging && offset > 0)
+      select = this.getRowNumberOverSelect(select, offset, count);
+    else if (this.dialect.limitSelect) select.topRecords = count;
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
   }

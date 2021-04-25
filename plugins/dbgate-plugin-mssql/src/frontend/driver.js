@@ -6,6 +6,7 @@ const dialect = {
   limitSelect: true,
   rangeSelect: true,
   offsetFetchRangeSyntax: true,
+  rowNumberOverPaging: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
   explicitDropConstraint: false,
@@ -21,6 +22,16 @@ const driver = {
   ...driverBase,
   dumperClass: MsSqlDumper,
   dialect,
+  dialectByVersion(version) {
+    if (version && version.productVersionNumber < 11) {
+      return {
+        ...dialect,
+        rangeSelect: false,
+        offsetFetchRangeSyntax: false,
+      };
+    }
+    return dialect;
+  },
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',
   defaultPort: 1433,

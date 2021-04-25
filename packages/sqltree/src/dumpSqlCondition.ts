@@ -62,5 +62,12 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       dumpSqlSelect(dmp, condition.subQuery);
       dmp.put(')');
       break;
+    case 'between':
+      dumpSqlExpression(dmp, condition.expr);
+      dmp.put(' ^between ');
+      dumpSqlExpression(dmp, condition.left);
+      dmp.put(' ^and ');
+      dumpSqlExpression(dmp, condition.right);
+      break;
   }
 }
