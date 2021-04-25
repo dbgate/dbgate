@@ -19,6 +19,7 @@
     'icon sql-generator': 'mdi mdi-cog-transfer',
     'icon keyboard': 'mdi mdi-keyboard-settings',
     'icon settings': 'mdi mdi-cog',
+    'icon version': 'mdi mdi-ticket-confirmation',
 
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',

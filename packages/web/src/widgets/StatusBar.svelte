@@ -15,11 +15,12 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { activeTabId, currentDatabase } from '../stores';
-  import { useDatabaseStatus } from '../utility/metadataLoaders';
+  import { useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
   $: status = useDatabaseStatus(connection ? { conid: connection._id, database: databaseName } : {});
+  $: serverVersion = useDatabaseServerVersion(connection ? { conid: connection._id, database: databaseName } : {});
 
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
 </script>
@@ -60,6 +61,14 @@
         <FontIcon icon="icon disconnected" /> Not connected
       </div>
     {/if}
+    {#if $serverVersion}
+      <div class="item flex" title={$serverVersion.version}>
+        <FontIcon icon="icon version" />
+        <div class="version ml-1">
+          {$serverVersion.version}
+        </div>
+      </div>
+    {/if}
   </div>
   <div class="container">
     {#each contextItems || [] as item}
@@ -85,5 +94,12 @@
   }
   .item {
     padding: 2px 10px;
+  }
+
+  .version {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>
