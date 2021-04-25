@@ -31,6 +31,12 @@ async function handleRefresh() {
   }
 }
 
+async function readVersion() {
+  const driver = requireEngineDriver(storedConnection);
+  const version = await driver.getVersion(systemConnection);
+  process.send({ msgtype: 'version', version });
+}
+
 function setStatus(status) {
   const statusString = stableStringify(status);
   if (lastStatus != statusString) {
@@ -51,6 +57,7 @@ async function handleConnect(connection) {
   const driver = requireEngineDriver(storedConnection);
   try {
     systemConnection = await connectUtility(driver, storedConnection);
+    readVersion();
     handleRefresh();
     setInterval(handleRefresh, 30 * 1000);
   } catch (err) {

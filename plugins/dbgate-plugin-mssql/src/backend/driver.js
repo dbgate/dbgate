@@ -80,7 +80,17 @@ const driver = {
   },
   async getVersion(pool) {
     const { version } = (await this.query(pool, 'SELECT @@VERSION AS version')).rows[0];
-    return { version };
+
+    const { productVersion } = (
+      await this.query(pool, "SELECT SERVERPROPERTY ('productversion') as productVersion")
+    ).rows[0];
+    let productVersionNumber = 0;
+    if (productVersion) {
+      const splitted = productVersion.split('.');
+      const number = parseInt(splitted[0]) || 0;
+      productVersionNumber = number;
+    }
+    return { version, productVersion, productVersionNumber };
   },
   async listDatabases(pool) {
     const { rows } = await this.query(pool, 'SELECT name FROM sys.databases order by name');

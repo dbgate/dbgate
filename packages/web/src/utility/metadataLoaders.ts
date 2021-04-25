@@ -76,6 +76,18 @@ const databaseListLoader = ({ conid }) => ({
   reloadTrigger: `database-list-changed-${conid}`,
 });
 
+const serverVersionLoader = ({ conid }) => ({
+  url: 'server-connections/version',
+  params: { conid },
+  reloadTrigger: `server-version-changed-${conid}`,
+});
+
+const databaseServerVersionLoader = ({ conid, database }) => ({
+  url: 'database-connections/server-version',
+  params: { conid, database },
+  reloadTrigger: `database-server-version-changed-${conid}-${database}`,
+});
+
 const archiveFoldersLoader = () => ({
   url: 'archive/folders',
   params: {},
@@ -317,6 +329,21 @@ export function getDatabaseList(args) {
 export function useDatabaseList(args) {
   return useCore(databaseListLoader, args);
 }
+
+export function getServerVersion(args) {
+  return getCore(serverVersionLoader, args);
+}
+export function useServerVersion(args) {
+  return useCore(serverVersionLoader, args);
+}
+
+export function getDatabaseServerVersion(args) {
+  return getCore(databaseServerVersionLoader, args);
+}
+export function useDatabaseServerVersion(args) {
+  return useCore(databaseServerVersionLoader, args);
+}
+
 
 export function getServerStatus() {
   return getCore(serverStatusLoader, {});

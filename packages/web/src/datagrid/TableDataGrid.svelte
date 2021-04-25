@@ -14,7 +14,12 @@
   import { extensions } from '../stores';
   import stableStringify from 'json-stable-stringify';
 
-  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import {
+    useConnectionInfo,
+    useDatabaseInfo,
+    useDatabaseServerVersion,
+    useServerVersion,
+  } from '../utility/metadataLoaders';
 
   import DataGrid from './DataGrid.svelte';
   import ReferenceHeader from './ReferenceHeader.svelte';
@@ -38,6 +43,9 @@
 
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
+  // $: serverVersion = useDatabaseServerVersion({ conid, database });
+
+  // $: console.log('serverVersion', $serverVersion);
 
   let myLoadedTime = 0;
 

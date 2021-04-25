@@ -17,6 +17,13 @@ module.exports = {
     existing.structure = structure;
     socket.emitChanged(`database-structure-changed-${conid}-${database}`);
   },
+  handle_version(conid, database, { version }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    if (!existing) return;
+    existing.serverVersion = version;
+    socket.emitChanged(`database-server-version-changed-${conid}-${database}`);
+  },
+
   handle_error(conid, database, props) {
     const { error } = props;
     console.log(`Error in database connection ${conid}, database ${database}: ${error}`);
@@ -51,6 +58,7 @@ module.exports = {
       database,
       subprocess,
       structure: lastClosed ? lastClosed.structure : DatabaseAnalyser.createEmptyStructure(),
+      serverVersion: lastClosed ? lastClosed.serverVersion : null,
       connection,
       status: { name: 'pending' },
     };
@@ -173,6 +181,12 @@ module.exports = {
     //   name: 'error',
     //   message: 'Not connected',
     // };
+  },
+
+  serverVersion_meta: 'get',
+  async serverVersion({ conid, database }) {
+    const opened = await this.ensureOpened(conid, database);
+    return opened.serverVersion;
   },
 
   sqlPreview_meta: 'post',

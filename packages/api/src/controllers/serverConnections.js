@@ -17,6 +17,12 @@ module.exports = {
     existing.databases = databases;
     socket.emitChanged(`database-list-changed-${conid}`);
   },
+  handle_version(conid, { version }) {
+    const existing = this.opened.find(x => x.conid == conid);
+    if (!existing) return;
+    existing.version = version;
+    socket.emitChanged(`server-version-changed-${conid}`);
+  },
   handle_status(conid, { status }) {
     const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
@@ -83,6 +89,12 @@ module.exports = {
   async listDatabases({ conid }) {
     const opened = await this.ensureOpened(conid);
     return opened.databases;
+  },
+
+  version_meta: 'get',
+  async version({ conid }) {
+    const opened = await this.ensureOpened(conid);
+    return opened.version;
   },
 
   serverStatus_meta: 'get',

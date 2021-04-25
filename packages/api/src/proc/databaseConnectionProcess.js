@@ -56,6 +56,12 @@ function setStatusName(name) {
   setStatus({ name });
 }
 
+async function readVersion() {
+  const driver = requireEngineDriver(storedConnection);
+  const version = await driver.getVersion(systemConnection);
+  process.send({ msgtype: 'version', version });
+}
+
 async function handleConnect({ connection, structure }) {
   storedConnection = connection;
   lastPing = new Date().getTime();
@@ -63,6 +69,7 @@ async function handleConnect({ connection, structure }) {
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
   systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection));
+  readVersion();
   if (structure) {
     analysedStructure = structure;
     handleIncrementalRefresh();
