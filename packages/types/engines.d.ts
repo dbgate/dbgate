@@ -38,6 +38,7 @@ export interface EngineDriver {
   title: string;
   defaultPort?: number;
   supportsDatabaseUrl?: boolean;
+  isFileDatabase?: boolean;
   databaseUrlPlaceholder?: string;
   connect({ server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;

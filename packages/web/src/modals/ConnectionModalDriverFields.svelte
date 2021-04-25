@@ -9,9 +9,12 @@
 
   import FormTextField from '../forms/FormTextField.svelte';
   import { extensions } from '../stores';
+import getElectron from '../utility/getElectron';
   import { useAuthTypes } from '../utility/metadataLoaders';
 
   const { values } = getFormContext();
+  const electron = getElectron();
+
   $: authType = $values.authType;
   $: engine = $values.engine;
   $: useDatabaseUrl = $values.useDatabaseUrl;
@@ -27,10 +30,12 @@
   name="engine"
   options={[
     { label: '(select driver)', value: '' },
-    ...$extensions.drivers.map(driver => ({
-      value: driver.engine,
-      label: driver.title,
-    })),
+    ...$extensions.drivers
+      .filter(driver => !driver.isFileDatabase || electron)
+      .map(driver => ({
+        value: driver.engine,
+        label: driver.title,
+      })),
   ]}
 />
 
