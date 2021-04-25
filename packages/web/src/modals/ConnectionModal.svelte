@@ -12,8 +12,10 @@
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal, closeModal } from './modalTools';
+  import { closeCurrentModal, closeModal, showModal } from './modalTools';
   import createRef from '../utility/createRef';
+  import Link from '../elements/Link.svelte';
+  import ErrorMessageModal from './ErrorMessageModal.svelte';
 
   export let connection;
 
@@ -92,6 +94,16 @@
           <div class="error-result">
             Connect failed: <FontIcon icon="img error" />
             {sqlConnectResult.error}
+            <Link
+              onClick={() =>
+                showModal(ErrorMessageModal, {
+                  message: sqlConnectResult.detail,
+                  showAsCode: true,
+                  title: 'Database connection error',
+                })}
+            >
+              Show detail
+            </Link>
           </div>
         {/if}
         {#if isTesting}

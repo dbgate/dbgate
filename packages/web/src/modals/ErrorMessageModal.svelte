@@ -9,18 +9,25 @@
 
   export let title = 'Error';
   export let message;
+  export let showAsCode = false;
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
     <div slot="header">{title}</div>
 
-    <div class="wrapper">
-      <div class="icon">
-        <FontIcon icon="img error" />
+    {#if showAsCode}
+      <pre>{message}</pre>
+    {:else}
+      <div class="wrapper">
+        <div class="icon">
+          <FontIcon icon="img error" />
+        </div>
+        <div>
+          {message}
+        </div>
       </div>
-      {message}
-    </div>
+    {/if}
 
     <div slot="footer">
       <FormSubmit value="Close" on:click={closeCurrentModal} />
@@ -37,5 +44,10 @@
   .icon {
     margin-right: 10px;
     font-size: 20pt;
+  }
+
+  pre {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
   }
 </style>
