@@ -10,6 +10,7 @@
 - FIX: Fixed crash on Windows with Hyper-V #86
 - ADDED: Show database server version in status bar
 - ADDED: Show detailed info about error, when connect to database fails
+- ADDED: Portable ZIP distribution for Windows #84
 ### 4.1.9
 - FIX: Incorrect row count info in query result #83
 
