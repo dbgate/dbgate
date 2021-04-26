@@ -1,5 +1,18 @@
 # ChangeLog
 
+### 4.1.10
+- ADDED: Default database option in connectin settings #96 #92
+- FIX: Bundle size optimalization for Windows #97
+- FIX: Popup menu placement on smaller displays #94
+- ADDED: Browse table data with SQL Server 2008 #93
+- FIX: Prevented malicious origins / DNS rebinding #91
+- ADDED: Handle JSON fields in data editor (eg. jsonb field in Postgres) #90
+- FIX: Fixed crash on Windows with Hyper-V #86
+- ADDED: Show database server version in status bar
+- ADDED: Show detailed info about error, when connect to database fails
+### 4.1.9
+- FIX: Incorrect row count info in query result #83
+
 ### 4.1.1
 - CHANGED: Default plugins are now part of installation
 ### 4.1.0
