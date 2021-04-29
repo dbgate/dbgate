@@ -8,8 +8,8 @@ select
 from
   information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' 
   and (
-   (routine_type = 'PROCEDURE' and ('procedures:' || routine_schema || '.' ||  routine_schema) =OBJECT_ID_CONDITION)
+   (routine_type = 'PROCEDURE' and ('procedures:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
    or
-   (routine_type = 'FUNCTION' and ('functions:' || routine_schema || '.' ||  routine_schema) =OBJECT_ID_CONDITION)
+   (routine_type = 'FUNCTION' and ('functions:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
   )
 `;
