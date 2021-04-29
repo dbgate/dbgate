@@ -29,6 +29,7 @@ async function checkedAsyncCall(promise) {
 
 async function handleFullRefresh() {
   const driver = requireEngineDriver(storedConnection);
+  setStatusName('loadStructure');
   analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection));
   process.send({ msgtype: 'structure', structure: analysedStructure });
   setStatusName('ok');
@@ -36,6 +37,7 @@ async function handleFullRefresh() {
 
 async function handleIncrementalRefresh() {
   const driver = requireEngineDriver(storedConnection);
+  setStatusName('checkStructure');
   const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure));
   if (newStructure != null) {
     analysedStructure = newStructure;
