@@ -7,6 +7,7 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import FormValues from '../forms/FormValues.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
@@ -32,17 +33,32 @@
   <ModalBase {...$$restProps}>
     <div slot="header">Settings</div>
 
-    <div class="heading">Appearance</div>
-    <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
+    <FormValues let:values>
+      <div class="heading">Appearance</div>
+      <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
 
-    <div class="heading">Data grid</div>
-    <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
-    <FormTextField
-      name="dataGrid.pageSize"
-      label="Page size (number of rows for incremental loading, must be between 5 and 1000)"
-      defaultValue="100"
-    />
-    <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
+      <div class="heading">Data grid</div>
+      <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
+      <FormTextField
+        name="dataGrid.pageSize"
+        label="Page size (number of rows for incremental loading, must be between 5 and 1000)"
+        defaultValue="100"
+      />
+      <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
+
+      <div class="heading">Connection</div>
+      <FormCheckboxField
+        name="connection.autoRefresh"
+        label="Automatic refresh of database model on background"
+        defaultValue={true}
+      />
+      <FormTextField
+        name="connection.autoRefreshInterval"
+        label="Interval between automatic refreshes in seconds"
+        defaultValue="30"
+        disabled={values['connection.autoRefresh'] === false}
+      />
+    </FormValues>
 
     <div slot="footer">
       <FormSubmit value="OK" on:click={handleOk} />

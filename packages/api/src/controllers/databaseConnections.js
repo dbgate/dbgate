@@ -4,6 +4,7 @@ const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { DatabaseAnalyser } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
+const config = require('./config');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -79,6 +80,7 @@ module.exports = {
       msgtype: 'connect',
       connection: { ...connection, database },
       structure: lastClosed ? lastClosed.structure : null,
+      globalSettings: await config.getSettings()
     });
     return newOpened;
   },

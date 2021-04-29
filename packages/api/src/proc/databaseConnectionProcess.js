@@ -1,5 +1,6 @@
 const stableStringify = require('json-stable-stringify');
 const childProcessChecker = require('../utility/childProcessChecker');
+const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -64,7 +65,7 @@ async function readVersion() {
   process.send({ msgtype: 'version', version });
 }
 
-async function handleConnect({ connection, structure }) {
+async function handleConnect({ connection, structure, globalSettings }) {
   storedConnection = connection;
   lastPing = new Date().getTime();
 
@@ -78,7 +79,14 @@ async function handleConnect({ connection, structure }) {
   } else {
     handleFullRefresh();
   }
-  setInterval(handleIncrementalRefresh, 30 * 1000);
+
+  if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', true)) {
+    setInterval(
+      handleIncrementalRefresh,
+      extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 3, 3600) * 1000
+    );
+  }
+
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }
