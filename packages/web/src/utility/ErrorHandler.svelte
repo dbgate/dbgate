@@ -13,6 +13,8 @@
         console.log('CRASH DETECTED!!!');
         const lastDbGateCrashJson = localStorage.getItem('lastDbGateCrash');
         const lastDbGateCrash = lastDbGateCrashJson ? JSON.parse(lastDbGateCrashJson) : null;
+        // let detail = e?.reason?.stack || '';
+        // if (detail) detail = '\n\n' + detail;
 
         if (lastDbGateCrash && new Date().getTime() - lastDbGateCrash < 30 * 1000) {
           if (
