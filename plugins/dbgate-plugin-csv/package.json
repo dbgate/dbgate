@@ -34,7 +34,7 @@
   "devDependencies": {
     "csv": "^5.3.2",
     "dbgate-plugin-tools": "^1.0.7",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.19",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11"
   }
