@@ -66,7 +66,7 @@ module.exports = {
         if (newOpened.disconnected) return;
         this.close(conid, false);
       });
-      subprocess.send({ msgtype: 'connect', ...connection, globalSettings: await config.getSettings() });
+      subprocess.send({ msgtype: 'connect', ...connection, globalSettings: config.settingsValue });
       return newOpened;
     });
     return res;

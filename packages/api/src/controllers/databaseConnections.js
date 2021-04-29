@@ -80,7 +80,7 @@ module.exports = {
       msgtype: 'connect',
       connection: { ...connection, database },
       structure: lastClosed ? lastClosed.structure : null,
-      globalSettings: await config.getSettings()
+      globalSettings: config.settingsValue
     });
     return newOpened;
   },
