@@ -11,10 +11,15 @@
   import 'ace-builds/src-noconflict/mode-json';
   import 'ace-builds/src-noconflict/mode-javascript';
   import 'ace-builds/src-noconflict/mode-markdown';
-  import 'ace-builds/src-noconflict/theme-github';
-  import 'ace-builds/src-noconflict/theme-twilight';
   import 'ace-builds/src-noconflict/ext-searchbox';
   import 'ace-builds/src-noconflict/ext-language_tools';
+
+  import 'ace-builds/src-noconflict/theme-github';
+  // import 'ace-builds/src-noconflict/theme-sqlserver';
+
+  import 'ace-builds/src-noconflict/theme-twilight';
+  // import 'ace-builds/src-noconflict/theme-monokai';
+
   import { currentDropDownMenu, currentThemeDefinition } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
