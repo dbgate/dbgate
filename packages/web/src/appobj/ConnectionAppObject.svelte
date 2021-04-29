@@ -19,6 +19,13 @@
         onConfirm: () => axiosInstance.post('connections/delete', data),
       });
     };
+    const handleDuplicate = () => {
+      axiosInstance.post('connections/save', {
+        ...data,
+        _id: undefined,
+        displayName: `${data.displayName || data.server} - copy`,
+      });
+    };
     const handleCreateDatabase = () => {
       showModal(InputTextModal, {
         header: 'Create database',
@@ -53,6 +60,10 @@
         {
           text: 'Delete',
           onClick: handleDelete,
+        },
+        {
+          text: 'Duplicate',
+          onClick: handleDuplicate,
         },
       ],
       !data.singleDatabase && [
