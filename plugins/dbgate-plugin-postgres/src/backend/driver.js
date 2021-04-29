@@ -1,10 +1,12 @@
 const _ = require('lodash');
 const stream = require('stream');
+const { identify } = require('sql-query-identifier');
+
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const pg = require('pg');
 const pgQueryStream = require('pg-query-stream');
-const { createBulkInsertStreamBase, splitPostgresQuery, makeUniqueColumnNames } = require('dbgate-tools');
+const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
 function extractPostgresColumns(result) {
   if (!result || !result.fields) return [];
@@ -119,10 +121,10 @@ const driver = {
     return { rows: res.rows.map(row => zipDataRow(row, columns)), columns };
   },
   async stream(client, sql, options) {
-    const sqlSplitted = splitPostgresQuery(sql);
+    const sqlSplitted = identify(sql, { dialect: 'psql' });
 
     for (const sqlItem of sqlSplitted) {
-      await runStreamItem(client, sqlItem, options);
+      await runStreamItem(client, sqlItem.text, options);
     }
 
     options.done();
