@@ -6,6 +6,7 @@ import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 import localforage from 'localforage';
 import stableStringify from 'json-stable-stringify';
+import { saveAllPendingEditorData } from '../query/useEditorData';
 
 function findFreeNumber(numbers: number[]) {
   if (numbers.length == 0) return 1;
@@ -74,9 +75,9 @@ export default async function openNewTab(newTab, initialData = undefined, option
   openedTabs.update(files => [
     ...(files || []).map(x => ({ ...x, selected: false })),
     {
+      ...newTab,
       tabid,
       selected: true,
-      ...newTab,
     },
   ]);
 
@@ -90,4 +91,36 @@ export default async function openNewTab(newTab, initialData = undefined, option
   //     ...newTab,
   //   },
   // ]);
+}
+
+export async function duplicateTab(tab) {
+  await saveAllPendingEditorData();
+
+  let title = tab.title;
+  const mtitle = title.match(/^(.*#)[\d]+$/);
+  if (mtitle) title = mtitle[1];
+
+  const keyRegex = /^tabdata_([^_]+)_([^_]+)$/;
+  const initialData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    const m = key.match(keyRegex);
+    if (m && m[2] == tab.tabid) {
+      initialData[m[1]] = JSON.parse(localStorage.getItem(key));
+    }
+  }
+  for (const key of await localforage.keys()) {
+    const m = key.match(keyRegex);
+    if (m && m[2] == tab.tabid) {
+      initialData[m[1]] = await localforage.getItem(key);
+    }
+  }
+  openNewTab(
+    {
+      ..._.omit(tab, ['tabid']),
+      title,
+    },
+    initialData,
+    { forceNewTab: true }
+  );
 }

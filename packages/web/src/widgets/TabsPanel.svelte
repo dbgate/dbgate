@@ -113,6 +113,7 @@
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import { getConnectionInfo } from '../utility/metadataLoaders';
+  import { duplicateTab } from '../utility/openNewTab';
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
@@ -161,6 +162,10 @@
       {
         text: 'Close others',
         onClick: () => closeOthers(tabid),
+      },
+      {
+        text: 'Duplicate',
+        onClick: () => duplicateTab(tab),
       },
       tabComponent &&
         tabs[tabComponent] &&
