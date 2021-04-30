@@ -8,6 +8,7 @@
     name: 'Save',
     // keyText: 'Ctrl+S',
     toolbar: true,
+    isRelatedToTab: true,
     icon: 'icon save',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().save(),

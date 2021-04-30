@@ -27,6 +27,7 @@ export interface GlobalCommand {
   menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
+  isRelatedToTab?: boolean,
 }
 
 export default function registerCommand(command: GlobalCommand) {

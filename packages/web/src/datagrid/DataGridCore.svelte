@@ -7,6 +7,7 @@
     name: 'Refresh',
     keyText: 'F5',
     toolbar: true,
+    isRelatedToTab: true,
     icon: 'icon reload',
     testEnabled: () => getCurrentDataGrid()?.getDisplay()?.supportsReload,
     onClick: () => getCurrentDataGrid().refresh(),
@@ -63,6 +64,7 @@
     group: 'undo',
     icon: 'icon undo',
     toolbar: true,
+    isRelatedToTab: true,
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canUndo,
     onClick: () => getCurrentDataGrid().undo(),
   });
@@ -74,6 +76,7 @@
     group: 'redo',
     icon: 'icon redo',
     toolbar: true,
+    isRelatedToTab: true,
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.canRedo,
     onClick: () => getCurrentDataGrid().redo(),
   });

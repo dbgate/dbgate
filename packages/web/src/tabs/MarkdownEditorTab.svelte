@@ -19,6 +19,7 @@
     name: 'Preview',
     icon: 'icon run',
     toolbar: true,
+    isRelatedToTab: true,
     keyText: 'F5 | Ctrl+Enter',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
