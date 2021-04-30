@@ -87,9 +87,9 @@
   registerCommand({
     id: 'tabs.addToFavorites',
     category: 'Tabs',
-    name: 'Favorites',
-    icon: 'icon favorite',
-    toolbar: true,
+    name: 'Add current tab to favorites',
+    // icon: 'icon favorite',
+    // toolbar: true,
     testEnabled: () =>
       getActiveTab()?.tabComponent &&
       tabs[getActiveTab()?.tabComponent] &&
@@ -146,9 +146,10 @@
     }
   };
 
-  const getContextMenu = (tabid, props) => () => {
+  const getContextMenu = tab => () => {
+    const { tabid, props, tabComponent } = tab;
     const { conid, database } = props || {};
-    const res = [
+    return [
       {
         text: 'Close',
         onClick: () => closeTab(tabid),
@@ -161,20 +162,29 @@
         text: 'Close others',
         onClick: () => closeOthers(tabid),
       },
+      tabComponent &&
+        tabs[tabComponent] &&
+        tabs[tabComponent].allowAddToFavorites &&
+        tabs[tabComponent].allowAddToFavorites(props) && [
+          { divider: true },
+          {
+            text: 'Add to favorites',
+            onClick: () => showModal(FavoriteModal, { savingTab: tab }),
+          },
+        ],
+      conid &&
+        database && [
+          { divider: true },
+          {
+            text: `Close with same DB - ${database}`,
+            onClick: () => closeWithSameDb(tabid),
+          },
+          {
+            text: `Close with other DB than ${database}`,
+            onClick: () => closeWithOtherDb(tabid),
+          },
+        ],
     ];
-    if (conid && database) {
-      res.push(
-        {
-          text: `Close with same DB - ${database}`,
-          onClick: () => closeWithSameDb(tabid),
-        },
-        {
-          text: `Close with other DB than ${database}`,
-          onClick: () => closeWithOtherDb(tabid),
-        }
-      );
-    }
-    return res;
   };
 
   const handleSetDb = async props => {
@@ -216,7 +226,7 @@
           class:selected={tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
-          use:contextMenu={getContextMenu(tab.tabid, tab.props)}
+          use:contextMenu={getContextMenu(tab)}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">
