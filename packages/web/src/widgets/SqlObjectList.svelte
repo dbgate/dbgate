@@ -42,7 +42,7 @@
     <ErrorInfo message={$status.message} icon="img error" />
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
   </WidgetsInnerContainer>
-{:else if objectList.length == 0 && $status && $status.name != 'pending' && $objects}
+{:else if objectList.length == 0 && $status && $status.name != 'pending' && $status.name != 'checkStructure' && $status.name != 'loadStructure' && $objects}
   <WidgetsInnerContainer>
     <ErrorInfo
       message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
@@ -56,7 +56,7 @@
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
-    {#if ($status && $status.name == 'pending' && $objects) || !$objects}
+    {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
       <LoadingInfo message="Loading database structure" />
     {:else}
       <AppObjectList
