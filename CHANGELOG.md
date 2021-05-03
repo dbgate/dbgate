@@ -1,5 +1,17 @@
 # ChangeLog
 
+### 4.1.11
+- FIX: fixed processing postgre query containing $$
+- FIX: fixed postgre analysing procedures & functions
+- FIX: patched svelte crash #105
+- ADDED: ability to disbale background DB model updates
+- ADDED: Duplicate connection
+- ADDED: Duplicate tab
+- FIX: SSH tunnel connection using keyfile auth #106
+- FIX: All tables button fix in export #109
+- CHANGED: Add to favorites moved from toolbar to tab context menu
+- CHANGED: Toolbar design - current tab related commands are delimited
+
 ### 4.1.10
 - ADDED: Default database option in connectin settings #96 #92
 - FIX: Bundle size optimalization for Windows #97
