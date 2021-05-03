@@ -34,7 +34,7 @@ async function getSshConnection(connection) {
     password: connection.sshMode == 'userPassword' ? connection.sshPassword : undefined,
     agentSocket: connection.sshMode == 'agent' ? platformInfo.sshAuthSock : undefined,
     privateKey:
-      connection.sshMode == 'keyFile' && connection.sshKeyFile ? await fs.readFile(connection.sshKeyFile) : undefined,
+      connection.sshMode == 'keyFile' && connection.sshKeyfile ? await fs.readFile(connection.sshKeyfile) : undefined,
     skipAutoPrivateKey: true,
     noReadline: true,
   };

@@ -9,6 +9,16 @@ const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 
 module.exports = {
+  settingsValue: {},
+
+  async _init() {
+    try {
+      this.settingsValue = JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
+    } catch (err) {
+      this.settingsValue = {};
+    }
+  },
+
   get_meta: 'get',
   async get() {
     // const toolbarButtons = process.env.TOOLBAR;
@@ -47,23 +57,19 @@ module.exports = {
 
   getSettings_meta: 'get',
   async getSettings() {
-    try {
-      return JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
-    } catch (err) {
-      return {};
-    }
+    return this.settingsValue;
   },
 
   updateSettings_meta: 'post',
   async updateSettings(values) {
     if (!hasPermission(`settings/change`)) return false;
-    const oldSettings = await this.getSettings();
     try {
       const updated = {
-        ...oldSettings,
+        ...this.settingsValue,
         ...values,
       };
       await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
+      this.settingsValue = updated;
       socket.emitChanged(`settings-changed`);
       return updated;
     } catch (err) {

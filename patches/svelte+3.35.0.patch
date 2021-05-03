@@ -1,0 +1,13 @@
+diff --git a/node_modules/svelte/internal/index.js b/node_modules/svelte/internal/index.js
+index ee20a17..7b6fff8 100644
+--- a/node_modules/svelte/internal/index.js
++++ b/node_modules/svelte/internal/index.js
+@@ -200,7 +200,7 @@ function insert(target, node, anchor) {
+     target.insertBefore(node, anchor || null);
+ }
+ function detach(node) {
+-    node.parentNode.removeChild(node);
++    if (node.parentNode) node.parentNode.removeChild(node);
+ }
+ function destroy_each(iterations, detaching) {
+     for (let i = 0; i < iterations.length; i += 1) {

@@ -64,19 +64,23 @@ module.exports = {
     const res = [];
     for (const packageName of _.union(files1, files2)) {
       if (!/^dbgate-plugin-.*$/.test(packageName)) continue;
-      const isPackaged = files1.includes(packageName);
-      const manifest = await fs
-        .readFile(path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'package.json'), {
-          encoding: 'utf-8',
-        })
-        .then(x => JSON.parse(x));
-      const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
-      // @ts-ignore
-      if (await fs.exists(readmeFile)) {
-        manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+      try {
+        const isPackaged = files1.includes(packageName);
+        const manifest = await fs
+          .readFile(path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'package.json'), {
+            encoding: 'utf-8',
+          })
+          .then(x => JSON.parse(x));
+        const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
+        // @ts-ignore
+        if (await fs.exists(readmeFile)) {
+          manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+        }
+        manifest.isPackaged = isPackaged;
+        res.push(manifest);
+      } catch (err) {
+        console.log(`Skipped plugin ${packageName}, error:`, err.message);
       }
-      manifest.isPackaged = isPackaged;
-      res.push(manifest);
     }
     return res;
   },

@@ -54,6 +54,9 @@ export function countColumnSizes(grider: Grider, columns, containerWidth, displa
   context.font = '14px Helvetica';
   for (let rowIndex = 0; rowIndex < Math.min(grider.rowCount, 20); rowIndex += 1) {
     const row = grider.getRowData(rowIndex);
+    if (!row) {
+      continue;
+    }
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
       const uqName = columns[colIndex].uniqueName;
 

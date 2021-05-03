@@ -15,11 +15,7 @@
   const { values, setFieldValue } = getFormContext();
   $: dbinfo = useDatabaseInfo({ conid: $values[conidName], database: $values[databaseName] });
 
-  $: tablesOptions = [
-    ...(($dbinfo && $dbinfo.tables) || []),
-    ...(($dbinfo && $dbinfo.views) || []),
-    ...(($dbinfo && $dbinfo.collections) || []),
-  ]
+  $: tablesOptions = _.compact([...($dbinfo?.tables || []), ...($dbinfo?.views || []), ...($dbinfo?.collections || [])])
     .filter(x => !$values[schemaName] || x.schemaName == $values[schemaName])
     .map(x => ({
       value: x.pureName,
@@ -31,18 +27,20 @@
   <FormSelectField {...$$restProps} {name} options={tablesOptions} isMulti templateProps={{ noMargin: true }} />
 
   <div>
-    <FormStyledButton
-      type="button"
-      value="All tables"
-      on:click={() =>
-        setFieldValue(name, _.uniq([...($values[name] || []), ...($dbinfo && $dbinfo.tables.map(x => x.pureName))]))}
-    />
-    <FormStyledButton
-      type="button"
-      value="All views"
-      on:click={() =>
-        setFieldValue(name, _.uniq([...($values[name] || []), ...($dbinfo && $dbinfo.views.map(x => x.pureName))]))}
-    />
+    {#each ['tables', 'views', 'collections'] as field}
+      {#if $dbinfo && $dbinfo[field]?.length > 0}
+        <FormStyledButton
+          type="button"
+          value={`All ${field}`}
+          on:click={() =>
+            setFieldValue(
+              name,
+              _.compact(_.uniq([...($values[name] || []), ...($dbinfo[field]?.map(x => x.pureName) || [])]))
+            )}
+        />
+      {/if}
+    {/each}
+
     <FormStyledButton type="button" value="Remove all" on:click={() => setFieldValue(name, [])} />
   </div>
 </div>

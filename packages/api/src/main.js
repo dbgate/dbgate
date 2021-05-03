@@ -31,6 +31,7 @@ const scheduler = require('./controllers/scheduler');
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const processArgs = require('./utility/processArgs');
+const timingSafeCheckToken = require('./utility/timingSafeCheckToken');
 
 let authorization = null;
 let checkLocalhostOrigin = null;
@@ -56,7 +57,7 @@ function start() {
   }
 
   app.use(function (req, res, next) {
-    if (authorization && req.headers.authorization != authorization) {
+    if (authorization && !timingSafeCheckToken(req.headers.authorization, authorization)) {
       return res.status(403).json({ error: 'Not authorized!' });
     }
     if (checkLocalhostOrigin) {

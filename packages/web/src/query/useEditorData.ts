@@ -19,6 +19,8 @@ function getParsedLocalStorage(key) {
   return null;
 }
 
+const saveHandlersList = [];
+
 export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = null, onInitialData = null }) {
   const localStorageKey = `tabdata_editor_${tabid}`;
   let changeCounter = 0;
@@ -90,6 +92,11 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     }));
   };
 
+  const saveToStorageIfNeeded = async () => {
+    if (savedCounter == changeCounter) return; // all saved
+    await saveToStorage();
+  };
+
   const saveToStorage = async () => {
     if (value == null) return;
     try {
@@ -128,11 +135,13 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
   onMount(() => {
     window.addEventListener('beforeunload', saveToStorageSync);
     initialLoad();
+    saveHandlersList.push(saveToStorageIfNeeded);
   });
 
   onDestroy(() => {
     saveToStorage();
     window.removeEventListener('beforeunload', saveToStorageSync);
+    _.remove(saveHandlersList, x => x == saveToStorageIfNeeded);
   });
 
   return {
@@ -143,4 +152,10 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
     saveToStorageSync,
     initialLoad,
   };
+}
+
+export async function saveAllPendingEditorData() {
+  for (const item of saveHandlersList) {
+    await item();
+  }
 }

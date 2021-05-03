@@ -7,6 +7,6 @@ export * from './DatabaseAnalyser';
 export * from './driverBase';
 export * from './SqlDumper';
 export * from './testPermission';
-export * from './splitPostgresQuery';
 export * from './SqlGenerator';
 export * from './structureTools';
+export * from './settingsExtractors';

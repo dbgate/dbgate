@@ -17,7 +17,7 @@
   }
 </script>
 
-{#each plugins as packageManifest (packageManifest.name)}
+{#each plugins || [] as packageManifest (packageManifest.name)}
   <div class="wrapper" on:click={() => openPlugin(packageManifest)}>
     <img class="icon" src={extractPluginIcon(packageManifest)} />
     <div class="ml-2">

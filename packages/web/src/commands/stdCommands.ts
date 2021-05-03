@@ -251,6 +251,7 @@ export function registerFileCommands({
       // keyText: 'Ctrl+S',
       icon: 'icon save',
       toolbar: true,
+      isRelatedToTab: true,
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => saveTabFile(getCurrentEditor(), false, folder, format, fileExtension),
     });
@@ -271,6 +272,7 @@ export function registerFileCommands({
       name: 'Execute',
       icon: 'icon run',
       toolbar: true,
+      isRelatedToTab: true,
       keyText: 'F5 | Ctrl+Enter',
       testEnabled: () => getCurrentEditor() != null && !getCurrentEditor()?.isBusy(),
       onClick: () => getCurrentEditor().execute(),
@@ -281,6 +283,7 @@ export function registerFileCommands({
       name: 'Kill',
       icon: 'icon close',
       toolbar: true,
+      isRelatedToTab: true,
       testEnabled: () => getCurrentEditor()?.canKill && getCurrentEditor().canKill(),
       onClick: () => getCurrentEditor().kill(),
     });

@@ -49,6 +49,10 @@
       <div class="item">
         {#if $status.name == 'pending'}
           <FontIcon icon="icon loading" /> Loading
+        {:else if $status.name == 'checkStructure'}
+          <FontIcon icon="icon loading" /> Checking model
+        {:else if $status.name == 'loadStructure'}
+          <FontIcon icon="icon loading" /> Loading model
         {:else if $status.name == 'ok'}
           <FontIcon icon="img ok-inv" /> Connected
         {:else if $status.name == 'error'}

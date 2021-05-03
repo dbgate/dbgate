@@ -1,4 +1,5 @@
 const stableStringify = require('json-stable-stringify');
+const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
@@ -51,6 +52,7 @@ function setStatusName(name) {
 
 async function handleConnect(connection) {
   storedConnection = connection;
+  const { globalSettings } = storedConnection;
   setStatusName('pending');
   lastPing = new Date().getTime();
 
@@ -59,7 +61,9 @@ async function handleConnect(connection) {
     systemConnection = await connectUtility(driver, storedConnection);
     readVersion();
     handleRefresh();
-    setInterval(handleRefresh, 30 * 1000);
+    if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', true)) {
+      setInterval(handleRefresh, extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 5, 3600) * 1000);
+    }
   } catch (err) {
     setStatus({
       name: 'error',
