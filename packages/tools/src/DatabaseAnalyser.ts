@@ -71,6 +71,17 @@ export class DatabaseAnalyser {
     // }
   }
 
+  getRequestedObjectPureNames(objectTypeField, allPureNames) {
+    if (this.singleObjectFilter) {
+      const { typeField, pureName } = this.singleObjectFilter;
+      if (typeField == objectTypeField) return [pureName];
+    }
+    if (this.modifications) {
+      return this.modifications.filter(x => x.objectTypeField == objectTypeField).map(x => x.newName.pureName);
+    }
+    return allPureNames;
+  }
+
   // findObjectById(id) {
   //   return this.structure.tables.find((x) => x.objectId == id);
   // }

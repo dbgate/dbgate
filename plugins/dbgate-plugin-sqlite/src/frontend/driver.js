@@ -5,7 +5,7 @@ const Dumper = require('./Dumper');
 const dialect = {
   limitSelect: true,
   rangeSelect: true,
-  offsetFetchRangeSyntax: true,
+  offsetFetchRangeSyntax: false,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
   quoteIdentifier(s) {

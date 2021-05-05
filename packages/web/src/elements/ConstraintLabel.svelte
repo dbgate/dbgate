@@ -13,5 +13,5 @@
 
 <span class="nowrap">
   <FontIcon icon={getConstraintIcon(constraintType)} />
-  {constraintName}
+  {constraintName || '(without name)'}
 </span>

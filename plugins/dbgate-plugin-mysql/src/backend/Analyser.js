@@ -66,14 +66,7 @@ class Analyser extends DatabaseAnalyser {
   }
 
   getRequestedViewNames(allViewNames) {
-    if (this.singleObjectFilter) {
-      const { typeField, pureName } = this.singleObjectFilter;
-      if (typeField == 'views') return [pureName];
-    }
-    if (this.modifications) {
-      return this.modifications.filter(x => x.objectTypeField == 'views').map(x => x.newName.pureName);
-    }
-    return allViewNames;
+    return this.getRequestedObjectPureNames('views', allViewNames);
   }
 
   async getViewTexts(allViewNames) {
@@ -82,7 +75,7 @@ class Analyser extends DatabaseAnalyser {
       try {
         const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
         res[viewName] = resp.rows[0]['Create View'];
-      } catch(err) {
+      } catch (err) {
         console.log('ERROR', err);
         res[viewName] = `${err}`;
       }
