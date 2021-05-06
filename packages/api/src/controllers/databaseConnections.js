@@ -80,7 +80,7 @@ module.exports = {
       msgtype: 'connect',
       connection: { ...connection, database },
       structure: lastClosed ? lastClosed.structure : null,
-      globalSettings: config.settingsValue
+      globalSettings: config.settingsValue,
     });
     return newOpened;
   },
@@ -149,8 +149,8 @@ module.exports = {
   },
 
   refresh_meta: 'post',
-  async refresh({ conid, database }) {
-    this.close(conid, database);
+  async refresh({ conid, database, keepOpen }) {
+    if (!keepOpen) this.close(conid, database);
 
     await this.ensureOpened(conid, database);
     return { status: 'ok' };
@@ -171,6 +171,12 @@ module.exports = {
       };
       socket.emitChanged(`database-status-changed-${conid}-${database}`);
     }
+  },
+
+  disconnect_meta: 'post',
+  async disconnect({ conid, database }) {
+    await this.close(conid, database, true);
+    return { status: 'ok' };
   },
 
   structure_meta: 'get',

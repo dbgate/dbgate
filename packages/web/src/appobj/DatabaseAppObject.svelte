@@ -1,7 +1,8 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
+  const electron = getElectron();
 
-  export function getDatabaseMenuItems(connection, name, $extensions) {
+  export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase) {
     const handleNewQuery = () => {
       const tooltip = `${connection.displayName || connection.server}\n${name}`;
       openNewTab({
@@ -45,11 +46,21 @@
       });
     };
 
+    const handleDisconnect = () => {
+      if (electron) {
+        axiosInstance.post('database-connections/disconnect', { conid: connection._id, database: name });
+      }
+      currentDatabase.set(null);
+    };
+
     return [
       { onClick: handleNewQuery, text: 'New query' },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
+
+      _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
+        _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
     ];
   }
 </script>
@@ -61,12 +72,14 @@
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import { currentDatabase, extensions } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
+  import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   export let data;
 
   function createMenu() {
-    return getDatabaseMenuItems(data.connection, data.name, $extensions);
+    return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase);
   }
 </script>
 

@@ -8,7 +8,7 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, "select * from sqlite_master where type='table'");
-    console.log('TABLES', tables);
+    // console.log('TABLES', tables);
 
     const tableSqls = _.zipObject(
       tables.rows.map((x) => x.name),

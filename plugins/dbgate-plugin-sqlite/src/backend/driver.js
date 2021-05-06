@@ -15,6 +15,7 @@ const driver = {
   },
   // @ts-ignore
   async query(pool, sql) {
+    console.log('SQLITE SQL', sql);
     const stmt = pool.prepare(sql);
     // stmt.raw();
     const columns = stmt.columns();

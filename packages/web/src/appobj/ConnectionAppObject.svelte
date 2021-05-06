@@ -1,14 +1,65 @@
 <script context="module">
-  const getContextMenu = (data, $openedConnections, $extensions) => () => {
+  export const extractKey = data => data._id;
+  export const createMatcher = ({ displayName, server }) => filter => filterName(filter, displayName, server);
+</script>
+
+<script lang="ts">
+  import _ from 'lodash';
+  import AppObjectCore from './AppObjectCore.svelte';
+  import { currentDatabase, extensions, getCurrentConfig, openedConnections } from '../stores';
+  import axiosInstance from '../utility/axiosInstance';
+  import { filterName } from 'dbgate-datalib';
+  import { showModal } from '../modals/modalTools';
+  import ConnectionModal from '../modals/ConnectionModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import openNewTab from '../utility/openNewTab';
+  import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
+  import getElectron from '../utility/getElectron';
+
+  export let data;
+
+  let statusIcon = null;
+  let statusTitle = null;
+  let extInfo = null;
+  let engineStatusIcon = null;
+  let engineStatusTitle = null;
+
+  const electron = getElectron();
+
+  const handleConnect = () => {
+    if (data.singleDatabase) {
+      $currentDatabase = { connection: data, name: data.defaultDatabase };
+      axiosInstance.post('database-connections/refresh', {
+        conid: data._id,
+        database: data.defaultDatabase,
+        keepOpen: true,
+      });
+    } else {
+      $openedConnections = _.uniq([...$openedConnections, data._id]);
+      axiosInstance.post('server-connections/refresh', {
+        conid: data._id,
+        keepOpen: true,
+      });
+    }
+  };
+
+  const getContextMenu = () => {
     const config = getCurrentConfig();
     const handleRefresh = () => {
       axiosInstance.post('server-connections/refresh', { conid: data._id });
     };
     const handleDisconnect = () => {
       openedConnections.update(list => list.filter(x => x != data._id));
-    };
-    const handleConnect = () => {
-      openedConnections.update(list => _.uniq([...list, data._id]));
+      if (electron) {
+        axiosInstance.post('server-connections/disconnect', { conid: data._id });
+      }
+      if (_.get($currentDatabase, 'connection._id') == data._id) {
+        if (electron) {
+          axiosInstance.post('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
+        }
+        currentDatabase.set(null);
+      }
     };
     const handleEdit = () => {
       showModal(ConnectionModal, { connection: data });
@@ -86,34 +137,12 @@
           onClick: handleCreateDatabase,
         },
       ],
-      data.singleDatabase && [{ divider: true }, getDatabaseMenuItems(data, data.defaultDatabase, $extensions)],
+      data.singleDatabase && [
+        { divider: true },
+        getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase),
+      ],
     ];
   };
-
-  export const extractKey = data => data._id;
-  export const createMatcher = ({ displayName, server }) => filter => filterName(filter, displayName, server);
-</script>
-
-<script lang="ts">
-  import _ from 'lodash';
-  import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, getCurrentConfig, openedConnections } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
-  import { filterName } from 'dbgate-datalib';
-  import { showModal } from '../modals/modalTools';
-  import ConnectionModal from '../modals/ConnectionModal.svelte';
-  import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import InputTextModal from '../modals/InputTextModal.svelte';
-  import openNewTab from '../utility/openNewTab';
-  import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
-
-  export let data;
-
-  let statusIcon = null;
-  let statusTitle = null;
-  let extInfo = null;
-  let engineStatusIcon = null;
-  let engineStatusTitle = null;
 
   $: {
     if ($extensions.drivers.find(x => x.engine == data.engine)) {
@@ -174,10 +203,7 @@
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
-  menu={getContextMenu(data, $openedConnections, $extensions)}
-  on:click={() => {
-    if (data.singleDatabase) $currentDatabase = { connection: data, name: data.defaultDatabase };
-    else $openedConnections = _.uniq([...$openedConnections, data._id]);
-  }}
+  menu={getContextMenu}
+  on:click={handleConnect}
   on:click
 />

@@ -86,6 +86,12 @@ module.exports = {
     }
   },
 
+  disconnect_meta: 'post',
+  async disconnect({ conid }) {
+    await this.close(conid, true);
+    return { status: 'ok' };
+  },
+
   listDatabases_meta: 'get',
   async listDatabases({ conid }) {
     const opened = await this.ensureOpened(conid);
@@ -123,8 +129,8 @@ module.exports = {
   },
 
   refresh_meta: 'post',
-  async refresh({ conid }) {
-    this.close(conid);
+  async refresh({ conid, keepOpen }) {
+    if (!keepOpen) this.close(conid);
 
     await this.ensureOpened(conid);
     return { status: 'ok' };
