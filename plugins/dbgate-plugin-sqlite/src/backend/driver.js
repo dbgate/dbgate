@@ -142,7 +142,13 @@ const driver = {
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
   async getVersion(pool) {
-    return { version: 'SQLite 3' };
+    const { rows } = await this.query(pool, 'select sqlite_version() as version');
+    const { version } = rows[0];
+
+    return {
+      version,
+      versionText: `SQLite ${version}`,
+    };
   },
 };
 
