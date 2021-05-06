@@ -10,6 +10,7 @@
   $: fileTypeNames = _.compact([
     ...$extensions.fileFormats.filter(x => x.readerFunc).map(x => x.name),
     electron ? 'SQL' : null,
+    electron ? 'SQLite database' : null,
   ]);
 </script>
 

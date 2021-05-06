@@ -3,17 +3,35 @@ import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
-import { extensions } from '../stores';
+import { currentDatabase, extensions } from '../stores';
 import { getUploadListener } from './uploadFiles';
+import axiosInstance from '../utility/axiosInstance';
+import { getDatabaseFileLabel } from './getConnectionLabel';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
   const nameLower = file.toLowerCase();
   if (nameLower.endsWith('.sql')) return true;
+  if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) return true;
   }
   return false;
+}
+
+export async function openSqliteFile(filePath) {
+  const defaultDatabase = getDatabaseFileLabel(filePath);
+  const resp = await axiosInstance.post('connections/save', {
+    _id: undefined,
+    databaseFile: filePath,
+    engine: 'sqlite@dbgate-plugin-sqlite',
+    singleDatabase: true,
+    defaultDatabase,
+  });
+  currentDatabase.set({
+    connection: resp.data,
+    name: getDatabaseFileLabel(filePath),
+  });
 }
 
 export function openElectronFileCore(filePath, extensions) {
@@ -33,6 +51,11 @@ export function openElectronFileCore(filePath, extensions) {
       savedFilePath: filePath,
       savedFormat: 'text',
     });
+    return;
+  }
+  if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite')) {
+    openSqliteFile(filePath);
+    return;
   }
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) {
@@ -72,8 +95,9 @@ export function openElectronFile() {
   const ext = get(extensions);
   const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
     filters: [
-      { name: `All supported files`, extensions: ['sql', ...getFileFormatExtensions(ext)] },
+      { name: `All supported files`, extensions: ['sql', 'sqlite', 'db', 'sqlite3', ...getFileFormatExtensions(ext)] },
       { name: `SQL files`, extensions: ['sql'] },
+      { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
       ...getFileFormatFilters(ext),
     ],
   });
