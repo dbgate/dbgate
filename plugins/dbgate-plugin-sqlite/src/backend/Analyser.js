@@ -46,6 +46,23 @@ class Analyser extends DatabaseAnalyser {
         };
       }
 
+      const fklist = await this.driver.query(this.pool, `pragma foreign_key_list('${tableName}')`);
+      tableObj.foreignKeys = _.values(_.groupBy(fklist.rows, 'id')).map((fkcols) => {
+        const fkcol = fkcols[0];
+        const fk = {
+          pureName: tableName,
+          refTableName: fkcol.table,
+          columns: fkcols.map((col) => ({
+            columnName: col.from,
+            refColumnName: col.to,
+          })),
+          updateAction: fkcol.on_update,
+          deleteAction: fkcol.on_delete,
+          constraintName: `FK_${tableName}_${fkcol.id}`,
+        };
+        return fk;
+      });
+
       // console.log(info);
     }
 

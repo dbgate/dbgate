@@ -6,42 +6,35 @@ const { identify } = require('sql-query-identifier');
 
 let Database;
 
-function runStreamItem(client, sql, options) {
-  try {
-    console.log('RUN SQL ITEM', sql);
-    const stmt = client.prepare(sql);
-    if (stmt.reader) {
-      const columns = stmt.columns();
-      // const rows = stmt.all();
+function runStreamItem(client, sql, options, rowCounter) {
+  const stmt = client.prepare(sql);
+  if (stmt.reader) {
+    const columns = stmt.columns();
+    // const rows = stmt.all();
 
-      options.recordset(
-        columns.map((col) => ({
-          columnName: col.name,
-          dataType: col.type,
-        }))
-      );
+    options.recordset(
+      columns.map((col) => ({
+        columnName: col.name,
+        dataType: col.type,
+      }))
+    );
 
-      for (const row of stmt.iterate()) {
-        options.row(row);
-      }
-    } else {
-      const info = stmt.run();
+    for (const row of stmt.iterate()) {
+      options.row(row);
+    }
+  } else {
+    const info = stmt.run();
+    rowCounter.count += info.changes;
+    if (!rowCounter.date) rowCounter.date = new Date().getTime();
+    if (new Date().getTime() > rowCounter.date > 1000) {
       options.info({
-        message: `${info.changes} rows affected`,
+        message: `${rowCounter.count} rows affected`,
         time: new Date(),
         severity: 'info',
       });
+      rowCounter.count = 0;
+      rowCounter.date = null;
     }
-  } catch (error) {
-    console.log('ERROR', error);
-    const { message, lineNumber, procName } = error;
-    options.info({
-      message,
-      line: lineNumber,
-      procedure: procName,
-      time: new Date(),
-      severity: 'error',
-    });
   }
 }
 
@@ -68,12 +61,36 @@ const driver = {
     };
   },
   async stream(client, sql, options) {
-    // console.log('CP1', sql);
     const sqlSplitted = identify(sql, { dialect: 'sqlite', strict: false });
-    // console.log('CP2', sqlSplitted);
 
-    for (const sqlItem of sqlSplitted) {
-      runStreamItem(client, sqlItem.text, options);
+    const rowCounter = { count: 0, date: null };
+
+    const inTransaction = client.transaction(() => {
+      for (const sqlItem of sqlSplitted) {
+        runStreamItem(client, sqlItem.text, options, rowCounter);
+      }
+
+      if (rowCounter.date) {
+        options.info({
+          message: `${rowCounter.count} rows affected`,
+          time: new Date(),
+          severity: 'info',
+        });
+      }
+    });
+
+    try {
+      inTransaction();
+    } catch (error) {
+      console.log('ERROR', error);
+      const { message, lineNumber, procName } = error;
+      options.info({
+        message,
+        line: lineNumber,
+        procedure: procName,
+        time: new Date(),
+        severity: 'error',
+      });
     }
 
     options.done();
