@@ -206,4 +206,5 @@
   menu={getContextMenu}
   on:click={handleConnect}
   on:click
+  on:expand
 />
