@@ -40,7 +40,7 @@
 </script>
 
 <ManagerInnerContainer width={managerSize}>
-  {#each structure.columns as column, index}
+  {#each structure.columns || [] as column, index}
     {#if index == editingColumn}
       <ColumnNameEditor
         defaultValue={column.columnName}
@@ -77,6 +77,6 @@
       dispatchChangeColumns($$props, cols => [...cols, { columnName }]);
     }}
     placeholder="New column"
-    existingNames={structure.columns.map(x => x.columnName)}
+    existingNames={(structure.columns || []).map(x => x.columnName)}
   />
 </ManagerInnerContainer>
