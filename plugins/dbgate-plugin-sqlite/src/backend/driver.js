@@ -6,48 +6,43 @@ const { identify } = require('sql-query-identifier');
 
 let Database;
 
-async function runStreamItem(client, sql, options) {
-  return new Promise((resolve, reject) => {
-    try {
-      const stmt = client.prepare(sql);
-      if (stmt.reader) {
-        const columns = stmt.columns();
-        // const rows = stmt.all();
+function runStreamItem(client, sql, options) {
+  try {
+    console.log('RUN SQL ITEM', sql);
+    const stmt = client.prepare(sql);
+    if (stmt.reader) {
+      const columns = stmt.columns();
+      // const rows = stmt.all();
 
-        options.recordset(
-          columns.map((col) => ({
-            columnName: col.name,
-            dataType: col.type,
-          }))
-        );
+      options.recordset(
+        columns.map((col) => ({
+          columnName: col.name,
+          dataType: col.type,
+        }))
+      );
 
-        for (const row of stmt.iterate()) {
-          options.row(row);
-        }
-
-        resolve();
-      } else {
-        const info = stmt.run();
-        options.info({
-          message: `${info.changes} rows affected`,
-          time: new Date(),
-          severity: 'info',
-        });
-        resolve();
+      for (const row of stmt.iterate()) {
+        options.row(row);
       }
-    } catch (error) {
-      console.log('ERROR', error);
-      const { message, lineNumber, procName } = error;
+    } else {
+      const info = stmt.run();
       options.info({
-        message,
-        line: lineNumber,
-        procedure: procName,
+        message: `${info.changes} rows affected`,
         time: new Date(),
-        severity: 'error',
+        severity: 'info',
       });
-      resolve();
     }
-  });
+  } catch (error) {
+    console.log('ERROR', error);
+    const { message, lineNumber, procName } = error;
+    options.info({
+      message,
+      line: lineNumber,
+      procedure: procName,
+      time: new Date(),
+      severity: 'error',
+    });
+  }
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -73,10 +68,12 @@ const driver = {
     };
   },
   async stream(client, sql, options) {
-    const sqlSplitted = identify(sql, { dialect: 'sqlite' });
+    // console.log('CP1', sql);
+    const sqlSplitted = identify(sql, { dialect: 'sqlite', strict: false });
+    // console.log('CP2', sqlSplitted);
 
     for (const sqlItem of sqlSplitted) {
-      await runStreamItem(client, sqlItem.text, options);
+      runStreamItem(client, sqlItem.text, options);
     }
 
     options.done();

@@ -121,7 +121,7 @@ const driver = {
     return { rows: res.rows.map(row => zipDataRow(row, columns)), columns };
   },
   async stream(client, sql, options) {
-    const sqlSplitted = identify(sql, { dialect: 'psql' });
+    const sqlSplitted = identify(sql, { dialect: 'psql', strict: false });
 
     for (const sqlItem of sqlSplitted) {
       await runStreamItem(client, sqlItem.text, options);
