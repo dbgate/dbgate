@@ -24,8 +24,10 @@ class Analyser extends DatabaseAnalyser {
       'tables',
       tables.rows.map((x) => x.name)
     )) {
-      const info = await this.driver.query(this.pool, `pragma table_info('${tableName}')`);
       const tableObj = tableList.find((x) => x.pureName == tableName);
+      if (!tableObj) continue;
+      
+      const info = await this.driver.query(this.pool, `pragma table_info('${tableName}')`);
       tableObj.columns = info.rows.map((col) => ({
         columnName: col.name,
         dataType: col.type,

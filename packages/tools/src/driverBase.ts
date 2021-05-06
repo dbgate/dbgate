@@ -25,7 +25,9 @@ export const driverBase = {
     analyser.singleObjectFilter = { ...name, typeField };
     const res = await analyser.fullAnalysis();
     if (res[typeField].length == 1) return res[typeField][0];
-    return res[typeField].find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    const obj = res[typeField].find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    // console.log('FIND', name, obj);
+    return obj;
   },
   analyseSingleTable(pool, name) {
     return this.analyseSingleObject(pool, name, 'tables');

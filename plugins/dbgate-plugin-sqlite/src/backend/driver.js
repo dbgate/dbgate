@@ -3,6 +3,7 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { identify } = require('sql-query-identifier');
+const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
 let Database;
 
@@ -59,15 +60,23 @@ const driver = {
   async query(pool, sql) {
     const stmt = pool.prepare(sql);
     // stmt.raw();
-    const columns = stmt.columns();
-    const rows = stmt.all();
-    return {
-      rows,
-      columns: columns.map((col) => ({
-        columnName: col.name,
-        dataType: col.type,
-      })),
-    };
+    if (stmt.reader) {
+      const columns = stmt.columns();
+      const rows = stmt.all();
+      return {
+        rows,
+        columns: columns.map((col) => ({
+          columnName: col.name,
+          dataType: col.type,
+        })),
+      };
+    } else {
+      stmt.run();
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
   },
   async stream(client, sql, options) {
     const sqlSplitted = identify(sql, { dialect: 'sqlite', strict: false });
