@@ -19,6 +19,7 @@
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import { extensions } from '../stores';
+  import _ from 'lodash';
 
   export let connection;
 
@@ -49,10 +50,16 @@
   }
 
   async function handleSubmit(e) {
-    axiosInstance.post('connections/save', {
-      ...e.detail,
-      singleDatabase: driver?.isFileDatabase || (e.detail.defaultDatabase ? e.detail.singleDatabase : false),
-    });
+    const connection = driver?.isFileDatabase
+      ? {
+          ..._.omit(e.detail, ['server', 'port', 'defaultDatabase']),
+          singleDatabase: true,
+        }
+      : {
+          ..._.omit(e.detail, ['databaseFile']),
+          singleDatabase: e.detail.defaultDatabase ? e.detail.singleDatabase : false,
+        };
+    axiosInstance.post('connections/save', connection);
     closeCurrentModal();
   }
 </script>
