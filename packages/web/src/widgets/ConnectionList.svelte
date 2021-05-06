@@ -12,6 +12,7 @@
   import axiosInstance from '../utility/axiosInstance';
   import ToolbarButton from './ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
+  import getConnectionLabel from '../utility/getConnectionLabel';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -36,7 +37,7 @@
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList
-    list={_.sortBy(connectionsWithStatus, ({ displayName, server }) => (displayName || server || '').toUpperCase())}
+    list={_.sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())}
     module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick

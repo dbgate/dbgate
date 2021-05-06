@@ -1,3 +1,10 @@
+export function getDatabaseFileLabel(databaseFile) {
+  if (!databaseFile) return databaseFile;
+  const m = databaseFile.match(/[\/]([^\/]+)$/);
+  if (m) return m[1];
+  return databaseFile;
+}
+
 export default function getConnectionLabel(connection, { allowExplicitDatabase = true } = {}) {
   if (!connection) {
     return null;
@@ -9,9 +16,7 @@ export default function getConnectionLabel(connection, { allowExplicitDatabase =
     return `${connection.defaultDatabase} on ${connection.server}`;
   }
   if (connection.databaseFile) {
-    const m = connection.databaseFile.match(/[\/]([^\/]+)$/);
-    if (m) return m[1];
-    return connection.databaseFile;
+    return getDatabaseFileLabel(connection.databaseFile);
   }
   if (connection.server) {
     return connection.server;

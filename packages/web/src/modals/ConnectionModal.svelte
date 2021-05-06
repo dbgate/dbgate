@@ -20,6 +20,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import { extensions } from '../stores';
   import _ from 'lodash';
+  import { getDatabaseFileLabel } from '../utility/getConnectionLabel';
 
   export let connection;
 
@@ -54,6 +55,7 @@
       ? {
           ..._.omit(e.detail, ['server', 'port', 'defaultDatabase']),
           singleDatabase: true,
+          defaultDatabase: getDatabaseFileLabel(e.detail.databaseFile),
         }
       : {
           ..._.omit(e.detail, ['databaseFile']),
