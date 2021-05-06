@@ -1,6 +1,9 @@
 # ChangeLog
 
 ### 4.1.11
+- FIX: Fixed crash of API process when using SSH tunnel connection (race condition)
+
+### 4.1.11
 - FIX: fixed processing postgre query containing $$
 - FIX: fixed postgre analysing procedures & functions
 - FIX: patched svelte crash #105
