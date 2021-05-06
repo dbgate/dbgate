@@ -241,6 +241,7 @@ export function registerFileCommands({
   toggleComment = false,
   findReplace = false,
   undoRedo = false,
+  executeAdditionalCondition = null,
 }) {
   if (save) {
     registerCommand({
@@ -274,7 +275,10 @@ export function registerFileCommands({
       toolbar: true,
       isRelatedToTab: true,
       keyText: 'F5 | Ctrl+Enter',
-      testEnabled: () => getCurrentEditor() != null && !getCurrentEditor()?.isBusy(),
+      testEnabled: () =>
+        getCurrentEditor() != null &&
+        !getCurrentEditor()?.isBusy() &&
+        (executeAdditionalCondition == null || executeAdditionalCondition()),
       onClick: () => getCurrentEditor().execute(),
     });
     registerCommand({

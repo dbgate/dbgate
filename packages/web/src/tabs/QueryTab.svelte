@@ -27,6 +27,7 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
+    executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
   });
 </script>
 
@@ -119,6 +120,10 @@
 
   export function getTabId() {
     return tabid;
+  }
+
+  export function hasConnection() {
+    return !!conid;
   }
 
   export async function execute() {
