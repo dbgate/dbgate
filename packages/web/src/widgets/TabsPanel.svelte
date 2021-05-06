@@ -45,22 +45,34 @@
   );
   const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
 
-  function getTabDbName(tab) {
+  function getTabDbName(tab, connectionList) {
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
+    if (tab.props && tab.props.conid) {
+      const connection = connectionList?.find(x => x._id == tab.props.conid);
+      if (connection) return connection.displayName || connection.server;
+      return '???';
+    }
     if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
     return '(no DB)';
   }
 
   function getTabDbKey(tab) {
-    if (tab.props && tab.props.conid && tab.props.database)
+    if (tab.props && tab.props.conid && tab.props.database) {
       return `database://${tab.props.database}-${tab.props.conid}`;
-    if (tab.props && tab.props.archiveFolder) return `archive://${tab.props.archiveFolder}`;
+    }
+    if (tab.props && tab.props.conid) {
+      return `server://${tab.props.conid}`;
+    }
+    if (tab.props && tab.props.archiveFolder) {
+      return `archive://${tab.props.archiveFolder}`;
+    }
     return '_no';
   }
 
   function getDbIcon(key) {
     if (key.startsWith('database://')) return 'icon database';
     if (key.startsWith('archive://')) return 'icon archive';
+    if (key.startsWith('server://')) return 'icon server';
     return 'icon file';
   }
 
@@ -112,19 +124,23 @@
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
-  import { getConnectionInfo } from '../utility/metadataLoaders';
+  import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab } from '../utility/openNewTab';
+
+  $: connectionList = useConnectionList();
 
   $: currentDbKey =
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
       ? `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
+      : $currentDatabase && $currentDatabase.connection
+      ? `server://${$currentDatabase.connection._id}`
       : '_no';
 
   $: tabsWithDb = $openedTabs
     .filter(x => !x.closedTime)
     .map(tab => ({
       ...tab,
-      tabDbName: getTabDbName(tab),
+      tabDbName: getTabDbName(tab, $connectionList),
       tabDbKey: getTabDbKey(tab),
     }));
 
