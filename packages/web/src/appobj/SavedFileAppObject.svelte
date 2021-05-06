@@ -67,6 +67,7 @@
   import { currentDatabase } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
+  import getConnectionLabel from '../utility/getConnectionLabel';
   import hasPermission from '../utility/hasPermission';
   import openNewTab from '../utility/openNewTab';
 
@@ -130,7 +131,7 @@
       const database = _.get($currentDatabase, 'name');
       connProps.conid = connection._id;
       connProps.database = database;
-      tooltip = `${connection.displayName || connection.server}\n${database}`;
+      tooltip = `${getConnectionLabel(connection)}\n${database}`;
     }
 
     openNewTab(

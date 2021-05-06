@@ -15,6 +15,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { activeTabId, currentDatabase } from '../stores';
+  import getConnectionLabel from '../utility/getConnectionLabel';
   import { useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
@@ -23,6 +24,7 @@
   $: serverVersion = useDatabaseServerVersion(connection ? { conid: connection._id, database: databaseName } : {});
 
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
+  $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 </script>
 
 <div class="main">
@@ -33,10 +35,10 @@
         {databaseName}
       </div>
     {/if}
-    {#if connection && (connection.displayName || connection.server)}
+    {#if connectionLabel}
       <div class="item">
         <FontIcon icon="icon server" />
-        {connection.displayName || connection.server}
+        {connectionLabel}
       </div>
     {/if}
     {#if connection && connection.user}

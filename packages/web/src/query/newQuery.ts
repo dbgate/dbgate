@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { get } from 'svelte/store';
 import { currentDatabase } from '../stores';
+import getConnectionLabel from '../utility/getConnectionLabel';
 import openNewTab from '../utility/openNewTab';
 
 export default function newQuery({
@@ -14,7 +15,7 @@ export default function newQuery({
   const connection = _.get($currentDatabase, 'connection') || {};
   const database = _.get($currentDatabase, 'name');
 
-  const tooltip = `${connection.displayName || connection.server}\n${database}`;
+  const tooltip = `${getConnectionLabel(connection)}\n${database}`;
 
   openNewTab(
     {

@@ -16,6 +16,7 @@
   import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
+  import getConnectionLabel from '../utility/getConnectionLabel';
 
   export let data;
 
@@ -66,7 +67,7 @@
     };
     const handleDelete = () => {
       showModal(ConfirmModal, {
-        message: `Really delete connection ${data.displayName || data.server}?`,
+        message: `Really delete connection ${getConnectionLabel(data)}?`,
         onConfirm: () => axiosInstance.post('connections/delete', data),
       });
     };
@@ -74,7 +75,7 @@
       axiosInstance.post('connections/save', {
         ...data,
         _id: undefined,
-        displayName: `${data.displayName || data.server} - copy`,
+        displayName: `${getConnectionLabel(data)} - copy`,
       });
     };
     const handleCreateDatabase = () => {
@@ -90,7 +91,7 @@
       });
     };
     const handleNewQuery = () => {
-      const tooltip = `${data.displayName || data.server}`;
+      const tooltip = `${getConnectionLabel(data)}`;
       openNewTab({
         title: 'Query #',
         icon: 'img sql-file',
@@ -172,30 +173,12 @@
       statusTitle = null;
     }
   }
-
-  // const handleEdit = () => {
-  //   showModal(modalState => <ConnectionModal modalState={modalState} connection={data} />);
-  // };
-  // const handleDelete = () => {
-  //   showModal(modalState => (
-  //     <ConfirmModal
-  //       modalState={modalState}
-  //       message={`Really delete connection ${data.displayName || data.server}?`}
-  //       onConfirm={() => axios.post('connections/delete', data)}
-  //     />
-  //   ));
-  // };
-  // const handleCreateDatabase = () => {
-  //   showModal(modalState => <CreateDatabaseModal modalState={modalState} conid={data._id} />);
-  // };
 </script>
 
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.singleDatabase
-    ? data.displayName || `${data.defaultDatabase} on ${data.server}`
-    : data.displayName || data.server}
+  title={getConnectionLabel(data)}
   icon={data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
     ? _.get($currentDatabase, 'connection._id') == data._id && _.get($currentDatabase, 'name') == data.defaultDatabase

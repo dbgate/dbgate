@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { recentDatabases, currentDatabase, getRecentDatabases } from '../stores';
+import getConnectionLabel from '../utility/getConnectionLabel';
 import registerCommand from './registerCommand';
 
 currentDatabase.subscribe(value => {
@@ -15,7 +16,7 @@ currentDatabase.subscribe(value => {
 
 function switchDatabaseCommand(db) {
   return {
-    text: `${db.name} on ${db?.connection?.displayName || db?.connection?.server}`,
+    text: `${db.name} on ${getConnectionLabel(db?.connection, { allowExplicitDatabase: false })}`,
     onClick: () => currentDatabase.set(db),
   };
 }

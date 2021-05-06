@@ -49,7 +49,7 @@
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
       const connection = connectionList?.find(x => x._id == tab.props.conid);
-      if (connection) return connection.displayName || connection.server;
+      if (connection) return getConnectionLabel(connection.displayName, { allowExplicitDatabase: false });
       return '???';
     }
     if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;
@@ -124,6 +124,7 @@
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
+  import getConnectionLabel from '../utility/getConnectionLabel';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab } from '../utility/openNewTab';
 

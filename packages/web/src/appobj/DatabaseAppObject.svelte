@@ -4,7 +4,7 @@
 
   export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase) {
     const handleNewQuery = () => {
-      const tooltip = `${connection.displayName || connection.server}\n${name}`;
+      const tooltip = `${getConnectionLabel(connection)}\n${name}`;
       openNewTab({
         title: 'Query #',
         icon: 'img sql-file',
@@ -66,6 +66,8 @@
 </script>
 
 <script lang="ts">
+  import getConnectionLabel from '../utility/getConnectionLabel';
+
   import _ from 'lodash';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';

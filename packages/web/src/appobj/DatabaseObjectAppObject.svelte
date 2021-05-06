@@ -228,7 +228,7 @@
     initialData
   ) {
     const connection = await getConnectionInfo({ conid });
-    const tooltip = `${connection.displayName || connection.server}\n${database}\n${fullDisplayName({
+    const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
       schemaName,
       pureName,
     })}`;
@@ -267,6 +267,7 @@
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
+import getConnectionLabel from '../utility/getConnectionLabel';
 
   export let data;
 
