@@ -5,7 +5,7 @@
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "Opensource database administration tool",
   "dependencies": {
-    "better-sqlite3": "^7.1.5",
+    "better-sqlite3": "^7.3.1",
     "electron-log": "^4.3.1",
     "electron-store": "^5.1.1",
     "electron-updater": "^4.3.5"
