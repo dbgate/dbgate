@@ -99,6 +99,7 @@ const driver = {
 
   async connect({ server, port, user, password, database, ssl }) {
     const client = new pg.Client({
+      // connectionString: 'postgres://root@localhost:26257/postgres?sslmode=disabke'
       host: server,
       port,
       user,

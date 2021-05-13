@@ -1,9 +1,9 @@
 module.exports = `
 with pkey as
 (
-    select cc.conrelid, format(E'create constraint %I primary key(%s);\\n', cc.conname,
-        string_agg(a.attname, ', ' 
-            order by array_position(cc.conkey, a.attnum))) pkey
+    select cc.conrelid, 'create constraint ' || cc.conname || ' primary key(' || 
+      string_agg(a.attname, ', ' order by array_position(cc.conkey, a.attnum)) || ');\\n'
+      pkey
     from pg_catalog.pg_constraint cc
         join pg_catalog.pg_class c on c.oid = cc.conrelid
         join pg_catalog.pg_attribute a on a.attrelid = cc.conrelid 
