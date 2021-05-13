@@ -631,11 +631,6 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/integer@latest":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@types/integer/-/integer-4.0.0.tgz#3b778715df72d2cf8ba73bad27bd9d830907f944"
-  integrity sha512-2U1i6bIRiqizl6O+ETkp2HhUZIxg7g+burUabh9tzGd0qcszfNaFRaY9bGNlQKgEU7DCsH5qMajRDW5QamWQbw==
-
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"
@@ -1436,12 +1431,11 @@ better-assert@~1.0.0:
   dependencies:
     callsite "1.0.0"
 
-better-sqlite3-with-prebuilds@^7.1.8:
-  version "7.1.8"
-  resolved "https://registry.yarnpkg.com/better-sqlite3-with-prebuilds/-/better-sqlite3-with-prebuilds-7.1.8.tgz#3090c478fe9b60e74ce053a76807b189784f62d7"
-  integrity sha512-trwg1qhN91cPYEB8D2K0KVHIsMsiAnxKx6/syfQ7rLrtD+zOS3fqJq4VGszMF+OuYAZJNAR4oLsikys3YW/6aA==
+better-sqlite3@^7.1.5:
+  version "7.1.5"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.1.5.tgz#3eb0fcc81bed463ddf2da4a02aad7e02726205c0"
+  integrity sha512-HX5dN0zLllJLQOJP2tXqV42bvjXPnbe/Nl5o6nD1jj99h0148B39zbfGZVoJBLtDAd/CJc4Zdm8K+GhHIq84IQ==
   dependencies:
-    "@types/integer" latest
     bindings "^1.5.0"
     prebuild-install "^6.0.1"
     tar "^6.1.0"
