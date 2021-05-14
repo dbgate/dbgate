@@ -47,6 +47,8 @@ from
     AND n.nspname !~ '^pg_toast'
  ORDER BY a.attnum
 ) as tabledefinition
+inner join information_schema.tables on tables.table_schema = tabledefinition.nspname and tables.table_name = tabledefinition.relname 
+and tables.table_type not like '%VIEW%'
 where ('tables:' || nspname || '.' ||  relname) =OBJECT_ID_CONDITION
 group by relname, nspname, oid
 `;
