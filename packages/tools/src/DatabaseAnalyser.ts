@@ -117,7 +117,7 @@ export class DatabaseAnalyser {
         .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
         .map(x => x.objectId);
       if (filterIds.length == 0) {
-        res = res.replace(/=OBJECT_ID_CONDITION/g, ' = 0');
+        res = res.replace(/=OBJECT_ID_CONDITION/g, " = '0'");
       } else {
         res = res.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.map(x => `'${x}'`).join(',')})`);
       }
@@ -154,8 +154,8 @@ export class DatabaseAnalyser {
     const snapshot = await this._getFastSnapshot();
     if (!snapshot) return null;
 
-    console.log('STRUCTURE', this.structure);
-    console.log('SNAPSHOT', snapshot);
+    // console.log('STRUCTURE', this.structure);
+    // console.log('SNAPSHOT', snapshot);
 
     const res = [];
     for (const field in snapshot) {

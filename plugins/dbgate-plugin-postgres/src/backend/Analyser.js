@@ -58,10 +58,11 @@ class Analyser extends DatabaseAnalyser {
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
     // console.log('PG fkColumns', fkColumns.rows);
 
-    return this.mergeAnalyseResult({
+    return {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: `tables:${table.schemaName}.${table.pureName}`,
+        contentHash: `${table.hashCodeColumns}-${table.hashCodeConstraints}`,
         columns: columns.rows
           .filter(col => col.pureName == table.pureName && col.schemaName == table.schemaName)
           .map(getColumnInfo),
@@ -71,6 +72,7 @@ class Analyser extends DatabaseAnalyser {
       views: views.rows.map(view => ({
         ...view,
         objectId: `views:${view.schemaName}.${view.pureName}`,
+        contentHash: view.hashCode,
         columns: columns.rows
           .filter(col => col.pureName == view.pureName && col.schemaName == view.schemaName)
           .map(getColumnInfo),
@@ -79,87 +81,50 @@ class Analyser extends DatabaseAnalyser {
         .filter(x => x.objectType == 'PROCEDURE')
         .map(proc => ({
           objectId: `procedures:${proc.schemaName}.${proc.pureName}`,
+          contentHash: proc.hashCode,
           ...proc,
         })),
       functions: routines.rows
         .filter(x => x.objectType == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schemaName}.${func.pureName}`,
+          contentHash: func.hashCode,
           ...func,
         })),
-    });
+    };
   }
 
-  async getModifications() {
+  async _getFastSnapshot() {
     const tableModificationsQueryData = await this.driver.query(this.pool, this.createQuery('tableModifications'));
     const viewModificationsQueryData = await this.driver.query(this.pool, this.createQuery('viewModifications'));
     const routineModificationsQueryData = await this.driver.query(this.pool, this.createQuery('routineModifications'));
 
-    const allModifications = _.compact([
-      ...tableModificationsQueryData.rows.map(x => ({ ...x, objectTypeField: 'tables' })),
-      ...viewModificationsQueryData.rows.map(x => ({ ...x, objectTypeField: 'views' })),
-      ...routineModificationsQueryData.rows
+    return {
+      tables: tableModificationsQueryData.rows.map(x => ({
+        ...x,
+        objectId: `tables:${x.schemaName}.${x.pureName}`,
+        contentHash: `${x.hashCodeColumns}-${x.hashCodeConstraints}`,
+      })),
+      views: viewModificationsQueryData.rows.map(x => ({
+        ...x,
+        objectId: `views:${x.schemaName}.${x.pureName}`,
+        contentHash: x.hashCode,
+      })),
+      procedures: routineModificationsQueryData.rows
         .filter(x => x.objectType == 'PROCEDURE')
-        .map(x => ({ ...x, objectTypeField: 'procedures' })),
-      ...routineModificationsQueryData.rows
+        .map(x => ({
+          ...x,
+          objectId: `procedures:${x.schemaName}.${x.pureName}`,
+          contentHash: x.hashCode,
+        })),
+      functions: routineModificationsQueryData.rows
         .filter(x => x.objectType == 'FUNCTION')
-        .map(x => ({ ...x, objectTypeField: 'functions' })),
-    ]);
-
-    const modifications = allModifications.map(x => {
-      const { objectTypeField, hashCode, pureName, schemaName } = x;
-
-      if (!objectTypeField || !this.structure[objectTypeField]) return null;
-      const obj = this.structure[objectTypeField].find(x => x.pureName == pureName && x.schemaName == schemaName);
-
-      // object not modified
-      if (obj && obj.hashCode == hashCode) return null;
-
-      // console.log('MODIFICATION OF ', objectTypeField, schemaName, pureName);
-
-      /** @type {import('dbgate-types').DatabaseModification} */
-      const action = obj
-        ? {
-            newName: { schemaName, pureName },
-            oldName: _.pick(obj, ['schemaName', 'pureName']),
-            action: 'change',
-            objectTypeField,
-            objectId: `${objectTypeField}:${schemaName}.${pureName}`,
-          }
-        : {
-            newName: { schemaName, pureName },
-            action: 'add',
-            objectTypeField,
-            objectId: `${objectTypeField}:${schemaName}.${pureName}`,
-          };
-      return action;
-    });
-
-    return [
-      ..._.compact(modifications),
-      ...this.getDeletedObjects([...allModifications.map(x => `${x.schemaName}.${x.pureName}`)]),
-    ];
-  }
-
-  getDeletedObjectsForField(nameArray, objectTypeField) {
-    return this.structure[objectTypeField]
-      .filter(x => !nameArray.includes(`${x.schemaName}.${x.pureName}`))
-      .map(x => ({
-        oldName: _.pick(x, ['schemaName', 'pureName']),
-        action: 'remove',
-        objectTypeField,
-        objectId: `${objectTypeField}:${x.schemaName}.${x.pureName}`,
-      }));
-  }
-
-  getDeletedObjects(nameArray) {
-    return [
-      ...this.getDeletedObjectsForField(nameArray, 'tables'),
-      ...this.getDeletedObjectsForField(nameArray, 'views'),
-      ...this.getDeletedObjectsForField(nameArray, 'procedures'),
-      ...this.getDeletedObjectsForField(nameArray, 'functions'),
-      ...this.getDeletedObjectsForField(nameArray, 'triggers'),
-    ];
+        .map(x => ({
+          ...x,
+          objectId: `functions:${x.schemaName}.${x.pureName}`,
+          contentHash: x.hashCode,
+        })),
+    };
   }
 }
 
