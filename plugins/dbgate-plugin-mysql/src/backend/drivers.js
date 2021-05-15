@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const stream = require('stream');
-const driverBase = require('../frontend/driver');
+const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
@@ -90,7 +90,7 @@ async function runStreamItem(connection, sql, options) {
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
@@ -184,6 +184,6 @@ const driver = {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
-};
+}));
 
-module.exports = driver;
+module.exports = drivers;

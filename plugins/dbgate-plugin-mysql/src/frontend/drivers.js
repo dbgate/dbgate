@@ -15,13 +15,23 @@ const dialect = {
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const mysqlDriver = {
   ...driverBase,
   dumperClass: Dumper,
   dialect,
   engine: 'mysql@dbgate-plugin-mysql',
-  title: 'MySQL / MariaDB',
+  title: 'MySQL',
   defaultPort: 3306,
 };
 
-module.exports = driver;
+/** @type {import('dbgate-types').EngineDriver} */
+const mariaDriver = {
+  ...driverBase,
+  dumperClass: Dumper,
+  dialect,
+  engine: 'mariadb@dbgate-plugin-mysql',
+  title: 'MariaDB',
+  defaultPort: 3306,
+};
+
+module.exports = [mysqlDriver, mariaDriver];

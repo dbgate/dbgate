@@ -135,8 +135,9 @@ module.exports = {
   async authTypes({ engine }) {
     const packageName = extractPackageName(engine);
     const content = requirePlugin(packageName);
-    if (!content.driver || content.driver.engine != engine || !content.driver.getAuthTypes) return null;
-    return content.driver.getAuthTypes() || null;
+    const driver = content.drivers.find(x => x.engine == engine);
+    if (!driver || !driver.getAuthTypes) return null;
+    return driver.getAuthTypes() || null;
   },
 
   // async _init() {

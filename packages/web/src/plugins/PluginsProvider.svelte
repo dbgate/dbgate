@@ -28,7 +28,7 @@
   function buildDrivers(plugins) {
     const res = [];
     for (const { content } of plugins) {
-      if (content.driver) res.push(content.driver);
+      // if (content.driver) res.push(content.driver);
       if (content.drivers) res.push(...content.drivers);
     }
     return res;

@@ -1,6 +1,6 @@
-const driver = require('./driver');
+const drivers = require('./drivers');
 
 module.exports = {
   packageName: 'dbgate-plugin-mysql',
-  driver,
+  drivers,
 };

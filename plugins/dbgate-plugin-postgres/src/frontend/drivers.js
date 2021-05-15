@@ -15,7 +15,7 @@ const dialect = {
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const postgresDriver = {
   ...driverBase,
   dumperClass: Dumper,
   dialect,
@@ -24,4 +24,24 @@ const driver = {
   defaultPort: 5432,
 };
 
-module.exports = driver;
+/** @type {import('dbgate-types').EngineDriver} */
+const cockroachDriver = {
+  ...driverBase,
+  dumperClass: Dumper,
+  dialect,
+  engine: 'cockroach@dbgate-plugin-postgres',
+  title: 'CockroachDB',
+  defaultPort: 26257,
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
+const redshiftDriver = {
+  ...driverBase,
+  dumperClass: Dumper,
+  dialect,
+  engine: 'red@dbgate-plugin-postgres',
+  title: 'Amazon Redshift',
+  defaultPort: 5432,
+};
+
+module.exports = [postgresDriver, cockroachDriver, redshiftDriver];

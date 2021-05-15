@@ -2,7 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const { identify } = require('sql-query-identifier');
 
-const driverBase = require('../frontend/driver');
+const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
 const pgQueryStream = require('pg-query-stream');
@@ -93,7 +93,7 @@ async function runStreamItem(client, sql, options) {
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
-const driver = {
+const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
@@ -220,6 +220,6 @@ const driver = {
     const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
   },
-};
+}));
 
-module.exports = driver;
+module.exports = drivers;
