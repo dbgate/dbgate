@@ -98,31 +98,27 @@ export class DatabaseAnalyser {
   // }
 
   createQuery(template, typeFields) {
-    let res = template;
+    // let res = template;
     if (this.singleObjectFilter) {
       const { typeField } = this.singleObjectFilter;
       if (!this.singleObjectId) return null;
       if (!typeFields || !typeFields.includes(typeField)) return null;
-      return res.replace(/=OBJECT_ID_CONDITION/g, ` = ${this.singleObjectId}`);
+      return template.replace(/=OBJECT_ID_CONDITION/g, ` = ${this.singleObjectId}`);
     }
     if (!this.modifications || !typeFields || this.modifications.length == 0) {
-      res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
-    } else {
-      if (this.modifications.some(x => typeFields.includes(x.objectTypeField) && x.action == 'all')) {
-        // do not filter objects
-        res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
-      }
-
-      const filterIds = this.modifications
-        .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-        .map(x => x.objectId);
-      if (filterIds.length == 0) {
-        res = res.replace(/=OBJECT_ID_CONDITION/g, " = '0'");
-      } else {
-        res = res.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.map(x => `'${x}'`).join(',')})`);
-      }
+      return template.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
     }
-    return res;
+    if (this.modifications.some(x => typeFields.includes(x.objectTypeField) && x.action == 'all')) {
+      // do not filter objects
+      return template.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
+    }
+    const filterIds = this.modifications
+      .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
+      .map(x => x.objectId);
+    if (filterIds.length == 0) {
+      return template.replace(/=OBJECT_ID_CONDITION/g, " = '0'");
+    }
+    return template.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.map(x => `'${x}'`).join(',')})`);
   }
 
   getDeletedObjectsForField(snapshot, objectTypeField) {
