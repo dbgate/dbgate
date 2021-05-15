@@ -41,7 +41,7 @@ const redshiftDriver = {
   dialect,
   engine: 'red@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
-  defaultPort: 5432,
+  defaultPort: 5439,
 };
 
 module.exports = [postgresDriver, cockroachDriver, redshiftDriver];

@@ -137,16 +137,6 @@ const drivers = driverBases.map(driverBase => ({
     options.done();
     // return stream;
   },
-  // async analyseSingleObject(pool, name, typeField = 'tables') {
-  //   const analyser = new PostgreAnalyser(pool, this);
-  //   analyser.singleObjectFilter = { ...name, typeField };
-  //   const res = await analyser.fullAnalysis();
-  //   return res.tables[0];
-  // },
-  // // @ts-ignore
-  // analyseSingleTable(pool, name) {
-  //   return this.analyseSingleObject(pool, name, 'tables');
-  // },
   async getVersion(client) {
     const { rows } = await this.query(client, 'SELECT version()');
     const { version } = rows[0];
@@ -155,14 +145,6 @@ const drivers = driverBases.map(driverBase => ({
       versionText: (version || '').replace(/\s*\(.*$/, ''),
     };
   },
-  // async analyseFull(pool) {
-  //   const analyser = new PostgreAnalyser(pool, this);
-  //   return analyser.fullAnalysis();
-  // },
-  // async analyseIncremental(pool, structure) {
-  //   const analyser = new PostgreAnalyser(pool, this);
-  //   return analyser.incrementalAnalysis(structure);
-  // },
   async readQuery(client, sql, structure) {
     const query = new pgQueryStream(sql, undefined, { rowMode: 'array' });
 
@@ -209,9 +191,6 @@ const drivers = driverBases.map(driverBase => ({
 
     return pass;
   },
-  // createDumper() {
-  //   return new PostgreDumper(this);
-  // },
   async writeTable(pool, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
