@@ -8,12 +8,15 @@ export class DatabaseAnalyser {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
   singleObjectFilter: any;
+  singleObjectId: string = null;
 
   constructor(public pool, public driver: EngineDriver) {}
 
   async _runAnalysis() {
     return DatabaseAnalyser.createEmptyStructure();
   }
+
+  async _computeSingleObjectId() {}
 
   /** @returns {Promise<import('dbgate-types').DatabaseModification[]>} */
   async getModifications() {
@@ -28,6 +31,7 @@ export class DatabaseAnalyser {
 
   async singleObjectAnalysis(name, typeField) {
     this.singleObjectFilter = { ...name, typeField };
+    await this._computeSingleObjectId();
     const res = this._runAnalysis();
     if (res[typeField].length == 1) return res[typeField][0];
     const obj = res[typeField].find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
@@ -93,6 +97,29 @@ export class DatabaseAnalyser {
   // findObjectById(id) {
   //   return this.structure.tables.find((x) => x.objectId == id);
   // }
+
+  createQuery(template, typeFields) {
+    let res = template;
+    if (this.singleObjectFilter) {
+      const { typeField } = this.singleObjectFilter;
+      if (!this.singleObjectId) return null;
+      if (!typeFields || !typeFields.includes(typeField)) return null;
+      return res.replace(/=OBJECT_ID_CONDITION/g, ` = ${this.singleObjectId}`);
+    }
+    if (!this.modifications || !typeFields || this.modifications.length == 0) {
+      res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
+    } else {
+      const filterIds = this.modifications
+        .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
+        .map(x => x.objectId);
+      if (filterIds.length == 0) {
+        res = res.replace(/=OBJECT_ID_CONDITION/g, ' = 0');
+      } else {
+        res = res.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.join(',')})`);
+      }
+    }
+    return res;
+  }
 
   static createEmptyStructure(): DatabaseInfo {
     return {

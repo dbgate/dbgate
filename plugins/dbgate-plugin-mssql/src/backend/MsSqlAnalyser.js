@@ -48,43 +48,20 @@ function getColumnInfo({
 class MsSqlAnalyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
-    this.singleObjectId = null;
   }
 
   createQuery(resFileName, typeFields) {
-    let res = sql[resFileName];
-    if (this.singleObjectFilter) {
-      const { typeField } = this.singleObjectFilter;
-      if (!this.singleObjectId) return null;
-      if (!typeFields || !typeFields.includes(typeField)) return null;
-      return res.replace('=[OBJECT_ID_CONDITION]', ` = ${this.singleObjectId}`);
-    }
-    if (!this.modifications || !typeFields || this.modifications.length == 0) {
-      res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
-    } else {
-      const filterIds = this.modifications
-        .filter((x) => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-        .map((x) => x.objectId);
-      if (filterIds.length == 0) {
-        res = res.replace('=[OBJECT_ID_CONDITION]', ' = 0');
-      } else {
-        res = res.replace('=[OBJECT_ID_CONDITION]', ` in (${filterIds.join(',')})`);
-      }
-    }
-    return res;
+    return super.createQuery(sql[resFileName], typeFields);
   }
 
-  async getSingleObjectId() {
-    if (this.singleObjectFilter) {
-      const { schemaName, pureName, typeField } = this.singleObjectFilter;
-      const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
-      const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
-      this.singleObjectId = resId.rows[0].id;
-    }
+  async _computeSingleObjectId() {
+    const { schemaName, pureName, typeField } = this.singleObjectFilter;
+    const fullName = schemaName ? `[${schemaName}].[${pureName}]` : pureName;
+    const resId = await this.driver.query(this.pool, `SELECT OBJECT_ID('${fullName}') AS id`);
+    this.singleObjectId = resId.rows[0].id;
   }
 
   async _runAnalysis() {
-    await this.getSingleObjectId();
     const tablesRows = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
     const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
     const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
@@ -97,10 +74,10 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       this.pool,
       this.createQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers'])
     );
-    const getCreateSql = (row) =>
+    const getCreateSql = row =>
       sqlCodeRows.rows
-        .filter((x) => x.pureName == row.pureName && x.schemaName == row.schemaName)
-        .map((x) => x.codeText)
+        .filter(x => x.pureName == row.pureName && x.schemaName == row.schemaName)
+        .map(x => x.codeText)
         .join('');
     const viewsRows = await this.driver.query(this.pool, this.createQuery('views', ['views']));
     const programmableRows = await this.driver.query(
@@ -109,29 +86,29 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     );
     const viewColumnRows = await this.driver.query(this.pool, this.createQuery('viewColumns', ['views']));
 
-    const tables = tablesRows.rows.map((row) => ({
+    const tables = tablesRows.rows.map(row => ({
       ...row,
-      columns: columnsRows.rows.filter((col) => col.objectId == row.objectId).map(getColumnInfo),
+      columns: columnsRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
     }));
 
-    const views = viewsRows.rows.map((row) => ({
+    const views = viewsRows.rows.map(row => ({
       ...row,
       createSql: getCreateSql(row),
-      columns: viewColumnRows.rows.filter((col) => col.objectId == row.objectId).map(getColumnInfo),
+      columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
 
     const procedures = programmableRows.rows
-      .filter((x) => x.sqlObjectType.trim() == 'P')
-      .map((row) => ({
+      .filter(x => x.sqlObjectType.trim() == 'P')
+      .map(row => ({
         ...row,
         createSql: getCreateSql(row),
       }));
 
     const functions = programmableRows.rows
-      .filter((x) => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
-      .map((row) => ({
+      .filter(x => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
+      .map(row => ({
         ...row,
         createSql: getCreateSql(row),
       }));
@@ -147,8 +124,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   getDeletedObjectsForField(idArray, objectTypeField) {
     return this.structure[objectTypeField]
-      .filter((x) => !idArray.includes(x.objectId))
-      .map((x) => ({
+      .filter(x => !idArray.includes(x.objectId))
+      .map(x => ({
         oldName: _.pick(x, ['schemaName', 'pureName']),
         objectId: x.objectId,
         action: 'remove',
@@ -173,12 +150,12 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     //   'MODs',
     //   this.structure.tables.map((x) => x.modifyDate)
     // );
-    const modifications = modificationsQueryData.rows.map((x) => {
+    const modifications = modificationsQueryData.rows.map(x => {
       const { type, objectId, modifyDate, schemaName, pureName } = x;
       const field = objectTypeToField(type);
       if (!this.structure[field]) return null;
       // @ts-ignore
-      const obj = this.structure[field].find((x) => x.objectId == objectId);
+      const obj = this.structure[field].find(x => x.objectId == objectId);
 
       // object not modified
       if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
@@ -201,7 +178,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       return action;
     });
 
-    return [..._.compact(modifications), ...this.getDeletedObjects(modificationsQueryData.rows.map((x) => x.objectId))];
+    return [..._.compact(modifications), ...this.getDeletedObjects(modificationsQueryData.rows.map(x => x.objectId))];
   }
 }
 

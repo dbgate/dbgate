@@ -36,5 +36,5 @@ LEFT JOIN sys.schemas IXS ON IXT.schema_id = IXS.schema_id
 inner join sys.objects o on FK.TABLE_NAME = o.name
 inner join sys.schemas s on o.schema_id = s.schema_id and FK.TABLE_SCHEMA = s.name
 
-where o.object_id =[OBJECT_ID_CONDITION]
+where o.object_id =OBJECT_ID_CONDITION
 `;

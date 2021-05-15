@@ -41,33 +41,14 @@ class Analyser extends DatabaseAnalyser {
   }
 
   createQuery(resFileName, typeFields) {
-    let res = sql[resFileName];
-
-    if (this.singleObjectFilter) {
-      const { typeField, schemaName, pureName } = this.singleObjectFilter;
-      if (!typeFields || !typeFields.includes(typeField)) return null;
-      res = res.replace(/=OBJECT_ID_CONDITION/g, ` = '${typeField}:${schemaName || 'public'}.${pureName}'`);
-      return res;
-    }
-    if (!this.modifications || !typeFields || this.modifications.length == 0) {
-      res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
-    } else {
-      const filterNames = this.modifications
-        .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-        .filter(x => x.newName)
-        .map(x => `${x.objectTypeField}:${x.newName.schemaName}.${x.newName.pureName}`);
-      if (filterNames.length == 0) {
-        res = res.replace(/=OBJECT_ID_CONDITION/g, ' IS NULL');
-      } else {
-        res = res.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterNames.map(x => `'${x}'`).join(',')})`);
-      }
-    }
-    return res;
-
-    // let res = sql[resFileName];
-    // res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
-    // return res;
+    return super.createQuery(sql[resFileName], typeFields);
   }
+
+  async _computeSingleObjectId() {
+    const { typeField, schemaName, pureName } = this.singleObjectFilter;
+    this.singleObjectId = `${typeField}:${schemaName || 'public'}.${pureName}`;
+  }
+
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tableModifications', ['tables']));
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));

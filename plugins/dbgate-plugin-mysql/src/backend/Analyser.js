@@ -42,27 +42,8 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields) {
     let res = sql[resFileName];
-    if (this.singleObjectFilter) {
-      const { typeField, pureName } = this.singleObjectFilter;
-      if (!typeFields || !typeFields.includes(typeField)) return null;
-      res = res.replace('=[OBJECT_ID_CONDITION]', ` = '${pureName}'`).replace('#DATABASE#', this.pool._database_name);
-      return res;
-    }
-    if (!this.modifications || !typeFields || this.modifications.length == 0) {
-      res = res.replace('=[OBJECT_ID_CONDITION]', ' is not null');
-    } else {
-      const filterNames = this.modifications
-        .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
-        .map(x => x.newName && x.newName.pureName)
-        .filter(Boolean);
-      if (filterNames.length == 0) {
-        res = res.replace('=[OBJECT_ID_CONDITION]', ' IS NULL');
-      } else {
-        res = res.replace('=[OBJECT_ID_CONDITION]', ` in (${filterNames.map(x => `'${x}'`).join(',')})`);
-      }
-    }
     res = res.replace('#DATABASE#', this.pool._database_name);
-    return res;
+    return super.createQuery(res, typeFields);
   }
 
   getRequestedViewNames(allViewNames) {

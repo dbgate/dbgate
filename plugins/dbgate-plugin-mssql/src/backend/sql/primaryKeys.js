@@ -10,5 +10,5 @@ where
     and o.schema_id = s.schema_id and t.Table_Schema = s.name
     and c.Table_Name = t.Table_Name
     and Constraint_Type = 'PRIMARY KEY'
-	and o.object_id =[OBJECT_ID_CONDITION]
+	and o.object_id =OBJECT_ID_CONDITION
 `;
