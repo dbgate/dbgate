@@ -78,6 +78,6 @@ export interface DatabaseModification {
   oldName?: NamedObjectInfo;
   newName?: NamedObjectInfo;
   objectId?: string;
-  action: 'add' | 'remove' | 'change';
+  action: 'add' | 'remove' | 'change' | 'all';
   objectTypeField: keyof DatabaseInfo;
 }

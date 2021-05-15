@@ -2,6 +2,7 @@ import { DatabaseInfo, DatabaseModification, EngineDriver } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
+import _ from 'lodash';
 
 const fp_pick = arg => array => _pick(array, arg);
 export class DatabaseAnalyser {
@@ -16,17 +17,15 @@ export class DatabaseAnalyser {
     return DatabaseAnalyser.createEmptyStructure();
   }
 
-  async _computeSingleObjectId() {}
-
-  /** @returns {Promise<import('dbgate-types').DatabaseModification[]>} */
-  async getModifications() {
-    if (this.structure == null) throw new Error('DatabaseAnalyse.getModifications - structure must be filled');
-
+  async _getFastSnapshot(): Promise<DatabaseInfo> {
     return null;
   }
 
+  async _computeSingleObjectId() {}
+
   async fullAnalysis() {
-    return this._runAnalysis();
+    const res = await this._runAnalysis();
+    return res;
   }
 
   async singleObjectAnalysis(name, typeField) {
@@ -49,7 +48,7 @@ export class DatabaseAnalyser {
     }
     if (this.modifications.length == 0) return null;
     console.log('DB modifications detected:', this.modifications);
-    return this._runAnalysis();
+    return this.mergeAnalyseResult(await this._runAnalysis());
   }
 
   mergeAnalyseResult(newlyAnalysed) {
@@ -69,7 +68,7 @@ export class DatabaseAnalyser {
       const addedChangedIds = newArray.map(x => x.objectId);
       const removeAllIds = [...removedIds, ...addedChangedIds];
       res[field] = _sortBy(
-        [...this.structure[field].filter(x => !removeAllIds.includes(x.objectId)), ...newArray],
+        [...(this.structure[field] || []).filter(x => !removeAllIds.includes(x.objectId)), ...newArray],
         x => x.pureName
       );
     }
@@ -109,6 +108,11 @@ export class DatabaseAnalyser {
     if (!this.modifications || !typeFields || this.modifications.length == 0) {
       res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
     } else {
+      if (this.modifications.some(x => typeFields.includes(x.objectTypeField) && x.action == 'all')) {
+        // do not filter objects
+        res = res.replace(/=OBJECT_ID_CONDITION/g, ' is not null');
+      }
+
       const filterIds = this.modifications
         .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
         .map(x => x.objectId);
@@ -119,6 +123,72 @@ export class DatabaseAnalyser {
       }
     }
     return res;
+  }
+
+  getDeletedObjectsForField(snapshot, objectTypeField) {
+    const items = snapshot[objectTypeField];
+    if (!items) return [];
+    if (!this.structure[objectTypeField]) return [];
+    return this.structure[objectTypeField]
+      .filter(x => !items.find(y => x.objectId == y.objectId))
+      .map(x => ({
+        oldName: _.pick(x, ['schemaName', 'pureName']),
+        objectId: x.objectId,
+        action: 'remove',
+        objectTypeField,
+      }));
+  }
+
+  getDeletedObjects(snapshot) {
+    return [
+      ...this.getDeletedObjectsForField(snapshot, 'tables'),
+      ...this.getDeletedObjectsForField(snapshot, 'collections'),
+      ...this.getDeletedObjectsForField(snapshot, 'views'),
+      ...this.getDeletedObjectsForField(snapshot, 'procedures'),
+      ...this.getDeletedObjectsForField(snapshot, 'functions'),
+      ...this.getDeletedObjectsForField(snapshot, 'triggers'),
+    ];
+  }
+
+  async getModifications() {
+    const snapshot = await this._getFastSnapshot();
+    if (!snapshot) return null;
+
+    // console.log('STRUCTURE', this.structure);
+    // console.log('SNAPSHOT', snapshot);
+
+    const res = [];
+    for (const field in snapshot) {
+      const items = snapshot[field];
+      if (items === null) {
+        res.push({ objectTypeField: field, action: 'all' });
+        continue;
+      }
+      for (const item of items) {
+        const { objectId, schemaName, pureName, contentHash } = item;
+        const obj = this.structure[field].find(x => x.objectId == objectId);
+
+        if (obj && contentHash && obj.contentHash == contentHash) continue;
+
+        const action = obj
+          ? {
+              newName: { schemaName, pureName },
+              oldName: _.pick(obj, ['schemaName', 'pureName']),
+              action: 'change',
+              objectTypeField: field,
+              objectId,
+            }
+          : {
+              newName: { schemaName, pureName },
+              action: 'add',
+              objectTypeField: field,
+              objectId,
+            };
+        res.push(action);
+      }
+
+      return [..._.compact(res), ...this.getDeletedObjects(snapshot)];
+    }
   }
 
   static createEmptyStructure(): DatabaseInfo {
