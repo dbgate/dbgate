@@ -77,10 +77,11 @@ class Analyser extends DatabaseAnalyser {
 
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
 
-    return this.mergeAnalyseResult({
+    return {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: table.pureName,
+        contentHash: table.modifyDate.toISOString(),
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
@@ -88,6 +89,7 @@ class Analyser extends DatabaseAnalyser {
       views: views.rows.map(view => ({
         ...view,
         objectId: view.pureName,
+        contentHash: view.modifyDate.toISOString(),
         columns: columns.rows.filter(col => col.pureName == view.pureName).map(getColumnInfo),
         createSql: viewTexts[view.pureName],
         requiresFormat: true,
@@ -95,36 +97,23 @@ class Analyser extends DatabaseAnalyser {
       procedures: programmables.rows
         .filter(x => x.objectType == 'PROCEDURE')
         .map(fp.omit(['objectType']))
-        .map(x => ({ ...x, objectId: x.pureName })),
+        .map(x => ({
+          ...x,
+          objectId: x.pureName,
+          contentHash: x.modifyDate.toISOString(),
+        })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
         .map(fp.omit(['objectType']))
-        .map(x => ({ ...x, objectId: x.pureName })),
-    });
+        .map(x => ({
+          ...x,
+          objectId: x.pureName,
+          contentHash: x.modifyDate.toISOString(),
+        })),
+    };
   }
 
-  getDeletedObjectsForField(nameArray, objectTypeField) {
-    return this.structure[objectTypeField]
-      .filter(x => !nameArray.includes(x.pureName))
-      .map(x => ({
-        oldName: _.pick(x, ['pureName']),
-        action: 'remove',
-        objectTypeField,
-        objectId: x.pureName,
-      }));
-  }
-
-  getDeletedObjects(nameArray) {
-    return [
-      ...this.getDeletedObjectsForField(nameArray, 'tables'),
-      ...this.getDeletedObjectsForField(nameArray, 'views'),
-      ...this.getDeletedObjectsForField(nameArray, 'procedures'),
-      ...this.getDeletedObjectsForField(nameArray, 'functions'),
-      ...this.getDeletedObjectsForField(nameArray, 'triggers'),
-    ];
-  }
-
-  async getModifications() {
+  async _getFastSnapshot() {
     const tableModificationsQueryData = await this.driver.query(this.pool, this.createQuery('tableModifications'));
     const procedureModificationsQueryData = await this.driver.query(
       this.pool,
@@ -135,67 +124,127 @@ class Analyser extends DatabaseAnalyser {
       this.createQuery('functionModifications')
     );
 
-    const allModifications = _.compact([
-      ...tableModificationsQueryData.rows.map(x => {
-        if (x.objectType == 'BASE TABLE') return { ...x, objectTypeField: 'tables' };
-        if (x.objectType == 'VIEW') return { ...x, objectTypeField: 'views' };
-        return null;
-      }),
-      ...procedureModificationsQueryData.rows.map(x => ({
-        objectTypeField: 'procedures',
-        modifyDate: x.Modified,
+    return {
+      tables: tableModificationsQueryData.rows
+        .filter(x => x.objectType == 'BASE TABLE')
+        .map(x => ({
+          ...x,
+          objectId: x.pureName,
+          contentHash: x.modifyDate.toISOString(),
+        })),
+      views: tableModificationsQueryData.rows
+        .filter(x => x.objectType == 'VIEW')
+        .map(x => ({
+          ...x,
+          objectId: x.pureName,
+          contentHash: x.modifyDate.toISOString(),
+        })),
+      procedures: procedureModificationsQueryData.rows.map(x => ({
+        contentHash: x.Modified,
+        objectId: x.Name,
         pureName: x.Name,
       })),
-      ...functionModificationsQueryData.rows.map(x => ({
-        objectTypeField: 'functions',
-        modifyDate: x.Modified,
+      functions: functionModificationsQueryData.rows.map(x => ({
+        contentHash: x.Modified,
+        objectId: x.Name,
         pureName: x.Name,
       })),
-    ]);
-
-    // console.log('allModifications', allModifications);
-    // console.log(
-    //   'DATES',
-    //   this.structure.procedures.map((x) => x.modifyDate)
-    // );
-    // console.log('MOD - SRC', modifications);
-    // console.log(
-    //   'MODs',
-    //   this.structure.tables.map((x) => x.modifyDate)
-    // );
-    const modifications = allModifications.map(x => {
-      const { objectType, modifyDate, pureName } = x;
-      const field = objectTypeToField(objectType);
-
-      if (!field || !this.structure[field]) return null;
-      // @ts-ignore
-      const obj = this.structure[field].find(x => x.pureName == pureName);
-
-      // object not modified
-      if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
-
-      // console.log('MODIFICATION OF ', field, pureName, modifyDate, obj.modifyDate);
-
-      /** @type {import('dbgate-types').DatabaseModification} */
-      const action = obj
-        ? {
-            newName: { pureName },
-            oldName: _.pick(obj, ['pureName']),
-            action: 'change',
-            objectTypeField: field,
-            objectId: pureName,
-          }
-        : {
-            newName: { pureName },
-            action: 'add',
-            objectTypeField: field,
-            objectId: pureName,
-          };
-      return action;
-    });
-
-    return [..._.compact(modifications), ...this.getDeletedObjects([...allModifications.map(x => x.pureName)])];
+    };
   }
+
+  // getDeletedObjectsForField(nameArray, objectTypeField) {
+  //   return this.structure[objectTypeField]
+  //     .filter(x => !nameArray.includes(x.pureName))
+  //     .map(x => ({
+  //       oldName: _.pick(x, ['pureName']),
+  //       action: 'remove',
+  //       objectTypeField,
+  //       objectId: x.pureName,
+  //     }));
+  // }
+
+  // getDeletedObjects(nameArray) {
+  //   return [
+  //     ...this.getDeletedObjectsForField(nameArray, 'tables'),
+  //     ...this.getDeletedObjectsForField(nameArray, 'views'),
+  //     ...this.getDeletedObjectsForField(nameArray, 'procedures'),
+  //     ...this.getDeletedObjectsForField(nameArray, 'functions'),
+  //     ...this.getDeletedObjectsForField(nameArray, 'triggers'),
+  //   ];
+  // }
+
+  // async getModifications() {
+  //   const tableModificationsQueryData = await this.driver.query(this.pool, this.createQuery('tableModifications'));
+  //   const procedureModificationsQueryData = await this.driver.query(
+  //     this.pool,
+  //     this.createQuery('procedureModifications')
+  //   );
+  //   const functionModificationsQueryData = await this.driver.query(
+  //     this.pool,
+  //     this.createQuery('functionModifications')
+  //   );
+
+  //   const allModifications = _.compact([
+  //     ...tableModificationsQueryData.rows.map(x => {
+  //       if (x.objectType == 'BASE TABLE') return { ...x, objectTypeField: 'tables' };
+  //       if (x.objectType == 'VIEW') return { ...x, objectTypeField: 'views' };
+  //       return null;
+  //     }),
+  //     ...procedureModificationsQueryData.rows.map(x => ({
+  //       objectTypeField: 'procedures',
+  //       modifyDate: x.Modified,
+  //       pureName: x.Name,
+  //     })),
+  //     ...functionModificationsQueryData.rows.map(x => ({
+  //       objectTypeField: 'functions',
+  //       modifyDate: x.Modified,
+  //       pureName: x.Name,
+  //     })),
+  //   ]);
+
+  //   // console.log('allModifications', allModifications);
+  //   // console.log(
+  //   //   'DATES',
+  //   //   this.structure.procedures.map((x) => x.modifyDate)
+  //   // );
+  //   // console.log('MOD - SRC', modifications);
+  //   // console.log(
+  //   //   'MODs',
+  //   //   this.structure.tables.map((x) => x.modifyDate)
+  //   // );
+  //   const modifications = allModifications.map(x => {
+  //     const { objectType, modifyDate, pureName } = x;
+  //     const field = objectTypeToField(objectType);
+
+  //     if (!field || !this.structure[field]) return null;
+  //     // @ts-ignore
+  //     const obj = this.structure[field].find(x => x.pureName == pureName);
+
+  //     // object not modified
+  //     if (obj && Math.abs(new Date(modifyDate).getTime() - new Date(obj.modifyDate).getTime()) < 1000) return null;
+
+  //     // console.log('MODIFICATION OF ', field, pureName, modifyDate, obj.modifyDate);
+
+  //     /** @type {import('dbgate-types').DatabaseModification} */
+  //     const action = obj
+  //       ? {
+  //           newName: { pureName },
+  //           oldName: _.pick(obj, ['pureName']),
+  //           action: 'change',
+  //           objectTypeField: field,
+  //           objectId: pureName,
+  //         }
+  //       : {
+  //           newName: { pureName },
+  //           action: 'add',
+  //           objectTypeField: field,
+  //           objectId: pureName,
+  //         };
+  //     return action;
+  //   });
+
+  //   return [..._.compact(modifications), ...this.getDeletedObjects([...allModifications.map(x => x.pureName)])];
+  // }
 }
 
 module.exports = Analyser;
