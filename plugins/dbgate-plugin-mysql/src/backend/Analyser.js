@@ -4,7 +4,6 @@ const sql = require('./sql');
 
 const { DatabaseAnalyser } = require('dbgate-tools');
 const { isTypeString, isTypeNumeric } = require('dbgate-tools');
-const { rangeStep } = require('lodash/fp');
 
 function getColumnInfo({
   isNullable,
@@ -27,12 +26,6 @@ function getColumnInfo({
     dataType: fullDataType,
     defaultValue,
   };
-}
-
-function objectTypeToField(type) {
-  if (type == 'VIEW') return 'views';
-  if (type == 'BASE TABLE') return 'tables';
-  return null;
 }
 
 class Analyser extends DatabaseAnalyser {
