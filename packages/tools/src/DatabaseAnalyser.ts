@@ -26,6 +26,14 @@ export class DatabaseAnalyser {
     return this._runAnalysis();
   }
 
+  async singleObjectAnalysis(name, typeField) {
+    this.singleObjectFilter = { ...name, typeField };
+    const res = this._runAnalysis();
+    if (res[typeField].length == 1) return res[typeField][0];
+    const obj = res[typeField].find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    return obj;
+  }
+
   async incrementalAnalysis(structure) {
     this.structure = structure;
 
