@@ -33,8 +33,8 @@ export class DatabaseAnalyser {
     this.singleObjectFilter = { ...name, typeField };
     await this._computeSingleObjectId();
     const res = this._runAnalysis();
-    if (res[typeField].length == 1) return res[typeField][0];
-    const obj = res[typeField].find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    if (res[typeField]?.length == 1) return res[typeField][0];
+    const obj = res[typeField]?.find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
     return obj;
   }
 
@@ -104,7 +104,7 @@ export class DatabaseAnalyser {
       const { typeField } = this.singleObjectFilter;
       if (!this.singleObjectId) return null;
       if (!typeFields || !typeFields.includes(typeField)) return null;
-      return template.replace(/=OBJECT_ID_CONDITION/g, ` = ${this.singleObjectId}`);
+      return template.replace(/=OBJECT_ID_CONDITION/g, ` = '${this.singleObjectId}'`);
     }
     if (!this.modifications || !typeFields || this.modifications.length == 0) {
       return template.replace(/=OBJECT_ID_CONDITION/g, ' is not null');

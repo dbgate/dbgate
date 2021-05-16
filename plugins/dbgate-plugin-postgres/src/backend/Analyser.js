@@ -57,7 +57,6 @@ class Analyser extends DatabaseAnalyser {
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
-    // console.log('PG fkColumns', fkColumns.rows);
 
     return {
       tables: tables.rows.map(table => {
