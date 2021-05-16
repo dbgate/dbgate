@@ -43,6 +43,11 @@ class Analyser extends DatabaseAnalyser {
     return this.getRequestedObjectPureNames('views', allViewNames);
   }
 
+  async _computeSingleObjectId() {
+    const { pureName } = this.singleObjectFilter;
+    this.singleObjectId = pureName;
+  }
+
   async getViewTexts(allViewNames) {
     const res = {};
     for (const viewName of this.getRequestedViewNames(allViewNames)) {

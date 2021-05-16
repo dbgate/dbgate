@@ -30,11 +30,16 @@ export class DatabaseAnalyser {
   }
 
   async singleObjectAnalysis(name, typeField) {
+    // console.log('Analysing SINGLE OBJECT', name, typeField);
     this.singleObjectFilter = { ...name, typeField };
     await this._computeSingleObjectId();
-    const res = this._runAnalysis();
-    if (res[typeField]?.length == 1) return res[typeField][0];
-    const obj = res[typeField]?.find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    const res = await this._runAnalysis();
+    // console.log('SINGLE OBJECT RES', res);
+    const obj =
+      res[typeField]?.length == 1
+        ? res[typeField][0]
+        : res[typeField]?.find(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+    // console.log('SINGLE OBJECT', obj);
     return obj;
   }
 
