@@ -7,16 +7,19 @@
       [tabid]: info,
     }));
   }
+
 </script>
 
 <script lang="ts">
   import { writable } from 'svelte/store';
+  import moment from 'moment';
 
   import FontIcon from '../icons/FontIcon.svelte';
 
   import { activeTabId, currentDatabase } from '../stores';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
+  import axiosInstance from '../utility/axiosInstance';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
@@ -25,6 +28,19 @@
 
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
+
+  let timerValue = 1;
+
+  setInterval(() => {
+    timerValue++;
+  }, 10000);
+
+  async function handleSyncModel() {
+    if (connection && databaseName) {
+      await axiosInstance.post('database-connections/sync-model', { conid: connection._id, database: databaseName });
+    }
+  }
+
 </script>
 
 <div class="main">
@@ -75,6 +91,18 @@
         </div>
       </div>
     {/if}
+    {#if $status?.analysedTime}
+      <div
+        class="item flex"
+        title={`DB model for current DB was analysed at ${new Date($status?.analysedTime)}`}
+        on:click={handleSyncModel}
+      >
+        <FontIcon icon="icon history" />
+        <div class="version ml-1">
+          {moment($status?.analysedTime).fromNow() + (timerValue ? '' : '')}
+        </div>
+      </div>
+    {/if}
   </div>
   <div class="container">
     {#each contextItems || [] as item}
@@ -94,6 +122,7 @@
     color: var(--theme-font-inv-1);
     align-items: stretch;
     justify-content: space-between;
+    cursor: default;
   }
   .container {
     display: flex;
@@ -108,4 +137,5 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
 </style>

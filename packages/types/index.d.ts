@@ -4,6 +4,7 @@ export interface OpenedDatabaseConnection {
   conid: string;
   database: string;
   structure: DatabaseInfo;
+  analysedTime?: number;
   serverVersion?: any;
   subprocess: ChildProcess;
   disconnected?: boolean;

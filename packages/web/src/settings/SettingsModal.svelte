@@ -50,7 +50,7 @@
       <FormCheckboxField
         name="connection.autoRefresh"
         label="Automatic refresh of database model on background"
-        defaultValue={true}
+        defaultValue={false}
       />
       <FormTextField
         name="connection.autoRefreshInterval"

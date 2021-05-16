@@ -61,7 +61,7 @@ async function handleConnect(connection) {
     systemConnection = await connectUtility(driver, storedConnection);
     readVersion();
     handleRefresh();
-    if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', true)) {
+    if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
       setInterval(handleRefresh, extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 5, 3600) * 1000);
     }
   } catch (err) {

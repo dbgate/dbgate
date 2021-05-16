@@ -12,6 +12,7 @@ let afterConnectCallbacks = [];
 let analysedStructure = null;
 let lastPing = null;
 let lastStatus = null;
+let analysedTime = 0;
 
 async function checkedAsyncCall(promise) {
   try {
@@ -28,23 +29,38 @@ async function checkedAsyncCall(promise) {
   }
 }
 
+let loadingModel = false;
+
 async function handleFullRefresh() {
+  loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('loadStructure');
   analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection));
+  analysedTime = new Date().getTime();
   process.send({ msgtype: 'structure', structure: analysedStructure });
+  process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
+  loadingModel = false;
 }
 
 async function handleIncrementalRefresh() {
+  loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
   const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure));
+  analysedTime = new Date().getTime();
   if (newStructure != null) {
     analysedStructure = newStructure;
     process.send({ msgtype: 'structure', structure: analysedStructure });
   }
+  process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
+  loadingModel = false;
+}
+
+function handleSyncModel() {
+  if (loadingModel) return;
+  handleIncrementalRefresh();
 }
 
 function setStatus(status) {
@@ -80,7 +96,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
     handleFullRefresh();
   }
 
-  if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', true)) {
+  if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
     setInterval(
       handleIncrementalRefresh,
       extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 3, 3600) * 1000
@@ -172,6 +188,7 @@ const messageHandlers = {
   collectionData: handleCollectionData,
   sqlPreview: handleSqlPreview,
   ping: handlePing,
+  syncModel: handleSyncModel,
   // runCommand: handleRunCommand,
 };
 

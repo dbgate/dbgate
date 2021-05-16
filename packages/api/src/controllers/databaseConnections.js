@@ -18,6 +18,12 @@ module.exports = {
     existing.structure = structure;
     socket.emitChanged(`database-structure-changed-${conid}-${database}`);
   },
+  handle_structureTime(conid, database, { analysedTime }) {
+    const existing = this.opened.find(x => x.conid == conid && x.database == database);
+    if (!existing) return;
+    existing.analysedTime = analysedTime;
+    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+  },
   handle_version(conid, database, { version }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
@@ -123,9 +129,19 @@ module.exports = {
   status_meta: 'get',
   async status({ conid, database }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
-    if (existing) return existing.status;
+    if (existing) {
+      return {
+        ...existing.status,
+        analysedTime: existing.analysedTime,
+      };
+    }
     const lastClosed = this.closed[`${conid}/${database}`];
-    if (lastClosed) return lastClosed.status;
+    if (lastClosed) {
+      return {
+        ...lastClosed.status,
+        analysedTime: lastClosed.analysedTime,
+      };
+    }
     return {
       name: 'error',
       message: 'Not connected',
@@ -153,6 +169,13 @@ module.exports = {
     if (!keepOpen) this.close(conid, database);
 
     await this.ensureOpened(conid, database);
+    return { status: 'ok' };
+  },
+
+  syncModel_meta: 'post',
+  async syncModel({ conid, database }) {
+    const conn = await this.ensureOpened(conid, database);
+    conn.subprocess.send({ msgtype: 'syncModel' });
     return { status: 'ok' };
   },
 

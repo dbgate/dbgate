@@ -40,6 +40,7 @@
     'icon home': 'mdi mdi-home',
     'icon query-design': 'mdi mdi-vector-polyline-edit',
     'icon form': 'mdi mdi-form-select',
+    'icon history': 'mdi mdi-history',
 
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
