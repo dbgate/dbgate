@@ -1,11 +1,11 @@
 module.exports = `
-select infoTables.table_schema as "schemaName", infoTables.table_name as "pureName", 
+select infoTables.table_schema as "schema_name", infoTables.table_name as "pure_name", 
     (
         select md5(string_agg(
             infoColumns.column_name || '|' || infoColumns.data_type || '|' || infoColumns.is_nullable || '|' || coalesce(infoColumns.character_maximum_length, -1)
                 || '|' || coalesce(infoColumns.numeric_precision, -1),
             ',' order by infoColumns.ordinal_position
-        )) as "hashCodeColumns"
+        )) as "hash_code_columns"
         from information_schema.columns infoColumns 
         where infoColumns.table_schema = infoTables.table_schema and infoColumns.table_name = infoTables.table_name
     ),
@@ -13,7 +13,7 @@ select infoTables.table_schema as "schemaName", infoTables.table_name as "pureNa
         select md5(string_agg(
             infoConstraints.constraint_name || '|' || infoConstraints.constraint_type ,
             ',' order by infoConstraints.constraint_name
-        )) as "hashCodeConstraints"
+        )) as "hash_code_constraints"
         from information_schema.table_constraints infoConstraints 
         where infoConstraints.table_schema = infoTables.table_schema and infoConstraints.table_name = infoTables.table_name
     )

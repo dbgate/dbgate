@@ -1,5 +1,6 @@
 const columns = require('./columns');
 const tableModifications = require('./tableModifications');
+const tableList = require('./tableList');
 const viewModifications = require('./viewModifications');
 const primaryKeys = require('./primaryKeys');
 const foreignKeys = require('./foreignKeys');
@@ -10,6 +11,7 @@ const routineModifications = require('./routineModifications');
 module.exports = {
   columns,
   tableModifications,
+  tableList,
   viewModifications,
   primaryKeys,
   foreignKeys,

@@ -12,26 +12,24 @@ function normalizeTypeName(dataType) {
 }
 
 function getColumnInfo({
-  isNullable,
-  isIdentity,
-  columnName,
-  dataType,
-  charMaxLength,
-  numericPrecision,
-  numericScale,
-  defaultValue,
+  is_nullable,
+  column_name,
+  data_type,
+  char_max_length,
+  numeric_precision,
+  numeric_ccale,
+  default_value,
 }) {
-  const normDataType = normalizeTypeName(dataType);
+  const normDataType = normalizeTypeName(data_type);
   let fullDataType = normDataType;
-  if (charMaxLength && isTypeString(normDataType)) fullDataType = `${normDataType}(${charMaxLength})`;
-  if (numericPrecision && numericScale && isTypeNumeric(normDataType))
-    fullDataType = `${normDataType}(${numericPrecision},${numericScale})`;
+  if (char_max_length && isTypeString(normDataType)) fullDataType = `${normDataType}(${char_max_length})`;
+  if (numeric_precision && numeric_ccale && isTypeNumeric(normDataType))
+    fullDataType = `${normDataType}(${numeric_precision},${numeric_ccale})`;
   return {
-    columnName,
+    columnName: column_name,
     dataType: fullDataType,
-    notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
-    autoIncrement: !!isIdentity,
-    defaultValue,
+    notNull: !is_nullable || is_nullable == 'NO' || is_nullable == 'no',
+    defaultValue: default_value,
   };
 }
 
@@ -50,7 +48,10 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    const tables = await this.driver.query(this.pool, this.createQuery('tableModifications', ['tables']));
+    const tables = await this.driver.query(
+      this.pool,
+      this.createQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', ['tables'])
+    );
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
@@ -59,70 +60,110 @@ class Analyser extends DatabaseAnalyser {
     // console.log('PG fkColumns', fkColumns.rows);
 
     return {
-      tables: tables.rows.map(table => ({
-        ...table,
-        objectId: `tables:${table.schemaName}.${table.pureName}`,
-        contentHash: `${table.hashCodeColumns}-${table.hashCodeConstraints}`,
-        columns: columns.rows
-          .filter(col => col.pureName == table.pureName && col.schemaName == table.schemaName)
-          .map(getColumnInfo),
-        primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
-        foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
-      })),
+      tables: tables.rows.map(table => {
+        const newTable = {
+          pureName: table.pure_name,
+          schemaName: table.schema_name,
+          objectId: `tables:${table.schema_name}.${table.pure_name}`,
+          contentHash: table.hash_code_columns ? `${table.hash_code_columns}-${table.hash_code_constraints}` : null,
+        };
+        return {
+          ...newTable,
+          columns: columns.rows
+            .filter(col => col.pure_name == table.pure_name && col.schema_name == table.schema_name)
+            .map(getColumnInfo),
+          primaryKey: DatabaseAnalyser.extractPrimaryKeys(
+            newTable,
+            pkColumns.rows.map(x => ({
+              pureName: x.pure_name,
+              schemaName: x.schema_name,
+              constraintSchema: x.constraint_schema,
+              constraintName: x.constraint_name,
+              columnName: x.column_name,
+            }))
+          ),
+          foreignKeys: DatabaseAnalyser.extractForeignKeys(
+            newTable,
+            fkColumns.rows.map(x => ({
+              pureName: x.pure_name,
+              schemaName: x.schema_name,
+              constraintSchema: x.constraint_schema,
+              constraintName: x.constraint_name,
+              columnName: x.column_name,
+              refColumnName: x.ref_column_name,
+              updateAction: x.update_action,
+              deleteAction: x.delete_action,
+              refTableName: x.ref_table_name,
+              refSchemaName: x.ref_schema_name,
+            }))
+          ),
+        };
+      }),
       views: views.rows.map(view => ({
-        ...view,
-        objectId: `views:${view.schemaName}.${view.pureName}`,
-        contentHash: view.hashCode,
+        objectId: `views:${view.schema_name}.${view.pure_name}`,
+        pureName: view.pure_name,
+        schemaName: view.schema_name,
+        contentHash: view.hash_code,
         columns: columns.rows
-          .filter(col => col.pureName == view.pureName && col.schemaName == view.schemaName)
+          .filter(col => col.pure_name == view.pure_name && col.schema_name == view.schema_name)
           .map(getColumnInfo),
       })),
       procedures: routines.rows
         .filter(x => x.objectType == 'PROCEDURE')
         .map(proc => ({
-          objectId: `procedures:${proc.schemaName}.${proc.pureName}`,
-          contentHash: proc.hashCode,
-          ...proc,
+          objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
+          pureName: proc.pure_name,
+          schemaName: proc.schema_name,
+          contentHash: proc.hash_code,
         })),
       functions: routines.rows
         .filter(x => x.objectType == 'FUNCTION')
         .map(func => ({
-          objectId: `functions:${func.schemaName}.${func.pureName}`,
-          contentHash: func.hashCode,
-          ...func,
+          objectId: `functions:${func.schema_name}.${func.pure_name}`,
+          pureName: func.pure_name,
+          schemaName: func.schema_name,
+          contentHash: func.hash_code,
         })),
     };
   }
 
   async _getFastSnapshot() {
-    const tableModificationsQueryData = await this.driver.query(this.pool, this.createQuery('tableModifications'));
+    const tableModificationsQueryData = this.driver.dialect.stringAgg
+      ? await this.driver.query(this.pool, this.createQuery('tableModifications'))
+      : null;
     const viewModificationsQueryData = await this.driver.query(this.pool, this.createQuery('viewModifications'));
     const routineModificationsQueryData = await this.driver.query(this.pool, this.createQuery('routineModifications'));
 
     return {
-      tables: tableModificationsQueryData.rows.map(x => ({
-        ...x,
-        objectId: `tables:${x.schemaName}.${x.pureName}`,
-        contentHash: `${x.hashCodeColumns}-${x.hashCodeConstraints}`,
-      })),
+      tables: tableModificationsQueryData
+        ? tableModificationsQueryData.rows.map(x => ({
+            objectId: `tables:${x.schema_name}.${x.pure_name}`,
+            pureName: x.pure_name,
+            schemaName: x.schema_name,
+            contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
+          }))
+        : null,
       views: viewModificationsQueryData.rows.map(x => ({
-        ...x,
-        objectId: `views:${x.schemaName}.${x.pureName}`,
-        contentHash: x.hashCode,
+        objectId: `views:${x.schema_name}.${x.pure_name}`,
+        pureName: x.pure_name,
+        schemaName: x.schema_name,
+        contentHash: x.hash_code,
       })),
       procedures: routineModificationsQueryData.rows
         .filter(x => x.objectType == 'PROCEDURE')
         .map(x => ({
-          ...x,
-          objectId: `procedures:${x.schemaName}.${x.pureName}`,
-          contentHash: x.hashCode,
+          objectId: `procedures:${x.schema_name}.${x.pure_name}`,
+          pureName: x.pure_name,
+          schemaName: x.schema_name,
+          contentHash: x.hash_code,
         })),
       functions: routineModificationsQueryData.rows
         .filter(x => x.objectType == 'FUNCTION')
         .map(x => ({
-          ...x,
-          objectId: `functions:${x.schemaName}.${x.pureName}`,
-          contentHash: x.hashCode,
+          objectId: `functions:${x.schema_name}.${x.pure_name}`,
+          pureName: x.pure_name,
+          schemaName: x.schema_name,
+          contentHash: x.hash_code,
         })),
     };
   }

@@ -25,6 +25,7 @@ export class DatabaseAnalyser {
 
   async fullAnalysis() {
     const res = await this._runAnalysis();
+    console.log('FULL ANALYSIS', res);
     return res;
   }
 

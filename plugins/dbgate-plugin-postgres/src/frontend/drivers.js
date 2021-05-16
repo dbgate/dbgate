@@ -12,6 +12,7 @@ const dialect = {
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
+  stringAgg: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -38,7 +39,10 @@ const cockroachDriver = {
 const redshiftDriver = {
   ...driverBase,
   dumperClass: Dumper,
-  dialect,
+  dialect: {
+    ...dialect,
+    stringAgg: false,
+  },
   engine: 'red@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
   defaultPort: 5439,
