@@ -51,19 +51,29 @@
   }
 
   async function handleSubmit(e) {
-    const connection = driver?.isFileDatabase
-      ? {
-          ..._.omit(e.detail, ['server', 'port', 'defaultDatabase']),
-          singleDatabase: true,
-          defaultDatabase: getDatabaseFileLabel(e.detail.databaseFile),
-        }
-      : {
-          ..._.omit(e.detail, ['databaseFile']),
-          singleDatabase: e.detail.defaultDatabase ? e.detail.singleDatabase : false,
-        };
+    const allProps = [
+      'databaseFile',
+      'useDatabaseUrl',
+      'databaseUrl',
+      'authType',
+      'server',
+      'port',
+      'user',
+      'password',
+      'defaultDatabase',
+      'singleDatabase',
+    ];
+    const visibleProps = allProps.filter(x => !driver?.showConnectionField || driver.showConnectionField(x, $values));
+    const omitProps = _.difference(allProps, visibleProps);
+    if (!$values.defaultDatabase) omitProps.push('singleDatabase');
+
+    let connection = _.omit(e.detail, omitProps);
+    if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
+
     axiosInstance.post('connections/save', connection);
     closeCurrentModal();
   }
+
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -77,11 +87,11 @@
           label: 'Main',
           component: ConnectionModalDriverFields,
         },
-        !driver?.isFileDatabase && {
+        (!driver?.showConnectionTab || driver?.showConnectionTab('sshTunnel', $values)) && {
           label: 'SSH Tunnel',
           component: ConnectionModalSshTunnelFields,
         },
-        !driver?.isFileDatabase && {
+        (!driver?.showConnectionTab || driver?.showConnectionTab('ssl', $values)) && {
           label: 'SSL',
           component: ConnectionModalSslFields,
         },
@@ -146,4 +156,5 @@
   .error-result {
     white-space: normal;
   }
+
 </style>

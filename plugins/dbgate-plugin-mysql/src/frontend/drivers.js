@@ -14,24 +14,27 @@ const dialect = {
   },
 };
 
-/** @type {import('dbgate-types').EngineDriver} */
-const mysqlDriver = {
+const mysqlDriverBase = {
   ...driverBase,
+  showConnectionField: (field, values) =>
+    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   dumperClass: Dumper,
   dialect,
-  engine: 'mysql@dbgate-plugin-mysql',
-  title: 'MySQL',
   defaultPort: 3306,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
+const mysqlDriver = {
+  ...mysqlDriverBase,
+  engine: 'mysql@dbgate-plugin-mysql',
+  title: 'MySQL',
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
 const mariaDriver = {
-  ...driverBase,
-  dumperClass: Dumper,
-  dialect,
+  ...mysqlDriverBase,
   engine: 'mariadb@dbgate-plugin-mysql',
   title: 'MariaDB',
-  defaultPort: 3306,
 };
 
 module.exports = [mysqlDriver, mariaDriver];

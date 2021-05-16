@@ -32,6 +32,9 @@ const driver = {
     }
     return dialect;
   },
+  showConnectionField: (field, values) =>
+    ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',
   defaultPort: 1433,

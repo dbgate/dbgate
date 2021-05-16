@@ -15,11 +15,17 @@ const dialect = {
   stringAgg: true,
 };
 
-/** @type {import('dbgate-types').EngineDriver} */
-const postgresDriver = {
+const postgresDriverBase = {
   ...driverBase,
   dumperClass: Dumper,
   dialect,
+  showConnectionField: (field, values) =>
+    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+};
+
+/** @type {import('dbgate-types').EngineDriver} */
+const postgresDriver = {
+  ...postgresDriverBase,
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'Postgre SQL',
   defaultPort: 5432,
@@ -27,9 +33,7 @@ const postgresDriver = {
 
 /** @type {import('dbgate-types').EngineDriver} */
 const cockroachDriver = {
-  ...driverBase,
-  dumperClass: Dumper,
-  dialect,
+  ...postgresDriverBase,
   engine: 'cockroach@dbgate-plugin-postgres',
   title: 'CockroachDB',
   defaultPort: 26257,
@@ -37,15 +41,30 @@ const cockroachDriver = {
 
 /** @type {import('dbgate-types').EngineDriver} */
 const redshiftDriver = {
-  ...driverBase,
-  dumperClass: Dumper,
+  ...postgresDriverBase,
   dialect: {
     ...dialect,
     stringAgg: false,
   },
-  engine: 'red@dbgate-plugin-postgres',
+  engine: 'redshift@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
   defaultPort: 5439,
+  showConnectionField: (field, values) => ['databaseUrl', 'user', 'password'].includes(field),
+  beforeConnectionSave: connection => {
+    const { databaseUrl } = connection;
+    if (databaseUrl) {
+      const m = databaseUrl.match(/\/([^/]+)$/);
+      if (m) {
+        return {
+          ...connection,
+          singleDatabase: true,
+          defaultDatabase: m[1],
+          // displayName: connection.displayName || `${m[1]} on Amazon Redshift`,
+        };
+      }
+    }
+    return connection;
+  },
 };
 
 module.exports = [postgresDriver, cockroachDriver, redshiftDriver];

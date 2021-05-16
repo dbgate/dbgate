@@ -38,7 +38,10 @@ export interface EngineDriver {
   title: string;
   defaultPort?: number;
   supportsDatabaseUrl?: boolean;
-  isFileDatabase?: boolean;
+  isElectronOnly?: boolean;
+  showConnectionField?: (field: string, values: any) => boolean;
+  showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
+  beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
   connect({ server, port, user, password, database }): any;
   query(pool: any, sql: string): Promise<QueryResult>;

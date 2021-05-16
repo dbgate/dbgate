@@ -34,6 +34,14 @@ const driver = {
   supportsDatabaseUrl: true,
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
+  showConnectionField: (field, values) => {
+    if (field == 'useDatabaseUrl') return true;
+    if (values.useDatabaseUrl) {
+      return ['databaseUrl', 'defaultDatabase', 'singleDatabase'].includes(field);
+    }
+    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
+  },
+
   getCollectionUpdateScript(changeSet) {
     let res = '';
     for (const insert of changeSet.inserts) {

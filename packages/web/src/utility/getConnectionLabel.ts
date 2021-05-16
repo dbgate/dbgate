@@ -21,5 +21,9 @@ export default function getConnectionLabel(connection, { allowExplicitDatabase =
   if (connection.server) {
     return connection.server;
   }
+  if (connection.singleDatabase && connection.defaultDatabase) {
+    return `${connection.defaultDatabase}`;
+  }
+
   return '';
 }

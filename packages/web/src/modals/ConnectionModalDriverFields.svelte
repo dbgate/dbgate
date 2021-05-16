@@ -24,6 +24,7 @@
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
+
 </script>
 
 <FormSelectField
@@ -33,7 +34,7 @@
   options={[
     { label: '(select driver)', value: '' },
     ...$extensions.drivers
-      .filter(driver => !driver.isFileDatabase || electron)
+      .filter(driver => !driver.isElectronOnly || electron)
       .map(driver => ({
         value: driver.engine,
         label: driver.title,
@@ -41,44 +42,48 @@
   ]}
 />
 
-{#if driver?.isFileDatabase}
+{#if !driver?.showConnectionField || driver.showConnectionField('databaseFile', $values)}
   <FormElectronFileSelector label="Database file" name="databaseFile" disabled={!electron} />
-{:else}
-  {#if driver?.supportsDatabaseUrl}
-    <div class="radio">
-      <FormRadioGroupField
-        name="useDatabaseUrl"
-        options={[
-          { label: 'Fill database connection details', value: '', default: true },
-          { label: 'Use database URL', value: '1' },
-        ]}
+{/if}
+
+{#if !driver?.showConnectionField || driver.showConnectionField('useDatabaseUrl', $values)}
+  <div class="radio">
+    <FormRadioGroupField
+      name="useDatabaseUrl"
+      options={[
+        { label: 'Fill database connection details', value: '', default: true },
+        { label: 'Use database URL', value: '1' },
+      ]}
+    />
+  </div>
+{/if}
+
+{#if !driver?.showConnectionField || driver.showConnectionField('databaseUrl', $values)}
+  <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
+{/if}
+
+{#if $authTypes && (!driver?.showConnectionField || driver.showConnectionField('authType', $values))}
+  <FormSelectField
+    label="Authentication"
+    name="authType"
+    options={$authTypes.map(auth => ({
+      value: auth.name,
+      label: auth.title,
+    }))}
+  />
+{/if}
+
+{#if !driver?.showConnectionField || driver.showConnectionField('server', $values)}
+  <div class="row">
+    <div class="col-9 mr-1">
+      <FormTextField
+        label="Server"
+        name="server"
+        disabled={disabledFields.includes('server')}
+        templateProps={{ noMargin: true }}
       />
     </div>
-  {/if}
-
-  {#if driver?.supportsDatabaseUrl && useDatabaseUrl}
-    <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
-  {:else}
-    {#if $authTypes}
-      <FormSelectField
-        label="Authentication"
-        name="authType"
-        options={$authTypes.map(auth => ({
-          value: auth.name,
-          label: auth.title,
-        }))}
-      />
-    {/if}
-
-    <div class="row">
-      <div class="col-9 mr-1">
-        <FormTextField
-          label="Server"
-          name="server"
-          disabled={disabledFields.includes('server')}
-          templateProps={{ noMargin: true }}
-        />
-      </div>
+    {#if !driver?.showConnectionField || driver.showConnectionField('port', $values)}
       <div class="col-3 mr-1">
         <FormTextField
           label="Port"
@@ -88,17 +93,21 @@
           placeholder={driver && driver.defaultPort}
         />
       </div>
-    </div>
+    {/if}
+  </div>
+{/if}
 
-    <div class="row">
-      <div class="col-6 mr-1">
-        <FormTextField
-          label="User"
-          name="user"
-          disabled={disabledFields.includes('user')}
-          templateProps={{ noMargin: true }}
-        />
-      </div>
+{#if !driver?.showConnectionField || driver.showConnectionField('user', $values)}
+  <div class="row">
+    <div class="col-6 mr-1">
+      <FormTextField
+        label="User"
+        name="user"
+        disabled={disabledFields.includes('user')}
+        templateProps={{ noMargin: true }}
+      />
+    </div>
+    {#if !driver?.showConnectionField || driver.showConnectionField('password', $values)}
       <div class="col-6 mr-1">
         <FormPasswordField
           label="Password"
@@ -107,26 +116,28 @@
           templateProps={{ noMargin: true }}
         />
       </div>
-    </div>
-
-    {#if !disabledFields.includes('password')}
-      <FormSelectField
-        label="Password mode"
-        isNative
-        name="passwordMode"
-        options={[
-          { value: 'saveEncrypted', label: 'Save and encrypt' },
-          { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
-        ]}
-      />
     {/if}
-  {/if}
+  </div>
+{/if}
 
+{#if !disabledFields.includes('password') && (!driver?.showConnectionField || driver.showConnectionField('password', $values))}
+  <FormSelectField
+    label="Password mode"
+    isNative
+    name="passwordMode"
+    options={[
+      { value: 'saveEncrypted', label: 'Save and encrypt' },
+      { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+    ]}
+  />
+{/if}
+
+{#if !driver?.showConnectionField || driver.showConnectionField('defaultDatabase', $values)}
   <FormTextField label="Default database" name="defaultDatabase" />
+{/if}
 
-  {#if defaultDatabase}
-    <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
-  {/if}
+{#if defaultDatabase && (!driver?.showConnectionField || driver.showConnectionField('singleDatabase', $values))}
+  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
 {/if}
 
 <FormTextField label="Display name" name="displayName" />
@@ -143,4 +154,5 @@
   .radio :global(label) {
     margin-right: 10px;
   }
+
 </style>

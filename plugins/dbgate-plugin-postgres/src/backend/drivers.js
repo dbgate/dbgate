@@ -97,16 +97,38 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ server, port, user, password, database, ssl }) {
-    const client = new pg.Client({
-      // connectionString: 'postgres://root@localhost:26257/postgres?sslmode=disabke'
-      host: server,
-      port,
-      user,
-      password,
-      database: database || 'postgres',
-      ssl,
-    });
+  async connect({ engine, server, port, user, password, database, databaseUrl, ssl }) {
+    let options = null;
+
+    if (engine == 'redshift@dbgate-plugin-postgres') {
+      let url = databaseUrl;
+      if (url && url.startsWith('jdbc:redshift://')) {
+        url = url.substring('jdbc:redshift://'.length);
+      }
+      if (user && password) {
+        url = `postgres://${user}:${password}@${url}`;
+      } else if (user) {
+        url = `postgres://${user}@${url}`;
+      } else {
+        url = `postgres://${url}`;
+      }
+
+      options = {
+        connectionString: url,
+      };
+    } else {
+      options = {
+        // connectionString: 'postgres://root@localhost:26257/postgres?sslmode=disabke'
+        host: server,
+        port,
+        user,
+        password,
+        database: database || 'postgres',
+        ssl,
+      };
+    }
+
+    const client = new pg.Client(options);
     await client.connect();
     return client;
   },
