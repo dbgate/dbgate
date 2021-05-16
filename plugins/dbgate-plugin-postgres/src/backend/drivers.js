@@ -5,7 +5,6 @@ const { identify } = require('sql-query-identifier');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
-const pgQueryStream = require('pg-query-stream');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
 function extractPostgresColumns(result) {
