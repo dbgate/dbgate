@@ -32,7 +32,7 @@
   "devDependencies": {
     "dbgate-plugin-tools": "^1.0.7",
     "dbgate-tools": "^4.1.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "pg": "^7.17.0",
     "sql-query-identifier": "^2.1.0",
     "webpack": "^4.42.0",
