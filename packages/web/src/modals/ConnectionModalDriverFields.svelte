@@ -29,6 +29,7 @@
 <FormSelectField
   label="Database engine"
   name="engine"
+  isNative
   options={[
     { label: '(select driver)', value: '' },
     ...$extensions.drivers
@@ -111,6 +112,7 @@
     {#if !disabledFields.includes('password')}
       <FormSelectField
         label="Password mode"
+        isNative
         name="passwordMode"
         options={[
           { value: 'saveEncrypted', label: 'Save and encrypt' },

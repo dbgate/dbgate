@@ -41,6 +41,7 @@
 <FormSelectField
   label="SSH Authentication"
   name="sshMode"
+  isNative
   disabled={!useSshTunnel}
   options={[
     { value: 'userPassword', label: 'Username & password' },
