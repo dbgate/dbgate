@@ -26,29 +26,14 @@ function zipDataRow(rowArray, columns) {
 
 async function runStreamItem(client, sql, options) {
   return new Promise((resolve, reject) => {
-    const query = new pgQueryStream(sql, undefined, { rowMode: 'array' });
-    const stream = client.query(query);
-
-    // const handleInfo = (info) => {
-    //   const { message, lineNumber, procName } = info;
-    //   options.info({
-    //     message,
-    //     line: lineNumber,
-    //     procedure: procName,
-    //     time: new Date(),
-    //     severity: 'info',
-    //   });
-    // };
+    const query = new pg.Query({
+      text: sql,
+      rowMode: 'array',
+    });
 
     let wasHeader = false;
 
-    const handleEnd = result => {
-      // console.log('RESULT', result);
-      resolve();
-    };
-
-    let columns = null;
-    const handleReadable = () => {
+    query.on('row', row => {
       if (!wasHeader) {
         columns = extractPostgresColumns(query._result);
         if (columns && columns.length > 0) {
@@ -57,21 +42,22 @@ async function runStreamItem(client, sql, options) {
         wasHeader = true;
       }
 
-      for (;;) {
-        const row = stream.read();
-        if (!row) break;
+      options.row(zipDataRow(row, columns));
+    });
 
-        options.row(zipDataRow(row, columns));
+    query.on('end', () => {
+      if (!wasHeader) {
+        columns = extractPostgresColumns(query._result);
+        if (columns && columns.length > 0) {
+          options.recordset(columns);
+        }
+        wasHeader = true;
       }
-    };
 
-    // const handleFields = (columns) => {
-    //   // console.log('FIELDS', columns[0].name);
-    //   options.recordset(columns);
-    //   // options.recordset(extractColumns(columns));
-    // };
+      resolve();
+    });
 
-    const handleError = error => {
+    query.on('error', error => {
       console.log('ERROR', error);
       const { message, lineNumber, procName } = error;
       options.info({
@@ -82,13 +68,9 @@ async function runStreamItem(client, sql, options) {
         severity: 'error',
       });
       resolve();
-    };
+    });
 
-    stream.on('error', handleError);
-    stream.on('readable', handleReadable);
-    // stream.on('result', handleRow)
-    // stream.on('data', handleRow)
-    stream.on('end', handleEnd);
+    client.query(query);
   });
 }
 
@@ -184,23 +166,20 @@ const drivers = driverBases.map(driverBase => ({
     };
   },
   async readQuery(client, sql, structure) {
-    const query = new pgQueryStream(sql, undefined, { rowMode: 'array' });
-
-    const queryStream = client.query(query);
+    const query = new pg.Query({
+      text: sql,
+      rowMode: 'array',
+    });
 
     let wasHeader = false;
+    let columns = null;
 
     const pass = new stream.PassThrough({
       objectMode: true,
       highWaterMark: 100,
     });
 
-    const handleEnd = result => {
-      pass.end();
-    };
-
-    let columns = null;
-    const handleReadable = () => {
+    query.on('row', row => {
       if (!wasHeader) {
         columns = extractPostgresColumns(query._result);
         pass.write({
@@ -210,22 +189,28 @@ const drivers = driverBases.map(driverBase => ({
         wasHeader = true;
       }
 
-      for (;;) {
-        const row = queryStream.read();
-        if (!row) break;
+      pass.write(zipDataRow(row, columns));
+    });
 
-        pass.write(zipDataRow(row, columns));
+    query.on('end', () => {
+      if (!wasHeader) {
+        columns = extractPostgresColumns(query._result);
+        pass.write({
+          __isStreamHeader: true,
+          ...(structure || { columns }),
+        });
+        wasHeader = true;
       }
-    };
 
-    const handleError = error => {
+      pass.end();
+    });
+
+    query.on('error', error => {
       console.error(error);
       pass.end();
-    };
+    });
 
-    queryStream.on('error', handleError);
-    queryStream.on('readable', handleReadable);
-    queryStream.on('end', handleEnd);
+    client.query(query);
 
     return pass;
   },
