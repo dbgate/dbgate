@@ -6,6 +6,7 @@
   export let collection;
   export let columns;
   export let showIfEmpty = false;
+
 </script>
 
 {#if collection?.length > 0 || showIfEmpty}
@@ -55,24 +56,24 @@
       </TableControl>
     </div>
   </div>
-
-  <style>
-    .wrapper {
-      margin-bottom: 20px;
-    }
-
-    .header {
-      background-color: var(--theme-bg-1);
-      padding: 5px;
-    }
-
-    .title {
-      font-weight: bold;
-      margin-left: 5px;
-    }
-
-    .body {
-      margin: 20px;
-    }
-  </style>
 {/if}
+
+<style>
+  .wrapper {
+    margin-bottom: 20px;
+  }
+
+  .header {
+    background-color: var(--theme-bg-1);
+    padding: 5px;
+  }
+
+  .title {
+    font-weight: bold;
+    margin-left: 5px;
+  }
+
+  .body {
+    margin: 20px;
+  }
+</style>
