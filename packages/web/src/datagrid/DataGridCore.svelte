@@ -171,6 +171,7 @@
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
     return value;
   }
+
 </script>
 
 <script lang="ts">
@@ -663,23 +664,42 @@
   }
 
   function handleGridWheel(event) {
-    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-    if (event.deltaY > 0) {
-      newFirstVisibleRowScrollIndex += wheelRowCount;
-    }
-    if (event.deltaY < 0) {
-      newFirstVisibleRowScrollIndex -= wheelRowCount;
-    }
-    let rowCount = grider.rowCount;
-    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-    }
-    if (newFirstVisibleRowScrollIndex < 0) {
-      newFirstVisibleRowScrollIndex = 0;
-    }
-    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
+    if (event.shiftKey) {
+      let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
+      if (event.deltaY > 0) {
+        newFirstVisibleColumnScrollIndex++;
+      }
+      if (event.deltaY < 0) {
+        newFirstVisibleColumnScrollIndex--;
+      }
+      if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
+        newFirstVisibleColumnScrollIndex = maxScrollColumn;
+      }
+      if (newFirstVisibleColumnScrollIndex < 0) {
+        newFirstVisibleColumnScrollIndex = 0;
+      }
+      firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
 
-    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+      domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
+    } else {
+      let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
+      if (event.deltaY > 0) {
+        newFirstVisibleRowScrollIndex += wheelRowCount;
+      }
+      if (event.deltaY < 0) {
+        newFirstVisibleRowScrollIndex -= wheelRowCount;
+      }
+      let rowCount = grider.rowCount;
+      if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
+        newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
+      }
+      if (newFirstVisibleRowScrollIndex < 0) {
+        newFirstVisibleRowScrollIndex = 0;
+      }
+      firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
+
+      domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+    }
   }
 
   function getSelectedRowIndexes() {
@@ -958,6 +978,7 @@
   );
 
   const menu = getContextMenu();
+
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1164,4 +1185,5 @@
     right: 40px;
     bottom: 20px;
   }
+
 </style>
