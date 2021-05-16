@@ -162,9 +162,25 @@ const drivers = driverBases.map(driverBase => ({
   async getVersion(client) {
     const { rows } = await this.query(client, 'SELECT version()');
     const { version } = rows[0];
+
+    const isCockroach = version.toLowerCase().includes('cockroachdb');
+    const isRedshift = version.toLowerCase().includes('redshift');
+    const isPostgres = !isCockroach && !isRedshift;
+
+    const m = version.match(/([\d\.]+)/);
+    let versionText = null;
+    if (m) {
+      if (isCockroach) versionText = `CockroachDB ${m[1]}`;
+      if (isRedshift) versionText = `Redshift ${m[1]}`;
+      if (isPostgres) versionText = `PostgreSQL ${m[1]}`;
+    }
+
     return {
       version,
-      versionText: (version || '').replace(/\s*\(.*$/, ''),
+      versionText,
+      isPostgres,
+      isCockroach,
+      isRedshift,
     };
   },
   async readQuery(client, sql, structure) {

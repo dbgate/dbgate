@@ -2,8 +2,8 @@ module.exports = `
 select infoTables.table_schema as "schema_name", infoTables.table_name as "pure_name", 
     (
         select md5(string_agg(
-            infoColumns.column_name || '|' || infoColumns.data_type || '|' || infoColumns.is_nullable || '|' || coalesce(infoColumns.character_maximum_length, -1)
-                || '|' || coalesce(infoColumns.numeric_precision, -1),
+            infoColumns.column_name || '|' || infoColumns.data_type || '|' || infoColumns.is_nullable::varchar(255)  || '|' || coalesce(infoColumns.character_maximum_length, -1)::varchar(255) 
+                || '|' || coalesce(infoColumns.numeric_precision, -1)::varchar(255) ,
             ',' order by infoColumns.ordinal_position
         )) as "hash_code_columns"
         from information_schema.columns infoColumns 
