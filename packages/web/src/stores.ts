@@ -120,6 +120,9 @@ let currentConfigValue = null;
 currentConfigStore.subscribe(value => {
   currentConfigValue = value;
   invalidateCommands();
+  if (value.singleDatabase) {
+    currentDatabase.set(value.singleDatabase);
+  }
 });
 export const getCurrentConfig = () => currentConfigValue;
 

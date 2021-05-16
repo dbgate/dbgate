@@ -8,6 +8,32 @@ const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
 
+function getNamedArgs() {
+  const res = {};
+  for (let i = 0; i < process.argv.length; i++) {
+    const name = process.argv[i];
+    if (name.startsWith('--')) {
+      let value = process.argv[i + 1];
+      if (value && value.startsWith('--')) value = null;
+      res[name.substring(2)] = value == null ? true : value;
+      i++;
+    } else {
+      if (name.endsWith('.db') || name.endsWith('.sqlite') || name.endsWith('.sqlite3')) {
+        res.databaseFile = name;
+        res.engine = 'sqlite@dbgate-plugin-sqlite';
+      }
+    }
+  }
+  return res;
+}
+
+function getDatabaseFileLabel(databaseFile) {
+  if (!databaseFile) return databaseFile;
+  const m = databaseFile.match(/[\/]([^\/]+)$/);
+  if (m) return m[1];
+  return databaseFile;
+}
+
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
     return _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
@@ -24,13 +50,72 @@ function getPortalCollections() {
       displayName: process.env[`LABEL_${id}`],
     }));
   }
+
+  const args = getNamedArgs();
+  if (args.databaseFile) {
+    return [
+      {
+        _id: 'argv',
+        databaseFile: args.databaseFile,
+        singleDatabase: true,
+        defaultDatabase: getDatabaseFileLabel(args.databaseFile),
+        engine: args.engine,
+      },
+    ];
+  }
+  if (args.databaseUrl) {
+    return [
+      {
+        _id: 'argv',
+        useDatabaseUrl: true,
+        ...args,
+      },
+    ];
+  }
+  if (args.server) {
+    return [
+      {
+        _id: 'argv',
+        ...args,
+      },
+    ];
+  }
+
   return null;
 }
 const portalConnections = getPortalCollections();
 
+function getSingleDatabase() {
+  if (process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE) {
+    // @ts-ignore
+    const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
+    return {
+      connection,
+      name: process.env.SINGLE_DATABASE,
+    };
+  }
+  // @ts-ignore
+  const arg0 = (portalConnections || []).find(x => x._id == 'argv');
+  if (arg0) {
+    // @ts-ignore
+    if (arg0.singleDatabase) {
+      return {
+        connection: arg0,
+        // @ts-ignore
+        name: arg0.defaultDatabase,
+      };
+    }
+  }
+  return null;
+}
+
+const singleDatabase = getSingleDatabase();
+
 module.exports = {
   datastore: null,
   opened: [],
+  singleDatabase,
+  portalConnections,
 
   async _init() {
     const dir = datadir();
