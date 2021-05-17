@@ -13,6 +13,7 @@
 - ADDED: Disconnect command
 - ADDED: Query executed on server has tab marker (formerly it had only "No DB" marker)
 - ADDED: Horizontal scroll using shift+mouse wheel #113
+- ADDED: Cosmetic improvements of MariaDB support
 
 ### 4.1.11
 - FIX: Fixed crash of API process when using SSH tunnel connection (race condition)

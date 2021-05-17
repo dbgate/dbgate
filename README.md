@@ -20,6 +20,7 @@ Supported databases:
 * SQLite
 * Amazon Redshift
 * CockroachDB
+* MariaDB
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 

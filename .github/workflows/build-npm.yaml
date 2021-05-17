@@ -119,3 +119,8 @@ jobs:
         working-directory: plugins/dbgate-plugin-postgres
         run: |
           npm publish
+
+      - name: Publish dbgate-plugin-sqlite
+        working-directory: plugins/dbgate-plugin-sqlite
+        run: |
+          npm publish
