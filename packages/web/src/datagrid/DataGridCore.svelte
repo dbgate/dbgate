@@ -582,6 +582,7 @@
     if (event.target.closest('.collapseButtonMarker')) return;
     if (event.target.closest('input')) return;
 
+    shiftDragStartCell = null;
     // event.target.closest('table').focus();
     event.preventDefault();
     if (domFocusField) domFocusField.focus();
@@ -755,7 +756,7 @@
 
     handleCursorMove(event);
 
-    if (event.shiftKey) {
+    if (event.shiftKey && event.keyCode != keycodes.shift) {
       selectedCells = getCellRange(shiftDragStartCell || currentCell, currentCell);
     }
   }
