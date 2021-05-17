@@ -1,10 +1,11 @@
 import _ from 'lodash';
 import { currentDatabase, openedTabs } from '../stores';
+import { callWhenAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
 
 let lastCurrentTab = null;
 
-openedTabs.subscribe(async value => {
+openedTabs.subscribe(value => {
   const newCurrentTab = (value || []).find(x => x.selected);
   if (newCurrentTab == lastCurrentTab) return;
 
@@ -15,11 +16,14 @@ openedTabs.subscribe(async value => {
       database &&
       (conid != _.get(lastCurrentTab, 'props.conid') || database != _.get(lastCurrentTab, 'props.database'))
     ) {
-      const connection = await getConnectionInfo({ conid });
-      currentDatabase.set({
-        connection,
-        name: database,
-      });
+      const doWork = async () => {
+        const connection = await getConnectionInfo({ conid });
+        currentDatabase.set({
+          connection,
+          name: database,
+        });
+      };
+      callWhenAppLoaded(doWork);
     }
   }
 

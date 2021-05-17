@@ -43,7 +43,7 @@ async function handleFullRefresh() {
   loadingModel = false;
 }
 
-async function handleIncrementalRefresh() {
+async function handleIncrementalRefresh(forceSend) {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
@@ -51,8 +51,12 @@ async function handleIncrementalRefresh() {
   analysedTime = new Date().getTime();
   if (newStructure != null) {
     analysedStructure = newStructure;
+  }
+  
+  if (forceSend || newStructure != null) {
     process.send({ msgtype: 'structure', structure: analysedStructure });
   }
+
   process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
   loadingModel = false;
@@ -91,7 +95,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
   readVersion();
   if (structure) {
     analysedStructure = structure;
-    handleIncrementalRefresh();
+    handleIncrementalRefresh(true);
   } else {
     handleFullRefresh();
   }
