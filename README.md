@@ -17,11 +17,13 @@ Supported databases:
 * PostgreSQL
 * SQL Server
 * MongoDB
+* SQLite
+* Amazon Redshift
+* CockroachDB
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
 ## Features
-* Connect to Microsoft SQL Server, Postgre SQL, MySQL, MongoDB
 * Table data editing, with SQL change script preview
 * Master/detail views
 * Query designer

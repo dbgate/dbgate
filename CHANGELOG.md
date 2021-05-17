@@ -1,5 +1,19 @@
 # ChangeLog
 
+### 4.2.0
+- ADDED: Support of SQLite database
+- ADDED: Support of Amazon Redshift database
+- ADDED: Support of CockcroachDB
+- CHANGED: DB Model is not auto-refreshed by default, refresh could be invoked from statusbar
+- FIXED: Fixed race conditions on startup
+- FIXED: Fixed broken style in data grid under strange circumstances
+- ADDED: Configure connections with commandline arguments  #108
+- CHANGED: Optimalized algorithm of incremental DB model updates
+- CHANGED: Loading queries from PostgreSQL doesn't need cursors, using streamed query instead
+- ADDED: Disconnect command
+- ADDED: Query executed on server has tab marker (formerly it had only "No DB" marker)
+- ADDED: Horizontal scroll using shift+mouse wheel #113
+
 ### 4.1.11
 - FIX: Fixed crash of API process when using SSH tunnel connection (race condition)
 

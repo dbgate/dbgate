@@ -22,9 +22,12 @@
       loaded = settings?.data && connections?.data && config?.data;
       if (loaded) {
         setAppLoaded();
+      } else {
+        console.log('API not initialized correctly, trying again in 1s');
+        setTimeout(loadSettings, 1000);
       }
     } catch (err) {
-      console.log('Error loading settings, trying again in 1s');
+      console.log('Error calling API, trying again in 1s');
       setTimeout(loadSettings, 1000);
     }
   }
