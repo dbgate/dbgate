@@ -93,8 +93,8 @@
     {/if}
     {#if $status?.analysedTime}
       <div
-        class="item flex"
-        title={`DB model for current DB was analysed at ${new Date($status?.analysedTime)}`}
+        class="item flex clickable"
+        title={`Last ${databaseName} model refresh: ${moment($status?.analysedTime).format('HH:mm:ss')}\nClick for refresh DB model`}
         on:click={handleSyncModel}
       >
         <FontIcon icon="icon history" />
@@ -136,6 +136,13 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  .clickable {
+    cursor: pointer;
+  }
+  .clickable:hover {
+    background-color: var(--theme-bg-statusbar-inv-hover);
   }
 
 </style>

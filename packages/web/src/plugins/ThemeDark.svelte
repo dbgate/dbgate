@@ -53,6 +53,7 @@
     --theme-bg-selected-point: #1765ad; /* blue-5 */
 
     --theme-bg-statusbar-inv: blue;
+    --theme-bg-statusbar-inv-hover: #4040FF;
     --theme-bg-modalheader: rgb(43, 60, 61);
 
     --theme-bg-button-inv: #004488;

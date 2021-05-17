@@ -47,6 +47,7 @@
     
 
     --theme-bg-statusbar-inv: blue;
+    --theme-bg-statusbar-inv-hover: #4040FF;
     --theme-bg-modalheader: #eff;
 
     --theme-bg-button-inv: #337ab7;
