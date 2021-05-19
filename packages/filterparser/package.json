@@ -22,7 +22,7 @@
   "dependencies": {
     "@types/parsimmon": "^1.10.1",
     "dbgate-tools": "^4.1.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "parsimmon": "^1.13.0"
   }
