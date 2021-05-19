@@ -51,7 +51,12 @@
     <OpenTabsOnStartup />
     <Screen />
   {:else}
-    <LoadingInfo message={`Loading plugin ${$loadingPluginStore.loadingPackageName}`} wrapper />
+    <LoadingInfo
+      message={$loadingPluginStore.loadingPackageName
+        ? `Loading plugin ${$loadingPluginStore.loadingPackageName} ...`
+        : 'Preparing plugins ...'}
+      wrapper
+    />
   {/if}
 {:else}
   <LoadingInfo message="Starting DbGate ..." wrapper />
