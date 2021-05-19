@@ -13,27 +13,31 @@
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
 
-  let loaded = false;
+  let loadedApi = false;
 
-  async function loadSettings() {
+  async function loadApi() {
     try {
       const settings = await axiosInstance.get('config/get-settings');
       const connections = await axiosInstance.get('connections/list');
       const config = await axiosInstance.get('config/get');
-      loaded = settings?.data && connections?.data && config?.data;
-      if (loaded) {
-        setAppLoaded();
-      } else {
+      loadedApi = settings?.data && connections?.data && config?.data;
+      if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
-        setTimeout(loadSettings, 1000);
+        setTimeout(loadApi, 1000);
       }
     } catch (err) {
       console.log('Error calling API, trying again in 1s');
-      setTimeout(loadSettings, 1000);
+      setTimeout(loadApi, 1000);
     }
   }
 
-  onMount(loadSettings);
+  onMount(loadApi);
+
+  $: {
+    if (loadedApi && $loadingPluginStore?.loaded) {
+      setAppLoaded();
+    }
+  }
 
 </script>
 
@@ -41,7 +45,7 @@
 <ErrorHandler />
 <CommandListener />
 
-{#if loaded}
+{#if loadedApi}
   <PluginsProvider />
   {#if $loadingPluginStore?.loaded}
     <OpenTabsOnStartup />
