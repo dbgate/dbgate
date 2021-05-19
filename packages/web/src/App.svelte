@@ -7,6 +7,7 @@
 
   import PluginsProvider from './plugins/PluginsProvider.svelte';
   import Screen from './Screen.svelte';
+  import { loadingPluginStore } from './stores';
   import { setAppLoaded } from './utility/appLoadManager';
   import axiosInstance from './utility/axiosInstance';
   import ErrorHandler from './utility/ErrorHandler.svelte';
@@ -42,9 +43,12 @@
 
 {#if loaded}
   <PluginsProvider />
-  <OpenTabsOnStartup />
-
-  <Screen />
+  {#if $loadingPluginStore?.loaded}
+    <OpenTabsOnStartup />
+    <Screen />
+  {:else}
+    <LoadingInfo message={`Loading plugin ${$loadingPluginStore.loadingPackageName}`} wrapper />
+  {/if}
 {:else}
-  <LoadingInfo message="Starting DbGate API..." wrapper />
+  <LoadingInfo message="Starting DbGate ..." wrapper />
 {/if}

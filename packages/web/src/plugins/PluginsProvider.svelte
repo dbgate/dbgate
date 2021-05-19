@@ -8,6 +8,10 @@
     for (const installed of installedPlugins || []) {
       if (!_.keys(pluginsDict).includes(installed.name)) {
         console.log('Loading module', installed.name);
+        loadingPluginStore.set({
+          loaded: false,
+          loadingPackageName: installed.name,
+        });
         const resp = await axiosInstance.request({
           method: 'get',
           url: 'plugins/script',
@@ -21,6 +25,12 @@
         if (moduleContent.initialize) moduleContent.initialize(dbgateEnv);
         newPlugins[installed.name] = moduleContent;
       }
+    }
+    if (installedPlugins) {
+      loadingPluginStore.set({
+        loaded: true,
+        loadingPackageName: null,
+      });
     }
     return newPlugins;
   }
@@ -43,11 +53,12 @@
     };
     return extensions;
   }
+
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
-  import { extensions } from '../stores';
+  import { extensions, loadingPluginStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats } from './fileformats';
@@ -73,4 +84,5 @@
     .filter(x => x.content);
 
   $: $extensions = buildExtensions(plugins);
+
 </script>

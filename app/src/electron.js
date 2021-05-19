@@ -19,7 +19,6 @@ const store = new Store();
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
-let splashWindow;
 let mainMenu;
 
 log.transports.file.level = 'debug';
@@ -28,14 +27,6 @@ autoUpdater.logger = log;
 // appUpdater.channel = 'beta';
 
 let commands = {};
-
-function hideSplash() {
-  if (splashWindow) {
-    splashWindow.destroy();
-    splashWindow = null;
-  }
-  mainWindow.show();
-}
 
 function commandItem(id) {
   const command = commands[id];
@@ -156,7 +147,6 @@ function createWindow() {
     title: 'DbGate',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
-    show: false,
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
@@ -175,7 +165,7 @@ function createWindow() {
         slashes: true,
       });
     mainWindow.webContents.on('did-finish-load', function () {
-      hideSplash();
+      // hideSplash();
     });
     mainWindow.on('close', () => {
       store.set('winBounds', mainWindow.getBounds());
@@ -185,20 +175,6 @@ function createWindow() {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
   }
-
-  splashWindow = new BrowserWindow({
-    width: 300,
-    height: 120,
-    transparent: true,
-    frame: false,
-  });
-  splashWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, '../packages/web/build/splash.html'),
-      protocol: 'file:',
-      slashes: true,
-    })
-  );
 
   if (process.env.ELECTRON_START_URL) {
     loadMainWindow();

@@ -59,6 +59,10 @@ export const nullStore = readable(null, () => {});
 export const currentArchive = writable('default');
 export const isFileDragActive = writable(false);
 export const selectedCellsCallback = writable(null);
+export const loadingPluginStore = writable({
+  loaded: false,
+  loadingPackageName: null,
+});
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.className == $currentTheme)
