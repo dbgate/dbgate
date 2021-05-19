@@ -7,7 +7,8 @@ import {
   TriggerInfo,
   ViewInfo,
 } from 'dbgate-types';
-import _ from 'lodash';
+import _flatten from 'lodash/flatten';
+import _uniqBy from 'lodash/uniqBy'
 import { SqlDumper } from './SqlDumper';
 import { extendDatabaseInfo } from './structureTools';
 
@@ -122,9 +123,9 @@ export class SqlGenerator {
 
   createForeignKeys() {
     const fks = [];
-    if (this.options.createForeignKeys) fks.push(..._.flatten(this.tables.map(x => x.foreignKeys || [])));
-    if (this.options.createReferences) fks.push(..._.flatten(this.tables.map(x => x.dependencies || [])));
-    for (const fk of _.uniqBy(fks, 'constraintName')) {
+    if (this.options.createForeignKeys) fks.push(..._flatten(this.tables.map(x => x.foreignKeys || [])));
+    if (this.options.createReferences) fks.push(..._flatten(this.tables.map(x => x.dependencies || [])));
+    for (const fk of _uniqBy(fks, 'constraintName')) {
       this.dmp.createForeignKey(fk);
       if (this.checkDumper()) return;
     }
@@ -152,7 +153,7 @@ export class SqlGenerator {
       }
     }
     if (this.options.createIndexes) {
-      for (const index of _.flatten(this.tables.map(x => x.indexes || []))) {
+      for (const index of _flatten(this.tables.map(x => x.indexes || []))) {
         this.dmp.createIndex(index);
       }
     }
@@ -204,7 +205,7 @@ export class SqlGenerator {
 
   dropTables() {
     if (this.options.dropReferences) {
-      for (const fk of _.flatten(this.tables.map(x => x.dependencies || []))) {
+      for (const fk of _flatten(this.tables.map(x => x.dependencies || []))) {
         this.dmp.dropForeignKey(fk);
       }
     }

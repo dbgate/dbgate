@@ -2,7 +2,7 @@ import { DatabaseInfo, DatabaseModification, EngineDriver } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
-import _ from 'lodash';
+import _compact from 'lodash/compact';
 
 const fp_pick = arg => array => _pick(array, arg);
 export class DatabaseAnalyser {
@@ -134,7 +134,7 @@ export class DatabaseAnalyser {
     return this.structure[objectTypeField]
       .filter(x => !items.find(y => x.objectId == y.objectId))
       .map(x => ({
-        oldName: _.pick(x, ['schemaName', 'pureName']),
+        oldName: _pick(x, ['schemaName', 'pureName']),
         objectId: x.objectId,
         action: 'remove',
         objectTypeField,
@@ -175,7 +175,7 @@ export class DatabaseAnalyser {
         const action = obj
           ? {
               newName: { schemaName, pureName },
-              oldName: _.pick(obj, ['schemaName', 'pureName']),
+              oldName: _pick(obj, ['schemaName', 'pureName']),
               action: 'change',
               objectTypeField: field,
               objectId,
@@ -189,7 +189,7 @@ export class DatabaseAnalyser {
         res.push(action);
       }
 
-      return [..._.compact(res), ...this.getDeletedObjects(snapshot)];
+      return [..._compact(res), ...this.getDeletedObjects(snapshot)];
     }
   }
 
