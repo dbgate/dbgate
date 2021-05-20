@@ -1,4 +1,4 @@
-const driverBase = require('dbgate-tools/lib/driverBase');
+const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 
 function getDatabaseFileLabel(databaseFile) {

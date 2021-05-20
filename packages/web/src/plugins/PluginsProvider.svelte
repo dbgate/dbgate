@@ -4,6 +4,8 @@
   };
 
   async function loadPlugins(pluginsDict, installedPlugins) {
+    window['DBGATE_TOOLS'] = dbgateTools;
+
     const newPlugins = {};
     for (const installed of installedPlugins || []) {
       if (!_.keys(pluginsDict).includes(installed.name)) {
@@ -63,6 +65,7 @@
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats } from './fileformats';
   import { buildThemes } from './themes';
+  import dbgateTools from 'dbgate-tools';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();
