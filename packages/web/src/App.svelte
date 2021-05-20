@@ -33,6 +33,11 @@
 
   onMount(loadApi);
 
+  onMount(() => {
+    const removed = document.getElementById('starting_dbgate_zero');
+    if (removed) removed.remove();
+  });
+
   $: {
     if (loadedApi && $loadingPluginStore?.loaded) {
       setAppLoaded();
