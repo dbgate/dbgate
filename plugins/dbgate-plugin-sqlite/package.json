@@ -2,6 +2,13 @@
     "name": "dbgate-plugin-sqlite",
     "main": "dist/backend.js",
     "version": "1.0.0",
+    "homepage": "https://dbgate.org",
+    "description": "SQLite connect plugin for DbGate",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/dbgate/dbgate"
+    },
+    "author": "Jan Prochazka",
     "license": "MIT",
     "keywords": [
       "dbgate",
@@ -9,7 +16,8 @@
       "sqlite"
     ],
     "files": [
-      "dist"
+      "dist",
+      "icon.svg"
     ],
     "scripts": {
       "build:frontend": "webpack --config webpack-frontend.config",
