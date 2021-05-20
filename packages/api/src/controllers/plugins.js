@@ -9,10 +9,17 @@ const requirePlugin = require('../shell/requirePlugin');
 const downloadPackage = require('../utility/downloadPackage');
 const hasPermission = require('../utility/hasPermission');
 const _ = require('lodash');
+const packagedPluginsContent = require('../packagedPluginsContent');
 
 module.exports = {
   script_meta: 'get',
   async script({ packageName }) {
+    const packagedContent = packagedPluginsContent();
+
+    if (packagedContent && packagedContent[packageName]) {
+      return packagedContent[packageName].frontend;
+    }
+
     const file1 = path.join(packagedPluginsDir(), packageName, 'dist', 'frontend.js');
     const file2 = path.join(pluginsdir(), packageName, 'dist', 'frontend.js');
     // @ts-ignore
@@ -58,26 +65,37 @@ module.exports = {
 
   installed_meta: 'get',
   async installed() {
-    const files1 = await fs.readdir(packagedPluginsDir());
+    const packagedContent = packagedPluginsContent();
+
+    const files1 = packagedContent ? _.keys(packagedContent) : await fs.readdir(packagedPluginsDir());
     const files2 = await fs.readdir(pluginsdir());
 
     const res = [];
     for (const packageName of _.union(files1, files2)) {
       if (!/^dbgate-plugin-.*$/.test(packageName)) continue;
       try {
-        const isPackaged = files1.includes(packageName);
-        const manifest = await fs
-          .readFile(path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'package.json'), {
-            encoding: 'utf-8',
-          })
-          .then(x => JSON.parse(x));
-        const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
-        // @ts-ignore
-        if (await fs.exists(readmeFile)) {
-          manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+        if (packagedContent && packagedContent[packageName]) {
+          const manifest = {
+            ...packagedContent[packageName].manifest,
+          };
+          manifest.isPackaged = true;
+          manifest.readme = packagedContent[packageName].readme;
+          res.push(manifest);
+        } else {
+          const isPackaged = files1.includes(packageName);
+          const manifest = await fs
+            .readFile(path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'package.json'), {
+              encoding: 'utf-8',
+            })
+            .then(x => JSON.parse(x));
+          const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
+          // @ts-ignore
+          if (await fs.exists(readmeFile)) {
+            manifest.readme = await fs.readFile(readmeFile, { encoding: 'utf-8' });
+          }
+          manifest.isPackaged = isPackaged;
+          res.push(manifest);
         }
-        manifest.isPackaged = isPackaged;
-        res.push(manifest);
       } catch (err) {
         console.log(`Skipped plugin ${packageName}, error:`, err.message);
       }
