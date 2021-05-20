@@ -1,5 +1,8 @@
 # ChangeLog
 
+### 4.2.2
+- CHANGED: Further startup optimalization (approx. 2 times quicker start of electron app)
+
 ### 4.2.1
 - FIXED: Fixed+optimalized app startup (esp. on Windows)
 
