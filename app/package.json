@@ -33,9 +33,16 @@
     },
     "linux": {
       "target": [
-        "AppImage",
         "deb",
-        "snap"
+        "snap",
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "armv7l",
+            "arm64"
+          ]
+        }
       ],
       "icon": "icon.png",
       "artifactName": "dbgate-linux-${version}.${ext}",
