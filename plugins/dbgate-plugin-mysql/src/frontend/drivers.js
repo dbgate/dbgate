@@ -1,4 +1,4 @@
-const { driverBase } = require('dbgate-tools');
+const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 
 /** @type {import('dbgate-types').SqlDialect} */

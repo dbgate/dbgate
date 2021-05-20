@@ -30,4 +30,5 @@ yarn-debug.log*
 yarn-error.log*
 app/src/nativeModulesContent.js
 packages/api/src/nativeModulesContent.js
+packages/api/src/packagedPluginsContent.js
 .VSCodeCounter

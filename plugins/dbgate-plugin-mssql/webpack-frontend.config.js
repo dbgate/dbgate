@@ -15,6 +15,12 @@ var config = {
     library: 'plugin',
   },
 
+  plugins: [
+    new webpack.DefinePlugin({
+      'global.DBGATE_TOOLS': 'window.DBGATE_TOOLS',
+    }),
+  ],
+
   // optimization: {
   //   minimize: false,
   // },

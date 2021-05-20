@@ -1,6 +1,5 @@
-const { SqlDumper } = require('dbgate-tools');
+const { SqlDumper } = global.DBGATE_TOOLS;
 
-class Dumper extends SqlDumper {
-}
+class Dumper extends SqlDumper {}
 
 module.exports = Dumper;

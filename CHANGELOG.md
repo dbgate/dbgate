@@ -1,5 +1,11 @@
 # ChangeLog
 
+### 4.2.2
+- CHANGED: Further startup optimalization (approx. 2 times quicker start of electron app)
+
+### 4.2.1
+- FIXED: Fixed+optimalized app startup (esp. on Windows)
+
 ### 4.2.0
 - ADDED: Support of SQLite database
 - ADDED: Support of Amazon Redshift database

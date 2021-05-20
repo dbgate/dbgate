@@ -39,7 +39,7 @@
       "icon": "icon.png",
       "artifactName": "dbgate-linux-${version}.${ext}",
       "category": "Development",
-      "synopsis": "Database administration tool for MS SQL, MySQL and PostgreSQL",
+      "synopsis": "Database manager for SQL Server, MySQL, PostgreSQL, MongoDB and SQLite",
       "publish": [
         "github"
       ]

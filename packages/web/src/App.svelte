@@ -33,6 +33,11 @@
 
   onMount(loadApi);
 
+  onMount(() => {
+    const removed = document.getElementById('starting_dbgate_zero');
+    if (removed) removed.remove();
+  });
+
   $: {
     if (loadedApi && $loadingPluginStore?.loaded) {
       setAppLoaded();
@@ -51,7 +56,12 @@
     <OpenTabsOnStartup />
     <Screen />
   {:else}
-    <LoadingInfo message={`Loading plugin ${$loadingPluginStore.loadingPackageName}`} wrapper />
+    <LoadingInfo
+      message={$loadingPluginStore.loadingPackageName
+        ? `Loading plugin ${$loadingPluginStore.loadingPackageName} ...`
+        : 'Preparing plugins ...'}
+      wrapper
+    />
   {/if}
 {:else}
   <LoadingInfo message="Starting DbGate ..." wrapper />

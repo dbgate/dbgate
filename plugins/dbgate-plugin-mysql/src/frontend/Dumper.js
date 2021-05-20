@@ -1,4 +1,4 @@
-const { SqlDumper } = require('dbgate-tools');
+const { SqlDumper } = global.DBGATE_TOOLS;
 
 class Dumper extends SqlDumper {
   /** @param type {import('dbgate-types').TransformType} */

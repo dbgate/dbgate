@@ -15,6 +15,12 @@ var config = {
     library: 'plugin',
   },
 
+  plugins: [
+    new webpack.DefinePlugin({
+      'global.DBGATE_TOOLS': 'window.DBGATE_TOOLS',
+    }),
+  ],
+
   // uncomment for disable minimalization
   // optimization: {
   //   minimize: false,

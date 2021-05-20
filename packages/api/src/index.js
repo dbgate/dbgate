@@ -1,5 +1,8 @@
 const shell = require('./shell');
 const processArgs = require('./utility/processArgs');
+const dbgateTools = require('dbgate-tools');
+
+global['DBGATE_TOOLS'] = dbgateTools;
 
 if (processArgs.startProcess) {
   const proc = require('./proc');

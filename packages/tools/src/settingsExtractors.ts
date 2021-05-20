@@ -1,11 +1,12 @@
-import _ from 'lodash';
+import _isNaN from 'lodash/isNaN';
+import _isNumber from 'lodash/isNumber';
 
 export function extractIntSettingsValue(settings, name, defaultValue, min = null, max = null) {
   const parsed = parseInt(settings[name]);
-  if (_.isNaN(parsed)) {
+  if (_isNaN(parsed)) {
     return defaultValue;
   }
-  if (_.isNumber(parsed)) {
+  if (_isNumber(parsed)) {
     if (min != null && parsed < min) return min;
     if (max != null && parsed > max) return max;
     return parsed;

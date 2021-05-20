@@ -35,6 +35,9 @@ jobs:
       - name: fillNativeModulesElectron
         run: |
           yarn fillNativeModulesElectron
+      - name: fillPackagedPlugins
+        run: |
+          yarn fillPackagedPlugins
       - name: Install Snapcraft
         if: matrix.os == 'ubuntu-18.04'
         uses: samuelmeuli/action-snapcraft@v1
