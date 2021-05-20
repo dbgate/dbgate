@@ -26,6 +26,7 @@
       "target": {
         "target": "default",
         "arch": [
+          "arm64",
           "x64"
         ]
       }
@@ -86,7 +87,7 @@
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
     "electron": "11.2.3",
-    "electron-builder": "22.9.1"
+    "electron-builder": "22.10.5"
   },
   "optionalDependencies": {
     "msnodesqlv8": "^2.0.10"
