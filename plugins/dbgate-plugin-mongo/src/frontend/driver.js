@@ -1,4 +1,4 @@
-const { driverBase } = require('dbgate-tools');
+const driverBase = require('dbgate-tools/lib/driverBase');
 const Dumper = require('./Dumper');
 
 const mongoIdRegex = /^[0-9a-f]{24}$/;

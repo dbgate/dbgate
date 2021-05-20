@@ -1,4 +1,4 @@
-const { driverBase } = require('dbgate-tools');
+const driverBase = require('dbgate-tools/lib/driverBase');
 const MsSqlDumper = require('./MsSqlDumper');
 
 /** @type {import('dbgate-types').SqlDialect} */

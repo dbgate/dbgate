@@ -1,4 +1,4 @@
-const { SqlDumper } = require('dbgate-tools');
+const SqlDumper = require('dbgate-tools/lib/SqlDumper');
 
 class MsSqlDumper extends SqlDumper {
   autoIncrement() {
@@ -67,12 +67,12 @@ class MsSqlDumper extends SqlDumper {
 
   dropDefault(col) {
     if (col.defaultConstraint) {
-      this.putCmd("^alter ^table %f ^drop ^constraint %i", col, col.defaultConstraint);
+      this.putCmd('^alter ^table %f ^drop ^constraint %i', col, col.defaultConstraint);
     }
   }
 
   guessDefaultName(col) {
-    return col.defaultConstraint || `DF${col.schemaName || 'dbo'}_${col.pureName}_col.columnName`
+    return col.defaultConstraint || `DF${col.schemaName || 'dbo'}_${col.pureName}_col.columnName`;
   }
 
   createDefault(col) {
@@ -80,7 +80,7 @@ class MsSqlDumper extends SqlDumper {
     const defsql = col.defaultValue;
     if (!defsql) {
       const defname = this.guessDefaultName(col);
-      this.putCmd("^alter ^table %f ^add ^constraint %i ^default %s for %i", col, defname, defsql, col.columnName);
+      this.putCmd('^alter ^table %f ^add ^constraint %i ^default %s for %i', col, defname, defsql, col.columnName);
     }
   }
 
@@ -89,8 +89,14 @@ class MsSqlDumper extends SqlDumper {
   }
 
   renameConstraint(cnt, newname) {
-    if (cnt.constraintType == 'index') this.putCmd("^execute sp_rename '%f.%i', '%s', 'INDEX'", cnt, cnt.constraintName, newname);
-    else this.putCmd("^execute sp_rename '%f', '%s', 'OBJECT'", { schemaName: cnt.schemaName, pureName: cnt.constraintName }, newname);
+    if (cnt.constraintType == 'index')
+      this.putCmd("^execute sp_rename '%f.%i', '%s', 'INDEX'", cnt, cnt.constraintName, newname);
+    else
+      this.putCmd(
+        "^execute sp_rename '%f', '%s', 'OBJECT'",
+        { schemaName: cnt.schemaName, pureName: cnt.constraintName },
+        newname
+      );
   }
 }
 
@@ -108,6 +114,5 @@ MsSqlDumper.prototype.changeTriggerSchema = MsSqlDumper.prototype.changeObjectSc
 
 MsSqlDumper.prototype.renameTable = MsSqlDumper.prototype.renameObject;
 MsSqlDumper.prototype.changeTableSchema = MsSqlDumper.prototype.changeObjectSchema;
-
 
 module.exports = MsSqlDumper;
