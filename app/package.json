@@ -26,7 +26,7 @@
       ],
       "target": {
         "target": "default",
-        "arch": "arm64"
+        "arch": "x64"
       }
     },
     "linux": {
