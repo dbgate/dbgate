@@ -21,6 +21,7 @@
     "build:tools": "yarn workspace dbgate-tools build",
     "build:lib": "yarn build:tools && yarn build:sqltree && yarn build:filterparser && yarn build:datalib",
     "build:app": "yarn plugins:copydist && cd app && yarn install && yarn build",
+    "build:app:mac": "yarn plugins:copydist && cd app && yarn install && yarn build:mac",
     "build:api": "yarn workspace dbgate-api build",
     "build:web:docker": "yarn workspace dbgate-web build",
     "build:plugins:frontend": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn build:frontend",
