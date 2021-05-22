@@ -16,11 +16,11 @@
     "url": "https://github.com/dbgate/dbgate.git"
   },
   "build": {
+    "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
     "appId": "org.dbgate",
     "mac": {
       "category": "database",
       "icon": "icon512.png",
-      "artifactName": "dbgate-mac-${version}.${ext}",
       "publish": [
         "github"
       ],
@@ -43,7 +43,6 @@
         }
       ],
       "icon": "icon.png",
-      "artifactName": "dbgate-linux-${version}.${ext}",
       "category": "Development",
       "synopsis": "Database manager for SQL Server, MySQL, PostgreSQL, MongoDB and SQLite",
       "publish": [
@@ -51,7 +50,6 @@
       ]
     },
     "appImage": {
-      "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
       "license": "./LICENSE",
       "category": "Development"
     },
@@ -69,7 +67,6 @@
         "nsis",
         "zip"
       ],
-      "artifactName": "dbgate-windows-${version}.${ext}",
       "icon": "icon.ico",
       "publish": [
         "github"
