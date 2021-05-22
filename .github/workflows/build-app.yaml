@@ -80,7 +80,6 @@ jobs:
           cp app/dist/*armv7l*.AppImage artifacts/dbgate-latest-armv7l.AppImage || true
           cp app/dist/*.exe artifacts/dbgate-latest.exe || true
           cp app/dist/*win*.zip artifacts/dbgate-windows-latest.zip || true
-          cp app/dist/*mac*.zip artifacts/dbgate-mac-latest.zip || true
           cp app/dist/*.mac.dmg artifacts/dbgate-latest.dmg || true
           cp app/dist/*.mac_arm64.dmg artifacts/dbgate-latest-arm64.dmg || true
 
