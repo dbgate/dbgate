@@ -26,21 +26,30 @@ Supported databases:
 
 ## Features
 * Table data editing, with SQL change script preview
+* Light and dark theme
 * Master/detail views
 * Query designer
 * Form view for comfortable work with tables with many columns
 * JSON view on MongoDB collections
 * Explore tables, views, procedures, functions, MongoDB collections
-* SQL editor, execute SQL script, SQL code formatter, SQL code completion, SQL join wizard
+* SQL editor
+  * execute SQL script
+  * SQL code formatter
+  * SQL code completion
+  * Add SQL LEFT/INNER/RIGHT join utility
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
 * Import, export from/to CSV, Excel, JSON
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
-* Light and dark theme
 * Charts
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
+
+## How to contribute
+Any contributions are welcome. If you want to contribute without coding, consider following:
+* Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
+* Tell your friends about DbGate or share on social networks - when more people will use DbGate, it will grow to be better
 
 ## Why is DbGate different
 There are many database managers now, so why DbGate? 
@@ -103,16 +112,4 @@ yarn
 yarn build:app:local
 yarn start:app:local
 ```
-
-## Packages
-Some dbgate packages can be used also without DbGate. You can find them on [NPM repository](https://www.npmjs.com/search?q=keywords:dbgate)
-
-* [api](https://github.com/dbgate/dbgate/tree/master/packages/api) - backend, Javascript, ExpressJS [![NPM version](https://img.shields.io/npm/v/dbgate-api.svg)](https://www.npmjs.com/package/dbgate-api)
-* [datalib](https://github.com/dbgate/dbgate/tree/master/packages/datalib) - TypeScript library for utility classes [![NPM version](https://img.shields.io/npm/v/dbgate-datalib.svg)](https://www.npmjs.com/package/dbgate-datalib)
-* [app](https://github.com/dbgate/dbgate/tree/master/app) - application (JavaScript) structure, creating specific queries (JavaScript)
-* [filterparser](https://github.com/dbgate/dbgate/tree/master/packages/filterparser) - TypeScript library for parsing data filter expressions using parsimmon [![NPM version](https://img.shields.io/npm/v/dbgate-filterparser.svg)](https://www.npmjs.com/package/dbgate-filterparser)
-* [sqltree](https://github.com/dbgate/dbgate/tree/master/packages/sqltree) - JSON representation of SQL query, functions converting to SQL (TypeScript) [![NPM version](https://img.shields.io/npm/v/dbgate-sqltree.svg)](https://www.npmjs.com/package/dbgate-sqltree)
-* [types](https://github.com/dbgate/dbgate/tree/master/packages/types) - common TypeScript definitions [![NPM version](https://img.shields.io/npm/v/dbgate-types.svg)](https://www.npmjs.com/package/dbgate-types)
-* [web](https://github.com/dbgate/dbgate/tree/master/packages/web) - frontend in Svelte (JavaScript) [![NPM version](https://img.shields.io/npm/v/dbgate-web.svg)](https://www.npmjs.com/package/dbgate-web)
-* [tools](https://github.com/dbgate/dbgate/tree/master/packages/tools) - various tools [![NPM version](https://img.shields.io/npm/v/dbgate-tools.svg)](https://www.npmjs.com/package/dbgate-tools)
 
