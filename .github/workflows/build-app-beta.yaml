@@ -67,7 +67,9 @@ jobs:
           mkdir artifacts          
 
           cp app/dist/*.deb artifacts/dbgate-beta.deb || true
-          cp app/dist/*.AppImage artifacts/dbgate-beta.AppImage || true
+          cp app/dist/*.x86*AppImage artifacts/dbgate-beta.AppImage || true
+          cp app/dist/*.arm64*AppImage artifacts/dbgate-beta-arm64.AppImage || true
+          cp app/dist/*.armv7l*AppImage artifacts/dbgate-beta-armv7l.AppImage || true
           cp app/dist/*.exe artifacts/dbgate-beta.exe || true
           cp app/dist/*windows*.zip artifacts/dbgate-windows-beta.zip || true
           cp app/dist/*mac*.zip artifacts/dbgate-mac-beta.zip || true

@@ -8,7 +8,8 @@
     "better-sqlite3-with-prebuilds": "^7.1.8",
     "electron-log": "^4.3.1",
     "electron-store": "^5.1.1",
-    "electron-updater": "^4.3.5"
+    "electron-updater": "^4.3.5",
+    "patch-package": "^6.4.7"
   },
   "repository": {
     "type": "git",
@@ -52,6 +53,11 @@
         "github"
       ]
     },
+    "appImage": {
+      "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
+      "license": "./LICENSE",
+      "category": "Development"
+    },
     "snap": {
       "publish": [
         "github",
@@ -86,7 +92,7 @@
     "dist": "electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
-    "postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps && patch-package",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
   },
   "main": "src/electron.js",
