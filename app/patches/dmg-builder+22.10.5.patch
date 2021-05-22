@@ -1,13 +1,13 @@
 diff --git a/node_modules/dmg-builder/out/dmg.js b/node_modules/dmg-builder/out/dmg.js
-index 2120f49..9f3f9b7 100644
+index 2120f49..b3d8ca3 100644
 --- a/node_modules/dmg-builder/out/dmg.js
 +++ b/node_modules/dmg-builder/out/dmg.js
-@@ -301,7 +301,7 @@ async function createStageDmg(tempDmg, appPath, volumeName) {
-     imageArgs.push("-debug");
-   }
- 
--  imageArgs.push("-fs", "HFS+", "-fsargs", "-c c=64,a=16,e=16");
-+  // imageArgs.push("-fs", "HFS+", "-fsargs", "-c c=64,a=16,e=16");
+@@ -305,6 +305,8 @@ async function createStageDmg(tempDmg, appPath, volumeName) {
    imageArgs.push(tempDmg); // The reason for retrying up to ten times is that hdiutil create in some cases fail to unmount due to "resource busy".
    // https://github.com/electron-userland/electron-builder/issues/5431
  
++  await new Promise(resolve => setTimeout(resolve, 5000));
++
+   await (0, _builderUtil().retry)(() => (0, _builderUtil().spawn)("hdiutil", imageArgs), 5, 1000);
+   return tempDmg;
+ }
