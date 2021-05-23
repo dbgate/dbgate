@@ -67,6 +67,8 @@ export default {
   numPad7: 103,
   numPad8: 104,
   numPad9: 105,
+  numPadAdd: 107,
+  numPadSub: 109,
   multiply: 106,
   add: 107,
   subtract: 109,

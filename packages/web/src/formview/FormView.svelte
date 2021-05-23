@@ -406,6 +406,20 @@
       }));
     }
 
+    if (event.keyCode == keycodes.numPadAdd) {
+      const col = getCellColumn(currentCell);
+      if (col.foreignKey) {
+        formDisplay.toggleExpandedColumn(col.uniqueName, true);
+      }
+    }
+
+    if (event.keyCode == keycodes.numPadSub) {
+      const col = getCellColumn(currentCell);
+      if (col.foreignKey) {
+        formDisplay.toggleExpandedColumn(col.uniqueName, false);
+      }
+    }
+
     if (event.keyCode == keycodes.f2) {
       // @ts-ignore
       dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });

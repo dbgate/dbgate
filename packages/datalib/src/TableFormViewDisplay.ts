@@ -265,8 +265,8 @@ export class TableFormViewDisplay extends FormViewDisplay {
     };
   }
 
-  toggleExpandedColumn(uniqueName: string) {
-    this.gridDisplay.toggleExpandedColumn(uniqueName);
+  toggleExpandedColumn(uniqueName: string, value?: boolean) {
+    this.gridDisplay.toggleExpandedColumn(uniqueName, value);
     this.gridDisplay.reload();
   }
 

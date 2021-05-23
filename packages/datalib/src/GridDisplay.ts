@@ -288,8 +288,8 @@ export abstract class GridDisplay {
     return this.config.expandedColumns.includes(uniqueName);
   }
 
-  toggleExpandedColumn(uniqueName: string) {
-    this.includeInColumnSet('expandedColumns', uniqueName, !this.isExpandedColumn(uniqueName));
+  toggleExpandedColumn(uniqueName: string, value?: boolean) {
+    this.includeInColumnSet('expandedColumns', uniqueName, value == null ? !this.isExpandedColumn(uniqueName) : value);
   }
 
   getFilter(uniqueName: string) {
