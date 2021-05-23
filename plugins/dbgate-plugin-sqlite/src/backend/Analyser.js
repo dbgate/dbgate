@@ -7,26 +7,36 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    const tables = await this.driver.query(this.pool, "select * from sqlite_master where type='table'");
+    const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
+    const tables = objects.rows.filter((x) => x.type == 'table');
+    const views = objects.rows.filter((x) => x.type == 'view');
     // console.log('TABLES', tables);
 
     const tableSqls = _.zipObject(
-      tables.rows.map((x) => x.name),
-      tables.rows.map((x) => x.sql)
+      tables.map((x) => x.name),
+      tables.map((x) => x.sql)
     );
 
-    const tableList = tables.rows.map((x) => ({
+    const tableList = tables.map((x) => ({
       pureName: x.name,
       objectId: x.name,
+      contentHash: x.sql,
+    }));
+
+    const viewList = views.map((x) => ({
+      pureName: x.name,
+      objectId: x.name,
+      contentHash: x.sql,
+      createSql: x.sql,
     }));
 
     for (const tableName of this.getRequestedObjectPureNames(
       'tables',
-      tables.rows.map((x) => x.name)
+      tables.map((x) => x.name)
     )) {
       const tableObj = tableList.find((x) => x.pureName == tableName);
       if (!tableObj) continue;
-      
+
       const info = await this.driver.query(this.pool, `pragma table_info('${tableName}')`);
       tableObj.columns = info.rows.map((col) => ({
         columnName: col.name,
@@ -68,14 +78,25 @@ class Analyser extends DatabaseAnalyser {
       // console.log(info);
     }
 
-    const res = this.mergeAnalyseResult(
-      {
-        tables: tableList,
-      },
-      (x) => x.pureName
-    );
-    // console.log('MERGED', res);
-    return res;
+    for (const viewName of this.getRequestedObjectPureNames(
+      'views',
+      views.map((x) => x.name)
+    )) {
+      const viewObj = viewList.find((x) => x.pureName == viewName);
+      if (!viewObj) continue;
+
+      const info = await this.driver.query(this.pool, `pragma table_info('${viewName}')`);
+      viewObj.columns = info.rows.map((col) => ({
+        columnName: col.name,
+        dataType: col.type,
+        notNull: !!col.notnull,
+      }));
+    }
+
+    return {
+      tables: tableList,
+      views: viewList,
+    };
   }
 }
 
