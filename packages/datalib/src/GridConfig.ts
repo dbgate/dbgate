@@ -33,6 +33,7 @@ export interface GridConfig extends GridConfigColumns {
   formViewKey?: { [uniqueName: string]: string };
   formViewKeyRequested?: { [uniqueName: string]: string };
   formFilterColumns: string[];
+  formColumnFilterText?: string;
 }
 
 export interface GridCache {

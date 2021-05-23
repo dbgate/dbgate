@@ -152,9 +152,12 @@
   function isDataCell(cell) {
     return cell[1] % 2 == 1;
   }
+
 </script>
 
 <script lang="ts">
+  import { filterName } from 'dbgate-datalib';
+
   import _ from 'lodash';
 
   import { getContext } from 'svelte';
@@ -210,7 +213,10 @@
 
   $: rowCount = Math.floor((wrapperHeight - 22) / (rowHeight + 2));
 
-  $: columnChunks = _.chunk(formDisplay.columns, rowCount) as any[][];
+  $: columnChunks = _.chunk(
+    formDisplay.columns.filter(x => filterName(formDisplay.config.formColumnFilterText, x.columnName)),
+    rowCount
+  ) as any[][];
 
   $: rowCountInfo = getRowCountInfo(rowCountBefore, allRowCount);
 
@@ -380,10 +386,24 @@
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
         event.keyCode == keycodes.dash)
     ) {
-      // @ts-ignore
-      event.preventDefault();
-      dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
-      // console.log('event', event.nativeEvent);
+      if (currentCell[1] % 2 == 0) {
+        setConfig(x => ({
+          ...x,
+          // @ts-ignore
+          formColumnFilterText: (x.formColumnFilterText || '') + event.key,
+        }));
+      } else {
+        // @ts-ignore
+        event.preventDefault();
+        dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+      }
+    }
+
+    if (event.keyCode == keycodes.escape) {
+      setConfig(x => ({
+        ...x,
+        formColumnFilterText: '',
+      }));
     }
 
     if (event.keyCode == keycodes.f2) {
@@ -441,6 +461,7 @@
   function handleSetFormView(rowData, column) {
     openReferenceForm(rowData, column, conid, database);
   }
+
 </script>
 
 <div class="outer">
@@ -594,4 +615,5 @@
     right: 40px;
     bottom: 20px;
   }
+
 </style>
