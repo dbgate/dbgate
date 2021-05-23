@@ -6,6 +6,27 @@ class Analyser extends DatabaseAnalyser {
     super(pool, driver);
   }
 
+  async _getFastSnapshot() {
+    const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
+
+    return {
+      tables: objects.rows
+        .filter((x) => x.type == 'table')
+        .map((x) => ({
+          pureName: x.name,
+          objectId: x.name,
+          contentHash: x.sql,
+        })),
+      views: objects.rows
+        .filter((x) => x.type == 'view')
+        .map((x) => ({
+          pureName: x.name,
+          objectId: x.name,
+          contentHash: x.sql,
+        })),
+    };
+  }
+
   async _runAnalysis() {
     const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
     const tables = objects.rows.filter((x) => x.type == 'table');
