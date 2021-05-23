@@ -77,6 +77,16 @@ export class DatabaseAnalyser {
         [...(this.structure[field] || []).filter(x => !removeAllIds.includes(x.objectId)), ...newArray],
         x => x.pureName
       );
+
+      // merge missing data from old structure
+      for (const item of res[field]) {
+        const original = (this.structure[field] || []).find(x => x.objectId == item.objectId);
+        if (original) {
+          for (const key in original) {
+            if (!item[key]) item[key] = original[key];
+          }
+        }
+      }
     }
 
     return res;
