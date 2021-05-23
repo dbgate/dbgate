@@ -188,9 +188,9 @@ export class DatabaseAnalyser {
             };
         res.push(action);
       }
-
-      return [..._compact(res), ...this.getDeletedObjects(snapshot)];
     }
+
+    return [..._compact(res), ...this.getDeletedObjects(snapshot)];
   }
 
   static createEmptyStructure(): DatabaseInfo {

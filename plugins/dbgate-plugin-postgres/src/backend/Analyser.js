@@ -103,6 +103,7 @@ class Analyser extends DatabaseAnalyser {
         pureName: view.pure_name,
         schemaName: view.schema_name,
         contentHash: view.hash_code,
+        createSql: `CREATE VIEW "${view.schema_name}"."${view.pure_name}"\nAS\n${view.create_sql}`,
         columns: columns.rows
           .filter(col => col.pure_name == view.pure_name && col.schema_name == view.schema_name)
           .map(getColumnInfo),
