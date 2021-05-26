@@ -64,7 +64,6 @@ There are many database managers now, so why DbGate?
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
     * App - electron
-    * There is plan to incorporate SQLite to support work with local datasets
 * Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 ## Plugins
