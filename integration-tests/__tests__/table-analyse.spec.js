@@ -1,15 +1,8 @@
-const engines = require('../engines');
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
-const crypto = require('crypto');
+const engines = require('../engines');
+const { connect, randomDbName } = require('../tools');
 
-global.DBGATE_TOOLS = require('dbgate-tools');
-
-function randomDbName() {
-  const generatedKey = crypto.randomBytes(6);
-  const newKey = generatedKey.toString('hex');
-  return `db${newKey}`;
-}
-
+const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val varchar(50) null)';
 const t1Match = expect.objectContaining({
   pureName: 't1',
   columns: [
@@ -32,32 +25,8 @@ const t1Match = expect.objectContaining({
     ],
   }),
 });
-const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val varchar(50) null)';
 
-async function connect(engine, database) {
-  const { connection } = engine;
-  const driver = requireEngineDriver(connection);
-
-  if (engine.generateDbFile) {
-    const conn = await driver.connect({
-      ...connection,
-      databaseFile: `dbtemp/${database}`,
-    });
-    return conn;
-  } else {
-    const conn = await driver.connect(connection);
-    await driver.query(conn, `CREATE DATABASE ${database}`);
-    await driver.close(conn);
-
-    const res = await driver.connect({
-      ...connection,
-      database,
-    });
-    return res;
-  }
-}
-
-describe('Analyse tests', () => {
+describe('Table analyse tests', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table structure - full analysis (%s)',
     async (label, engine) => {
@@ -108,5 +77,4 @@ describe('Analyse tests', () => {
       await driver.close(conn);
     }
   );
-
 });

@@ -9,6 +9,7 @@ async function run() {
       try {
         const conn = await driver.connect(engine.connection);
         await driver.getVersion(conn);
+        console.log(`Connect to ${engine.label} - OK`);
         await driver.close(conn);
         break;
       } catch (err) {
