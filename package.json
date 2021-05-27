@@ -4,7 +4,8 @@
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
-    "plugins/*"
+    "plugins/*",
+    "integration-tests"
   ],
   "scripts": {
     "start:api": "yarn workspace dbgate-api start",

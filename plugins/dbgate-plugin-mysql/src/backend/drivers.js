@@ -112,6 +112,9 @@ const drivers = driverBases.map(driverBase => ({
     connection._database_name = database;
     return connection;
   },
+  async close(pool) {
+    return pool.close();
+  },
   async query(connection, sql) {
     if (sql == null) {
       return {

@@ -1,0 +1,21 @@
+{
+  "name": "dbgate-integration-tests",
+  "version": "4.1.1",
+  "homepage": "https://dbgate.org/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate.git"
+  },
+  "author": "Jan Prochazka",
+  "license": "MIT",
+  "scripts": {
+    "prepare": "cross-env DEVMODE=1 node prepare.js",
+    "test": "cross-env DEVMODE=1 jest --runInBand",
+    "start": "docker-compose down && docker-compose up -d && node wait.js && yarn prepare && yarn test"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "jest": "^27.0.1"
+  },
+  "dependencies": {}
+}

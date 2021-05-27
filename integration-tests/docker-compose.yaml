@@ -1,0 +1,55 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: Pwd2020Db
+    ports: 
+      - 15000:5432
+
+  mysql:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports: 
+      - 15001:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=Pwd2020Db
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server
+    restart: always
+    ports: 
+      - 15002:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pwd2020Db
+      - MSSQL_PID=Express
+      
+#   cockroachdb:
+#     image: cockroachdb/cockroach
+#     ports:
+#       - 15003:26257
+#     command: start-single-node --insecure
+
+#   mongodb:
+#     image: mongo:4.0.12
+#     restart: always
+#     volumes:
+#       - mongo-data:/data/db
+#       - mongo-config:/data/configdb
+#     ports:
+#       - 27017:27017
+
+
+#   cockroachdb-init:
+#     image: cockroachdb/cockroach
+#     # build: cockroach
+#     # entrypoint: /cockroach/init.sh 
+#     entrypoint: ./cockroach sql --insecure --host="cockroachdb" --execute="CREATE DATABASE IF NOT EXISTS test;"
+
+#     depends_on:
+#       - cockroachdb
+#     restart: on-failure
+

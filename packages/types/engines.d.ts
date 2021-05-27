@@ -43,7 +43,8 @@ export interface EngineDriver {
   showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
-  connect({ server, port, user, password, database }): any;
+  connect({ server, port, user, password, database }): Promise<any>;
+  close(pool): Promise<any>;
   query(pool: any, sql: string): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
   readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
