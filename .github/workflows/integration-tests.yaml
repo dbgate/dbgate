@@ -23,7 +23,7 @@ jobs:
       - name: Run tests
         run: |
           cd integration-tests
-          yarn test
+          yarn test:ci
 
     services:
       postgres:
@@ -36,10 +36,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-      mysql:
-        image: mysql
-        env:
-          MYSQL_ROOT_PASSWORD: Pwd2020Db
+      # mysql:
+      #   image: mysql
+      #   env:
+      #     MYSQL_ROOT_PASSWORD: Pwd2020Db
 
       mssql:
         image: mcr.microsoft.com/mssql/server
@@ -48,5 +48,5 @@ jobs:
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
           
-      cockroachdb:
-        image: cockroachdb/cockroach
+      # cockroachdb:
+      #   image: cockroachdb/cockroach

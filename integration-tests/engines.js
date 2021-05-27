@@ -20,7 +20,7 @@ const engines = [
       server: 'localhost',
       port: 15001,
     },
-    skipOnGithub: true,
+    skipOnCI: true,
     objects: [views],
   },
   {
@@ -91,9 +91,9 @@ const engines = [
       server: 'localhost',
       port: 15003,
     },
-    skipOnGithub: true,
+    skipOnCI: true,
     objects: [views],
   },
 ];
 
-module.exports = engines;
+module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCi) : engines;
