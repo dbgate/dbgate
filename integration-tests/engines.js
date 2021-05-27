@@ -27,7 +27,16 @@ const engines = [
       user: 'postgres',
       port: 15000,
     },
-    objects: [views],
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE obj1() LANGUAGE SQL AS $$  select * from t1 $$',
+        create2: 'CREATE PROCEDURE obj2() LANGUAGE SQL AS $$  select * from t2 $$',
+        drop1: 'DROP PROCEDURE obj1',
+        drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
   },
   {
     label: 'SQL Server',
@@ -38,7 +47,16 @@ const engines = [
       user: 'sa',
       port: 15002,
     },
-    objects: [views],
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE obj1 AS SELECT id FROM t1',
+        create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
+        drop1: 'DROP PROCEDURE obj1',
+        drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
   },
   {
     label: 'SQLite',
