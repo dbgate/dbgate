@@ -26,7 +26,7 @@ const t1Match = expect.objectContaining({
   }),
 });
 
-describe('Table analyse tests', () => {
+describe.skip('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table structure - full analysis (%s)',
     async (label, engine) => {
