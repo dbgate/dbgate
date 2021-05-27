@@ -31,29 +31,29 @@ jobs:
         env:
           POSTGRES_PASSWORD: Pwd2020Db
         ports: 
-          - 15000:5432
+          - 5432:5432
 
-      mysql:
-        image: mysql
-        # options: >-
-        #   --default-authentication-plugin=mysql_native_password
-        ports: 
-          - 15001:3306
-        env:
-          MYSQL_ROOT_PASSWORD: Pwd2020Db
+      # mysql:
+      #   image: mysql
+      #   # options: >-
+      #   #   --default-authentication-plugin=mysql_native_password
+      #   ports: 
+      #     - 15001:3306
+      #   env:
+      #     MYSQL_ROOT_PASSWORD: Pwd2020Db
 
-      mssql:
-        image: mcr.microsoft.com/mssql/server
-        ports: 
-          - 15002:1433
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: Pwd2020Db
-          MSSQL_PID: Express
+      # mssql:
+      #   image: mcr.microsoft.com/mssql/server
+      #   ports: 
+      #     - 15002:1433
+      #   env:
+      #     ACCEPT_EULA: Y
+      #     SA_PASSWORD: Pwd2020Db
+      #     MSSQL_PID: Express
           
-      cockroachdb:
-        image: cockroachdb/cockroach
-        ports:
-          - 15003:26257
-        # options: >-
-        #   start-single-node --insecure
+      # cockroachdb:
+      #   image: cockroachdb/cockroach
+      #   ports:
+      #     - 15003:26257
+      #   # options: >-
+      #   #   start-single-node --insecure
