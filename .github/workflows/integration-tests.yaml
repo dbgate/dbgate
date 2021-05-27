@@ -38,7 +38,7 @@ jobs:
           --health-retries 5
 
       mysql:
-        image: mysql
+        image: mysql:8.0.18
         env:
           MYSQL_ROOT_PASSWORD: Pwd2020Db
 
