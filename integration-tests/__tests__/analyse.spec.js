@@ -25,7 +25,7 @@ async function connect(connection, database) {
 
 describe('Analyse tests', () => {
   test.each(engines.map(engine => [engine.label, engine.connection]))(
-    'Create table (%s)',
+    'Table - full analysis (%s)',
     async (label, connection) => {
       const conn = await connect(connection, randomDbName());
       const driver = requireEngineDriver(connection);
@@ -41,6 +41,32 @@ describe('Analyse tests', () => {
           columns: [
             expect.objectContaining({
               columnName: 'id',
+            }),
+          ],
+        })
+      );
+      await driver.close(conn);
+    }
+  );
+
+  test.each(engines.map(engine => [engine.label, engine.connection]))(
+    'Table add - incremental analysis (%s)',
+    async (label, connection) => {
+      const conn = await connect(connection, randomDbName());
+      const driver = requireEngineDriver(connection);
+
+      await driver.query(conn, 'CREATE TABLE t1 (id int)');
+      const structure1 = await driver.analyseFull(conn);
+      await driver.query(conn, 'CREATE TABLE t2 (id2 int)');
+      const structure2 = await driver.analyseIncremental(conn, structure1);
+
+      expect(structure2.tables.length).toEqual(2);
+      expect(structure2.tables.find(x => x.pureName == 't2')).toEqual(
+        expect.objectContaining({
+          pureName: 't2',
+          columns: [
+            expect.objectContaining({
+              columnName: 'id2',
             }),
           ],
         })

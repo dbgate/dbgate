@@ -63,6 +63,9 @@ const driver = {
 
     return tediousConnect(conn);
   },
+  async close(pool) {
+    return pool.close();
+  },
   async queryCore(pool, sql, options) {
     if (pool._connectionType == 'msnodesqlv8') {
       return nativeQueryCore(pool, sql, options);

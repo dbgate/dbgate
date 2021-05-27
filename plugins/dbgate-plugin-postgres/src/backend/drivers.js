@@ -113,6 +113,9 @@ const drivers = driverBases.map(driverBase => ({
     await client.connect();
     return client;
   },
+  async close(pool) {
+    return pool.end();
+  },
   async query(client, sql) {
     if (sql == null) {
       return {

@@ -1,6 +1,23 @@
+const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
+const engines = require('./engines');
+global.DBGATE_TOOLS = require('dbgate-tools');
+
 async function run() {
-  console.log('Waiting for starting containers...');
-  await new Promise(resolve => setTimeout(resolve, 20000));
+  for (const engine of engines) {
+    const driver = requireEngineDriver(engine.connection);
+    for (;;) {
+      try {
+        const conn = await driver.connect(engine.connection);
+        await driver.getVersion(conn);
+        await driver.close(conn);
+        break;
+      } catch (err) {
+        console.log(`Waiting for ${engine.label}`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        continue;
+      }
+    }
+  }
 }
 
 run();
