@@ -56,6 +56,9 @@ const driver = {
     const pool = new Database(databaseFile);
     return pool;
   },
+  async close(pool) {
+    return pool.close();
+  },
   // @ts-ignore
   async query(pool, sql) {
     const stmt = pool.prepare(sql);
