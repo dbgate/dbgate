@@ -1,5 +1,4 @@
-const { connect, randomDbName, testWrapper } = require('../tools');
-const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
+const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const _ = require('lodash');
 

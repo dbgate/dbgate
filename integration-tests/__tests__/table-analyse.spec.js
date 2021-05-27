@@ -1,6 +1,5 @@
-const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const engines = require('../engines');
-const { connect, randomDbName, testWrapper } = require('../tools');
+const { testWrapper } = require('../tools');
 
 const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val varchar(50) null)';
 const t1Match = expect.objectContaining({
