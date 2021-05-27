@@ -96,4 +96,4 @@ const engines = [
   },
 ];
 
-module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCi) : engines;
+module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCI) : engines;
