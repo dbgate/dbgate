@@ -150,7 +150,7 @@ class Analyser extends DatabaseAnalyser {
         contentHash: x.hash_code,
       })),
       procedures: routineModificationsQueryData.rows
-        .filter(x => x.objectType == 'PROCEDURE')
+        .filter(x => x.object_type == 'PROCEDURE')
         .map(x => ({
           objectId: `procedures:${x.schema_name}.${x.pure_name}`,
           pureName: x.pure_name,
@@ -158,7 +158,7 @@ class Analyser extends DatabaseAnalyser {
           contentHash: x.hash_code,
         })),
       functions: routineModificationsQueryData.rows
-        .filter(x => x.objectType == 'FUNCTION')
+        .filter(x => x.object_type == 'FUNCTION')
         .map(x => ({
           objectId: `functions:${x.schema_name}.${x.pure_name}`,
           pureName: x.pure_name,
