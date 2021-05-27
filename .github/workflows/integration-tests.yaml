@@ -56,5 +56,5 @@ jobs:
         image: cockroachdb/cockroach
         ports:
           - 15003:26257
-        options: >-
-          start-single-node --insecure
+        # options: >-
+        #   start-single-node --insecure
