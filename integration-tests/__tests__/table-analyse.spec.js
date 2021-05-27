@@ -27,7 +27,7 @@ const t1Match = expect.objectContaining({
 
 describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Table structure - full analysis (%s)',
+    'Table structure - full analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t1Sql);
 
@@ -39,7 +39,7 @@ describe('Table analyse', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Table add - incremental analysis (%s)',
+    'Table add - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, 'CREATE TABLE t0 (id0 int)');
       const structure1 = await driver.analyseFull(conn);
@@ -52,7 +52,7 @@ describe('Table analyse', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Table remove - incremental analysis (%s)',
+    'Table remove - incremental analysis - %s',
     testWrapper(async (conn, driver, engine) => {
       await driver.query(conn, t1Sql);
       await driver.query(conn, 'CREATE TABLE t2 (id2 int)');

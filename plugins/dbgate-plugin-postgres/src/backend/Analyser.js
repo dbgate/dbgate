@@ -114,6 +114,7 @@ class Analyser extends DatabaseAnalyser {
           objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
           pureName: proc.pure_name,
           schemaName: proc.schema_name,
+          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
         })),
       functions: routines.rows

@@ -1,4 +1,4 @@
-name: Electron app
+name: Electron app BETA
 
 on:
   push:
