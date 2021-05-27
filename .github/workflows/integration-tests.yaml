@@ -1,0 +1,61 @@
+name: Integration tests
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: node:10.18-jessie
+
+    steps:
+      - name: Context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+      - name: yarn install
+        run: |
+          yarn install
+      - name: Run tests
+        run: |
+          cd integration-tests
+          yarn run:all
+
+    services:
+      postgres:
+        image: postgres
+        restart: always
+        environment:
+          POSTGRES_PASSWORD: Pwd2020Db
+        ports: 
+          - 15000:5432
+
+      mysql:
+        image: mysql
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        ports: 
+          - 15001:3306
+        environment:
+          - MYSQL_ROOT_PASSWORD=Pwd2020Db
+
+      mssql:
+        image: mcr.microsoft.com/mssql/server
+        restart: always
+        ports: 
+          - 15002:1433
+        environment:
+          - ACCEPT_EULA=Y
+          - SA_PASSWORD=Pwd2020Db
+          - MSSQL_PID=Express
+          
+      cockroachdb:
+        image: cockroachdb/cockroach
+        ports:
+          - 15003:26257
+        command: start-single-node --insecure
+
