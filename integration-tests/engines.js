@@ -22,7 +22,7 @@ const engines = [
     label: 'PostgreSQL',
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
-      server: 'localhost',
+      server: 'postgres',
       password: 'Pwd2020Db',
       user: 'postgres',
       port: 5432,
