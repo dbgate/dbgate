@@ -104,7 +104,10 @@ export class DatabaseAnalyser {
       if (typeField == objectTypeField) return [pureName];
     }
     if (this.modifications) {
-      return this.modifications.filter(x => x.objectTypeField == objectTypeField).map(x => x.newName.pureName);
+      return this.modifications
+        .filter(x => x.objectTypeField == objectTypeField)
+        .filter(x => x.newName)
+        .map(x => x.newName.pureName);
     }
     return allPureNames;
   }
