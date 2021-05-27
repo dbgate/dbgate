@@ -109,7 +109,7 @@ class Analyser extends DatabaseAnalyser {
           .map(getColumnInfo),
       })),
       procedures: routines.rows
-        .filter(x => x.objectType == 'PROCEDURE')
+        .filter(x => x.object_type == 'PROCEDURE')
         .map(proc => ({
           objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
           pureName: proc.pure_name,
@@ -117,7 +117,7 @@ class Analyser extends DatabaseAnalyser {
           contentHash: proc.hash_code,
         })),
       functions: routines.rows
-        .filter(x => x.objectType == 'FUNCTION')
+        .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
           pureName: func.pure_name,
