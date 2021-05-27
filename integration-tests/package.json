@@ -11,7 +11,7 @@
   "scripts": {
     "wait": "cross-env DEVMODE=1 node wait.js",
     "test": "cross-env DEVMODE=1 jest --runInBand",
-    "run:all": "docker-compose down && docker-compose up -d && yarn wait && yarn test"
+    "run:local": "docker-compose down && docker-compose up -d && yarn wait && yarn test"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

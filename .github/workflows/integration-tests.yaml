@@ -23,12 +23,13 @@ jobs:
       - name: Run tests
         run: |
           cd integration-tests
-          yarn run:all
+          yarn wait
+          yarn test
 
     services:
       postgres:
         image: postgres
-        environment:
+        env:
           POSTGRES_PASSWORD: Pwd2020Db
         ports: 
           - 15000:5432
@@ -38,17 +39,17 @@ jobs:
         command: --default-authentication-plugin=mysql_native_password
         ports: 
           - 15001:3306
-        environment:
-          - MYSQL_ROOT_PASSWORD=Pwd2020Db
+        env:
+          MYSQL_ROOT_PASSWORD: Pwd2020Db
 
       mssql:
         image: mcr.microsoft.com/mssql/server
         ports: 
           - 15002:1433
-        environment:
-          - ACCEPT_EULA=Y
-          - SA_PASSWORD=Pwd2020Db
-          - MSSQL_PID=Express
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: Pwd2020Db
+          MSSQL_PID: Express
           
       cockroachdb:
         image: cockroachdb/cockroach
