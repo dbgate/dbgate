@@ -27,11 +27,11 @@ services:
       - SA_PASSWORD=Pwd2020Db
       - MSSQL_PID=Express
       
-#   cockroachdb:
-#     image: cockroachdb/cockroach
-#     ports:
-#       - 15003:26257
-#     command: start-single-node --insecure
+  cockroachdb:
+    image: cockroachdb/cockroach
+    ports:
+      - 15003:26257
+    command: start-single-node --insecure
 
 #   mongodb:
 #     image: mongo:4.0.12

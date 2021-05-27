@@ -40,7 +40,7 @@ describe('Analyse tests', () => {
       const conn = await connect(engine, randomDbName());
       const driver = requireEngineDriver(engine.connection);
 
-      await driver.query(conn, 'CREATE TABLE t1 (id int)');
+      await driver.query(conn, 'CREATE TABLE t1 (id int not null primary key)');
 
       const structure = await driver.analyseFull(conn);
 
@@ -67,7 +67,7 @@ describe('Analyse tests', () => {
 
       await driver.query(conn, 'CREATE TABLE t1 (id int)');
       const structure1 = await driver.analyseFull(conn);
-      await driver.query(conn, 'CREATE TABLE t2 (id2 int)');
+      await driver.query(conn, 'CREATE TABLE t2 (id2 int not null primary key)');
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2.tables.length).toEqual(2);

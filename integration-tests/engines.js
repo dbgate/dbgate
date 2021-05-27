@@ -36,6 +36,15 @@ const engines = [
       engine: 'sqlite@dbgate-plugin-sqlite',
     },
   },
+  {
+    label: 'CockroachDB',
+    connection: {
+      engine: 'cockroach@dbgate-plugin-postgres',
+      server: 'localhost',
+      user: 'root',
+      port: 15003,
+    },
+  },
 ];
 
 module.exports = engines;
