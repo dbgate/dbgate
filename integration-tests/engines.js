@@ -29,6 +29,13 @@ const engines = [
       port: 15002,
     },
   },
+  {
+    label: 'SQLite',
+    generateDbFile: true,
+    connection: {
+      engine: 'sqlite@dbgate-plugin-sqlite',
+    },
+  },
 ];
 
 module.exports = engines;

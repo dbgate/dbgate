@@ -10,25 +10,35 @@ function randomDbName() {
   return `db${newKey}`;
 }
 
-async function connect(connection, database) {
+async function connect(engine, database) {
+  const { connection } = engine;
   const driver = requireEngineDriver(connection);
-  const conn = await driver.connect(connection);
-  await driver.query(conn, `CREATE DATABASE ${database}`);
-  await driver.close(conn);
 
-  const res = await driver.connect({
-    ...connection,
-    database,
-  });
-  return res;
+  if (engine.generateDbFile) {
+    const conn = await driver.connect({
+      ...connection,
+      databaseFile: `dbtemp/${database}`,
+    });
+    return conn;
+  } else {
+    const conn = await driver.connect(connection);
+    await driver.query(conn, `CREATE DATABASE ${database}`);
+    await driver.close(conn);
+
+    const res = await driver.connect({
+      ...connection,
+      database,
+    });
+    return res;
+  }
 }
 
 describe('Analyse tests', () => {
-  test.each(engines.map(engine => [engine.label, engine.connection]))(
-    'Table - full analysis (%s)',
-    async (label, connection) => {
-      const conn = await connect(connection, randomDbName());
-      const driver = requireEngineDriver(connection);
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Table structure - full analysis (%s)',
+    async (label, engine) => {
+      const conn = await connect(engine, randomDbName());
+      const driver = requireEngineDriver(engine.connection);
 
       await driver.query(conn, 'CREATE TABLE t1 (id int)');
 
@@ -49,11 +59,11 @@ describe('Analyse tests', () => {
     }
   );
 
-  test.each(engines.map(engine => [engine.label, engine.connection]))(
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Table add - incremental analysis (%s)',
-    async (label, connection) => {
-      const conn = await connect(connection, randomDbName());
-      const driver = requireEngineDriver(connection);
+    async (label, engine) => {
+      const conn = await connect(engine, randomDbName());
+      const driver = requireEngineDriver(engine.connection);
 
       await driver.query(conn, 'CREATE TABLE t1 (id int)');
       const structure1 = await driver.analyseFull(conn);
