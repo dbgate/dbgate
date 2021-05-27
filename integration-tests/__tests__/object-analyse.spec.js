@@ -7,7 +7,7 @@ const initSql = ['CREATE TABLE t1 (id int)', 'CREATE TABLE t2 (id int)'];
 
 function flatSource() {
   return _.flatten(
-    engines.map(engine => (engine.objects || []).map(object => [engine.label, engine, object.type, object]))
+    engines.map(engine => (engine.objects || []).map(object => [engine.label, object.type, object, engine]))
   );
 }
 
@@ -18,7 +18,7 @@ const obj1Match = expect.objectContaining({
 describe('Object analyse', () => {
   test.each(flatSource())(
     'Full analysis (%s - %s)',
-    testWrapper(async (conn, driver, engine, type, object) => {
+    testWrapper(async (conn, driver, type, object, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
 
       await driver.query(conn, object.create1);
@@ -31,7 +31,7 @@ describe('Object analyse', () => {
 
   test.each(flatSource())(
     'Incremental analysis - add (%s - %s)',
-    testWrapper(async (conn, driver, engine, type, object) => {
+    testWrapper(async (conn, driver, type, object, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
 
       await driver.query(conn, object.create2);
@@ -46,7 +46,7 @@ describe('Object analyse', () => {
 
   test.each(flatSource())(
     'Incremental analysis - drop (%s - %s)',
-    testWrapper(async (conn, driver, engine, type, object) => {
+    testWrapper(async (conn, driver, type, object, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
 
       await driver.query(conn, object.create1);

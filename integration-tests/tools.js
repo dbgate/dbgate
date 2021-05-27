@@ -44,11 +44,12 @@ async function connect(engine, database) {
   }
 }
 
-const testWrapper = body => async (label, engine, ...other) => {
+const testWrapper = body => async (label, ...other) => {
+  const engine = other[other.length - 1];
   const driver = requireEngineDriver(engine.connection);
   const conn = await connect(engine, randomDbName());
   try {
-    await body(conn, driver, engine, ...other);
+    await body(conn, driver, ...other);
   } finally {
     await driver.close(conn);
   }
