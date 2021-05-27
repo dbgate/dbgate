@@ -20,6 +20,7 @@ const engines = [
       server: 'localhost',
       port: 15001,
     },
+    skipOnGithub: true,
     objects: [views],
   },
   {
@@ -90,6 +91,7 @@ const engines = [
       server: 'localhost',
       port: 15003,
     },
+    skipOnGithub: true,
     objects: [views],
   },
 ];
