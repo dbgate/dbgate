@@ -36,7 +36,8 @@ jobs:
 
       mysql:
         image: mysql
-        command: --default-authentication-plugin=mysql_native_password
+        options: >-
+          --default-authentication-plugin=mysql_native_password
         ports: 
           - 15001:3306
         env:
@@ -55,5 +56,5 @@ jobs:
         image: cockroachdb/cockroach
         ports:
           - 15003:26257
-        command: start-single-node --insecure
-
+        options: >-
+          start-single-node --insecure
