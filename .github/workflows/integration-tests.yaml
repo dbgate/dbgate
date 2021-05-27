@@ -23,7 +23,6 @@ jobs:
       - name: Run tests
         run: |
           cd integration-tests
-          yarn wait
           yarn test
 
     services:
