@@ -20,7 +20,7 @@ const engines = [
       server: 'localhost',
       port: 15001,
     },
-    skipOnCI: true,
+    // skipOnCI: true,
     objects: [views],
   },
   {

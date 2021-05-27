@@ -10,8 +10,11 @@
   "license": "MIT",
   "scripts": {
     "wait:local": "cross-env DEVMODE=1 LOCALTEST=1 node wait.js",
-    "test:ci": "cross-env DEVMODE=1 CITEST=1 jest --runInBand",
+    "wait:ci": "cross-env DEVMODE=1 CITEST=1 node wait.js",
+
     "test:local": "cross-env DEVMODE=1 LOCALTEST=1 jest",
+    "test:ci": "cross-env DEVMODE=1 CITEST=1 jest --runInBand",
+    
     "run:local": "docker-compose down && docker-compose up -d && yarn wait:local && yarn test:local"
   },
   "devDependencies": {
