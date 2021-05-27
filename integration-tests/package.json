@@ -9,9 +9,10 @@
   "author": "Jan Prochazka",
   "license": "MIT",
   "scripts": {
-    "wait": "cross-env DEVMODE=1 node wait.js",
+    "wait:local": "cross-env DEVMODE=1 LOCALTEST=1 node wait.js",
     "test": "cross-env DEVMODE=1 jest",
-    "run:local": "docker-compose down && docker-compose up -d && yarn wait && yarn test"
+    "test:local": "cross-env DEVMODE=1 LOCALTEST=1 jest",
+    "run:local": "docker-compose down && docker-compose up -d && yarn wait:local && yarn test:local"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

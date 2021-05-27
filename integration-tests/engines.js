@@ -7,25 +7,33 @@ const views = {
 };
 
 const engines = [
-  // {
-  //   label: 'MySQL',
-  //   connection: {
-  //     engine: 'mysql@dbgate-plugin-mysql',
-  //     server: 'localhost',
-  //     password: 'Pwd2020Db',
-  //     user: 'root',
-  //     port: 15001,
-  //   },
-  //   objects: [views],
-  // },
+  {
+    label: 'MySQL',
+    connection: {
+      engine: 'mysql@dbgate-plugin-mysql',
+      password: 'Pwd2020Db',
+      user: 'root',
+      server: 'mysql',
+      port: 3306,
+    },
+    local: {
+      server: 'localhost',
+      port: 15001,
+    },
+    objects: [views],
+  },
   {
     label: 'PostgreSQL',
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
-      server: 'postgres',
       password: 'Pwd2020Db',
       user: 'postgres',
+      server: 'postgres',
       port: 5432,
+    },
+    local: {
+      server: 'localhost',
+      port: 15000,
     },
     objects: [
       views,
@@ -38,44 +46,52 @@ const engines = [
       },
     ],
   },
-  // {
-  //   label: 'SQL Server',
-  //   connection: {
-  //     engine: 'mssql@dbgate-plugin-mssql',
-  //     server: 'localhost',
-  //     password: 'Pwd2020Db',
-  //     user: 'sa',
-  //     port: 15002,
-  //   },
-  //   objects: [
-  //     views,
-  //     {
-  //       type: 'procedures',
-  //       create1: 'CREATE PROCEDURE obj1 AS SELECT id FROM t1',
-  //       create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
-  //       drop1: 'DROP PROCEDURE obj1',
-  //       drop2: 'DROP PROCEDURE obj2',
-  //     },
-  //   ],
-  // },
-  // {
-  //   label: 'SQLite',
-  //   generateDbFile: true,
-  //   connection: {
-  //     engine: 'sqlite@dbgate-plugin-sqlite',
-  //   },
-  //   objects: [views],
-  // },
-  // {
-  //   label: 'CockroachDB',
-  //   connection: {
-  //     engine: 'cockroach@dbgate-plugin-postgres',
-  //     server: 'localhost',
-  //     user: 'root',
-  //     port: 15003,
-  //   },
-  //   objects: [views],
-  // },
+  {
+    label: 'SQL Server',
+    connection: {
+      engine: 'mssql@dbgate-plugin-mssql',
+      password: 'Pwd2020Db',
+      user: 'sa',
+      server: 'mssql',
+      port: 1433,
+    },
+    local: {
+      server: 'localhost',
+      port: 15002,
+    },
+    objects: [
+      views,
+      {
+        type: 'procedures',
+        create1: 'CREATE PROCEDURE obj1 AS SELECT id FROM t1',
+        create2: 'CREATE PROCEDURE obj2 AS SELECT id FROM t2',
+        drop1: 'DROP PROCEDURE obj1',
+        drop2: 'DROP PROCEDURE obj2',
+      },
+    ],
+  },
+  {
+    label: 'SQLite',
+    generateDbFile: true,
+    connection: {
+      engine: 'sqlite@dbgate-plugin-sqlite',
+    },
+    objects: [views],
+  },
+  {
+    label: 'CockroachDB',
+    connection: {
+      engine: 'cockroach@dbgate-plugin-postgres',
+      user: 'root',
+      server: 'cockroachdb',
+      port: 26257,
+    },
+    local: {
+      server: 'localhost',
+      port: 15003,
+    },
+    objects: [views],
+  },
 ];
 
 module.exports = engines;

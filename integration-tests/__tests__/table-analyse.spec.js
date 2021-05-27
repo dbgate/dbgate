@@ -26,20 +26,24 @@ const t1Match = expect.objectContaining({
   }),
 });
 
+
 describe('Table analyse', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Table structure - full analysis (%s)',
     async (label, engine) => {
       const conn = await connect(engine, randomDbName());
-      const driver = requireEngineDriver(engine.connection);
+      try {
+        const driver = requireEngineDriver(engine.connection);
 
-      await driver.query(conn, t1Sql);
+        await driver.query(conn, t1Sql);
 
-      const structure = await driver.analyseFull(conn);
+        const structure = await driver.analyseFull(conn);
 
-      expect(structure.tables.length).toEqual(1);
-      expect(structure.tables[0]).toEqual(t1Match);
-      await driver.close(conn);
+        expect(structure.tables.length).toEqual(1);
+        expect(structure.tables[0]).toEqual(t1Match);
+      } finally {
+        await driver.close(conn);
+      }
     }
   );
 

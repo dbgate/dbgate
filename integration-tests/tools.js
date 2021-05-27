@@ -8,8 +8,21 @@ function randomDbName() {
   return `db${newKey}`;
 }
 
-async function connect(engine, database) {
+function extractConnection(engine) {
   const { connection } = engine;
+
+  if (process.env.LOCALTEST && engine.local) {
+    return {
+      ...connection,
+      ...engine.local,
+    };
+  }
+
+  return connection;
+}
+
+async function connect(engine, database) {
+  const connection = extractConnection(engine);
   const driver = requireEngineDriver(connection);
 
   if (engine.generateDbFile) {
@@ -31,7 +44,19 @@ async function connect(engine, database) {
   }
 }
 
+const testWrapper = body => async (label, engine, ...other) => {
+  const conn = await connect(engine, randomDbName());
+  try {
+    const driver = requireEngineDriver(engine.connection);
+    await body(driver, engine, ...other);
+  } finally {
+    await driver.close(conn);
+  }
+};
+
 module.exports = {
   randomDbName,
   connect,
+  extractConnection,
+  testWrapper,
 };
