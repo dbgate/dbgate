@@ -22,6 +22,7 @@ const engines = [
     },
     // skipOnCI: true,
     objects: [views],
+    dbSnapshotBySeconds: true,
   },
   {
     label: 'PostgreSQL',
