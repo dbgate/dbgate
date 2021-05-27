@@ -28,7 +28,6 @@ jobs:
     services:
       postgres:
         image: postgres
-        restart: always
         environment:
           POSTGRES_PASSWORD: Pwd2020Db
         ports: 
@@ -37,7 +36,6 @@ jobs:
       mysql:
         image: mysql
         command: --default-authentication-plugin=mysql_native_password
-        restart: always
         ports: 
           - 15001:3306
         environment:
@@ -45,7 +43,6 @@ jobs:
 
       mssql:
         image: mcr.microsoft.com/mssql/server
-        restart: always
         ports: 
           - 15002:1433
         environment:
