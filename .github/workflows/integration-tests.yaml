@@ -25,6 +25,10 @@ jobs:
           cd integration-tests
           yarn wait:ci
           yarn test:ci
+      - uses: tanmen/jest-reporter@v1
+          with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+            result-file: integration-tests/result.json
 
     services:
       postgres:

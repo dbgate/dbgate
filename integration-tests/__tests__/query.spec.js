@@ -88,7 +88,7 @@ describe('Query', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Combined query - %s',
+    'More queries - %s',
     testWrapper(async (conn, driver, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
       const results = await executeStream(
@@ -107,4 +107,21 @@ describe('Query', () => {
       expect(res2.rows).toEqual([expect.dataRow({ id: 2 }), expect.dataRow({ id: 1 })]);
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Script - %s',
+    testWrapper(async (conn, driver, engine) => {
+      const results = await executeStream(
+        driver,
+        conn,
+        'CREATE TABLE t1 (id int); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2); SELECT id FROM t1 ORDER BY id; '
+      );
+      expect(results.length).toEqual(1);
+
+      const res1 = results[0];
+      expect(res1.columns).toEqual([expect.objectContaining({ columnName: 'id' })]);
+      expect(res1.rows).toEqual([expect.dataRow({ id: 1 }), expect.dataRow({ id: 2 })]);
+    })
+  );
+
 });
