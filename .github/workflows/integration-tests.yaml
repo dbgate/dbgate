@@ -26,6 +26,7 @@ jobs:
           yarn test:ci
 #          yarn wait:ci
       - uses: tanmen/jest-reporter@v1
+        if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: integration-tests/result.json
