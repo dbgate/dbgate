@@ -6,6 +6,7 @@
     tables: 'img table',
     collections: 'img collection',
     views: 'img view',
+    matviews: 'img view',
     procedures: 'img procedure',
     functions: 'img function',
   };
@@ -14,6 +15,7 @@
     tables: 'TableDataTab',
     collections: 'CollectionDataTab',
     views: 'ViewDataTab',
+    matviews: 'ViewDataTab',
   };
 
   const menus = {
@@ -143,6 +145,63 @@
         label: 'SQL Generator: DROP VIEW',
         sqlGeneratorProps: {
           dropViews: true,
+        },
+      },
+    ],
+    matviews: [
+      {
+        label: 'Open data',
+        tab: 'ViewDataTab',
+        forceNewTab: true,
+      },
+      {
+        label: 'Open structure',
+        tab: 'TableStructureTab',
+      },
+      {
+        label: 'Query designer',
+        isQueryDesigner: true,
+      },
+      {
+        divider: true,
+      },
+      {
+        label: 'Export',
+        isExport: true,
+      },
+      {
+        label: 'Open in free table editor',
+        isOpenFreeTable: true,
+      },
+      {
+        label: 'Open active chart',
+        isActiveChart: true,
+      },
+      {
+        divider: true,
+      },
+      {
+        label: 'SQL: CREATE MATERIALIZED VIEW',
+        scriptTemplate: 'CREATE OBJECT',
+      },
+      {
+        label: 'SQL: CREATE TABLE',
+        scriptTemplate: 'CREATE TABLE',
+      },
+      {
+        label: 'SQL: SELECT',
+        scriptTemplate: 'SELECT',
+      },
+      {
+        label: 'SQL Generator: CREATE MATERIALIZED VIEW',
+        sqlGeneratorProps: {
+          createMatviews: true,
+        },
+      },
+      {
+        label: 'SQL Generator: DROP MATERIALIZED VIEW',
+        sqlGeneratorProps: {
+          dropMatviews: true,
         },
       },
     ],

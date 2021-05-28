@@ -32,7 +32,7 @@ describe('Object analyse', () => {
       const structure = await driver.analyseFull(conn);
 
       expect(structure[type].length).toEqual(1);
-      expect(structure[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
+      expect(structure[type][0]).toEqual(type.includes('views') ? view1Match : obj1Match);
     })
   );
 
@@ -47,7 +47,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(2);
-      expect(structure2[type].find(x => x.pureName == 'obj1')).toEqual(type == 'views' ? view1Match : obj1Match);
+      expect(structure2[type].find(x => x.pureName == 'obj1')).toEqual(type.includes('views') ? view1Match : obj1Match);
     })
   );
 
@@ -63,7 +63,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(1);
-      expect(structure2[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
+      expect(structure2[type][0]).toEqual(type.includes('views') ? view1Match : obj1Match);
     })
   );
 
@@ -83,7 +83,7 @@ describe('Object analyse', () => {
       const structure3 = await driver.analyseIncremental(conn, structure2);
 
       expect(structure3[type].length).toEqual(1);
-      expect(structure3[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
+      expect(structure3[type][0]).toEqual(type.includes('views') ? view1Match : obj1Match);
     })
   );
 });

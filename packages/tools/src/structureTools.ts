@@ -64,6 +64,10 @@ function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
       ...obj,
       objectTypeField: 'views',
     })),
+    matviews: (db.matviews || []).map(obj => ({
+      ...obj,
+      objectTypeField: 'matviews',
+    })),
     procedures: (db.procedures || []).map(obj => ({
       ...obj,
       objectTypeField: 'procedures',

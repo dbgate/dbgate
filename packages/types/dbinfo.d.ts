@@ -95,6 +95,7 @@ export interface DatabaseInfoObjects {
   tables: TableInfo[];
   collections: CollectionInfo[];
   views: ViewInfo[];
+  matviews: ViewInfo[];
   procedures: ProcedureInfo[];
   functions: FunctionInfo[];
   triggers: TriggerInfo[];

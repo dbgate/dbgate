@@ -29,6 +29,10 @@ const postgresDriver = {
   engine: 'postgres@dbgate-plugin-postgres',
   title: 'Postgre SQL',
   defaultPort: 5432,
+  dialect: {
+    ...dialect,
+    materializedViews: true,
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

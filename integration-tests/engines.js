@@ -5,6 +5,13 @@ const views = {
   drop1: 'DROP VIEW obj1',
   drop2: 'DROP VIEW obj2',
 };
+const matviews = {
+  type: 'matviews',
+  create1: 'CREATE MATERIALIZED VIEW obj1 AS SELECT id FROM t1',
+  create2: 'CREATE MATERIALIZED VIEW obj2 AS SELECT id FROM t2',
+  drop1: 'DROP MATERIALIZED VIEW obj1',
+  drop2: 'DROP MATERIALIZED VIEW obj2',
+};
 
 const engines = [
   {
@@ -39,6 +46,7 @@ const engines = [
     },
     objects: [
       views,
+      matviews,
       {
         type: 'procedures',
         create1: 'CREATE PROCEDURE obj1() LANGUAGE SQL AS $$  select * from t1 $$',

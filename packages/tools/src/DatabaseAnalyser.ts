@@ -66,7 +66,7 @@ export class DatabaseAnalyser {
     }
 
     const res = {};
-    for (const field of ['tables', 'collections', 'views', 'functions', 'procedures', 'triggers']) {
+    for (const field of ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers']) {
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
         .map(x => x.objectId);
@@ -159,6 +159,7 @@ export class DatabaseAnalyser {
       ...this.getDeletedObjectsForField(snapshot, 'tables'),
       ...this.getDeletedObjectsForField(snapshot, 'collections'),
       ...this.getDeletedObjectsForField(snapshot, 'views'),
+      ...this.getDeletedObjectsForField(snapshot, 'matviews'),
       ...this.getDeletedObjectsForField(snapshot, 'procedures'),
       ...this.getDeletedObjectsForField(snapshot, 'functions'),
       ...this.getDeletedObjectsForField(snapshot, 'triggers'),
@@ -177,6 +178,10 @@ export class DatabaseAnalyser {
       const items = snapshot[field];
       if (items === null) {
         res.push({ objectTypeField: field, action: 'all' });
+        continue;
+      }
+      if (items === undefined) {
+        // skip - undefined meens, that field is not supported
         continue;
       }
       for (const item of items) {
@@ -211,6 +216,7 @@ export class DatabaseAnalyser {
       tables: [],
       collections: [],
       views: [],
+      matviews: [],
       functions: [],
       procedures: [],
       triggers: [],

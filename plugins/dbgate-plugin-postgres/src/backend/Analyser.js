@@ -56,6 +56,12 @@ class Analyser extends DatabaseAnalyser {
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const matviews = this.driver.dialect.materializedViews
+      ? await this.driver.query(this.pool, this.createQuery('matviews', ['matviews']))
+      : null;
+    const matviewColumns = this.driver.dialect.materializedViews
+      ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
+      : null;
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
 
     return {
@@ -108,6 +114,18 @@ class Analyser extends DatabaseAnalyser {
           .filter(col => col.pure_name == view.pure_name && col.schema_name == view.schema_name)
           .map(getColumnInfo),
       })),
+      matviews: matviews
+        ? matviews.rows.map(matview => ({
+            objectId: `matviews:${matview.schema_name}.${matview.pure_name}`,
+            pureName: matview.pure_name,
+            schemaName: matview.schema_name,
+            contentHash: matview.hash_code,
+            createSql: `CREATE MATERIALIZED VIEW "${matview.schema_name}"."${matview.pure_name}"\nAS\n${matview.definition}`,
+            columns: matviewColumns.rows
+              .filter(col => col.pure_name == matview.pure_name && col.schema_name == matview.schema_name)
+              .map(getColumnInfo),
+          }))
+        : undefined,
       procedures: routines.rows
         .filter(x => x.object_type == 'PROCEDURE')
         .map(proc => ({
@@ -133,6 +151,9 @@ class Analyser extends DatabaseAnalyser {
       ? await this.driver.query(this.pool, this.createQuery('tableModifications'))
       : null;
     const viewModificationsQueryData = await this.driver.query(this.pool, this.createQuery('viewModifications'));
+    const matviewModificationsQueryData = this.driver.dialect.materializedViews
+      ? await this.driver.query(this.pool, this.createQuery('matviewModifications'))
+      : null;
     const routineModificationsQueryData = await this.driver.query(this.pool, this.createQuery('routineModifications'));
 
     return {
@@ -150,6 +171,14 @@ class Analyser extends DatabaseAnalyser {
         schemaName: x.schema_name,
         contentHash: x.hash_code,
       })),
+      matviews: matviewModificationsQueryData
+        ? matviewModificationsQueryData.rows.map(x => ({
+            objectId: `matviews:${x.schema_name}.${x.pure_name}`,
+            pureName: x.pure_name,
+            schemaName: x.schema_name,
+            contentHash: x.hash_code,
+          }))
+        : undefined,
       procedures: routineModificationsQueryData.rows
         .filter(x => x.object_type == 'PROCEDURE')
         .map(x => ({

@@ -21,10 +21,10 @@
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
 
-  // $: console.log('objects', $objects);
+  // $: console.log('OBJECTS', $objects);
 
   $: objectList = _.flatten(
-    ['tables', 'collections', 'views', 'procedures', 'functions'].map(objectTypeField =>
+    ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
       _.sortBy(
         (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
@@ -35,6 +35,9 @@
   const handleRefreshDatabase = () => {
     axiosInstance.post('database-connections/refresh', { conid, database });
   };
+
+  const OBJECT_TYPE_LABELS = { matviews: 'Materialized views' };
+
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -62,9 +65,10 @@
       <AppObjectList
         list={objectList.map(x => ({ ...x, conid, database }))}
         module={databaseObjectAppObject}
-        groupFunc={data => _.startCase(data.objectTypeField)}
+        groupFunc={data => OBJECT_TYPE_LABELS[data.objectTypeField] || _.startCase(data.objectTypeField)}
         subItemsComponent={SubColumnParamList}
-        isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
+        isExpandable={data =>
+          data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
         expandIconFunc={chevronExpandIcon}
         {filter}
       />

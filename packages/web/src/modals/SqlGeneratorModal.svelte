@@ -41,12 +41,15 @@
     createTables: true,
     createForeignKeys: true,
     createViews: true,
+    createMatviews: true,
     createProcedures: true,
     createFunctions: true,
     createTriggers: true,
   };
 
   export let initialObjects = null;
+
+  const OBJ_TYPE_LABELS = { Matview: 'Materialized view' };
 
   let busy = false;
   let managerSize;
@@ -72,7 +75,7 @@
   $: generatePreview($valuesStore, $checkedObjectsStore);
 
   $: objectList = _.flatten(
-    ['tables', 'views', 'procedures', 'functions'].map(objectTypeField =>
+    ['tables', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
       _.sortBy(
         (($dbinfo || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
@@ -125,6 +128,7 @@
     );
     closeCurrentModal();
   }
+
 </script>
 
 <FormProviderCore values={valuesStore} template={FormFieldTemplateTiny}>
@@ -211,8 +215,8 @@
 
                   <FormCheckboxField label="Truncate tables (delete all rows)" name="truncate" />
 
-                  {#each ['View', 'Procedure', 'Function', 'Trigger'] as objtype}
-                    <div class="obj-heading">{objtype}s</div>
+                  {#each ['View', 'MatView', 'Procedure', 'Function', 'Trigger'] as objtype}
+                    <div class="obj-heading">{OBJ_TYPE_LABELS[objtype] || objtype}s</div>
                     <FormCheckboxField label="Create" name={`create${objtype}s`} />
                     <FormCheckboxField label="Drop" name={`drop${objtype}s`} />
                     {#if values[`drop${objtype}s`]}
@@ -254,4 +258,5 @@
   .dbname {
     color: var(--theme-font-3);
   }
+
 </style>

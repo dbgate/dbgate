@@ -260,9 +260,18 @@ export function useDbCore(args, objectTypeField = undefined) {
   if (!dbStore) return null;
   return derived(dbStore, db => {
     if (!db) return null;
-    return db[objectTypeField || args.objectTypeField].find(
-      x => x.pureName == args.pureName && x.schemaName == args.schemaName
-    );
+    if (_.isArray(objectTypeField)) {
+      for (const field of objectTypeField) {
+        const res = db[field || args.objectTypeField].find(
+          x => x.pureName == args.pureName && x.schemaName == args.schemaName
+        );
+        if (res) return res;
+      }
+    } else {
+      return db[objectTypeField || args.objectTypeField].find(
+        x => x.pureName == args.pureName && x.schemaName == args.schemaName
+      );
+    }
   });
 }
 
@@ -283,7 +292,7 @@ export function getViewInfo(args) {
 
 /** @returns {import('dbgate-types').ViewInfo} */
 export function useViewInfo(args) {
-  return useDbCore(args, 'views');
+  return useDbCore(args, ['views', 'matviews']);
 }
 
 /** @returns {import('dbgate-types').CollectionInfo} */
@@ -343,7 +352,6 @@ export function getDatabaseServerVersion(args) {
 export function useDatabaseServerVersion(args) {
   return useCore(databaseServerVersionLoader, args);
 }
-
 
 export function getServerStatus() {
   return getCore(serverStatusLoader, {});
