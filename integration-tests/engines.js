@@ -92,7 +92,7 @@ const engines = [
       server: 'localhost',
       port: 15003,
     },
-    skipOnCI: true,
+    // skipOnCI: true,
     objects: [views],
   },
 ];

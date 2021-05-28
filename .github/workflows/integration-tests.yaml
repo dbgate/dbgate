@@ -23,8 +23,8 @@ jobs:
       - name: Run tests
         run: |
           cd integration-tests
-          yarn wait:ci
           yarn test:ci
+#          yarn wait:ci
       - uses: tanmen/jest-reporter@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
