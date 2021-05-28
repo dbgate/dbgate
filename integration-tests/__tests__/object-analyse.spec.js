@@ -13,6 +13,14 @@ function flatSource() {
 const obj1Match = expect.objectContaining({
   pureName: 'obj1',
 });
+const view1Match = expect.objectContaining({
+  pureName: 'obj1',
+  columns: [
+    expect.objectContaining({
+      columnName: 'id',
+    }),
+  ],
+});
 
 describe('Object analyse', () => {
   test.each(flatSource())(
@@ -24,7 +32,7 @@ describe('Object analyse', () => {
       const structure = await driver.analyseFull(conn);
 
       expect(structure[type].length).toEqual(1);
-      expect(structure[type][0]).toEqual(obj1Match);
+      expect(structure[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
     })
   );
 
@@ -39,7 +47,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(2);
-      expect(structure2[type].find(x => x.pureName == 'obj1')).toEqual(obj1Match);
+      expect(structure2[type].find(x => x.pureName == 'obj1')).toEqual(type == 'views' ? view1Match : obj1Match);
     })
   );
 
@@ -55,7 +63,7 @@ describe('Object analyse', () => {
       const structure2 = await driver.analyseIncremental(conn, structure1);
 
       expect(structure2[type].length).toEqual(1);
-      expect(structure2[type][0]).toEqual(obj1Match);
+      expect(structure2[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
     })
   );
 
@@ -75,8 +83,7 @@ describe('Object analyse', () => {
       const structure3 = await driver.analyseIncremental(conn, structure2);
 
       expect(structure3[type].length).toEqual(1);
-      expect(structure3[type][0]).toEqual(obj1Match);
+      expect(structure3[type][0]).toEqual(type == 'views' ? view1Match : obj1Match);
     })
   );
-
 });

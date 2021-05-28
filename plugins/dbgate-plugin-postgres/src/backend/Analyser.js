@@ -52,7 +52,7 @@ class Analyser extends DatabaseAnalyser {
       this.pool,
       this.createQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', ['tables'])
     );
-    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
+    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
