@@ -26,6 +26,7 @@ jobs:
           yarn test:ci
 #          yarn wait:ci
       - name: Filter parser tests
+        if: always()
         run: |
           cd packages/filterparser
           yarn test:ci
@@ -34,13 +35,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: integration-tests/result.json
-          action: Integration tests
+          action-name: Integration tests
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: packages/filterparser/result.json
-          action: Filter parser tests
+          action-name: Filter parser tests
 
     services:
       postgres:
