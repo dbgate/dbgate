@@ -5,6 +5,7 @@
 
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
+import { getObjectTypeFieldLabel } from '../utility/common';
   import { useDatabaseInfo, useDatabaseList } from '../utility/metadataLoaders';
 
   export let conidName;
@@ -15,19 +16,25 @@
   const { values, setFieldValue } = getFormContext();
   $: dbinfo = useDatabaseInfo({ conid: $values[conidName], database: $values[databaseName] });
 
-  $: tablesOptions = _.compact([...($dbinfo?.tables || []), ...($dbinfo?.views || []), ...($dbinfo?.collections || [])])
+  $: tablesOptions = _.compact([
+    ...($dbinfo?.tables || []),
+    ...($dbinfo?.views || []),
+    ...($dbinfo?.matviews || []),
+    ...($dbinfo?.collections || []),
+  ])
     .filter(x => !$values[schemaName] || x.schemaName == $values[schemaName])
     .map(x => ({
       value: x.pureName,
       label: x.pureName,
     }));
+
 </script>
 
 <div class="wrapper">
   <FormSelectField {...$$restProps} {name} options={tablesOptions} isMulti templateProps={{ noMargin: true }} />
 
   <div>
-    {#each ['tables', 'views', 'collections'] as field}
+    {#each ['tables', 'views', 'matviews', 'collections'] as field}
       {#if $dbinfo && $dbinfo[field]?.length > 0}
         <FormStyledButton
           type="button"
@@ -49,4 +56,5 @@
   .wrapper {
     margin: var(--dim-large-form-margin);
   }
+
 </style>

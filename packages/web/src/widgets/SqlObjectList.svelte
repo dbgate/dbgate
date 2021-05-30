@@ -12,6 +12,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
+import { getObjectTypeFieldLabel } from '../utility/common';
 
   export let conid;
   export let database;
@@ -35,8 +36,6 @@
   const handleRefreshDatabase = () => {
     axiosInstance.post('database-connections/refresh', { conid, database });
   };
-
-  const OBJECT_TYPE_LABELS = { matviews: 'Materialized views' };
 
 </script>
 
@@ -65,7 +64,7 @@
       <AppObjectList
         list={objectList.map(x => ({ ...x, conid, database }))}
         module={databaseObjectAppObject}
-        groupFunc={data => OBJECT_TYPE_LABELS[data.objectTypeField] || _.startCase(data.objectTypeField)}
+        groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField)}
         subItemsComponent={SubColumnParamList}
         isExpandable={data =>
           data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}

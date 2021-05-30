@@ -31,6 +31,7 @@
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import { getObjectTypeFieldLabel } from '../utility/common';
 
   export let conid;
   export let database;
@@ -48,8 +49,6 @@
   };
 
   export let initialObjects = null;
-
-  const OBJ_TYPE_LABELS = { Matview: 'Materialized view' };
 
   let busy = false;
   let managerSize;
@@ -156,7 +155,7 @@
             <AppObjectList
               list={objectList.map(x => ({ ...x, conid, database }))}
               module={databaseObjectAppObject}
-              groupFunc={data => _.startCase(data.objectTypeField)}
+              groupFunc={data => getObjectTypeFieldLabel(data.objectTypeField)}
               isExpandable={data => data.objectTypeField == 'tables' || data.objectTypeField == 'views'}
               filter={objectsFilter}
               disableContextMenu
@@ -215,8 +214,8 @@
 
                   <FormCheckboxField label="Truncate tables (delete all rows)" name="truncate" />
 
-                  {#each ['View', 'MatView', 'Procedure', 'Function', 'Trigger'] as objtype}
-                    <div class="obj-heading">{OBJ_TYPE_LABELS[objtype] || objtype}s</div>
+                  {#each ['View', 'Matview', 'Procedure', 'Function', 'Trigger'] as objtype}
+                    <div class="obj-heading">{getObjectTypeFieldLabel(objtype.toLowerCase() + 's')}s</div>
                     <FormCheckboxField label="Create" name={`create${objtype}s`} />
                     <FormCheckboxField label="Drop" name={`drop${objtype}s`} />
                     {#if values[`drop${objtype}s`]}

@@ -30,6 +30,10 @@ interface SqlGeneratorOptions {
   checkIfViewExists: boolean;
   createViews: boolean;
 
+  dropMatviews: boolean;
+  checkIfMatviewExists: boolean;
+  createMatviews: boolean;
+
   dropProcedures: boolean;
   checkIfProcedureExists: boolean;
   createProcedures: boolean;
@@ -52,6 +56,7 @@ interface SqlGeneratorObject {
 export class SqlGenerator {
   private tables: TableInfo[];
   private views: ViewInfo[];
+  private matviews: ViewInfo[];
   private procedures: ProcedureInfo[];
   private functions: FunctionInfo[];
   private triggers: TriggerInfo[];
@@ -70,6 +75,7 @@ export class SqlGenerator {
     this.dbinfo = extendDatabaseInfo(dbinfo);
     this.tables = this.extract('tables');
     this.views = this.extract('views');
+    this.matviews = this.extract('matviews');
     this.procedures = this.extract('procedures');
     this.functions = this.extract('functions');
     this.triggers = this.extract('triggers');
@@ -89,6 +95,8 @@ export class SqlGenerator {
       this.dropObjects(this.functions, 'Function');
       if (this.checkDumper()) return;
       this.dropObjects(this.views, 'View');
+      if (this.checkDumper()) return;
+      this.dropObjects(this.matviews, 'Matview');
       if (this.checkDumper()) return;
       this.dropObjects(this.triggers, 'Trigger');
       if (this.checkDumper()) return;
@@ -113,6 +121,8 @@ export class SqlGenerator {
       this.createObjects(this.functions, 'Function');
       if (this.checkDumper()) return;
       this.createObjects(this.views, 'View');
+      if (this.checkDumper()) return;
+      this.createObjects(this.matviews, 'Matview');
       if (this.checkDumper()) return;
       this.createObjects(this.triggers, 'Trigger');
       if (this.checkDumper()) return;

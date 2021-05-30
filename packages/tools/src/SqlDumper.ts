@@ -293,6 +293,20 @@ export class SqlDumper {
   changeViewSchema(obj: ViewInfo, newSchema: string) {}
   renameView(obj: ViewInfo, newSchema: string) {}
 
+  createMatview(obj: ViewInfo) {
+    this.putRaw(obj.createSql);
+    this.endCommand();
+  }
+  dropMatview(obj: ViewInfo, { testIfExists = false }) {
+    this.putCmd('^drop ^materialized ^view  %f', obj);
+  }
+  alterMatview(obj: ViewInfo) {
+    this.putRaw(obj.createSql.replace(/create\s+view/i, 'ALTER VIEW'));
+    this.endCommand();
+  }
+  changeMatviewSchema(obj: ViewInfo, newSchema: string) {}
+  renameMatview(obj: ViewInfo, newSchema: string) {}
+
   createProcedure(obj: ProcedureInfo) {
     this.putRaw(obj.createSql);
     this.endCommand();

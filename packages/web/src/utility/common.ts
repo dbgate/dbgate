@@ -1,4 +1,5 @@
 import { openedTabs } from '../stores';
+import _ from 'lodash';
 
 export class LoadingToken {
   isCanceled = false;
@@ -25,4 +26,9 @@ export function setSelectedTabFunc(files, tabid) {
 
 export function setSelectedTab(tabid) {
   openedTabs.update(tabs => setSelectedTabFunc(tabs, tabid));
+}
+
+export function getObjectTypeFieldLabel(objectTypeField) {
+  if (objectTypeField == 'matviews') return 'Materialized Views';
+  return _.startCase(objectTypeField);
 }
