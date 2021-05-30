@@ -15,11 +15,11 @@ const obj1Match = expect.objectContaining({
 });
 const view1Match = expect.objectContaining({
   pureName: 'obj1',
-  columns: [
+  columns: expect.arrayContaining([
     expect.objectContaining({
       columnName: 'id',
     }),
-  ],
+  ]),
 });
 
 describe('Object analyse', () => {

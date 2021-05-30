@@ -101,7 +101,7 @@ const engines = [
       port: 15003,
     },
     skipOnCI: true,
-    objects: [views],
+    objects: [views, matviews],
   },
 ];
 

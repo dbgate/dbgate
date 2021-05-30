@@ -41,6 +41,10 @@ const cockroachDriver = {
   engine: 'cockroach@dbgate-plugin-postgres',
   title: 'CockroachDB',
   defaultPort: 26257,
+  dialect: {
+    ...dialect,
+    materializedViews: true,
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
