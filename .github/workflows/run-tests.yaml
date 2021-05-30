@@ -1,4 +1,4 @@
-name: Integration tests
+name: Run tests
 on:
   push:
     branches:
@@ -20,16 +20,27 @@ jobs:
       - name: yarn install
         run: |
           yarn install
-      - name: Run tests
+      - name: Integration tests
         run: |
           cd integration-tests
           yarn test:ci
 #          yarn wait:ci
+      - name: Filter parser tests
+        run: |
+          cd packages/filterparser
+          yarn test:ci
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: integration-tests/result.json
+          action: Integration tests
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: packages/filterparser/result.json
+          action: Filter parser tests
 
     services:
       postgres:

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc --watch",
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults"
   },
   "files": [
     "lib"
