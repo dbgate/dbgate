@@ -1,3 +1,5 @@
+import { SplitterOptions, defaultSplitterOptions } from './options';
+
 const SINGLE_QUOTE = "'";
 const DOUBLE_QUOTE = '"';
 const BACKTICK = '`';
@@ -8,14 +10,13 @@ const SEMICOLON = ';';
 const LINE_FEED = '\n';
 const DELIMITER_KEYWORD = 'DELIMITER';
 
-export interface SplitQueryOptions {}
-
 interface SplitExecutionContext {
-  options: SplitQueryOptions;
+  options: SplitterOptions;
   unread: string;
   currentDelimiter: string;
   currentStatement: string;
   output: string[];
+  semicolonKeyTokenRegex: RegExp;
 }
 
 interface FindExpResult {
@@ -35,7 +36,7 @@ const newLineRegex = /(?:[\r\n]+|$)/;
 const delimiterStartRegex = /(?:^|[\n\r]+)[ \f\t\v]*DELIMITER[ \t]+/i;
 // Best effort only, unable to find a syntax specification on delimiter
 const delimiterTokenRegex = /^(?:'(.+)'|"(.+)"|`(.+)`|([^\s]+))/;
-const semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON);
+// const semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON);
 const quoteEndRegexDict: Record<string, RegExp> = {
   [SINGLE_QUOTE]: singleQuoteStringEndRegex,
   [DOUBLE_QUOTE]: doubleQuoteStringEndRegex,
@@ -46,19 +47,22 @@ function escapeRegex(value: string): string {
   return value.replace(regexEscapeSetRegex, '\\$&');
 }
 
-function buildKeyTokenRegex(delimiter: string): RegExp {
+function buildKeyTokenRegex(delimiter: string, context: SplitExecutionContext): RegExp {
+  const { options } = context;
   return new RegExp(
     '(?:' +
       [
         escapeRegex(delimiter),
         SINGLE_QUOTE,
         DOUBLE_QUOTE,
-        BACKTICK,
+        options.allowBacktickString ? BACKTICK : undefined,
         doubleDashCommentStartRegex.source,
         HASH_COMMENT_START,
         cStyleCommentStartRegex.source,
-        delimiterStartRegex.source,
-      ].join('|') +
+        options.allowCustomDelimiter ? delimiterStartRegex.source : undefined,
+      ]
+        .filter(x => x !== undefined)
+        .join('|') +
       ')',
     'i'
   );
@@ -83,12 +87,12 @@ function findExp(content: string, regex: RegExp): FindExpResult {
   return result;
 }
 
-function findKeyToken(content: string, currentDelimiter: string): FindExpResult {
+function findKeyToken(content: string, currentDelimiter: string, context: SplitExecutionContext): FindExpResult {
   let regex;
   if (currentDelimiter === SEMICOLON) {
-    regex = semicolonKeyTokenRegex;
+    regex = context.semicolonKeyTokenRegex;
   } else {
-    regex = buildKeyTokenRegex(currentDelimiter);
+    regex = buildKeyTokenRegex(currentDelimiter, context);
   }
   return findExp(content, regex);
 }
@@ -187,14 +191,19 @@ function handleKeyTokenFindResult(context: SplitExecutionContext, findResult: Fi
   }
 }
 
-export function splitQuery(sql: string, options: SplitQueryOptions = {}): string[] {
+export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
   const context: SplitExecutionContext = {
     unread: sql,
     currentDelimiter: SEMICOLON,
     currentStatement: '',
     output: [],
-    options,
+    semicolonKeyTokenRegex: null,
+    options: {
+      ...defaultSplitterOptions,
+      ...options,
+    },
   };
+  context.semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON, context);
   let findResult: FindExpResult = {
     expIndex: -1,
     exp: null,
@@ -204,7 +213,7 @@ export function splitQuery(sql: string, options: SplitQueryOptions = {}): string
   do {
     // console.log('context.unread', context.unread);
     lastUnreadLength = context.unread.length;
-    findResult = findKeyToken(context.unread, context.currentDelimiter);
+    findResult = findKeyToken(context.unread, context.currentDelimiter, context);
     handleKeyTokenFindResult(context, findResult);
     // Prevent infinite loop by returning incorrect result
     if (lastUnreadLength === context.unread.length) {
