@@ -1,226 +1,182 @@
 import { SplitterOptions, defaultSplitterOptions } from './options';
 
-const SINGLE_QUOTE = "'";
-const DOUBLE_QUOTE = '"';
-const BACKTICK = '`';
-const DOUBLE_DASH_COMMENT_START = '--';
-const HASH_COMMENT_START = '#';
-const C_STYLE_COMMENT_START = '/*';
 const SEMICOLON = ';';
-const LINE_FEED = '\n';
-const DELIMITER_KEYWORD = 'DELIMITER';
 
 interface SplitExecutionContext {
   options: SplitterOptions;
-  unread: string;
+  source: string;
+  position: number;
   currentDelimiter: string;
-  currentStatement: string;
   output: string[];
-  semicolonKeyTokenRegex: RegExp;
+  end: number;
+  wasDataOnLine: boolean;
+  currentCommandStart: number;
+
+  //   unread: string;
+  //   currentStatement: string;
+  //   semicolonKeyTokenRegex: RegExp;
 }
 
-interface FindExpResult {
-  expIndex: number;
-  exp: string | null;
-  nextIndex: number;
+function isStringEnd(s: string, pos: number, endch: string, escapech: string) {
+  if (!escapech) {
+    return s[pos] == endch;
+  }
+  if (endch == escapech) {
+    return s[pos] == endch && s[pos + 1] != endch;
+  } else {
+    return s[pos] == endch && s[pos - 1] != escapech;
+  }
 }
 
-const regexEscapeSetRegex = /[-/\\^$*+?.()|[\]{}]/g;
-const singleQuoteStringEndRegex = /(?<!\\)'/;
-const doubleQuoteStringEndRegex = /(?<!\\)"/;
-const backtickQuoteEndRegex = /(?<!`)`(?!`)/;
-const doubleDashCommentStartRegex = /--[ \f\n\r\t\v]/;
-const cStyleCommentStartRegex = /\/\*/;
-const cStyleCommentEndRegex = /(?<!\/)\*\//;
-const newLineRegex = /(?:[\r\n]+|$)/;
-const delimiterStartRegex = /(?:^|[\n\r]+)[ \f\t\v]*DELIMITER[ \t]+/i;
-// Best effort only, unable to find a syntax specification on delimiter
-const delimiterTokenRegex = /^(?:'(.+)'|"(.+)"|`(.+)`|([^\s]+))/;
-// const semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON);
-const quoteEndRegexDict: Record<string, RegExp> = {
-  [SINGLE_QUOTE]: singleQuoteStringEndRegex,
-  [DOUBLE_QUOTE]: doubleQuoteStringEndRegex,
-  [BACKTICK]: backtickQuoteEndRegex,
+interface Token {
+  type: 'string' | 'delimiter' | 'whitespace' | 'eoln' | 'data' | 'set_delimiter';
+  length: number;
+  value?: string;
+}
+
+const WHITESPACE_TOKEN: Token = {
+  type: 'whitespace',
+  length: 1,
+};
+const EOLN_TOKEN: Token = {
+  type: 'eoln',
+  length: 1,
+};
+const DATA_TOKEN: Token = {
+  type: 'data',
+  length: 1,
 };
 
-function escapeRegex(value: string): string {
-  return value.replace(regexEscapeSetRegex, '\\$&');
-}
+function scanToken(context: SplitExecutionContext): Token {
+  let pos = context.position;
+  const s = context.source;
+  const ch = s[pos];
 
-function buildKeyTokenRegex(delimiter: string, context: SplitExecutionContext): RegExp {
-  const { options } = context;
-  return new RegExp(
-    '(?:' +
-      [
-        escapeRegex(delimiter),
-        SINGLE_QUOTE,
-        DOUBLE_QUOTE,
-        options.allowBacktickString ? BACKTICK : undefined,
-        doubleDashCommentStartRegex.source,
-        HASH_COMMENT_START,
-        cStyleCommentStartRegex.source,
-        options.allowCustomDelimiter ? delimiterStartRegex.source : undefined,
-      ]
-        .filter(x => x !== undefined)
-        .join('|') +
-      ')',
-    'i'
-  );
-}
-
-function findExp(content: string, regex: RegExp): FindExpResult {
-  const match = content.match(regex);
-  let result: FindExpResult;
-  if (match?.index !== undefined) {
-    result = {
-      expIndex: match.index,
-      exp: match[0],
-      nextIndex: match.index + match[0].length,
-    };
-  } else {
-    result = {
-      expIndex: -1,
-      exp: null,
-      nextIndex: content.length,
-    };
-  }
-  return result;
-}
-
-function findKeyToken(content: string, currentDelimiter: string, context: SplitExecutionContext): FindExpResult {
-  let regex;
-  if (currentDelimiter === SEMICOLON) {
-    regex = context.semicolonKeyTokenRegex;
-  } else {
-    regex = buildKeyTokenRegex(currentDelimiter, context);
-  }
-  return findExp(content, regex);
-}
-
-function findEndQuote(content: string, quote: string): FindExpResult {
-  if (!(quote in quoteEndRegexDict)) {
-    throw new TypeError(`Incorrect quote ${quote} supplied`);
-  }
-  return findExp(content, quoteEndRegexDict[quote]);
-}
-
-function read(context: SplitExecutionContext, readToIndex: number, nextUnreadIndex?: number): void {
-  const readContent = context.unread.slice(0, readToIndex);
-  context.currentStatement += readContent;
-  if (nextUnreadIndex !== undefined && nextUnreadIndex > 0) {
-    context.unread = context.unread.slice(nextUnreadIndex);
-  } else {
-    context.unread = context.unread.slice(readToIndex);
-  }
-}
-
-function readTillNewLine(context: SplitExecutionContext): void {
-  const findResult = findExp(context.unread, newLineRegex);
-  read(context, findResult.expIndex, findResult.expIndex);
-}
-
-function discard(context: SplitExecutionContext, nextUnreadIndex: number): void {
-  if (nextUnreadIndex > 0) {
-    context.unread = context.unread.slice(nextUnreadIndex);
-  }
-}
-
-function discardTillNewLine(context: SplitExecutionContext): void {
-  const findResult = findExp(context.unread, newLineRegex);
-  discard(context, findResult.expIndex);
-}
-
-function publishStatement(context: SplitExecutionContext): void {
-  const trimmed = context.currentStatement.trim();
-  if (trimmed) {
-    context.output.push(trimmed);
-  }
-  context.currentStatement = '';
-}
-
-function handleKeyTokenFindResult(context: SplitExecutionContext, findResult: FindExpResult): void {
-  switch (findResult.exp?.trim()) {
-    case context.currentDelimiter:
-      read(context, findResult.expIndex, findResult.nextIndex);
-      publishStatement(context);
-      break;
-    case SINGLE_QUOTE:
-    case DOUBLE_QUOTE:
-    case BACKTICK: {
-      read(context, findResult.nextIndex);
-      const findQuoteResult = findEndQuote(context.unread, findResult.exp);
-      read(context, findQuoteResult.nextIndex, undefined);
-      break;
-    }
-    case DOUBLE_DASH_COMMENT_START: {
-      read(context, findResult.nextIndex);
-      readTillNewLine(context);
-      break;
-    }
-    case HASH_COMMENT_START: {
-      read(context, findResult.nextIndex);
-      readTillNewLine(context);
-      break;
-    }
-    case C_STYLE_COMMENT_START: {
-      read(context, findResult.nextIndex);
-      const findCommentResult = findExp(context.unread, cStyleCommentEndRegex);
-      read(context, findCommentResult.nextIndex);
-      break;
-    }
-    case DELIMITER_KEYWORD: {
-      read(context, findResult.expIndex, findResult.nextIndex);
-      // MySQL client will return `DELIMITER cannot contain a backslash character` if backslash is used
-      // Shall we reject backslash as well?
-      const matched = context.unread.match(delimiterTokenRegex);
-      if (matched?.index !== undefined) {
-        context.currentDelimiter = matched[0].trim();
-        discard(context, matched[0].length);
+  if (context.options.stringsBegins.includes(ch)) {
+    pos++;
+    const endch = context.options.stringsEnds[ch];
+    const escapech = context.options.stringEscapes[ch];
+    while (pos < context.end && !isStringEnd(s, pos, endch, escapech)) {
+      if (endch == escapech && s[pos] == endch && s[pos + 1] == endch) {
+        pos += 2;
+      } else {
+        pos++;
       }
-      discardTillNewLine(context);
-      break;
     }
-    case undefined:
-    case null:
-      read(context, findResult.nextIndex);
-      publishStatement(context);
-      break;
-    default:
-      // This should never happen
-      throw new Error(`Unknown token '${findResult.exp ?? '(null)'}'`);
+    return {
+      type: 'string',
+      length: pos - context.position + 1,
+    };
   }
+
+  if (context.currentDelimiter && s.slice(pos).startsWith(context.currentDelimiter)) {
+    return {
+      type: 'delimiter',
+      length: context.currentDelimiter.length,
+    };
+  }
+
+  if (ch == ' ' || ch == '\t' || ch == '\r') {
+    return WHITESPACE_TOKEN;
+  }
+
+  if (ch == '\n') {
+    return EOLN_TOKEN;
+  }
+  if (context.options.allowCustomDelimiter && !context.wasDataOnLine) {
+    const m = s.slice(pos).match(/^DELIMITER[ \t]+([^\n]+)/i);
+    if (m) {
+      return {
+        type: 'set_delimiter',
+        value: m[1].trim(),
+        length: m[0].length,
+      };
+    }
+  }
+
+  return DATA_TOKEN;
+}
+
+function pushQuery(context) {
+  const sql = context.source.slice(context.currentCommandStart, context.position);
+  const trimmed = sql.trim();
+  if (trimmed) context.output.push(trimmed);
 }
 
 export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
   const context: SplitExecutionContext = {
-    unread: sql,
-    currentDelimiter: SEMICOLON,
-    currentStatement: '',
+    source: sql,
+    end: sql.length,
+    currentDelimiter: options?.allowSemicolon === false ? null : SEMICOLON,
+    position: 0,
+    currentCommandStart: 0,
     output: [],
-    semicolonKeyTokenRegex: null,
+    wasDataOnLine: false,
     options: {
       ...defaultSplitterOptions,
       ...options,
     },
   };
-  context.semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON, context);
-  let findResult: FindExpResult = {
-    expIndex: -1,
-    exp: null,
-    nextIndex: 0,
-  };
-  let lastUnreadLength;
-  do {
-    // console.log('context.unread', context.unread);
-    lastUnreadLength = context.unread.length;
-    findResult = findKeyToken(context.unread, context.currentDelimiter, context);
-    handleKeyTokenFindResult(context, findResult);
-    // Prevent infinite loop by returning incorrect result
-    if (lastUnreadLength === context.unread.length) {
-      read(context, context.unread.length);
+
+  while (context.position < context.end) {
+    const token = scanToken(context);
+    if (!token) {
+      // nothing special, move forward
+      context.position += 1;
+      continue;
     }
-  } while (context.unread !== '');
-  publishStatement(context);
+    switch (token.type) {
+      case 'string':
+        context.position += token.length;
+        context.wasDataOnLine = true;
+        break;
+      case 'eoln':
+        context.position += token.length;
+        context.wasDataOnLine = false;
+        break;
+      case 'data':
+        context.position += token.length;
+        context.wasDataOnLine = true;
+        break;
+      case 'whitespace':
+        context.position += token.length;
+        break;
+      case 'set_delimiter':
+        context.currentDelimiter = token.value;
+        context.position += token.length;
+        break;
+      case 'delimiter':
+        pushQuery(context);
+        context.position += token.length;
+        context.currentCommandStart = context.position;
+        break;
+    }
+  }
+
+  if (context.end > context.currentCommandStart) {
+    pushQuery(context);
+  }
+
+  //   context.semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON, context);
+  //   let findResult: FindExpResult = {
+  //     expIndex: -1,
+  //     exp: null,
+  //     nextIndex: 0,
+  //   };
+  //   let lastUnreadLength;
+  //   do {
+  //     // console.log('context.unread', context.unread);
+  //     lastUnreadLength = context.unread.length;
+  //     findResult = findKeyToken(context.unread, context.currentDelimiter, context);
+  //     handleKeyTokenFindResult(context, findResult);
+  //     // Prevent infinite loop by returning incorrect result
+  //     if (lastUnreadLength === context.unread.length) {
+  //       read(context, context.unread.length);
+  //     }
+  //   } while (context.unread !== '');
+  //   publishStatement(context);
+
   // console.log('RESULT', context.output);
+  
   return context.output;
 }

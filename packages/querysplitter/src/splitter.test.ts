@@ -1,4 +1,4 @@
-import { mysqlSplitterOptions } from './options';
+import { mysqlSplitterOptions, mssqlSplitterOptions } from './options';
 import { splitQuery } from './splitQuery';
 
 test('simple query', () => {
@@ -28,7 +28,16 @@ test('should handle double backtick', () => {
 });
 
 test('semicolon inside string', () => {
-  const input = ['CREATE TABLE [a;1]', "INSERT INTO [a;1] (x) VALUES ('1;2;3;4')"];
+  const input = ['CREATE TABLE a', "INSERT INTO a (x) VALUES ('1;2;3;4')"];
   const output = splitQuery(input.join(';\n') + ';', mysqlSplitterOptions);
+  expect(output).toEqual(input);
+});
+
+test('semicolon inside identyifier - mssql', () => {
+  const input = ['CREATE TABLE [a;1]', "INSERT INTO [a;1] (x) VALUES ('1')"];
+  const output = splitQuery(input.join(';\n') + ';', {
+    ...mssqlSplitterOptions,
+    allowSemicolon: true,
+  });
   expect(output).toEqual(input);
 });

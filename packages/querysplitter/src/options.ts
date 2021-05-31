@@ -1,6 +1,8 @@
 export interface SplitterOptions {
-  allowBacktickString: boolean;
-  allowIndexParenString: boolean;
+  stringsBegins: string[];
+  stringsEnds: { string: string };
+  stringEscapes: string[];
+
   allowSemicolon: boolean;
   allowCustomDelimiter: boolean;
   allowGoDelimiter: boolean;
@@ -8,28 +10,39 @@ export interface SplitterOptions {
 }
 
 export const defaultSplitterOptions = {
-  allowBacktickString: false,
+  stringsBegins: ["'"],
+  stringsEnds: { "'": "'" },
+  stringEscapes: { "'": "'" },
+
   allowSemicolon: true,
   allowCustomDelimiter: false,
   allowGoDelimiter: false,
-  allowDollarDollarString: false,
-  allowIndexParenString: false,
 };
 
 export const mysqlSplitterOptions = {
   ...defaultSplitterOptions,
-  allowCustomDelimiter: true,
-  allowBacktickString: true,
+
+  stringsBegins: ["'", '`'],
+  stringsEnds: { "'": "'", '`': '`' },
+  stringEscapes: { "'": '\\', '`': '`' },
 };
 
 export const mssqlSplitterOptions = {
   ...defaultSplitterOptions,
   allowSemicolon: false,
   allowGoDelimiter: true,
-  allowIndexParenString: true,
+
+  stringsBegins: ["'", '['],
+  stringsEnds: { "'": "'", '[': ']' },
+  stringEscapes: { "'": "'" },
 };
 
 export const postgreSplitterOptions = {
   ...defaultSplitterOptions,
+
   allowDollarDollarString: true,
+
+  stringsBegins: ["'", '"'],
+  stringsEnds: { "'": "'", '"': '"' },
+  stringEscapes: { "'": "'", '"': '"' },
 };
