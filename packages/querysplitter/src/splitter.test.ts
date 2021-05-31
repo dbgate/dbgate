@@ -41,3 +41,9 @@ test('semicolon inside identyifier - mssql', () => {
   });
   expect(output).toEqual(input);
 });
+
+test('delimiter test', () => {
+  const input = 'SELECT 1;\n DELIMITER $$\n SELECT 2; SELECT 3; \n DELIMITER ;';
+  const output = splitQuery(input, mysqlSplitterOptions);
+  expect(output).toEqual(['SELECT 1', 'SELECT 2; SELECT 3;']);
+});

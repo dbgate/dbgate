@@ -1,7 +1,7 @@
 export interface SplitterOptions {
   stringsBegins: string[];
-  stringsEnds: { string: string };
-  stringEscapes: string[];
+  stringsEnds: { [begin: string]: string };
+  stringEscapes: { [begin: string]: string };
 
   allowSemicolon: boolean;
   allowCustomDelimiter: boolean;
@@ -9,7 +9,7 @@ export interface SplitterOptions {
   allowDollarDollarString: boolean;
 }
 
-export const defaultSplitterOptions = {
+export const defaultSplitterOptions: SplitterOptions = {
   stringsBegins: ["'"],
   stringsEnds: { "'": "'" },
   stringEscapes: { "'": "'" },
@@ -17,17 +17,19 @@ export const defaultSplitterOptions = {
   allowSemicolon: true,
   allowCustomDelimiter: false,
   allowGoDelimiter: false,
+  allowDollarDollarString: false,
 };
 
-export const mysqlSplitterOptions = {
+export const mysqlSplitterOptions: SplitterOptions = {
   ...defaultSplitterOptions,
 
+  allowCustomDelimiter: true,
   stringsBegins: ["'", '`'],
   stringsEnds: { "'": "'", '`': '`' },
   stringEscapes: { "'": '\\', '`': '`' },
 };
 
-export const mssqlSplitterOptions = {
+export const mssqlSplitterOptions: SplitterOptions = {
   ...defaultSplitterOptions,
   allowSemicolon: false,
   allowGoDelimiter: true,
@@ -37,7 +39,7 @@ export const mssqlSplitterOptions = {
   stringEscapes: { "'": "'" },
 };
 
-export const postgreSplitterOptions = {
+export const postgreSplitterOptions: SplitterOptions = {
   ...defaultSplitterOptions,
 
   allowDollarDollarString: true,

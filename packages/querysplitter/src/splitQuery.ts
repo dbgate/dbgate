@@ -142,8 +142,10 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
         context.position += token.length;
         break;
       case 'set_delimiter':
+        pushQuery(context);
         context.currentDelimiter = token.value;
         context.position += token.length;
+        context.currentCommandStart = context.position;
         break;
       case 'delimiter':
         pushQuery(context);
@@ -177,6 +179,6 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
   //   publishStatement(context);
 
   // console.log('RESULT', context.output);
-  
+
   return context.output;
 }
