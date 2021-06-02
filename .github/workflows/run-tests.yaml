@@ -51,7 +51,7 @@ jobs:
         if: always()
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/querysplitter/result.json
+          result-file: packages/query-splitter/result.json
           action-name: Query splitter test results
 
     services:
