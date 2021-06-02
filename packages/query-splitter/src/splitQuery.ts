@@ -47,6 +47,30 @@ const DATA_TOKEN: Token = {
   length: 1,
 };
 
+function scanDollarQuotedString(context: SplitExecutionContext): Token {
+  if (!context.options.allowDollarDollarString) return null;
+
+  let pos = context.position;
+  const s = context.source;
+
+  const match = /^(\$[a-zA-Z0-9_]*\$)/.exec(s.slice(pos));
+  if (!match) return null;
+  const label = match[1];
+  pos += label.length;
+
+  while (pos < context.end) {
+    if (s.slice(pos).startsWith(label)) {
+      return {
+        type: 'string',
+        length: pos + label.length - context.position,
+      };
+    }
+    pos++;
+  }
+
+  return null;
+}
+
 function scanToken(context: SplitExecutionContext): Token {
   let pos = context.position;
   const s = context.source;
@@ -114,6 +138,9 @@ function scanToken(context: SplitExecutionContext): Token {
       };
     }
   }
+
+  const dollarString = scanDollarQuotedString(context);
+  if (dollarString) return dollarString;
 
   return DATA_TOKEN;
 }
