@@ -29,7 +29,7 @@ function isStringEnd(s: string, pos: number, endch: string, escapech: string) {
 }
 
 interface Token {
-  type: 'string' | 'delimiter' | 'whitespace' | 'eoln' | 'data' | 'set_delimiter' | 'comment';
+  type: 'string' | 'delimiter' | 'whitespace' | 'eoln' | 'data' | 'set_delimiter' | 'comment' | 'go_delimiter';
   length: number;
   value?: string;
 }
@@ -139,6 +139,16 @@ function scanToken(context: SplitExecutionContext): Token {
     }
   }
 
+  if (context.options.allowGoDelimiter && !context.wasDataOnLine) {
+    const m = s.slice(pos).match(/^GO[\t\r ]*(\n|$)/i);
+    if (m) {
+      return {
+        type: 'go_delimiter',
+        length: m[0].length - 1,
+      };
+    }
+  }
+
   const dollarString = scanDollarQuotedString(context);
   if (dollarString) return dollarString;
 
@@ -196,6 +206,11 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
       case 'set_delimiter':
         pushQuery(context);
         context.currentDelimiter = token.value;
+        context.position += token.length;
+        context.currentCommandStart = context.position;
+        break;
+      case 'go_delimiter':
+        pushQuery(context);
         context.position += token.length;
         context.currentCommandStart = context.position;
         break;

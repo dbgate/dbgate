@@ -65,3 +65,9 @@ test('dollar string', () => {
   const output = splitQuery(input, postgreSplitterOptions);
   expect(output).toEqual(['CREATE PROC $$ SELECT 1; SELECT 2; $$', 'SELECT 3']);
 });
+
+test('go delimiter', () => {
+  const input = 'SELECT 1\ngo\nSELECT 2';
+  const output = splitQuery(input, mssqlSplitterOptions);
+  expect(output).toEqual(['SELECT 1', 'SELECT 2']);
+});
