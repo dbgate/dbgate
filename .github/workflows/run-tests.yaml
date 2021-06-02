@@ -33,7 +33,7 @@ jobs:
       - name: Query spliiter tests
         if: always()
         run: |
-          cd packages/querysplitter
+          cd packages/query-splitter
           yarn test:ci
       - uses: tanmen/jest-reporter@v1
         if: always()
