@@ -29,7 +29,7 @@ function isStringEnd(s: string, pos: number, endch: string, escapech: string) {
 }
 
 interface Token {
-  type: 'string' | 'delimiter' | 'whitespace' | 'eoln' | 'data' | 'set_delimiter';
+  type: 'string' | 'delimiter' | 'whitespace' | 'eoln' | 'data' | 'set_delimiter' | 'comment';
   length: number;
   value?: string;
 }
@@ -83,6 +83,27 @@ function scanToken(context: SplitExecutionContext): Token {
   if (ch == '\n') {
     return EOLN_TOKEN;
   }
+
+  if (ch == '-' && s[pos + 1] == '-') {
+    while (pos < context.end && s[pos] != '\n') pos++;
+    return {
+      type: 'comment',
+      length: pos - context.position,
+    };
+  }
+
+  if (ch == '/' && s[pos + 1] == '*') {
+    pos += 2;
+    while (pos < context.end) {
+      if (s[pos] == '*' && s[pos + 1] == '/') break;
+      pos++;
+    }
+    return {
+      type: 'comment',
+      length: pos - context.position + 2,
+    };
+  }
+
   if (context.options.allowCustomDelimiter && !context.wasDataOnLine) {
     const m = s.slice(pos).match(/^DELIMITER[ \t]+([^\n]+)/i);
     if (m) {
@@ -127,6 +148,10 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
     }
     switch (token.type) {
       case 'string':
+        context.position += token.length;
+        context.wasDataOnLine = true;
+        break;
+      case 'comment':
         context.position += token.length;
         context.wasDataOnLine = true;
         break;

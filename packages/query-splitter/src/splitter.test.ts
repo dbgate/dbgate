@@ -47,3 +47,15 @@ test('delimiter test', () => {
   const output = splitQuery(input, mysqlSplitterOptions);
   expect(output).toEqual(['SELECT 1', 'SELECT 2; SELECT 3;']);
 });
+
+test('one line comment test', () => {
+  const input = 'SELECT 1 -- comment1;comment2\n;SELECT 2';
+  const output = splitQuery(input, mysqlSplitterOptions);
+  expect(output).toEqual(['SELECT 1 -- comment1;comment2', 'SELECT 2']);
+});
+
+test('multi line comment test', () => {
+  const input = 'SELECT 1 /* comment1;comment2\ncomment3*/;SELECT 2';
+  const output = splitQuery(input, mysqlSplitterOptions);
+  expect(output).toEqual(['SELECT 1 /* comment1;comment2\ncomment3*/', 'SELECT 2']);
+});
