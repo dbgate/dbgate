@@ -12,6 +12,10 @@ export interface StreamOptions {
   info?: (info) => void;
 }
 
+export interface QueryOptions {
+  discardResult?: boolean;
+}
+
 export interface WriteTableOptions {
   dropIfExists?: boolean;
   truncate?: boolean;
@@ -45,7 +49,7 @@ export interface EngineDriver {
   databaseUrlPlaceholder?: string;
   connect({ server, port, user, password, database }): Promise<any>;
   close(pool): Promise<any>;
-  query(pool: any, sql: string): Promise<QueryResult>;
+  query(pool: any, sql: string, options?: QueryOptions): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
   readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
   writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writeable>;
@@ -73,6 +77,8 @@ export interface EngineDriver {
   updateCollection(pool: any, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any): string;
   createDatabase(pool: any, name: string): Promise;
+  getQuerySplitterOptions(usage: 'stream' | 'script'): any;
+  script(pool: any, sql: string): Promise;
 
   analyserClass?: any;
   dumperClass?: any;

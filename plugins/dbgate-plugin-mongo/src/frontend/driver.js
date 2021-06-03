@@ -1,5 +1,6 @@
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
+const { noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 const mongoIdRegex = /^[0-9a-f]{24}$/;
 
@@ -33,6 +34,8 @@ const driver = {
   defaultPort: 27017,
   supportsDatabaseUrl: true,
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
+
+  getQuerySplitterOptions: () => noSplitSplitterOptions,
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;

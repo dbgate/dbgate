@@ -4,7 +4,6 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
-const mysqlSplitter = require('@verycrazydog/mysql-parser');
 
 function extractColumns(fields) {
   if (fields) {
@@ -24,18 +23,49 @@ function zipDataRow(rowArray, columns) {
   );
 }
 
-async function runQueryItem(connection, sql) {
-  return new Promise((resolve, reject) => {
-    connection.query(sql, function (error, results, fields) {
-      if (error) reject(error);
-      const columns = extractColumns(fields);
-      resolve({ rows: results && columns && results.map && results.map(row => zipDataRow(row, columns)), columns });
-    });
-  });
-}
+/** @type {import('dbgate-types').EngineDriver} */
+const drivers = driverBases.map(driverBase => ({
+  ...driverBase,
+  analyserClass: Analyser,
 
-async function runStreamItem(connection, sql, options) {
-  return new Promise((resolve, reject) => {
+  async connect({ server, port, user, password, database, ssl }) {
+    const connection = mysql2.createConnection({
+      host: server,
+      port,
+      user,
+      password,
+      database,
+      ssl,
+      rowsAsArray: true,
+      supportBigNumbers: true,
+      bigNumberStrings: true,
+      // TODO: test following options
+      // multipleStatements: true,
+      // dateStrings: true,
+    });
+    connection._database_name = database;
+    return connection;
+  },
+  async close(pool) {
+    return pool.close();
+  },
+  query(connection, sql) {
+    if (sql == null) {
+      return {
+        rows: [],
+        columns: [],
+      };
+    }
+
+    return new Promise((resolve, reject) => {
+      connection.query(sql, function (error, results, fields) {
+        if (error) reject(error);
+        const columns = extractColumns(fields);
+        resolve({ rows: results && columns && results.map && results.map(row => zipDataRow(row, columns)), columns });
+      });
+    });
+  },
+  async stream(connection, sql, options) {
     const query = connection.query(sql);
     let columns = [];
 
@@ -51,7 +81,7 @@ async function runStreamItem(connection, sql, options) {
     // };
 
     const handleEnd = () => {
-      resolve();
+      options.done();
     };
 
     const handleRow = row => {
@@ -86,64 +116,6 @@ async function runStreamItem(connection, sql, options) {
     };
 
     query.on('error', handleError).on('fields', handleFields).on('result', handleRow).on('end', handleEnd);
-  });
-}
-
-/** @type {import('dbgate-types').EngineDriver} */
-const drivers = driverBases.map(driverBase => ({
-  ...driverBase,
-  analyserClass: Analyser,
-
-  async connect({ server, port, user, password, database, ssl }) {
-    const connection = mysql2.createConnection({
-      host: server,
-      port,
-      user,
-      password,
-      database,
-      ssl,
-      rowsAsArray: true,
-      supportBigNumbers: true,
-      bigNumberStrings: true,
-      // TODO: test following options
-      // multipleStatements: true,
-      // dateStrings: true,
-    });
-    connection._database_name = database;
-    return connection;
-  },
-  async close(pool) {
-    return pool.close();
-  },
-  async query(connection, sql) {
-    if (sql == null) {
-      return {
-        rows: [],
-        columns: [],
-      };
-    }
-
-    const sqlSplitted = mysqlSplitter.split(sql);
-    let res = {
-      rows: [],
-      columns: [],
-    };
-    for (const sqlItem of sqlSplitted) {
-      const resultItem = await runQueryItem(connection, sqlItem);
-      if (resultItem.rows && resultItem.columns && resultItem.columns.length > 0) {
-        res = resultItem;
-      }
-    }
-    return res;
-  },
-  async stream(connection, sql, options) {
-    const sqlSplitted = mysqlSplitter.split(sql);
-
-    for (const sqlItem of sqlSplitted) {
-      await runStreamItem(connection, sqlItem, options);
-    }
-
-    options.done();
   },
   async readQuery(connection, sql, structure) {
     const query = connection.query(sql);

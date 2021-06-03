@@ -1,5 +1,6 @@
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
+const { postgreSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
@@ -21,6 +22,7 @@ const postgresDriverBase = {
   dialect,
   showConnectionField: (field, values) =>
     ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+  getQuerySplitterOptions: () => postgreSplitterOptions,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

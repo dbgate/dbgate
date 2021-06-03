@@ -2,7 +2,7 @@ const _ = require('lodash');
 const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
-const { identify } = require('sql-query-identifier');
+const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
 let Database;
@@ -82,13 +82,13 @@ const driver = {
     }
   },
   async stream(client, sql, options) {
-    const sqlSplitted = identify(sql, { dialect: 'sqlite', strict: false });
+    const sqlSplitted = splitQuery(sql, sqliteSplitterOptions);
 
     const rowCounter = { count: 0, date: null };
 
     const inTransaction = client.transaction(() => {
       for (const sqlItem of sqlSplitted) {
-        runStreamItem(client, sqlItem.text, options, rowCounter);
+        runStreamItem(client, sqlItem, options, rowCounter);
       }
 
       if (rowCounter.date) {
@@ -117,6 +117,16 @@ const driver = {
     options.done();
     // return stream;
   },
+  async script(client, sql) {
+    const inTransaction = client.transaction(() => {
+      for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
+        const stmt = client.prepare(sqlItem);
+        stmt.run();
+      }
+    });
+    inTransaction();
+  },
+
   async readQueryTask(stmt, pass) {
     // let sent = 0;
     for (const row of stmt.iterate()) {

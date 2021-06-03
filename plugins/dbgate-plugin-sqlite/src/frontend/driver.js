@@ -1,5 +1,6 @@
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
+const { sqliteSplitterOptions, noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 function getDatabaseFileLabel(databaseFile) {
   if (!databaseFile) return databaseFile;
@@ -34,6 +35,7 @@ const driver = {
     singleDatabase: true,
     defaultDatabase: getDatabaseFileLabel(connection.databaseFile),
   }),
+  getQuerySplitterOptions: (usage) => (usage == 'stream' ? noSplitSplitterOptions : sqliteSplitterOptions),
   // isFileDatabase: true,
   isElectronOnly: true,
 };

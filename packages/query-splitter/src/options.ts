@@ -7,6 +7,7 @@ export interface SplitterOptions {
   allowCustomDelimiter: boolean;
   allowGoDelimiter: boolean;
   allowDollarDollarString: boolean;
+  noSplit: boolean;
 }
 
 export const defaultSplitterOptions: SplitterOptions = {
@@ -18,6 +19,7 @@ export const defaultSplitterOptions: SplitterOptions = {
   allowCustomDelimiter: false,
   allowGoDelimiter: false,
   allowDollarDollarString: false,
+  noSplit: false,
 };
 
 export const mysqlSplitterOptions: SplitterOptions = {
@@ -47,4 +49,18 @@ export const postgreSplitterOptions: SplitterOptions = {
   stringsBegins: ["'", '"'],
   stringsEnds: { "'": "'", '"': '"' },
   stringEscapes: { "'": "'", '"': '"' },
+};
+
+export const sqliteSplitterOptions: SplitterOptions = {
+  ...defaultSplitterOptions,
+
+  stringsBegins: ["'", '"'],
+  stringsEnds: { "'": "'", '"': '"' },
+  stringEscapes: { "'": "'", '"': '"' },
+};
+
+export const noSplitSplitterOptions: SplitterOptions = {
+  ...defaultSplitterOptions,
+
+  noSplit: true,
 };

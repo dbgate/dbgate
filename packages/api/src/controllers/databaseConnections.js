@@ -112,6 +112,14 @@ module.exports = {
     return res;
   },
 
+  runScript_meta: 'post',
+  async runScript({ conid, database, sql }) {
+    console.log(`Processing script, conid=${conid}, database=${database}, sql=${sql}`);
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'runScript', sql });
+    return res;
+  },
+
   collectionData_meta: 'post',
   async collectionData({ conid, database, options }) {
     const opened = await this.ensureOpened(conid, database);

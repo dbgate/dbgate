@@ -64,7 +64,7 @@
 
   async function handleConfirmSql(sql) {
     const resp = await axiosInstance.request({
-      url: 'database-connections/query-data',
+      url: 'database-connections/run-script',
       method: 'post',
       params: {
         conid,

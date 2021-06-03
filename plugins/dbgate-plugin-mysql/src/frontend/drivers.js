@@ -1,4 +1,5 @@
 const { driverBase } = global.DBGATE_TOOLS;
+const { mysqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const Dumper = require('./Dumper');
 
 /** @type {import('dbgate-types').SqlDialect} */
@@ -21,6 +22,7 @@ const mysqlDriverBase = {
   dumperClass: Dumper,
   dialect,
   defaultPort: 3306,
+  getQuerySplitterOptions: () => mysqlSplitterOptions,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

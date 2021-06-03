@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const childProcessChecker = require('../utility/childProcessChecker');
-const goSplit = require('../utility/goSplit');
+const { splitQuery } = require('dbgate-query-splitter');
 
 const { jsldir } = require('../utility/directories');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -166,7 +166,7 @@ async function handleExecuteQuery({ sql }) {
   const resultIndexHolder = {
     value: 0,
   };
-  for (const sqlItem of goSplit(sql)) {
+  for (const sqlItem of splitQuery(sql, driver.getQuerySplitterOptions('stream'))) {
     await handleStream(driver, resultIndexHolder, sqlItem);
     // const handler = new StreamHandler(resultIndex);
     // const stream = await driver.stream(systemConnection, sqlItem, handler);

@@ -1,4 +1,4 @@
-import { mysqlSplitterOptions, mssqlSplitterOptions, postgreSplitterOptions } from './options';
+import { mysqlSplitterOptions, mssqlSplitterOptions, postgreSplitterOptions, noSplitSplitterOptions } from './options';
 import { splitQuery } from './splitQuery';
 
 test('simple query', () => {
@@ -70,4 +70,10 @@ test('go delimiter', () => {
   const input = 'SELECT 1\ngo\nSELECT 2';
   const output = splitQuery(input, mssqlSplitterOptions);
   expect(output).toEqual(['SELECT 1', 'SELECT 2']);
+});
+
+test('no split', () => {
+  const input = 'SELECT 1;SELECT 2';
+  const output = splitQuery(input, noSplitSplitterOptions);
+  expect(output).toEqual(['SELECT 1;SELECT 2']);
 });

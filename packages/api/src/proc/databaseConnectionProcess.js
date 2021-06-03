@@ -1,4 +1,5 @@
 const stableStringify = require('json-stable-stringify');
+const { splitQuery } = require('dbgate-query-splitter');
 const childProcessChecker = require('../utility/childProcessChecker');
 const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -52,7 +53,7 @@ async function handleIncrementalRefresh(forceSend) {
   if (newStructure != null) {
     analysedStructure = newStructure;
   }
-  
+
   if (forceSend || newStructure != null) {
     process.send({ msgtype: 'structure', structure: analysedStructure });
   }
@@ -118,6 +119,17 @@ function waitConnected() {
   return new Promise((resolve, reject) => {
     afterConnectCallbacks.push([resolve, reject]);
   });
+}
+
+async function handleRunScript({ msgid, sql }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    await driver.script(sql);
+    process.send({ msgtype: 'response', msgid });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
 }
 
 async function handleQueryData({ msgid, sql }) {
@@ -188,6 +200,7 @@ function handlePing() {
 const messageHandlers = {
   connect: handleConnect,
   queryData: handleQueryData,
+  runScript: handleRunScript,
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
   sqlPreview: handleSqlPreview,

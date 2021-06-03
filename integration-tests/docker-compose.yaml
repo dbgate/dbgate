@@ -9,7 +9,7 @@ services:
       - 15000:5432
 
   mysql:
-    image: mysql
+    image: mysql:8.0.18
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports: 

@@ -1,4 +1,5 @@
 const engines = require('../engines');
+const { splitQuery } = require('dbgate-query-splitter');
 const { testWrapper } = require('../tools');
 
 const initSql = ['CREATE TABLE t1 (id int)', 'INSERT INTO t1 (id) VALUES (1)', 'INSERT INTO t1 (id) VALUES (2)'];
@@ -43,11 +44,20 @@ class StreamHandler {
   }
 }
 
-function executeStream(driver, conn, sql) {
+function executeStreamItem(driver, conn, sql) {
   return new Promise(resolve => {
     const handler = new StreamHandler(resolve);
     driver.stream(conn, sql, handler);
   });
+}
+
+async function executeStream(driver, conn, sql) {
+  const results = [];
+  for (const sqlItem of splitQuery(driver.getQuerySplitterOptions('stream'))) {
+    const item = await executeStreamItem(driver, conn, sqlItem);
+    results.push(...item);
+  }
+  return results;
 }
 
 describe('Query', () => {
@@ -129,7 +139,7 @@ describe('Query', () => {
     testWrapper(async (conn, driver, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
 
-      await driver.query(
+      await driver.script(
         conn,
         'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;'
       );

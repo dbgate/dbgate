@@ -1,4 +1,5 @@
 import { SqlDumper } from './SqlDumper';
+import { splitQuery } from 'dbgate-query-splitter';
 
 const dialect = {
   limitSelect: true,
@@ -33,5 +34,10 @@ export const driverBase = {
   },
   createDumper() {
     return new this.dumperClass(this);
+  },
+  async script(pool, sql) {
+    for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
+      await this.query(pool, sqlItem, { discardResult: true });
+    }
   },
 };

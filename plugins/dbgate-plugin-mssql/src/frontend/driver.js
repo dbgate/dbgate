@@ -1,5 +1,6 @@
 const { driverBase } = global.DBGATE_TOOLS;
 const MsSqlDumper = require('./MsSqlDumper');
+const { mssqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
@@ -34,6 +35,7 @@ const driver = {
   },
   showConnectionField: (field, values) =>
     ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+  getQuerySplitterOptions: () => mssqlSplitterOptions,
 
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',

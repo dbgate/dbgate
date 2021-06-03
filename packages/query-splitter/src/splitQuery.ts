@@ -162,6 +162,15 @@ function pushQuery(context) {
 }
 
 export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
+  const usedOptions = {
+    ...defaultSplitterOptions,
+    ...options,
+  };
+
+  if (usedOptions.noSplit) {
+    return [sql];
+  }
+
   const context: SplitExecutionContext = {
     source: sql,
     end: sql.length,
@@ -170,10 +179,7 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
     currentCommandStart: 0,
     output: [],
     wasDataOnLine: false,
-    options: {
-      ...defaultSplitterOptions,
-      ...options,
-    },
+    options: usedOptions,
   };
 
   while (context.position < context.end) {
