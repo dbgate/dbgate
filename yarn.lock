@@ -1275,11 +1275,6 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@verycrazydog/mysql-parser@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@verycrazydog/mysql-parser/-/mysql-parser-1.2.0.tgz#6007a8dc8987c4b7c8fd10357ee52f31df9062bc"
-  integrity sha512-h3zGaAwDYbZwqEIxDLMGaDRhfznTxgLO9C2FUnAfdXKoaw+OAUkMGbkjs2Qi+pnxhrAOt4BXM9JwkMb6bY/iXA==
-
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.8.5.tgz#51b1c5fe6576a34953bf4b253df9f0d490d9e359"
@@ -9675,11 +9670,6 @@ sql-formatter@^2.3.3:
   integrity sha512-m6pqVXwsm9GkCHC/+gdPvNowI7PNoVTT6OZMWKwXJoP2MvfntfhcfyliIf4/QX6t+DirSJ6XDSiSS70YvZ87Lw==
   dependencies:
     lodash "^4.16.0"
-
-sql-query-identifier@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/sql-query-identifier/-/sql-query-identifier-2.1.0.tgz#dbf0f34b11bc14c8ade44de13350271047eb566e"
-  integrity sha512-DcC+inWZvN6fiTyxv+9uhFoTRC9C8LTeApVl1N7JJTTCzto6yhuaI423DzPPqDk10z4naL2mF9g/eNhUfxuMpA==
 
 sqlstring@^2.3.2:
   version "2.3.2"
