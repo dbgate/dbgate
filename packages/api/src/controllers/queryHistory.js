@@ -4,22 +4,29 @@ const path = require('path');
 const { datadir } = require('../utility/directories');
 const _ = require('lodash');
 const { filterName } = require('dbgate-tools');
+const socket = require('../utility/socket');
 
 function readCore(reader, skip, limit, filter) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const res = [];
     let readed = 0;
     reader.on('data', line => {
-      const json = JSON.parse(line);
-      if (filterName(filter, json.sql)) {
-        if (!skip || readed >= skip) {
-          res.push(json);
+      if (!line && !line.trim()) return;
+      try {
+        const json = JSON.parse(line);
+        if (filterName(filter, json.sql)) {
+          if (!skip || readed >= skip) {
+            res.push(json);
+          }
+          readed++;
+          if (limit && readed > (skip || 0) + limit) {
+            reader.destroy();
+            resolve(res);
+          }
         }
-        readed++;
-        if (limit && readed > (skip || 0) + limit) {
-          reader.destroy();
-          resolve(res);
-        }
+      } catch (err) {
+        reader.destroy();
+        reject(err);
       }
     });
     reader.on('end', () => resolve(res));
@@ -41,5 +48,7 @@ module.exports = {
   async write({ data }) {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     await fs.appendFile(fileName, JSON.stringify(data) + '\n');
+    socket.emitChanged('query-history-changed');
+    return 'OK';
   },
 };

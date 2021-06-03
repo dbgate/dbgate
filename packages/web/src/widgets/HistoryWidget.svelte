@@ -8,6 +8,7 @@
 
   import hasPermission from '../utility/hasPermission';
   import { useFavorites } from '../utility/metadataLoaders';
+  import QueryHistoryList from './QueryHistoryList.svelte';
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
@@ -28,5 +29,8 @@
         module={closedTabAppObject}
       />
     </WidgetsInnerContainer>
+  </WidgetColumnBarItem>
+  <WidgetColumnBarItem title="Query history" name="queryHistory">
+    <QueryHistoryList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>
