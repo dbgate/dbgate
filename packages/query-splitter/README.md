@@ -1,3 +1,5 @@
+[![NPM version](https://img.shields.io/npm/v/dbgate-query-splitter.svg)](https://www.npmjs.com/package/dbgate-query-splitter)
+
 dbgate-query-splitter
 ====================
 
