@@ -1,6 +1,5 @@
 const _ = require('lodash');
 const stream = require('stream');
-const { identify } = require('sql-query-identifier');
 
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
