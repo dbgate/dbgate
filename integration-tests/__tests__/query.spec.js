@@ -53,7 +53,7 @@ function executeStreamItem(driver, conn, sql) {
 
 async function executeStream(driver, conn, sql) {
   const results = [];
-  for (const sqlItem of splitQuery(driver.getQuerySplitterOptions('stream'))) {
+  for (const sqlItem of splitQuery(sql, driver.getQuerySplitterOptions('stream'))) {
     const item = await executeStreamItem(driver, conn, sqlItem);
     results.push(...item);
   }
