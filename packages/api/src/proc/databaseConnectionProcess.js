@@ -125,7 +125,7 @@ async function handleRunScript({ msgid, sql }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
-    await driver.script(sql);
+    await driver.script(systemConnection, sql);
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });

@@ -119,7 +119,7 @@ describe('Query', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Script - %s',
+    'Script - return data - %s',
     testWrapper(async (conn, driver, engine) => {
       const results = await executeStream(
         driver,
@@ -135,6 +135,18 @@ describe('Query', () => {
   );
 
   test.each(engines.map(engine => [engine.label, engine]))(
+    'Script - no data - %s',
+    testWrapper(async (conn, driver, engine) => {
+      const results = await executeStream(
+        driver,
+        conn,
+        'CREATE TABLE t1 (id int); INSERT INTO t1 (id) VALUES (1); INSERT INTO t1 (id) VALUES (2) '
+      );
+      expect(results.length).toEqual(0);
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
     'Save data query - %s',
     testWrapper(async (conn, driver, engine) => {
       for (const sql of initSql) await driver.query(conn, sql);
@@ -144,7 +156,7 @@ describe('Query', () => {
         'INSERT INTO t1 (id) VALUES (3);INSERT INTO t1 (id) VALUES (4);UPDATE t1 SET id=10 WHERE id=1;DELETE FROM t1 WHERE id=2;'
       );
       const res = await driver.query(conn, 'SELECT COUNT(*) AS cnt FROM t1');
-      console.log(res);
+      // console.log(res);
       expect(res.rows[0].cnt == 3).toBeTruthy();
     })
   );
