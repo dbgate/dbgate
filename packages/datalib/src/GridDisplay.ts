@@ -11,7 +11,7 @@ import {
   SqlDialect,
 } from 'dbgate-types';
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
-import { filterName } from './filterName';
+import { filterName } from 'dbgate-tools';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
 import { Expression, Select, treeToSql, dumpSqlSelect, Condition } from 'dbgate-sqltree';
 import { isTypeLogical } from 'dbgate-tools';

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { filterName, GridDisplay } from 'dbgate-datalib';
+  import { GridDisplay } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
 
   import InlineButton from '../elements/InlineButton.svelte';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
@@ -13,6 +14,7 @@
   export let isJsonView = false;
 
   let filter;
+
 </script>
 
 <SearchBoxWrapper>

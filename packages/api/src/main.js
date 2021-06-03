@@ -27,6 +27,7 @@ const uploads = require('./controllers/uploads');
 const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
+const queryHistory = require('./controllers/queryHistory');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
@@ -102,6 +103,7 @@ function start() {
   useController(app, '/plugins', plugins);
   useController(app, '/files', files);
   useController(app, '/scheduler', scheduler);
+  useController(app, '/query-history', queryHistory);
 
   // if (process.env.PAGES_DIRECTORY) {
   //   app.use('/pages', express.static(process.env.PAGES_DIRECTORY));

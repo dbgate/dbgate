@@ -1,9 +1,9 @@
 import _ from 'lodash';
+import { filterName } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
 import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
 import { GridConfig, GridCache, createGridCache } from './GridConfig';
 import { Expression, Select, treeToSql, dumpSqlSelect } from 'dbgate-sqltree';
-import { filterName } from './filterName';
 
 export class TableGridDisplay extends GridDisplay {
   public table: TableInfo;

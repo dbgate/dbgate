@@ -8,7 +8,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, getCurrentConfig, openedConnections } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-  import { filterName } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';

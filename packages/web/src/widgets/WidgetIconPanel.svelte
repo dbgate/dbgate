@@ -18,7 +18,12 @@
     {
       icon: 'icon file',
       name: 'file',
-      title: 'Closed tabs & Saved SQL files',
+      title: 'Favorites & Saved files',
+    },
+    {
+      icon: 'icon history',
+      name: 'history',
+      title: 'Query history & Closed tabs',
     },
     {
       icon: 'icon archive',
@@ -29,11 +34,6 @@
       icon: 'icon plugin',
       name: 'plugins',
       title: 'Extensions & Plugins',
-    },
-    {
-      icon: 'icon favorite',
-      name: 'favorites',
-      title: 'Favorites',
     },
     {
       icon: 'icon cell-data',

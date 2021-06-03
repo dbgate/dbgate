@@ -12,7 +12,6 @@ import {
   Condition,
   OrderByExpression,
 } from 'dbgate-sqltree';
-import { filterName } from './filterName';
 import { TableGridDisplay } from './TableGridDisplay';
 import stableStringify from 'json-stable-stringify';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';

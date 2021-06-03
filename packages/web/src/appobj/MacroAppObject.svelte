@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-  import { filterName } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
   import { getContext } from 'svelte';
 
   import AppObjectCore from './AppObjectCore.svelte';

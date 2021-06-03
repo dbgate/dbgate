@@ -14,16 +14,10 @@
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   $: favorites = useFavorites();
+
 </script>
 
 <WidgetColumnBar>
-  {#if hasPermission('files/favorites/read')}
-    <WidgetColumnBarItem title="Favorites" name="favorites" height="20%">
-      <WidgetsInnerContainer>
-        <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
-      </WidgetsInnerContainer>
-    </WidgetColumnBarItem>
-  {/if}
   <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs">
     <WidgetsInnerContainer>
       <AppObjectList

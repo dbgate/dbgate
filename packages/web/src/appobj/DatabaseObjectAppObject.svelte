@@ -318,7 +318,7 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, openedConnections } from '../stores';
   import openNewTab from '../utility/openNewTab';
-  import { filterName } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import ImportExportModal from '../modals/ImportExportModal.svelte';

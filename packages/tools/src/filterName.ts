@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _compact from 'lodash/compact';
 
 // original C# variant
 // public bool Match(string value)
@@ -39,6 +39,6 @@ export function filterName(filter: string, ...names: string[]) {
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
   const tokens = filter.split(' ').map(x => x.trim());
 
-  return !!_.compact(names).find(name => !tokens.find(token => !name.toUpperCase().includes(token.toUpperCase())));
+  return !!_compact(names).find(name => !tokens.find(token => !name.toUpperCase().includes(token.toUpperCase())));
   // return name.toUpperCase().includes(filter.toUpperCase());
 }

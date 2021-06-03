@@ -29,6 +29,7 @@
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
   });
+
 </script>
 
 <script lang="ts">
@@ -143,9 +144,18 @@
     }
     busy = true;
     timerLabel.start();
+    const sql = selectedText || $editorValue;
     await axiosInstance.post('sessions/execute-query', {
       sesid,
-      sql: selectedText || $editorValue,
+      sql,
+    });
+    await axiosInstance.post('query-history/write', {
+      data: {
+        sql,
+        conid,
+        database,
+        date: new Date().getTime(),
+      },
     });
   }
 
@@ -233,6 +243,7 @@
       { command: 'query.replace' },
     ];
   }
+
 </script>
 
 <VerticalSplitter isSplitter={visibleResultTabs}>

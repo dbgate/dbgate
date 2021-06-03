@@ -4,7 +4,6 @@ export * from './TableGridDisplay';
 export * from './ViewGridDisplay';
 export * from './JslGridDisplay';
 export * from './ChangeSet';
-export * from './filterName';
 export * from './FreeTableGridDisplay';
 export * from './FreeTableModel';
 export * from './MacroDefinition';

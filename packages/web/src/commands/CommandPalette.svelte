@@ -15,7 +15,7 @@
 </script>
 
 <script>
-  import { filterName } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
 
   import _ from 'lodash';
   import { onMount } from 'svelte';

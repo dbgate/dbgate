@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { filterName, GridDisplay } from 'dbgate-datalib';
+  import { GridDisplay } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
   import { createEventDispatcher } from 'svelte';
 
   import InlineButton from '../elements/InlineButton.svelte';
@@ -12,7 +13,7 @@
 
   export let managerSize;
   export let display: GridDisplay;
-  export let onReferenceClick = (ref) => {};
+  export let onReferenceClick = ref => {};
 
   const dispatch = createEventDispatcher();
 
@@ -20,6 +21,7 @@
 
   $: foreignKeys = display?.baseTable?.foreignKeys || [];
   $: dependencies = display?.baseTable?.dependencies || [];
+
 </script>
 
 <SearchBoxWrapper>
@@ -86,4 +88,5 @@
   .link:hover {
     text-decoration: underline;
   }
+
 </style>

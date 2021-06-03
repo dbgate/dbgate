@@ -17,7 +17,7 @@
 </script>
 
 <script lang="ts">
-  import { filterName } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
 
   import { currentArchive } from '../stores';
 

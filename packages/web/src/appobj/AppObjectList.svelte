@@ -9,7 +9,7 @@
   export let subItemsComponent = undefined;
   export let expandOnClick = false;
   export let isExpandable = undefined;
-  export let filter;
+  export let filter = undefined;
   export let expandIconFunc = undefined;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
@@ -34,6 +34,7 @@
     : null;
 
   $: groups = groupFunc ? _.groupBy(listGrouped, 'group') : null;
+
 </script>
 
 {#if groupFunc}
