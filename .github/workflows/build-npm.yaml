@@ -79,6 +79,11 @@ jobs:
         run: |
           npm publish
 
+      - name: Publish query-splitter
+        working-directory: packages/query-splitter
+        run: |
+          npm publish
+          
       - name: Publish web
         working-directory: packages/web
         run: |
