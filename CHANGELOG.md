@@ -1,5 +1,17 @@
 # ChangeLog
 
+### 4.2.4 - to be released
+- FIXED: Procedures in PostgreSQL #122
+- ADDED: Support of materialized views for PostgreSQL #123
+- ADDED: Integration tests
+- FIXED: Fixes in DB structure analysis in PostgreSQL, SQLite, MySQL
+- FIXED: Save data in SQLite, PostgreSQL
+- CHANGED: Introduced package dbgate-query-splitter, instead of sql-query-identifier and @verycrazydog/mysql-parse
+
+### 4.2.3
+- ADDED: ARM builds for MacOS and Linux
+- ADDED: Filter by columns in form view
+
 ### 4.2.2
 - CHANGED: Further startup optimalization (approx. 2 times quicker start of electron app)
 
