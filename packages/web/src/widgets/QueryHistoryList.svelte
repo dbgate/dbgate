@@ -9,6 +9,7 @@
   import { onMount } from 'svelte';
   import socket from '../utility/socket';
   import axiosInstance from '../utility/axiosInstance';
+  import openNewTab from '../utility/openNewTab';
 
   let filter = '';
   let search = '';
@@ -50,7 +51,24 @@
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   {#each historyItems as item}
-    <div class="wrapper" title={item.sql}>
+    <div
+      class="wrapper"
+      title={item.sql}
+      on:click={() => {
+        openNewTab(
+          {
+            title: 'Query #',
+            icon: 'icon sql-file',
+            tabComponent: 'QueryTab',
+            props: {
+              conid: item.conid,
+              database: item.database,
+            },
+          },
+          { editor: item.sql }
+        );
+      }}
+    >
       <div class="sql">
         <FontIcon icon="icon sql-file" />
         {item.sql}

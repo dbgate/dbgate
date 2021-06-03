@@ -39,6 +39,12 @@ export function filterName(filter: string, ...names: string[]) {
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
   const tokens = filter.split(' ').map(x => x.trim());
 
-  return !!_compact(names).find(name => !tokens.find(token => !name.toUpperCase().includes(token.toUpperCase())));
-  // return name.toUpperCase().includes(filter.toUpperCase());
+  const namesCompacted = _compact(names);
+  for (const token of tokens) {
+    const tokenUpper = token.toUpperCase();
+    const found = namesCompacted.find(name => name.toUpperCase().includes(tokenUpper));
+    if (!found) return false;
+  }
+
+  return true;
 }

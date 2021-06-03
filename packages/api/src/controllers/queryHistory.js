@@ -14,7 +14,7 @@ function readCore(reader, skip, limit, filter) {
       if (!line && !line.trim()) return;
       try {
         const json = JSON.parse(line);
-        if (filterName(filter, json.sql)) {
+        if (filterName(filter, json.sql, json.database)) {
           if (!skip || readed >= skip) {
             res.push(json);
           }
