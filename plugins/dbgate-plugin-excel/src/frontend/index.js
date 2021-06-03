@@ -64,5 +64,18 @@ const fileFormat = {
 
 export default {
   fileFormats: [fileFormat],
+  quickExports: [
+    {
+      label: 'MS Excel',
+      extension: 'xlsx',
+      createWriter: (fileName) => ({
+        functionName: 'writer',
+        props: {
+          fileName,
+          sheetName: 'data',
+        },
+      }),
+    },
+  ],
   initialize,
 };

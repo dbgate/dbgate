@@ -33,9 +33,16 @@ export interface PluginDefinition {
   content: any;
 }
 
+export interface QuickExportDefinition {
+  label: string;
+  createWriter: (fileName: string) => { functionName: string; props: any };
+  extension: string;
+}
+
 export interface ExtensionsDirectory {
   plugins: PluginDefinition[];
   fileFormats: FileFormatDefinition[];
+  quickExports: QuickExportDefinition[];
   drivers: EngineDriver[];
   themes: ThemeDefinition[];
 }

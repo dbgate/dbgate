@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
+  const electron = getElectron();
 
   const icons = {
     tables: 'img table',
@@ -49,6 +50,10 @@
       {
         label: 'Export',
         isExport: true,
+      },
+      electron && {
+        label: 'Quick export',
+        isQuickExport: true,
       },
       {
         label: 'Open in free table editor',
@@ -112,6 +117,10 @@
         label: 'Export',
         isExport: true,
       },
+      electron && {
+        label: 'Quick export',
+        isQuickExport: true,
+      },
       {
         label: 'Open in free table editor',
         isOpenFreeTable: true,
@@ -168,6 +177,10 @@
       {
         label: 'Export',
         isExport: true,
+      },
+      electron && {
+        label: 'Quick export',
+        isQuickExport: true,
       },
       {
         label: 'Open in free table editor',
@@ -265,6 +278,10 @@
         label: 'Export',
         isExport: true,
       },
+      electron && {
+        label: 'Quick export',
+        isQuickExport: true,
+      },
       {
         divider: true,
       },
@@ -311,6 +328,7 @@
       { forceNewTab }
     );
   }
+
 </script>
 
 <script lang="ts">
@@ -326,7 +344,9 @@
   import { findEngineDriver } from 'dbgate-tools';
   import uuidv1 from 'uuid/v1';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
-import getConnectionLabel from '../utility/getConnectionLabel';
+  import getConnectionLabel from '../utility/getConnectionLabel';
+  import getElectron from '../utility/getElectron';
+  import { exportElectronFile } from '../utility/exportElectronFile';
 
   export let data;
 
@@ -370,100 +390,105 @@ import getConnectionLabel from '../utility/getConnectionLabel';
 
   function createMenu() {
     const { objectTypeField } = data;
-    return menus[objectTypeField].map(menu => {
-      if (menu.divider) return menu;
-      return {
-        text: menu.label,
-        onClick: async () => {
-          if (menu.isExport) {
-            showModal(ImportExportModal, {
-              initialValues: {
-                sourceStorageType: 'database',
-                sourceConnectionId: data.conid,
-                sourceDatabaseName: data.database,
-                sourceSchemaName: data.schemaName,
-                sourceList: [data.pureName],
-              },
-            });
-          } else if (menu.isOpenFreeTable) {
-            const coninfo = await getConnectionInfo(data);
-            openNewTab({
-              title: data.pureName,
-              icon: 'img free-table',
-              tabComponent: 'FreeTableTab',
-              props: {
-                initialArgs: {
-                  functionName: 'tableReader',
-                  props: {
-                    connection: {
-                      ...coninfo,
-                      database: data.database,
+    return menus[objectTypeField]
+      .filter(x => x)
+      .map(menu => {
+        if (menu.divider) return menu;
+        return {
+          text: menu.label,
+          onClick: async () => {
+            if (menu.isExport) {
+              showModal(ImportExportModal, {
+                initialValues: {
+                  sourceStorageType: 'database',
+                  sourceConnectionId: data.conid,
+                  sourceDatabaseName: data.database,
+                  sourceSchemaName: data.schemaName,
+                  sourceList: [data.pureName],
+                },
+              });
+            } else if (menu.isQuickExport) {
+              exportElectronFile(data);
+            } else if (menu.isOpenFreeTable) {
+              const coninfo = await getConnectionInfo(data);
+              openNewTab({
+                title: data.pureName,
+                icon: 'img free-table',
+                tabComponent: 'FreeTableTab',
+                props: {
+                  initialArgs: {
+                    functionName: 'tableReader',
+                    props: {
+                      connection: {
+                        ...coninfo,
+                        database: data.database,
+                      },
+                      schemaName: data.schemaName,
+                      pureName: data.pureName,
                     },
-                    schemaName: data.schemaName,
-                    pureName: data.pureName,
                   },
                 },
-              },
-            });
-          } else if (menu.isActiveChart) {
-            const driver = await getDriver();
-            const dmp = driver.createDumper();
-            dmp.put('^select * from %f', data);
-            openNewTab(
-              {
-                title: data.pureName,
-                icon: 'img chart',
-                tabComponent: 'ChartTab',
-                props: {
-                  conid: data.conid,
-                  database: data.database,
+              });
+            } else if (menu.isActiveChart) {
+              const driver = await getDriver();
+              const dmp = driver.createDumper();
+              dmp.put('^select * from %f', data);
+              openNewTab(
+                {
+                  title: data.pureName,
+                  icon: 'img chart',
+                  tabComponent: 'ChartTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
                 },
-              },
-              {
-                editor: {
-                  config: { chartType: 'bar' },
-                  sql: dmp.s,
+                {
+                  editor: {
+                    config: { chartType: 'bar' },
+                    sql: dmp.s,
+                  },
+                }
+              );
+            } else if (menu.isQueryDesigner) {
+              openNewTab(
+                {
+                  title: 'Query #',
+                  icon: 'img query-design',
+                  tabComponent: 'QueryDesignTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
                 },
-              }
-            );
-          } else if (menu.isQueryDesigner) {
-            openNewTab(
-              {
-                title: 'Query #',
-                icon: 'img query-design',
-                tabComponent: 'QueryDesignTab',
-                props: {
-                  conid: data.conid,
-                  database: data.database,
-                },
-              },
-              {
-                editor: {
-                  tables: [
-                    {
-                      ...data,
-                      designerId: uuidv1(),
-                      left: 50,
-                      top: 50,
-                    },
-                  ],
-                },
-              }
-            );
-          } else if (menu.sqlGeneratorProps) {
-            showModal(SqlGeneratorModal, {
-              initialObjects: [data],
-              initialConfig: menu.sqlGeneratorProps,
-              conid: data.conid,
-              database: data.database,
-            });
-          } else {
-            openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
-          }
-        },
-      };
-    });
+                {
+                  editor: {
+                    tables: [
+                      {
+                        ...data,
+                        designerId: uuidv1(),
+                        left: 50,
+                        top: 50,
+                      },
+                    ],
+                  },
+                }
+              );
+            } else if (menu.sqlGeneratorProps) {
+              showModal(SqlGeneratorModal, {
+                initialObjects: [data],
+                initialConfig: menu.sqlGeneratorProps,
+                conid: data.conid,
+                database: data.database,
+              });
+            } else {
+              openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
+            }
+          },
+        };
+      });
   }
+
 </script>
 
 <AppObjectCore

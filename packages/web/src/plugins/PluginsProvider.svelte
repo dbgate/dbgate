@@ -40,8 +40,15 @@
   function buildDrivers(plugins) {
     const res = [];
     for (const { content } of plugins) {
-      // if (content.driver) res.push(content.driver);
       if (content.drivers) res.push(...content.drivers);
+    }
+    return res;
+  }
+
+  function buildQuickExports(plugins) {
+    const res = [];
+    for (const { content } of plugins) {
+      if (content.quickExports) res.push(...content.quickExports);
     }
     return res;
   }
@@ -52,6 +59,7 @@
       fileFormats: buildFileFormats(plugins),
       themes: buildThemes(plugins),
       drivers: buildDrivers(plugins),
+      quickExports: buildQuickExports(plugins),
     };
     return extensions;
   }

@@ -43,4 +43,29 @@ const fileFormat = {
 
 export default {
   fileFormats: [fileFormat],
+
+  quickExports: [
+    {
+      label: 'CSV file',
+      extension: 'csv',
+      createWriter: (fileName) => ({
+        functionName: 'writer',
+        props: {
+          fileName,
+          delimiter: ',',
+        },
+      }),
+    },
+    {
+      label: 'CSV file (semicolor separated)',
+      extension: 'csv',
+      createWriter: (fileName) => ({
+        functionName: 'writer',
+        props: {
+          fileName,
+          delimiter: ';',
+        },
+      }),
+    },
+  ],
 };
