@@ -67,6 +67,7 @@
     'icon chevron-left': 'mdi mdi-chevron-left',
     'icon chevron-right': 'mdi mdi-chevron-right',
     'icon chevron-up': 'mdi mdi-chevron-up',
+    'icon menu-right': 'mdi mdi-menu-right',
     'icon plugin': 'mdi mdi-toy-brick',
     'icon menu': 'mdi mdi-menu',
 

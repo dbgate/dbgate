@@ -1,9 +1,10 @@
 <script context="module">
-  function getElementOffset(element) {
+  function getElementOffset(element, side = null) {
     var de = document.documentElement;
     var box = element.getBoundingClientRect();
     var top = box.top + window.pageYOffset - de.clientTop;
     var left = box.left + window.pageXOffset - de.clientLeft;
+    if (side == 'right') return { top: top, left: left + box.width };
     return { top: top, left: left };
   }
 
@@ -52,6 +53,7 @@
     }
     return item;
   }
+
 </script>
 
 <script>
@@ -61,6 +63,7 @@
   import { onMount } from 'svelte';
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { extractMenuItems } from '../utility/contextMenu';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let items;
   export let top;
@@ -68,10 +71,24 @@
 
   let element;
 
+  let hoverItem;
+  let hoverOffset;
+
+  let submenuItem;
+  let submenuOffset;
+
   const dispatch = createEventDispatcher();
 
-  function handleClick(item) {
+  function handleClick(e, item) {
     if (item.disabled) return;
+    if (item.submenu) {
+      hoverItem = item;
+      hoverOffset = getElementOffset(e.target, 'right');
+
+      submenuItem = item;
+      submenuOffset = hoverOffset;
+      return;
+    }
     dispatch('close');
     if (item.onClick) item.onClick();
   }
@@ -80,9 +97,15 @@
     fixPopupPlacement(element);
   });
 
+  const changeActiveSubmenu = _.throttle(() => {
+    submenuItem = hoverItem;
+    submenuOffset = hoverOffset;
+  }, 500);
+
   $: extracted = extractMenuItems(items);
   $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
   $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
+
 </script>
 
 <ul
@@ -95,17 +118,31 @@
     {#if item.divider}
       <li class="divider" />
     {:else}
-      <li>
-        <a on:click={() => handleClick(item)} class:disabled={item.disabled}>
+      <li
+        on:mouseenter={e => {
+          hoverOffset = getElementOffset(e.target, 'right');
+          hoverItem = item;
+          changeActiveSubmenu();
+        }}
+      >
+        <a on:click={e => handleClick(e, item)} class:disabled={item.disabled}>
           {item.text}
           {#if item.keyText}
             <span class="keyText">{item.keyText}</span>
+          {/if}
+          {#if item.submenu}
+            <div class="menu-right">
+              <FontIcon icon="icon menu-right" />
+            </div>
           {/if}
         </a>
       </li>
     {/if}
   {/each}
 </ul>
+{#if submenuItem?.submenu}
+  <svelte:self items={submenuItem?.submenu} {...submenuOffset} />
+{/if}
 
 <style>
   ul {
@@ -136,9 +173,10 @@
   a {
     padding: 3px 20px;
     line-height: 1.42;
-    display: block;
     white-space: nop-wrap;
     color: #262626;
+    display: flex;
+    justify-content: space-between;
   }
 
   a.disabled {
@@ -156,4 +194,10 @@
     border-top: 1px solid #f2f2f2;
     border-bottom: 1px solid #fff;
   }
+
+  .menu-right {
+    position: relative;
+    left: 15px;
+  }
+
 </style>

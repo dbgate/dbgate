@@ -51,7 +51,8 @@
         label: 'Export',
         isExport: true,
       },
-      electron && {
+      // electron &&
+      {
         label: 'Quick export',
         isQuickExport: true,
       },
@@ -394,6 +395,23 @@
       .filter(x => x)
       .map(menu => {
         if (menu.divider) return menu;
+
+        if (menu.isQuickExport) {
+          return {
+            text: menu.label,
+            submenu: [
+              {
+                text: 'CSV file',
+                isQuickExport: true,
+              },
+              {
+                text: 'Excel',
+                isQuickExport: true,
+              },
+            ],
+          };
+        }
+
         return {
           text: menu.label,
           onClick: async () => {
