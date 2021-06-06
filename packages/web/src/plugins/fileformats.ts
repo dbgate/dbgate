@@ -1,4 +1,4 @@
-import { FileFormatDefinition } from 'dbgate-types';
+import { FileFormatDefinition, QuickExportDefinition } from 'dbgate-types';
 
 const jsonlFormat = {
   storageType: 'jsonl',
@@ -8,11 +8,48 @@ const jsonlFormat = {
   writerFunc: 'jsonLinesWriter',
 };
 
+const jsonFormat = {
+  storageType: 'json',
+  extension: 'json',
+  name: 'JSON',
+  writerFunc: 'jsonArrayWriter',
+};
+
+const jsonlQuickExport = {
+  label: 'JSON lines',
+  extension: 'jsonl',
+  createWriter: fileName => ({
+    functionName: 'jsonLinesWriter',
+    props: {
+      fileName,
+    },
+  }),
+};
+
+const jsonQuickExport = {
+  label: 'JSON',
+  extension: 'json',
+  createWriter: fileName => ({
+    functionName: 'jsonArrayWriter',
+    props: {
+      fileName,
+    },
+  }),
+};
+
 export function buildFileFormats(plugins): FileFormatDefinition[] {
-  const res = [jsonlFormat];
+  const res = [jsonlFormat, jsonFormat];
   for (const { content } of plugins) {
     const { fileFormats } = content;
     if (fileFormats) res.push(...fileFormats);
+  }
+  return res;
+}
+
+export function buildQuickExports(plugins): QuickExportDefinition[] {
+  const res = [jsonQuickExport, jsonlQuickExport];
+  for (const { content } of plugins) {
+    if (content.quickExports) res.push(...content.quickExports);
   }
   return res;
 }

@@ -45,14 +45,6 @@
     return res;
   }
 
-  function buildQuickExports(plugins) {
-    const res = [];
-    for (const { content } of plugins) {
-      if (content.quickExports) res.push(...content.quickExports);
-    }
-    return res;
-  }
-
   export function buildExtensions(plugins) {
     const extensions = {
       plugins,
@@ -71,7 +63,7 @@
   import { extensions, loadingPluginStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
-  import { buildFileFormats } from './fileformats';
+  import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
   import dbgateTools from 'dbgate-tools';
 
