@@ -48,7 +48,6 @@
         divider: true,
       },
       electron && {
-        label: 'Quick export',
         isQuickExport: true,
         functionName: 'tableReader',
       },
@@ -116,7 +115,7 @@
       },
       electron && {
         label: 'Quick export',
-        isQuickExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Export',
@@ -177,7 +176,7 @@
       },
       electron && {
         label: 'Quick export',
-        isQuickExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Export',
@@ -277,7 +276,7 @@
       },
       electron && {
         label: 'Quick export',
-        isQuickExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Export',
@@ -348,6 +347,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
   import { exportElectronFile } from '../utility/exportElectronFile';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
 
   export let data;
 
@@ -397,29 +397,23 @@
         if (menu.divider) return menu;
 
         if (menu.isQuickExport) {
-          return {
-            text: menu.label,
-            submenu: $extensions.quickExports.map(fmt => ({
-              text: fmt.label,
-              onClick: async () => {
-                const coninfo = await getConnectionInfo(data);
-                exportElectronFile(
-                  data.pureName,
-                  {
-                    functionName: menu.functionName,
-                    props: {
-                      connection: {
-                        ..._.omit(coninfo, ['_id', 'displayName']),
-                        ..._.pick(data, ['database']),
-                      },
-                      ..._.pick(data, ['pureName', 'schemaName']),
-                    },
+          return createQuickExportMenu($extensions, fmt => async () => {
+            const coninfo = await getConnectionInfo(data);
+            exportElectronFile(
+              data.pureName,
+              {
+                functionName: menu.functionName,
+                props: {
+                  connection: {
+                    ..._.omit(coninfo, ['_id', 'displayName']),
+                    ..._.pick(data, ['database']),
                   },
-                  fmt
-                );
+                  ..._.pick(data, ['pureName', 'schemaName']),
+                },
               },
-            })),
-          };
+              fmt
+            );
+          });
         }
 
         return {
