@@ -49,7 +49,7 @@ export default {
       label: 'CSV file',
       extension: 'csv',
       createWriter: (fileName) => ({
-        functionName: 'writer',
+        functionName: 'writer@dbgate-plugin-csv',
         props: {
           fileName,
           delimiter: ',',
@@ -60,7 +60,7 @@ export default {
       label: 'CSV file (semicolor separated)',
       extension: 'csv',
       createWriter: (fileName) => ({
-        functionName: 'writer',
+        functionName: 'writer@dbgate-plugin-csv',
         props: {
           fileName,
           delimiter: ';',

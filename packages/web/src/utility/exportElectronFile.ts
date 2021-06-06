@@ -1,29 +1,34 @@
-import { showModal } from '../modals/modalTools';
-import { get } from 'svelte/store';
-import newQuery from '../query/newQuery';
-import ImportExportModal from '../modals/ImportExportModal.svelte';
+import ScriptWriter from '../impexp/ScriptWriter';
 import getElectron from './getElectron';
-import { currentDatabase, extensions } from '../stores';
-import { getUploadListener } from './uploadFiles';
 import axiosInstance from '../utility/axiosInstance';
-import { getDatabaseFileLabel } from './getConnectionLabel';
 
-function getFileFormatFilters(extensions) {
-  return extensions.quickExports.map(x => ({ name: x.label, extensions: [x.extension] }));
-}
-
-export async function exportElectronFile() {
+export async function exportElectronFile(dataName, reader, format) {
   const electron = getElectron();
-  const ext = get(extensions);
-  const filters = getFileFormatFilters(ext);
-  console.log('FLT', filters);
-  electron.remote.dialog
-    .showSaveDialog(electron.remote.getCurrentWindow(), {
-      filters,
-    })
-    .then(filePaths => {
-      console.log('filePaths ASYNC2', filePaths);
-      const filePath = filePaths && filePaths[0];
-      console.log('filePath', filePath);
-    });
+  const filters = [{ name: format.label, extensions: [format.extension] }];
+
+  const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+    filters,
+    defaultPath: `${dataName}.${format.extension}`,
+    properties: ['showOverwriteConfirmation'],
+  });
+  if (!filePath) return;
+
+  const script = new ScriptWriter();
+
+  const sourceVar = script.allocVariable();
+  script.assign(sourceVar, reader.functionName, reader.props);
+
+  console.log('format.createWriter(filePath, dataName)', format.createWriter(filePath, dataName));
+
+  const targetVar = script.allocVariable();
+  const writer = format.createWriter(filePath, dataName);
+  script.assign(targetVar, writer.functionName, writer.props);
+
+  script.copyStream(sourceVar, targetVar);
+  script.put();
+
+  console.log('script.getScript()', script.getScript());
+
+  const resp = await axiosInstance.post('runners/start', { script: script.getScript() });
+  const runid = resp.data.runid;
 }

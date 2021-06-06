@@ -68,11 +68,11 @@ export default {
     {
       label: 'MS Excel',
       extension: 'xlsx',
-      createWriter: (fileName) => ({
-        functionName: 'writer',
+      createWriter: (fileName, dataName) => ({
+        functionName: 'writer@dbgate-plugin-excel',
         props: {
           fileName,
-          sheetName: 'data',
+          sheetName: dataName,
         },
       }),
     },

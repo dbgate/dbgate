@@ -47,14 +47,14 @@
       {
         divider: true,
       },
+      electron && {
+        label: 'Quick export',
+        isQuickExport: true,
+        functionName: 'tableReader',
+      },
       {
         label: 'Export',
         isExport: true,
-      },
-      // electron &&
-      {
-        label: 'Quick export',
-        isQuickExport: true,
       },
       {
         label: 'Open in free table editor',
@@ -114,13 +114,13 @@
       {
         divider: true,
       },
-      {
-        label: 'Export',
-        isExport: true,
-      },
       electron && {
         label: 'Quick export',
         isQuickExport: true,
+      },
+      {
+        label: 'Export',
+        isExport: true,
       },
       {
         label: 'Open in free table editor',
@@ -175,13 +175,13 @@
       {
         divider: true,
       },
-      {
-        label: 'Export',
-        isExport: true,
-      },
       electron && {
         label: 'Quick export',
         isQuickExport: true,
+      },
+      {
+        label: 'Export',
+        isExport: true,
       },
       {
         label: 'Open in free table editor',
@@ -275,13 +275,13 @@
           },
         },
       },
-      {
-        label: 'Export',
-        isExport: true,
-      },
       electron && {
         label: 'Quick export',
         isQuickExport: true,
+      },
+      {
+        label: 'Export',
+        isExport: true,
       },
       {
         divider: true,
@@ -399,16 +399,26 @@
         if (menu.isQuickExport) {
           return {
             text: menu.label,
-            submenu: [
-              {
-                text: 'CSV file',
-                isQuickExport: true,
+            submenu: $extensions.quickExports.map(fmt => ({
+              text: fmt.label,
+              onClick: async () => {
+                const coninfo = await getConnectionInfo(data);
+                exportElectronFile(
+                  data.pureName,
+                  {
+                    functionName: menu.functionName,
+                    props: {
+                      connection: {
+                        ..._.omit(coninfo, ['_id', 'displayName']),
+                        ..._.pick(data, ['database']),
+                      },
+                      ..._.pick(data, ['pureName', 'schemaName']),
+                    },
+                  },
+                  fmt
+                );
               },
-              {
-                text: 'Excel',
-                isQuickExport: true,
-              },
-            ],
+            })),
           };
         }
 
@@ -425,8 +435,6 @@
                   sourceList: [data.pureName],
                 },
               });
-            } else if (menu.isQuickExport) {
-              exportElectronFile(data);
             } else if (menu.isOpenFreeTable) {
               const coninfo = await getConnectionInfo(data);
               openNewTab({
@@ -511,6 +519,7 @@
 
 <AppObjectCore
   {...$$restProps}
+  module={$$props.module}
   {data}
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={icons[data.objectTypeField]}

@@ -68,6 +68,7 @@
   export let items;
   export let top;
   export let left;
+  export let onCloseParent;
 
   let element;
 
@@ -90,6 +91,7 @@
       return;
     }
     dispatch('close');
+    if (onCloseParent) onCloseParent();
     if (item.onClick) item.onClick();
   }
 
@@ -106,14 +108,23 @@
   $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
   $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
 
+  const handleClickOutside = event => {
+    // if (element && !element.contains(event.target) && !event.defaultPrevented) {
+    if (event.target.closest('ul.dropDownMenuMarker')) return;
+
+    dispatch('close');
+  };
+
+  onMount(() => {
+    document.addEventListener('mousedown', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+    };
+  });
+
 </script>
 
-<ul
-  style={`left: ${left}px; top: ${top}px`}
-  use:clickOutside
-  on:clickOutside={() => dispatch('close')}
-  bind:this={element}
->
+<ul class="dropDownMenuMarker" style={`left: ${left}px; top: ${top}px`} bind:this={element}>
   {#each filtered as item}
     {#if item.divider}
       <li class="divider" />
@@ -141,7 +152,14 @@
   {/each}
 </ul>
 {#if submenuItem?.submenu}
-  <svelte:self items={submenuItem?.submenu} {...submenuOffset} />
+  <svelte:self
+    items={submenuItem?.submenu}
+    {...submenuOffset}
+    onCloseParent={() => {
+      if (onCloseParent) onCloseParent();
+      dispatch('close');
+    }}
+  />
 {/if}
 
 <style>
