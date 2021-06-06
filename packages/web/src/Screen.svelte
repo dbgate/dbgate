@@ -68,10 +68,8 @@
     <DragAndDropFileTarget />
   {/if}
   <div class="snackbar-container">
-    {#each $openedSnackbars as snackbar}
-      {#key snackbar.id}
-        <Snackbar {...snackbar} />
-      {/key}
+    {#each $openedSnackbars as snackbar(snackbar.id)}
+      <Snackbar {...snackbar} />
     {/each}
   </div>
 </div>
