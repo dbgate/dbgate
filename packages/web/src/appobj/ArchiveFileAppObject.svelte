@@ -14,14 +14,19 @@
 
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
+
 </script>
 
 <script lang="ts">
   import { filterName } from 'dbgate-tools';
+  import ImportExportModal from '../modals/ImportExportModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
-  import { currentArchive } from '../stores';
+  import { currentArchive, extensions } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import { exportElectronFile } from '../utility/exportElectronFile';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
 
@@ -60,8 +65,34 @@
       { text: 'Open (readonly)', onClick: handleOpenRead },
       { text: 'Open in free table editor', onClick: handleOpenWrite },
       { text: 'Delete', onClick: handleDelete },
+      createQuickExportMenu($extensions, fmt => async () => {
+        exportElectronFile(
+          data.fileName,
+          {
+            functionName: 'archiveReader',
+            props: {
+              fileName: data.fileName,
+              folderName: data.folderName,
+            },
+          },
+          fmt
+        );
+      }),
+      {
+        text: 'Export',
+        onClick: () => {
+          showModal(ImportExportModal, {
+            initialValues: {
+              sourceStorageType: 'archive',
+              sourceArchiveFolder: data.folderName,
+              sourceList: [data.fileName],
+            },
+          });
+        },
+      },
     ];
   }
+
 </script>
 
 <AppObjectCore
