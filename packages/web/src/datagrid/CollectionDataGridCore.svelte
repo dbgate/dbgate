@@ -112,6 +112,7 @@
 
     return response.data.count;
   }
+
 </script>
 
 <script lang="ts">
@@ -125,10 +126,14 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { extensions } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
@@ -201,8 +206,30 @@
 
   registerMenu(
     { command: 'collectionDataGrid.openQuery', tag: 'export' },
+    {
+      ...createQuickExportMenu($extensions, fmt => async () => {
+        const coninfo = await getConnectionInfo({ conid });
+        exportElectronFile(
+          pureName || 'Data',
+          {
+            functionName: 'queryReader',
+            props: {
+              connection: {
+                ..._.omit(coninfo, ['_id', 'displayName']),
+                database,
+              },
+              sql: getExportQuery(),
+            },
+          },
+          fmt
+        );
+      }),
+      tag: 'export',
+    },
+
     { command: 'collectionDataGrid.export', tag: 'export' }
   );
+
 </script>
 
 <LoadingDataGridCore

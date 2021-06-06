@@ -47,7 +47,7 @@
       {
         divider: true,
       },
-      electron && {
+      {
         isQuickExport: true,
         functionName: 'tableReader',
       },
@@ -113,8 +113,8 @@
       {
         divider: true,
       },
-      electron && {
-        label: 'Quick export',
+      {
+        isQuickExport: true,
         functionName: 'tableReader',
       },
       {
@@ -174,8 +174,8 @@
       {
         divider: true,
       },
-      electron && {
-        label: 'Quick export',
+      {
+        isQuickExport: true,
         functionName: 'tableReader',
       },
       {
@@ -274,8 +274,8 @@
           },
         },
       },
-      electron && {
-        label: 'Quick export',
+      {
+        isQuickExport: true,
         functionName: 'tableReader',
       },
       {

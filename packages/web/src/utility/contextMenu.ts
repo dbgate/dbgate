@@ -38,7 +38,7 @@ function doExtractMenuItems(menu, res) {
     for (const item of menu) {
       doExtractMenuItems(item, res);
     }
-  } else if (_.isPlainObject(menu)) {
+  } else if (_.isPlainObject(menu) && !menu._skip) {
     res.push(menu);
   }
 }
