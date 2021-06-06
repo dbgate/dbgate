@@ -68,20 +68,23 @@
 
     return parseInt(response.data.rows[0].count);
   }
+
 </script>
 
 <script lang="ts">
-  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
-  import { scriptToSql } from 'dbgate-sqltree';
+  import _ from 'lodash';
+
   import registerCommand from '../commands/registerCommand';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { extensions } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
 
@@ -173,8 +176,29 @@
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
+    {
+      ...createQuickExportMenu($extensions, fmt => async () => {
+        const coninfo = await getConnectionInfo({ conid });
+        exportElectronFile(
+          pureName || 'Data',
+          {
+            functionName: 'queryReader',
+            props: {
+              connection: {
+                ..._.omit(coninfo, ['_id', 'displayName']),
+                database,
+              },
+              sql: display.getExportQuery(),
+            },
+          },
+          fmt
+        );
+      }),
+      tag: 'export',
+    },
     { command: 'sqlDataGrid.export', tag: 'export' }
   );
+
 </script>
 
 <LoadingDataGridCore

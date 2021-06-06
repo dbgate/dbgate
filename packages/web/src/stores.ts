@@ -55,6 +55,7 @@ export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const leftPanelWidth = writable(300);
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
+export const openedSnackbars = writable([]);
 export const nullStore = readable(null, () => {});
 export const currentArchive = writable('default');
 export const isFileDragActive = writable(false);

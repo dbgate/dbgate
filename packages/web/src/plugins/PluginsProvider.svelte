@@ -40,7 +40,6 @@
   function buildDrivers(plugins) {
     const res = [];
     for (const { content } of plugins) {
-      // if (content.driver) res.push(content.driver);
       if (content.drivers) res.push(...content.drivers);
     }
     return res;
@@ -52,6 +51,7 @@
       fileFormats: buildFileFormats(plugins),
       themes: buildThemes(plugins),
       drivers: buildDrivers(plugins),
+      quickExports: buildQuickExports(plugins),
     };
     return extensions;
   }
@@ -63,7 +63,7 @@
   import { extensions, loadingPluginStore } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
-  import { buildFileFormats } from './fileformats';
+  import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
   import dbgateTools from 'dbgate-tools';
 

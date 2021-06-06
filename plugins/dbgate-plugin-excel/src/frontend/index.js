@@ -64,5 +64,18 @@ const fileFormat = {
 
 export default {
   fileFormats: [fileFormat],
+  quickExports: [
+    {
+      label: 'MS Excel',
+      extension: 'xlsx',
+      createWriter: (fileName, dataName) => ({
+        functionName: 'writer@dbgate-plugin-excel',
+        props: {
+          fileName,
+          sheetName: dataName,
+        },
+      }),
+    },
+  ],
   initialize,
 };

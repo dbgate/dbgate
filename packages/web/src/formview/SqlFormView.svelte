@@ -20,14 +20,6 @@
 </script>
 
 <script lang="ts">
-  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
-  import { scriptToSql } from 'dbgate-sqltree';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-
-  import { showModal } from '../modals/modalTools';
-
   import axiosInstance from '../utility/axiosInstance';
   import ChangeSetFormer from './ChangeSetFormer';
   import FormView from './FormView.svelte';

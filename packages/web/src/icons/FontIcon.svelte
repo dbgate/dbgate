@@ -67,6 +67,7 @@
     'icon chevron-left': 'mdi mdi-chevron-left',
     'icon chevron-right': 'mdi mdi-chevron-right',
     'icon chevron-up': 'mdi mdi-chevron-up',
+    'icon menu-right': 'mdi mdi-menu-right',
     'icon plugin': 'mdi mdi-toy-brick',
     'icon menu': 'mdi mdi-menu',
 
@@ -76,6 +77,7 @@
     'img error': 'mdi mdi-close-circle color-icon-red',
     'img error-inv': 'mdi mdi-close-circle color-icon-inv-red',
     'img warn': 'mdi mdi-alert color-icon-gold',
+    'img info': 'mdi mdi-information color-icon-blue',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
 
     'img archive': 'mdi mdi-table color-icon-gold',

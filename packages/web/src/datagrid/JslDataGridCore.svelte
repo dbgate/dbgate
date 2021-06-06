@@ -39,6 +39,7 @@
     });
     return response.data.rowCount;
   }
+
 </script>
 
 <script lang="ts">
@@ -46,10 +47,13 @@
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { extensions } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import { exportElectronFile } from '../utility/exportElectronFile';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
@@ -103,7 +107,40 @@
     showModal(ImportExportModal, { initialValues });
   }
 
-  registerMenu({ command: 'jslTableGrid.export', tag: 'export' });
+  registerMenu(
+    {
+      ...createQuickExportMenu($extensions, fmt => async () => {
+        const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
+        if (archiveMatch) {
+          exportElectronFile(
+            archiveMatch[2],
+            {
+              functionName: 'archiveReader',
+              props: {
+                folderName: archiveMatch[1],
+                fileName: archiveMatch[2],
+              },
+            },
+            fmt
+          );
+        } else {
+          exportElectronFile(
+            'Query',
+            {
+              functionName: 'jslDataReader',
+              props: {
+                jslid,
+              },
+            },
+            fmt
+          );
+        }
+      }),
+      tag: 'export',
+    },
+    { command: 'jslTableGrid.export', tag: 'export' }
+  );
+
 </script>
 
 <LoadingDataGridCore

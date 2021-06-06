@@ -14,24 +14,37 @@
     findReplace: true,
   });
 
+  // registerCommand({
+  //   id: 'shell.openWizard',
+  //   category: 'Shell',
+  //   name: 'Open wizard',
+  //   // testEnabled: () => getCurrentEditor()?.openWizardEnabled(),
+  //   onClick: () => getCurrentEditor().openWizard(),
+  // });
+
   const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
   const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
   const initRegex = /([^\n]+\/\/\s*@init)/g;
+
 </script>
 
 <script lang="ts">
-  import { getContext  } from 'svelte';
+  import { getContext } from 'svelte';
 
   import invalidateCommands from '../commands/invalidateCommands';
+  import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import ImportExportModal from '../modals/ImportExportModal.svelte';
+  import { showModal } from '../modals/modalTools';
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { showSnackbarError } from '../utility/snackbar';
   import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
@@ -118,6 +131,19 @@
     return busy;
   }
 
+  // export function openWizardEnabled() {
+  //   return ($editorValue || '').match(configRegex);
+  // }
+
+  export function openWizard() {
+    const jsonTextMatch = ($editorValue || '').match(configRegex);
+    if (jsonTextMatch) {
+      showModal(ImportExportModal, { initialValues: JSON.parse(jsonTextMatch[1]) });
+    } else {
+      showSnackbarError('No wizard info found');
+    }
+  }
+
   export async function execute() {
     if (busy) return;
     executeNumber += 1;
@@ -138,6 +164,10 @@
     timerLabel.start();
   }
 
+  export function canKill() {
+    return busy;
+  }
+
   export function kill() {
     axiosInstance.post('runners/cancel', {
       runid: runnerId,
@@ -151,6 +181,7 @@
     return [
       { command: 'shell.execute' },
       { command: 'shell.kill' },
+      { command: 'shell.openWizard' },
       { divider: true },
       { command: 'shell.toggleComment' },
       { divider: true },
@@ -161,6 +192,7 @@
       { command: 'shell.replace' },
     ];
   }
+
 </script>
 
 <VerticalSplitter>

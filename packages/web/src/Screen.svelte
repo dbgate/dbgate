@@ -6,6 +6,7 @@
     currentThemeDefinition,
     isFileDragActive,
     leftPanelWidth,
+    openedSnackbars,
     selectedWidget,
     visibleCommandPalette,
     visibleToolbar,
@@ -17,11 +18,13 @@
   import splitterDrag from './utility/splitterDrag';
   import CurrentDropDownMenu from './modals/CurrentDropDownMenu.svelte';
   import StatusBar from './widgets/StatusBar.svelte';
+  import Snackbar from './widgets/Snackbar.svelte';
   import ModalLayer from './modals/ModalLayer.svelte';
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
   import dragDropFileTarget from './utility/dragDropFileTarget';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
+
 </script>
 
 <div class={`${$currentTheme} ${currentThemeType} root`} use:dragDropFileTarget>
@@ -64,6 +67,11 @@
   {#if $isFileDragActive}
     <DragAndDropFileTarget />
   {/if}
+  <div class="snackbar-container">
+    {#each $openedSnackbars as snackbar(snackbar.id)}
+      <Snackbar {...snackbar} />
+    {/each}
+  </div>
 </div>
 
 <style>
@@ -139,4 +147,11 @@
     bottom: var(--dim-statusbar-height);
     left: calc(var(--dim-widget-icon-size) + var(--dim-left-panel-width));
   }
+
+  .snackbar-container {
+    position: fixed;
+    right: 0;
+    bottom: var(--dim-statusbar-height);
+  }
+
 </style>
