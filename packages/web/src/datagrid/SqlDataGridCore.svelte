@@ -71,11 +71,7 @@
 </script>
 
 <script lang="ts">
-  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
-  import { scriptToSql } from 'dbgate-sqltree';
   import registerCommand from '../commands/registerCommand';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 

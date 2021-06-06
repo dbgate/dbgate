@@ -16,6 +16,7 @@
 
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
+
 </script>
 
 <script lang="ts">
@@ -46,6 +47,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
+  import { showSnackbarSuccess } from '../widgets/Snackbar.svelte';
 
   export let tabid;
   export let conid;
@@ -78,6 +80,7 @@
     } else {
       dispatchChangeSet({ type: 'reset', value: createChangeSet() });
       cache.update(reloadDataCacheFunc);
+      showSnackbarSuccess('Saved to database');
     }
   }
 
@@ -102,6 +105,7 @@
   }
 
   registerMenu({ command: 'tableData.save', tag: 'save' });
+
 </script>
 
 <TableDataGrid
