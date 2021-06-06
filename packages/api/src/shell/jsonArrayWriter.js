@@ -30,12 +30,13 @@ class StringifyStream extends stream.Transform {
     done();
   }
 
-  _flush() {
+  _flush(done) {
     if (!this.wasRecord) {
       this.push('[]\n');
     } else {
       this.push('\n]\n');
     }
+    done();
   }
 }
 
