@@ -69,7 +69,9 @@
   {/if}
   <div class="snackbar-container">
     {#each $openedSnackbars as snackbar}
-      <Snackbar {...snackbar} />
+      {#key snackbar.id}
+        <Snackbar {...snackbar} />
+      {/key}
     {/each}
   </div>
 </div>

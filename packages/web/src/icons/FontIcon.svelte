@@ -77,6 +77,7 @@
     'img error': 'mdi mdi-close-circle color-icon-red',
     'img error-inv': 'mdi mdi-close-circle color-icon-inv-red',
     'img warn': 'mdi mdi-alert color-icon-gold',
+    'img info': 'mdi mdi-information color-icon-blue',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
 
     'img archive': 'mdi mdi-table color-icon-gold',

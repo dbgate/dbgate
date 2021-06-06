@@ -47,7 +47,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
-  import { showSnackbarSuccess } from '../widgets/Snackbar.svelte';
+  import { showSnackbarSuccess } from '../utility/snackbar';
 
   export let tabid;
   export let conid;
