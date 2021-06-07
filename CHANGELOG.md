@@ -1,6 +1,9 @@
 # ChangeLog
 
-### 4.2.4 - to be released
+### 4.2.4
+- ADDED: Query history
+- ADDED: One-click exports in desktop app
+- ADDED: JSON array export
 - FIXED: Procedures in PostgreSQL #122
 - ADDED: Support of materialized views for PostgreSQL #123
 - ADDED: Integration tests
