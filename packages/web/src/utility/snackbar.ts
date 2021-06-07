@@ -63,11 +63,11 @@ export function closeSnackbar(snackId: string) {
 //     message: 'Test snackbar',
 //     allowClose: true,
 //   });
-showSnackbar({
-  icon: 'img ok',
-  message: 'Auto close',
-  autoClose: true,
-});
+// showSnackbar({
+//   icon: 'img ok',
+//   message: 'Auto close',
+//   autoClose: true,
+// });
 //   showSnackbar({
 //     icon: 'img warn',
 //     message: 'Buttons',
