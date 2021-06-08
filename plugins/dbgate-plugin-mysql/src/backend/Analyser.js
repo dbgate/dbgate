@@ -79,7 +79,7 @@ class Analyser extends DatabaseAnalyser {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: table.pureName,
-        contentHash: table.modifyDate.toISOString(),
+        contentHash: table.modifyDate?.toISOString(),
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
@@ -87,7 +87,7 @@ class Analyser extends DatabaseAnalyser {
       views: views.rows.map(view => ({
         ...view,
         objectId: view.pureName,
-        contentHash: view.modifyDate.toISOString(),
+        contentHash: view.modifyDate?.toISOString(),
         columns: columns.rows.filter(col => col.pureName == view.pureName).map(getColumnInfo),
         createSql: viewTexts[view.pureName],
         requiresFormat: true,
@@ -98,7 +98,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate.toISOString(),
+          contentHash: x.modifyDate?.toISOString(),
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
@@ -106,7 +106,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate.toISOString(),
+          contentHash: x.modifyDate?.toISOString(),
         })),
     };
   }
