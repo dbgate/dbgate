@@ -12,7 +12,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-import { getObjectTypeFieldLabel } from '../utility/common';
+  import { getObjectTypeFieldLabel } from '../utility/common';
 
   export let conid;
   export let database;
