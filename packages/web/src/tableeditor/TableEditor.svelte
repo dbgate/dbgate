@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { ColumnInfo, ForeignKeyInfo, PrimaryKeyInfo } from 'dbgate-types';
-
   import _ from 'lodash';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
@@ -14,10 +12,10 @@
 
   export let tableInfo;
 
-  $: columns = $tableInfo?.columns as ColumnInfo[];
-  $: primaryKey = $tableInfo?.primaryKey as PrimaryKeyInfo;
-  $: foreignKeys = $tableInfo?.foreignKeys as ForeignKeyInfo[];
-  $: dependencies = $tableInfo?.dependencies as ForeignKeyInfo[];
+  $: columns = $tableInfo?.columns;
+  $: primaryKey = $tableInfo?.primaryKey;
+  $: foreignKeys = $tableInfo?.foreignKeys;
+  $: dependencies = $tableInfo?.dependencies;
 
 </script>
 
