@@ -70,6 +70,7 @@
     'icon menu-right': 'mdi mdi-menu-right',
     'icon plugin': 'mdi mdi-toy-brick',
     'icon menu': 'mdi mdi-menu',
+    'icon add-column': 'mdi mdi-table-column-plus-after',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',

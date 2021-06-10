@@ -5,6 +5,8 @@
 </script>
 
 <script lang="ts">
+  import { generateTableGroupId } from 'dbgate-tools';
+
   import _ from 'lodash';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
@@ -25,9 +27,12 @@
   export let objectTypeField = 'tables';
 
   $: tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
+  $: tableInfoWithGroupId = $tableInfo ? generateTableGroupId($tableInfo) : null;
 
   const { editorState, editorValue, setEditorData } = useEditorData({ tabid });
 
+  $: showTable = $editorValue || tableInfoWithGroupId;
+
 </script>
 
-<TableEditor {tableInfo} />
+<TableEditor tableInfo={showTable} setTableInfo={objectTypeField == 'tables' ? setEditorData : null} />

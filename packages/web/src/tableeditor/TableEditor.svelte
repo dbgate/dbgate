@@ -1,21 +1,52 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('TableEditor');
+
+  registerCommand({
+    id: 'tableEditor.addColumn',
+    category: 'Table editor',
+    name: 'Add column',
+    icon: 'icon add-column',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.writable(),
+    onClick: () => getCurrentEditor().addColumn(),
+  });
+
+</script>
+
 <script lang="ts">
   import _ from 'lodash';
+  import registerCommand from '../commands/registerCommand';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import ConstraintLabel from '../elements/ConstraintLabel.svelte';
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
+  import { showModal } from '../modals/modalTools';
   import useEditorData from '../query/useEditorData';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   import { useDbCore } from '../utility/metadataLoaders';
+  import ColumnEditorModal from './ColumnEditorModal.svelte';
+
+  export const activator = createActivator('TableEditor', true);
 
   export let tableInfo;
+  export let setTableInfo;
 
-  $: columns = $tableInfo?.columns;
-  $: primaryKey = $tableInfo?.primaryKey;
-  $: foreignKeys = $tableInfo?.foreignKeys;
-  $: dependencies = $tableInfo?.dependencies;
+  export function writable() {
+    return !!setTableInfo;
+  }
+
+  export function addColumn() {
+    showModal(ColumnEditorModal, {});
+  }
+
+  $: columns = tableInfo?.columns;
+  $: primaryKey = tableInfo?.primaryKey;
+  $: foreignKeys = tableInfo?.foreignKeys;
+  $: dependencies = tableInfo?.dependencies;
 
 </script>
 

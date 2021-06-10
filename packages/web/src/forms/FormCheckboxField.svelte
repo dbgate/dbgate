@@ -4,10 +4,11 @@
 
   export let label;
   export let name;
-  export let disabled;
+  export let disabled = false;
   export let templateProps = {};
 
   const { template, setFieldValue, values } = getFormContext();
+
 </script>
 
 <svelte:component
