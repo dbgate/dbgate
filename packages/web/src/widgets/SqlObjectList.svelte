@@ -1,3 +1,17 @@
+<script lang="ts" context="module">
+  function generateObjectList(seed = 0) {
+    const counts = [1000, 1200, 1100, 2100, 720];
+    const schemas = ['A', 'dev', 'public', 'dbo'];
+    const types = ['tables', 'views', 'functions', 'procedures', 'matviews', 'triggers'];
+    const res = _.range(1, counts[seed % counts.length]).map(i => ({
+      pureName: `name ${i}`,
+      schemaName: schemas[i % schemas.length],
+      objectTypeField: types[i % types.length],
+    }));
+    return res;
+  }
+</script>
+
 <script lang="ts">
   import InlineButton from '../elements/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -32,6 +46,10 @@
       )
     )
   );
+
+  // let generateIndex = 0;
+  // setInterval(() => (generateIndex += 1), 2000);
+  // $: objectList = generateObjectList(generateIndex);
 
   const handleRefreshDatabase = () => {
     axiosInstance.post('database-connections/refresh', { conid, database });
