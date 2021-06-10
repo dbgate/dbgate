@@ -40,7 +40,7 @@
   }
 
   export function addColumn() {
-    showModal(ColumnEditorModal, {});
+    showModal(ColumnEditorModal, { setTableInfo });
   }
 
   $: columns = tableInfo?.columns;
@@ -54,6 +54,8 @@
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title="Columns"
+    clickable={writable()}
+    on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, setTableInfo })}
     columns={[
       {
         fieldName: 'notNull',

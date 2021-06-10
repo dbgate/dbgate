@@ -5,6 +5,7 @@
   export let collection;
   export let columns;
   export let showIfEmpty = false;
+  export let clickable;
 
 </script>
 
@@ -24,6 +25,8 @@
           },
           ...columns,
         ]}
+        {clickable}
+        on:clickrow
       >
         <svelte:fragment slot="-1" let:row>
           <slot name="name" {row} />
@@ -75,4 +78,5 @@
   .body {
     margin: 20px;
   }
+
 </style>

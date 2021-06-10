@@ -35,4 +35,13 @@
 
 </script>
 
-<TableEditor tableInfo={showTable} setTableInfo={objectTypeField == 'tables' ? setEditorData : null} />
+<TableEditor
+  tableInfo={showTable}
+  setTableInfo={objectTypeField == 'tables'
+    ? tableInfoUpdater =>
+        setEditorData(tbl => {
+          if (tbl) return tableInfoUpdater(tbl);
+          return tableInfoUpdater(tableInfoWithGroupId);
+        })
+    : null}
+/>
