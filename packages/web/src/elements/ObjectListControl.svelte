@@ -2,7 +2,6 @@
   import TableControl from './TableControl.svelte';
 
   export let title;
-  export let nameComponent;
   export let collection;
   export let columns;
   export let showIfEmpty = false;

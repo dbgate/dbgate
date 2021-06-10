@@ -11,3 +11,4 @@ export * from './SqlGenerator';
 export * from './structureTools';
 export * from './settingsExtractors';
 export * from './filterName';
+export * from './diffTools';
