@@ -139,6 +139,7 @@ class Analyser extends DatabaseAnalyser {
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
           objectId: `functions:${func.schema_name}.${func.pure_name}`,
+          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
           schemaName: func.schema_name,
           contentHash: func.hash_code,
