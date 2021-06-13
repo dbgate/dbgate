@@ -1,5 +1,10 @@
 # ChangeLog
 
+### 4.2.5
+- FIXED: Fixed crash when using large model on some installations
+- FIXED: Postgre SQL CREATE function 
+- FIXED: Analysing of MySQL when modifyDate is not known
+
 ### 4.2.4
 - ADDED: Query history
 - ADDED: One-click exports in desktop app
