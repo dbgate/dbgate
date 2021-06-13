@@ -45,7 +45,7 @@
           ]
         }
       ],
-      "icon": "icon.png",
+      "icon": "icons/",
       "category": "Development",
       "synopsis": "Database manager for SQL Server, MySQL, PostgreSQL, MongoDB and SQLite",
       "publish": [
