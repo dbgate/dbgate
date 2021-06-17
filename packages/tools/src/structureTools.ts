@@ -21,6 +21,7 @@ function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
       columns: (obj.columns || []).map(column => ({
         pureName: obj.pureName,
         schemaName: obj.schemaName,
+        isPrimaryKey: !!(obj.primaryKey && obj.primaryKey.columns.find(x => x.columnName == column.columnName)),
         ...column,
       })),
       primaryKey: obj.primaryKey

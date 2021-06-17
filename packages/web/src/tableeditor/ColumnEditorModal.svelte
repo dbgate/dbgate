@@ -22,15 +22,7 @@
 
 </script>
 
-<FormProvider
-  initialValues={{
-    ...columnInfo,
-    isPrimaryKey:
-      !!columnInfo &&
-      !!tableInfo?.primaryKey &&
-      !!tableInfo.primaryKey.columns.find(x => x.columnName == columnInfo.columnName),
-  }}
->
+<FormProvider initialValues={columnInfo}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
       >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment
