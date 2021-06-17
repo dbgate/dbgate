@@ -30,6 +30,7 @@
 
   import { useDbCore } from '../utility/metadataLoaders';
   import ColumnEditorModal from './ColumnEditorModal.svelte';
+import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -111,6 +112,9 @@
   <ObjectListControl
     collection={_.compact([primaryKey])}
     title="Primary key"
+    clickable={writable()}
+    on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+    
     columns={[
       {
         fieldName: 'columns',
