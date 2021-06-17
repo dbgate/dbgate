@@ -13,7 +13,7 @@
   import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
   import DropDownButton from '../elements/DropDownButton.svelte';
   import DataTypeEditor from './DataTypeEditor.svelte';
-  import { editorAddColumn, editorDeleteColumn, editorModifyColumn } from 'dbgate-tools';
+  import { editorAddColumn, editorDeleteColumn, editorModifyColumn, fillEditorColumnInfo } from 'dbgate-tools';
 
   export let columnInfo;
   export let setTableInfo;
@@ -22,7 +22,7 @@
 
 </script>
 
-<FormProvider initialValues={columnInfo}>
+<FormProvider initialValues={fillEditorColumnInfo(columnInfo, tableInfo)}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
       >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment

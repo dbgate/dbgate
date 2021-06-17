@@ -1,8 +1,41 @@
 import uuidv1 from 'uuid/v1';
 import { ColumnInfo, ConstraintInfo, PrimaryKeyInfo, TableInfo } from 'dbgate-types';
 
-function processPrimaryKey(table: TableInfo, oldColumn: ColumnInfo, newColumn: ColumnInfo) {
+export interface EditorColumnInfo extends ColumnInfo {
+  isPrimaryKey?: boolean;
+}
+
+export function fillEditorColumnInfo(column: ColumnInfo, table: TableInfo): EditorColumnInfo {
+  return {
+    isPrimaryKey: !!(table.primaryKey && table.primaryKey.columns.find(x => x.columnName == column.columnName)),
+    ...column,
+  };
+}
+
+function processPrimaryKey(table: TableInfo, oldColumn: EditorColumnInfo, newColumn: EditorColumnInfo) {
   if (!oldColumn?.isPrimaryKey && newColumn?.isPrimaryKey) {
+    //   let primaryKey = table.primaryKey
+    //   if (!primaryKey) {
+    //     primaryKey = {
+    //         constraintType: 'primaryKey',
+    //         pureName: table.pureName,
+    //         schemaName: table.schemaName,
+    //         columns: [],
+    //       };
+    //   }
+    //   return {
+    //       ...table,
+    //       primaryKey: {
+    //           ...primaryKey,
+    //           columns:[
+    //               ...primaryKey.columns,
+    //               {
+    //                 columnName: newColumn.columnName,
+    //               },
+
+    //           ]
+    //        }
+    //   }
     if (!table.primaryKey) {
       table.primaryKey = {
         constraintType: 'primaryKey',
@@ -34,7 +67,7 @@ function processPrimaryKey(table: TableInfo, oldColumn: ColumnInfo, newColumn: C
   }
 }
 
-export function editorAddColumn(table: TableInfo, column: ColumnInfo): TableInfo {
+export function editorAddColumn(table: TableInfo, column: EditorColumnInfo): TableInfo {
   const res = {
     ...table,
     columns: [...table.columns, { ...column, pairingId: uuidv1() }],
@@ -45,7 +78,7 @@ export function editorAddColumn(table: TableInfo, column: ColumnInfo): TableInfo
   return res;
 }
 
-export function editorModifyColumn(table: TableInfo, column: ColumnInfo): TableInfo {
+export function editorModifyColumn(table: TableInfo, column: EditorColumnInfo): TableInfo {
   const oldColumn = table?.columns?.find(x => x.pairingId == column.pairingId);
 
   const res = {
@@ -57,7 +90,7 @@ export function editorModifyColumn(table: TableInfo, column: ColumnInfo): TableI
   return res;
 }
 
-export function editorDeleteColumn(table: TableInfo, column: ColumnInfo): TableInfo {
+export function editorDeleteColumn(table: TableInfo, column: EditorColumnInfo): TableInfo {
   const res = {
     ...table,
     columns: table.columns.filter(col => col.pairingId != column.pairingId),

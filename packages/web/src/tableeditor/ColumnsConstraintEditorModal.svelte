@@ -30,6 +30,7 @@
     return {
       pairingId: uuidv1(),
       ...constraintInfo,
+      columns,
       pureName: tableInfo.pureName,
       schemaName: tableInfo.schemaName,
       constraintName,
@@ -56,14 +57,21 @@
       <div class="row">
         <div class="label col-3">Column {index + 1}</div>
         <div class="col-6">
-          <SelectField
-            value={column.columnName}
-            isNative
-            options={tableInfo.columns.map(col => ({
-              label: col.columnName,
-              value: col.columnName,
-            }))}
-          />
+          {#key column.columnName}
+            <SelectField
+              value={column.columnName}
+              isNative
+              options={tableInfo.columns.map(col => ({
+                label: col.columnName,
+                value: col.columnName,
+              }))}
+              on:change={e => {
+                if (e.detail) {
+                  columns = columns.map((col, i) => (i == index ? { columnName: e.detail } : col));
+                }
+              }}
+            />
+          {/key}
         </div>
         <div class="col-3 button">
           <FormStyledButton

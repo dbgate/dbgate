@@ -52,7 +52,6 @@ export interface ColumnInfo extends NamedObjectInfo {
   isSparse: boolean;
   defaultValue: string;
   defaultConstraint: string;
-  isPrimaryKey?: boolean; // only used in editor
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
