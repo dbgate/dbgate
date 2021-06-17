@@ -13,6 +13,7 @@
   import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
   import DropDownButton from '../elements/DropDownButton.svelte';
   import DataTypeEditor from './DataTypeEditor.svelte';
+  import { editorAddColumn, editorDeleteColumn, editorModifyColumn } from 'dbgate-tools';
 
   export let columnInfo;
   export let setTableInfo;
@@ -21,19 +22,25 @@
 
 </script>
 
-<FormProvider initialValues={columnInfo}>
+<FormProvider
+  initialValues={{
+    ...columnInfo,
+    isPrimaryKey:
+      !!columnInfo &&
+      !!tableInfo?.primaryKey &&
+      !!tableInfo.primaryKey.columns.find(x => x.columnName == columnInfo.columnName),
+  }}
+>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
       >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment
     >
 
     <FormTextField name="columnName" label="Column name" focused />
-    <!-- <FormTextField name="dataType" label="Data type" /> -->
     <DataTypeEditor />
 
-    <!-- <FormSelectField name="dataType" label="Data type" options={dataTypes} /> -->
     <FormCheckboxField name="notNull" label="NOT NULL" />
-    <!-- <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />  -->
+    <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
     <FormTextField name="defaultValue" label="Default value" />
     <FormTextField name="computedExpression" label="Computed expression" />
@@ -44,15 +51,9 @@
         on:click={e => {
           closeCurrentModal();
           if (columnInfo) {
-            setTableInfo(tbl => ({
-              ...tbl,
-              columns: tbl.columns.map(col => (col.pairingId == columnInfo.pairingId ? e.detail : col)),
-            }));
+            setTableInfo(tbl => editorModifyColumn(tbl, e.detail));
           } else {
-            setTableInfo(tbl => ({
-              ...tbl,
-              columns: [...tbl.columns, { ...e.detail, pairingId: uuidv1() }],
-            }));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
             if (onAddNext) onAddNext();
           }
         }}
@@ -63,10 +64,7 @@
           value="Save"
           on:click={e => {
             closeCurrentModal();
-            setTableInfo(tbl => ({
-              ...tbl,
-              columns: [...tbl.columns, { ...e.detail, pairingId: uuidv1() }],
-            }));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
           }}
         />
       {/if}
@@ -78,10 +76,7 @@
           value="Remove"
           on:click={() => {
             closeCurrentModal();
-            setTableInfo(tbl => ({
-              ...tbl,
-              columns: tbl.columns.filter(col => col.pairingId != columnInfo.pairingId),
-            }));
+            setTableInfo(tbl => editorDeleteColumn(tbl, columnInfo));
           }}
         />
       {/if}

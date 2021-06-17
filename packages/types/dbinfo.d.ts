@@ -10,7 +10,7 @@ export interface ColumnReference {
 
 export interface ConstraintInfo extends NamedObjectInfo {
   pairingId?: string;
-  constraintName: string;
+  constraintName?: string;
   constraintType: 'primaryKey' | 'foreignKey' | 'index' | 'check' | 'unique';
 }
 
@@ -52,6 +52,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   isSparse: boolean;
   defaultValue: string;
   defaultConstraint: string;
+  isPrimaryKey?: boolean; // only used in editor
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
