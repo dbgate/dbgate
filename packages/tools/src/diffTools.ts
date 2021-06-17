@@ -1,16 +1,16 @@
 import { TableInfo } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
 
-export function generateTableGroupId(table: TableInfo): TableInfo {
+export function generateTablePairingId(table: TableInfo): TableInfo {
   if (!table) return table;
-  if (!table.groupId) {
+  if (!table.pairingId) {
     return {
       ...table,
       columns: table.columns.map(col => ({
         ...col,
-        groupid: uuidv1(),
+        pairingId: col.pairingId || uuidv1(),
       })),
-      groupId: uuidv1(),
+      pairingId: table.pairingId || uuidv1(),
     };
   }
   return table;

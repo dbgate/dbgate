@@ -37,12 +37,12 @@
           if (columnInfo) {
             setTableInfo(tbl => ({
               ...tbl,
-              columns: tbl.columns.map(col => (col.groupId == columnInfo.groupId ? e.detail : col)),
+              columns: tbl.columns.map(col => (col.pairingId == columnInfo.pairingId ? e.detail : col)),
             }));
           } else {
             setTableInfo(tbl => ({
               ...tbl,
-              columns: [...tbl.columns, { ...e.detail, groupId: uuidv1() }],
+              columns: [...tbl.columns, { ...e.detail, pairingId: uuidv1() }],
             }));
           }
           // onConfirm();
@@ -57,7 +57,7 @@
             closeCurrentModal();
             setTableInfo(tbl => ({
               ...tbl,
-              columns: tbl.columns.filter(col => col.groupId != columnInfo.groupId),
+              columns: tbl.columns.filter(col => col.pairingId != columnInfo.pairingId),
             }));
           }}
         />

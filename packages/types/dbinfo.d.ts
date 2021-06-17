@@ -9,7 +9,7 @@ export interface ColumnReference {
 }
 
 export interface ConstraintInfo extends NamedObjectInfo {
-  groupId?: string;
+  pairingId?: string;
   constraintName: string;
   constraintType: 'primaryKey' | 'foreignKey' | 'index' | 'check' | 'unique';
 }
@@ -39,7 +39,7 @@ export interface CheckInfo extends ConstraintInfo {
 }
 
 export interface ColumnInfo extends NamedObjectInfo {
-  groupId?: string;
+  pairingId?: string;
   columnName: string;
   notNull: boolean;
   autoIncrement: boolean;
@@ -55,7 +55,7 @@ export interface ColumnInfo extends NamedObjectInfo {
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
-  groupId?: string;
+  pairingId?: string;
   objectId?: string;
   createDate?: string;
   modifyDate?: string;

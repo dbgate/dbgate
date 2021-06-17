@@ -5,7 +5,7 @@
 </script>
 
 <script lang="ts">
-  import { generateTableGroupId } from 'dbgate-tools';
+  import { generateTablePairingId } from 'dbgate-tools';
 
   import _ from 'lodash';
 
@@ -27,11 +27,11 @@
   export let objectTypeField = 'tables';
 
   $: tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
-  $: tableInfoWithGroupId = $tableInfo ? generateTableGroupId($tableInfo) : null;
+  $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
 
   const { editorState, editorValue, setEditorData } = useEditorData({ tabid });
 
-  $: showTable = $editorValue || tableInfoWithGroupId;
+  $: showTable = $editorValue || tableInfoWithPairingId;
 
 </script>
 
@@ -41,7 +41,7 @@
     ? tableInfoUpdater =>
         setEditorData(tbl => {
           if (tbl) return tableInfoUpdater(tbl);
-          return tableInfoUpdater(tableInfoWithGroupId);
+          return tableInfoUpdater(tableInfoWithPairingId);
         })
     : null}
 />
