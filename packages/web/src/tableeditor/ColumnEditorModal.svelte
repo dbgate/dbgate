@@ -11,6 +11,8 @@
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
   import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
+  import DropDownButton from '../elements/DropDownButton.svelte';
+  import DataTypeEditor from './DataTypeEditor.svelte';
 
   export let columnInfo;
   export let setTableInfo;
@@ -26,8 +28,10 @@
     >
 
     <FormTextField name="columnName" label="Column name" focused />
-    <FormTextField name="dataType" label="Data type" />
-    <!-- <FormSelectField name="dataType" label="Data type" /> -->
+    <!-- <FormTextField name="dataType" label="Data type" /> -->
+    <DataTypeEditor />
+
+    <!-- <FormSelectField name="dataType" label="Data type" options={dataTypes} /> -->
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <!-- <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />  -->
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />

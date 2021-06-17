@@ -4,6 +4,7 @@
   import clickOutside from '../utility/clickOutside';
   import keycodes from '../utility/keycodes';
   import { onMount } from 'svelte';
+  import { currentDropDownMenu } from '../stores';
 
   export let fullScreen = false;
   export let noPadding = false;
@@ -14,6 +15,11 @@
     if (modalId == getActiveModalId()) {
       closeModal(modalId);
     }
+  }
+
+  function handleClickOutside() {
+    if ($currentDropDownMenu) return;
+    handleCloseModal();
   }
 
   function handleEscape(e) {
@@ -28,12 +34,13 @@
       if (oldFocus) oldFocus.focus();
     };
   });
+
 </script>
 
 <!-- The Modal -->
 <div id="myModal" class="bglayer">
   <!-- Modal content -->
-  <div class="window" class:fullScreen class:simple use:clickOutside on:clickOutside={handleCloseModal}>
+  <div class="window" class:fullScreen class:simple use:clickOutside on:clickOutside={handleClickOutside}>
     {#if $$slots.header}
       <div class="header" class:fullScreen>
         <div><slot name="header" /></div>
@@ -153,4 +160,5 @@
     border-top: 1px solid var(--theme-border);
     background-color: var(--theme-bg-modalheader);
   }
+
 </style>
