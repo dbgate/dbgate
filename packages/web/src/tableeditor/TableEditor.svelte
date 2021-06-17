@@ -16,6 +16,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import { tick } from 'svelte';
   import registerCommand from '../commands/registerCommand';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
@@ -40,13 +41,22 @@
   }
 
   export function addColumn() {
-    showModal(ColumnEditorModal, { setTableInfo });
+    showModal(ColumnEditorModal, {
+      setTableInfo,
+      tableInfo,
+      onAddNext: async () => {
+        await tick();
+        addColumn();
+      },
+    });
   }
 
   $: columns = tableInfo?.columns;
   $: primaryKey = tableInfo?.primaryKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
+
+  $: console.log('tableInfo', tableInfo);
 
 </script>
 
@@ -55,7 +65,7 @@
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title="Columns"
     clickable={writable()}
-    on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, setTableInfo })}
+    on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
         fieldName: 'notNull',

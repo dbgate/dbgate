@@ -14,15 +14,20 @@
 
   export let columnInfo;
   export let setTableInfo;
+  export let tableInfo;
+  export let onAddNext;
 
 </script>
 
 <FormProvider initialValues={columnInfo}>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">{columnInfo ? 'Edit column' : 'Add new column'}</svelte:fragment>
+    <svelte:fragment slot="header"
+      >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment
+    >
 
-    <FormTextField name="columnName" label="Column name" />
+    <FormTextField name="columnName" label="Column name" focused />
     <FormTextField name="dataType" label="Data type" />
+    <!-- <FormSelectField name="dataType" label="Data type" /> -->
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <!-- <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />  -->
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
@@ -31,7 +36,7 @@
 
     <svelte:fragment slot="footer">
       <FormSubmit
-        value="OK"
+        value={columnInfo ? 'Save' : 'Save and next'}
         on:click={e => {
           closeCurrentModal();
           if (columnInfo) {
@@ -44,10 +49,24 @@
               ...tbl,
               columns: [...tbl.columns, { ...e.detail, pairingId: uuidv1() }],
             }));
+            if (onAddNext) onAddNext();
           }
-          // onConfirm();
         }}
       />
+      {#if !columnInfo}
+        <FormStyledButton
+          type="button"
+          value="Save"
+          on:click={e => {
+            closeCurrentModal();
+            setTableInfo(tbl => ({
+              ...tbl,
+              columns: [...tbl.columns, { ...e.detail, pairingId: uuidv1() }],
+            }));
+          }}
+        />
+      {/if}
+
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
       {#if columnInfo}
         <FormStyledButton
