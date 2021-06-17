@@ -12,11 +12,23 @@
     onClick: () => getCurrentEditor().addColumn(),
   });
 
+  registerCommand({
+    id: 'tableEditor.addPrimaryKey',
+    category: 'Table editor',
+    name: 'Add primary key',
+    icon: 'icon add-key',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.allowAddPrimaryKey(),
+    onClick: () => getCurrentEditor().addPrimaryKey(),
+  });
+
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
   import { tick } from 'svelte';
+  import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
@@ -30,7 +42,7 @@
 
   import { useDbCore } from '../utility/metadataLoaders';
   import ColumnEditorModal from './ColumnEditorModal.svelte';
-import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
+  import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -52,10 +64,26 @@ import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
     });
   }
 
+  export function allowAddPrimaryKey() {
+    return writable() && !tableInfo.primaryKey;
+  }
+
+  export function addPrimaryKey() {
+    showModal(PrimaryKeyEditorModal, {
+      setTableInfo,
+      tableInfo,
+    });
+  }
+
   $: columns = tableInfo?.columns;
   $: primaryKey = tableInfo?.primaryKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
+
+  $: {
+    tableInfo;
+    invalidateCommands();
+  }
 
   $: console.log('tableInfo', tableInfo);
 
@@ -114,7 +142,6 @@ import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
     title="Primary key"
     clickable={writable()}
     on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
-    
     columns={[
       {
         fieldName: 'columns',

@@ -71,6 +71,7 @@
     'icon plugin': 'mdi mdi-toy-brick',
     'icon menu': 'mdi mdi-menu',
     'icon add-column': 'mdi mdi-table-column-plus-after',
+    'icon add-key': 'mdi mdi-key-plus',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
@@ -114,6 +115,7 @@
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
   };
+
 </script>
 
 <span class={iconNames[icon] || icon} {title} on:click />
