@@ -54,6 +54,13 @@ const engines = [
         drop1: 'DROP PROCEDURE obj1',
         drop2: 'DROP PROCEDURE obj2',
       },
+      {
+        type: 'functions',
+        create1: 'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
+        create2: 'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
+        drop1: 'DROP FUNCTION obj1',
+        drop2: 'DROP FUNCTION obj2',
+      },
     ],
   },
   {

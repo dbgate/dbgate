@@ -6,7 +6,7 @@ const Analyser = require('./Analyser');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
 const Cursor = require('mongodb').Cursor;
-const { createBulkInsertStream } = require('./createBulkInsertStream');
+const createBulkInsertStream = require('./createBulkInsertStream');
 
 function readCursor(cursor, options) {
   return new Promise((resolve) => {

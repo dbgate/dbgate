@@ -66,8 +66,6 @@
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
-  import { useSettings } from '../utility/metadataLoaders';
-  import { getCurrentSettings } from '../stores';
   import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let config;

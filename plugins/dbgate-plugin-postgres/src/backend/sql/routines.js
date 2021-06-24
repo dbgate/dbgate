@@ -5,6 +5,7 @@ select
   routine_definition as "definition",
   md5(routine_definition) as "hash_code",
   routine_type as "object_type",
+  data_type as "data_type",
   external_language as "language"
 from
   information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' 
