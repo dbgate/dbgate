@@ -46,6 +46,8 @@
       />
       <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
 
+      <FormCheckboxField name="dataGrid.thousandsSeparator" label="Use thounds separator for numbers" />
+
       <div class="heading">Connection</div>
       <FormCheckboxField
         name="connection.autoRefresh"

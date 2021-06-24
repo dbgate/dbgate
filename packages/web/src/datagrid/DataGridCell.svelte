@@ -13,6 +13,18 @@
   }
 
   const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
+
+  function formatNumber(value) {
+    if (value >= 10000 || value <= -10000) {
+      if (getBoolSettingsValue('dataGrid.thousandsSeparator', false)) {
+        return value.toLocaleString();
+      } else {
+        return value.toString();
+      }
+    }
+
+    return value.toString();
+  }
 </script>
 
 <script lang="ts">
@@ -20,6 +32,7 @@
   import _ from 'lodash';
   import { isTypeLogical } from 'dbgate-tools';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let rowIndex;
   export let col;
@@ -80,16 +93,10 @@
         0
       {/if}
     {:else if _.isNumber(value)}
-      {#if value >= 10000 || value <= -10000}
-        {#if isDynamicStructure}
-          <span class="value">{value.toLocaleString()}</span>
-        {:else}
-          {value.toLocaleString()}
-        {/if}
-      {:else if isDynamicStructure}
-        <span class="value">{value.toString()}</span>
+      {#if isDynamicStructure}
+        <span class="value">{formatNumber(value)}</span>
       {:else}
-        {value.toString()}
+        {formatNumber(value)}
       {/if}
     {:else if _.isString(value)}
       {#if dateTimeRegex.test(value)}
