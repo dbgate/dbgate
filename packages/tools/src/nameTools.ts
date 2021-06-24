@@ -21,6 +21,13 @@ export function fullNameToString({ schemaName, pureName }) {
   return pureName;
 }
 
+export function fullNameToLabel({ schemaName, pureName }) {
+  if (schemaName) {
+    return `${schemaName}.${pureName}`;
+  }
+  return pureName;
+}
+
 export function quoteFullName(dialect, { schemaName, pureName }) {
   if (schemaName) return `${dialect.quoteIdentifier(schemaName)}.${dialect.quoteIdentifier(pureName)}`;
   return `${dialect.quoteIdentifier(pureName)}`;

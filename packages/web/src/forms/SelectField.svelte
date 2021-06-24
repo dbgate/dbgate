@@ -9,6 +9,7 @@
   export let value;
   export let isNative = false;
   export let isMulti = false;
+  export let notSelected = null;
 
   let listOpen = false;
   let isFocused = false;
@@ -25,6 +26,11 @@
       dispatch('change', e.target['value']);
     }}
   >
+    {#if notSelected}
+      <option value="" selected={!value}>
+        {_.isString(notSelected) ? notSelected : '(not selected)'}
+      </option>
+    {/if}
     {#each _.compact(options) as x (x.value)}
       <option value={x.value} selected={value == x.value}>
         {x.label}

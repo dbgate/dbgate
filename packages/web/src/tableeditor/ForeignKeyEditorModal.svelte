@@ -13,7 +13,14 @@
   import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
   import DropDownButton from '../elements/DropDownButton.svelte';
   import DataTypeEditor from './DataTypeEditor.svelte';
-  import { editorAddConstraint, editorDeleteConstraint, editorModifyConstraint } from 'dbgate-tools';
+  import {
+    editorAddConstraint,
+    editorDeleteConstraint,
+    editorModifyConstraint,
+    fullNameFromString,
+    fullNameToLabel,
+    fullNameToString,
+  } from 'dbgate-tools';
   import TextField from '../forms/TextField.svelte';
   import SelectField from '../forms/SelectField.svelte';
 
@@ -56,11 +63,33 @@
     </div>
 
     <div class="row">
+      <div class="label col-3">Referenced table</div>
+      <div class="col-9">
+        <SelectField
+          value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
+          isNative
+          notSelected
+          options={(dbInfo?.tables || []).map(tbl => ({
+            label: fullNameToLabel(tbl),
+            value: fullNameToString(tbl),
+          }))}
+          on:change={e => {
+            if (e.detail) {
+              const name = fullNameFromString(e.detail);
+              refTableName = name.pureName;
+              refSchemaName = name.schemaName;
+            }
+          }}
+        />
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col-5 mr-1">
         Base column - {tableInfo.pureName}
       </div>
       <div class="col-5 ml-1">
-        Ref column - {refTableName}
+        Ref column - {refTableName || '(table not set)'}
       </div>
     </div>
 
@@ -71,13 +100,11 @@
             <SelectField
               value={column.columnName}
               isNative
-              options={[
-                { label: '(Not selected)', value: '' },
-                ...tableInfo.columns.map(col => ({
-                  label: col.columnName,
-                  value: col.columnName,
-                })),
-              ]}
+              notSelected
+              options={tableInfo.columns.map(col => ({
+                label: col.columnName,
+                value: col.columnName,
+              }))}
               on:change={e => {
                 if (e.detail) {
                   columns = columns.map((col, i) => (i == index ? { ...col, columnName: e.detail } : col));
@@ -91,13 +118,11 @@
             <SelectField
               value={column.refColumnName}
               isNative
-              options={[
-                { label: '(Not selected)', value: '' },
-                ...(refTableInfo?.columns || []).map(col => ({
-                  label: col.columnName,
-                  value: col.columnName,
-                })),
-              ]}
+              notSelected
+              options={(refTableInfo?.columns || []).map(col => ({
+                label: col.columnName,
+                value: col.columnName,
+              }))}
               on:change={e => {
                 if (e.detail) {
                   columns = columns.map((col, i) => (i == index ? { ...col, refColumnName: e.detail } : col));

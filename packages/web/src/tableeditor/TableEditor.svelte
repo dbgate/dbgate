@@ -22,6 +22,17 @@
     testEnabled: () => getCurrentEditor()?.allowAddPrimaryKey(),
     onClick: () => getCurrentEditor().addPrimaryKey(),
   });
+
+  registerCommand({
+    id: 'tableEditor.addForeignKey',
+    category: 'Table editor',
+    name: 'Add foreign key',
+    icon: 'icon add-key',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.writable(),
+    onClick: () => getCurrentEditor().addForeignKey(),
+  });
 </script>
 
 <script lang="ts">
@@ -73,6 +84,14 @@
     showModal(PrimaryKeyEditorModal, {
       setTableInfo,
       tableInfo,
+    });
+  }
+
+  export function addForeignKey() {
+    showModal(ForeignKeyEditorModal, {
+      setTableInfo,
+      tableInfo,
+      dbInfo,
     });
   }
 
