@@ -39,7 +39,7 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       break;
     case 'like':
       dumpSqlExpression(dmp, condition.left);
-      dmp.put(' ^like ');
+      dmp.put(dmp.dialect.ilike ? ' ^ilike ' : ' ^like ');
       dumpSqlExpression(dmp, condition.right);
       break;
     case 'notLike':

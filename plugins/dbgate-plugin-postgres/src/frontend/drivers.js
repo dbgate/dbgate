@@ -5,6 +5,7 @@ const { postgreSplitterOptions } = require('dbgate-query-splitter/lib/options');
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
+  ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',

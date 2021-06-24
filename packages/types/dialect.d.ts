@@ -1,6 +1,7 @@
 export interface SqlDialect {
   rangeSelect?: boolean;
   limitSelect?: boolean;
+  ilike?: boolean;
   rowNumberOverPaging?: boolean;
   stringEscapeChar: string;
   offsetFetchRangeSyntax?: boolean;
