@@ -22,7 +22,6 @@
     testEnabled: () => getCurrentEditor()?.allowAddPrimaryKey(),
     onClick: () => getCurrentEditor().addPrimaryKey(),
   });
-
 </script>
 
 <script lang="ts">
@@ -42,12 +41,14 @@
 
   import { useDbCore } from '../utility/metadataLoaders';
   import ColumnEditorModal from './ColumnEditorModal.svelte';
+  import ForeignKeyEditorModal from './ForeignKeyEditorModal.svelte';
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
   export let tableInfo;
   export let setTableInfo;
+  export let dbInfo;
 
   export function writable() {
     return !!setTableInfo;
@@ -86,7 +87,6 @@
   }
 
   $: console.log('tableInfo', tableInfo);
-
 </script>
 
 <div class="wrapper">
@@ -154,7 +154,12 @@
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
   </ObjectListControl>
 
-  <ForeignKeyObjectListControl collection={foreignKeys} title="Foreign keys" />
+  <ForeignKeyObjectListControl
+    collection={foreignKeys}
+    title="Foreign keys"
+    clickable={writable()}
+    on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
+  />
   <ForeignKeyObjectListControl collection={dependencies} title="Dependencies" />
 </div>
 
@@ -168,5 +173,4 @@
     background-color: var(--theme-bg-0);
     overflow: auto;
   }
-
 </style>

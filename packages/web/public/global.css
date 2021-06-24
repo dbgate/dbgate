@@ -55,6 +55,10 @@ body {
   position: relative;
 }
 
+.col-10 {
+  flex-basis: 83.3333%;
+  max-width: 83.3333%;
+}
 .col-9 {
   flex-basis: 75%;
   max-width: 75%;
@@ -63,9 +67,17 @@ body {
   flex-basis: 66.6667%;
   max-width: 66.6667%;
 }
+.col-7 {
+  flex-basis: 58.3333%;
+  max-width: 58.3333%;
+}
 .col-6 {
   flex-basis: 50%;
   max-width: 50%;
+}
+.col-5 {
+  flex-basis: 41.6667%;
+  max-width: 41.6667%;
 }
 .col-4 {
   flex-basis: 33.3333%;
@@ -74,6 +86,10 @@ body {
 .col-3 {
   flex-basis: 25%;
   max-width: 25%;
+}
+.col-2 {
+  flex-basis: 16.6666%;
+  max-width: 16.6666%;
 }
 
 .largeFormMarker input[type='text'] {

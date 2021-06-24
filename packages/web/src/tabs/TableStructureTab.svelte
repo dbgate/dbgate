@@ -1,7 +1,6 @@
 <script lang="ts" context="module">
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
-
 </script>
 
 <script lang="ts">
@@ -17,7 +16,7 @@
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
 
-  import { useDbCore } from '../utility/metadataLoaders';
+  import { useDatabaseInfo, useDbCore } from '../utility/metadataLoaders';
 
   export let tabid;
   export let conid;
@@ -27,16 +26,17 @@
   export let objectTypeField = 'tables';
 
   $: tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
+  $: dbInfo = useDatabaseInfo({ conid, database });
   $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
 
   const { editorState, editorValue, setEditorData } = useEditorData({ tabid });
 
   $: showTable = $editorValue || tableInfoWithPairingId;
-
 </script>
 
 <TableEditor
   tableInfo={showTable}
+  dbInfo={$dbInfo}
   setTableInfo={objectTypeField == 'tables'
     ? tableInfoUpdater =>
         setEditorData(tbl => {

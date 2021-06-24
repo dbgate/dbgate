@@ -7,11 +7,14 @@
 
   export let collection;
   export let title;
+  export let clickable;
 </script>
 
 <ObjectListControl
   {collection}
   {title}
+  {clickable}
+  on:clickrow
   columns={[
     {
       fieldName: 'baseColumns',
