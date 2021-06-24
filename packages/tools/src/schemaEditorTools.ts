@@ -1,6 +1,6 @@
 import uuidv1 from 'uuid/v1';
 import _omit from 'lodash/omit';
-import { ColumnInfo, ConstraintInfo, PrimaryKeyInfo, TableInfo } from 'dbgate-types';
+import { ColumnInfo, ConstraintInfo, ForeignKeyInfo, PrimaryKeyInfo, TableInfo } from 'dbgate-types';
 
 export interface EditorColumnInfo extends ColumnInfo {
   isPrimaryKey?: boolean;
@@ -107,6 +107,16 @@ export function editorAddConstraint(table: TableInfo, constraint: ConstraintInfo
     } as PrimaryKeyInfo;
   }
 
+  if (constraint.constraintType == 'foreignKey') {
+    res.foreignKeys = [
+      ...(res.foreignKeys || []),
+      {
+        pairingId: uuidv1(),
+        ...constraint,
+      } as ForeignKeyInfo,
+    ];
+  }
+
   return res;
 }
 
@@ -122,6 +132,12 @@ export function editorModifyConstraint(table: TableInfo, constraint: ConstraintI
     };
   }
 
+  if (constraint.constraintType == 'foreignKey') {
+    res.foreignKeys = table.foreignKeys.map(fk =>
+      fk.pairingId == constraint.pairingId ? { ...fk, ...constraint } : fk
+    );
+  }
+
   return res;
 }
 
@@ -132,6 +148,10 @@ export function editorDeleteConstraint(table: TableInfo, constraint: ConstraintI
 
   if (constraint.constraintType == 'primaryKey') {
     res.primaryKey = null;
+  }
+
+  if (constraint.constraintType == 'foreignKey') {
+    res.foreignKeys = table.foreignKeys.filter(x => x.pairingId != constraint.pairingId);
   }
 
   return res;

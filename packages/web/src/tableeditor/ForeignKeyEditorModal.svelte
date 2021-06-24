@@ -71,10 +71,13 @@
             <SelectField
               value={column.columnName}
               isNative
-              options={tableInfo.columns.map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              }))}
+              options={[
+                { label: '(Not selected)', value: '' },
+                ...tableInfo.columns.map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                })),
+              ]}
               on:change={e => {
                 if (e.detail) {
                   columns = columns.map((col, i) => (i == index ? { ...col, columnName: e.detail } : col));
@@ -88,10 +91,13 @@
             <SelectField
               value={column.refColumnName}
               isNative
-              options={(refTableInfo?.columns || []).map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              }))}
+              options={[
+                { label: '(Not selected)', value: '' },
+                ...(refTableInfo?.columns || []).map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                })),
+              ]}
               on:change={e => {
                 if (e.detail) {
                   columns = columns.map((col, i) => (i == index ? { ...col, refColumnName: e.detail } : col));
