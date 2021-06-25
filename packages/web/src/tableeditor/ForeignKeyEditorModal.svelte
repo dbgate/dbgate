@@ -23,16 +23,25 @@
   } from 'dbgate-tools';
   import TextField from '../forms/TextField.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import _ from 'lodash';
 
   export let constraintInfo;
   export let setTableInfo;
   export let tableInfo;
   export let dbInfo;
 
+  const foreignKeyActions = ['noAction', 'cascade', 'restrict', 'setNull'];
+  const foreignKeyActionsOptions = foreignKeyActions.map(x => ({
+    label: _.startCase(x),
+    value: x,
+  }));
+
   let constraintName = constraintInfo?.constraintName;
   let columns = constraintInfo?.columns || [];
   let refTableName = constraintInfo?.refTableName;
   let refSchemaName = constraintInfo?.refSchemaName;
+  let deleteAction = constraintInfo?.deleteAction ? _.camelCase(constraintInfo?.deleteAction) : null;
+  let updateAction = constraintInfo?.updateAction ? _.camelCase(constraintInfo?.updateAction) : null;
 
   $: refTableInfo = dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
 
@@ -47,6 +56,8 @@
       constraintType: 'foreignKey',
       refTableName,
       refSchemaName,
+      deleteAction: _.startCase(deleteAction).toUpperCase(),
+      updateAction: _.startCase(updateAction).toUpperCase(),
     };
   }
 </script>
@@ -79,6 +90,36 @@
               refTableName = name.pureName;
               refSchemaName = name.schemaName;
             }
+          }}
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="label col-3">On update action</div>
+      <div class="col-9">
+        <SelectField
+          value={updateAction}
+          isNative
+          notSelected
+          options={foreignKeyActionsOptions}
+          on:change={e => {
+            updateAction = e.detail || null;
+          }}
+        />
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="label col-3">On delete action</div>
+      <div class="col-9">
+        <SelectField
+          value={deleteAction}
+          isNative
+          notSelected
+          options={foreignKeyActionsOptions}
+          on:change={e => {
+            deleteAction = e.detail || null;
           }}
         />
       </div>
