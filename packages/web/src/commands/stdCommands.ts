@@ -1,4 +1,4 @@
-import { currentTheme, extensions, getVisibleToolbar, visibleToolbar } from '../stores';
+import { currentDatabase, currentTheme, extensions, getVisibleToolbar, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
 import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
@@ -17,6 +17,7 @@ import { getDefaultFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 import hasPermission from '../utility/hasPermission';
+import _ from 'lodash';
 
 const electron = getElectron();
 
@@ -101,6 +102,37 @@ registerCommand({
       icon: 'img shell',
       tabComponent: 'ShellTab',
     });
+  },
+});
+
+registerCommand({
+  id: 'new.table',
+  category: 'New',
+  icon: 'img table',
+  name: 'Table',
+  toolbar: true,
+  toolbarName: 'New table',
+  onClick: () => {
+    const $currentDatabase = get(currentDatabase);
+    const connection = _.get($currentDatabase, 'connection') || {};
+    const database = _.get($currentDatabase, 'name');
+
+    openNewTab(
+      {
+        title: 'Table #',
+        icon: 'img table',
+        tabComponent: 'TableStructureTab',
+        props: {
+          conid: connection._id,
+          database,
+        },
+      },
+      {
+        editor: {
+          columns: [],
+        },
+      }
+    );
   },
 });
 
