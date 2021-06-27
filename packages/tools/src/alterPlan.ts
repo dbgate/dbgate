@@ -1,4 +1,4 @@
-import { ColumnInfo, ConstraintInfo, DatabaseInfo, TableInfo } from '../../types';
+import { AlterProcessor, ColumnInfo, ConstraintInfo, DatabaseInfo, NamedObjectInfo, TableInfo } from '../../types';
 
 interface AlterOperation_CreateTable {
   operationType: 'createTable';
@@ -10,6 +10,12 @@ interface AlterOperation_DropTable {
   oldObject: TableInfo;
 }
 
+interface AlterOperation_RenameTable {
+  operationType: 'renameTable';
+  object: TableInfo;
+  newName: string;
+}
+
 interface AlterOperation_CreateColumn {
   operationType: 'createColumn';
   newObject: ColumnInfo;
@@ -19,6 +25,12 @@ interface AlterOperation_ChangeColumn {
   operationType: 'changeColumn';
   oldObject: ColumnInfo;
   newObject: ColumnInfo;
+}
+
+interface AlterOperation_RenameColumn {
+  operationType: 'renameColumn';
+  object: ColumnInfo;
+  newName: string;
 }
 
 interface AlterOperation_DropColumn {
@@ -42,6 +54,12 @@ interface AlterOperation_DropConstraint {
   oldObject: ConstraintInfo;
 }
 
+interface AlterOperation_RenameConstraint {
+  operationType: 'renameConstraint';
+  object: ConstraintInfo;
+  newName: string;
+}
+
 type AlterOperation =
   | AlterOperation_CreateColumn
   | AlterOperation_ChangeColumn
@@ -50,7 +68,10 @@ type AlterOperation =
   | AlterOperation_ChangeConstraint
   | AlterOperation_DropConstraint
   | AlterOperation_CreateTable
-  | AlterOperation_DropTable;
+  | AlterOperation_DropTable
+  | AlterOperation_RenameTable
+  | AlterOperation_RenameColumn
+  | AlterOperation_RenameConstraint;
 
 export class AlterPlan {
   operations: AlterOperation[] = [];
@@ -114,4 +135,53 @@ export class AlterPlan {
     });
   }
 
+  renameTable(table: TableInfo, newName: string) {
+    this.operations.push({
+      operationType: 'renameTable',
+      object: table,
+      newName,
+    });
+  }
+
+  renameColumn(column: ColumnInfo, newName: string) {
+    this.operations.push({
+      operationType: 'renameColumn',
+      object: column,
+      newName,
+    });
+  }
+
+  renameConstraint(constraint: ConstraintInfo, newName: string) {
+    this.operations.push({
+      operationType: 'renameConstraint',
+      object: constraint,
+      newName,
+    });
+  }
+}
+
+export function runAlterOperation(op: AlterOperation, processor: AlterProcessor) {
+  switch (op.operationType) {
+    case 'createTable':
+      processor.createTable(op.newObject);
+      break;
+    case 'changeColumn':
+      processor.changeColumn(op.oldObject, op.newObject);
+      break;
+    case 'createColumn':
+      processor.createColumn(op.newObject, []);
+      break;
+    case 'dropColumn':
+      processor.dropColumn(op.oldObject);
+      break;
+    case 'changeConstraint':
+      processor.changeConstraint(op.oldObject, op.newObject);
+      break;
+    case 'createConstraint':
+      processor.createConstraint(op.newObject);
+      break;
+    case 'dropConstraint':
+      processor.dropConstraint(op.oldObject);
+      break;
+  }
 }

@@ -15,12 +15,13 @@ import {
   IndexInfo,
   UniqueInfo,
   CheckInfo,
+  AlterProcessor,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
 import _isDate from 'lodash/isDate';
 
-export class SqlDumper {
+export class SqlDumper implements AlterProcessor {
   s = '';
   driver: EngineDriver;
   dialect: SqlDialect;
@@ -416,8 +417,8 @@ export class SqlDumper {
 
   renameConstraint(constraint: ConstraintInfo, newName: string) {}
 
-  createColumn(table: TableInfo, column: ColumnInfo, constraints: ConstraintInfo[]) {
-    this.put('^alter ^table %f ^add %i ', table, column.columnName);
+  createColumn(column: ColumnInfo, constraints: ConstraintInfo[]) {
+    this.put('^alter ^table %f ^add %i ', column, column.columnName);
     this.columnDefinition(column);
     this.inlineConstraints(constraints);
     this.endCommand();
