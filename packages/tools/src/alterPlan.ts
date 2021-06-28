@@ -158,6 +158,12 @@ export class AlterPlan {
       newName,
     });
   }
+
+  run(processor: AlterProcessor) {
+    for (const op of this.operations) {
+      runAlterOperation(op, processor);
+    }
+  }
 }
 
 export function runAlterOperation(op: AlterOperation, processor: AlterProcessor) {
