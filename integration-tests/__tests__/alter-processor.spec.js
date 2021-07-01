@@ -51,6 +51,12 @@ async function testTableDiff(conn, driver, mangle) {
   // expect(stableStringify(structure2)).toEqual(stableStringify(structure2Real));
 }
 
+function engines_columns_source() {
+  return _.flatten(
+    engines.map(engine => ['col_std', 'col_def', 'col_fk', 'col_idx'].map(column => [engine.label, column, engine]))
+  );
+}
+
 describe('Alter processor', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Add column - %s',
@@ -67,41 +73,31 @@ describe('Alter processor', () => {
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Drop column - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != 'col_std')));
+  test.each(engines_columns_source())(
+    'Drop column - %s - %s',
+    testWrapper(async (conn, driver, column, engine) => {
+      await testTableDiff(conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != column)));
     })
   );
 
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Drop column with default - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != 'col_def')));
-    })
-  );
-
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Drop column with fk - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != 'col_fk')));
-    })
-  );
-
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Drop column with index - %s',
-    testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(conn, driver, tbl => (tbl.columns = tbl.columns.filter(x => x.columnName != 'col_idx')));
-    })
-  );
-
-  test.each(engines.map(engine => [engine.label, engine]))(
-    'Change nullability - %s',
-    testWrapper(async (conn, driver, engine) => {
+  test.each(engines_columns_source())(
+    'Change nullability - %s - %s',
+    testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
         conn,
         driver,
-        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == 'col_std' ? { ...x, notNull: true } : x)))
+        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, notNull: true } : x)))
+      );
+    })
+  );
+
+  test.each(engines_columns_source())(
+    'Rename column - %s',
+    testWrapper(async (conn, driver, column, engine) => {
+      await testTableDiff(
+        conn,
+        driver,
+        tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x)))
       );
     })
   );
