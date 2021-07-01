@@ -1,4 +1,4 @@
-const { SqlDumper } = global.DBGATE_TOOLS;
+const { SqlDumper, testEqualColumns } = global.DBGATE_TOOLS;
 
 class MsSqlDumper extends SqlDumper {
   autoIncrement() {
@@ -86,6 +86,21 @@ class MsSqlDumper extends SqlDumper {
 
   renameColumn(column, newcol) {
     this.putCmd("^execute sp_rename '%f.%i', '%s', 'COLUMN'", column, column.columnName, newcol);
+  }
+
+  changeColumn(oldcol, newcol, constraints) {
+    if (testEqualColumns(oldcol, newcol, false, false)) {
+      this.dropDefault(oldcol);
+      if (oldcol.columnName != newcol.columnName) this.renameColumn(oldcol, newcol.columnName);
+      this.createDefault(oldcol);
+    } else {
+      this.dropDefault(oldcol);
+      if (oldcol.columnName != newcol.columnName) this.renameColumn(oldcol, newcol.columnName);
+      this.put('^alter ^table %f ^alter ^column %i ', oldcol, oldcol.columnName, newcol.columnName);
+      this.columnDefinition(newcol, { includeDefault: false });
+      this.endCommand();
+      this.createDefault(oldcol);
+    }
   }
 
   renameConstraint(cnt, newname) {

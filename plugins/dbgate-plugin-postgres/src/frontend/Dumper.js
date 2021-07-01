@@ -1,4 +1,4 @@
-const { SqlDumper } = global.DBGATE_TOOLS;
+const { SqlDumper, testEqualTypes } = global.DBGATE_TOOLS;
 
 class Dumper extends SqlDumper {
   /** @param type {import('dbgate-types').TransformType} */
@@ -60,6 +60,31 @@ class Dumper extends SqlDumper {
       return;
     }
     super.columnDefinition(col, options);
+  }
+
+  changeColumn(oldcol, newcol, constraints) {
+    if (oldcol.columnName != newcol.columnName) {
+      this.putCmd('^alter ^table %f ^rename ^column %i ^to %i', oldcol, oldcol.columnName, newcol.columnName);
+    }
+    if (!testEqualTypes(oldcol, newcol)) {
+      this.putCmd('^alter ^table %f ^alter ^column %i ^type %s', oldcol, oldcol.columnName, newcol.dataType);
+    }
+    if (oldcol.notNull != newcol.notNull) {
+      if (newcol.notNull) this.putCmd('^alter ^table %f ^alter ^column %i ^set ^not ^null', newcol, newcol.columnName);
+      else this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^not ^null', newcol, newcol.columnName);
+    }
+    if (oldcol.defaultValue != newcol.defaultValue) {
+      if (newcol.defaultValue == null) {
+        this.putCmd('^alter ^table %f ^alter ^column %i ^drop ^default', newcol, newcol.columnName);
+      } else {
+        this.putCmd(
+          '^alter ^table %f ^alter ^column %i ^set ^default %s',
+          newcol,
+          newcol.columnName,
+          newcol.defaultValue
+        );
+      }
+    }
   }
 }
 

@@ -5,15 +5,15 @@ import { AlterPlan } from './alterPlan';
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
 export interface DbDiffOptions {
-  allowRecreateTable: boolean;
-  allowRecreateConstraint: boolean;
-  allowRecreateSpecificObject: boolean;
-  allowPairRenamedTables: boolean;
+  allowRecreateTable?: boolean;
+  allowRecreateConstraint?: boolean;
+  allowRecreateSpecificObject?: boolean;
+  allowPairRenamedTables?: boolean;
 
-  ignoreCase: boolean;
-  schemaMode: DbDiffSchemaMode;
-  leftImplicitSchema: string;
-  rightImplicitSchema: string;
+  ignoreCase?: boolean;
+  schemaMode?: DbDiffSchemaMode;
+  leftImplicitSchema?: string;
+  rightImplicitSchema?: string;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -69,12 +69,12 @@ function testEqualFullNames(lft: NamedObjectInfo, rgt: NamedObjectInfo, opts: Db
   return testEqualSchemas(lft.schemaName, rgt.schemaName, opts) && testEqualNames(lft.pureName, rgt.pureName, opts);
 }
 
-function testEqualsColumns(
+export function testEqualColumns(
   a: ColumnInfo,
   b: ColumnInfo,
   checkName: boolean,
   checkDefault: boolean,
-  opts: DbDiffOptions
+  opts: DbDiffOptions = {}
 ) {
   if (checkName && !testEqualNames(a.columnName, b.columnName, opts)) {
     // opts.DiffLogger.Trace("Column, different name: {0}; {1}", a, b);
@@ -178,7 +178,7 @@ function testEqualsColumns(
   return true;
 }
 
-function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions) {
+export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
   if (a.dataType != b.dataType) {
     // opts.DiffLogger.Trace("Column {0}, {1}: different types: {2}; {3}", a, b, a.DataType, b.DataType);
     return false;
@@ -254,8 +254,8 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
   columnPairs
     .filter(x => x[0] && x[1])
     .forEach(x => {
-      if (!testEqualsColumns(x[0], x[1], true, true, opts)) {
-        if (testEqualsColumns(x[0], x[1], false, true, opts)) {
+      if (!testEqualColumns(x[0], x[1], true, true, opts)) {
+        if (testEqualColumns(x[0], x[1], false, true, opts)) {
           // console.log('PLAN RENAME COLUMN')
           plan.renameColumn(x[0], x[1].columnName);
         } else {

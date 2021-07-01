@@ -32,7 +32,7 @@ class Dumper extends SqlDumper {
 
   changeColumn(oldcol, newcol, constraints) {
     this.put('^alter ^table %f ^change ^column %i %i ', oldcol, oldcol.columnName, newcol.columnName);
-    this.columnDefinition(newcol, true, true, true);
+    this.columnDefinition(newcol);
     this.inlineConstraints(constraints);
     this.endCommand();
   }
