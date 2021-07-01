@@ -128,14 +128,14 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate.toISOString(),
+          contentHash: x.modifyDate && x.modifyDate.toISOString(),
         })),
       views: tableModificationsQueryData.rows
         .filter(x => x.objectType == 'VIEW')
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate.toISOString(),
+          contentHash: x.modifyDate && x.modifyDate.toISOString(),
         })),
       procedures: procedureModificationsQueryData.rows.map(x => ({
         contentHash: x.Modified,
