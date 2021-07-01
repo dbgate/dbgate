@@ -189,5 +189,14 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
     case 'dropConstraint':
       processor.dropConstraint(op.oldObject);
       break;
+    case 'renameColumn':
+      processor.renameColumn(op.object, op.newName);
+      break;
+    case 'renameTable':
+      processor.renameTable(op.object, op.newName);
+      break;
+    case 'renameConstraint':
+      processor.renameConstraint(op.object, op.newName);
+      break;
   }
 }

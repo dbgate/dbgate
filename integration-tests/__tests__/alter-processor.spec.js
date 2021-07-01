@@ -41,7 +41,7 @@ async function testTableDiff(conn, driver, mangle) {
   structure2 = extendDatabaseInfo(structure2);
 
   const sql = getAlterTableScript(tget(structure1), tget(structure2), {}, structure2, driver);
-  console.log('RUNNING ALTER SQL:', sql);
+  console.log('RUNNING ALTER SQL', driver.engine, ':', sql);
 
   await driver.query(conn, sql);
 
@@ -51,10 +51,11 @@ async function testTableDiff(conn, driver, mangle) {
   // expect(stableStringify(structure2)).toEqual(stableStringify(structure2Real));
 }
 
+// const TESTED_COLUMNS = ['col_std', 'col_def', 'col_fk', 'col_idx'];
+const TESTED_COLUMNS = ['col_std'];
+
 function engines_columns_source() {
-  return _.flatten(
-    engines.map(engine => ['col_std', 'col_def', 'col_fk', 'col_idx'].map(column => [engine.label, column, engine]))
-  );
+  return _.flatten(engines.map(engine => TESTED_COLUMNS.map(column => [engine.label, column, engine])));
 }
 
 describe('Alter processor', () => {
@@ -92,7 +93,7 @@ describe('Alter processor', () => {
   );
 
   test.each(engines_columns_source())(
-    'Rename column - %s',
+    'Rename column - %s - %s',
     testWrapper(async (conn, driver, column, engine) => {
       await testTableDiff(
         conn,

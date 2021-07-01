@@ -255,9 +255,11 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     .filter(x => x[0] && x[1])
     .forEach(x => {
       if (!testEqualsColumns(x[0], x[1], true, true, opts)) {
-        if (!testEqualsColumns(x[0], x[1], false, true, opts)) {
+        if (testEqualsColumns(x[0], x[1], false, true, opts)) {
+          // console.log('PLAN RENAME COLUMN')
           plan.renameColumn(x[0], x[1].columnName);
         } else {
+          // console.log('PLAN CHANGE COLUMN')
           plan.changeColumn(x[0], x[1]);
         }
       }
