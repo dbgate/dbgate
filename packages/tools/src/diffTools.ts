@@ -43,6 +43,14 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
   return table;
 }
 
+export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
+  if (!db) return db;
+  return {
+    ...db,
+    tables: (db.tables || []).map(generateTablePairingId),
+  };
+}
+
 function testEqualNames(a: string, b: string, opts: DbDiffOptions) {
   if (opts.ignoreCase) return a.toLowerCase() == b.toLowerCase();
   return a == b;

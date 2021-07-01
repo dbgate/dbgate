@@ -21,7 +21,7 @@ function getColumnInfo({
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
   return {
     notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
-    autoIncrement: extra && extra.toLowerCase().includes('auto_increment'),
+    autoIncrement: !!(extra && extra.toLowerCase().includes('auto_increment')),
     columnName,
     dataType: fullDataType,
     defaultValue,

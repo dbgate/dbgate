@@ -25,11 +25,13 @@ function getColumnInfo({
   if (char_max_length && isTypeString(normDataType)) fullDataType = `${normDataType}(${char_max_length})`;
   if (numeric_precision && numeric_ccale && isTypeNumeric(normDataType))
     fullDataType = `${normDataType}(${numeric_precision},${numeric_ccale})`;
+  const autoIncrement = !!(default_value && default_value.startsWith('nextval('));
   return {
     columnName: column_name,
     dataType: fullDataType,
     notNull: !is_nullable || is_nullable == 'NO' || is_nullable == 'no',
-    defaultValue: default_value,
+    defaultValue: autoIncrement ? undefined : default_value,
+    autoIncrement,
   };
 }
 

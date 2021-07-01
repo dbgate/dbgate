@@ -4,7 +4,7 @@ const fp = require('lodash/fp');
 const uuidv1 = require('uuid/v1');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
-const { getAlterTableScript, extendDatabaseInfo } = require('dbgate-tools');
+const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
 
 function pickImportantTableInfo(table) {
   return {
@@ -21,7 +21,7 @@ function checkTableStructure(t1, t2) {
 async function testTableDiff(conn, driver, mangle) {
   await driver.query(conn, 'create table t1 (col1 int not null)');
 
-  const structure1 = extendDatabaseInfo(await driver.analyseFull(conn));
+  const structure1 = generateDbPairingId(extendDatabaseInfo(await driver.analyseFull(conn)));
   let structure2 = _.cloneDeep(structure1);
   mangle(structure2.tables[0]);
   structure2 = extendDatabaseInfo(structure2);
