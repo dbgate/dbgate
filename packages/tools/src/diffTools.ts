@@ -217,7 +217,7 @@ function getTableConstraints(table: TableInfo) {
 function createPairs(oldList, newList, additionalCondition = null) {
   const res = [];
   for (const a of oldList) {
-    const b = newList.find(x => x.pairingId == a.pairingId || (additionalCondition && additionalCondition(a, b)));
+    const b = newList.find(x => x.pairingId == a.pairingId || (additionalCondition && additionalCondition(a, x)));
     if (b) {
       res.push([a, b]);
     } else {
