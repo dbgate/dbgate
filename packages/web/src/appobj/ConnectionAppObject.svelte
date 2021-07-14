@@ -123,7 +123,7 @@
           text: 'Connect',
           onClick: handleConnect,
         },
-        { onClick: handleNewQuery, text: 'New query' },
+        { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
             text: 'Refresh',
@@ -191,10 +191,8 @@
   on:click
   on:expand
   on:middleclick={() => {
-    if (data.singleDatabase) {
-      getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase)
-        .find(x => x.isNewQuery)
-        .onClick();
-    }
+    _.flattenDeep(getContextMenu())
+      .find(x => x.isNewQuery)
+      .onClick();
   }}
 />
