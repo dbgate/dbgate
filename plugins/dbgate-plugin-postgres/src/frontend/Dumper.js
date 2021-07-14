@@ -61,6 +61,13 @@ class Dumper extends SqlDumper {
     }
     super.columnDefinition(col, options);
   }
+
+  putValue(value) {
+    if (value === true) this.putRaw('true');
+    else if (value === false) this.putRaw('false');
+    else super.putValue(value);
+  }
+
 }
 
 module.exports = Dumper;
