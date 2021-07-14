@@ -1,3 +1,4 @@
+const _isString = require('lodash/isString');
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
@@ -5,7 +6,7 @@ const { noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const mongoIdRegex = /^[0-9a-f]{24}$/;
 
 function getConditionPreview(condition) {
-  if (condition && _.isString(condition._id) && condition._id.match(mongoIdRegex)) {
+  if (condition && _isString(condition._id) && condition._id.match(mongoIdRegex)) {
     return `{ _id: ObjectId('${condition._id}') }`;
   }
   return JSON.stringify(condition);
