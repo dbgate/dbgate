@@ -54,7 +54,7 @@
     name: 'Set NULL',
     keyText: 'Ctrl+0',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
-    onClick: () => getCurrentDataGrid().setNull(),
+    onClick: () => getCurrentDataGrid().setFixedValue(null),
   });
 
   registerCommand({
@@ -310,10 +310,10 @@
     }
   }
 
-  export function setNull() {
+  export function setFixedValue(value) {
     grider.beginUpdate();
     selectedCells.filter(isRegularCell).forEach(cell => {
-      setCellValue(cell, null);
+      setCellValue(cell, value);
     });
     grider.endUpdate();
   }

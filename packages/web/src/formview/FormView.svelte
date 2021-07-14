@@ -49,7 +49,7 @@
     name: 'Set NULL',
     keyText: 'Ctrl+0',
     testEnabled: () => getCurrentDataForm() != null,
-    onClick: () => getCurrentDataForm().setNull(),
+    onClick: () => getCurrentDataForm().setFixedValue(null),
   });
 
   registerCommand({
@@ -247,9 +247,9 @@
   //   if (onSave) onSave();
   // }
 
-  export function setNull() {
+  export function setFixedValue(value) {
     if (isDataCell(currentCell)) {
-      setCellValue(currentCell, null);
+      setCellValue(currentCell, value);
     }
   }
 
