@@ -54,7 +54,7 @@
     };
 
     return [
-      { onClick: handleNewQuery, text: 'New query' },
+      { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
@@ -68,7 +68,7 @@
 <script lang="ts">
   import getConnectionLabel from '../utility/getConnectionLabel';
 
-  import _ from 'lodash';
+  import _, { find } from 'lodash';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
@@ -93,5 +93,10 @@
   isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
     _.get($currentDatabase, 'name') == data.name}
   on:click={() => ($currentDatabase = data)}
+  on:middleclick={() => {
+    createMenu()
+      .find(x => x.isNewQuery)
+      .onClick();
+  }}
   menu={createMenu}
 />

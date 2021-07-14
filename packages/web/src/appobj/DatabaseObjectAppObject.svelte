@@ -328,7 +328,6 @@
       { forceNewTab }
     );
   }
-
 </script>
 
 <script lang="ts">
@@ -351,7 +350,7 @@
 
   export let data;
 
-  function handleClick() {
+  function handleClick(forceNewTab = false) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
 
     openDatabaseObjectDetail(
@@ -364,7 +363,7 @@
         database,
         objectTypeField,
       },
-      false,
+      forceNewTab,
       null
     );
 
@@ -508,7 +507,6 @@
         };
       });
   }
-
 </script>
 
 <AppObjectCore
@@ -518,6 +516,7 @@
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={icons[data.objectTypeField]}
   menu={createMenu}
-  on:click={handleClick}
+  on:click={() => handleClick()}
+  on:middleclick={() => handleClick(true)}
   on:expand
 />

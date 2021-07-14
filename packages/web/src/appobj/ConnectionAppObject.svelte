@@ -190,4 +190,11 @@
   on:click={handleConnect}
   on:click
   on:expand
+  on:middleclick={() => {
+    if (data.singleDatabase) {
+      getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase)
+        .find(x => x.isNewQuery)
+        .onClick();
+    }
+  }}
 />

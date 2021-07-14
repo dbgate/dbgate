@@ -38,6 +38,14 @@
     }
   }
 
+  function handleMouseUp(e) {
+    if (e.button == 1) {
+      dispatch('middleclick');
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
   function setChecked(value) {
     if (!value && isChecked) {
       checkedObjectsStore.update(x => x.filter(y => module.extractKey(data) != module.extractKey(y)));
@@ -53,6 +61,7 @@
   class:isBold
   draggable={true}
   on:click={handleClick}
+  on:mouseup={handleMouseUp}
   use:contextMenu={disableContextMenu ? null : menu}
   on:dragstart={e => {
     e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
