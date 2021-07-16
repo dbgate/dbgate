@@ -733,6 +733,7 @@
       !event.altKey &&
       ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
         event.keyCode == keycodes.dash)
     ) {
       // @ts-ignore
