@@ -35,6 +35,7 @@ export class TableGridDisplay extends GridDisplay {
     this.columns = this.getDisplayColumns(this.table, []);
     this.filterable = true;
     this.sortable = true;
+    this.groupable = true;
     this.editable = true;
     this.supportsReload = true;
     this.baseTable = this.table;

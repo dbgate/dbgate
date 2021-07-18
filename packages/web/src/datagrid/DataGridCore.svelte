@@ -1051,7 +1051,7 @@
                   // @ts-ignore
                   display.resizeColumn(col.uniqueName, col.width, e.detail);
                 }}
-                setGrouping={display.sortable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
                 grouping={display.getGrouping(col.uniqueName)}
               />
             </td>
