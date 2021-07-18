@@ -123,7 +123,7 @@
           text: 'Connect',
           onClick: handleConnect,
         },
-        { onClick: handleNewQuery, text: 'New query' },
+        { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
         $openedConnections.includes(data._id) &&
           data.status && {
             text: 'Refresh',
@@ -190,4 +190,9 @@
   on:click={handleConnect}
   on:click
   on:expand
+  on:middleclick={() => {
+    _.flattenDeep(getContextMenu())
+      .find(x => x.isNewQuery)
+      .onClick();
+  }}
 />

@@ -64,7 +64,7 @@ There are many database managers now, so why DbGate?
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
     * App - electron
-* Platform independed - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
+* Platform independent - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 ## Plugins
 Plugins are standard NPM packages published on [npmjs.com](https://www.npmjs.com).  

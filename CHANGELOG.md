@@ -1,5 +1,10 @@
 # ChangeLog
 
+### 4.2.6
+ - Fixed MongoDB import
+ - Configurable thousands separator #136
+ - Using case insensitive text search in postgres
+
 ### 4.2.5
 - FIXED: Fixed crash when using large model on some installations
 - FIXED: Postgre SQL CREATE function 

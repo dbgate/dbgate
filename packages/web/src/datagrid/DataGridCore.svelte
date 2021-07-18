@@ -54,7 +54,7 @@
     name: 'Set NULL',
     keyText: 'Ctrl+0',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
-    onClick: () => getCurrentDataGrid().setNull(),
+    onClick: () => getCurrentDataGrid().setFixedValue(null),
   });
 
   registerCommand({
@@ -310,10 +310,10 @@
     }
   }
 
-  export function setNull() {
+  export function setFixedValue(value) {
     grider.beginUpdate();
     selectedCells.filter(isRegularCell).forEach(cell => {
-      setCellValue(cell, null);
+      setCellValue(cell, value);
     });
     grider.endUpdate();
   }
@@ -733,6 +733,7 @@
       !event.altKey &&
       ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
         event.keyCode == keycodes.dash)
     ) {
       // @ts-ignore
@@ -1050,7 +1051,7 @@
                   // @ts-ignore
                   display.resizeColumn(col.uniqueName, col.width, e.detail);
                 }}
-                setGrouping={display.sortable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
+                setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
                 grouping={display.getGrouping(col.uniqueName)}
               />
             </td>

@@ -88,7 +88,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const tables = tablesRows.rows.map(row => ({
       ...row,
-      contentHash: row.modifyDate.toISOString(),
+      contentHash: row.modifyDate && row.modifyDate.toISOString(),
       columns: columnsRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
@@ -96,7 +96,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
     const views = viewsRows.rows.map(row => ({
       ...row,
-      contentHash: row.modifyDate.toISOString(),
+      contentHash: row.modifyDate && row.modifyDate.toISOString(),
       createSql: getCreateSql(row),
       columns: viewColumnRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
     }));
@@ -105,7 +105,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       .filter(x => x.sqlObjectType.trim() == 'P')
       .map(row => ({
         ...row,
-        contentHash: row.modifyDate.toISOString(),
+        contentHash: row.modifyDate && row.modifyDate.toISOString(),
         createSql: getCreateSql(row),
       }));
 
@@ -113,7 +113,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       .filter(x => ['FN', 'IF', 'TF'].includes(x.sqlObjectType.trim()))
       .map(row => ({
         ...row,
-        contentHash: row.modifyDate.toISOString(),
+        contentHash: row.modifyDate && row.modifyDate.toISOString(),
         createSql: getCreateSql(row),
       }));
 
@@ -137,7 +137,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
       res[field].push({
         objectId,
-        contentHash: modifyDate.toISOString(),
+        contentHash: modifyDate && modifyDate.toISOString(),
         schemaName,
         pureName,
       });

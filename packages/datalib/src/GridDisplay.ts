@@ -75,6 +75,7 @@ export abstract class GridDisplay {
   }
   changeSetKeyFields: string[] = null;
   sortable = false;
+  groupable = false;
   filterable = false;
   editable = false;
   isLoadedCorrectly = true;

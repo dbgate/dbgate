@@ -49,7 +49,7 @@
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
       const connection = connectionList?.find(x => x._id == tab.props.conid);
-      if (connection) return getConnectionLabel(connection.displayName, { allowExplicitDatabase: false });
+      if (connection) return getConnectionLabel(connection, { allowExplicitDatabase: false });
       return '???';
     }
     if (tab.props && tab.props.archiveFolder) return tab.props.archiveFolder;

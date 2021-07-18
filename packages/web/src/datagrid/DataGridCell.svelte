@@ -12,7 +12,8 @@
     return value;
   }
 
-  const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
+  // const dateTimeRegex = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d\d\d)?Z?$/;
+  const dateTimeRegex = /^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|()|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))$/;
 
   function formatNumber(value) {
     if (value >= 10000 || value <= -10000) {
@@ -25,12 +26,15 @@
 
     return value.toString();
   }
+
+  function formatDateTime(testedString) {
+    const m = testedString.match(dateTimeRegex);
+    return `${m[1]}-${m[2]}-${m[3]} ${m[4]}:${m[5]}:${m[6]}`;
+  }
 </script>
 
 <script lang="ts">
-  import moment from 'moment';
   import _ from 'lodash';
-  import { isTypeLogical } from 'dbgate-tools';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
 
@@ -79,28 +83,18 @@
     {:else if value === undefined}
       <span class="null">(No field)</span>
     {:else if _.isDate(value)}
-      {moment(value).format('YYYY-MM-DD HH:mm:ss')}
+      {value.toString()}
     {:else if value === true}
-      {#if isDynamicStructure}
-        <span class="value">true</span>
-      {:else}
-        1
-      {/if}
+      <span class="value">true</span>
     {:else if value === false}
-      {#if isDynamicStructure}
-        <span class="value">false</span>
-      {:else}
-        0
-      {/if}
+      <span class="value">false</span>
     {:else if _.isNumber(value)}
-      {#if isDynamicStructure}
-        <span class="value">{formatNumber(value)}</span>
-      {:else}
-        {formatNumber(value)}
-      {/if}
+      <span class="value">{formatNumber(value)}</span>
     {:else if _.isString(value)}
       {#if dateTimeRegex.test(value)}
-        {moment(value).format('YYYY-MM-DD HH:mm:ss')}
+        <span class="value">
+          {formatDateTime(value)}
+        </span>
       {:else}
         {highlightSpecialCharacters(value)}
       {/if}

@@ -6,6 +6,7 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import { isTypeDateTime } from 'dbgate-tools';
   import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject.svelte';
+  import { copyTextToClipboard } from '../utility/clipboard';
 
   export let column;
   export let conid = undefined;
@@ -27,19 +28,20 @@
 
   function getMenu() {
     return [
-      { onClick: () => setSort('ASC'), text: 'Sort ascending' },
-      { onClick: () => setSort('DESC'), text: 'Sort descending' },
+      setSort && { onClick: () => setSort('ASC'), text: 'Sort ascending' },
+      setSort && { onClick: () => setSort('DESC'), text: 'Sort descending' },
+      { onClick: () => copyTextToClipboard(column.columnName), text: 'Copy column name' },
 
       column.foreignKey && [{ divider: true }, { onClick: openReferencedTable, text: column.foreignKey.refTableName }],
 
-      { divider: true },
-      { onClick: () => setGrouping('GROUP'), text: 'Group by' },
-      { onClick: () => setGrouping('MAX'), text: 'MAX' },
-      { onClick: () => setGrouping('MIN'), text: 'MIN' },
-      { onClick: () => setGrouping('SUM'), text: 'SUM' },
-      { onClick: () => setGrouping('AVG'), text: 'AVG' },
-      { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
-      { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
+      setGrouping && { divider: true },
+      setGrouping && { onClick: () => setGrouping('GROUP'), text: 'Group by' },
+      setGrouping && { onClick: () => setGrouping('MAX'), text: 'MAX' },
+      setGrouping && { onClick: () => setGrouping('MIN'), text: 'MIN' },
+      setGrouping && { onClick: () => setGrouping('SUM'), text: 'SUM' },
+      setGrouping && { onClick: () => setGrouping('AVG'), text: 'AVG' },
+      setGrouping && { onClick: () => setGrouping('COUNT'), text: 'COUNT' },
+      setGrouping && { onClick: () => setGrouping('COUNT DISTINCT'), text: 'COUNT DISTINCT' },
 
       isTypeDateTime(column.dataType) && [
         { divider: true },
