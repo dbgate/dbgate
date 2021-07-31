@@ -171,7 +171,6 @@
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
     return value;
   }
-
 </script>
 
 <script lang="ts">
@@ -666,41 +665,50 @@
 
   function handleGridWheel(event) {
     if (event.shiftKey) {
-      let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
-      if (event.deltaY > 0) {
-        newFirstVisibleColumnScrollIndex++;
-      }
-      if (event.deltaY < 0) {
-        newFirstVisibleColumnScrollIndex--;
-      }
-      if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
-        newFirstVisibleColumnScrollIndex = maxScrollColumn;
-      }
-      if (newFirstVisibleColumnScrollIndex < 0) {
-        newFirstVisibleColumnScrollIndex = 0;
-      }
-      firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
-
-      domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
+      scrollHorizontal(event.deltaY, event.deltaX);
     } else {
-      let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
-      if (event.deltaY > 0) {
-        newFirstVisibleRowScrollIndex += wheelRowCount;
-      }
-      if (event.deltaY < 0) {
-        newFirstVisibleRowScrollIndex -= wheelRowCount;
-      }
-      let rowCount = grider.rowCount;
-      if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
-        newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
-      }
-      if (newFirstVisibleRowScrollIndex < 0) {
-        newFirstVisibleRowScrollIndex = 0;
-      }
-      firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
-
-      domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+      scrollHorizontal(event.deltaX, event.deltaY);
+      scrollVertical(event.deltaX, event.deltaY);
     }
+  }
+
+  function scrollVertical(deltaX, deltaY) {
+    let newFirstVisibleRowScrollIndex = firstVisibleRowScrollIndex;
+    if (deltaY > 0 && deltaX === -0) {
+      newFirstVisibleRowScrollIndex += wheelRowCount;
+    } else if (deltaY < 0 && deltaX === -0) {
+      newFirstVisibleRowScrollIndex -= wheelRowCount;
+    }
+
+    let rowCount = grider.rowCount;
+    if (newFirstVisibleRowScrollIndex + visibleRowCountLowerBound > rowCount) {
+      newFirstVisibleRowScrollIndex = rowCount - visibleRowCountLowerBound + 1;
+    }
+    if (newFirstVisibleRowScrollIndex < 0) {
+      newFirstVisibleRowScrollIndex = 0;
+    }
+
+    firstVisibleRowScrollIndex = newFirstVisibleRowScrollIndex;
+    domVerticalScroll.scroll(newFirstVisibleRowScrollIndex);
+  }
+
+  function scrollHorizontal(deltaX, deltaY) {
+    let newFirstVisibleColumnScrollIndex = firstVisibleColumnScrollIndex;
+    if (deltaX > 0 && deltaY === -0) {
+      newFirstVisibleColumnScrollIndex++;
+    } else if (deltaX < 0 && deltaY === -0) {
+      newFirstVisibleColumnScrollIndex--;
+    }
+
+    if (newFirstVisibleColumnScrollIndex > maxScrollColumn) {
+      newFirstVisibleColumnScrollIndex = maxScrollColumn;
+    }
+    if (newFirstVisibleColumnScrollIndex < 0) {
+      newFirstVisibleColumnScrollIndex = 0;
+    }
+
+    firstVisibleColumnScrollIndex = newFirstVisibleColumnScrollIndex;
+    domHorizontalScroll.scroll(newFirstVisibleColumnScrollIndex);
   }
 
   function getSelectedRowIndexes() {
@@ -980,7 +988,6 @@
   );
 
   const menu = getContextMenu();
-
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1187,5 +1194,4 @@
     right: 40px;
     bottom: 20px;
   }
-
 </style>
