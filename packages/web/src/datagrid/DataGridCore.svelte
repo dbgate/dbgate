@@ -1008,7 +1008,13 @@
     {/each}
   </div>
 {:else}
-  <div class="container" bind:clientWidth={containerWidth} bind:clientHeight={containerHeight} use:contextMenu={menu}>
+  <div
+    class="container"
+    bind:clientWidth={containerWidth}
+    bind:clientHeight={containerHeight}
+    use:contextMenu={menu}
+    on:wheel={handleGridWheel}
+  >
     <input
       type="text"
       class="focus-field"
@@ -1026,7 +1032,6 @@
       on:mousedown={handleGridMouseDown}
       on:mousemove={handleGridMouseMove}
       on:mouseup={handleGridMouseUp}
-      on:wheel={handleGridWheel}
     >
       <thead>
         <tr>
