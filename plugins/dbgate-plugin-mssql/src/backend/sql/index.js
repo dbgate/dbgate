@@ -8,6 +8,8 @@ const views = require('./views');
 const programmables = require('./programmables');
 const viewColumns = require('./viewColumns');
 const getSchemas = require('./getSchemas');
+const indexes = require('./indexes');
+const indexcols = require('./indexcols');
 
 module.exports = {
   columns,
@@ -20,4 +22,6 @@ module.exports = {
   programmables,
   viewColumns,
   getSchemas,
+  indexes,
+  indexcols,
 };

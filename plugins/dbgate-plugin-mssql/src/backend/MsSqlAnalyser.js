@@ -117,6 +117,9 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         createSql: getCreateSql(row),
       }));
 
+    const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexesindexcols', ['tables']));
+
     return {
       tables,
       views,
