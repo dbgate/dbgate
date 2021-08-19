@@ -103,5 +103,5 @@ export interface DatabaseInfoObjects {
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
   schemas: SchemaInfo[];
-  engine: string;
+  engine?: string;
 }
