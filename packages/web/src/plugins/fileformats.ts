@@ -15,6 +15,13 @@ const jsonFormat = {
   writerFunc: 'jsonArrayWriter',
 };
 
+const sqlFormat = {
+  storageType: 'sql',
+  extension: 'sql',
+  name: 'SQL',
+  writerFunc: 'sqlDataWriter',
+};
+
 const jsonlQuickExport = {
   label: 'JSON lines',
   extension: 'jsonl',
@@ -37,8 +44,19 @@ const jsonQuickExport = {
   }),
 };
 
+const sqlQuickExport = {
+  label: 'SQL',
+  extension: 'sql',
+  createWriter: fileName => ({
+    functionName: 'sqlDataWriter',
+    props: {
+      fileName,
+    },
+  }),
+};
+
 export function buildFileFormats(plugins): FileFormatDefinition[] {
-  const res = [jsonlFormat, jsonFormat];
+  const res = [jsonlFormat, jsonFormat, sqlFormat];
   for (const { content } of plugins) {
     const { fileFormats } = content;
     if (fileFormats) res.push(...fileFormats);
@@ -47,7 +65,7 @@ export function buildFileFormats(plugins): FileFormatDefinition[] {
 }
 
 export function buildQuickExports(plugins): QuickExportDefinition[] {
-  const res = [jsonQuickExport, jsonlQuickExport];
+  const res = [jsonQuickExport, jsonlQuickExport, sqlQuickExport];
   for (const { content } of plugins) {
     if (content.quickExports) res.push(...content.quickExports);
   }

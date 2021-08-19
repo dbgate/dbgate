@@ -4,7 +4,10 @@ import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 
+const STRUCTURE_FIELDS = ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers'];
+
 const fp_pick = arg => array => _pick(array, arg);
+
 export class DatabaseAnalyser {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
@@ -23,8 +26,20 @@ export class DatabaseAnalyser {
 
   async _computeSingleObjectId() {}
 
+  addEngineField(db: DatabaseInfo) {
+    if (!this.driver?.engine) return;
+    for (const field of STRUCTURE_FIELDS) {
+      if (!db[field]) continue;
+      for (const item of db[field]) {
+        item.engine = this.driver.engine;
+      }
+    }
+    db.engine = this.driver.engine;
+    return db;
+  }
+
   async fullAnalysis() {
-    const res = await this._runAnalysis();
+    const res = this.addEngineField(await this._runAnalysis());
     // console.log('FULL ANALYSIS', res);
     return res;
   }
@@ -33,7 +48,7 @@ export class DatabaseAnalyser {
     // console.log('Analysing SINGLE OBJECT', name, typeField);
     this.singleObjectFilter = { ...name, typeField };
     await this._computeSingleObjectId();
-    const res = await this._runAnalysis();
+    const res = this.addEngineField(await this._runAnalysis());
     // console.log('SINGLE OBJECT RES', res);
     const obj =
       res[typeField]?.length == 1
@@ -50,11 +65,11 @@ export class DatabaseAnalyser {
     if (this.modifications == null) {
       // modifications not implemented, perform full analysis
       this.structure = null;
-      return this._runAnalysis();
+      return this.addEngineField(await this._runAnalysis());
     }
     if (this.modifications.length == 0) return null;
     console.log('DB modifications detected:', this.modifications);
-    return this.mergeAnalyseResult(await this._runAnalysis());
+    return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
 
   mergeAnalyseResult(newlyAnalysed) {
@@ -66,7 +81,7 @@ export class DatabaseAnalyser {
     }
 
     const res = {};
-    for (const field of ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers']) {
+    for (const field of STRUCTURE_FIELDS) {
       const removedIds = this.modifications
         .filter(x => x.action == 'remove' && x.objectTypeField == field)
         .map(x => x.objectId);
