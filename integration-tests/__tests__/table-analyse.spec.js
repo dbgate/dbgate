@@ -2,7 +2,7 @@ const engines = require('../engines');
 const { testWrapper } = require('../tools');
 
 const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50) null)';
-const ix1Sql = 'CREATE index ix1 ON t1(val1)';
+const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
 const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) null)';
 
 const txMatch = (tname, vcolname, nextcol) =>
@@ -120,8 +120,9 @@ describe('Table analyse', () => {
 
       const t1 = structure.tables.find(x => x.pureName == 't1');
       expect(t1.indexes.length).toEqual(1);
-      expect(t1.indexes[0].columns.length).toEqual(1);
+      expect(t1.indexes[0].columns.length).toEqual(2);
       expect(t1.indexes[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val1' }));
+      expect(t1.indexes[0].columns[1]).toEqual(expect.objectContaining({ columnName: 'id' }));
     })
   );
 });
