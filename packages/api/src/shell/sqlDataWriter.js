@@ -2,12 +2,14 @@ const fs = require('fs');
 const stream = require('stream');
 const path = require('path');
 const { driverBase } = require('dbgate-tools');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 class SqlizeStream extends stream.Transform {
   constructor({ fileName }) {
     super({ objectMode: true });
     this.wasHeader = false;
     this.tableName = path.parse(fileName).name;
+    this.driver = driverBase;
   }
   _transform(chunk, encoding, done) {
     let skip = false;
@@ -19,11 +21,15 @@ class SqlizeStream extends stream.Transform {
       ) {
         skip = true;
         this.tableName = chunk.pureName;
+        if (chunk.engine) {
+          // @ts-ignore
+          this.driver = requireEngineDriver(chunk.engine) || driverBase;
+        }
       }
       this.wasHeader = true;
     }
     if (!skip) {
-      const dmp = driverBase.createDumper();
+      const dmp = this.driver.createDumper();
       dmp.put(
         '^insert ^into %f (%,i) ^values (%,v);\n',
         { pureName: this.tableName },
