@@ -51,6 +51,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   }
 
   createQuery(resFileName, typeFields) {
+    if (!sql[resFileName]) throw new Error(`Missing analyse file ${resFileName}`);
     return super.createQuery(sql[resFileName], typeFields);
   }
 
@@ -67,6 +68,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
     const fkColumnsRows = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     const schemaRows = await this.driver.query(this.pool, this.createQuery('getSchemas'));
+    const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
 
     const schemas = schemaRows.rows;
 
@@ -92,6 +95,26 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       columns: columnsRows.rows.filter(col => col.objectId == row.objectId).map(getColumnInfo),
       primaryKey: DatabaseAnalyser.extractPrimaryKeys(row, pkColumnsRows.rows),
       foreignKeys: DatabaseAnalyser.extractForeignKeys(row, fkColumnsRows.rows),
+      indexes: indexesRows.rows
+        .filter(idx => idx.object_id == row.objectId && !idx.is_unique_constraint)
+        .map(idx => ({
+          ..._.pick(idx, ['constraintName', 'indexType', 'isUnique']),
+          columns: indexcolsRows.rows.filter(
+            col => col.object_id == idx.object_id && col.index_id == idx.index_id
+          ).map(col => ({
+            ..._.pick(col, ['columnName', 'isDescending', 'isIncludedColumn']),
+          })),
+        })),
+      uniques: indexesRows.rows
+        .filter(idx => idx.object_id == row.objectId && idx.is_unique_constraint)
+        .map(idx => ({
+          ..._.pick(idx, ['constraintName']),
+          columns: indexcolsRows.rows.filter(
+            col => col.object_id == idx.object_id && col.index_id == idx.index_id
+          ).map(col => ({
+            ..._.pick(col, ['columnName']),
+          })),
+        })),
     }));
 
     const views = viewsRows.rows.map(row => ({
@@ -116,9 +139,6 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         contentHash: row.modifyDate && row.modifyDate.toISOString(),
         createSql: getCreateSql(row),
       }));
-
-    const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
-    const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexesindexcols', ['tables']));
 
     return {
       tables,

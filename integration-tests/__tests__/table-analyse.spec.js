@@ -120,6 +120,8 @@ describe('Table analyse', () => {
 
       const t1 = structure.tables.find(x => x.pureName == 't1');
       expect(t1.indexes.length).toEqual(1);
+      expect(t1.indexes[0].columns.length).toEqual(1);
+      expect(t1.indexes[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val1' }));
     })
   );
 });

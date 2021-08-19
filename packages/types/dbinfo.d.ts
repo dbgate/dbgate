@@ -6,6 +6,8 @@ export interface NamedObjectInfo {
 export interface ColumnReference {
   columnName: string;
   refColumnName?: string;
+  isIncludedColumn?: boolean;
+  isDescending?: boolean;
 }
 
 export interface ConstraintInfo extends NamedObjectInfo {
