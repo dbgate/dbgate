@@ -69,11 +69,16 @@
   .main {
     flex: 1;
     display: flex;
+    position: relative;
     overflow-y: scroll;
     background-color: var(--theme-bg-0);
   }
   table {
-    flex: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
     border-spacing: 0;
     border-collapse: collapse;
   }
