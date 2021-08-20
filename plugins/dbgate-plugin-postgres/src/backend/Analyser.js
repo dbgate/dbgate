@@ -65,6 +65,7 @@ class Analyser extends DatabaseAnalyser {
       ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
       : null;
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
+    const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
 
     return {
       tables: tables.rows.map(table => {
@@ -104,6 +105,13 @@ class Analyser extends DatabaseAnalyser {
               refSchemaName: x.ref_schema_name,
             }))
           ),
+          indexes: indexes.rows
+            .filter(x => x.table_name == table.pure_name && x.schema_name == table.schema_name)
+            .map(idx => ({
+              constraintName: idx.index_name,
+              isUnique: idx.is_unique,
+              columns: idx.column_names.split('|').map(columnName => ({ columnName })),
+            })),
         };
       }),
       views: views.rows.map(view => ({
