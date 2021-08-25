@@ -66,6 +66,7 @@ class Analyser extends DatabaseAnalyser {
       : null;
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
     const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const indexcols = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
 
     return {
       tables: tables.rows.map(table => {
@@ -110,7 +111,14 @@ class Analyser extends DatabaseAnalyser {
             .map(idx => ({
               constraintName: idx.index_name,
               isUnique: idx.is_unique,
-              columns: idx.column_names.split('|').map(columnName => ({ columnName })),
+              columns: _.compact(
+                idx.indkey
+                  .split(' ')
+                  .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
+                  .map(col => ({
+                    columnName: col.column_name,
+                  }))
+              ),
             })),
         };
       }),

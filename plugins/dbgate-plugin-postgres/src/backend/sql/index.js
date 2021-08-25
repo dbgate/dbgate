@@ -11,6 +11,7 @@ const routines = require('./routines');
 const routineModifications = require('./routineModifications');
 const matviewColumns = require('./matviewColumns');
 const indexes = require('./indexes');
+const indexcols = require('./indexcols');
 
 module.exports = {
   columns,
@@ -26,4 +27,5 @@ module.exports = {
   matviewModifications,
   matviewColumns,
   indexes,
+  indexcols,
 };

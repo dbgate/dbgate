@@ -1,19 +1,18 @@
 module.exports = `
     select
-        t.relname as "table_name",
-        c.nspname as "schema_name",
-        i.relname as "index_name",
-        ix.indisprimary as "is_primary",
-        ix.indisunique as "is_unique",
-        ix.indkey as "indkey",
-        t.oid as "oid"
+        a.attname as "column_name",
+        a.attnum as "attnum",
+        a.attrelid as "oid"
     from
         pg_class t,
         pg_class i,
+        pg_attribute a,
         pg_index ix,
         pg_namespace c
     where
         t.oid = ix.indrelid
+        and a.attnum = ANY(ix.indkey)
+        and a.attrelid = t.oid
         and i.oid = ix.indexrelid
         and t.relkind = 'r'
         and ix.indisprimary = false
