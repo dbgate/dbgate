@@ -1,6 +1,19 @@
 const _ = require('lodash');
 const { DatabaseAnalyser } = require('dbgate-tools');
 
+const indexcolsQuery = `
+SELECT 
+    m.name as tableName,
+    il.name as constraintName,
+    il."unique" as isUnique,
+    ii.name as columnName
+  FROM sqlite_schema AS m,
+       pragma_index_list(m.name) AS il,
+       pragma_index_info(il.name) AS ii
+ WHERE m.type='table' AND il.name NOT LIKE 'sqlite_autoindex_%'
+ ORDER BY ii.seqno
+  `;
+
 class Analyser extends DatabaseAnalyser {
   constructor(pool, driver) {
     super(pool, driver);
@@ -51,6 +64,8 @@ class Analyser extends DatabaseAnalyser {
       createSql: x.sql,
     }));
 
+    const indexcols = await this.driver.query(this.pool, indexcolsQuery);
+
     for (const tableName of this.getRequestedObjectPureNames(
       'tables',
       tables.map((x) => x.name)
@@ -65,6 +80,16 @@ class Analyser extends DatabaseAnalyser {
         notNull: !!col.notnull,
         defaultValue: col.dflt_value == null ? undefined : col.dflt_value,
         autoIncrement: tableSqls[tableName].toLowerCase().includes('autoincrement') && !!col.pk,
+      }));
+
+      const indexNames = _.uniq(indexcols.rows.filter((x) => x.tableName == tableName).map((x) => x.constraintName));
+
+      tableObj.indexes = indexNames.map((idx) => ({
+        constraintName: idx,
+        isUnique: !!indexcols.rows.find((x) => x.tableName == tableName && x.constraintName == idx).isUnique,
+        columns: indexcols.rows
+          .filter((x) => x.tableName == tableName && x.constraintName == idx)
+          .map(({ columnName }) => ({ columnName })),
       }));
 
       const pkColumns = info.rows
