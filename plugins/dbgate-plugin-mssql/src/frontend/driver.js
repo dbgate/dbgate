@@ -12,12 +12,21 @@ const dialect = {
   fallbackDataType: 'nvarchar(max)',
   explicitDropConstraint: false,
   enableConstraintsPerTable: true,
-  dropColumnDependencies: ['default', 'foreignKey', 'index'],
-  changeColumnDependencies: ['index'],
+  dropColumnDependencies: ['default', 'dependencies', 'indexes', 'primaryKey'],
+  changeColumnDependencies: ['indexes'],
   anonymousPrimaryKey: false,
   quoteIdentifier(s) {
     return `[${s}]`;
   },
+
+  createColumn: true,
+  dropColumn: true,
+  createIndex: true,
+  dropIndex: true,
+  createForeignKey: true,
+  dropForeignKey: true,
+  createPrimaryKey: true,
+  dropPrimaryKey: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

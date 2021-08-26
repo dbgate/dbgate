@@ -12,4 +12,5 @@ export interface AlterProcessor {
   renameTable(table: TableInfo, newName: string);
   renameColumn(column: ColumnInfo, newName: string);
   renameConstraint(constraint: ConstraintInfo, newName: string);
+  recreateTable(oldTable: TableInfo, newTable: TableInfo);
 }

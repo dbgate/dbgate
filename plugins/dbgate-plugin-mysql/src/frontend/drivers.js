@@ -13,6 +13,15 @@ const dialect = {
   quoteIdentifier(s) {
     return '`' + s + '`';
   },
+
+  createColumn: true,
+  dropColumn: true,
+  createIndex: true,
+  dropIndex: true,
+  createForeignKey: true,
+  dropForeignKey: true,
+  createPrimaryKey: true,
+  dropPrimaryKey: true,
 };
 
 const mysqlDriverBase = {

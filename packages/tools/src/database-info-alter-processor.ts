@@ -66,4 +66,8 @@ export class DatabaseInfoAlterProcessor {
   }
 
   renameConstraint(constraint: ConstraintInfo, newName: string) {}
+
+  recreateTable(oldTable: TableInfo, newTable: TableInfo) {
+    throw new Error('recreateTable not implemented for DatabaseInfoAlterProcessor');
+  }
 }

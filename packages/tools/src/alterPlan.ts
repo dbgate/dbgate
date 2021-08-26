@@ -8,6 +8,8 @@ import {
   SqlDialect,
   TableInfo,
 } from '../../types';
+import { DatabaseInfoAlterProcessor } from './database-info-alter-processor';
+import { DatabaseAnalyser } from './DatabaseAnalyser';
 
 interface AlterOperation_CreateTable {
   operationType: 'createTable';
@@ -68,6 +70,11 @@ interface AlterOperation_RenameConstraint {
   object: ConstraintInfo;
   newName: string;
 }
+interface AlterOperation_RecreateTable {
+  operationType: 'recreateTable';
+  table: TableInfo;
+  operations: AlterOperation[];
+}
 
 type AlterOperation =
   | AlterOperation_CreateColumn
@@ -80,7 +87,8 @@ type AlterOperation =
   | AlterOperation_DropTable
   | AlterOperation_RenameTable
   | AlterOperation_RenameColumn
-  | AlterOperation_RenameConstraint;
+  | AlterOperation_RenameConstraint
+  | AlterOperation_RecreateTable;
 
 export class AlterPlan {
   public operations: AlterOperation[] = [];
@@ -168,6 +176,14 @@ export class AlterPlan {
     });
   }
 
+  recreateTable(table: TableInfo, operations: AlterOperation[]) {
+    this.operations.push({
+      operationType: 'recreateTable',
+      table,
+      operations,
+    });
+  }
+
   run(processor: AlterProcessor) {
     for (const op of this.operations) {
       runAlterOperation(op, processor);
@@ -180,15 +196,15 @@ export class AlterPlan {
         const table = this.db.tables.find(
           x => x.pureName == op.oldObject.pureName && x.schemaName == op.oldObject.schemaName
         );
-        const deletedFks = this.dialect.dropColumnDependencies?.includes('foreignKey')
+        const deletedFks = this.dialect.dropColumnDependencies?.includes('dependencies')
           ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == op.oldObject.columnName))
           : [];
 
         const deletedConstraints = _.compact([
-          table.primaryKey,
-          ...table.foreignKeys,
-          ...table.indexes,
-          ...table.uniques,
+          this.dialect.dropColumnDependencies?.includes('primaryKey') ? table.primaryKey : null,
+          ...(this.dialect.dropColumnDependencies?.includes('foreignKeys') ? table.foreignKeys : []),
+          ...(this.dialect.dropColumnDependencies?.includes('indexes') ? table.indexes : []),
+          ...(this.dialect.dropColumnDependencies?.includes('uniques') ? table.uniques : []),
         ]).filter(cnt => cnt.columns.find(col => col.columnName == op.oldObject.columnName));
 
         const res: AlterOperation[] = [
@@ -209,8 +225,63 @@ export class AlterPlan {
     return _.flatten(lists);
   }
 
+  _transformToImplementedOps(): AlterOperation[] {
+    const lists = this.operations.map(op => {
+      return (
+        this._testTableRecreate(op, 'createColumn', this.dialect.createColumn, 'newObject') ||
+        this._testTableRecreate(op, 'dropColumn', this.dialect.dropColumn, 'oldObject') ||
+        this._testTableRecreate(op, 'createConstraint', obj => this._canCreateConstraint(obj), 'newObject') ||
+        this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') || [op]
+      );
+    });
+
+    return _.flatten(lists);
+  }
+
+  _canCreateConstraint(cnt: ConstraintInfo) {
+    if (cnt.constraintType == 'primaryKey') return this.dialect.createPrimaryKey;
+    if (cnt.constraintType == 'foreignKey') return this.dialect.createForeignKey;
+    if (cnt.constraintType == 'index') return this.dialect.createIndex;
+    return null;
+  }
+
+  _canDropConstraint(cnt: ConstraintInfo) {
+    if (cnt.constraintType == 'primaryKey') return this.dialect.dropPrimaryKey;
+    if (cnt.constraintType == 'foreignKey') return this.dialect.dropForeignKey;
+    if (cnt.constraintType == 'index') return this.dialect.dropIndex;
+    return null;
+  }
+
+  _testTableRecreate(
+    op: AlterOperation,
+    operationType: string,
+    isAllowed: boolean | Function,
+    objectField: string
+  ): AlterOperation[] | null {
+    if (op.operationType == operationType) {
+      if (_.isFunction(isAllowed)) {
+        if (!isAllowed(op[objectField])) return null;
+      } else {
+        if (!isAllowed) return null;
+      }
+
+      const table = this.db.tables.find(
+        x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
+      );
+      return [
+        {
+          operationType: 'recreateTable',
+          table,
+          operations: [op],
+        },
+      ];
+    }
+    return null;
+  }
+
   transformPlan() {
     this.operations = this._addLogicalDependencies();
+    this.operations = this._transformToImplementedOps();
   }
 }
 
@@ -245,6 +316,15 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'renameConstraint':
       processor.renameConstraint(op.object, op.newName);
+      break;
+    case 'recreateTable':
+      {
+        const newTable = _.cloneDeep(op.table);
+        const newDb = DatabaseAnalyser.createEmptyStructure();
+        newDb.tables.push(newTable);
+        op.operations.forEach(child => runAlterOperation(child, new DatabaseInfoAlterProcessor(newDb)));
+        processor.recreateTable(op.table, newTable);
+      }
       break;
   }
 }

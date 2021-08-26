@@ -20,6 +20,7 @@ import {
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
 import _isDate from 'lodash/isDate';
+import uuidv1 from 'uuid/v1';
 
 export class SqlDumper implements AlterProcessor {
   s = '';
@@ -372,6 +373,25 @@ export class SqlDumper implements AlterProcessor {
         break;
     }
   }
+  createConstraint(cnt: ConstraintInfo) {
+    switch (cnt.constraintType) {
+      case 'primaryKey':
+        this.createPrimaryKey(cnt as PrimaryKeyInfo);
+        break;
+      case 'foreignKey':
+        this.createForeignKey(cnt as ForeignKeyInfo);
+        break;
+      case 'unique':
+        this.createUnique(cnt as UniqueInfo);
+        break;
+      case 'check':
+        this.createCheck(cnt as CheckInfo);
+        break;
+      case 'index':
+        this.createIndex(cnt as IndexInfo);
+        break;
+    }
+  }
   dropForeignKey(fk: ForeignKeyInfo) {
     if (this.dialect.explicitDropConstraint) {
       this.putCmd('^alter ^table %f ^drop ^foreign ^key %i', fk, fk.constraintName);
@@ -463,7 +483,7 @@ export class SqlDumper implements AlterProcessor {
 
   changeColumn(oldcol: ColumnInfo, newcol: ColumnInfo, constraints: ConstraintInfo[]) {}
 
-  dropTable(obj: TableInfo, { testIfExists = false }) {
+  dropTable(obj: TableInfo, { testIfExists = false } = {}) {
     this.putCmd('^drop ^table %f', obj);
   }
 
@@ -488,5 +508,62 @@ export class SqlDumper implements AlterProcessor {
 
   truncateTable(name: NamedObjectInfo) {
     this.putCmd('^delete ^from %f', name);
+  }
+
+  dropConstraints(table: TableInfo, dropReferences = false) {
+    if (dropReferences && this.dialect.dropForeignKey) {
+      table.dependencies.forEach(cnt => this.dropConstraint(cnt));
+    }
+    if (this.dialect.dropIndex) {
+      table.indexes.forEach(cnt => this.dropIndex(cnt));
+    }
+    if (this.dialect.dropForeignKey) {
+      table.foreignKeys.forEach(cnt => this.dropForeignKey(cnt));
+    }
+    if (this.dialect.dropPrimaryKey && table.primaryKey) {
+      this.dropPrimaryKey(table.primaryKey);
+    }
+  }
+
+  recreateTable(oldTable: TableInfo, newTable: TableInfo) {
+    if (oldTable.pairingId != newTable.pairingId) {
+      throw new Error('Recreate is not possible: oldTable.paringId != newTable.paringId');
+    }
+    const tmpTable = `temp_${uuidv1()}`;
+
+    const columnPairs = oldTable.columns
+      .map(oldcol => ({
+        oldcol,
+        newcol: newTable.columns.find(x => x.pairingId == oldcol.pairingId),
+      }))
+      .filter(x => x.newcol);
+
+    this.dropConstraints(oldTable, true);
+    this.renameTable(oldTable, tmpTable);
+
+    this.createTable(newTable);
+
+    const autoinc = newTable.columns.find(x => x.autoIncrement);
+    if (autoinc) {
+      this.allowIdentityInsert(newTable, true);
+    }
+
+    this.putCmd(
+      '^insert ^into %f (%,i) select %,s ^from %f',
+      newTable,
+      columnPairs.map(x => x.newcol.columnName),
+      columnPairs.map(x => x.oldcol.columnName),
+      { ...oldTable, pureName: tmpTable }
+    );
+
+    if (autoinc) {
+      this.allowIdentityInsert(newTable, false);
+    }
+
+    if (this.dialect.dropForeignKey) {
+      newTable.dependencies.forEach(cnt => this.createConstraint(cnt));
+    }
+
+    this.dropTable({ ...oldTable, pureName: tmpTable });
   }
 }

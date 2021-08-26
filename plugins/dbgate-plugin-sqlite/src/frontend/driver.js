@@ -17,10 +17,19 @@ const dialect = {
   explicitDropConstraint: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
-  dropColumnDependencies: ['index'],
+  dropColumnDependencies: ['index', 'primaryKey'],
   quoteIdentifier(s) {
     return `[${s}]`;
   },
+
+  createColumn: true,
+  dropColumn: true,
+  createIndex: true,
+  dropIndex: true,
+  createForeignKey: false,
+  dropForeignKey: false,
+  createPrimaryKey: false,
+  dropPrimaryKey: false,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

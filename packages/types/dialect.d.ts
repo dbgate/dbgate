@@ -10,7 +10,17 @@ export interface SqlDialect {
   explicitDropConstraint?: boolean;
   anonymousPrimaryKey?: boolean;
   enableConstraintsPerTable?: boolean;
+  nosql?: boolean; // mongo
+
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
-  nosql?: boolean; // mongo
+
+  createColumn?: boolean;
+  dropColumn?: boolean;
+  createIndex?: boolean;
+  dropIndex?: boolean;
+  createForeignKey?: boolean;
+  dropForeignKey?: boolean;
+  createPrimaryKey?: boolean;
+  dropPrimaryKey?: boolean;
 }
