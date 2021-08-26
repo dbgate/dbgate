@@ -120,6 +120,7 @@ class Analyser extends DatabaseAnalyser {
                   }))
               ),
             })),
+          uniques: [],
         };
       }),
       views: views.rows.map(view => ({

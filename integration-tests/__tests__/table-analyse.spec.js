@@ -3,7 +3,7 @@ const { testWrapper } = require('../tools');
 
 const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50) null)';
 const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
-const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) null)';
+const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) null unique)';
 
 const txMatch = (tname, vcolname, nextcol) =>
   expect.objectContaining({
@@ -123,6 +123,20 @@ describe('Table analyse', () => {
       expect(t1.indexes[0].columns.length).toEqual(2);
       expect(t1.indexes[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val1' }));
       expect(t1.indexes[0].columns[1]).toEqual(expect.objectContaining({ columnName: 'id' }));
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Unique - full analysis - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await driver.query(conn, t2Sql);
+      const structure = await driver.analyseFull(conn);
+
+      const t2 = structure.tables.find(x => x.pureName == 't2');
+      const indexesAndUniques = [...t2.uniques, ...t2.indexes];
+      expect(indexesAndUniques.length).toEqual(1);
+      expect(indexesAndUniques[0].columns.length).toEqual(1);
+      expect(indexesAndUniques[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val2' }));
     })
   );
 });

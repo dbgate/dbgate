@@ -6,11 +6,12 @@ SELECT
     m.name as tableName,
     il.name as constraintName,
     il."unique" as isUnique,
-    ii.name as columnName
+    ii.name as columnName,
+    il.origin
   FROM sqlite_schema AS m,
        pragma_index_list(m.name) AS il,
        pragma_index_info(il.name) AS ii
- WHERE m.type='table' AND il.name NOT LIKE 'sqlite_autoindex_%'
+ WHERE m.type='table' AND il.origin <> 'pk'
  ORDER BY ii.seqno
   `;
 
@@ -82,11 +83,24 @@ class Analyser extends DatabaseAnalyser {
         autoIncrement: tableSqls[tableName].toLowerCase().includes('autoincrement') && !!col.pk,
       }));
 
-      const indexNames = _.uniq(indexcols.rows.filter((x) => x.tableName == tableName).map((x) => x.constraintName));
+      const indexNames = _.uniq(
+        indexcols.rows.filter((x) => x.tableName == tableName && x.origin == 'c').map((x) => x.constraintName)
+      );
 
       tableObj.indexes = indexNames.map((idx) => ({
         constraintName: idx,
         isUnique: !!indexcols.rows.find((x) => x.tableName == tableName && x.constraintName == idx).isUnique,
+        columns: indexcols.rows
+          .filter((x) => x.tableName == tableName && x.constraintName == idx)
+          .map(({ columnName }) => ({ columnName })),
+      }));
+
+      const uniqueNames = _.uniq(
+        indexcols.rows.filter((x) => x.tableName == tableName && x.origin == 'u').map((x) => x.constraintName)
+      );
+
+      tableObj.uniques = uniqueNames.map((idx) => ({
+        constraintName: idx,
         columns: indexcols.rows
           .filter((x) => x.tableName == tableName && x.constraintName == idx)
           .map(({ columnName }) => ({ columnName })),
@@ -120,8 +134,6 @@ class Analyser extends DatabaseAnalyser {
         };
         return fk;
       });
-
-      // console.log(info);
     }
 
     for (const viewName of this.getRequestedObjectPureNames(
