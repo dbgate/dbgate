@@ -350,14 +350,33 @@ export class SqlDumper implements AlterProcessor {
   changeTriggerSchema(obj: TriggerInfo, newSchema: string) {}
   renameTrigger(obj: TriggerInfo, newSchema: string) {}
 
-  dropConstraint(cnt: ConstraintInfo) {
+  dropConstraintCore(cnt: ConstraintInfo) {
     this.putCmd('^alter ^table %f ^drop ^constraint %i', cnt, cnt.constraintName);
+  }
+  dropConstraint(cnt: ConstraintInfo) {
+    switch (cnt.constraintType) {
+      case 'primaryKey':
+        this.dropPrimaryKey(cnt as PrimaryKeyInfo);
+        break;
+      case 'foreignKey':
+        this.dropForeignKey(cnt as ForeignKeyInfo);
+        break;
+      case 'unique':
+        this.dropUnique(cnt as UniqueInfo);
+        break;
+      case 'check':
+        this.dropCheck(cnt as CheckInfo);
+        break;
+      case 'index':
+        this.dropIndex(cnt as IndexInfo);
+        break;
+    }
   }
   dropForeignKey(fk: ForeignKeyInfo) {
     if (this.dialect.explicitDropConstraint) {
       this.putCmd('^alter ^table %f ^drop ^foreign ^key %i', fk, fk.constraintName);
     } else {
-      this.dropConstraint(fk);
+      this.dropConstraintCore(fk);
     }
   }
   createForeignKey(fk: ForeignKeyInfo) {
@@ -369,7 +388,7 @@ export class SqlDumper implements AlterProcessor {
     if (this.dialect.explicitDropConstraint) {
       this.putCmd('^alter ^table %f ^drop ^primary ^key', pk);
     } else {
-      this.dropConstraint(pk);
+      this.dropConstraintCore(pk);
     }
   }
   createPrimaryKey(pk: PrimaryKeyInfo) {
@@ -385,7 +404,7 @@ export class SqlDumper implements AlterProcessor {
   createIndex(ix: IndexInfo) {}
 
   dropUnique(uq: UniqueInfo) {
-    this.dropConstraint(uq);
+    this.dropConstraintCore(uq);
   }
   createUniqueCore(uq: UniqueInfo) {
     this.put(
@@ -402,7 +421,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   dropCheck(ch: CheckInfo) {
-    this.dropConstraint(ch);
+    this.dropConstraintCore(ch);
   }
 
   createCheckCore(ch: CheckInfo) {

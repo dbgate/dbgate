@@ -14,8 +14,10 @@ const dialect = {
   limitSelect: true,
   rangeSelect: true,
   offsetFetchRangeSyntax: false,
+  explicitDropConstraint: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
+  dropColumnDependencies: ['index'],
   quoteIdentifier(s) {
     return `[${s}]`;
   },

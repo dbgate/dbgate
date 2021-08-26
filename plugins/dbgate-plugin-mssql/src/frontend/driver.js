@@ -12,6 +12,8 @@ const dialect = {
   fallbackDataType: 'nvarchar(max)',
   explicitDropConstraint: false,
   enableConstraintsPerTable: true,
+  dropColumnDependencies: ['default', 'foreignKey', 'index'],
+  changeColumnDependencies: ['index'],
   anonymousPrimaryKey: false,
   quoteIdentifier(s) {
     return `[${s}]`;

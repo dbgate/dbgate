@@ -74,7 +74,7 @@ const drivers = driverBases.map(driverBase => ({
     }
     const res = await client.query({ text: sql, rowMode: 'array' });
     const columns = extractPostgresColumns(res);
-    return { rows: res.rows.map(row => zipDataRow(row, columns)), columns };
+    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
   },
   stream(client, sql, options) {
     const query = new pg.Query({

@@ -24,15 +24,19 @@ async function testTableDiff(conn, driver, mangle) {
   await driver.query(
     conn,
     `create table t1 (
-    id int not null primary key, 
+    col_pk int not null primary key, 
     col_std int null, 
     col_def int null default 12,
     col_fk int null references t0(id),
-    col_idx int null
+    col_idx int null,
+    col_uq int null unique,
+    col_ref int null unique
   )`
   );
 
   await driver.query(conn, `create index idx1 on t1(col_idx)`);
+
+  await driver.query(conn, `create table t2 (id int not null primary key, fkval int null references t1(col_ref))`);
 
   const tget = x => x.tables.find(y => y.pureName == 't1');
   const structure1 = generateDbPairingId(extendDatabaseInfo(await driver.analyseFull(conn)));
@@ -51,8 +55,10 @@ async function testTableDiff(conn, driver, mangle) {
   // expect(stableStringify(structure2)).toEqual(stableStringify(structure2Real));
 }
 
-// const TESTED_COLUMNS = ['col_std', 'col_def', 'col_fk', 'col_idx'];
-const TESTED_COLUMNS = ['col_std'];
+const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
+// const TESTED_COLUMNS = ['col_idx'];
+// const TESTED_COLUMNS = ['col_fk'];
+// const TESTED_COLUMNS = ['col_std'];
 
 function engines_columns_source() {
   return _.flatten(engines.map(engine => TESTED_COLUMNS.map(column => [engine.label, column, engine])));

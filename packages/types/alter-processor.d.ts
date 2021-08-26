@@ -4,7 +4,7 @@ export interface AlterProcessor {
   createTable(table: TableInfo);
   dropTable(table: TableInfo);
   createColumn(column: ColumnInfo, constraints: ConstraintInfo[]);
-  changeColumn(oldColumn: ColumnInfo, newColumn: ColumnInfo, constraints: ConstraintInfo[]);
+  changeColumn(oldColumn: ColumnInfo, newColumn: ColumnInfo, constraints?: ConstraintInfo[]);
   dropColumn(column: ColumnInfo);
   createConstraint(constraint: ConstraintInfo);
   changeConstraint(oldConstraint: ConstraintInfo, newConstraint: ConstraintInfo);

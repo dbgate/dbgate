@@ -272,14 +272,16 @@ export function createAlterTablePlan(
   oldTable: TableInfo,
   newTable: TableInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo
+  db: DatabaseInfo,
+  driver: EngineDriver
 ): AlterPlan {
-  const plan = new AlterPlan(db);
+  const plan = new AlterPlan(db, driver.dialect);
   if (oldTable == null) {
     plan.createTable(newTable);
   } else {
     planAlterTable(plan, oldTable, newTable, opts);
   }
+  plan.transformPlan();
   return plan;
 }
 
@@ -290,7 +292,7 @@ export function getAlterTableScript(
   db: DatabaseInfo,
   driver: EngineDriver
 ): string {
-  const plan = createAlterTablePlan(oldTable, newTable, opts, db);
+  const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
   plan.run(dmp);
   return dmp.s;

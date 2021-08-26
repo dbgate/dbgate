@@ -1,4 +1,13 @@
-import { AlterProcessor, ColumnInfo, ConstraintInfo, DatabaseInfo, NamedObjectInfo, TableInfo } from '../../types';
+import _ from 'lodash';
+import {
+  AlterProcessor,
+  ColumnInfo,
+  ConstraintInfo,
+  DatabaseInfo,
+  NamedObjectInfo,
+  SqlDialect,
+  TableInfo,
+} from '../../types';
 
 interface AlterOperation_CreateTable {
   operationType: 'createTable';
@@ -74,8 +83,8 @@ type AlterOperation =
   | AlterOperation_RenameConstraint;
 
 export class AlterPlan {
-  operations: AlterOperation[] = [];
-  constructor(public db: DatabaseInfo) {}
+  public operations: AlterOperation[] = [];
+  constructor(public db: DatabaseInfo, public dialect: SqlDialect) {}
 
   createTable(table: TableInfo) {
     this.operations.push({
@@ -163,6 +172,45 @@ export class AlterPlan {
     for (const op of this.operations) {
       runAlterOperation(op, processor);
     }
+  }
+
+  _addLogicalDependencies(): AlterOperation[] {
+    const lists = this.operations.map(op => {
+      if (op.operationType == 'dropColumn') {
+        const table = this.db.tables.find(
+          x => x.pureName == op.oldObject.pureName && x.schemaName == op.oldObject.schemaName
+        );
+        const deletedFks = this.dialect.dropColumnDependencies?.includes('foreignKey')
+          ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == op.oldObject.columnName))
+          : [];
+
+        const deletedConstraints = _.compact([
+          table.primaryKey,
+          ...table.foreignKeys,
+          ...table.indexes,
+          ...table.uniques,
+        ]).filter(cnt => cnt.columns.find(col => col.columnName == op.oldObject.columnName));
+
+        const res: AlterOperation[] = [
+          ...[...deletedFks, ...deletedConstraints].map(oldObject => {
+            const opRes: AlterOperation = {
+              operationType: 'dropConstraint',
+              oldObject,
+            };
+            return opRes;
+          }),
+          op,
+        ];
+        return res;
+      }
+      return [op];
+    });
+
+    return _.flatten(lists);
+  }
+
+  transformPlan() {
+    this.operations = this._addLogicalDependencies();
   }
 }
 
