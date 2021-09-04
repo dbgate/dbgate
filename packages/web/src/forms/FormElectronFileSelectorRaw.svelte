@@ -17,6 +17,7 @@
     const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
       defaultPath: values[name],
       properties: ['showHiddenFiles'],
+      filters: [{ name: 'All Files', extensions: ['*'] }],
     });
     const filePath = filePaths && filePaths[0];
     if (filePath) setFieldValue(name, filePath);
