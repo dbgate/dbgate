@@ -67,6 +67,7 @@ class Analyser extends DatabaseAnalyser {
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
     const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
     const indexcols = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
 
     return {
       tables: tables.rows.map(table => {
@@ -107,7 +108,12 @@ class Analyser extends DatabaseAnalyser {
             }))
           ),
           indexes: indexes.rows
-            .filter(x => x.table_name == table.pure_name && x.schema_name == table.schema_name)
+            .filter(
+              x =>
+                x.table_name == table.pure_name &&
+                x.schema_name == table.schema_name &&
+                !uniqueNames.rows.find(y => y.constraint_name == x.index_name)
+            )
             .map(idx => ({
               constraintName: idx.index_name,
               isUnique: idx.is_unique,
@@ -120,7 +126,24 @@ class Analyser extends DatabaseAnalyser {
                   }))
               ),
             })),
-          uniques: [],
+          uniques: indexes.rows
+            .filter(
+              x =>
+                x.table_name == table.pure_name &&
+                x.schema_name == table.schema_name &&
+                uniqueNames.rows.find(y => y.constraint_name == x.index_name)
+            )
+            .map(idx => ({
+              constraintName: idx.index_name,
+              columns: _.compact(
+                idx.indkey
+                  .split(' ')
+                  .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
+                  .map(col => ({
+                    columnName: col.column_name,
+                  }))
+              ),
+            })),
         };
       }),
       views: views.rows.map(view => ({

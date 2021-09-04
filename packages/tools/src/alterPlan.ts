@@ -207,6 +207,8 @@ export class AlterPlan {
           ...(this.dialect.dropColumnDependencies?.includes('uniques') ? table.uniques : []),
         ]).filter(cnt => cnt.columns.find(col => col.columnName == op.oldObject.columnName));
 
+        console.log('deletedConstraints', deletedConstraints);
+
         const res: AlterOperation[] = [
           ...[...deletedFks, ...deletedConstraints].map(oldObject => {
             const opRes: AlterOperation = {
@@ -260,11 +262,13 @@ export class AlterPlan {
   ): AlterOperation[] | null {
     if (op.operationType == operationType) {
       if (_.isFunction(isAllowed)) {
-        if (!isAllowed(op[objectField])) return null;
+        if (isAllowed(op[objectField])) return null;
       } else {
-        if (!isAllowed) return null;
+        if (isAllowed) return null;
       }
 
+      // console.log('*****************RECREATED NEEDED', op, operationType, isAllowed);
+      // console.log(this.dialect);
       const table = this.db.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );

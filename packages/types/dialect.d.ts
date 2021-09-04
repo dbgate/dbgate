@@ -15,6 +15,8 @@ export interface SqlDialect {
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];
 
+  dropIndexContainsTableSpec?: boolean;
+
   createColumn?: boolean;
   dropColumn?: boolean;
   createIndex?: boolean;

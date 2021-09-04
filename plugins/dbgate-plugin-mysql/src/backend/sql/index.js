@@ -8,6 +8,7 @@ const indexes = require('./indexes');
 const programmables = require('./programmables');
 const procedureModifications = require('./procedureModifications');
 const functionModifications = require('./functionModifications');
+const uniqueNames = require('./uniqueNames');
 
 module.exports = {
   columns,
@@ -20,4 +21,5 @@ module.exports = {
   procedureModifications,
   functionModifications,
   indexes,
+  uniqueNames,
 };

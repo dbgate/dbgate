@@ -12,6 +12,7 @@ const routineModifications = require('./routineModifications');
 const matviewColumns = require('./matviewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
+const uniqueNames = require('./uniqueNames');
 
 module.exports = {
   columns,
@@ -28,4 +29,5 @@ module.exports = {
   matviewColumns,
   indexes,
   indexcols,
+  uniqueNames,
 };

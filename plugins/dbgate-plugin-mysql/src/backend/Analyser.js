@@ -75,6 +75,7 @@ class Analyser extends DatabaseAnalyser {
 
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
     const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
 
     return {
       tables: tables.rows.map(table => ({
@@ -84,13 +85,30 @@ class Analyser extends DatabaseAnalyser {
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
-        uniques: [],
         indexes: _.uniqBy(
-          indexes.rows.filter(idx => idx.tableName == table.pureName),
+          indexes.rows.filter(
+            idx =>
+              idx.tableName == table.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+          ),
           'constraintName'
         ).map(idx => ({
           ..._.pick(idx, ['constraintName', 'indexType']),
           isUnique: !idx.nonUnique,
+          columns: indexes.rows
+            .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
+            .map(col => ({
+              ..._.pick(col, ['columnName']),
+            })),
+        })),
+
+        uniques: _.uniqBy(
+          indexes.rows.filter(
+            idx =>
+              idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+          ),
+          'constraintName'
+        ).map(idx => ({
+          ..._.pick(idx, ['constraintName']),
           columns: indexes.rows
             .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
             .map(col => ({

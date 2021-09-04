@@ -133,10 +133,10 @@ describe('Table analyse', () => {
       const structure = await driver.analyseFull(conn);
 
       const t2 = structure.tables.find(x => x.pureName == 't2');
-      const indexesAndUniques = [...t2.uniques, ...t2.indexes];
-      expect(indexesAndUniques.length).toEqual(1);
-      expect(indexesAndUniques[0].columns.length).toEqual(1);
-      expect(indexesAndUniques[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val2' }));
+      // const indexesAndUniques = [...t2.uniques, ...t2.indexes];
+      expect(t2.uniques.length).toEqual(1);
+      expect(t2.uniques[0].columns.length).toEqual(1);
+      expect(t2.uniques[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val2' }));
     })
   );
 });

@@ -22,6 +22,7 @@ const dialect = {
   dropForeignKey: true,
   createPrimaryKey: true,
   dropPrimaryKey: true,
+  dropIndexContainsTableSpec: true,
 };
 
 const mysqlDriverBase = {

@@ -56,8 +56,8 @@ async function testTableDiff(conn, driver, mangle) {
 }
 
 // const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
-const TESTED_COLUMNS = ['col_pk'];
-// const TESTED_COLUMNS = ['col_idx'];
+// const TESTED_COLUMNS = ['col_pk'];
+const TESTED_COLUMNS = ['col_idx'];
 // const TESTED_COLUMNS = ['col_fk'];
 // const TESTED_COLUMNS = ['col_std'];
 
@@ -69,15 +69,15 @@ describe('Alter processor', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Add column - %s',
     testWrapper(async (conn, driver, engine) => {
-      await testTableDiff(conn, driver, tbl =>
+      await testTableDiff(conn, driver, tbl => {
         tbl.columns.push({
           columnName: 'added',
           dataType: 'int',
           pairingId: uuidv1(),
           notNull: false,
           autoIncrement: false,
-        })
-      );
+        });
+      });
     })
   );
 
@@ -107,6 +107,15 @@ describe('Alter processor', () => {
         driver,
         tbl => (tbl.columns = tbl.columns.map(x => (x.columnName == column ? { ...x, columnName: 'col_renamed' } : x)))
       );
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Drop index - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableDiff(conn, driver, tbl => {
+        tbl.indexes = [];
+      });
     })
   );
 });

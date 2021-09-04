@@ -420,8 +420,24 @@ export class SqlDumper implements AlterProcessor {
     );
   }
 
-  dropIndex(ix: IndexInfo) {}
-  createIndex(ix: IndexInfo) {}
+  dropIndex(ix: IndexInfo) {
+    this.put('^drop ^index %i', ix.constraintName);
+    if (this.dialect.dropIndexContainsTableSpec) {
+      this.put(' ^on %f', ix);
+    }
+    this.endCommand();
+  }
+  createIndex(ix: IndexInfo) {
+    this.put('^create');
+    if (ix.indexType) this.put(' %k', ix.indexType);
+    if (ix.isUnique) this.put(' ^unique');
+    this.put(' ^index %i &n^on %f (&>&n', ix.constraintName, ix);
+    this.putCollection(',&n', ix.columns, col => {
+      this.put('%i %k', col.columnName, col.isDescending == true ? 'DESC' : 'ASC');
+    });
+    this.put('&<&n)');
+    this.endCommand();
+  }
 
   dropUnique(uq: UniqueInfo) {
     this.dropConstraintCore(uq);

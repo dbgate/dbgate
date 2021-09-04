@@ -15,6 +15,7 @@ const dialect = {
   dropColumnDependencies: ['default', 'dependencies', 'indexes', 'primaryKey'],
   changeColumnDependencies: ['indexes'],
   anonymousPrimaryKey: false,
+  dropIndexContainsTableSpec: true,
   quoteIdentifier(s) {
     return `[${s}]`;
   },

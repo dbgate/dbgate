@@ -17,7 +17,7 @@ const dialect = {
   explicitDropConstraint: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
-  dropColumnDependencies: ['index', 'primaryKey'],
+  dropColumnDependencies: ['indexes', 'primaryKey'],
   quoteIdentifier(s) {
     return `[${s}]`;
   },
