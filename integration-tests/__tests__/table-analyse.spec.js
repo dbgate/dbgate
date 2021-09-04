@@ -4,6 +4,8 @@ const { testWrapper } = require('../tools');
 const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val1 varchar(50) null)';
 const ix1Sql = 'CREATE index ix1 ON t1(val1, id)';
 const t2Sql = 'CREATE TABLE t2 (id int not null primary key, val2 varchar(50) null unique)';
+const t3Sql = 'CREATE TABLE t3 (id int not null primary key, valfk int, foreign key (valfk) references t2(id))';
+// const fkSql = 'ALTER TABLE t3 ADD FOREIGN KEY (valfk) REFERENCES t2(id)'
 
 const txMatch = (tname, vcolname, nextcol) =>
   expect.objectContaining({
@@ -137,6 +139,26 @@ describe('Table analyse', () => {
       expect(t2.uniques.length).toEqual(1);
       expect(t2.uniques[0].columns.length).toEqual(1);
       expect(t2.uniques[0].columns[0]).toEqual(expect.objectContaining({ columnName: 'val2' }));
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Foreign key - full analysis - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await driver.query(conn, t2Sql);
+      await driver.query(conn, t3Sql);
+      // await driver.query(conn, fkSql);
+
+      const structure = await driver.analyseFull(conn);
+
+      const t3 = structure.tables.find(x => x.pureName == 't3');
+      console.log('T3', t3.foreignKeys[0].columns);
+      expect(t3.foreignKeys.length).toEqual(1);
+      expect(t3.foreignKeys[0].columns.length).toEqual(1);
+      expect(t3.foreignKeys[0]).toEqual(expect.objectContaining({ refTableName: 't2' }));
+      expect(t3.foreignKeys[0].columns[0]).toEqual(
+        expect.objectContaining({ columnName: 'valfk', refColumnName: 'id' })
+      );
     })
   );
 });

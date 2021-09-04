@@ -34,7 +34,7 @@ const engines = [
   },
   {
     label: 'PostgreSQL',
-    skipLocal: true,
+    // skipLocal: true,
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
       password: 'Pwd2020Db',

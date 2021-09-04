@@ -33,6 +33,10 @@ const postgresDriverBase = {
   showConnectionField: (field, values) =>
     ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   getQuerySplitterOptions: () => postgreSplitterOptions,
+
+  __analyserInternals: {
+    refTableCond: '',
+  }
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -59,6 +63,9 @@ const cockroachDriver = {
     dropColumnDependencies: ['primaryKey'],
     dropPrimaryKey: false,
   },
+  __analyserInternals: {
+    refTableCond: 'and fk.referenced_table_name = ref.table_name',
+  }
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

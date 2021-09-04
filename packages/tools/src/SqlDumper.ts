@@ -429,7 +429,6 @@ export class SqlDumper implements AlterProcessor {
   }
   createIndex(ix: IndexInfo) {
     this.put('^create');
-    if (ix.indexType) this.put(' %k', ix.indexType);
     if (ix.isUnique) this.put(' ^unique');
     this.put(' ^index %i &n^on %f (&>&n', ix.constraintName, ix);
     this.putCollection(',&n', ix.columns, col => {

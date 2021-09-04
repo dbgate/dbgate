@@ -12,7 +12,7 @@ select
 	refcol.column_name as "ref_column_name"
 from information_schema.referential_constraints fk
 inner join information_schema.table_constraints base on fk.constraint_name = base.constraint_name and fk.constraint_schema = base.constraint_schema
-inner join information_schema.table_constraints ref on fk.unique_constraint_name = ref.constraint_name and fk.unique_constraint_schema = ref.constraint_schema
+inner join information_schema.table_constraints ref on fk.unique_constraint_name = ref.constraint_name and fk.unique_constraint_schema = ref.constraint_schema #REFTABLECOND#
 inner join information_schema.key_column_usage basecol on base.table_name = basecol.table_name and base.constraint_name = basecol.constraint_name
 inner join information_schema.key_column_usage refcol on ref.table_name = refcol.table_name and ref.constraint_name = refcol.constraint_name and basecol.ordinal_position = refcol.ordinal_position
 where 

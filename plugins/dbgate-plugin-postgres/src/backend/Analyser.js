@@ -41,7 +41,9 @@ class Analyser extends DatabaseAnalyser {
   }
 
   createQuery(resFileName, typeFields) {
-    return super.createQuery(sql[resFileName], typeFields);
+    return super
+      .createQuery(sql[resFileName], typeFields)
+      .replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
   }
 
   async _computeSingleObjectId() {
