@@ -41,7 +41,7 @@ class Dumper extends SqlDumper {
   dropTable(obj, options = {}) {
     this.put('^drop ^table');
     if (options.testIfExists) this.put(' ^if ^exists');
-    this.put(' %f', obj.FullName);
+    this.put(' %f', obj);
     this.endCommand();
   }
 

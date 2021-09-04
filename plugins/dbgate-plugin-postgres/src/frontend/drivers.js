@@ -57,6 +57,7 @@ const cockroachDriver = {
     ...dialect,
     materializedViews: true,
     dropColumnDependencies: ['primaryKey'],
+    dropPrimaryKey: false,
   },
 };
 

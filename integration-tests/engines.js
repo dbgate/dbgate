@@ -16,6 +16,7 @@ const matviews = {
 const engines = [
   {
     label: 'MySQL',
+    skipLocal: true,
     connection: {
       engine: 'mysql@dbgate-plugin-mysql',
       password: 'Pwd2020Db',
@@ -33,6 +34,7 @@ const engines = [
   },
   {
     label: 'PostgreSQL',
+    skipLocal: true,
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
       password: 'Pwd2020Db',
@@ -56,8 +58,10 @@ const engines = [
       },
       {
         type: 'functions',
-        create1: 'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
-        create2: 'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
+        create1:
+          'CREATE FUNCTION obj1() returns int LANGUAGE plpgsql AS $$ declare  res integer; begin select count(*) into res from t1; return res; end; $$',
+        create2:
+          'CREATE FUNCTION obj2() returns int LANGUAGE plpgsql AS $$ declare res integer; begin select count(*) into res from t2; return res; end; $$',
         drop1: 'DROP FUNCTION obj1',
         drop2: 'DROP FUNCTION obj2',
       },
@@ -65,6 +69,7 @@ const engines = [
   },
   {
     label: 'SQL Server',
+    skipLocal: true,
     connection: {
       engine: 'mssql@dbgate-plugin-mssql',
       password: 'Pwd2020Db',
@@ -89,6 +94,7 @@ const engines = [
   },
   {
     label: 'SQLite',
+    skipLocal: true,
     generateDbFile: true,
     connection: {
       engine: 'sqlite@dbgate-plugin-sqlite',
@@ -97,6 +103,7 @@ const engines = [
   },
   {
     label: 'CockroachDB',
+    // skipLocal: true,
     connection: {
       engine: 'cockroach@dbgate-plugin-postgres',
       user: 'root',
@@ -112,4 +119,4 @@ const engines = [
   },
 ];
 
-module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCI) : engines;
+module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCI) : engines.filter(x => !x.skipLocal);

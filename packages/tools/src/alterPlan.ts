@@ -207,7 +207,7 @@ export class AlterPlan {
           ...(this.dialect.dropColumnDependencies?.includes('uniques') ? table.uniques : []),
         ]).filter(cnt => cnt.columns.find(col => col.columnName == op.oldObject.columnName));
 
-        console.log('deletedConstraints', deletedConstraints);
+        // console.log('deletedConstraints', deletedConstraints);
 
         const res: AlterOperation[] = [
           ...[...deletedFks, ...deletedConstraints].map(oldObject => {
@@ -283,9 +283,47 @@ export class AlterPlan {
     return null;
   }
 
+  _groupTableRecreations(): AlterOperation[] {
+    const res = [];
+    const recreates = {};
+    for (const op of this.operations) {
+      if (op.operationType == 'recreateTable') {
+        const recreate = {
+          ...op,
+          operations: [...op.operations],
+        };
+        res.push(recreate);
+        recreates[`${op.table.schemaName}||${op.table.pureName}`] = recreate;
+      } else {
+        // @ts-ignore
+        const oldObject: TableInfo = op.oldObject;
+        if (oldObject) {
+          const recreated = recreates[`${oldObject.schemaName}||${oldObject.pureName}`];
+          if (recreated) {
+            recreated.operations.push(op);
+            continue;
+          }
+        }
+        res.push(op);
+      }
+    }
+    return res;
+  }
+
   transformPlan() {
+    // console.log('*****************OPERATIONS0', this.operations);
+
     this.operations = this._addLogicalDependencies();
+
+    // console.log('*****************OPERATIONS1', this.operations);
+
     this.operations = this._transformToImplementedOps();
+
+    // console.log('*****************OPERATIONS2', this.operations);
+
+    this.operations = this._groupTableRecreations();
+
+    // console.log('*****************OPERATIONS3', this.operations);
   }
 }
 
@@ -327,6 +365,8 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
         const newDb = DatabaseAnalyser.createEmptyStructure();
         newDb.tables.push(newTable);
         op.operations.forEach(child => runAlterOperation(child, new DatabaseInfoAlterProcessor(newDb)));
+        // console.log('////////////////////////////op.table', op.table);
+        // console.log('////////////////////////////newTable', newTable);
         processor.recreateTable(op.table, newTable);
       }
       break;

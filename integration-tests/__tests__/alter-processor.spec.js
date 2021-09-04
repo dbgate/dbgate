@@ -47,7 +47,7 @@ async function testTableDiff(conn, driver, mangle) {
   const sql = getAlterTableScript(tget(structure1), tget(structure2), {}, structure2, driver);
   console.log('RUNNING ALTER SQL', driver.engine, ':', sql);
 
-  await driver.query(conn, sql);
+  await driver.script(conn, sql);
 
   const structure2Real = extendDatabaseInfo(await driver.analyseFull(conn));
 
@@ -56,8 +56,8 @@ async function testTableDiff(conn, driver, mangle) {
 }
 
 // const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
-// const TESTED_COLUMNS = ['col_pk'];
-const TESTED_COLUMNS = ['col_idx'];
+const TESTED_COLUMNS = ['col_pk'];
+// const TESTED_COLUMNS = ['col_idx'];
 // const TESTED_COLUMNS = ['col_fk'];
 // const TESTED_COLUMNS = ['col_std'];
 

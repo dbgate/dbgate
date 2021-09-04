@@ -17,6 +17,9 @@
     
     "run:local": "docker-compose down && docker-compose up -d && yarn wait:local && yarn test:local"
   },
+  "jest": {
+    "testTimeout": 5000
+  },
   "devDependencies": {
     "cross-env": "^7.0.3",
     "jest": "^27.0.1"
