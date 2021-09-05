@@ -25,4 +25,8 @@ export interface SqlDialect {
   dropForeignKey?: boolean;
   createPrimaryKey?: boolean;
   dropPrimaryKey?: boolean;
+  createUnique?: boolean;
+  dropUnique?: boolean;
+  createCheck?: boolean;
+  dropCheck?: boolean;
 }

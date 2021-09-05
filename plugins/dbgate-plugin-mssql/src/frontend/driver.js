@@ -12,7 +12,7 @@ const dialect = {
   fallbackDataType: 'nvarchar(max)',
   explicitDropConstraint: false,
   enableConstraintsPerTable: true,
-  dropColumnDependencies: ['default', 'dependencies', 'indexes', 'primaryKey'],
+  dropColumnDependencies: ['default', 'dependencies', 'indexes', 'primaryKey', 'foreignKeys', 'uniques'],
   changeColumnDependencies: ['indexes'],
   anonymousPrimaryKey: false,
   dropIndexContainsTableSpec: true,
@@ -28,6 +28,10 @@ const dialect = {
   dropForeignKey: true,
   createPrimaryKey: true,
   dropPrimaryKey: true,
+  createUnique: true,
+  dropUnique: true,
+  createCheck: true,
+  dropCheck: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

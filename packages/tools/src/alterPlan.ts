@@ -244,6 +244,8 @@ export class AlterPlan {
     if (cnt.constraintType == 'primaryKey') return this.dialect.createPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.createForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.createIndex;
+    if (cnt.constraintType == 'unique') return this.dialect.createUnique;
+    if (cnt.constraintType == 'check') return this.dialect.createCheck;
     return null;
   }
 
@@ -251,6 +253,8 @@ export class AlterPlan {
     if (cnt.constraintType == 'primaryKey') return this.dialect.dropPrimaryKey;
     if (cnt.constraintType == 'foreignKey') return this.dialect.dropForeignKey;
     if (cnt.constraintType == 'index') return this.dialect.dropIndex;
+    if (cnt.constraintType == 'unique') return this.dialect.dropUnique;
+    if (cnt.constraintType == 'check') return this.dialect.dropCheck;
     return null;
   }
 
@@ -364,9 +368,11 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
         const newTable = _.cloneDeep(op.table);
         const newDb = DatabaseAnalyser.createEmptyStructure();
         newDb.tables.push(newTable);
+        // console.log('////////////////////////////newTable1', newTable);
         op.operations.forEach(child => runAlterOperation(child, new DatabaseInfoAlterProcessor(newDb)));
+        // console.log('////////////////////////////op.operations', op.operations);
         // console.log('////////////////////////////op.table', op.table);
-        // console.log('////////////////////////////newTable', newTable);
+        // console.log('////////////////////////////newTable2', newTable);
         processor.recreateTable(op.table, newTable);
       }
       break;

@@ -9,7 +9,9 @@ const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require
 function pickImportantTableInfo(table) {
   return {
     pureName: table.pureName,
-    columns: table.columns.map(fp.pick(['columnName', 'notNull', 'autoIncrement'])),
+    columns: table.columns
+      .filter(x => x.columnName != 'rowid')
+      .map(fp.pick(['columnName', 'notNull', 'autoIncrement'])),
   };
 }
 
@@ -56,9 +58,9 @@ async function testTableDiff(conn, driver, mangle) {
 }
 
 // const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'col_idx', 'col_uq'];
-const TESTED_COLUMNS = ['col_pk'];
+// const TESTED_COLUMNS = ['col_pk'];
 // const TESTED_COLUMNS = ['col_idx'];
-// const TESTED_COLUMNS = ['col_fk'];
+const TESTED_COLUMNS = ['col_uq'];
 // const TESTED_COLUMNS = ['col_std'];
 
 function engines_columns_source() {

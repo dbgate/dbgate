@@ -16,7 +16,7 @@ const matviews = {
 const engines = [
   {
     label: 'MySQL',
-    // skipLocal: true,
+    skipLocal: true,
     connection: {
       engine: 'mysql@dbgate-plugin-mysql',
       password: 'Pwd2020Db',
@@ -34,7 +34,7 @@ const engines = [
   },
   {
     label: 'PostgreSQL',
-    // skipLocal: true,
+    skipLocal: true,
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
       password: 'Pwd2020Db',
@@ -103,7 +103,7 @@ const engines = [
   },
   {
     label: 'CockroachDB',
-    // skipLocal: true,
+    skipLocal: true,
     connection: {
       engine: 'cockroach@dbgate-plugin-postgres',
       user: 'root',

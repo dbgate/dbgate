@@ -1,4 +1,14 @@
-import { ColumnInfo, ConstraintInfo, DatabaseInfo, ForeignKeyInfo, PrimaryKeyInfo, TableInfo } from '../../types';
+import {
+  ColumnInfo,
+  ConstraintInfo,
+  DatabaseInfo,
+  ForeignKeyInfo,
+  PrimaryKeyInfo,
+  TableInfo,
+  IndexInfo,
+  CheckInfo,
+  UniqueInfo,
+} from '../../types';
 
 export class DatabaseInfoAlterProcessor {
   constructor(public db: DatabaseInfo) {}
@@ -35,6 +45,15 @@ export class DatabaseInfoAlterProcessor {
       case 'foreignKey':
         table.foreignKeys.push(constraint as ForeignKeyInfo);
         break;
+      case 'index':
+        table.indexes.push(constraint as IndexInfo);
+        break;
+      case 'unique':
+        table.uniques.push(constraint as UniqueInfo);
+        break;
+      case 'check':
+        table.checks.push(constraint as CheckInfo);
+        break;
     }
   }
 
@@ -52,6 +71,15 @@ export class DatabaseInfoAlterProcessor {
         break;
       case 'foreignKey':
         table.foreignKeys = table.foreignKeys.filter(x => x.constraintName != constraint.constraintName);
+        break;
+      case 'index':
+        table.indexes = table.indexes.filter(x => x.constraintName != constraint.constraintName);
+        break;
+      case 'unique':
+        table.uniques = table.uniques.filter(x => x.constraintName != constraint.constraintName);
+        break;
+      case 'check':
+        table.checks = table.checks.filter(x => x.constraintName != constraint.constraintName);
         break;
     }
   }

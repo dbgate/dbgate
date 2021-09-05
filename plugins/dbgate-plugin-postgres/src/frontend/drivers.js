@@ -24,6 +24,10 @@ const dialect = {
   dropForeignKey: true,
   createPrimaryKey: true,
   dropPrimaryKey: true,
+  createUnique: true,
+  dropUnique: true,
+  createCheck: true,
+  dropCheck: true,
 };
 
 const postgresDriverBase = {

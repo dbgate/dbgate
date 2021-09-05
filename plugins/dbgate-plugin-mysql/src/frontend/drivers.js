@@ -23,6 +23,10 @@ const dialect = {
   createPrimaryKey: true,
   dropPrimaryKey: true,
   dropIndexContainsTableSpec: true,
+  createUnique: true,
+  dropUnique: true,
+  createCheck: true,
+  dropCheck: true,
 };
 
 const mysqlDriverBase = {
