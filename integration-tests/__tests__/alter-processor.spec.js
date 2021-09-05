@@ -1,9 +1,22 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
+const fp = require('lodash/fp');
 const uuidv1 = require('uuid/v1');
-const { testWrapper, checkTableStructure } = require('../tools');
+const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
+
+function pickImportantTableInfo(table) {
+  return {
+    pureName: table.pureName,
+    columns: table.columns.map(fp.pick(['columnName', 'notNull', 'autoIncrement'])),
+  };
+}
+
+function checkTableStructure(t1, t2) {
+  // expect(t1.pureName).toEqual(t2.pureName)
+  expect(pickImportantTableInfo(t1)).toEqual(pickImportantTableInfo(t2));
+}
 
 async function testTableDiff(conn, driver, mangle) {
   await driver.query(conn, `create table t0 (id int not null primary key)`);

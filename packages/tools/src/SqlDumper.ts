@@ -249,10 +249,9 @@ export class SqlDumper implements AlterProcessor {
     // }
     this.put('&<&n)');
     this.endCommand();
-    // foreach (var ix in table.Indexes)
-    // {
-    //     CreateIndex(ix);
-    // }
+    for (const ix of table.indexes) {
+      this.createIndex(ix);
+    }
   }
 
   createForeignKeyFore(fk: ForeignKeyInfo) {

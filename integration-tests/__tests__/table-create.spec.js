@@ -1,8 +1,32 @@
+const _ = require('lodash');
+const fp = require('lodash/fp');
 const engines = require('../engines');
-const { testWrapper, checkTableStructure } = require('../tools');
+const { testWrapper } = require('../tools');
 const { extendDatabaseInfo } = require('dbgate-tools');
 
+function createExpector(value) {
+  return _.cloneDeepWith(value, x => {
+    if (_.isPlainObject(x)) {
+      return expect.objectContaining(_.mapValues(x, y => createExpector(y)));
+    }
+  });
+}
+
+function omitTableSpecificInfo(table) {
+  return {
+    ...table,
+    columns: table.columns.map(fp.omit(['dataType'])),
+  };
+}
+
+function checkTableStructure2(t1, t2) {
+  // expect(t1.pureName).toEqual(t2.pureName)
+  expect(t2).toEqual(createExpector(omitTableSpecificInfo(t1)));
+}
+
 async function testTableCreate(conn, driver, table) {
+  await driver.query(conn, `create table t0 (id int not null primary key)`);
+
   const dmp = driver.createDumper();
   const table1 = {
     ...table,
@@ -11,17 +35,17 @@ async function testTableCreate(conn, driver, table) {
   dmp.createTable(table1);
 
   console.log('RUNNING CREATE SQL', driver.engine, ':', dmp.s);
-  await driver.query(conn, dmp.s);
+  await driver.script(conn, dmp.s);
 
   const db = extendDatabaseInfo(await driver.analyseFull(conn));
   const table2 = db.tables.find(x => x.pureName == 'tested');
 
-  checkTableStructure(table1, table2);
+  checkTableStructure2(table1, table2);
 }
 
 describe('Table create', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
-    'Table structure - full analysis - %s',
+    'Simple table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testTableCreate(conn, driver, {
         columns: [
@@ -29,12 +53,41 @@ describe('Table create', () => {
             columnName: 'col1',
             dataType: 'int',
             notNull: true,
-            autoIncrement: false,
           },
         ],
         primaryKey: {
           columns: [{ columnName: 'col1' }],
         },
+      });
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Table with index - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableCreate(conn, driver, {
+        columns: [
+          {
+            columnName: 'col1',
+            dataType: 'int',
+            notNull: true,
+          },
+          {
+            columnName: 'col2',
+            dataType: 'int',
+            notNull: true,
+          },
+        ],
+        primaryKey: {
+          columns: [{ columnName: 'col1' }],
+        },
+        indexes: [
+          {
+            constraintName: 'ix1',
+            pureName: 'tested',
+            columns: [{ columnName: 'col2' }],
+          },
+        ],
       });
     })
   );

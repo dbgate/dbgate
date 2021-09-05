@@ -1,7 +1,6 @@
 global.DBGATE_TOOLS = require('dbgate-tools');
 const requireEngineDriver = require('dbgate-api/src/utility/requireEngineDriver');
 const crypto = require('crypto');
-const fp = require('lodash/fp');
 
 function randomDbName() {
   const generatedKey = crypto.randomBytes(6);
@@ -56,22 +55,9 @@ const testWrapper = body => async (label, ...other) => {
   }
 };
 
-function pickImportantTableInfo(table) {
-  return {
-    pureName: table.pureName,
-    columns: table.columns.map(fp.pick(['columnName', 'notNull', 'autoIncrement'])),
-  };
-}
-
-function checkTableStructure(t1, t2) {
-  // expect(t1.pureName).toEqual(t2.pureName)
-  expect(pickImportantTableInfo(t1)).toEqual(pickImportantTableInfo(t2));
-}
-
 module.exports = {
   randomDbName,
   connect,
   extractConnection,
   testWrapper,
-  checkTableStructure,
 };
