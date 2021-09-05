@@ -91,4 +91,63 @@ describe('Table create', () => {
       });
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Table with foreign key - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableCreate(conn, driver, {
+        columns: [
+          {
+            columnName: 'col1',
+            dataType: 'int',
+            notNull: true,
+          },
+          {
+            columnName: 'col2',
+            dataType: 'int',
+            notNull: true,
+          },
+        ],
+        primaryKey: {
+          columns: [{ columnName: 'col1' }],
+        },
+        foreignKeys: [
+          {
+            pureName: 'tested',
+            refTableName: 't0',
+            columns: [{ columnName: 'col2', refColumnName: 'id' }],
+          },
+        ],
+      });
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Table with unique - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testTableCreate(conn, driver, {
+        columns: [
+          {
+            columnName: 'col1',
+            dataType: 'int',
+            notNull: true,
+          },
+          {
+            columnName: 'col2',
+            dataType: 'int',
+            notNull: true,
+          },
+        ],
+        primaryKey: {
+          columns: [{ columnName: 'col1' }],
+        },
+        uniques: [
+          {
+            pureName: 'tested',
+            columns: [{ columnName: 'col2' }],
+          },
+        ],
+      });
+    })
+  );
 });

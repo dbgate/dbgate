@@ -229,29 +229,25 @@ export class SqlDumper implements AlterProcessor {
         table.primaryKey.columns.map(x => x.columnName)
       );
     }
-    if (table.foreignKeys) {
-      table.foreignKeys.forEach(fk => {
-        this.put(',&n');
-        this.createForeignKeyFore(fk);
-      });
-    }
-    // foreach (var cnt in table.Uniques)
-    // {
-    //     if (!first) this.put(", &n");
-    //     first = false;
-    //     CreateUniqueCore(cnt);
-    // }
-    // foreach (var cnt in table.Checks)
-    // {
-    //     if (!first) this.put(", &n");
-    //     first = false;
-    //     CreateCheckCore(cnt);
-    // }
+    
+    (table.foreignKeys || []).forEach(fk => {
+      this.put(',&n');
+      this.createForeignKeyFore(fk);
+    });
+    (table.uniques || []).forEach(uq => {
+      this.put(',&n');
+      this.createUniqueCore(uq);
+    });
+    (table.checks || []).forEach(chk => {
+      this.put(',&n');
+      this.createCheckCore(chk);
+    });
+
     this.put('&<&n)');
     this.endCommand();
-    for (const ix of table.indexes) {
+    (table.indexes || []).forEach(ix => {
       this.createIndex(ix);
-    }
+    });
   }
 
   createForeignKeyFore(fk: ForeignKeyInfo) {
