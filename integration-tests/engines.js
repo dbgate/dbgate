@@ -16,7 +16,7 @@ const matviews = {
 const engines = [
   {
     label: 'MySQL',
-    skipLocal: true,
+    // skipLocal: true,
     connection: {
       engine: 'mysql@dbgate-plugin-mysql',
       password: 'Pwd2020Db',
@@ -94,7 +94,7 @@ const engines = [
   },
   {
     label: 'SQLite',
-    skipLocal: true,
+    // skipLocal: true,
     generateDbFile: true,
     connection: {
       engine: 'sqlite@dbgate-plugin-sqlite',
