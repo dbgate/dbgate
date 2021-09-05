@@ -11,6 +11,7 @@ const dialect = {
   fallbackDataType: 'varchar',
   anonymousPrimaryKey: true,
   enableConstraintsPerTable: true,
+  dropColumnDependencies: ['dependencies'],
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
@@ -40,7 +41,7 @@ const postgresDriverBase = {
 
   __analyserInternals: {
     refTableCond: '',
-  }
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -64,12 +65,12 @@ const cockroachDriver = {
   dialect: {
     ...dialect,
     materializedViews: true,
-    dropColumnDependencies: ['primaryKey'],
+    dropColumnDependencies: ['primaryKey', 'dependencies'],
     dropPrimaryKey: false,
   },
   __analyserInternals: {
     refTableCond: 'and fk.referenced_table_name = ref.table_name',
-  }
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

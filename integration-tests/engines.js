@@ -16,7 +16,6 @@ const matviews = {
 const engines = [
   {
     label: 'MySQL',
-    skipLocal: true,
     connection: {
       engine: 'mysql@dbgate-plugin-mysql',
       password: 'Pwd2020Db',
@@ -34,7 +33,6 @@ const engines = [
   },
   {
     label: 'PostgreSQL',
-    skipLocal: true,
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
       password: 'Pwd2020Db',
@@ -69,7 +67,6 @@ const engines = [
   },
   {
     label: 'SQL Server',
-    skipLocal: true,
     connection: {
       engine: 'mssql@dbgate-plugin-mssql',
       password: 'Pwd2020Db',
@@ -94,7 +91,6 @@ const engines = [
   },
   {
     label: 'SQLite',
-    // skipLocal: true,
     generateDbFile: true,
     connection: {
       engine: 'sqlite@dbgate-plugin-sqlite',
@@ -103,7 +99,6 @@ const engines = [
   },
   {
     label: 'CockroachDB',
-    skipLocal: true,
     connection: {
       engine: 'cockroach@dbgate-plugin-postgres',
       user: 'root',
@@ -119,4 +114,15 @@ const engines = [
   },
 ];
 
-module.exports = process.env.CITEST ? engines.filter(x => !x.skipOnCI) : engines.filter(x => !x.skipLocal);
+const filterLocal = [
+  // filter local testing
+  '-MySQL',
+  'PostgreSQL',
+  '-SQL Server',
+  '-SQLite',
+  'CockroachDB',
+];
+
+module.exports = process.env.CITEST
+  ? engines.filter(x => !x.skipOnCI)
+  : engines.filter(x => filterLocal.find(y => x.label == y));
