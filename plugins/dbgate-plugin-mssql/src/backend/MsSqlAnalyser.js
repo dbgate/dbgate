@@ -32,6 +32,8 @@ function getColumnInfo({
   charMaxLength,
   numericPrecision,
   numericScale,
+  defaultValue,
+  defaultConstraint,
 }) {
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
@@ -42,6 +44,8 @@ function getColumnInfo({
     dataType: fullDataType,
     notNull: !isNullable,
     autoIncrement: !!isIdentity,
+    defaultValue,
+    defaultConstraint,
   };
 }
 
@@ -99,21 +103,21 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         .filter(idx => idx.object_id == row.objectId && !idx.is_unique_constraint)
         .map(idx => ({
           ..._.pick(idx, ['constraintName', 'indexType', 'isUnique']),
-          columns: indexcolsRows.rows.filter(
-            col => col.object_id == idx.object_id && col.index_id == idx.index_id
-          ).map(col => ({
-            ..._.pick(col, ['columnName', 'isDescending', 'isIncludedColumn']),
-          })),
+          columns: indexcolsRows.rows
+            .filter(col => col.object_id == idx.object_id && col.index_id == idx.index_id)
+            .map(col => ({
+              ..._.pick(col, ['columnName', 'isDescending', 'isIncludedColumn']),
+            })),
         })),
       uniques: indexesRows.rows
         .filter(idx => idx.object_id == row.objectId && idx.is_unique_constraint)
         .map(idx => ({
           ..._.pick(idx, ['constraintName']),
-          columns: indexcolsRows.rows.filter(
-            col => col.object_id == idx.object_id && col.index_id == idx.index_id
-          ).map(col => ({
-            ..._.pick(col, ['columnName']),
-          })),
+          columns: indexcolsRows.rows
+            .filter(col => col.object_id == idx.object_id && col.index_id == idx.index_id)
+            .map(col => ({
+              ..._.pick(col, ['columnName']),
+            })),
         })),
     }));
 

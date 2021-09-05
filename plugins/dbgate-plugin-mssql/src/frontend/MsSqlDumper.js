@@ -65,6 +65,13 @@ class MsSqlDumper extends SqlDumper {
     super.dropTable(obj, options);
   }
 
+  dropColumn(column) {
+    if (column.defaultConstraint) {
+      this.putCmd('^alter ^table %f ^drop ^constraint %i', column, column.defaultConstraint);
+    }
+    super.dropColumn(column);
+  }
+
   dropDefault(col) {
     if (col.defaultConstraint) {
       this.putCmd('^alter ^table %f ^drop ^constraint %i', col, col.defaultConstraint);
