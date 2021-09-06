@@ -1,9 +1,10 @@
+import { AlterProcessor } from './alter-processor';
 import { TableInfo } from './dbinfo';
 import { SqlDialect } from './dialect';
 
 export type TransformType = 'GROUP:YEAR' | 'GROUP:MONTH' | 'GROUP:DAY' | 'YEAR' | 'MONTH' | 'DAY'; // | 'GROUP:HOUR' | 'GROUP:MINUTE';
 
-export interface SqlDumper {
+export interface SqlDumper extends AlterProcessor {
   s: string;
   dialect: SqlDialect;
 
@@ -15,6 +16,5 @@ export interface SqlDumper {
   transform(type: TransformType, dumpExpr: () => void);
 
   endCommand();
-  createTable(table: TableInfo);
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean);
 }

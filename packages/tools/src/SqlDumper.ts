@@ -229,7 +229,7 @@ export class SqlDumper implements AlterProcessor {
         table.primaryKey.columns.map(x => x.columnName)
       );
     }
-    
+
     (table.foreignKeys || []).forEach(fk => {
       this.put(',&n');
       this.createForeignKeyFore(fk);
@@ -387,6 +387,7 @@ export class SqlDumper implements AlterProcessor {
         break;
     }
   }
+  changeConstraint(oldConstraint: ConstraintInfo, newConstraint: ConstraintInfo) {}
   dropForeignKey(fk: ForeignKeyInfo) {
     if (this.dialect.explicitDropConstraint) {
       this.putCmd('^alter ^table %f ^drop ^foreign ^key %i', fk, fk.constraintName);

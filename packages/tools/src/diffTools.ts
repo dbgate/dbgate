@@ -294,6 +294,6 @@ export function getAlterTableScript(
 ): string {
   const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
-  plan.run(dmp);
+  plan.run(dmp );
   return dmp.s;
 }
