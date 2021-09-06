@@ -116,11 +116,11 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
-  '-PostgreSQL',
+  'MySQL',
+  'PostgreSQL',
   'SQL Server',
-  '-SQLite',
-  '-CockroachDB',
+  'SQLite',
+  'CockroachDB',
 ];
 
 module.exports = process.env.CITEST
