@@ -104,8 +104,6 @@
     tableInfo;
     invalidateCommands();
   }
-
-  $: console.log('tableInfo', tableInfo);
 </script>
 
 <div class="wrapper">

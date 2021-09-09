@@ -135,6 +135,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
   const clearEditorData = async () => {
     await localforage.removeItem(localStorageKey);
     localStorage.removeItem(localStorageKey);
+    value = null;
     editorState.update(x => ({
       ...x,
       value: null,
