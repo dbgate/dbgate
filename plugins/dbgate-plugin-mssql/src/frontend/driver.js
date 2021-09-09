@@ -13,7 +13,7 @@ const dialect = {
   explicitDropConstraint: false,
   enableConstraintsPerTable: true,
   dropColumnDependencies: ['default', 'dependencies', 'indexes', 'primaryKey', 'foreignKeys', 'uniques'],
-  changeColumnDependencies: ['indexes'],
+  changeColumnDependencies: ['indexes', 'dependencies', 'uniques'],
   anonymousPrimaryKey: false,
   dropIndexContainsTableSpec: true,
   quoteIdentifier(s) {

@@ -62,6 +62,7 @@ const TESTED_COLUMNS = ['col_pk', 'col_std', 'col_def', 'col_fk', 'col_ref', 'co
 // const TESTED_COLUMNS = ['col_idx'];
 // const TESTED_COLUMNS = ['col_def'];
 // const TESTED_COLUMNS = ['col_std'];
+// const TESTED_COLUMNS = ['col_ref'];
 
 function engines_columns_source() {
   return _.flatten(engines.map(engine => TESTED_COLUMNS.map(column => [engine.label, column, engine])));

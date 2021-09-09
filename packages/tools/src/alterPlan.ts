@@ -222,6 +222,30 @@ export class AlterPlan {
         ];
         return res;
       }
+
+      if (op.operationType == 'changeColumn') {
+        const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.changeColumnDependencies);
+
+        const res: AlterOperation[] = [
+          ...constraints.map(oldObject => {
+            const opRes: AlterOperation = {
+              operationType: 'dropConstraint',
+              oldObject,
+            };
+            return opRes;
+          }),
+          op,
+          ..._.reverse([...constraints]).map(newObject => {
+            const opRes: AlterOperation = {
+              operationType: 'createConstraint',
+              newObject,
+            };
+            return opRes;
+          }),
+        ];
+        return res;
+      }
+
       return [op];
     });
 
