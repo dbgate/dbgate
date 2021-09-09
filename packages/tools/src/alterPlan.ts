@@ -233,7 +233,8 @@ export class AlterPlan {
         this._testTableRecreate(op, 'createColumn', this.dialect.createColumn, 'newObject') ||
         this._testTableRecreate(op, 'dropColumn', this.dialect.dropColumn, 'oldObject') ||
         this._testTableRecreate(op, 'createConstraint', obj => this._canCreateConstraint(obj), 'newObject') ||
-        this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') || [op]
+        this._testTableRecreate(op, 'dropConstraint', obj => this._canDropConstraint(obj), 'oldObject') ||
+        this._testTableRecreate(op, 'changeColumn', this.dialect.changeColumn, 'newObject') || [op]
       );
     });
 
