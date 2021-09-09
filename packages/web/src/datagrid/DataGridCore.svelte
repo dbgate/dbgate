@@ -165,7 +165,9 @@
     return `Rows: ${allRowCount.toLocaleString()}`;
   }
 
-  function getCopiedValue(value) {
+  function extractCopiedValue(row, col) {
+    let value = row[col];
+    if (value === undefined) value = _.get(row, col);
     if (value === null) return '(NULL)';
     if (value === undefined) return '(NoField)';
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
@@ -339,7 +341,7 @@
       if (!rowData) return '';
       const line = colIndexes
         .map(col => realColumnUniqueNames[col])
-        .map(col => getCopiedValue(rowData[col]))
+        .map(col => extractCopiedValue(rowData, col))
         .join('\t');
       return line;
     });
