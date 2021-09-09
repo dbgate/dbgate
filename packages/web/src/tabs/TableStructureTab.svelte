@@ -1,22 +1,54 @@
 <script lang="ts" context="module">
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
+  const getCurrentEditor = () => getActiveComponent('TableStructureTab');
+
+  registerCommand({
+    id: 'tableStructure.save',
+    group: 'save',
+    category: 'Table editor',
+    name: 'Save',
+    toolbar: true,
+    isRelatedToTab: true,
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor()?.canSave(),
+    onClick: () => getCurrentEditor().save(),
+  });
+
+  registerCommand({
+    id: 'tableStructure.reset',
+    category: 'Table editor',
+    name: 'Reset changes',
+    toolbar: true,
+    isRelatedToTab: true,
+    icon: 'icon close',
+    testEnabled: () => getCurrentEditor()?.canSave(),
+    onClick: () => getCurrentEditor().reset(),
+  });
 </script>
 
 <script lang="ts">
-  import { generateTablePairingId } from 'dbgate-tools';
+  import { findEngineDriver, generateTablePairingId, getAlterTableScript } from 'dbgate-tools';
 
   import _ from 'lodash';
+  import registerCommand from '../commands/registerCommand';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import ConstraintLabel from '../elements/ConstraintLabel.svelte';
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
 
+  import { extensions } from '../stores';
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
-  import { useDatabaseInfo, useDbCore } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDbCore } from '../utility/metadataLoaders';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import axiosInstance from '../utility/axiosInstance';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import { showSnackbarSuccess } from '../utility/snackbar';
 
   export let tabid;
   export let conid;
@@ -25,13 +57,56 @@
   export let pureName;
   export let objectTypeField = 'tables';
 
+  export const activator = createActivator('TableStructureTab', true);
+
   $: tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
   $: dbInfo = useDatabaseInfo({ conid, database });
   $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
+  $: connection = useConnectionInfo({ conid });
 
-  const { editorState, editorValue, setEditorData } = useEditorData({ tabid });
+  const { editorState, editorValue, setEditorData, clearEditorData } = useEditorData({ tabid });
 
   $: showTable = $editorValue || tableInfoWithPairingId;
+
+  export function canSave() {
+    return objectTypeField == 'tables' && !!$editorValue;
+  }
+
+  export function save() {
+    const driver = findEngineDriver($connection, $extensions);
+    const sql = getAlterTableScript(tableInfoWithPairingId, $editorValue, {}, $dbInfo, driver);
+
+    showModal(ConfirmSqlModal, {
+      sql,
+      onConfirm: () => handleConfirmSql(sql),
+      engine: driver.engine,
+    });
+  }
+
+  async function handleConfirmSql(sql) {
+    const resp = await axiosInstance.request({
+      url: 'database-connections/run-script',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+    } else {
+      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      showSnackbarSuccess('Saved to database');
+      clearEditorData();
+    }
+  }
+
+  export async function reset() {
+    await axiosInstance.post('database-connections/sync-model', { conid, database });
+    clearEditorData();
+  }
 </script>
 
 <TableEditor
