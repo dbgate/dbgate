@@ -37,7 +37,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { tick } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
 
@@ -77,7 +77,7 @@
   }
 
   export function allowAddPrimaryKey() {
-    return writable() && !tableInfo.primaryKey;
+    return writable() && !tableInfo?.primaryKey;
   }
 
   export function addPrimaryKey() {
@@ -109,7 +109,8 @@
 <div class="wrapper">
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
-    title="Columns"
+    title={`Columns (${columns?.length || 0})`}
+    showIfEmpty
     clickable={writable()}
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo })}
     columns={[

@@ -8,14 +8,15 @@ export interface EditorColumnInfo extends ColumnInfo {
 
 export function fillEditorColumnInfo(column: ColumnInfo, table: TableInfo): EditorColumnInfo {
   return {
-    isPrimaryKey: !!(table.primaryKey && table.primaryKey.columns.find(x => x.columnName == column.columnName)),
+    isPrimaryKey: !!(table?.primaryKey && table.primaryKey.columns.find(x => x.columnName == column.columnName)),
+    dataType: column ? undefined : 'int',
     ...column,
   };
 }
 
 function processPrimaryKey(table: TableInfo, oldColumn: EditorColumnInfo, newColumn: EditorColumnInfo): TableInfo {
   if (!oldColumn?.isPrimaryKey && newColumn?.isPrimaryKey) {
-    let primaryKey = table.primaryKey;
+    let primaryKey = table?.primaryKey;
     if (!primaryKey) {
       primaryKey = {
         constraintType: 'primaryKey',
@@ -39,7 +40,7 @@ function processPrimaryKey(table: TableInfo, oldColumn: EditorColumnInfo, newCol
   }
 
   if (oldColumn?.isPrimaryKey && !newColumn?.isPrimaryKey) {
-    let primaryKey = table.primaryKey;
+    let primaryKey = table?.primaryKey;
     if (primaryKey) {
       primaryKey = {
         ...primaryKey,
@@ -64,7 +65,7 @@ function processPrimaryKey(table: TableInfo, oldColumn: EditorColumnInfo, newCol
 export function editorAddColumn(table: TableInfo, column: EditorColumnInfo): TableInfo {
   let res = {
     ...table,
-    columns: [...table.columns, { ...column, pairingId: uuidv1() }],
+    columns: [...(table?.columns || []), { ...column, pairingId: uuidv1() }],
   };
 
   res = processPrimaryKey(res, null, column);

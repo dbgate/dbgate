@@ -8,6 +8,7 @@
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
+  import FormButton from '../forms/FormButton.svelte';
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
   import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
@@ -19,7 +20,6 @@
   export let setTableInfo;
   export let tableInfo;
   export let onAddNext;
-
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo, tableInfo)}>
@@ -51,7 +51,7 @@
         }}
       />
       {#if !columnInfo}
-        <FormStyledButton
+        <FormButton
           type="button"
           value="Save"
           on:click={e => {

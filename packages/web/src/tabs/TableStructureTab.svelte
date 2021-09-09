@@ -49,6 +49,8 @@
   import axiosInstance from '../utility/axiosInstance';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import { changeTab } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -56,6 +58,7 @@
   export let schemaName;
   export let pureName;
   export let objectTypeField = 'tables';
+  let domEditor;
 
   export const activator = createActivator('TableStructureTab', true);
 
@@ -73,17 +76,41 @@
   }
 
   export function save() {
+    if ($editorValue.base) {
+      doSave(null);
+    } else {
+      showModal(InputTextModal, {
+        header: 'Set table name',
+        value: $editorValue.current.pureName || 'newTable',
+        label: 'Table name',
+        onConfirm: name => {
+          setEditorData(tbl => ({
+            base: tbl.base,
+            current: {
+              ...tbl.current,
+              pureName: name,
+            },
+          }));
+          doSave(name);
+        },
+      });
+    }
+  }
+
+  function doSave(createTableName) {
     const driver = findEngineDriver($connection, $extensions);
     const sql = getAlterTableScript($editorValue.base, $editorValue.current, {}, $dbInfo, driver);
 
     showModal(ConfirmSqlModal, {
       sql,
-      onConfirm: () => handleConfirmSql(sql),
+      onConfirm: () => {
+        handleConfirmSql(sql, createTableName);
+      },
       engine: driver.engine,
     });
   }
 
-  async function handleConfirmSql(sql) {
+  async function handleConfirmSql(sql, createTableName) {
     const resp = await axiosInstance.request({
       url: 'database-connections/run-script',
       method: 'post',
@@ -97,6 +124,17 @@
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
+      if (createTableName) {
+        changeTab(tabid, tab => ({
+          ...tab,
+          title: createTableName,
+          props: {
+            ...tab.props,
+            pureName: createTableName,
+          },
+        }));
+      }
+
       await axiosInstance.post('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
       clearEditorData();
@@ -107,9 +145,15 @@
     await axiosInstance.post('database-connections/sync-model', { conid, database });
     clearEditorData();
   }
+
+  $: {
+    // if (!$editorState.isLoading && !$editorValue)
+    if (domEditor && !pureName) domEditor.addColumn();
+  }
 </script>
 
 <TableEditor
+  bind:this={domEditor}
   tableInfo={showTable}
   dbInfo={$dbInfo}
   setTableInfo={objectTypeField == 'tables'
