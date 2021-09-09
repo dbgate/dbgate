@@ -62,164 +62,166 @@
   }
 </script>
 
-<ModalBase {...$$restProps}>
-  <svelte:fragment slot="header">{constraintInfo ? `Edit foreign key` : `Add foreign key`}</svelte:fragment>
+<FormProvider>
+  <ModalBase {...$$restProps}>
+    <svelte:fragment slot="header">{constraintInfo ? `Edit foreign key` : `Add foreign key`}</svelte:fragment>
 
-  <div class="largeFormMarker">
-    <div class="row">
-      <div class="label col-3">Constraint name</div>
-      <div class="col-9">
-        <TextField value={constraintName} on:input={e => (constraintName = e.target['value'])} focused />
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="label col-3">Referenced table</div>
-      <div class="col-9">
-        <SelectField
-          value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
-          isNative
-          notSelected
-          options={(dbInfo?.tables || []).map(tbl => ({
-            label: fullNameToLabel(tbl),
-            value: fullNameToString(tbl),
-          }))}
-          on:change={e => {
-            if (e.detail) {
-              const name = fullNameFromString(e.detail);
-              refTableName = name.pureName;
-              refSchemaName = name.schemaName;
-            }
-          }}
-        />
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="label col-3">On update action</div>
-      <div class="col-9">
-        <SelectField
-          value={updateAction}
-          isNative
-          notSelected
-          options={foreignKeyActionsOptions}
-          on:change={e => {
-            updateAction = e.detail || null;
-          }}
-        />
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="label col-3">On delete action</div>
-      <div class="col-9">
-        <SelectField
-          value={deleteAction}
-          isNative
-          notSelected
-          options={foreignKeyActionsOptions}
-          on:change={e => {
-            deleteAction = e.detail || null;
-          }}
-        />
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-5 mr-1">
-        Base column - {tableInfo.pureName}
-      </div>
-      <div class="col-5 ml-1">
-        Ref column - {refTableName || '(table not set)'}
-      </div>
-    </div>
-
-    {#each columns as column, index}
+    <div class="largeFormMarker">
       <div class="row">
-        <div class="col-5 mr-1">
-          {#key column.columnName}
-            <SelectField
-              value={column.columnName}
-              isNative
-              notSelected
-              options={tableInfo.columns.map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              }))}
-              on:change={e => {
-                if (e.detail) {
-                  columns = columns.map((col, i) => (i == index ? { ...col, columnName: e.detail } : col));
-                }
-              }}
-            />
-          {/key}
+        <div class="label col-3">Constraint name</div>
+        <div class="col-9">
+          <TextField value={constraintName} on:input={e => (constraintName = e.target['value'])} focused />
         </div>
-        <div class="col-5 ml-1">
-          {#key column.refColumnName}
-            <SelectField
-              value={column.refColumnName}
-              isNative
-              notSelected
-              options={(refTableInfo?.columns || []).map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              }))}
-              on:change={e => {
-                if (e.detail) {
-                  columns = columns.map((col, i) => (i == index ? { ...col, refColumnName: e.detail } : col));
-                }
-              }}
-            />
-          {/key}
-        </div>
-        <div class="col-2 button">
-          <FormStyledButton
-            value="Delete"
-            on:click={e => {
-              const x = [...columns];
-              x.splice(index, 1);
-              columns = x;
+      </div>
+
+      <div class="row">
+        <div class="label col-3">Referenced table</div>
+        <div class="col-9">
+          <SelectField
+            value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
+            isNative
+            notSelected
+            options={(dbInfo?.tables || []).map(tbl => ({
+              label: fullNameToLabel(tbl),
+              value: fullNameToString(tbl),
+            }))}
+            on:change={e => {
+              if (e.detail) {
+                const name = fullNameFromString(e.detail);
+                refTableName = name.pureName;
+                refSchemaName = name.schemaName;
+              }
             }}
           />
         </div>
       </div>
-    {/each}
 
-    <FormStyledButton
-      type="button"
-      value="Add column"
-      on:click={() => {
-        columns = [...columns, {}];
-      }}
-    />
-  </div>
+      <div class="row">
+        <div class="label col-3">On update action</div>
+        <div class="col-9">
+          <SelectField
+            value={updateAction}
+            isNative
+            notSelected
+            options={foreignKeyActionsOptions}
+            on:change={e => {
+              updateAction = e.detail || null;
+            }}
+          />
+        </div>
+      </div>
 
-  <svelte:fragment slot="footer">
-    <FormStyledButton
-      value={'Save'}
-      on:click={() => {
-        closeCurrentModal();
-        if (constraintInfo) {
-          setTableInfo(tbl => editorModifyConstraint(tbl, getConstraint()));
-        } else {
-          setTableInfo(tbl => editorAddConstraint(tbl, getConstraint()));
-        }
-      }}
-    />
+      <div class="row">
+        <div class="label col-3">On delete action</div>
+        <div class="col-9">
+          <SelectField
+            value={deleteAction}
+            isNative
+            notSelected
+            options={foreignKeyActionsOptions}
+            on:change={e => {
+              deleteAction = e.detail || null;
+            }}
+          />
+        </div>
+      </div>
 
-    <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
-    {#if constraintInfo}
+      <div class="row">
+        <div class="col-5 mr-1">
+          Base column - {tableInfo.pureName}
+        </div>
+        <div class="col-5 ml-1">
+          Ref column - {refTableName || '(table not set)'}
+        </div>
+      </div>
+
+      {#each columns as column, index}
+        <div class="row">
+          <div class="col-5 mr-1">
+            {#key column.columnName}
+              <SelectField
+                value={column.columnName}
+                isNative
+                notSelected
+                options={tableInfo.columns.map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                }))}
+                on:change={e => {
+                  if (e.detail) {
+                    columns = columns.map((col, i) => (i == index ? { ...col, columnName: e.detail } : col));
+                  }
+                }}
+              />
+            {/key}
+          </div>
+          <div class="col-5 ml-1">
+            {#key column.refColumnName}
+              <SelectField
+                value={column.refColumnName}
+                isNative
+                notSelected
+                options={(refTableInfo?.columns || []).map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                }))}
+                on:change={e => {
+                  if (e.detail) {
+                    columns = columns.map((col, i) => (i == index ? { ...col, refColumnName: e.detail } : col));
+                  }
+                }}
+              />
+            {/key}
+          </div>
+          <div class="col-2 button">
+            <FormStyledButton
+              value="Delete"
+              on:click={e => {
+                const x = [...columns];
+                x.splice(index, 1);
+                columns = x;
+              }}
+            />
+          </div>
+        </div>
+      {/each}
+
       <FormStyledButton
         type="button"
-        value="Remove"
+        value="Add column"
         on:click={() => {
-          closeCurrentModal();
-          setTableInfo(tbl => editorDeleteConstraint(tbl, constraintInfo));
+          columns = [...columns, {}];
         }}
       />
-    {/if}
-  </svelte:fragment>
-</ModalBase>
+    </div>
+
+    <svelte:fragment slot="footer">
+      <FormSubmit
+        value={'Save'}
+        on:click={() => {
+          closeCurrentModal();
+          if (constraintInfo) {
+            setTableInfo(tbl => editorModifyConstraint(tbl, getConstraint()));
+          } else {
+            setTableInfo(tbl => editorAddConstraint(tbl, getConstraint()));
+          }
+        }}
+      />
+
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      {#if constraintInfo}
+        <FormStyledButton
+          type="button"
+          value="Remove"
+          on:click={() => {
+            closeCurrentModal();
+            setTableInfo(tbl => editorDeleteConstraint(tbl, constraintInfo));
+          }}
+        />
+      {/if}
+    </svelte:fragment>
+  </ModalBase>
+</FormProvider>
 
 <style>
   .row {

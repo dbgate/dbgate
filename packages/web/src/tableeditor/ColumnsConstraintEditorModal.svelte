@@ -37,114 +37,115 @@
       constraintType,
     };
   }
-
 </script>
 
-<ModalBase {...$$restProps}>
-  <svelte:fragment slot="header"
-    >{constraintInfo ? `Edit ${constraintLabel}` : `Add ${constraintLabel}`}</svelte:fragment
-  >
+<FormProvider>
+  <ModalBase {...$$restProps}>
+    <svelte:fragment slot="header"
+      >{constraintInfo ? `Edit ${constraintLabel}` : `Add ${constraintLabel}`}</svelte:fragment
+    >
 
-  <div class="largeFormMarker">
-    <div class="row">
-      <div class="label col-3">Constraint name</div>
-      <div class="col-9">
-        <TextField value={constraintName} on:input={e => (constraintName = e.target['value'])} focused />
-      </div>
-    </div>
-
-    {#each columns as column, index}
+    <div class="largeFormMarker">
       <div class="row">
-        <div class="label col-3">Column {index + 1}</div>
-        <div class="col-6">
-          {#key column.columnName}
-            <SelectField
-              value={column.columnName}
-              isNative
-              options={tableInfo.columns.map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              }))}
-              on:change={e => {
-                if (e.detail) {
-                  columns = columns.map((col, i) => (i == index ? { columnName: e.detail } : col));
-                }
+        <div class="label col-3">Constraint name</div>
+        <div class="col-9">
+          <TextField value={constraintName} on:input={e => (constraintName = e.target['value'])} focused />
+        </div>
+      </div>
+
+      {#each columns as column, index}
+        <div class="row">
+          <div class="label col-3">Column {index + 1}</div>
+          <div class="col-6">
+            {#key column.columnName}
+              <SelectField
+                value={column.columnName}
+                isNative
+                options={tableInfo.columns.map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                }))}
+                on:change={e => {
+                  if (e.detail) {
+                    columns = columns.map((col, i) => (i == index ? { columnName: e.detail } : col));
+                  }
+                }}
+              />
+            {/key}
+          </div>
+          <div class="col-3 button">
+            <FormStyledButton
+              value="Delete"
+              on:click={e => {
+                const x = [...columns];
+                x.splice(index, 1);
+                columns = x;
               }}
+            />
+          </div>
+        </div>
+      {/each}
+
+      <div class="row">
+        <div class="label col-3">Add new column</div>
+        <div class="col-9">
+          {#key columns.length}
+            <SelectField
+              placeholder="Select column"
+              value={''}
+              on:change={e => {
+                if (e.detail)
+                  columns = [
+                    ...columns,
+                    {
+                      columnName: e.detail,
+                    },
+                  ];
+              }}
+              isNative
+              options={[
+                {
+                  label: 'Choose column',
+                  value: '',
+                },
+                ...tableInfo.columns.map(col => ({
+                  label: col.columnName,
+                  value: col.columnName,
+                })),
+              ]}
             />
           {/key}
         </div>
-        <div class="col-3 button">
-          <FormStyledButton
-            value="Delete"
-            on:click={e => {
-              const x = [...columns];
-              x.splice(index, 1);
-              columns = x;
-            }}
-          />
-        </div>
-      </div>
-    {/each}
-
-    <div class="row">
-      <div class="label col-3">Add new column</div>
-      <div class="col-9">
-        {#key columns.length}
-          <SelectField
-            placeholder="Select column"
-            value={''}
-            on:change={e => {
-              if (e.detail)
-                columns = [
-                  ...columns,
-                  {
-                    columnName: e.detail,
-                  },
-                ];
-            }}
-            isNative
-            options={[
-              {
-                label: 'Choose column',
-                value: '',
-              },
-              ...tableInfo.columns.map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              })),
-            ]}
-          />
-        {/key}
       </div>
     </div>
-  </div>
 
-  <svelte:fragment slot="footer">
-    <FormStyledButton
-      value={'Save'}
-      on:click={() => {
-        closeCurrentModal();
-        if (constraintInfo) {
-          setTableInfo(tbl => editorModifyConstraint(tbl, getConstraint()));
-        } else {
-          setTableInfo(tbl => editorAddConstraint(tbl, getConstraint()));
-        }
-      }}
-    />
-
-    <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
-    {#if constraintInfo}
-      <FormStyledButton
-        type="button"
-        value="Remove"
+    <svelte:fragment slot="footer">
+      <FormSubmit
+        value={'Save'}
         on:click={() => {
           closeCurrentModal();
-          setTableInfo(tbl => editorDeleteConstraint(tbl, constraintInfo));
+          if (constraintInfo) {
+            setTableInfo(tbl => editorModifyConstraint(tbl, getConstraint()));
+          } else {
+            setTableInfo(tbl => editorAddConstraint(tbl, getConstraint()));
+          }
         }}
       />
-    {/if}
-  </svelte:fragment>
-</ModalBase>
+
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      {#if constraintInfo}
+        <FormStyledButton
+          type="button"
+          value="Remove"
+          on:click={() => {
+            closeCurrentModal();
+            setTableInfo(tbl => editorDeleteConstraint(tbl, constraintInfo));
+          }}
+        />
+      {/if}
+    </svelte:fragment>
+  </ModalBase>
+</FormProvider>
 
 <style>
   .row {
@@ -161,5 +162,4 @@
     align-self: center;
     text-align: right;
   }
-
 </style>

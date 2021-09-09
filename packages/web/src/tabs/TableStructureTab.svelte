@@ -66,7 +66,7 @@
 
   const { editorState, editorValue, setEditorData, clearEditorData } = useEditorData({ tabid });
 
-  $: showTable = $editorValue || tableInfoWithPairingId;
+  $: showTable = $editorValue ? $editorValue.current : tableInfoWithPairingId;
 
   export function canSave() {
     return objectTypeField == 'tables' && !!$editorValue;
@@ -74,7 +74,7 @@
 
   export function save() {
     const driver = findEngineDriver($connection, $extensions);
-    const sql = getAlterTableScript(tableInfoWithPairingId, $editorValue, {}, $dbInfo, driver);
+    const sql = getAlterTableScript($editorValue.base, $editorValue.current, {}, $dbInfo, driver);
 
     showModal(ConfirmSqlModal, {
       sql,
@@ -114,9 +114,16 @@
   dbInfo={$dbInfo}
   setTableInfo={objectTypeField == 'tables'
     ? tableInfoUpdater =>
-        setEditorData(tbl => {
-          if (tbl) return tableInfoUpdater(tbl);
-          return tableInfoUpdater(tableInfoWithPairingId);
-        })
+        setEditorData(tbl =>
+          tbl
+            ? {
+                base: tbl.base,
+                current: tableInfoUpdater(tbl.current),
+              }
+            : {
+                base: tableInfoWithPairingId,
+                current: tableInfoUpdater(tableInfoWithPairingId),
+              }
+        )
     : null}
 />
