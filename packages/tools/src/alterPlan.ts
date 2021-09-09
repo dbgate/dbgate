@@ -190,27 +190,28 @@ export class AlterPlan {
     }
   }
 
+  _getDependendColumnConstraints(column: ColumnInfo, dependencyDefinition) {
+    const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
+    const fks = dependencyDefinition?.includes('dependencies')
+      ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == column.columnName))
+      : [];
+    const constraints = _.compact([
+      dependencyDefinition?.includes('primaryKey') ? table.primaryKey : null,
+      ...(dependencyDefinition?.includes('foreignKeys') ? table.foreignKeys : []),
+      ...(dependencyDefinition?.includes('indexes') ? table.indexes : []),
+      ...(dependencyDefinition?.includes('uniques') ? table.uniques : []),
+    ]).filter(cnt => cnt.columns.find(col => col.columnName == column.columnName));
+
+    return [...fks, ...constraints];
+  }
+
   _addLogicalDependencies(): AlterOperation[] {
     const lists = this.operations.map(op => {
       if (op.operationType == 'dropColumn') {
-        const table = this.db.tables.find(
-          x => x.pureName == op.oldObject.pureName && x.schemaName == op.oldObject.schemaName
-        );
-        const deletedFks = this.dialect.dropColumnDependencies?.includes('dependencies')
-          ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == op.oldObject.columnName))
-          : [];
-
-        const deletedConstraints = _.compact([
-          this.dialect.dropColumnDependencies?.includes('primaryKey') ? table.primaryKey : null,
-          ...(this.dialect.dropColumnDependencies?.includes('foreignKeys') ? table.foreignKeys : []),
-          ...(this.dialect.dropColumnDependencies?.includes('indexes') ? table.indexes : []),
-          ...(this.dialect.dropColumnDependencies?.includes('uniques') ? table.uniques : []),
-        ]).filter(cnt => cnt.columns.find(col => col.columnName == op.oldObject.columnName));
-
-        // console.log('deletedConstraints', deletedConstraints);
+        const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.dropColumnDependencies);
 
         const res: AlterOperation[] = [
-          ...[...deletedFks, ...deletedConstraints].map(oldObject => {
+          ...constraints.map(oldObject => {
             const opRes: AlterOperation = {
               operationType: 'dropConstraint',
               oldObject,
