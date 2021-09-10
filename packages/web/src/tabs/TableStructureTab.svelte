@@ -60,9 +60,11 @@
   export let objectTypeField = 'tables';
   let domEditor;
 
+  let savedName;
+
   export const activator = createActivator('TableStructureTab', true);
 
-  $: tableInfo = useDbCore({ conid, database, schemaName, pureName, objectTypeField });
+  $: tableInfo = useDbCore({ conid, database, schemaName, pureName: savedName || pureName, objectTypeField });
   $: dbInfo = useDatabaseInfo({ conid, database });
   $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
   $: connection = useConnectionInfo({ conid });
@@ -81,9 +83,10 @@
     } else {
       showModal(InputTextModal, {
         header: 'Set table name',
-        value: $editorValue.current.pureName || 'newTable',
+        value: savedName || 'newTable',
         label: 'Table name',
         onConfirm: name => {
+          savedName = name;
           setEditorData(tbl => ({
             base: tbl.base,
             current: {
