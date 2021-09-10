@@ -246,6 +246,16 @@ export class AlterPlan {
         return res;
       }
 
+      if (op.operationType == 'dropTable') {
+        return [
+          ...(op.oldObject.dependencies || []).map(oldObject => ({
+            operationType: 'dropConstraint',
+            oldObject,
+          })),
+          op,
+        ];
+      }
+
       return [op];
     });
 
@@ -370,6 +380,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'dropColumn':
       processor.dropColumn(op.oldObject);
+      break;
+    case 'dropTable':
+      processor.dropTable(op.oldObject);
       break;
     case 'changeConstraint':
       processor.changeConstraint(op.oldObject, op.newObject);

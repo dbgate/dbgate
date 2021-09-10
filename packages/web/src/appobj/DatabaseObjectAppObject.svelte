@@ -41,6 +41,10 @@
         tab: 'TableStructureTab',
       },
       {
+        label: 'Drop table',
+        isDrop: true,
+      },
+      {
         label: 'Query designer',
         isQueryDesigner: true,
       },
@@ -335,8 +339,8 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, openedConnections } from '../stores';
   import openNewTab from '../utility/openNewTab';
-  import { filterName } from 'dbgate-tools';
-  import { getConnectionInfo } from '../utility/metadataLoaders';
+  import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
+  import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
   import fullDisplayName from '../utility/fullDisplayName';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
@@ -347,6 +351,8 @@
   import getElectron from '../utility/getElectron';
   import { exportElectronFile } from '../utility/exportElectronFile';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import axiosInstance from '../utility/axiosInstance';
 
   export let data;
 
@@ -499,6 +505,36 @@
                 initialConfig: menu.sqlGeneratorProps,
                 conid: data.conid,
                 database: data.database,
+              });
+            } else if (menu.isDrop) {
+              const { conid, database } = data;
+              const db = generateDbPairingId(await getDatabaseInfo({ conid, database }));
+              console.log('DB', db);
+              const driver = await getDriver();
+              const dbUpdated = {
+                ...db,
+                [data.objectTypeField]: (db[data.objectTypeField] || []).filter(
+                  x => x.schemaName != data.schemaName || x.pureName != data.pureName
+                ),
+              };
+
+              const sql = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
+
+              showModal(ConfirmSqlModal, {
+                sql,
+                onConfirm: async () => {
+                  const resp = await axiosInstance.request({
+                    url: 'database-connections/run-script',
+                    method: 'post',
+                    params: {
+                      conid,
+                      database,
+                    },
+                    data: { sql },
+                  });
+                  await axiosInstance.post('database-connections/sync-model', { conid, database });
+                },
+                engine: driver.engine,
               });
             } else {
               openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);

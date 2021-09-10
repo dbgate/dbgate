@@ -285,6 +285,34 @@ export function createAlterTablePlan(
   return plan;
 }
 
+export function createAlterDatabasePlan(
+  oldDb: DatabaseInfo,
+  newDb: DatabaseInfo,
+  opts: DbDiffOptions,
+  db: DatabaseInfo,
+  driver: EngineDriver
+): AlterPlan {
+  const plan = new AlterPlan(db, driver.dialect);
+
+  for (const objectTypeField of ['tables']) {
+    for (const oldobj of oldDb[objectTypeField]) {
+      const newobj = newDb[objectTypeField].find(x => x.pairingId == oldobj.pairingId);
+      if (objectTypeField == 'tables') {
+        if (newobj == null) plan.dropTable(oldobj);
+        else planAlterTable(plan, oldobj, newobj, opts);
+      }
+    }
+    for (const newobj of newDb[objectTypeField]) {
+      const oldobj = oldDb[objectTypeField].find(x => x.pairingId == newobj.pairingId);
+      if (objectTypeField == 'tables') {
+        if (newobj == null) plan.createTable(newobj);
+      }
+    }
+  }
+  plan.transformPlan();
+  return plan;
+}
+
 export function getAlterTableScript(
   oldTable: TableInfo,
   newTable: TableInfo,
@@ -294,6 +322,19 @@ export function getAlterTableScript(
 ): string {
   const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
-  plan.run(dmp );
+  plan.run(dmp);
+  return dmp.s;
+}
+
+export function getAlterDatabaseScript(
+  oldDb: DatabaseInfo,
+  newDb: DatabaseInfo,
+  opts: DbDiffOptions,
+  db: DatabaseInfo,
+  driver: EngineDriver
+): string {
+  const plan = createAlterDatabasePlan(oldDb, newDb, opts, db, driver);
+  const dmp = driver.createDumper();
+  plan.run(dmp);
   return dmp.s;
 }
