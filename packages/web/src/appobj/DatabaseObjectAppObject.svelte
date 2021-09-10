@@ -45,6 +45,10 @@
         isDrop: true,
       },
       {
+        label: 'Rename table',
+        isRename: true,
+      },
+      {
         label: 'Query designer',
         isQueryDesigner: true,
       },
@@ -353,6 +357,7 @@
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import axiosInstance from '../utility/axiosInstance';
+  import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
 
   export let data;
 
@@ -508,34 +513,20 @@
               });
             } else if (menu.isDrop) {
               const { conid, database } = data;
-              const db = generateDbPairingId(await getDatabaseInfo({ conid, database }));
-              console.log('DB', db);
-              const driver = await getDriver();
-              const dbUpdated = {
+              alterDatabaseDialog(conid, database, db => ({
                 ...db,
                 [data.objectTypeField]: (db[data.objectTypeField] || []).filter(
                   x => x.schemaName != data.schemaName || x.pureName != data.pureName
                 ),
-              };
-
-              const sql = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
-
-              showModal(ConfirmSqlModal, {
-                sql,
-                onConfirm: async () => {
-                  const resp = await axiosInstance.request({
-                    url: 'database-connections/run-script',
-                    method: 'post',
-                    params: {
-                      conid,
-                      database,
-                    },
-                    data: { sql },
-                  });
-                  await axiosInstance.post('database-connections/sync-model', { conid, database });
-                },
-                engine: driver.engine,
-              });
+              }));
+            } else if (menu.isRename) {
+              const { conid, database } = data;
+              renameDatabaseObjectDialog(conid, database, data.pureName, (db, newName) => ({
+                ...db,
+                [data.objectTypeField]: (db[data.objectTypeField] || []).map(x =>
+                  x.schemaName == data.schemaName && x.pureName == data.pureName ? { ...x, pureName: newName } : x
+                ),
+              }));
             } else {
               openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
             }

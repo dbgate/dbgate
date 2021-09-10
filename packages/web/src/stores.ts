@@ -150,3 +150,9 @@ useSettings().subscribe(value => {
   invalidateCommands();
 });
 export const getCurrentSettings = () => currentSettingsValue || {};
+
+let extensionsValue = null;
+extensions.subscribe(value => {
+  extensionsValue = value;
+});
+export const getExtensions = () => extensionsValue;
