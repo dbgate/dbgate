@@ -112,6 +112,7 @@ registerCommand({
   name: 'Table',
   toolbar: true,
   toolbarName: 'New table',
+  testEnabled: () => !!get(currentDatabase),
   onClick: () => {
     const $currentDatabase = get(currentDatabase);
     const connection = _.get($currentDatabase, 'connection') || {};
