@@ -3,36 +3,29 @@
 </script>
 
 <script lang="ts">
+  import _ from 'lodash';
+
   import { getColumnIcon } from '../elements/ColumnLabel.svelte';
-  import { renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
+  import { renameDatabaseObjectDialog, alterDatabaseDialog } from '../utility/alterDatabaseTools';
 
   import AppObjectCore from './AppObjectCore.svelte';
 
   export let data;
 
   function handleRenameColumn() {
-    renameDatabaseObjectDialog(data.conid, data.database, data.columnName, (db, newName) => ({
-      ...db,
-      tables: db.tables.map(tbl =>
-        tbl.schemaName == data.schemaName && tbl.pureName == data.pureName
-          ? {
-              ...tbl,
-              columns: tbl.columns.map(
-                col =>
-                  (col.columnName = data.columnName
-                    ? {
-                        ...col,
-                        columnName: newName,
-                      }
-                    : col)
-              ),
-            }
-          : tbl
-      ),
-    }));
+    renameDatabaseObjectDialog(data.conid, data.database, data.columnName, (db, newName) => {
+      const tbl = db.tables.find(x => x.schemaName == data.schemaName && x.pureName == data.pureName);
+      const col = tbl.columns.find(x => x.columnName == data.columnName);
+      col.columnName = newName;
+    });
   }
 
-  function handleDropColumn() {}
+  function handleDropColumn() {
+    alterDatabaseDialog(data.conid, data.database, db => {
+      const tbl = db.tables.find(x => x.schemaName == data.schemaName && x.pureName == data.pureName);
+      _.remove(tbl.columns as any[], x => x.columnName == data.columnName);
+    });
+  }
 
   function createMenu() {
     return [

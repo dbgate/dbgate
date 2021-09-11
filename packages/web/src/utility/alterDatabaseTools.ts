@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { findEngineDriver, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
 import InputTextModal from '../modals/InputTextModal.svelte';
 import { showModal } from '../modals/modalTools';
@@ -11,7 +12,8 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
   const driver = findEngineDriver(conn, getExtensions());
 
   const db = generateDbPairingId(await getDatabaseInfo({ conid, database }));
-  const dbUpdated = updateFunc(db);
+  const dbUpdated = _.cloneDeep(db);
+  updateFunc(dbUpdated);
 
   const sql = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
 

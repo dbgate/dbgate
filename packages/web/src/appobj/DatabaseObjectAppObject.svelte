@@ -513,20 +513,20 @@
               });
             } else if (menu.isDrop) {
               const { conid, database } = data;
-              alterDatabaseDialog(conid, database, db => ({
-                ...db,
-                [data.objectTypeField]: (db[data.objectTypeField] || []).filter(
-                  x => x.schemaName != data.schemaName || x.pureName != data.pureName
-                ),
-              }));
+              alterDatabaseDialog(conid, database, db => {
+                _.remove(
+                  db[data.objectTypeField] as any[],
+                  x => x.schemaName == data.schemaName && x.pureName == data.pureName
+                );
+              });
             } else if (menu.isRename) {
               const { conid, database } = data;
-              renameDatabaseObjectDialog(conid, database, data.pureName, (db, newName) => ({
-                ...db,
-                [data.objectTypeField]: (db[data.objectTypeField] || []).map(x =>
-                  x.schemaName == data.schemaName && x.pureName == data.pureName ? { ...x, pureName: newName } : x
-                ),
-              }));
+              renameDatabaseObjectDialog(conid, database, data.pureName, (db, newName) => {
+                const obj = db[data.objectTypeField].find(
+                  x => x.schemaName == data.schemaName && x.pureName == data.pureName
+                );
+                obj.pureName = newName;
+              });
             } else {
               openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
             }
