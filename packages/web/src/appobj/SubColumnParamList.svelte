@@ -9,6 +9,7 @@
 
 <AppObjectList
   list={(data.columns || []).map(col => ({
+    ...data,
     ...col,
     foreignKey: findForeignKeyForColumn(data, col),
   }))}
