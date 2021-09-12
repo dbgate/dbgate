@@ -259,6 +259,18 @@ export class AlterPlan {
         ];
       }
 
+      if (op.operationType == 'changeConstraint') {
+        const opDrop: AlterOperation = {
+          operationType: 'dropConstraint',
+          oldObject: op.oldObject,
+        };
+        const opCreate: AlterOperation = {
+          operationType: 'createConstraint',
+          newObject: op.newObject,
+        };
+        return [opDrop, opCreate];
+      }
+
       return [op];
     });
 

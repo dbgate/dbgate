@@ -1,6 +1,7 @@
-import { ColumnInfo, DatabaseInfo, EngineDriver, NamedObjectInfo, TableInfo } from 'dbgate-types';
+import { ColumnInfo, ConstraintInfo, DatabaseInfo, EngineDriver, NamedObjectInfo, TableInfo } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
+import stableStringify from 'json-stable-stringify';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -178,6 +179,10 @@ export function testEqualColumns(
   return true;
 }
 
+function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
+  return stableStringify(a) == stableStringify(b);
+}
+
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
   if (a.dataType != b.dataType) {
     // opts.DiffLogger.Trace("Column {0}, {1}: different types: {2}; {3}", a, b, a.DataType, b.DataType);
@@ -210,6 +215,7 @@ function getTableConstraints(table: TableInfo) {
   if (table.primaryKey) res.push(table.primaryKey);
   if (table.foreignKeys) res.push(...table.foreignKeys);
   if (table.indexes) res.push(...table.indexes);
+  if (table.uniques) res.push(...table.uniques);
   if (table.checks) res.push(...table.checks);
   return res;
 }
@@ -262,6 +268,15 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
           // console.log('PLAN CHANGE COLUMN')
           plan.changeColumn(x[0], x[1]);
         }
+      }
+    });
+
+  constraintPairs
+    .filter(x => x[0] && x[1])
+    .forEach(x => {
+      if (!testEqualConstraints(x[0], x[1], opts)) {
+        // console.log('PLAN CHANGE COLUMN')
+        plan.changeConstraint(x[0], x[1]);
       }
     });
 
