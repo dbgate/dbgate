@@ -22,7 +22,7 @@
   export let onAddNext;
 </script>
 
-<FormProvider initialValues={fillEditorColumnInfo(columnInfo, tableInfo)}>
+<FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header"
       >{columnInfo ? 'Edit column' : `Add column ${(tableInfo?.columns || []).length + 1}`}</svelte:fragment

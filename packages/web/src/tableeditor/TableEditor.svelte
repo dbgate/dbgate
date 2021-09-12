@@ -33,6 +33,17 @@
     testEnabled: () => getCurrentEditor()?.writable(),
     onClick: () => getCurrentEditor().addForeignKey(),
   });
+
+  registerCommand({
+    id: 'tableEditor.addINdex',
+    category: 'Table editor',
+    name: 'Add index',
+    icon: 'icon add-key',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.writable(),
+    onClick: () => getCurrentEditor().addIndex(),
+  });
 </script>
 
 <script lang="ts">
@@ -99,6 +110,14 @@
     });
   }
 
+  export function addIndex() {
+    showModal(IndexEditorModal, {
+      setTableInfo,
+      tableInfo,
+      dbInfo,
+    });
+  }
+
   $: columns = tableInfo?.columns;
   $: primaryKey = tableInfo?.primaryKey;
   $: foreignKeys = tableInfo?.foreignKeys;
@@ -118,6 +137,7 @@
     showIfEmpty
     clickable={writable()}
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo })}
+    onAddNew={addColumn}
     columns={[
       {
         fieldName: 'notNull',
@@ -173,6 +193,7 @@
   <ObjectListControl
     collection={_.compact([primaryKey])}
     title="Primary key"
+    onAddNew={primaryKey ? null : addPrimaryKey}
     clickable={writable()}
     on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
@@ -199,6 +220,7 @@
 
   <ObjectListControl
     collection={indexes}
+    onAddNew={addIndex}
     title={`Indexes (${indexes?.length || 0})`}
     clickable={writable()}
     on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
@@ -226,6 +248,7 @@
 
   <ForeignKeyObjectListControl
     collection={foreignKeys}
+    onAddNew={addForeignKey}
     title={`Foreign keys (${foreignKeys?.length || 0})`}
     clickable={writable()}
     onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}

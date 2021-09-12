@@ -1,6 +1,14 @@
 import uuidv1 from 'uuid/v1';
 import _omit from 'lodash/omit';
-import { ColumnInfo, ConstraintInfo, ForeignKeyInfo, PrimaryKeyInfo, TableInfo } from 'dbgate-types';
+import {
+  ColumnInfo,
+  ConstraintInfo,
+  ForeignKeyInfo,
+  IndexInfo,
+  PrimaryKeyInfo,
+  TableInfo,
+  UniqueInfo,
+} from 'dbgate-types';
 
 export interface EditorColumnInfo extends ColumnInfo {
   isPrimaryKey?: boolean;
@@ -8,7 +16,7 @@ export interface EditorColumnInfo extends ColumnInfo {
 
 export function fillEditorColumnInfo(column: ColumnInfo, table: TableInfo): EditorColumnInfo {
   return {
-    isPrimaryKey: !!(table?.primaryKey && table.primaryKey.columns.find(x => x.columnName == column.columnName)),
+    isPrimaryKey: !!table?.primaryKey?.columns?.find(x => x.columnName == column.columnName),
     dataType: column ? undefined : 'int',
     ...column,
   };
@@ -118,6 +126,26 @@ export function editorAddConstraint(table: TableInfo, constraint: ConstraintInfo
     ];
   }
 
+  if (constraint.constraintType == 'index') {
+    res.indexes = [
+      ...(res.indexes || []),
+      {
+        pairingId: uuidv1(),
+        ...constraint,
+      } as IndexInfo,
+    ];
+  }
+
+  if (constraint.constraintType == 'unique') {
+    res.uniques = [
+      ...(res.uniques || []),
+      {
+        pairingId: uuidv1(),
+        ...constraint,
+      } as UniqueInfo,
+    ];
+  }
+
   return res;
 }
 
@@ -137,6 +165,14 @@ export function editorModifyConstraint(table: TableInfo, constraint: ConstraintI
     res.foreignKeys = table.foreignKeys.map(fk =>
       fk.pairingId == constraint.pairingId ? { ...fk, ...constraint } : fk
     );
+  }
+
+  if (constraint.constraintType == 'index') {
+    res.indexes = table.indexes.map(fk => (fk.pairingId == constraint.pairingId ? { ...fk, ...constraint } : fk));
+  }
+
+  if (constraint.constraintType == 'unique') {
+    res.uniques = table.uniques.map(fk => (fk.pairingId == constraint.pairingId ? { ...fk, ...constraint } : fk));
   }
 
   return res;

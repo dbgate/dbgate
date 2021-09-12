@@ -1,4 +1,8 @@
 <script lang="ts">
+  import FontIcon from '../icons/FontIcon.svelte';
+
+  import Link from './Link.svelte';
+
   import TableControl from './TableControl.svelte';
 
   export let title;
@@ -6,13 +10,16 @@
   export let columns;
   export let showIfEmpty = false;
   export let clickable;
-
+  export let onAddNew;
 </script>
 
 {#if collection?.length > 0 || showIfEmpty}
   <div class="wrapper">
     <div class="header">
-      <span class="title">{title}</span>
+      <span class="title mr-1">{title}</span>
+      {#if onAddNew}
+        <Link onClick={onAddNew}><FontIcon icon="icon add" /> Add new</Link>
+      {/if}
     </div>
     <div class="body">
       <TableControl
@@ -78,5 +85,4 @@
   .body {
     margin: 20px;
   }
-
 </style>

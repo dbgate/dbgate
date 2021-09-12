@@ -56,7 +56,7 @@
       {#each columns as column, index}
         <div class="row">
           <div class="label col-3">Column {index + 1}</div>
-          <div class="col-6">
+          <div class={$$slots.column ? 'col-3' : 'col-6'}>
             {#key column.columnName}
               <SelectField
                 value={column.columnName}
@@ -73,6 +73,11 @@
               />
             {/key}
           </div>
+          {#if $$slots.column}
+            <div class="col-3">
+              <slot name="column" {column} setColumns={changeFunc => (columns = changeFunc(columns))} {index} />
+            </div>
+          {/if}
           <div class="col-3 button">
             <FormStyledButton
               value="Delete"

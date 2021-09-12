@@ -28,7 +28,7 @@
 </script>
 
 <script lang="ts">
-  import { findEngineDriver, generateTablePairingId, getAlterTableScript } from 'dbgate-tools';
+  import { fillConstraintNames, findEngineDriver, generateTablePairingId, getAlterTableScript } from 'dbgate-tools';
 
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -102,7 +102,7 @@
 
   function doSave(createTableName) {
     const driver = findEngineDriver($connection, $extensions);
-    const sql = getAlterTableScript($editorValue.base, $editorValue.current, {}, $dbInfo, driver);
+    const sql = getAlterTableScript($editorValue.base, fillConstraintNames($editorValue.current), {}, $dbInfo, driver);
 
     showModal(ConfirmSqlModal, {
       sql,

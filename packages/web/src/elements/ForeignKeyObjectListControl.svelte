@@ -10,11 +10,13 @@
   export let title;
   export let clickable;
   export let onRemove = null;
+  export let onAddNew = null;
 </script>
 
 <ObjectListControl
   {collection}
   {title}
+  {onAddNew}
   {clickable}
   on:clickrow
   columns={[

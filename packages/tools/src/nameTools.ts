@@ -1,4 +1,5 @@
-import { ColumnInfo, DatabaseInfo, DatabaseInfoObjects, TableInfo } from 'dbgate-types';
+import _ from 'lodash';
+import { ColumnInfo, ColumnReference, DatabaseInfo, DatabaseInfoObjects, TableInfo } from 'dbgate-types';
 
 export function fullNameFromString(name) {
   const m = name.match(/\[([^\]]+)\]\.\[([^\]]+)\]/);
@@ -67,4 +68,29 @@ export function makeUniqueColumnNames(res: ColumnInfo[]) {
     }
     usedNames.add(res[i].columnName);
   }
+}
+
+function columnsConstraintName(prefix: string, table: TableInfo, columns: ColumnReference[]) {
+  return `${prefix}_${table.pureName}_${columns.map(x => x.columnName.replace(' ', '_')).join('_')}`;
+}
+
+export function fillConstraintNames(table: TableInfo) {
+  if (!table) return table;
+  const res = _.cloneDeep(table);
+  if (res.primaryKey && !res.primaryKey.constraintName) {
+    res.primaryKey.constraintName = `PK_${res.pureName}`;
+  }
+  for (const fk of res.foreignKeys) {
+    if (fk.constraintName) continue;
+    fk.constraintName = columnsConstraintName('FK', res, fk.columns);
+  }
+  for (const ix of res.indexes) {
+    if (ix.constraintName) continue;
+    ix.constraintName = columnsConstraintName('IX', res, ix.columns);
+  }
+  for (const uq of res.uniques) {
+    if (uq.constraintName) continue;
+    uq.constraintName = columnsConstraintName('UQ', res, uq.columns);
+  }
+  return res;
 }
