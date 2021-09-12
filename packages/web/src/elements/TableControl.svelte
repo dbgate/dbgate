@@ -54,7 +54,7 @@
   <thead>
     <tr>
       {#each columnList as col}
-        <td>{col.header}</td>
+        <td>{col.header || ''}</td>
       {/each}
     </tr>
   </thead>

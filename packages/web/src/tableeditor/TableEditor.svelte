@@ -36,6 +36,8 @@
 </script>
 
 <script lang="ts">
+  import { editorDeleteColumn, editorDeleteConstraint } from 'dbgate-tools';
+
   import _ from 'lodash';
   import { onMount, tick } from 'svelte';
   import invalidateCommands from '../commands/invalidateCommands';
@@ -44,6 +46,7 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import ConstraintLabel from '../elements/ConstraintLabel.svelte';
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
+  import Link from '../elements/Link.svelte';
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { showModal } from '../modals/modalTools';
@@ -53,6 +56,7 @@
   import { useDbCore } from '../utility/metadataLoaders';
   import ColumnEditorModal from './ColumnEditorModal.svelte';
   import ForeignKeyEditorModal from './ForeignKeyEditorModal.svelte';
+  import IndexEditorModal from './IndexEditorModal.svelte';
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
 
   export const activator = createActivator('TableEditor', true);
@@ -99,6 +103,7 @@
   $: primaryKey = tableInfo?.primaryKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
+  $: indexes = tableInfo?.indexes;
 
   $: {
     tableInfo;
@@ -147,11 +152,21 @@
         sortable: true,
         slot: 2,
       },
+      writable()
+        ? {
+            fieldName: 'actions',
+            sortable: true,
+            slot: 3,
+          }
+        : null,
     ]}
   >
     <svelte:fragment slot="0" let:row>{row?.notNull ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="1" let:row>{row?.isSparse ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="2" let:row>{row?.isPersisted ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="3" let:row
+      ><Link onClick={() => setTableInfo(tbl => editorDeleteColumn(tbl, row))}>Remove</Link></svelte:fragment
+    >
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
 
@@ -166,16 +181,54 @@
         header: 'Columns',
         slot: 0,
       },
+      writable()
+        ? {
+            fieldName: 'actions',
+            sortable: true,
+            slot: 1,
+          }
+        : null,
     ]}
   >
     <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+    <svelte:fragment slot="1" let:row
+      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+    >
+  </ObjectListControl>
+
+  <ObjectListControl
+    collection={indexes}
+    title={`Indexes (${indexes?.length || 0})`}
+    clickable={writable()}
+    on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+    columns={[
+      {
+        fieldName: 'columns',
+        header: 'Columns',
+        slot: 0,
+      },
+      writable()
+        ? {
+            fieldName: 'actions',
+            sortable: true,
+            slot: 1,
+          }
+        : null,
+    ]}
+  >
+    <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
+    <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+    <svelte:fragment slot="1" let:row
+      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+    >
   </ObjectListControl>
 
   <ForeignKeyObjectListControl
     collection={foreignKeys}
-    title="Foreign keys"
+    title={`Foreign keys (${foreignKeys?.length || 0})`}
     clickable={writable()}
+    onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
     on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}
   />
   <ForeignKeyObjectListControl collection={dependencies} title="Dependencies" />

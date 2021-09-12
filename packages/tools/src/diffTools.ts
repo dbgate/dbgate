@@ -21,19 +21,19 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
   if (!table.pairingId) {
     return {
       ...table,
-      columns: table.columns.map(col => ({
+      columns: table.columns?.map(col => ({
         ...col,
         pairingId: col.pairingId || uuidv1(),
       })),
-      foreignKeys: table.foreignKeys.map(cnt => ({
+      foreignKeys: table.foreignKeys?.map(cnt => ({
         ...cnt,
         pairingId: cnt.pairingId || uuidv1(),
       })),
-      checks: table.checks.map(cnt => ({
+      checks: table.checks?.map(cnt => ({
         ...cnt,
         pairingId: cnt.pairingId || uuidv1(),
       })),
-      indexes: table.indexes.map(cnt => ({
+      indexes: table.indexes?.map(cnt => ({
         ...cnt,
         pairingId: cnt.pairingId || uuidv1(),
       })),

@@ -155,5 +155,13 @@ export function editorDeleteConstraint(table: TableInfo, constraint: ConstraintI
     res.foreignKeys = table.foreignKeys.filter(x => x.pairingId != constraint.pairingId);
   }
 
+  if (constraint.constraintType == 'index') {
+    res.indexes = table.indexes.filter(x => x.pairingId != constraint.pairingId);
+  }
+
+  if (constraint.constraintType == 'unique') {
+    res.uniques = table.uniques.filter(x => x.pairingId != constraint.pairingId);
+  }
+
   return res;
 }
