@@ -190,7 +190,7 @@ export class SqlDumper implements AlterProcessor {
     if (includeNullable) {
       this.put(column.notNull ? '^not ^null' : '^null');
     }
-    if (includeDefault && column.defaultValue != null) {
+    if (includeDefault && column.defaultValue?.trim()) {
       this.columnDefault(column);
     }
   }

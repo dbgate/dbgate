@@ -35,7 +35,7 @@
   });
 
   registerCommand({
-    id: 'tableEditor.addINdex',
+    id: 'tableEditor.addIndex',
     category: 'Table editor',
     name: 'Add index',
     icon: 'icon add-key',
@@ -43,6 +43,17 @@
     isRelatedToTab: true,
     testEnabled: () => getCurrentEditor()?.writable(),
     onClick: () => getCurrentEditor().addIndex(),
+  });
+
+  registerCommand({
+    id: 'tableEditor.addUnique',
+    category: 'Table editor',
+    name: 'Add unique',
+    icon: 'icon add-key',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.writable(),
+    onClick: () => getCurrentEditor().addUnique(),
   });
 </script>
 
@@ -69,6 +80,7 @@
   import ForeignKeyEditorModal from './ForeignKeyEditorModal.svelte';
   import IndexEditorModal from './IndexEditorModal.svelte';
   import PrimaryKeyEditorModal from './PrimaryKeyEditorModal.svelte';
+  import UniqueEditorModal from './UniqueEditorModal.svelte';
 
   export const activator = createActivator('TableEditor', true);
 
@@ -118,11 +130,20 @@
     });
   }
 
+  export function addUnique() {
+    showModal(UniqueEditorModal, {
+      setTableInfo,
+      tableInfo,
+      dbInfo,
+    });
+  }
+
   $: columns = tableInfo?.columns;
   $: primaryKey = tableInfo?.primaryKey;
   $: foreignKeys = tableInfo?.foreignKeys;
   $: dependencies = tableInfo?.dependencies;
   $: indexes = tableInfo?.indexes;
+  $: uniques = tableInfo?.uniques;
 
   $: {
     tableInfo;
@@ -222,6 +243,34 @@
     collection={indexes}
     onAddNew={addIndex}
     title={`Indexes (${indexes?.length || 0})`}
+    clickable={writable()}
+    on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+    columns={[
+      {
+        fieldName: 'columns',
+        header: 'Columns',
+        slot: 0,
+      },
+      writable()
+        ? {
+            fieldName: 'actions',
+            sortable: true,
+            slot: 1,
+          }
+        : null,
+    ]}
+  >
+    <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
+    <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
+    <svelte:fragment slot="1" let:row
+      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+    >
+  </ObjectListControl>
+
+  <ObjectListControl
+    collection={uniques}
+    onAddNew={addUnique}
+    title={`Unique constraints (${uniques?.length || 0})`}
     clickable={writable()}
     on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
