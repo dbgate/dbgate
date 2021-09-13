@@ -30,4 +30,6 @@ export interface SqlDialect {
   dropUnique?: boolean;
   createCheck?: boolean;
   dropCheck?: boolean;
+
+  dropReferencesWhenDropTable?: boolean;
 }

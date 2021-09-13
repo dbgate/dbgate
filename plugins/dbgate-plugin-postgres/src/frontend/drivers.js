@@ -30,6 +30,8 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
+
+  dropReferencesWhenDropTable: true,
 };
 
 const postgresDriverBase = {

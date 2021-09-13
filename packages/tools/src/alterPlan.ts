@@ -248,13 +248,15 @@ export class AlterPlan {
 
       if (op.operationType == 'dropTable') {
         return [
-          ...(op.oldObject.dependencies || []).map(oldObject => {
-            const opRes: AlterOperation = {
-              operationType: 'dropConstraint',
-              oldObject,
-            };
-            return opRes;
-          }),
+          ...(this.dialect.dropReferencesWhenDropTable
+            ? (op.oldObject.dependencies || []).map(oldObject => {
+                const opRes: AlterOperation = {
+                  operationType: 'dropConstraint',
+                  oldObject,
+                };
+                return opRes;
+              })
+            : []),
           op,
         ];
       }

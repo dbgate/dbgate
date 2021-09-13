@@ -33,6 +33,8 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
+
+  dropReferencesWhenDropTable: true,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

@@ -68,7 +68,7 @@ function engines_columns_source() {
   return _.flatten(engines.map(engine => TESTED_COLUMNS.map(column => [engine.label, column, engine])));
 }
 
-describe('Alter processor', () => {
+describe('Alter table', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Add column - %s',
     testWrapper(async (conn, driver, engine) => {

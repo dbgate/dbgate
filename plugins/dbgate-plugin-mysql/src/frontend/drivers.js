@@ -28,6 +28,8 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
+
+  dropReferencesWhenDropTable: false,
 };
 
 const mysqlDriverBase = {

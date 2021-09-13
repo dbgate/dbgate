@@ -30,6 +30,7 @@ const dialect = {
   dropForeignKey: false,
   createPrimaryKey: false,
   dropPrimaryKey: false,
+  dropReferencesWhenDropTable: false,
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
