@@ -6,16 +6,24 @@ const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
 
-async function testDatabaseDiff(conn, driver, mangle) {
-  await driver.query(conn, `create table t0 (id int not null primary key)`);
+function flatSource() {
+  return _.flatten(
+    engines.map(engine => (engine.objects || []).map(object => [engine.label, object.type, object, engine]))
+  );
+}
+
+async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
+  await driver.query(conn, `create table t1 (id int not null primary key)`);
 
   await driver.query(
     conn,
-    `create table t1 (
-    col_pk int not null primary key, 
-    col_fk int null references t0(id)
+    `create table t2 (
+    id int not null primary key, 
+    t1_id int null references t1(id)
   )`
   );
+
+  if (createObject) await driver.query(conn, createObject);
 
   const structure1 = generateDbPairingId(extendDatabaseInfo(await driver.analyseFull(conn)));
   let structure2 = _.cloneDeep(structure1);
@@ -30,6 +38,7 @@ async function testDatabaseDiff(conn, driver, mangle) {
   const structure2Real = extendDatabaseInfo(await driver.analyseFull(conn));
 
   expect(structure2Real.tables.length).toEqual(structure2.tables.length);
+  return structure2Real;
 }
 
 describe('Alter database', () => {
@@ -37,8 +46,23 @@ describe('Alter database', () => {
     'Drop referenced table - %s',
     testWrapper(async (conn, driver, engine) => {
       await testDatabaseDiff(conn, driver, db => {
-        _.remove(db.tables, x => x.pureName == 't0');
+        _.remove(db.tables, x => x.pureName == 't1');
       });
+    })
+  );
+
+  test.each(flatSource())(
+    'Drop object - %s - %s',
+    testWrapper(async (conn, driver, type, object, engine) => {
+      const db = await testDatabaseDiff(
+        conn,
+        driver,
+        db => {
+          _.remove(db[type], x => x.pureName == 'obj1');
+        },
+        object.create1
+      );
+      expect(db[type].length).toEqual(0);
     })
   );
 });
