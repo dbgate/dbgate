@@ -309,18 +309,26 @@ export function createAlterDatabasePlan(
 ): AlterPlan {
   const plan = new AlterPlan(db, driver.dialect);
 
-  for (const objectTypeField of ['tables']) {
-    for (const oldobj of oldDb[objectTypeField]) {
-      const newobj = newDb[objectTypeField].find(x => x.pairingId == oldobj.pairingId);
+  for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
+    for (const oldobj of oldDb[objectTypeField] || []) {
+      const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
         if (newobj == null) plan.dropTable(oldobj);
         else planAlterTable(plan, oldobj, newobj, opts);
+      } else {
+        if (newobj == null) plan.dropSqlObject(oldobj);
+        else if (newobj.createSql != oldobj.createSql) {
+          plan.dropSqlObject(oldobj);
+          plan.createSqlObject(newobj);
+        }
       }
     }
-    for (const newobj of newDb[objectTypeField]) {
-      const oldobj = oldDb[objectTypeField].find(x => x.pairingId == newobj.pairingId);
+    for (const newobj of newDb[objectTypeField] || []) {
+      const oldobj = (oldDb[objectTypeField] || []).find(x => x.pairingId == newobj.pairingId);
       if (objectTypeField == 'tables') {
         if (newobj == null) plan.createTable(newobj);
+      } else {
+        plan.createSqlObject(newobj);
       }
     }
   }

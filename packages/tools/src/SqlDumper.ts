@@ -16,6 +16,7 @@ import {
   UniqueInfo,
   CheckInfo,
   AlterProcessor,
+  SqlObjectInfo,
 } from 'dbgate-types';
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
@@ -576,5 +577,28 @@ export class SqlDumper implements AlterProcessor {
     }
 
     this.dropTable({ ...oldTable, pureName: tmpTable });
+  }
+
+  createSqlObject(obj: SqlObjectInfo) {
+    this.putCmd(obj.createSql);
+  }
+
+  getSqlObjectSqlName(ojectTypeField: string) {
+    switch (ojectTypeField) {
+      case 'procedures':
+        return 'PROCEDURE';
+      case 'views':
+        return 'VIEW';
+      case 'functions':
+        return 'FUNCTION';
+      case 'triggers':
+        return 'TRIGGER';
+      case 'matviews':
+        return 'MATERIALIZED VIEW';
+    }
+  }
+
+  dropSqlObject(obj: SqlObjectInfo) {
+    this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
   }
 }

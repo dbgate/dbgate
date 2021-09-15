@@ -4,7 +4,7 @@ import {
   ColumnInfo,
   ConstraintInfo,
   DatabaseInfo,
-  NamedObjectInfo,
+  SqlObjectInfo,
   SqlDialect,
   TableInfo,
 } from '../../types';
@@ -19,6 +19,16 @@ interface AlterOperation_CreateTable {
 interface AlterOperation_DropTable {
   operationType: 'dropTable';
   oldObject: TableInfo;
+}
+
+interface AlterOperation_CreateSqlObject {
+  operationType: 'createSqlObject';
+  newObject: SqlObjectInfo;
+}
+
+interface AlterOperation_DropSqlObject {
+  operationType: 'dropSqlObject';
+  oldObject: SqlObjectInfo;
 }
 
 interface AlterOperation_RenameTable {
@@ -88,6 +98,8 @@ type AlterOperation =
   | AlterOperation_RenameTable
   | AlterOperation_RenameColumn
   | AlterOperation_RenameConstraint
+  | AlterOperation_CreateSqlObject
+  | AlterOperation_DropSqlObject
   | AlterOperation_RecreateTable;
 
 export class AlterPlan {
@@ -105,6 +117,20 @@ export class AlterPlan {
     this.operations.push({
       operationType: 'dropTable',
       oldObject: table,
+    });
+  }
+
+  createSqlObject(obj: SqlObjectInfo) {
+    this.operations.push({
+      operationType: 'createSqlObject',
+      newObject: obj,
+    });
+  }
+
+  dropSqlObject(obj: SqlObjectInfo) {
+    this.operations.push({
+      operationType: 'dropSqlObject',
+      oldObject: obj,
     });
   }
 
@@ -418,6 +444,12 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'renameConstraint':
       processor.renameConstraint(op.object, op.newName);
+      break;
+    case 'createSqlObject':
+      processor.createSqlObject(op.newObject);
+      break;
+    case 'dropSqlObject':
+      processor.dropSqlObject(op.oldObject);
       break;
     case 'recreateTable':
       {

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   ColumnInfo,
   ConstraintInfo,
@@ -8,6 +9,7 @@ import {
   IndexInfo,
   CheckInfo,
   UniqueInfo,
+  SqlObjectInfo,
 } from '../../types';
 
 export class DatabaseInfoAlterProcessor {
@@ -18,7 +20,18 @@ export class DatabaseInfoAlterProcessor {
   }
 
   dropTable(table: TableInfo) {
-    this.db.tables = this.db.tables.filter(x => x.pureName != table.pureName && x.schemaName != table.schemaName);
+    _.remove(this.db.tables, x => x.pureName != table.pureName && x.schemaName != table.schemaName);
+  }
+
+  createSqlObject(obj: SqlObjectInfo) {
+    this.db[obj.objectTypeField].push(obj);
+  }
+
+  dropSqlObject(obj: SqlObjectInfo) {
+    _.remove(
+      this.db[obj.objectTypeField] as SqlObjectInfo[],
+      x => x.pureName != obj.pureName && x.schemaName != obj.schemaName
+    );
   }
 
   createColumn(column: ColumnInfo) {
@@ -33,7 +46,7 @@ export class DatabaseInfoAlterProcessor {
 
   dropColumn(column: ColumnInfo) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
-    table.columns = table.columns.filter(x => x.columnName != column.columnName);
+    _.remove(table.columns, x => x.columnName != column.columnName);
   }
 
   createConstraint(constraint: ConstraintInfo) {

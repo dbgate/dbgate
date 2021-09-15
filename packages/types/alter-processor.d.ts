@@ -1,4 +1,4 @@
-import { ColumnInfo, ConstraintInfo, TableInfo } from './dbinfo';
+import { ColumnInfo, ConstraintInfo, TableInfo, SqlObjectInfo } from './dbinfo';
 
 export interface AlterProcessor {
   createTable(table: TableInfo);
@@ -13,4 +13,6 @@ export interface AlterProcessor {
   renameColumn(column: ColumnInfo, newName: string);
   renameConstraint(constraint: ConstraintInfo, newName: string);
   recreateTable(oldTable: TableInfo, newTable: TableInfo);
+  createSqlObject(obj: SqlObjectInfo);
+  dropSqlObject(obj: SqlObjectInfo);
 }
