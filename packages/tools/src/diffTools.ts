@@ -1,7 +1,9 @@
 import { ColumnInfo, ConstraintInfo, DatabaseInfo, EngineDriver, NamedObjectInfo, TableInfo } from 'dbgate-types';
+import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
 import stableStringify from 'json-stable-stringify';
+import { isArray } from 'lodash';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -44,10 +46,20 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
   return table;
 }
 
+function generateObjectPairingId(obj) {
+  if (obj.objectTypeField)
+    return {
+      ...obj,
+      pairingId: obj.pairingId || uuidv1(),
+    };
+  return obj;
+}
+
 export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
   if (!db) return db;
+  // @ts-ignore
   return {
-    ...db,
+    ..._.mapValues(db, v => (_.isArray(v) ? v.map(generateObjectPairingId) : v)),
     tables: (db.tables || []).map(generateTablePairingId),
   };
 }
@@ -328,7 +340,7 @@ export function createAlterDatabasePlan(
       if (objectTypeField == 'tables') {
         if (newobj == null) plan.createTable(newobj);
       } else {
-        plan.createSqlObject(newobj);
+        if (newobj == null) plan.createSqlObject(newobj);
       }
     }
   }

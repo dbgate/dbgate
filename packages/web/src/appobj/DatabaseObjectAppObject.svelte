@@ -115,6 +115,10 @@
         tab: 'TableStructureTab',
       },
       {
+        label: 'Drop view',
+        isDrop: true,
+      },
+      {
         label: 'Query designer',
         isQueryDesigner: true,
       },
@@ -176,6 +180,10 @@
         tab: 'TableStructureTab',
       },
       {
+        label: 'Drop view',
+        isDrop: true,
+      },
+      {
         label: 'Query designer',
         isQueryDesigner: true,
       },
@@ -228,6 +236,10 @@
     ],
     procedures: [
       {
+        label: 'Drop procedure',
+        isDrop: true,
+      },
+      {
         label: 'SQL: CREATE PROCEDURE',
         scriptTemplate: 'CREATE OBJECT',
       },
@@ -249,6 +261,10 @@
       },
     ],
     functions: [
+      {
+        label: 'Drop function',
+        isDrop: true,
+      },
       {
         label: 'SQL: CREATE FUNCTION',
         scriptTemplate: 'CREATE OBJECT',
