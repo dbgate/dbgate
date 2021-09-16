@@ -20,7 +20,7 @@ export class DatabaseInfoAlterProcessor {
   }
 
   dropTable(table: TableInfo) {
-    _.remove(this.db.tables, x => x.pureName != table.pureName && x.schemaName != table.schemaName);
+    _.remove(this.db.tables, x => x.pureName == table.pureName && x.schemaName == table.schemaName);
   }
 
   createSqlObject(obj: SqlObjectInfo) {
@@ -30,7 +30,7 @@ export class DatabaseInfoAlterProcessor {
   dropSqlObject(obj: SqlObjectInfo) {
     _.remove(
       this.db[obj.objectTypeField] as SqlObjectInfo[],
-      x => x.pureName != obj.pureName && x.schemaName != obj.schemaName
+      x => x.pureName == obj.pureName && x.schemaName == obj.schemaName
     );
   }
 
@@ -46,7 +46,7 @@ export class DatabaseInfoAlterProcessor {
 
   dropColumn(column: ColumnInfo) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
-    _.remove(table.columns, x => x.columnName != column.columnName);
+    _.remove(table.columns, x => x.columnName == column.columnName);
   }
 
   createConstraint(constraint: ConstraintInfo) {
