@@ -68,7 +68,13 @@
     "win": {
       "target": [
         "nsis",
-        "zip"
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
       "icon": "icon.ico",
       "publish": [
