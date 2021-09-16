@@ -206,7 +206,12 @@
     <svelte:fragment slot="1" let:row>{row?.isSparse ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="2" let:row>{row?.isPersisted ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="3" let:row
-      ><Link onClick={() => setTableInfo(tbl => editorDeleteColumn(tbl, row))}>Remove</Link></svelte:fragment
+      ><Link
+        onClick={e => {
+          e.stopPropagation();
+          setTableInfo(tbl => editorDeleteColumn(tbl, row));
+        }}>Remove</Link
+      ></svelte:fragment
     >
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
@@ -235,7 +240,12 @@
     <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
     <svelte:fragment slot="1" let:row
-      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+      ><Link
+        onClick={e => {
+          e.stopPropagation();
+          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
+        }}>Remove</Link
+      ></svelte:fragment
     >
   </ObjectListControl>
 
@@ -263,7 +273,12 @@
     <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
     <svelte:fragment slot="1" let:row
-      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+      ><Link
+        onClick={e => {
+          e.stopPropagation();
+          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
+        }}>Remove</Link
+      ></svelte:fragment
     >
   </ObjectListControl>
 
@@ -291,7 +306,12 @@
     <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
     <svelte:fragment slot="1" let:row
-      ><Link onClick={() => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}>Remove</Link></svelte:fragment
+      ><Link
+        onClick={e => {
+          e.stopPropagation();
+          setTableInfo(tbl => editorDeleteConstraint(tbl, row));
+        }}>Remove</Link
+      ></svelte:fragment
     >
   </ObjectListControl>
 
