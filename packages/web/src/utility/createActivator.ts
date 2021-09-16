@@ -24,7 +24,7 @@ export default function createActivator(name: string, activateOnTabVisible: bool
     if (tabVisible) {
       const unsubscribeTabVisible = tabVisible.subscribe(value => {
         tabVisibleValue = value;
-        if (activateOnTabVisible) {
+        if (activateOnTabVisible && tabVisibleValue) {
           activate();
         }
       });

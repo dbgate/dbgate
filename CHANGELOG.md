@@ -1,9 +1,17 @@
 # ChangeLog
 
+### 4.3.0
+- ADDED: Table structure editor
+- ADDED: Index support
+- ADDED: Unique constraint support
+- ADDED: Context menu for drop/rename table/columns and for drop view/procedure/function
+- ADDED: Added support for windows arm64 platform
+- FIXED: Search by _id in MongoDB
+
 ### 4.2.6
- - Fixed MongoDB import
- - Configurable thousands separator #136
- - Using case insensitive text search in postgres
+- FIXED: Fixed MongoDB import
+- ADDED: Configurable thousands separator #136
+- ADDED: Using case insensitive text search in postgres
 
 ### 4.2.5
 - FIXED: Fixed crash when using large model on some installations
