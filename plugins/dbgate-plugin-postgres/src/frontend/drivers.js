@@ -83,6 +83,10 @@ const redshiftDriver = {
     ...dialect,
     stringAgg: false,
   },
+  __analyserInternals: {
+    refTableCond: '',
+    skipIndexes: true,
+  },
   engine: 'redshift@dbgate-plugin-postgres',
   title: 'Amazon Redshift',
   defaultPort: 5439,

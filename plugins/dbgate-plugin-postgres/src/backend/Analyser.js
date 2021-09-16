@@ -67,8 +67,12 @@ class Analyser extends DatabaseAnalyser {
       ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
       : null;
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
-    const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
-    const indexcols = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    const indexes = this.driver.__analyserInternals.skipIndexes
+      ? { rows: [] }
+      : await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const indexcols = this.driver.__analyserInternals.skipIndexes
+      ? { rows: [] }
+      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
 
     return {
