@@ -48,6 +48,10 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
         ...cnt,
         pairingId: cnt.pairingId || uuidv1(),
       })),
+      uniques: table.uniques?.map(cnt => ({
+        ...cnt,
+        pairingId: cnt.pairingId || uuidv1(),
+      })),
       pairingId: table.pairingId || uuidv1(),
     };
   }
