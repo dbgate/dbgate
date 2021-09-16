@@ -18,7 +18,7 @@
 
   $: isRecreated = _.sum(_.values(recreates || {})) > 0;
 
-  $: console.log('recreates', recreates);
+  // $: console.log('recreates', recreates);
 </script>
 
 <FormProvider>
