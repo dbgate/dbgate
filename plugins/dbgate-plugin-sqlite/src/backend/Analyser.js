@@ -12,7 +12,7 @@ SELECT
        pragma_index_list(m.name) AS il,
        pragma_index_info(il.name) AS ii
  WHERE m.type='table' AND il.origin <> 'pk'
- ORDER BY ii.seqno
+ ORDER BY ii.seqno, il.name
   `;
 
 class Analyser extends DatabaseAnalyser {
@@ -22,6 +22,7 @@ class Analyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
+    const indexcols = await this.driver.query(this.pool, indexcolsQuery);
 
     return {
       tables: objects.rows
@@ -29,7 +30,12 @@ class Analyser extends DatabaseAnalyser {
         .map((x) => ({
           pureName: x.name,
           objectId: x.name,
-          contentHash: x.sql,
+          contentHash: [
+            x.sql,
+            ...indexcols.rows
+              .filter((y) => y.tableName == x.name)
+              .map((y) => `-- ${y.constraintName}: ${y.columnName}`),
+          ].join(';\n'),
         })),
       views: objects.rows
         .filter((x) => x.type == 'view')
