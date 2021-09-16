@@ -9,6 +9,7 @@ import {
   TableInfo,
   UniqueInfo,
 } from 'dbgate-types';
+import _ from 'lodash';
 
 export interface EditorColumnInfo extends ColumnInfo {
   isPrimaryKey?: boolean;
@@ -17,7 +18,7 @@ export interface EditorColumnInfo extends ColumnInfo {
 export function fillEditorColumnInfo(column: ColumnInfo, table: TableInfo): EditorColumnInfo {
   return {
     isPrimaryKey: !!table?.primaryKey?.columns?.find(x => x.columnName == column.columnName),
-    dataType: column ? undefined : 'int',
+    dataType: _.isEmpty(column) ? 'int' : undefined,
     ...column,
   };
 }
