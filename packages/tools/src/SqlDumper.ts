@@ -538,10 +538,13 @@ export class SqlDumper implements AlterProcessor {
   }
 
   recreateTable(oldTable: TableInfo, newTable: TableInfo) {
-    if (oldTable.pairingId != newTable.pairingId) {
+    if (!oldTable.pairingId || !newTable.pairingId || oldTable.pairingId != newTable.pairingId) {
       throw new Error('Recreate is not possible: oldTable.paringId != newTable.paringId');
     }
     const tmpTable = `temp_${uuidv1()}`;
+
+    // console.log('oldTable', oldTable);
+    // console.log('newTable', newTable);
 
     const columnPairs = oldTable.columns
       .map(oldcol => ({

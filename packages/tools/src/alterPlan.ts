@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { generateTablePairingId } from '.';
 import {
   AlterProcessor,
   ColumnInfo,
@@ -371,12 +372,17 @@ export class AlterPlan {
     const recreates = {};
     for (const op of this.operations) {
       if (op.operationType == 'recreateTable') {
-        const recreate = {
-          ...op,
-          operations: [...op.operations],
-        };
-        res.push(recreate);
-        recreates[`${op.table.schemaName}||${op.table.pureName}`] = recreate;
+        const existingRecreate = recreates[`${op.table.schemaName}||${op.table.pureName}`];
+        if (existingRecreate) {
+          existingRecreate.operations.push(...op.operations);
+        } else {
+          const recreate = {
+            ...op,
+            operations: [...op.operations],
+          };
+          res.push(recreate);
+          recreates[`${op.table.schemaName}||${op.table.pureName}`] = recreate;
+        }
       } else {
         // @ts-ignore
         const oldObject: TableInfo = op.oldObject;
@@ -453,7 +459,8 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'recreateTable':
       {
-        const newTable = _.cloneDeep(op.table);
+        const oldTable = generateTablePairingId(op.table);
+        const newTable = _.cloneDeep(oldTable);
         const newDb = DatabaseAnalyser.createEmptyStructure();
         newDb.tables.push(newTable);
         // console.log('////////////////////////////newTable1', newTable);
@@ -461,7 +468,7 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
         // console.log('////////////////////////////op.operations', op.operations);
         // console.log('////////////////////////////op.table', op.table);
         // console.log('////////////////////////////newTable2', newTable);
-        processor.recreateTable(op.table, newTable);
+        processor.recreateTable(oldTable, newTable);
       }
       break;
   }

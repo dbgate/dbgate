@@ -32,4 +32,5 @@ export interface SqlDialect {
   dropCheck?: boolean;
 
   dropReferencesWhenDropTable?: boolean;
+  disableExplicitTransaction?: boolean;
 }

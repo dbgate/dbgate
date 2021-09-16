@@ -1,4 +1,12 @@
-import { ColumnInfo, ConstraintInfo, DatabaseInfo, EngineDriver, NamedObjectInfo, TableInfo } from 'dbgate-types';
+import {
+  ColumnInfo,
+  ConstraintInfo,
+  DatabaseInfo,
+  EngineDriver,
+  NamedObjectInfo,
+  SqlDialect,
+  TableInfo,
+} from 'dbgate-types';
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
@@ -287,7 +295,7 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     .filter(x => x[0] && x[1])
     .forEach(x => {
       if (!testEqualConstraints(x[0], x[1], opts)) {
-        // console.log('PLAN CHANGE COLUMN')
+        // console.log('PLAN CHANGE CONSTRAINT', x[0], x[1]);
         plan.changeConstraint(x[0], x[1]);
       }
     });
@@ -357,7 +365,9 @@ export function getAlterTableScript(
 ): string {
   const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
+  if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
+  if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
   return dmp.s;
 }
 
@@ -370,6 +380,8 @@ export function getAlterDatabaseScript(
 ): string {
   const plan = createAlterDatabasePlan(oldDb, newDb, opts, db, driver);
   const dmp = driver.createDumper();
+  if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
+  if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
   return dmp.s;
 }

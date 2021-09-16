@@ -17,4 +17,6 @@ export interface SqlDumper extends AlterProcessor {
 
   endCommand();
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean);
+  beginTransaction();
+  commitTransaction();
 }

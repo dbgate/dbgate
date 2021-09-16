@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ColumnInfo, ColumnReference, DatabaseInfo, DatabaseInfoObjects, TableInfo } from 'dbgate-types';
+import { ColumnInfo, ColumnReference, DatabaseInfo, DatabaseInfoObjects, SqlDialect, TableInfo } from 'dbgate-types';
 
 export function fullNameFromString(name) {
   const m = name.match(/\[([^\]]+)\]\.\[([^\]]+)\]/);
@@ -74,10 +74,10 @@ function columnsConstraintName(prefix: string, table: TableInfo, columns: Column
   return `${prefix}_${table.pureName}_${columns.map(x => x.columnName.replace(' ', '_')).join('_')}`;
 }
 
-export function fillConstraintNames(table: TableInfo) {
+export function fillConstraintNames(table: TableInfo, dialect: SqlDialect) {
   if (!table) return table;
   const res = _.cloneDeep(table);
-  if (res.primaryKey && !res.primaryKey.constraintName) {
+  if (res.primaryKey && !res.primaryKey.constraintName && !dialect.anonymousPrimaryKey) {
     res.primaryKey.constraintName = `PK_${res.pureName}`;
   }
   for (const fk of res.foreignKeys) {

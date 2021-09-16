@@ -21,6 +21,8 @@ const dialect = {
   quoteIdentifier(s) {
     return `[${s}]`;
   },
+  anonymousPrimaryKey: true,
+  disableExplicitTransaction: true,
 
   createColumn: true,
   dropColumn: true,
