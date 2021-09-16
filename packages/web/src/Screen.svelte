@@ -24,10 +24,13 @@
   import dragDropFileTarget from './utility/dragDropFileTarget';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
-
 </script>
 
-<div class={`${$currentTheme} ${currentThemeType} root`} use:dragDropFileTarget>
+<div
+  class={`${$currentTheme} ${currentThemeType} root`}
+  use:dragDropFileTarget
+  on:contextmenu={e => e.preventDefault()}
+>
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -68,7 +71,7 @@
     <DragAndDropFileTarget />
   {/if}
   <div class="snackbar-container">
-    {#each $openedSnackbars as snackbar(snackbar.id)}
+    {#each $openedSnackbars as snackbar (snackbar.id)}
       <Snackbar {...snackbar} />
     {/each}
   </div>
@@ -153,5 +156,4 @@
     right: 0;
     bottom: var(--dim-statusbar-height);
   }
-
 </style>
