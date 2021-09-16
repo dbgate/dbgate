@@ -65,10 +65,16 @@ function generateObjectPairingId(obj) {
 
 export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
   if (!db) return db;
-  // @ts-ignore
+
   return {
-    ..._.mapValues(db, v => (_.isArray(v) ? v.map(generateObjectPairingId) : v)),
+    ...db,
+    // ..._.mapValues(db, v => (_.isArray(v) ? v.map(generateObjectPairingId) : v)),
     tables: (db.tables || []).map(generateTablePairingId),
+    views: (db.views || []).map(generateObjectPairingId),
+    procedures: (db.procedures || []).map(generateObjectPairingId),
+    functions: (db.functions || []).map(generateObjectPairingId),
+    triggers: (db.triggers || []).map(generateObjectPairingId),
+    matviews: (db.matviews || []).map(generateObjectPairingId),
   };
 }
 
