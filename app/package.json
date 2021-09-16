@@ -66,6 +66,7 @@
       }
     },
     "win": {
+      "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
       "target": [
         {
           "target": "nsis",
