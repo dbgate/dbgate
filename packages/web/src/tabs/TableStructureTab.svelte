@@ -102,7 +102,7 @@
 
   function doSave(createTableName) {
     const driver = findEngineDriver($connection, $extensions);
-    const sql = getAlterTableScript(
+    const { sql, recreates } = getAlterTableScript(
       $editorValue.base,
       fillConstraintNames($editorValue.current, driver.dialect),
       {},
@@ -112,6 +112,7 @@
 
     showModal(ConfirmSqlModal, {
       sql,
+      recreates,
       onConfirm: () => {
         handleConfirmSql(sql, createTableName);
       },

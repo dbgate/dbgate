@@ -348,6 +348,7 @@ export function createAlterDatabasePlan(
       } else {
         if (newobj == null) plan.dropSqlObject(oldobj);
         else if (newobj.createSql != oldobj.createSql) {
+          plan.recreates.sqlObjects += 1;
           plan.dropSqlObject(oldobj);
           plan.createSqlObject(newobj);
         }
@@ -372,13 +373,16 @@ export function getAlterTableScript(
   opts: DbDiffOptions,
   db: DatabaseInfo,
   driver: EngineDriver
-): string {
+) {
   const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
   if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
   if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
-  return dmp.s;
+  return {
+    sql: dmp.s,
+    recreates: plan.recreates,
+  };
 }
 
 export function getAlterDatabaseScript(
@@ -387,11 +391,14 @@ export function getAlterDatabaseScript(
   opts: DbDiffOptions,
   db: DatabaseInfo,
   driver: EngineDriver
-): string {
+) {
   const plan = createAlterDatabasePlan(oldDb, newDb, opts, db, driver);
   const dmp = driver.createDumper();
   if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
   if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
-  return dmp.s;
+  return {
+    sql: dmp.s,
+    recreates: plan.recreates,
+  };
 }

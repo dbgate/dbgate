@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import _ from 'lodash';
 import { findEngineDriver, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
 import InputTextModal from '../modals/InputTextModal.svelte';
 import { showModal } from '../modals/modalTools';
@@ -15,10 +15,11 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
   const dbUpdated = _.cloneDeep(db);
   updateFunc(dbUpdated);
 
-  const sql = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
+  const { sql, recreates } = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
 
   showModal(ConfirmSqlModal, {
     sql,
+    recreates,
     onConfirm: async () => {
       const resp = await axiosInstance.request({
         url: 'database-connections/run-script',

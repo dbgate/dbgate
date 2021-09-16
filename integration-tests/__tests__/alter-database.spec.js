@@ -30,7 +30,7 @@ async function testDatabaseDiff(conn, driver, mangle, createObject = null) {
   mangle(structure2);
   structure2 = extendDatabaseInfo(structure2);
 
-  const sql = getAlterDatabaseScript(structure1, structure2, {}, structure2, driver);
+  const { sql } = getAlterDatabaseScript(structure1, structure2, {}, structure2, driver);
   console.log('RUNNING ALTER SQL', driver.engine, ':', sql);
 
   await driver.script(conn, sql);

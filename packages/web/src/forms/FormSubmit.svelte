@@ -3,6 +3,8 @@
   import { getFormContext } from './FormProviderCore.svelte';
   import { createEventDispatcher } from 'svelte';
 
+  export let disabled;
+
   const dispatch = createEventDispatcher();
 
   const { submitActionRef } = getFormContext();
@@ -13,8 +15,10 @@
   }
 
   submitActionRef.set(() => {
-    handleClick();
+    if (!disabled) {
+      handleClick();
+    }
   });
 </script>
 
-<FormStyledButton type="submit" on:click={handleClick} {...$$props} />
+<FormStyledButton type="submit" {disabled} on:click={handleClick} {...$$props} />

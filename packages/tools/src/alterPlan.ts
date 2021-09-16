@@ -104,6 +104,12 @@ type AlterOperation =
   | AlterOperation_RecreateTable;
 
 export class AlterPlan {
+  recreates = {
+    tables: 0,
+    constraints: 0,
+    sqlObjects: 0,
+  };
+
   public operations: AlterOperation[] = [];
   constructor(public db: DatabaseInfo, public dialect: SqlDialect) {}
 
@@ -209,6 +215,7 @@ export class AlterPlan {
       table,
       operations,
     });
+    this.recreates.tables += 1;
   }
 
   run(processor: AlterProcessor) {
@@ -270,6 +277,10 @@ export class AlterPlan {
             return opRes;
           }),
         ];
+
+        if (constraints.length > 0) {
+          this.recreates.constraints += 1;
+        }
         return res;
       }
 
@@ -289,6 +300,7 @@ export class AlterPlan {
       }
 
       if (op.operationType == 'changeConstraint') {
+        this.recreates.constraints += 1;
         const opDrop: AlterOperation = {
           operationType: 'dropConstraint',
           oldObject: op.oldObject,
@@ -356,6 +368,7 @@ export class AlterPlan {
       const table = this.db.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );
+      this.recreates.tables += 1;
       return [
         {
           operationType: 'recreateTable',
