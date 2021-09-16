@@ -78,8 +78,7 @@ jobs:
           cp app/dist/*x86*.AppImage artifacts/dbgate-beta.AppImage || true
           cp app/dist/*arm64*.AppImage artifacts/dbgate-beta-arm64.AppImage || true
           cp app/dist/*armv7l*.AppImage artifacts/dbgate-beta-armv7l.AppImage || true
-          cp app/dist/*win_x64.exe artifacts/dbgate-beta.exe || true
-          cp app/dist/*win_arm64.exe artifacts/dbgate-beta-arm64.exe || true
+          cp app/dist/*win*.exe artifacts/dbgate-beta.exe || true
           cp app/dist/*win_x64.zip artifacts/dbgate-windows-beta.zip || true
           cp app/dist/*win_arm64.zip artifacts/dbgate-windows-beta-arm64.zip || true
           cp app/dist/*-mac.dmg artifacts/dbgate-beta.dmg || true

@@ -66,15 +66,8 @@
       }
     },
     "win": {
-      "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
       "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
+        "nsis",
         {
           "target": "zip",
           "arch": [
