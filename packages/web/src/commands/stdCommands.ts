@@ -1,4 +1,4 @@
-import { currentDatabase, currentTheme, extensions, getVisibleToolbar, visibleToolbar } from '../stores';
+import { currentDatabase, currentTheme, extensions, getExtensions, getVisibleToolbar, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
 import { derived, get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
@@ -18,6 +18,7 @@ import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 import hasPermission from '../utility/hasPermission';
 import _ from 'lodash';
+import { findEngineDriver } from 'dbgate-tools';
 
 const electron = getElectron();
 
@@ -112,7 +113,10 @@ registerCommand({
   name: 'Table',
   toolbar: true,
   toolbarName: 'New table',
-  testEnabled: () => !!get(currentDatabase),
+  testEnabled: () => {
+    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
+    return !!get(currentDatabase) && !driver?.dialect?.nosql;
+  },
   onClick: () => {
     const $currentDatabase = get(currentDatabase);
     const connection = _.get($currentDatabase, 'connection') || {};

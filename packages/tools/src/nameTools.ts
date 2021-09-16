@@ -80,15 +80,15 @@ export function fillConstraintNames(table: TableInfo, dialect: SqlDialect) {
   if (res.primaryKey && !res.primaryKey.constraintName && !dialect.anonymousPrimaryKey) {
     res.primaryKey.constraintName = `PK_${res.pureName}`;
   }
-  for (const fk of res.foreignKeys) {
+  for (const fk of res.foreignKeys || []) {
     if (fk.constraintName) continue;
     fk.constraintName = columnsConstraintName('FK', res, fk.columns);
   }
-  for (const ix of res.indexes) {
+  for (const ix of res.indexes || []) {
     if (ix.constraintName) continue;
     ix.constraintName = columnsConstraintName('IX', res, ix.columns);
   }
-  for (const uq of res.uniques) {
+  for (const uq of res.uniques || []) {
     if (uq.constraintName) continue;
     uq.constraintName = columnsConstraintName('UQ', res, uq.columns);
   }
