@@ -18,13 +18,19 @@ function readCursor(cursor, options) {
 }
 
 const mongoIdRegex = /^[0-9a-f]{24}$/;
-function convertCondition(condition) {
+function convertConditionInternal(condition) {
   if (condition && _.isString(condition._id) && condition._id.match(mongoIdRegex)) {
     return {
       _id: ObjectId(condition._id),
     };
   }
   return condition;
+}
+
+function convertConditionUser(condition) {
+  return _.cloneDeepWith(condition, (x) => {
+    if (x && x.$oid) return ObjectId(x.$oid);
+  });
 }
 
 function findArrayResult(resValue) {
@@ -191,10 +197,11 @@ const driver = {
     try {
       const collection = pool.__getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(options.condition || {});
+        const count = await collection.countDocuments(convertConditionUser(options.condition) || {});
         return { count };
       } else {
-        let cursor = await collection.find(options.condition || {});
+        // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
+        let cursor = await collection.find(convertConditionUser(options.condition) || {});
         if (options.sort) cursor = cursor.sort(options.sort);
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
@@ -230,22 +237,24 @@ const driver = {
             ...update.document,
             ...update.fields,
           };
-          const doc = await collection.findOne(convertCondition(update.condition));
+          const doc = await collection.findOne(convertConditionInternal(update.condition));
           if (doc) {
-            const resdoc = await collection.replaceOne(convertCondition(update.condition), {
+            const resdoc = await collection.replaceOne(convertConditionInternal(update.condition), {
               ...document,
               _id: doc._id,
             });
             res.replaced.push(resdoc._id);
           }
         } else {
-          const resdoc = await collection.updateOne(convertCondition(update.condition), { $set: update.fields });
+          const resdoc = await collection.updateOne(convertConditionInternal(update.condition), {
+            $set: update.fields,
+          });
           res.updated.push(resdoc._id);
         }
       }
       for (const del of changeSet.deletes) {
         const collection = db.collection(del.pureName);
-        const resdoc = await collection.deleteOne(convertCondition(del.condition));
+        const resdoc = await collection.deleteOne(convertConditionInternal(del.condition));
         res.deleted.push(resdoc._id);
       }
       return res;

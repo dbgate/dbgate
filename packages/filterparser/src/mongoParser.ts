@@ -28,6 +28,20 @@ const numberTestCondition = () => value => ({
   ],
 });
 
+const objectIdTestCondition = () => value => ({
+  $or: [
+    {
+      __placeholder__: {
+        $regex: `.*${value}.*`,
+        $options: 'i',
+      },
+    },
+    {
+      __placeholder__: { $oid: value },
+    },
+  ],
+});
+
 const testCondition = (operator, value) => () => ({
   __placeholder__: {
     [operator]: value,
@@ -64,9 +78,12 @@ const createParser = () => {
         .map(Number)
         .desc('number'),
 
+    objectid: () => token(P.regexp(/[0-9a-f]{24}/)).desc('ObjectId'),
+
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
 
-    value: r => P.alt(r.string1, r.string2, r.number, r.noQuotedString),
+    value: r => P.alt(r.objectid, r.string1, r.string2, r.number, r.noQuotedString),
+    valueTestObjectId: r => r.objectid.map(objectIdTestCondition()),
     valueTestNum: r => r.number.map(numberTestCondition()),
     valueTest: r => r.value.map(regexCondition('.*#VALUE#.*')),
 
@@ -108,6 +125,7 @@ const createParser = () => {
         r.startsWithNot,
         r.endsWithNot,
         r.containsNot,
+        r.valueTestObjectId,
         r.valueTestNum,
         r.valueTest
       ).trim(whitespace),

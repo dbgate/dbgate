@@ -26,6 +26,7 @@
       if (!filters[uniqueName]) continue;
       try {
         const ast = parseFilter(filters[uniqueName], 'mongo');
+        // console.log('AST', ast);
         const cond = _.cloneDeepWith(ast, expr => {
           if (expr.__placeholder__) {
             return {
@@ -112,7 +113,6 @@
 
     return response.data.count;
   }
-
 </script>
 
 <script lang="ts">
@@ -229,7 +229,6 @@
 
     { command: 'collectionDataGrid.export', tag: 'export' }
   );
-
 </script>
 
 <LoadingDataGridCore
