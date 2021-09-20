@@ -62,12 +62,12 @@ export interface DatabaseObjectInfo extends NamedObjectInfo {
   createDate?: string;
   modifyDate?: string;
   hashCode?: string;
+  objectTypeField?: string;
 }
 
 export interface SqlObjectInfo extends DatabaseObjectInfo {
   createSql?: string;
   requiresFormat?: boolean; // SQL is human unreadable, requires formatting (eg. MySQL views)
-  objectTypeField?: string;
 }
 
 export interface TableInfo extends DatabaseObjectInfo {
