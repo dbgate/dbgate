@@ -1,5 +1,6 @@
 const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
+const archive = require('./archive');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { DatabaseAnalyser } = require('dbgate-tools');
@@ -236,6 +237,12 @@ module.exports = {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'sqlPreview', objects, options });
     return res;
+  },
+
+  exportModel_meta: 'post',
+  async exportModel({ conid, database }) {
+    const archiveFolder = await archive.getNewArchiveFolder({ database });
+    return { archiveFolder };
   },
 
   // runCommand_meta: 'post',

@@ -53,11 +53,20 @@
       currentDatabase.set(null);
     };
 
+    const handleExportModel = async () => {
+      const resp = await axiosInstance.post('database-connections/export-model', {
+        conid: connection._id,
+        database: name,
+      });
+      showSnackbarSuccess(`Saved to archive ${resp.data.archiveFolder}`);
+    };
+
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      { onClick: handleExportModel, text: 'Export DB model' },
 
       _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
         _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
@@ -78,6 +87,7 @@
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
+  import { showSnackbarSuccess } from '../utility/snackbar';
   export let data;
 
   function createMenu() {

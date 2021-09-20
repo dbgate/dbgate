@@ -95,4 +95,13 @@ module.exports = {
       });
     });
   },
+
+  async getNewArchiveFolder({ database }) {
+    if (!(await fs.exists(path.join(archivedir(), database)))) return database;
+    let index = 2;
+    while (await fs.exists(path.join(archivedir(), `${database}${index}`))) {
+      index += 1;
+    }
+    return `${database}${index}`;
+  },
 };
