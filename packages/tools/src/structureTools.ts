@@ -1,4 +1,4 @@
-import { DatabaseInfo } from 'dbgate-types';
+import { DatabaseInfo, TableInfo } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
@@ -12,50 +12,54 @@ export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
   };
 }
 
-function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
+export function extendTableInfo(table: TableInfo): TableInfo {
+  return {
+    ...table,
+    objectTypeField: 'tables',
+    columns: (table.columns || []).map(column => ({
+      pureName: table.pureName,
+      schemaName: table.schemaName,
+      ...column,
+    })),
+    primaryKey: table.primaryKey
+      ? {
+          ...table.primaryKey,
+          pureName: table.pureName,
+          schemaName: table.schemaName,
+          constraintType: 'primaryKey',
+        }
+      : undefined,
+    foreignKeys: (table.foreignKeys || []).map(cnt => ({
+      ...cnt,
+      pureName: table.pureName,
+      schemaName: table.schemaName,
+      constraintType: 'foreignKey',
+    })),
+    indexes: (table.indexes || []).map(cnt => ({
+      ...cnt,
+      pureName: table.pureName,
+      schemaName: table.schemaName,
+      constraintType: 'index',
+    })),
+    checks: (table.checks || []).map(cnt => ({
+      ...cnt,
+      pureName: table.pureName,
+      schemaName: table.schemaName,
+      constraintType: 'check',
+    })),
+    uniques: (table.uniques || []).map(cnt => ({
+      ...cnt,
+      pureName: table.pureName,
+      schemaName: table.schemaName,
+      constraintType: 'unique',
+    })),
+  };
+}
+
+function fillDatabaseExtendedInfo(db: DatabaseInfo): DatabaseInfo {
   return {
     ...db,
-    tables: (db.tables || []).map(obj => ({
-      ...obj,
-      objectTypeField: 'tables',
-      columns: (obj.columns || []).map(column => ({
-        pureName: obj.pureName,
-        schemaName: obj.schemaName,
-        ...column,
-      })),
-      primaryKey: obj.primaryKey
-        ? {
-            ...obj.primaryKey,
-            pureName: obj.pureName,
-            schemaName: obj.schemaName,
-            constraintType: 'primaryKey',
-          }
-        : undefined,
-      foreignKeys: (obj.foreignKeys || []).map(cnt => ({
-        ...cnt,
-        pureName: obj.pureName,
-        schemaName: obj.schemaName,
-        constraintType: 'foreignKey',
-      })),
-      indexes: (obj.indexes || []).map(cnt => ({
-        ...cnt,
-        pureName: obj.pureName,
-        schemaName: obj.schemaName,
-        constraintType: 'index',
-      })),
-      checks: (obj.checks || []).map(cnt => ({
-        ...cnt,
-        pureName: obj.pureName,
-        schemaName: obj.schemaName,
-        constraintType: 'check',
-      })),
-      uniques: (obj.uniques || []).map(cnt => ({
-        ...cnt,
-        pureName: obj.pureName,
-        schemaName: obj.schemaName,
-        constraintType: 'unique',
-      })),
-    })),
+    tables: (db.tables || []).map(extendTableInfo),
     collections: (db.collections || []).map(obj => ({
       ...obj,
       objectTypeField: 'collections',
@@ -84,5 +88,5 @@ function fillTableExtendedInfo(db: DatabaseInfo): DatabaseInfo {
 }
 
 export function extendDatabaseInfo(db: DatabaseInfo): DatabaseInfo {
-  return fillTableExtendedInfo(addTableDependencies(db));
+  return fillDatabaseExtendedInfo(addTableDependencies(db));
 }

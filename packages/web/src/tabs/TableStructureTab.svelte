@@ -28,7 +28,13 @@
 </script>
 
 <script lang="ts">
-  import { fillConstraintNames, findEngineDriver, generateTablePairingId, getAlterTableScript } from 'dbgate-tools';
+  import {
+    fillConstraintNames,
+    extendTableInfo,
+    findEngineDriver,
+    generateTablePairingId,
+    getAlterTableScript,
+  } from 'dbgate-tools';
 
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -38,7 +44,6 @@
   import ForeignKeyObjectListControl from '../elements/ForeignKeyObjectListControl.svelte';
 
   import { extensions } from '../stores';
-  import ObjectListControl from '../elements/ObjectListControl.svelte';
   import useEditorData from '../query/useEditorData';
   import TableEditor from '../tableeditor/TableEditor.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -102,9 +107,10 @@
 
   function doSave(createTableName) {
     const driver = findEngineDriver($connection, $extensions);
+
     const { sql, recreates } = getAlterTableScript(
       $editorValue.base,
-      fillConstraintNames($editorValue.current, driver.dialect),
+      extendTableInfo(fillConstraintNames($editorValue.current, driver.dialect)),
       {},
       $dbInfo,
       driver
