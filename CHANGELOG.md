@@ -5,7 +5,7 @@
 - ADDED: Index support
 - ADDED: Unique constraint support
 - ADDED: Context menu for drop/rename table/columns and for drop view/procedure/function
-- ADDED: Added support for windows arm64 platform
+- ADDED: Added support for Windows arm64 platform
 - FIXED: Search by _id in MongoDB
 
 ### 4.2.6
