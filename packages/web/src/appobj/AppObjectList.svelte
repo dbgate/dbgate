@@ -69,8 +69,9 @@
     />
   {/each}
 {:else}
-  {#each filtered as data}
+  {#each list as data}
     <AppObjectListItem
+      isHidden={!filtered.includes(data)}
       {module}
       {subItemsComponent}
       {expandOnClick}

@@ -10,6 +10,7 @@
   import { tick } from 'svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
 
+  export let isHidden;
   export let filter;
   export let module;
   export let data;
@@ -38,21 +39,23 @@
   $: if (!expandable && isExpanded) isExpanded = false;
 </script>
 
-<svelte:component
-  this={module.default}
-  {data}
-  on:click={handleExpand}
-  on:expand={handleExpandButton}
-  expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
-  {checkedObjectsStore}
-  {module}
-  {disableContextMenu}
-/>
+{#if !isHidden}
+  <svelte:component
+    this={module.default}
+    {data}
+    on:click={handleExpand}
+    on:expand={handleExpandButton}
+    expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
+    {checkedObjectsStore}
+    {module}
+    {disableContextMenu}
+  />
 
-{#if isExpanded && subItemsComponent}
-  <div class="subitems">
-    <svelte:component this={subItemsComponent} {data} {filter} />
-  </div>
+  {#if isExpanded && subItemsComponent}
+    <div class="subitems">
+      <svelte:component this={subItemsComponent} {data} {filter} />
+    </div>
+  {/if}
 {/if}
 
 <style>
