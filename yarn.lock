@@ -10069,10 +10069,10 @@ svelte-select@^3.17.0:
   resolved "https://registry.yarnpkg.com/svelte-select/-/svelte-select-3.17.0.tgz#6bea0cb8d0c9465d28a2bac562f2de8a61f48a9f"
   integrity sha512-ITmX/XUiSdkaILmsTviKRkZPaXckM5/FA7Y8BhiUPoamaZG/ZDyOo6ydjFu9fDVFTbwoAUGUi6HBjs+ZdK2AwA==
 
-svelte@^3.35.0:
-  version "3.35.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.35.0.tgz#e0d0ba60c4852181c2b4fd851194be6fda493e65"
-  integrity sha512-gknlZkR2sXheu/X+B7dDImwANVvK1R0QGQLd8CNIfxxGPeXBmePnxfzb6fWwTQRsYQG7lYkZXvpXJvxvpsoB7g==
+svelte@^3.43.0:
+  version "3.43.0"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.43.0.tgz#d28d06ec523bf0cea3de15558a3241c339a85762"
+  integrity sha512-T2pMPHrxXp+SM8pLLUXLQgkdo+JhTls7aqj9cD7z8wT2ccP+OrCAmtQS7h6pvMjitaZhXFNnCK582NxDpy8HSw==
 
 symbol-tree@^3.2.2, symbol-tree@^3.2.4:
   version "3.2.4"
