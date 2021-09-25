@@ -13,3 +13,4 @@ export * from './settingsExtractors';
 export * from './filterName';
 export * from './diffTools';
 export * from './schemaEditorTools';
+export * from './yamlModelConv';

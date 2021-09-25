@@ -6,6 +6,10 @@ const { fork } = require('child_process');
 const { DatabaseAnalyser } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
+const fs = require('fs-extra');
+const exportDbModel = require('../utility/exportDbModel');
+const { archivedir } = require('../utility/directories');
+const path = require('path');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -242,6 +246,10 @@ module.exports = {
   exportModel_meta: 'post',
   async exportModel({ conid, database }) {
     const archiveFolder = await archive.getNewArchiveFolder({ database });
+    await fs.mkdir(path.join(archivedir(), archiveFolder));
+    const model = await this.structure({ conid, database });
+    await exportDbModel(model, path.join(archivedir(), archiveFolder));
+    socket.emitChanged(`archive-folders-changed`);
     return { archiveFolder };
   },
 

@@ -36,6 +36,7 @@
     "fs-reverse": "^0.0.3",
     "get-port": "^5.1.1",
     "http": "^0.0.0",
+    "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.21",
