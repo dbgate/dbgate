@@ -8,6 +8,7 @@ import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
+import { setLocalStorage } from '../utility/storageCache';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
@@ -74,6 +75,9 @@ const databaseListLoader = ({ conid }) => ({
   url: 'server-connections/list-databases',
   params: { conid },
   reloadTrigger: `database-list-changed-${conid}`,
+  onLoaded: value => {
+    if (value?.length > 0) setLocalStorage(`database_list_${conid}`, value);
+  },
 });
 
 const serverVersionLoader = ({ conid }) => ({
@@ -135,7 +139,7 @@ const authTypesLoader = ({ engine }) => ({
 });
 
 async function getCore(loader, args) {
-  const { url, params, reloadTrigger, transform } = loader(args);
+  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
@@ -144,7 +148,9 @@ async function getCore(loader, args) {
       url,
       params,
     });
-    return (transform || (x => x))(resp.data);
+    const res = (transform || (x => x))(resp.data);
+    if (onLoaded) onLoaded(res);
+    return res;
   }
 
   const fromCache = cacheGet(key);
@@ -156,7 +162,7 @@ async function getCore(loader, args) {
 }
 
 function useCore(loader, args) {
-  const { url, params, reloadTrigger, transform } = loader(args);
+  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
   const cacheKey = stableStringify({ url, ...params });
 
   return {
@@ -168,7 +174,9 @@ function useCore(loader, args) {
             params,
             url,
           });
-          return (transform || (x => x))(resp.data);
+          const res = (transform || (x => x))(resp.data);
+          if (onLoaded) onLoaded(res);
+          return res;
         }
 
         if (cacheKey) {

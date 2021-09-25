@@ -156,3 +156,9 @@ extensions.subscribe(value => {
   extensionsValue = value;
 });
 export const getExtensions = () => extensionsValue;
+
+let openedConnectionsValue = null;
+openedConnections.subscribe(value => {
+  openedConnectionsValue = value;
+});
+export const getOpenedConnections = () => openedConnectionsValue;

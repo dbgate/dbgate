@@ -1,5 +1,6 @@
 <script>
   import _ from 'lodash';
+  import { asyncFilter } from '../utility/common';
   import AppObjectGroup from './AppObjectGroup.svelte';
 
   import AppObjectListItem from './AppObjectListItem.svelte';
@@ -16,11 +17,27 @@
 
   export let groupFunc = undefined;
 
-  $: filtered = list.filter(data => {
-    const matcher = module.createMatcher && module.createMatcher(data);
-    if (matcher && !matcher(filter)) return false;
-    return true;
-  });
+  $: filtered = !groupFunc
+    ? list.filter(data => {
+        const matcher = module.createMatcher && module.createMatcher(data);
+        if (matcher && !matcher(filter)) return false;
+        return true;
+      })
+    : null;
+
+  // let filtered = [];
+
+  // $: {
+  //   if (!groupFunc) {
+  //     asyncFilter(list, async data => {
+  //       const matcher = module.createMatcher && module.createMatcher(data);
+  //       if (matcher && !(await matcher(filter))) return false;
+  //       return true;
+  //     }).then(res => {
+  //       filtered = res;
+  //     });
+  //   }
+  // }
 
   $: listGrouped = groupFunc
     ? _.compact(
@@ -34,7 +51,6 @@
     : null;
 
   $: groups = groupFunc ? _.groupBy(listGrouped, 'group') : null;
-
 </script>
 
 {#if groupFunc}
