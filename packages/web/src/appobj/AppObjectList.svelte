@@ -65,6 +65,7 @@
       {checkedObjectsStore}
       {groupFunc}
       {disableContextMenu}
+      {filter}
     />
   {/each}
 {:else}
@@ -79,6 +80,7 @@
       {expandIconFunc}
       {checkedObjectsStore}
       {disableContextMenu}
+      {filter}
     />
   {/each}
 {/if}

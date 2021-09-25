@@ -10,6 +10,7 @@
   import { tick } from 'svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
 
+  export let filter;
   export let module;
   export let data;
   export let subItemsComponent;
@@ -50,7 +51,7 @@
 
 {#if isExpanded && subItemsComponent}
   <div class="subitems">
-    <svelte:component this={subItemsComponent} {data} />
+    <svelte:component this={subItemsComponent} {data} {filter} />
   </div>
 {/if}
 
