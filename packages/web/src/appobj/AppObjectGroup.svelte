@@ -52,7 +52,7 @@
     </div>
   {/if}
 
-  {#each filtered as item (module.extractKey(item.data))}
+  {#each filtered as item}
     <AppObjectListItem
       {...$$restProps}
       {module}
