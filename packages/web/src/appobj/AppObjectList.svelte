@@ -54,7 +54,7 @@
 </script>
 
 {#if groupFunc}
-  {#each _.keys(groups) as group}
+  {#each _.keys(groups) as group (group)}
     <AppObjectGroup
       {group}
       {module}
@@ -69,7 +69,7 @@
     />
   {/each}
 {:else}
-  {#each filtered as data}
+  {#each filtered as data (module.extractKey(data))}
     <AppObjectListItem
       {module}
       {subItemsComponent}
