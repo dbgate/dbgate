@@ -16,9 +16,9 @@ const CONNECTION_FIELDS = [
   'sshLogin',
   'sshPassword',
   'sshMode',
-  'sshKeyFile',
+  'sshKeyfile',
   'sshBastionHost',
-  'sshKeyFilePassword',
+  'sshKeyfilePassword',
 ];
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
@@ -31,7 +31,7 @@ async function getSshConnection(connection) {
     endPort: connection.sshPort || 22,
     bastionHost: connection.sshBastionHost || '',
     agentForward: connection.sshMode == 'agent',
-    passphrase: connection.sshMode == 'keyFile' ? connection.sshKeyFilePassword : undefined,
+    passphrase: connection.sshMode == 'keyFile' ? connection.sshKeyfilePassword : undefined,
     username: connection.sshLogin,
     password: connection.sshMode == 'userPassword' ? connection.sshPassword : undefined,
     agentSocket: connection.sshMode == 'agent' ? platformInfo.sshAuthSock : undefined,
