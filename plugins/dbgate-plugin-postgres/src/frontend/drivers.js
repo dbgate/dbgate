@@ -57,6 +57,20 @@ const postgresDriver = {
     ...dialect,
     materializedViews: true,
   },
+
+  dialectByVersion(version) {
+    if (version) {
+      return {
+        ...dialect,
+        materializedViews:
+          version &&
+          version.versionMajor != null &&
+          version.versionMinor != null &&
+          (version.versionMajor > 9 || version.versionMajor == 9 || version.versionMinor >= 3),
+      };
+    }
+    return dialect;
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

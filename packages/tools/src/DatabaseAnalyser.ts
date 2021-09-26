@@ -1,4 +1,4 @@
-import { DatabaseInfo, DatabaseModification, EngineDriver } from 'dbgate-types';
+import { DatabaseInfo, DatabaseModification, EngineDriver, SqlDialect } from 'dbgate-types';
 import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
@@ -13,8 +13,11 @@ export class DatabaseAnalyser {
   modifications: DatabaseModification[];
   singleObjectFilter: any;
   singleObjectId: string = null;
+  dialect: SqlDialect;
 
-  constructor(public pool, public driver: EngineDriver) {}
+  constructor(public pool, public driver: EngineDriver, version) {
+    this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
+  }
 
   async _runAnalysis() {
     return DatabaseAnalyser.createEmptyStructure();

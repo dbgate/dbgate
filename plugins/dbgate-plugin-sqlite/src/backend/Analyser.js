@@ -16,8 +16,8 @@ SELECT
   `;
 
 class Analyser extends DatabaseAnalyser {
-  constructor(pool, driver) {
-    super(pool, driver);
+  constructor(pool, driver, version) {
+    super(pool, driver, version);
   }
 
   async _getFastSnapshot() {
