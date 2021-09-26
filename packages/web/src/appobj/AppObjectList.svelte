@@ -25,6 +25,15 @@
       })
     : null;
 
+  $: childrenMatched = !groupFunc
+    ? list.filter(data => {
+        const matcher = module.createChildMatcher && module.createChildMatcher(data);
+        if (matcher && !matcher(filter)) return false;
+        return true;
+      })
+    : null;
+
+
   // let filtered = [];
 
   // $: {
@@ -82,6 +91,7 @@
       {checkedObjectsStore}
       {disableContextMenu}
       {filter}
+      isExpandedBySearch={childrenMatched.includes(data)}
     />
   {/each}
 {/if}

@@ -20,6 +20,7 @@
   export let expandIconFunc = plusExpandIcon;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
+  export let isExpandedBySearch = false;
 
   let isExpanded = false;
 
@@ -45,13 +46,13 @@
     {data}
     on:click={handleExpand}
     on:expand={handleExpandButton}
-    expandIcon={getExpandIcon(expandable, subItemsComponent, isExpanded, expandIconFunc)}
+    expandIcon={getExpandIcon(!isExpandedBySearch && expandable, subItemsComponent, isExpanded, expandIconFunc)}
     {checkedObjectsStore}
     {module}
     {disableContextMenu}
   />
 
-  {#if isExpanded && subItemsComponent}
+  {#if (isExpanded || isExpandedBySearch) && subItemsComponent}
     <div class="subitems">
       <svelte:component this={subItemsComponent} {data} {filter} />
     </div>

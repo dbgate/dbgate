@@ -5,6 +5,12 @@
     const databases = getLocalStorage(`database_list_${_id}`) || [];
     return filterName(filter, displayName, server, ...databases.map(x => x.name));
   };
+  export const createChildMatcher = props => filter => {
+    if (!filter) return false;
+    const { _id } = props;
+    const databases = getLocalStorage(`database_list_${_id}`) || [];
+    return filterName(filter, ...databases.map(x => x.name));
+  };
 </script>
 
 <script lang="ts">
