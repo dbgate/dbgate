@@ -333,6 +333,7 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
   const allForeignKeys = _.flatten(dbinfo.tables.map(x => x.foreignKeys));
   for (const baseCmd of changeSet.deletes) {
     const table = dbinfo.tables.find(x => x.pureName == baseCmd.pureName && x.schemaName == baseCmd.schemaName);
+    if (!table.primaryKey) continue;
     const dependencies = allForeignKeys.filter(
       x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
     );
@@ -385,7 +386,7 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
               conditions: [
                 extractCondition(baseCmd, 't2'),
                 // @ts-ignore
-                ...fk.columns.map(column => ({
+                ...table.primaryKey.columns.map(column => ({
                   conditionType: 'binary',
                   operator: '=',
                   left: {
@@ -395,7 +396,7 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
                   },
                   right: {
                     exprType: 'column',
-                    columnName: column.refColumnName,
+                    columnName: column.columnName,
                     source: {
                       name: {
                         pureName: fk.refTableName,
@@ -419,6 +420,17 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
       }
       resItem.commands.push(refCmd);
     }
+
+    let resItem = res.find(x => x.title == baseCmd.pureName);
+    if (!resItem) {
+      resItem = {
+        title: baseCmd.pureName,
+        commands: [],
+      };
+      res.push(resItem);
+    }
+
+    resItem.commands.push(deleteToSql(baseCmd));
   }
 
   return res;

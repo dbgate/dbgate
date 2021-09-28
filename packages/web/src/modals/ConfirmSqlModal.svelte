@@ -82,9 +82,16 @@
         <FormSubmit
           value="OK"
           disabled={isRecreated && !values.allowRecreate}
-          on:click={() => {
+          on:click={e => {
             closeCurrentModal();
-            onConfirm();
+            onConfirm(
+              e.detail.deleteReferencesCascade
+                ? deleteCascadesScripts
+                    .filter(({ script, title }) => e.detail[`deleteReferences_${title}`] !== false)
+                    .map(({ script, title }) => script)
+                    .join('\n')
+                : null
+            );
           }}
         />
         <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
