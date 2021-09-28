@@ -51,7 +51,8 @@ function buildMenu() {
         commandItem('group.save'),
         commandItem('group.saveAs'),
         { type: 'separator' },
-        { role: 'close' },
+        commandItem('tabs.closeTab'),
+        commandItem('file.exit'),
       ],
     },
     {

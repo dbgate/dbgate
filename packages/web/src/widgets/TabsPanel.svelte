@@ -33,6 +33,9 @@
       }))
     );
   };
+  const closeCurrentTab = () => {
+    closeTab(getActiveTabId());
+  };
   const closeWithSameDb = closeTabFunc(
     (x, active) =>
       _.get(x, 'props.conid') == _.get(active, 'props.conid') &&
@@ -97,6 +100,15 @@
   });
 
   registerCommand({
+    id: 'tabs.closeTab',
+    category: 'Tabs',
+    name: 'Close tab',
+    keyText: 'Ctrl+W',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
+    onClick: closeCurrentTab,
+  });
+
+  registerCommand({
     id: 'tabs.addToFavorites',
     category: 'Tabs',
     name: 'Add current tab to favorites',
@@ -120,7 +132,7 @@
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId } from '../stores';
+  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
