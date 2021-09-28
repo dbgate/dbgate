@@ -11,11 +11,6 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
-export interface ChangeSetDeleteCascade {
-  title: string;
-  commands: Command[];
-}
-
 export interface ChangeSet {
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
@@ -222,7 +217,7 @@ function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
     }));
 }
 
-function insertToSql(
+function changeSetInsertToSql(
   item: ChangeSetItem,
   dbinfo: DatabaseInfo = null
 ): [AllowIdentityInsert, Insert, AllowIdentityInsert] {
@@ -266,7 +261,7 @@ function insertToSql(
   ];
 }
 
-function extractCondition(item: ChangeSetItem, alias?: string): Condition {
+export function extractChangeSetCondition(item: ChangeSetItem, alias?: string): Condition {
   return {
     conditionType: 'and',
     conditions: _.keys(item.condition).map(columnName => ({
@@ -291,7 +286,7 @@ function extractCondition(item: ChangeSetItem, alias?: string): Condition {
   };
 }
 
-function updateToSql(item: ChangeSetItem): Update {
+function changeSetUpdateToSql(item: ChangeSetItem): Update {
   return {
     from: {
       name: {
@@ -301,11 +296,11 @@ function updateToSql(item: ChangeSetItem): Update {
     },
     commandType: 'update',
     fields: extractFields(item),
-    where: extractCondition(item),
+    where: extractChangeSetCondition(item),
   };
 }
 
-function deleteToSql(item: ChangeSetItem): Delete {
+export function changeSetDeleteToSql(item: ChangeSetItem): Delete {
   return {
     from: {
       name: {
@@ -314,126 +309,18 @@ function deleteToSql(item: ChangeSetItem): Delete {
       },
     },
     commandType: 'delete',
-    where: extractCondition(item),
+    where: extractChangeSetCondition(item),
   };
 }
 
 export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Command[] {
   return _.compact(
     _.flatten([
-      ...(changeSet.inserts.map(item => insertToSql(item, dbinfo)) as any),
-      ...changeSet.updates.map(updateToSql),
-      ...changeSet.deletes.map(deleteToSql),
+      ...(changeSet.inserts.map(item => changeSetInsertToSql(item, dbinfo)) as any),
+      ...changeSet.updates.map(changeSetUpdateToSql),
+      ...changeSet.deletes.map(changeSetDeleteToSql),
     ])
   );
-}
-
-export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): ChangeSetDeleteCascade[] {
-  const res: ChangeSetDeleteCascade[] = [];
-  const allForeignKeys = _.flatten(dbinfo.tables.map(x => x.foreignKeys));
-  for (const baseCmd of changeSet.deletes) {
-    const table = dbinfo.tables.find(x => x.pureName == baseCmd.pureName && x.schemaName == baseCmd.schemaName);
-    if (!table.primaryKey) continue;
-    const dependencies = allForeignKeys.filter(
-      x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
-    );
-    for (const fk of dependencies) {
-      const refCmd: Delete = {
-        commandType: 'delete',
-        from: {
-          name: {
-            pureName: fk.pureName,
-            schemaName: fk.schemaName,
-          },
-        },
-        where: {
-          conditionType: 'exists',
-          subQuery: {
-            commandType: 'select',
-            from: {
-              name: {
-                pureName: fk.pureName,
-                schemaName: fk.schemaName,
-              },
-              alias: 't1',
-              relations: [
-                {
-                  joinType: 'INNER JOIN',
-                  alias: 't2',
-                  name: {
-                    pureName: fk.refTableName,
-                    schemaName: fk.refSchemaName,
-                  },
-                  conditions: fk.columns.map(column => ({
-                    conditionType: 'binary',
-                    operator: '=',
-                    left: {
-                      exprType: 'column',
-                      columnName: column.columnName,
-                      source: { alias: 't1' },
-                    },
-                    right: {
-                      exprType: 'column',
-                      columnName: column.refColumnName,
-                      source: { alias: 't2' },
-                    },
-                  })),
-                },
-              ],
-            },
-            where: {
-              conditionType: 'and',
-              conditions: [
-                extractCondition(baseCmd, 't2'),
-                // @ts-ignore
-                ...table.primaryKey.columns.map(column => ({
-                  conditionType: 'binary',
-                  operator: '=',
-                  left: {
-                    exprType: 'column',
-                    columnName: column.columnName,
-                    source: { alias: 't1' },
-                  },
-                  right: {
-                    exprType: 'column',
-                    columnName: column.columnName,
-                    source: {
-                      name: {
-                        pureName: fk.refTableName,
-                        schemaName: fk.refSchemaName,
-                      },
-                    },
-                  },
-                })),
-              ],
-            },
-          },
-        },
-      };
-      let resItem = res.find(x => x.title == fk.pureName);
-      if (!resItem) {
-        resItem = {
-          title: fk.pureName,
-          commands: [],
-        };
-        res.push(resItem);
-      }
-      resItem.commands.push(refCmd);
-    }
-
-    let resItem = res.find(x => x.title == baseCmd.pureName);
-    if (!resItem) {
-      resItem = {
-        title: baseCmd.pureName,
-        commands: [],
-      };
-      res.push(resItem);
-    }
-
-    resItem.commands.push(deleteToSql(baseCmd));
-  }
-
-  return res;
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
