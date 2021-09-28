@@ -24,7 +24,7 @@
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });
 
-  function extractDbItems(db, dbConnectionInfo) {
+  function extractDbItems(db, dbConnectionInfo, connectionList) {
     const objectList = _.flatten(
       ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
         _.sortBy(
@@ -33,11 +33,23 @@
             onClick: () => handleDatabaseObjectClick({ objectTypeField, ...dbConnectionInfo, ...obj }),
             icon: databaseObjectIcons[objectTypeField],
           })),
-          ['schemaName', 'pureName']
+          ['text']
         )
       )
     );
-    return objectList;
+    const databaseList = [];
+    for (const connection of connectionList || []) {
+      const conid = connection._id;
+      const databases = getLocalStorage(`database_list_${conid}`) || [];
+      for (const db of databases) {
+        databaseList.push({
+          text: `${db.name} on ${getConnectionLabel(connection)}`,
+          icon: 'img database',
+          onClick: () => currentDatabase.set({ connection, name: db.name }),
+        });
+      }
+    }
+    return [..._.sortBy(databaseList, 'text'), ...objectList];
 
     // return db?.tables?.map(table => ({
     //   text: table.pureName,
@@ -61,9 +73,11 @@
     visibleCommandPalette,
   } from '../stores';
   import clickOutside from '../utility/clickOutside';
+  import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
   import keycodes from '../utility/keycodes';
-  import { useDatabaseInfo } from '../utility/metadataLoaders';
+  import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
 
   let domInput;
@@ -89,9 +103,10 @@
   $: conid = _.get($currentDatabase, 'connection._id');
   $: database = _.get($currentDatabase, 'name');
   $: databaseInfo = useDatabaseInfo({ conid, database });
+  $: connectionList = useConnectionList();
 
   $: filteredItems = ($visibleCommandPalette == 'database'
-    ? extractDbItems($databaseInfo, { conid, database })
+    ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
     : parentCommand
     ? parentCommand.getSubCommands()
     : sortedComands
