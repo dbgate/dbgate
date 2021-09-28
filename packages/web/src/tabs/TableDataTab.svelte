@@ -97,7 +97,7 @@
     console.log('deleteCascadesScripts', deleteCascadesScripts);
     showModal(ConfirmSqlModal, {
       sql,
-      onConfirm: () => handleConfirmSql(sql),
+      onConfirm: sqlOverride => handleConfirmSql(sqlOverride || sql),
       engine: driver.engine,
       deleteCascadesScripts,
     });

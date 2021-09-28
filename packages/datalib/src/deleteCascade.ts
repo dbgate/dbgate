@@ -45,6 +45,7 @@ function processDependencies(
         conditionType: 'exists',
         subQuery: {
           commandType: 'select',
+          selectAll: true,
           from: {
             name: {
               pureName: fk.pureName,
