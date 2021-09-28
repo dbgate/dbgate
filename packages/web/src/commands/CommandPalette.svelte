@@ -5,7 +5,7 @@
     id: 'commandPalette.show',
     category: 'Command palette',
     name: 'Show',
-    toolbarName: 'Menu',
+    toolbarName: 'Menu+Search',
     toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
@@ -18,6 +18,7 @@
   registerCommand({
     id: 'database.search',
     category: 'Database',
+    toolbarName: 'Database search',
     name: 'Search',
     keyText: electron ? 'Ctrl+P' : 'F3',
     onClick: () => visibleCommandPalette.set('database'),

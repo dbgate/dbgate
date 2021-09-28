@@ -50,6 +50,7 @@ function buildMenu() {
         commandItem('file.open'),
         commandItem('group.save'),
         commandItem('group.saveAs'),
+        commandItem('database.search'),
         { type: 'separator' },
         commandItem('tabs.closeTab'),
         commandItem('file.exit'),
