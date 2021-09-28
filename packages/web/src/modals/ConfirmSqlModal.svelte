@@ -1,5 +1,6 @@
 <script>
-  import _ from 'lodash';
+  import { keys } from 'localforage';
+  import _, { isEmpty } from 'lodash';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
@@ -15,6 +16,7 @@
   export let onConfirm;
   export let engine;
   export let recreates;
+  export let deleteCascadesScripts;
 
   $: isRecreated = _.sum(_.values(recreates || {})) > 0;
 
@@ -26,8 +28,40 @@
     <div slot="header">Save changes</div>
 
     <div class="editor">
-      <SqlEditor {engine} value={sql} readOnly />
+      <FormValues let:values>
+        <SqlEditor
+          {engine}
+          value={values.deleteReferencesCascade
+            ? deleteCascadesScripts
+                .filter(({ script, title }) => values[`deleteReferences_${title}`] !== false)
+                .map(({ script, title }) => script)
+                .join('\n')
+            : sql}
+          readOnly
+        />
+      </FormValues>
     </div>
+
+    {#if !_.isEmpty(deleteCascadesScripts)}
+      <FormCheckboxField
+        templateProps={{ noMargin: true }}
+        label="Delete references CASCADE"
+        name="deleteReferencesCascade"
+      />
+    {/if}
+
+    <FormValues let:values>
+      {#if values.deleteReferencesCascade}
+        {#each _.sortBy(deleteCascadesScripts, 'title') as deleteTable}
+          <FormCheckboxField
+            defaultValue={true}
+            templateProps={{ noMargin: true }}
+            label={deleteTable.title}
+            name={`deleteReferences_${deleteTable.title}`}
+          />
+        {/each}
+      {/if}
+    </FormValues>
 
     {#if isRecreated}
       <div class="form-margin">

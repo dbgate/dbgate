@@ -11,6 +11,11 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
+export interface ChangeSetDeleteCascade {
+  title: string;
+  commands: Command[];
+}
+
 export interface ChangeSet {
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
@@ -118,7 +123,11 @@ export function setChangeSetValue(
   };
 }
 
-export function setChangeSetRowData(changeSet: ChangeSet, definition: ChangeSetRowDefinition, document: any): ChangeSet {
+export function setChangeSetRowData(
+  changeSet: ChangeSet,
+  definition: ChangeSetRowDefinition,
+  document: any
+): ChangeSet {
   if (!changeSet || !definition) return changeSet;
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'deletes') {
@@ -257,7 +266,7 @@ function insertToSql(
   ];
 }
 
-function extractCondition(item: ChangeSetItem): Condition {
+function extractCondition(item: ChangeSetItem, alias?: string): Condition {
   return {
     conditionType: 'and',
     conditions: _.keys(item.condition).map(columnName => ({
@@ -271,6 +280,7 @@ function extractCondition(item: ChangeSetItem): Condition {
             pureName: item.pureName,
             schemaName: item.schemaName,
           },
+          alias,
         },
       },
       right: {
@@ -316,6 +326,102 @@ export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Comm
       ...changeSet.deletes.map(deleteToSql),
     ])
   );
+}
+
+export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): ChangeSetDeleteCascade[] {
+  const res: ChangeSetDeleteCascade[] = [];
+  const allForeignKeys = _.flatten(dbinfo.tables.map(x => x.foreignKeys));
+  for (const baseCmd of changeSet.deletes) {
+    const table = dbinfo.tables.find(x => x.pureName == baseCmd.pureName && x.schemaName == baseCmd.schemaName);
+    const dependencies = allForeignKeys.filter(
+      x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
+    );
+    for (const fk of dependencies) {
+      const refCmd: Delete = {
+        commandType: 'delete',
+        from: {
+          name: {
+            pureName: fk.pureName,
+            schemaName: fk.schemaName,
+          },
+        },
+        where: {
+          conditionType: 'exists',
+          subQuery: {
+            commandType: 'select',
+            from: {
+              name: {
+                pureName: fk.pureName,
+                schemaName: fk.schemaName,
+              },
+              alias: 't1',
+              relations: [
+                {
+                  joinType: 'INNER JOIN',
+                  alias: 't2',
+                  name: {
+                    pureName: fk.refTableName,
+                    schemaName: fk.refSchemaName,
+                  },
+                  conditions: fk.columns.map(column => ({
+                    conditionType: 'binary',
+                    operator: '=',
+                    left: {
+                      exprType: 'column',
+                      columnName: column.columnName,
+                      source: { alias: 't1' },
+                    },
+                    right: {
+                      exprType: 'column',
+                      columnName: column.refColumnName,
+                      source: { alias: 't2' },
+                    },
+                  })),
+                },
+              ],
+            },
+            where: {
+              conditionType: 'and',
+              conditions: [
+                extractCondition(baseCmd, 't2'),
+                // @ts-ignore
+                ...fk.columns.map(column => ({
+                  conditionType: 'binary',
+                  operator: '=',
+                  left: {
+                    exprType: 'column',
+                    columnName: column.columnName,
+                    source: { alias: 't1' },
+                  },
+                  right: {
+                    exprType: 'column',
+                    columnName: column.refColumnName,
+                    source: {
+                      name: {
+                        pureName: fk.refTableName,
+                        schemaName: fk.refSchemaName,
+                      },
+                    },
+                  },
+                })),
+              ],
+            },
+          },
+        },
+      };
+      let resItem = res.find(x => x.title == fk.pureName);
+      if (!resItem) {
+        resItem = {
+          title: fk.pureName,
+          commands: [],
+        };
+        res.push(resItem);
+      }
+      resItem.commands.push(refCmd);
+    }
+  }
+
+  return res;
 }
 
 export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {

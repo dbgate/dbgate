@@ -16,10 +16,10 @@
 
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
-
 </script>
 
 <script lang="ts">
+  import _ from 'lodash';
   import App from '../App.svelte';
   import TableDataGrid from '../datagrid/TableDataGrid.svelte';
   import useGridConfig from '../utility/useGridConfig';
@@ -29,6 +29,7 @@
     createChangeSet,
     createGridCache,
     createGridConfig,
+    getDeleteCascades,
     TableFormViewDisplay,
     TableGridDisplay,
   } from 'dbgate-datalib';
@@ -87,11 +88,18 @@
   export function save() {
     const driver = findEngineDriver($connection, $extensions);
     const script = changeSetToSql($changeSetStore?.value, $dbinfo);
+    const deleteCascades = getDeleteCascades($changeSetStore?.value, $dbinfo);
     const sql = scriptToSql(driver, script);
+    const deleteCascadesScripts = _.map(deleteCascades, ({ title, commands }) => ({
+      title,
+      script: scriptToSql(driver, commands),
+    }));
+    console.log('deleteCascadesScripts', deleteCascadesScripts);
     showModal(ConfirmSqlModal, {
       sql,
       onConfirm: () => handleConfirmSql(sql),
       engine: driver.engine,
+      deleteCascadesScripts,
     });
   }
 
@@ -105,7 +113,6 @@
   }
 
   registerMenu({ command: 'tableData.save', tag: 'save' });
-
 </script>
 
 <TableDataGrid
