@@ -11,8 +11,8 @@
     toolbar: true,
     showDisabled: true,
     icon: 'icon menu',
-    onClick: () => visibleCommandPalette.set(true),
-    testEnabled: () => !getVisibleCommandPalette(),
+    onClick: () => visibleCommandPalette.set('menu'),
+    testEnabled: () => getVisibleCommandPalette() != 'menu',
   });
 
   registerCommand({
@@ -20,12 +20,29 @@
     category: 'Database',
     name: 'Search',
     keyText: electron ? 'Ctrl+P' : 'F3',
-    onClick: () => visibleCommandPalette.set(true),
-    testEnabled: () => !getVisibleCommandPalette(),
+    onClick: () => visibleCommandPalette.set('database'),
+    testEnabled: () => getVisibleCommandPalette() != 'database',
   });
 
-  function extractDbItems(db) {
-    return db?.tables?.map(table => ({ text: table.pureName, onClick: () => handleDatabaseObjectClick(table) }));
+  function extractDbItems(db, dbConnectionInfo) {
+    const objectList = _.flatten(
+      ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+        _.sortBy(
+          ((db || {})[objectTypeField] || []).map(obj => ({
+            text: obj.pureName,
+            onClick: () => handleDatabaseObjectClick({ objectTypeField, ...dbConnectionInfo, ...obj }),
+            icon: databaseObjectIcons[objectTypeField],
+          })),
+          ['schemaName', 'pureName']
+        )
+      )
+    );
+    return objectList;
+
+    // return db?.tables?.map(table => ({
+    //   text: table.pureName,
+    //   onClick: () => handleDatabaseObjectClick({ ...dbinfo, ...table }),
+    // }));
   }
 </script>
 
@@ -34,6 +51,7 @@
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
+  import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import {
     commands,
@@ -50,7 +68,6 @@
 
   let domInput;
   let filter = '';
-  let selectedPage = 'menu';
   const domItems = {};
 
   $: selectedIndex = true ? 0 : filter;
@@ -73,8 +90,8 @@
   $: database = _.get($currentDatabase, 'name');
   $: databaseInfo = useDatabaseInfo({ conid, database });
 
-  $: filteredItems = (selectedPage == 'database'
-    ? extractDbItems($databaseInfo)
+  $: filteredItems = ($visibleCommandPalette == 'database'
+    ? extractDbItems($databaseInfo, { conid, database })
     : parentCommand
     ? parentCommand.getSubCommands()
     : sortedComands
@@ -87,7 +104,7 @@
       filter = '';
       selectedIndex = 0;
     } else {
-      $visibleCommandPalette = false;
+      $visibleCommandPalette = null;
       command.onClick();
     }
   }
@@ -100,7 +117,7 @@
       e.stopPropagation();
       handleCommand(filteredItems[selectedIndex]);
     }
-    if (e.keyCode == keycodes.escape) $visibleCommandPalette = false;
+    if (e.keyCode == keycodes.escape) $visibleCommandPalette = null;
 
     if (e.keyCode == keycodes.pageDown) selectedIndex = Math.min(selectedIndex + 15, filteredItems.length - 1);
     if (e.keyCode == keycodes.pageUp) selectedIndex = Math.max(selectedIndex - 15, 0);
@@ -109,13 +126,19 @@
   $: if (domItems[selectedIndex]) domItems[selectedIndex].scrollIntoView({ block: 'nearest', inline: 'nearest' });
 </script>
 
-<div class="main" use:clickOutside on:clickOutside={() => ($visibleCommandPalette = false)}>
+<div
+  class="main"
+  use:clickOutside
+  on:clickOutside={() => {
+    $visibleCommandPalette = null;
+  }}
+>
   <div class="pages">
     <div
       class="page"
-      class:selected={selectedPage == 'menu'}
+      class:selected={$visibleCommandPalette == 'menu'}
       on:click={() => {
-        selectedPage = 'menu';
+        $visibleCommandPalette = 'menu';
         domInput.focus();
       }}
     >
@@ -123,9 +146,9 @@
     </div>
     <div
       class="page"
-      class:selected={selectedPage == 'database'}
+      class:selected={$visibleCommandPalette == 'database'}
       on:click={() => {
-        selectedPage = 'database';
+        $visibleCommandPalette = 'database';
         domInput.focus();
       }}
     >
@@ -150,7 +173,12 @@
           on:click={() => handleCommand(command)}
           bind:this={domItems[index]}
         >
-          <div>{command.text}</div>
+          <div>
+            {#if command.icon}
+              <span class="mr-1"><FontIcon icon={command.icon} /></span>
+            {/if}
+            {command.text}
+          </div>
           {#if command.keyText}
             <div class="shortcut">{command.keyText}</div>
           {/if}

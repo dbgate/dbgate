@@ -3,7 +3,7 @@
   export const createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
   const electron = getElectron();
 
-  const icons = {
+  export const databaseObjectIcons = {
     tables: 'img table',
     collections: 'img collection',
     views: 'img view',
@@ -337,7 +337,7 @@
       {
         title: scriptTemplate ? 'Query #' : pureName,
         tooltip,
-        icon: scriptTemplate ? 'img sql-file' : icons[objectTypeField],
+        icon: scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField],
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         props: {
           schemaName,
@@ -548,7 +548,7 @@
   module={$$props.module}
   {data}
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
-  icon={icons[data.objectTypeField]}
+  icon={databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
