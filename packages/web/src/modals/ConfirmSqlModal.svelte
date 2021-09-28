@@ -32,10 +32,12 @@
         <SqlEditor
           {engine}
           value={values.deleteReferencesCascade
-            ? deleteCascadesScripts
-                .filter(({ script, title }) => values[`deleteReferences_${title}`] !== false)
-                .map(({ script, title }) => script)
-                .join('\n')
+            ? [
+                ...deleteCascadesScripts
+                  .filter(({ script, title }) => values[`deleteReferences_${title}`] !== false)
+                  .map(({ script, title }) => script),
+                sql,
+              ].join('\n')
             : sql}
           readOnly
         />
@@ -43,23 +45,32 @@
     </div>
 
     {#if !_.isEmpty(deleteCascadesScripts)}
-      <FormCheckboxField
-        templateProps={{ noMargin: true }}
-        label="Delete references CASCADE"
-        name="deleteReferencesCascade"
-      />
+      <div class="mt-2">
+        <FormCheckboxField
+          templateProps={{ noMargin: true }}
+          label="Delete references CASCADE"
+          name="deleteReferencesCascade"
+        />
+      </div>
     {/if}
 
     <FormValues let:values>
       {#if values.deleteReferencesCascade}
-        {#each _.sortBy(deleteCascadesScripts, 'title') as deleteTable}
-          <FormCheckboxField
-            defaultValue={true}
-            templateProps={{ noMargin: true }}
-            label={deleteTable.title}
-            name={`deleteReferences_${deleteTable.title}`}
-          />
-        {/each}
+        <!-- <div class="form-margin flex">
+      </div> -->
+
+        <div class="form-margin flex">
+          {#each _.sortBy(deleteCascadesScripts, 'title') as deleteTable}
+            <div class="mr-1">
+              <FormCheckboxField
+                defaultValue={true}
+                templateProps={{ noMargin: true }}
+                label={deleteTable.title}
+                name={`deleteReferences_${deleteTable.title}`}
+              />
+            </div>
+          {/each}
+        </div>
       {/if}
     </FormValues>
 
@@ -86,10 +97,12 @@
             closeCurrentModal();
             onConfirm(
               e.detail.deleteReferencesCascade
-                ? deleteCascadesScripts
-                    .filter(({ script, title }) => e.detail[`deleteReferences_${title}`] !== false)
-                    .map(({ script, title }) => script)
-                    .join('\n')
+                ? [
+                    ...deleteCascadesScripts
+                      .filter(({ script, title }) => e.detail[`deleteReferences_${title}`] !== false)
+                      .map(({ script, title }) => script),
+                    sql,
+                  ].join('\n')
                 : null
             );
           }}

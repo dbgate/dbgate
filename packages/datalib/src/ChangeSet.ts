@@ -300,7 +300,7 @@ function changeSetUpdateToSql(item: ChangeSetItem): Update {
   };
 }
 
-export function changeSetDeleteToSql(item: ChangeSetItem): Delete {
+function changeSetDeleteToSql(item: ChangeSetItem): Delete {
   return {
     from: {
       name: {
