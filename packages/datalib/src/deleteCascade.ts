@@ -19,17 +19,16 @@ function processDependencies(
   baseCmd: ChangeSetItem,
   dbinfo: DatabaseInfo
 ) {
+  if (result.find(x => x.title == table.pureName)) return;
+
   const dependencies = allForeignKeys.filter(
     x => x.refSchemaName == table.schemaName && x.refTableName == table.pureName
   );
 
   for (const fk of dependencies) {
-    if (fk.pureName == baseCmd.pureName) continue;
-    if (result.find(x => x.title == fk.pureName)) continue;
-
     const depTable = dbinfo.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
     const subFkPath = [...fkPath, fk];
-    if (depTable) {
+    if (depTable && depTable.pureName != baseCmd.pureName) {
       processDependencies(changeSet, result, allForeignKeys, subFkPath, depTable, baseCmd, dbinfo);
     }
 
