@@ -1,4 +1,6 @@
 <script context="module">
+  const electron = getElectron();
+
   registerCommand({
     id: 'commandPalette.show',
     category: 'Command palette',
@@ -17,7 +19,7 @@
     id: 'database.search',
     category: 'Database',
     name: 'Search',
-    keyText: 'Ctrl+P',
+    keyText: electron ? 'Ctrl+P' : 'F3',
     onClick: () => visibleCommandPalette.set(true),
     testEnabled: () => !getVisibleCommandPalette(),
   });
@@ -41,6 +43,7 @@
     visibleCommandPalette,
   } from '../stores';
   import clickOutside from '../utility/clickOutside';
+  import getElectron from '../utility/getElectron';
   import keycodes from '../utility/keycodes';
   import { useDatabaseInfo } from '../utility/metadataLoaders';
   import registerCommand from './registerCommand';
