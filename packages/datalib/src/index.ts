@@ -11,3 +11,4 @@ export * from './runMacro';
 export * from './FormViewDisplay';
 export * from './TableFormViewDisplay';
 export * from './CollectionGridDisplay';
+export * from './deleteCascade';
