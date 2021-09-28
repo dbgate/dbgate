@@ -352,6 +352,24 @@
       { forceNewTab }
     );
   }
+
+  export function handleDatabaseObjectClick(data, forceNewTab = false) {
+    const { schemaName, pureName, conid, database, objectTypeField } = data;
+
+    openDatabaseObjectDetail(
+      defaultTabs[objectTypeField],
+      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
+      {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField,
+      },
+      forceNewTab,
+      null
+    );
+  }
 </script>
 
 <script lang="ts">
@@ -378,34 +396,7 @@
   export let data;
 
   function handleClick(forceNewTab = false) {
-    const { schemaName, pureName, conid, database, objectTypeField } = data;
-
-    openDatabaseObjectDetail(
-      defaultTabs[objectTypeField],
-      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
-      {
-        schemaName,
-        pureName,
-        conid,
-        database,
-        objectTypeField,
-      },
-      forceNewTab,
-      null
-    );
-
-    // openNewTab({
-    //   title: data.pureName,
-    //   icon: 'img table',
-    //   tabComponent: 'TableDataTab',
-    //   props: {
-    //     schemaName,
-    //     pureName,
-    //     conid,
-    //     database,
-    //     objectTypeField,
-    //   },
-    // });
+    handleDatabaseObjectClick(data, forceNewTab);
   }
 
   const getDriver = async () => {
