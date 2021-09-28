@@ -22,7 +22,7 @@
               'Sorry, DbGate has crashed again.\nDo you want to clear local user data to avoid crashing after next reload?'
             )
           ) {
-            localStorage.clear();
+            localStorage.removeItem('openedTabs');
             try {
               await localforage.clear();
             } catch (err) {
