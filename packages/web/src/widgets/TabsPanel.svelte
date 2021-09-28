@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  const electron = getElectron();
+
   const closeTabFunc = closeCondition => tabid => {
     openedTabs.update(files => {
       const active = files.find(x => x.tabid == tabid);
@@ -103,7 +105,7 @@
     id: 'tabs.closeTab',
     category: 'Tabs',
     name: 'Close tab',
-    keyText: 'Ctrl+W',
+    keyText: electron ? 'Ctrl+W' : null,
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
     onClick: closeCurrentTab,
   });
@@ -137,6 +139,7 @@
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import getElectron from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab } from '../utility/openNewTab';
 
