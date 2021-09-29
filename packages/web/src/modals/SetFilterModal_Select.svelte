@@ -43,4 +43,4 @@
   }
 </script>
 
-<FormSelectFieldRaw {name} options={getOptions()} />
+<FormSelectFieldRaw {name} options={getOptions()} isNative />

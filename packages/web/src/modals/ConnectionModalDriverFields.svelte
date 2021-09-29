@@ -24,7 +24,6 @@
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
-
 </script>
 
 <FormSelectField
@@ -125,6 +124,7 @@
     label="Password mode"
     isNative
     name="passwordMode"
+    defaultValue="saveEncrypted"
     options={[
       { value: 'saveEncrypted', label: 'Save and encrypt' },
       { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
@@ -154,5 +154,4 @@
   .radio :global(label) {
     margin-right: 10px;
   }
-
 </style>
