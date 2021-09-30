@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { filesdir } = require('../utility/directories');
+const { filesdir, archivedir } = require('../utility/directories');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
@@ -58,23 +58,36 @@ module.exports = {
 
   load_meta: 'post',
   async load({ folder, file, format }) {
-    if (!hasPermission(`files/${folder}/read`)) return null;
-    const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });
-    return deserialize(format, text);
+    if (folder.startsWith('archive:')) {
+      const text = await fs.readFile(path.join(archivedir(), folder.substring('archive:'.length), file), {
+        encoding: 'utf-8',
+      });
+      return deserialize(format, text);
+    } else {
+      if (!hasPermission(`files/${folder}/read`)) return null;
+      const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });
+      return deserialize(format, text);
+    }
   },
 
   save_meta: 'post',
   async save({ folder, file, data, format }) {
-    if (!hasPermission(`files/${folder}/write`)) return;
-    const dir = path.join(filesdir(), folder);
-    if (!(await fs.exists(dir))) {
-      await fs.mkdir(dir);
-    }
-    await fs.writeFile(path.join(dir, file), serialize(format, data));
-    socket.emitChanged(`files-changed-${folder}`);
-    socket.emitChanged(`all-files-changed`);
-    if (folder == 'shell') {
-      scheduler.reload();
+    if (folder.startsWith('archive:')) {
+      const dir = path.join(archivedir(), folder.substring('archive:'.length));
+      await fs.writeFile(path.join(dir, file), serialize(format, data));
+      socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
+    } else {
+      if (!hasPermission(`files/${folder}/write`)) return;
+      const dir = path.join(filesdir(), folder);
+      if (!(await fs.exists(dir))) {
+        await fs.mkdir(dir);
+      }
+      await fs.writeFile(path.join(dir, file), serialize(format, data));
+      socket.emitChanged(`files-changed-${folder}`);
+      socket.emitChanged(`all-files-changed`);
+      if (folder == 'shell') {
+        scheduler.reload();
+      }
     }
   },
 

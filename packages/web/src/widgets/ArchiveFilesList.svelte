@@ -1,3 +1,15 @@
+<script lang="ts" context="module">
+  const ARCHIVE_LABELS = {
+    jsonl: 'JSON table data',
+    'table.yaml': 'Tables',
+    'view.sql': 'Views',
+    'proce.sql': 'Procedures',
+    'func.sql': 'Functions',
+    'trigger.sql': 'Triggers',
+    'matview.sql': 'Materialized views',
+  };
+</script>
+
 <script lang="ts">
   import _ from 'lodash';
 
@@ -32,7 +44,9 @@
     list={($files || []).map(file => ({
       fileName: file.name,
       folderName: folder,
+      fileType: file.type,
     }))}
+    groupFunc={data => ARCHIVE_LABELS[data.fileType] || 'Archive'}
     module={archiveFileAppObject}
     {filter}
   />

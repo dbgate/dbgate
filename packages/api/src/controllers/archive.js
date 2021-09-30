@@ -38,12 +38,25 @@ module.exports = {
     const dir = path.join(archivedir(), folder);
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
-    return files
-      .filter(name => name.endsWith('.jsonl'))
-      .map(name => ({
-        name: name.slice(0, -'.jsonl'.length),
-        type: 'jsonl',
-      }));
+
+    function fileType(ext, type) {
+      return files
+        .filter(name => name.endsWith(ext))
+        .map(name => ({
+          name: name.slice(0, -ext.length),
+          type,
+        }));
+    }
+
+    return [
+      ...fileType('.jsonl', 'jsonl'),
+      ...fileType('.table.yaml', 'table.yaml'),
+      ...fileType('.view.sql', 'view.sql'),
+      ...fileType('.proc.sql', 'proc.sql'),
+      ...fileType('.func.sql', 'func.sql'),
+      ...fileType('.trigger.sql', 'trigger.sql'),
+      ...fileType('.matview.sql', 'matview.sql'),
+    ];
   },
 
   refreshFiles_meta: 'post',

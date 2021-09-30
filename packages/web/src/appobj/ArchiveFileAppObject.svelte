@@ -12,23 +12,66 @@
     });
   }
 
+  async function openSqlFile(fileName, fileType, folderName) {
+    const connProps: any = {};
+    let tooltip = undefined;
+
+    const connection = _.get(getCurrentDatabase(), 'connection') || {};
+    const database = _.get(getCurrentDatabase(), 'name');
+    connProps.conid = connection._id;
+    connProps.database = database;
+    tooltip = `${getConnectionLabel(connection)}\n${database}`;
+    const resp = await axiosInstance.post('files/load', {
+      folder: 'archive:' + folderName,
+      file: fileName + '.' + fileType,
+      format: 'text',
+    });
+
+    openNewTab(
+      {
+        title: fileName,
+        icon: 'img sql-file',
+        tabComponent: 'QueryTab',
+        tooltip,
+        props: {
+          savedFile: fileName + '.' + fileType,
+          savedFolder: 'archive:' + folderName,
+          savedFormat: 'text',
+          ...connProps,
+        },
+      },
+      { editor: resp.data }
+    );
+  }
+
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
-
+  const ARCHIVE_ICONS = {
+    jsonl: 'img archive',
+    'table.yaml': 'img table',
+    'view.sql': 'img view',
+    'proce.sql': 'img procedure',
+    'func.sql': 'img function',
+    'trigger.sql': 'img sql-file',
+    'matview.sql': 'img view',
+  };
 </script>
 
 <script lang="ts">
+  import _ from 'lodash';
   import { filterName } from 'dbgate-tools';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentArchive, extensions } from '../stores';
+  import { currentArchive, extensions, getCurrentDatabase } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportElectronFile } from '../utility/exportElectronFile';
+  import { openSqliteFile } from '../utility/openElectronFile';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
+  import getConnectionLabel from '../utility/getConnectionLabel';
 
   export let data;
 
@@ -57,28 +100,33 @@
     });
   };
   const handleClick = () => {
-    openArchive(data.fileName, data.folderName);
+    if (data.fileType == 'jsonl') openArchive(data.fileName, data.folderName);
+    if (data.fileType.endsWith('.sql')) openSqlFile(data.fileName, data.fileType, data.folderName);
+  };
+  const handleOpenSqlFile = () => {
+    openSqlFile(data.fileName, data.fileType, data.folderName);
   };
 
   function createMenu() {
     return [
-      { text: 'Open (readonly)', onClick: handleOpenRead },
-      { text: 'Open in free table editor', onClick: handleOpenWrite },
+      data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
+      data.fileType == 'jsonl' && { text: 'Open in free table editor', onClick: handleOpenWrite },
       { text: 'Delete', onClick: handleDelete },
-      createQuickExportMenu($extensions, fmt => async () => {
-        exportElectronFile(
-          data.fileName,
-          {
-            functionName: 'archiveReader',
-            props: {
-              fileName: data.fileName,
-              folderName: data.folderName,
+      data.fileType == 'jsonl' &&
+        createQuickExportMenu($extensions, fmt => async () => {
+          exportElectronFile(
+            data.fileName,
+            {
+              functionName: 'archiveReader',
+              props: {
+                fileName: data.fileName,
+                folderName: data.folderName,
+              },
             },
-          },
-          fmt
-        );
-      }),
-      {
+            fmt
+          );
+        }),
+      data.fileType == 'jsonl' && {
         text: 'Export',
         onClick: () => {
           showModal(ImportExportModal, {
@@ -90,16 +138,16 @@
           });
         },
       },
+      data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
     ];
   }
-
 </script>
 
 <AppObjectCore
   {...$$restProps}
   {data}
   title={data.fileName}
-  icon="img archive"
+  icon={ARCHIVE_ICONS[data.fileType]}
   menu={createMenu}
   on:click={handleClick}
 />

@@ -14,11 +14,11 @@ export default function saveTabFile(editor, saveAs, folder, format, fileExtensio
   const tabs = get(openedTabs);
   const tabid = editor.activator.tabid;
   const data = editor.getData();
-  const { savedFile, savedFilePath } = tabs.find(x => x.tabid == tabid).props || {};
+  const { savedFile, savedFilePath, savedFolder } = tabs.find(x => x.tabid == tabid).props || {};
 
   const handleSave = async () => {
     if (savedFile) {
-      await axiosInstance.post('files/save', { folder, file: savedFile, data, format });
+      await axiosInstance.post('files/save', { folder: savedFolder || folder, file: savedFile, data, format });
     }
     if (savedFilePath) {
       await axiosInstance.post('files/save-as', { filePath: savedFilePath, data, format });
