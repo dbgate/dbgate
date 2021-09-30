@@ -14,6 +14,7 @@ import * as MarkdownPreviewTab from './MarkdownPreviewTab.svelte';
 import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
 import * as QueryDesignTab from './QueryDesignTab.svelte';
 import * as CommandListTab from './CommandListTab.svelte';
+import * as YamlEditorTab from './YamlEditorTab.svelte';
 
 export default {
   TableDataTab,
@@ -32,4 +33,5 @@ export default {
   FavoriteEditorTab,
   QueryDesignTab,
   CommandListTab,
+  YamlEditorTab,
 };

@@ -96,6 +96,7 @@
     'img preview': 'mdi mdi-file-find color-icon-red',
     'img favorite': 'mdi mdi-star color-icon-yellow',
     'img query-design': 'mdi mdi-vector-polyline-edit color-icon-red',
+    'img yaml': 'mdi mdi-code-brackets color-icon-red',
 
     'img free-table': 'mdi mdi-table color-icon-green',
     'img macro': 'mdi mdi-hammer-wrench',

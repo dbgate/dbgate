@@ -12,15 +12,17 @@
     });
   }
 
-  async function openSqlFile(fileName, fileType, folderName) {
+  async function openTextFile(fileName, fileType, folderName, tabComponent, icon, wantConnection) {
     const connProps: any = {};
     let tooltip = undefined;
 
-    const connection = _.get(getCurrentDatabase(), 'connection') || {};
-    const database = _.get(getCurrentDatabase(), 'name');
-    connProps.conid = connection._id;
-    connProps.database = database;
-    tooltip = `${getConnectionLabel(connection)}\n${database}`;
+    if (wantConnection) {
+      const connection = _.get(getCurrentDatabase(), 'connection') || {};
+      const database = _.get(getCurrentDatabase(), 'name');
+      connProps.conid = connection._id;
+      connProps.database = database;
+      tooltip = `${getConnectionLabel(connection)}\n${database}`;
+    }
     const resp = await axiosInstance.post('files/load', {
       folder: 'archive:' + folderName,
       file: fileName + '.' + fileType,
@@ -30,8 +32,8 @@
     openNewTab(
       {
         title: fileName,
-        icon: 'img sql-file',
-        tabComponent: 'QueryTab',
+        icon,
+        tabComponent,
         tooltip,
         props: {
           savedFile: fileName + '.' + fileType,
@@ -68,7 +70,6 @@
   import axiosInstance from '../utility/axiosInstance';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportElectronFile } from '../utility/exportElectronFile';
-  import { openSqliteFile } from '../utility/openElectronFile';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -101,10 +102,18 @@
   };
   const handleClick = () => {
     if (data.fileType == 'jsonl') openArchive(data.fileName, data.folderName);
-    if (data.fileType.endsWith('.sql')) openSqlFile(data.fileName, data.fileType, data.folderName);
+    if (data.fileType.endsWith('.sql')) {
+      handleOpenSqlFile();
+    }
+    if (data.fileType.endsWith('.yaml')) {
+      handleOpenYamlFile();
+    }
   };
   const handleOpenSqlFile = () => {
-    openSqlFile(data.fileName, data.fileType, data.folderName);
+    openTextFile(data.fileName, data.fileType, data.folderName, 'QueryTab', 'img sql-file', true);
+  };
+  const handleOpenYamlFile = () => {
+    openTextFile(data.fileName, data.fileType, data.folderName, 'YamlEditorTab', 'img yaml', true);
   };
 
   function createMenu() {
@@ -139,6 +148,7 @@
         },
       },
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
+      data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];
   }
 </script>

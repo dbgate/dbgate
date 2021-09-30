@@ -10,6 +10,7 @@
   import 'ace-builds/src-noconflict/mode-sqlserver';
   import 'ace-builds/src-noconflict/mode-json';
   import 'ace-builds/src-noconflict/mode-javascript';
+  import 'ace-builds/src-noconflict/mode-yaml';
   import 'ace-builds/src-noconflict/mode-markdown';
   import 'ace-builds/src-noconflict/ext-searchbox';
   import 'ace-builds/src-noconflict/ext-language_tools';
