@@ -28,7 +28,7 @@
     "dbgate-types": "^4.1.1",
     "jest": "^24.9.0",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.7.5"
+    "typescript": "^4.4.3"
   },
   "dependencies": {
     "lodash": "^4.17.21",

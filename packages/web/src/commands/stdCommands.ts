@@ -266,6 +266,15 @@ if (hasPermission('settings/change')) {
   });
 }
 
+if (electron) {
+  registerCommand({
+    id: 'file.exit',
+    category: 'File',
+    name: 'Exit',
+    onClick: () => electron.remote.getCurrentWindow().close(),
+  });
+}
+
 export function registerFileCommands({
   idPrefix,
   category,

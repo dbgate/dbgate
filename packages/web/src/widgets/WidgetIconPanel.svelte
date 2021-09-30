@@ -66,7 +66,7 @@
 
 <div class="main">
   {#if !$visibleToolbar}
-    <div class="wrapper mb-3" on:click={() => ($visibleCommandPalette = true)}>
+    <div class="wrapper mb-3" on:click={() => ($visibleCommandPalette = 'menu')}>
       <FontIcon icon="icon menu" />
     </div>
   {/if}

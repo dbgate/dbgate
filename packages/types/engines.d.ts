@@ -67,8 +67,8 @@ export interface EngineDriver {
       name: string;
     }[]
   >;
-  analyseFull(pool: any): Promise<DatabaseInfo>;
-  analyseIncremental(pool: any, structure: DatabaseInfo): Promise<DatabaseInfo>;
+  analyseFull(pool: any, serverVersion): Promise<DatabaseInfo>;
+  analyseIncremental(pool: any, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(): SqlDumper;

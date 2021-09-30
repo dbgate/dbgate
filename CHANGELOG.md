@@ -1,5 +1,12 @@
 # ChangeLog
 
+### 4.3.1
+- FIXED: #173 Using key phrase for SSH key file connection
+- ADDED: #172 Abiloity to quick search within database names
+- ADDED: Database search added to command palette (Ctrl+P)
+- FIXED: #171 fixed PostgreSQL analyser for older versions than 9.3 (matviews don't exist)
+- ADDED: DELETE cascade option - ability to delete all referenced rows, when deleting rows
+
 ### 4.3.0
 - ADDED: Table structure editor
 - ADDED: Index support

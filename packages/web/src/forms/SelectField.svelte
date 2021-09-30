@@ -10,6 +10,7 @@
   export let isNative = false;
   export let isMulti = false;
   export let notSelected = null;
+  export let defaultValue = '';
 
   let listOpen = false;
   let isFocused = false;
@@ -21,18 +22,19 @@
 
 {#if isNative}
   <select
+    value={value || defaultValue}
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);
     }}
   >
     {#if notSelected}
-      <option value="" selected={!value}>
+      <option value="">
         {_.isString(notSelected) ? notSelected : '(not selected)'}
       </option>
     {/if}
     {#each _.compact(options) as x (x.value)}
-      <option value={x.value} selected={value == x.value}>
+      <option value={x.value}>
         {x.label}
       </option>
     {/each}

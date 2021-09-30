@@ -32,3 +32,9 @@ export function getObjectTypeFieldLabel(objectTypeField) {
   if (objectTypeField == 'matviews') return 'Materialized Views';
   return _.startCase(objectTypeField);
 }
+
+export async function asyncFilter(arr, predicate) {
+  const results = await Promise.all(arr.map(predicate));
+
+  return arr.filter((_v, index) => results[index]);
+}

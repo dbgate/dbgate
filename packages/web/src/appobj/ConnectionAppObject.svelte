@@ -1,12 +1,22 @@
 <script context="module">
   export const extractKey = data => data._id;
-  export const createMatcher = ({ displayName, server }) => filter => filterName(filter, displayName, server);
+  export const createMatcher = props => filter => {
+    const { _id, displayName, server } = props;
+    const databases = getLocalStorage(`database_list_${_id}`) || [];
+    return filterName(filter, displayName, server, ...databases.map(x => x.name));
+  };
+  export const createChildMatcher = props => filter => {
+    if (!filter) return false;
+    const { _id } = props;
+    const databases = getLocalStorage(`database_list_${_id}`) || [];
+    return filterName(filter, ...databases.map(x => x.name));
+  };
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, getCurrentConfig, openedConnections } from '../stores';
+  import { currentDatabase, extensions, getCurrentConfig, getOpenedConnections, openedConnections } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
@@ -17,6 +27,8 @@
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import { getDatabaseList } from '../utility/metadataLoaders';
+  import { getLocalStorage } from '../utility/storageCache';
 
   export let data;
 

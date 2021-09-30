@@ -17,8 +17,8 @@ export const driverBase = {
   dumperClass: SqlDumper,
   dialect,
 
-  async analyseFull(pool) {
-    const analyser = new this.analyserClass(pool, this);
+  async analyseFull(pool, version) {
+    const analyser = new this.analyserClass(pool, this, version);
     return analyser.fullAnalysis();
   },
   async analyseSingleObject(pool, name, typeField = 'tables') {
@@ -28,8 +28,8 @@ export const driverBase = {
   analyseSingleTable(pool, name) {
     return this.analyseSingleObject(pool, name, 'tables');
   },
-  async analyseIncremental(pool, structure) {
-    const analyser = new this.analyserClass(pool, this);
+  async analyseIncremental(pool, structure, version) {
+    const analyser = new this.analyserClass(pool, this, version);
     return analyser.incrementalAnalysis(structure);
   },
   createDumper() {

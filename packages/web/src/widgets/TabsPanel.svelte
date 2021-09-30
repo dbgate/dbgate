@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  const electron = getElectron();
+
   const closeTabFunc = closeCondition => tabid => {
     openedTabs.update(files => {
       const active = files.find(x => x.tabid == tabid);
@@ -32,6 +34,9 @@
         selected: false,
       }))
     );
+  };
+  const closeCurrentTab = () => {
+    closeTab(getActiveTabId());
   };
   const closeWithSameDb = closeTabFunc(
     (x, active) =>
@@ -97,6 +102,15 @@
   });
 
   registerCommand({
+    id: 'tabs.closeTab',
+    category: 'Tabs',
+    name: 'Close tab',
+    keyText: electron ? 'Ctrl+W' : null,
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
+    onClick: closeCurrentTab,
+  });
+
+  registerCommand({
     id: 'tabs.addToFavorites',
     category: 'Tabs',
     name: 'Add current tab to favorites',
@@ -120,11 +134,12 @@
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId } from '../stores';
+  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import getElectron from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab } from '../utility/openNewTab';
 

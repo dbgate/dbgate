@@ -118,7 +118,11 @@ export function setChangeSetValue(
   };
 }
 
-export function setChangeSetRowData(changeSet: ChangeSet, definition: ChangeSetRowDefinition, document: any): ChangeSet {
+export function setChangeSetRowData(
+  changeSet: ChangeSet,
+  definition: ChangeSetRowDefinition,
+  document: any
+): ChangeSet {
   if (!changeSet || !definition) return changeSet;
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'deletes') {
@@ -213,7 +217,7 @@ function extractFields(item: ChangeSetItem, allowNulls = true): UpdateField[] {
     }));
 }
 
-function insertToSql(
+function changeSetInsertToSql(
   item: ChangeSetItem,
   dbinfo: DatabaseInfo = null
 ): [AllowIdentityInsert, Insert, AllowIdentityInsert] {
@@ -257,7 +261,7 @@ function insertToSql(
   ];
 }
 
-function extractCondition(item: ChangeSetItem): Condition {
+export function extractChangeSetCondition(item: ChangeSetItem, alias?: string): Condition {
   return {
     conditionType: 'and',
     conditions: _.keys(item.condition).map(columnName => ({
@@ -271,6 +275,7 @@ function extractCondition(item: ChangeSetItem): Condition {
             pureName: item.pureName,
             schemaName: item.schemaName,
           },
+          alias,
         },
       },
       right: {
@@ -281,7 +286,7 @@ function extractCondition(item: ChangeSetItem): Condition {
   };
 }
 
-function updateToSql(item: ChangeSetItem): Update {
+function changeSetUpdateToSql(item: ChangeSetItem): Update {
   return {
     from: {
       name: {
@@ -291,11 +296,11 @@ function updateToSql(item: ChangeSetItem): Update {
     },
     commandType: 'update',
     fields: extractFields(item),
-    where: extractCondition(item),
+    where: extractChangeSetCondition(item),
   };
 }
 
-function deleteToSql(item: ChangeSetItem): Delete {
+function changeSetDeleteToSql(item: ChangeSetItem): Delete {
   return {
     from: {
       name: {
@@ -304,16 +309,16 @@ function deleteToSql(item: ChangeSetItem): Delete {
       },
     },
     commandType: 'delete',
-    where: extractCondition(item),
+    where: extractChangeSetCondition(item),
   };
 }
 
 export function changeSetToSql(changeSet: ChangeSet, dbinfo: DatabaseInfo): Command[] {
   return _.compact(
     _.flatten([
-      ...(changeSet.inserts.map(item => insertToSql(item, dbinfo)) as any),
-      ...changeSet.updates.map(updateToSql),
-      ...changeSet.deletes.map(deleteToSql),
+      ...(changeSet.inserts.map(item => changeSetInsertToSql(item, dbinfo)) as any),
+      ...changeSet.updates.map(changeSetUpdateToSql),
+      ...changeSet.deletes.map(changeSetDeleteToSql),
     ])
   );
 }

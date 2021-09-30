@@ -1,10 +1,10 @@
 <script>
-  import _ from 'lodash';
+  import _, { startsWith } from 'lodash';
+  import { writable } from 'svelte/store';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
-  import FormProvider from '../forms/FormProvider.svelte';
+  import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
-  import FormValues from '../forms/FormValues.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
 
@@ -15,19 +15,76 @@
   export let onConfirm;
   export let engine;
   export let recreates;
+  export let deleteCascadesScripts;
 
   $: isRecreated = _.sum(_.values(recreates || {})) > 0;
+  const values = writable({});
 
   // $: console.log('recreates', recreates);
 </script>
 
-<FormProvider>
+<FormProviderCore {values}>
   <ModalBase {...$$restProps}>
     <div slot="header">Save changes</div>
 
     <div class="editor">
-      <SqlEditor {engine} value={sql} readOnly />
+      <SqlEditor
+        {engine}
+        value={$values.deleteReferencesCascade
+          ? [
+              ...deleteCascadesScripts
+                .filter(({ script, title }) => $values[`deleteReferencesFor_${title}`] !== false)
+                .map(({ script, title }) => script),
+              sql,
+            ].join('\n')
+          : sql}
+        readOnly
+      />
     </div>
+
+    {#if !_.isEmpty(deleteCascadesScripts)}
+      <div class="mt-2">
+        <FormCheckboxField
+          templateProps={{ noMargin: true }}
+          label="Delete references CASCADE"
+          name="deleteReferencesCascade"
+        />
+      </div>
+    {/if}
+
+    {#if $values.deleteReferencesCascade}
+      <div class="form-margin flex">
+        <FormStyledButton
+          value="Check all"
+          on:click={() => {
+            $values = _.omitBy($values, (v, k) => k.startsWith('deleteReferencesFor_'));
+          }}
+        />
+        <FormStyledButton
+          value="Uncheck all"
+          on:click={() => {
+            const newValues = { ...$values };
+            for (const item of deleteCascadesScripts) {
+              newValues[`deleteReferencesFor_${item.title}`] = false;
+            }
+            $values = newValues;
+          }}
+        />
+      </div>
+
+      <div class="form-margin flex flex-wrap">
+        {#each _.sortBy(deleteCascadesScripts, 'title') as deleteTable}
+          <div class="mr-1 nowrap">
+            <FormCheckboxField
+              defaultValue={true}
+              templateProps={{ noMargin: true }}
+              label={deleteTable.title}
+              name={`deleteReferencesFor_${deleteTable.title}`}
+            />
+          </div>
+        {/each}
+      </div>
+    {/if}
 
     {#if isRecreated}
       <div class="form-margin">
@@ -44,20 +101,27 @@
     {/if}
 
     <div slot="footer">
-      <FormValues let:values>
-        <FormSubmit
-          value="OK"
-          disabled={isRecreated && !values.allowRecreate}
-          on:click={() => {
-            closeCurrentModal();
-            onConfirm();
-          }}
-        />
-        <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
-      </FormValues>
+      <FormSubmit
+        value="OK"
+        disabled={isRecreated && !$values.allowRecreate}
+        on:click={e => {
+          closeCurrentModal();
+          onConfirm(
+            e.detail.deleteReferencesCascade
+              ? [
+                  ...deleteCascadesScripts
+                    .filter(({ script, title }) => e.detail[`deleteReferencesFor_${title}`] !== false)
+                    .map(({ script, title }) => script),
+                  sql,
+                ].join('\n')
+              : null
+          );
+        }}
+      />
+      <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
     </div>
   </ModalBase>
-</FormProvider>
+</FormProviderCore>
 
 <style>
   .editor {
@@ -68,5 +132,9 @@
 
   .form-margin {
     margin: var(--dim-large-form-margin);
+  }
+
+  .flex-wrap {
+    flex-wrap: wrap;
   }
 </style>

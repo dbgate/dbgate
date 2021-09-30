@@ -1,17 +1,62 @@
 <script context="module">
+  const electron = getElectron();
+
   registerCommand({
     id: 'commandPalette.show',
     category: 'Command palette',
     name: 'Show',
-    toolbarName: 'Menu',
+    toolbarName: 'Menu+Search',
     toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
     showDisabled: true,
     icon: 'icon menu',
-    onClick: () => visibleCommandPalette.set(true),
-    testEnabled: () => !getVisibleCommandPalette(),
+    onClick: () => visibleCommandPalette.set('menu'),
+    testEnabled: () => getVisibleCommandPalette() != 'menu',
   });
+
+  registerCommand({
+    id: 'database.search',
+    category: 'Database',
+    toolbarName: 'Database search',
+    name: 'Search',
+    keyText: electron ? 'Ctrl+P' : 'F3',
+    onClick: () => visibleCommandPalette.set('database'),
+    testEnabled: () => getVisibleCommandPalette() != 'database',
+  });
+
+  function extractDbItems(db, dbConnectionInfo, connectionList) {
+    const objectList = _.flatten(
+      ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+        _.sortBy(
+          ((db || {})[objectTypeField] || []).map(obj => ({
+            text: obj.pureName,
+            onClick: () => handleDatabaseObjectClick({ objectTypeField, ...dbConnectionInfo, ...obj }),
+            icon: databaseObjectIcons[objectTypeField],
+          })),
+          ['text']
+        )
+      )
+    );
+    const databaseList = [];
+    for (const connection of connectionList || []) {
+      const conid = connection._id;
+      const databases = getLocalStorage(`database_list_${conid}`) || [];
+      for (const db of databases) {
+        databaseList.push({
+          text: `${db.name} on ${getConnectionLabel(connection)}`,
+          icon: 'img database',
+          onClick: () => currentDatabase.set({ connection, name: db.name }),
+        });
+      }
+    }
+    return [..._.sortBy(databaseList, 'text'), ...objectList];
+
+    // return db?.tables?.map(table => ({
+    //   text: table.pureName,
+    //   onClick: () => handleDatabaseObjectClick({ ...dbinfo, ...table }),
+    // }));
+  }
 </script>
 
 <script>
@@ -19,9 +64,21 @@
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
-  import { commands, commandsCustomized, getVisibleCommandPalette, visibleCommandPalette } from '../stores';
+  import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import {
+    commands,
+    commandsCustomized,
+    currentDatabase,
+    getVisibleCommandPalette,
+    visibleCommandPalette,
+  } from '../stores';
   import clickOutside from '../utility/clickOutside';
+  import getConnectionLabel from '../utility/getConnectionLabel';
+  import getElectron from '../utility/getElectron';
   import keycodes from '../utility/keycodes';
+  import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
 
   let domInput;
@@ -44,9 +101,17 @@
     'text'
   );
 
-  $: filteredItems = (parentCommand ? parentCommand.getSubCommands() : sortedComands).filter(
-    x => !x.isGroupCommand && filterName(filter, x.text)
-  );
+  $: conid = _.get($currentDatabase, 'connection._id');
+  $: database = _.get($currentDatabase, 'name');
+  $: databaseInfo = useDatabaseInfo({ conid, database });
+  $: connectionList = useConnectionList();
+
+  $: filteredItems = ($visibleCommandPalette == 'database'
+    ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
+    : parentCommand
+    ? parentCommand.getSubCommands()
+    : sortedComands
+  ).filter(x => !x.isGroupCommand && filterName(filter, x.text));
 
   function handleCommand(command) {
     if (command.getSubCommands) {
@@ -55,7 +120,7 @@
       filter = '';
       selectedIndex = 0;
     } else {
-      $visibleCommandPalette = false;
+      $visibleCommandPalette = null;
       command.onClick();
     }
   }
@@ -68,7 +133,7 @@
       e.stopPropagation();
       handleCommand(filteredItems[selectedIndex]);
     }
-    if (e.keyCode == keycodes.escape) $visibleCommandPalette = false;
+    if (e.keyCode == keycodes.escape) $visibleCommandPalette = null;
 
     if (e.keyCode == keycodes.pageDown) selectedIndex = Math.min(selectedIndex + 15, filteredItems.length - 1);
     if (e.keyCode == keycodes.pageUp) selectedIndex = Math.max(selectedIndex - 15, 0);
@@ -77,30 +142,65 @@
   $: if (domItems[selectedIndex]) domItems[selectedIndex].scrollIntoView({ block: 'nearest', inline: 'nearest' });
 </script>
 
-<div class="main" use:clickOutside on:clickOutside={() => ($visibleCommandPalette = false)}>
-  <div class="search">
-    <input
-      type="text"
-      bind:this={domInput}
-      bind:value={filter}
-      on:keydown={handleKeyDown}
-      placeholder={parentCommand?.text || ''}
-    />
+<div
+  class="main"
+  use:clickOutside
+  on:clickOutside={() => {
+    $visibleCommandPalette = null;
+  }}
+>
+  <div class="pages">
+    <div
+      class="page"
+      class:selected={$visibleCommandPalette == 'menu'}
+      on:click={() => {
+        $visibleCommandPalette = 'menu';
+        domInput.focus();
+      }}
+    >
+      <FontIcon icon="icon menu" /> Commands
+    </div>
+    <div
+      class="page"
+      class:selected={$visibleCommandPalette == 'database'}
+      on:click={() => {
+        $visibleCommandPalette = 'database';
+        domInput.focus();
+      }}
+    >
+      <FontIcon icon="icon database" /> Database
+    </div>
   </div>
-  <div class="content">
-    {#each filteredItems as command, index}
-      <div
-        class="command"
-        class:selected={index == selectedIndex}
-        on:click={() => handleCommand(command)}
-        bind:this={domItems[index]}
-      >
-        <div>{command.text}</div>
-        {#if command.keyText}
-          <div class="shortcut">{command.keyText}</div>
-        {/if}
-      </div>
-    {/each}
+  <div class="mainInner">
+    <div class="search">
+      <input
+        type="text"
+        bind:this={domInput}
+        bind:value={filter}
+        on:keydown={handleKeyDown}
+        placeholder={parentCommand?.text || ''}
+      />
+    </div>
+    <div class="content">
+      {#each filteredItems as command, index}
+        <div
+          class="command"
+          class:selected={index == selectedIndex}
+          on:click={() => handleCommand(command)}
+          bind:this={domItems[index]}
+        >
+          <div>
+            {#if command.icon}
+              <span class="mr-1"><FontIcon icon={command.icon} /></span>
+            {/if}
+            {command.text}
+          </div>
+          {#if command.keyText}
+            <div class="shortcut">{command.keyText}</div>
+          {/if}
+        </div>
+      {/each}
+    </div>
   </div>
 </div>
 
@@ -108,6 +208,9 @@
   .main {
     width: 500px;
     background: var(--theme-bg-2);
+  }
+
+  .mainInner {
     padding: 5px;
   }
 
@@ -134,5 +237,20 @@
   }
   .shortcut {
     background: var(--theme-bg-3);
+  }
+
+  .pages {
+    display: flex;
+  }
+  .page {
+    padding: 5px;
+    border: 1px solid var(--theme-border);
+    cursor: pointer;
+  }
+  .page:hover {
+    color: var(--theme-font-hover);
+  }
+  .page.selected {
+    background: var(--theme-bg-1);
   }
 </style>

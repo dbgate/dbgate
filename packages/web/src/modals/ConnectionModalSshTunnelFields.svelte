@@ -22,7 +22,7 @@
   $: {
     if (!$values.sshMode) setFieldValue('sshMode', 'userPassword');
     if (!$values.sshPort) setFieldValue('sshPort', '22');
-    if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyFile);
+    if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyfile);
   }
 </script>
 

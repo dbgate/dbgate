@@ -14,6 +14,7 @@ let analysedStructure = null;
 let lastPing = null;
 let lastStatus = null;
 let analysedTime = 0;
+let serverVersion;
 
 async function checkedAsyncCall(promise) {
   try {
@@ -36,7 +37,7 @@ async function handleFullRefresh() {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('loadStructure');
-  analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection));
+  analysedStructure = await checkedAsyncCall(driver.analyseFull(systemConnection, serverVersion));
   analysedTime = new Date().getTime();
   process.send({ msgtype: 'structure', structure: analysedStructure });
   process.send({ msgtype: 'structureTime', analysedTime });
@@ -48,7 +49,7 @@ async function handleIncrementalRefresh(forceSend) {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
-  const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure));
+  const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure, serverVersion));
   analysedTime = new Date().getTime();
   if (newStructure != null) {
     analysedStructure = newStructure;
@@ -84,6 +85,7 @@ async function readVersion() {
   const driver = requireEngineDriver(storedConnection);
   const version = await driver.getVersion(systemConnection);
   process.send({ msgtype: 'version', version });
+  serverVersion = version;
 }
 
 async function handleConnect({ connection, structure, globalSettings }) {
@@ -93,7 +95,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
   systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection));
-  readVersion();
+  await checkedAsyncCall(readVersion());
   if (structure) {
     analysedStructure = structure;
     handleIncrementalRefresh(true);

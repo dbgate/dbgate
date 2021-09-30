@@ -3,7 +3,7 @@
   export const createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
   const electron = getElectron();
 
-  const icons = {
+  export const databaseObjectIcons = {
     tables: 'img table',
     collections: 'img collection',
     views: 'img view',
@@ -337,7 +337,7 @@
       {
         title: scriptTemplate ? 'Query #' : pureName,
         tooltip,
-        icon: scriptTemplate ? 'img sql-file' : icons[objectTypeField],
+        icon: scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField],
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         props: {
           schemaName,
@@ -350,6 +350,24 @@
       },
       initialData,
       { forceNewTab }
+    );
+  }
+
+  export function handleDatabaseObjectClick(data, forceNewTab = false) {
+    const { schemaName, pureName, conid, database, objectTypeField } = data;
+
+    openDatabaseObjectDetail(
+      defaultTabs[objectTypeField],
+      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
+      {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField,
+      },
+      forceNewTab,
+      null
     );
   }
 </script>
@@ -378,34 +396,7 @@
   export let data;
 
   function handleClick(forceNewTab = false) {
-    const { schemaName, pureName, conid, database, objectTypeField } = data;
-
-    openDatabaseObjectDetail(
-      defaultTabs[objectTypeField],
-      defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
-      {
-        schemaName,
-        pureName,
-        conid,
-        database,
-        objectTypeField,
-      },
-      forceNewTab,
-      null
-    );
-
-    // openNewTab({
-    //   title: data.pureName,
-    //   icon: 'img table',
-    //   tabComponent: 'TableDataTab',
-    //   props: {
-    //     schemaName,
-    //     pureName,
-    //     conid,
-    //     database,
-    //     objectTypeField,
-    //   },
-    // });
+    handleDatabaseObjectClick(data, forceNewTab);
   }
 
   const getDriver = async () => {
@@ -557,7 +548,7 @@
   module={$$props.module}
   {data}
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
-  icon={icons[data.objectTypeField]}
+  icon={databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}

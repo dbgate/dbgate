@@ -70,14 +70,14 @@ function decryptPasswordField(connection, field) {
 function encryptConnection(connection) {
   connection = encryptPasswordField(connection, 'password');
   connection = encryptPasswordField(connection, 'sshPassword');
-  connection = encryptPasswordField(connection, 'sshKeyFilePassword');
+  connection = encryptPasswordField(connection, 'sshKeyfilePassword');
   return connection;
 }
 
 function decryptConnection(connection) {
   connection = decryptPasswordField(connection, 'password');
   connection = decryptPasswordField(connection, 'sshPassword');
-  connection = decryptPasswordField(connection, 'sshKeyFilePassword');
+  connection = decryptPasswordField(connection, 'sshKeyfilePassword');
   return connection;
 }
 

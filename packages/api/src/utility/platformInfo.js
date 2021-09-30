@@ -37,7 +37,7 @@ const platformInfo = {
   environment: process.env.NODE_ENV,
   platform,
   runningInWebpack: !!process.env.WEBPACK_DEV_SERVER_URL,
-  defaultKeyFile: path.join(os.homedir(), '.ssh/id_rsa'),
+  defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
 };
 
 module.exports = platformInfo;

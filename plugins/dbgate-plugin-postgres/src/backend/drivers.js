@@ -133,10 +133,15 @@ const drivers = driverBases.map(driverBase => ({
 
     const m = version.match(/([\d\.]+)/);
     let versionText = null;
+    let versionMajor = null;
+    let versionMinor = null;
     if (m) {
       if (isCockroach) versionText = `CockroachDB ${m[1]}`;
       if (isRedshift) versionText = `Redshift ${m[1]}`;
       if (isPostgres) versionText = `PostgreSQL ${m[1]}`;
+      const numbers = m[1].split('.');
+      if (numbers[0]) versionMajor = parseInt(numbers[0]);
+      if (numbers[1]) versionMinor = parseInt(numbers[1]);
     }
 
     return {
@@ -145,6 +150,8 @@ const drivers = driverBases.map(driverBase => ({
       isPostgres,
       isCockroach,
       isRedshift,
+      versionMajor,
+      versionMinor,
     };
   },
   async readQuery(client, sql, structure) {

@@ -52,8 +52,9 @@
     </div>
   {/if}
 
-  {#each filtered as item}
+  {#each items as item}
     <AppObjectListItem
+      isHidden={!item.isMatched}
       {...$$restProps}
       {module}
       data={item.data}
