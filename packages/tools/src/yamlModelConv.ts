@@ -1,6 +1,7 @@
-import { ColumnInfo, TableInfo, ForeignKeyInfo } from 'dbgate-types';
-import _ from 'lodash';
+import { ColumnInfo, TableInfo, ForeignKeyInfo, DatabaseInfo } from 'dbgate-types';
 import _cloneDeep from 'lodash/cloneDeep';
+import _compact from 'lodash/compact';
+import { DatabaseAnalyser } from './DatabaseAnalyser';
 
 export interface ColumnInfoYaml {
   name: string;
@@ -11,6 +12,11 @@ export interface ColumnInfoYaml {
   primaryKey?: boolean;
 }
 
+export interface DatabaseModelFile {
+  name: string;
+  text: string;
+  json: {};
+}
 export interface TableInfoYaml {
   name: string;
   // schema?: string;
@@ -78,7 +84,11 @@ export function tableInfoToYaml(table: TableInfo): TableInfoYaml {
   return res;
 }
 
-function convertForeignKeyFromYaml(col: ColumnInfoYaml, table: TableInfoYaml, allTables: TableInfoYaml[]): ForeignKeyInfo {
+function convertForeignKeyFromYaml(
+  col: ColumnInfoYaml,
+  table: TableInfoYaml,
+  allTables: TableInfoYaml[]
+): ForeignKeyInfo {
   const refTable = allTables.find(x => x.name == col.references);
   if (!refTable || !refTable.primaryKey) return null;
   return {
@@ -98,7 +108,7 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
   const res: TableInfo = {
     pureName: table.name,
     columns: table.columns.map(c => columnInfoFromYaml(c, table)),
-    foreignKeys: _.compact(
+    foreignKeys: _compact(
       table.columns.filter(x => x.references).map(col => convertForeignKeyFromYaml(col, table, allTables))
     ),
   };
@@ -110,4 +120,55 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
     };
   }
   return res;
+}
+
+export function databaseInfoFromYamlModel(files: DatabaseModelFile[]): DatabaseInfo {
+  const model = DatabaseAnalyser.createEmptyStructure();
+  const tablesYaml = [];
+
+  for (const file of files) {
+    if (file.name.endsWith('.table.yaml') || file.name.endsWith('.sql')) {
+      if (file.name.endsWith('.table.yaml')) {
+        tablesYaml.push(file.json);
+      }
+
+      if (file.name.endsWith('.view.sql')) {
+        model.views.push({
+          pureName: file.name.slice(0, -'.view.sql'.length),
+          createSql: file.text,
+          columns: [],
+        });
+      }
+
+      if (file.name.endsWith('.matview.sql')) {
+        model.matviews.push({
+          pureName: file.name.slice(0, -'.matview.sql'.length),
+          createSql: file.text,
+          columns: [],
+        });
+      }
+
+      if (file.name.endsWith('.proc.sql')) {
+        model.procedures.push({
+          pureName: file.name.slice(0, -'.proc.sql'.length),
+          createSql: file.text,
+        });
+      }
+
+      if (file.name.endsWith('.func.sql')) {
+        model.functions.push({
+          pureName: file.name.slice(0, -'.func.sql'.length),
+          createSql: file.text,
+        });
+      }
+
+      if (file.name.endsWith('.trigger.sql')) {
+        model.triggers.push({
+          pureName: file.name.slice(0, -'.trigger.sql'.length),
+          createSql: file.text,
+        });
+      }
+    }
+  }
+  return model;
 }
