@@ -4,13 +4,15 @@
 </script>
 
 <script lang="ts">
+  import _ from 'lodash';
   import { filterName } from 'dbgate-tools';
 
-  import { currentArchive } from '../stores';
+  import { currentArchive, currentDatabase } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
+  import newQuery from '../query/newQuery';
 
   export let data;
 
@@ -25,14 +27,33 @@
         icon: 'img shell',
         tabComponent: 'ShellTab',
       },
-      { editor: `await dbgateApi.deployDb()` }
+      {
+        editor: `await dbgateApi.deployDb(${JSON.stringify({
+          ..._.omit($currentDatabase.connection, '_id', 'displayName'),
+          database: $currentDatabase.name,
+        })}, 'archive:${data.name}')`,
+      }
     );
+  };
+
+  const handleGenerateDeploySql = async () => {
+    const resp = await axiosInstance.post('database-connections/generate-deploy-sql', {
+      conid: $currentDatabase.connection._id,
+      database: $currentDatabase.name,
+      archiveFolder: data.name,
+    });
+
+    newQuery({ initialData: resp.data });
   };
 
   function createMenu() {
     return [
       data.name != 'default' && { text: 'Delete', onClick: handleDelete },
-      data.name != 'default' && { text: 'Generate deploy script', onClick: handleGenerateDeployScript },
+      data.name != 'default' &&
+        $currentDatabase && [
+          { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
+          { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
+        ],
     ];
   }
 </script>

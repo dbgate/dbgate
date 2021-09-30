@@ -3,13 +3,15 @@ const connections = require('./connections');
 const archive = require('./archive');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const { DatabaseAnalyser } = require('dbgate-tools');
+const { DatabaseAnalyser, getAlterDatabaseScript, generateDbPairingId, matchPairedObjects } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
 const fs = require('fs-extra');
 const exportDbModel = require('../utility/exportDbModel');
 const { archivedir } = require('../utility/directories');
 const path = require('path');
+const importDbModel = require('../utility/importDbModel');
+const requireEngineDriver = require('../utility/requireEngineDriver');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -253,6 +255,22 @@ module.exports = {
     return { archiveFolder };
   },
 
+  generateDeploySql_meta: 'post',
+  async generateDeploySql({ conid, database, archiveFolder }) {
+    const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
+    const currentModel = generateDbPairingId(await this.structure({ conid, database }));
+    const currentModelPaired = matchPairedObjects(deployedModel, currentModel);
+    const connection = await connections.get({ conid });
+    const driver = requireEngineDriver(connection);
+    const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, {}, deployedModel, driver);
+    return {
+      deployedModel,
+      currentModel,
+      currentModelPaired,
+      sql,
+    };
+    return sql;
+  },
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);

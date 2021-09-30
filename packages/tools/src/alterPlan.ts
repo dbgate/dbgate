@@ -384,7 +384,7 @@ export class AlterPlan {
     const res = [];
     const recreates = {};
     for (const op of this.operations) {
-      if (op.operationType == 'recreateTable') {
+      if (op.operationType == 'recreateTable' && op.table) {
         const existingRecreate = recreates[`${op.table.schemaName}||${op.table.pureName}`];
         if (existingRecreate) {
           existingRecreate.operations.push(...op.operations);

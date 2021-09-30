@@ -357,9 +357,9 @@ export function createAlterDatabasePlan(
     for (const newobj of newDb[objectTypeField] || []) {
       const oldobj = (oldDb[objectTypeField] || []).find(x => x.pairingId == newobj.pairingId);
       if (objectTypeField == 'tables') {
-        if (newobj == null) plan.createTable(newobj);
+        if (oldobj == null) plan.createTable(newobj);
       } else {
-        if (newobj == null) plan.createSqlObject(newobj);
+        if (oldobj == null) plan.createSqlObject(newobj);
       }
     }
   }
@@ -401,4 +401,26 @@ export function getAlterDatabaseScript(
     sql: dmp.s,
     recreates: plan.recreates,
   };
+}
+
+export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo) {
+  const res = _.cloneDeep(db2);
+
+  for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
+    for (const obj2 of res[objectTypeField] || []) {
+      const obj1 = db1[objectTypeField].find(x => x.pureName == obj2.pureName);
+      if (obj1) {
+        obj2.pairingId = obj1.pairingId;
+
+        if (objectTypeField == 'tables') {
+          for (const col2 of obj2.columns) {
+            const col1 = obj1.columns.find(x => x.columnName == col2.columnName);
+            if (col1) col2.pairingId = col1.pairingId;
+          }
+        }
+      }
+    }
+  }
+
+  return res;
 }

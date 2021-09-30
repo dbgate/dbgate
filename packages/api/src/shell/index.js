@@ -19,6 +19,7 @@ const requirePlugin = require('./requirePlugin');
 const download = require('./download');
 const executeQuery = require('./executeQuery');
 const loadFile = require('./loadFile');
+const deployDb = require('./deployDb');
 const initializeApiEnvironment = require('./initializeApiEnvironment');
 
 const dbgateApi = {
@@ -42,6 +43,7 @@ const dbgateApi = {
   registerPlugins,
   executeQuery,
   loadFile,
+  deployDb,
   initializeApiEnvironment,
 };
 

@@ -2,21 +2,26 @@ const fs = require('fs-extra');
 const path = require('path');
 const yaml = require('js-yaml');
 const { tableInfoFromYaml, DatabaseAnalyser } = require('dbgate-tools');
+const { startsWith } = require('lodash');
+const { archivedir } = require('./directories');
 
 async function importDbModel(inputDir) {
   const tablesYaml = [];
 
   const model = DatabaseAnalyser.createEmptyStructure();
 
-  for (const file of await fs.readdir(inputDir)) {
+  const dir = inputDir.startsWith('archive:')
+    ? path.join(archivedir(), inputDir.substring('archive:'.length))
+    : inputDir;
+
+  for (const file of await fs.readdir(dir)) {
     if (file.endsWith('.table.yaml') || file.endsWith('.sql')) {
-      const content = await fs.readFile(path.join(inputDir, file), { encoding: 'utf-8' });
+      const content = await fs.readFile(path.join(dir, file), { encoding: 'utf-8' });
 
       if (file.endsWith('.table.yaml')) {
         const json = yaml.load(content);
         tablesYaml.push(json);
       }
-
 
       if (file.endsWith('.view.sql')) {
         model.views.push({
