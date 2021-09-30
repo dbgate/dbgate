@@ -23,10 +23,10 @@ export interface ColumnsConstraintInfo extends ConstraintInfo {
 export interface PrimaryKeyInfo extends ColumnsConstraintInfo {}
 
 export interface ForeignKeyInfo extends ColumnsConstraintInfo {
-  refSchemaName: string;
+  refSchemaName?: string;
   refTableName: string;
-  updateAction: string;
-  deleteAction: string;
+  updateAction?: string;
+  deleteAction?: string;
 }
 
 export interface IndexInfo extends ColumnsConstraintInfo {
@@ -46,14 +46,14 @@ export interface ColumnInfo extends NamedObjectInfo {
   notNull: boolean;
   autoIncrement: boolean;
   dataType: string;
-  precision: number;
-  scale: number;
-  length: number;
-  computedExpression: string;
-  isPersisted: boolean;
-  isSparse: boolean;
-  defaultValue: string;
-  defaultConstraint: string;
+  precision?: number;
+  scale?: number;
+  length?: number;
+  computedExpression?: string;
+  isPersisted?: boolean;
+  isSparse?: boolean;
+  defaultValue?: string;
+  defaultConstraint?: string;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {

@@ -9,6 +9,7 @@
   import { currentArchive } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
+  import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
 
   export let data;
@@ -17,8 +18,22 @@
     axiosInstance.post('archive/delete-folder', { folder: data.name });
   };
 
+  const handleGenerateDeployScript = () => {
+    openNewTab(
+      {
+        title: 'Shell #',
+        icon: 'img shell',
+        tabComponent: 'ShellTab',
+      },
+      { editor: `await dbgateApi.deployDb()` }
+    );
+  };
+
   function createMenu() {
-    return [data.name != 'default' && { text: 'Delete', onClick: handleDelete }];
+    return [
+      data.name != 'default' && { text: 'Delete', onClick: handleDelete },
+      data.name != 'default' && { text: 'Generate deploy script', onClick: handleGenerateDeployScript },
+    ];
   }
 </script>
 
