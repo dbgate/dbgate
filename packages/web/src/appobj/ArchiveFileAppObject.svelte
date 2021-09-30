@@ -12,17 +12,10 @@
     });
   }
 
-  async function openTextFile(fileName, fileType, folderName, tabComponent, icon, wantConnection) {
+  async function openTextFile(fileName, fileType, folderName, tabComponent, icon) {
     const connProps: any = {};
     let tooltip = undefined;
 
-    if (wantConnection) {
-      const connection = _.get(getCurrentDatabase(), 'connection') || {};
-      const database = _.get(getCurrentDatabase(), 'name');
-      connProps.conid = connection._id;
-      connProps.database = database;
-      tooltip = `${getConnectionLabel(connection)}\n${database}`;
-    }
     const resp = await axiosInstance.post('files/load', {
       folder: 'archive:' + folderName,
       file: fileName + '.' + fileType,
@@ -39,6 +32,7 @@
           savedFile: fileName + '.' + fileType,
           savedFolder: 'archive:' + folderName,
           savedFormat: 'text',
+          archiveFolder: folderName,
           ...connProps,
         },
       },
@@ -110,10 +104,10 @@
     }
   };
   const handleOpenSqlFile = () => {
-    openTextFile(data.fileName, data.fileType, data.folderName, 'QueryTab', 'img sql-file', true);
+    openTextFile(data.fileName, data.fileType, data.folderName, 'QueryTab', 'img sql-file');
   };
   const handleOpenYamlFile = () => {
-    openTextFile(data.fileName, data.fileType, data.folderName, 'YamlEditorTab', 'img yaml', true);
+    openTextFile(data.fileName, data.fileType, data.folderName, 'YamlEditorTab', 'img yaml');
   };
 
   function createMenu() {
