@@ -65,7 +65,7 @@ function columnInfoFromYaml(column: ColumnInfoYaml, table: TableInfoYaml): Colum
     columnName: column.name,
     dataType: column.type,
     autoIncrement: column.autoIncrement,
-    notNull: column.notNull,
+    notNull: column.notNull || (table.primaryKey && table.primaryKey.includes(column.name)),
   };
   return res;
 }
@@ -170,5 +170,8 @@ export function databaseInfoFromYamlModel(files: DatabaseModelFile[]): DatabaseI
       }
     }
   }
+
+  model.tables = tablesYaml.map(table => tableInfoFromYaml(table, tablesYaml));
+
   return model;
 }
