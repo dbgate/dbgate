@@ -1,8 +1,16 @@
-const EnsureStreamHeaderStream = require('../utility/EnsureStreamHeaderStream');
-const importDbModel = require('../utility/importDbModel');
+const generateDeploySql = require('./generateDeploySql');
+const executeQuery = require('./executeQuery');
 
-async function deployDb(connection, modelFolder, options) {
-  const dbModel = await importDbModel(modelFolder);
+async function deployDb({ connection, systemConnection, driver, analysedStructure, modelFolder, loadedDbModel }) {
+  const sql = await generateDeploySql({
+    connection,
+    systemConnection,
+    driver,
+    analysedStructure,
+    modelFolder,
+    loadedDbModel,
+  });
+  await executeQuery({ connection, systemConnection, driver, sql });
 }
 
 module.exports = deployDb;

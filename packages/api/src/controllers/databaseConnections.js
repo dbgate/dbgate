@@ -12,6 +12,7 @@ const { archivedir } = require('../utility/directories');
 const path = require('path');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const generateDeploySql = require('../shell/generateDeploySql');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -257,19 +258,25 @@ module.exports = {
 
   generateDeploySql_meta: 'post',
   async generateDeploySql({ conid, database, archiveFolder }) {
-    const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
-    const currentModel = generateDbPairingId(await this.structure({ conid, database }));
-    const currentModelPaired = matchPairedObjects(deployedModel, currentModel);
     const connection = await connections.get({ conid });
-    const driver = requireEngineDriver(connection);
-    const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, {}, deployedModel, driver);
-    return {
-      deployedModel,
-      currentModel,
-      currentModelPaired,
-      sql,
-    };
-    return sql;
+    return generateDeploySql({
+      connection,
+      analysedStructure: await this.structure({ conid, database }),
+      modelFolder: path.join(archivedir(), archiveFolder),
+    });
+    // const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
+    // const currentModel = generateDbPairingId(await this.structure({ conid, database }));
+    // const currentModelPaired = matchPairedObjects(deployedModel, currentModel);
+    // const connection = await connections.get({ conid });
+    // const driver = requireEngineDriver(connection);
+    // const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, {}, deployedModel, driver);
+    // return {
+    //   deployedModel,
+    //   currentModel,
+    //   currentModelPaired,
+    //   sql,
+    // };
+    // return sql;
   },
   // runCommand_meta: 'post',
   // async runCommand({ conid, database, sql }) {

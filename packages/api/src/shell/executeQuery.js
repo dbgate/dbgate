@@ -2,11 +2,11 @@ const { splitQuery } = require('dbgate-query-splitter');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 
-async function executeQuery({ connection, sql }) {
+async function executeQuery({ connection = undefined, systemConnection = undefined, driver = undefined, sql }) {
   console.log(`Execute query ${sql}`);
 
-  const driver = requireEngineDriver(connection);
-  const pool = await connectUtility(driver, connection);
+  if (!driver) driver = requireEngineDriver(connection);
+  const pool = systemConnection || (await connectUtility(driver, connection));
   console.log(`Connected.`);
 
   for (const sqlItem of splitQuery(sql, driver.getQuerySplitterOptions('script'))) {
