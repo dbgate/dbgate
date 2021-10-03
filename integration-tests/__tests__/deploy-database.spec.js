@@ -5,6 +5,7 @@ const _ = require('lodash');
 const engines = require('../engines');
 const deployDb = require('dbgate-api/src/shell/deployDb');
 const { databaseInfoFromYamlModel } = require('dbgate-tools');
+const generateDeploySql = require('dbgate-api/src/shell/generateDeploySql');
 
 function checkStructure(structure, model) {
   const expected = databaseInfoFromYamlModel(model);
@@ -17,6 +18,13 @@ function checkStructure(structure, model) {
 
 async function testDatabaseDeploy(conn, driver, dbModelsYaml) {
   for (const loadedDbModel of dbModelsYaml) {
+    const sql = await generateDeploySql({
+      systemConnection: conn,
+      driver,
+      loadedDbModel,
+    });
+    expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
+
     await deployDb({
       systemConnection: conn,
       driver,

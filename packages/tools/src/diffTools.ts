@@ -11,7 +11,6 @@ import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
 import stableStringify from 'json-stable-stringify';
-import { isArray } from 'lodash';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -117,6 +116,9 @@ export function testEqualColumns(
   //    return false;
   //}
   if (a.computedExpression != b.computedExpression) {
+    console.debug(
+      `Column ${a.columnName}, ${b.columnName}: different computed expression: ${a.computedExpression}, ${b.computedExpression}`
+    );
     // opts.DiffLogger.Trace(
     //   'Column {0}, {1}: different computed expression: {2}; {3}',
     //   a,
@@ -132,6 +134,10 @@ export function testEqualColumns(
   if (checkDefault) {
     if (a.defaultValue == null) {
       if (a.defaultValue != b.defaultValue) {
+        console.debug(
+          `Column ${a.columnName}, ${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
+        );
+
         // opts.DiffLogger.Trace(
         //   'Column {0}, {1}: different default values: {2}; {3}',
         //   a,
@@ -143,6 +149,10 @@ export function testEqualColumns(
       }
     } else {
       if (a.defaultValue != b.defaultValue) {
+        console.debug(
+          `Column ${a.columnName}, ${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
+        );
+
         // opts.DiffLogger.Trace(
         //   'Column {0}, {1}: different default values: {2}; {3}',
         //   a,
@@ -154,6 +164,10 @@ export function testEqualColumns(
       }
     }
     if (a.defaultConstraint != b.defaultConstraint) {
+      console.debug(
+        `Column ${a.columnName}, ${b.columnName}: different default constraint: ${a.defaultConstraint}, ${b.defaultConstraint}`
+      );
+
       // opts.DiffLogger.Trace(
       //   'Column {0}, {1}: different default constraint names: {2}; {3}',
       //   a,
@@ -164,15 +178,23 @@ export function testEqualColumns(
       return false;
     }
   }
-  if (a.notNull != b.notNull) {
+  if ((a.notNull || false) != (b.notNull || false)) {
+    console.debug(`Column ${a.columnName}, ${b.columnName}: different nullability: ${a.notNull}, ${b.notNull}`);
+
     // opts.DiffLogger.Trace('Column {0}, {1}: different nullable: {2}; {3}', a, b, a.NotNull, b.NotNull);
     return false;
   }
-  if (a.autoIncrement != b.autoIncrement) {
+  if ((a.autoIncrement || false) != (b.autoIncrement || false)) {
+    console.debug(
+      `Column ${a.columnName}, ${b.columnName}: different autoincrement: ${a.autoIncrement}, ${b.autoIncrement}`
+    );
+
     // opts.DiffLogger.Trace('Column {0}, {1}: different autoincrement: {2}; {3}', a, b, a.AutoIncrement, b.AutoIncrement);
     return false;
   }
-  if (a.isSparse != b.isSparse) {
+  if ((a.isSparse || false) != (b.isSparse || false)) {
+    console.debug(`Column ${a.columnName}, ${b.columnName}: different is_sparse: ${a.isSparse}, ${b.isSparse}`);
+
     // opts.DiffLogger.Trace('Column {0}, {1}: different is_sparse: {2}; {3}', a, b, a.IsSparse, b.IsSparse);
     return false;
   }
@@ -215,6 +237,8 @@ function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiff
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
   if (a.dataType != b.dataType) {
+    console.debug(`Column ${a.columnName}, ${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`);
+
     // opts.DiffLogger.Trace("Column {0}, {1}: different types: {2}; {3}", a, b, a.DataType, b.DataType);
     return false;
   }

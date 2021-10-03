@@ -3,6 +3,7 @@ const {
   generateDbPairingId,
   matchPairedObjects,
   databaseInfoFromYamlModel,
+  extendDatabaseInfo,
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -23,9 +24,9 @@ async function generateDeploySql({
   }
 
   const deployedModel = generateDbPairingId(
-    loadedDbModel ? databaseInfoFromYamlModel(loadedDbModel) : await importDbModel(modelFolder)
+    extendDatabaseInfo(loadedDbModel ? databaseInfoFromYamlModel(loadedDbModel) : await importDbModel(modelFolder))
   );
-  const currentModel = generateDbPairingId(analysedStructure);
+  const currentModel = generateDbPairingId(extendDatabaseInfo(analysedStructure));
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel);
   const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, {}, deployedModel, driver);
   return sql;

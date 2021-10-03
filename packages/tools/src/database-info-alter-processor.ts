@@ -36,16 +36,19 @@ export class DatabaseInfoAlterProcessor {
 
   createColumn(column: ColumnInfo) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
+    if (!table) throw new Error(`createColumn error, cannot find table: ${column.schemaName}.${column.pureName}`);
     table.columns.push(column);
   }
 
   changeColumn(oldColumn: ColumnInfo, newColumn: ColumnInfo) {
     const table = this.db.tables.find(x => x.pureName == oldColumn.pureName && x.schemaName == oldColumn.schemaName);
+    if (!table) throw new Error(`changeColumn error, cannot find table: ${oldColumn.schemaName}.${oldColumn.pureName}`);
     table.columns = table.columns.map(x => (x.columnName == oldColumn.columnName ? newColumn : x));
   }
 
   dropColumn(column: ColumnInfo) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
+    if (!table) throw new Error(`dropColumn error, cannot find table: ${column.schemaName}.${column.pureName}`);
     _.remove(table.columns, x => x.columnName == column.columnName);
   }
 
