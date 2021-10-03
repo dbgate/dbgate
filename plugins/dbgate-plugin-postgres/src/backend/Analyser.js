@@ -127,6 +127,7 @@ class Analyser extends DatabaseAnalyser {
                 idx.indkey
                   .split(' ')
                   .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
+                  .filter(col => col != null)
                   .map(col => ({
                     columnName: col.column_name,
                   }))
@@ -145,6 +146,7 @@ class Analyser extends DatabaseAnalyser {
                 idx.indkey
                   .split(' ')
                   .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
+                  .filter(col => col != null)
                   .map(col => ({
                     columnName: col.column_name,
                   }))
