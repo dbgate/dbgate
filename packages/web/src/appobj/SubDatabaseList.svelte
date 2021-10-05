@@ -1,5 +1,6 @@
 <script lang="ts">
   import { filterName } from 'dbgate-tools';
+  import _ from 'lodash';
   import { useDatabaseList } from '../utility/metadataLoaders';
   import AppObjectList from './AppObjectList.svelte';
   import * as databaseAppObject from './DatabaseAppObject.svelte';
@@ -11,6 +12,9 @@
 </script>
 
 <AppObjectList
-  list={($databases || []).filter(x => filterName(filter, x.name)).map(db => ({ ...db, connection: data }))}
+  list={_.sortBy(
+    ($databases || []).filter(x => filterName(filter, x.name)),
+    'name'
+  ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
 />
