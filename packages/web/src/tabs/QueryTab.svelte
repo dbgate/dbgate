@@ -5,6 +5,7 @@
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
+    keyText: 'Shift+Alt+F',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().formatCode(),
   });
