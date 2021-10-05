@@ -117,7 +117,7 @@ export function testEqualColumns(
   //}
   if (a.computedExpression != b.computedExpression) {
     console.debug(
-      `Column ${a.columnName}, ${b.columnName}: different computed expression: ${a.computedExpression}, ${b.computedExpression}`
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different computed expression: ${a.computedExpression}, ${b.computedExpression}`
     );
     // opts.DiffLogger.Trace(
     //   'Column {0}, {1}: different computed expression: {2}; {3}',
@@ -135,7 +135,7 @@ export function testEqualColumns(
     if (a.defaultValue == null) {
       if (a.defaultValue != b.defaultValue) {
         console.debug(
-          `Column ${a.columnName}, ${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
+          `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
         );
 
         // opts.DiffLogger.Trace(
@@ -150,7 +150,7 @@ export function testEqualColumns(
     } else {
       if (a.defaultValue != b.defaultValue) {
         console.debug(
-          `Column ${a.columnName}, ${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
+          `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default value: ${a.defaultValue}, ${b.defaultValue}`
         );
 
         // opts.DiffLogger.Trace(
@@ -165,7 +165,7 @@ export function testEqualColumns(
     }
     if (a.defaultConstraint != b.defaultConstraint) {
       console.debug(
-        `Column ${a.columnName}, ${b.columnName}: different default constraint: ${a.defaultConstraint}, ${b.defaultConstraint}`
+        `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different default constraint: ${a.defaultConstraint}, ${b.defaultConstraint}`
       );
 
       // opts.DiffLogger.Trace(
@@ -179,21 +179,25 @@ export function testEqualColumns(
     }
   }
   if ((a.notNull || false) != (b.notNull || false)) {
-    console.debug(`Column ${a.columnName}, ${b.columnName}: different nullability: ${a.notNull}, ${b.notNull}`);
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different nullability: ${a.notNull}, ${b.notNull}`
+    );
 
     // opts.DiffLogger.Trace('Column {0}, {1}: different nullable: {2}; {3}', a, b, a.NotNull, b.NotNull);
     return false;
   }
   if ((a.autoIncrement || false) != (b.autoIncrement || false)) {
     console.debug(
-      `Column ${a.columnName}, ${b.columnName}: different autoincrement: ${a.autoIncrement}, ${b.autoIncrement}`
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different autoincrement: ${a.autoIncrement}, ${b.autoIncrement}`
     );
 
     // opts.DiffLogger.Trace('Column {0}, {1}: different autoincrement: {2}; {3}', a, b, a.AutoIncrement, b.AutoIncrement);
     return false;
   }
   if ((a.isSparse || false) != (b.isSparse || false)) {
-    console.debug(`Column ${a.columnName}, ${b.columnName}: different is_sparse: ${a.isSparse}, ${b.isSparse}`);
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different is_sparse: ${a.isSparse}, ${b.isSparse}`
+    );
 
     // opts.DiffLogger.Trace('Column {0}, {1}: different is_sparse: {2}; {3}', a, b, a.IsSparse, b.IsSparse);
     return false;
@@ -232,34 +236,19 @@ export function testEqualColumns(
 }
 
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
+  if (a.constraintType=='primaryKey' && b.constraintType=='primaryKey') {
+    
+  }
   return stableStringify(a) == stableStringify(b);
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
-  if (a.dataType != b.dataType) {
-    console.debug(`Column ${a.columnName}, ${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`);
-
-    // opts.DiffLogger.Trace("Column {0}, {1}: different types: {2}; {3}", a, b, a.DataType, b.DataType);
+  if ((a.dataType || '').toLowerCase() != (b.dataType || '').toLowerCase()) {
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`
+    );
     return false;
   }
-
-  //if (a.Length != b.Length)
-  //{
-  //    opts.DiffLogger.Trace("Column {0}, {1}: different lengths: {2}; {3}", a, b, a.Length, b.Length);
-  //    return false;
-  //}
-
-  //if (a.Precision != b.Precision)
-  //{
-  //    opts.DiffLogger.Trace("Column {0}, {1}: different lengths: {2}; {3}", a, b, a.Precision, b.Precision);
-  //    return false;
-  //}
-
-  //if (a.Scale != b.Scale)
-  //{
-  //    opts.DiffLogger.Trace("Column {0}, {1}: different scale: {2}; {3}", a, b, a.Scale, b.Scale);
-  //    return false;
-  //}
 
   return true;
 }

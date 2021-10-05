@@ -23,6 +23,7 @@ async function testDatabaseDeploy(conn, driver, dbModelsYaml) {
       driver,
       loadedDbModel,
     });
+    console.debug('Generated deploy script:', sql);
     expect(sql.toUpperCase().includes('DROP ')).toBeFalsy();
 
     await deployDb({

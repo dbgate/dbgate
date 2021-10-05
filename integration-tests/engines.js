@@ -116,10 +116,10 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
+  'MySQL',
   '-PostgreSQL',
   '-SQL Server',
-  'SQLite',
+  '-SQLite',
   '-CockroachDB',
 ];
 
