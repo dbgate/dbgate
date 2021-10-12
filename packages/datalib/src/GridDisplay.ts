@@ -115,6 +115,10 @@ export abstract class GridDisplay {
     return this.getColumns(null).filter(col => col.isChecked || col.uniquePath.length == 1);
   }
 
+  getFkTarget(column: DisplayColumn): TableInfo {
+    return null;
+  }
+
   reload() {
     this.setCache(reloadDataCacheFunc);
   }

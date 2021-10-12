@@ -453,13 +453,37 @@
         },
       });
     }
+    for (const column of display.columns) {
+      if (column.uniquePath.length > 1) continue;
+      if (column.isExpandable) {
+        const table = display.getFkTarget(column);
+        if (!table) continue;
+
+        for (const childColumn of table.columns) {
+          res.push({
+            text: `${column.columnName}.${childColumn.columnName}`,
+            onClick: async () => {
+              const uniquePath = [...column.uniquePath, childColumn.columnName];
+              display.setColumnVisibility(uniquePath, true);
+              display.toggleExpandedColumn(column.uniqueName, true);
+              await tick();
+              const invMap = _.invert(realColumnUniqueNames);
+              const colIndex = invMap[uniquePath.join('.')];
+              scrollIntoView([null, colIndex]);
+
+              currentCell = [currentCell[0], parseInt(colIndex)];
+              selectedCells = [currentCell];
+            },
+          });
+        }
+      }
+    }
     return res;
   }
 
   export function hideColumn() {
     const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
     for (const index of columnIndexes) {
-      console.log('visibleRealColumns[index].uniquePath', visibleRealColumns[index].uniquePath);
       display.setColumnVisibility(visibleRealColumns[index].uniquePath, false);
     }
     // selectedCells = [currentCell];
