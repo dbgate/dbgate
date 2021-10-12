@@ -111,9 +111,18 @@
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
-    keyText: 'Ctrl+F',
+    keyText: 'Ctrl+Shift+F',
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.findColumn',
+    category: 'Data grid',
+    name: 'Find colunn',
+    keyText: 'Ctrl+F',
+    testEnabled: () => getCurrentDataGrid() != null,
+    getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
   });
 
   registerCommand({
@@ -347,6 +356,7 @@
     });
     const text = lines.join('\r\n');
     copyTextToClipboard(text);
+    if (domFocusField) domFocusField.focus();
   }
 
   export function loadNextDataIfNeeded() {
@@ -414,6 +424,25 @@
   export function editJsonDocument() {
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
+  }
+
+  export function buildFindMenu() {
+    const res = [];
+    for (const column of display.columns) {
+      if (column.uniquePath.length > 1) continue;
+      res.push({
+        text: column.columnName,
+        onClick: async () => {
+          const invMap = _.invert(realColumnUniqueNames);
+          const colIndex = invMap[column.uniqueName];
+          scrollIntoView([null, colIndex]);
+
+          currentCell = [currentCell[0], parseInt(colIndex)];
+          selectedCells = [currentCell];
+        },
+      });
+    }
+    return res;
   }
 
   $: autofillMarkerCell =
@@ -927,7 +956,7 @@
     currentCell = cell;
     // @ts-ignore
     selectedCells = [cell];
-    domFocusField.focus();
+    if (domFocusField) domFocusField.focus();
   };
 
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
