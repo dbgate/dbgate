@@ -126,6 +126,15 @@
   });
 
   registerCommand({
+    id: 'dataGrid.hideColumn',
+    category: 'Data grid',
+    name: 'Hide colunn',
+    keyText: 'Ctrl+H',
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().hideColumn(),
+  });
+
+  registerCommand({
     id: 'dataGrid.clearFilter',
     category: 'Data grid',
     name: 'Clear filter',
@@ -433,6 +442,8 @@
       res.push({
         text: column.columnName,
         onClick: async () => {
+          display.setColumnVisibility(column.uniquePath, true);
+          await tick();
           const invMap = _.invert(realColumnUniqueNames);
           const colIndex = invMap[column.uniqueName];
           scrollIntoView([null, colIndex]);
@@ -443,6 +454,15 @@
       });
     }
     return res;
+  }
+
+  export function hideColumn() {
+    const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
+    for (const index of columnIndexes) {
+      console.log('visibleRealColumns[index].uniquePath', visibleRealColumns[index].uniquePath);
+      display.setColumnVisibility(visibleRealColumns[index].uniquePath, false);
+    }
+    // selectedCells = [currentCell];
   }
 
   $: autofillMarkerCell =
