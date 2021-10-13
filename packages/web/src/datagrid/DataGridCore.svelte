@@ -437,19 +437,25 @@
 
   export function buildFindMenu() {
     const res = [];
+    
+    async function clickColumn(uniquePath) {
+      display.setColumnVisibility(uniquePath, true);
+      await tick();
+      const invMap = _.invert(realColumnUniqueNames);
+      const colIndex = invMap[uniquePath.join('.')];
+      scrollIntoView([null, colIndex]);
+
+      currentCell = [currentCell[0], parseInt(colIndex)];
+      selectedCells = [currentCell];
+    }
+
     for (const column of display.columns) {
       if (column.uniquePath.length > 1) continue;
+
       res.push({
         text: column.columnName,
         onClick: async () => {
-          display.setColumnVisibility(column.uniquePath, true);
-          await tick();
-          const invMap = _.invert(realColumnUniqueNames);
-          const colIndex = invMap[column.uniqueName];
-          scrollIntoView([null, colIndex]);
-
-          currentCell = [currentCell[0], parseInt(colIndex)];
-          selectedCells = [currentCell];
+          clickColumn(column.uniquePath);
         },
       });
     }
@@ -463,16 +469,8 @@
           res.push({
             text: `${column.columnName}.${childColumn.columnName}`,
             onClick: async () => {
-              const uniquePath = [...column.uniquePath, childColumn.columnName];
-              display.setColumnVisibility(uniquePath, true);
               display.toggleExpandedColumn(column.uniqueName, true);
-              await tick();
-              const invMap = _.invert(realColumnUniqueNames);
-              const colIndex = invMap[uniquePath.join('.')];
-              scrollIntoView([null, colIndex]);
-
-              currentCell = [currentCell[0], parseInt(colIndex)];
-              selectedCells = [currentCell];
+              clickColumn([...column.uniquePath, childColumn.columnName]);
             },
           });
         }
