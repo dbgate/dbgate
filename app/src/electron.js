@@ -154,6 +154,9 @@ function createWindow() {
       enableRemoteModule: true,
     },
   });
+  if (store.get('winIsMaximized')) {
+    mainWindow.maximize();
+  }
 
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
@@ -171,6 +174,7 @@ function createWindow() {
     });
     mainWindow.on('close', () => {
       store.set('winBounds', mainWindow.getBounds());
+      store.set('winIsMaximized', mainWindow.isMaximized());
     });
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
