@@ -437,7 +437,7 @@
 
   export function buildFindMenu() {
     const res = [];
-    
+
     async function clickColumn(uniquePath) {
       display.setColumnVisibility(uniquePath, true);
       await tick();
@@ -454,6 +454,7 @@
 
       res.push({
         text: column.columnName,
+        icon: 'img column',
         onClick: async () => {
           clickColumn(column.uniquePath);
         },
@@ -468,6 +469,7 @@
         for (const childColumn of table.columns) {
           res.push({
             text: `${column.columnName}.${childColumn.columnName}`,
+            icon: 'img column',
             onClick: async () => {
               display.toggleExpandedColumn(column.uniqueName, true);
               clickColumn([...column.uniquePath, childColumn.columnName]);
@@ -476,6 +478,41 @@
         }
       }
     }
+
+    for (const fk of display?.baseTable?.foreignKeys || []) {
+      res.push({
+        text: `${fk.refTableName} (${fk.columns.map(x => x.columnName).join(', ')})`,
+        icon: 'img link',
+        onClick: () => {
+          onReferenceClick({
+            schemaName: fk.refSchemaName,
+            pureName: fk.refTableName,
+            columns: fk.columns.map(col => ({
+              baseName: col.columnName,
+              refName: col.refColumnName,
+            })),
+          });
+        },
+      });
+    }
+
+    for (const fk of display?.baseTable?.dependencies || []) {
+      res.push({
+        text: `${fk.pureName} (${fk.columns.map(x => x.columnName).join(', ')})`,
+        icon: 'img reference',
+        onClick: () => {
+          onReferenceClick({
+            schemaName: fk.schemaName,
+            pureName: fk.pureName,
+            columns: fk.columns.map(col => ({
+              baseName: col.refColumnName,
+              refName: col.columnName,
+            })),
+          });
+        },
+      });
+    }
+
     return res;
   }
 
