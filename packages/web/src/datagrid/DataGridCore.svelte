@@ -484,7 +484,11 @@
   export function hideColumn() {
     const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
     for (const index of columnIndexes) {
-      display.setColumnVisibility(visibleRealColumns[index].uniquePath, false);
+      const name = realColumnUniqueNames[index];
+      const column = display.allColumns.find(x => x.uniqueName == name);
+      if (column) {
+        display.setColumnVisibility(column.uniquePath, false);
+      }
     }
     // selectedCells = [currentCell];
   }
@@ -1050,6 +1054,8 @@
     { command: 'dataGrid.setNull' },
     { placeTag: 'edit' },
     { divider: true },
+    { command: 'dataGrid.findColumn' },
+    { command: 'dataGrid.hideColumn' },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo' },
