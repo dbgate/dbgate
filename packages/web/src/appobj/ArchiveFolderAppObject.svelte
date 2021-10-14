@@ -43,7 +43,7 @@
       archiveFolder: data.name,
     });
 
-    newQuery({ initialData: resp.data });
+    newQuery({ initialData: resp.data.sql });
   };
 
   function createMenu() {

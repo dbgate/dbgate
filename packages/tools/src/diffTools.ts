@@ -7,10 +7,13 @@ import {
   SqlDialect,
   TableInfo,
 } from 'dbgate-types';
-import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { AlterPlan } from './alterPlan';
 import stableStringify from 'json-stable-stringify';
+import _omit from 'lodash/omit';
+import _cloneDeep from 'lodash/cloneDeep';
+import _isEqual from 'lodash/isEqual';
+import _pick from 'lodash/pick';
 
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
@@ -32,6 +35,7 @@ export interface DbDiffOptions {
   noDropSqlObject?: boolean;
   noRenameTable?: boolean;
   noRenameColumn?: boolean;
+  ignoreForeignKeyActions?: boolean;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -245,15 +249,29 @@ export function testEqualColumns(
 
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
   const omitList = [];
-  if (opts.ignoreConstraintNames) omitList.push('constraintName');
-  if (opts.schemaMode == 'ignore') omitList.push('schemaName');
+  if (opts.ignoreForeignKeyActions) {
+    omitList.push('updateAction');
+    omitList.push('deleteAction');
+  }
+  if (opts.ignoreConstraintNames) {
+    omitList.push('constraintName');
+  }
+  if (opts.schemaMode == 'ignore') {
+    omitList.push('schemaName');
+    omitList.push('refSchemaName');
+  }
 
   // if (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') {
   //   console.log('PK1', stableStringify(_.omit(a, omitList)));
   //   console.log('PK2', stableStringify(_.omit(b, omitList)));
   // }
-  
-  return stableStringify(_.omit(a, omitList)) == stableStringify(_.omit(b, omitList));
+
+  // if (a.constraintType == 'foreignKey' && b.constraintType == 'foreignKey') {
+  //   console.log('FK1', stableStringify(_omit(a, omitList)));
+  //   console.log('FK2', stableStringify(_omit(b, omitList)));
+  // }
+
+  return stableStringify(_omit(a, omitList)) == stableStringify(_omit(b, omitList));
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
@@ -441,11 +459,12 @@ export function getAlterDatabaseScript(
   return {
     sql: dmp.s,
     recreates: plan.recreates,
+    isEmpty: plan.operations.length == 0,
   };
 }
 
 export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: DbDiffOptions) {
-  const res = _.cloneDeep(db2);
+  const res = _cloneDeep(db2);
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     for (const obj2 of res[objectTypeField] || []) {
@@ -457,6 +476,18 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
           for (const col2 of obj2.columns) {
             const col1 = obj1.columns.find(x => testEqualNames(x.columnName, col2.columnName, opts));
             if (col1) col2.pairingId = col1.pairingId;
+          }
+
+          for (const fk2 of obj2.foreignKeys) {
+            const fk1 = obj1.foreignKeys.find(
+              x =>
+                testEqualNames(x.refTableName, fk2.refTableName, opts) &&
+                _isEqual(
+                  x.columns.map(y => _pick(y, ['columnName', 'refColumnName'])),
+                  fk2.columns.map(y => _pick(y, ['columnName', 'refColumnName']))
+                )
+            );
+            if (fk1) fk2.pairingId = fk1.pairingId;
           }
         }
       }

@@ -244,6 +244,10 @@ export class AlterPlan {
       if (op.operationType == 'dropColumn') {
         const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.dropColumnDependencies);
 
+        if (constraints.length > 0 && this.opts.noDropConstraint) {
+          return [];
+        }
+
         const res: AlterOperation[] = [
           ...constraints.map(oldObject => {
             const opRes: AlterOperation = {
@@ -259,6 +263,10 @@ export class AlterPlan {
 
       if (op.operationType == 'changeColumn') {
         const constraints = this._getDependendColumnConstraints(op.oldObject, this.dialect.changeColumnDependencies);
+
+        if (constraints.length > 0 && this.opts.noDropConstraint) {
+          return [];
+        }
 
         const res: AlterOperation[] = [
           ...constraints.map(oldObject => {
@@ -300,6 +308,11 @@ export class AlterPlan {
       }
 
       if (op.operationType == 'changeConstraint') {
+        if (this.opts.noDropConstraint) {
+          // skip constraint recreate
+          return [];
+        }
+
         this.recreates.constraints += 1;
         const opDrop: AlterOperation = {
           operationType: 'dropConstraint',
@@ -418,6 +431,37 @@ export class AlterPlan {
     return res;
   }
 
+  _moveForeignKeysToLast(): AlterOperation[] {
+    if (!this.dialect.createForeignKey) {
+      return this.operations;
+    }
+    const fks = [];
+    const res = this.operations.map(op => {
+      if (op.operationType == 'createTable') {
+        fks.push(...(op.newObject.foreignKeys || []));
+        return {
+          ...op,
+          newObject: {
+            ...op.newObject,
+            foreignKeys: [],
+          },
+        };
+      }
+      return op;
+    });
+
+    return [
+      ...res,
+      ...fks.map(
+        fk =>
+          ({
+            operationType: 'createConstraint',
+            newObject: fk,
+          } as AlterOperation_CreateConstraint)
+      ),
+    ];
+  }
+
   transformPlan() {
     // console.log('*****************OPERATIONS0', this.operations);
 
@@ -432,6 +476,10 @@ export class AlterPlan {
     this.operations = this._groupTableRecreations();
 
     // console.log('*****************OPERATIONS3', this.operations);
+
+    this.operations = this._moveForeignKeysToLast();
+
+    // console.log('*****************OPERATIONS4', this.operations);
   }
 }
 

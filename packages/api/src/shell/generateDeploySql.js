@@ -38,12 +38,14 @@ async function generateDeploySql({
     noDropSqlObject: true,
     noRenameTable: true,
     noRenameColumn: true,
+    ignoreForeignKeyActions: true,
   };
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
+  // console.log('deployedModel', deployedModel.tables[0]);
   // console.log('currentModel', currentModel.tables[0]);
   // console.log('currentModelPaired', currentModelPaired.tables[0]);
-  const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, opts, deployedModel, driver);
-  return sql;
+  const res = getAlterDatabaseScript(currentModelPaired, deployedModel, opts, deployedModel, driver);
+  return res;
 }
 
 module.exports = generateDeploySql;
