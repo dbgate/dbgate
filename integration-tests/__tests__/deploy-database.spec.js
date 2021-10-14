@@ -12,7 +12,7 @@ function checkStructure(structure, model) {
   expect(structure.tables.length).toEqual(expected.tables.length);
 
   for (const [realTable, expectedTable] of _.zip(structure.tables, expected.tables)) {
-    expect(realTable.columns.length).toEqual(expectedTable.columns.length);
+    expect(realTable.columns.length).toBeGreaterThanOrEqual(expectedTable.columns.length);
   }
 }
 
@@ -66,6 +66,68 @@ describe('Deploy database', () => {
             json: {
               name: 't1',
               columns: [{ name: 'id', type: 'int' }],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [{ name: 'id', type: 'int' }],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+      ]);
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Add column - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [{ name: 'id', type: 'int' }],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                { name: 'val', type: 'int' },
+              ],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+      ]);
+    })
+  );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Dont drop column - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                { name: 'val', type: 'int' },
+              ],
               primaryKey: ['id'],
             },
           },

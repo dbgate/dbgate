@@ -27,8 +27,22 @@ async function generateDeploySql({
     extendDatabaseInfo(loadedDbModel ? databaseInfoFromYamlModel(loadedDbModel) : await importDbModel(modelFolder))
   );
   const currentModel = generateDbPairingId(extendDatabaseInfo(analysedStructure));
-  const currentModelPaired = matchPairedObjects(deployedModel, currentModel);
-  const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, {}, deployedModel, driver);
+  const opts = {
+    ignoreCase: true,
+    schemaMode: 'ignore',
+    ignoreConstraintNames: true,
+
+    noDropTable: true,
+    noDropColumn: true,
+    noDropConstraint: true,
+    noDropSqlObject: true,
+    noRenameTable: true,
+    noRenameColumn: true,
+  };
+  const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
+  // console.log('currentModel', currentModel.tables[0]);
+  // console.log('currentModelPaired', currentModelPaired.tables[0]);
+  const { sql } = getAlterDatabaseScript(currentModelPaired, deployedModel, opts, deployedModel, driver);
   return sql;
 }
 

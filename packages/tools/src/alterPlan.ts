@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { generateTablePairingId } from '.';
+import { DbDiffOptions, generateTablePairingId } from './diffTools';
 import {
   AlterProcessor,
   ColumnInfo,
@@ -111,7 +111,7 @@ export class AlterPlan {
   };
 
   public operations: AlterOperation[] = [];
-  constructor(public db: DatabaseInfo, public dialect: SqlDialect) {}
+  constructor(public db: DatabaseInfo, public dialect: SqlDialect, public opts: DbDiffOptions) {}
 
   createTable(table: TableInfo) {
     this.operations.push({
@@ -365,6 +365,12 @@ export class AlterPlan {
 
       // console.log('*****************RECREATED NEEDED', op, operationType, isAllowed);
       // console.log(this.dialect);
+
+      if (this.opts.noDropTable) {
+        // skip this operation, as it cannot be achieved
+        return [];
+      }
+
       const table = this.db.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );

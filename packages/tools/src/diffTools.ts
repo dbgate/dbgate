@@ -15,15 +15,23 @@ import stableStringify from 'json-stable-stringify';
 type DbDiffSchemaMode = 'strict' | 'ignore' | 'ignoreImplicit';
 
 export interface DbDiffOptions {
-  allowRecreateTable?: boolean;
-  allowRecreateConstraint?: boolean;
-  allowRecreateSpecificObject?: boolean;
-  allowPairRenamedTables?: boolean;
+  // allowRecreateTable?: boolean;
+  // allowRecreateConstraint?: boolean;
+  // allowRecreateSpecificObject?: boolean;
+  // allowPairRenamedTables?: boolean;
 
   ignoreCase?: boolean;
   schemaMode?: DbDiffSchemaMode;
   leftImplicitSchema?: string;
   rightImplicitSchema?: string;
+  ignoreConstraintNames?: boolean;
+
+  noDropTable?: boolean;
+  noDropColumn?: boolean;
+  noDropConstraint?: boolean;
+  noDropSqlObject?: boolean;
+  noRenameTable?: boolean;
+  noRenameColumn?: boolean;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -82,7 +90,7 @@ export function generateDbPairingId(db: DatabaseInfo): DatabaseInfo {
 }
 
 function testEqualNames(a: string, b: string, opts: DbDiffOptions) {
-  if (opts.ignoreCase) return a.toLowerCase() == b.toLowerCase();
+  if (opts.ignoreCase) return (a || '').toLowerCase() == (b || '').toLowerCase();
   return a == b;
 }
 
@@ -236,10 +244,14 @@ export function testEqualColumns(
 }
 
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
-  if (a.constraintType=='primaryKey' && b.constraintType=='primaryKey') {
-    
-  }
-  return stableStringify(a) == stableStringify(b);
+  // if (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') {
+  //   console.log('PK1', stableStringify(opts.ignoreConstraintNames ? _.omit(a, ['constraintName']) : a));
+  //   console.log('PK2', stableStringify(opts.ignoreConstraintNames ? _.omit(b, ['constraintName']) : b));
+  // }
+  return (
+    stableStringify(opts.ignoreConstraintNames ? _.omit(a, ['constraintName']) : a) ==
+    stableStringify(opts.ignoreConstraintNames ? _.omit(b, ['constraintName']) : b)
+  );
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
@@ -291,10 +303,14 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     (a, b) => a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey'
   );
 
-  constraintPairs.filter(x => x[1] == null).forEach(x => plan.dropConstraint(x[0]));
-  columnPairs.filter(x => x[1] == null).forEach(x => plan.dropColumn(x[0]));
+  if (!opts.noDropConstraint) {
+    constraintPairs.filter(x => x[1] == null).forEach(x => plan.dropConstraint(x[0]));
+  }
+  if (!opts.noDropColumn) {
+    columnPairs.filter(x => x[1] == null).forEach(x => plan.dropColumn(x[0]));
+  }
 
-  if (!testEqualFullNames(oldTable, newTable, opts)) {
+  if (!testEqualFullNames(oldTable, newTable, opts) && !opts.noRenameTable) {
     plan.renameTable(oldTable, newTable.pureName);
   }
 
@@ -304,7 +320,7 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     .filter(x => x[0] && x[1])
     .forEach(x => {
       if (!testEqualColumns(x[0], x[1], true, true, opts)) {
-        if (testEqualColumns(x[0], x[1], false, true, opts)) {
+        if (testEqualColumns(x[0], x[1], false, true, opts) && !opts.noRenameColumn) {
           // console.log('PLAN RENAME COLUMN')
           plan.renameColumn(x[0], x[1].columnName);
         } else {
@@ -333,7 +349,7 @@ export function createAlterTablePlan(
   db: DatabaseInfo,
   driver: EngineDriver
 ): AlterPlan {
-  const plan = new AlterPlan(db, driver.dialect);
+  const plan = new AlterPlan(db, driver.dialect, opts);
   if (oldTable == null) {
     plan.createTable(newTable);
   } else {
@@ -350,19 +366,29 @@ export function createAlterDatabasePlan(
   db: DatabaseInfo,
   driver: EngineDriver
 ): AlterPlan {
-  const plan = new AlterPlan(db, driver.dialect);
+  const plan = new AlterPlan(db, driver.dialect, opts);
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     for (const oldobj of oldDb[objectTypeField] || []) {
       const newobj = (newDb[objectTypeField] || []).find(x => x.pairingId == oldobj.pairingId);
       if (objectTypeField == 'tables') {
-        if (newobj == null) plan.dropTable(oldobj);
-        else planAlterTable(plan, oldobj, newobj, opts);
+        if (newobj == null) {
+          if (!opts.noDropTable) {
+            plan.dropTable(oldobj);
+          }
+        } else {
+          planAlterTable(plan, oldobj, newobj, opts);
+        }
       } else {
-        if (newobj == null) plan.dropSqlObject(oldobj);
-        else if (newobj.createSql != oldobj.createSql) {
+        if (newobj == null) {
+          if (!opts.noDropSqlObject) {
+            plan.dropSqlObject(oldobj);
+          }
+        } else if (newobj.createSql != oldobj.createSql) {
           plan.recreates.sqlObjects += 1;
-          plan.dropSqlObject(oldobj);
+          if (!opts.noDropSqlObject) {
+            plan.dropSqlObject(oldobj);
+          }
           plan.createSqlObject(newobj);
         }
       }
@@ -416,18 +442,18 @@ export function getAlterDatabaseScript(
   };
 }
 
-export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo) {
+export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: DbDiffOptions) {
   const res = _.cloneDeep(db2);
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     for (const obj2 of res[objectTypeField] || []) {
-      const obj1 = db1[objectTypeField].find(x => x.pureName == obj2.pureName);
+      const obj1 = db1[objectTypeField].find(x => testEqualFullNames(x, obj2, opts));
       if (obj1) {
         obj2.pairingId = obj1.pairingId;
 
         if (objectTypeField == 'tables') {
           for (const col2 of obj2.columns) {
-            const col1 = obj1.columns.find(x => x.columnName == col2.columnName);
+            const col1 = obj1.columns.find(x => testEqualNames(x.columnName, col2.columnName, opts));
             if (col1) col2.pairingId = col1.pairingId;
           }
         }
