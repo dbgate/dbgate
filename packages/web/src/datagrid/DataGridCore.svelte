@@ -1129,6 +1129,7 @@
     { command: 'dataGrid.editJsonDocument' },
     { divider: true },
     { placeTag: 'export' },
+    { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
     { placeTag: 'chart' }
