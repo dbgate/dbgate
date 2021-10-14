@@ -12,10 +12,10 @@
   import useEffect from '../utility/useEffect';
   import { getContext } from 'svelte';
   import { mountCodeCompletion } from './codeCompletion';
-  export let engine;
-  export let conid;
-  export let database;
-  export let readOnly;
+  export let engine = null;
+  export let conid = null;
+  export let database = null;
+  export let readOnly = false;
 
   let domEditor;
 

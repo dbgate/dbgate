@@ -32,7 +32,7 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search connection" bind:value={filter} />
+  <SearchInput placeholder="Search connection or database" bind:value={filter} />
   <InlineButton on:click={handleRefreshConnections}>Refresh</InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>

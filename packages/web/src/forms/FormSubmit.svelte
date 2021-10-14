@@ -3,7 +3,7 @@
   import { getFormContext } from './FormProviderCore.svelte';
   import { createEventDispatcher } from 'svelte';
 
-  export let disabled;
+  export let disabled = false;
 
   const dispatch = createEventDispatcher();
 

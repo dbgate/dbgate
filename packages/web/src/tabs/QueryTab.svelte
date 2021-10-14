@@ -5,6 +5,7 @@
     id: 'query.formatCode',
     category: 'Query',
     name: 'Format code',
+    keyText: 'Shift+Alt+F',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().formatCode(),
   });
@@ -203,6 +204,7 @@
       onInsert: text => {
         const editor = domEditor.getEditor();
         editor.session.insert(editor.getCursorPosition(), text);
+        domEditor?.getEditor()?.focus();
       },
     });
   }

@@ -111,9 +111,27 @@
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
-    keyText: 'Ctrl+F',
+    keyText: 'Ctrl+Shift+F',
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.findColumn',
+    category: 'Data grid',
+    name: 'Find colunn',
+    keyText: 'Ctrl+F',
+    testEnabled: () => getCurrentDataGrid() != null,
+    getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.hideColumn',
+    category: 'Data grid',
+    name: 'Hide colunn',
+    keyText: 'Ctrl+H',
+    testEnabled: () => getCurrentDataGrid() != null,
+    onClick: () => getCurrentDataGrid().hideColumn(),
   });
 
   registerCommand({
@@ -123,6 +141,15 @@
     keyText: 'Ctrl+I',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.generateSqlFromData',
+    category: 'Data grid',
+    name: 'Generate SQL',
+    keyText: 'Ctrl+G',
+    testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
+    onClick: () => getCurrentDataGrid().generateSqlFromData(),
   });
 
   registerCommand({
@@ -215,6 +242,8 @@
   import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import CollapseButton from './CollapseButton.svelte';
+  import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -347,6 +376,7 @@
     });
     const text = lines.join('\r\n');
     copyTextToClipboard(text);
+    // if (domFocusField) domFocusField.focus();
   }
 
   export function loadNextDataIfNeeded() {
@@ -414,6 +444,119 @@
   export function editJsonDocument() {
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
+  }
+
+  export function buildFindMenu() {
+    const res = [];
+
+    async function clickColumn(uniquePath) {
+      display.setColumnVisibility(uniquePath, true);
+      await tick();
+      const invMap = _.invert(realColumnUniqueNames);
+      const colIndex = invMap[uniquePath.join('.')];
+      scrollIntoView([null, colIndex]);
+
+      currentCell = [currentCell[0], parseInt(colIndex)];
+      selectedCells = [currentCell];
+    }
+
+    for (const column of display.columns) {
+      if (column.uniquePath.length > 1) continue;
+
+      res.push({
+        text: column.columnName,
+        icon: 'img column',
+        onClick: async () => {
+          clickColumn(column.uniquePath);
+        },
+      });
+    }
+    for (const column of display.columns) {
+      if (column.uniquePath.length > 1) continue;
+      if (column.isExpandable) {
+        const table = display.getFkTarget(column);
+        if (!table) continue;
+
+        for (const childColumn of table.columns) {
+          res.push({
+            text: `${column.columnName}.${childColumn.columnName}`,
+            icon: 'img column',
+            onClick: async () => {
+              display.toggleExpandedColumn(column.uniqueName, true);
+              clickColumn([...column.uniquePath, childColumn.columnName]);
+            },
+          });
+        }
+      }
+    }
+
+    for (const fk of display?.baseTable?.foreignKeys || []) {
+      res.push({
+        text: `${fk.refTableName} (${fk.columns.map(x => x.columnName).join(', ')})`,
+        icon: 'img link',
+        onClick: () => {
+          onReferenceClick({
+            schemaName: fk.refSchemaName,
+            pureName: fk.refTableName,
+            columns: fk.columns.map(col => ({
+              baseName: col.columnName,
+              refName: col.refColumnName,
+            })),
+          });
+        },
+      });
+    }
+
+    for (const fk of display?.baseTable?.dependencies || []) {
+      res.push({
+        text: `${fk.pureName} (${fk.columns.map(x => x.columnName).join(', ')})`,
+        icon: 'img reference',
+        onClick: () => {
+          onReferenceClick({
+            schemaName: fk.schemaName,
+            pureName: fk.pureName,
+            columns: fk.columns.map(col => ({
+              baseName: col.refColumnName,
+              refName: col.columnName,
+            })),
+          });
+        },
+      });
+    }
+
+    return res;
+  }
+
+  export function hideColumn() {
+    const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
+    for (const index of columnIndexes) {
+      const name = realColumnUniqueNames[index];
+      const column = display.allColumns.find(x => x.uniqueName == name);
+      if (column) {
+        display.setColumnVisibility(column.uniquePath, false);
+      }
+    }
+    // selectedCells = [currentCell];
+  }
+
+  export function generateSqlFromDataEnabled() {
+    return !!display?.baseTable;
+  }
+
+  export function generateSqlFromData() {
+    const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
+    columnIndexes.sort();
+
+    showModal(GenerateSqlFromDataModal, {
+      rows: getSelectedRowData(),
+      allColumns: display.baseTable.columns.map(x => x.columnName),
+      selectedColumns: columnIndexes.map(x => realColumnUniqueNames[x]),
+      keyColumns: display?.baseTable?.primaryKey?.columns?.map(x => x.columnName) || [
+        display.baseTable.columns[0].columnName,
+      ],
+      engineDriver: display?.driver,
+      tableInfo: display.baseTable,
+    });
   }
 
   $: autofillMarkerCell =
@@ -611,6 +754,8 @@
             selectedCells = [...selectedCells, cell];
           }
         }
+      } else if (event.shiftKey) {
+        selectedCells = getCellRange(oldCurrentCell, cell);
       } else {
         selectedCells = getCellRange(cell, cell);
         dragStartCell = cell;
@@ -927,7 +1072,7 @@
     currentCell = cell;
     // @ts-ignore
     selectedCells = [cell];
-    domFocusField.focus();
+    if (domFocusField) domFocusField.focus();
   };
 
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
@@ -977,6 +1122,8 @@
     { command: 'dataGrid.setNull' },
     { placeTag: 'edit' },
     { divider: true },
+    { command: 'dataGrid.findColumn' },
+    { command: 'dataGrid.hideColumn' },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo' },
@@ -984,6 +1131,7 @@
     { command: 'dataGrid.editJsonDocument' },
     { divider: true },
     { placeTag: 'export' },
+    { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
     { placeTag: 'chart' }

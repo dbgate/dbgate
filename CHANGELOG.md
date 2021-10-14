@@ -1,5 +1,10 @@
 # ChangeLog
 
+### 4.3.2
+- FIXED: Sorted database list in PostgreSQL (#178)
+- FIXED: Loading stricture of PostgreSQL database, when it contains indexes on expressions (#175)
+- ADDED: Hotkey Shift+Alt+F for formatting SQL code
+
 ### 4.3.1
 - FIXED: #173 Using key phrase for SSH key file connection
 - ADDED: #172 Abiloity to quick search within database names

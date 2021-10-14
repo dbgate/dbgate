@@ -4,9 +4,9 @@
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-# DbGate - database administration tool
+# DbGate - database manager
 
-DbGate modern, fast and easy to use database manager
+DbGate is modern, fast and easy to use (no)SQL database client
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
@@ -26,6 +26,7 @@ Supported databases:
 
 ## Features
 * Table data editing, with SQL change script preview
+* Edit table schema, indexes, primary and foreign keys
 * Light and dark theme
 * Master/detail views
 * Query designer

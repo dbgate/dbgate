@@ -88,7 +88,7 @@
     id: 'dataForm.filterSelected',
     category: 'Data form',
     name: 'Filter this value',
-    keyText: 'Ctrl+F',
+    keyText: 'Ctrl+Shift+F',
     testEnabled: () => getCurrentDataForm() != null,
     onClick: () => getCurrentDataForm().filterSelectedValue(),
   });
