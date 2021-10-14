@@ -104,7 +104,7 @@
   <svelte:fragment slot="header">Insert join</svelte:fragment>
 
   <div class="flex mb-3">
-    <div class="m-1">
+    <div class="m-1 col-3">
       <div class="m-1">Existing table</div>
 
       <TableControl
@@ -121,7 +121,7 @@
       />
     </div>
 
-    <div class="m-1">
+    <div class="m-1 col-6">
       <div class="m-1">New table</div>
 
       <TableControl
@@ -138,7 +138,7 @@
       />
     </div>
 
-    <div class="m-1">
+    <div class="m-1 col-3">
       <div class="m-1">Join</div>
 
       <TableControl

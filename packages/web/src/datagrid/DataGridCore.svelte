@@ -144,6 +144,15 @@
   });
 
   registerCommand({
+    id: 'dataGrid.generateSqlFromData',
+    category: 'Data grid',
+    name: 'Generate SQL',
+    keyText: 'Ctrl+G',
+    testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
+    onClick: () => getCurrentDataGrid().generateSqlFromData(),
+  });
+
+  registerCommand({
     id: 'dataGrid.openFreeTable',
     category: 'Data grid',
     name: 'Open selection in free table editor',
@@ -233,6 +242,8 @@
   import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import CollapseButton from './CollapseButton.svelte';
+  import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -526,6 +537,26 @@
       }
     }
     // selectedCells = [currentCell];
+  }
+
+  export function generateSqlFromDataEnabled() {
+    return !!display?.baseTable;
+  }
+
+  export function generateSqlFromData() {
+    const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
+    columnIndexes.sort();
+
+    showModal(GenerateSqlFromDataModal, {
+      rows: getSelectedRowData(),
+      allColumns: display.baseTable.columns.map(x => x.columnName),
+      selectedColumns: columnIndexes.map(x => realColumnUniqueNames[x]),
+      keyColumns: display?.baseTable?.primaryKey?.columns?.map(x => x.columnName) || [
+        display.baseTable.columns[0].columnName,
+      ],
+      engineDriver: display?.driver,
+      tableInfo: display.baseTable,
+    });
   }
 
   $: autofillMarkerCell =
