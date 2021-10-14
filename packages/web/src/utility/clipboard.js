@@ -1,4 +1,6 @@
 export function copyTextToClipboard(text) {
+  const oldFocus = document.activeElement;
+
   const textArea = document.createElement('textarea');
 
   //
@@ -53,4 +55,6 @@ export function copyTextToClipboard(text) {
   }
 
   document.body.removeChild(textArea);
+
+  if (oldFocus) oldFocus.focus();
 }

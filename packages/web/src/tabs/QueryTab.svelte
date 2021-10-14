@@ -204,6 +204,7 @@
       onInsert: text => {
         const editor = domEditor.getEditor();
         editor.session.insert(editor.getCursorPosition(), text);
+        domEditor?.getEditor()?.focus();
       },
     });
   }

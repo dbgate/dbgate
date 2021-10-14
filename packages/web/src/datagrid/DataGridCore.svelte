@@ -365,7 +365,7 @@
     });
     const text = lines.join('\r\n');
     copyTextToClipboard(text);
-    if (domFocusField) domFocusField.focus();
+    // if (domFocusField) domFocusField.focus();
   }
 
   export function loadNextDataIfNeeded() {
