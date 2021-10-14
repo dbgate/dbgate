@@ -28,10 +28,17 @@
         tabComponent: 'ShellTab',
       },
       {
-        editor: `await dbgateApi.deployDb(${JSON.stringify({
-          ..._.omit($currentDatabase.connection, '_id', 'displayName'),
-          database: $currentDatabase.name,
-        })}, 'archive:${data.name}')`,
+        editor: `await dbgateApi.deployDb(${JSON.stringify(
+          {
+            connection: {
+              ..._.omit($currentDatabase.connection, '_id', 'displayName'),
+              database: $currentDatabase.name,
+            },
+            modelFolder: `archive:${data.name}`,
+          },
+          undefined,
+          2
+        )})`,
       }
     );
   };
