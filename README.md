@@ -26,6 +26,7 @@ Supported databases:
 
 ## Features
 * Table data editing, with SQL change script preview
+* Edit table schema, indexes, primary and foreign keys
 * Light and dark theme
 * Master/detail views
 * Query designer
