@@ -754,6 +754,8 @@
             selectedCells = [...selectedCells, cell];
           }
         }
+      } else if (event.shiftKey) {
+        selectedCells = getCellRange(oldCurrentCell, cell);
       } else {
         selectedCells = getCellRange(cell, cell);
         dragStartCell = cell;
