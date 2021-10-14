@@ -244,14 +244,16 @@ export function testEqualColumns(
 }
 
 function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiffOptions = {}) {
+  const omitList = [];
+  if (opts.ignoreConstraintNames) omitList.push('constraintName');
+  if (opts.schemaMode == 'ignore') omitList.push('schemaName');
+
   // if (a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey') {
-  //   console.log('PK1', stableStringify(opts.ignoreConstraintNames ? _.omit(a, ['constraintName']) : a));
-  //   console.log('PK2', stableStringify(opts.ignoreConstraintNames ? _.omit(b, ['constraintName']) : b));
+  //   console.log('PK1', stableStringify(_.omit(a, omitList)));
+  //   console.log('PK2', stableStringify(_.omit(b, omitList)));
   // }
-  return (
-    stableStringify(opts.ignoreConstraintNames ? _.omit(a, ['constraintName']) : a) ==
-    stableStringify(opts.ignoreConstraintNames ? _.omit(b, ['constraintName']) : b)
-  );
+  
+  return stableStringify(_.omit(a, omitList)) == stableStringify(_.omit(b, omitList));
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
