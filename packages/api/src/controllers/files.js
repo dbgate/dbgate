@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { filesdir, archivedir } = require('../utility/directories');
+const { filesdir, archivedir, resolveArchiveFolder } = require('../utility/directories');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
@@ -59,7 +59,7 @@ module.exports = {
   load_meta: 'post',
   async load({ folder, file, format }) {
     if (folder.startsWith('archive:')) {
-      const text = await fs.readFile(path.join(archivedir(), folder.substring('archive:'.length), file), {
+      const text = await fs.readFile(path.join(resolveArchiveFolder(folder.substring('archive:'.length)), file), {
         encoding: 'utf-8',
       });
       return deserialize(format, text);
@@ -73,7 +73,7 @@ module.exports = {
   save_meta: 'post',
   async save({ folder, file, data, format }) {
     if (folder.startsWith('archive:')) {
-      const dir = path.join(archivedir(), folder.substring('archive:'.length));
+      const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
     } else {

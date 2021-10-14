@@ -48,6 +48,7 @@ function buildMenu() {
       submenu: [
         commandItem('new.connection'),
         commandItem('file.open'),
+        commandItem('file.openArchive'),
         commandItem('group.save'),
         commandItem('group.saveAs'),
         commandItem('database.search'),

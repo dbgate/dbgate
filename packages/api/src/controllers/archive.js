@@ -3,7 +3,7 @@ const stream = require('stream');
 const readline = require('readline');
 const path = require('path');
 const { formatWithOptions } = require('util');
-const { archivedir } = require('../utility/directories');
+const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
 const socket = require('../utility/socket');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
@@ -33,9 +33,18 @@ module.exports = {
     return true;
   },
 
+  createLink_meta: 'post',
+  async createLink({ linkedFolder }) {
+    const folder = await this.getNewArchiveFolder({ database: path.parse(linkedFolder).name + '.link' });
+    fs.writeFile(path.join(archivedir(), folder), linkedFolder);
+    clearArchiveLinksCache();
+    socket.emitChanged('archive-folders-changed');
+    return true;
+  },
+
   files_meta: 'get',
   async files({ folder }) {
-    const dir = path.join(archivedir(), folder);
+    const dir = resolveArchiveFolder(folder);
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
 
@@ -71,27 +80,31 @@ module.exports = {
 
   deleteFile_meta: 'post',
   async deleteFile({ folder, file }) {
-    await fs.unlink(path.join(archivedir(), folder, `${file}.jsonl`));
+    await fs.unlink(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
   deleteFolder_meta: 'post',
   async deleteFolder({ folder }) {
     if (!folder) throw new Error('Missing folder parameter');
-    await fs.rmdir(path.join(archivedir(), folder), { recursive: true });
+    if (folder.endsWith('.link')) {
+      await fs.unlink(path.join(archivedir(), folder));
+    } else {
+      await fs.rmdir(path.join(archivedir(), folder), { recursive: true });
+    }
     socket.emitChanged(`archive-folders-changed`);
   },
 
   saveFreeTable_meta: 'post',
   async saveFreeTable({ folder, file, data }) {
-    saveFreeTableData(path.join(archivedir(), folder, `${file}.jsonl`), data);
+    saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
     return true;
   },
 
   loadFreeTable_meta: 'post',
   async loadFreeTable({ folder, file }) {
     return new Promise((resolve, reject) => {
-      const fileStream = fs.createReadStream(path.join(archivedir(), folder, `${file}.jsonl`));
+      const fileStream = fs.createReadStream(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));
       const liner = readline.createInterface({
         input: fileStream,
       });

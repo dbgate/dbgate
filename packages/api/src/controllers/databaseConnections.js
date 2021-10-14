@@ -8,7 +8,7 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
 const fs = require('fs-extra');
 const exportDbModel = require('../utility/exportDbModel');
-const { archivedir } = require('../utility/directories');
+const { archivedir, resolveArchiveFolder } = require('../utility/directories');
 const path = require('path');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -262,7 +262,7 @@ module.exports = {
     return generateDeploySql({
       connection,
       analysedStructure: await this.structure({ conid, database }),
-      modelFolder: path.join(archivedir(), archiveFolder),
+      modelFolder: resolveArchiveFolder(archiveFolder),
     });
     // const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
     // const currentModel = generateDbPairingId(await this.structure({ conid, database }));

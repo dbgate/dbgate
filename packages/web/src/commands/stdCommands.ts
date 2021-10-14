@@ -19,6 +19,7 @@ import './recentDatabaseSwitch';
 import hasPermission from '../utility/hasPermission';
 import _ from 'lodash';
 import { findEngineDriver } from 'dbgate-tools';
+import { openArchiveFolder } from '../utility/openArchiveFolder';
 
 const electron = getElectron();
 
@@ -212,6 +213,13 @@ if (electron) {
     name: 'Open',
     keyText: 'Ctrl+O',
     onClick: openElectronFile,
+  });
+
+  registerCommand({
+    id: 'file.openArchive',
+    category: 'File',
+    name: 'Open DB Model/Archive',
+    onClick: openArchiveFolder,
   });
 }
 

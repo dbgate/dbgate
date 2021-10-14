@@ -71,6 +71,22 @@ function getPluginBackendPath(packageName) {
   return path.join(pluginsdir(), packageName, 'dist', 'backend.js');
 }
 
+let archiveLinksCache = {};
+
+function resolveArchiveFolder(folder) {
+  if (folder.endsWith('.link')) {
+    if (!archiveLinksCache[folder]) {
+      archiveLinksCache[folder] = fs.readFileSync(path.join(archivedir(), folder), 'utf-8');
+    }
+    return archiveLinksCache[folder];
+  }
+  return path.join(archivedir(), folder);
+}
+
+function clearArchiveLinksCache() {
+  archiveLinksCache = {};
+}
+
 module.exports = {
   datadir,
   jsldir,
@@ -83,4 +99,6 @@ module.exports = {
   packagedPluginsDir,
   packagedPluginList,
   getPluginBackendPath,
+  resolveArchiveFolder,
+  clearArchiveLinksCache,
 };
