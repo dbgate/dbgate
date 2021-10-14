@@ -1,5 +1,11 @@
 # ChangeLog
 
+### 4.3.3
+- ADDED: Generate SQL from data (#176 - Copy row as INSERT/UPDATE statement)
+- ADDED: Datagrid keyboard column operations (Ctrl+F - find column, Ctrl+H - hide column) #180
+- FIXED: Make window remember that it was maximized
+- FIXED: Fixed lost focus after copy to clipboard and after inserting SQL join
+
 ### 4.3.2
 - FIXED: Sorted database list in PostgreSQL (#178)
 - FIXED: Loading stricture of PostgreSQL database, when it contains indexes on expressions (#175)
