@@ -6,7 +6,7 @@
 
 # DbGate - database manager
 
-DbGate is modern, fast and easy to use (no)sql database client
+DbGate is modern, fast and easy to use (no)SQL database client
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
