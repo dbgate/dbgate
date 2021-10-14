@@ -1,4 +1,5 @@
 <script lang="ts">
+  import CheckableColumnList from '../elements/CheckableColumnList.svelte';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
@@ -26,6 +27,8 @@
   let whereColumns = keyColumns.filter(x => allColumns.includes(x));
 
   const QUERY_TYPES = ['INSERT', 'UPDATE', 'DELETE'];
+  const VALUE_QUERIES = ['INSERT', 'UPDATE'];
+  const WHERE_QUERIES = ['UPDATE', 'DELETE'];
 
   $: sqlPreview = computePreview(rows, valueColumns, whereColumns, queryTypeIndex);
 
@@ -93,37 +96,21 @@
       <div class="m-1 col-4">
         <div class="m-1">Value columns</div>
 
-        {#each allColumns as column}
-          <div>
-            <input
-              type="checkbox"
-              checked={valueColumns.includes(column)}
-              on:change={() => {
-                if (valueColumns.includes(column)) valueColumns = valueColumns.filter(x => x != column);
-                else valueColumns = [...valueColumns, column];
-              }}
-            />
-            {column}
-          </div>
-        {/each}
+        <CheckableColumnList
+          {allColumns}
+          bind:selectedColumns={valueColumns}
+          disabled={!VALUE_QUERIES.includes(QUERY_TYPES[queryTypeIndex])}
+        />
       </div>
 
       <div class="m-1 col-4">
         <div class="m-1">WHERE columns</div>
 
-        {#each allColumns as column}
-          <div>
-            <input
-              type="checkbox"
-              checked={whereColumns.includes(column)}
-              on:change={() => {
-                if (whereColumns.includes(column)) whereColumns = whereColumns.filter(x => x != column);
-                else whereColumns = [...whereColumns, column];
-              }}
-            />
-            {column}
-          </div>
-        {/each}
+        <CheckableColumnList
+          {allColumns}
+          bind:selectedColumns={whereColumns}
+          disabled={!WHERE_QUERIES.includes(QUERY_TYPES[queryTypeIndex])}
+        />
       </div>
     </div>
 
@@ -147,7 +134,7 @@
 <style>
   .sql {
     position: relative;
-    height: 30vh;
+    height: 25vh;
     width: 40vw;
   }
 </style>
