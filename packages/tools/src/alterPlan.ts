@@ -462,6 +462,17 @@ export class AlterPlan {
     ];
   }
 
+  _filterAllowedOperations(): AlterOperation[] {
+    return this.operations.filter(op => {
+      if (this.opts.noDropColumn && op.operationType == 'dropColumn') return false;
+      if (this.opts.noDropTable && op.operationType == 'dropTable') return false;
+      if (this.opts.noDropTable && op.operationType == 'recreateTable') return false;
+      if (this.opts.noDropConstraint && op.operationType == 'dropConstraint') return false;
+      if (this.opts.noDropSqlObject && op.operationType == 'dropSqlObject') return false;
+      return true;
+    });
+  }
+
   transformPlan() {
     // console.log('*****************OPERATIONS0', this.operations);
 
@@ -480,6 +491,10 @@ export class AlterPlan {
     this.operations = this._moveForeignKeysToLast();
 
     // console.log('*****************OPERATIONS4', this.operations);
+
+    this.operations = this._filterAllowedOperations();
+
+    // console.log('*****************OPERATIONS5', this.operations);
   }
 }
 

@@ -35,7 +35,9 @@ export interface DbDiffOptions {
   noDropSqlObject?: boolean;
   noRenameTable?: boolean;
   noRenameColumn?: boolean;
+
   ignoreForeignKeyActions?: boolean;
+  ignoreDataTypes?: boolean;
 }
 
 export function generateTablePairingId(table: TableInfo): TableInfo {
@@ -275,6 +277,10 @@ function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiff
 }
 
 export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions = {}) {
+  if (opts.ignoreDataTypes) {
+    return true;
+  }
+  
   if ((a.dataType || '').toLowerCase() != (b.dataType || '').toLowerCase()) {
     console.debug(
       `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`

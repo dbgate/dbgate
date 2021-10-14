@@ -39,6 +39,7 @@ async function generateDeploySql({
     noRenameTable: true,
     noRenameColumn: true,
     ignoreForeignKeyActions: true,
+    ignoreDataTypes: true,
   };
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
   // console.log('deployedModel', deployedModel.tables[0]);
