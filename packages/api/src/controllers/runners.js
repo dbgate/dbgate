@@ -15,17 +15,20 @@ function extractPlugins(script) {
   return matches.map(x => x[1]);
 }
 
-const requirePluginsTemplate = plugins =>
+const requirePluginsTemplate = (plugins, isExport) =>
   plugins
     .map(
-      packageName => `const ${_.camelCase(packageName)} = require(process.env.PLUGIN_${_.camelCase(packageName)});\n`
+      packageName =>
+        `const ${_.camelCase(packageName)} = require(${
+          isExport ? `'${packageName}'` : `process.env.PLUGIN_${_.camelCase(packageName)}`
+        });\n`
     )
     .join('') + `dbgateApi.registerPlugins(${plugins.map(x => _.camelCase(x)).join(',')});\n`;
 
-const scriptTemplate = script => `
-const dbgateApi = require(process.env.DBGATE_API);
+const scriptTemplate = (script, isExport) => `
+const dbgateApi = require(${isExport ? `'dbgate-api'` : 'process.env.DBGATE_API'});
 dbgateApi.initializeApiEnvironment();
-${requirePluginsTemplate(extractPlugins(script))}
+${requirePluginsTemplate(extractPlugins(script), isExport)}
 require=null;
 async function run() {
 ${script}
@@ -139,7 +142,12 @@ module.exports = {
   start_meta: 'post',
   async start({ script }) {
     const runid = uuidv1();
-    return this.startCore(runid, scriptTemplate(script));
+    return this.startCore(runid, scriptTemplate(script, false));
+  },
+
+  getNodeScript_meta: 'post',
+  async getNodeScript({ script }) {
+    return scriptTemplate(script, true);
   },
 
   cancel_meta: 'post',

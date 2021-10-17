@@ -14,6 +14,14 @@
     findReplace: true,
   });
 
+  registerCommand({
+    id: 'shell.copyNodeScript',
+    category: 'Shell',
+    name: 'Copy nodejs script',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().copyNodeScript(),
+  });
+
   // registerCommand({
   //   id: 'shell.openWizard',
   //   category: 'Shell',
@@ -25,7 +33,6 @@
   const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
   const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
   const initRegex = /([^\n]+\/\/\s*@init)/g;
-
 </script>
 
 <script lang="ts">
@@ -42,6 +49,7 @@
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
   import axiosInstance from '../utility/axiosInstance';
+  import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { showSnackbarError } from '../utility/snackbar';
@@ -131,6 +139,11 @@
     return busy;
   }
 
+  export async function copyNodeScript() {
+    const resp = await axiosInstance.post('runners/get-node-script', { script: getActiveScript() });
+    copyTextToClipboard(resp.data);
+  }
+
   // export function openWizardEnabled() {
   //   return ($editorValue || '').match(configRegex);
   // }
@@ -144,19 +157,23 @@
     }
   }
 
+  function getActiveScript() {
+    const selectedText = domEditor.getEditor().getSelectedText();
+    const editorText = $editorValue;
+    return selectedText
+      ? [...(editorText || '').matchAll(requireRegex)].map(x => `${x[1]}\n`).join('') +
+          [...(editorText || '').matchAll(initRegex)].map(x => `${x[1]}\n`).join('') +
+          selectedText
+      : editorText;
+  }
+
   export async function execute() {
     if (busy) return;
     executeNumber += 1;
-    const selectedText = domEditor.getEditor().getSelectedText();
-    const editorText = $editorValue;
 
     let runid = runnerId;
     const resp = await axiosInstance.post('runners/start', {
-      script: selectedText
-        ? [...(editorText || '').matchAll(requireRegex)].map(x => `${x[1]}\n`).join('') +
-          [...(editorText || '').matchAll(initRegex)].map(x => `${x[1]}\n`).join('') +
-          selectedText
-        : editorText,
+      script: getActiveScript(),
     });
     runid = resp.data.runid;
     runnerId = runid;
@@ -187,12 +204,12 @@
       { divider: true },
       { command: 'shell.save' },
       { command: 'shell.saveAs' },
+      { command: 'shell.copyNodeScript' },
       { divider: true },
       { command: 'shell.find' },
       { command: 'shell.replace' },
     ];
   }
-
 </script>
 
 <VerticalSplitter>

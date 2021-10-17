@@ -5,7 +5,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { filterName } from 'dbgate-tools';
+  import { extractPackageName, filterName } from 'dbgate-tools';
 
   import { currentArchive, currentDatabase } from '../stores';
 
@@ -28,7 +28,9 @@
         tabComponent: 'ShellTab',
       },
       {
-        editor: `await dbgateApi.deployDb(${JSON.stringify(
+        editor: `// @require ${extractPackageName($currentDatabase.connection.engine)}
+        
+await dbgateApi.deployDb(${JSON.stringify(
           {
             connection: {
               ..._.omit($currentDatabase.connection, '_id', 'displayName'),
