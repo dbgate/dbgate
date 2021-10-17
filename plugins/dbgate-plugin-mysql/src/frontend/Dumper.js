@@ -1,4 +1,4 @@
-const { SqlDumper, toHexString } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString } = global.DBGATE_TOOLS;
 const _isArray = require('lodash/isArray');
 
 class Dumper extends SqlDumper {
@@ -66,7 +66,7 @@ class Dumper extends SqlDumper {
   }
 
   putValue(value) {
-    if (value.type == 'Buffer' && _isArray(value.data)) this.putRaw(`unhex('${toHexString(value.data)}')`);
+    if (value.type == 'Buffer' && _isArray(value.data)) this.putRaw(`unhex('${arrayToHexString(value.data)}')`);
     else super.putValue(value);
   }
 }

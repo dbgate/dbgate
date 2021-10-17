@@ -37,6 +37,7 @@
   import _ from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { arrayToHexString } from 'dbgate-tools';
 
   export let rowIndex;
   export let col;
@@ -99,7 +100,11 @@
         {highlightSpecialCharacters(value)}
       {/if}
     {:else if value.type == 'Buffer' && _.isArray(value.data)}
-      <span class="null">({value.data.length} bytes)</span>
+      {#if value.data.length <= 16}
+        <span class="value">{arrayToHexString(value.data)}</span>
+      {:else}
+        <span class="null">({value.data.length} bytes)</span>
+      {/if}
     {:else if _.isPlainObject(value)}
       <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
     {:else if _.isArray(value)}

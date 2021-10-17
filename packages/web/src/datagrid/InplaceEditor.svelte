@@ -1,7 +1,18 @@
 <script lang="ts" context="module">
   function getEditedValue(value) {
+    if (value?.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
     return value;
+  }
+
+  function getStoredValue(originalValue, newString) {
+    if (originalValue?.type == 'Buffer' && _.isArray(originalValue?.data)) {
+      return {
+        type: 'Buffer',
+        data: hexStringToArray(newString),
+      };
+    }
+    return newString;
   }
 </script>
 
@@ -10,6 +21,7 @@
   import { onMount } from 'svelte';
   import createRef from '../utility/createRef';
   import _ from 'lodash';
+  import { arrayToHexString, hexStringToArray } from 'dbgate-tools';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
@@ -32,7 +44,7 @@
       case keycodes.enter:
         if (isChangedRef.get()) {
           // grider.setCellValue(rowIndex, uniqueName, editor.value);
-          onSetValue(domEditor.value);
+          onSetValue(getStoredValue(cellValue, domEditor.value));
           isChangedRef.set(false);
         }
         domEditor.blur();
@@ -41,7 +53,7 @@
       case keycodes.s:
         if (event.ctrlKey) {
           if (isChangedRef.get()) {
-            onSetValue(domEditor.value);
+            onSetValue(getStoredValue(cellValue, domEditor.value));
             // grider.setCellValue(rowIndex, uniqueName, editor.value);
             isChangedRef.set(false);
           }
@@ -54,7 +66,7 @@
 
   function handleBlur() {
     if (isChangedRef.get()) {
-      onSetValue(domEditor.value);
+      onSetValue(getStoredValue(cellValue, domEditor.value));
       // grider.setCellValue(rowIndex, uniqueName, editor.value);
       isChangedRef.set(false);
     }
