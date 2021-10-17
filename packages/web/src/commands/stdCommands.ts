@@ -157,6 +157,20 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.modelCompare',
+  category: 'New',
+  icon: 'img compare',
+  name: 'Compare DB Models',
+  onClick: () => {
+    openNewTab({
+      title: 'Compare',
+      icon: 'img compare',
+      tabComponent: 'CompareModelTab',
+    });
+  },
+});
+
+registerCommand({
   id: 'new.freetable',
   category: 'New',
   icon: 'img markdown',

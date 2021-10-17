@@ -50,6 +50,8 @@
     'icon arrow-begin': 'mdi mdi-arrow-collapse-left',
     'icon arrow-end': 'mdi mdi-arrow-collapse-right',
     'icon arrow-right': 'mdi mdi-arrow-right',
+    'icon arrow-left-bold': 'mdi mdi-arrow-left-bold',
+    'icon arrow-right-bold': 'mdi mdi-arrow-right-bold',
     'icon triple-left': 'mdi mdi-chevron-triple-left',
     'icon triple-right': 'mdi mdi-chevron-triple-right',
     'icon format-code': 'mdi mdi-code-tags-check',
@@ -97,6 +99,7 @@
     'img favorite': 'mdi mdi-star color-icon-yellow',
     'img query-design': 'mdi mdi-vector-polyline-edit color-icon-red',
     'img yaml': 'mdi mdi-code-brackets color-icon-red',
+    'img compare': 'mdi mdi-compare color-icon-red',
 
     'img free-table': 'mdi mdi-table color-icon-green',
     'img macro': 'mdi mdi-hammer-wrench',

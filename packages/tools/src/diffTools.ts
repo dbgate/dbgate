@@ -280,7 +280,7 @@ export function testEqualTypes(a: ColumnInfo, b: ColumnInfo, opts: DbDiffOptions
   if (opts.ignoreDataTypes) {
     return true;
   }
-  
+
   if ((a.dataType || '').toLowerCase() != (b.dataType || '').toLowerCase()) {
     console.debug(
       `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different data type: ${a.dataType}, ${b.dataType}`
@@ -366,6 +366,18 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     });
 
   constraintPairs.filter(x => x[0] == null).forEach(x => plan.createConstraint(x[1]));
+}
+
+export function testEqualTables(
+  a: TableInfo,
+  b: TableInfo,
+  opts: DbDiffOptions,
+  db: DatabaseInfo,
+  driver: EngineDriver
+) {
+  const plan = new AlterPlan(db, driver.dialect, opts);
+  planAlterTable(plan, a, b, opts);
+  return plan.operations.length == 0;
 }
 
 export function createAlterTablePlan(
@@ -470,6 +482,8 @@ export function getAlterDatabaseScript(
 }
 
 export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: DbDiffOptions) {
+  if (!db1 || !db2) return null;
+
   const res = _cloneDeep(db2);
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {

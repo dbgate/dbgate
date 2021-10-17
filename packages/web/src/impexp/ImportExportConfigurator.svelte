@@ -149,7 +149,7 @@
       setPreviewSource={previewSource.set}
     />
     <div class="arrow">
-      <FontIcon icon="icon arrow-right" />
+      <FontIcon icon="icon arrow-right-bold" />
     </div>
     <SourceTargetConfig
       direction="target"
