@@ -67,7 +67,7 @@ export function extractRowCopiedValue(row, col) {
   if (value === undefined) value = _.get(row, col);
   if (value === null) return '(NULL)';
   if (value === undefined) return '(NoField)';
-  if (value.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
+  if (value && value.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
   if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
   return value;
 }

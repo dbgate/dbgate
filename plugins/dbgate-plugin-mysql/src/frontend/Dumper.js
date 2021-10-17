@@ -66,8 +66,11 @@ class Dumper extends SqlDumper {
   }
 
   putValue(value) {
-    if (value.type == 'Buffer' && _isArray(value.data)) this.putRaw(`unhex('${arrayToHexString(value.data)}')`);
-    else super.putValue(value);
+    if (value && value.type == 'Buffer' && _isArray(value.data)) {
+      this.putRaw(`unhex('${arrayToHexString(value.data)}')`);
+    } else {
+      super.putValue(value);
+    }
   }
 }
 
