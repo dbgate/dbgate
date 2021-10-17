@@ -192,14 +192,6 @@
     return `Rows: ${allRowCount.toLocaleString()}`;
   }
 
-  function extractCopiedValue(row, col) {
-    let value = row[col];
-    if (value === undefined) value = _.get(row, col);
-    if (value === null) return '(NULL)';
-    if (value === undefined) return '(NoField)';
-    if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
-    return value;
-  }
 </script>
 
 <script lang="ts">
@@ -231,7 +223,7 @@
   import keycodes from '../utility/keycodes';
   import { selectedCellsCallback } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-  import { copyTextToClipboard } from '../utility/clipboard';
+  import { copyTextToClipboard ,extractRowCopiedValue} from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
@@ -370,7 +362,7 @@
       if (!rowData) return '';
       const line = colIndexes
         .map(col => realColumnUniqueNames[col])
-        .map(col => extractCopiedValue(rowData, col))
+        .map(col => extractRowCopiedValue(rowData, col))
         .join('\t');
       return line;
     });
