@@ -99,7 +99,7 @@
       {:else}
         {highlightSpecialCharacters(value)}
       {/if}
-    {:else if value.type == 'Buffer' && _.isArray(value.data)}
+    {:else if value?.type == 'Buffer' && _.isArray(value.data)}
       {#if value.data.length <= 16}
         <span class="value">{arrayToHexString(value.data)}</span>
       {:else}
