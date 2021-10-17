@@ -1,4 +1,5 @@
-const { SqlDumper } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString } = global.DBGATE_TOOLS;
+const _isArray = require('lodash/isArray');
 
 class Dumper extends SqlDumper {
   /** @param type {import('dbgate-types').TransformType} */
@@ -62,6 +63,11 @@ class Dumper extends SqlDumper {
 
   selectTableIntoNewTable(sourceName, targetName) {
     this.putCmd('^create ^table %f (^select * ^from %f)', targetName, sourceName);
+  }
+
+  putValue(value) {
+    if (value.type == 'Buffer' && _isArray(value.data)) this.putRaw(`unhex('${arrayToHexString(value.data)}')`);
+    else super.putValue(value);
   }
 }
 

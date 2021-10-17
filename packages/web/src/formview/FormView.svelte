@@ -152,7 +152,6 @@
   function isDataCell(cell) {
     return cell[1] % 2 == 1;
   }
-
 </script>
 
 <script lang="ts">
@@ -175,7 +174,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   import axiosInstance from '../utility/axiosInstance';
-  import { copyTextToClipboard } from '../utility/clipboard';
+  import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createReducer from '../utility/createReducer';
@@ -256,7 +255,7 @@
   export function copyToClipboard() {
     const column = getCellColumn(currentCell);
     if (!column) return;
-    const text = currentCell[1] % 2 == 1 ? rowData[column.uniqueName] : column.columnName;
+    const text = currentCell[1] % 2 == 1 ? extractRowCopiedValue(rowData, column.uniqueName) : column.columnName;
     copyTextToClipboard(text);
   }
 
@@ -475,7 +474,6 @@
   function handleSetFormView(rowData, column) {
     openReferenceForm(rowData, column, conid, database);
   }
-
 </script>
 
 <div class="outer">
@@ -629,5 +627,4 @@
     right: 40px;
     bottom: 20px;
   }
-
 </style>
