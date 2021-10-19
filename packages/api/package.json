@@ -70,6 +70,6 @@
     "webpack-cli": "^3.3.11"
   },
   "optionalDependencies": {
-    "msnodesqlv8": "^2.0.10"
+    "msnodesqlv8": "^2.4.0"
   }
 }
