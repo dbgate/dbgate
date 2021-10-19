@@ -12,9 +12,12 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
+import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import { computeDiffRows } from '../utility/computeDiffRows';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+
+  export let tabid;
 
   let values = writable({
     sourceConid: null,
@@ -46,6 +49,14 @@
 
   $: targetDbPaired = matchPairedObjects($sourceDb, $targetDb, dbDiffOptions);
   $: diffRows = computeDiffRows($sourceDb, targetDbPaired, dbDiffOptions, driver);
+
+  const { editorState, editorValue, setEditorData } = useEditorData({
+    tabid,
+    // onInitialData: value => {
+    //   dispatchModel({ type: 'reset', value });
+    // },
+  });
+
 </script>
 
 <div class="wrapper">
