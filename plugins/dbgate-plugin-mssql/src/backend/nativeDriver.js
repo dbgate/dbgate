@@ -67,9 +67,13 @@ async function nativeConnect(connection) {
   for (let i = 0; i < drivers.length; i += 1) {
     try {
       const res = await connectWithDriver(connection, drivers[i]);
+      console.error(`Connected SQL Server with ${drivers[i]} driver`);
       return res;
     } catch (err) {
-      if (err.message.includes('[ODBC Driver Manager]') && i < drivers.length - 1) continue;
+      if (err.message && err.message.includes('[ODBC Driver Manager]') && i < drivers.length - 1) {
+        console.error(`Failed connecting with ${drivers[i]} driver, trying next`, err);
+        continue;
+      }
       throw err;
     }
   }
