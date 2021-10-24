@@ -65,6 +65,8 @@
   <FormSelectField
     label="Authentication"
     name="authType"
+    isNative
+    defaultValue={driver?.defaultAuthTypeName}
     options={$authTypes.map(auth => ({
       value: auth.name,
       label: auth.title,

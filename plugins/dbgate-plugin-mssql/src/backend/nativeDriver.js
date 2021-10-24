@@ -43,20 +43,41 @@ function extractNativeColumns(meta) {
   return res;
 }
 
-async function nativeConnect({ server, port, user, password, database, authType }) {
+async function connectWithDriver({ server, port, user, password, database, authType }, driver) {
   let connectionString = `server=${server}`;
   if (port && !server.includes('\\')) connectionString += `,${port}`;
-  connectionString += ';Driver={SQL Server Native Client 11.0}';
+  connectionString += `;Driver={${driver}}`;
   if (authType == 'sspi') connectionString += ';Trusted_Connection=Yes';
   else connectionString += `;UID=${user};PWD=${password}`;
   if (database) connectionString += `;Database=${database}`;
   return new Promise((resolve, reject) => {
     msnodesqlv8.open(connectionString, (err, conn) => {
-      if (err) reject(err);
-      conn._connectionType = 'msnodesqlv8';
-      resolve(conn);
+      if (err) {
+        reject(err);
+      } else {
+        conn._connectionType = 'msnodesqlv8';
+        resolve(conn);
+      }
     });
   });
+}
+
+async function nativeConnect(connection) {
+  const drivers = ['ODBC Driver 17 for SQL Server', 'SQL Server Native Client 11.0'];
+
+  for (let i = 0; i < drivers.length; i += 1) {
+    try {
+      const res = await connectWithDriver(connection, drivers[i]);
+      console.error(`Connected SQL Server with ${drivers[i]} driver`);
+      return res;
+    } catch (err) {
+      if (err.message && err.message.includes('[ODBC Driver Manager]') && i < drivers.length - 1) {
+        console.error(`Failed connecting with ${drivers[i]} driver, trying next`, err);
+        continue;
+      }
+      throw new Error(`${err}`);
+    }
+  }
 }
 
 async function nativeQueryCore(pool, sql, options) {

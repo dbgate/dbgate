@@ -47,6 +47,7 @@ export interface EngineDriver {
   showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
+  defaultAuthTypeName?: string;
   connect({ server, port, user, password, database }): Promise<any>;
   close(pool): Promise<any>;
   query(pool: any, sql: string, options?: QueryOptions): Promise<QueryResult>;
