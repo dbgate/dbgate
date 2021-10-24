@@ -15,7 +15,7 @@
 
 <SelectField
   {...$$restProps}
-  value={$values[name]}
+  value={$values && $values[name]}
   options={_.compact(options)}
   on:change={e => {
     setFieldValue(name, e.detail);

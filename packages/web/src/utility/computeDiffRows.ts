@@ -7,7 +7,7 @@ export function computeDiffRows(
   opts: DbDiffOptions,
   driver: EngineDriver
 ) {
-  if (!sourceDb || !targetDb) return [];
+  if (!sourceDb || !targetDb || !driver) return [];
   const res = [];
   for (const obj of sourceDb.tables) {
     const paired = targetDb.tables.find(x => x.pairingId == obj.pairingId);

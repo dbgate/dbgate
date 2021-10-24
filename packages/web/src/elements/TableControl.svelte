@@ -23,6 +23,7 @@
   export let selectable = false;
   export let selectedIndex = 0;
   export let clickable = false;
+  export let disableFocusOutline = false;
 
   export let domTable;
 
@@ -47,6 +48,7 @@
 <table
   bind:this={domTable}
   class:selectable
+  class:disableFocusOutline
   on:keydown
   tabindex={selectable ? -1 : undefined}
   on:keydown={handleKeyDown}
@@ -101,6 +103,9 @@
 </table>
 
 <style>
+  table.disableFocusOutline:focus {
+    outline: none;
+  }
   table {
     border-collapse: collapse;
     width: 100%;

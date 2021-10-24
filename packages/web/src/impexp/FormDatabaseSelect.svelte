@@ -8,7 +8,7 @@
   export let conidName;
 
   const { values } = getFormContext();
-  $: databases = useDatabaseList({ conid: $values[conidName] });
+  $: databases = useDatabaseList({ conid: $values && $values[conidName] });
 
   $: databaseOptions = _.sortBy(
     ($databases || []).map(db => ({

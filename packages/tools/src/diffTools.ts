@@ -377,6 +377,7 @@ export function testEqualTables(
 ) {
   const plan = new AlterPlan(db, driver.dialect, opts);
   planAlterTable(plan, a, b, opts);
+  // console.log('plan.operations', a, b, plan.operations);
   return plan.operations.length == 0;
 }
 
