@@ -391,6 +391,8 @@ export function createAlterTablePlan(
   const plan = new AlterPlan(db, driver.dialect, opts);
   if (oldTable == null) {
     plan.createTable(newTable);
+  } else if (newTable == null) {
+    plan.dropTable(oldTable);
   } else {
     planAlterTable(plan, oldTable, newTable, opts);
   }
@@ -452,6 +454,10 @@ export function getAlterTableScript(
   db: DatabaseInfo,
   driver: EngineDriver
 ) {
+  if ((!oldTable && !newTable) || !driver) {
+    return { sql: '', recreates: [] };
+  }
+
   const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
   const dmp = driver.createDumper();
   if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();

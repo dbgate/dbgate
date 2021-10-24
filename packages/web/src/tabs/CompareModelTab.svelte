@@ -3,10 +3,11 @@
 </script>
 
 <script lang="ts">
-  import { findEngineDriver, generateDbPairingId, matchPairedObjects } from 'dbgate-tools';
+  import { findEngineDriver, generateDbPairingId, getAlterTableScript, matchPairedObjects } from 'dbgate-tools';
 
   import _ from 'lodash';
   import { derived, writable } from 'svelte/store';
+  import TabControl from '../elements/TabControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormFieldTemplateTiny from '../forms/FormFieldTemplateTiny.svelte';
@@ -14,6 +15,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
+  import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import { computeDiffRows } from '../utility/computeDiffRows';
@@ -45,6 +47,14 @@
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
   $: diffRows = computeDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
+
+  $: sqlPreview = getAlterTableScript(
+    diffRows[pairIndex]?.source,
+    diffRows[pairIndex]?.target,
+    dbDiffOptions,
+    targetDb,
+    driver
+  ).sql;
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
@@ -123,7 +133,24 @@
       </div>
     </div>
 
-    <svelte:fragment slot="2" />
+    <svelte:fragment slot="2">
+      <TabControl
+        tabs={[
+          {
+            label: 'SQL script',
+            slot: 1,
+          },
+          {
+            label: 'Columns',
+            slot: 2,
+          },
+        ]}
+      >
+        <svelte:fragment slot="1">
+          <SqlEditor readOnly value={sqlPreview} />
+        </svelte:fragment>
+      </TabControl>
+    </svelte:fragment>
   </VerticalSplitter>
 </div>
 

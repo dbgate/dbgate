@@ -122,6 +122,7 @@
   tbody tr.clickable:hover {
     background: var(--theme-bg-hover);
   }
+
   thead td {
     border: 1px solid var(--theme-border);
     background-color: var(--theme-bg-1);
