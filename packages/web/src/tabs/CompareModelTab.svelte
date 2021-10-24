@@ -19,7 +19,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import { computeDiffRows } from '../utility/computeDiffRows';
+  import { computeDbDiffRows } from '../utility/computeDiffRows';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 
   export let tabid;
@@ -47,7 +47,7 @@
   $: driver = findEngineDriver($connection, $extensions);
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
-  $: diffRows = computeDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
+  $: diffRows = computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
 
   $: sqlPreview = getAlterTableScript(
     diffRows[pairIndex]?.source,
