@@ -59,6 +59,7 @@ const driver = {
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',
   defaultPort: 1433,
+  defaultAuthTypeName: 'tedious',
 };
 
 module.exports = driver;

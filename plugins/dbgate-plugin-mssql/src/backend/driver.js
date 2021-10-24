@@ -41,7 +41,7 @@ const windowsAuthTypes = [
     disabledFields: ['port'],
   },
   {
-    title: 'Tedious driver',
+    title: 'NodeJs portable driver (tedious)',
     name: 'tedious',
   },
 ];
