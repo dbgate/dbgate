@@ -8,6 +8,7 @@
   import _ from 'lodash';
   import { derived, writable } from 'svelte/store';
   import TableControl from '../elements/TableControl.svelte';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormFieldTemplateTiny from '../forms/FormFieldTemplateTiny.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -60,52 +61,70 @@
 </script>
 
 <div class="wrapper">
-  <FormProviderCore {values}>
-    <div class="topbar">
-      <div class="col-3">
-        <FormConnectionSelect name="sourceConid" label="Source server" templateProps={{ noMargin: true }} isNative />
-      </div>
-      <div class="col-3">
-        <FormDatabaseSelect
-          conidName="sourceConid"
-          name="sourceDatabase"
-          label="Source database"
-          templateProps={{ noMargin: true }}
-          isNative
-        />
-      </div>
-      <div class="arrow">
-        <FontIcon icon="icon arrow-right-bold" />
-      </div>
-      <div class="col-3">
-        <FormConnectionSelect name="targetConid" label="Target server" templateProps={{ noMargin: true }} isNative />
-      </div>
-      <div class="col-3">
-        <FormDatabaseSelect
-          conidName="targetConid"
-          name="targetDatabase"
-          label="Target database"
-          templateProps={{ noMargin: true }}
-          isNative
+  <VerticalSplitter>
+    <div slot="1" class="flexcol">
+      <FormProviderCore {values}>
+        <div class="topbar">
+          <div class="col-3">
+            <FormConnectionSelect
+              name="sourceConid"
+              label="Source server"
+              templateProps={{ noMargin: true }}
+              isNative
+            />
+          </div>
+          <div class="col-3">
+            <FormDatabaseSelect
+              conidName="sourceConid"
+              name="sourceDatabase"
+              label="Source database"
+              templateProps={{ noMargin: true }}
+              isNative
+            />
+          </div>
+          <div class="arrow">
+            <FontIcon icon="icon arrow-right-bold" />
+          </div>
+          <div class="col-3">
+            <FormConnectionSelect
+              name="targetConid"
+              label="Target server"
+              templateProps={{ noMargin: true }}
+              isNative
+            />
+          </div>
+          <div class="col-3">
+            <FormDatabaseSelect
+              conidName="targetConid"
+              name="targetDatabase"
+              label="Target database"
+              templateProps={{ noMargin: true }}
+              isNative
+            />
+          </div>
+        </div>
+      </FormProviderCore>
+
+      <div class="tableWrapper">
+        <TableControl
+          rows={diffRows}
+          bind:selectedIndex={pairIndex}
+          selectable
+          disableFocusOutline
+          columns={[
+            { fieldName: 'type', header: 'Type' },
+            { fieldName: 'sourceSchemaName', header: 'Schema' },
+            { fieldName: 'sourcePureName', header: 'Name' },
+            { fieldName: 'state', header: 'Action' },
+            { fieldName: 'targetSchemaName', header: 'Schema' },
+            { fieldName: 'targetPureName', header: 'Name' },
+          ]}
         />
       </div>
     </div>
-  </FormProviderCore>
 
-  <TableControl
-    rows={diffRows}
-    bind:selectedIndex={pairIndex}
-    selectable
-    disableFocusOutline
-    columns={[
-      { fieldName: 'type', header: 'Type' },
-      { fieldName: 'sourceSchemaName', header: 'Schema' },
-      { fieldName: 'sourcePureName', header: 'Name' },
-      { fieldName: 'state', header: 'Action' },
-      { fieldName: 'targetSchemaName', header: 'Schema' },
-      { fieldName: 'targetPureName', header: 'Name' },
-    ]}
-  />
+    <svelte:fragment slot="2" />
+  </VerticalSplitter>
 </div>
 
 <style>
@@ -114,9 +133,15 @@
     flex: 1;
   }
 
+  .flexcol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
   .topbar {
     display: flex;
     margin: 10px 0px;
+    width: 100%;
   }
   .arrow {
     font-size: 30px;
@@ -124,5 +149,11 @@
     align-self: center;
     position: relative;
     top: 10px;
+  }
+
+  .tableWrapper {
+    overflow-y: scroll;
+    width: 100%;
+    flex: 1;
   }
 </style>
