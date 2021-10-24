@@ -64,6 +64,7 @@ async function connectWithDriver({ server, port, user, password, database, authT
 
 async function nativeConnect(connection) {
   const drivers = ['ODBC Driver 17 for SQL Server', 'SQL Server Native Client 11.0'];
+
   for (let i = 0; i < drivers.length; i += 1) {
     try {
       const res = await connectWithDriver(connection, drivers[i]);
@@ -74,7 +75,7 @@ async function nativeConnect(connection) {
         console.error(`Failed connecting with ${drivers[i]} driver, trying next`, err);
         continue;
       }
-      throw err;
+      throw new Error(`${err}`);
     }
   }
 }
