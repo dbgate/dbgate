@@ -25,7 +25,7 @@
   export let clickable = false;
   export let disableFocusOutline = false;
 
-  export let domTable;
+  export let domTable = undefined;
 
   const dispatch = createEventDispatcher();
 

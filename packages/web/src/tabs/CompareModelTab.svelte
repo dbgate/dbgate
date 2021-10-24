@@ -7,6 +7,7 @@
 
   import _ from 'lodash';
   import { derived, writable } from 'svelte/store';
+  import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -116,16 +117,16 @@
       </FormProviderCore>
 
       <div class="tableWrapper">
-        <TableControl
+        <ScrollableTableControl
           rows={diffRows}
           bind:selectedIndex={pairIndex}
           selectable
           disableFocusOutline
           columns={[
-            { fieldName: 'type', header: 'Type' },
+            { fieldName: 'type', header: 'Type', width: '100px' },
             { fieldName: 'sourceSchemaName', header: 'Schema' },
             { fieldName: 'sourcePureName', header: 'Name' },
-            { fieldName: 'state', header: 'Action' },
+            { fieldName: 'state', header: 'Action', width: '100px' },
             { fieldName: 'targetSchemaName', header: 'Schema' },
             { fieldName: 'targetPureName', header: 'Name' },
           ]}
@@ -179,7 +180,7 @@
   }
 
   .tableWrapper {
-    overflow-y: scroll;
+    position: relative;
     width: 100%;
     flex: 1;
   }
