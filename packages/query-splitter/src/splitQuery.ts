@@ -2,14 +2,14 @@ import { SplitterOptions, defaultSplitterOptions } from './options';
 
 const SEMICOLON = ';';
 
-interface SplitStreamContext {
+export interface SplitStreamContext {
   options: SplitterOptions;
   currentDelimiter: string;
   pushOutput: (sql: string) => void;
   commandPart: string;
 }
 
-interface SplitLineContext extends SplitStreamContext {
+export interface SplitLineContext extends SplitStreamContext {
   source: string;
   position: number;
   // output: string[];
@@ -246,7 +246,8 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
 
   splitQueryLine(context);
 
-  pushQuery(context);
-  
+  const trimmed = context.commandPart.trim();
+  if (trimmed) context.pushOutput(trimmed);
+
   return output;
 }
