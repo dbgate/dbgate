@@ -2,12 +2,17 @@ import { SplitterOptions, defaultSplitterOptions } from './options';
 
 const SEMICOLON = ';';
 
-interface SplitExecutionContext {
+interface SplitStreamContext {
   options: SplitterOptions;
+  currentDelimiter: string;
+  pushOutput: (sql: string) => void;
+  commandPart: string;
+}
+
+interface SplitLineContext extends SplitStreamContext {
   source: string;
   position: number;
-  currentDelimiter: string;
-  output: string[];
+  // output: string[];
   end: number;
   wasDataOnLine: boolean;
   currentCommandStart: number;
@@ -47,7 +52,7 @@ const DATA_TOKEN: Token = {
   length: 1,
 };
 
-function scanDollarQuotedString(context: SplitExecutionContext): Token {
+function scanDollarQuotedString(context: SplitLineContext): Token {
   if (!context.options.allowDollarDollarString) return null;
 
   let pos = context.position;
@@ -71,7 +76,7 @@ function scanDollarQuotedString(context: SplitExecutionContext): Token {
   return null;
 }
 
-function scanToken(context: SplitExecutionContext): Token {
+function scanToken(context: SplitLineContext): Token {
   let pos = context.position;
   const s = context.source;
   const ch = s[pos];
@@ -155,33 +160,13 @@ function scanToken(context: SplitExecutionContext): Token {
   return DATA_TOKEN;
 }
 
-function pushQuery(context) {
-  const sql = context.source.slice(context.currentCommandStart, context.position);
+function pushQuery(context: SplitLineContext) {
+  const sql = (context.commandPart || '') + context.source.slice(context.currentCommandStart, context.position);
   const trimmed = sql.trim();
-  if (trimmed) context.output.push(trimmed);
+  if (trimmed) context.pushOutput(trimmed);
 }
 
-export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
-  const usedOptions = {
-    ...defaultSplitterOptions,
-    ...options,
-  };
-
-  if (usedOptions.noSplit) {
-    return [sql];
-  }
-
-  const context: SplitExecutionContext = {
-    source: sql,
-    end: sql.length,
-    currentDelimiter: options?.allowSemicolon === false ? null : SEMICOLON,
-    position: 0,
-    currentCommandStart: 0,
-    output: [],
-    wasDataOnLine: false,
-    options: usedOptions,
-  };
-
+function splitQueryLine(context: SplitLineContext) {
   while (context.position < context.end) {
     const token = scanToken(context);
     if (!token) {
@@ -211,17 +196,20 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
         break;
       case 'set_delimiter':
         pushQuery(context);
+        context.commandPart = '';
         context.currentDelimiter = token.value;
         context.position += token.length;
         context.currentCommandStart = context.position;
         break;
       case 'go_delimiter':
         pushQuery(context);
+        context.commandPart = '';
         context.position += token.length;
         context.currentCommandStart = context.position;
         break;
       case 'delimiter':
         pushQuery(context);
+        context.commandPart = '';
         context.position += token.length;
         context.currentCommandStart = context.position;
         break;
@@ -229,29 +217,36 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
   }
 
   if (context.end > context.currentCommandStart) {
-    pushQuery(context);
+    context.commandPart += context.source.slice(context.currentCommandStart, context.position);
+  }
+}
+
+export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
+  const usedOptions = {
+    ...defaultSplitterOptions,
+    ...options,
+  };
+
+  if (usedOptions.noSplit) {
+    return [sql];
   }
 
-  //   context.semicolonKeyTokenRegex = buildKeyTokenRegex(SEMICOLON, context);
-  //   let findResult: FindExpResult = {
-  //     expIndex: -1,
-  //     exp: null,
-  //     nextIndex: 0,
-  //   };
-  //   let lastUnreadLength;
-  //   do {
-  //     // console.log('context.unread', context.unread);
-  //     lastUnreadLength = context.unread.length;
-  //     findResult = findKeyToken(context.unread, context.currentDelimiter, context);
-  //     handleKeyTokenFindResult(context, findResult);
-  //     // Prevent infinite loop by returning incorrect result
-  //     if (lastUnreadLength === context.unread.length) {
-  //       read(context, context.unread.length);
-  //     }
-  //   } while (context.unread !== '');
-  //   publishStatement(context);
+  const output = [];
+  const context: SplitLineContext = {
+    source: sql,
+    end: sql.length,
+    currentDelimiter: options?.allowSemicolon === false ? null : SEMICOLON,
+    position: 0,
+    currentCommandStart: 0,
+    pushOutput: cmd => output.push(cmd),
+    wasDataOnLine: false,
+    options: usedOptions,
+    commandPart: '',
+  };
 
-  // console.log('RESULT', context.output);
+  splitQueryLine(context);
 
-  return context.output;
+  pushQuery(context);
+  
+  return output;
 }
