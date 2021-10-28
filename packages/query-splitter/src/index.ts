@@ -1,2 +1,2 @@
-export * from './splitQuery';
+export { splitQuery } from './splitQuery';
 export * from './options';

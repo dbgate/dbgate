@@ -166,7 +166,7 @@ function pushQuery(context: SplitLineContext) {
   if (trimmed) context.pushOutput(trimmed);
 }
 
-function splitQueryLine(context: SplitLineContext) {
+export function splitQueryLine(context: SplitLineContext) {
   while (context.position < context.end) {
     const token = scanToken(context);
     if (!token) {
@@ -221,6 +221,9 @@ function splitQueryLine(context: SplitLineContext) {
   }
 }
 
+export function getInitialDelimiter(options: SplitterOptions) {
+  return options?.allowSemicolon === false ? null : SEMICOLON
+}
 export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
   const usedOptions = {
     ...defaultSplitterOptions,
@@ -235,7 +238,7 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
   const context: SplitLineContext = {
     source: sql,
     end: sql.length,
-    currentDelimiter: options?.allowSemicolon === false ? null : SEMICOLON,
+    currentDelimiter: getInitialDelimiter(options),
     position: 0,
     currentCommandStart: 0,
     pushOutput: cmd => output.push(cmd),
