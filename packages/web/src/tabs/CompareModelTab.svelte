@@ -19,7 +19,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import { computeDbDiffRows } from '../utility/computeDiffRows';
+  import { computeDbDiffRows, computeTableDiffColumns } from '../utility/computeDiffRows';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 
   export let tabid;
@@ -48,6 +48,12 @@
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
   $: diffRows = computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
+  $: diffColumns = computeTableDiffColumns(
+    diffRows[pairIndex]?.source,
+    diffRows[pairIndex]?.target,
+    dbDiffOptions,
+    driver
+  );
 
   $: sqlPreview = getAlterTableScript(
     diffRows[pairIndex]?.source,
@@ -149,6 +155,25 @@
       >
         <svelte:fragment slot="1">
           <SqlEditor readOnly value={sqlPreview} />
+        </svelte:fragment>
+
+        <svelte:fragment slot="2">
+          <ScrollableTableControl
+            rows={diffColumns}
+            disableFocusOutline
+            columns={[
+              { fieldName: 'sourceColumnName', header: 'Name', width: '100px' },
+              { fieldName: 'sourceDataType', header: 'Type' },
+              { fieldName: 'sourceNotNull', header: 'Not null', slot: 1 },
+              { fieldName: 'state', header: 'Action', width: '100px' },
+              { fieldName: 'targetColumnName', header: 'Schema' },
+              { fieldName: 'targetDataType', header: 'Name' },
+              { fieldName: 'targetNotNull', header: 'Not null', slot: 2 },
+            ]}
+          >
+            <input type="checkbox" disabled slot="1" let:row checked={!!row.sourceNotNull} />
+            <input type="checkbox" disabled slot="2" let:row checked={!!row.targetNotNull} />
+          </ScrollableTableControl>
         </svelte:fragment>
       </TabControl>
     </svelte:fragment>

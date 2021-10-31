@@ -48,6 +48,20 @@
     if (event.keyCode == keycodes.upArrow) {
       selectedIndex = Math.max(0, selectedIndex - 1);
     }
+    if (event.keyCode == keycodes.pageUp) {
+      selectedIndex -= Math.floor(clientHeight / headerHeight) - 1;
+      if (selectedIndex < 0) selectedIndex = 0;
+    }
+    if (event.keyCode == keycodes.pageDown) {
+      selectedIndex += Math.floor(clientHeight / headerHeight) - 1;
+      if (selectedIndex >= rows.length) selectedIndex = rows.length - 1;
+    }
+    if (event.keyCode == keycodes.home) {
+      selectedIndex = 0;
+    }
+    if (event.keyCode == keycodes.end) {
+      selectedIndex = rows.length - 1;
+    }
   };
 
   function scrollToIndex(index) {

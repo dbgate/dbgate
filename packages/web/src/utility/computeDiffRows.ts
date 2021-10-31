@@ -55,8 +55,8 @@ export function computeTableDiffColumns(
   opts: DbDiffOptions,
   driver: EngineDriver
 ) {
-  if (!sourceTable || !sourceTable || !driver) return [];
-  return computeDiffRowsCore(sourceTable.columns, targetTable.columns, (a, b) =>
+  if (!driver) return [];
+  return computeDiffRowsCore(sourceTable?.columns || [], targetTable?.columns || [], (a, b) =>
     testEqualColumns(a, b, true, true, opts)
   ).map(row => ({
     ...row,
