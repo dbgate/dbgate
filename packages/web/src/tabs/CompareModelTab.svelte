@@ -7,6 +7,7 @@
 
   import _ from 'lodash';
   import { derived, writable } from 'svelte/store';
+  import DiffView from '../elements/DiffView.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
@@ -19,7 +20,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import { computeDbDiffRows, computeTableDiffColumns } from '../utility/computeDiffRows';
+  import { computeDbDiffRows, computeTableDiffColumns, getCreateTableScript } from '../utility/computeDiffRows';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
 
   export let tabid;
@@ -144,20 +145,33 @@
       <TabControl
         tabs={[
           {
-            label: 'SQL script',
+            label: 'DDL',
             slot: 1,
           },
           {
-            label: 'Columns',
+            label: 'SQL script',
             slot: 2,
+          },
+          {
+            label: 'Columns',
+            slot: 3,
           },
         ]}
       >
         <svelte:fragment slot="1">
-          <SqlEditor readOnly value={sqlPreview} />
+          <DiffView
+            leftTitle={diffRows[pairIndex]?.source?.pureName}
+            rightTitle={diffRows[pairIndex]?.source?.pureName}
+            leftText={getCreateTableScript(diffRows[pairIndex]?.source, driver)}
+            rightText={getCreateTableScript(diffRows[pairIndex]?.target, driver)}
+          />
         </svelte:fragment>
 
         <svelte:fragment slot="2">
+          <SqlEditor readOnly value={sqlPreview} />
+        </svelte:fragment>
+
+        <svelte:fragment slot="3">
           <ScrollableTableControl
             rows={diffColumns}
             disableFocusOutline

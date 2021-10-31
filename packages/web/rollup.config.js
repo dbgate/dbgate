@@ -51,6 +51,10 @@ export default {
           src: '../../node_modules/@mdi/font/fonts/*',
           dest: 'public/build/fonts/',
         },
+        {
+          src: '../../node_modules/diff2html/bundles/css/diff2html.min.css',
+          dest: 'public/build/',
+        },
       ],
     }),
 

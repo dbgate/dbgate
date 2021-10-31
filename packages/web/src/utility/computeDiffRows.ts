@@ -68,3 +68,10 @@ export function computeTableDiffColumns(
     targetNotNull: row?.target?.notNull,
   }));
 }
+
+export function getCreateTableScript(table: TableInfo, driver: EngineDriver) {
+  if (!table || !driver) return '';
+  const dmp = driver.createDumper();
+  dmp.createTable(table);
+  return dmp.s;
+}
