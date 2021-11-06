@@ -528,4 +528,6 @@ export const modelCompareDbDiffOptions: DbDiffOptions = {
   ignoreCase: true,
   schemaMode: 'ignore',
   ignoreConstraintNames: true,
+  ignoreForeignKeyActions: true,
+  ignoreDataTypes: true,
 };
