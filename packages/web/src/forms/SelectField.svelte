@@ -22,7 +22,7 @@
 
 {#if isNative}
   <select
-    value={value || defaultValue}
+    value={options.find(x => x.value == value) ? value : defaultValue}
     {...$$restProps}
     on:change={e => {
       dispatch('change', e.target['value']);

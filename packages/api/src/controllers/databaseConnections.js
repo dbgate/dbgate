@@ -3,16 +3,27 @@ const connections = require('./connections');
 const archive = require('./archive');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const { DatabaseAnalyser, getAlterDatabaseScript, generateDbPairingId, matchPairedObjects } = require('dbgate-tools');
+const {
+  DatabaseAnalyser,
+  computeDbDiffRows,
+  getCreateObjectScript,
+  getAlterDatabaseScript,
+  generateDbPairingId,
+  matchPairedObjects,
+  extendDatabaseInfo,
+} = require('dbgate-tools');
+const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
 const config = require('./config');
 const fs = require('fs-extra');
 const exportDbModel = require('../utility/exportDbModel');
-const { archivedir, resolveArchiveFolder } = require('../utility/directories');
+const { archivedir, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
 const path = require('path');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const generateDeploySql = require('../shell/generateDeploySql');
+const { createTwoFilesPatch } = require('diff');
+const diff2htmlPage = require('../utility/diff2htmlPage');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -285,4 +296,55 @@ module.exports = {
   //   const res = await this.sendRequest(opened, { msgtype: 'queryData', sql });
   //   return res;
   // },
+
+  async getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+    const dbDiffOptions = {
+      // schemaMode: 'ignore',
+    };
+
+    const sourceDb = generateDbPairingId(
+      extendDatabaseInfo(await this.structure({ conid: sourceConid, database: sourceDatabase }))
+    );
+    const targetDb = generateDbPairingId(
+      extendDatabaseInfo(await this.structure({ conid: targetConid, database: targetDatabase }))
+    );
+    // const sourceConnection = await connections.get({conid:sourceConid})
+    const connection = await connections.get({ conid: targetConid });
+    const driver = requireEngineDriver(connection);
+    const targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
+    const diffRows = computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
+
+    // console.log('sourceDb', sourceDb);
+    // console.log('targetDb', targetDb);
+    // console.log('sourceConid, sourceDatabase', sourceConid, sourceDatabase);
+
+    let res = '';
+    for (const row of diffRows) {
+      // console.log('PAIR', row.source && row.source.pureName, row.target && row.target.pureName);
+      const unifiedDiff = createTwoFilesPatch(
+        (row.source && row.source.pureName) || '',
+        (row.target && row.target.pureName) || '',
+        getCreateObjectScript(row.source, driver),
+        getCreateObjectScript(row.target, driver),
+        '',
+        ''
+      );
+      res += unifiedDiff;
+    }
+    return res;
+  },
+
+  generateDbDiffReport_meta: 'post',
+  async generateDbDiffReport({ sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+    const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase });
+
+    const diffJson = parse(unifiedDiff);
+    // $: diffHtml = html(diffJson, { outputFormat: 'side-by-side', drawFileList: false });
+    const diffHtml = html(diffJson, {});
+
+    const fileName = `${uuidv1()}.html`;
+    await fs.writeFile(path.join(uploadsdir(), fileName), diff2htmlPage(diffHtml));
+
+    return fileName;
+  },
 };

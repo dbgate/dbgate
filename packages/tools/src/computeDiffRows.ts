@@ -1,4 +1,4 @@
-import { DbDiffOptions, testEqualColumns, testEqualTables } from 'dbgate-tools';
+import { DbDiffOptions, testEqualColumns, testEqualTables } from './diffTools';
 import { DatabaseInfo, EngineDriver, TableInfo } from 'dbgate-types';
 
 export function computeDiffRowsCore(sourceList, targetList, testEqual) {
@@ -69,7 +69,7 @@ export function computeTableDiffColumns(
   }));
 }
 
-export function getCreateTableScript(table: TableInfo, driver: EngineDriver) {
+export function getCreateObjectScript(table: TableInfo, driver: EngineDriver) {
   if (!table || !driver) return '';
   const dmp = driver.createDumper();
   dmp.createTable(table);

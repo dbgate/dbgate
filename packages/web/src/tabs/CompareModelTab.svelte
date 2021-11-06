@@ -1,12 +1,35 @@
 <script lang="ts" context="module">
   export const matchingProps = [];
+
+  const getCurrentEditor = () => getActiveComponent('CompareModelTab');
+
+  registerCommand({
+    id: 'compareModels.reportDiff',
+    category: 'Compare models',
+    toolbarName: 'Report',
+    name: 'Report diff',
+    icon: 'icon report',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().showReport(),
+    testEnabled: () => getCurrentEditor() != null,
+  });
 </script>
 
 <script lang="ts">
-  import { findEngineDriver, generateDbPairingId, getAlterTableScript, matchPairedObjects } from 'dbgate-tools';
+  import {
+    findEngineDriver,
+    generateDbPairingId,
+    getAlterTableScript,
+    matchPairedObjects,
+    computeDbDiffRows,
+    computeTableDiffColumns,
+    getCreateObjectScript,
+  } from 'dbgate-tools';
 
   import _ from 'lodash';
   import { derived, writable } from 'svelte/store';
+  import registerCommand from '../commands/registerCommand';
   import DiffView from '../elements/DiffView.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import TabControl from '../elements/TabControl.svelte';
@@ -20,12 +43,16 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import { computeDbDiffRows, computeTableDiffColumns, getCreateTableScript } from '../utility/computeDiffRows';
+  import axiosInstance from '../utility/axiosInstance';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import resolveApi from '../utility/resolveApi';
 
   export let tabid;
 
   let pairIndex = 0;
+
+  export const activator = createActivator('CompareModelTab', true);
 
   // let values = writable({
   //   sourceConid: null,
@@ -63,6 +90,24 @@
     targetDb,
     driver
   ).sql;
+
+  export async function showReport() {
+    const resp = await axiosInstance.post('database-connections/generate-db-diff-report', {
+      sourceConid: $values?.sourceConid,
+      sourceDatabase: $values?.sourceDatabase,
+      targetConid: $values?.targetConid,
+      targetDatabase: $values?.targetDatabase,
+    });
+
+    window.open(`${resolveApi()}/uploads/get?file=${resp.data}`, '_blank');
+
+    // window.open(
+    //   `${resolveApi()}/database-connections/get-diff-html?sourceConid=` +
+    //     `${$values?.sourceConid}&sourceDatabase=${$values?.sourceDatabase}&` +
+    //     `targetConid=${$values?.targetConid}&targetDatabase=${$values?.targetDatabase}`,
+    //   '_blank'
+    // );
+  }
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
@@ -162,8 +207,8 @@
           <DiffView
             leftTitle={diffRows[pairIndex]?.source?.pureName}
             rightTitle={diffRows[pairIndex]?.source?.pureName}
-            leftText={getCreateTableScript(diffRows[pairIndex]?.source, driver)}
-            rightText={getCreateTableScript(diffRows[pairIndex]?.target, driver)}
+            leftText={getCreateObjectScript(diffRows[pairIndex]?.source, driver)}
+            rightText={getCreateObjectScript(diffRows[pairIndex]?.target, driver)}
           />
         </svelte:fragment>
 

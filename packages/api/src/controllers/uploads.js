@@ -25,4 +25,12 @@ module.exports = {
       });
     });
   },
+
+  get_meta: {
+    method: 'get',
+    raw: true,
+  },
+  get(req, res) {
+    res.sendFile(path.join(uploadsdir(), req.query.file));
+  },
 };
