@@ -28,15 +28,27 @@
   });
 
   registerCommand({
-    id: 'compareModels.saveSync',
+    id: 'compareModels.deploy',
     category: 'Compare models',
-    toolbarName: 'Save/Sync',
-    name: 'Save/Sync',
-    icon: 'icon save-sync',
+    toolbarName: 'Deploy',
+    name: 'Deploy',
+    icon: 'icon deploy',
     group: 'save',
     toolbar: true,
     isRelatedToTab: true,
-    onClick: () => getCurrentEditor().saveSync(),
+    onClick: () => getCurrentEditor().deploy(),
+    testEnabled: () => getCurrentEditor() != null,
+  });
+
+  registerCommand({
+    id: 'compareModels.refresh',
+    category: 'Compare models',
+    toolbarName: 'Refresh',
+    name: 'Refresh models',
+    icon: 'icon reload',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().refreshModels(),
     testEnabled: () => getCurrentEditor() != null,
   });
 </script>
@@ -73,6 +85,8 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
+  import { changeTab } from '../utility/common';
+  import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
@@ -114,12 +128,22 @@
   );
 
   $: sqlPreview = getAlterTableScript(
-    diffRows[pairIndex]?.source,
     diffRows[pairIndex]?.target,
+    diffRows[pairIndex]?.source,
     dbDiffOptions,
     targetDb,
     driver
   ).sql;
+
+  $: changeTab(tabid, tab => ({
+    ...tab,
+    title: $values?.targetDatabase,
+    props: {
+      ...tab.props,
+      conid: $values?.targetConid,
+      database: $values?.targetDatabase,
+    },
+  }));
 
   export async function showReport() {
     const resp = await axiosInstance.post('database-connections/generate-db-diff-report', {
@@ -154,6 +178,17 @@
     }
   }
 
+  export function refreshModels() {
+    axiosInstance.post('database-connections/sync-model', {
+      conid: $values?.targetConid,
+      database: $values?.targetDatabase,
+    });
+    axiosInstance.post('database-connections/sync-model', {
+      conid: $values?.sourceConid,
+      database: $values?.sourceDatabase,
+    });
+  }
+
   async function handleConfirmSql(sql) {
     const conid = $values?.targetConid;
     const database = $values?.targetDatabase;
@@ -168,20 +203,21 @@
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
+      $values = _.omitBy($values, (v, k) => k.startsWith('isChecked_'));
       await axiosInstance.post('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
     }
   }
 
-  function getSyncSql() {
+  function getDeploySql() {
     return diffRows
       .filter(row => $values[`isChecked_${row.identifier}`])
-      .map(row => getAlterTableScript(row?.source, row.target, dbDiffOptions, targetDb, driver).sql)
+      .map(row => getAlterTableScript(row?.target, row?.source, dbDiffOptions, targetDb, driver).sql)
       .join('\n');
   }
 
-  export function saveSync() {
-    const sql = getSyncSql();
+  export function deploy() {
+    const sql = getDeploySql();
     showModal(ConfirmSqlModal, {
       sql,
       onConfirm: () => {
@@ -200,9 +236,20 @@
     update: setEditorData,
     set: setEditorData,
   };
+
+  registerMenu(
+    { command: 'compareModels.deploy' },
+    { divider: true },
+    { command: 'compareModels.refresh' },
+    { command: 'compareModels.swap' },
+    { divider: true },
+    { command: 'compareModels.reportDiff' }
+  );
+
+  const menu = getContextMenu();
 </script>
 
-<div class="wrapper">
+<div class="wrapper" use:contextMenu={menu}>
   <VerticalSplitter>
     <div slot="1" class="flexcol">
       <FormProviderCore {values}>
@@ -302,10 +349,10 @@
       >
         <svelte:fragment slot="1">
           <DiffView
-            leftTitle={diffRows[pairIndex]?.source?.pureName}
+            leftTitle={diffRows[pairIndex]?.target?.pureName}
             rightTitle={diffRows[pairIndex]?.source?.pureName}
-            leftText={getCreateObjectScript(diffRows[pairIndex]?.source, driver)}
-            rightText={getCreateObjectScript(diffRows[pairIndex]?.target, driver)}
+            leftText={getCreateObjectScript(diffRows[pairIndex]?.target, driver)}
+            rightText={getCreateObjectScript(diffRows[pairIndex]?.source, driver)}
           />
         </svelte:fragment>
 

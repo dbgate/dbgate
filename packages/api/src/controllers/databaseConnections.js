@@ -322,10 +322,10 @@ module.exports = {
     for (const row of diffRows) {
       // console.log('PAIR', row.source && row.source.pureName, row.target && row.target.pureName);
       const unifiedDiff = createTwoFilesPatch(
-        (row.source && row.source.pureName) || '',
         (row.target && row.target.pureName) || '',
-        getCreateObjectScript(row.source, driver),
+        (row.source && row.source.pureName) || '',
         getCreateObjectScript(row.target, driver),
+        getCreateObjectScript(row.source, driver),
         '',
         ''
       );
@@ -340,7 +340,7 @@ module.exports = {
 
     const diffJson = parse(unifiedDiff);
     // $: diffHtml = html(diffJson, { outputFormat: 'side-by-side', drawFileList: false });
-    const diffHtml = html(diffJson, {});
+    const diffHtml = html(diffJson, { outputFormat: 'side-by-side' });
 
     const fileName = `${uuidv1()}.html`;
     await fs.writeFile(path.join(uploadsdir(), fileName), diff2htmlPage(diffHtml));

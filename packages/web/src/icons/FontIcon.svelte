@@ -77,7 +77,7 @@
     'icon add-key': 'mdi mdi-key-plus',
     'icon report': 'mdi mdi-file-chart',
     'icon swap': 'mdi mdi-swap-horizontal-bold',
-    'icon save-sync': 'mdi mdi-content-save-move',
+    'icon deploy': 'mdi mdi-content-save-move',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
