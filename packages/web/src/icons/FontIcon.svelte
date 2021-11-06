@@ -63,6 +63,7 @@
     'icon markdown': 'mdi mdi-application',
     'icon preview': 'mdi mdi-file-find',
     'icon eye': 'mdi mdi-eye',
+    'icon check-all': 'mdi mdi-check-all',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
@@ -75,6 +76,8 @@
     'icon add-column': 'mdi mdi-table-column-plus-after',
     'icon add-key': 'mdi mdi-key-plus',
     'icon report': 'mdi mdi-file-chart',
+    'icon swap': 'mdi mdi-swap-horizontal-bold',
+    'icon save-sync': 'mdi mdi-content-save-move',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',

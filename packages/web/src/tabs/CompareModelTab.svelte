@@ -14,6 +14,31 @@
     onClick: () => getCurrentEditor().showReport(),
     testEnabled: () => getCurrentEditor() != null,
   });
+
+  registerCommand({
+    id: 'compareModels.swap',
+    category: 'Compare models',
+    toolbarName: 'Swap',
+    name: 'Swap source & target',
+    icon: 'icon swap',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().swap(),
+    testEnabled: () => getCurrentEditor() != null,
+  });
+
+  registerCommand({
+    id: 'compareModels.saveSync',
+    category: 'Compare models',
+    toolbarName: 'Save/Sync',
+    name: 'Save/Sync',
+    icon: 'icon save-sync',
+    group: 'save',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().saveSync(),
+    testEnabled: () => getCurrentEditor() != null,
+  });
 </script>
 
 <script lang="ts">
@@ -27,10 +52,11 @@
     getCreateObjectScript,
   } from 'dbgate-tools';
 
-  import _ from 'lodash';
+  import _, { startsWith } from 'lodash';
   import { derived, writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import DiffView from '../elements/DiffView.svelte';
+  import InlineButton from '../elements/InlineButton.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
@@ -40,6 +66,9 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import { showModal } from '../modals/modalTools';
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
@@ -47,6 +76,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
+  import { showSnackbarSuccess } from '../utility/snackbar';
 
   export let tabid;
 
@@ -100,20 +130,69 @@
     });
 
     window.open(`${resolveApi()}/uploads/get?file=${resp.data}`, '_blank');
+  }
 
-    // window.open(
-    //   `${resolveApi()}/database-connections/get-diff-html?sourceConid=` +
-    //     `${$values?.sourceConid}&sourceDatabase=${$values?.sourceDatabase}&` +
-    //     `targetConid=${$values?.targetConid}&targetDatabase=${$values?.targetDatabase}`,
-    //   '_blank'
-    // );
+  export function swap() {
+    $values = {
+      ...$values,
+      sourceConid: $values?.targetConid,
+      sourceDatabase: $values?.targetDatabase,
+      targetConid: $values?.sourceConid,
+      targetDatabase: $values?.sourceDatabase,
+    };
+  }
+
+  function handleCheckAll() {
+    const isAnyChecked = diffRows.some(row => $values[`isChecked_${row.identifier}`]);
+    if (isAnyChecked) {
+      $values = _.omitBy($values, (v, k) => k.startsWith('isChecked_'));
+    } else {
+      $values = {
+        ...$values,
+        ..._.fromPairs(diffRows.filter(row => row.state != 'equal').map(row => [`isChecked_${row.identifier}`, true])),
+      };
+    }
+  }
+
+  async function handleConfirmSql(sql) {
+    const conid = $values?.targetConid;
+    const database = $values?.targetDatabase;
+
+    const resp = await axiosInstance.request({
+      url: 'database-connections/run-script',
+      method: 'post',
+      params: { conid, database },
+      data: { sql },
+    });
+    const { errorMessage } = resp.data || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
+    } else {
+      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      showSnackbarSuccess('Saved to database');
+    }
+  }
+
+  function getSyncSql() {
+    return diffRows
+      .filter(row => $values[`isChecked_${row.identifier}`])
+      .map(row => getAlterTableScript(row?.source, row.target, dbDiffOptions, targetDb, driver).sql)
+      .join('\n');
+  }
+
+  export function saveSync() {
+    const sql = getSyncSql();
+    showModal(ConfirmSqlModal, {
+      sql,
+      onConfirm: () => {
+        handleConfirmSql(sql);
+      },
+      engine: driver.engine,
+    });
   }
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
-    // onInitialData: value => {
-    //   dispatchModel({ type: 'reset', value });
-    // },
   });
 
   const values = {
@@ -175,6 +254,7 @@
           selectable
           disableFocusOutline
           columns={[
+            { fieldName: 'isChecked', header: '', width: '50px', slot: 1, headerSlot: 2 },
             { fieldName: 'type', header: 'Type', width: '100px' },
             { fieldName: 'sourceSchemaName', header: 'Schema' },
             { fieldName: 'sourcePureName', header: 'Name' },
@@ -182,7 +262,24 @@
             { fieldName: 'targetSchemaName', header: 'Schema' },
             { fieldName: 'targetPureName', header: 'Name' },
           ]}
-        />
+        >
+          <input
+            type="checkbox"
+            slot="1"
+            let:row
+            disabled={row.state == 'equal'}
+            checked={!!$values[`isChecked_${row['identifier']}`]}
+            on:change={e => {
+              // @ts-ignore
+              $values = { ...$values, [`isChecked_${row.identifier}`]: e.target.checked };
+            }}
+          />
+          <svelte:fragment slot="2">
+            <InlineButton on:click={handleCheckAll}>
+              <FontIcon icon="icon check-all" />
+            </InlineButton>
+          </svelte:fragment>
+        </ScrollableTableControl>
       </div>
     </div>
 
@@ -194,7 +291,7 @@
             slot: 1,
           },
           {
-            label: 'SQL script',
+            label: 'Synchronize script',
             slot: 2,
           },
           {

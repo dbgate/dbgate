@@ -6,6 +6,7 @@
     getProps?: any;
     formatter?: any;
     slot?: number;
+    headerSlot?: number;
     isHighlighted?: Function;
     width?: string;
   }
@@ -98,7 +99,22 @@
     >
       <tr>
         {#each columnList as col}
-          <td style={col.width ? `width: ${col.width}` : undefined}>{col.header || ''}</td>
+          <td style={col.width ? `width: ${col.width}` : undefined}>
+            {#if col.headerSlot != null}
+              {#if col.headerSlot == -1}<slot name="-1" />
+              {:else if col.headerSlot == 0}<slot name="0" />
+              {:else if col.headerSlot == 1}<slot name="1" />
+              {:else if col.headerSlot == 2}<slot name="2" />
+              {:else if col.headerSlot == 3}<slot name="3" />
+              {:else if col.headerSlot == 4}<slot name="4" />
+              {:else if col.headerSlot == 5}<slot name="5" />
+              {:else if col.headerSlot == 6}<slot name="6" />
+              {:else if col.headerSlot == 7}<slot name="7" />
+              {/if}
+            {:else}
+              {col.header || ''}
+            {/if}
+          </td>
         {/each}
       </tr>
     </thead>
@@ -107,6 +123,9 @@
         <tr
           class:selected={selectable && selectedIndex == index}
           class:clickable
+          class:isAdded={row.__isAdded}
+          class:isDeleted={row.__isDeleted}
+          class:isChanged={row.__isChanged}
           on:click={() => {
             if (selectable) {
               selectedIndex = index;
@@ -214,5 +233,16 @@
 
   td.isHighlighted {
     background-color: var(--theme-bg-1);
+  }
+
+  tr.isAdded {
+    background: var(--theme-bg-green);
+  }
+  tr.isChanged {
+    background: var(--theme-bg-orange);
+  }
+
+  tr.isDeleted {
+    background: var(--theme-bg-red);
   }
 </style>

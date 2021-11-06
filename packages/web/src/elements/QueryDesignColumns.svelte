@@ -60,7 +60,7 @@
     <svelte:fragment slot="0" let:row>
       <CheckboxField
         checked={row.isOutput}
-        onChange={e => {
+        on:change={e => {
           if (e.target.checked) changeColumn({ ...row, isOutput: true });
           else changeColumn({ ...row, isOutput: false });
         }}

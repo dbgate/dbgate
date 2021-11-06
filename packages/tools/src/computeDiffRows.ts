@@ -6,15 +6,18 @@ export function computeDiffRowsCore(sourceList, targetList, testEqual) {
   for (const obj of sourceList) {
     const paired = targetList.find(x => x.pairingId == obj.pairingId);
     if (paired) {
+      const isEqual = testEqual(obj, paired);
       res.push({
         source: obj,
         target: paired,
-        state: testEqual(obj, paired) ? 'equal' : 'changed',
+        state: isEqual ? 'equal' : 'changed',
+        __isChanged: !isEqual,
       });
     } else {
       res.push({
         source: obj,
-        state: 'removed',
+        state: 'added',
+        __isAdded: true,
       });
     }
   }
@@ -23,7 +26,8 @@ export function computeDiffRowsCore(sourceList, targetList, testEqual) {
     if (!paired) {
       res.push({
         target: obj,
-        state: 'added',
+        state: 'removed',
+        __isDeleted: true,
       });
     }
   }
@@ -46,6 +50,9 @@ export function computeDbDiffRows(
     sourcePureName: row?.source?.pureName,
     targetSchemaName: row?.target?.schemaName,
     targetPureName: row?.target?.pureName,
+    identifier: `${row?.source?.schemaName || row?.target?.schemaName}.${
+      row?.source?.pureName || row?.target?.pureName
+    }`,
   }));
 }
 
