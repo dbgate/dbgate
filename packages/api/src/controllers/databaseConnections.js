@@ -11,6 +11,7 @@ const {
   generateDbPairingId,
   matchPairedObjects,
   extendDatabaseInfo,
+  modelCompareDbDiffOptions,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -231,6 +232,11 @@ module.exports = {
 
   structure_meta: 'get',
   async structure({ conid, database }) {
+    if (conid == '__model') {
+      const model = await importDbModel(database);
+      return model;
+    }
+
     const opened = await this.ensureOpened(conid, database);
     return opened.structure;
     // const existing = this.opened.find((x) => x.conid == conid && x.database == database);
@@ -298,9 +304,7 @@ module.exports = {
   // },
 
   async getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase }) {
-    const dbDiffOptions = {
-      // schemaMode: 'ignore',
-    };
+    const dbDiffOptions = sourceConid == '__model' ? modelCompareDbDiffOptions : {};
 
     const sourceDb = generateDbPairingId(
       extendDatabaseInfo(await this.structure({ conid: sourceConid, database: sourceDatabase }))

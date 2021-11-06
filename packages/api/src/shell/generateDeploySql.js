@@ -4,6 +4,7 @@ const {
   matchPairedObjects,
   databaseInfoFromYamlModel,
   extendDatabaseInfo,
+  modelCompareDbDiffOptions,
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -28,9 +29,7 @@ async function generateDeploySql({
   );
   const currentModel = generateDbPairingId(extendDatabaseInfo(analysedStructure));
   const opts = {
-    ignoreCase: true,
-    schemaMode: 'ignore',
-    ignoreConstraintNames: true,
+    ...modelCompareDbDiffOptions,
 
     noDropTable: true,
     noDropColumn: true,

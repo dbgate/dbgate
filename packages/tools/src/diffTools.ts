@@ -523,3 +523,9 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
 
   return res;
 }
+
+export const modelCompareDbDiffOptions: DbDiffOptions = {
+  ignoreCase: true,
+  schemaMode: 'ignore',
+  ignoreConstraintNames: true,
+};

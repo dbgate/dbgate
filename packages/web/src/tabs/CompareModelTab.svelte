@@ -76,6 +76,7 @@
     computeDbDiffRows,
     computeTableDiffColumns,
     getCreateObjectScript,
+    modelCompareDbDiffOptions,
   } from 'dbgate-tools';
 
   import _, { startsWith } from 'lodash';
@@ -89,6 +90,7 @@
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormFieldTemplateTiny from '../forms/FormFieldTemplateTiny.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
@@ -102,7 +104,7 @@
   import { changeTab } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
   import { showSnackbarSuccess } from '../utility/snackbar';
 
@@ -119,9 +121,7 @@
   //   targetDatabase: null,
   // });
 
-  const dbDiffOptions: any = {
-    // schemaMode: 'ignore',
-  };
+  $: dbDiffOptions = $values?.sourceConid == '__model' ? modelCompareDbDiffOptions : {};
 
   $: sourceDbValue = useDatabaseInfo({ conid: $values?.sourceConid, database: $values?.sourceDatabase });
   $: targetDbValue = useDatabaseInfo({ conid: $values?.targetConid, database: $values?.targetDatabase });
@@ -133,7 +133,7 @@
   $: driver = findEngineDriver($connection, $extensions);
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
-  $: diffRows = computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);
+  $: diffRows = _.sortBy(computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver), x => stateOrder(x.state));
   $: diffColumns = computeTableDiffColumns(
     diffRows[pairIndex]?.source,
     diffRows[pairIndex]?.target,
@@ -148,6 +148,8 @@
     targetDb,
     driver
   ).sql;
+
+  $: archiveFolders = useArchiveFolders();
 
   $: changeTab(tabid, tab => ({
     ...tab,
@@ -274,16 +276,27 @@
               label="Source server"
               templateProps={{ noMargin: true }}
               isNative
+              allowChooseModel
             />
           </div>
           <div class="col-3">
-            <FormDatabaseSelect
-              conidName="sourceConid"
-              name="sourceDatabase"
-              label="Source database"
-              templateProps={{ noMargin: true }}
-              isNative
-            />
+            {#if $values?.sourceConid == '__model'}
+              <FormSelectField
+                name="sourceDatabase"
+                label="Source DB model"
+                templateProps={{ noMargin: true }}
+                isNative
+                options={($archiveFolders || []).map(x => ({ label: x.name, value: `archive:${x.name}` }))}
+              />
+            {:else}
+              <FormDatabaseSelect
+                conidName="sourceConid"
+                name="sourceDatabase"
+                label="Source database"
+                templateProps={{ noMargin: true }}
+                isNative
+              />
+            {/if}
           </div>
           <div class="arrow">
             <FontIcon icon="icon arrow-right-bold" />
@@ -310,7 +323,7 @@
 
       <div class="tableWrapper">
         <ScrollableTableControl
-          rows={_.sortBy(diffRows, x => stateOrder(x.state))}
+          rows={diffRows}
           bind:selectedIndex={pairIndex}
           selectable
           disableFocusOutline
