@@ -51,6 +51,20 @@
     onClick: () => getCurrentEditor().refreshModels(),
     testEnabled: () => getCurrentEditor() != null,
   });
+
+  function stateOrder(state) {
+    switch (state) {
+      case 'added':
+        return 1;
+      case 'changed':
+        return 2;
+      case 'removed':
+        return 3;
+      case 'equal':
+        return 4;
+    }
+    return 5;
+  }
 </script>
 
 <script lang="ts">
@@ -296,7 +310,7 @@
 
       <div class="tableWrapper">
         <ScrollableTableControl
-          rows={diffRows}
+          rows={_.sortBy(diffRows, x => stateOrder(x.state))}
           bind:selectedIndex={pairIndex}
           selectable
           disableFocusOutline
