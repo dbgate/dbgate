@@ -313,8 +313,13 @@
               />
             {/if}
           </div>
-          <div class="arrow">
-            <FontIcon icon="icon arrow-right-bold" />
+          <div class="deployButton">
+            <InlineButton on:click={deploy}>
+              <div class="arrow">
+                <FontIcon icon="icon arrow-right-bold" />
+              </div>
+              Deploy
+            </InlineButton>
           </div>
           <div class="col-3">
             <FormConnectionSelect
@@ -450,7 +455,12 @@
     color: var(--theme-icon-blue);
     align-self: center;
     position: relative;
-    top: 10px;
+    /* top: 10px; */
+  }
+
+  .deployButton {
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .tableWrapper {
