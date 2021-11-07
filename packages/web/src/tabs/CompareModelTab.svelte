@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-  export const matchingProps = [];
-
   const getCurrentEditor = () => getActiveComponent('CompareModelTab');
 
   registerCommand({
@@ -205,7 +203,7 @@
 
   $: changeTab(tabid, tab => ({
     ...tab,
-    title: $values?.targetDatabase,
+    title: `${$values?.sourceDatabase || '???'}=>${$values?.targetDatabase || '???'}`,
     props: {
       ...tab.props,
       conid: $values?.targetConid,

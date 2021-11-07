@@ -160,7 +160,8 @@ registerCommand({
   id: 'new.modelCompare',
   category: 'New',
   icon: 'img compare',
-  name: 'Compare DB Models',
+  name: 'Compare DB',
+  toolbar: true,
   onClick: () => {
     openNewTab({
       title: 'Compare',

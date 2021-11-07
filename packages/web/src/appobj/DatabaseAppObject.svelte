@@ -61,12 +61,37 @@
       showSnackbarSuccess(`Saved to archive ${resp.data.archiveFolder}`);
     };
 
+    const handleCompareWithCurrentDb = () => {
+      openNewTab(
+        {
+          title: 'Compare',
+          icon: 'img compare',
+          tabComponent: 'CompareModelTab',
+        },
+        {
+          editor: {
+            sourceConid: _.get($currentDatabase, 'connection._id'),
+            sourceDatabase: _.get($currentDatabase, 'name'),
+            targetConid: _.get(connection, '_id'),
+            targetDatabase: name,
+          },
+        }
+      );
+    };
+
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
       { onClick: handleExportModel, text: 'Export DB model' },
+      _.get($currentDatabase, 'connection._id') &&
+        (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
+          (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
+            _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
+          onClick: handleCompareWithCurrentDb,
+          text: `Compare with ${_.get($currentDatabase, 'name')}`,
+        },
 
       _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
         _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
