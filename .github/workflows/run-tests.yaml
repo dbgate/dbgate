@@ -8,7 +8,7 @@ on:
 jobs:
   test-runner:
     runs-on: ubuntu-latest
-    container: node:10.18-jessie
+    container: node:12.22
 
     steps:
       - name: Context
