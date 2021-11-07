@@ -65,6 +65,20 @@
     }
     return 5;
   }
+
+  function getAlterObjectScript(objectTypeField, oldObject, newObject, opts, db, driver) {
+    if ((!oldObject && !newObject) || !driver) {
+      return { sql: '' };
+    }
+
+    if (objectTypeField == 'tables') {
+      return getAlterTableScript(oldObject, newObject, opts, db, driver);
+    }
+    const dmp = driver.createDumper();
+    if (oldObject) dmp.dropSqlObject(oldObject);
+    if (newObject) dmp.createSqlObject(newObject);
+    return { sql: dmp.s };
+  }
 </script>
 
 <script lang="ts">
@@ -141,7 +155,8 @@
     driver
   );
 
-  $: sqlPreview = getAlterTableScript(
+  $: sqlPreview = getAlterObjectScript(
+    diffRows[pairIndex]?.objectTypeField,
     diffRows[pairIndex]?.target,
     diffRows[pairIndex]?.source,
     dbDiffOptions,
@@ -329,7 +344,7 @@
           disableFocusOutline
           columns={[
             { fieldName: 'isChecked', header: '', width: '50px', slot: 1, headerSlot: 2 },
-            { fieldName: 'type', header: 'Type', width: '100px' },
+            { fieldName: 'type', header: 'Type', width: '100px', slot: 3 },
             { fieldName: 'sourceSchemaName', header: 'Schema' },
             { fieldName: 'sourcePureName', header: 'Name' },
             { fieldName: 'state', header: 'Action', width: '100px' },
@@ -352,6 +367,10 @@
             <InlineButton on:click={handleCheckAll}>
               <FontIcon icon="icon check-all" />
             </InlineButton>
+          </svelte:fragment>
+          <svelte:fragment slot="3" let:row>
+            <FontIcon icon={row.typeIcon} />
+            {row.typeName}
           </svelte:fragment>
         </ScrollableTableControl>
       </div>

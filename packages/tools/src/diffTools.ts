@@ -5,6 +5,7 @@ import {
   EngineDriver,
   NamedObjectInfo,
   SqlDialect,
+  SqlObjectInfo,
   TableInfo,
 } from 'dbgate-types';
 import uuidv1 from 'uuid/v1';
@@ -381,6 +382,10 @@ export function testEqualTables(
   return plan.operations.length == 0;
 }
 
+export function testEqualSqlObjects(a: SqlObjectInfo, b: SqlObjectInfo, opts: DbDiffOptions) {
+  return a.createSql == b.createSql;
+}
+
 export function createAlterTablePlan(
   oldTable: TableInfo,
   newTable: TableInfo,
@@ -425,7 +430,7 @@ export function createAlterDatabasePlan(
           if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
           }
-        } else if (newobj.createSql != oldobj.createSql) {
+        } else if (!testEqualSqlObjects(oldobj.createSql, newobj.createSql, opts)) {
           plan.recreates.sqlObjects += 1;
           if (!opts.noDropSqlObject) {
             plan.dropSqlObject(oldobj);
