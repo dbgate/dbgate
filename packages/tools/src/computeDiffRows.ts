@@ -1,5 +1,6 @@
 import { DbDiffOptions, testEqualColumns, testEqualTables, testEqualSqlObjects } from './diffTools';
 import { DatabaseInfo, EngineDriver, SqlObjectInfo, TableInfo } from 'dbgate-types';
+import _ from 'lodash';
 
 export function computeDiffRowsCore(sourceList, targetList, testEqual) {
   const res = [];
@@ -75,21 +76,24 @@ export function computeDbDiffRows(
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     const defs = COMPARE_DEFS[objectTypeField];
     res.push(
-      ...computeDiffRowsCore(sourceDb[objectTypeField], targetDb[objectTypeField], (a, b) =>
-        defs.test(a, b, opts, targetDb, driver)
-      ).map(row => ({
-        ...row,
-        sourceSchemaName: row?.source?.schemaName,
-        sourcePureName: row?.source?.pureName,
-        targetSchemaName: row?.target?.schemaName,
-        targetPureName: row?.target?.pureName,
-        typeName: defs.name,
-        typeIcon: defs.icon,
-        identifier: `${row?.source?.schemaName || row?.target?.schemaName}.${
-          row?.source?.pureName || row?.target?.pureName
-        }`,
-        objectTypeField,
-      }))
+      ..._.sortBy(
+        computeDiffRowsCore(sourceDb[objectTypeField], targetDb[objectTypeField], (a, b) =>
+          defs.test(a, b, opts, targetDb, driver)
+        ).map(row => ({
+          ...row,
+          sourceSchemaName: row?.source?.schemaName,
+          sourcePureName: row?.source?.pureName,
+          targetSchemaName: row?.target?.schemaName,
+          targetPureName: row?.target?.pureName,
+          typeName: defs.name,
+          typeIcon: defs.icon,
+          identifier: `${row?.source?.schemaName || row?.target?.schemaName}.${
+            row?.source?.pureName || row?.target?.pureName
+          }`,
+          objectTypeField,
+        })),
+        'identifier'
+      )
     );
   }
   return res;
