@@ -64,6 +64,8 @@
     'icon preview': 'mdi mdi-file-find',
     'icon eye': 'mdi mdi-eye',
     'icon check-all': 'mdi mdi-check-all',
+    'icon checkbox-blank': 'mdi mdi-checkbox-blank-outline',
+    'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
@@ -104,6 +106,11 @@
     'img query-design': 'mdi mdi-vector-polyline-edit color-icon-red',
     'img yaml': 'mdi mdi-code-brackets color-icon-red',
     'img compare': 'mdi mdi-compare color-icon-red',
+
+    'img add': 'mdi mdi-plus-circle color-icon-green',
+    'img minus': 'mdi mdi-minus-circle color-icon-red',
+    'img equal': 'mdi mdi-equal',
+    'img changed': 'mdi mdi-file-edit color-icon-yellow',
 
     'img free-table': 'mdi mdi-table color-icon-green',
     'img macro': 'mdi mdi-hammer-wrench',

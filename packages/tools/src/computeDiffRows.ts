@@ -36,30 +36,35 @@ export function computeDiffRowsCore(sourceList, targetList, testEqual) {
   return res;
 }
 
-const COMPARE_DEFS = {
+export const DbDiffCompareDefs = {
   tables: {
     test: testEqualTables,
     name: 'Table',
+    plural: 'Tables',
     icon: 'img table',
   },
   views: {
     test: testEqualSqlObjects,
     name: 'View',
+    plural: 'Views',
     icon: 'img view',
   },
   matviews: {
     test: testEqualSqlObjects,
     name: 'Materialized view',
+    plural: 'Materialized views',
     icon: 'img view',
   },
   procedures: {
     test: testEqualSqlObjects,
     name: 'Procedure',
+    plural: 'Procedures',
     icon: 'img procedure',
   },
   functions: {
     test: testEqualSqlObjects,
     name: 'Function',
+    plural: 'Functions',
     icon: 'img function',
   },
 };
@@ -74,7 +79,7 @@ export function computeDbDiffRows(
 
   const res = [];
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
-    const defs = COMPARE_DEFS[objectTypeField];
+    const defs = DbDiffCompareDefs[objectTypeField];
     res.push(
       ..._.sortBy(
         computeDiffRowsCore(sourceDb[objectTypeField], targetDb[objectTypeField], (a, b) =>

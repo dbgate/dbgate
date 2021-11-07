@@ -79,6 +79,23 @@
     if (newObject) dmp.createSqlObject(newObject);
     return { sql: dmp.s };
   }
+
+  function filterDiffRows(rows, values, filter) {
+    let res = rows
+      .filter(row => filterName(filter, row.sourcePureName, row.targetPureName))
+      .filter(row => !values?.hideAdded || row.state != 'added')
+      .filter(row => !values?.hideRemoved || row.state != 'removed')
+      .filter(row => !values?.hideChanged || row.state != 'changed')
+      .filter(row => !values?.hideEqual || row.state != 'equal');
+
+    for (const objectTypeField of _.keys(DbDiffCompareDefs)) {
+      if (values && values[`hide_${objectTypeField}`]) {
+        res = res.filter(row => row.objectTypeField != objectTypeField);
+      }
+    }
+
+    return res;
+  }
 </script>
 
 <script lang="ts">
@@ -91,6 +108,8 @@
     computeTableDiffColumns,
     getCreateObjectScript,
     modelCompareDbDiffOptions,
+    filterName,
+    DbDiffCompareDefs,
   } from 'dbgate-tools';
 
   import _, { startsWith } from 'lodash';
@@ -99,12 +118,14 @@
   import DiffView from '../elements/DiffView.svelte';
   import InlineButton from '../elements/InlineButton.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormFieldTemplateTiny from '../forms/FormFieldTemplateTiny.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
+  import RowsFilterSwitcher from '../forms/RowsFilterSwitcher.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
   import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
@@ -125,15 +146,9 @@
   export let tabid;
 
   let pairIndex = 0;
+  let filter = '';
 
   export const activator = createActivator('CompareModelTab', true);
-
-  // let values = writable({
-  //   sourceConid: null,
-  //   sourceDatabase: null,
-  //   targetConid: null,
-  //   targetDatabase: null,
-  // });
 
   $: dbDiffOptions = $values?.sourceConid == '__model' ? modelCompareDbDiffOptions : {};
 
@@ -147,7 +162,10 @@
   $: driver = findEngineDriver($connection, $extensions);
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
-  $: diffRows = _.sortBy(computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver), x => stateOrder(x.state));
+  $: diffRowsAll = _.sortBy(computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver), x =>
+    stateOrder(x.state)
+  );
+  $: diffRows = filterDiffRows(diffRowsAll, $values, filter);
   $: diffColumns = computeTableDiffColumns(
     diffRows[pairIndex]?.source,
     diffRows[pairIndex]?.target,
@@ -339,6 +357,48 @@
             />
           </div>
         </div>
+        <div class="filters">
+          <SearchInput placeholder="Search tables or objects" bind:value={filter} />
+
+          <RowsFilterSwitcher
+            icon="img add"
+            label="Added"
+            {values}
+            field="hideAdded"
+            count={diffRowsAll.filter(x => x.state == 'added').length}
+          />
+          <RowsFilterSwitcher
+            icon="img minus"
+            label="Removed"
+            {values}
+            field="hideRemoved"
+            count={diffRowsAll.filter(x => x.state == 'removed').length}
+          />
+          <RowsFilterSwitcher
+            icon="img changed"
+            label="Changed"
+            {values}
+            field="hideChanged"
+            count={diffRowsAll.filter(x => x.state == 'changed').length}
+          />
+          <RowsFilterSwitcher
+            icon="img equal"
+            label="Equal"
+            {values}
+            field="hideEqual"
+            count={diffRowsAll.filter(x => x.state == 'equal').length}
+          />
+
+          {#each _.keys(DbDiffCompareDefs) as objectTypeField}
+            <RowsFilterSwitcher
+              icon={DbDiffCompareDefs[objectTypeField].icon}
+              label={DbDiffCompareDefs[objectTypeField].plural}
+              {values}
+              field={'hide_' + objectTypeField}
+              count={diffRowsAll.filter(x => x.objectTypeField == objectTypeField).length}
+            />
+          {/each}
+        </div>
       </FormProviderCore>
 
       <div class="tableWrapper">
@@ -467,5 +527,10 @@
     position: relative;
     width: 100%;
     flex: 1;
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
   }
 </style>
