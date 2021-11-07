@@ -80,19 +80,38 @@
     return { sql: dmp.s };
   }
 
-  function filterDiffRows(rows, values, filter) {
-    let res = rows
-      .filter(row => filterName(filter, row.sourcePureName, row.targetPureName))
-      .filter(row => !values?.hideAdded || row.state != 'added')
-      .filter(row => !values?.hideRemoved || row.state != 'removed')
-      .filter(row => !values?.hideChanged || row.state != 'changed')
-      .filter(row => !values?.hideEqual || row.state != 'equal');
+  function filterDiffRowsByFlag(rows, values, skip = null) {
+    let res = rows;
+
+    if (skip != 'added') {
+      res = res.filter(row => !values?.hideAdded || row.state != 'added');
+    }
+    if (skip != 'removed') {
+      res = res.filter(row => !values?.hideRemoved || row.state != 'removed');
+    }
+    if (skip != 'changed') {
+      res = res.filter(row => !values?.hideChanged || row.state != 'changed');
+    }
+    if (skip != 'equal') {
+      res = res.filter(row => !values?.hideEqual || row.state != 'equal');
+    }
 
     for (const objectTypeField of _.keys(DbDiffCompareDefs)) {
+      if (skip == objectTypeField) {
+        continue;
+      }
       if (values && values[`hide_${objectTypeField}`]) {
         res = res.filter(row => row.objectTypeField != objectTypeField);
       }
     }
+
+    return res;
+  }
+
+  function filterDiffRows(rows, values, filter) {
+    let res = rows.filter(row => filterName(filter, row.sourcePureName, row.targetPureName));
+
+    res = filterDiffRowsByFlag(rows, values);
 
     return res;
   }
@@ -365,28 +384,44 @@
             label="Added"
             {values}
             field="hideAdded"
-            count={diffRowsAll.filter(x => x.state == 'added').length}
+            count={filterDiffRowsByFlag(
+              diffRowsAll.filter(x => x.state == 'added'),
+              $values,
+              'added'
+            ).length}
           />
           <RowsFilterSwitcher
             icon="img minus"
             label="Removed"
             {values}
             field="hideRemoved"
-            count={diffRowsAll.filter(x => x.state == 'removed').length}
+            count={filterDiffRowsByFlag(
+              diffRowsAll.filter(x => x.state == 'removed'),
+              $values,
+              'removed'
+            ).length}
           />
           <RowsFilterSwitcher
             icon="img changed"
             label="Changed"
             {values}
             field="hideChanged"
-            count={diffRowsAll.filter(x => x.state == 'changed').length}
+            count={filterDiffRowsByFlag(
+              diffRowsAll.filter(x => x.state == 'changed'),
+              $values,
+              'changed'
+            ).length}
           />
           <RowsFilterSwitcher
             icon="img equal"
             label="Equal"
             {values}
             field="hideEqual"
-            count={diffRowsAll.filter(x => x.state == 'equal').length}
+            count={filterDiffRowsByFlag(
+              diffRowsAll.filter(x => x.state == 'equal'),
+              $values,
+              'equal'
+            ).length}
           />
 
           {#each _.keys(DbDiffCompareDefs) as objectTypeField}
@@ -395,7 +430,11 @@
               label={DbDiffCompareDefs[objectTypeField].plural}
               {values}
               field={'hide_' + objectTypeField}
-              count={diffRowsAll.filter(x => x.objectTypeField == objectTypeField).length}
+              count={filterDiffRowsByFlag(
+                diffRowsAll.filter(x => x.objectTypeField == objectTypeField),
+                $values,
+                objectTypeField
+              ).length}
             />
           {/each}
         </div>
