@@ -42,6 +42,14 @@ const fileFormat = {
       label: 'Create single file',
       direction: 'target',
     },
+    {
+      type: 'number',
+      default: '0',
+      name: 'skipHeaderRows',
+      apiName: 'skipHeaderRows',
+      label: 'Skip header rows',
+      direction: 'source',
+    },
   ],
 
   getDefaultOutputName: (sourceName, values) => {

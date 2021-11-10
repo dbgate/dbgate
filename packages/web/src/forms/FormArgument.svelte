@@ -13,6 +13,8 @@
 
 {#if arg.type == 'text'}
   <FormTextField label={arg.label} {name} defaultValue={arg.default} />
+{:else if arg.type == 'number'}
+  <FormTextField label={arg.label} type="number" {name} defaultValue={arg.default} />
 {:else if arg.type == 'checkbox'}
   <FormCheckboxField label={arg.label} {name} defaultValue={arg.default} />
 {:else if arg.type == 'select'}

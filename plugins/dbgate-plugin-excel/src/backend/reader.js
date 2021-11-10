@@ -23,7 +23,7 @@ async function waitForDrain(stream) {
   });
 }
 
-async function reader({ fileName, sheetName, limitRows = undefined }) {
+async function reader({ fileName, sheetName, skipHeaderRows, limitRows = undefined }) {
   const pass = new stream.PassThrough({
     objectMode: true,
     highWaterMark: 100,
@@ -32,10 +32,18 @@ async function reader({ fileName, sheetName, limitRows = undefined }) {
   const workbook = await loadWorkbook(fileName);
   const sheet = workbook.Sheets[sheetName];
 
+  let range = undefined;
+  if (parseInt(skipHeaderRows) > 0) {
+    range = xlsx.utils.decode_range(sheet['!ref']);
+    range.s.r = parseInt(skipHeaderRows);
+  }
+
   const rows = xlsx.utils.sheet_to_json(sheet, {
     header: 1,
+    range,
     blankrows: false,
   });
+
   const header = rows[0];
   const structure = {
     __isStreamHeader: true,
