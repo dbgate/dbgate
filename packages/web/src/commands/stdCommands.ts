@@ -1,6 +1,6 @@
 import { currentDatabase, currentTheme, extensions, getExtensions, getVisibleToolbar, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
-import { derived, get } from 'svelte/store';
+import { get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
@@ -17,9 +17,11 @@ import { getDefaultFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 import hasPermission from '../utility/hasPermission';
+import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
 import { findEngineDriver } from 'dbgate-tools';
 import { openArchiveFolder } from '../utility/openArchiveFolder';
+import InputTextModal from '../modals/InputTextModal.svelte';
 
 const electron = getElectron();
 
@@ -181,6 +183,25 @@ registerCommand({
       title: 'Data #',
       icon: 'img free-table',
       tabComponent: 'FreeTableTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.sqliteDatabase',
+  category: 'New',
+  icon: 'img sqlite-database',
+  name: 'New SQLite database',
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: 'newdb',
+      label: 'New database name',
+      header: 'Create SQLite database',
+      onConfirm: async file => {
+        const resp = await axiosInstance.post('connections/new-sqlite-database', { file });
+        const connection = resp.data;
+        currentDatabase.set({ connection, name: `${file}.sqlite` });
+      },
     });
   },
 });

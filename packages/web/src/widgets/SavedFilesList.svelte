@@ -12,6 +12,7 @@ import { useFiles } from '../utility/metadataLoaders';
   const markdownFiles = useFiles({ folder: 'markdown' });
   const chartFiles = useFiles({ folder: 'charts' });
   const queryFiles = useFiles({ folder: 'query' });
+  const sqliteFiles = useFiles({ folder: 'sqlite' });
 
   $: files = [
     ...($sqlFiles || []),
@@ -19,6 +20,7 @@ import { useFiles } from '../utility/metadataLoaders';
     ...($markdownFiles || []),
     ...($chartFiles || []),
     ...($queryFiles || []),
+    ...($sqliteFiles || []),
   ];
 
 </script>

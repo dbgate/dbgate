@@ -116,6 +116,7 @@
     'img macro': 'mdi mdi-hammer-wrench',
 
     'img database': 'mdi mdi-database color-icon-gold',
+    'img sqlite-database': 'mdi mdi-database color-icon-blue',
     'img table': 'mdi mdi-table color-icon-blue',
     'img collection': 'mdi mdi-table color-icon-red',
     'img view': 'mdi mdi-table color-icon-magenta',

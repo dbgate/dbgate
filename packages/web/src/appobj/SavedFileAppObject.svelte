@@ -47,12 +47,21 @@
     currentConnection: true,
   };
 
+  const sqlite: FileTypeHandler = {
+    icon: 'img sqlite-database',
+    format: 'binary',
+    tabComponent: null,
+    folder: 'sqlite',
+    currentConnection: true,
+  };
+
   const HANDLERS = {
     sql,
     shell,
     markdown,
     charts,
     query,
+    sqlite,
   };
 
   export const extractKey = data => data.file;
@@ -93,7 +102,7 @@
 
   function createMenu() {
     return [
-      { text: 'Open', onClick: openTab },
+      handler?.tabComponent && { text: 'Open', onClick: openTab },
       hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
       hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
       folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
@@ -152,4 +161,11 @@
   }
 </script>
 
-<AppObjectCore {...$$restProps} {data} icon={handler?.icon} title={data?.file} menu={createMenu()} on:click={openTab} />
+<AppObjectCore
+  {...$$restProps}
+  {data}
+  icon={handler?.icon}
+  title={data?.file}
+  menu={createMenu()}
+  on:click={handler?.tabComponent && openTab}
+/>

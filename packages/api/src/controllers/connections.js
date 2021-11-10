@@ -2,8 +2,9 @@ const path = require('path');
 const { fork } = require('child_process');
 const _ = require('lodash');
 const nedb = require('nedb-promises');
+const fs = require('fs-extra');
 
-const { datadir } = require('../utility/directories');
+const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -174,5 +175,21 @@ module.exports = {
     if (portalConnections) return portalConnections.find(x => x._id == conid);
     const res = await this.datastore.find({ _id: conid });
     return res[0];
+  },
+
+  newSqliteDatabase_meta: 'post',
+  async newSqliteDatabase({ file }) {
+    const sqliteDir = path.join(filesdir(), 'sqlite');
+    if (!(await fs.exists(sqliteDir))) {
+      await fs.mkdir(sqliteDir);
+    }
+    const databaseFile = path.join(sqliteDir, `${file}.sqlite`);
+    const res = await this.save({
+      engine: 'sqlite@dbgate-plugin-sqlite',
+      databaseFile,
+      singleDatabase: true,
+      defaultDatabase: `${file}.sqlite`,
+    });
+    return res;
   },
 };

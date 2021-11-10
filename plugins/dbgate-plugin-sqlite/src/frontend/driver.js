@@ -16,7 +16,7 @@ const dialect = {
   offsetFetchRangeSyntax: false,
   explicitDropConstraint: true,
   stringEscapeChar: "'",
-  fallbackDataType: 'nvarchar(max)',
+  fallbackDataType: 'nvarchar',
   dropColumnDependencies: ['indexes', 'primaryKey', 'uniques'],
   quoteIdentifier(s) {
     return `[${s}]`;
