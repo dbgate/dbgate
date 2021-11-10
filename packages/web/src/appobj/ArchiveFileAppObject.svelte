@@ -67,8 +67,20 @@
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let data;
+
+  const handleRename = () => {
+    showModal(InputTextModal, {
+      value: data.file,
+      label: 'New file name',
+      header: 'Rename file',
+      onConfirm: newFile => {
+        axiosInstance.post('archive/rename-file', { file: data.fileName, folder: data.folderName, newFile });
+      },
+    });
+  };
 
   const handleDelete = () => {
     axiosInstance.post('archive/delete-file', { file: data.fileName, folder: data.folderName });
@@ -115,6 +127,7 @@
       data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
       data.fileType == 'jsonl' && { text: 'Open in free table editor', onClick: handleOpenWrite },
       { text: 'Delete', onClick: handleDelete },
+      { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
         createQuickExportMenu($extensions, fmt => async () => {
           exportElectronFile(

@@ -84,6 +84,12 @@ module.exports = {
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
+  renameFile_meta: 'post',
+  async renameFile({ folder, file, newFile }) {
+    await fs.rename(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), path.join(resolveArchiveFolder(folder), `${newFile}.jsonl`));
+    socket.emitChanged(`archive-files-changed-${folder}`);
+  },
+
   deleteFolder_meta: 'post',
   async deleteFolder({ folder }) {
     if (!folder) throw new Error('Missing folder parameter');
