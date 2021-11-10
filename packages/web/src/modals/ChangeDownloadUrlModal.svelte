@@ -9,8 +9,8 @@
 
   export let onConfirm;
 
-  const handleSubmit = async values => {
-    onConfirm(values.url);
+  const handleSubmit = async e => {
+    onConfirm(e.detail.url);
     closeCurrentModal();
   };
 </script>
