@@ -23,27 +23,25 @@
     };
     if (timeAxis && chartType === 'line') {
       res.scales = {
-        xAxes: [
-          {
-            type: 'time',
-            distribution: 'linear',
+        x: {
+          type: 'time',
+          distribution: 'linear',
 
-            time: {
-              tooltipFormat: 'D. M. YYYY HH:mm',
-              displayFormats: {
-                millisecond: 'HH:mm:ss.SSS',
-                second: 'HH:mm:ss',
-                minute: 'HH:mm',
-                hour: 'D.M hA',
-                day: 'D. M.',
-                week: 'D. M. YYYY',
-                month: 'MM-YYYY',
-                quarter: '[Q]Q - YYYY',
-                year: 'YYYY',
-              },
+          time: {
+            tooltipFormat: 'D. M. YYYY HH:mm',
+            displayFormats: {
+              millisecond: 'HH:mm:ss.SSS',
+              second: 'HH:mm:ss',
+              minute: 'HH:mm',
+              hour: 'D.M hA',
+              day: 'D. M.',
+              week: 'D. M. YYYY',
+              month: 'MM-YYYY',
+              quarter: '[Q]Q - YYYY',
+              year: 'YYYY',
             },
           },
-        ],
+        },
       };
     }
     return res;

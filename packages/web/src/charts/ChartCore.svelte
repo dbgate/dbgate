@@ -1,6 +1,11 @@
+<script lang="ts" context="module">
+  import Chart from 'chart.js/auto';
+  import 'chartjs-adapter-moment';
+</script>
+
 <script lang="ts">
   import { onMount, afterUpdate, onDestroy } from 'svelte';
-  import Chart from 'chart.js';
+
   import contextMenu from '../utility/contextMenu';
 
   export let data;
@@ -27,10 +32,14 @@
     if (!chart) return;
     chart.data = data;
     chart.type = type;
-    chart.options = options;
-    chart.plugins = plugins;
+    chart.options = {
+      ...options,
+      plugins,
+    };
+    // chart.plugins = plugins;
     chart.update();
   });
+
   onDestroy(() => {
     chart = null;
   });
