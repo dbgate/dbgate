@@ -101,7 +101,7 @@
                 { value: 'polarArea', label: 'Polar area' },
               ]}
             />
-            <FormTextField label="Color set" name="colorSeed" />
+            <FormTextField label="Chart title" name="chartTitle" />
             <FormSelectField
               label="Truncate from"
               name="truncateFrom"
@@ -113,6 +113,10 @@
             />
             <FormTextField label="Truncate limit" name="truncateLimit" />
             <FormCheckboxField label="Show relative values" name="showRelativeValues" />
+            {#if $configStore.chartType == 'line'}
+              <FormCheckboxField label="Fill" name="fillLineChart" defaultValue={true} />
+            {/if}
+            <FormTextField label="Color set" name="colorSeed" />
           </ManagerInnerContainer>
         </WidgetColumnBarItem>
         <WidgetColumnBarItem title="Data" name="data">
@@ -138,6 +142,7 @@
                     ..._.keys(presetPrimaryColors).map(color => ({ value: color, label: _.startCase(color) })),
                   ]}
                 />
+                <FormTextField label="Label" name={`dataColumnLabel_${col}`} />
               {/if}
             {/each}
           </ManagerInnerContainer>

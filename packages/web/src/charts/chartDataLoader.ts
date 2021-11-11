@@ -120,3 +120,12 @@ export function extractDataColumnColors(values, dataColumns) {
   }
   return res;
 }
+
+export function extractDataColumnLabels(values, dataColumns) {
+  const res = {};
+  for (const column of dataColumns) {
+    const label = values[`dataColumnLabel_${column}`];
+    if (label) res[column] = label;
+  }
+  return res;
+}

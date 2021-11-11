@@ -16,10 +16,13 @@
     chart = new Chart(domChart, {
       type,
       data,
-      options,
-      plugins,
+      options: {
+        ...options,
+        plugins,
+      },
     });
   });
+
   afterUpdate(() => {
     if (!chart) return;
     chart.data = data;

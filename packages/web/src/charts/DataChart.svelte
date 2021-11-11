@@ -18,37 +18,60 @@
   }
 
   function getOptions(timeAxis, chartType) {
+    const res = {
+      scales: {},
+    };
     if (timeAxis && chartType === 'line') {
-      return {
-        scales: {
-          xAxes: [
-            {
-              type: 'time',
-              distribution: 'linear',
+      res.scales = {
+        xAxes: [
+          {
+            type: 'time',
+            distribution: 'linear',
 
-              time: {
-                tooltipFormat: 'D. M. YYYY HH:mm',
-                displayFormats: {
-                  millisecond: 'HH:mm:ss.SSS',
-                  second: 'HH:mm:ss',
-                  minute: 'HH:mm',
-                  hour: 'D.M hA',
-                  day: 'D. M.',
-                  week: 'D. M. YYYY',
-                  month: 'MM-YYYY',
-                  quarter: '[Q]Q - YYYY',
-                  year: 'YYYY',
-                },
+            time: {
+              tooltipFormat: 'D. M. YYYY HH:mm',
+              displayFormats: {
+                millisecond: 'HH:mm:ss.SSS',
+                second: 'HH:mm:ss',
+                minute: 'HH:mm',
+                hour: 'D.M hA',
+                day: 'D. M.',
+                week: 'D. M. YYYY',
+                month: 'MM-YYYY',
+                quarter: '[Q]Q - YYYY',
+                year: 'YYYY',
               },
             },
-          ],
-        },
+          },
+        ],
       };
     }
-    return {};
+    return res;
   }
 
-  function createChartData(freeData, labelColumn, dataColumns, colorSeed, chartType, dataColumnColors, themeDef) {
+  function getPlugins(chartTitle) {
+    const res = {};
+    if (chartTitle) {
+      res['title'] = {
+        display: true,
+        text: chartTitle,
+      };
+    }
+    return res;
+  }
+
+  function createChartData(
+    freeData,
+    labelColumn,
+    dataColumns,
+    colorSeed,
+    chartType,
+    chartTitle,
+    fillLineChart,
+    dataColumnColors,
+    dataColumnLabels,
+    themeDef
+  ) {
     if (!freeData || !labelColumn || !dataColumns || !freeData.rows || dataColumns.length == 0) return null;
     const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
     const colors = randomcolor({
@@ -63,6 +86,7 @@
     const res = {
       labels,
       datasets: dataColumns.map((dataColumn, columnIndex) => {
+        const label = dataColumnLabels[dataColumn];
         if (chartType == 'line' || chartType == 'bar') {
           const color = dataColumnColors[dataColumn];
           if (color) {
@@ -77,17 +101,23 @@
         }
 
         return {
-          label: dataColumn,
+          label: label || dataColumn,
           data: freeData.rows.map(row => row[dataColumn]),
           backgroundColor,
           borderColor,
           borderWidth: 1,
+          fill: fillLineChart == false ? false : true,
         };
       }),
     };
 
     const options = getOptions(timeAxis, chartType);
-    return [res, options];
+    const plugins = getPlugins(chartTitle);
+
+    // console.log('RES', res);
+    // console.log('OPTIONS', options);
+
+    return [res, options, plugins];
   }
 </script>
 
@@ -98,7 +128,7 @@
   import ChartCore from './ChartCore.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import { generate, presetPalettes, presetDarkPalettes, presetPrimaryColors } from '@ant-design/colors';
-  import { extractDataColumnColors, extractDataColumns } from './chartDataLoader';
+  import { extractDataColumnColors, extractDataColumnLabels, extractDataColumns } from './chartDataLoader';
   import { currentThemeDefinition } from '../stores';
 
   export let data;
@@ -111,6 +141,7 @@
 
   $: dataColumns = extractDataColumns($values);
   $: dataColumnColors = extractDataColumnColors($values, dataColumns);
+  $: dataColumnLabels = extractDataColumnLabels($values, dataColumns);
 
   $: chartData = createChartData(
     data,
@@ -118,7 +149,10 @@
     dataColumns,
     $values.colorSeed || '5',
     $values.chartType,
+    $values.chartTitle,
+    $values.fillLineChart,
     dataColumnColors,
+    dataColumnLabels,
     $currentThemeDefinition
   );
 </script>
@@ -132,6 +166,7 @@
         data={chartData[0]}
         type={$values.chartType}
         options={chartData[1]}
+        plugins={chartData[2]}
         {menu}
       />
     {/key}
