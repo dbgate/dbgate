@@ -34,8 +34,6 @@ const getChartExport = (title, config, imageFile) => {
     </script>
 </head>
 
-</html>
-
 <body onload="showChart()">
     <img src="${imageFile}" id="myImage" />
 

@@ -129,7 +129,7 @@ module.exports = {
   exportChart_meta: 'post',
   async exportChart({ filePath, title, config, image }) {
     const fileName = path.parse(filePath).base;
-    const imageFile = `${fileName}.png`;
+    const imageFile = fileName.replace('.html', '-preview.png');
     const html = getChartExport(title, config, imageFile);
     await fs.writeFile(filePath, html);
     if (image) {
@@ -137,7 +137,7 @@ module.exports = {
       if (index > 0) {
         const data = image.substr(index + 'base64,'.length);
         const buf = Buffer.from(data, 'base64');
-        await fs.writeFile(filePath + '.png', buf);
+        await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
       }
     }
     return true;
