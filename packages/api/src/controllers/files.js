@@ -1,6 +1,8 @@
+const uuidv1 = require('uuid/v1');
 const fs = require('fs-extra');
 const path = require('path');
-const { filesdir, archivedir, resolveArchiveFolder } = require('../utility/directories');
+const { filesdir, archivedir, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
+const getChartExport = require('../utility/getChartExport');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
@@ -113,5 +115,13 @@ module.exports = {
       });
     }
     return res;
+  },
+
+  exportChart_meta: 'post',
+  async exportChart({ title, config }) {
+    const html = getChartExport(title, config);
+    const fileName = `${uuidv1()}.html`;
+    await fs.writeFile(path.join(uploadsdir(), fileName), html);
+    return fileName;
   },
 };

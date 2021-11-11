@@ -11,6 +11,18 @@
 
     undoRedo: true,
   });
+
+  registerCommand({
+    id: 'chart.export',
+    category: 'Chart',
+    toolbarName: 'Export',
+    name: 'Export chart',
+    icon: 'icon report',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().exportChart(),
+    testEnabled: () => getCurrentEditor() != null,
+  });
 </script>
 
 <script lang="ts">
@@ -18,6 +30,7 @@
   import { derived } from 'svelte/store';
   import ChartEditor from '../charts/ChartEditor.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
+  import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -25,8 +38,11 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import useEditorData from '../query/useEditorData';
+  import axiosInstance from '../utility/axiosInstance';
+  import { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
+  import resolveApi from '../utility/resolveApi';
 
   export let tabid;
   export let conid;
@@ -90,15 +106,14 @@
     dispatchModel({ type: 'redo' });
   }
 
-  function createMenu() {
-    return [
-      { command: 'chart.save' },
-      { command: 'chart.saveAs' },
-      { divider: true },
-      { command: 'chart.undo' },
-      { command: 'chart.redo' },
-    ];
-  }
+  registerMenu(
+    { command: 'chart.save' },
+    { command: 'chart.saveAs' },
+    { placeTag: 'export' },
+    { divider: true },
+    { command: 'chart.undo' },
+    { command: 'chart.redo' }
+  );
 </script>
 
 {#if $editorState.isLoading}
@@ -112,6 +127,5 @@
     sql={$modelState.value && $modelState.value.sql}
     {conid}
     {database}
-    menu={createMenu}
   />
 {/if}

@@ -130,7 +130,7 @@
   import { currentThemeDefinition } from '../stores';
 
   export let data;
-  export let menu;
+  // export let menu;
 
   const { values } = getFormContext();
 
@@ -163,9 +163,8 @@
         height={clientHeight}
         data={chartData[0]}
         type={$values.chartType}
-        options={chartData[1]}
-        plugins={chartData[2]}
-        {menu}
+        title={$values.chartTitle}
+        options={{ ...chartData[1], plugins: chartData[2] }}
       />
     {/key}
   {/if}
