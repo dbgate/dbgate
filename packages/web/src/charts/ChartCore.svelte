@@ -67,6 +67,7 @@
         data,
         options,
       },
+      image: domChart.toDataURL(),
     });
 
     window.open(`${resolveApi()}/uploads/get?file=${resp.data}`, '_blank');

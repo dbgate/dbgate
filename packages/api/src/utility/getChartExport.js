@@ -1,4 +1,4 @@
-const getChartExport = (title, config) => {
+const getChartExport = (title, config, imageFile) => {
   return `<html>
 <meta charset='utf-8'>
 
@@ -25,7 +25,7 @@ const getChartExport = (title, config) => {
 </html>
 
 <body onload="showChart()">
-    <img src="img1.png" id="myImage" />
+    <img src="${imageFile}" id="myImage" />
 
     <div>
         <canvas id="myChart"></canvas>

@@ -118,10 +118,19 @@ module.exports = {
   },
 
   exportChart_meta: 'post',
-  async exportChart({ title, config }) {
-    const html = getChartExport(title, config);
+  async exportChart({ title, config, image }) {
     const fileName = `${uuidv1()}.html`;
+    const imageFile = `${fileName}.png`;
+    const html = getChartExport(title, config, imageFile);
     await fs.writeFile(path.join(uploadsdir(), fileName), html);
+    if (image) {
+      const index = image.indexOf('base64,');
+      if (index > 0) {
+        const data = image.substr(index + 'base64,'.length);
+        const buf = Buffer.from(data, 'base64');
+        await fs.writeFile(path.join(uploadsdir(), imageFile), buf);
+      }
+    }
     return fileName;
   },
 };
