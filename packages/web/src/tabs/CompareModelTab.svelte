@@ -156,6 +156,7 @@
   import { changeTab } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { saveFileToDisk } from '../utility/exportElectronFile';
   import { useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
   import { showSnackbarSuccess } from '../utility/snackbar';
@@ -212,14 +213,15 @@
   }));
 
   export async function showReport() {
-    const resp = await axiosInstance.post('database-connections/generate-db-diff-report', {
-      sourceConid: $values?.sourceConid,
-      sourceDatabase: $values?.sourceDatabase,
-      targetConid: $values?.targetConid,
-      targetDatabase: $values?.targetDatabase,
+    saveFileToDisk(async filePath => {
+      await axiosInstance.post('database-connections/generate-db-diff-report', {
+        filePath,
+        sourceConid: $values?.sourceConid,
+        sourceDatabase: $values?.sourceDatabase,
+        targetConid: $values?.targetConid,
+        targetDatabase: $values?.targetDatabase,
+      });
     });
-
-    window.open(`${resolveApi()}/uploads/get?file=${resp.data}`, '_blank');
   }
 
   export function swap() {

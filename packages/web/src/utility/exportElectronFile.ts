@@ -3,6 +3,7 @@ import getElectron from './getElectron';
 import axiosInstance from '../utility/axiosInstance';
 import socket from '../utility/socket';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
+import resolveApi from './resolveApi';
 
 export async function exportElectronFile(dataName, reader, format) {
   const electron = getElectron();
@@ -53,4 +54,28 @@ export async function exportElectronFile(dataName, reader, format) {
   }
 
   socket.on(`runner-done-${runid}`, handleRunnerDone);
+}
+
+export async function saveFileToDisk(
+  filePathFunc,
+  options: any = { formatLabel: 'HTML page', formatExtension: 'html' }
+) {
+  const { formatLabel, formatExtension } = options;
+  const electron = getElectron();
+
+  if (electron) {
+    const filters = [{ name: formatLabel, extensions: [formatExtension] }];
+    const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+      filters,
+      defaultPath: `file.${formatExtension}`,
+      properties: ['showOverwriteConfirmation'],
+    });
+    if (!filePath) return;
+    await filePathFunc(filePath);
+    electron.shell.openExternal('file:///' + filePath);
+  } else {
+    const resp = await axiosInstance.get('files/generate-uploads-file');
+    await filePathFunc(resp.data.filePath);
+    window.open(`${resolveApi()}/uploads/get?file=${resp.data.fileName}`, '_blank');
+  }
 }

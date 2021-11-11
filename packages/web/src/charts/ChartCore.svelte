@@ -24,6 +24,7 @@
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+import { saveFileToDisk } from '../utility/exportElectronFile';
   import resolveApi from '../utility/resolveApi';
 
   export let data;
@@ -60,17 +61,18 @@
   });
 
   export async function exportChart() {
-    const resp = await axiosInstance.post('files/export-chart', {
-      title,
-      config: {
-        type,
-        data,
-        options,
-      },
-      image: domChart.toDataURL(),
+    saveFileToDisk(async filePath => {
+      await axiosInstance.post('files/export-chart', {
+        title,
+        filePath,
+        config: {
+          type,
+          data,
+          options,
+        },
+        image: domChart.toDataURL(),
+      });
     });
-
-    window.open(`${resolveApi()}/uploads/get?file=${resp.data}`, '_blank');
   }
 
   registerMenu({ command: 'chart.export', tag: 'export' });

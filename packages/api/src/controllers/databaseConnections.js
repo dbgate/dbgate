@@ -339,16 +339,15 @@ module.exports = {
   },
 
   generateDbDiffReport_meta: 'post',
-  async generateDbDiffReport({ sourceConid, sourceDatabase, targetConid, targetDatabase }) {
+  async generateDbDiffReport({ filePath, sourceConid, sourceDatabase, targetConid, targetDatabase }) {
     const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase });
 
     const diffJson = parse(unifiedDiff);
     // $: diffHtml = html(diffJson, { outputFormat: 'side-by-side', drawFileList: false });
     const diffHtml = html(diffJson, { outputFormat: 'side-by-side' });
 
-    const fileName = `${uuidv1()}.html`;
-    await fs.writeFile(path.join(uploadsdir(), fileName), diff2htmlPage(diffHtml));
+    await fs.writeFile(filePath, diff2htmlPage(diffHtml));
 
-    return fileName;
+    return true;
   },
 };
