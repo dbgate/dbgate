@@ -20,6 +20,11 @@ class Analyser extends DatabaseAnalyser {
     super(pool, driver, version);
   }
 
+  async _computeSingleObjectId() {
+    const { pureName } = this.singleObjectFilter;
+    this.singleObjectId = pureName;
+  }
+
   async _getFastSnapshot() {
     const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
     const indexcols = await this.driver.query(this.pool, indexcolsQuery);
@@ -48,7 +53,13 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    const objects = await this.driver.query(this.pool, "select * from sqlite_master where type='table' or type='view'");
+    const objects = await this.driver.query(
+      this.pool,
+      super.createQuery(
+        "select * from sqlite_master where (type='table' or type='view') and name =OBJECT_ID_CONDITION",
+        ['tables', 'views']
+      )
+    );
     const tables = objects.rows.filter((x) => x.type == 'table');
     const views = objects.rows.filter((x) => x.type == 'view');
     // console.log('TABLES', tables);

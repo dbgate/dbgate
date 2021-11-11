@@ -40,4 +40,36 @@ describe('DB Import', () => {
       expect(res.rows[0].cnt.toString()).toEqual('6');
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Import two tables - %s',
+    testWrapper(async (conn, driver, engine) => {
+      // const reader = await fakeObjectReader({ delay: 10 });
+      // const reader = await fakeObjectReader();
+      const reader1 = createImportStream();
+      const writer1 = await tableWriter({
+        systemConnection: conn,
+        driver,
+        pureName: 't1',
+        createIfNotExists: true,
+      });
+      await copyStream(reader1, writer1);
+
+      const reader2 = createImportStream();
+      const writer2 = await tableWriter({
+        systemConnection: conn,
+        driver,
+        pureName: 't2',
+        createIfNotExists: true,
+      });
+      await copyStream(reader2, writer2);
+
+      const res1 = await driver.query(conn, `select count(*) as cnt from t1`);
+      expect(res1.rows[0].cnt.toString()).toEqual('6');
+
+      const res2 = await driver.query(conn, `select count(*) as cnt from t2`);
+      expect(res2.rows[0].cnt.toString()).toEqual('6');
+    })
+  );
+
 });
