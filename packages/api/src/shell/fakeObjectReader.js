@@ -5,7 +5,7 @@ async function fakeObjectReader({ delay = 0 } = {}) {
     objectMode: true,
   });
   function doWrite() {
-    pass.write({ columns: [{ columnName: 'id' }, { columnName: 'country' }] });
+    pass.write({ columns: [{ columnName: 'id' }, { columnName: 'country' }], __isStreamHeader: true });
     pass.write({ id: 1, country: 'Czechia' });
     pass.write({ id: 2, country: 'Austria' });
     pass.write({ country: 'Germany', id: 3 });
