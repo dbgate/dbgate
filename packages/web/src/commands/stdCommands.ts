@@ -161,7 +161,7 @@ registerCommand({
 registerCommand({
   id: 'new.modelCompare',
   category: 'New',
-  icon: 'img compare',
+  icon: 'icon compare',
   name: 'Compare DB',
   toolbar: true,
   onClick: () => {

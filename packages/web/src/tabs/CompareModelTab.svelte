@@ -329,6 +329,7 @@
               templateProps={{ noMargin: true }}
               isNative
               allowChooseModel
+              notSelected
             />
           </div>
           <div class="col-3">
@@ -339,6 +340,7 @@
                 templateProps={{ noMargin: true }}
                 isNative
                 options={($archiveFolders || []).map(x => ({ label: x.name, value: `archive:${x.name}` }))}
+                notSelected
               />
             {:else}
               <FormDatabaseSelect
@@ -347,6 +349,7 @@
                 label="Source database"
                 templateProps={{ noMargin: true }}
                 isNative
+                notSelected
               />
             {/if}
           </div>
@@ -364,6 +367,7 @@
               label="Target server"
               templateProps={{ noMargin: true }}
               isNative
+              notSelected
             />
           </div>
           <div class="col-3">
@@ -373,6 +377,7 @@
               label="Target database"
               templateProps={{ noMargin: true }}
               isNative
+              notSelected
             />
           </div>
         </div>

@@ -80,6 +80,7 @@
     'icon report': 'mdi mdi-file-chart',
     'icon swap': 'mdi mdi-swap-horizontal-bold',
     'icon deploy': 'mdi mdi-content-save-move',
+    'icon compare': 'mdi mdi-compare',
 
     'img ok': 'mdi mdi-check-circle color-icon-green',
     'img ok-inv': 'mdi mdi-check-circle color-icon-inv-green',
