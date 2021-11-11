@@ -104,6 +104,7 @@
     return [
       handler?.tabComponent && { text: 'Open', onClick: openTab },
       hasPermission(`files/${data.folder}/write`) && { text: 'Rename', onClick: handleRename },
+      hasPermission(`files/${data.folder}/write`) && { text: 'Create copy', onClick: handleCopy },
       hasPermission(`files/${data.folder}/write`) && { text: 'Delete', onClick: handleDelete },
       folder == 'markdown' && { text: 'Show page', onClick: showMarkdownPage },
     ];
@@ -125,6 +126,17 @@
       header: 'Rename file',
       onConfirm: newFile => {
         axiosInstance.post('files/rename', { ...data, newFile });
+      },
+    });
+  };
+
+  const handleCopy = () => {
+    showModal(InputTextModal, {
+      value: data.file,
+      label: 'New file name',
+      header: 'Rename file',
+      onConfirm: newFile => {
+        axiosInstance.post('files/copy', { ...data, newFile });
       },
     });
   };

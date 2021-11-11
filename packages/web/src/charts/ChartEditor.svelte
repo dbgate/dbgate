@@ -19,6 +19,7 @@
   import { loadChartData, loadChartStructure } from './chartDataLoader';
   import DataChart from './DataChart.svelte';
   import _ from 'lodash';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let data;
   export let configStore;
@@ -47,6 +48,7 @@
       const columns = await loadChartStructure(driver, conid, database, sql);
       availableColumnNames = columns;
     } catch (err) {
+      console.error(err);
       error = err.message;
     }
   };
@@ -151,7 +153,11 @@
     </div>
 
     <svelte:fragment slot="2">
-      <DataChart data={data || loadedData} />
+      {#if error}
+        <ErrorInfo message={error} alignTop />
+      {:else}
+        <DataChart data={data || loadedData} />
+      {/if}
     </svelte:fragment>
   </HorizontalSplitter>
 </FormProviderCore>

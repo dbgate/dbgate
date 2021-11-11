@@ -58,6 +58,14 @@ module.exports = {
     socket.emitChanged(`all-files-changed`);
   },
 
+  copy_meta: 'post',
+  async copy({ folder, file, newFile }) {
+    if (!hasPermission(`files/${folder}/write`)) return;
+    await fs.copyFile(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
+    socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`all-files-changed`);
+  },
+
   load_meta: 'post',
   async load({ folder, file, format }) {
     if (folder.startsWith('archive:')) {
