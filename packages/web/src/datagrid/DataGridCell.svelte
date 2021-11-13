@@ -38,6 +38,8 @@
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { arrayToHexString } from 'dbgate-tools';
+  import { showModal } from '../modals/modalTools';
+  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
 
   export let rowIndex;
   export let col;
@@ -58,6 +60,8 @@
   export let onSetFormView;
   export let isDynamicStructure = false;
   export let isAutoFillMarker = false;
+  export let isCurrentCell = false;
+  export let onDictionaryLookup = null;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 </script>
@@ -119,8 +123,12 @@
       >
     {/if}
 
-    {#if col.foreignKey && rowData && rowData[col.uniqueName]}
+    {#if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
       <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
+    {/if}
+
+    {#if col.foreignKey && isCurrentCell}
+      <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
     {/if}
   {/if}
 

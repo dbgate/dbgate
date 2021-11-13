@@ -22,6 +22,7 @@
   export let pureName;
   export let schemaName;
   export let driver;
+  export let multiselect = false;
 
   let rows = null;
   let tableInfo;
@@ -143,11 +144,16 @@
           clickable
           on:clickrow={e => {
             const value = e.detail[tableInfo.primaryKey.columns[0].columnName];
-            if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
-            else checkedKeys = [...checkedKeys, value];
+            if (multiselect) {
+              if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
+              else checkedKeys = [...checkedKeys, value];
+            } else {
+              closeCurrentModal();
+              onConfirm(value);
+            }
           }}
           columns={[
-            {
+            multiselect && {
               fieldName: 'checked',
               header: '',
               width: '30px',
@@ -183,13 +189,15 @@
     {/if}
 
     <svelte:fragment slot="footer">
-      <FormSubmit
-        value="OK"
-        on:click={() => {
-          closeCurrentModal();
-          onConfirm(checkedKeys.join(','));
-        }}
-      />
+      {#if multiselect}
+        <FormSubmit
+          value="OK"
+          on:click={() => {
+            closeCurrentModal();
+            onConfirm(checkedKeys);
+          }}
+        />
+      {/if}
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
       <FormStyledButton type="button" value="Customize" on:click={defineDescription} />
     </svelte:fragment>

@@ -204,7 +204,8 @@
       driver,
       pureName: foreignKey.refTableName,
       schemaName: foreignKey.refSchemaName,
-      onConfirm: setFilter,
+      multiselect: true,
+      onConfirm: keys => setFilter(keys.join(',')),
     });
   }
 

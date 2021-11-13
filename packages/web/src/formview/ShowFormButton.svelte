@@ -1,9 +1,11 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
+
+  export let icon = 'icon form';
 </script>
 
-<div on:click|stopPropagation>
-  <FontIcon icon="icon form" />
+<div on:click|stopPropagation class='showFormButtonMarker'>
+  <FontIcon {icon} />
 </div>
 
 <style>

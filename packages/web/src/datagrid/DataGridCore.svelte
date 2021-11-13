@@ -191,7 +191,6 @@
     if (allRowCount == null) return 'Loading row count...';
     return `Rows: ${allRowCount.toLocaleString()}`;
   }
-
 </script>
 
 <script lang="ts">
@@ -223,7 +222,7 @@
   import keycodes from '../utility/keycodes';
   import { selectedCellsCallback } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-  import { copyTextToClipboard ,extractRowCopiedValue} from '../utility/clipboard';
+  import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
@@ -716,6 +715,7 @@
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('.resizeHandleControl')) return;
     if (event.target.closest('.collapseButtonMarker')) return;
+    if (event.target.closest('.showFormButtonMarker')) return;
     if (event.target.closest('input')) return;
 
     shiftDragStartCell = null;
@@ -1260,6 +1260,9 @@
           <DataGridRow
             {rowIndex}
             {grider}
+            {conid}
+            {database}
+            driver={display?.driver}
             {visibleRealColumns}
             {rowHeight}
             {autofillSelectedCells}
@@ -1268,6 +1271,7 @@
             autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
             focusedColumn={display.focusedColumn}
             inplaceEditorState={$inplaceEditorState}
+            currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
             {dispatchInsplaceEditor}
             {frameSelection}
             onSetFormView={formViewAvailable && display?.baseTable?.primaryKey ? handleSetFormView : null}

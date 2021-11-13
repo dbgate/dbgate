@@ -1,5 +1,7 @@
 <script lang="ts">
   import openReferenceForm from '../formview/openReferenceForm';
+  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   import DataGridCell from './DataGridCell.svelte';
   import { cellIsSelected } from './gridutil';
@@ -20,6 +22,10 @@
   export let dispatchInsplaceEditor;
   export let onSetFormView;
   export let isDynamicStructure = false;
+  export let currentCellColumn;
+  export let conid;
+  export let database;
+  export let driver;
 
   $: rowData = grider.getRowData(rowIndex);
   $: rowStatus = grider.getRowStatus(rowIndex);
@@ -31,6 +37,17 @@
       return true;
     })
     .map(col => col.uniqueName);
+
+  function handleLookup(col) {
+    showModal(DictionaryLookupModal, {
+      conid,
+      database,
+      driver,
+      pureName: col.foreignKey.refTableName,
+      schemaName: col.foreignKey.refSchemaName,
+      onConfirm: value => grider.setCellValue(rowIndex, col.uniqueName, value),
+    });
+  }
 </script>
 
 <tr style={`height: ${rowHeight}px`}>
@@ -51,8 +68,11 @@
         {rowIndex}
         {rowData}
         {col}
+        {conid}
+        {database}
         allowHintField={hintFieldsAllowed?.includes(col.uniqueName)}
         isSelected={frameSelection ? false : cellIsSelected(rowIndex, col.colIndex, selectedCells)}
+        isCurrentCell={col.colIndex == currentCellColumn}
         isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
         isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
         isFocusedColumn={col.uniqueName == focusedColumn}
@@ -68,6 +88,7 @@
           autofillMarkerCell[1] == col.colIndex &&
           autofillMarkerCell[0] == rowIndex &&
           grider.editable}
+        onDictionaryLookup={() => handleLookup(col)}
       />
     {/if}
   {/each}
