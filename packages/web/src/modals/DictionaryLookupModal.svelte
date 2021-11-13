@@ -11,6 +11,10 @@
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
   import { onMount } from 'svelte';
   import { dumpSqlSelect } from 'dbgate-sqltree';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
+  import FormTextField from '../forms/FormTextField.svelte';
+  import _ from 'lodash';
 
   export let onConfirm;
   export let conid;
@@ -22,6 +26,9 @@
   let rows = null;
   let tableInfo;
   let description;
+  let isLoading = false;
+
+  let search = '';
 
   let checkedKeys = [];
 
@@ -63,10 +70,35 @@
         })),
       ],
     };
-    // @ts-ignore
 
+    if (search) {
+      const tokens = _.compact(search.split(' ').map(x => x.trim()));
+      if (tokens.length > 0) {
+        // @ts-ignore
+        select.where = {
+          conditionType: 'and',
+          conditions: tokens.map(token => ({
+            conditionType: 'or',
+            conditions: description.columns.map(columnName => ({
+              conditionType: 'like',
+              left: {
+                exprType: 'column',
+                columnName,
+              },
+              right: {
+                exprType: 'value',
+                value: `%${token}%`,
+              },
+            })),
+          })),
+        };
+      }
+    }
+
+    // @ts-ignore
     dumpSqlSelect(dmp, select);
 
+    isLoading = true;
     const response = await axiosInstance.request({
       url: 'database-connections/query-data',
       method: 'post',
@@ -78,6 +110,12 @@
     });
 
     rows = response.data.rows;
+    isLoading = false;
+  }
+
+  $: {
+    search;
+    reload();
   }
 
   onMount(() => {
@@ -89,10 +127,25 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Lookup from {pureName}</svelte:fragment>
 
-    {#if tableInfo && description && rows && tableInfo?.primaryKey?.columns?.length == 1}
+    <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
+    <div class="largeFormMarker">
+      <SearchInput placeholder="Search" bind:value={search} isDebounced />
+    </div>
+
+    {#if isLoading}
+      <LoadingInfo message="Loading data" />
+    {/if}
+
+    {#if !isLoading && tableInfo && description && rows && tableInfo?.primaryKey?.columns?.length == 1}
       <div class="tableWrapper">
         <ScrollableTableControl
           {rows}
+          clickable
+          on:clickrow={e => {
+            const value = e.detail[tableInfo.primaryKey.columns[0].columnName];
+            if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
+            else checkedKeys = [...checkedKeys, value];
+          }}
           columns={[
             {
               fieldName: 'checked',
@@ -122,6 +175,7 @@
               const value = row[tableInfo.primaryKey.columns[0].columnName];
               if (e.target.checked) checkedKeys = [...checkedKeys, value];
               else checkedKeys = checkedKeys.filter(x => x != value);
+              e.stopPropagation();
             }}
           />
         </ScrollableTableControl>

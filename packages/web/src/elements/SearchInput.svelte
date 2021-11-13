@@ -1,8 +1,12 @@
 <script lang="ts">
   import keycodes from '../utility/keycodes';
+  import _ from 'lodash';
 
   export let placeholder;
   export let value;
+
+  $: searchValue = value;
+  export let isDebounced = false;
 
   let domInput;
 
@@ -11,12 +15,18 @@
       value = '';
     }
   }
+
+  const debouncedSet = _.debounce(x => (value = x), 500);
 </script>
 
 <input
   type="text"
   {placeholder}
-  bind:value
+  value={searchValue}
+  on:input={e => {
+    if (isDebounced) debouncedSet(domInput.value);
+    else value = domInput.value;
+  }}
   on:keydown={handleKeyDown}
   bind:this={domInput}
   on:focus={e => domInput.select()}
