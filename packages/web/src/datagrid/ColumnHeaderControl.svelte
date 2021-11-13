@@ -72,7 +72,7 @@
       <FontIcon icon="img sort-desc" />
     </span>
   {/if}
-  <DropDownButton menu={getMenu} />
+  <DropDownButton menu={getMenu} narrow />
   <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
 </div>
 

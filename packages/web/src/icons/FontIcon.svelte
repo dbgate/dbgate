@@ -66,6 +66,8 @@
     'icon check-all': 'mdi mdi-check-all',
     'icon checkbox-blank': 'mdi mdi-checkbox-blank-outline',
     'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
+    'icon dots-horizontal': 'mdi mdi-dots-horizontal',
+    'icon dots-vertical': 'mdi mdi-dots-vertical',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

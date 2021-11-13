@@ -12,6 +12,9 @@
   import keycodes from '../utility/keycodes';
 
   import DropDownButton from '../elements/DropDownButton.svelte';
+  import InlineButton from '../elements/InlineButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
 
   export let isReadOnly = false;
   export let filterType;
@@ -20,6 +23,9 @@
   export let showResizeSplitter = false;
   export let onFocusGrid;
   export let onGetReference;
+  export let foreignKey = null;
+  export let conid = null;
+  export let database = null;
 
   let value;
   let isError;
@@ -190,6 +196,15 @@
     }
   }
 
+  function handleShowDictionary() {
+    showModal(DictionaryLookupModal, {
+      conid,
+      database,
+      pureName: foreignKey.refTableName,
+      schemaName: foreignKey.refSchemaName,
+    });
+  }
+
   $: value = filter;
 
   $: {
@@ -226,9 +241,14 @@
     on:paste={handlePaste}
     class:isError
     class:isOk
-    placeholder='Filter'
+    placeholder="Filter"
   />
-  <DropDownButton icon="icon filter" menu={createMenu} />
+  {#if foreignKey && conid && database}
+    <InlineButton on:click={handleShowDictionary} narrow square>
+      <FontIcon icon="icon dots-horizontal" />
+    </InlineButton>
+  {/if}
+  <DropDownButton icon="icon filter" menu={createMenu} narrow />
   {#if showResizeSplitter}
     <div class="horizontal-split-handle resizeHandleControl" use:splitterDrag={'clientX'} on:resizeSplitter />
   {/if}

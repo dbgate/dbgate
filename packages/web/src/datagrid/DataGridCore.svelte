@@ -1234,6 +1234,9 @@
               >
                 <DataFilterControl
                   onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
+                  foreignKey={col.foreignKey}
+                  {conid}
+                  {database}
                   filterType={col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}

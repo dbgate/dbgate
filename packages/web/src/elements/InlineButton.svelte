@@ -1,6 +1,7 @@
 <script lang="ts">
   export let disabled = false;
   export let square = false;
+  export let narrow = false;
 
   let domButton;
 
@@ -9,7 +10,7 @@
   }
 </script>
 
-<div class="outer buttonLike" class:disabled class:square on:click bind:this={domButton}>
+<div class="outer buttonLike" class:disabled class:square class:narrow on:click bind:this={domButton}>
   <div class="inner">
     <slot />
   </div>
@@ -32,6 +33,10 @@
     margin: 0;
     text-decoration: none;
     display: flex;
+  }
+
+  .narrow {
+    padding: 3px 1px;
   }
 
   .outer.disabled {

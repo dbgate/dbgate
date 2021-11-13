@@ -7,6 +7,7 @@
 
   export let icon = 'icon chevron-down';
   export let menu;
+  export let narrow = false;
   let domButton;
 
   function handleClick() {
@@ -17,6 +18,6 @@
   }
 </script>
 
-<InlineButton square on:click={handleClick} bind:this={domButton}>
+<InlineButton square {narrow} on:click={handleClick} bind:this={domButton}>
   <FontIcon {icon} />
 </InlineButton>

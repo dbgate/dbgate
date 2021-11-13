@@ -10,5 +10,6 @@ export function openArchiveFolder() {
     properties: ['openDirectory'],
   });
   const linkedFolder = filePaths && filePaths[0];
+  if (!linkedFolder) return;
   axiosInstance.post('archive/create-link', { linkedFolder });
 }
