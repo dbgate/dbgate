@@ -1237,6 +1237,7 @@
                   foreignKey={col.foreignKey}
                   {conid}
                   {database}
+                  driver={display?.driver}
                   filterType={col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}

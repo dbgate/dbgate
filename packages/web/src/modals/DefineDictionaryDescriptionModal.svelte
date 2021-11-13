@@ -59,6 +59,7 @@
           let:row
           type="checkbox"
           slot="1"
+          disabled={$tableInfo?.primaryKey?.columns?.find(x => x.columnName == row.columnName)}
           checked={parseDelimitedColumnList($values.columns).includes(row.columnName)}
           on:change={e => {
             $values = {

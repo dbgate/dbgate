@@ -4,7 +4,10 @@ import _ from 'lodash';
 import { getLocalStorage, setLocalStorage, removeLocalStorage } from './storageCache';
 
 function checkDescriptionColumns(columns: string[], table: TableInfo) {
-  return columns.length > 0 && columns.every(x => table.columns.find(y => y.columnName == x));
+  if (!columns?.length) return false;
+  if (!columns.every(x => table.columns.find(y => y.columnName == x))) return false;
+  if (table.primaryKey?.columns?.find(x => columns.includes(x.columnName))) return false;
+  return true;
 }
 
 export function getDictionaryDescription(

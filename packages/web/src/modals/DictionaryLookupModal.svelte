@@ -5,12 +5,25 @@
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import DefineDictionaryDescriptionModal from './DefineDictionaryDescriptionModal.svelte';
+  import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
+  import axiosInstance from '../utility/axiosInstance';
+  import { getTableInfo } from '../utility/metadataLoaders';
+  import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
+  import { onMount } from 'svelte';
+  import { dumpSqlSelect } from 'dbgate-sqltree';
 
   export let onConfirm;
   export let conid;
   export let database;
   export let pureName;
   export let schemaName;
+  export let driver;
+
+  let rows = null;
+  let tableInfo;
+  let description;
+
+  let checkedKeys = [];
 
   function defineDescription() {
     showModal(DefineDictionaryDescriptionModal, {
@@ -22,21 +35,105 @@
     });
   }
 
-  function reload() {}
+  async function reload() {
+    tableInfo = await getTableInfo({ conid, database, schemaName, pureName });
+    description = getDictionaryDescription(tableInfo, conid, database);
+
+    if (!tableInfo || !description) return;
+    if (tableInfo?.primaryKey?.columns?.length != 1) return;
+
+    const dmp = driver.createDumper();
+    const select = {
+      commandType: 'select',
+      topRecords: 100,
+      from: {
+        name: {
+          schemaName,
+          pureName,
+        },
+      },
+      columns: [
+        ...tableInfo.primaryKey.columns.map(col => ({
+          exprType: 'column',
+          columnName: col.columnName,
+        })),
+        ...description.columns.map(columnName => ({
+          exprType: 'column',
+          columnName,
+        })),
+      ],
+    };
+    // @ts-ignore
+
+    dumpSqlSelect(dmp, select);
+
+    const response = await axiosInstance.request({
+      url: 'database-connections/query-data',
+      method: 'post',
+      params: {
+        conid,
+        database,
+      },
+      data: { sql: dmp.s },
+    });
+
+    rows = response.data.rows;
+  }
+
+  onMount(() => {
+    reload();
+  });
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Lookup from {pureName}</svelte:fragment>
 
-    {pureName}
+    {#if tableInfo && description && rows && tableInfo?.primaryKey?.columns?.length == 1}
+      <div class="tableWrapper">
+        <ScrollableTableControl
+          {rows}
+          columns={[
+            {
+              fieldName: 'checked',
+              header: '',
+              width: '30px',
+              slot: 1,
+            },
+            {
+              fieldName: 'value',
+              header: 'Value',
+              formatter: row => row[tableInfo.primaryKey.columns[0].columnName],
+              width: '100px',
+            },
+            {
+              fieldName: 'description',
+              header: 'Description',
+              formatter: row => description.columns.map(col => row[col]).join(description.delimiter || ' '),
+            },
+          ]}
+        >
+          <input
+            type="checkbox"
+            let:row
+            slot="1"
+            checked={checkedKeys.includes(row[tableInfo.primaryKey.columns[0].columnName])}
+            on:change={e => {
+              const value = row[tableInfo.primaryKey.columns[0].columnName];
+              if (e.target.checked) checkedKeys = [...checkedKeys, value];
+              else checkedKeys = checkedKeys.filter(x => x != value);
+            }}
+          />
+        </ScrollableTableControl>
+      </div>
+    {/if}
 
     <svelte:fragment slot="footer">
       <FormSubmit
         value="OK"
         on:click={() => {
           closeCurrentModal();
-          onConfirm();
+          onConfirm(checkedKeys.join(','));
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
@@ -44,3 +141,11 @@
     </svelte:fragment>
   </ModalBase>
 </FormProvider>
+
+<style>
+  .tableWrapper {
+    position: relative;
+    max-height: 300px;
+    height: 300px;
+  }
+</style>

@@ -26,6 +26,7 @@
   export let foreignKey = null;
   export let conid = null;
   export let database = null;
+  export let driver = null;
 
   let value;
   let isError;
@@ -200,8 +201,10 @@
     showModal(DictionaryLookupModal, {
       conid,
       database,
+      driver,
       pureName: foreignKey.refTableName,
       schemaName: foreignKey.refSchemaName,
+      onConfirm: setFilter,
     });
   }
 
