@@ -7,6 +7,7 @@ const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('..
 const socket = require('../utility/socket');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
+const loadFilesRecursive = require('../utility/loadFilesRecursive');
 
 module.exports = {
   folders_meta: 'get',
@@ -46,7 +47,7 @@ module.exports = {
   async files({ folder }) {
     const dir = resolveArchiveFolder(folder);
     if (!(await fs.exists(dir))) return [];
-    const files = await fs.readdir(dir);
+    const files = await loadFilesRecursive(dir); // fs.readdir(dir);
 
     function fileType(ext, type) {
       return files
