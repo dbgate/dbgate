@@ -15,6 +15,7 @@ import {
 import { TableGridDisplay } from './TableGridDisplay';
 import stableStringify from 'json-stable-stringify';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
+import { DictionaryDescriptionFunc } from '.';
 
 export class TableFormViewDisplay extends FormViewDisplay {
   // use utility functions from GridDisplay and publish result in FromViewDisplay interface
@@ -29,7 +30,8 @@ export class TableFormViewDisplay extends FormViewDisplay {
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
     displayOptions,
-    serverVersion
+    serverVersion,
+    getDictionaryDescription: DictionaryDescriptionFunc = null
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
     this.gridDisplay = new TableGridDisplay(
@@ -41,7 +43,8 @@ export class TableFormViewDisplay extends FormViewDisplay {
       setCache,
       dbinfo,
       displayOptions,
-      serverVersion
+      serverVersion,
+      getDictionaryDescription
     );
     this.gridDisplay.addAllExpandedColumnsToSelected = true;
 

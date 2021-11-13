@@ -113,8 +113,10 @@
       {value.toString()}
     {/if}
 
-    {#if allowHintField && rowData && rowData[col.hintColumnName]}
-      <span class="hint">{rowData[col.hintColumnName]}</span>
+    {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
+      <span class="hint"
+        >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
+      >
     {/if}
 
     {#if col.foreignKey && rowData && rowData[col.uniqueName]}

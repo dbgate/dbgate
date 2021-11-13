@@ -29,7 +29,7 @@ export interface DisplayColumn {
   foreignKey?: ForeignKeyInfo;
   isExpandable?: boolean;
   isChecked?: boolean;
-  hintColumnName?: string;
+  hintColumnNames?: string[];
   dataType?: string;
   filterType?: boolean;
   isStructured?: boolean;

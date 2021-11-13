@@ -26,6 +26,7 @@
   import SqlDataGridCore from './SqlDataGridCore.svelte';
   import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
 
   export let conid;
   export let database;
@@ -64,7 +65,8 @@
           setCache,
           $dbinfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
-          $serverVersion
+          $serverVersion,
+          table => getDictionaryDescription(table, conid, database)
         )
       : null;
 
@@ -79,7 +81,8 @@
           setCache,
           $dbinfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
-          $serverVersion
+          $serverVersion,
+          table => getDictionaryDescription(table, conid, database)
         )
       : null;
 

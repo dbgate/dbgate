@@ -12,6 +12,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import {
     changeDelimitedColumnList,
+    checkDescriptionExpression,
     getDictionaryDescription,
     parseDelimitedColumnList,
     saveDictionaryDescription,
@@ -27,7 +28,7 @@
 
   $: tableInfo = useTableInfo({ conid, database, schemaName, pureName });
 
-  $: descriptionInfo = getDictionaryDescription($tableInfo, conid, database);
+  $: descriptionInfo = getDictionaryDescription($tableInfo, conid, database, true);
 
   const values = writable({});
 
@@ -78,6 +79,7 @@
     <svelte:fragment slot="footer">
       <FormSubmit
         value="OK"
+        disabled={!checkDescriptionExpression($values?.columns, $tableInfo)}
         on:click={() => {
           closeCurrentModal();
           saveDictionaryDescription(

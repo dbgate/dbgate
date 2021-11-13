@@ -26,7 +26,7 @@
 
   $: hintFieldsAllowed = visibleRealColumns
     .filter(col => {
-      if (!col.hintColumnName) return false;
+      if (!col.hintColumnNames) return false;
       if (rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)) return false;
       return true;
     })

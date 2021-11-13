@@ -1,9 +1,25 @@
 import _ from 'lodash';
 import { filterName } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
-import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import {
+  TableInfo,
+  EngineDriver,
+  ViewInfo,
+  ColumnInfo,
+  NamedObjectInfo,
+  DatabaseInfo,
+  ForeignKeyInfo,
+} from 'dbgate-types';
 import { GridConfig, GridCache, createGridCache } from './GridConfig';
-import { Expression, Select, treeToSql, dumpSqlSelect } from 'dbgate-sqltree';
+import { Expression, Select, treeToSql, dumpSqlSelect, ColumnRefExpression } from 'dbgate-sqltree';
+
+export interface DictionaryDescription {
+  expression: string;
+  columns: string[];
+  delimiter: string;
+}
+
+export type DictionaryDescriptionFunc = (table: TableInfo) => DictionaryDescription;
 
 export class TableGridDisplay extends GridDisplay {
   public table: TableInfo;
@@ -19,7 +35,8 @@ export class TableGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
     public displayOptions: any,
-    serverVersion
+    serverVersion,
+    public getDictionaryDescription: DictionaryDescriptionFunc = null
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
 
@@ -61,7 +78,11 @@ export class TableGridDisplay extends GridDisplay {
         ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
-          hintColumnName: col.foreignKey ? `hint_${col.uniqueName}` : null,
+          hintColumnNames:
+            this.getFkDictionaryDescription(col.foreignKey)?.columns?.map(
+              columnName => `hint_${col.uniqueName}_${columnName}`
+            ) || null,
+          hintColumnDelimiter: this.getFkDictionaryDescription(col.foreignKey)?.delimiter,
           isExpandable: !!col.foreignKey,
         })) || []
     );
@@ -116,6 +137,19 @@ export class TableGridDisplay extends GridDisplay {
     }
   }
 
+  getFkDictionaryDescription(foreignKey: ForeignKeyInfo) {
+    if (!foreignKey) return null;
+    const pureName = foreignKey.refTableName;
+    const schemaName = foreignKey.refSchemaName;
+    const table = this.findTable({ schemaName, pureName });
+
+    if (table && table.columns && table.columns.length > 0 && table.primaryKey) {
+      const hintDescription = this.getDictionaryDescription(table);
+      return hintDescription;
+    }
+    return null;
+  }
+
   addHintsToSelect(select: Select): boolean {
     let res = false;
     const groupColumns = this.groupColumns;
@@ -126,17 +160,23 @@ export class TableGridDisplay extends GridDisplay {
         }
         const table = this.getFkTarget(column);
         if (table && table.columns && table.columns.length > 0 && table.primaryKey) {
-          const hintColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
-          if (hintColumn) {
+          // const hintColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
+          const hintDescription = this.getDictionaryDescription(table);
+          if (hintDescription) {
             const parentUniqueName = column.uniquePath.slice(0, -1).join('.');
             this.addReferenceToSelect(select, parentUniqueName ? `${parentUniqueName}_ref` : 'basetbl', column);
             const childAlias = `${column.uniqueName}_ref`;
-            select.columns.push({
-              exprType: 'column',
-              columnName: hintColumn.columnName,
-              alias: `hint_${column.uniqueName}`,
-              source: { alias: childAlias },
-            });
+            select.columns.push(
+              ...hintDescription.columns.map(
+                columnName =>
+                  ({
+                    exprType: 'column',
+                    columnName,
+                    alias: `hint_${column.uniqueName}_${columnName}`,
+                    source: { alias: childAlias },
+                  } as ColumnRefExpression)
+              )
+            );
             res = true;
           }
         }
