@@ -79,15 +79,24 @@ module.exports = {
   },
 
   deleteFile_meta: 'post',
-  async deleteFile({ folder, file }) {
-    await fs.unlink(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));
+  async deleteFile({ folder, file, fileType }) {
+    await fs.unlink(path.join(resolveArchiveFolder(folder), `${file}.${fileType}`));
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
   renameFile_meta: 'post',
-  async renameFile({ folder, file, newFile }) {
-    await fs.rename(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), path.join(resolveArchiveFolder(folder), `${newFile}.jsonl`));
+  async renameFile({ folder, file, newFile, fileType }) {
+    await fs.rename(
+      path.join(resolveArchiveFolder(folder), `${file}.${fileType}`),
+      path.join(resolveArchiveFolder(folder), `${newFile}.${fileType}`)
+    );
     socket.emitChanged(`archive-files-changed-${folder}`);
+  },
+
+  renameFolder_meta: 'post',
+  async renameFolder({ folder, newFolder }) {
+    await fs.rename(path.join(resolveArchiveFolder(folder)), path.join(resolveArchiveFolder(newFolder)));
+    socket.emitChanged(`archive-folders-changed`);
   },
 
   deleteFolder_meta: 'post',

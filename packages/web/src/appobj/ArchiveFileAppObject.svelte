@@ -68,22 +68,37 @@
   import AppObjectCore from './AppObjectCore.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let data;
 
   const handleRename = () => {
     showModal(InputTextModal, {
-      value: data.file,
+      value: data.fileName,
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('archive/rename-file', { file: data.fileName, folder: data.folderName, newFile });
+        axiosInstance.post('archive/rename-file', {
+          file: data.fileName,
+          folder: data.folderName,
+          fileType: data.fileType,
+          newFile,
+        });
       },
     });
   };
 
   const handleDelete = () => {
-    axiosInstance.post('archive/delete-file', { file: data.fileName, folder: data.folderName });
+    showModal(ConfirmModal, {
+      message: `Really delete file ${data.fileName}?`,
+      onConfirm: () => {
+        axiosInstance.post('archive/delete-file', {
+          file: data.fileName,
+          folder: data.folderName,
+          fileType: data.fileType,
+        });
+      },
+    });
   };
   const handleOpenRead = () => {
     openArchive(data.fileName, data.folderName);

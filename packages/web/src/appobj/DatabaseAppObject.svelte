@@ -58,6 +58,8 @@
         conid: connection._id,
         database: name,
       });
+      currentArchive.set(resp.data.archiveFolder);
+      selectedWidget.set('archive');
       showSnackbarSuccess(`Saved to archive ${resp.data.archiveFolder}`);
     };
 
@@ -107,7 +109,7 @@
   import { showModal } from '../modals/modalTools';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
-  import { currentDatabase, extensions } from '../stores';
+  import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';

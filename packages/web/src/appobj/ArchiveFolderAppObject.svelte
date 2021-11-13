@@ -13,11 +13,36 @@
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import newQuery from '../query/newQuery';
+  import { showModal } from '../modals/modalTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let data;
 
   const handleDelete = () => {
-    axiosInstance.post('archive/delete-folder', { folder: data.name });
+    showModal(ConfirmModal, {
+      message: `Really delete folder ${data.name}?`,
+      onConfirm: () => {
+        axiosInstance.post('archive/delete-folder', { folder: data.name });
+      },
+    });
+  };
+
+  const handleRename = () => {
+    showModal(InputTextModal, {
+      value: data.name,
+      label: 'New folder name',
+      header: 'Rename folder',
+      onConfirm: async newFolder => {
+        await axiosInstance.post('archive/rename-folder', {
+          folder: data.name,
+          newFolder,
+        });
+        if ($currentArchive == data.name) {
+          $currentArchive = newFolder;
+        }
+      },
+    });
   };
 
   const handleGenerateDeployScript = () => {
@@ -58,6 +83,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   function createMenu() {
     return [
       data.name != 'default' && { text: 'Delete', onClick: handleDelete },
+      data.name != 'default' && { text: 'Rename', onClick: handleRename },
       data.name != 'default' &&
         $currentDatabase && [
           { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
