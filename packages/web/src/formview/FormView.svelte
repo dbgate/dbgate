@@ -172,6 +172,8 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
+  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
@@ -282,6 +284,7 @@
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('.resizeHandleControl')) return;
     if (event.target.closest('input')) return;
+    if (event.target.closest('.showFormButtonMarker')) return;
 
     event.preventDefault();
     if (domFocusField) domFocusField.focus();
@@ -474,6 +477,17 @@
   function handleSetFormView(rowData, column) {
     openReferenceForm(rowData, column, conid, database);
   }
+
+  function handleLookup(col) {
+    showModal(DictionaryLookupModal, {
+      conid,
+      database,
+      driver: formDisplay?.driver,
+      pureName: col.foreignKey.refTableName,
+      schemaName: col.foreignKey.refSchemaName,
+      onConfirm: value => former.setCellValue(col.uniqueName, value),
+    });
+  }
 </script>
 
 <div class="outer">
@@ -524,6 +538,8 @@
                 ($inplaceEditorState.cell &&
                   rowIndex == $inplaceEditorState.cell[0] &&
                   chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
+              isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+              onDictionaryLookup={() => handleLookup(col)}
             >
               {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
                 <InplaceEditor

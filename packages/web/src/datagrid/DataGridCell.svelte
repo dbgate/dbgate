@@ -127,7 +127,7 @@
       <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
     {/if}
 
-    {#if col.foreignKey && isCurrentCell}
+    {#if col.foreignKey && isCurrentCell && onDictionaryLookup}
       <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
     {/if}
   {/if}
