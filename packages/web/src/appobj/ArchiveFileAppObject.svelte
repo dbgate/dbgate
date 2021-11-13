@@ -46,7 +46,7 @@
     jsonl: 'img archive',
     'table.yaml': 'img table',
     'view.sql': 'img view',
-    'proce.sql': 'img procedure',
+    'proc.sql': 'img procedure',
     'func.sql': 'img function',
     'trigger.sql': 'img sql-file',
     'matview.sql': 'img view',
