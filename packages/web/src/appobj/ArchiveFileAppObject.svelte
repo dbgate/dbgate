@@ -178,7 +178,7 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.fileName}
+  title={data.fileLabel}
   icon={ARCHIVE_ICONS[data.fileType]}
   menu={createMenu}
   on:click={handleClick}

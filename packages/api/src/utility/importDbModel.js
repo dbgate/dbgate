@@ -16,7 +16,7 @@ async function importDbModel(inputDir) {
       const text = await fs.readFile(path.join(dir, name), { encoding: 'utf-8' });
 
       files.push({
-        name,
+        name: path.parse(name).base,
         text,
         json: name.endsWith('.yaml') ? yaml.load(text) : null,
       });

@@ -3,7 +3,7 @@
     jsonl: 'JSON table data',
     'table.yaml': 'Tables',
     'view.sql': 'Views',
-    'proce.sql': 'Procedures',
+    'proc.sql': 'Procedures',
     'func.sql': 'Functions',
     'trigger.sql': 'Triggers',
     'matview.sql': 'Materialized views',
@@ -45,6 +45,7 @@
       fileName: file.name,
       folderName: folder,
       fileType: file.type,
+      fileLabel: file.label,
     }))}
     groupFunc={data => ARCHIVE_LABELS[data.fileType] || 'Archive'}
     module={archiveFileAppObject}

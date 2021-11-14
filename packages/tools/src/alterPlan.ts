@@ -226,6 +226,7 @@ export class AlterPlan {
 
   _getDependendColumnConstraints(column: ColumnInfo, dependencyDefinition) {
     const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
+    if (!table) return [];
     const fks = dependencyDefinition?.includes('dependencies')
       ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == column.columnName))
       : [];

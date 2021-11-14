@@ -54,6 +54,7 @@ module.exports = {
         .filter(name => name.endsWith(ext))
         .map(name => ({
           name: name.slice(0, -ext.length),
+          label: path.parse(name.slice(0, -ext.length)).base,
           type,
         }));
     }

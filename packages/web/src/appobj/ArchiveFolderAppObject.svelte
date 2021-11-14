@@ -80,6 +80,24 @@ await dbgateApi.deployDb(${JSON.stringify(
     newQuery({ initialData: resp.data.sql });
   };
 
+  const handleCompareWithCurrentDb = () => {
+    openNewTab(
+      {
+        title: 'Compare',
+        icon: 'img compare',
+        tabComponent: 'CompareModelTab',
+      },
+      {
+        editor: {
+          sourceConid: '__model',
+          sourceDatabase: `archive:${data.name}`,
+          targetConid: _.get($currentDatabase, 'connection._id'),
+          targetDatabase: _.get($currentDatabase, 'name'),
+        },
+      }
+    );
+  };
+
   function createMenu() {
     return [
       data.name != 'default' && { text: 'Delete', onClick: handleDelete },
@@ -89,6 +107,12 @@ await dbgateApi.deployDb(${JSON.stringify(
           { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
           { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
         ],
+
+      data.name != 'default' &&
+        _.get($currentDatabase, 'connection._id') && {
+          onClick: handleCompareWithCurrentDb,
+          text: `Compare with ${_.get($currentDatabase, 'name')}`,
+        },
     ];
   }
 </script>
