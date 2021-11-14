@@ -38,9 +38,34 @@ const postgresDriverBase = {
   ...driverBase,
   dumperClass: Dumper,
   dialect,
-  showConnectionField: (field, values) =>
-    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+  // showConnectionField: (field, values) =>
+  //   ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   getQuerySplitterOptions: () => postgreSplitterOptions,
+
+  databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',
+
+  showConnectionField: (field, values) => {
+    if (field == 'useDatabaseUrl') return true;
+    if (values.useDatabaseUrl) {
+      return ['databaseUrl', 'defaultDatabase', 'singleDatabase'].includes(field);
+    }
+    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
+  },
+
+  beforeConnectionSave: connection => {
+    const { databaseUrl } = connection;
+    if (databaseUrl) {
+      const m = databaseUrl.match(/\/([^/]+)($|\?)/);
+      if (m) {
+        return {
+          ...connection,
+          singleDatabase: true,
+          defaultDatabase: m[1],
+        };
+      }
+    }
+    return connection;
+  },
 
   __analyserInternals: {
     refTableCond: '',
