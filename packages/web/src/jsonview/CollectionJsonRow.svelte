@@ -20,6 +20,7 @@
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { copyTextToClipboard } from '../utility/clipboard';
   import { getContextMenu, registerMenu } from '../utility/contextMenu';
 
   export let rowIndex;
@@ -32,7 +33,13 @@
     editJsonRowDocument(grider, rowIndex);
   }
 
+  function handleCopyJsonDocument() {
+    const rowData = grider.getRowData(rowIndex);
+    copyTextToClipboard(JSON.stringify(rowData, undefined, 2));
+  }
+
   registerMenu([
+    { text: 'Copy JSON document', onClick: handleCopyJsonDocument },
     { text: 'Edit document', onClick: handleEditDocument },
     { text: 'Delete document', onClick: () => grider.deleteRow(rowIndex) },
     { text: 'Revert row changes', onClick: () => grider.revertRowChanges(rowIndex) },

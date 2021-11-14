@@ -108,6 +108,14 @@
   });
 
   registerCommand({
+    id: 'dataGrid.copyJsonDocument',
+    category: 'Data grid',
+    name: 'Copy JSON document',
+    testEnabled: () => getCurrentDataGrid()?.copyJsonEnabled(),
+    onClick: () => getCurrentDataGrid().copyJsonDocument(),
+  });
+
+  registerCommand({
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
@@ -432,9 +440,19 @@
     return grider.editable && isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
+  export function copyJsonEnabled() {
+    return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+  }
+
   export function editJsonDocument() {
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
+  }
+
+  export function copyJsonDocument() {
+    const rowIndex = selectedCells[0][0];
+    const rowData = grider.getRowData(rowIndex);
+    copyTextToClipboard(JSON.stringify(rowData, undefined, 2));
   }
 
   export function buildFindMenu() {
@@ -1104,6 +1122,7 @@
   registerMenu(
     { command: 'dataGrid.refresh' },
     { command: 'dataGrid.copyToClipboard' },
+    { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { placeTag: 'switch' },
     { divider: true },
     { placeTag: 'save' },
@@ -1120,7 +1139,7 @@
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo' },
     { command: 'dataGrid.redo' },
-    { command: 'dataGrid.editJsonDocument' },
+    { command: 'dataGrid.editJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
     { command: 'dataGrid.generateSqlFromData' },
