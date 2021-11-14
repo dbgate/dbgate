@@ -47,8 +47,11 @@ function buildMenu() {
       label: 'File',
       submenu: [
         commandItem('new.connection'),
+        commandItem('new.sqliteDatabase'),
+        { type: 'separator' },
         commandItem('file.open'),
         commandItem('file.openArchive'),
+        { type: 'separator' },
         commandItem('group.save'),
         commandItem('group.saveAs'),
         commandItem('database.search'),
