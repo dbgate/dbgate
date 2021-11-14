@@ -47,7 +47,7 @@ const postgresDriverBase = {
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
     if (values.useDatabaseUrl) {
-      return ['databaseUrl', 'defaultDatabase', 'singleDatabase'].includes(field);
+      return ['databaseUrl'].includes(field);
     }
     return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
   },
@@ -56,13 +56,11 @@ const postgresDriverBase = {
     const { databaseUrl } = connection;
     if (databaseUrl) {
       const m = databaseUrl.match(/\/([^/]+)($|\?)/);
-      if (m) {
-        return {
-          ...connection,
-          singleDatabase: true,
-          defaultDatabase: m[1],
-        };
-      }
+      return {
+        ...connection,
+        singleDatabase: !!m,
+        defaultDatabase: m ? m[1] : null,
+      };
     }
     return connection;
   },
