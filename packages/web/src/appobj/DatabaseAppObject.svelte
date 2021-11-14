@@ -86,7 +86,7 @@
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
-      { onClick: handleExportModel, text: 'Export DB model' },
+      { onClick: handleExportModel, text: 'Export DB model - experimental' },
       _.get($currentDatabase, 'connection._id') &&
         (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&

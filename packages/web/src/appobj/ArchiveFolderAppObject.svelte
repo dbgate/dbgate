@@ -104,8 +104,8 @@ await dbgateApi.deployDb(${JSON.stringify(
       data.name != 'default' && { text: 'Rename', onClick: handleRename },
       data.name != 'default' &&
         $currentDatabase && [
-          { text: 'Generate deploy DB SQL', onClick: handleGenerateDeploySql },
-          { text: 'Shell: Deploy DB', onClick: handleGenerateDeployScript },
+          { text: 'Generate deploy DB SQL - experimental', onClick: handleGenerateDeploySql },
+          { text: 'Shell: Deploy DB - experimental', onClick: handleGenerateDeployScript },
         ],
 
       data.name != 'default' &&

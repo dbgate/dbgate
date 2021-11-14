@@ -358,7 +358,7 @@
               <div class="arrow">
                 <FontIcon icon="icon arrow-right-bold" />
               </div>
-              Deploy
+              Deploy (experimental)
             </InlineButton>
           </div>
           <div class="col-3">
