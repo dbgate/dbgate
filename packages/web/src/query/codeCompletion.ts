@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
 import analyseQuerySources from './analyseQuerySources';
@@ -40,15 +41,25 @@ export function mountCodeCompletion({ conid, database, editor }) {
 
       if (dbinfo) {
         const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);
+        const lastKeywordMatch = line.match(/([a-zA-Z0-9_]*)\s*$/);
+        const lastKeyword = lastKeywordMatch ? lastKeywordMatch[1].toUpperCase().trim() : '';
+
+        const sources = analyseQuerySources(editor.getValue(), [
+          ...dbinfo.tables.map(x => x.pureName),
+          ...dbinfo.views.map(x => x.pureName),
+        ]);
+        const sourceObjects = sources.map(src => {
+          const table = dbinfo.tables.find(x => x.pureName == src.name);
+          const view = dbinfo.views.find(x => x.pureName == src.name);
+          return { ...(table || view), alias: src.alias };
+        });
+
         if (colMatch) {
           const table = colMatch[1];
-          const sources = analyseQuerySources(editor.getValue(), [
-            ...dbinfo.tables.map(x => x.pureName),
-            ...dbinfo.views.map(x => x.pureName),
-          ]);
           const source = sources.find(x => (x.alias || x.name) == table);
-          console.log('sources', sources);
-          console.log('table', table, source);
+
+          // console.log('sources', sources);
+          // console.log('table', table, source);
           if (source) {
             const table = dbinfo.tables.find(x => x.pureName == source.name);
             if (table) {
@@ -62,10 +73,25 @@ export function mountCodeCompletion({ conid, database, editor }) {
                 })),
               ];
             }
+
+            const view = dbinfo.views.find(x => x.pureName == source.name);
+            if (view) {
+              list = [
+                ...view.columns.map(x => ({
+                  name: x.columnName,
+                  value: x.columnName,
+                  caption: x.columnName,
+                  meta: 'column',
+                  score: 1000,
+                })),
+              ];
+            }
           }
         } else {
+          const onlyTables =
+            lastKeyword == 'FROM' || lastKeyword == 'JOIN' || lastKeyword == 'UPDATE' || lastKeyword == 'DELETE';
           list = [
-            ...list,
+            ...(onlyTables ? [] : list),
             ...dbinfo.tables.map(x => ({
               name: x.pureName,
               value: x.pureName,
@@ -80,6 +106,19 @@ export function mountCodeCompletion({ conid, database, editor }) {
               meta: 'view',
               score: 1000,
             })),
+            ...(onlyTables
+              ? []
+              : _.flatten(
+                  sourceObjects.map(obj =>
+                    obj.columns.map(col => ({
+                      name: col.columnName,
+                      value: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
+                      caption: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
+                      meta: 'column',
+                      score: 1200,
+                    }))
+                  )
+                )),
           ];
         }
       }
@@ -108,7 +147,7 @@ export function mountCodeCompletion({ conid, database, editor }) {
         editor.execCommand('startAutocomplete');
       }
 
-      if (e.args == ' ' && /((from)|(join))\s*$/i.test(line)) {
+      if (e.args == ' ' && /((from)|(join)|(update))\s*$/i.test(line)) {
         editor.execCommand('startAutocomplete');
       }
     }
