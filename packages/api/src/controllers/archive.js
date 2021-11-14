@@ -40,7 +40,7 @@ module.exports = {
     fs.writeFile(path.join(archivedir(), folder), linkedFolder);
     clearArchiveLinksCache();
     socket.emitChanged('archive-folders-changed');
-    return true;
+    return folder;
   },
 
   files_meta: 'get',

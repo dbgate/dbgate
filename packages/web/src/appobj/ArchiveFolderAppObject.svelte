@@ -21,7 +21,9 @@
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
-      message: `Really delete folder ${data.name}?`,
+      message: data.name.endsWith('.link')
+        ? `Really delete link to folder ${data.name}? Folder content remains untouched.`
+        : `Really delete folder ${data.name}?`,
       onConfirm: () => {
         axiosInstance.post('archive/delete-folder', { folder: data.name });
       },

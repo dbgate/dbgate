@@ -1,9 +1,10 @@
 import { get } from 'svelte/store';
 import getElectron from './getElectron';
-import { extensions } from '../stores';
+import { currentArchive, extensions, selectedWidget } from '../stores';
 import axiosInstance from '../utility/axiosInstance';
+import { showSnackbarSuccess } from './snackbar';
 
-export function openArchiveFolder() {
+export async function openArchiveFolder() {
   const electron = getElectron();
   const ext = get(extensions);
   const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
@@ -11,5 +12,9 @@ export function openArchiveFolder() {
   });
   const linkedFolder = filePaths && filePaths[0];
   if (!linkedFolder) return;
-  axiosInstance.post('archive/create-link', { linkedFolder });
+  const resp = await axiosInstance.post('archive/create-link', { linkedFolder });
+
+  currentArchive.set(resp.data);
+  selectedWidget.set('archive');
+  showSnackbarSuccess(`Created link ${resp.data}`);
 }
