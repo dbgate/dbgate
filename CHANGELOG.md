@@ -1,5 +1,25 @@
 # ChangeLog
 
+### 4.4.0
+- ADDED: Database structure compare, export report to HTML
+- ADDED: Experimental: Deploy DB structure changes between databases
+- ADDED: Lookup dialog, available in table view on columns with foreign key
+- ADDED: Customize foreign key lookups
+- ADDED: Chart improvements, export charts as HTML page
+- ADDED: Experimental: work with DB model, deploy model, compare model with real DB
+- ADDED: #193 new SQLite db command
+- CHANGED: #190 code completion improvements
+- ADDED: #189 Copy JSON document - context menu command in data grid for MongoDB
+- ADDED: #191 Connection to POstgreSQL can be defined also with connection string
+- ADDED: #187 dbgate-query-splitter: Transform stream support
+- CHANGED: Upgraded to node 12 in docker app
+- FIXED: Upgraded to node 12 in docker app
+- FIXED: Fixed import into SQLite and PostgreSQL databases, added integration test for this
+
+### 4.3.4
+- FIXED: Delete row with binary ID in MySQL (#182)
+- ADDED: Using 'ODBC Driver 17 for SQL Server' or 'SQL Server Native Client 11.0', when connecting to MS SQL using windows auth #183
+
 ### 4.3.3
 - ADDED: Generate SQL from data (#176 - Copy row as INSERT/UPDATE statement)
 - ADDED: Datagrid keyboard column operations (Ctrl+F - find column, Ctrl+H - hide column) #180
