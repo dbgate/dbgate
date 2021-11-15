@@ -5,7 +5,7 @@
   export let placeholder;
   export let value;
 
-  $: searchValue = value;
+  $: searchValue = value || '';
   export let isDebounced = false;
 
   let domInput;
