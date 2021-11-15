@@ -50,7 +50,7 @@ function buildMenu() {
         commandItem('new.sqliteDatabase'),
         { type: 'separator' },
         commandItem('file.open'),
-        commandItem('file.openArchive'),
+        // commandItem('file.openArchive'),
         { type: 'separator' },
         commandItem('group.save'),
         commandItem('group.saveAs'),
