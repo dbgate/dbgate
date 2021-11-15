@@ -27,8 +27,9 @@ Supported databases:
 ## Features
 * Table data editing, with SQL change script preview
 * Edit table schema, indexes, primary and foreign keys
+* Compare and synchronize databas estructure
 * Light and dark theme
-* Master/detail views
+* Master/detail views, foreign key lookups
 * Query designer
 * Form view for comfortable work with tables with many columns
 * JSON view on MongoDB collections
@@ -43,7 +44,7 @@ Supported databases:
 * Import, export from/to CSV, Excel, JSON
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
-* Charts
+* Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
 
