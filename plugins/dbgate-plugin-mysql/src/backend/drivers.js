@@ -39,9 +39,9 @@ const drivers = driverBases.map(driverBase => ({
       rowsAsArray: true,
       supportBigNumbers: true,
       bigNumberStrings: true,
+      dateStrings: true,
       // TODO: test following options
       // multipleStatements: true,
-      // dateStrings: true,
     });
     connection._database_name = database;
     return connection;

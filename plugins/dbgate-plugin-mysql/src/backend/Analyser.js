@@ -81,7 +81,7 @@ class Analyser extends DatabaseAnalyser {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: table.pureName,
-        contentHash: table.modifyDate && table.modifyDate.toISOString(),
+        contentHash: _.isDate(table.modifyDate) ? table.modifyDate.toISOString() : table.modifyDate,
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
@@ -103,8 +103,7 @@ class Analyser extends DatabaseAnalyser {
 
         uniques: _.uniqBy(
           indexes.rows.filter(
-            idx =>
-              idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+            idx => idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
           ),
           'constraintName'
         ).map(idx => ({
@@ -119,7 +118,7 @@ class Analyser extends DatabaseAnalyser {
       views: views.rows.map(view => ({
         ...view,
         objectId: view.pureName,
-        contentHash: view.modifyDate && view.modifyDate.toISOString(),
+        contentHash: _.isDate(view.modifyDate) ? view.modifyDate.toISOString() : view.modifyDate,
         columns: columns.rows.filter(col => col.pureName == view.pureName).map(getColumnInfo),
         createSql: viewTexts[view.pureName],
         requiresFormat: true,
@@ -130,7 +129,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate && x.modifyDate.toISOString(),
+          contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
       functions: programmables.rows
         .filter(x => x.objectType == 'FUNCTION')
@@ -138,7 +137,7 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate && x.modifyDate.toISOString(),
+          contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
     };
   }
@@ -160,14 +159,14 @@ class Analyser extends DatabaseAnalyser {
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate && x.modifyDate.toISOString(),
+          contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
       views: tableModificationsQueryData.rows
         .filter(x => x.objectType == 'VIEW')
         .map(x => ({
           ...x,
           objectId: x.pureName,
-          contentHash: x.modifyDate && x.modifyDate.toISOString(),
+          contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
       procedures: procedureModificationsQueryData.rows.map(x => ({
         contentHash: x.Modified,
