@@ -6,6 +6,10 @@ const Analyser = require('./Analyser');
 const pg = require('pg');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
+pg.types.setTypeParser(1082, 'text', (val) => val); // date
+pg.types.setTypeParser(1114, 'text', (val) => val); // timestamp without timezone
+pg.types.setTypeParser(1184, 'text', (val) => val); // timestamp
+
 function extractPostgresColumns(result) {
   if (!result || !result.fields) return [];
   const res = result.fields.map(fld => ({
