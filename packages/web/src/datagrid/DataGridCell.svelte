@@ -58,7 +58,7 @@
   export let isAutofillSelected = false;
   export let isFocusedColumn = false;
   export let domCell = undefined;
-  export let hideContent = false;
+  export let showSlot = false;
   export let onSetFormView;
   export let isDynamicStructure = false;
   export let isAutoFillMarker = false;
@@ -96,60 +96,60 @@
   class:isFocusedColumn
   {style}
 >
-  {#if hideContent}
-    <slot />
-  {:else}
-    {#if value === null}
-      <span class="null">(NULL)</span>
-    {:else if value === undefined}
-      <span class="null">(No field)</span>
-    {:else if _.isDate(value)}
-      {value.toString()}
-    {:else if value === true}
-      <span class="value">true</span>
-    {:else if value === false}
-      <span class="value">false</span>
-    {:else if _.isNumber(value)}
-      <span class="value">{formatNumber(value)}</span>
-    {:else if _.isString(value)}
-      {#if dateTimeRegex.test(value)}
-        <span class="value">
-          {formatDateTime(value)}
-        </span>
-      {:else}
-        {highlightSpecialCharacters(value)}
-      {/if}
-    {:else if value?.type == 'Buffer' && _.isArray(value.data)}
-      {#if value.data.length <= 16}
-        <span class="value">{arrayToHexString(value.data)}</span>
-      {:else}
-        <span class="null">({value.data.length} bytes)</span>
-      {/if}
-    {:else if _.isPlainObject(value)}
-      <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
-    {:else if _.isArray(value)}
-      <span class="null">[{value.length} items]</span>
+  {#if value === null}
+    <span class="null">(NULL)</span>
+  {:else if value === undefined}
+    <span class="null">(No field)</span>
+  {:else if _.isDate(value)}
+    {value.toString()}
+  {:else if value === true}
+    <span class="value">true</span>
+  {:else if value === false}
+    <span class="value">false</span>
+  {:else if _.isNumber(value)}
+    <span class="value">{formatNumber(value)}</span>
+  {:else if _.isString(value)}
+    {#if dateTimeRegex.test(value)}
+      <span class="value">
+        {formatDateTime(value)}
+      </span>
     {:else}
-      {value.toString()}
+      {highlightSpecialCharacters(value)}
     {/if}
+  {:else if value?.type == 'Buffer' && _.isArray(value.data)}
+    {#if value.data.length <= 16}
+      <span class="value">{arrayToHexString(value.data)}</span>
+    {:else}
+      <span class="null">({value.data.length} bytes)</span>
+    {/if}
+  {:else if _.isPlainObject(value)}
+    <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
+  {:else if _.isArray(value)}
+    <span class="null">[{value.length} items]</span>
+  {:else}
+    {value.toString()}
+  {/if}
 
-    {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
-      <span class="hint"
-        >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
-      >
-    {/if}
+  {#if allowHintField && rowData && _.some(col.hintColumnNames, hintColumnName => rowData[hintColumnName])}
+    <span class="hint"
+      >{col.hintColumnNames.map(hintColumnName => rowData[hintColumnName]).join(col.hintColumnDelimiter || ' ')}</span
+    >
+  {/if}
 
-    {#if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
-      <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
-    {/if}
+  {#if col.foreignKey && rowData && rowData[col.uniqueName] && !isCurrentCell}
+    <ShowFormButton on:click={() => onSetFormView(rowData, col)} />
+  {/if}
 
-    {#if col.foreignKey && isCurrentCell && onDictionaryLookup}
-      <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
-    {/if}
+  {#if col.foreignKey && isCurrentCell && onDictionaryLookup}
+    <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
   {/if}
 
   {#if isAutoFillMarker}
     <div class="autoFillMarker autofillHandleMarker" />
+  {/if}
+
+  {#if showSlot}
+    <slot />
   {/if}
 </td>
 

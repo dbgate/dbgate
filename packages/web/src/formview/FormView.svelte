@@ -537,7 +537,7 @@
               allowHintField={!(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName))}
               bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
               onSetFormView={handleSetFormView}
-              hideContent={!rowData ||
+              showSlot={!rowData ||
                 ($inplaceEditorState.cell &&
                   rowIndex == $inplaceEditorState.cell[0] &&
                   chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
