@@ -181,7 +181,7 @@
 
   const getContextMenu = tab => () => {
     const { tabid, props, tabComponent } = tab;
-    const { conid, database } = props || {};
+
     return [
       {
         text: 'Close',
@@ -209,20 +209,27 @@
             onClick: () => showModal(FavoriteModal, { savingTab: tab }),
           },
         ],
+    ];
+  };
+
+  function getDatabaseContextMenu(tabs) {
+    const { tabid, props } = tabs[0];
+    const { conid, database } = props;
+
+    return [
       conid &&
         database && [
-          { divider: true },
           {
-            text: `Close with same DB - ${database}`,
+            text: `Close tabs with DB ${database}`,
             onClick: () => closeWithSameDb(tabid),
           },
           {
-            text: `Close with other DB than ${database}`,
+            text: `Close tabs with other DB than ${database}`,
             onClick: () => closeWithOtherDb(tabid),
           },
         ],
     ];
-  };
+  }
 
   const handleSetDb = async props => {
     const { conid, database } = props || {};
@@ -251,9 +258,14 @@
       class="db-name"
       class:selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
       on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
+      use:contextMenu={getDatabaseContextMenu(tabsByDb[dbKey])}
     >
       <FontIcon icon={getDbIcon(dbKey)} />
       {tabsByDb[dbKey][0].tabDbName}
+
+      <span class="close-button-right tabCloseButton" on:click={e => closeWithSameDb(tabsByDb[dbKey][0].tabid)}>
+        <FontIcon icon="icon close" />
+      </span>
     </div>
     <div class="db-group">
       {#each _.sortBy(tabsByDb[dbKey], ['title', 'tabid']) as tab}
@@ -332,7 +344,17 @@
     margin-left: 5px;
     color: var(--theme-font-3);
   }
+  .close-button-right {
+    margin-left: 5px;
+    margin-right: 5px;
+    color: var(--theme-font-3);
+    float: right;
+  }
+
   .close-button:hover {
+    color: var(--theme-font-1);
+  }
+  .close-button-right:hover {
     color: var(--theme-font-1);
   }
 </style>
