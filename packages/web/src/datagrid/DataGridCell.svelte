@@ -46,6 +46,8 @@
   export let rowData;
   export let colIndex = undefined;
   export let allowHintField = false;
+  export let maxWidth = null;
+  export let minWidth = null;
 
   export let isSelected = false;
   export let isFrameSelected = false;
@@ -64,6 +66,20 @@
   export let onDictionaryLookup = null;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
+
+  function computeStyle(maxWidth, col) {
+    let res = '';
+
+    if (col.width != null) {
+      res += `width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px;`;
+    } else {
+      if (maxWidth != null) res += `max-width:${maxWidth}px;`;
+      if (minWidth != null) res += `min-width:${minWidth}px;`;
+    }
+    return res;
+  }
+
+  $: style = computeStyle(maxWidth, col);
 </script>
 
 <td
@@ -78,7 +94,7 @@
   class:isDeleted
   class:isAutofillSelected
   class:isFocusedColumn
-  style={`width:${col.width}px; min-width:${col.width}px; max-width:${col.width}px`}
+  {style}
 >
   {#if hideContent}
     <slot />

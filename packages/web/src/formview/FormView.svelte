@@ -197,6 +197,7 @@
   export let onNavigate;
 
   let wrapperHeight = 1;
+  let wrapperWidth = 1;
   $: rowHeight = $dataGridRowHeight;
   let currentCell = [0, 0];
 
@@ -491,7 +492,7 @@
 </script>
 
 <div class="outer">
-  <div class="wrapper" use:contextMenu={menu} bind:clientHeight={wrapperHeight}>
+  <div class="wrapper" use:contextMenu={menu} bind:clientHeight={wrapperHeight} bind:clientWidth={wrapperWidth}>
     {#each columnChunks as chunk, chunkIndex}
       <table on:mousedown={handleTableMouseDown}>
         {#each chunk as col, rowIndex}
@@ -525,6 +526,8 @@
               </div>
             </td>
             <DataGridCell
+              maxWidth={(wrapperWidth * 2) / 3}
+              minWidth={200}
               {rowIndex}
               {col}
               {rowData}
