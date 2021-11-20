@@ -7,7 +7,6 @@
   import DefineDictionaryDescriptionModal from './DefineDictionaryDescriptionModal.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import axiosInstance from '../utility/axiosInstance';
-  import { getTableInfo } from '../utility/metadataLoaders';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
   import { onMount } from 'svelte';
   import { dumpSqlSelect } from 'dbgate-sqltree';
@@ -25,8 +24,9 @@
   export let driver;
   export let multiselect = false;
 
+  // console.log('ValueLookupModal', conid, database, pureName, schemaName, columnName, driver);
+
   let rows = null;
-  let tableInfo;
   let isLoading = false;
 
   let search = '';
@@ -34,11 +34,7 @@
   let checkedKeys = [];
 
   async function reload() {
-    tableInfo = await getTableInfo({ conid, database, schemaName, pureName });
-
-    if (!tableInfo) return;
-
-    const dmp = driver.createDumper();
+      const dmp = driver.createDumper();
     const select = {
       commandType: 'select',
       distinct: true,
@@ -126,7 +122,7 @@
       <LoadingInfo message="Loading data" />
     {/if}
 
-    {#if !isLoading && tableInfo && rows}
+    {#if !isLoading && rows}
       <div class="tableWrapper">
         <ScrollableTableControl
           {rows}
