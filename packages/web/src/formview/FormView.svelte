@@ -215,10 +215,7 @@
 
   $: rowCount = Math.floor((wrapperHeight - 22) / (rowHeight + 2));
 
-  $: columnChunks = _.chunk(
-    formDisplay.columns.filter(x => filterName(formDisplay.config.formColumnFilterText, x.columnName)),
-    rowCount
-  ) as any[][];
+  $: columnChunks = _.chunk(formDisplay.columns, rowCount) as any[][];
 
   $: rowCountInfo = getRowCountInfo(rowCountBefore, allRowCount);
 
@@ -451,6 +448,28 @@
   };
 
   const handleCursorMove = event => {
+    const findFilteredColumn = (incrementFunc, isInRange, firstInRange, lastInRange) => {
+      let columnIndex = rowCount * Math.floor(currentCell[1] / 2) + currentCell[0];
+      columnIndex = incrementFunc(columnIndex);
+      while (
+        isInRange(columnIndex) &&
+        !filterName(formDisplay.config.formColumnFilterText, formDisplay.columns[columnIndex].columnName)
+      ) {
+        columnIndex = incrementFunc(columnIndex);
+      }
+      if (!isInRange(columnIndex)) {
+        columnIndex = firstInRange;
+        while (
+          isInRange(columnIndex) &&
+          !filterName(formDisplay.config.formColumnFilterText, formDisplay.columns[columnIndex].columnName)
+        ) {
+          columnIndex = incrementFunc(columnIndex);
+        }
+      }
+      if (!isInRange(columnIndex)) columnIndex = lastInRange;
+      return moveCurrentCell(columnIndex % formDisplay.columns.length, Math.floor(columnIndex / rowCount) * 2);
+    };
+
     if (event.ctrlKey) {
       switch (event.keyCode) {
         case keycodes.leftArrow:
@@ -465,8 +484,26 @@
       case keycodes.rightArrow:
         return moveCurrentCell(currentCell[0], currentCell[1] + 1);
       case keycodes.upArrow:
+        if (currentCell[1] % 2 == 0 && formDisplay.config.formColumnFilterText) {
+          return findFilteredColumn(
+            x => x - 1,
+            x => x >= 0,
+            formDisplay.columns.length - 1,
+            0
+          );
+        }
+
         return moveCurrentCell(currentCell[0] - 1, currentCell[1]);
       case keycodes.downArrow:
+        if (currentCell[1] % 2 == 0 && formDisplay.config.formColumnFilterText) {
+          return findFilteredColumn(
+            x => x + 1,
+            x => x < formDisplay.columns.length,
+            0,
+            formDisplay.columns.length - 1
+          );
+        }
+
         return moveCurrentCell(currentCell[0] + 1, currentCell[1]);
       case keycodes.pageUp:
         return moveCurrentCell(0, currentCell[1]);
@@ -506,6 +543,8 @@
               data-row={rowIndex}
               data-col={chunkIndex * 2}
               style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
+              class:columnFiltered={formDisplay.config.formColumnFilterText &&
+                filterName(formDisplay.config.formColumnFilterText, col.columnName)}
               class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
               bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
             >
@@ -650,5 +689,9 @@
     background-color: var(--theme-bg-2);
     right: 40px;
     bottom: 20px;
+  }
+
+  .columnFiltered {
+    background: var(--theme-bg-green);
   }
 </style>
