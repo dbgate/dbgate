@@ -151,7 +151,7 @@
             {
               fieldName: 'value',
               header: 'Value',
-              formatter: row => row[columnName],
+              formatter: row => (row[columnName] == null ? '(NULL)' : row[columnName]),
             },
           ]}
         >

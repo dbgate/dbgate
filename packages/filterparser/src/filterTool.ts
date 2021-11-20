@@ -6,6 +6,8 @@ export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' |
 export function getFilterValueExpression(value, dataType) {
   if (value == null) return 'NULL';
   if (isTypeDateTime(dataType)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  if (value === true) return 'TRUE';
+  if (value === false) return 'FALSE';
   return `="${value}"`;
 }
 

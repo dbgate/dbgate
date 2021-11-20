@@ -6,6 +6,7 @@
   import splitterDrag from '../utility/splitterDrag';
 
   import FilterMultipleValuesModal from '../modals/FilterMultipleValuesModal.svelte';
+  import { getFilterValueExpression } from 'dbgate-filterparser';
 
   import { showModal } from '../modals/modalTools';
   import SetFilterModal from '../modals/SetFilterModal.svelte';
@@ -223,7 +224,7 @@
       schemaName,
       pureName,
       columnName,
-      onConfirm: keys => setFilter(keys.map(x => `'${x}'`).join(',')),
+      onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
     });
   }
 
