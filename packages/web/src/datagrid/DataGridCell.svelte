@@ -96,7 +96,9 @@
   class:isFocusedColumn
   {style}
 >
-  {#if value === null}
+  {#if rowData == null}
+    <span class="null">(No row)</span>
+  {:else if value === null}
     <span class="null">(NULL)</span>
   {:else if value === undefined}
     <span class="null">(No field)</span>

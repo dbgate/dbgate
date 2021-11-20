@@ -398,7 +398,9 @@
       } else {
         // @ts-ignore
         event.preventDefault();
-        dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+        if (rowData) {
+          dispatchInsplaceEditor({ type: 'show', text: event.key, cell: currentCell });
+        }
       }
     }
 
@@ -425,7 +427,9 @@
 
     if (event.keyCode == keycodes.f2) {
       // @ts-ignore
-      dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+      if (rowData) {
+        dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+      }
     }
 
     handleCursorMove(event);
@@ -544,8 +548,9 @@
               isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
               onDictionaryLookup={() => handleLookup(col)}
             >
-              {#if $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+              {#if rowData && $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
                 <InplaceEditor
+                  fillParent
                   width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
                   inplaceEditorState={$inplaceEditorState}
                   {dispatchInsplaceEditor}

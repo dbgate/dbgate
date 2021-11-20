@@ -28,6 +28,7 @@
   export let onSetValue;
   export let width;
   export let cellValue;
+  export let fillParent=false;
 
   let domEditor;
 
@@ -89,6 +90,7 @@
   on:blur={handleBlur}
   bind:this={domEditor}
   style={widthCopy ? `width:${widthCopy}px;min-width:${widthCopy}px;max-width:${widthCopy}px` : undefined}
+  class:fillParent
 />
 
 <style>
@@ -97,5 +99,13 @@
     outline: none;
     margin: 0px;
     padding: 0px;
+  }
+
+  input.fillParent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
   }
 </style>
