@@ -228,9 +228,14 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { selectedCellsCallback } from '../stores';
+  import { copyRowsFormat, selectedCellsCallback } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
-  import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
+  import {
+    copyRowsFormatDefs,
+    copyRowsToClipboard,
+    copyTextToClipboard,
+    extractRowCopiedValue,
+  } from '../utility/clipboard';
   import invalidateCommands from '../commands/invalidateCommands';
   import createRef from '../utility/createRef';
   import openReferenceForm, { openPrimaryKeyForm } from '../formview/openReferenceForm';
@@ -360,21 +365,33 @@
     display.reload();
   }
 
-  export function copyToClipboard() {
+  function copyToClipboardCore(format) {
     const cells = cellsToRegularCells(selectedCells);
     const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
-    const lines = rowIndexes.map(rowIndex => {
-      let colIndexes = _.sortBy(cells.filter(x => x[0] == rowIndex).map(x => x[1]));
-      const rowData = grider.getRowData(rowIndex);
-      if (!rowData) return '';
-      const line = colIndexes
-        .map(col => realColumnUniqueNames[col])
-        .map(col => extractRowCopiedValue(rowData, col))
-        .join('\t');
-      return line;
-    });
-    const text = lines.join('\r\n');
-    copyTextToClipboard(text);
+    const colIndexes = _.sortBy(_.uniq(cells.map(x => x[1])));
+    const rows = rowIndexes.map(rowIndex => grider.getRowData(rowIndex));
+    // @ts-ignore
+    const columns = colIndexes.map(col => realColumnUniqueNames[col]);
+    copyRowsToClipboard(columns, rows, format);
+    if (domFocusField) domFocusField.focus();
+  }
+
+  export function copyToClipboard() {
+    copyToClipboardCore($copyRowsFormat);
+    // const cells = cellsToRegularCells(selectedCells);
+    // const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
+    // const lines = rowIndexes.map(rowIndex => {
+    //   let colIndexes = _.sortBy(cells.filter(x => x[0] == rowIndex).map(x => x[1]));
+    //   const rowData = grider.getRowData(rowIndex);
+    //   if (!rowData) return '';
+    //   const line = colIndexes
+    //     .map(col => realColumnUniqueNames[col])
+    //     .map(col => extractRowCopiedValue(rowData, col))
+    //     .join('\t');
+    //   return line;
+    // });
+    // const text = lines.join('\r\n');
+    // copyTextToClipboard(text);
     // if (domFocusField) domFocusField.focus();
   }
 
@@ -1121,7 +1138,25 @@
 
   registerMenu(
     { command: 'dataGrid.refresh' },
-    { command: 'dataGrid.copyToClipboard' },
+    { placeTag: 'copy' },
+    {
+      text: 'Copy advanced',
+      submenu: [
+        _.keys(copyRowsFormatDefs).map(format => ({
+          text: copyRowsFormatDefs[format].label,
+          onClick: () => copyToClipboardCore(format),
+        })),
+        { divider: true },
+        _.keys(copyRowsFormatDefs).map(format => ({
+          text: `Set format: ${copyRowsFormatDefs[format].name}`,
+          onClick: () => ($copyRowsFormat = format),
+        })),
+
+        // { text: 'Copy as text', onClick: () => copyToClipboardCore('text') },
+        // { text: 'Copy as CSV', onClick: () => copyToClipboardCore('csv') },
+        // { text: 'Copy as JSON', onClick: () => copyToClipboardCore('json') },
+      ],
+    },
     { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { placeTag: 'switch' },
     { divider: true },
@@ -1149,6 +1184,18 @@
   );
 
   const menu = getContextMenu();
+
+  function buildMenu() {
+    return [
+      menu,
+      {
+        text: copyRowsFormatDefs[$copyRowsFormat].label,
+        onClick: () => copyToClipboardCore($copyRowsFormat),
+        keyText: 'Ctrl+C',
+        tag: 'copy',
+      },
+    ];
+  }
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1173,7 +1220,7 @@
     class="container"
     bind:clientWidth={containerWidth}
     bind:clientHeight={containerHeight}
-    use:contextMenu={menu}
+    use:contextMenu={buildMenu}
     on:wheel={handleGridWheel}
   >
     <input

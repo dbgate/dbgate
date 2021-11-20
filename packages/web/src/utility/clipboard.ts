@@ -59,7 +59,10 @@ export function copyTextToClipboard(text) {
 
   document.body.removeChild(textArea);
 
-  if (oldFocus) oldFocus.focus();
+  if (oldFocus) {
+    // @ts-ignore
+    oldFocus.focus();
+  }
 }
 
 export function extractRowCopiedValue(row, col) {
@@ -71,3 +74,62 @@ export function extractRowCopiedValue(row, col) {
   if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
   return value;
 }
+
+const clipboardTextFormatter = (delimiter, headers) => (columns, rows) => {
+  const lines = [];
+  if (headers) lines.push(columns.join(delimiter));
+  lines.push(
+    ...rows.map(row => {
+      if (!row) return '';
+      const line = columns.map(col => extractRowCopiedValue(row, col)).join(delimiter);
+      return line;
+    })
+  );
+  return lines.join('\r\n');
+};
+
+const clipboardJsonFormatter = () => (columns, rows) => {
+  return JSON.stringify(
+    rows.map(row => _.pick(row, columns)),
+    undefined,
+    2
+  );
+};
+
+// export function formatClipboardSqlInsert(columns, rows) {
+// }
+
+export function formatClipboardRows(columns, rows, format) {
+  if (format in copyRowsFormatDefs) {
+    return copyRowsFormatDefs[format].formatter(columns, rows);
+  }
+  return '';
+}
+
+export function copyRowsToClipboard(columns, rows, format) {
+  const formatted = formatClipboardRows(columns, rows, format);
+  copyTextToClipboard(formatted);
+}
+
+export const copyRowsFormatDefs = {
+  textWithHeaders: {
+    label: 'Copy with headers',
+    name: 'With headers',
+    formatter: clipboardTextFormatter('\t', true),
+  },
+  textWithoutHeaders: {
+    label: 'Copy without headers',
+    name: 'Without headers',
+    formatter: clipboardTextFormatter('\t', false),
+  },
+  csv: {
+    label: 'Copy as CSV',
+    name: 'CSV',
+    formatter: clipboardTextFormatter(',', true),
+  },
+  json: {
+    label: 'Copy as JSON',
+    name: 'JSON',
+    formatter: clipboardJsonFormatter(),
+  },
+};
