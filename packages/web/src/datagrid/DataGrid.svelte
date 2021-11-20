@@ -159,7 +159,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="filters" height="30%" skip={!isFormView}>
-        <FormViewFilters {...$$props} {managerSize} />
+        <FormViewFilters {...$$props} {managerSize} driver={formDisplay?.driver} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem

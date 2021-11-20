@@ -2,7 +2,7 @@
   import _ from 'lodash';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
-import keycodes from '../utility/keycodes';
+  import keycodes from '../utility/keycodes';
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
   import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
@@ -10,12 +10,17 @@ import keycodes from '../utility/keycodes';
   export let formDisplay;
   export let setConfig;
 
+  export let driver;
+  export let conid;
+  export let database;
+  export let schemaName;
+  export let pureName;
+
   $: baseTable = formDisplay?.baseTable;
   $: formFilterColumns = formDisplay?.config?.formFilterColumns;
   $: filters = formDisplay?.config?.filters;
 
   $: allFilterNames = _.union(_.keys(filters || {}), formFilterColumns || []);
-
 </script>
 
 <div class="m-1">
@@ -53,6 +58,11 @@ import keycodes from '../utility/keycodes';
         column={formDisplay.columns.find(x => x.uniqueName == uniqueName)}
         {formDisplay}
         {filters}
+        {driver}
+        {conid}
+        {database}
+        {schemaName}
+        {pureName}
       />
     {/each}
   </ManagerInnerContainer>
