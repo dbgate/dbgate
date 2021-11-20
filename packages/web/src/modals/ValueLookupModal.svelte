@@ -21,39 +21,29 @@
   export let database;
   export let pureName;
   export let schemaName;
+  export let columnName;
   export let driver;
   export let multiselect = false;
 
   let rows = null;
   let tableInfo;
-  let description;
   let isLoading = false;
 
   let search = '';
 
   let checkedKeys = [];
 
-  function defineDescription() {
-    showModal(DefineDictionaryDescriptionModal, {
-      conid,
-      database,
-      schemaName,
-      pureName,
-      onConfirm: () => reload(),
-    });
-  }
-
   async function reload() {
     tableInfo = await getTableInfo({ conid, database, schemaName, pureName });
-    description = getDictionaryDescription(tableInfo, conid, database);
 
-    if (!tableInfo || !description) return;
-    if (tableInfo?.primaryKey?.columns?.length != 1) return;
+    if (!tableInfo) return;
 
     const dmp = driver.createDumper();
     const select = {
       commandType: 'select',
+      distinct: true,
       topRecords: 100,
+
       from: {
         name: {
           schemaName,
@@ -61,14 +51,16 @@
         },
       },
       columns: [
-        ...tableInfo.primaryKey.columns.map(col => ({
-          exprType: 'column',
-          columnName: col.columnName,
-        })),
-        ...description.columns.map(columnName => ({
+        {
           exprType: 'column',
           columnName,
-        })),
+        },
+      ],
+      orderBy: [
+        {
+          exprType: 'column',
+          columnName,
+        },
       ],
     };
 
@@ -79,18 +71,15 @@
         select.where = {
           conditionType: 'and',
           conditions: tokens.map(token => ({
-            conditionType: 'or',
-            conditions: description.columns.map(columnName => ({
-              conditionType: 'like',
-              left: {
-                exprType: 'column',
-                columnName,
-              },
-              right: {
-                exprType: 'value',
-                value: `%${token}%`,
-              },
-            })),
+            conditionType: 'like',
+            left: {
+              exprType: 'column',
+              columnName,
+            },
+            right: {
+              exprType: 'value',
+              value: `%${token}%`,
+            },
           })),
         };
       }
@@ -126,7 +115,7 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Lookup from {pureName}</svelte:fragment>
+    <svelte:fragment slot="header">Choose value from {columnName}</svelte:fragment>
 
     <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
     <div class="largeFormMarker">
@@ -137,13 +126,13 @@
       <LoadingInfo message="Loading data" />
     {/if}
 
-    {#if !isLoading && tableInfo && description && rows && tableInfo?.primaryKey?.columns?.length == 1}
+    {#if !isLoading && tableInfo && rows}
       <div class="tableWrapper">
         <ScrollableTableControl
           {rows}
           clickable
           on:clickrow={e => {
-            const value = e.detail[tableInfo.primaryKey.columns[0].columnName];
+            const value = e.detail[columnName];
             if (multiselect) {
               if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
               else checkedKeys = [...checkedKeys, value];
@@ -162,13 +151,7 @@
             {
               fieldName: 'value',
               header: 'Value',
-              formatter: row => row[tableInfo.primaryKey.columns[0].columnName],
-              width: '100px',
-            },
-            {
-              fieldName: 'description',
-              header: 'Description',
-              formatter: row => description.columns.map(col => row[col]).join(description.delimiter || ' '),
+              formatter: row => row[columnName],
             },
           ]}
         >
@@ -176,9 +159,9 @@
             type="checkbox"
             let:row
             slot="1"
-            checked={checkedKeys.includes(row[tableInfo.primaryKey.columns[0].columnName])}
+            checked={checkedKeys.includes(row[columnName])}
             on:change={e => {
-              const value = row[tableInfo.primaryKey.columns[0].columnName];
+              const value = row[columnName];
               if (e.target.checked) {
                 if (!checkedKeys.includes(value)) checkedKeys = [...checkedKeys, value];
               } else {
@@ -202,7 +185,6 @@
         />
       {/if}
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
-      <FormStyledButton type="button" value="Customize" on:click={defineDescription} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>

@@ -15,6 +15,7 @@
   import InlineButton from '../elements/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import ValueLookupModal from '../modals/ValueLookupModal.svelte';
 
   export let isReadOnly = false;
   export let filterType;
@@ -27,6 +28,10 @@
   export let conid = null;
   export let database = null;
   export let driver = null;
+
+  export let pureName = null;
+  export let schemaName = null;
+  export let columnName = null;
 
   let value;
   let isError;
@@ -209,6 +214,19 @@
     });
   }
 
+  function handleShowValuesModal() {
+    showModal(ValueLookupModal, {
+      conid,
+      database,
+      driver,
+      multiselect: true,
+      schemaName,
+      pureName,
+      columnName,
+      onConfirm: keys => setFilter(keys.map(x => `'${x}'`).join(',')),
+    });
+  }
+
   $: value = filter;
 
   $: {
@@ -247,10 +265,16 @@
     class:isOk
     placeholder="Filter"
   />
-  {#if foreignKey && conid && database}
-    <InlineButton on:click={handleShowDictionary} narrow square>
-      <FontIcon icon="icon dots-horizontal" />
-    </InlineButton>
+  {#if conid && database}
+    {#if foreignKey}
+      <InlineButton on:click={handleShowDictionary} narrow square>
+        <FontIcon icon="icon dots-horizontal" />
+      </InlineButton>
+    {:else if pureName && columnName}
+      <InlineButton on:click={handleShowValuesModal} narrow square>
+        <FontIcon icon="icon dots-vertical" />
+      </InlineButton>
+    {/if}
   {/if}
   <DropDownButton icon="icon filter" menu={createMenu} narrow />
   {#if showResizeSplitter}

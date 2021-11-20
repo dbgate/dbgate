@@ -1254,6 +1254,9 @@
                 <DataFilterControl
                   onGetReference={value => (domFilterControlsRef.get()[col.uniqueName] = value)}
                   foreignKey={col.foreignKey}
+                  columnName={col.uniquePath.length == 1 ? col.uniquePath[0] : null}
+                  pureName={col.pureName}
+                  schemaName={col.schemaName}
                   {conid}
                   {database}
                   driver={display?.driver}
