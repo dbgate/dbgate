@@ -96,18 +96,46 @@ const clipboardJsonFormatter = () => (columns, rows) => {
   );
 };
 
-// export function formatClipboardSqlInsert(columns, rows) {
-// }
+const clipboardJsonLinesFormatter = () => (columns, rows) => {
+  return rows.map(row => JSON.stringify(_.pick(row, columns))).join('\r\n');
+};
 
-export function formatClipboardRows(columns, rows, format) {
+const clipboardInsertsFormatter = () => (columns, rows, options) => {
+  const { schemaName, pureName, driver } = options;
+  const dmp = driver.createDumper();
+  for (const row of rows) {
+    dmp.putCmd(
+      '^insert ^into %f (%,i) ^values (%,v)',
+      { schemaName, pureName },
+      columns,
+      columns.map(col => row[col])
+    );
+  }
+  return dmp.s;
+};
+
+const clipboardUpdatesFormatter = () => (columns, rows, options) => {
+  const { schemaName, pureName, driver, keyColumns } = options;
+  const dmp = driver.createDumper();
+  for (const row of rows) {
+    dmp.put('^update %f ^set ', { schemaName, pureName });
+    dmp.putCollection(', ', columns, col => dmp.put('%i=%v', col, row[col]));
+    dmp.put(' ^where ');
+    dmp.putCollection(' ^and ', keyColumns, col => dmp.put('%i=%v', col, row[col]));
+    dmp.endCommand();
+  }
+  return dmp.s;
+};
+
+export function formatClipboardRows(format, columns, rows, options) {
   if (format in copyRowsFormatDefs) {
-    return copyRowsFormatDefs[format].formatter(columns, rows);
+    return copyRowsFormatDefs[format].formatter(columns, rows, options);
   }
   return '';
 }
 
-export function copyRowsToClipboard(columns, rows, format) {
-  const formatted = formatClipboardRows(columns, rows, format);
+export function copyRowsToClipboard(format, columns, rows, options) {
+  const formatted = formatClipboardRows(format, columns, rows, options);
   copyTextToClipboard(formatted);
 }
 
@@ -131,5 +159,20 @@ export const copyRowsFormatDefs = {
     label: 'Copy as JSON',
     name: 'JSON',
     formatter: clipboardJsonFormatter(),
+  },
+  jsonLines: {
+    label: 'Copy as JSON lines',
+    name: 'JSON lines',
+    formatter: clipboardJsonLinesFormatter(),
+  },
+  inserts: {
+    label: 'Copy as SQL INSERTs',
+    name: 'SQL INSERTs',
+    formatter: clipboardInsertsFormatter(),
+  },
+  updates: {
+    label: 'Copy as SQL UPDATEs',
+    name: 'SQL UPDATEs',
+    formatter: clipboardUpdatesFormatter(),
   },
 };

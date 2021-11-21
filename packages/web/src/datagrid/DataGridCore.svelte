@@ -203,6 +203,7 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
+  import { driverBase } from 'dbgate-tools';
   import { getContext } from 'svelte';
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -372,27 +373,19 @@
     const rows = rowIndexes.map(rowIndex => grider.getRowData(rowIndex));
     // @ts-ignore
     const columns = colIndexes.map(col => realColumnUniqueNames[col]);
-    copyRowsToClipboard(columns, rows, format);
+    copyRowsToClipboard(format, columns, rows, {
+      schemaName: display?.baseTable?.schemaName,
+      pureName: display?.baseTable?.pureName || 'target',
+      driver: display?.driver || driverBase,
+      keyColumns: display?.baseTable?.primaryKey?.columns?.map(col => col.columnName) || [
+        display?.columns ? display?.columns[0].columnName : columns[0],
+      ],
+    });
     if (domFocusField) domFocusField.focus();
   }
 
   export function copyToClipboard() {
     copyToClipboardCore($copyRowsFormat);
-    // const cells = cellsToRegularCells(selectedCells);
-    // const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
-    // const lines = rowIndexes.map(rowIndex => {
-    //   let colIndexes = _.sortBy(cells.filter(x => x[0] == rowIndex).map(x => x[1]));
-    //   const rowData = grider.getRowData(rowIndex);
-    //   if (!rowData) return '';
-    //   const line = colIndexes
-    //     .map(col => realColumnUniqueNames[col])
-    //     .map(col => extractRowCopiedValue(rowData, col))
-    //     .join('\t');
-    //   return line;
-    // });
-    // const text = lines.join('\r\n');
-    // copyTextToClipboard(text);
-    // if (domFocusField) domFocusField.focus();
   }
 
   export function loadNextDataIfNeeded() {
