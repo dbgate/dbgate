@@ -38,7 +38,7 @@
       <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
 
       <div class="heading">Data grid</div>
-      <FormCheckboxField name="dataGrid.hideLeftColumn" label="Hide left column by default" />
+      <FormCheckboxField name="dataGrid.showLeftColumn" label="Show left column by default" />
       <FormTextField
         name="dataGrid.pageSize"
         label="Page size (number of rows for incremental loading, must be between 5 and 1000)"
