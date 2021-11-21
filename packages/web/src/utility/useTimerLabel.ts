@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { getContext, onDestroy } from 'svelte';
-import { updateStatuBarInfo } from '../widgets/StatusBar.svelte';
+import { updateStatuBarInfoItem } from '../widgets/StatusBar.svelte';
 
 function formatSeconds(duration) {
   if (duration == null) return '';
@@ -17,11 +17,7 @@ export default function useTimerLabel() {
   const tabid = getContext('tabid');
 
   const update = () => {
-    updateStatuBarInfo(tabid, [
-      {
-        text: formatSeconds(duration),
-      },
-    ]);
+    updateStatuBarInfoItem(tabid, 'durationSeconds', { text: formatSeconds(duration) });
   };
 
   const start = () => {

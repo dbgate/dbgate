@@ -249,6 +249,7 @@
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { updateStatuBarInfo } from '../widgets/StatusBar.svelte';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1196,15 +1197,15 @@
     ];
   }
 
-  $: {
-    if (!tabControlHiddenTab) {
-      if (!multipleGridsOnTab && allRowCount != null) {
-        updateStatuBarInfo(tabid, [{ text: `Rows: ${allRowCount.toLocaleString()}` }]);
-      } else {
-        updateStatuBarInfo(tabid, []);
-      }
-    }
-  }
+  // $: {
+  //   if (!tabControlHiddenTab) {
+  //     if (!multipleGridsOnTab && allRowCount != null) {
+  //       updateStatuBarInfo(tabid, [{ text: `Rows: ${allRowCount.toLocaleString()}` }]);
+  //     } else {
+  //       updateStatuBarInfo(tabid, []);
+  //     }
+  //   }
+  // }
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1383,6 +1384,10 @@
 
     {#if isLoading}
       <LoadingInfo wrapper message="Loading data" />
+    {/if}
+
+    {#if !tabControlHiddenTab && !multipleGridsOnTab && allRowCount != null}
+      <StatusBarTabItem text={`Rows: ${allRowCount.toLocaleString()}`} />
     {/if}
   </div>
 {/if}
