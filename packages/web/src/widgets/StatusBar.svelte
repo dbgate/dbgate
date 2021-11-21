@@ -126,7 +126,7 @@
   </div>
   <div class="container">
     {#each contextItems || [] as item}
-      <div class="item">
+      <div class="item" class:clickable={item.clickable} on:click={item.onClick}>
         {#if item.icon}
           <FontIcon icon={item.icon} />
         {/if}

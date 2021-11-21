@@ -49,6 +49,8 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let tabid;
   export let conid;
@@ -125,4 +127,24 @@
   focusOnVisible
   {changeSetStore}
   {dispatchChangeSet}
+/>
+
+<StatusBarTabItem
+  text="Open structure"
+  icon="icon structure"
+  clickable
+  onClick={() => {
+    openNewTab({
+      title: pureName,
+      icon: 'img table-structure',
+      tabComponent: 'TableStructureTab',
+      props: {
+        schemaName,
+        pureName,
+        conid,
+        database,
+        objectTypeField: 'tables',
+      },
+    });
+  }}
 />

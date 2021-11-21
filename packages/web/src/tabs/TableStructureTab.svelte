@@ -56,6 +56,8 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { changeTab } from '../utility/common';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   export let tabid;
   export let conid;
@@ -187,3 +189,25 @@
         )
     : null}
 />
+
+{#if objectTypeField == 'tables'}
+  <StatusBarTabItem
+    text="Open data"
+    icon="icon table"
+    clickable
+    onClick={() => {
+      openNewTab({
+        title: pureName,
+        icon: 'img table',
+        tabComponent: 'TableDataTab',
+        props: {
+          schemaName,
+          pureName,
+          conid,
+          database,
+          objectTypeField: 'tables',
+        },
+      });
+    }}
+  />
+{/if}

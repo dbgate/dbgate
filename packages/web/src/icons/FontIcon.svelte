@@ -41,6 +41,7 @@
     'icon query-design': 'mdi mdi-vector-polyline-edit',
     'icon form': 'mdi mdi-form-select',
     'icon history': 'mdi mdi-history',
+    'icon structure': 'mdi mdi-tools',
 
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',

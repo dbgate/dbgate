@@ -5,12 +5,15 @@
   import { updateStatuBarInfoItem } from './StatusBar.svelte';
 
   export let text;
+  export let clickable = false;
+  export let icon = null;
+  export let onClick = null;
 
   const key = uuidv1();
   const tabid = getContext('tabid');
 
   onMount(() => {
-    updateStatuBarInfoItem(tabid, key, { text });
+    updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick });
   });
   onDestroy(() => updateStatuBarInfoItem(tabid, key, null));
 </script>
