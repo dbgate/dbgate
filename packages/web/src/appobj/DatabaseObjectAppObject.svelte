@@ -39,6 +39,7 @@
       {
         label: 'Open structure',
         tab: 'TableStructureTab',
+        icon: 'img table-structure',
       },
       {
         label: 'Drop table',
@@ -113,6 +114,7 @@
       {
         label: 'Open structure',
         tab: 'TableStructureTab',
+        icon: 'img view-structure',
       },
       {
         label: 'Drop view',
@@ -325,7 +327,8 @@
     scriptTemplate,
     { schemaName, pureName, conid, database, objectTypeField },
     forceNewTab,
-    initialData
+    initialData,
+    icon
   ) {
     const connection = await getConnectionInfo({ conid });
     const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
@@ -337,7 +340,7 @@
       {
         title: scriptTemplate ? 'Query #' : pureName,
         tooltip,
-        icon: scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField],
+        icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
         props: {
           schemaName,
@@ -367,6 +370,7 @@
         objectTypeField,
       },
       forceNewTab,
+      null,
       null
     );
   }
@@ -535,7 +539,14 @@
                 obj.pureName = newName;
               });
             } else {
-              openDatabaseObjectDetail(menu.tab, menu.scriptTemplate, data, menu.forceNewTab, menu.initialData);
+              openDatabaseObjectDetail(
+                menu.tab,
+                menu.scriptTemplate,
+                data,
+                menu.forceNewTab,
+                menu.initialData,
+                menu.icon
+              );
             }
           },
         };

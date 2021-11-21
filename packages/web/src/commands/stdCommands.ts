@@ -129,7 +129,7 @@ registerCommand({
     openNewTab(
       {
         title: 'Table #',
-        icon: 'img table',
+        icon: 'img table-structure',
         tabComponent: 'TableStructureTab',
         props: {
           conid: connection._id,
