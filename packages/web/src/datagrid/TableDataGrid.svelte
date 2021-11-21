@@ -41,6 +41,7 @@
 
   export let cache;
   export let setCache;
+  export let multipleGridsOnTab = false;
 
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
@@ -157,6 +158,7 @@
       onRunMacro={handleRunMacro}
       macroCondition={macro => macro.type == 'transformValue'}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
+      multipleGridsOnTab={multipleGridsOnTab || !!reference}
       onReferenceClick={value => {
         if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {
           // reference not changed
@@ -181,6 +183,7 @@
             setCache={childCache.update}
             masterLoadedTime={myLoadedTime}
             isDetailView
+            multipleGridsOnTab
           />
         {/key}
       </div>

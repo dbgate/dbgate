@@ -27,6 +27,7 @@
 
 {#key jslid}
   <DataGrid
+    {...$$restProps}
     {display}
     {jslid}
     gridCoreComponent={JslDataGridCore}

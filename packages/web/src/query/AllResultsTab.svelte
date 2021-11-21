@@ -12,7 +12,7 @@
 >
   {#each resultInfos as info}
     <div class="wrapper">
-      <JslDataGrid jslid={info.jslid} />
+      <JslDataGrid jslid={info.jslid} multipleGridsOnTab={resultInfos.length >= 2} />
     </div>
   {/each}
 </div>

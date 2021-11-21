@@ -39,7 +39,7 @@
   <div class="content-container">
     {#each _.compact(tabs) as tab, index}
       <div class="container" class:isInline class:tabVisible={index == value}>
-        <svelte:component this={tab.component} {...tab.props} />
+        <svelte:component this={tab.component} {...tab.props} tabControlHiddenTab={index != value} />
         {#if tab.slot != null}
           {#if tab.slot == 0}<slot name="0" />
           {:else if tab.slot == 1}<slot name="1" />

@@ -176,7 +176,7 @@
     onClick: () => getCurrentDataGrid().openChartFromSelection(),
   });
 
-  function getRowCountInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData, allRowCount) {
+  function getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
         const row = grider.getRowData(cell[0]);
@@ -196,8 +196,7 @@
       let rowCount = selectedRowData.length;
       return `Rows: ${rowCount.toLocaleString()}, Count: ${count.toLocaleString()}, Sum:${sum.toLocaleString()}`;
     }
-    if (allRowCount == null) return 'Loading row count...';
-    return `Rows: ${allRowCount.toLocaleString()}`;
+    return null;
   }
 </script>
 
@@ -249,6 +248,7 @@
   import CollapseButton from './CollapseButton.svelte';
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { updateStatuBarInfo } from '../widgets/StatusBar.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -271,6 +271,8 @@
   export let isDynamicStructure = false;
   export let selectedCellsPublished = () => [];
   export let collapsedLeftColumnStore;
+  export let multipleGridsOnTab = false;
+  export let tabControlHiddenTab = false;
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
@@ -295,6 +297,8 @@
   let autofillDragStartCell = nullCell;
   let autofillSelectedCells = emptyCellArray;
   const domFilterControlsRef = createRef({});
+
+  const tabid = getContext('tabid');
 
   export function refresh() {
     display.reload();
@@ -605,6 +609,8 @@
     gridScrollAreaWidth,
     columns
   );
+
+  $: selectedCellsInfo = getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData());
 
   // $: console.log('visibleRealColumns', visibleRealColumns);
   // $: console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
@@ -1189,6 +1195,16 @@
       },
     ];
   }
+
+  $: {
+    if (!tabControlHiddenTab) {
+      if (!multipleGridsOnTab && allRowCount != null) {
+        updateStatuBarInfo(tabid, [{ text: `Rows: ${allRowCount.toLocaleString()}` }]);
+      } else {
+        updateStatuBarInfo(tabid, []);
+      }
+    }
+  }
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
@@ -1355,9 +1371,13 @@
       on:scroll={e => (firstVisibleRowScrollIndex = e.detail)}
       bind:this={domVerticalScroll}
     />
-    {#if allRowCount}
+    {#if selectedCellsInfo}
       <div class="row-count-label">
-        {getRowCountInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData(), allRowCount)}
+        {selectedCellsInfo}
+      </div>
+    {:else if allRowCount != null && multipleGridsOnTab}
+      <div class="row-count-label">
+        Rows: {allRowCount.toLocaleString()}
       </div>
     {/if}
 
