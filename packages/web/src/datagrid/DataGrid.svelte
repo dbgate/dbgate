@@ -98,7 +98,7 @@
   setContext('macroValues', macroValues);
 
   let managerSize;
-  const collapsedLeftColumnStore = writable(getBoolSettingsValue('dataGrid.hideLeftColumn', false));
+  const collapsedLeftColumnStore = writable(getBoolSettingsValue('dataGrid.hideLeftColumn', true));
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
   $: isJsonView = !!config?.isJsonView;

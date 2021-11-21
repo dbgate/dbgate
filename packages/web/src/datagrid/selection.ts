@@ -13,9 +13,14 @@ export function isRegularCell(cell: CellAddress): cell is RegularCellAddress {
   return _.isNumber(row) && _.isNumber(col);
 }
 
+function normalizeHeaderForSelection(addr: CellAddress): CellAddress {
+  if (addr[0] == 'filter') return ['header', addr[1]];
+  return addr;
+}
+
 export function getCellRange(a: CellAddress, b: CellAddress): CellAddress[] {
-  const [rowA, colA] = a;
-  const [rowB, colB] = b;
+  const [rowA, colA] = normalizeHeaderForSelection(a);
+  const [rowB, colB] = normalizeHeaderForSelection(b);
 
   if (_.isNumber(rowA) && _.isNumber(colA) && _.isNumber(rowB) && _.isNumber(colB)) {
     const rowMin = Math.min(rowA, rowB);
