@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { arrayToHexString } from 'dbgate-tools';
+import yaml from 'js-yaml';
 
 export function copyTextToClipboard(text) {
   const oldFocus = document.activeElement;
@@ -96,6 +97,10 @@ const clipboardJsonFormatter = () => (columns, rows) => {
   );
 };
 
+const clipboardYamlFormatter = () => (columns, rows) => {
+  return yaml.dump(rows.map(row => _.pick(row, columns)));
+};
+
 const clipboardJsonLinesFormatter = () => (columns, rows) => {
   return rows.map(row => JSON.stringify(_.pick(row, columns))).join('\r\n');
 };
@@ -164,6 +169,11 @@ export const copyRowsFormatDefs = {
     label: 'Copy as JSON lines',
     name: 'JSON lines',
     formatter: clipboardJsonLinesFormatter(),
+  },
+  yaml: {
+    label: 'Copy as YAML',
+    name: 'YAML',
+    formatter: clipboardYamlFormatter(),
   },
   inserts: {
     label: 'Copy as SQL INSERTs',

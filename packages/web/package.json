@@ -53,6 +53,7 @@
   "dependencies": {
     "chartjs-adapter-moment": "^1.0.0",
     "diff": "^5.0.0",
-    "diff2html": "^3.4.13"
+    "diff2html": "^3.4.13",
+    "js-yaml": "^4.1.0"
   }
 }
