@@ -1,5 +1,18 @@
 # ChangeLog
 
+### 4.4.1
+- FIXED: #188 Fixed problem with datetime values in PostgreSQL and mysql
+- ADDED: #194 Close tabs by DB
+- FIXED: Improved form view width calculations
+- CHANGED: Form view - highlight matched columns instead of filtering
+- ADDED: Lookup distinct values
+- ADDED: Copy advanced command, Copy as CSV, JSON, YAML, SQL
+- CHANGED: Hide column manager by default
+- ADDED: Change database status command
+- CHANGED: Table structure and view structure tabs have different icons
+- ADDED: #186 - zoom setting
+- ADDED: Row count information moved into status bar, when only one grid on tab is used (typical case)
+
 ### 4.4.0
 - ADDED: Database structure compare, export report to HTML
 - ADDED: Experimental: Deploy DB structure changes between databases
