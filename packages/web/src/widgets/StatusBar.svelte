@@ -7,7 +7,6 @@
       [tabid]: info,
     }));
   }
-
 </script>
 
 <script lang="ts">
@@ -16,10 +15,11 @@
 
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import { activeTabId, currentDatabase } from '../stores';
+  import { activeTabId, currentDatabase, visibleCommandPalette } from '../stores';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
   import axiosInstance from '../utility/axiosInstance';
+  import { findCommand } from '../commands/runCommand';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
@@ -40,7 +40,6 @@
       await axiosInstance.post('database-connections/sync-model', { conid: connection._id, database: databaseName });
     }
   }
-
 </script>
 
 <div class="main">
@@ -64,7 +63,7 @@
       </div>
     {/if}
     {#if connection && $status}
-      <div class="item">
+      <div class="item clickable" on:click={() => visibleCommandPalette.set(findCommand('database.changeState'))}>
         {#if $status.name == 'pending'}
           <FontIcon icon="icon loading" /> Loading
         {:else if $status.name == 'checkStructure'}
@@ -94,7 +93,9 @@
     {#if $status?.analysedTime}
       <div
         class="item flex clickable"
-        title={`Last ${databaseName} model refresh: ${moment($status?.analysedTime).format('HH:mm:ss')}\nClick for refresh DB model`}
+        title={`Last ${databaseName} model refresh: ${moment($status?.analysedTime).format(
+          'HH:mm:ss'
+        )}\nClick for refresh DB model`}
         on:click={handleSyncModel}
       >
         <FontIcon icon="icon history" />
@@ -144,5 +145,4 @@
   .clickable:hover {
     background-color: var(--theme-bg-statusbar-inv-hover);
   }
-
 </style>

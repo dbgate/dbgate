@@ -16,6 +16,7 @@ import { openElectronFile } from '../utility/openElectronFile';
 import { getDefaultFileFormat } from '../plugins/fileformats';
 import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
+import './changeDatabaseStatusCommand';
 import hasPermission from '../utility/hasPermission';
 import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';

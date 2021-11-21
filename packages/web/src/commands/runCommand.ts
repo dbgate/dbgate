@@ -26,3 +26,9 @@ export function runGroupCommand(group) {
   const real = values.find(x => x.group == group && !x.isGroupCommand && x.enabled);
   if (real && real.onClick) real.onClick();
 }
+
+export function findCommand(id) {
+  const commandsValue = getCommands();
+  const command = commandsValue[id];
+  return command;
+}
