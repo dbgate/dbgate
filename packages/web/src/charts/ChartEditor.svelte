@@ -47,6 +47,7 @@
     try {
       const columns = await loadChartStructure(driver, conid, database, sql);
       availableColumnNames = columns;
+      // configStore.update(x => ({ ...x, labelColumn: availableColumnNames[0] }));
     } catch (err) {
       console.error(err);
       error = err.message;
@@ -128,7 +129,7 @@
                 label="Label column"
                 name="labelColumn"
                 isNative
-                options={[{ value: '' }, ...availableColumnNames.map(col => ({ value: col, label: col }))]}
+                options={availableColumnNames.map(col => ({ value: col, label: col }))}
               />
             {/if}
 
