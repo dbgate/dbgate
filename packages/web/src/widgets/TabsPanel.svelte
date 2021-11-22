@@ -214,7 +214,7 @@
 
   function getDatabaseContextMenu(tabs) {
     const { tabid, props } = tabs[0];
-    const { conid, database } = props;
+    const { conid, database } = props || {};
 
     return [
       conid &&
