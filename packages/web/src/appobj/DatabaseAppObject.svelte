@@ -17,6 +17,27 @@
       });
     };
 
+    const handleNewTable = () => {
+      const tooltip = `${getConnectionLabel(connection)}\n${name}`;
+      openNewTab(
+        {
+          title: 'Table #',
+          tooltip,
+          icon: 'img table-structure',
+          tabComponent: 'TableStructureTab',
+          props: {
+            conid: connection._id,
+            database: name,
+          },
+        },
+        {
+          editor: {
+            columns: [],
+          },
+        }
+      );
+    };
+
     const handleImport = () => {
       showModal(ImportExportModal, {
         initialValues: {
@@ -83,6 +104,8 @@
 
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
+      { onClick: handleNewTable, text: 'New table' },
+      { divider: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
