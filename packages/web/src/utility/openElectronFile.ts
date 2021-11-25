@@ -34,6 +34,22 @@ export async function openSqliteFile(filePath) {
   });
 }
 
+function getFileEncoding(filePath, fs) {
+  var buf = Buffer.alloc(5);
+  var fd = fs.openSync(filePath, 'r');
+  fs.readSync(fd, buf, 0, 5, 0);
+  fs.closeSync(fd);
+
+  // https://en.wikipedia.org/wiki/Byte_order_mark
+  let e = null;
+  if (!e && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) e = 'utf8';
+  if (!e && buf[0] === 0xfe && buf[1] === 0xff) e = 'utf16be';
+  if (!e && buf[0] === 0xff && buf[1] === 0xfe) e = 'utf16le';
+  if (!e) e = 'ascii';
+
+  return e;
+}
+
 export function openElectronFileCore(filePath, extensions) {
   const nameLower = filePath.toLowerCase();
   const path = window.require('path');
@@ -42,7 +58,8 @@ export function openElectronFileCore(filePath, extensions) {
   const uploadListener = getUploadListener();
 
   if (nameLower.endsWith('.sql')) {
-    const data = fs.readFileSync(filePath, { encoding: 'utf-8' });
+    const encoding = getFileEncoding(filePath, fs);
+    const data = fs.readFileSync(filePath, { encoding });
 
     newQuery({
       title: parsed.name,
