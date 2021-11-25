@@ -37,6 +37,7 @@
     --theme-bg-magenta: #551c3b; /* magenta-3 */
 
     --theme-font-inv-1: #ffffff;
+    --theme-font-inv-15: #dedede;
     --theme-font-inv-2: #b3b3b3;
     --theme-font-inv-3: #808080;
     --theme-font-inv-4: #4d4d4d;
@@ -52,8 +53,8 @@
     --theme-bg-selected: #15395b; /* blue-3 */
     --theme-bg-selected-point: #1765ad; /* blue-5 */
 
-    --theme-bg-statusbar-inv: blue;
-    --theme-bg-statusbar-inv-hover: #4040FF;
+    --theme-bg-statusbar-inv: #0050b3;
+    --theme-bg-statusbar-inv-hover: #096dd9;
     --theme-bg-modalheader: rgb(43, 60, 61);
 
     --theme-bg-button-inv: #004488;

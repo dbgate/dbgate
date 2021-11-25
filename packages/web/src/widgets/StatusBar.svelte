@@ -65,46 +65,46 @@
   <div class="container">
     {#if databaseName}
       <div class="item">
-        <FontIcon icon="icon database" />
+        <FontIcon icon="icon database" padRight />
         {databaseName}
       </div>
     {/if}
     {#if connectionLabel}
       <div class="item">
-        <FontIcon icon="icon server" />
+        <FontIcon icon="icon server" padRight />
         {connectionLabel}
       </div>
     {/if}
     {#if connection && connection.user}
       <div class="item">
-        <FontIcon icon="icon account" />
+        <FontIcon icon="icon account" padRight />
         {connection.user}
       </div>
     {/if}
     {#if connection && $status}
       <div class="item clickable" on:click={() => visibleCommandPalette.set(findCommand('database.changeState'))}>
         {#if $status.name == 'pending'}
-          <FontIcon icon="icon loading" /> Loading
+          <FontIcon icon="icon loading" padRight /> Loading
         {:else if $status.name == 'checkStructure'}
-          <FontIcon icon="icon loading" /> Checking model
+          <FontIcon icon="icon loading" padRight /> Checking model
         {:else if $status.name == 'loadStructure'}
-          <FontIcon icon="icon loading" /> Loading model
+          <FontIcon icon="icon loading" padRight /> Loading model
         {:else if $status.name == 'ok'}
-          <FontIcon icon="img ok-inv" /> Connected
+          <FontIcon icon="img ok-inv" padRight /> Connected
         {:else if $status.name == 'error'}
-          <FontIcon icon="img error-inv" /> Error
+          <FontIcon icon="img error-inv" padRight /> Error
         {/if}
       </div>
     {/if}
     {#if !connection}
       <div class="item">
-        <FontIcon icon="icon disconnected" /> Not connected
+        <FontIcon icon="icon disconnected" padRight /> Not connected
       </div>
     {/if}
     {#if $serverVersion}
       <div class="item flex" title={$serverVersion.version}>
-        <FontIcon icon="icon version" />
-        <div class="version ml-1">
+        <FontIcon icon="icon version" padRight />
+        <div class="version">
           {$serverVersion.versionText || $serverVersion.version}
         </div>
       </div>
@@ -117,7 +117,7 @@
         )}\nClick for refresh DB model`}
         on:click={handleSyncModel}
       >
-        <FontIcon icon="icon history" />
+        <FontIcon icon="icon history" padRight />
         <div class="version ml-1">
           {moment($status?.analysedTime).fromNow() + (timerValue ? '' : '')}
         </div>
@@ -128,7 +128,7 @@
     {#each contextItems || [] as item}
       <div class="item" class:clickable={item.clickable} on:click={item.onClick}>
         {#if item.icon}
-          <FontIcon icon={item.icon} />
+          <FontIcon icon={item.icon} padRight />
         {/if}
         {item.text}
       </div>
@@ -139,7 +139,7 @@
 <style>
   .main {
     display: flex;
-    color: var(--theme-font-inv-1);
+    color: var(--theme-font-inv-15);
     align-items: stretch;
     justify-content: space-between;
     cursor: default;
@@ -147,10 +147,12 @@
   }
   .container {
     display: flex;
-    align-items: center;
+    align-items: stretch;
   }
   .item {
     padding: 0px 10px;
+    display: flex;
+    align-items: center;
   }
 
   .version {

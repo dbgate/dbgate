@@ -1,6 +1,8 @@
 <script>
   export let icon;
   export let title = null;
+  export let padLeft = false;
+  export let padRight = false;
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -140,7 +142,16 @@
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
   };
-
 </script>
 
-<span class={iconNames[icon] || icon} {title} on:click />
+<span class={iconNames[icon] || icon} {title} class:padLeft class:padRight on:click />
+
+<style>
+  .padLeft {
+    margin-right: 0.25rem;
+  }
+
+  .padRight {
+    margin-right: 0.25rem;
+  }
+</style>
