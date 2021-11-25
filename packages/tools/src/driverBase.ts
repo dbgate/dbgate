@@ -32,8 +32,8 @@ export const driverBase = {
     const analyser = new this.analyserClass(pool, this, version);
     return analyser.incrementalAnalysis(structure);
   },
-  createDumper() {
-    return new this.dumperClass(this);
+  createDumper(options = null) {
+    return new this.dumperClass(this, options);
   },
   async script(pool, sql) {
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {

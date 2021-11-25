@@ -1,6 +1,21 @@
 const { SqlDumper, testEqualColumns } = global.DBGATE_TOOLS;
 
 class MsSqlDumper extends SqlDumper {
+  constructor(driver, options) {
+    super(driver);
+    if (options && options.useHardSeparator) {
+      this.useHardSeparator = true;
+    }
+  }
+
+  endCommand() {
+    if (this.useHardSeparator) {
+      this.putRaw('\nGO\n');  
+    } else {
+      super.endCommand();
+    }
+  }
+
   autoIncrement() {
     this.put(' ^identity');
   }

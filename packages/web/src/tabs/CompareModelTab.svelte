@@ -186,6 +186,7 @@
 
   $: console.log('sourceDb', sourceDb);
   $: console.log('targetDb', targetDb);
+  $: console.log('connection', connection);
   $: console.log('driver', driver);
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
