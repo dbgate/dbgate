@@ -83,7 +83,7 @@ export function computeDbDiffRows(
     res.push(
       ..._.sortBy(
         computeDiffRowsCore(sourceDb[objectTypeField], targetDb[objectTypeField], (a, b) =>
-          defs.test(a, b, opts, targetDb, driver)
+          defs.test(a, b, opts, sourceDb, targetDb, driver)
         ).map(row => ({
           ...row,
           sourceSchemaName: row?.source?.schemaName,

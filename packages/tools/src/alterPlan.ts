@@ -111,7 +111,12 @@ export class AlterPlan {
   };
 
   public operations: AlterOperation[] = [];
-  constructor(public db: DatabaseInfo, public dialect: SqlDialect, public opts: DbDiffOptions) {}
+  constructor(
+    public wholeOldDb: DatabaseInfo,
+    public wholeNewDb: DatabaseInfo,
+    public dialect: SqlDialect,
+    public opts: DbDiffOptions
+  ) {}
 
   createTable(table: TableInfo) {
     this.operations.push({
@@ -225,7 +230,7 @@ export class AlterPlan {
   }
 
   _getDependendColumnConstraints(column: ColumnInfo, dependencyDefinition) {
-    const table = this.db.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
+    const table = this.wholeOldDb.tables.find(x => x.pureName == column.pureName && x.schemaName == column.schemaName);
     if (!table) return [];
     const fks = dependencyDefinition?.includes('dependencies')
       ? table.dependencies.filter(fk => fk.columns.find(col => col.refColumnName == column.columnName))
@@ -385,7 +390,7 @@ export class AlterPlan {
         return [];
       }
 
-      const table = this.db.tables.find(
+      const table = this.wholeNewDb.tables.find(
         x => x.pureName == op[objectField].pureName && x.schemaName == op[objectField].schemaName
       );
       this.recreates.tables += 1;

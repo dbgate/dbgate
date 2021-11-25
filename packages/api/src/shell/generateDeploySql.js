@@ -42,7 +42,14 @@ async function generateDeploySql({
   // console.log('deployedModel', deployedModel.tables[0]);
   // console.log('currentModel', currentModel.tables[0]);
   // console.log('currentModelPaired', currentModelPaired.tables[0]);
-  const res = getAlterDatabaseScript(currentModelPaired, deployedModel, opts, deployedModel, driver);
+  const res = getAlterDatabaseScript(
+    currentModelPaired,
+    deployedModel,
+    opts,
+    currentModelPaired,
+    deployedModel,
+    driver
+  );
   return res;
 }
 

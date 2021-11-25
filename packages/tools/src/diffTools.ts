@@ -373,10 +373,11 @@ export function testEqualTables(
   a: TableInfo,
   b: TableInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo,
+  wholeOldDb: DatabaseInfo,
+  wholeNewDb: DatabaseInfo,
   driver: EngineDriver
 ) {
-  const plan = new AlterPlan(db, driver.dialect, opts);
+  const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
   planAlterTable(plan, a, b, opts);
   // console.log('plan.operations', a, b, plan.operations);
   return plan.operations.length == 0;
@@ -390,10 +391,11 @@ export function createAlterTablePlan(
   oldTable: TableInfo,
   newTable: TableInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo,
+  wholeOldDb: DatabaseInfo,
+  wholeNewDb: DatabaseInfo,
   driver: EngineDriver
 ): AlterPlan {
-  const plan = new AlterPlan(db, driver.dialect, opts);
+  const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
   if (oldTable == null) {
     plan.createTable(newTable);
   } else if (newTable == null) {
@@ -409,10 +411,11 @@ export function createAlterDatabasePlan(
   oldDb: DatabaseInfo,
   newDb: DatabaseInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo,
+  wholeOldDb: DatabaseInfo,
+  wholeNewDb: DatabaseInfo,
   driver: EngineDriver
 ): AlterPlan {
-  const plan = new AlterPlan(db, driver.dialect, opts);
+  const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
 
   for (const objectTypeField of ['tables', 'views', 'procedures', 'matviews', 'functions']) {
     for (const oldobj of oldDb[objectTypeField] || []) {
@@ -456,14 +459,15 @@ export function getAlterTableScript(
   oldTable: TableInfo,
   newTable: TableInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo,
+  wholeOldDb: DatabaseInfo,
+  wholeNewDb: DatabaseInfo,
   driver: EngineDriver
 ) {
   if ((!oldTable && !newTable) || !driver) {
     return { sql: '', recreates: [] };
   }
 
-  const plan = createAlterTablePlan(oldTable, newTable, opts, db, driver);
+  const plan = createAlterTablePlan(oldTable, newTable, opts, wholeOldDb, wholeNewDb, driver);
   const dmp = driver.createDumper();
   if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
@@ -478,10 +482,11 @@ export function getAlterDatabaseScript(
   oldDb: DatabaseInfo,
   newDb: DatabaseInfo,
   opts: DbDiffOptions,
-  db: DatabaseInfo,
+  wholeOldDb: DatabaseInfo,
+  wholeNewDb: DatabaseInfo,
   driver: EngineDriver
 ) {
-  const plan = createAlterDatabasePlan(oldDb, newDb, opts, db, driver);
+  const plan = createAlterDatabasePlan(oldDb, newDb, opts, wholeOldDb, wholeNewDb, driver);
   const dmp = driver.createDumper();
   if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);

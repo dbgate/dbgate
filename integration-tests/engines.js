@@ -116,9 +116,9 @@ const engines = [
 
 const filterLocal = [
   // filter local testing
-  '-MySQL',
-  '-PostgreSQL',
-  '-SQL Server',
+  'MySQL',
+  'PostgreSQL',
+  'SQL Server',
   'SQLite',
   '-CockroachDB',
 ];

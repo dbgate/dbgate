@@ -70,7 +70,7 @@
     }
 
     if (objectTypeField == 'tables') {
-      return getAlterTableScript(oldObject, newObject, opts, db, driver);
+      return getAlterTableScript(oldObject, newObject, opts, db, db, driver);
     }
     const dmp = driver.createDumper();
     if (oldObject) dmp.dropSqlObject(oldObject);
@@ -280,7 +280,7 @@
   function getDeploySql() {
     return diffRows
       .filter(row => $values[`isChecked_${row.identifier}`])
-      .map(row => getAlterTableScript(row?.target, row?.source, dbDiffOptions, targetDb, driver).sql)
+      .map(row => getAlterTableScript(row?.target, row?.source, dbDiffOptions, sourceDb, targetDb, driver).sql)
       .join('\n');
   }
 

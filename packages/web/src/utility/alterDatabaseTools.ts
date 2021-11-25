@@ -15,7 +15,7 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
   const dbUpdated = _.cloneDeep(db);
   updateFunc(dbUpdated);
 
-  const { sql, recreates } = getAlterDatabaseScript(db, dbUpdated, {}, db, driver);
+  const { sql, recreates } = getAlterDatabaseScript(db, dbUpdated, {}, db, dbUpdated, driver);
 
   showModal(ConfirmSqlModal, {
     sql,

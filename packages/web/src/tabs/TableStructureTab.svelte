@@ -115,6 +115,7 @@
       extendTableInfo(fillConstraintNames($editorValue.current, driver.dialect)),
       {},
       $dbInfo,
+      $dbInfo,
       driver
     );
 
