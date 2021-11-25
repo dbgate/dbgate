@@ -143,12 +143,14 @@
     align-items: stretch;
     justify-content: space-between;
     cursor: default;
+    flex: 1;
   }
   .container {
     display: flex;
+    align-items: center;
   }
   .item {
-    padding: 2px 10px;
+    padding: 0px 10px;
   }
 
   .version {
