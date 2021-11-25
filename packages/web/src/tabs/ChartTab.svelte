@@ -11,18 +11,6 @@
 
     undoRedo: true,
   });
-
-  registerCommand({
-    id: 'chart.export',
-    category: 'Chart',
-    toolbarName: 'Export',
-    name: 'Export chart',
-    icon: 'icon report',
-    toolbar: true,
-    isRelatedToTab: true,
-    onClick: () => getCurrentEditor().exportChart(),
-    testEnabled: () => getCurrentEditor() != null,
-  });
 </script>
 
 <script lang="ts">

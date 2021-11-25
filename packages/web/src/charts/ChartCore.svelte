@@ -24,8 +24,7 @@
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-import { saveFileToDisk } from '../utility/exportElectronFile';
-  import resolveApi from '../utility/resolveApi';
+  import { saveFileToDisk } from '../utility/exportElectronFile';
 
   export let data;
   export let title;

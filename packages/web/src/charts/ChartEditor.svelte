@@ -29,7 +29,8 @@
   // export let menu;
 
   let availableColumnNames = [];
-  let error = null;
+  let errorLoadingColumns = null;
+  let errorLoadingData = null;
   let loadedData = null;
 
   $: config = $configStore;
@@ -45,25 +46,32 @@
     const driver = await getDriver();
     if (!driver) return;
     try {
+      errorLoadingColumns = null;
       const columns = await loadChartStructure(driver, conid, database, sql);
       availableColumnNames = columns;
       // configStore.update(x => ({ ...x, labelColumn: availableColumnNames[0] }));
     } catch (err) {
       console.error(err);
-      error = err.message;
+      errorLoadingColumns = err.message;
     }
   };
 
   const handleLoadData = async () => {
     const driver = await getDriver();
     if (!driver) return;
-    const loaded = await loadChartData(driver, conid, database, sql, config);
-    if (!loaded) return;
-    const { columns, rows } = loaded;
-    loadedData = {
-      structure: columns,
-      rows,
-    };
+    try {
+      errorLoadingData = null;
+      const loaded = await loadChartData(driver, conid, database, sql, config);
+      if (!loaded) return;
+      const { columns, rows } = loaded;
+      loadedData = {
+        structure: columns,
+        rows,
+      };
+    } catch (err) {
+      console.error(err);
+      errorLoadingData = err.message;
+    }
   };
 
   $: {
@@ -154,8 +162,10 @@
     </div>
 
     <svelte:fragment slot="2">
-      {#if error}
-        <ErrorInfo message={error} alignTop />
+      {#if errorLoadingColumns}
+        <ErrorInfo message={errorLoadingColumns} alignTop />
+      {:else if errorLoadingData}
+        <ErrorInfo message={errorLoadingData} alignTop />
       {:else}
         <DataChart data={data || loadedData} />
       {/if}

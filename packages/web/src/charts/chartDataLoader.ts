@@ -75,7 +75,10 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
   const resp = await axiosInstance.post('database-connections/query-data', { conid, database, sql: dmp.s });
-  let { rows, columns } = resp.data;
+  let { rows, columns, errorMessage } = resp.data;
+  if (errorMessage) {
+    throw new Error(errorMessage);
+  }
   if (truncateFrom == 'end' && rows) {
     rows = _.reverse([...rows]);
   }
@@ -97,6 +100,9 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
       // });
     }
   }
+
+  console.log('Loaded chart data', { columns, rows });
+
   return {
     columns,
     rows,
