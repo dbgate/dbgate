@@ -274,6 +274,11 @@ function testEqualConstraints(a: ConstraintInfo, b: ConstraintInfo, opts: DbDiff
   //   console.log('FK2', stableStringify(_omit(b, omitList)));
   // }
 
+  // if (a.constraintType == 'index' && b.constraintType == 'index') {
+  //   console.log('IX1', stableStringify(_omit(a, omitList)));
+  //   console.log('IX2', stableStringify(_omit(b, omitList)));
+  // }
+
   return stableStringify(_omit(a, omitList)) == stableStringify(_omit(b, omitList));
 }
 
@@ -329,6 +334,8 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     getTableConstraints(newTable),
     (a, b) => a.constraintType == 'primaryKey' && b.constraintType == 'primaryKey'
   );
+  // console.log('constraintPairs SOURCE', getTableConstraints(oldTable), getTableConstraints(newTable));
+  // console.log('constraintPairs', constraintPairs);
 
   if (!opts.noDropConstraint) {
     constraintPairs.filter(x => x[1] == null).forEach(x => plan.dropConstraint(x[0]));
@@ -525,6 +532,21 @@ export function matchPairedObjects(db1: DatabaseInfo, db2: DatabaseInfo, opts: D
                 )
             );
             if (fk1) fk2.pairingId = fk1.pairingId;
+          }
+
+          for (const uq2 of obj2.uniques) {
+            const uq1 = obj1.uniques.find(x =>
+              _isEqual(
+                x.columns.map(y => _pick(y, ['columnName'])),
+                uq2.columns.map(y => _pick(y, ['columnName']))
+              )
+            );
+            if (uq1) uq2.pairingId = uq1.pairingId;
+          }
+
+          for (const ix2 of obj2.indexes) {
+            const ix1 = obj1.indexes.find(x => testEqualNames(x.constraintName, ix2.constraintName, opts));
+            if (ix1) ix2.pairingId = ix1.pairingId;
           }
         }
       }

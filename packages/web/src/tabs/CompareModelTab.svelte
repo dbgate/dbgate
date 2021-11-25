@@ -175,8 +175,8 @@
   $: sourceDbValue = useDatabaseInfo({ conid: $values?.sourceConid, database: $values?.sourceDatabase });
   $: targetDbValue = useDatabaseInfo({ conid: $values?.targetConid, database: $values?.targetDatabase });
 
-  $: console.log('$sourceDbValue', $sourceDbValue);
-  $: console.log('$targetDbValue', $targetDbValue);
+  // $: console.log('$sourceDbValue', $sourceDbValue);
+  // $: console.log('$targetDbValue', $targetDbValue);
 
   $: sourceDb = generateDbPairingId($sourceDbValue);
   $: targetDb = generateDbPairingId($targetDbValue);
@@ -184,18 +184,18 @@
   $: connection = useConnectionInfo({ conid: $values?.targetConid });
   $: driver = findEngineDriver($connection, $extensions);
 
-  $: console.log('sourceDb', sourceDb);
-  $: console.log('targetDb', targetDb);
-  $: console.log('$connection', $connection);
-  $: console.log('$extensions', $extensions);
-  $: console.log('driver', driver);
+  // $: console.log('sourceDb', sourceDb);
+  // $: console.log('targetDb', targetDb);
+  // $: console.log('$connection', $connection);
+  // $: console.log('$extensions', $extensions);
+  // $: console.log('driver', driver);
 
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
   $: diffRowsAll = _.sortBy(computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver), x =>
     stateOrder(x.state)
   );
 
-  $: console.log('diffRowsAll', diffRowsAll);
+  // $: console.log('diffRowsAll', diffRowsAll);
 
   $: diffRows = filterDiffRows(diffRowsAll, $values, filter);
   $: diffColumns = computeTableDiffColumns(
