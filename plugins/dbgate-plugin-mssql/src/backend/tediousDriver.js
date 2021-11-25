@@ -64,7 +64,7 @@ async function tediousQueryCore(pool, sql, options) {
       columns: [],
     });
   }
-  const { addDriverNativeColumn } = options || {};
+  const { addDriverNativeColumn, discardResult } = options || {};
   return new Promise((resolve, reject) => {
     const result = {
       rows: [],
@@ -85,7 +85,8 @@ async function tediousQueryCore(pool, sql, options) {
         )
       );
     });
-    pool.execSql(request);
+    if (discardResult) pool.execSqlBatch(request);
+    else pool.execSql(request);
   });
 }
 
