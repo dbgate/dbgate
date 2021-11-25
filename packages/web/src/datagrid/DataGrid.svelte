@@ -48,7 +48,7 @@
 </script>
 
 <script lang="ts">
-  import { setContext } from 'svelte';
+  import { getContext, setContext } from 'svelte';
   import { writable } from 'svelte/store';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
@@ -98,7 +98,8 @@
   setContext('macroValues', macroValues);
 
   let managerSize;
-  const collapsedLeftColumnStore = writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+  const collapsedLeftColumnStore =
+    getContext('collapsedLeftColumnStore') || writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
   $: isJsonView = !!config?.isJsonView;

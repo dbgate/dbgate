@@ -6,13 +6,16 @@
 <script lang="ts">
   import { createGridCache, ViewGridDisplay } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
+  import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
 
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
   import { extensions } from '../stores';
   import { useConnectionInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
   import useGridConfig from '../utility/useGridConfig';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
 
   export let tabid;
   export let conid;
@@ -40,6 +43,9 @@
           $serverVersion
         )
       : null;
+
+  const collapsedLeftColumnStore = writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 </script>
 
 {#if display}
@@ -54,3 +60,10 @@
     gridCoreComponent={SqlDataGridCore}
   />
 {/if}
+
+<StatusBarTabItem
+  text="View columns"
+  icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
+  clickable
+  onClick={() => collapsedLeftColumnStore.update(x => !x)}
+/>

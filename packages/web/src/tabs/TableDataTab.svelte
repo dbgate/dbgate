@@ -51,6 +51,8 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { setContext } from 'svelte';
 
   export let tabid;
   export let conid;
@@ -115,6 +117,9 @@
   }
 
   registerMenu({ command: 'tableData.save', tag: 'save' });
+
+  const collapsedLeftColumnStore = writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 </script>
 
 <TableDataGrid
@@ -147,4 +152,11 @@
       },
     });
   }}
+/>
+
+<StatusBarTabItem
+  text="View columns"
+  icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
+  clickable
+  onClick={() => collapsedLeftColumnStore.update(x => !x)}
 />

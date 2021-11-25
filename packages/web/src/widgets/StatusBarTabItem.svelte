@@ -16,4 +16,6 @@
     updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick });
   });
   onDestroy(() => updateStatuBarInfoItem(tabid, key, null));
+
+  $: updateStatuBarInfoItem(tabid, key, { text, icon, clickable, onClick });
 </script>

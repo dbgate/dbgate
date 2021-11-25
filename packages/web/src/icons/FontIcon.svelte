@@ -21,6 +21,9 @@
     'icon settings': 'mdi mdi-cog',
     'icon version': 'mdi mdi-ticket-confirmation',
 
+    'icon columns': 'mdi mdi-view-column',
+    'icon columns-outline': 'mdi mdi-view-column-outline',
+
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',
     'icon table': 'mdi mdi-table',
