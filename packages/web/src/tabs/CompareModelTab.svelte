@@ -127,6 +127,8 @@
     modelCompareDbDiffOptions,
     filterName,
     DbDiffCompareDefs,
+    getAlterDatabaseScript,
+    DatabaseAnalyser,
   } from 'dbgate-tools';
 
   import _, { startsWith } from 'lodash';
@@ -173,16 +175,26 @@
   $: sourceDbValue = useDatabaseInfo({ conid: $values?.sourceConid, database: $values?.sourceDatabase });
   $: targetDbValue = useDatabaseInfo({ conid: $values?.targetConid, database: $values?.targetDatabase });
 
+  $: console.log('$sourceDbValue', $sourceDbValue);
+  $: console.log('$targetDbValue', $targetDbValue);
+
   $: sourceDb = generateDbPairingId($sourceDbValue);
   $: targetDb = generateDbPairingId($targetDbValue);
 
   $: connection = useConnectionInfo({ conid: $values?.targetConid });
   $: driver = findEngineDriver($connection, $extensions);
 
+  $: console.log('sourceDb', sourceDb);
+  $: console.log('targetDb', targetDb);
+  $: console.log('driver', driver);
+
   $: targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
   $: diffRowsAll = _.sortBy(computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver), x =>
     stateOrder(x.state)
   );
+
+  $: console.log('diffRowsAll', diffRowsAll);
+
   $: diffRows = filterDiffRows(diffRowsAll, $values, filter);
   $: diffColumns = computeTableDiffColumns(
     diffRows[pairIndex]?.source,
@@ -278,10 +290,20 @@
   }
 
   function getDeploySql() {
-    return diffRows
-      .filter(row => $values[`isChecked_${row.identifier}`])
-      .map(row => getAlterTableScript(row?.target, row?.source, dbDiffOptions, sourceDb, targetDb, driver).sql)
-      .join('\n');
+    const leftDb = DatabaseAnalyser.createEmptyStructure();
+    const rightDb = DatabaseAnalyser.createEmptyStructure();
+
+    for (const diffRow of diffRows.filter(row => $values[`isChecked_${row.identifier}`])) {
+      if (diffRow.source) leftDb[diffRow.objectTypeField].push(diffRow.source);
+      if (diffRow.target) rightDb[diffRow.objectTypeField].push(diffRow.target);
+    }
+
+    return getAlterDatabaseScript(rightDb, leftDb, dbDiffOptions, targetDb, sourceDb, driver).sql;
+    // getAlterDatabaseScript();
+    // return diffRows
+    //   .filter(row => $values[`isChecked_${row.identifier}`])
+    //   .map(row => getAlterTableScript(row?.target, row?.source, dbDiffOptions, sourceDb, targetDb, driver).sql)
+    //   .join('\n');
   }
 
   export function deploy() {
