@@ -6,6 +6,7 @@
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import newQuery from '../query/newQuery';
   import SqlEditor from '../query/SqlEditor.svelte';
 
   import ModalBase from './ModalBase.svelte';
@@ -119,6 +120,17 @@
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value="Open script"
+        on:click={() => {
+          newQuery({
+            initialData: sql,
+          });
+
+          closeCurrentModal();
+        }}
+      />
     </div>
   </ModalBase>
 </FormProviderCore>
