@@ -3,6 +3,8 @@
   import { writable } from 'svelte/store';
   import createRef from '../utility/createRef';
 
+  export let hidden = false;
+
   let definitions = [];
   const dynamicPropsCollection = [];
   let clientHeight;
@@ -32,16 +34,23 @@
   }
 </script>
 
-<div class="main-container" bind:clientHeight>
+<div class="main-container" bind:clientHeight class:hidden>
   <slot />
 </div>
 
 <style>
+  .hidden {
+    display: none;
+  }
+
   .main-container {
     position: relative;
-    display: flex;
     flex: 1;
     flex-direction: column;
     user-select: none;
+  }
+
+  .main-container :not(.hidden) {
+    display: flex;
   }
 </style>

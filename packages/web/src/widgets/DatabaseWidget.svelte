@@ -9,14 +9,15 @@
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
 
+  export let hidden = false;
+
   $: conid = $currentDatabase?.connection?._id;
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
   $: config = useConfig();
-
 </script>
 
-<WidgetColumnBar>
+<WidgetColumnBar {hidden}>
   {#if !$config?.singleDatabase}
     <WidgetColumnBarItem title="Connections" name="connections" height="50%">
       <ConnectionList />

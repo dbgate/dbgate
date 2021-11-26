@@ -6,12 +6,10 @@
   import PluginsWidget from './PluginsWidget.svelte';
   import CellDataWidget from './CellDataWidget.svelte';
   import HistoryWidget from './HistoryWidget.svelte';
-
 </script>
 
-{#if $selectedWidget == 'database'}
-  <DatabaseWidget />
-{/if}
+<DatabaseWidget hidden={$selectedWidget != 'database'} />
+
 {#if $selectedWidget == 'file'}
   <FilesWidget />
 {/if}
