@@ -31,17 +31,21 @@
   };
 
   const handleRename = () => {
+    const isLink = data.name.endsWith(data.name);
+    const name = isLink ? data.name.slice(0, -5) : data.name;
+    const suffix = isLink ? '.link' : '';
+
     showModal(InputTextModal, {
-      value: data.name,
+      value: name,
       label: 'New folder name',
       header: 'Rename folder',
       onConfirm: async newFolder => {
         await axiosInstance.post('archive/rename-folder', {
           folder: data.name,
-          newFolder,
+          newFolder: newFolder + suffix,
         });
         if ($currentArchive == data.name) {
-          $currentArchive = newFolder;
+          $currentArchive = newFolder + suffix;
         }
       },
     });
@@ -122,8 +126,8 @@ await dbgateApi.deployDb(${JSON.stringify(
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={data.name}
-  icon="img archive-folder"
+  title={data.name.endsWith('.link') ? data.name.slice(0, -5) : data.name}
+  icon={data.name.endsWith('.link') ? 'img link' : 'img archive-folder'}
   isBold={data.name == $currentArchive}
   on:click={() => ($currentArchive = data.name)}
   menu={createMenu}

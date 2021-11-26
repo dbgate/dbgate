@@ -97,7 +97,8 @@ module.exports = {
 
   renameFolder_meta: 'post',
   async renameFolder({ folder, newFolder }) {
-    await fs.rename(path.join(resolveArchiveFolder(folder)), path.join(resolveArchiveFolder(newFolder)));
+    const uniqueName = await this.getNewArchiveFolder({ database: newFolder });
+    await fs.rename(path.join(archivedir(), folder), path.join(archivedir(), uniqueName));
     socket.emitChanged(`archive-folders-changed`);
   },
 
@@ -140,11 +141,14 @@ module.exports = {
   },
 
   async getNewArchiveFolder({ database }) {
+    const isLink = database.endsWith(database);
+    const name = isLink ? database.slice(0, -5) : database;
+    const suffix = isLink ? '.link' : '';
     if (!(await fs.exists(path.join(archivedir(), database)))) return database;
     let index = 2;
-    while (await fs.exists(path.join(archivedir(), `${database}${index}`))) {
+    while (await fs.exists(path.join(archivedir(), `${name}${index}${suffix}`))) {
       index += 1;
     }
-    return `${database}${index}`;
+    return `${name}${index}${suffix}`;
   },
 };

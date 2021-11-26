@@ -252,12 +252,12 @@ if (electron) {
     onClick: openElectronFile,
   });
 
-  // registerCommand({
-  //   id: 'file.openArchive',
-  //   category: 'File',
-  //   name: 'Open DB Model/Archive',
-  //   onClick: openArchiveFolder,
-  // });
+  registerCommand({
+    id: 'file.openArchive',
+    category: 'File',
+    name: 'Open DB Model/Archive',
+    onClick: openArchiveFolder,
+  });
 }
 
 registerCommand({
