@@ -31,7 +31,7 @@
   };
 
   const handleRename = () => {
-    const isLink = data.name.endsWith(data.name);
+    const isLink = data.name.endsWith('.link');
     const name = isLink ? data.name.slice(0, -5) : data.name;
     const suffix = isLink ? '.link' : '';
 
