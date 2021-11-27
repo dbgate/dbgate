@@ -623,7 +623,7 @@ export class SqlDumper implements AlterProcessor {
           was = true;
           this.put('^update %f ^set ', table);
           this.putCollection(', ', updated, col => this.put('%i=%v', col, row[col]));
-          this.put(' ^ where ');
+          this.put(' ^where ');
           this.putCollection(' ^and ', key, col => this.put('%i=%v', col, row[col]));
         }
       } else {

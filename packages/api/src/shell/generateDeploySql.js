@@ -41,17 +41,14 @@ async function generateDeploySql({
     noRenameColumn: true,
   };
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
-  const currentModelPairedPreloaded = await enrichWithPreloadedRows(
-    deployedModel,
-    currentModelPaired,
-    pool,
-    driver
-  );
+  const currentModelPairedPreloaded = await enrichWithPreloadedRows(deployedModel, currentModelPaired, pool, driver);
+
+  // console.log('currentModelPairedPreloaded', currentModelPairedPreloaded.tables[0]);
   // console.log('deployedModel', deployedModel.tables[0]);
   // console.log('currentModel', currentModel.tables[0]);
   // console.log('currentModelPaired', currentModelPaired.tables[0]);
   const res = getAlterDatabaseScript(
-    currentModelPaired,
+    currentModelPairedPreloaded,
     deployedModel,
     opts,
     currentModelPairedPreloaded,

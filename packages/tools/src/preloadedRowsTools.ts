@@ -11,9 +11,9 @@ export async function enrichWithPreloadedRows(
   const repl = {};
   for (const tableTarget of dbTarget.tables) {
     const tableModel = dbModel.tables.find(x => x.pairingId == tableTarget.pairingId);
-    if (tableModel.preloadedRows?.length || 0 == 0) continue;
+    if ((tableModel.preloadedRows?.length || 0) == 0) continue;
     const keyColumns = tableModel.preloadedRowsKey || tableModel.primaryKey?.columns?.map(x => x.columnName);
-    if (keyColumns?.length || 0 == 0) continue;
+    if ((keyColumns?.length || 0) == 0) continue;
     const dmp = driver.createDumper();
     if (keyColumns.length == 1) {
       dmp.putCmd(

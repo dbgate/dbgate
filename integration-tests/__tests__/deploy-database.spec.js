@@ -250,4 +250,51 @@ describe('Deploy database', () => {
       expect(res.rows[0].cnt.toString()).toEqual('3');
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Deploy preloaded data - update - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                { name: 'val', type: 'int' },
+              ],
+              primaryKey: ['id'],
+              data: [
+                { id: 1, val: 1 },
+                { id: 2, val: 2 },
+                { id: 3, val: 3 },
+              ],
+            },
+          },
+        ],
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                { name: 'val', type: 'int' },
+              ],
+              primaryKey: ['id'],
+              data: [
+                { id: 1, val: 1 },
+                { id: 2, val: 5 },
+                { id: 3, val: 3 },
+              ],
+            },
+          },
+        ],
+      ]);
+
+      const res = await driver.query(conn, `select val from t1 where id = 2`);
+      expect(res.rows[0].val.toString()).toEqual('5');
+    })
+  );
 });
