@@ -221,4 +221,33 @@ describe('Deploy database', () => {
       );
     })
   );
+
+  test.each(engines.map(engine => [engine.label, engine]))(
+    'Deploy preloaded data - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                { name: 'value', type: 'int' },
+              ],
+              primaryKey: ['id'],
+              data: [
+                { id: 1, value: 1 },
+                { id: 2, value: 2 },
+                { id: 3, value: 3 },
+              ],
+            },
+          },
+        ],
+      ]);
+
+      const res = await driver.query(conn, `select count(*) as cnt from t1`);
+      expect(res.rows[0].cnt.toString()).toEqual('3');
+    })
+  );
 });

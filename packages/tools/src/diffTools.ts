@@ -325,6 +325,13 @@ function createPairs(oldList, newList, additionalCondition = null) {
   return res;
 }
 
+function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo) {
+  const key = newTable.preloadedRowsKey || newTable.primaryKey?.columns?.map(x => x.columnName);
+  if (newTable.preloadedRows?.length > 0 && key?.length > 0) {
+    plan.fillPreloadedRows(newTable, oldTable?.preloadedRows, newTable.preloadedRows, key);
+  }
+}
+
 function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo, opts: DbDiffOptions) {
   // if (oldTable.primaryKey)
 
@@ -374,6 +381,8 @@ function planAlterTable(plan: AlterPlan, oldTable: TableInfo, newTable: TableInf
     });
 
   constraintPairs.filter(x => x[0] == null).forEach(x => plan.createConstraint(x[1]));
+
+  planTablePreload(plan, oldTable, newTable);
 }
 
 export function testEqualTables(
@@ -405,6 +414,7 @@ export function createAlterTablePlan(
   const plan = new AlterPlan(wholeOldDb, wholeNewDb, driver.dialect, opts);
   if (oldTable == null) {
     plan.createTable(newTable);
+    planTablePreload(plan, null, newTable);
   } else if (newTable == null) {
     plan.dropTable(oldTable);
   } else {
@@ -452,7 +462,10 @@ export function createAlterDatabasePlan(
     for (const newobj of newDb[objectTypeField] || []) {
       const oldobj = (oldDb[objectTypeField] || []).find(x => x.pairingId == newobj.pairingId);
       if (objectTypeField == 'tables') {
-        if (oldobj == null) plan.createTable(newobj);
+        if (oldobj == null) {
+          plan.createTable(newobj);
+          planTablePreload(plan, null, newobj);
+        }
       } else {
         if (oldobj == null) plan.createSqlObject(newobj);
       }

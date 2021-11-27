@@ -5,6 +5,7 @@ const {
   databaseInfoFromYamlModel,
   extendDatabaseInfo,
   modelCompareDbDiffOptions,
+  enrichWithPreloadedRows,
 } = require('dbgate-tools');
 const importDbModel = require('../utility/importDbModel');
 const requireEngineDriver = require('../utility/requireEngineDriver');
@@ -19,8 +20,9 @@ async function generateDeploySql({
   loadedDbModel = undefined,
 }) {
   if (!driver) driver = requireEngineDriver(connection);
+
+  const pool = systemConnection || (await connectUtility(driver, connection));
   if (!analysedStructure) {
-    const pool = systemConnection || (await connectUtility(driver, connection));
     analysedStructure = await driver.analyseFull(pool);
   }
 
@@ -39,6 +41,12 @@ async function generateDeploySql({
     noRenameColumn: true,
   };
   const currentModelPaired = matchPairedObjects(deployedModel, currentModel, opts);
+  const currentModelPairedPreloaded = await enrichWithPreloadedRows(
+    deployedModel,
+    currentModelPaired,
+    pool,
+    driver
+  );
   // console.log('deployedModel', deployedModel.tables[0]);
   // console.log('currentModel', currentModel.tables[0]);
   // console.log('currentModelPaired', currentModelPaired.tables[0]);
@@ -46,7 +54,7 @@ async function generateDeploySql({
     currentModelPaired,
     deployedModel,
     opts,
-    currentModelPaired,
+    currentModelPairedPreloaded,
     deployedModel,
     driver
   );

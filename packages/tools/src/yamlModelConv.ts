@@ -22,6 +22,9 @@ export interface TableInfoYaml {
   // schema?: string;
   columns: ColumnInfoYaml[];
   primaryKey?: string[];
+
+  insertKey?: string[];
+  data?: any[];
 }
 
 export interface ForeignKeyInfoYaml {
@@ -119,6 +122,8 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
       columns: table.primaryKey.map(columnName => ({ columnName })),
     };
   }
+  res.preloadedRows = table.data;
+  res.preloadedRowsKey = table.insertKey;
   return res;
 }
 

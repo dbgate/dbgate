@@ -8,6 +8,7 @@ import {
   SqlObjectInfo,
   SqlDialect,
   TableInfo,
+  NamedObjectInfo,
 } from '../../types';
 import { DatabaseInfoAlterProcessor } from './database-info-alter-processor';
 import { DatabaseAnalyser } from './DatabaseAnalyser';
@@ -86,6 +87,13 @@ interface AlterOperation_RecreateTable {
   table: TableInfo;
   operations: AlterOperation[];
 }
+interface AlterOperation_FillPreloadedRows {
+  operationType: 'fillPreloadedRows';
+  table: NamedObjectInfo;
+  oldRows: any[];
+  newRows: any[];
+  key: string[];
+}
 
 type AlterOperation =
   | AlterOperation_CreateColumn
@@ -101,7 +109,8 @@ type AlterOperation =
   | AlterOperation_RenameConstraint
   | AlterOperation_CreateSqlObject
   | AlterOperation_DropSqlObject
-  | AlterOperation_RecreateTable;
+  | AlterOperation_RecreateTable
+  | AlterOperation_FillPreloadedRows;
 
 export class AlterPlan {
   recreates = {
@@ -221,6 +230,16 @@ export class AlterPlan {
       operations,
     });
     this.recreates.tables += 1;
+  }
+
+  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[]) {
+    this.operations.push({
+      operationType: 'fillPreloadedRows',
+      table,
+      oldRows,
+      newRows,
+      key,
+    });
   }
 
   run(processor: AlterProcessor) {
@@ -544,6 +563,9 @@ export function runAlterOperation(op: AlterOperation, processor: AlterProcessor)
       break;
     case 'dropSqlObject':
       processor.dropSqlObject(op.oldObject);
+      break;
+    case 'fillPreloadedRows':
+      processor.fillPreloadedRows(op.table, op.oldRows, op.newRows, op.key);
       break;
     case 'recreateTable':
       {

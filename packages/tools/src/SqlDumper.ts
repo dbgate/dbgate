@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   ColumnInfo,
   ConstraintInfo,
@@ -603,5 +604,41 @@ export class SqlDumper implements AlterProcessor {
 
   dropSqlObject(obj: SqlObjectInfo) {
     this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
+  }
+
+  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[]) {
+    let was = false;
+    for (const row of newRows) {
+      const old = oldRows?.find(r => key.every(col => r[col] == row[col]));
+      const rowKeys = _.keys(row);
+      if (old) {
+        const updated = [];
+        for (const col of rowKeys) {
+          if (row[col] != old[col]) {
+            updated.push(col);
+          }
+        }
+        if (updated.length > 0) {
+          if (was) this.put(';\n');
+          was = true;
+          this.put('^update %f ^set ', table);
+          this.putCollection(', ', updated, col => this.put('%i=%v', col, row[col]));
+          this.put(' ^ where ');
+          this.putCollection(' ^and ', key, col => this.put('%i=%v', col, row[col]));
+        }
+      } else {
+        if (was) this.put(';\n');
+        was = true;
+        this.put(
+          '^insert ^into %f (%,i) ^values (%,v)',
+          table,
+          rowKeys,
+          rowKeys.map(x => row[x])
+        );
+      }
+    }
+    if (was) {
+      this.endCommand();
+    }
   }
 }

@@ -10,6 +10,7 @@ import {
   CheckInfo,
   UniqueInfo,
   SqlObjectInfo,
+  NamedObjectInfo,
 } from '../../types';
 
 export class DatabaseInfoAlterProcessor {
@@ -113,5 +114,11 @@ export class DatabaseInfoAlterProcessor {
 
   recreateTable(oldTable: TableInfo, newTable: TableInfo) {
     throw new Error('recreateTable not implemented for DatabaseInfoAlterProcessor');
+  }
+
+  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[]) {
+    const tableInfo = this.db.tables.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+    tableInfo.preloadedRows = newRows;
+    tableInfo.preloadedRowsKey = key;
   }
 }

@@ -78,6 +78,8 @@ export interface TableInfo extends DatabaseObjectInfo {
   indexes?: IndexInfo[];
   uniques?: UniqueInfo[];
   checks?: CheckInfo[];
+  preloadedRows?: any[];
+  preloadedRowsKey?: string[];
 }
 
 export interface CollectionInfo extends DatabaseObjectInfo {}
