@@ -6,10 +6,12 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SqlGenerator } = require('dbgate-tools');
+const generateDeploySql = require('../shell/generateDeploySql');
 
 let systemConnection;
 let storedConnection;
 let afterConnectCallbacks = [];
+let afterAnalyseCallbacks = [];
 let analysedStructure = null;
 let lastPing = null;
 let lastStatus = null;
@@ -42,14 +44,18 @@ async function handleFullRefresh() {
   process.send({ msgtype: 'structure', structure: analysedStructure });
   process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
+
   loadingModel = false;
+  resolveAnalysedPromises();
 }
 
 async function handleIncrementalRefresh(forceSend) {
   loadingModel = true;
   const driver = requireEngineDriver(storedConnection);
   setStatusName('checkStructure');
-  const newStructure = await checkedAsyncCall(driver.analyseIncremental(systemConnection, analysedStructure, serverVersion));
+  const newStructure = await checkedAsyncCall(
+    driver.analyseIncremental(systemConnection, analysedStructure, serverVersion)
+  );
   analysedTime = new Date().getTime();
   if (newStructure != null) {
     analysedStructure = newStructure;
@@ -62,6 +68,7 @@ async function handleIncrementalRefresh(forceSend) {
   process.send({ msgtype: 'structureTime', analysedTime });
   setStatusName('ok');
   loadingModel = false;
+  resolveAnalysedPromises();
 }
 
 function handleSyncModel() {
@@ -123,6 +130,20 @@ function waitConnected() {
   });
 }
 
+function waitStructure() {
+  if (analysedStructure) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    afterAnalyseCallbacks.push([resolve, reject]);
+  });
+}
+
+function resolveAnalysedPromises() {
+  for (const [resolve] of afterAnalyseCallbacks) {
+    resolve();
+  }
+  afterAnalyseCallbacks = [];
+}
+
 async function handleRunScript({ msgid, sql }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -168,7 +189,7 @@ async function handleUpdateCollection({ msgid, changeSet }) {
 }
 
 async function handleSqlPreview({ msgid, objects, options }) {
-  await waitConnected();
+  await waitStructure();
   const driver = requireEngineDriver(storedConnection);
 
   try {
@@ -183,6 +204,22 @@ async function handleSqlPreview({ msgid, objects, options }) {
         process.exit(0);
       }, 500);
     }
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, isError: true, errorMessage: err.message });
+  }
+}
+
+async function handleGenerateDeploySql({ msgid, modelFolder }) {
+  await waitStructure();
+
+  try {
+    const res = await generateDeploySql({
+      systemConnection,
+      connection: storedConnection,
+      analysedStructure,
+      modelFolder,
+    });
+    process.send({ ...res, msgtype: 'response', msgid });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, isError: true, errorMessage: err.message });
   }
@@ -208,6 +245,7 @@ const messageHandlers = {
   sqlPreview: handleSqlPreview,
   ping: handlePing,
   syncModel: handleSyncModel,
+  generateDeploySql: handleGenerateDeploySql,
   // runCommand: handleRunCommand,
 };
 

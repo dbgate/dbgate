@@ -275,12 +275,17 @@ module.exports = {
 
   generateDeploySql_meta: 'post',
   async generateDeploySql({ conid, database, archiveFolder }) {
-    const connection = await connections.get({ conid });
-    return generateDeploySql({
-      connection,
-      analysedStructure: await this.structure({ conid, database }),
-      modelFolder: resolveArchiveFolder(archiveFolder),
-    });
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'generateDeploySql', modelFolder: resolveArchiveFolder(archiveFolder) });
+    return res;
+
+    // const connection = await connections.get({ conid });
+    // return generateDeploySql({
+    //   connection,
+    //   analysedStructure: await this.structure({ conid, database }),
+    //   modelFolder: resolveArchiveFolder(archiveFolder),
+    // });
+    
     // const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
     // const currentModel = generateDbPairingId(await this.structure({ conid, database }));
     // const currentModelPaired = matchPairedObjects(deployedModel, currentModel);

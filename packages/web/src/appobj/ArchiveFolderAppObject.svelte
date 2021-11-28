@@ -16,6 +16,7 @@
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
   export let data;
 
@@ -83,7 +84,11 @@ await dbgateApi.deployDb(${JSON.stringify(
       archiveFolder: data.name,
     });
 
-    newQuery({ initialData: resp.data.sql });
+    if (resp.data.errorMessage) {
+      showModal(ErrorMessageModal, { message: resp.data.errorMessage });
+    } else {
+      newQuery({ initialData: resp.data.sql });
+    }
   };
 
   const handleCompareWithCurrentDb = () => {
