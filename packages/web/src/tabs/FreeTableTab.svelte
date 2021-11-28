@@ -17,6 +17,8 @@
 
 <script lang="ts">
   import { createFreeTableModel, runMacro } from 'dbgate-datalib';
+  import { setContext } from 'svelte';
+  import { writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import DataGrid from '../datagrid/DataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -80,6 +82,9 @@
     const newModel = runMacro(macro, params, $modelState.value, false, cells);
     dispatchModel({ type: 'set', value: newModel });
   }
+
+  const collapsedLeftColumnStore = writable(false);
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 
   registerMenu({ command: 'freeTable.save', tag: 'save' });
 </script>

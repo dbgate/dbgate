@@ -48,6 +48,8 @@ function buildMenu() {
       submenu: [
         commandItem('new.connection'),
         commandItem('new.sqliteDatabase'),
+        commandItem('new.modelCompare'),
+        commandItem('new.freetable'),        
         { type: 'separator' },
         commandItem('file.open'),
         commandItem('file.openArchive'),

@@ -140,7 +140,7 @@
   function createMenu() {
     return [
       data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
-      data.fileType == 'jsonl' && { text: 'Open in free table editor', onClick: handleOpenWrite },
+      data.fileType == 'jsonl' && { text: 'Open as data sheet', onClick: handleOpenWrite },
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&

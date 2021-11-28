@@ -178,7 +178,8 @@ registerCommand({
   id: 'new.freetable',
   category: 'New',
   icon: 'img markdown',
-  name: 'Free table editor',
+  name: 'Data sheet',
+  menuName: 'New data sheet',
   onClick: () => {
     openNewTab({
       title: 'Data #',
@@ -192,7 +193,8 @@ registerCommand({
   id: 'new.sqliteDatabase',
   category: 'New',
   icon: 'img sqlite-database',
-  name: 'New SQLite database',
+  name: 'SQLite database',
+  menuName: 'New SQLite database',
   onClick: () => {
     showModal(InputTextModal, {
       value: 'newdb',

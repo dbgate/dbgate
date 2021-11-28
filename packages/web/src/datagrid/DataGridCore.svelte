@@ -163,7 +163,7 @@
   registerCommand({
     id: 'dataGrid.openFreeTable',
     category: 'Data grid',
-    name: 'Open selection in free table editor',
+    name: 'Edit selection as data sheet',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().openFreeTable(),
   });

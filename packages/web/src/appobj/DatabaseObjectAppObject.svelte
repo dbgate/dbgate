@@ -65,7 +65,7 @@
         isExport: true,
       },
       {
-        label: 'Open in free table editor',
+        label: 'Open as data sheet',
         isOpenFreeTable: true,
       },
       {
@@ -136,7 +136,7 @@
         isExport: true,
       },
       {
-        label: 'Open in free table editor',
+        label: 'Open as data sheet',
         isOpenFreeTable: true,
       },
       {
@@ -201,7 +201,7 @@
         isExport: true,
       },
       {
-        label: 'Open in free table editor',
+        label: 'Open as data sheet',
         isOpenFreeTable: true,
       },
       {
