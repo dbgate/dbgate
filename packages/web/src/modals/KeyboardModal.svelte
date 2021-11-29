@@ -29,7 +29,7 @@
     if (e.shiftKey) keyText += 'Shift+';
     if (e.metaKey) keyText += 'Command+';
     if (e.altKey) keyText += 'Alt+';
-    if (e.key != 'Control' && e.key != 'Alt' && e.key != 'Shift') {
+    if (e.key != 'Control' && e.key != 'Alt' && e.key != 'Shift' && e.key != 'Meta') {
       keyText += _.upperFirst(e.key);
     }
 
