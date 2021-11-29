@@ -27,6 +27,7 @@
     let keyText = '';
     if (e.ctrlKey) keyText += 'Ctrl+';
     if (e.shiftKey) keyText += 'Shift+';
+    if (e.metaKey) keyText += 'Command+';
     if (e.altKey) keyText += 'Alt+';
     if (e.key != 'Control' && e.key != 'Alt' && e.key != 'Shift') {
       keyText += _.upperFirst(e.key);

@@ -7,6 +7,7 @@
     let keyText = '';
     if (e.ctrlKey) keyText += 'Ctrl+';
     if (e.shiftKey) keyText += 'Shift+';
+    if (e.metaKey) keyText += 'Command+';
     if (e.altKey) keyText += 'Alt+';
     keyText += e.key;
 
