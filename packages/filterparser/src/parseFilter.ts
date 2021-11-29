@@ -253,6 +253,7 @@ const createParser = (filterType: FilterType) => {
 
     eq: r => word('=').then(r.value).map(binaryCondition('=')),
     ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
+    ne2: r => word('<>').then(r.value).map(binaryCondition('<>')),
     lt: r => word('<').then(r.value).map(binaryCondition('<')),
     gt: r => word('>').then(r.value).map(binaryCondition('>')),
     le: r => word('<=').then(r.value).map(binaryCondition('<=')),
@@ -273,7 +274,7 @@ const createParser = (filterType: FilterType) => {
   if (filterType == 'string') allowedValues.push('string1', 'string2', 'noQuotedString');
   if (filterType == 'number') allowedValues.push('string1Num', 'string2Num', 'number');
 
-  const allowedElements = ['null', 'notNull', 'eq', 'ne'];
+  const allowedElements = ['null', 'notNull', 'eq', 'ne', 'ne2'];
   if (filterType == 'number' || filterType == 'datetime') allowedElements.push('lt', 'gt', 'le', 'ge');
   if (filterType == 'string')
     allowedElements.push(
