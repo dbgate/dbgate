@@ -50,7 +50,7 @@
     user-select: none;
   }
 
-  .main-container :not(.hidden) {
+  .main-container:not(.hidden) {
     display: flex;
   }
 </style>
