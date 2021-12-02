@@ -14,7 +14,6 @@
   export let isJsonView = false;
 
   let filter;
-
 </script>
 
 <SearchBoxWrapper>

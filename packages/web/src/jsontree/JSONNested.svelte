@@ -10,9 +10,11 @@
   export let getValue = key => key;
   export let getPreviewValue = getValue;
   export let expanded = false, expandable = true;
+  export let elementValue = null;
 
   const context = getContext('json-tree-context-key');
   setContext('json-tree-context-key', { ...context, colon })
+  const elementData=getContext('json-tree-element-data');
 
   $: slicedKeys = expanded ? keys: previewKeys.slice(0, 5);
 
@@ -26,6 +28,12 @@
 
   function expand() {
     expanded = true;
+  }
+
+  let domElement;
+
+  $: if (domElement && elementData && elementValue) {
+    elementData.set(domElement, elementValue)
   }
 
 </script>
@@ -51,7 +59,7 @@
     position: relative;
   }
 </style>
-<li class:indent={isParentExpanded}>
+<li class:indent={isParentExpanded} class:jsonValueHolder={!!elementValue} bind:this={domElement}>
   <label>
     {#if expandable && isParentExpanded}
       <JSONArrow on:click={toggleExpand} {expanded} />

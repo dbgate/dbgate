@@ -147,19 +147,34 @@
 <HorizontalSplitter initialValue="300px" bind:size={managerSize} hideFirst={$collapsedLeftColumnStore}>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height="45%" skip={freeTableColumn || isFormView}>
+      <WidgetColumnBarItem
+        title="Columns"
+        name="columns"
+        height="45%"
+        show={(!freeTableColumn || isDynamicStructure) && !isFormView}
+      >
         <ColumnManager {...$$props} {managerSize} {isJsonView} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Filters" name="jsonFilters" height="30%" skip={!isDynamicStructure}>
+      <WidgetColumnBarItem
+        title="Filters"
+        name="jsonFilters"
+        height="30%"
+        skip={!isDynamicStructure || !display?.filterable}
+      >
         <JsonViewFilters {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Columns" name="freeColumns" height="40%" skip={!freeTableColumn}>
+      <WidgetColumnBarItem
+        title="Columns"
+        name="freeColumns"
+        height="40%"
+        show={freeTableColumn && !isDynamicStructure}
+      >
         <FreeTableColumnEditor {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Filters" name="filters" height="30%" skip={!isFormView}>
+      <WidgetColumnBarItem title="Filters" name="filters" height="30%" show={isFormView}>
         <FormViewFilters {...$$props} {managerSize} driver={formDisplay?.driver} />
       </WidgetColumnBarItem>
 
@@ -168,12 +183,12 @@
         name="references"
         height="30%"
         collapsed={isDetailView}
-        skip={!showReferences || !display?.hasReferences}
+        show={showReferences && display?.hasReferences}
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed>
+      <WidgetColumnBarItem title="Macros" name="macros" show={showMacros} collapsed>
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>

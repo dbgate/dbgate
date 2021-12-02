@@ -9,6 +9,7 @@
     left={$currentDropDownMenu.left}
     top={$currentDropDownMenu.top}
     items={$currentDropDownMenu.items}
+    targetElement={$currentDropDownMenu.targetElement}
     on:close={() => ($currentDropDownMenu = null)}
   />
 {/if}

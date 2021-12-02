@@ -2,6 +2,8 @@
   import JSONNode from './JSONNode.svelte';
   import { setContext } from 'svelte';
   import contextMenu, { getContextMenu } from '../utility/contextMenu';
+  import openNewTab from '../utility/openNewTab';
+  import _ from 'lodash';
 
   setContext('json-tree-context-key', {});
 
@@ -15,10 +17,45 @@
   export let isInserted;
   export let isModified;
 
+  const elementData = new WeakMap();
+
+  if (elementData) {
+    setContext('json-tree-element-data', elementData);
+  }
+
   const parentMenu = getContextMenu();
+
+  function getElementMenu({ targetElement }) {
+    if (!targetElement) return null;
+    const closest = targetElement.closest('.jsonValueHolder');
+    if (!closest) return;
+    const value = elementData.get(closest);
+
+    if (value && _.isArray(value)) {
+      return {
+        text: 'Open as data sheet',
+        onClick: () => {
+          openNewTab(
+            {
+              title: 'Data #',
+              icon: 'img free-table',
+              tabComponent: 'FreeTableTab',
+              props: {},
+            },
+            {
+              editor: {
+                rows: value,
+                structure: { __isDynamicStructure: true, columns: [] },
+              },
+            }
+          );
+        },
+      };
+    }
+  }
 </script>
 
-<ul use:contextMenu={[parentMenu, menu]} class:isDeleted class:isInserted class:isModified>
+<ul use:contextMenu={[parentMenu, menu, getElementMenu]} class:isDeleted class:isInserted class:isModified>
   <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} {expanded} {labelOverride} />
 </ul>
 

@@ -53,7 +53,6 @@
     }
     return item;
   }
-
 </script>
 
 <script>
@@ -69,6 +68,7 @@
   export let top;
   export let left;
   export let onCloseParent;
+  export let targetElement;
 
   let element;
 
@@ -104,7 +104,7 @@
     submenuOffset = hoverOffset;
   }, 500);
 
-  $: extracted = extractMenuItems(items);
+  $: extracted = extractMenuItems(items, { targetElement });
   $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
   $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
 
@@ -121,7 +121,6 @@
       document.removeEventListener('mousedown', handleClickOutside, true);
     };
   });
-
 </script>
 
 <ul class="dropDownMenuMarker" style={`left: ${left}px; top: ${top}px`} bind:this={element}>
@@ -217,5 +216,4 @@
     position: relative;
     left: 15px;
   }
-
 </style>

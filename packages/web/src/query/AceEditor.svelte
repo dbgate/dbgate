@@ -119,7 +119,7 @@
     e.preventDefault();
     const left = e.pageX;
     const top = e.pageY;
-    currentDropDownMenu.set({ left, top, items: _.isFunction(menu) ? menu() : menu });
+    currentDropDownMenu.set({ left, top, items: menu, targetElement: e.target });
   };
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {

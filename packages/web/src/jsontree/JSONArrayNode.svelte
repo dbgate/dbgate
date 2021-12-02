@@ -25,4 +25,5 @@
   label="Array({value.length})"
   bracketOpen="["
   bracketClose="]"
+  elementValue={value}
 />

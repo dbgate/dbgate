@@ -16,7 +16,7 @@
 </script>
 
 <script lang="ts">
-  import { createFreeTableModel, runMacro } from 'dbgate-datalib';
+  import { createFreeTableModel, FreeTableGridDisplay, runMacro } from 'dbgate-datalib';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -87,6 +87,9 @@
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 
   registerMenu({ command: 'freeTable.save', tag: 'save' });
+
+  // display is overridden in FreeTableGridCore, this is because of column manager
+  $: display = new FreeTableGridDisplay($modelState.value, $config, config.update, null, null);
 </script>
 
 {#if isLoading}
@@ -104,5 +107,7 @@
     freeTableColumn
     showMacros
     onRunMacro={handleRunMacro}
+    isDynamicStructure={$modelState.value?.structure?.__isDynamicStructure}
+    {display}
   />
 {/if}

@@ -15,7 +15,7 @@ export default function contextMenu(node, items = []) {
     if (items) {
       const left = e.pageX;
       const top = e.pageY;
-      currentDropDownMenu.set({ left, top, items });
+      currentDropDownMenu.set({ left, top, items, targetElement: e.target });
     }
   };
 
@@ -31,12 +31,12 @@ export default function contextMenu(node, items = []) {
   };
 }
 
-function doExtractMenuItems(menu, res) {
+function doExtractMenuItems(menu, res, options) {
   if (_.isFunction(menu)) {
-    doExtractMenuItems(menu(), res);
+    doExtractMenuItems(menu(options), res, options);
   } else if (_.isArray(menu)) {
     for (const item of menu) {
-      doExtractMenuItems(item, res);
+      doExtractMenuItems(item, res, options);
     }
   } else if (_.isPlainObject(menu) && !menu._skip) {
     res.push(menu);
@@ -77,9 +77,9 @@ function processTags(items) {
   return res;
 }
 
-export function extractMenuItems(menu) {
+export function extractMenuItems(menu, options = null) {
   let res = [];
-  doExtractMenuItems(menu, res);
+  doExtractMenuItems(menu, res, options);
   res = processTags(res);
   return res;
 }

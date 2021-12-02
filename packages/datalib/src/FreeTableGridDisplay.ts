@@ -3,6 +3,7 @@ import { EngineDriver, ViewInfo, ColumnInfo } from 'dbgate-types';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { GridConfig, GridCache } from './GridConfig';
 import { FreeTableModel } from './FreeTableModel';
+import { analyseCollectionDisplayColumns } from '.';
 
 export class FreeTableGridDisplay extends GridDisplay {
   constructor(
@@ -13,7 +14,9 @@ export class FreeTableGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc
   ) {
     super(config, setConfig, cache, setCache);
-    this.columns = this.getDisplayColumns(model);
+    this.columns = model?.structure?.__isDynamicStructure
+      ? analyseCollectionDisplayColumns(model?.rows, this)
+      : this.getDisplayColumns(model);
     this.filterable = false;
     this.sortable = false;
   }
