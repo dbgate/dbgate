@@ -4,6 +4,7 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import JSONTree from '../jsontree/JSONTree.svelte';
   import AceEditor from '../query/AceEditor.svelte';
+import newQuery from '../query/newQuery';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
@@ -29,6 +30,17 @@
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
+      <FormStyledButton
+        type="button"
+        value="Open script"
+        on:click={() => {
+          newQuery({
+            initialData: script,
+          });
+
+          closeCurrentModal();
+        }}
+      />
     </div>
   </ModalBase>
 </FormProvider>

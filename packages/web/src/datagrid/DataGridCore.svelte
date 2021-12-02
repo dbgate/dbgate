@@ -490,7 +490,11 @@
 
   function getSelectedDataJson(forceArray = false) {
     const cells = cellsToRegularCells(selectedCells);
-    const data = cells.map(cell => grider.getRowData(cell[0])[realColumnUniqueNames[cell[1]]]);
+    const data = cells.map(cell => {
+      const rowData = grider.getRowData(cell[0]);
+      if (!rowData) return null;
+      return rowData[realColumnUniqueNames[cell[1]]];
+    });
     if (!data.every(x => _.isArray(x) || _.isPlainObject(x))) return null;
     if (data.length == 0) return null;
     if (data.length == 1 && _.isPlainObject(data[0]) && !forceArray) return data[0];

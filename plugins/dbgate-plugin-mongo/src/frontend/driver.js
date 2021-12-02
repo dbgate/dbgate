@@ -7,7 +7,7 @@ const mongoIdRegex = /^[0-9a-f]{24}$/;
 
 function getConditionPreview(condition) {
   if (condition && _isString(condition._id) && condition._id.match(mongoIdRegex)) {
-    return `{ _id: ObjectId('${condition._id}') }`;
+    return `{ _id: { $in: ['${condition._id}', ObjectId('${condition._id}')] } }`;
   }
   return JSON.stringify(condition);
 }

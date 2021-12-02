@@ -21,7 +21,9 @@ const mongoIdRegex = /^[0-9a-f]{24}$/;
 function convertConditionInternal(condition) {
   if (condition && _.isString(condition._id) && condition._id.match(mongoIdRegex)) {
     return {
-      _id: ObjectId(condition._id),
+      _id: {
+        $in: [condition._id, ObjectId(condition._id)],
+      },
     };
   }
   return condition;
