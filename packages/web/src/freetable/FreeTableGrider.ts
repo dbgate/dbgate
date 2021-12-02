@@ -47,6 +47,15 @@ export default class FreeTableGrider extends Grider {
     };
     return this.currentModel.rows.length - 1;
   }
+  insertDocuments(documents: any[]): number {
+    const model = this.currentModel;
+    this.currentModel = {
+      ...model,
+      rows: [...model.rows, ...documents],
+    };
+    return this.currentModel.rows.length - documents.length;
+  }
+
   deleteRow(index: number) {
     const model = this.currentModel;
     this.currentModel = {

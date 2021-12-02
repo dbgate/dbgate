@@ -14,6 +14,7 @@ import {
   setChangeSetRowData,
   compileMacroFunction,
   runMacroOnValue,
+  changeSetInsertDocuments,
 } from 'dbgate-datalib';
 import Grider, { GriderRowStatus } from './Grider';
 
@@ -178,6 +179,12 @@ export default class ChangeSetGrider extends Grider {
   insertRow(): number {
     const res = this.rowCountInUpdate;
     this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTableOrCollection));
+    return res;
+  }
+
+  insertDocuments(documents: any[]): number {
+    const res = this.rowCountInUpdate;
+    this.applyModification(chs => changeSetInsertDocuments(chs, documents, this.display.baseTableOrCollection));
     return res;
   }
 

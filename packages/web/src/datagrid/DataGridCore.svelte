@@ -1094,7 +1094,7 @@
     return [row, col];
   }
 
-  function handlePaste(event) {
+  async function handlePaste(event) {
     var pastedText = undefined;
     // @ts-ignore
     if (window.clipboardData && window.clipboardData.getData) {
@@ -1105,41 +1105,62 @@
       pastedText = event.clipboardData.getData('text/plain');
     }
     event.preventDefault();
-    grider.beginUpdate();
-    const pasteRows = pastedText
-      .replace(/\r/g, '')
-      .split('\n')
-      .map(row => row.split('\t'));
-    const selectedRegular = cellsToRegularCells(selectedCells);
-    if (selectedRegular.length <= 1) {
-      const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
-      const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
-      let rowIndex = startRow;
-      for (const rowData of pasteRows) {
-        if (rowIndex >= grider.rowCountInUpdate) {
-          grider.insertRow();
-        }
-        let colIndex = startCol;
-        for (const cell of rowData) {
-          setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
-          colIndex += 1;
-        }
-        rowIndex += 1;
+
+    let json = null;
+    if (grider.canInsert) {
+      try {
+        json = JSON.parse(pastedText);
+      } catch (e) {
+        json = null;
       }
     }
-    if (selectedRegular.length > 1) {
-      const startRow: number = _.min(selectedRegular.map(x => x[0]));
-      const startCol: number = _.min(selectedRegular.map(x => x[1]));
-      for (const cell of selectedRegular) {
-        const [rowIndex, colIndex] = cell;
-        const selectionRow = rowIndex - startRow;
-        const selectionCol = colIndex - startCol;
-        const pasteRow = pasteRows[selectionRow % pasteRows.length];
-        const pasteCell = pasteRow[selectionCol % pasteRow.length];
-        setCellValue(cell, pasteCell);
+
+    if (json && (_.isArray(json) || _.isPlainObject(json))) {
+      const rowIndex = grider.insertDocuments(_.isArray(json) ? json : [json]);
+      const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
+      // @ts-ignore
+      currentCell = cell;
+      // @ts-ignore
+      selectedCells = [cell];
+      await tick();
+      scrollIntoView(cell);
+    } else {
+      grider.beginUpdate();
+      const pasteRows = pastedText
+        .replace(/\r/g, '')
+        .split('\n')
+        .map(row => row.split('\t'));
+      const selectedRegular = cellsToRegularCells(selectedCells);
+      if (selectedRegular.length <= 1) {
+        const startRow = isRegularCell(currentCell) ? currentCell[0] : grider.rowCount;
+        const startCol = isRegularCell(currentCell) ? currentCell[1] : 0;
+        let rowIndex = startRow;
+        for (const rowData of pasteRows) {
+          if (rowIndex >= grider.rowCountInUpdate) {
+            grider.insertRow();
+          }
+          let colIndex = startCol;
+          for (const cell of rowData) {
+            setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
+            colIndex += 1;
+          }
+          rowIndex += 1;
+        }
       }
+      if (selectedRegular.length > 1) {
+        const startRow: number = _.min(selectedRegular.map(x => x[0]));
+        const startCol: number = _.min(selectedRegular.map(x => x[1]));
+        for (const cell of selectedRegular) {
+          const [rowIndex, colIndex] = cell;
+          const selectionRow = rowIndex - startRow;
+          const selectionCol = colIndex - startCol;
+          const pasteRow = pasteRows[selectionRow % pasteRows.length];
+          const pasteCell = pasteRow[selectionCol % pasteRow.length];
+          setCellValue(cell, pasteCell);
+        }
+      }
+      grider.endUpdate();
     }
-    grider.endUpdate();
   }
 
   function cellsToRegularCells(cells) {
@@ -1296,7 +1317,7 @@
   <ErrorInfo message={errorMessage} alignTop />
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
   <div>
-    <ErrorInfo alignTop message="No rows loaded, check filter or add new documents" />
+    <ErrorInfo alignTop message="No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command." />
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}

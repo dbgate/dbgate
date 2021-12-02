@@ -22,6 +22,9 @@ export default abstract class Grider {
   insertRow(): number {
     return null;
   }
+  insertDocuments(documents: any[]): number {
+    return null;
+  }
   revertRowChanges(index: number) {}
   revertAllChanges() {}
   undo() {}

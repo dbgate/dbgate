@@ -56,6 +56,7 @@
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
   import { setContext } from 'svelte';
+  import _ from 'lodash';
 
   export let tabid;
   export let conid;
@@ -139,8 +140,7 @@
       json: {},
       onSave: value => {
         const grider = new ChangeSetGrider(loadedRows, $changeSetStore, dispatchChangeSet, display);
-        const newRowIndex = grider.insertRow();
-        grider.setRowData(newRowIndex, value);
+        grider.insertDocuments(_.isArray(value) ? value : [value]);
         return true;
       },
     });

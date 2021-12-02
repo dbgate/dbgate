@@ -390,6 +390,25 @@ export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectIn
   };
 }
 
+export function changeSetInsertDocuments(
+  changeSet: ChangeSet,
+  documents: any[],
+  name?: NamedObjectInfo
+): ChangeSet {
+  const insertedRows = getChangeSetInsertedRows(changeSet, name);
+  return {
+    ...changeSet,
+    inserts: [
+      ...changeSet.inserts,
+      ...documents.map((doc, index) => ({
+        ...name,
+        insertedRowIndex: insertedRows.length + index,
+        fields: doc,
+      })),
+    ],
+  };
+}
+
 export function changeSetContainsChanges(changeSet: ChangeSet) {
   if (!changeSet) return false;
   return changeSet.deletes.length > 0 || changeSet.updates.length > 0 || changeSet.inserts.length > 0;
