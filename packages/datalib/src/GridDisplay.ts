@@ -92,6 +92,10 @@ export abstract class GridDisplay {
     }
   }
 
+  addDynamicColumn(name: string) {
+    this.includeInColumnSet('addedColumns', name, true);
+  }
+
   focusColumn(uniqueName: string) {
     this.setConfig(cfg => ({
       ...cfg,

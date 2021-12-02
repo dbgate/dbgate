@@ -70,8 +70,13 @@ function getDisplayColumn(basePath, columnName, display) {
 
 export function analyseCollectionDisplayColumns(rows, display) {
   const res = [];
+  const addedColumns = display?.config?.addedColumns;
   for (const row of rows || []) {
     getColumnsForObject([], row, res, display);
+  }
+  for (const added of addedColumns || []) {
+    if (res.find(x => x.uniqueName == added)) continue;
+    res.push(getDisplayColumn([], added, display));
   }
   return (
     res.map(col => ({

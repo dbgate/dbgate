@@ -153,7 +153,7 @@
         height="45%"
         show={(!freeTableColumn || isDynamicStructure) && !isFormView}
       >
-        <ColumnManager {...$$props} {managerSize} {isJsonView} />
+        <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
