@@ -120,6 +120,14 @@
       );
     };
 
+    const handleOpenJsonModel = async () => {
+      const db = await getDatabaseInfo({
+        conid: connection._id,
+        database: name,
+      });
+      openJsonDocument(db, name);
+    };
+
     const driver = findEngineDriver(connection, getExtensions());
 
     return [
@@ -130,6 +138,7 @@
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       { onClick: handleExportModel, text: 'Export DB model - experimental' },
       _.get($currentDatabase, 'connection._id') &&
         (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
@@ -161,6 +170,8 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import { getDatabaseInfo } from '../utility/metadataLoaders';
+import { openJsonDocument } from '../tabs/JsonTab.svelte';
   export let data;
 
   function createMenu() {
