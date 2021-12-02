@@ -157,7 +157,7 @@ export abstract class GridDisplay {
   }
 
   get hiddenColumnIndexes() {
-    return (this.config.hiddenColumns || []).map(x => _.findIndex(this.columns, y => y.uniqueName == x));
+    return (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
   }
 
   isColumnChecked(column: DisplayColumn) {

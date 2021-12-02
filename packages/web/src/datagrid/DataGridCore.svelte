@@ -697,6 +697,10 @@
   // $: console.log('rowHeight', rowHeight);
   // $: console.log('containerHeight', containerHeight);
 
+  // $: console.log('COLUMNS', columns);
+  // $: console.log('realColumnUniqueNames', realColumnUniqueNames);
+  // $: console.log('columnSizes.realCount', columnSizes.realCount);
+
   $: realColumnUniqueNames = _.range(columnSizes.realCount).map(
     realIndex => (columns[columnSizes.realToModel(realIndex)] || {}).uniqueName
   );
@@ -1317,7 +1321,10 @@
   <ErrorInfo message={errorMessage} alignTop />
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
   <div>
-    <ErrorInfo alignTop message="No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command." />
+    <ErrorInfo
+      alignTop
+      message="No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command."
+    />
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}

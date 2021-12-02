@@ -22,6 +22,7 @@ export class SeriesSizes {
   private scrollItems: SeriesSizeItem[] = [];
   private positions: number[] = [];
   private scrollIndexes: number[] = [];
+  private modelIndexes: number[] = [];
   private frozenItems: SeriesSizeItem[] = [];
 
   public get scrollCount(): number {
@@ -95,6 +96,11 @@ export class SeriesSizes {
       item.position = lastpos;
       this.frozenItems.push(item);
       lastpos += size;
+    }
+
+    this.modelIndexes = _.range(0, this.count);
+    if (this.hiddenAndFrozenModelIndexes) {
+      this.modelIndexes = this.modelIndexes.filter(col => !this.hiddenAndFrozenModelIndexes.includes(col));
     }
   }
 
@@ -303,27 +309,32 @@ export class SeriesSizes {
     this.buildIndex();
   }
   public realToModel(realIndex: number): number {
-    if (this.hiddenAndFrozenModelIndexes == null && this.frozenModelIndexes == null) return realIndex;
-    if (realIndex < 0) return -1;
-    if (realIndex < this.frozenCount && this.frozenModelIndexes != null) return this.frozenModelIndexes[realIndex];
-    if (this.hiddenAndFrozenModelIndexes == null) return realIndex;
-    realIndex -= this.frozenCount;
-    for (let hidItem of this.hiddenAndFrozenModelIndexes) {
-      if (realIndex < hidItem) return realIndex;
-      realIndex++;
-    }
-    return realIndex;
+    return this.modelIndexes[realIndex] ?? -1;
+    // console.log('realToModel', realIndex);
+    // if (this.hiddenAndFrozenModelIndexes == null && this.frozenModelIndexes == null) return realIndex;
+    // if (realIndex < 0) return -1;
+    // if (realIndex < this.frozenCount && this.frozenModelIndexes != null) return this.frozenModelIndexes[realIndex];
+    // if (this.hiddenAndFrozenModelIndexes == null) return realIndex;
+    // realIndex -= this.frozenCount;
+    // console.log('this.hiddenAndFrozenModelIndexes', this.hiddenAndFrozenModelIndexes);
+    // for (let hidItem of this.hiddenAndFrozenModelIndexes) {
+    //   if (realIndex < hidItem) return realIndex;
+    //   realIndex++;
+    // }
+    // console.log('realToModel RESP', realIndex);
+    // return realIndex;
   }
   public modelToReal(modelIndex: number): number {
-    if (this.hiddenAndFrozenModelIndexes == null && this.frozenModelIndexes == null) return modelIndex;
-    if (modelIndex < 0) return -1;
-    let frozenIndex: number = this.frozenModelIndexes != null ? _.indexOf(this.frozenModelIndexes, modelIndex) : -1;
-    if (frozenIndex >= 0) return frozenIndex;
-    if (this.hiddenAndFrozenModelIndexes == null) return modelIndex;
-    let hiddenIndex: number = _.sortedIndex(this.hiddenAndFrozenModelIndexes, modelIndex);
-    if (this.hiddenAndFrozenModelIndexes[hiddenIndex] == modelIndex) return -1;
-    if (hiddenIndex >= 0) return modelIndex - hiddenIndex + this.frozenCount;
-    return modelIndex;
+    return this.modelIndexes.indexOf(modelIndex);
+    // if (this.hiddenAndFrozenModelIndexes == null && this.frozenModelIndexes == null) return modelIndex;
+    // if (modelIndex < 0) return -1;
+    // let frozenIndex: number = this.frozenModelIndexes != null ? _.indexOf(this.frozenModelIndexes, modelIndex) : -1;
+    // if (frozenIndex >= 0) return frozenIndex;
+    // if (this.hiddenAndFrozenModelIndexes == null) return modelIndex;
+    // let hiddenIndex: number = _.sortedIndex(this.hiddenAndFrozenModelIndexes, modelIndex);
+    // if (this.hiddenAndFrozenModelIndexes[hiddenIndex] == modelIndex) return -1;
+    // if (hiddenIndex >= 0) return modelIndex - hiddenIndex + this.frozenCount;
+    // return modelIndex;
   }
   public getFrozenPosition(frozenIndex: number): number {
     return this.frozenItems[frozenIndex].position;
