@@ -38,6 +38,24 @@
       );
     };
 
+    const handleNewCollection = () => {
+      showModal(InputTextModal, {
+        value: '',
+        label: 'New collection name',
+        header: 'Create collection',
+        onConfirm: async newCollection => {
+          const dbid = { conid: connection._id, database: name };
+          await axiosInstance.request({
+            url: 'database-connections/run-script',
+            method: 'post',
+            params: dbid,
+            data: { sql: `db.createCollection('${newCollection}')` },
+          });
+          axiosInstance.post('database-connections/sync-model', dbid);
+        },
+      });
+    };
+
     const handleImport = () => {
       showModal(ImportExportModal, {
         initialValues: {
@@ -102,9 +120,12 @@
       );
     };
 
+    const driver = findEngineDriver(connection, getExtensions());
+
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
-      { onClick: handleNewTable, text: 'New table' },
+      !driver?.dialect?.nosql && { onClick: handleNewTable, text: 'New table' },
+      driver?.dialect?.nosql && { onClick: handleNewCollection, text: 'New collection' },
       { divider: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
@@ -132,12 +153,14 @@
   import { showModal } from '../modals/modalTools';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
-  import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
+  import { currentArchive, currentDatabase, extensions, getExtensions, selectedWidget } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import { findEngineDriver } from 'dbgate-tools';
+  import InputTextModal from '../modals/InputTextModal.svelte';
   export let data;
 
   function createMenu() {

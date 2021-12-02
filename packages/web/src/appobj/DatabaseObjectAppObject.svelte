@@ -309,6 +309,10 @@
         isExport: true,
       },
       {
+        label: 'Drop collection',
+        isDropCollection: true,
+      },
+      {
         divider: true,
       },
       {
@@ -396,6 +400,7 @@
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import axiosInstance from '../utility/axiosInstance';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let data;
 
@@ -537,6 +542,20 @@
                   x => x.schemaName == data.schemaName && x.pureName == data.pureName
                 );
                 obj.pureName = newName;
+              });
+            } else if (menu.isDropCollection) {
+              showModal(ConfirmModal, {
+                message: `Really drop collection ${data.pureName}?`,
+                onConfirm: async () => {
+                  const dbid = _.pick(data, ['conid', 'database']);
+                  await axiosInstance.request({
+                    url: 'database-connections/run-script',
+                    method: 'post',
+                    params: dbid,
+                    data: { sql: `db.dropCollection('${data.pureName}')` },
+                  });
+                  axiosInstance.post('database-connections/sync-model', dbid);
+                },
               });
             } else {
               openDatabaseObjectDetail(

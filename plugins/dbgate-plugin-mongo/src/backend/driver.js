@@ -88,6 +88,12 @@ const driver = {
       columns: [],
     };
   },
+  async script(pool, sql) {
+    let func;
+    func = eval(`(db,ObjectId) => { ${sql} }`);
+    const db = await getScriptableDb(pool);
+    func(db, ObjectId);
+  },
   async stream(pool, sql, options) {
     let func;
     try {
