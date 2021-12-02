@@ -123,6 +123,7 @@
 
     'img free-table': 'mdi mdi-table color-icon-green',
     'img macro': 'mdi mdi-hammer-wrench',
+    'img json': 'mdi mdi-code-json icon-magenta',
 
     'img database': 'mdi mdi-database color-icon-gold',
     'img sqlite-database': 'mdi mdi-database color-icon-blue',

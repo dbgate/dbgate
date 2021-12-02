@@ -16,6 +16,7 @@ import * as QueryDesignTab from './QueryDesignTab.svelte';
 import * as CommandListTab from './CommandListTab.svelte';
 import * as YamlEditorTab from './YamlEditorTab.svelte';
 import * as CompareModelTab from './CompareModelTab.svelte';
+import * as JsonTab from './JsonTab.svelte';
 
 export default {
   TableDataTab,
@@ -36,4 +37,5 @@ export default {
   CommandListTab,
   YamlEditorTab,
   CompareModelTab,
+  JsonTab,
 };

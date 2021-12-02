@@ -49,17 +49,4 @@
     right: 0;
     bottom: 0;
   }
-
-  :global(.theme-type-dark) .inner {
-    --json-tree-string-color: #ffc5c5;
-    --json-tree-symbol-color: #ffc5c5;
-    --json-tree-boolean-color: #b6c3ff;
-    --json-tree-function-color: #b6c3ff;
-    --json-tree-number-color: #bfbdff;
-    --json-tree-label-color: #e9aaed;
-    --json-tree-arrow-color: #d4d4d4;
-    --json-tree-null-color: #dcdcdc;
-    --json-tree-undefined-color: #dcdcdc;
-    --json-tree-date-color: #dcdcdc;
-  }
 </style>

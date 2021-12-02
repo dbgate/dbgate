@@ -108,6 +108,14 @@
   });
 
   registerCommand({
+    id: 'dataGrid.viewJsonDocument',
+    category: 'Data grid',
+    name: 'View row as JSON document',
+    testEnabled: () => getCurrentDataGrid()?.viewJsonEnabled(),
+    onClick: () => getCurrentDataGrid().viewJsonDocument(),
+  });
+
+  registerCommand({
     id: 'dataGrid.copyJsonDocument',
     category: 'Data grid',
     name: 'Copy JSON document',
@@ -248,9 +256,9 @@
   import CollapseButton from './CollapseButton.svelte';
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { updateStatuBarInfo } from '../widgets/StatusBar.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { findCommand } from '../commands/runCommand';
+  import { openJsonDocument } from '../tabs/JsonTab.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -454,17 +462,27 @@
     );
   }
 
-  export function editJsonEnabled() {
-    return grider.editable && isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+  export function viewJsonEnabled() {
+    return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
-  export function copyJsonEnabled() {
-    return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+  export function viewJsonDocument() {
+    const rowIndex = selectedCells[0][0];
+    const json = grider.getRowData(rowIndex);
+    openJsonDocument(json);
+  }
+
+  export function editJsonEnabled() {
+    return grider.editable && isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
   export function editJsonDocument() {
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
+  }
+
+  export function copyJsonEnabled() {
+    return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
   export function copyJsonDocument() {
@@ -1164,8 +1182,8 @@
     { placeTag: 'switch' },
     { divider: true },
     { placeTag: 'save' },
-    { command: 'dataGrid.revertRowChanges' },
-    { command: 'dataGrid.revertAllChanges' },
+    { command: 'dataGrid.revertRowChanges', hideDisabled: true },
+    { command: 'dataGrid.revertAllChanges', hideDisabled: true },
     { command: 'dataGrid.deleteSelectedRows' },
     { command: 'dataGrid.insertNewRow' },
     { command: 'dataGrid.setNull' },
@@ -1175,9 +1193,10 @@
     { command: 'dataGrid.hideColumn' },
     { command: 'dataGrid.filterSelected' },
     { command: 'dataGrid.clearFilter' },
-    { command: 'dataGrid.undo' },
-    { command: 'dataGrid.redo' },
+    { command: 'dataGrid.undo', hideDisabled: true },
+    { command: 'dataGrid.redo', hideDisabled: true },
     { command: 'dataGrid.editJsonDocument', hideDisabled: true },
+    { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
     { command: 'dataGrid.generateSqlFromData' },
