@@ -111,14 +111,30 @@
     id: 'dataGrid.viewJsonDocument',
     category: 'Data grid',
     name: 'View row as JSON document',
-    testEnabled: () => getCurrentDataGrid()?.viewJsonEnabled(),
+    testEnabled: () => getCurrentDataGrid()?.viewJsonDocumentEnabled(),
     onClick: () => getCurrentDataGrid().viewJsonDocument(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.viewJsonValue',
+    category: 'Data grid',
+    name: 'View cell as JSON document',
+    testEnabled: () => getCurrentDataGrid()?.viewJsonValueEnabled(),
+    onClick: () => getCurrentDataGrid().viewJsonValue(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.openJsonArrayInSheet',
+    category: 'Data grid',
+    name: 'Open array as data sheet',
+    testEnabled: () => getCurrentDataGrid()?.openJsonArrayInSheetEnabled(),
+    onClick: () => getCurrentDataGrid().openJsonArrayInSheet(),
   });
 
   registerCommand({
     id: 'dataGrid.copyJsonDocument',
     category: 'Data grid',
-    name: 'Copy JSON document',
+    name: 'Copy row as JSON document',
     testEnabled: () => getCurrentDataGrid()?.copyJsonEnabled(),
     onClick: () => getCurrentDataGrid().copyJsonDocument(),
   });
@@ -462,7 +478,7 @@
     );
   }
 
-  export function viewJsonEnabled() {
+  export function viewJsonDocumentEnabled() {
     return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
@@ -470,6 +486,44 @@
     const rowIndex = selectedCells[0][0];
     const json = grider.getRowData(rowIndex);
     openJsonDocument(json);
+  }
+
+  function getSelectedDataJson(forceArray = false) {
+    const cells = cellsToRegularCells(selectedCells);
+    const data = cells.map(cell => grider.getRowData(cell[0])[realColumnUniqueNames[cell[1]]]);
+    if (!data.every(x => _.isArray(x) || _.isPlainObject(x))) return null;
+    if (data.length == 0) return null;
+    if (data.length == 1 && _.isPlainObject(data[0]) && !forceArray) return data[0];
+    return _.flatten(data);
+  }
+
+  export function viewJsonValueEnabled() {
+    return getSelectedDataJson() != null;
+  }
+
+  export function viewJsonValue() {
+    openJsonDocument(getSelectedDataJson());
+  }
+
+  export function openJsonArrayInSheetEnabled() {
+    return getSelectedDataJson() != null;
+  }
+
+  export function openJsonArrayInSheet() {
+    openNewTab(
+      {
+        title: 'Data #',
+        icon: 'img free-table',
+        tabComponent: 'FreeTableTab',
+        props: {},
+      },
+      {
+        editor: {
+          rows: getSelectedDataJson(true),
+          structure: { __isDynamicStructure: true, columns: [] },
+        },
+      }
+    );
   }
 
   export function editJsonEnabled() {
@@ -1178,7 +1232,6 @@
         // { text: 'Copy as JSON', onClick: () => copyToClipboardCore('json') },
       ],
     },
-    { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { placeTag: 'switch' },
     { divider: true },
     { placeTag: 'save' },
@@ -1197,6 +1250,9 @@
     { command: 'dataGrid.redo', hideDisabled: true },
     { command: 'dataGrid.editJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
+    { command: 'dataGrid.viewJsonValue', hideDisabled: true },
+    { command: 'dataGrid.openJsonArrayInSheet', hideDisabled: true },
+    { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
     { command: 'dataGrid.generateSqlFromData' },
