@@ -3,6 +3,7 @@
   import FormElectronFileSelector from '../forms/FormElectronFileSelector.svelte';
 
   import FormPasswordField from '../forms/FormPasswordField.svelte';
+  import _ from 'lodash';
 
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import FormRadioGroupField from '../forms/FormRadioGroupField.svelte';
@@ -12,6 +13,7 @@
   import { extensions } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useAuthTypes } from '../utility/metadataLoaders';
+  import FormColorField from '../forms/FormColorField.svelte';
 
   const { values } = getFormContext();
   const electron = getElectron();
@@ -142,7 +144,19 @@
   <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
 {/if}
 
-<FormTextField label="Display name" name="displayName" />
+<div class="row">
+  <div class="col-6 mr-1">
+    <FormTextField label="Display name" name="displayName" templateProps={{ noMargin: true }} />
+  </div>
+  <div class="col-6 mr-1">
+    <FormColorField
+      label="Color"
+      name="connectionColor"
+      emptyLabel="(not selected)"
+      templateProps={{ noMargin: true }}
+    />
+  </div>
+</div>
 
 <style>
   .row {

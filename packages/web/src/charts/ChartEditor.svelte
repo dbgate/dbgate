@@ -1,7 +1,4 @@
 <script lang="ts">
-  import AboutModal from '../modals/AboutModal.svelte';
-  import { presetPrimaryColors } from '@ant-design/colors';
-  import { startCase } from 'lodash';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
@@ -10,9 +7,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
-  import { writable } from 'svelte/store';
   import FormFieldTemplateTiny from '../forms/FormFieldTemplateTiny.svelte';
-  import createRef from '../utility/createRef';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import { findEngineDriver } from 'dbgate-tools';
   import { extensions } from '../stores';
@@ -20,6 +15,7 @@
   import DataChart from './DataChart.svelte';
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import FormColorField from '../forms/FormColorField.svelte';
 
   export let data;
   export let configStore;
@@ -144,15 +140,7 @@
             {#each availableColumnNames as col (col)}
               <FormCheckboxField label={col} name={`dataColumn_${col}`} />
               {#if config[`dataColumn_${col}`]}
-                <FormSelectField
-                  label="Color"
-                  name={`dataColumnColor_${col}`}
-                  isNative
-                  options={[
-                    { value: '', label: 'Random' },
-                    ..._.keys(presetPrimaryColors).map(color => ({ value: color, label: _.startCase(color) })),
-                  ]}
-                />
+                <FormColorField label="Color" name={`dataColumnColor_${col}`} emptyLabel="Random" />
                 <FormTextField label="Label" name={`dataColumnLabel_${col}`} />
               {/if}
             {/each}
