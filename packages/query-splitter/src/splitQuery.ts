@@ -113,7 +113,7 @@ function scanToken(context: SplitLineContext): Token {
     return EOLN_TOKEN;
   }
 
-  if (ch == '-' && s[pos + 1] == '-') {
+  if (context.options.doubleDashComments && ch == '-' && s[pos + 1] == '-') {
     while (pos < context.end && s[pos] != '\n') pos++;
     return {
       type: 'comment',
@@ -121,7 +121,7 @@ function scanToken(context: SplitLineContext): Token {
     };
   }
 
-  if (ch == '/' && s[pos + 1] == '*') {
+  if (context.options.multilineComments && ch == '/' && s[pos + 1] == '*') {
     pos += 2;
     while (pos < context.end) {
       if (s[pos] == '*' && s[pos + 1] == '/') break;
@@ -222,7 +222,7 @@ export function splitQueryLine(context: SplitLineContext) {
 }
 
 export function getInitialDelimiter(options: SplitterOptions) {
-  return options?.allowSemicolon === false ? null : SEMICOLON
+  return options?.allowSemicolon === false ? null : SEMICOLON;
 }
 export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
   const usedOptions = {

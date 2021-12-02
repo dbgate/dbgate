@@ -29,7 +29,7 @@
     </div>
 
     <div slot="footer">
-      <FormSubmit
+      <FormStyledButton
         value="Save"
         on:click={() => {
           try {

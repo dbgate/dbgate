@@ -55,6 +55,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
+  import { setContext } from 'svelte';
 
   export let tabid;
   export let conid;
@@ -89,7 +90,8 @@
           config.update,
           $cache,
           cache.update,
-          loadedRows
+          loadedRows,
+          $changeSetStore?.value
         )
       : null;
   // $: console.log('LOADED ROWS MONGO', loadedRows);
@@ -145,6 +147,9 @@
   }
 
   registerMenu({ command: 'collectionTable.save', tag: 'save' }, { command: 'collectionTable.newJson', tag: 'edit' });
+
+  const collapsedLeftColumnStore = writable(false);
+  setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 </script>
 
 <DataGrid

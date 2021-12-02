@@ -228,7 +228,7 @@ function changeSetInsertToSql(
     const table = dbinfo.tables.find(x => x.schemaName == item.schemaName && x.pureName == item.pureName);
     if (table) {
       const autoIncCol = table.columns.find(x => x.autoIncrement);
-      console.log('autoIncCol', autoIncCol);
+      // console.log('autoIncCol', autoIncCol);
       if (autoIncCol && fields.find(x => x.targetColumn == autoIncCol.columnName)) {
         autoInc = true;
       }
@@ -375,7 +375,7 @@ export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjec
 }
 
 export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectInfo): ChangeSet {
-  console.log('INSERT', name);
+  // console.log('INSERT', name);
   const insertedRows = getChangeSetInsertedRows(changeSet, name);
   return {
     ...changeSet,

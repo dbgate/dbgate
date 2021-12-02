@@ -1,4 +1,10 @@
-import { mysqlSplitterOptions, mssqlSplitterOptions, postgreSplitterOptions, noSplitSplitterOptions } from './options';
+import {
+  mysqlSplitterOptions,
+  mssqlSplitterOptions,
+  postgreSplitterOptions,
+  mongoSplitterOptions,
+  noSplitSplitterOptions,
+} from './options';
 import { splitQuery } from './splitQuery';
 
 test('simple query', () => {
@@ -76,4 +82,10 @@ test('no split', () => {
   const input = 'SELECT 1;SELECT 2';
   const output = splitQuery(input, noSplitSplitterOptions);
   expect(output).toEqual(['SELECT 1;SELECT 2']);
+});
+
+test('split mongo', () => {
+  const input = 'db.collection.insert({x:1});db.collection.insert({y:2})';
+  const output = splitQuery(input, mongoSplitterOptions);
+  expect(output).toEqual(['db.collection.insert({x:1})', 'db.collection.insert({y:2})']);
 });

@@ -89,10 +89,12 @@ export class CollectionGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    loadedRows
+    loadedRows,
+    changeSet
   ) {
     super(config, setConfig, cache, setCache, driver);
-    this.columns = analyseCollectionDisplayColumns(loadedRows, this);
+    const changedDocs = _.compact([...changeSet.inserts, ...changeSet.updates].map(chs => chs.document));
+    this.columns = analyseCollectionDisplayColumns([...(loadedRows || []), ...changedDocs], this);
     this.filterable = true;
     this.sortable = true;
     this.editable = true;

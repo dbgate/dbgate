@@ -132,6 +132,11 @@ const clipboardUpdatesFormatter = () => (columns, rows, options) => {
   return dmp.s;
 };
 
+const clipboardMongoInsertFormatter = () => (columns, rows, options) => {
+  const { pureName } = options;
+  return rows.map(row => `db.${pureName}.insert(${JSON.stringify(_.pick(row, columns), undefined, 2)});`).join('\n');
+};
+
 export function formatClipboardRows(format, columns, rows, options) {
   if (format in copyRowsFormatDefs) {
     return copyRowsFormatDefs[format].formatter(columns, rows, options);
@@ -184,5 +189,10 @@ export const copyRowsFormatDefs = {
     label: 'Copy as SQL UPDATEs',
     name: 'SQL UPDATEs',
     formatter: clipboardUpdatesFormatter(),
+  },
+  mongoInsert: {
+    label: 'Copy as Mongo INSERTs',
+    name: 'Mongo UPDATEs',
+    formatter: clipboardMongoInsertFormatter(),
   },
 };

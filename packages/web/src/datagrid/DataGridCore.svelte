@@ -250,6 +250,7 @@
   import { showModal } from '../modals/modalTools';
   import { updateStatuBarInfo } from '../widgets/StatusBar.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import { findCommand } from '../commands/runCommand';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -265,6 +266,8 @@
   export let focusOnVisible = false;
   export let formViewAvailable = false;
   export let errorMessage = undefined;
+  export let pureName = undefined;
+  export let schemaName = undefined;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -379,8 +382,8 @@
     // @ts-ignore
     const columns = colIndexes.map(col => realColumnUniqueNames[col]);
     copyRowsToClipboard(format, columns, rows, {
-      schemaName: display?.baseTable?.schemaName,
-      pureName: display?.baseTable?.pureName || 'target',
+      schemaName,
+      pureName: pureName || 'target',
       driver: display?.driver || driverBase,
       keyColumns: display?.baseTable?.primaryKey?.columns?.map(col => col.columnName) || [
         display?.columns ? display?.columns[0].columnName : columns[0],
@@ -1218,6 +1221,12 @@
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}
+    <FormStyledButton
+      value="Add document"
+      on:click={() => {
+        findCommand('collectionTable.newJson')?.onClick();
+      }}
+    />
   </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>

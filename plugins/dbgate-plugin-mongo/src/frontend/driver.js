@@ -1,7 +1,7 @@
 const _isString = require('lodash/isString');
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
-const { noSplitSplitterOptions } = require('dbgate-query-splitter/lib/options');
+const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
 const mongoIdRegex = /^[0-9a-f]{24}$/;
 
@@ -36,7 +36,7 @@ const driver = {
   supportsDatabaseUrl: true,
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
-  getQuerySplitterOptions: () => noSplitSplitterOptions,
+  getQuerySplitterOptions: () => mongoSplitterOptions,
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;

@@ -8,6 +8,9 @@ export interface SplitterOptions {
   allowGoDelimiter: boolean;
   allowDollarDollarString: boolean;
   noSplit: boolean;
+  doubleDashComments: boolean;
+  multilineComments: boolean;
+  javaScriptComments: boolean;
 }
 
 export const defaultSplitterOptions: SplitterOptions = {
@@ -20,6 +23,10 @@ export const defaultSplitterOptions: SplitterOptions = {
   allowGoDelimiter: false,
   allowDollarDollarString: false,
   noSplit: false,
+
+  doubleDashComments: true,
+  multilineComments: true,
+  javaScriptComments: false,
 };
 
 export const mysqlSplitterOptions: SplitterOptions = {
@@ -57,6 +64,14 @@ export const sqliteSplitterOptions: SplitterOptions = {
   stringsBegins: ["'", '"'],
   stringsEnds: { "'": "'", '"': '"' },
   stringEscapes: { "'": "'", '"': '"' },
+};
+
+export const mongoSplitterOptions: SplitterOptions = {
+  ...defaultSplitterOptions,
+
+  stringsBegins: ["'", '"'],
+  stringsEnds: { "'": "'", '"': '"' },
+  stringEscapes: { "'": '\\', '"': '\\' },
 };
 
 export const noSplitSplitterOptions: SplitterOptions = {
