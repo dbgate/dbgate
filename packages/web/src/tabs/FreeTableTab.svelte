@@ -13,10 +13,23 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().save(),
   });
+
+  registerCommand({
+    id: 'freeTable.toggleDynamicStructure',
+    category: 'Table data',
+    name: 'Toggle dynamic structure',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().toggleDynamicStructure(),
+  });
 </script>
 
 <script lang="ts">
-  import { createFreeTableModel, FreeTableGridDisplay, runMacro } from 'dbgate-datalib';
+  import {
+    analyseCollectionDisplayColumns,
+    createFreeTableModel,
+    FreeTableGridDisplay,
+    runMacro,
+  } from 'dbgate-datalib';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -86,7 +99,33 @@
   const collapsedLeftColumnStore = writable(false);
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
 
-  registerMenu({ command: 'freeTable.save', tag: 'save' });
+  export function toggleDynamicStructure() {
+    let structure = $modelState.value.structure;
+    structure = { ...structure, __isDynamicStructure: !structure.__isDynamicStructure };
+    if (!structure.__isDynamicStructure) {
+      const columns = analyseCollectionDisplayColumns($modelState.value.rows, display);
+      structure = {
+        ...structure,
+        columns: columns
+          .filter(col => col.uniquePath.length == 1)
+          .map(col => ({
+            columnName: col.uniqueName,
+          })),
+      };
+    }
+    dispatchModel({
+      type: 'set',
+      value: {
+        ...$modelState.value,
+        structure,
+      },
+    });
+  }
+
+  registerMenu(
+    { command: 'freeTable.save', tag: 'save' },
+    { command: 'freeTable.toggleDynamicStructure', tag: 'export' }
+  );
 
   // display is overridden in FreeTableGridCore, this is because of column manager
   $: display = new FreeTableGridDisplay($modelState.value, $config, config.update, null, null);

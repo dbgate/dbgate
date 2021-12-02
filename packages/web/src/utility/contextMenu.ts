@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { getContext, setContext } from 'svelte';
+import invalidateCommands from '../commands/invalidateCommands';
 import { currentDropDownMenu } from '../stores';
 import getAsArray from './getAsArray';
 
@@ -9,9 +10,12 @@ export function registerMenu(...items) {
 }
 
 export default function contextMenu(node, items = []) {
-  const handleContextMenu = e => {
+  const handleContextMenu = async e => {
     e.preventDefault();
     e.stopPropagation();
+
+    await invalidateCommands();
+    
     if (items) {
       const left = e.pageX;
       const top = e.pageY;
