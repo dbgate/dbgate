@@ -192,7 +192,7 @@ export const copyRowsFormatDefs = {
   },
   mongoInsert: {
     label: 'Copy as Mongo INSERTs',
-    name: 'Mongo UPDATEs',
+    name: 'Mongo INSERTs',
     formatter: clipboardMongoInsertFormatter(),
   },
 };

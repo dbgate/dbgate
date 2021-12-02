@@ -135,12 +135,16 @@ const driver = {
         });
         try {
           options.info({
-            message: JSON.stringify(resValue),
+            message: `Result: ${JSON.stringify(resValue)}`,
             time: new Date(),
             severity: 'info',
           });
         } catch (err) {
-          console.log('Result cannot be stringified');
+          options.info({
+            message: `Result: ${resValue}`,
+            time: new Date(),
+            severity: 'info',
+          });
         }
 
         const arrayRes = findArrayResult(resValue);
