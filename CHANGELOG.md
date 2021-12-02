@@ -1,5 +1,14 @@
 # ChangeLog
 
+### 4.4.2
+- ADDED: Open SQL script from SQL confirm
+- CHANGED: Better looking statusbar
+- ADDED: Create table from database popup menu
+- FIXED: Some fixes for DB compare+deploy (eg. #196)
+- ADDED: Archives + DB models from external directories
+- ADDED: DB deploy supports preloaded data
+- ADDED: Support for Command key on Mac (#199)
+
 ### 4.4.1
 - FIXED: #188 Fixed problem with datetime values in PostgreSQL and mysql
 - ADDED: #194 Close tabs by DB
