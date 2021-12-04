@@ -13,6 +13,7 @@
   import ToolbarButton from './ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import { useConnectionColorFactory } from '../utility/useConnectionColor';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -29,6 +30,8 @@
       axiosInstance.post('server-connections/refresh', { conid });
     }
   };
+
+  const connectionColorFactory = useConnectionColorFactory(3);
 </script>
 
 <SearchBoxWrapper>
@@ -43,6 +46,7 @@
     expandOnClick
     isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
     {filter}
+    passProps={{ connectionColorFactory: $connectionColorFactory }}
   />
   {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
     <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>

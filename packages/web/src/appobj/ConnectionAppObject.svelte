@@ -31,6 +31,7 @@
   import { getLocalStorage } from '../utility/storageCache';
 
   export let data;
+  export let passProps;
 
   let statusIcon = null;
   let statusTitle = null;
@@ -198,6 +199,7 @@
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
+  colorMark={passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
   on:click={handleConnect}
   on:click

@@ -13,6 +13,7 @@
   export let module;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
+  export let passProps;
 
   let isExpanded = true;
 
@@ -61,6 +62,7 @@
       {checkedObjectsStore}
       on:objectClick
       {disableContextMenu}
+      {passProps}
     />
   {/each}
 {/if}

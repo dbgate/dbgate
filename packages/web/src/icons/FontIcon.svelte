@@ -3,6 +3,7 @@
   export let title = null;
   export let padLeft = false;
   export let padRight = false;
+  export let style = null;
 
   const iconNames = {
     'icon minus-box': 'mdi mdi-minus-box-outline',
@@ -47,6 +48,7 @@
     'icon form': 'mdi mdi-form-select',
     'icon history': 'mdi mdi-history',
     'icon structure': 'mdi mdi-tools',
+    'icon square': 'mdi mdi-square',
 
     'icon edit': 'mdi mdi-pencil',
     'icon delete': 'mdi mdi-delete',
@@ -145,7 +147,7 @@
   };
 </script>
 
-<span class={iconNames[icon] || icon} {title} class:padLeft class:padRight on:click />
+<span class={iconNames[icon] || icon} {title} class:padLeft class:padRight {style} on:click />
 
 <style>
   .padLeft {

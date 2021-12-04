@@ -21,6 +21,7 @@
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
   export let isExpandedBySearch = false;
+  export let passProps;
 
   let isExpanded = false;
 
@@ -50,6 +51,7 @@
     {checkedObjectsStore}
     {module}
     {disableContextMenu}
+    {passProps}
   />
 
   {#if (isExpanded || isExpandedBySearch) && subItemsComponent}

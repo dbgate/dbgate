@@ -20,6 +20,7 @@
   export let expandIcon = undefined;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
+  export let colorMark = null;
 
   $: isChecked = checkedObjectsStore && $checkedObjectsStore.find(x => module.extractKey(data) == module.extractKey(x));
 
@@ -85,6 +86,9 @@
     <FontIcon icon="icon loading" />
   {:else}
     <FontIcon {icon} />
+  {/if}
+  {#if colorMark}
+    <FontIcon style={`color:${colorMark}`} icon="icon square" />
   {/if}
   {title}
   {#if statusIcon}
