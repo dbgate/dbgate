@@ -31,7 +31,6 @@
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import moment from 'moment';
-  import { presetPalettes, presetDarkPalettes } from '@ant-design/colors';
 
   import FontIcon from '../icons/FontIcon.svelte';
 
@@ -40,33 +39,25 @@
   import { useConnectionList, useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
   import axiosInstance from '../utility/axiosInstance';
   import { findCommand } from '../commands/runCommand';
+  import { useConnectionColor } from '../utility/useConnectionColor';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
-  $: status = useDatabaseStatus(connection ? { conid: connection._id, database: databaseName } : {});
-  $: serverVersion = useDatabaseServerVersion(connection ? { conid: connection._id, database: databaseName } : {});
+  $: dbid = connection ? { conid: connection._id, database: databaseName } : null;
+  $: status = useDatabaseStatus(dbid || {});
+  $: serverVersion = useDatabaseServerVersion(dbid || {});
   const connections = useConnectionList();
 
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
-  $: connectionColor = getConnectionColor($connections, connection, $currentThemeDefinition);
+  $: connectionBackground = useConnectionColor(dbid, 3, 'dark', true);
 
   let timerValue = 1;
 
   setInterval(() => {
     timerValue++;
   }, 10000);
-
-  function getConnectionColor(connections, connection, themeDef) {
-    if (!connection || !connections) return null;
-    const current = connections.find(x => x._id == connection._id);
-    if (!current?.connectionColor) return null;
-    if (!themeDef) return null;
-    // const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
-    const palettes = presetDarkPalettes;
-    return palettes[current?.connectionColor][3];
-  }
 
   async function handleSyncModel() {
     if (connection && databaseName) {
@@ -75,7 +66,7 @@
   }
 </script>
 
-<div class="main" style={connectionColor ? `background: ${connectionColor}` : null}>
+<div class="main" style={$connectionBackground}>
   <div class="container">
     {#if databaseName}
       <div class="item">

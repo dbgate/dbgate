@@ -142,6 +142,7 @@
   import getElectron from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab } from '../utility/openNewTab';
+  import { useConnectionColorFactory } from '../utility/useConnectionColor';
 
   $: connectionList = useConnectionList();
 
@@ -164,6 +165,8 @@
   $: dbKeys = _.keys(tabsByDb).sort();
 
   $: scrollInViewTab($activeTabId);
+
+  const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
   const handleTabClick = (e, tabid) => {
     if (e.target.closest('.tabCloseButton')) {
@@ -259,6 +262,7 @@
       class:selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
       on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
       use:contextMenu={getDatabaseContextMenu(tabsByDb[dbKey])}
+      style={$connectionColorFactory(tabsByDb[dbKey][0].props, tabsByDb[dbKey][0].tabDbKey == currentDbKey ? 2 : 3)}
     >
       <FontIcon icon={getDbIcon(dbKey)} />
       {tabsByDb[dbKey][0].tabDbName}
