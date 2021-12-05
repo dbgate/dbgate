@@ -56,6 +56,7 @@
     --theme-bg-statusbar-inv: #0050b3;
     --theme-bg-statusbar-inv-hover: #096dd9;
     --theme-bg-statusbar-inv-font: #222;
+    --theme-bg-statusbar-inv-bg: #ccc;
     --theme-bg-modalheader: rgb(43, 60, 61);
 
     --theme-bg-button-inv: #004488;

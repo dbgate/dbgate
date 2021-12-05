@@ -48,13 +48,13 @@
   $: dbid = connection ? { conid: connection._id, database: databaseName } : null;
   $: status = useDatabaseStatus(dbid || {});
   $: serverVersion = useDatabaseServerVersion(dbid || {});
-  const connections = useConnectionList();
 
   $: contextItems = $statusBarTabInfo[$activeTabId] as any[];
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
   $: connectionBackground = useConnectionColor(dbid, 3, 'dark', true);
-  $: connectionButtonBackground = useConnectionColor(dbid, 6, 'dark', true);
+  $: connectionButtonBackground = useConnectionColor(dbid ? { conid: dbid.conid } : null, 6, 'dark', true);
+  $: databaseButtonBackground = useConnectionColor(dbid, 6, 'dark', true, false);
 
   let timerValue = 1;
 
@@ -76,23 +76,38 @@
         <FontIcon icon="icon database" padRight />
         {databaseName}
       </div>
+      {#if dbid}
+        <div
+          class="item clickable"
+          title="Database color. Overrides connection color"
+          on:click={() => {
+            showModal(ChooseConnectionColorModal, { ...dbid, header: 'Choose database color' });
+          }}
+        >
+          <div style={$databaseButtonBackground} class="colorbox">
+            <FontIcon icon="icon palette" />
+          </div>
+        </div>
+      {/if}
     {/if}
-    {#if connectionLabel && dbid}
+    {#if connectionLabel}
       <div class="item">
         <FontIcon icon="icon server" padRight />
         {connectionLabel}
       </div>
-      <div
-        class="item clickable"
-        title="Connection color. Can be overriden by dataabse color"
-        on:click={() => {
-          showModal(ChooseConnectionColorModal, { conid: dbid.conid });
-        }}
-      >
-        <div style={$connectionButtonBackground} class="colorbox">
-          <FontIcon icon="icon palette" />
+      {#if dbid}
+        <div
+          class="item clickable"
+          title="Connection color. Can be overriden by database color"
+          on:click={() => {
+            showModal(ChooseConnectionColorModal, { conid: dbid.conid, header: 'Choose connection color' });
+          }}
+        >
+          <div style={$connectionButtonBackground} class="colorbox">
+            <FontIcon icon="icon palette" />
+          </div>
         </div>
-      </div>
+      {/if}
     {/if}
     {#if connection && connection.user}
       <div class="item">
@@ -192,5 +207,6 @@
     padding: 0px 3px;
     border-radius: 2px;
     color: var(--theme-bg-statusbar-inv-font);
+    background: var(--theme-bg-statusbar-inv-bg);
   }
 </style>

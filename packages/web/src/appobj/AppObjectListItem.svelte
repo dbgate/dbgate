@@ -56,7 +56,7 @@
 
   {#if (isExpanded || isExpandedBySearch) && subItemsComponent}
     <div class="subitems">
-      <svelte:component this={subItemsComponent} {data} {filter} />
+      <svelte:component this={subItemsComponent} {data} {filter} {passProps} />
     </div>
   {/if}
 {/if}

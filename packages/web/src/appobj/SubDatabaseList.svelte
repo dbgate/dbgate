@@ -7,6 +7,7 @@
 
   export let filter;
   export let data;
+  export let passProps;
 
   $: databases = useDatabaseList({ conid: data._id });
 </script>
@@ -17,4 +18,5 @@
     'name'
   ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
+  {passProps}
 />

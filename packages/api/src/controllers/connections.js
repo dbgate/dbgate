@@ -170,6 +170,23 @@ module.exports = {
     return res;
   },
 
+  updateDatabase_meta: 'post',
+  async updateDatabase({ conid, database, values }) {
+    if (portalConnections) return;
+    const conn = await this.datastore.find({ _id: conid });
+    let databaseConfig = conn.databaseConfig || {};
+    databaseConfig = {
+      ...databaseConfig,
+      [database]: {
+        ...databaseConfig[database],
+        ...values,
+      },
+    };
+    const res = await this.datastore.update({ _id: conid }, { $set: { databaseConfig } });
+    socket.emitChanged('connection-list-changed');
+    return res;
+  },
+
   delete_meta: 'post',
   async delete(connection) {
     if (portalConnections) return;

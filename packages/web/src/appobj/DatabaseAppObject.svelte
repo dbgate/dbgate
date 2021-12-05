@@ -171,8 +171,10 @@
   import { findEngineDriver } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo } from '../utility/metadataLoaders';
-import { openJsonDocument } from '../tabs/JsonTab.svelte';
+  import { openJsonDocument } from '../tabs/JsonTab.svelte';
+
   export let data;
+  export let passProps;
 
   function createMenu() {
     return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase);
@@ -184,6 +186,12 @@ import { openJsonDocument } from '../tabs/JsonTab.svelte';
   {data}
   title={data.name}
   icon="img database"
+  colorMark={passProps?.connectionColorFactory(
+    { conid: _.get(data.connection, '_id'), database: data.name },
+    null,
+    null,
+    false
+  )}
   isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
     _.get($currentDatabase, 'name') == data.name}
   on:click={() => ($currentDatabase = data)}
