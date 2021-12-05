@@ -8,6 +8,7 @@ export function getConnectionColor(connections, dbid, themeType, colorIndex, bac
   const current = connections.find(x => x._id == dbid.conid);
   if (!current?.connectionColor) return undefined;
   const palettes = themeType == 'dark' ? presetDarkPalettes : presetPalettes;
+  if (colorIndex == null) return current?.connectionColor;
   const color = palettes[current?.connectionColor][colorIndex];
   if (backgroundStyle) return `background:${color}`;
   return color;

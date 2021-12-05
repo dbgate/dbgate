@@ -162,6 +162,14 @@ module.exports = {
     return res;
   },
 
+  update_meta: 'post',
+  async update({ _id, values }) {
+    if (portalConnections) return;
+    const res = await this.datastore.update({ _id }, { $set: values });
+    socket.emitChanged('connection-list-changed');
+    return res;
+  },
+
   delete_meta: 'post',
   async delete(connection) {
     if (portalConnections) return;

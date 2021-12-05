@@ -31,6 +31,8 @@
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import moment from 'moment';
+  import { showModal } from '../modals/modalTools';
+  import ChooseConnectionColorModal from '../modals/ChooseConnectionColorModal.svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
 
@@ -52,6 +54,7 @@
   $: connectionLabel = getConnectionLabel(connection, { allowExplicitDatabase: false });
 
   $: connectionBackground = useConnectionColor(dbid, 3, 'dark', true);
+  $: connectionButtonBackground = useConnectionColor(dbid, 6, 'dark', true);
 
   let timerValue = 1;
 
@@ -74,10 +77,21 @@
         {databaseName}
       </div>
     {/if}
-    {#if connectionLabel}
+    {#if connectionLabel && dbid}
       <div class="item">
         <FontIcon icon="icon server" padRight />
         {connectionLabel}
+      </div>
+      <div
+        class="item clickable"
+        title="Connection color. Can be overriden by dataabse color"
+        on:click={() => {
+          showModal(ChooseConnectionColorModal, { conid: dbid.conid });
+        }}
+      >
+        <div style={$connectionButtonBackground} class="colorbox">
+          <FontIcon icon="icon palette" />
+        </div>
       </div>
     {/if}
     {#if connection && connection.user}
@@ -172,5 +186,11 @@
   }
   .clickable:hover {
     background-color: var(--theme-bg-statusbar-inv-hover);
+  }
+
+  .colorbox {
+    padding: 0px 3px;
+    border-radius: 2px;
+    color: var(--theme-bg-statusbar-inv-font);
   }
 </style>
