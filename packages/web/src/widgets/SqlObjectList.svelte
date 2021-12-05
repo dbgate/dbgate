@@ -54,7 +54,6 @@
   const handleRefreshDatabase = () => {
     axiosInstance.post('database-connections/refresh', { conid, database });
   };
-
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -88,6 +87,7 @@
           data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
         expandIconFunc={chevronExpandIcon}
         {filter}
+        passProps={{ showPinnedInsteadOfUnpin: true }}
       />
     {/if}
   </WidgetsInnerContainer>

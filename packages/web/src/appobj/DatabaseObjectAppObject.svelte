@@ -378,12 +378,22 @@
       null
     );
   }
+
+  function testEqual(a, b) {
+    return (
+      a.conid == b.conid &&
+      a.database == b.database &&
+      a.objectTypeField == b.objectTypeField &&
+      a.pureName == b.pureName &&
+      a.schemaName == b.schemaName
+    );
+  }
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, openedConnections } from '../stores';
+  import { currentDatabase, extensions, openedConnections, pinnedTables } from '../stores';
   import openNewTab from '../utility/openNewTab';
   import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
@@ -403,6 +413,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   export let data;
+  export let passProps;
 
   function handleClick(forceNewTab = false) {
     handleDatabaseObjectClick(data, forceNewTab);
@@ -571,6 +582,8 @@
         };
       });
   }
+
+  $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));
 </script>
 
 <AppObjectCore
@@ -580,6 +593,9 @@
   title={data.schemaName ? `${data.schemaName}.${data.pureName}` : data.pureName}
   icon={databaseObjectIcons[data.objectTypeField]}
   menu={createMenu}
+  showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
+  onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
+  onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:expand

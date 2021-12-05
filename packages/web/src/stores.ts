@@ -43,6 +43,7 @@ export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
 export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
+export const pinnedTables = writableWithStorage([], 'pinnedTables');
 export const commandsSettings = derived(useSettings(), (config: any) => (config || {}).commands || {});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const commandsCustomized = derived([commands, commandsSettings], ([$commands, $commandsSettings]) =>
