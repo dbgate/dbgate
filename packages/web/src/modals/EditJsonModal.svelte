@@ -23,6 +23,7 @@
     } else {
       // editor.getEditor().execCommand('paste');
     }
+    editor.getEditor().focus();
   });
 </script>
 
