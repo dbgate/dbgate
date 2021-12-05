@@ -24,11 +24,15 @@
       <ConnectionList />
     </WidgetColumnBarItem>
   {/if}
-  {#if $pinnedDatabases?.length > 0}
-    <WidgetColumnBarItem title="Pinned" name="pinned" height="15%" storageName="pinnedItemsWidget">
-      <PinnedObjectsList />
-    </WidgetColumnBarItem>
-  {/if}
+  <WidgetColumnBarItem
+    title="Pinned"
+    name="pinned"
+    height="15%"
+    storageName="pinnedItemsWidget"
+    skip={!$pinnedDatabases?.length}
+  >
+    <PinnedObjectsList />
+  </WidgetColumnBarItem>
   <WidgetColumnBarItem
     title={driver?.dialect?.nosql ? 'Collections' : 'Tables, views, functions'}
     name="dbObjects"

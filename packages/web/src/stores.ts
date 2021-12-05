@@ -147,6 +147,12 @@ recentDatabases.subscribe(value => {
 });
 export const getRecentDatabases = () => _.compact(recentDatabasesValue);
 
+let pinnedDatabasesValue = null;
+pinnedDatabases.subscribe(value => {
+  pinnedDatabasesValue = value;
+});
+export const getPinnedDatabases = () => _.compact(pinnedDatabasesValue);
+
 let currentDatabaseValue = null;
 currentDatabase.subscribe(value => {
   currentDatabaseValue = value;
