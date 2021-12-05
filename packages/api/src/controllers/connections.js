@@ -174,15 +174,13 @@ module.exports = {
   async updateDatabase({ conid, database, values }) {
     if (portalConnections) return;
     const conn = await this.datastore.find({ _id: conid });
-    let databaseConfig = conn.databaseConfig || {};
-    databaseConfig = {
-      ...databaseConfig,
-      [database]: {
-        ...databaseConfig[database],
-        ...values,
-      },
-    };
-    const res = await this.datastore.update({ _id: conid }, { $set: { databaseConfig } });
+    let databases = conn.databases || [];
+    if (databases.find(x => x.name == database)) {
+      databases = databases.map(x => (x.item == database ? { ...x, ...values } : x));
+    } else {
+      databases = [...databases, { name: database, ...values }];
+    }
+    const res = await this.datastore.update({ _id: conid }, { $set: { databases } });
     socket.emitChanged('connection-list-changed');
     return res;
   },
