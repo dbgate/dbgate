@@ -42,6 +42,7 @@ export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
+export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
 export const commandsSettings = derived(useSettings(), (config: any) => (config || {}).commands || {});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const commandsCustomized = derived([commands, commandsSettings], ([$commands, $commandsSettings]) =>

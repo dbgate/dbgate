@@ -288,14 +288,20 @@ registerCommand({
       'zoomKoef',
       'selectedWidget',
       'currentTheme',
+
       'connectionsWidget',
+      'pinnedItemsWidget',
       'dbObjectsWidget',
+
       'favoritesWidget',
       'savedFilesWidget',
+
       'closedTabsWidget',
       'queryHistoryWidget',
+
       'archiveFoldersWidget',
       'archiveFilesWidget',
+
       'installedPluginsWidget',
       'allPluginsWidget',
     ];

@@ -23,6 +23,7 @@
     'icon keyboard': 'mdi mdi-keyboard-settings',
     'icon settings': 'mdi mdi-cog',
     'icon version': 'mdi mdi-ticket-confirmation',
+    'icon pin': 'mdi mdi-pin',
 
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',

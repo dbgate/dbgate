@@ -46,7 +46,7 @@
     expandOnClick
     isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
     {filter}
-    passProps={{ connectionColorFactory: $connectionColorFactory }}
+    passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
   />
   {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
     <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>

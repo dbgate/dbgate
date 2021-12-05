@@ -21,6 +21,9 @@
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
   export let colorMark = null;
+  export let onPin = null;
+  export let onUnpin = null;
+  export let showPinnedInsteadOfUnpin = false;
 
   $: isChecked = checkedObjectsStore && $checkedObjectsStore.find(x => module.extractKey(data) == module.extractKey(x));
 
@@ -101,6 +104,36 @@
       {extInfo}
     </span>
   {/if}
+  {#if onPin}
+    <span
+      class="pin"
+      on:click={e => {
+        e.preventDefault();
+        e.stopPropagation();
+        onPin();
+      }}
+    >
+      <FontIcon icon="icon pin" />
+    </span>
+  {/if}
+  {#if onUnpin}
+    {#if showPinnedInsteadOfUnpin}
+      <span class="pin-active">
+        <FontIcon icon="icon pin" />
+      </span>
+    {:else}
+      <span
+        class="unpin"
+        on:click={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          onUnpin();
+        }}
+      >
+        <FontIcon icon="icon close" />
+      </span>
+    {/if}
+  {/if}
 </div>
 <slot />
 
@@ -128,4 +161,32 @@
   .expand-icon {
     margin-right: 3px;
   }
+
+  .pin {
+    float: right;
+    color: var(--theme-font-2);
+  }
+  .pin:hover {
+    color: var(--theme-font-hover);
+  }
+  .main .pin {
+    visibility: hidden;
+  }
+  .main:hover .pin {
+    visibility: visible;
+  }
+
+  .unpin {
+    float: right;
+    color: var(--theme-font-2);
+  }
+  .unpin:hover {
+    color: var(--theme-font-hover);
+  }
+
+  .pin-active {
+    float: right;
+    color: var(--theme-font-2);
+  }
+
 </style>

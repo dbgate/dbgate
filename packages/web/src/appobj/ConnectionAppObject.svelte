@@ -199,7 +199,7 @@
   statusIcon={statusIcon || engineStatusIcon}
   statusTitle={statusTitle || engineStatusTitle}
   {extInfo}
-  colorMark={passProps?.connectionColorFactory({ conid: data._id })}
+  colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
   on:click={handleConnect}
   on:click

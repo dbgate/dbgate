@@ -162,7 +162,14 @@
   import { showModal } from '../modals/modalTools';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import { getDefaultFileFormat } from '../plugins/fileformats';
-  import { currentArchive, currentDatabase, extensions, getExtensions, selectedWidget } from '../stores';
+  import {
+    currentArchive,
+    currentDatabase,
+    extensions,
+    getExtensions,
+    pinnedDatabases,
+    selectedWidget,
+  } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
@@ -179,6 +186,8 @@
   function createMenu() {
     return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase);
   }
+
+  $: isPinned = !!$pinnedDatabases.find(x => x.name == data.name && x.connection?._id == data.connection?._id);
 </script>
 
 <AppObjectCore
@@ -186,12 +195,8 @@
   {data}
   title={data.name}
   icon="img database"
-  colorMark={passProps?.connectionColorFactory(
-    { conid: _.get(data.connection, '_id'), database: data.name },
-    null,
-    null,
-    false
-  )}
+  colorMark={passProps?.connectionColorFactory &&
+    passProps?.connectionColorFactory({ conid: _.get(data.connection, '_id'), database: data.name }, null, null, false)}
   isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
     _.get($currentDatabase, 'name') == data.name}
   on:click={() => ($currentDatabase = data)}
@@ -201,4 +206,12 @@
       .onClick();
   }}
   menu={createMenu}
+  showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
+  onPin={isPinned ? null : () => pinnedDatabases.update(list => [...list, data])}
+  onUnpin={isPinned
+    ? () =>
+        pinnedDatabases.update(list =>
+          list.filter(x => x.name != data.name || x.connection?._id != data.connection?._id)
+        )
+    : null}
 />
