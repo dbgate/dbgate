@@ -150,6 +150,7 @@
   </div>
   <div class="col-6 mr-1">
     <FormColorField
+      useSelector
       label="Color"
       name="connectionColor"
       emptyLabel="(not selected)"
