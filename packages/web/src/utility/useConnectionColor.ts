@@ -16,8 +16,8 @@ export function getConnectionColor(
   const { database } = dbid;
   let colorName = useConnectionFallback || !database ? current?.connectionColor : null;
   const dbConfig = (current?.databases || []).find(x => x.name == database);
-  if (dbConfig?.databaseColor) {
-    colorName = dbConfig.databaseColor;
+  if (dbConfig?.connectionColor) {
+    colorName = dbConfig.connectionColor;
   }
   if (!colorName) return undefined;
   const palettes = themeType == 'dark' ? presetDarkPalettes : presetPalettes;

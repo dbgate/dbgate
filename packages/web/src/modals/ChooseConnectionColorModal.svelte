@@ -30,7 +30,7 @@
         axiosInstance.post('connections/update-database', {
           conid,
           database,
-          values: { databaseColor: e.detail },
+          values: { connectionColor: e.detail },
         });
       } else {
         axiosInstance.post('connections/update', {
