@@ -81,7 +81,11 @@
           class="item clickable"
           title="Database color. Overrides connection color"
           on:click={() => {
-            showModal(ChooseConnectionColorModal, { ...dbid, header: 'Choose database color' });
+            showModal(ChooseConnectionColorModal, {
+              ...dbid,
+              header: 'Choose database color',
+              text: 'This color override connection color for specific database.',
+            });
           }}
         >
           <div style={$databaseButtonBackground} class="colorbox">
@@ -100,7 +104,11 @@
           class="item clickable"
           title="Connection color. Can be overriden by database color"
           on:click={() => {
-            showModal(ChooseConnectionColorModal, { conid: dbid.conid, header: 'Choose connection color' });
+            showModal(ChooseConnectionColorModal, {
+              conid: dbid.conid,
+              header: 'Choose connection color',
+              text: 'This color serves as default color for all databases in this connection.',
+            });
           }}
         >
           <div style={$connectionButtonBackground} class="colorbox">

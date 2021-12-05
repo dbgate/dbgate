@@ -7,6 +7,7 @@
   export let conid;
   export let database;
   export let header;
+  export let text;
 
   const initialColor = useConnectionColor({ conid, database }, null, null, false, false);
 
@@ -15,6 +16,10 @@
 
 <ModalBase {...$$restProps}>
   <svelte:fragment slot="header">{header}</svelte:fragment>
+
+  <div class="m-2">
+    {text}
+  </div>
 
   <ColorSelector
     {value}
