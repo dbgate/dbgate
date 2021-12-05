@@ -1,6 +1,6 @@
 <script lang="ts">
   import { findEngineDriver } from 'dbgate-tools';
-  import { currentDatabase, extensions, pinnedDatabases } from '../stores';
+  import { currentDatabase, extensions, pinnedDatabases, pinnedTables } from '../stores';
   import { useConfig, useConnectionInfo } from '../utility/metadataLoaders';
 
   import ConnectionList from './ConnectionList.svelte';
@@ -29,7 +29,8 @@
     name="pinned"
     height="15%"
     storageName="pinnedItemsWidget"
-    skip={!$pinnedDatabases?.length}
+    skip={!$pinnedDatabases?.length &&
+      !$pinnedTables.some(x => x.conid == conid && x.database == $currentDatabase?.name)}
   >
     <PinnedObjectsList />
   </WidgetColumnBarItem>
