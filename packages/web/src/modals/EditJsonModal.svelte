@@ -12,20 +12,32 @@
 
   export let onSave;
   export let json;
+  export let showPasteInfo;
 
   let value;
+  let editor;
 
   onMount(() => {
-    value = JSON.stringify(json, undefined, 2);
+    if (json) {
+      value = JSON.stringify(json, undefined, 2);
+    } else {
+      // editor.getEditor().execCommand('paste');
+    }
   });
 </script>
 
 <FormProvider>
   <ModalBase {...$$restProps}>
     <div slot="header">Edit JSON value</div>
+    {#if showPasteInfo}
+      <div class="m-2">
+        Edit JSON object or array. You can paste JSON array or object directly into data grid, new row(s) will be added
+        to recordset.
+      </div>
+    {/if}
 
     <div class="editor">
-      <AceEditor mode="json" bind:value />
+      <AceEditor mode="json" bind:value bind:this={editor} />
     </div>
 
     <div slot="footer">

@@ -102,6 +102,7 @@
   registerCommand({
     id: 'dataGrid.editJsonDocument',
     category: 'Data grid',
+    keyText: 'Ctrl+J',
     name: 'Edit row as JSON document',
     testEnabled: () => getCurrentDataGrid()?.editJsonEnabled(),
     onClick: () => getCurrentDataGrid().editJsonDocument(),
@@ -200,6 +201,14 @@
     onClick: () => getCurrentDataGrid().openChartFromSelection(),
   });
 
+  registerCommand({
+    id: 'dataGrid.newJson',
+    category: 'Data grid',
+    name: 'Add JSON document',
+    testEnabled: () => getCurrentDataGrid()?.addJsonDocumentEnabled(),
+    onClick: () => getCurrentDataGrid().addJsonDocument(),
+  });
+
   function getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -275,6 +284,7 @@
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
+  import EditJsonModal from '../modals/EditJsonModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -531,12 +541,26 @@
   }
 
   export function editJsonEnabled() {
-    return grider.editable && isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+    return grider.editable && _.uniq(selectedCells.map(x => x[0])).length == 1;
   }
 
   export function editJsonDocument() {
     const rowIndex = selectedCells[0][0];
     editJsonRowDocument(grider, rowIndex);
+  }
+
+  export function addJsonDocumentEnabled() {
+    return grider.editable;
+  }
+
+  export function addJsonDocument() {
+    showModal(EditJsonModal, {
+      showPasteInfo: true,
+      onSave: value => {
+        grider.insertDocuments(_.isArray(value) ? value : [value]);
+        return true;
+      },
+    });
   }
 
   export function copyJsonEnabled() {
@@ -1277,6 +1301,7 @@
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo', hideDisabled: true },
     { command: 'dataGrid.redo', hideDisabled: true },
+    { command: 'dataGrid.newJson', hideDisabled: true },
     { command: 'dataGrid.editJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonValue', hideDisabled: true },
@@ -1328,12 +1353,7 @@
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}
-    <FormStyledButton
-      value="Add document"
-      on:click={() => {
-        findCommand('collectionTable.newJson')?.onClick();
-      }}
-    />
+    <FormStyledButton value="Add document" on:click={addJsonDocument} />
   </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>

@@ -16,14 +16,6 @@
     testEnabled: () => getCurrentEditor()?.canSave(),
     onClick: () => getCurrentEditor().save(),
   });
-
-  registerCommand({
-    id: 'collectionTable.newJson',
-    category: 'Collection data',
-    name: 'Add JSON document',
-    testEnabled: () => getCurrentEditor() != null,
-    onClick: () => getCurrentEditor().addJsonDocument(),
-  });
 </script>
 
 <script lang="ts">
@@ -135,18 +127,7 @@
     }
   }
 
-  export function addJsonDocument() {
-    showModal(EditJsonModal, {
-      json: {},
-      onSave: value => {
-        const grider = new ChangeSetGrider(loadedRows, $changeSetStore, dispatchChangeSet, display);
-        grider.insertDocuments(_.isArray(value) ? value : [value]);
-        return true;
-      },
-    });
-  }
-
-  registerMenu({ command: 'collectionTable.save', tag: 'save' }, { command: 'collectionTable.newJson', tag: 'edit' });
+  registerMenu({ command: 'collectionTable.save', tag: 'save' });
 
   const collapsedLeftColumnStore = writable(false);
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
