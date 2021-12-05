@@ -132,13 +132,13 @@
     onClick: () => getCurrentDataGrid().openJsonArrayInSheet(),
   });
 
-  registerCommand({
-    id: 'dataGrid.copyJsonDocument',
-    category: 'Data grid',
-    name: 'Copy row as JSON document',
-    testEnabled: () => getCurrentDataGrid()?.copyJsonEnabled(),
-    onClick: () => getCurrentDataGrid().copyJsonDocument(),
-  });
+  // registerCommand({
+  //   id: 'dataGrid.copyJsonDocument',
+  //   category: 'Data grid',
+  //   name: 'Copy row as JSON document',
+  //   testEnabled: () => getCurrentDataGrid()?.copyJsonEnabled(),
+  //   onClick: () => getCurrentDataGrid().copyJsonDocument(),
+  // });
 
   registerCommand({
     id: 'dataGrid.filterSelected',
@@ -563,15 +563,15 @@
     });
   }
 
-  export function copyJsonEnabled() {
-    return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
-  }
+  // export function copyJsonEnabled() {
+  //   return isDynamicStructure && _.uniq(selectedCells.map(x => x[0])).length == 1;
+  // }
 
-  export function copyJsonDocument() {
-    const rowIndex = selectedCells[0][0];
-    const rowData = grider.getRowData(rowIndex);
-    copyTextToClipboard(JSON.stringify(rowData, undefined, 2));
-  }
+  // export function copyJsonDocument() {
+  //   const rowIndex = selectedCells[0][0];
+  //   const rowData = grider.getRowData(rowIndex);
+  //   copyTextToClipboard(JSON.stringify(rowData, undefined, 2));
+  // }
 
   export function buildFindMenu() {
     const res = [];
@@ -1306,7 +1306,7 @@
     { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonValue', hideDisabled: true },
     { command: 'dataGrid.openJsonArrayInSheet', hideDisabled: true },
-    { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
+    // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
     { command: 'dataGrid.generateSqlFromData' },
