@@ -20,14 +20,14 @@
 
 <WidgetColumnBar>
   {#if hasPermission('files/favorites/read')}
-    <WidgetColumnBarItem title="Favorites" name="favorites" height="20%">
+    <WidgetColumnBarItem title="Favorites" name="favorites" height="20%" storageName="favoritesWidget">
       <WidgetsInnerContainer>
         <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
       </WidgetsInnerContainer>
     </WidgetColumnBarItem>
   {/if}
 
-  <WidgetColumnBarItem title="Saved files" name="files">
+  <WidgetColumnBarItem title="Saved files" name="files" storageName="savedFilesWidget">
     <SavedFilesList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

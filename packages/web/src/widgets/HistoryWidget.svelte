@@ -19,7 +19,7 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs">
+  <WidgetColumnBarItem title="Recently closed tabs" name="closedTabs" storageName='closedTabsWidget'>
     <WidgetsInnerContainer>
       <AppObjectList
         list={_.sortBy(
@@ -30,7 +30,7 @@
       />
     </WidgetsInnerContainer>
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Query history" name="queryHistory">
+  <WidgetColumnBarItem title="Query history" name="queryHistory" storageName='queryHistoryWidget'>
     <QueryHistoryList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

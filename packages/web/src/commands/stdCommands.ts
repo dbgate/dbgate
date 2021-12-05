@@ -23,6 +23,8 @@ import _ from 'lodash';
 import { findEngineDriver } from 'dbgate-tools';
 import { openArchiveFolder } from '../utility/openArchiveFolder';
 import InputTextModal from '../modals/InputTextModal.svelte';
+import { removeLocalStorage } from '../utility/storageCache';
+import { showSnackbarSuccess } from '../utility/snackbar';
 
 const electron = getElectron();
 
@@ -273,6 +275,33 @@ registerCommand({
       importToArchive: true,
       initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
     }),
+});
+
+registerCommand({
+  id: 'view.reset',
+  category: 'View',
+  name: 'Reset view',
+  onClick: () => {
+    const keys = [
+      'leftPanelWidth',
+      'visibleToolbar',
+      'zoomKoef',
+      'selectedWidget',
+      'currentTheme',
+      'connectionsWidget',
+      'dbObjectsWidget',
+      'favoritesWidget',
+      'savedFilesWidget',
+      'closedTabsWidget',
+      'queryHistoryWidget',
+      'archiveFoldersWidget',
+      'archiveFilesWidget',
+      'installedPluginsWidget',
+      'allPluginsWidget',
+    ];
+    for (const key of keys) removeLocalStorage(key);
+    showSnackbarSuccess('Restart DbGate (or reload on web) for applying changes');
+  },
 });
 
 registerCommand({

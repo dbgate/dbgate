@@ -7,6 +7,7 @@
 
   import WidgetTitle from './WidgetTitle.svelte';
   import splitterDrag from '../utility/splitterDrag';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let title;
   export let name;
@@ -14,6 +15,8 @@
   export let show = true;
   export let height = null;
   export let collapsed = null;
+
+  export let storageName = null;
 
   let size = 0;
 
@@ -37,14 +40,28 @@
 
   $: setInitialSize(height, $widgetColumnBarHeight);
 
+  $: if (storageName && $widgetColumnBarHeight > 0) {
+    setLocalStorage(storageName, { relativeHeight: size / $widgetColumnBarHeight, visible });
+  }
+
   function setInitialSize(initialSize, parentHeight) {
+    if (storageName) {
+      const storage = getLocalStorage(storageName);
+      if (storage) {
+        size = parentHeight * storage.relativeHeight;
+        return;
+      }
+    }
     if (_.isString(initialSize) && initialSize.endsWith('px')) size = parseInt(initialSize.slice(0, -2));
     else if (_.isString(initialSize) && initialSize.endsWith('%'))
       size = (parentHeight * parseFloat(initialSize.slice(0, -1))) / 100;
     else size = parentHeight / 3;
   }
 
-  let visible = !collapsed;
+  let visible =
+    storageName && getLocalStorage(storageName) && getLocalStorage(storageName).visible != null
+      ? getLocalStorage(storageName).visible
+      : !collapsed;
 </script>
 
 {#if !skip && show}

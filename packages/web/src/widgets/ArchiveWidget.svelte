@@ -8,10 +8,10 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Archive folders, DB models" name="folders" height="50%">
+  <WidgetColumnBarItem title="Archive folders, DB models" name="folders" height="50%" storageName='archiveFoldersWidget'>
     <ArchiveFolderList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Files, Tables, Views, Functions" name="files">
+  <WidgetColumnBarItem title="Files, Tables, Views, Functions" name="files" storageName='archiveFilesWidget'>
     <ArchiveFilesList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

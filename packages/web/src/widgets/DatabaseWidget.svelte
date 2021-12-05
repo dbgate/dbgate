@@ -19,11 +19,15 @@
 
 <WidgetColumnBar {hidden}>
   {#if !$config?.singleDatabase}
-    <WidgetColumnBarItem title="Connections" name="connections" height="50%">
+    <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
       <ConnectionList />
     </WidgetColumnBarItem>
   {/if}
-  <WidgetColumnBarItem title={driver?.dialect?.nosql ? 'Collections' : 'Tables, views, functions'} name="dbObjects">
+  <WidgetColumnBarItem
+    title={driver?.dialect?.nosql ? 'Collections' : 'Tables, views, functions'}
+    name="dbObjects"
+    storageName="dbObjectsWidget"
+  >
     <SqlObjectListWrapper />
   </WidgetColumnBarItem>
 </WidgetColumnBar>

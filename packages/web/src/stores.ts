@@ -30,7 +30,7 @@ function subscribeCssVariable(store, transform, cssVariable) {
   store.subscribe(value => document.documentElement.style.setProperty(cssVariable, transform(value)));
 }
 
-export const selectedWidget = writable('database');
+export const selectedWidget = writableWithStorage('database', 'selectedWidget');
 export const openedConnections = writable([]);
 export const currentDatabase = writable(null);
 export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
@@ -54,7 +54,7 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
 
 export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const zoomKoef = writableWithStorage(1, 'zoomKoef');
-export const leftPanelWidth = writable(300);
+export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
 export const openedSnackbars = writable([]);

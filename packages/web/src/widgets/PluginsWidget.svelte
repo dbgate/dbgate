@@ -7,10 +7,10 @@
 </script>
 
 <WidgetColumnBar>
-  <WidgetColumnBarItem title="Installed extensions" name="installed" height="50%">
+  <WidgetColumnBarItem title="Installed extensions" name="installed" height="50%" storageName='installedPluginsWidget'>
     <InstalledPluginsList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem title="Available extensions" name="all">
+  <WidgetColumnBarItem title="Available extensions" name="all" storageName='allPluginsWidget'>
     <AvailablePluginsList />
   </WidgetColumnBarItem>
 </WidgetColumnBar>
