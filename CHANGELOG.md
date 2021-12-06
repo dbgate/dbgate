@@ -1,5 +1,22 @@
 # ChangeLog
 
+### 4.4.3
+- ADDED: Connection and database colors
+- ADDED: Ability to pin connection or table
+- ADDED: MongoDb: create, drop collection from menu
+- ADDED: Copy as MongoDB insert
+- ADDED: MongoDB support for multiple statements in script (dbgate-query-splitter)
+- ADDED: View JSON in tab
+- ADDED: Open DB model as JSON
+- ADDED: Open JSON array as data sheet
+- ADDED: Open JSON from data grid
+- FIXED: Mongo update command when using string IDs resembling Mongo IDs
+- CHANGED: Imrpoved add JSON document, change JSON document commands
+- ADDED: Possibility to add column to JSON grid view
+- FIXED: Hiding columns #1
+- REMOVED: Copy JSON document menu command (please use Copy advanced instead)
+- CHANGED: Save widget visibility and size
+
 ### 4.4.2
 - ADDED: Open SQL script from SQL confirm
 - CHANGED: Better looking statusbar
