@@ -3,11 +3,9 @@ const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
-const mongoIdRegex = /^[0-9a-f]{24}$/;
-
 function getConditionPreview(condition) {
-  if (condition && _isString(condition._id) && condition._id.match(mongoIdRegex)) {
-    return `{ _id: { $in: ['${condition._id}', ObjectId('${condition._id}')] } }`;
+  if (condition && condition._id && condition._id.$oid) {
+    return `{ _id: ObjectId('${condition._id.$oid}') }`;
   }
   return JSON.stringify(condition);
 }

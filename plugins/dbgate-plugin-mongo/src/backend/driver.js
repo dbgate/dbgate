@@ -8,28 +8,20 @@ const ObjectId = require('mongodb').ObjectId;
 const Cursor = require('mongodb').Cursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
 
+function transformMongoData(row) {
+  return _.mapValues(row, (v) => (v && v.constructor && v.constructor.name == 'ObjectID' ? { $oid: v.toString() } : v));
+}
+
 function readCursor(cursor, options) {
   return new Promise((resolve) => {
     options.recordset({ __isDynamicStructure: true });
 
-    cursor.on('data', (data) => options.row(data));
+    cursor.on('data', (data) => options.row(transformMongoData(data)));
     cursor.on('end', () => resolve());
   });
 }
 
-const mongoIdRegex = /^[0-9a-f]{24}$/;
-function convertConditionInternal(condition) {
-  if (condition && _.isString(condition._id) && condition._id.match(mongoIdRegex)) {
-    return {
-      _id: {
-        $in: [condition._id, ObjectId(condition._id)],
-      },
-    };
-  }
-  return condition;
-}
-
-function convertConditionUser(condition) {
+function convertCondition(condition) {
   return _.cloneDeepWith(condition, (x) => {
     if (x && x.$oid) return ObjectId(x.$oid);
   });
@@ -213,16 +205,16 @@ const driver = {
     try {
       const collection = pool.__getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(convertConditionUser(options.condition) || {});
+        const count = await collection.countDocuments(convertCondition(options.condition) || {});
         return { count };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
-        let cursor = await collection.find(convertConditionUser(options.condition) || {});
+        let cursor = await collection.find(convertCondition(options.condition) || {});
         if (options.sort) cursor = cursor.sort(options.sort);
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
         const rows = await cursor.toArray();
-        return { rows };
+        return { rows: rows.map(transformMongoData) };
       }
     } catch (err) {
       return { errorMessage: err.message };
@@ -253,16 +245,16 @@ const driver = {
             ...update.document,
             ...update.fields,
           };
-          const doc = await collection.findOne(convertConditionInternal(update.condition));
+          const doc = await collection.findOne(convertCondition(update.condition));
           if (doc) {
-            const resdoc = await collection.replaceOne(convertConditionInternal(update.condition), {
+            const resdoc = await collection.replaceOne(convertCondition(update.condition), {
               ...document,
               _id: doc._id,
             });
             res.replaced.push(resdoc._id);
           }
         } else {
-          const resdoc = await collection.updateOne(convertConditionInternal(update.condition), {
+          const resdoc = await collection.updateOne(convertCondition(update.condition), {
             $set: update.fields,
           });
           res.updated.push(resdoc._id);
@@ -270,7 +262,7 @@ const driver = {
       }
       for (const del of changeSet.deletes) {
         const collection = db.collection(del.pureName);
-        const resdoc = await collection.deleteOne(convertConditionInternal(del.condition));
+        const resdoc = await collection.deleteOne(convertCondition(del.condition));
         res.deleted.push(resdoc._id);
       }
       return res;

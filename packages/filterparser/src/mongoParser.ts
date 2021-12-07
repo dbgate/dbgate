@@ -28,16 +28,12 @@ const numberTestCondition = () => value => ({
   ],
 });
 
+const idRegex = /[('"]([0-9a-f]{24})['")]/;
+
 const objectIdTestCondition = () => value => ({
   $or: [
     {
-      __placeholder__: {
-        $regex: `.*${value}.*`,
-        $options: 'i',
-      },
-    },
-    {
-      __placeholder__: { $oid: value },
+      __placeholder__: { $oid: value.match(idRegex)[1] },
     },
   ],
 });
@@ -78,7 +74,7 @@ const createParser = () => {
         .map(Number)
         .desc('number'),
 
-    objectid: () => token(P.regexp(/[0-9a-f]{24}/)).desc('ObjectId'),
+    objectid: () => token(P.regexp(/ObjectId\(['"]?[0-9a-f]{24}['"]?\)/)).desc('ObjectId'),
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
 

@@ -124,6 +124,8 @@
     {:else}
       <span class="null">({value.data.length} bytes)</span>
     {/if}
+  {:else if value.$oid}
+    <span class="value">ObjectId("{value.$oid}")</span>
   {:else if _.isPlainObject(value)}
     <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
   {:else if _.isArray(value)}

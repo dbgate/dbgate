@@ -8,6 +8,7 @@ export function getFilterValueExpression(value, dataType) {
   if (isTypeDateTime(dataType)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return 'TRUE';
   if (value === false) return 'FALSE';
+  if (value.$oid) return `ObjectId("${value.$oid}")`;
   return `="${value}"`;
 }
 

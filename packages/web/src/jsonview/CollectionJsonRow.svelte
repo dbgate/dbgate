@@ -4,7 +4,7 @@
     showModal(EditJsonModal, {
       json: rowData,
       onSave: value => {
-        if (value._id != rowData._id) {
+        if (rowData._id && value._id != rowData._id) {
           showModal(ErrorMessageModal, { message: '_id attribute cannot be changed' });
           return false;
         }
