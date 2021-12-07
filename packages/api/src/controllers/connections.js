@@ -174,9 +174,9 @@ module.exports = {
   async updateDatabase({ conid, database, values }) {
     if (portalConnections) return;
     const conn = await this.datastore.find({ _id: conid });
-    let databases = conn.databases || [];
+    let databases = conn[0].databases || [];
     if (databases.find(x => x.name == database)) {
-      databases = databases.map(x => (x.item == database ? { ...x, ...values } : x));
+      databases = databases.map(x => (x.name == database ? { ...x, ...values } : x));
     } else {
       databases = [...databases, { name: database, ...values }];
     }
