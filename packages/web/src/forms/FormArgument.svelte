@@ -22,6 +22,7 @@
     label={arg.label}
     isNative
     {name}
+    defaultValue={arg.default}
     options={arg.options.map(opt =>
       _.isString(opt) ? { label: opt, value: opt } : { label: opt.name, value: opt.value }
     )}
