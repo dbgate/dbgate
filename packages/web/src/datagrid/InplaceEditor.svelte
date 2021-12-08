@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   function getEditedValue(value) {
     if (value?.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
+    if (value?.$oid) return `ObjectId("${value?.$oid}")`;
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
     return value;
   }
@@ -12,6 +13,13 @@
         data: hexStringToArray(newString),
       };
     }
+    if (_.isString(newString)) {
+      const m = newString.match(/ObjectId\("([0-9a-f]{24})"\)/);
+      if (m) {
+        return { $oid: m[1] };
+      }
+    }
+
     return newString;
   }
 </script>
@@ -28,7 +36,7 @@
   export let onSetValue;
   export let width;
   export let cellValue;
-  export let fillParent=false;
+  export let fillParent = false;
 
   let domEditor;
 

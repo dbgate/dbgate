@@ -21,7 +21,7 @@ function readCursor(cursor, options) {
   });
 }
 
-function convertCondition(condition) {
+function convertObjectId(condition) {
   return _.cloneDeepWith(condition, (x) => {
     if (x && x.$oid) return ObjectId(x.$oid);
   });
@@ -205,11 +205,11 @@ const driver = {
     try {
       const collection = pool.__getDatabase().collection(options.pureName);
       if (options.countDocuments) {
-        const count = await collection.countDocuments(convertCondition(options.condition) || {});
+        const count = await collection.countDocuments(convertObjectId(options.condition) || {});
         return { count };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
-        let cursor = await collection.find(convertCondition(options.condition) || {});
+        let cursor = await collection.find(convertObjectId(options.condition) || {});
         if (options.sort) cursor = cursor.sort(options.sort);
         if (options.skip) cursor = cursor.skip(options.skip);
         if (options.limit) cursor = cursor.limit(options.limit);
@@ -235,7 +235,7 @@ const driver = {
           ...insert.document,
           ...insert.fields,
         };
-        const resdoc = await collection.insert(document);
+        const resdoc = await collection.insert(convertObjectId(document));
         res.inserted.push(resdoc._id);
       }
       for (const update of changeSet.updates) {
@@ -245,24 +245,24 @@ const driver = {
             ...update.document,
             ...update.fields,
           };
-          const doc = await collection.findOne(convertCondition(update.condition));
+          const doc = await collection.findOne(convertObjectId(update.condition));
           if (doc) {
-            const resdoc = await collection.replaceOne(convertCondition(update.condition), {
-              ...document,
+            const resdoc = await collection.replaceOne(convertObjectId(update.condition), {
+              ...convertObjectId(document),
               _id: doc._id,
             });
             res.replaced.push(resdoc._id);
           }
         } else {
-          const resdoc = await collection.updateOne(convertCondition(update.condition), {
-            $set: update.fields,
+          const resdoc = await collection.updateOne(convertObjectId(update.condition), {
+            $set: convertObjectId(update.fields),
           });
           res.updated.push(resdoc._id);
         }
       }
       for (const del of changeSet.deletes) {
         const collection = db.collection(del.pureName);
-        const resdoc = await collection.deleteOne(convertCondition(del.condition));
+        const resdoc = await collection.deleteOne(convertObjectId(del.condition));
         res.deleted.push(resdoc._id);
       }
       return res;

@@ -4,7 +4,7 @@
     showModal(EditJsonModal, {
       json: rowData,
       onSave: value => {
-        if (rowData._id && value._id != rowData._id) {
+        if (grider.getRowStatus(rowIndex).status != 'inserted' && rowData._id && value._id != rowData._id) {
           showModal(ErrorMessageModal, { message: '_id attribute cannot be changed' });
           return false;
         }

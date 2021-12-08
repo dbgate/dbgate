@@ -3,11 +3,11 @@ const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
-function getConditionPreview(condition) {
-  if (condition && condition._id && condition._id.$oid) {
-    return `{ _id: ObjectId('${condition._id.$oid}') }`;
-  }
-  return JSON.stringify(condition);
+function jsonStringifyWithObjectId(obj) {
+  return JSON.stringify(obj, undefined, 2).replace(
+    /\{\s*\"\$oid\"\s*\:\s*\"([0-9a-f]+)\"\s*\}/g,
+    (m, id) => `ObjectId("${id}")`
+  );
 }
 
 /** @type {import('dbgate-types').SqlDialect} */
@@ -47,37 +47,29 @@ const driver = {
   getCollectionUpdateScript(changeSet) {
     let res = '';
     for (const insert of changeSet.inserts) {
-      res += `db.${insert.pureName}.insert(${JSON.stringify(
-        {
-          ...insert.document,
-          ...insert.fields,
-        },
-        undefined,
-        2
-      )});\n`;
+      res += `db.${insert.pureName}.insert(${jsonStringifyWithObjectId({
+        ...insert.document,
+        ...insert.fields,
+      })});\n`;
     }
     for (const update of changeSet.updates) {
       if (update.document) {
-        res += `db.${update.pureName}.replaceOne(${getConditionPreview(update.condition)}, ${JSON.stringify(
-          {
-            ...update.document,
-            ...update.fields,
-          },
-          undefined,
-          2
-        )});\n`;
+        res += `db.${update.pureName}.replaceOne(${jsonStringifyWithObjectId(
+          update.condition
+        )}, ${jsonStringifyWithObjectId({
+          ...update.document,
+          ...update.fields,
+        })});\n`;
       } else {
-        res += `db.${update.pureName}.updateOne(${getConditionPreview(update.condition)}, ${JSON.stringify(
-          {
-            $set: update.fields,
-          },
-          undefined,
-          2
-        )});\n`;
+        res += `db.${update.pureName}.updateOne(${jsonStringifyWithObjectId(
+          update.condition
+        )}, ${jsonStringifyWithObjectId({
+          $set: update.fields,
+        })});\n`;
       }
     }
     for (const del of changeSet.deletes) {
-      res += `db.${del.pureName}.deleteOne(${getConditionPreview(del.condition)});\n`;
+      res += `db.${del.pureName}.deleteOne(${jsonStringifyWithObjectId(del.condition)});\n`;
     }
     return res;
   },
