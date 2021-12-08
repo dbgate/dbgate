@@ -139,6 +139,53 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
     code: `return modules[args.version]()`,
   },
   {
+    title: 'Convert to integer',
+    name: 'toInt',
+    group: 'Tools',
+    description: 'Converts to integral number',
+    type: 'transformValue',
+    code: `return modules.lodash.isNaN(parseInt(value)) ? null : parseInt(value)`,
+  },
+  {
+    title: 'Convert to number',
+    name: 'toNumber',
+    group: 'Tools',
+    description: 'Converts to number',
+    type: 'transformValue',
+    code: `return modules.lodash.isNaN(parseFloat(value)) ? null : parseFloat(value)`,
+  },
+  {
+    title: 'Convert to boolean',
+    name: 'toBoolean',
+    group: 'Tools',
+    description: 'Converts to boolean',
+    type: 'transformValue',
+    code: `
+if (modules.lodash.isString(value)) {
+  if (value.toLowerCase()=='true') return true;
+  if (value.toLowerCase()=='false') return false;
+  if (value == '1') return true;
+  if (value == '0') return false;
+  if (value.toLowerCase()=='t') return true;
+  if (value.toLowerCase()=='f') return false;
+} 
+if (value==null) return null;
+return !!value;
+  `,
+  },
+  {
+    title: 'Convert to string',
+    name: 'toString',
+    group: 'Tools',
+    description: 'Converts to string',
+    type: 'transformValue',
+    code: `
+    if (value==null) return null;
+    if (value && value.$oid) return value.$oid;
+    return value.toString();
+  `,
+  },
+  {
     title: 'Current date',
     name: 'currentDate',
     group: 'Tools',
