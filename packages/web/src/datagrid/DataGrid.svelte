@@ -188,7 +188,7 @@
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Macros" name="macros" show={showMacros} collapsed>
+      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed>
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>

@@ -166,7 +166,7 @@
     display,
     macroPreview,
     macroValues,
-    selectedCellsPublished
+    selectedCellsPublished()
   );
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
@@ -237,6 +237,7 @@
   {dataPageAvailable}
   {loadRowCount}
   bind:loadedRows
+  bind:selectedCellsPublished
   frameSelection={!!macroPreview}
   {grider}
 />

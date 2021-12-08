@@ -29,6 +29,7 @@
     TableFormViewDisplay,
     CollectionGridDisplay,
     changeSetContainsChanges,
+    runMacroOnChangeSet,
   } from 'dbgate-datalib';
   import { findEngineDriver } from 'dbgate-tools';
   import { writable } from 'svelte/store';
@@ -127,6 +128,13 @@
     }
   }
 
+  function handleRunMacro(macro, params, cells) {
+    const newChangeSet = runMacroOnChangeSet(macro, params, cells, $changeSetStore?.value, display);
+    if (newChangeSet) {
+      dispatchChangeSet({ type: 'set', value: newChangeSet });
+    }
+  }
+
   registerMenu({ command: 'collectionTable.save', tag: 'save' });
 
   const collapsedLeftColumnStore = writable(false);
@@ -148,4 +156,7 @@
   gridCoreComponent={CollectionDataGridCore}
   jsonViewComponent={CollectionJsonView}
   isDynamicStructure
+  showMacros
+  macroCondition={macro => macro.type == 'transformValue'}
+  onRunMacro={handleRunMacro}
 />
