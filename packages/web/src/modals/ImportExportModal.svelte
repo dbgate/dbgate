@@ -15,7 +15,7 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, extensions, selectedWidget } from '../stores';
+  import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
   import axiosInstance from '../utility/axiosInstance';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -35,11 +35,35 @@
   export let initialValues;
   export let uploadedFile = undefined;
   export let openedFile = undefined;
-  export let importToArchive = false;
+  export let importToCurrentTarget = false;
 
   const refreshArchiveFolderRef = createRef(null);
 
-  $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
+  function detectCurrentTarget() {
+    if (!importToCurrentTarget) return {};
+
+    if ($currentDatabase && $selectedWidget != 'archive') {
+      return {
+        targetStorageType: 'database',
+        targetConnectionId: $currentDatabase?.connection?._id,
+        targetDatabaseName: $currentDatabase?.name,
+      };
+    }
+
+    if ($currentArchive == 'default') {
+      return {
+        targetStorageType: 'archive',
+        targetArchiveFolder: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
+      };
+    } else {
+      return {
+        targetStorageType: 'archive',
+        targetArchiveFolder: $currentArchive,
+      };
+    }
+  }
+
+  // $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
 
@@ -107,9 +131,10 @@
 <FormProvider
   initialValues={{
     sourceStorageType: 'database',
-    targetStorageType: importToArchive ? 'archive' : getDefaultFileFormat($extensions).storageType,
+    targetStorageType: getDefaultFileFormat($extensions).storageType,
+    targetArchiveFolder: $currentArchive,
     sourceArchiveFolder: $currentArchive,
-    targetArchiveFolder,
+    ...detectCurrentTarget(),
     ...initialValues,
   }}
 >

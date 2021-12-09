@@ -89,7 +89,7 @@ export function openElectronFileCore(filePath, extensions) {
             storageType: format.storageType,
             shortName: parsed.name,
           },
-          importToArchive: true,
+          importToCurrentTarget: true,
           initialValues: {
             sourceStorageType: format.storageType,
           },

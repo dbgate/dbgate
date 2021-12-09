@@ -272,7 +272,7 @@ registerCommand({
   icon: 'icon import',
   onClick: () =>
     showModal(ImportExportModal, {
-      importToArchive: true,
+      importToCurrentTarget: true,
       initialValues: { sourceStorageType: getDefaultFileFormat(get(extensions)).storageType },
     }),
 });

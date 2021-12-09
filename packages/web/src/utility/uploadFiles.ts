@@ -66,7 +66,7 @@ export default function uploadFiles(files) {
       if (findFileFormat(ext, fileData.storageType)) {
         showModal(ImportExportModal, {
           uploadedFile: fileData,
-          importToArchive: true,
+          importToCurrentTarget: true,
           initialValues: {
             sourceStorageType: fileData.storageType,
           },
