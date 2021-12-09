@@ -20,6 +20,7 @@ export class ViewGridDisplay extends GridDisplay {
     this.groupable = true;
     this.editable = false;
     this.supportsReload = true;
+    this.baseView = view;
   }
 
   getDisplayColumns(view: ViewInfo) {

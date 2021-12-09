@@ -52,7 +52,7 @@ export default class ChangeSetGrider extends Grider {
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
-    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display?.baseTableOrCollection);
+    this.insertedRows = getChangeSetInsertedRows(this.changeSet, display?.baseTableOrSimilar);
     this.setChangeSet = value => dispatchChangeSet({ type: 'set', value });
     this.rowCacheIndexes = new Set();
     this.rowDataCache = {};
@@ -169,7 +169,7 @@ export default class ChangeSetGrider extends Grider {
 
   get rowCountInUpdate() {
     if (this.batchChangeSet) {
-      const newRows = getChangeSetInsertedRows(this.batchChangeSet, this.display.baseTable);
+      const newRows = getChangeSetInsertedRows(this.batchChangeSet, this.display.baseTableOrSimilar);
       return this.sourceRows.length + newRows.length;
     } else {
       return this.rowCount;
@@ -178,13 +178,13 @@ export default class ChangeSetGrider extends Grider {
 
   insertRow(): number {
     const res = this.rowCountInUpdate;
-    this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTableOrCollection));
+    this.applyModification(chs => changeSetInsertNewRow(chs, this.display.baseTableOrSimilar));
     return res;
   }
 
   insertDocuments(documents: any[]): number {
     const res = this.rowCountInUpdate;
-    this.applyModification(chs => changeSetInsertDocuments(chs, documents, this.display.baseTableOrCollection));
+    this.applyModification(chs => changeSetInsertDocuments(chs, documents, this.display.baseTableOrSimilar));
     return res;
   }
 

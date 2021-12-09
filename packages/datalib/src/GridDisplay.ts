@@ -9,6 +9,7 @@ import {
   DatabaseInfo,
   CollectionInfo,
   SqlDialect,
+  ViewInfo,
 } from 'dbgate-types';
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from 'dbgate-tools';
@@ -69,9 +70,16 @@ export abstract class GridDisplay {
   dialect: SqlDialect;
   columns: DisplayColumn[];
   baseTable?: TableInfo;
+  baseView?: ViewInfo;
   baseCollection?: CollectionInfo;
+  get baseTableOrSimilar(): NamedObjectInfo {
+    return this.baseTable || this.baseCollection || this.baseView;
+  }
   get baseTableOrCollection(): NamedObjectInfo {
     return this.baseTable || this.baseCollection;
+  }
+  get baseTableOrView(): TableInfo | ViewInfo {
+    return this.baseTable || this.baseView;
   }
   changeSetKeyFields: string[] = null;
   sortable = false;
@@ -373,7 +381,7 @@ export abstract class GridDisplay {
   getGrouping(uniqueName): GroupFunc {
     if (this.isGrouped) {
       if (this.config.grouping[uniqueName]) return this.config.grouping[uniqueName];
-      const column = this.baseTable.columns.find(x => x.columnName == uniqueName);
+      const column = (this.baseTable || this.baseView)?.columns?.find(x => x.columnName == uniqueName);
       if (isTypeLogical(column?.dataType)) return 'COUNT DISTINCT';
       if (column?.autoIncrement) return 'COUNT';
       return 'MAX';
@@ -413,9 +421,9 @@ export abstract class GridDisplay {
   getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
     const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
-    const baseTableOrCollection = this.baseTableOrCollection;
-    if (!baseTableOrCollection) return null;
-    if (baseTableOrCollection.pureName != col.pureName || baseTableOrCollection.schemaName != col.schemaName) {
+    const baseObj = this.baseTableOrSimilar;
+    if (!baseObj) return null;
+    if (baseObj.pureName != col.pureName || baseObj.schemaName != col.schemaName) {
       return null;
     }
 
@@ -427,11 +435,11 @@ export abstract class GridDisplay {
   }
 
   getChangeSetRow(row, insertedRowIndex): ChangeSetRowDefinition {
-    const baseTableOrCollection = this.baseTableOrCollection;
-    if (!baseTableOrCollection) return null;
+    const baseObj = this.baseTableOrSimilar;
+    if (!baseObj) return null;
     return {
-      pureName: baseTableOrCollection.pureName,
-      schemaName: baseTableOrCollection.schemaName,
+      pureName: baseObj.pureName,
+      schemaName: baseObj.schemaName,
       insertedRowIndex,
       condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
     };

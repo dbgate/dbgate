@@ -758,15 +758,18 @@
 
   // $: console.log('DISPLAY.config', display.config);
   $: {
-    if (display?.groupColumns && display?.baseTable) {
+    if (display?.groupColumns && display?.baseTableOrSimilar && onReferenceClick) {
       onReferenceClick({
         referenceId: stableStringify(display && display.groupColumns),
-        schemaName: display.baseTable.schemaName,
-        pureName: display.baseTable.pureName,
+        schemaName: display.baseTableOrSimilar?.schemaName,
+        pureName: display.baseTableOrSimilar?.pureName,
         columns: display.groupColumns.map(col => ({
           baseName: col,
           refName: col,
-          dataType: _.get(display.baseTable && display.baseTable.columns.find(x => x.columnName == col), 'dataType'),
+          dataType: _.get(
+            display.baseTableOrView?.columns?.find(x => x.columnName == col),
+            'dataType'
+          ),
         })),
       });
     }

@@ -68,7 +68,6 @@
 
     return parseInt(response.data.rows[0].count);
   }
-
 </script>
 
 <script lang="ts">
@@ -128,7 +127,7 @@
     initialValues.sourceConnectionId = conid;
     initialValues.sourceDatabaseName = database;
     initialValues.sourceSql = display.getExportQuery();
-    initialValues.sourceList = display.baseTable ? [display.baseTable.pureName] : [];
+    initialValues.sourceList = display.baseTableOrSimilar ? [display.baseTableOrSimilar.pureName] : [];
     showModal(ImportExportModal, { initialValues });
   }
 
@@ -139,8 +138,8 @@
         icon: 'img sql-file',
         tabComponent: 'QueryTab',
         props: {
-          schemaName: display.baseTable.schemaName,
-          pureName: display.baseTable.pureName,
+          schemaName: display.baseTableOrSimilar?.schemaName,
+          pureName: display.baseTableOrSimilar?.pureName,
           conid,
           database,
         },
@@ -198,7 +197,6 @@
     },
     { command: 'sqlDataGrid.export', tag: 'export' }
   );
-
 </script>
 
 <LoadingDataGridCore
