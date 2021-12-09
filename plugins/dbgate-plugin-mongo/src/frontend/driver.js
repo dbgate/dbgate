@@ -44,6 +44,16 @@ const driver = {
     return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
   },
 
+  importExportArgs: [
+    {
+      type: 'checkbox',
+      name: 'createStringId',
+      label: 'Create string _id attribute',
+      apiName: 'createStringId',
+      direction: 'target',
+    },
+  ],
+
   getCollectionUpdateScript(changeSet) {
     let res = '';
     for (const insert of changeSet.inserts) {

@@ -17,10 +17,18 @@ export function getTargetName(extensions, source, values) {
   return source;
 }
 
-function extractApiParameters(values, direction, format) {
+function extractFormatApiParameters(values, direction, format) {
   const pairs = (format.args || [])
     .filter(arg => arg.apiName)
     .map(arg => [arg.apiName, values[`${direction}_${format.storageType}_${arg.name}`]])
+    .filter(x => x[1] != null);
+  return _.fromPairs(pairs);
+}
+
+function extractDriverApiParameters(values, direction, driver) {
+  const pairs = (driver.importExportArgs || [])
+    .filter(arg => arg.apiName)
+    .map(arg => [arg.apiName, values[`${direction}_${driver.engine}_${arg.name}`]])
     .filter(x => x[1] != null);
   return _.fromPairs(pairs);
 }
@@ -48,6 +56,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
       'tableReader',
       {
         connection: sourceConnection,
+        ...extractDriverApiParameters(values, 'source', sourceDriver),
         ...fullName,
       },
     ];
@@ -57,6 +66,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
       'queryReader',
       {
         connection: sourceConnection,
+        ...extractDriverApiParameters(values, 'source', sourceDriver),
         sql: values.sourceSql,
       },
     ];
@@ -69,7 +79,7 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
         format.readerFunc,
         {
           ..._.omit(sourceFile, ['isDownload']),
-          ...extractApiParameters(values, 'source', format),
+          ...extractFormatApiParameters(values, 'source', format),
         },
       ];
     }
@@ -121,7 +131,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
           : {
               fileName: getTargetName(extensions, sourceName, values),
             }),
-        ...extractApiParameters(values, 'target', format),
+        ...extractFormatApiParameters(values, 'target', format),
       },
     ];
   }
@@ -132,6 +142,7 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
         connection: targetConnection,
         schemaName: values.targetSchemaName,
         pureName: getTargetName(extensions, sourceName, values),
+        ...extractDriverApiParameters(values, 'target', targetDriver),
         ...getFlagsFroAction(values[`actionType_${sourceName}`]),
       },
     ];

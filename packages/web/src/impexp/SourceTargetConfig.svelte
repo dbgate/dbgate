@@ -14,12 +14,13 @@
   import { findFileFormat, getFileFormatDirections } from '../plugins/fileformats';
   import SqlEditor from '../query/SqlEditor.svelte';
   import { currentArchive, currentDatabase, extensions } from '../stores';
-  import { useArchiveFiles, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { useArchiveFiles, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import FilesInput from './FilesInput.svelte';
   import FormConnectionSelect from './FormConnectionSelect.svelte';
   import FormDatabaseSelect from './FormDatabaseSelect.svelte';
   import FormSchemaSelect from './FormSchemaSelect.svelte';
   import FormTablesSelect from './FormTablesSelect.svelte';
+  import { findEngineDriver } from 'dbgate-tools';
 
   export let direction;
   export let storageTypeField;
@@ -52,6 +53,8 @@
   $: dbinfo = useDatabaseInfo({ conid: $values[connectionIdField], database: $values[databaseNameField] });
   $: archiveFiles = useArchiveFiles({ folder: $values[archiveFolderField] });
   $: format = findFileFormat($extensions, storageType);
+  $: connectionInfo = useConnectionInfo({ conid: $values[connectionIdField] });
+  $: driver = findEngineDriver($connectionInfo, $extensions);
 </script>
 
 <div class="column">
@@ -159,12 +162,20 @@
     <FilesInput {setPreviewSource} />
   {/if}
 
-  {#if format && format.args}
+  {#if format?.args}
     <FormArgumentList
       args={format.args.filter(arg => !arg.direction || arg.direction == direction)}
       namePrefix={`${direction}_${format.storageType}_`}
     />
   {/if}
+
+  {#if driver?.importExportArgs}
+  <FormArgumentList
+    args={driver?.importExportArgs.filter(arg => !arg.direction || arg.direction == direction)}
+    namePrefix={`${direction}_${driver.engine}_`}
+  />
+{/if}
+
 </div>
 
 <style>

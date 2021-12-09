@@ -59,7 +59,9 @@ const driver = {
       ? `mongodb://${user}:${password}@${server}:${port}`
       : `mongodb://${server}:${port}`;
 
-    const options = {};
+    const options = {
+      useUnifiedTopology: true,
+    };
     if (ssl) {
       options.tls = true;
       options.tlsCAFile = ssl.ca;

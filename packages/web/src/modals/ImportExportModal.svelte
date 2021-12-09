@@ -63,8 +63,6 @@
     }
   }
 
-  // $: targetArchiveFolder = importToArchive ? `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}` : $currentArchive;
-
   $: effect = useEffect(() => registerRunnerDone(runnerId));
 
   function registerRunnerDone(rid) {

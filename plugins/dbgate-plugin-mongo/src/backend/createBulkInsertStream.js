@@ -1,3 +1,5 @@
+const ObjectId = require('mongodb').ObjectId;
+
 function createBulkInsertStream(driver, stream, pool, name, options) {
   const collectionName = name.pureName;
   const db = pool.__getDatabase();
@@ -19,11 +21,17 @@ function createBulkInsertStream(driver, stream, pool, name, options) {
       )
         return;
     }
+    if (options.createStringId) {
+      row = {
+        _id: new ObjectId().toString(),
+        ...row,
+      }
+    }
     writable.buffer.push(row);
   };
 
   writable.checkStructure = async () => {
-    if (options.dropIfExists || options.truncate) {
+    if (options.dropIfExists) {
       console.log(`Dropping collection ${collectionName}`);
       await db.collection(collectionName).drop();
     }

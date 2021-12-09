@@ -48,6 +48,7 @@ export interface EngineDriver {
   beforeConnectionSave?: (values: any) => any;
   databaseUrlPlaceholder?: string;
   defaultAuthTypeName?: string;
+  importExportArgs?: any[];
   connect({ server, port, user, password, database }): Promise<any>;
   close(pool): Promise<any>;
   query(pool: any, sql: string, options?: QueryOptions): Promise<QueryResult>;
