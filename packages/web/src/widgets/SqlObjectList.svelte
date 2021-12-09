@@ -33,6 +33,7 @@
   import { findEngineDriver } from 'dbgate-tools';
   import { extensions } from '../stores';
   import newQuery from '../query/newQuery';
+  import runCommand from '../commands/runCommand';
 
   export let conid;
   export let database;
@@ -97,7 +98,16 @@
       message={`Database ${database} is empty or structure is not loaded, press Refresh button to reload structure`}
       icon="img alert"
     />
+    <div class="m-1" />
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    {#if !driver?.dialect?.nosql}
+      <div class="m-1" />
+      <InlineButton on:click={() => runCommand('new.table')}>New table</InlineButton>
+    {/if}
+    {#if driver?.dialect?.nosql}
+      <div class="m-1" />
+      <InlineButton on:click={() => runCommand('new.collection')}>New collection</InlineButton>
+    {/if}
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
