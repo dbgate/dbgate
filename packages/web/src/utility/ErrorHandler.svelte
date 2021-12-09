@@ -1,5 +1,8 @@
 <script lang="ts">
   import localforage from 'localforage';
+  import _ from 'lodash';
+  import { openedTabs } from '../stores';
+  import { getLocalStorage, setLocalStorage } from './storageCache';
 
   let counter = 0;
   $: counterCopy = counter;
@@ -19,15 +22,25 @@
         if (lastDbGateCrash && new Date().getTime() - lastDbGateCrash < 30 * 1000) {
           if (
             window.confirm(
-              'Sorry, DbGate has crashed again.\nDo you want to clear local user data to avoid crashing after next reload?'
+              'Sorry, DbGate has crashed again.\nDo you want to close all tabs in order to avoid crashing after next reload?\nYou can reopen closed tabs in closed tabs history.'
             )
           ) {
-            localStorage.removeItem('openedTabs');
             try {
-              await localforage.clear();
+              let openedTabs = getLocalStorage('openedTabs') || [];
+              if (!_.isArray(openedTabs)) openedTabs = [];
+              openedTabs = openedTabs
+                .map(tab => (tab.closedTime ? tab : { ...tab, closedTime: new Date().getTime() }))
+                .map(tab => ({ ...tab, selected: false }));
+              setLocalStorage('openedTabs', openedTabs);
+              setLocalStorage('selectedWidget', 'history');
             } catch (err) {
-              console.error('Error clearing app data', err);
+              localStorage.removeItem('openedTabs');
             }
+            // try {
+            //   await localforage.clear();
+            // } catch (err) {
+            //   console.error('Error clearing app data', err);
+            // }
             window.location.reload();
           }
         } else {
