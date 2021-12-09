@@ -60,6 +60,15 @@ const driver = {
   title: 'Microsoft SQL Server',
   defaultPort: 1433,
   defaultAuthTypeName: 'tedious',
+
+  getNewObjectTemplates() {
+    return [
+      { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
+      { label: 'New procedure', sql: 'CREATE PROCEDURE myproc (@arg1 INT)\nAS\nBEGIN\n  SELECT * FROM table1\nEND' },
+      { label: 'New function', sql: 'CREATE FUNCTION myfunc (@arg1 INT) RETURNS INT\nAS\nBEGIN\n  RETURN 1;\nEND' },
+      { label: 'New table valued function', sql: 'CREATE FUNCTION myfunc (@arg1 INT) RETURNS TABLE \nAS\nRETURN SELECT * FROM table1' },
+    ];
+  },
 };
 
 module.exports = driver;

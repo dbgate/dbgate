@@ -37,6 +37,11 @@ export interface ReadCollectionOptions {
   limit?: number;
 }
 
+export interface NewObjectTemplate {
+  label: string;
+  sql: string;
+}
+
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -81,6 +86,7 @@ export interface EngineDriver {
   createDatabase(pool: any, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script'): any;
   script(pool: any, sql: string): Promise;
+  getNewObjectTemplates(): NewObjectTemplate[];
 
   analyserClass?: any;
   dumperClass?: any;

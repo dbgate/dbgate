@@ -32,6 +32,7 @@
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
   import { findEngineDriver } from 'dbgate-tools';
   import { extensions } from '../stores';
+  import newQuery from '../query/newQuery';
 
   export let conid;
   export let database;
@@ -64,11 +65,24 @@
   };
 
   function createAddMenu() {
+    const res = [];
     if (driver?.dialect?.nosql) {
-      return [{ label: 'New collection', command: 'new.collection' }];
+      res.push({ command: 'new.collection' });
     } else {
-      return [{ label: 'New table', command: 'new.table' }];
+      res.push({ command: 'new.table' });
     }
+    if (driver)
+      res.push(
+        ...driver.getNewObjectTemplates().map(tpl => ({
+          text: tpl.label,
+          onClick: () => {
+            newQuery({
+              initialData: tpl.sql,
+            });
+          },
+        }))
+      );
+    return res;
   }
 </script>
 

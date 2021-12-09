@@ -40,4 +40,10 @@ export const driverBase = {
       await this.query(pool, sqlItem, { discardResult: true });
     }
   },
+  getNewObjectTemplates() {
+    if (!this.dialect?.nosql) {
+      return [{ label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' }];
+    }
+    return [];
+  },
 };
