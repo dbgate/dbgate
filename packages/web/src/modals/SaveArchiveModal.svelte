@@ -5,11 +5,12 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { currentArchive } from '../stores';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
   export let file = 'new-table';
-  export let folder = 'default';
+  export let folder = $currentArchive;
   export let onSave;
 
   const handleSubmit = async e => {

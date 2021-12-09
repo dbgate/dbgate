@@ -88,7 +88,11 @@
       ...tab,
       title: file,
       props: { archiveFile: file, archiveFolder: folder },
+      archiveFile: file,
+      archiveFolder: folder,
     }));
+    archiveFile = file;
+    archiveFolder = folder;
   };
 
   function handleRunMacro(macro, params, cells) {
