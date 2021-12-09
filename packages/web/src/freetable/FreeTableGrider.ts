@@ -24,11 +24,21 @@ export default class FreeTableGrider extends Grider {
   }
   setCellValue(index: number, uniqueName: string, value: any) {
     const model = this.currentModel;
-    if (model.rows[index])
+    if (model.rows[index]) {
       this.currentModel = {
         ...model,
         rows: model.rows.map((row, i) => (index == i ? { ...row, [uniqueName]: value } : row)),
       };
+    }
+  }
+  setRowData(index: number, document: any) {
+    const model = this.currentModel;
+    if (model.rows[index]) {
+      this.currentModel = {
+        ...model,
+        rows: model.rows.map((row, i) => (index == i ? document : row)),
+      };
+    }
   }
   get editable() {
     return true;
