@@ -606,7 +606,7 @@ export class SqlDumper implements AlterProcessor {
     this.putCmd('^drop %s %f', this.getSqlObjectSqlName(obj.objectTypeField), obj);
   }
 
-  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[]) {
+  fillPreloadedRows(table: NamedObjectInfo, oldRows: any[], newRows: any[], key: string[], insertOnly: string[]) {
     let was = false;
     for (const row of newRows) {
       const old = oldRows?.find(r => key.every(col => r[col] == row[col]));
@@ -614,7 +614,7 @@ export class SqlDumper implements AlterProcessor {
       if (old) {
         const updated = [];
         for (const col of rowKeys) {
-          if (row[col] != old[col]) {
+          if (row[col] != old[col] && !insertOnly?.includes(col)) {
             updated.push(col);
           }
         }

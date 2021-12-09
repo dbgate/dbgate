@@ -24,6 +24,7 @@ export interface TableInfoYaml {
   primaryKey?: string[];
 
   insertKey?: string[];
+  insertOnly?: string[];
   data?: any[];
 }
 
@@ -124,6 +125,7 @@ export function tableInfoFromYaml(table: TableInfoYaml, allTables: TableInfoYaml
   }
   res.preloadedRows = table.data;
   res.preloadedRowsKey = table.insertKey;
+  res.preloadedRowsInsertOnly = table.insertOnly;
   return res;
 }
 

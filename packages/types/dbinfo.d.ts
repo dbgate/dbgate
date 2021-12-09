@@ -80,6 +80,7 @@ export interface TableInfo extends DatabaseObjectInfo {
   checks?: CheckInfo[];
   preloadedRows?: any[];
   preloadedRowsKey?: string[];
+  preloadedRowsInsertOnly?: string[];
   __isDynamicStructure?: boolean;
 }
 

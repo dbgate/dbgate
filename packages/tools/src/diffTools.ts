@@ -328,7 +328,7 @@ function createPairs(oldList, newList, additionalCondition = null) {
 function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo) {
   const key = newTable.preloadedRowsKey || newTable.primaryKey?.columns?.map(x => x.columnName);
   if (newTable.preloadedRows?.length > 0 && key?.length > 0) {
-    plan.fillPreloadedRows(newTable, oldTable?.preloadedRows, newTable.preloadedRows, key);
+    plan.fillPreloadedRows(newTable, oldTable?.preloadedRows, newTable.preloadedRows, key, newTable.preloadedRowsInsertOnly);
   }
 }
 
