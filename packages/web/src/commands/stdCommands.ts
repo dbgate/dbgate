@@ -304,6 +304,8 @@ registerCommand({
 
       'installedPluginsWidget',
       'allPluginsWidget',
+
+      'currentArchive',
     ];
     for (const key of keys) removeLocalStorage(key);
     showSnackbarSuccess('Restart DbGate (or reload on web) for applying changes');

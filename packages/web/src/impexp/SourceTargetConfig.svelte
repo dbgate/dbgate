@@ -1,6 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
+  import FormStyledButton from '../elements/FormStyledButton.svelte';
   import FormArchiveFilesSelect from '../forms/FormArchiveFilesSelect.svelte';
+  import moment from 'moment';
 
   import FormArchiveFolderSelect from '../forms/FormArchiveFolderSelect.svelte';
   import FormArgumentList from '../forms/FormArgumentList.svelte';
@@ -11,7 +13,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { findFileFormat, getFileFormatDirections } from '../plugins/fileformats';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import { extensions } from '../stores';
+  import { currentArchive, currentDatabase, extensions } from '../stores';
   import { useArchiveFiles, useDatabaseInfo } from '../utility/metadataLoaders';
   import FilesInput from './FilesInput.svelte';
   import FormConnectionSelect from './FormConnectionSelect.svelte';
@@ -61,6 +63,44 @@
   {#if direction == 'target'}
     <div class="title">
       <FontIcon icon="icon export" /> Target configuration
+    </div>
+  {/if}
+
+  {#if direction == 'target'}
+    <div class="buttons">
+      {#if $currentDatabase}
+        <FormStyledButton
+          value="Current DB"
+          on:click={() => {
+            values.update(x => ({
+              ...x,
+              [storageTypeField]: 'database',
+              [connectionIdField]: $currentDatabase?.connection?._id,
+              [databaseNameField]: $currentDatabase?.name,
+            }));
+          }}
+        />
+      {/if}
+      <FormStyledButton
+        value="Current archive"
+        on:click={() => {
+          values.update(x => ({
+            ...x,
+            [storageTypeField]: 'archive',
+            [archiveFolderField]: $currentArchive,
+          }));
+        }}
+      />
+      <FormStyledButton
+        value="New archive"
+        on:click={() => {
+          values.update(x => ({
+            ...x,
+            [storageTypeField]: 'archive',
+            [archiveFolderField]: `import-${moment().format('YYYY-MM-DD-hh-mm-ss')}`,
+          }));
+        }}
+      />
     </div>
   {/if}
 
@@ -152,5 +192,9 @@
     margin-top: var(--dim-large-form-margin);
     margin-bottom: 3px;
     color: var(--theme-font-3);
+  }
+
+  .buttons {
+    margin-left: var(--dim-large-form-margin);
   }
 </style>
