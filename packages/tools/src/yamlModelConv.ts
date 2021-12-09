@@ -7,6 +7,7 @@ export interface ColumnInfoYaml {
   name: string;
   type: string;
   notNull?: boolean;
+  length?: number;
   autoIncrement?: boolean;
   references?: string;
   primaryKey?: boolean;
@@ -67,7 +68,7 @@ function columnInfoFromYaml(column: ColumnInfoYaml, table: TableInfoYaml): Colum
   const res: ColumnInfo = {
     pureName: table.name,
     columnName: column.name,
-    dataType: column.type,
+    dataType: column.length ? `${column.type}(${column.length})` : column.type,
     autoIncrement: column.autoIncrement,
     notNull: column.notNull || (table.primaryKey && table.primaryKey.includes(column.name)),
   };
