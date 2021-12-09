@@ -115,7 +115,8 @@ module.exports = {
 
   saveFreeTable_meta: 'post',
   async saveFreeTable({ folder, file, data }) {
-    saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
+    await saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
+    socket.emitChanged(`archive-files-changed-${folder}`);
     return true;
   },
 

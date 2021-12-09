@@ -4,6 +4,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as archiveFolderAppObject from '../appobj/ArchiveFolderAppObject.svelte';
   import runCommand from '../commands/runCommand';
+  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
 
   import InlineButton from '../elements/InlineButton.svelte';
 
@@ -25,6 +26,7 @@
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search archive folders" bind:value={filter} />
+  <CloseSearchButton bind:filter />
   <InlineButton on:click={() => runCommand('new.archiveFolder')} title="Add new archive folder">
     <FontIcon icon="icon plus-thick" />
   </InlineButton>
