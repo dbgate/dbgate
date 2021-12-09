@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { QueryResultColumn } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
@@ -18,21 +19,24 @@ export class JslGridDisplay extends GridDisplay {
     this.filterable = true;
 
     if (structure.columns) {
-      this.columns = structure.columns
-        .map(col => ({
-          columnName: col.columnName,
-          headerText: col.columnName,
-          uniqueName: col.columnName,
-          uniquePath: [col.columnName],
-          notNull: col.notNull,
-          autoIncrement: col.autoIncrement,
-          pureName: null,
-          schemaName: null,
-        }))
-        ?.map(col => ({
-          ...col,
-          isChecked: this.isColumnChecked(col),
-        }));
+      this.columns = _.uniqBy(
+        structure.columns
+          .map(col => ({
+            columnName: col.columnName,
+            headerText: col.columnName,
+            uniqueName: col.columnName,
+            uniquePath: [col.columnName],
+            notNull: col.notNull,
+            autoIncrement: col.autoIncrement,
+            pureName: null,
+            schemaName: null,
+          }))
+          ?.map(col => ({
+            ...col,
+            isChecked: this.isColumnChecked(col),
+          })),
+        col => col.uniqueName
+      );
     }
 
     if (structure.__isDynamicStructure) {

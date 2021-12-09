@@ -145,6 +145,7 @@
     gridCoreComponent={FreeTableGridCore}
     freeTableColumn
     showMacros
+    expandMacros
     onRunMacro={handleRunMacro}
     isDynamicStructure={$modelState.value?.structure?.__isDynamicStructure}
     {display}

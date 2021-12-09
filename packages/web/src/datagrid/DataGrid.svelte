@@ -80,7 +80,8 @@
 
   export let isDetailView = false;
   export let showReferences = false;
-  export let showMacros;
+  export let showMacros = false;
+  export let expandMacros = false;
   export let freeTableColumn = false;
   export let isDynamicStructure = false;
   export let macroCondition;
@@ -188,7 +189,7 @@
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed>
+      <WidgetColumnBarItem title="Macros" name="macros" skip={!showMacros} collapsed={!expandMacros}>
         <MacroManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>

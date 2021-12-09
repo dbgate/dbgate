@@ -22,13 +22,14 @@ export class FreeTableGridDisplay extends GridDisplay {
   }
 
   getDisplayColumns(model: FreeTableModel) {
-    return (
+    return _.uniqBy(
       model?.structure?.columns
         ?.map(col => this.getDisplayColumn(col))
         ?.map(col => ({
           ...col,
           isChecked: this.isColumnChecked(col),
-        })) || []
+        })) || [],
+      col => col.uniqueName
     );
   }
 
