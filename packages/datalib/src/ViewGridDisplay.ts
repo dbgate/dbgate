@@ -17,7 +17,7 @@ export class ViewGridDisplay extends GridDisplay {
     this.columns = this.getDisplayColumns(view);
     this.filterable = true;
     this.sortable = true;
-    this.groupable = true;
+    this.groupable = false;
     this.editable = false;
     this.supportsReload = true;
     this.baseView = view;
