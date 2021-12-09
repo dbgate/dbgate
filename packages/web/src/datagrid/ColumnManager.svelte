@@ -1,6 +1,7 @@
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
+  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
 
   import InlineButton from '../elements/InlineButton.svelte';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
@@ -21,6 +22,7 @@
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search columns" bind:value={filter} />
+  <CloseSearchButton bind:filter />
   {#if isDynamicStructure && !isJsonView}
     <InlineButton
       on:click={() => {

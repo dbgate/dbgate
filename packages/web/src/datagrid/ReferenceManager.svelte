@@ -2,6 +2,7 @@
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import { createEventDispatcher } from 'svelte';
+import CloseSearchButton from '../elements/CloseSearchButton.svelte';
 
   import InlineButton from '../elements/InlineButton.svelte';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
@@ -26,6 +27,7 @@
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search references" bind:value={filter} />
+  <CloseSearchButton bind:filter />
 </SearchBoxWrapper>
 <ManagerInnerContainer width={managerSize}>
   {#if foreignKeys.length > 0}

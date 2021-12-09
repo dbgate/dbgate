@@ -10,6 +10,7 @@
   import socket from '../utility/socket';
   import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
+  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
 
   let filter = '';
   let search = '';
@@ -43,11 +44,16 @@
       socket.off('query-history-changed', reloadItems);
     };
   });
-
 </script>
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search query history" {filter} bind:value={filter} />
+  <CloseSearchButton
+    bind:filter
+    on:click={() => {
+      search = '';
+    }}
+  />
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   {#each historyItems as item}
@@ -98,5 +104,4 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
 </style>

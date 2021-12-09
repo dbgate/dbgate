@@ -7,7 +7,13 @@
 </script>
 
 {#if filter}
-  <InlineButton on:click={() => (filter = '')} title="Clear filter">
+  <InlineButton
+    on:click
+    on:click={() => {
+      filter = '';
+    }}
+    title="Clear filter"
+  >
     <FontIcon icon="icon close" />
   </InlineButton>
 {/if}
