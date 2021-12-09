@@ -165,10 +165,10 @@
     clearEditorData();
   }
 
-  $: {
-    // if (!$editorState.isLoading && !$editorValue)
-    if (domEditor && !pureName) domEditor.addColumn();
-  }
+  // $: {
+  //   // if (!$editorState.isLoading && !$editorValue)
+  //   if (domEditor && !pureName) domEditor.addColumn();
+  // }
 </script>
 
 <TableEditor

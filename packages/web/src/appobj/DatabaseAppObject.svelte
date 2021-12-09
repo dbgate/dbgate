@@ -34,6 +34,9 @@
           editor: {
             columns: [],
           },
+        },
+        {
+          forceNewTab: true,
         }
       );
     };

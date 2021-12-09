@@ -1,60 +1,60 @@
 <script lang="ts" context="module">
   const getCurrentEditor = () => getActiveComponent('TableEditor');
 
-  registerCommand({
-    id: 'tableEditor.addColumn',
-    category: 'Table editor',
-    name: 'Add column',
-    icon: 'icon add-column',
-    toolbar: true,
-    isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
-    onClick: () => getCurrentEditor().addColumn(),
-  });
+  // registerCommand({
+  //   id: 'tableEditor.addColumn',
+  //   category: 'Table editor',
+  //   name: 'Add column',
+  //   icon: 'icon add-column',
+  //   toolbar: true,
+  //   isRelatedToTab: true,
+  //   testEnabled: () => getCurrentEditor()?.writable(),
+  //   onClick: () => getCurrentEditor().addColumn(),
+  // });
 
-  registerCommand({
-    id: 'tableEditor.addPrimaryKey',
-    category: 'Table editor',
-    name: 'Add primary key',
-    icon: 'icon add-key',
-    toolbar: true,
-    isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.allowAddPrimaryKey(),
-    onClick: () => getCurrentEditor().addPrimaryKey(),
-  });
+  // registerCommand({
+  //   id: 'tableEditor.addPrimaryKey',
+  //   category: 'Table editor',
+  //   name: 'Add primary key',
+  //   icon: 'icon add-key',
+  //   toolbar: true,
+  //   isRelatedToTab: true,
+  //   testEnabled: () => getCurrentEditor()?.allowAddPrimaryKey(),
+  //   onClick: () => getCurrentEditor().addPrimaryKey(),
+  // });
 
-  registerCommand({
-    id: 'tableEditor.addForeignKey',
-    category: 'Table editor',
-    name: 'Add foreign key',
-    icon: 'icon add-key',
-    toolbar: true,
-    isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
-    onClick: () => getCurrentEditor().addForeignKey(),
-  });
+  // registerCommand({
+  //   id: 'tableEditor.addForeignKey',
+  //   category: 'Table editor',
+  //   name: 'Add foreign key',
+  //   icon: 'icon add-key',
+  //   toolbar: true,
+  //   isRelatedToTab: true,
+  //   testEnabled: () => getCurrentEditor()?.writable(),
+  //   onClick: () => getCurrentEditor().addForeignKey(),
+  // });
 
-  registerCommand({
-    id: 'tableEditor.addIndex',
-    category: 'Table editor',
-    name: 'Add index',
-    icon: 'icon add-key',
-    toolbar: true,
-    isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
-    onClick: () => getCurrentEditor().addIndex(),
-  });
+  // registerCommand({
+  //   id: 'tableEditor.addIndex',
+  //   category: 'Table editor',
+  //   name: 'Add index',
+  //   icon: 'icon add-key',
+  //   toolbar: true,
+  //   isRelatedToTab: true,
+  //   testEnabled: () => getCurrentEditor()?.writable(),
+  //   onClick: () => getCurrentEditor().addIndex(),
+  // });
 
-  registerCommand({
-    id: 'tableEditor.addUnique',
-    category: 'Table editor',
-    name: 'Add unique',
-    icon: 'icon add-key',
-    toolbar: true,
-    isRelatedToTab: true,
-    testEnabled: () => getCurrentEditor()?.writable(),
-    onClick: () => getCurrentEditor().addUnique(),
-  });
+  // registerCommand({
+  //   id: 'tableEditor.addUnique',
+  //   category: 'Table editor',
+  //   name: 'Add unique',
+  //   icon: 'icon add-key',
+  //   toolbar: true,
+  //   isRelatedToTab: true,
+  //   testEnabled: () => getCurrentEditor()?.writable(),
+  //   onClick: () => getCurrentEditor().addUnique(),
+  // });
 </script>
 
 <script lang="ts">
@@ -103,9 +103,9 @@
     });
   }
 
-  export function allowAddPrimaryKey() {
-    return writable() && !tableInfo?.primaryKey;
-  }
+  // export function allowAddPrimaryKey() {
+  //   return writable() && !tableInfo?.primaryKey;
+  // }
 
   export function addPrimaryKey() {
     showModal(PrimaryKeyEditorModal, {
@@ -155,10 +155,10 @@
   <ObjectListControl
     collection={columns?.map((x, index) => ({ ...x, ordinal: index + 1 }))}
     title={`Columns (${columns?.length || 0})`}
-    showIfEmpty
+    emptyMessage="No columns defined"
     clickable={writable()}
     on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo })}
-    onAddNew={addColumn}
+    onAddNew={writable() ? addColumn : null}
     columns={[
       {
         fieldName: 'notNull',
@@ -219,7 +219,8 @@
   <ObjectListControl
     collection={_.compact([primaryKey])}
     title="Primary key"
-    onAddNew={primaryKey ? null : addPrimaryKey}
+    emptyMessage={writable() ? 'No primary key defined' : null}
+    onAddNew={writable() && !primaryKey && columns?.length > 0 ? addPrimaryKey : null}
     clickable={writable()}
     on:clickrow={e => showModal(PrimaryKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
@@ -251,8 +252,9 @@
 
   <ObjectListControl
     collection={indexes}
-    onAddNew={addIndex}
+    onAddNew={writable() && columns?.length > 0 ? addIndex : null}
     title={`Indexes (${indexes?.length || 0})`}
+    emptyMessage={writable() ? 'No index defined' : null}
     clickable={writable()}
     on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
@@ -284,8 +286,9 @@
 
   <ObjectListControl
     collection={uniques}
-    onAddNew={addUnique}
+    onAddNew={writable() && columns?.length > 0 ? addUnique : null}
     title={`Unique constraints (${uniques?.length || 0})`}
+    emptyMessage={writable() ? 'No unique defined' : null}
     clickable={writable()}
     on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
@@ -317,8 +320,9 @@
 
   <ForeignKeyObjectListControl
     collection={foreignKeys}
-    onAddNew={addForeignKey}
+    onAddNew={writable() && columns?.length > 0 ? addForeignKey : null}
     title={`Foreign keys (${foreignKeys?.length || 0})`}
+    emptyMessage={writable() ? 'No foreign key defined' : null}
     clickable={writable()}
     onRemove={row => setTableInfo(tbl => editorDeleteConstraint(tbl, row))}
     on:clickrow={e => showModal(ForeignKeyEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo, dbInfo })}

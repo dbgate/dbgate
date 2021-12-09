@@ -11,6 +11,7 @@
   export let clickable;
   export let onRemove = null;
   export let onAddNew = null;
+  export let emptyMessage = null;
 </script>
 
 <ObjectListControl
@@ -18,6 +19,7 @@
   {title}
   {onAddNew}
   {clickable}
+  {emptyMessage}
   on:clickrow
   columns={[
     {

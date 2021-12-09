@@ -142,6 +142,9 @@ registerCommand({
         editor: {
           columns: [],
         },
+      },
+      {
+        forceNewTab: true,
       }
     );
   },
