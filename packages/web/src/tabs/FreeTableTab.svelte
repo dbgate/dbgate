@@ -41,6 +41,7 @@
   import { showModal } from '../modals/modalTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
+  import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
   import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { registerMenu } from '../utility/contextMenu';
@@ -93,6 +94,7 @@
     }));
     archiveFile = file;
     archiveFolder = folder;
+    markArchiveFileAsDataSheet(folder, file);
   };
 
   function handleRunMacro(macro, params, cells) {

@@ -43,7 +43,6 @@
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
   const ARCHIVE_ICONS = {
-    jsonl: 'img archive',
     'table.yaml': 'img table',
     'view.sql': 'img view',
     'proc.sql': 'img procedure',
@@ -51,6 +50,15 @@
     'trigger.sql': 'img sql-file',
     'matview.sql': 'img view',
   };
+
+  function getArchiveIcon(archiveFilesAsDataSheets, data) {
+    if (data.fileType == 'jsonl') {
+      return isArchiveFileMarkedAsDataSheet(archiveFilesAsDataSheets, data.folderName, data.fileName)
+        ? 'img free-table'
+        : 'img archive';
+    }
+    return ARCHIVE_ICONS[data.fileType];
+  }
 </script>
 
 <script lang="ts">
@@ -59,7 +67,7 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentArchive, extensions, getCurrentDatabase } from '../stores';
+  import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
 
   import axiosInstance from '../utility/axiosInstance';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
@@ -69,6 +77,11 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import {
+    isArchiveFileMarkedAsDataSheet,
+    markArchiveFileAsDataSheet,
+    markArchiveFileAsReadonly,
+  } from '../utility/archiveTools';
 
   export let data;
 
@@ -101,9 +114,11 @@
     });
   };
   const handleOpenRead = () => {
+    markArchiveFileAsReadonly(data.folderName, data.fileName);
     openArchive(data.fileName, data.folderName);
   };
   const handleOpenWrite = () => {
+    markArchiveFileAsDataSheet(data.folderName, data.fileName);
     openNewTab({
       title: data.fileName,
       icon: 'img free-table',
@@ -122,7 +137,13 @@
     });
   };
   const handleClick = () => {
-    if (data.fileType == 'jsonl') openArchive(data.fileName, data.folderName);
+    if (data.fileType == 'jsonl') {
+      if (isArchiveFileMarkedAsDataSheet($archiveFilesAsDataSheets, data.folderName, data.fileName)) {
+        handleOpenWrite();
+      } else {
+        handleOpenRead();
+      }
+    }
     if (data.fileType.endsWith('.sql')) {
       handleOpenSqlFile();
     }
@@ -179,7 +200,7 @@
   {...$$restProps}
   {data}
   title={data.fileLabel}
-  icon={ARCHIVE_ICONS[data.fileType]}
+  icon={getArchiveIcon($archiveFilesAsDataSheets, data)}
   menu={createMenu}
   on:click={handleClick}
 />
