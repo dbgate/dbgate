@@ -103,7 +103,7 @@
   <SearchBoxWrapper>
     <SearchInput placeholder="Search tables or objects" bind:value={filter} />
     <CloseSearchButton bind:filter />
-    <DropDownButton icon="img add" menu={createAddMenu} />
+    <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list">
       <FontIcon icon="icon refresh" />
     </InlineButton>

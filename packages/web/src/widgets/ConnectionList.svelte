@@ -40,7 +40,7 @@
   <SearchInput placeholder="Search connection or database" bind:value={filter} />
   <CloseSearchButton bind:filter />
   <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
-    <FontIcon icon="img add" />
+    <FontIcon icon="icon plus-thick" />
   </InlineButton>
   <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
     <FontIcon icon="icon refresh" />
