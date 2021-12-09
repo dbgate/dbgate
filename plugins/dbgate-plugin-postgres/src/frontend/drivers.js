@@ -68,6 +68,30 @@ const postgresDriverBase = {
   __analyserInternals: {
     refTableCond: '',
   },
+
+  getNewObjectTemplates() {
+    return [
+      { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
+      {
+        label: 'New procedure',
+        sql: `CREATE PROCEDURE myproc (arg1 INT)
+LANGUAGE SQL 
+AS $$
+  SELECT * FROM table1;
+$$`,
+      },
+      {
+        label: 'New function (plpgsql)',
+        sql: `CREATE FUNCTION myfunc (arg1 INT)
+RETURNS INT
+AS $$
+BEGIN
+  RETURN 1;
+END
+$$ LANGUAGE plpgsql;`,
+      },
+    ];
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
