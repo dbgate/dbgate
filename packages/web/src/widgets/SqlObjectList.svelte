@@ -16,7 +16,7 @@
   import InlineButton from '../elements/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
@@ -27,6 +27,11 @@
   import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
+  import DropDownButton from '../elements/DropDownButton.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import { findEngineDriver } from 'dbgate-tools';
+  import { extensions } from '../stores';
 
   export let conid;
   export let database;
@@ -35,6 +40,9 @@
 
   $: objects = useDatabaseInfo({ conid, database });
   $: status = useDatabaseStatus({ conid, database });
+
+  $: connection = useConnectionInfo({ conid });
+  $: driver = findEngineDriver($connection, $extensions);
 
   // $: console.log('OBJECTS', $objects);
 
@@ -54,6 +62,14 @@
   const handleRefreshDatabase = () => {
     axiosInstance.post('database-connections/refresh', { conid, database });
   };
+
+  function createAddMenu() {
+    if (driver?.dialect?.nosql) {
+      return [{ label: 'New collection', command: 'new.collection' }];
+    } else {
+      return [{ label: 'New table', command: 'new.table' }];
+    }
+  }
 </script>
 
 {#if $status && $status.name == 'error'}
@@ -72,7 +88,11 @@
 {:else}
   <SearchBoxWrapper>
     <SearchInput placeholder="Search tables or objects" bind:value={filter} />
-    <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
+    <CloseSearchButton bind:filter />
+    <DropDownButton icon="img add" menu={createAddMenu} />
+    <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list">
+      <FontIcon icon="icon refresh" />
+    </InlineButton>
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}

@@ -115,7 +115,7 @@ registerCommand({
 registerCommand({
   id: 'new.table',
   category: 'New',
-  icon: 'img table',
+  icon: 'icon table',
   name: 'Table',
   toolbar: true,
   toolbarName: 'New table',
@@ -144,6 +144,41 @@ registerCommand({
         },
       }
     );
+  },
+});
+
+registerCommand({
+  id: 'new.collection',
+  category: 'New',
+  icon: 'icon table',
+  name: 'Collection',
+  toolbar: true,
+  toolbarName: 'New collection',
+  testEnabled: () => {
+    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
+    return !!get(currentDatabase) && driver?.dialect?.nosql;
+  },
+  onClick: async () => {
+    const $currentDatabase = get(currentDatabase);
+    const connection = _.get($currentDatabase, 'connection') || {};
+    const database = _.get($currentDatabase, 'name');
+
+    const dbid = { conid: connection._id, database };
+
+    showModal(InputTextModal, {
+      value: '',
+      label: 'New collection name',
+      header: 'Create collection',
+      onConfirm: async newCollection => {
+        await axiosInstance.request({
+          url: 'database-connections/run-script',
+          method: 'post',
+          params: dbid,
+          data: { sql: `db.createCollection('${newCollection}')` },
+        });
+        axiosInstance.post('database-connections/sync-model', dbid);
+      },
+    });
   },
 });
 

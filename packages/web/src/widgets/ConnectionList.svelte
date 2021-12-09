@@ -14,6 +14,8 @@
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -36,7 +38,13 @@
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search connection or database" bind:value={filter} />
-  <InlineButton on:click={handleRefreshConnections}>Refresh</InlineButton>
+  <CloseSearchButton bind:filter />
+  <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
+    <FontIcon icon="img add" />
+  </InlineButton>
+  <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
+    <FontIcon icon="icon refresh" />
+  </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList

@@ -38,6 +38,7 @@
     'icon filter': 'mdi mdi-filter',
     'icon filter-off': 'mdi mdi-filter-off',
     'icon reload': 'mdi mdi-reload',
+    'icon refresh': 'mdi mdi-refresh',
     'icon undo': 'mdi mdi-undo',
     'icon redo': 'mdi mdi-redo',
     'icon save': 'mdi mdi-content-save',
@@ -78,6 +79,7 @@
     'icon checkbox-marked': 'mdi mdi-checkbox-marked-outline',
     'icon dots-horizontal': 'mdi mdi-dots-horizontal',
     'icon dots-vertical': 'mdi mdi-dots-vertical',
+    'icon add': 'mdi mdi-plus-circle',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
