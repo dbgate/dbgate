@@ -11,7 +11,7 @@ export async function enrichWithPreloadedRows(
   const repl = {};
   for (const tableTarget of dbTarget.tables) {
     const tableModel = dbModel.tables.find(x => x.pairingId == tableTarget.pairingId);
-    if ((tableModel.preloadedRows?.length || 0) == 0) continue;
+    if ((tableModel?.preloadedRows?.length || 0) == 0) continue;
     const keyColumns = tableModel.preloadedRowsKey || tableModel.primaryKey?.columns?.map(x => x.columnName);
     if ((keyColumns?.length || 0) == 0) continue;
     const dmp = driver.createDumper();
@@ -24,7 +24,7 @@ export async function enrichWithPreloadedRows(
       );
     } else {
       dmp.put('^select * ^from %f ^where', tableTarget);
-      dmp.putCollection(' ^or ', tableTarget.preloadedRows, row => {
+      dmp.putCollection(' ^or ', tableModel.preloadedRows, row => {
         dmp.put('(');
         dmp.putCollection(' ^and ', keyColumns, col => dmp.put('%i=%v', col, row[col]));
         dmp.put(')');
