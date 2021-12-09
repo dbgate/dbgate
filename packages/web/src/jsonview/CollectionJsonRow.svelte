@@ -4,7 +4,11 @@
     showModal(EditJsonModal, {
       json: rowData,
       onSave: value => {
-        if (grider.getRowStatus(rowIndex).status != 'inserted' && rowData._id && value._id != rowData._id) {
+        if (
+          grider.getRowStatus(rowIndex).status != 'inserted' &&
+          rowData._id &&
+          stableStringify(value._id) != stableStringify(rowData._id)
+        ) {
           showModal(ErrorMessageModal, { message: '_id attribute cannot be changed' });
           return false;
         }
@@ -22,6 +26,7 @@
   import { showModal } from '../modals/modalTools';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { getContextMenu, registerMenu } from '../utility/contextMenu';
+  import stableStringify from 'json-stable-stringify';
 
   export let rowIndex;
   export let grider;
