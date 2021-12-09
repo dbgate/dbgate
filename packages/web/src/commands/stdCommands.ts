@@ -113,6 +113,23 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.archiveFolder',
+  category: 'New',
+  icon: 'img archive',
+  name: 'Archive folder',
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'New archive folder name',
+      header: 'Create archive folder',
+      onConfirm: async folder => {
+        axiosInstance.post('archive/create-folder', { folder });
+      },
+    });
+  },
+});
+
+registerCommand({
   id: 'new.table',
   category: 'New',
   icon: 'icon table',

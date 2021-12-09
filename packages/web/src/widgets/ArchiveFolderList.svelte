@@ -3,11 +3,13 @@
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as archiveFolderAppObject from '../appobj/ArchiveFolderAppObject.svelte';
+  import runCommand from '../commands/runCommand';
 
   import InlineButton from '../elements/InlineButton.svelte';
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import axiosInstance from '../utility/axiosInstance';
   import { useArchiveFolders } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -23,7 +25,12 @@
 
 <SearchBoxWrapper>
   <SearchInput placeholder="Search archive folders" bind:value={filter} />
-  <InlineButton on:click={handleRefreshFolders}>Refresh</InlineButton>
+  <InlineButton on:click={() => runCommand('new.archiveFolder')} title="Add new archive folder">
+    <FontIcon icon="icon plus-thick" />
+  </InlineButton>
+  <InlineButton on:click={handleRefreshFolders} title="Refresh archive folder list">
+    <FontIcon icon="icon refresh" />
+  </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList list={_.sortBy($folders, 'name')} module={archiveFolderAppObject} {filter} />

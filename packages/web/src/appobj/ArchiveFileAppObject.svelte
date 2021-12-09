@@ -106,7 +106,7 @@
   const handleOpenWrite = () => {
     openNewTab({
       title: data.fileName,
-      icon: 'img archive',
+      icon: 'img free-table',
       tabComponent: 'FreeTableTab',
       props: {
         initialArgs: {
