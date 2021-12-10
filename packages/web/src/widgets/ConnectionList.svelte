@@ -39,9 +39,11 @@
 <SearchBoxWrapper>
   <SearchInput placeholder="Search connection or database" bind:value={filter} />
   <CloseSearchButton bind:filter />
-  <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
-    <FontIcon icon="icon plus-thick" />
-  </InlineButton>
+  {#if $commandsCustomized['new.connection']?.enabled}
+    <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
+      <FontIcon icon="icon plus-thick" />
+    </InlineButton>
+  {/if}
   <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
     <FontIcon icon="icon refresh" />
   </InlineButton>
