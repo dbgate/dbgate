@@ -1,5 +1,19 @@
 # ChangeLog
 
+### 4.4.4
+- FIXED: Database colors
+- CHANGED: Precise work with MongoDB ObjectId
+- FIXED: Run macro works on MongoDB collection data editor
+- ADDED: Type conversion macros
+- CHANGED: Improved UX of import into current database or current archive
+- ADDED: Posibility to create string MongoDB IDs when importing into MongoDB collections
+- CHANGED: Better crash recovery
+- FIXED: Context menu of data editor when using views - some commands didn't work for views
+- ADDED: Widget lists (on left side) now supports add operation, where it has sense
+- CHANGED: Improved UX of saved data sheets
+- ADDED: deploy - preloadedRows: impelemnted onsertOnly columns
+- ADDED: Show change log after app upgrade
+
 ### 4.4.3
 - ADDED: Connection and database colors
 - ADDED: Ability to pin connection or table
