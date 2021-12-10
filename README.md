@@ -6,8 +6,11 @@
 
 # DbGate - database manager
 
-DbGate is modern, fast and easy to use (no)SQL database client
+DbGate is modern, fast and easy to use (no)SQL database client. It's focused on effective work with data, it offers advanced filtering or seamless work with relationships. But also it has some more compelling features like schema compare, visual query designer or batch export and import.
 
+Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try it in online [demo application](https://demo.dbgate.org)
+
+<!-- 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
@@ -20,10 +23,11 @@ Supported databases:
 * SQLite
 * Amazon Redshift
 * CockroachDB
-* MariaDB
+* MariaDB -->
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
+<!--
 ## Features
 * Table data editing, with SQL change script preview
 * Edit table schema, indexes, primary and foreign keys
@@ -46,18 +50,20 @@ Supported databases:
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
 * Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
-* Extensible plugin architecture
+* Extensible plugin architecture -->
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
-* Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
 * Tell your friends about DbGate or share on social networks - when more people will use DbGate, it will grow to be better
+* Write review on [Slant.co](https://www.slant.co/improve/options/41086/~dbgate-review) or [G2](https://www.g2.com/products/dbgate/reviews) 
+* Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
+* Become a backer on [Open collective](https://opencollective.com/dbgate)
 
 ## Why is DbGate different
 There are many database managers now, so why DbGate? 
 * Works everywhere - Windows, Linux, Mac, Web browser (+mobile web is planned), without compromises in features
 * Based on standalone NPM packages, scripts can be run without DbGate (example - [CSV export](https://www.npmjs.com/package/dbgate-plugin-csv) )
-* Many data browsing functions based using foreign keys - master/detail, expand columns, expandable form view (on screenshot above)
+* Many data browsing functions based using foreign keys - master/detail, expand columns, expandable form view
 
 ## Design goals
 * Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) .
@@ -68,7 +74,7 @@ There are many database managers now, so why DbGate?
     * App - electron
 * Platform independent - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
-## Plugins
+<!-- ## Plugins
 Plugins are standard NPM packages published on [npmjs.com](https://www.npmjs.com).  
 See all [existing DbGate plugins](https://www.npmjs.com/search?q=keywords:dbgateplugin).  
 Visit [dbgate generator homepage](https://github.com/dbgate/generator-dbgate) to see, how to create your own plugin.  
@@ -77,7 +83,7 @@ Currently following extensions can be implemented using plugins:
 - File format parsers/writers
 - Database engine connectors
 
-Basic set of plugins is part of DbGate git repository and is installed with app. Additional plugins pust be downloaded from NPM (this task is handled by DbGate)
+Basic set of plugins is part of DbGate git repository and is installed with app. Additional plugins pust be downloaded from NPM (this task is handled by DbGate) -->
 
 ## How to run development environment
 
