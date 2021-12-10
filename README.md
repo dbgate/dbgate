@@ -4,11 +4,11 @@
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-# DbGate - database manager
+# DbGate
 
-DbGate is modern, fast and easy to use (no)SQL database client. It's focused on effective work with data, it offers advanced filtering or seamless work with relationships. But also it has some more compelling features like schema compare, visual query designer or batch export and import.
+DbGate is cross-platform (no)SQL database client. It's focused on effective work with data, it offers advanced filtering or seamless work with relationships. But also it has some more compelling features like schema compare, visual query designer or batch export and import.
 
-Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try it in online [demo application](https://demo.dbgate.org)
+Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org)
 
 <!-- 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
@@ -54,10 +54,13 @@ Supported databases:
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
+
 * Tell your friends about DbGate or share on social networks - when more people will use DbGate, it will grow to be better
 * Write review on [Slant.co](https://www.slant.co/improve/options/41086/~dbgate-review) or [G2](https://www.g2.com/products/dbgate/reviews) 
 * Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
 * Become a backer on [Open collective](https://opencollective.com/dbgate)
+
+Thank you!
 
 ## Why is DbGate different
 There are many database managers now, so why DbGate? 
@@ -72,7 +75,7 @@ There are many database managers now, so why DbGate?
     * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
     * JavaScript + TypeScript
     * App - electron
-* Platform independent - will run as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
+* Platform independent - runs as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
 
 <!-- ## Plugins
 Plugins are standard NPM packages published on [npmjs.com](https://www.npmjs.com).  
