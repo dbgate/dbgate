@@ -1,11 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { openFavorite } from '../appobj/FavoriteFileAppObject.svelte';
+  import runCommand from '../commands/runCommand';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { openedTabs } from '../stores';
 
-  import { useFavorites } from './metadataLoaders';
+  import { getConfig, useFavorites } from './metadataLoaders';
+  import { showSnackbarInfo } from './snackbar';
 
   $: favorites = useFavorites();
   let opened = false;
@@ -16,7 +18,7 @@
 
   $: openOnStartup($favorites);
 
-  function openOnStartup(list) {
+  async function openOnStartup(list) {
     if (!list) return;
     if (opened) return;
 
@@ -45,5 +47,13 @@
         openFavorite(favorite);
       }
     }
+
+    const config = await getConfig();
+    const appVersion = localStorage.getItem('appVersion');
+    if (appVersion && appVersion != config.version) {
+      runCommand('tabs.changelog');
+      showSnackbarInfo(`DbGate upgraded from version ${appVersion} to version ${config.version}`);
+    }
+    localStorage.setItem('appVersion', config.version);
   }
 </script>

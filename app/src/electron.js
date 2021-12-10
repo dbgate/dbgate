@@ -120,6 +120,7 @@ function buildMenu() {
             require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
+        commandItem('tabs.changelog'),
         commandItem('about.show'),
       ],
     },

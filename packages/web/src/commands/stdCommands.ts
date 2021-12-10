@@ -267,6 +267,20 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'tabs.changelog',
+  category: 'Tabs',
+  name: 'Changelog',
+  onClick: () => {
+    openNewTab({
+      title: 'ChangeLog',
+      icon: 'img markdown',
+      tabComponent: 'ChangelogTab',
+      props: {},
+    });
+  },
+});
+
+registerCommand({
   id: 'group.save',
   category: null,
   isGroupCommand: true,

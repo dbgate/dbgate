@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
+const axios = require('axios');
 const { datadir } = require('../utility/directories');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
@@ -57,5 +58,11 @@ module.exports = {
     } catch (err) {
       return false;
     }
+  },
+
+  changelog_meta: 'get',
+  async changelog() {
+    const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
+    return resp.data;
   },
 };
