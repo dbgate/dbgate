@@ -30,7 +30,6 @@
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
   });
-
 </script>
 
 <script lang="ts">
@@ -59,6 +58,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { findEngineDriver } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
 
   export let tabid;
   export let conid;
@@ -245,7 +245,6 @@
       { command: 'query.replace' },
     ];
   }
-
 </script>
 
 <VerticalSplitter isSplitter={visibleResultTabs}>
@@ -292,3 +291,7 @@
     </ResultTabs>
   </svelte:fragment>
 </VerticalSplitter>
+
+{#if sessionId}
+  <StatusBarTabItem icon={busy ? 'icon loading' : 'icon check'} text={busy ? 'Running...' : 'Finished'} />
+{/if}

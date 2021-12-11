@@ -155,7 +155,11 @@
             <RunnerOutputFiles {runnerId} {executeNumber} />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem title="Messages" name="messages">
-            <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} />
+            <SocketMessageView
+              eventName={runnerId ? `runner-info-${runnerId}` : null}
+              {executeNumber}
+              showNoMessagesAlert
+            />
           </WidgetColumnBarItem>
           <WidgetColumnBarItem title="Preview" name="preview" skip={!$previewReaderStore}>
             <PreviewDataGrid reader={$previewReaderStore} />

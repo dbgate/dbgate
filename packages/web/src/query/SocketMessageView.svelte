@@ -13,6 +13,7 @@
   export let showLine = false;
   export let eventName;
   export let executeNumber;
+  export let showNoMessagesAlert = false;
 
   const cachedMessagesRef = createRef([]);
 
@@ -47,7 +48,7 @@
   $: $effect;
 </script>
 
-{#if !displayedMessages || displayedMessages.length == 0}
+{#if showNoMessagesAlert && (!displayedMessages || displayedMessages.length == 0)}
   <ErrorInfo message="No messages" icon="img alert" />
 {:else}
   <MessageView items={displayedMessages} on:messageclick {showProcedure} {showLine} />
