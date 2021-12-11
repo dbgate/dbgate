@@ -72,6 +72,7 @@ const postgresDriverBase = {
   getNewObjectTemplates() {
     return [
       { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
+      { label: 'New materialized view', sql: 'CREATE MATERIALIZED VIEW myview\nAS\nSELECT * FROM table1' },
       {
         label: 'New procedure',
         sql: `CREATE PROCEDURE myproc (arg1 INT)

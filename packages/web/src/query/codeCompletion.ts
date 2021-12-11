@@ -47,11 +47,15 @@ export function mountCodeCompletion({ conid, database, editor }) {
         const sources = analyseQuerySources(editor.getValue(), [
           ...dbinfo.tables.map(x => x.pureName),
           ...dbinfo.views.map(x => x.pureName),
+          ...dbinfo.matviews.map(x => x.pureName),
+          // ...dbinfo.functions.map(x => x.pureName),
+          // ...dbinfo.procedures.map(x => x.pureName),
         ]);
         const sourceObjects = sources.map(src => {
           const table = dbinfo.tables.find(x => x.pureName == src.name);
           const view = dbinfo.views.find(x => x.pureName == src.name);
-          return { ...(table || view), alias: src.alias };
+          const matview = dbinfo.matviews.find(x => x.pureName == src.name);
+          return { ...(table || view || matview), alias: src.alias };
         });
 
         if (colMatch) {
@@ -74,7 +78,7 @@ export function mountCodeCompletion({ conid, database, editor }) {
               ];
             }
 
-            const view = dbinfo.views.find(x => x.pureName == source.name);
+            const view = [...(dbinfo.views || []), ...(dbinfo.matviews || [])].find(x => x.pureName == source.name);
             if (view) {
               list = [
                 ...view.columns.map(x => ({
@@ -90,36 +94,68 @@ export function mountCodeCompletion({ conid, database, editor }) {
         } else {
           const onlyTables =
             lastKeyword == 'FROM' || lastKeyword == 'JOIN' || lastKeyword == 'UPDATE' || lastKeyword == 'DELETE';
-          list = [
-            ...(onlyTables ? [] : list),
-            ...dbinfo.tables.map(x => ({
+          const onlyProcedures = lastKeyword == 'EXEC' || lastKeyword == 'EXECUTE' || lastKeyword == 'CALL';
+          if (onlyProcedures) {
+            list = dbinfo.procedures.map(x => ({
               name: x.pureName,
               value: x.pureName,
               caption: x.pureName,
-              meta: 'table',
+              meta: 'procedure',
               score: 1000,
-            })),
-            ...dbinfo.views.map(x => ({
-              name: x.pureName,
-              value: x.pureName,
-              caption: x.pureName,
-              meta: 'view',
-              score: 1000,
-            })),
-            ...(onlyTables
-              ? []
-              : _.flatten(
-                  sourceObjects.map(obj =>
-                    obj.columns.map(col => ({
-                      name: col.columnName,
-                      value: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
-                      caption: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
-                      meta: 'column',
-                      score: 1200,
-                    }))
-                  )
-                )),
-          ];
+            }));
+          } else {
+            list = [
+              ...(onlyTables ? [] : list),
+              ...dbinfo.tables.map(x => ({
+                name: x.pureName,
+                value: x.pureName,
+                caption: x.pureName,
+                meta: 'table',
+                score: 1000,
+              })),
+              ...dbinfo.views.map(x => ({
+                name: x.pureName,
+                value: x.pureName,
+                caption: x.pureName,
+                meta: 'view',
+                score: 1000,
+              })),
+              ...dbinfo.matviews.map(x => ({
+                name: x.pureName,
+                value: x.pureName,
+                caption: x.pureName,
+                meta: 'matview',
+                score: 1000,
+              })),
+              ...dbinfo.functions.map(x => ({
+                name: x.pureName,
+                value: x.pureName,
+                caption: x.pureName,
+                meta: 'function',
+                score: 1000,
+              })),
+              ...dbinfo.procedures.map(x => ({
+                name: x.pureName,
+                value: x.pureName,
+                caption: x.pureName,
+                meta: 'procedure',
+                score: 1000,
+              })),
+              ...(onlyTables
+                ? []
+                : _.flatten(
+                    sourceObjects.map(obj =>
+                      obj.columns.map(col => ({
+                        name: col.columnName,
+                        value: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
+                        caption: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
+                        meta: `column (${obj.pureName})`,
+                        score: 1200,
+                      }))
+                    )
+                  )),
+            ];
+          }
         }
       }
 
@@ -147,7 +183,7 @@ export function mountCodeCompletion({ conid, database, editor }) {
         editor.execCommand('startAutocomplete');
       }
 
-      if (e.args == ' ' && /((from)|(join)|(update))\s*$/i.test(line)) {
+      if (e.args == ' ' && /((from)|(join)|(update)|(call)|(exec)|(execute))\s*$/i.test(line)) {
         editor.execCommand('startAutocomplete');
       }
     }
