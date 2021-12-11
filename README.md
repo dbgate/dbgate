@@ -6,7 +6,9 @@
 
 # DbGate
 
-DbGate is cross-platform (no)SQL database client. It's focused on effective work with data, it offers advanced filtering or seamless work with relationships. But also it has some more compelling features like schema compare, visual query designer or batch export and import.
+DbGate is cross-platform (no)SQL database client. 
+It's designed to be simple to use and effective, when working with more databases simultaneously.
+But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.
 
 Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org)
 
