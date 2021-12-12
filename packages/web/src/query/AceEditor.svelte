@@ -25,6 +25,7 @@
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
+  import { splitQuery } from 'dbgate-query-splitter';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -50,14 +51,19 @@
   export let mode: string = 'text'; // String
   // export let theme: string = 'github'; // String
   export let options: any = {}; // Object
-  export let menu;
-  export let readOnly;
+  export let menu = null;
+  export let readOnly = false;
+  export let splitterOptions = null;
 
   let editor: ace.Editor;
   let contentBackup: string = '';
 
   let clientWidth;
   let clientHeight;
+
+  let queryParts = [];
+  let currentPart = null;
+  let currentPartMarker = null;
 
   const stdOptions = {
     showPrintMargin: false,
@@ -104,6 +110,11 @@
     }
   }
 
+  $: {
+    splitterOptions;
+    changedQueryParts();
+  }
+
   const resizeOnNextTick = () =>
     tick().then(() => {
       if (editor) {
@@ -126,6 +137,53 @@
     if (event) handleCommandKeyDown(event);
   };
 
+  function changedQueryParts() {
+    const editor = getEditor();
+    if (splitterOptions && editor) {
+      const sql = editor.getValue();
+      queryParts = splitQuery(sql, {
+        ...splitterOptions,
+        returnRichInfo: true,
+      });
+      editor.setHighlightActiveLine(queryParts.length <= 1);
+      if (queryParts.length <= 1) {
+        removeCurrentPartMarker();
+      }
+    }
+    changedCurrentQueryPart();
+  }
+
+  function changedCurrentQueryPart() {
+    if (queryParts.length <= 1) return;
+    const cursor = editor.getSelectionRange().start;
+    const part = queryParts.find(
+      x =>
+        ((cursor.row == x.startLine && cursor.column >= x.startColumn) || cursor.row > x.startLine) &&
+        ((cursor.row == x.endLine && cursor.column <= x.endColumn) || cursor.row < x.endLine)
+    );
+    if (part?.text != currentPart?.text) {
+      removeCurrentPartMarker();
+
+      currentPart = part;
+      if (currentPart) {
+        currentPartMarker = editor
+          .getSession()
+          .addMarker(
+            new ace.Range(currentPart.startLine, currentPart.startColumn, currentPart.endLine, currentPart.endColumn),
+            'ace_active-line',
+            'text'
+          );
+      }
+    }
+  }
+
+  function removeCurrentPartMarker() {
+    if (currentPartMarker != null) {
+      editor.getSession().removeMarker(currentPartMarker);
+      currentPartMarker = null;
+    }
+  }
+
   onMount(() => {
     editor = ace.edit(EDITOR_ID);
 
@@ -146,6 +204,7 @@
 
     editor.container.addEventListener('contextmenu', handleContextMenu);
     editor.keyBinding.addKeyboardHandler(handleKeyDown);
+    changedQueryParts();
   });
 
   onDestroy(() => {
@@ -180,6 +239,11 @@
       value = content;
       dispatch('input', content);
       contentBackup = content;
+      changedQueryParts();
+    });
+
+    editor.on('changeSelection', () => {
+      changedCurrentQueryPart();
     });
   }
 </script>

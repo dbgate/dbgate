@@ -253,6 +253,7 @@
       <AceEditor
         mode="javascript"
         value={$editorState.value || ''}
+        splitterOptions={driver?.getQuerySplitterOptions('stream')}
         menu={createMenu()}
         on:input={e => setEditorData(e.detail)}
         on:focus={() => {
@@ -266,6 +267,7 @@
         engine={$connection && $connection.engine}
         {conid}
         {database}
+        splitterOptions={driver?.getQuerySplitterOptions('stream')}
         value={$editorState.value || ''}
         menu={createMenu()}
         on:input={e => setEditorData(e.detail)}
