@@ -189,13 +189,11 @@
 
       currentPart = part;
       if (currentPart) {
+        const start = currentPart.trimStart || currentPart.start;
+        const end = currentPart.trimEnd || currentPart.end;
         currentPartMarker = editor
           .getSession()
-          .addMarker(
-            new ace.Range(currentPart.start.line, currentPart.start.column, currentPart.end.line, currentPart.end.column),
-            'ace_active-line',
-            'text'
-          );
+          .addMarker(new ace.Range(start.line, start.column, end.line, end.column), 'ace_active-line', 'text');
       }
     }
   }

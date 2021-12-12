@@ -40,6 +40,8 @@ export interface SplitResultItemRich {
   text: string;
   start: SplitPositionDefinition;
   end: SplitPositionDefinition;
+  trimStart?: SplitPositionDefinition;
+  trimEnd?: SplitPositionDefinition;
 }
 
 export type SplitResultItem = string | SplitResultItemRich;
@@ -211,7 +213,7 @@ function pushQuery(context: SplitLineContext) {
   if (trimmed) {
     if (context.options.returnRichInfo) {
       context.pushOutput(
-        trimPositions(sql, {
+        countTrimmedPositions(sql, {
           text: trimmed,
 
           start: {
@@ -233,26 +235,26 @@ function pushQuery(context: SplitLineContext) {
   }
 }
 
-function trimPositions(full: string, positions: SplitResultItemRich): SplitResultItemRich {
+function countTrimmedPositions(full: string, positions: SplitResultItemRich): SplitResultItemRich {
   const startIndex = full.indexOf(positions.text);
-  const res = {
-    ...positions,
-    start: {
-      ...positions.start,
-    },
-  };
+
+  const trimStart = { ...positions.start };
   for (let i = 0; i < startIndex; i += 1) {
     if (full[i] == '\n') {
-      res.start.position += 1;
-      res.start.line += 1;
-      res.start.column = 0;
+      trimStart.position += 1;
+      trimStart.line += 1;
+      trimStart.column = 0;
     } else {
-      res.start.position += 1;
-      res.start.column += 1;
+      trimStart.position += 1;
+      trimStart.column += 1;
     }
   }
 
-  return res;
+  return {
+    ...positions,
+    trimStart,
+    trimEnd: positions.end,
+  };
 }
 
 function markStartCommand(context: SplitLineContext) {
@@ -330,7 +332,7 @@ export function finishSplitStream(context: SplitStreamContext) {
   if (trimmed) {
     if (context.options.returnRichInfo) {
       context.pushOutput(
-        trimPositions(context.commandPart, {
+        countTrimmedPositions(context.commandPart, {
           text: trimmed,
 
           start: {
@@ -364,12 +366,16 @@ export function splitQuery(sql: string, options: SplitterOptions = null): SplitR
       return [
         {
           text: sql,
-          startLine: 0,
-          startPosition: 0,
-          startColumn: 0,
-          endLine: lines.length,
-          endColumn: lines[lines.length - 1]?.length || 0,
-          endPosition: sql.length,
+          start: {
+            position: 0,
+            line: 0,
+            column: 0,
+          },
+          end: {
+            position: sql.length,
+            line: lines.length,
+            column: lines[lines.length - 1]?.length || 0,
+          },
         },
       ];
     }
