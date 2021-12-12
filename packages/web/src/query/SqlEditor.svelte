@@ -39,7 +39,12 @@
   $: effect = useEffect(() => {
     const editor = domEditor?.getEditor();
     if ($tabVisible && conid && database && !readOnly && editor) {
-      return mountCodeCompletion({ conid, database, editor });
+      return mountCodeCompletion({
+        conid,
+        database,
+        editor,
+        getText: () => domEditor.getCodeCompletionCommandText(),
+      });
     }
     return () => {};
   });

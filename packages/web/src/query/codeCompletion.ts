@@ -23,7 +23,7 @@ const COMMON_KEYWORDS = [
   'go',
 ];
 
-export function mountCodeCompletion({ conid, database, editor }) {
+export function mountCodeCompletion({ conid, database, editor, getText }) {
   setCompleters([]);
   addCompleter({
     getCompletions: async function (editor, session, pos, prefix, callback) {
@@ -44,7 +44,7 @@ export function mountCodeCompletion({ conid, database, editor }) {
         const lastKeywordMatch = line.match(/([a-zA-Z0-9_]*)\s*$/);
         const lastKeyword = lastKeywordMatch ? lastKeywordMatch[1].toUpperCase().trim() : '';
 
-        const sources = analyseQuerySources(editor.getValue(), [
+        const sources = analyseQuerySources(getText(), [
           ...dbinfo.tables.map(x => x.pureName),
           ...dbinfo.views.map(x => x.pureName),
           ...dbinfo.matviews.map(x => x.pureName),

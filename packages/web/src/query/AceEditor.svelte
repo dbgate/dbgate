@@ -96,6 +96,11 @@
     return '';
   }
 
+  export function getCodeCompletionCommandText() {
+    if (currentPart != null) return currentPart.text;
+    return editor.getValue();
+  }
+
   const requireEditorPlugins = () => {};
   requireEditorPlugins();
 
