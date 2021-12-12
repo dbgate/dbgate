@@ -27,6 +27,10 @@
   import resizeObserver from '../utility/resizeObserver';
   // @ts-ignore
   import QueryParserWorker from 'web-worker:./QueryParserWorker';
+  import queryParserWorkerFallback from './queryParserWorkerFallback';
+  import getElectron from '../utility/getElectron';
+
+  const electron = getElectron();
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -129,13 +133,13 @@
 
   $: watchQueryParserWorker(splitterOptions && $tabVisible);
   function watchQueryParserWorker(enabled) {
+    if (electron) return; // electron doesn't support workers
+
     if (enabled) {
       if (!queryParserWorker) {
         queryParserWorker = new QueryParserWorker();
         queryParserWorker.onmessage = e => {
-          queryParts = e.data;
-          editor.setHighlightActiveLine(queryParts.length <= 1);
-          changedCurrentQueryPart();
+          processParserResult(e.data);
         };
       }
     } else {
@@ -159,6 +163,12 @@
     resizeOnNextTick();
   }
 
+  function processParserResult(data) {
+    queryParts = data;
+    editor.setHighlightActiveLine(queryParts.length <= 1);
+    changedCurrentQueryPart();
+  }
+
   const handleContextMenu = e => {
     e.preventDefault();
     const left = e.pageX;
@@ -172,16 +182,23 @@
 
   function changedQueryParts() {
     const editor = getEditor();
-    if (splitterOptions && editor && queryParserWorker) {
+    if (splitterOptions && editor && (queryParserWorker || electron)) {
       const editor = getEditor();
 
-      queryParserWorker.postMessage({
+      const message = {
         text: editor.getValue(),
         options: {
           ...splitterOptions,
           returnRichInfo: true,
         },
-      });
+      };
+
+      if (electron) {
+        const res = queryParserWorkerFallback(message);
+        processParserResult(res);
+      } else {
+        queryParserWorker.postMessage(message);
+      }
     }
     // if (splitterOptions && editor) {
     //   const sql = editor.getValue();
