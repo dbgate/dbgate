@@ -32,6 +32,10 @@
     return domEditor.getEditor();
   }
 
+  export function getCurrentCommandText(): string {
+    return domEditor.getCurrentCommandText();
+  }
+
   $: effect = useEffect(() => {
     const editor = domEditor?.getEditor();
     if ($tabVisible && conid && database && !readOnly && editor) {

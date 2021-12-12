@@ -75,6 +75,18 @@
     return editor;
   }
 
+  export function getCurrentCommandText(): string {
+    if (currentPart != null) return currentPart.text;
+    if (!editor) return '';
+    const selectedText = editor.getSelectedText();
+    if (selectedText) return selectedText;
+    if (editor.getHighlightActiveLine()) {
+      const line = editor.getSelectionRange().start.row;
+      return editor.session.getLine(line);
+    }
+    return '';
+  }
+
   const requireEditorPlugins = () => {};
   requireEditorPlugins();
 
@@ -155,7 +167,18 @@
 
   function changedCurrentQueryPart() {
     if (queryParts.length <= 1) return;
-    const cursor = editor.getSelectionRange().start;
+    const selectionRange = editor.getSelectionRange();
+
+    if (
+      selectionRange.start.row != selectionRange.end.row ||
+      selectionRange.start.column != selectionRange.end.column
+    ) {
+      removeCurrentPartMarker();
+      currentPart = null;
+      return;
+    }
+
+    const cursor = selectionRange.start;
     const part = queryParts.find(
       x =>
         ((cursor.row == x.startLine && cursor.column >= x.startColumn) || cursor.row > x.startLine) &&

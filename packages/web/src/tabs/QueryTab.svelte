@@ -30,6 +30,15 @@
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
   });
+  registerCommand({
+    id: 'query.executeCurrent',
+    category: 'Query',
+    name: 'Execute current',
+    keyText: 'Ctrl+Shift+Enter',
+    testEnabled: () =>
+      getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
+    onClick: () => getCurrentEditor().executeCurrent(),
+  });
 </script>
 
 <script lang="ts">
@@ -128,11 +137,10 @@
     return !!conid;
   }
 
-  export async function execute() {
+  async function executeCore(sql) {
     if (busy) return;
     executeNumber++;
     visibleResultTabs = true;
-    const selectedText = domEditor.getEditor().getSelectedText();
 
     let sesid = sessionId;
     if (!sesid) {
@@ -145,7 +153,6 @@
     }
     busy = true;
     timerLabel.start();
-    const sql = selectedText || $editorValue;
     await axiosInstance.post('sessions/execute-query', {
       sesid,
       sql,
@@ -158,6 +165,16 @@
         date: new Date().getTime(),
       },
     });
+  }
+
+  export async function executeCurrent() {
+    const sql = domEditor.getCurrentCommandText();
+    await executeCore(sql);
+  }
+
+  export async function execute() {
+    const selectedText = domEditor.getEditor().getSelectedText();
+    await executeCore(selectedText || $editorValue);
   }
 
   export async function kill() {
@@ -253,7 +270,7 @@
       <AceEditor
         mode="javascript"
         value={$editorState.value || ''}
-        splitterOptions={driver?.getQuerySplitterOptions('stream')}
+        splitterOptions={driver?.getQuerySplitterOptions('script')}
         menu={createMenu()}
         on:input={e => setEditorData(e.detail)}
         on:focus={() => {
@@ -267,7 +284,7 @@
         engine={$connection && $connection.engine}
         {conid}
         {database}
-        splitterOptions={driver?.getQuerySplitterOptions('stream')}
+        splitterOptions={driver?.getQuerySplitterOptions('script')}
         value={$editorState.value || ''}
         menu={createMenu()}
         on:input={e => setEditorData(e.detail)}
