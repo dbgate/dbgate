@@ -11,6 +11,8 @@ export interface SplitterOptions {
   doubleDashComments: boolean;
   multilineComments: boolean;
   javaScriptComments: boolean;
+
+  returnRichInfo: boolean;
 }
 
 export const defaultSplitterOptions: SplitterOptions = {
@@ -27,6 +29,8 @@ export const defaultSplitterOptions: SplitterOptions = {
   doubleDashComments: true,
   multilineComments: true,
   javaScriptComments: false,
+
+  returnRichInfo: false,
 };
 
 export const mysqlSplitterOptions: SplitterOptions = {

@@ -1,5 +1,11 @@
 import stream from 'stream';
-import { SplitStreamContext, getInitialDelimiter, SplitLineContext, splitQueryLine } from './splitQuery';
+import {
+  SplitStreamContext,
+  getInitialDelimiter,
+  SplitLineContext,
+  splitQueryLine,
+  finishSplitStream,
+} from './splitQuery';
 import { SplitterOptions } from './options';
 
 export class SplitQueryStream extends stream.Transform {
@@ -9,6 +15,12 @@ export class SplitQueryStream extends stream.Transform {
     super({ objectMode: true });
     this.context = {
       commandPart: '',
+      commandStartLine: 0,
+      commandStartColumn: 0,
+      commandStartPosition: 0,
+      streamPosition: 0,
+      line: 0,
+      column: 0,
       options,
       currentDelimiter: getInitialDelimiter(options),
       pushOutput: cmd => this.push(cmd),
@@ -28,8 +40,7 @@ export class SplitQueryStream extends stream.Transform {
     done();
   }
   _flush(done) {
-    const trimmed = this.context.commandPart;
-    if (trimmed) this.push(trimmed);
+    finishSplitStream(this.context);
     done();
   }
 }

@@ -89,3 +89,69 @@ test('split mongo', () => {
   const output = splitQuery(input, mongoSplitterOptions);
   expect(output).toEqual(['db.collection.insert({x:1})', 'db.collection.insert({y:2})']);
 });
+
+test('count lines', () => {
+  const output = splitQuery('SELECT * FROM `table1`;\nSELECT * FROM `table2`;', {
+    ...mysqlSplitterOptions,
+    returnRichInfo: true,
+  });
+  expect(output).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        text: 'SELECT * FROM `table1`',
+
+        startPosition: 0,
+        startLine: 0,
+        startColumn: 0,
+
+        endPosition: 22,
+        endLine: 0,
+        endColumn: 22,
+      }),
+      expect.objectContaining({
+        text: 'SELECT * FROM `table2`',
+
+        startPosition: 23,
+        startLine: 0,
+        startColumn: 23,
+
+        endPosition: 46,
+        endLine: 1,
+        endColumn: 22,
+      }),
+    ])
+  );
+});
+
+test('count lines with flush', () => {
+  const output = splitQuery('SELECT * FROM `table1`;\nSELECT * FROM `table2`', {
+    ...mysqlSplitterOptions,
+    returnRichInfo: true,
+  });
+  expect(output).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        text: 'SELECT * FROM `table1`',
+
+        startPosition: 0,
+        startLine: 0,
+        startColumn: 0,
+
+        endPosition: 22,
+        endLine: 0,
+        endColumn: 22,
+      }),
+      expect.objectContaining({
+        text: 'SELECT * FROM `table2`',
+
+        startPosition: 23,
+        startLine: 0,
+        startColumn: 23,
+
+        endPosition: 46,
+        endLine: 1,
+        endColumn: 22,
+      }),
+    ])
+  );
+});

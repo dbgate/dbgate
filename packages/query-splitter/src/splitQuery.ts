@@ -5,8 +5,16 @@ const SEMICOLON = ';';
 export interface SplitStreamContext {
   options: SplitterOptions;
   currentDelimiter: string;
-  pushOutput: (sql: string) => void;
+  pushOutput: (item: SplitResultItem) => void;
   commandPart: string;
+
+  line: number;
+  column: number;
+  streamPosition: number;
+
+  commandStartPosition: number;
+  commandStartLine: number;
+  commandStartColumn: number;
 }
 
 export interface SplitLineContext extends SplitStreamContext {
@@ -20,6 +28,41 @@ export interface SplitLineContext extends SplitStreamContext {
   //   unread: string;
   //   currentStatement: string;
   //   semicolonKeyTokenRegex: RegExp;
+}
+
+export type SplitResultItem =
+  | string
+  | {
+      text: string;
+      startPosition: number;
+      endPosition: number;
+      startLine: number;
+      startColumn: number;
+      endLine: number;
+      endColumn: number;
+    };
+
+function movePosition(context: SplitLineContext, count: number) {
+  if (context.options.returnRichInfo) {
+    let { source, position, line, column, streamPosition } = context;
+    while (count > 0) {
+      if (source[position] == '\n') {
+        line += 1;
+        column = 0;
+      } else {
+        column += 1;
+      }
+      position += 1;
+      streamPosition += 1;
+      count -= 1;
+    }
+    context.position = position;
+    context.streamPosition = streamPosition;
+    context.line = line;
+    context.column = column;
+  } else {
+    context.position += count;
+  }
 }
 
 function isStringEnd(s: string, pos: number, endch: string, escapech: string) {
@@ -163,7 +206,31 @@ function scanToken(context: SplitLineContext): Token {
 function pushQuery(context: SplitLineContext) {
   const sql = (context.commandPart || '') + context.source.slice(context.currentCommandStart, context.position);
   const trimmed = sql.trim();
-  if (trimmed) context.pushOutput(trimmed);
+  if (trimmed) {
+    if (context.options.returnRichInfo) {
+      context.pushOutput({
+        text: trimmed,
+
+        startPosition: context.commandStartPosition,
+        startLine: context.commandStartLine,
+        startColumn: context.commandStartColumn,
+
+        endPosition: context.streamPosition,
+        endLine: context.line,
+        endColumn: context.column,
+      });
+    } else {
+      context.pushOutput(trimmed);
+    }
+  }
+}
+
+function markStartCommand(context: SplitLineContext) {
+  if (context.options.returnRichInfo) {
+    context.commandStartPosition = context.streamPosition;
+    context.commandStartLine = context.line;
+    context.commandStartColumn = context.column;
+  }
 }
 
 export function splitQueryLine(context: SplitLineContext) {
@@ -171,47 +238,50 @@ export function splitQueryLine(context: SplitLineContext) {
     const token = scanToken(context);
     if (!token) {
       // nothing special, move forward
-      context.position += 1;
+      movePosition(context, 1);
       continue;
     }
     switch (token.type) {
       case 'string':
-        context.position += token.length;
+        movePosition(context, token.length);
         context.wasDataOnLine = true;
         break;
       case 'comment':
-        context.position += token.length;
+        movePosition(context, token.length);
         context.wasDataOnLine = true;
         break;
       case 'eoln':
-        context.position += token.length;
+        movePosition(context, token.length);
         context.wasDataOnLine = false;
         break;
       case 'data':
-        context.position += token.length;
+        movePosition(context, token.length);
         context.wasDataOnLine = true;
         break;
       case 'whitespace':
-        context.position += token.length;
+        movePosition(context, token.length);
         break;
       case 'set_delimiter':
         pushQuery(context);
         context.commandPart = '';
         context.currentDelimiter = token.value;
-        context.position += token.length;
+        movePosition(context, token.length);
         context.currentCommandStart = context.position;
+        markStartCommand(context);
         break;
       case 'go_delimiter':
         pushQuery(context);
         context.commandPart = '';
-        context.position += token.length;
+        movePosition(context, token.length);
         context.currentCommandStart = context.position;
+        markStartCommand(context);
         break;
       case 'delimiter':
         pushQuery(context);
         context.commandPart = '';
-        context.position += token.length;
+        movePosition(context, token.length);
         context.currentCommandStart = context.position;
+        markStartCommand(context);
         break;
     }
   }
@@ -224,13 +294,47 @@ export function splitQueryLine(context: SplitLineContext) {
 export function getInitialDelimiter(options: SplitterOptions) {
   return options?.allowSemicolon === false ? null : SEMICOLON;
 }
-export function splitQuery(sql: string, options: SplitterOptions = null): string[] {
+
+export function finishSplitStream(context: SplitStreamContext) {
+  const trimmed = context.commandPart.trim();
+  if (trimmed) {
+    if (context.options.returnRichInfo) {
+      context.pushOutput({
+        text: trimmed,
+        startPosition: context.commandStartPosition,
+        startLine: context.commandStartLine,
+        startColumn: context.commandStartColumn,
+        endPosition: context.streamPosition,
+        endLine: context.line,
+        endColumn: context.column,
+      });
+    } else {
+      context.pushOutput(trimmed);
+    }
+  }
+}
+
+export function splitQuery(sql: string, options: SplitterOptions = null): SplitResultItem[] {
   const usedOptions = {
     ...defaultSplitterOptions,
     ...options,
   };
 
   if (usedOptions.noSplit) {
+    if (usedOptions.returnRichInfo) {
+      const lines = sql.split('\n');
+      return [
+        {
+          text: sql,
+          startLine: 0,
+          startPosition: 0,
+          startColumn: 0,
+          endLine: lines.length,
+          endColumn: lines[lines.length - 1]?.length || 0,
+          endPosition: sql.length,
+        },
+      ];
+    }
     return [sql];
   }
 
@@ -240,7 +344,13 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
     end: sql.length,
     currentDelimiter: getInitialDelimiter(options),
     position: 0,
+    column: 0,
+    line: 0,
     currentCommandStart: 0,
+    commandStartLine: 0,
+    commandStartColumn: 0,
+    commandStartPosition: 0,
+    streamPosition: 0,
     pushOutput: cmd => output.push(cmd),
     wasDataOnLine: false,
     options: usedOptions,
@@ -248,9 +358,7 @@ export function splitQuery(sql: string, options: SplitterOptions = null): string
   };
 
   splitQueryLine(context);
-
-  const trimmed = context.commandPart.trim();
-  if (trimmed) context.pushOutput(trimmed);
+  finishSplitStream(context);
 
   return output;
 }
