@@ -68,6 +68,7 @@
   import { findEngineDriver } from 'dbgate-tools';
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+  import { showSnackbarError } from '../utility/snackbar';
 
   export let tabid;
   export let conid;
@@ -139,6 +140,11 @@
 
   async function executeCore(sql) {
     if (busy) return;
+    if (!sql || !sql.trim()) {
+      showSnackbarError('Skipped executing empty query');
+      return;
+    }
+
     executeNumber++;
     visibleResultTabs = true;
 

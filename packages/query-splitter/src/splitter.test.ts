@@ -111,9 +111,9 @@ test('count lines', () => {
       expect.objectContaining({
         text: 'SELECT * FROM `table2`',
 
-        startPosition: 23,
-        startLine: 0,
-        startColumn: 23,
+        startPosition: 24,
+        startLine: 1,
+        startColumn: 0,
 
         endPosition: 46,
         endLine: 1,
@@ -144,9 +144,9 @@ test('count lines with flush', () => {
       expect.objectContaining({
         text: 'SELECT * FROM `table2`',
 
-        startPosition: 23,
-        startLine: 0,
-        startColumn: 23,
+        startPosition: 24,
+        startLine: 1,
+        startColumn: 0,
 
         endPosition: 46,
         endLine: 1,
