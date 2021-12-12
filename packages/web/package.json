@@ -21,13 +21,17 @@
     "@tsconfig/svelte": "^1.0.0",
     "ace-builds": "^1.4.8",
     "chart.js": "^3.6.0",
+    "chartjs-adapter-moment": "^1.0.0",
     "cross-env": "^7.0.3",
     "dbgate-datalib": "^4.1.1",
-    "dbgate-sqltree": "^4.1.1",
     "dbgate-query-splitter": "^4.1.1",
+    "dbgate-sqltree": "^4.1.1",
     "dbgate-tools": "^4.1.1",
     "dbgate-types": "^4.1.1",
+    "diff": "^5.0.0",
+    "diff2html": "^3.4.13",
     "file-selector": "^0.2.4",
+    "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",
     "lodash": "^4.17.21",
@@ -39,6 +43,7 @@
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
+    "rollup-plugin-web-worker-loader": "^1.6.1",
     "sirv-cli": "^1.0.0",
     "socket.io-client": "^2.3.0",
     "sql-formatter": "^2.3.3",
@@ -49,10 +54,6 @@
     "svelte-select": "^3.17.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.3",
-    "uuid": "^3.4.0",
-    "chartjs-adapter-moment": "^1.0.0",
-    "diff": "^5.0.0",
-    "diff2html": "^3.4.13",
-    "js-yaml": "^4.1.0"
+    "uuid": "^3.4.0"
   }
 }

@@ -1,6 +1,6 @@
 <script lang="ts">
   // copied from https://github.com/nateshmbhat/svelte-ace/blob/main/src/AceEditor.svelte
-  import { createEventDispatcher, tick, onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher, tick, onMount, onDestroy, getContext } from 'svelte';
 
   import * as ace from 'ace-builds/src-noconflict/ace';
 
@@ -25,7 +25,8 @@
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
-  import { splitQuery } from 'dbgate-query-splitter';
+  // @ts-ignore
+  import QueryParserWorker from 'web-worker:./QueryParserWorker';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -55,6 +56,8 @@
   export let readOnly = false;
   export let splitterOptions = null;
 
+  const tabVisible: any = getContext('tabVisible');
+
   let editor: ace.Editor;
   let contentBackup: string = '';
 
@@ -64,6 +67,8 @@
   let queryParts = [];
   let currentPart = null;
   let currentPartMarker = null;
+
+  let queryParserWorker;
 
   const stdOptions = {
     showPrintMargin: false,
@@ -122,8 +127,24 @@
     }
   }
 
-  $: {
-    splitterOptions;
+  $: watchQueryParserWorker(splitterOptions && $tabVisible);
+  function watchQueryParserWorker(enabled) {
+    if (enabled) {
+      if (!queryParserWorker) {
+        queryParserWorker = new QueryParserWorker();
+        queryParserWorker.onmessage = e => {
+          queryParts = e.data;
+          editor.setHighlightActiveLine(queryParts.length <= 1);
+          changedCurrentQueryPart();
+        };
+      }
+    } else {
+      if (queryParserWorker) {
+        queryParserWorker.terminate();
+        queryParserWorker = null;
+      }
+    }
+
     changedQueryParts();
   }
 
@@ -151,22 +172,28 @@
 
   function changedQueryParts() {
     const editor = getEditor();
-    if (splitterOptions && editor) {
-      const sql = editor.getValue();
-      queryParts = splitQuery(sql, {
-        ...splitterOptions,
-        returnRichInfo: true,
+    if (splitterOptions && editor && queryParserWorker) {
+      const editor = getEditor();
+
+      queryParserWorker.postMessage({
+        text: editor.getValue(),
+        options: {
+          ...splitterOptions,
+          returnRichInfo: true,
+        },
       });
-      editor.setHighlightActiveLine(queryParts.length <= 1);
-      if (queryParts.length <= 1) {
-        removeCurrentPartMarker();
-      }
     }
-    changedCurrentQueryPart();
+    // if (splitterOptions && editor) {
+    //   const sql = editor.getValue();
+    // }
   }
 
   function changedCurrentQueryPart() {
-    if (queryParts.length <= 1) return;
+    if (queryParts.length <= 1) {
+      removeCurrentPartMarker();
+      return;
+    }
+
     const selectionRange = editor.getSelectionRange();
 
     if (
@@ -234,6 +261,10 @@
       editor.keyBinding.removeKeyboardHandler(handleKeyDown);
       editor.destroy();
       editor.container.remove();
+    }
+    if (queryParserWorker) {
+      queryParserWorker.terminate();
+      queryParserWorker = null;
     }
   });
 
