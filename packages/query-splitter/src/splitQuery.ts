@@ -30,14 +30,16 @@ export interface SplitLineContext extends SplitStreamContext {
   //   semicolonKeyTokenRegex: RegExp;
 }
 
+export interface SplitPositionDefinition {
+  position: number;
+  line: number;
+  column: number;
+}
+
 export interface SplitResultItemRich {
   text: string;
-  startPosition: number;
-  endPosition: number;
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
+  start: SplitPositionDefinition;
+  end: SplitPositionDefinition;
 }
 
 export type SplitResultItem = string | SplitResultItemRich;
@@ -212,13 +214,17 @@ function pushQuery(context: SplitLineContext) {
         trimPositions(sql, {
           text: trimmed,
 
-          startPosition: context.commandStartPosition,
-          startLine: context.commandStartLine,
-          startColumn: context.commandStartColumn,
+          start: {
+            position: context.commandStartPosition,
+            line: context.commandStartLine,
+            column: context.commandStartColumn,
+          },
 
-          endPosition: context.streamPosition,
-          endLine: context.line,
-          endColumn: context.column,
+          end: {
+            position: context.streamPosition,
+            line: context.line,
+            column: context.column,
+          },
         })
       );
     } else {
@@ -229,15 +235,20 @@ function pushQuery(context: SplitLineContext) {
 
 function trimPositions(full: string, positions: SplitResultItemRich): SplitResultItemRich {
   const startIndex = full.indexOf(positions.text);
-  const res = { ...positions };
+  const res = {
+    ...positions,
+    start: {
+      ...positions.start,
+    },
+  };
   for (let i = 0; i < startIndex; i += 1) {
     if (full[i] == '\n') {
-      res.startPosition += 1;
-      res.startLine += 1;
-      res.startColumn = 0;
+      res.start.position += 1;
+      res.start.line += 1;
+      res.start.column = 0;
     } else {
-      res.startPosition += 1;
-      res.startColumn += 1;
+      res.start.position += 1;
+      res.start.column += 1;
     }
   }
 
@@ -321,12 +332,18 @@ export function finishSplitStream(context: SplitStreamContext) {
       context.pushOutput(
         trimPositions(context.commandPart, {
           text: trimmed,
-          startPosition: context.commandStartPosition,
-          startLine: context.commandStartLine,
-          startColumn: context.commandStartColumn,
-          endPosition: context.streamPosition,
-          endLine: context.line,
-          endColumn: context.column,
+
+          start: {
+            position: context.commandStartPosition,
+            line: context.commandStartLine,
+            column: context.commandStartColumn,
+          },
+
+          end: {
+            position: context.streamPosition,
+            line: context.line,
+            column: context.column,
+          },
         })
       );
     } else {

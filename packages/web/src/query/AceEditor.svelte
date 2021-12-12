@@ -181,8 +181,8 @@
     const cursor = selectionRange.start;
     const part = queryParts.find(
       x =>
-        ((cursor.row == x.startLine && cursor.column >= x.startColumn) || cursor.row > x.startLine) &&
-        ((cursor.row == x.endLine && cursor.column <= x.endColumn) || cursor.row < x.endLine)
+        ((cursor.row == x.start.line && cursor.column >= x.start.column) || cursor.row > x.start.line) &&
+        ((cursor.row == x.end.line && cursor.column <= x.end.column) || cursor.row < x.end.line)
     );
     if (part?.text != currentPart?.text) {
       removeCurrentPartMarker();
@@ -192,7 +192,7 @@
         currentPartMarker = editor
           .getSession()
           .addMarker(
-            new ace.Range(currentPart.startLine, currentPart.startColumn, currentPart.endLine, currentPart.endColumn),
+            new ace.Range(currentPart.start.line, currentPart.start.column, currentPart.end.line, currentPart.end.column),
             'ace_active-line',
             'text'
           );

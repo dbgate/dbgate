@@ -100,24 +100,32 @@ test('count lines', () => {
       expect.objectContaining({
         text: 'SELECT * FROM `table1`',
 
-        startPosition: 0,
-        startLine: 0,
-        startColumn: 0,
+        start: expect.objectContaining({
+          position: 0,
+          line: 0,
+          column: 0,
+        }),
 
-        endPosition: 22,
-        endLine: 0,
-        endColumn: 22,
+        end: expect.objectContaining({
+          position: 22,
+          line: 0,
+          column: 22,
+        }),
       }),
       expect.objectContaining({
         text: 'SELECT * FROM `table2`',
 
-        startPosition: 24,
-        startLine: 1,
-        startColumn: 0,
+        start: expect.objectContaining({
+          position: 24,
+          line: 1,
+          column: 0,
+        }),
 
-        endPosition: 46,
-        endLine: 1,
-        endColumn: 22,
+        end: expect.objectContaining({
+          position: 46,
+          line: 1,
+          column: 22,
+        }),
       }),
     ])
   );
@@ -133,24 +141,32 @@ test('count lines with flush', () => {
       expect.objectContaining({
         text: 'SELECT * FROM `table1`',
 
-        startPosition: 0,
-        startLine: 0,
-        startColumn: 0,
+        start: expect.objectContaining({
+          position: 0,
+          line: 0,
+          column: 0,
+        }),
 
-        endPosition: 22,
-        endLine: 0,
-        endColumn: 22,
+        end: expect.objectContaining({
+          position: 22,
+          line: 0,
+          column: 22,
+        }),
       }),
       expect.objectContaining({
         text: 'SELECT * FROM `table2`',
 
-        startPosition: 24,
-        startLine: 1,
-        startColumn: 0,
+        start: expect.objectContaining({
+          position: 24,
+          line: 1,
+          column: 0,
+        }),
 
-        endPosition: 46,
-        endLine: 1,
-        endColumn: 22,
+        end: expect.objectContaining({
+          position: 46,
+          line: 1,
+          column: 22,
+        }),
       }),
     ])
   );
