@@ -10,9 +10,6 @@ DbGate is cross-platform (no)SQL database client.
 It's designed to be simple to use and effective, when working with more databases simultaneously.
 But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.
 
-Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org)
-
-<!-- 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
@@ -25,15 +22,16 @@ Supported databases:
 * SQLite
 * Amazon Redshift
 * CockroachDB
-* MariaDB -->
+* MariaDB
+
+<!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
 ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
 
-<!--
 ## Features
 * Table data editing, with SQL change script preview
 * Edit table schema, indexes, primary and foreign keys
-* Compare and synchronize databas estructure
+* Compare and synchronize database structure
 * Light and dark theme
 * Master/detail views, foreign key lookups
 * Query designer
@@ -52,7 +50,7 @@ Supported databases:
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
 * Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
-* Extensible plugin architecture -->
+* Extensible plugin architecture
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
