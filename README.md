@@ -18,6 +18,18 @@ DbGate is licensed under MIT license and is completely free.
 * **Download** application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 
+## Supported databases
+* MySQL
+* PostgreSQL
+* SQL Server
+* MongoDB
+* SQLite
+* Amazon Redshift
+* CockroachDB
+* MariaDB
+
+<!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
+
 
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
     <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png" width="400"/>
@@ -31,18 +43,6 @@ DbGate is licensed under MIT license and is completely free.
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png">
     <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png" width="400"/>
 </a>
-
-## Supported databases
-* MySQL
-* PostgreSQL
-* SQL Server
-* MongoDB
-* SQLite
-* Amazon Redshift
-* CockroachDB
-* MariaDB
-
-<!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
 <!-- ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png) -->
 
