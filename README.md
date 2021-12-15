@@ -15,10 +15,10 @@ But there are also many advanced features like schema compare, visual query desi
 DbGate is licensed under MIT license and is completely free.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
-* Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
+* **Download** application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
 * Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 
-Supported databases:
+## Supported databases
 * MySQL
 * PostgreSQL
 * SQL Server
