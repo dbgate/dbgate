@@ -4,11 +4,15 @@
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
-# DbGate
+<img src="https://raw.githubusercontent.com/dbgate/dbgate/master/app/icon.png" width="64" align="right"/>
 
-DbGate is cross-platform (no)SQL database client. 
+# DbGate - (no)SQL database client
+
+DbGate is cross-platform database manager. 
 It's designed to be simple to use and effective, when working with more databases simultaneously.
 But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.
+
+DbGate is licensed under MIT license and is completely free.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * Download application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
@@ -26,7 +30,20 @@ Supported databases:
 
 <!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
-![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png)
+<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
+    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png" width="400"/>
+</a>
+<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot2.png">
+    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot2.png" width="400"/>
+</a>
+<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png">
+    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png" width="400"/>
+</a>
+<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot4.png">
+    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot4.png" width="400"/>
+</a>
+
+<!-- ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png) -->
 
 ## Features
 * Table data editing, with SQL change script preview
