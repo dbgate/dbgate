@@ -30,17 +30,18 @@ Supported databases:
 
 <!-- Learn more about DbGate features at the [DbGate website](https://dbgate.org/), or try our online [demo application](https://demo.dbgate.org) -->
 
+
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png">
     <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot1.png" width="400"/>
 </a>
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot2.png">
     <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot2.png" width="400"/>
 </a>
-<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png">
-    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png" width="400"/>
-</a>
 <a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot4.png">
     <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot4.png" width="400"/>
+</a>
+<a href="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png">
+    <img src="https://raw.githubusercontent.com/dbgate/dbgate/master/img/screenshot3.png" width="400"/>
 </a>
 
 <!-- ![Screenshot](https://raw.githubusercontent.com/dbgate/dbgate/master/screenshot.png) -->
