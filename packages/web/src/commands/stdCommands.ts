@@ -26,8 +26,6 @@ import InputTextModal from '../modals/InputTextModal.svelte';
 import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
 
-const electron = getElectron();
-
 function themeCommand(theme: ThemeDefinition) {
   return {
     text: theme.themeName,
@@ -316,22 +314,22 @@ registerCommand({
   group: 'redo',
 });
 
-if (electron) {
-  registerCommand({
-    id: 'file.open',
-    category: 'File',
-    name: 'Open',
-    keyText: 'Ctrl+O',
-    onClick: openElectronFile,
-  });
+registerCommand({
+  id: 'file.open',
+  category: 'File',
+  name: 'Open',
+  keyText: 'Ctrl+O',
+  testEnabled: () => getElectron() != null,
+  onClick: openElectronFile,
+});
 
-  registerCommand({
-    id: 'file.openArchive',
-    category: 'File',
-    name: 'Open DB Model/Archive',
-    onClick: openArchiveFolder,
-  });
-}
+registerCommand({
+  id: 'file.openArchive',
+  category: 'File',
+  name: 'Open DB Model/Archive',
+  testEnabled: () => getElectron() != null,
+  onClick: openArchiveFolder,
+});
 
 registerCommand({
   id: 'file.import',
@@ -419,14 +417,13 @@ if (hasPermission('settings/change')) {
   });
 }
 
-if (electron) {
-  registerCommand({
-    id: 'file.exit',
-    category: 'File',
-    name: 'Exit',
-    onClick: () => electron.remote.getCurrentWindow().close(),
-  });
-}
+registerCommand({
+  id: 'file.exit',
+  category: 'File',
+  name: 'Exit',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('close-window'),
+});
 
 export function registerFileCommands({
   idPrefix,

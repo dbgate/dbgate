@@ -14,8 +14,8 @@
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormValues from '../forms/FormValues.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
-import FormSubmit from '../forms/FormSubmit.svelte';
-import FormButton from '../forms/FormButton.svelte';
+  import FormSubmit from '../forms/FormSubmit.svelte';
+  import FormButton from '../forms/FormButton.svelte';
 
   export let editingData;
   export let savingTab;

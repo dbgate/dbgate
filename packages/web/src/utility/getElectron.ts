@@ -8,8 +8,27 @@ class ElectronApi {
     this.authorization = args.authorization;
   }
 
-  send(msg, args) {
+  send(msg, args = null) {
     this.ipcRenderer.send(msg, args);
+  }
+
+  async showOpenDialog(options) {
+    const res = await this.ipcRenderer.invoke('showOpenDialog', options);
+    return res;
+  }
+
+  async showSaveDialog(options) {
+    const res = await this.ipcRenderer.invoke('showSaveDialog', options);
+    return res;
+  }
+
+  async showItemInFolder(path) {
+    const res = await this.ipcRenderer.invoke('showItemInFolder', path);
+    return res;
+  }
+
+  async openExternal(url) {
+    await this.ipcRenderer.invoke('openExternal', url);
   }
 }
 
@@ -37,6 +56,10 @@ function getIpcRenderer() {
 
 export function shouldWaitForElectronInitialize() {
   return !!getIpcRenderer() && !apiInstance;
+}
+
+export function isElectronAvailable() {
+  return !!getIpcRenderer();
 }
 
 export default function getElectron(): ElectronApi {

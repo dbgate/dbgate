@@ -148,6 +148,24 @@ ipcMain.on('update-commands', async (event, arg) => {
     menu.enabled = command.enabled;
   }
 });
+ipcMain.on('close-window', async (event, arg) => {
+  mainWindow.close();
+});
+
+ipcMain.handle('showOpenDialog', async (event, options) => {
+  const res = electron.dialog.showOpenDialogSync(mainWindow, options);
+  return res;
+});
+ipcMain.handle('showSaveDialog', async (event, options) => {
+  const res = electron.dialog.showSaveDialogSync(mainWindow, options);
+  return res;
+});
+ipcMain.handle('showItemInFolder', async (event, path) => {
+  electron.shell.showItemInFolder(path);
+});
+ipcMain.handle('openExternal', async (event, url) => {
+  electron.shell.openExternal(url);
+});
 
 function createWindow() {
   const bounds = store.get('winBounds');

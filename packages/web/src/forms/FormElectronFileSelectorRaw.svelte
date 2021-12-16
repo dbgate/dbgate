@@ -11,10 +11,10 @@
 
   const { values, setFieldValue } = getFormContext();
 
-  function handleBrowse() {
+  async function handleBrowse() {
     const electron = getElectron();
     if (!electron) return;
-    const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+    const filePaths = await electron.showOpenDialog({
       defaultPath: values[name],
       properties: ['showHiddenFiles'],
       filters: [{ name: 'All Files', extensions: ['*'] }],

@@ -107,10 +107,10 @@ function getFileFormatExtensions(extensions) {
   return extensions.fileFormats.filter(x => x.readerFunc).map(x => x.extension);
 }
 
-export function openElectronFile() {
+export async function openElectronFile() {
   const electron = getElectron();
   const ext = get(extensions);
-  const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+  const filePaths = await electron.showOpenDialog({
     filters: [
       { name: `All supported files`, extensions: ['sql', 'sqlite', 'db', 'sqlite3', ...getFileFormatExtensions(ext)] },
       { name: `SQL files`, extensions: ['sql'] },

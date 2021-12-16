@@ -9,7 +9,7 @@ export async function exportElectronFile(dataName, reader, format) {
   const electron = getElectron();
   const filters = [{ name: format.label, extensions: [format.extension] }];
 
-  const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+  const filePath = await electron.showSaveDialog({
     filters,
     defaultPath: `${dataName}.${format.extension}`,
     properties: ['showOverwriteConfirmation'],
@@ -65,14 +65,14 @@ export async function saveFileToDisk(
 
   if (electron) {
     const filters = [{ name: formatLabel, extensions: [formatExtension] }];
-    const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+    const filePath = await electron.showSaveDialog({
       filters,
       defaultPath: `file.${formatExtension}`,
       properties: ['showOverwriteConfirmation'],
     });
     if (!filePath) return;
     await filePathFunc(filePath);
-    electron.shell.openExternal('file:///' + filePath);
+    electron.openExternal('file:///' + filePath);
   } else {
     const resp = await axiosInstance().get('files/generate-uploads-file');
     await filePathFunc(resp.data.filePath);

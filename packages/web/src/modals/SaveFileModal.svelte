@@ -61,8 +61,8 @@
         <FormStyledButton
           type="button"
           value="Save to disk"
-          on:click={() => {
-            const file = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+          on:click={async () => {
+            const file = await electron.showSaveDialog({
               filters: [
                 { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
                 { name: `All files`, extensions: ['*'] },

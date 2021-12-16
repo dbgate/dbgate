@@ -4,8 +4,6 @@ import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import axiosInstance from '../utility/axiosInstance';
 
-const electron = getElectron();
-
 registerCommand({
   id: 'database.changeState',
   category: 'Database',
@@ -34,6 +32,7 @@ registerCommand({
       {
         text: 'Disconnect',
         onClick: () => {
+          const electron = getElectron();
           if (electron) axiosInstance().post('database-connections/disconnect', dbid);
           currentDatabase.set(null);
         },

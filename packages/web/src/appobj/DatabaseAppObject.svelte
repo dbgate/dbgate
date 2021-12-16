@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
-  const electron = getElectron();
 
   export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase) {
     const handleNewQuery = () => {
@@ -89,6 +88,7 @@
     };
 
     const handleDisconnect = () => {
+      const electron = getElectron();
       if (electron) {
         axiosInstance().post('database-connections/disconnect', { conid: connection._id, database: name });
       }

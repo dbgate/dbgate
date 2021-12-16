@@ -78,8 +78,8 @@
       slot="1"
       let:row
       href="#"
-      on:click={() => {
-        const file = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {});
+      on:click={async () => {
+        const file = await electron.showSaveDialog({});
         if (file) {
           const fs = window.require('fs');
           fs.copyFile(row.path, file, () => {});
@@ -94,7 +94,7 @@
       let:row
       href="#"
       on:click={() => {
-        electron.remote.shell.showItemInFolder(row.path);
+        electron.showItemInFolder(row.path);
       }}
     >
       show

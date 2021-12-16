@@ -7,7 +7,7 @@ import { showSnackbarSuccess } from './snackbar';
 export async function openArchiveFolder() {
   const electron = getElectron();
   const ext = get(extensions);
-  const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+  const filePaths = await electron.showOpenDialog({
     properties: ['openDirectory'],
   });
   const linkedFolder = filePaths && filePaths[0];
