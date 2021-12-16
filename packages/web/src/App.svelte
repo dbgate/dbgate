@@ -7,12 +7,14 @@
 
   import PluginsProvider from './plugins/PluginsProvider.svelte';
   import Screen from './Screen.svelte';
-  import { loadingPluginStore } from './stores';
+  import { loadingPluginStore, subscribeApiDependendStores } from './stores';
   import { setAppLoaded } from './utility/appLoadManager';
   import axiosInstance from './utility/axiosInstance';
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
   import { shouldWaitForElectronInitialize } from './utility/getElectron';
+  import { subscribeConnectionPingers } from './utility/connectionsPinger';
+  import { subscribePermissionCompiler } from './utility/hasPermission';
 
   let loadedApi = false;
 
@@ -29,6 +31,13 @@
       const connections = await axiosInstance().get('connections/list');
       const config = await axiosInstance().get('config/get');
       loadedApi = settings?.data && connections?.data && config?.data;
+
+      if (loadedApi) {
+        subscribeApiDependendStores();
+        subscribeConnectionPingers();
+        subscribePermissionCompiler();
+      }
+
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
         setTimeout(loadApi, 1000);

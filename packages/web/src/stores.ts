@@ -44,7 +44,7 @@ export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.fi
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
 export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
 export const pinnedTables = writableWithStorage([], 'pinnedTables');
-export const commandsSettings = derived(useSettings(), (config: any) => (config || {}).commands || {});
+export const commandsSettings = writable({});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const archiveFilesAsDataSheets = writableWithStorage([], 'archiveFilesAsDataSheets');
 export const commandsCustomized = derived([commands, commandsSettings], ([$commands, $commandsSettings]) =>
@@ -130,15 +130,7 @@ activeTab.subscribe(value => {
 });
 export const getActiveTab = () => activeTabValue;
 
-const currentConfigStore = useConfig();
 let currentConfigValue = null;
-currentConfigStore.subscribe(value => {
-  currentConfigValue = value;
-  invalidateCommands();
-  if (value.singleDatabase) {
-    currentDatabase.set(value.singleDatabase);
-  }
-});
 export const getCurrentConfig = () => currentConfigValue;
 
 let recentDatabasesValue = null;
@@ -161,10 +153,6 @@ currentDatabase.subscribe(value => {
 export const getCurrentDatabase = () => currentDatabaseValue;
 
 let currentSettingsValue = null;
-useSettings().subscribe(value => {
-  currentSettingsValue = value;
-  invalidateCommands();
-});
 export const getCurrentSettings = () => currentSettingsValue || {};
 
 let extensionsValue = null;
@@ -178,3 +166,19 @@ openedConnections.subscribe(value => {
   openedConnectionsValue = value;
 });
 export const getOpenedConnections = () => openedConnectionsValue;
+
+export function subscribeApiDependendStores() {
+  useSettings().subscribe(value => {
+    currentSettingsValue = value;
+    commandsSettings.set((value || {}).commands || {});
+    invalidateCommands();
+  });
+
+  useConfig().subscribe(value => {
+    currentConfigValue = value;
+    invalidateCommands();
+    if (value.singleDatabase) {
+      currentDatabase.set(value.singleDatabase);
+    }
+  });
+}

@@ -1,8 +1,23 @@
 import io from 'socket.io-client';
 import resolveApi from './resolveApi';
 import { cacheClean } from './cache';
+import { shouldWaitForElectronInitialize } from './getElectron';
 
-const socket = io(resolveApi());
-socket.on('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
+let socketInstance;
+
+function recreateSocket() {
+  if (shouldWaitForElectronInitialize()) return;
+
+  socketInstance = io(resolveApi());
+  socketInstance.on('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
+}
+
+window['dbgate_recreateSocket'] = recreateSocket;
+
+recreateSocket();
+
+function socket() {
+  return socketInstance;
+}
 
 export default socket;

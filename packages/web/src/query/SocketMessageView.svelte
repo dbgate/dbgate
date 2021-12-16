@@ -30,9 +30,9 @@
 
   $: effect = useEffect(() => {
     if (eventName) {
-      socket.on(eventName, handleInfo);
+      socket().on(eventName, handleInfo);
       return () => {
-        socket.off(eventName, handleInfo);
+        socket().off(eventName, handleInfo);
       };
     }
     return () => {};

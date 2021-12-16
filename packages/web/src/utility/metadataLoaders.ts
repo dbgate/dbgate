@@ -208,11 +208,11 @@ function useCore(loader, args) {
       handleReload();
       if (reloadTrigger && socket) {
         for (const item of getAsArray(reloadTrigger)) {
-          socket.on(item, handleReload);
+          socket().on(item, handleReload);
         }
         return () => {
           for (const item of getAsArray(reloadTrigger)) {
-            socket.off(item, handleReload);
+            socket().off(item, handleReload);
           }
         };
       }

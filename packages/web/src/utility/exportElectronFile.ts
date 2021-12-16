@@ -48,12 +48,12 @@ export async function exportElectronFile(dataName, reader, format) {
 
   function handleRunnerDone() {
     closeSnackbar(snackId);
-    socket.off(`runner-done-${runid}`, handleRunnerDone);
+    socket().off(`runner-done-${runid}`, handleRunnerDone);
     if (isCanceled) showSnackbarError(`Export ${dataName} canceled`);
     else showSnackbarInfo(`Export ${dataName} finished`);
   }
 
-  socket.on(`runner-done-${runid}`, handleRunnerDone);
+  socket().on(`runner-done-${runid}`, handleRunnerDone);
 }
 
 export async function saveFileToDisk(

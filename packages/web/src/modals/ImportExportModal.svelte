@@ -67,9 +67,9 @@
 
   function registerRunnerDone(rid) {
     if (rid) {
-      socket.on(`runner-done-${rid}`, handleRunnerDone);
+      socket().on(`runner-done-${rid}`, handleRunnerDone);
       return () => {
-        socket.off(`runner-done-${rid}`, handleRunnerDone);
+        socket().off(`runner-done-${rid}`, handleRunnerDone);
       };
     } else {
       return () => {};

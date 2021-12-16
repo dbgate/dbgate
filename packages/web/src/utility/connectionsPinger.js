@@ -15,15 +15,19 @@ const doDatabasePing = value => {
 };
 
 let openedConnectionsHandle = null;
-openedConnections.subscribe(value => {
-  doServerPing(value);
-  if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle);
-  openedConnectionsHandle = window.setInterval(() => doServerPing(value), 30 * 1000);
-});
 
 let currentDatabaseHandle = null;
-currentDatabase.subscribe(value => {
-  doDatabasePing(value);
-  if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle);
-  currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 30 * 1000);
-});
+
+export function subscribeConnectionPingers() {
+  openedConnections.subscribe(value => {
+    doServerPing(value);
+    if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle);
+    openedConnectionsHandle = window.setInterval(() => doServerPing(value), 30 * 1000);
+  });
+
+  currentDatabase.subscribe(value => {
+    doDatabasePing(value);
+    if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle);
+    currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 30 * 1000);
+  });
+}

@@ -39,9 +39,9 @@
   $: setDebouncedFilter(filter);
 
   onMount(() => {
-    socket.on('query-history-changed', reloadItems);
+    socket().on('query-history-changed', reloadItems);
     return () => {
-      socket.off('query-history-changed', reloadItems);
+      socket().off('query-history-changed', reloadItems);
     };
   });
 </script>

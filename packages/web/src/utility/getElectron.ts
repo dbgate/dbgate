@@ -16,13 +16,12 @@ class ElectronApi {
 let apiInstance = null;
 
 function initializeElectron(args) {
-  // console.log('Initialize electron with args:', args);
-
   apiInstance = new ElectronApi(args);
   if (window['dbgate_recreateAxiosInstance']) {
-    // console.log('Recreating axios instance');
-
     window['dbgate_recreateAxiosInstance']();
+  }
+  if (window['dbgate_recreateSocket']) {
+    window['dbgate_recreateSocket']();
   }
 }
 

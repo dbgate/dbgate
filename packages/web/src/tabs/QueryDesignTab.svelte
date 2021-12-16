@@ -62,9 +62,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket.on(`session-done-${sid}`, handleSessionDone);
+      socket().on(`session-done-${sid}`, handleSessionDone);
       return () => {
-        socket.off(`session-done-${sid}`, handleSessionDone);
+        socket().off(`session-done-${sid}`, handleSessionDone);
       };
     }
     return () => {};

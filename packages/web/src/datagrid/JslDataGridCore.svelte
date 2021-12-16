@@ -82,9 +82,9 @@
   $: effect = useEffect(() => onJslId(jslid));
   function onJslId(jslidVal) {
     if (jslidVal) {
-      socket.on(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+      socket().on(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       return () => {
-        socket.off(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+        socket().off(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       };
     }
   }

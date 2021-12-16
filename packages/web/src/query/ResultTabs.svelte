@@ -66,9 +66,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket.on(`session-recordset-${sid}`, handleResultSet);
+      socket().on(`session-recordset-${sid}`, handleResultSet);
       return () => {
-        socket.off(`session-recordset-${sid}`, handleResultSet);
+        socket().off(`session-recordset-${sid}`, handleResultSet);
       };
     }
     return () => {};
