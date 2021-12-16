@@ -12,10 +12,16 @@
   import axiosInstance from './utility/axiosInstance';
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
+  import { shouldWaitForElectronInitialize } from './utility/getElectron';
 
   let loadedApi = false;
 
   async function loadApi() {
+    if (shouldWaitForElectronInitialize()) {
+      setTimeout(loadApi, 100);
+      return;
+    }
+
     try {
       const settings = await axiosInstance.get('config/get-settings');
       const connections = await axiosInstance.get('connections/list');
@@ -43,7 +49,6 @@
       setAppLoaded();
     }
   }
-
 </script>
 
 <DataGridRowHeightMeter />

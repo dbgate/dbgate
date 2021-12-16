@@ -74,8 +74,6 @@ export const currentThemeDefinition = derived([currentTheme, extensions], ([$cur
   $extensions.themes.find(x => x.className == $currentTheme)
 );
 
-const electron = getElectron();
-
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
@@ -119,9 +117,9 @@ let commandsValue = null;
 commands.subscribe(value => {
   commandsValue = value;
 
+  const electron = getElectron();
   if (electron) {
-    const { ipcRenderer } = electron;
-    ipcRenderer.send('update-commands', JSON.stringify(value));
+    electron.send('update-commands', JSON.stringify(value));
   }
 });
 export const getCommands = () => commandsValue;

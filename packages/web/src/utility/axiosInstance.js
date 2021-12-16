@@ -1,15 +1,23 @@
 import axios from 'axios';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 
-const axiosInstance = axios.create({
-  baseURL: resolveApi(),
-});
+let axiosInstance;
 
-axiosInstance.defaults.headers = {
-  'Cache-Control': 'no-cache',
-  Pragma: 'no-cache',
-  Expires: '0',
-  ...resolveApiHeaders(),
-};
+function recreateAxiosInstance() {
+  axiosInstance = axios.create({
+    baseURL: resolveApi(),
+  });
+
+  axiosInstance.defaults.headers = {
+    'Cache-Control': 'no-cache',
+    Pragma: 'no-cache',
+    Expires: '0',
+    ...resolveApiHeaders(),
+  };
+}
+
+window['dbgate_recreateAxiosInstance'] = recreateAxiosInstance;
+
+recreateAxiosInstance();
 
 export default axiosInstance;

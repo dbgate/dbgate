@@ -159,8 +159,8 @@ function createWindow() {
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     webPreferences: {
-      // nodeIntegration: true,
-      // contextIsolation: false,
+      nodeIntegration: true,
+      contextIsolation: false,
       // enableRemoteModule: true,
     },
   });
@@ -172,7 +172,7 @@ function createWindow() {
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
 
-  function loadMainWindow() {
+  function loadMainWindow(initArgs) {
     const startUrl =
       process.env.ELECTRON_START_URL ||
       url.format({
@@ -181,7 +181,16 @@ function createWindow() {
         slashes: true,
       });
     mainWindow.webContents.on('did-finish-load', function () {
-      // hideSplash();
+      mainWindow.webContents.executeJavaScript(
+        `runInit=()=>{
+          try{
+            dbgate_initializeElectron(${JSON.stringify(initArgs)});
+          }catch(e){
+            setTimeout(runInit,100)
+          }
+        };
+        runInit()`
+      );
     });
     mainWindow.on('close', () => {
       store.set('winBounds', mainWindow.getBounds());
@@ -194,7 +203,7 @@ function createWindow() {
   }
 
   if (process.env.ELECTRON_START_URL) {
-    loadMainWindow();
+    loadMainWindow({});
   } else {
     const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
       '--dynport',
@@ -206,9 +215,11 @@ function createWindow() {
     apiProcess.on('message', msg => {
       if (msg.msgtype == 'listening') {
         const { port, authorization } = msg;
-        global['port'] = port;
-        global['authorization'] = authorization;
-        loadMainWindow();
+
+        loadMainWindow({
+          port,
+          authorization,
+        });
       }
     });
   }
