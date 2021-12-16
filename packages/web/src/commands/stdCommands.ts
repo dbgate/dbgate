@@ -123,7 +123,7 @@ registerCommand({
       label: 'New archive folder name',
       header: 'Create archive folder',
       onConfirm: async folder => {
-        axiosInstance.post('archive/create-folder', { folder });
+        axiosInstance().post('archive/create-folder', { folder });
       },
     });
   },
@@ -190,13 +190,13 @@ registerCommand({
       label: 'New collection name',
       header: 'Create collection',
       onConfirm: async newCollection => {
-        await axiosInstance.request({
+        await axiosInstance().request({
           url: 'database-connections/run-script',
           method: 'post',
           params: dbid,
           data: { sql: `db.createCollection('${newCollection}')` },
         });
-        axiosInstance.post('database-connections/sync-model', dbid);
+        axiosInstance().post('database-connections/sync-model', dbid);
       },
     });
   },
@@ -258,7 +258,7 @@ registerCommand({
       label: 'New database name',
       header: 'Create SQLite database',
       onConfirm: async file => {
-        const resp = await axiosInstance.post('connections/new-sqlite-database', { file });
+        const resp = await axiosInstance().post('connections/new-sqlite-database', { file });
         const connection = resp.data;
         currentDatabase.set({ connection, name: `${file}.sqlite` });
       },

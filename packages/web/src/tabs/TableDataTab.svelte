@@ -70,7 +70,7 @@
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
 
   async function handleConfirmSql(sql) {
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       url: 'database-connections/run-script',
       method: 'post',
       params: {

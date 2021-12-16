@@ -27,7 +27,7 @@
       }
       errorMessage = null;
       isLoading = true;
-      const resp = await axiosInstance.post('runners/load-reader', sourceReader);
+      const resp = await axiosInstance().post('runners/load-reader', sourceReader);
       // @ts-ignore
       model = resp.data;
       grider = new RowsArrayGrider(resp.data.rows);

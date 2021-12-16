@@ -34,7 +34,7 @@
   $: $effect;
 
   const handleRunnerDone = async () => {
-    const resp = await axiosInstance.get(`runners/files?runid=${runnerId}`);
+    const resp = await axiosInstance().get(`runners/files?runid=${runnerId}`);
     files = resp.data;
   };
 </script>

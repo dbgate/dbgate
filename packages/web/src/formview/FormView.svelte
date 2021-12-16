@@ -260,7 +260,7 @@
   }
 
   export async function reconnect() {
-    await axiosInstance.post('database-connections/refresh', { conid, database });
+    await axiosInstance().post('database-connections/refresh', { conid, database });
     formDisplay.reload();
   }
 

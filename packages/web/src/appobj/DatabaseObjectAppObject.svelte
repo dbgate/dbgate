@@ -559,13 +559,13 @@
                 message: `Really drop collection ${data.pureName}?`,
                 onConfirm: async () => {
                   const dbid = _.pick(data, ['conid', 'database']);
-                  await axiosInstance.request({
+                  await axiosInstance().request({
                     url: 'database-connections/run-script',
                     method: 'post',
                     params: dbid,
                     data: { sql: `db.dropCollection('${data.pureName}')` },
                   });
-                  axiosInstance.post('database-connections/sync-model', dbid);
+                  axiosInstance().post('database-connections/sync-model', dbid);
                 },
               });
             } else {

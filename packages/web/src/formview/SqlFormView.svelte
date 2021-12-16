@@ -4,7 +4,7 @@
 
     if (!sql) return null;
 
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -124,7 +124,7 @@
   $: if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
 
   // async function handleConfirmSql(sql) {
-  //   const resp = await axiosInstance.request({
+  //   const resp = await axiosInstance().request({
   //     url: 'database-connections/query-data',
   //     method: 'post',
   //     params: {

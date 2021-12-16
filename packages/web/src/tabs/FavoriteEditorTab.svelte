@@ -97,7 +97,7 @@
   export function save() {
     try {
       const data = JSON.parse(getData());
-      axiosInstance.post('files/save', {
+      axiosInstance().post('files/save', {
         file: savedFile,
         folder: 'favorites',
         format: 'json',

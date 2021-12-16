@@ -16,7 +16,7 @@
   import axiosInstance from '../utility/axiosInstance';
 
   function handleOk(e) {
-    axiosInstance.post(
+    axiosInstance().post(
       'config/update-settings',
       _.omitBy(e.detail, (v, k) => k.startsWith(':'))
     );

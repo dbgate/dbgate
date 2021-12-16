@@ -86,7 +86,7 @@
     const loadid = uuidv1();
     loadRef.set(loadid);
     busy = true;
-    const response = await axiosInstance.post('database-connections/sql-preview', {
+    const response = await axiosInstance().post('database-connections/sql-preview', {
       conid,
       database,
       objects,

@@ -91,7 +91,7 @@
   // $: console.log('LOADED ROWS MONGO', loadedRows);
 
   async function handleConfirmChange(changeSet) {
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       url: 'database-connections/update-collection',
       method: 'post',
       params: {

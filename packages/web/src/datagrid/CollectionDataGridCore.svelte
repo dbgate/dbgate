@@ -63,7 +63,7 @@
   export async function loadCollectionDataPage(props, offset, limit) {
     const { conid, database } = props;
 
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/collection-data',
       method: 'post',
       params: {
@@ -95,7 +95,7 @@
   async function loadRowCount(props) {
     const { conid, database } = props;
 
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/collection-data',
       method: 'post',
       params: {

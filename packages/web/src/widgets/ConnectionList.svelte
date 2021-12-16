@@ -29,7 +29,7 @@
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
-      axiosInstance.post('server-connections/refresh', { conid });
+      axiosInstance().post('server-connections/refresh', { conid });
     }
   };
 

@@ -3,14 +3,14 @@ import { openedConnections, currentDatabase } from '../stores';
 import axiosInstance from './axiosInstance';
 
 const doServerPing = value => {
-  axiosInstance.post('server-connections/ping', { connections: value });
+  axiosInstance().post('server-connections/ping', { connections: value });
 };
 
 const doDatabasePing = value => {
   const database = _.get(value, 'name');
   const conid = _.get(value, 'connection._id');
   if (conid && database) {
-    axiosInstance.post('database-connections/ping', { conid, database });
+    axiosInstance().post('database-connections/ping', { conid, database });
   }
 };
 

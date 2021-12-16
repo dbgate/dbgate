@@ -62,7 +62,7 @@
   // $: objectList = generateObjectList(generateIndex);
 
   const handleRefreshDatabase = () => {
-    axiosInstance.post('database-connections/refresh', { conid, database });
+    axiosInstance().post('database-connections/refresh', { conid, database });
   };
 
   function createAddMenu() {

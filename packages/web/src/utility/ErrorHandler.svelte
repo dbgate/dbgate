@@ -1,7 +1,6 @@
 <script lang="ts">
   import localforage from 'localforage';
   import _ from 'lodash';
-  import { openedTabs } from '../stores';
   import { getLocalStorage, setLocalStorage } from './storageCache';
 
   let counter = 0;

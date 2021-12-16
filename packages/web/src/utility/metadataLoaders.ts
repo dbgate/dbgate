@@ -143,7 +143,7 @@ async function getCore(loader, args) {
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       method: 'get',
       url,
       params,
@@ -169,7 +169,7 @@ function useCore(loader, args) {
     subscribe: onChange => {
       async function handleReload() {
         async function doLoad() {
-          const resp = await axiosInstance.request({
+          const resp = await axiosInstance().request({
             method: 'get',
             params,
             url,

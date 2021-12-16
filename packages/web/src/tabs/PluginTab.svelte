@@ -27,13 +27,13 @@
   $: isPackaged = $info?.isPackaged;
 
   const handleInstall = async () => {
-    axiosInstance.post('plugins/install', { packageName });
+    axiosInstance().post('plugins/install', { packageName });
   };
   const handleUninstall = async () => {
-    axiosInstance.post('plugins/uninstall', { packageName });
+    axiosInstance().post('plugins/uninstall', { packageName });
   };
   const handleUpgrade = async () => {
-    axiosInstance.post('plugins/upgrade', { packageName });
+    axiosInstance().post('plugins/upgrade', { packageName });
   };
 
   $: installedFound = $installed?.find(x => x.name == packageName);

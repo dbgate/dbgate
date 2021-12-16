@@ -20,7 +20,7 @@
   $: folders = useArchiveFolders();
 
   const handleRefreshFolders = () => {
-    axiosInstance.post('archive/refresh-folders', {});
+    axiosInstance().post('archive/refresh-folders', {});
   };
 </script>
 

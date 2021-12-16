@@ -27,13 +27,13 @@
       value = e.detail;
 
       if (database) {
-        axiosInstance.post('connections/update-database', {
+        axiosInstance().post('connections/update-database', {
           conid,
           database,
           values: { connectionColor: e.detail },
         });
       } else {
-        axiosInstance.post('connections/update', {
+        axiosInstance().post('connections/update', {
           _id: conid,
           values: { connectionColor: e.detail },
         });

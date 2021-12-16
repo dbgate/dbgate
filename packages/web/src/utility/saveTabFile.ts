@@ -18,10 +18,10 @@ export default function saveTabFile(editor, saveAs, folder, format, fileExtensio
 
   const handleSave = async () => {
     if (savedFile) {
-      await axiosInstance.post('files/save', { folder: savedFolder || folder, file: savedFile, data, format });
+      await axiosInstance().post('files/save', { folder: savedFolder || folder, file: savedFile, data, format });
     }
     if (savedFilePath) {
-      await axiosInstance.post('files/save-as', { filePath: savedFilePath, data, format });
+      await axiosInstance().post('files/save-as', { filePath: savedFilePath, data, format });
     }
   };
 

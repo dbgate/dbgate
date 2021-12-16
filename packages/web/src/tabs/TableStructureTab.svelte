@@ -130,7 +130,7 @@
   }
 
   async function handleConfirmSql(sql, createTableName) {
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       url: 'database-connections/run-script',
       method: 'post',
       params: {
@@ -154,14 +154,14 @@
         }));
       }
 
-      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      await axiosInstance().post('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
       clearEditorData();
     }
   }
 
   export async function reset() {
-    await axiosInstance.post('database-connections/sync-model', { conid, database });
+    await axiosInstance().post('database-connections/sync-model', { conid, database });
     clearEditorData();
   }
 

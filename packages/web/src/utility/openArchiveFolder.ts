@@ -12,7 +12,7 @@ export async function openArchiveFolder() {
   });
   const linkedFolder = filePaths && filePaths[0];
   if (!linkedFolder) return;
-  const resp = await axiosInstance.post('archive/create-link', { linkedFolder });
+  const resp = await axiosInstance().post('archive/create-link', { linkedFolder });
 
   currentArchive.set(resp.data);
   selectedWidget.set('archive');

@@ -81,8 +81,8 @@
   const handleRunnerDone = () => {
     busy = false;
     if (refreshArchiveFolderRef.get()) {
-      axiosInstance.post('archive/refresh-folders', {});
-      axiosInstance.post('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
+      axiosInstance().post('archive/refresh-folders', {});
+      axiosInstance().post('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
       $currentArchive = refreshArchiveFolderRef.get();
       $selectedWidget = 'archive';
     }
@@ -108,7 +108,7 @@
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
     let runid = runnerId;
-    const resp = await axiosInstance.post('runners/start', { script });
+    const resp = await axiosInstance().post('runners/start', { script });
     runid = resp.data.runid;
     runnerId = runid;
 
@@ -120,7 +120,7 @@
   };
 
   const handleCancel = () => {
-    axiosInstance.post('runners/cancel', {
+    axiosInstance().post('runners/cancel', {
       runid: runnerId,
     });
   };

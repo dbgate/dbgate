@@ -16,7 +16,7 @@
 
   const handleLoad = async () => {
     isLoading = true;
-    const resp = await axiosInstance.post('files/load', {
+    const resp = await axiosInstance().post('files/load', {
       folder: 'markdown',
       file: savedFile,
       format: 'text',

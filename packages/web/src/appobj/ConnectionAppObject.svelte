@@ -44,14 +44,14 @@
   const handleConnect = () => {
     if (data.singleDatabase) {
       $currentDatabase = { connection: data, name: data.defaultDatabase };
-      axiosInstance.post('database-connections/refresh', {
+      axiosInstance().post('database-connections/refresh', {
         conid: data._id,
         database: data.defaultDatabase,
         keepOpen: true,
       });
     } else {
       $openedConnections = _.uniq([...$openedConnections, data._id]);
-      axiosInstance.post('server-connections/refresh', {
+      axiosInstance().post('server-connections/refresh', {
         conid: data._id,
         keepOpen: true,
       });
@@ -61,16 +61,16 @@
   const getContextMenu = () => {
     const config = getCurrentConfig();
     const handleRefresh = () => {
-      axiosInstance.post('server-connections/refresh', { conid: data._id });
+      axiosInstance().post('server-connections/refresh', { conid: data._id });
     };
     const handleDisconnect = () => {
       openedConnections.update(list => list.filter(x => x != data._id));
       if (electron) {
-        axiosInstance.post('server-connections/disconnect', { conid: data._id });
+        axiosInstance().post('server-connections/disconnect', { conid: data._id });
       }
       if (_.get($currentDatabase, 'connection._id') == data._id) {
         if (electron) {
-          axiosInstance.post('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
+          axiosInstance().post('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
         }
         currentDatabase.set(null);
       }
@@ -81,11 +81,11 @@
     const handleDelete = () => {
       showModal(ConfirmModal, {
         message: `Really delete connection ${getConnectionLabel(data)}?`,
-        onConfirm: () => axiosInstance.post('connections/delete', data),
+        onConfirm: () => axiosInstance().post('connections/delete', data),
       });
     };
     const handleDuplicate = () => {
-      axiosInstance.post('connections/save', {
+      axiosInstance().post('connections/save', {
         ...data,
         _id: undefined,
         displayName: `${getConnectionLabel(data)} - copy`,
@@ -97,7 +97,7 @@
         value: 'newdb',
         label: 'Database name',
         onConfirm: name =>
-          axiosInstance.post('server-connections/create-database', {
+          axiosInstance().post('server-connections/create-database', {
             conid: data._id,
             name,
           }),

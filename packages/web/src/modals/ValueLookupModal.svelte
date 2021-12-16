@@ -85,7 +85,7 @@
     dumpSqlSelect(dmp, select);
 
     isLoading = true;
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {

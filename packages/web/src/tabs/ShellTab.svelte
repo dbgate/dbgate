@@ -140,7 +140,7 @@
   }
 
   export async function copyNodeScript() {
-    const resp = await axiosInstance.post('runners/get-node-script', { script: getActiveScript() });
+    const resp = await axiosInstance().post('runners/get-node-script', { script: getActiveScript() });
     copyTextToClipboard(resp.data);
   }
 
@@ -172,7 +172,7 @@
     executeNumber += 1;
 
     let runid = runnerId;
-    const resp = await axiosInstance.post('runners/start', {
+    const resp = await axiosInstance().post('runners/start', {
       script: getActiveScript(),
     });
     runid = resp.data.runid;
@@ -186,7 +186,7 @@
   }
 
   export function kill() {
-    axiosInstance.post('runners/cancel', {
+    axiosInstance().post('runners/cancel', {
       runid: runnerId,
     });
     timerLabel.stop();

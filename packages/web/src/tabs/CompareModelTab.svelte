@@ -228,7 +228,7 @@
 
   export async function showReport() {
     saveFileToDisk(async filePath => {
-      await axiosInstance.post('database-connections/generate-db-diff-report', {
+      await axiosInstance().post('database-connections/generate-db-diff-report', {
         filePath,
         sourceConid: $values?.sourceConid,
         sourceDatabase: $values?.sourceDatabase,
@@ -261,11 +261,11 @@
   }
 
   export function refreshModels() {
-    axiosInstance.post('database-connections/sync-model', {
+    axiosInstance().post('database-connections/sync-model', {
       conid: $values?.targetConid,
       database: $values?.targetDatabase,
     });
-    axiosInstance.post('database-connections/sync-model', {
+    axiosInstance().post('database-connections/sync-model', {
       conid: $values?.sourceConid,
       database: $values?.sourceDatabase,
     });
@@ -275,7 +275,7 @@
     const conid = $values?.targetConid;
     const database = $values?.targetDatabase;
 
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       url: 'database-connections/run-script',
       method: 'post',
       params: { conid, database },
@@ -286,7 +286,7 @@
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
       $values = _.omitBy($values, (v, k) => k.startsWith('isChecked_'));
-      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      await axiosInstance().post('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
     }
   }

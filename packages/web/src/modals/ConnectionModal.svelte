@@ -38,7 +38,7 @@
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
-    const resp = await axiosInstance.post('connections/test', e.detail);
+    const resp = await axiosInstance().post('connections/test', e.detail);
     if (testIdRef.get() != testid) return;
 
     isTesting = false;
@@ -70,7 +70,7 @@
     let connection = _.omit(e.detail, omitProps);
     if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
 
-    axiosInstance.post('connections/save', connection);
+    axiosInstance().post('connections/save', connection);
     closeCurrentModal();
   }
 

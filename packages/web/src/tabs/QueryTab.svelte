@@ -150,7 +150,7 @@
 
     let sesid = sessionId;
     if (!sesid) {
-      const resp = await axiosInstance.post('sessions/create', {
+      const resp = await axiosInstance().post('sessions/create', {
         conid,
         database,
       });
@@ -159,11 +159,11 @@
     }
     busy = true;
     timerLabel.start();
-    await axiosInstance.post('sessions/execute-query', {
+    await axiosInstance().post('sessions/execute-query', {
       sesid,
       sql,
     });
-    await axiosInstance.post('query-history/write', {
+    await axiosInstance().post('query-history/write', {
       data: {
         sql,
         conid,
@@ -184,7 +184,7 @@
   }
 
   export async function kill() {
-    await axiosInstance.post('sessions/kill', {
+    await axiosInstance().post('sessions/kill', {
       sesid: sessionId,
     });
     sessionId = null;

@@ -48,13 +48,13 @@
         header: 'Create collection',
         onConfirm: async newCollection => {
           const dbid = { conid: connection._id, database: name };
-          await axiosInstance.request({
+          await axiosInstance().request({
             url: 'database-connections/run-script',
             method: 'post',
             params: dbid,
             data: { sql: `db.createCollection('${newCollection}')` },
           });
-          axiosInstance.post('database-connections/sync-model', dbid);
+          axiosInstance().post('database-connections/sync-model', dbid);
         },
       });
     };
@@ -90,13 +90,13 @@
 
     const handleDisconnect = () => {
       if (electron) {
-        axiosInstance.post('database-connections/disconnect', { conid: connection._id, database: name });
+        axiosInstance().post('database-connections/disconnect', { conid: connection._id, database: name });
       }
       currentDatabase.set(null);
     };
 
     const handleExportModel = async () => {
-      const resp = await axiosInstance.post('database-connections/export-model', {
+      const resp = await axiosInstance().post('database-connections/export-model', {
         conid: connection._id,
         database: name,
       });

@@ -14,7 +14,7 @@
 
   const handleLoad = async () => {
     isLoading = true;
-    const resp = await axiosInstance.get('config/changelog');
+    const resp = await axiosInstance().get('config/changelog');
     text = resp.data;
     isLoading = false;
   };

@@ -21,7 +21,7 @@ export function canOpenByElectron(file, extensions) {
 
 export async function openSqliteFile(filePath) {
   const defaultDatabase = getDatabaseFileLabel(filePath);
-  const resp = await axiosInstance.post('connections/save', {
+  const resp = await axiosInstance().post('connections/save', {
     _id: undefined,
     databaseFile: filePath,
     engine: 'sqlite@dbgate-plugin-sqlite',

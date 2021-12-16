@@ -7,7 +7,7 @@
     const { icon, tabComponent, title, props, tabdata } = favorite;
     let tabdataNew = tabdata;
     if (props.savedFile) {
-      const resp = await axiosInstance.post('files/load', {
+      const resp = await axiosInstance().post('files/load', {
         folder: props.savedFolder,
         file: props.savedFile,
         format: props.savedFormat,
@@ -47,7 +47,7 @@
   };
 
   const editFavoriteJson = async () => {
-    const resp = await axiosInstance.post('files/load', {
+    const resp = await axiosInstance().post('files/load', {
       folder: 'favorites',
       file: data.file,
       format: 'text',
@@ -76,7 +76,7 @@
     showModal(ConfirmModal, {
       message: `Really delete favorite ${data.title}?`,
       onConfirm: () => {
-        axiosInstance.post('files/delete', { file: data.file, folder: 'favorites' });
+        axiosInstance().post('files/delete', { file: data.file, folder: 'favorites' });
       },
     });
   };

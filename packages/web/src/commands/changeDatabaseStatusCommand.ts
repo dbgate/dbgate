@@ -22,19 +22,19 @@ registerCommand({
       {
         text: 'Sync model',
         onClick: () => {
-          axiosInstance.post('database-connections/sync-model', dbid);
+          axiosInstance().post('database-connections/sync-model', dbid);
         },
       },
       {
         text: 'Reopen',
         onClick: () => {
-          axiosInstance.post('database-connections/refresh', dbid);
+          axiosInstance().post('database-connections/refresh', dbid);
         },
       },
       {
         text: 'Disconnect',
         onClick: () => {
-          if (electron) axiosInstance.post('database-connections/disconnect', dbid);
+          if (electron) axiosInstance().post('database-connections/disconnect', dbid);
           currentDatabase.set(null);
         },
       },

@@ -31,7 +31,7 @@
 
     const sql = display.getPageQuery(offset, limit);
 
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {
@@ -56,7 +56,7 @@
 
     const sql = display.getCountQuery();
 
-    const response = await axiosInstance.request({
+    const response = await axiosInstance().request({
       url: 'database-connections/query-data',
       method: 'post',
       params: {

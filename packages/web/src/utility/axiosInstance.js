@@ -1,14 +1,14 @@
 import axios from 'axios';
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 
-let axiosInstance;
+let instance;
 
 function recreateAxiosInstance() {
-  axiosInstance = axios.create({
+  instance = axios.create({
     baseURL: resolveApi(),
   });
 
-  axiosInstance.defaults.headers = {
+  instance.defaults.headers = {
     'Cache-Control': 'no-cache',
     Pragma: 'no-cache',
     Expires: '0',
@@ -20,4 +20,6 @@ window['dbgate_recreateAxiosInstance'] = recreateAxiosInstance;
 
 recreateAxiosInstance();
 
-export default axiosInstance;
+export default function axiosInstance() {
+  return instance;
+}

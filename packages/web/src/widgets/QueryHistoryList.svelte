@@ -18,7 +18,7 @@
   let historyItems = [];
 
   async function reloadItems() {
-    const resp = await axiosInstance.request({
+    const resp = await axiosInstance().request({
       method: 'get',
       url: 'query-history/read',
       params: {

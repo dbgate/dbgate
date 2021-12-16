@@ -69,7 +69,7 @@ import FormButton from '../forms/FormButton.svelte';
   const saveTab = async values => {
     const data = await getTabSaveData(values);
 
-    axiosInstance.post('files/save', {
+    axiosInstance().post('files/save', {
       folder: 'favorites',
       file: uuidv1(),
       format: 'json',
@@ -78,13 +78,13 @@ import FormButton from '../forms/FormButton.svelte';
   };
 
   const saveFile = async values => {
-    const oldDataResp = await axiosInstance.post('files/load', {
+    const oldDataResp = await axiosInstance().post('files/load', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',
     });
 
-    axiosInstance.post('files/save', {
+    axiosInstance().post('files/save', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',

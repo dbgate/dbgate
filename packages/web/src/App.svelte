@@ -23,9 +23,11 @@
     }
 
     try {
-      const settings = await axiosInstance.get('config/get-settings');
-      const connections = await axiosInstance.get('connections/list');
-      const config = await axiosInstance.get('config/get');
+      // console.log('************** LOADING API');
+
+      const settings = await axiosInstance().get('config/get-settings');
+      const connections = await axiosInstance().get('connections/list');
+      const config = await axiosInstance().get('config/get');
       loadedApi = settings?.data && connections?.data && config?.data;
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
@@ -51,11 +53,11 @@
   }
 </script>
 
-<DataGridRowHeightMeter />
 <ErrorHandler />
-<CommandListener />
 
 {#if loadedApi}
+  <DataGridRowHeightMeter />
+  <CommandListener />
   <PluginsProvider />
   {#if $loadingPluginStore?.loaded}
     <OpenTabsOnStartup />

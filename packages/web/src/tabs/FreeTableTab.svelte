@@ -63,7 +63,7 @@
     tabid,
     loadFromArgs:
       initialArgs && initialArgs.functionName
-        ? () => axiosInstance.post('runners/load-reader', initialArgs).then(x => x.data)
+        ? () => axiosInstance().post('runners/load-reader', initialArgs).then(x => x.data)
         : null,
     onInitialData: value => {
       dispatchModel({ type: 'reset', value });
@@ -84,7 +84,7 @@
   }
 
   const doSave = async (folder, file) => {
-    await axiosInstance.post('archive/save-free-table', { folder, file, data: $modelState.value });
+    await axiosInstance().post('archive/save-free-table', { folder, file, data: $modelState.value });
     changeTab(tabid, tab => ({
       ...tab,
       title: file,

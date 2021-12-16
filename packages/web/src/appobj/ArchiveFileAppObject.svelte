@@ -16,7 +16,7 @@
     const connProps: any = {};
     let tooltip = undefined;
 
-    const resp = await axiosInstance.post('files/load', {
+    const resp = await axiosInstance().post('files/load', {
       folder: 'archive:' + folderName,
       file: fileName + '.' + fileType,
       format: 'text',
@@ -91,7 +91,7 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('archive/rename-file', {
+        axiosInstance().post('archive/rename-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,
@@ -105,7 +105,7 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.fileName}?`,
       onConfirm: () => {
-        axiosInstance.post('archive/delete-file', {
+        axiosInstance().post('archive/delete-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,

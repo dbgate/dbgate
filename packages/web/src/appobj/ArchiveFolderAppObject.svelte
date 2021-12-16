@@ -26,7 +26,7 @@
         ? `Really delete link to folder ${data.name}? Folder content remains untouched.`
         : `Really delete folder ${data.name}?`,
       onConfirm: () => {
-        axiosInstance.post('archive/delete-folder', { folder: data.name });
+        axiosInstance().post('archive/delete-folder', { folder: data.name });
       },
     });
   };
@@ -41,7 +41,7 @@
       label: 'New folder name',
       header: 'Rename folder',
       onConfirm: async newFolder => {
-        await axiosInstance.post('archive/rename-folder', {
+        await axiosInstance().post('archive/rename-folder', {
           folder: data.name,
           newFolder: newFolder + suffix,
         });
@@ -78,7 +78,7 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleGenerateDeploySql = async () => {
-    const resp = await axiosInstance.post('database-connections/generate-deploy-sql', {
+    const resp = await axiosInstance().post('database-connections/generate-deploy-sql', {
       conid: $currentDatabase.connection._id,
       database: $currentDatabase.name,
       archiveFolder: data.name,

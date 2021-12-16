@@ -64,7 +64,7 @@
 
   async function handleSyncModel() {
     if (connection && databaseName) {
-      await axiosInstance.post('database-connections/sync-model', { conid: connection._id, database: databaseName });
+      await axiosInstance().post('database-connections/sync-model', { conid: connection._id, database: databaseName });
     }
   }
 </script>

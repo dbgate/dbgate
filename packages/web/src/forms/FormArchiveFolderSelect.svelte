@@ -34,7 +34,7 @@
   ];
 
   const createOption = folder => {
-    axiosInstance.post('archive/create-folder', { folder });
+    axiosInstance().post('archive/create-folder', { folder });
     setFieldValue(name, folder);
   };
 

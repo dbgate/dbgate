@@ -21,7 +21,7 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
     sql,
     recreates,
     onConfirm: async () => {
-      const resp = await axiosInstance.request({
+      const resp = await axiosInstance().request({
         url: 'database-connections/run-script',
         method: 'post',
         params: {
@@ -30,7 +30,7 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
         },
         data: { sql },
       });
-      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      await axiosInstance().post('database-connections/sync-model', { conid, database });
     },
     engine: driver.engine,
   });

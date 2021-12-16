@@ -61,7 +61,7 @@
 
   export async function exportChart() {
     saveFileToDisk(async filePath => {
-      await axiosInstance.post('files/export-chart', {
+      await axiosInstance().post('files/export-chart', {
         title,
         filePath,
         config: {

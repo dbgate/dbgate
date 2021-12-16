@@ -114,7 +114,7 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.file}?`,
       onConfirm: () => {
-        axiosInstance.post('files/delete', data);
+        axiosInstance().post('files/delete', data);
       },
     });
   };
@@ -125,7 +125,7 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('files/rename', { ...data, newFile });
+        axiosInstance().post('files/rename', { ...data, newFile });
       },
     });
   };
@@ -136,13 +136,13 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('files/copy', { ...data, newFile });
+        axiosInstance().post('files/copy', { ...data, newFile });
       },
     });
   };
 
   async function openTab() {
-    const resp = await axiosInstance.post('files/load', { folder, file: data.file, format: handler.format });
+    const resp = await axiosInstance().post('files/load', { folder, file: data.file, format: handler.format });
 
     const connProps: any = {};
     let tooltip = undefined;

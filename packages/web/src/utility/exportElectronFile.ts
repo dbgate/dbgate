@@ -28,7 +28,7 @@ export async function exportElectronFile(dataName, reader, format) {
   script.copyStream(sourceVar, targetVar);
   script.put();
 
-  const resp = await axiosInstance.post('runners/start', { script: script.getScript() });
+  const resp = await axiosInstance().post('runners/start', { script: script.getScript() });
   const runid = resp.data.runid;
   let isCanceled = false;
 
@@ -40,7 +40,7 @@ export async function exportElectronFile(dataName, reader, format) {
         label: 'Cancel',
         onClick: () => {
           isCanceled = true;
-          axiosInstance.post('runners/cancel', { runid });
+          axiosInstance().post('runners/cancel', { runid });
         },
       },
     ],
@@ -74,7 +74,7 @@ export async function saveFileToDisk(
     await filePathFunc(filePath);
     electron.shell.openExternal('file:///' + filePath);
   } else {
-    const resp = await axiosInstance.get('files/generate-uploads-file');
+    const resp = await axiosInstance().get('files/generate-uploads-file');
     await filePathFunc(resp.data.filePath);
     window.open(`${resolveApi()}/uploads/get?file=${resp.data.fileName}`, '_blank');
   }

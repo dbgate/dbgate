@@ -22,7 +22,7 @@
 
   const handleSubmit = async e => {
     const { name } = e.detail;
-    await axiosInstance.post('files/save', { folder, file: name, data, format });
+    await axiosInstance().post('files/save', { folder, file: name, data, format });
     closeCurrentModal();
     if (onSave) {
       onSave(name, {
@@ -38,7 +38,7 @@
     const parsed = path.parse(filePath);
     // if (!parsed.ext) filePath += `.${fileExtension}`;
 
-    await axiosInstance.post('files/save-as', { filePath, data, format });
+    await axiosInstance().post('files/save-as', { filePath, data, format });
     closeCurrentModal();
 
     if (onSave) {

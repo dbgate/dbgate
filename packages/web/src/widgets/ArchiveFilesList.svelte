@@ -40,7 +40,7 @@
   $: files = useArchiveFiles({ folder });
 
   const handleRefreshFiles = () => {
-    axiosInstance.post('archive/refresh-files', { folder });
+    axiosInstance().post('archive/refresh-files', { folder });
   };
 
   function handleNewDataSheet() {
@@ -49,7 +49,7 @@
       label: 'New file name',
       header: 'Create new data sheet',
       onConfirm: async file => {
-        await axiosInstance.post('archive/save-free-table', {
+        await axiosInstance().post('archive/save-free-table', {
           folder: $currentArchive,
           file,
           data: createFreeTableModel(),

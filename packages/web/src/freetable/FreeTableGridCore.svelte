@@ -45,7 +45,7 @@
 
   export async function exportGrid() {
     const jslid = uuidv1();
-    await axiosInstance.post('jsldata/save-free-table', { jslid, data: modelState.value });
+    await axiosInstance().post('jsldata/save-free-table', { jslid, data: modelState.value });
     const initialValues: any = {};
     initialValues.sourceStorageType = 'jsldata';
     initialValues.sourceJslId = jslid;

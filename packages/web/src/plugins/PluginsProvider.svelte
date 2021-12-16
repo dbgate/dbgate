@@ -14,7 +14,7 @@
           loaded: false,
           loadingPackageName: installed.name,
         });
-        const resp = await axiosInstance.request({
+        const resp = await axiosInstance().request({
           method: 'get',
           url: 'plugins/script',
           params: {
