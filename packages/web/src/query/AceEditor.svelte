@@ -28,9 +28,6 @@
   // @ts-ignore
   import QueryParserWorker from 'web-worker:./QueryParserWorker';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
-  import getElectron from '../utility/getElectron';
-
-  const electron = getElectron();
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -138,18 +135,22 @@
 
   $: watchQueryParserWorker(splitterOptions && $tabVisible);
   function watchQueryParserWorker(enabled) {
-    if (electron) return; // electron doesn't support workers
-
     if (enabled) {
       if (!queryParserWorker) {
-        queryParserWorker = new QueryParserWorker();
-        queryParserWorker.onmessage = e => {
-          processParserResult(e.data);
-        };
+        try {
+          queryParserWorker = new QueryParserWorker();
+          queryParserWorker.onmessage = e => {
+            processParserResult(e.data);
+          };
+        } catch (err) {
+          queryParserWorker = 'fallback';
+        }
       }
     } else {
       if (queryParserWorker) {
-        queryParserWorker.terminate();
+        if (queryParserWorker != 'fallback') {
+          queryParserWorker.terminate();
+        }
         queryParserWorker = null;
       }
     }
@@ -187,7 +188,7 @@
 
   function changedQueryParts() {
     const editor = getEditor();
-    if (splitterOptions && editor && (queryParserWorker || electron)) {
+    if (splitterOptions && editor && queryParserWorker) {
       const editor = getEditor();
 
       const message = {
@@ -198,7 +199,7 @@
         },
       };
 
-      if (electron) {
+      if (queryParserWorker == 'fallback') {
         const res = queryParserWorkerFallback(message);
         processParserResult(res);
       } else {
@@ -285,7 +286,9 @@
       editor.container.remove();
     }
     if (queryParserWorker) {
-      queryParserWorker.terminate();
+      if (queryParserWorker != 'fallback') {
+        queryParserWorker.terminate();
+      }
       queryParserWorker = null;
     }
   });
