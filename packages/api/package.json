@@ -19,7 +19,7 @@
   "dependencies": {
     "async-lock": "^1.2.4",
     "axios": "^0.21.1",
-    "better-sqlite3-with-prebuilds": "^7.1.8",
+    "better-sqlite3-with-prebuilds": "^7.4.3",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
     "byline": "^5.0.0",

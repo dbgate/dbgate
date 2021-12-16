@@ -2061,10 +2061,10 @@ better-assert@~1.0.0:
   dependencies:
     callsite "1.0.0"
 
-better-sqlite3-with-prebuilds@^7.1.8:
-  version "7.1.8"
-  resolved "https://registry.yarnpkg.com/better-sqlite3-with-prebuilds/-/better-sqlite3-with-prebuilds-7.1.8.tgz#3090c478fe9b60e74ce053a76807b189784f62d7"
-  integrity sha512-trwg1qhN91cPYEB8D2K0KVHIsMsiAnxKx6/syfQ7rLrtD+zOS3fqJq4VGszMF+OuYAZJNAR4oLsikys3YW/6aA==
+better-sqlite3-with-prebuilds@^7.4.3:
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/better-sqlite3-with-prebuilds/-/better-sqlite3-with-prebuilds-7.4.3.tgz#2ed9c5649a8eb1cf2bece7d3f4849b184ddde038"
+  integrity sha512-E1MWyMz5RFZCdRNzIcR245dRVR3u1qZO2uV+8Z9Vb/PJsQ6uxOuOnSfA+rZdkuvDbVTbdpowKNL1tuO6FJyt0A==
   dependencies:
     "@types/integer" latest
     bindings "^1.5.0"

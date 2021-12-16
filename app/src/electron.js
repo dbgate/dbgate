@@ -14,6 +14,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
+// require('@electron/remote/main').initialize();
+
 const store = new Store();
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -49,7 +51,7 @@ function buildMenu() {
         commandItem('new.connection'),
         commandItem('new.sqliteDatabase'),
         commandItem('new.modelCompare'),
-        commandItem('new.freetable'),        
+        commandItem('new.freetable'),
         { type: 'separator' },
         commandItem('file.open'),
         commandItem('file.openArchive'),
@@ -157,10 +159,12 @@ function createWindow() {
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
+      // nodeIntegration: true,
+      // contextIsolation: false,
+      // enableRemoteModule: true,
     },
   });
+  // require('@electron/remote/main').enable(mainWindow.webContents);
   if (store.get('winIsMaximized')) {
     mainWindow.maximize();
   }

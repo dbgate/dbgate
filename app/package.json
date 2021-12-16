@@ -5,10 +5,10 @@
   "author": "Jan Prochazka <jenasoft.database@gmail.com>",
   "description": "Opensource database administration tool",
   "dependencies": {
-    "better-sqlite3-with-prebuilds": "^7.1.8",
-    "electron-log": "^4.3.1",
-    "electron-store": "^5.1.1",
-    "electron-updater": "^4.3.5",
+    "better-sqlite3-with-prebuilds": "^7.4.3",
+    "electron-log": "^4.4.1",
+    "electron-store": "^8.0.1",
+    "electron-updater": "^4.6.1",
     "patch-package": "^6.4.7"
   },
   "repository": {
@@ -103,8 +103,8 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "11.2.3",
-    "electron-builder": "22.10.5"
+    "electron": "16.0.4",
+    "electron-builder": "22.14.5"
   },
   "optionalDependencies": {
     "msnodesqlv8": "^2.4.0"
