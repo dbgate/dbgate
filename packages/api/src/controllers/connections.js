@@ -197,7 +197,7 @@ module.exports = {
   async get({ conid }) {
     if (portalConnections) return portalConnections.find(x => x._id == conid);
     const res = await this.datastore.find({ _id: conid });
-    return res[0];
+    return res[0] || null;
   },
 
   newSqliteDatabase_meta: true,

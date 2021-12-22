@@ -250,7 +250,7 @@ module.exports = {
   serverVersion_meta: true,
   async serverVersion({ conid, database }) {
     const opened = await this.ensureOpened(conid, database);
-    return opened.serverVersion;
+    return opened.serverVersion || null;
   },
 
   sqlPreview_meta: true,
@@ -276,7 +276,10 @@ module.exports = {
   generateDeploySql_meta: true,
   async generateDeploySql({ conid, database, archiveFolder }) {
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'generateDeploySql', modelFolder: resolveArchiveFolder(archiveFolder) });
+    const res = await this.sendRequest(opened, {
+      msgtype: 'generateDeploySql',
+      modelFolder: resolveArchiveFolder(archiveFolder),
+    });
     return res;
 
     // const connection = await connections.get({ conid });
@@ -285,7 +288,7 @@ module.exports = {
     //   analysedStructure: await this.structure({ conid, database }),
     //   modelFolder: resolveArchiveFolder(archiveFolder),
     // });
-    
+
     // const deployedModel = generateDbPairingId(await importDbModel(path.join(archivedir(), archiveFolder)));
     // const currentModel = generateDbPairingId(await this.structure({ conid, database }));
     // const currentModelPaired = matchPairedObjects(deployedModel, currentModel);

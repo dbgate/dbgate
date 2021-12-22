@@ -14,14 +14,10 @@
           loaded: false,
           loadingPackageName: installed.name,
         });
-        const resp = await axiosInstance().request({
-          method: 'get',
-          url: 'plugins/script',
-          params: {
-            packageName: installed.name,
-          },
+        const resp = await apiCall('plugins/script', {
+          packageName: installed.name,
         });
-        const module = eval(`${resp.data}; plugin`);
+        const module = eval(`${resp}; plugin`);
         console.log('Loaded plugin', module);
         const moduleContent = module.__esModule ? module.default : module;
         if (moduleContent.initialize) moduleContent.initialize(dbgateEnv);
@@ -55,7 +51,6 @@
     };
     return extensions;
   }
-
 </script>
 
 <script lang="ts">
@@ -66,6 +61,7 @@
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
   import dbgateTools from 'dbgate-tools';
+  import { apiCall } from '../utility/api';
 
   let pluginsDict = {};
   const installedPlugins = useInstalledPlugins();
@@ -87,5 +83,4 @@
     .filter(x => x.content);
 
   $: $extensions = buildExtensions(plugins);
-
 </script>

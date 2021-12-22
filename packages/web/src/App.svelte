@@ -15,6 +15,7 @@
   import { shouldWaitForElectronInitialize } from './utility/getElectron';
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
+  import { apiCall } from './utility/api';
 
   let loadedApi = false;
 
@@ -27,10 +28,10 @@
     try {
       // console.log('************** LOADING API');
 
-      const settings = await axiosInstance().get('config/get-settings');
-      const connections = await axiosInstance().get('connections/list');
-      const config = await axiosInstance().get('config/get');
-      loadedApi = settings?.data && connections?.data && config?.data;
+      const settings = await apiCall('config/get-settings');
+      const connections = await apiCall('connections/list');
+      const config = await apiCall('config/get');
+      loadedApi = settings && connections && config;
 
       if (loadedApi) {
         subscribeApiDependendStores();

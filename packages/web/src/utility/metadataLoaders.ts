@@ -9,6 +9,7 @@ import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
+import { apiCall } from './api';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
@@ -143,12 +144,8 @@ async function getCore(loader, args) {
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
-    const resp = await axiosInstance().request({
-      method: 'get',
-      url,
-      params,
-    });
-    const res = (transform || (x => x))(resp.data);
+    const resp = await apiCall(url, params);
+    const res = (transform || (x => x))(resp);
     if (onLoaded) onLoaded(res);
     return res;
   }
@@ -169,12 +166,8 @@ function useCore(loader, args) {
     subscribe: onChange => {
       async function handleReload() {
         async function doLoad() {
-          const resp = await axiosInstance().request({
-            method: 'get',
-            params,
-            url,
-          });
-          const res = (transform || (x => x))(resp.data);
+          const resp = await apiCall(url, params);
+          const res = (transform || (x => x))(resp);
           if (onLoaded) onLoaded(res);
           return res;
         }
@@ -189,7 +182,7 @@ function useCore(loader, args) {
               cacheSet(cacheKey, res, reloadTrigger);
               onChange(res);
             } catch (err) {
-              console.error('Error when using cached promise', err);
+              console.error(`Error when using cached promise ${url}`, err);
               cacheClean(cacheKey);
               const res = await doLoad();
               cacheSet(cacheKey, res, reloadTrigger);
