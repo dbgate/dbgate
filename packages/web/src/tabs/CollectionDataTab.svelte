@@ -40,7 +40,6 @@
   import { extensions } from '../stores';
   import CollectionJsonView from '../jsonview/CollectionJsonView.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import axiosInstance from '../utility/axiosInstance';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';

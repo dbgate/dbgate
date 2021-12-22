@@ -1,6 +1,5 @@
 import ScriptWriter from '../impexp/ScriptWriter';
 import getElectron from './getElectron';
-import axiosInstance from '../utility/axiosInstance';
 import socket from '../utility/socket';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
 import resolveApi from './resolveApi';

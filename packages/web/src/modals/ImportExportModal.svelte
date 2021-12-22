@@ -16,8 +16,7 @@
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
   import socket from '../utility/socket';

@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   const dbgateEnv = {
-    axios: axiosInstance,
+    apiCall,
   };
 
   async function loadPlugins(pluginsDict, installedPlugins) {
@@ -56,7 +56,6 @@
 <script lang="ts">
   import _ from 'lodash';
   import { extensions, loadingPluginStore } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';

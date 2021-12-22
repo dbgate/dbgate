@@ -9,7 +9,6 @@
 
   import { currentArchive, currentDatabase } from '../stores';
 
-  import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import newQuery from '../query/newQuery';
@@ -17,7 +16,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let data;
 

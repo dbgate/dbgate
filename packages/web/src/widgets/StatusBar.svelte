@@ -39,7 +39,6 @@
   import { activeTabId, currentDatabase, currentThemeDefinition, visibleCommandPalette } from '../stores';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionList, useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
-  import axiosInstance from '../utility/axiosInstance';
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';
   import { apiCall } from '../utility/api';

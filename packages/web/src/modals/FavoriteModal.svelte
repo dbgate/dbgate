@@ -5,7 +5,6 @@
   import hasPermission from '../utility/hasPermission';
   import localforage from 'localforage';
   import ModalBase from './ModalBase.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import uuidv1 from 'uuid/v1';
   import { closeCurrentModal } from './modalTools';
   import { copyTextToClipboard } from '../utility/clipboard';

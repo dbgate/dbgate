@@ -18,7 +18,6 @@ import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 import './changeDatabaseStatusCommand';
 import hasPermission from '../utility/hasPermission';
-import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
 import { findEngineDriver } from 'dbgate-tools';
 import { openArchiveFolder } from '../utility/openArchiveFolder';

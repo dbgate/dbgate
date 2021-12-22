@@ -2,8 +2,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
 
   import { showModal } from '../modals/modalTools';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
 
   import { useArchiveFolders } from '../utility/metadataLoaders';
   import { getFormContext } from './FormProviderCore.svelte';

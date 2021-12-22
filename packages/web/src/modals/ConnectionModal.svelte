@@ -4,7 +4,6 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import TabControl from '../elements/TabControl.svelte';
   import ConnectionModalDriverFields from './ConnectionModalDriverFields.svelte';
   import ConnectionModalSshTunnelFields from './ConnectionModalSshTunnelFields.svelte';

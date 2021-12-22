@@ -14,7 +14,6 @@
   import { closeCurrentModal } from '../modals/modalTools';
   import { getCurrentSettings, getVisibleToolbar, getZoomKoef, visibleToolbar, zoomKoef } from '../stores';
   import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
 
   function handleOk(e) {
     apiCall(

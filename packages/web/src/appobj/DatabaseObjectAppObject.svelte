@@ -408,7 +408,6 @@
   import { exportElectronFile } from '../utility/exportElectronFile';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';

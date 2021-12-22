@@ -262,7 +262,6 @@
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import { copyRowsFormat, selectedCellsCallback } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import {
     copyRowsFormatDefs,
     copyRowsToClipboard,

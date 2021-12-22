@@ -30,7 +30,6 @@
   import { currentArchive } from '../stores';
   import { apiCall } from '../utility/api';
   import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
-  import axiosInstance from '../utility/axiosInstance';
   import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';

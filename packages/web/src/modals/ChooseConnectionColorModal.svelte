@@ -1,7 +1,6 @@
 <script lang="ts">
   import ColorSelector from '../forms/ColorSelector.svelte';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { useConnectionColor } from '../utility/useConnectionColor';
   import ModalBase from './ModalBase.svelte';
 

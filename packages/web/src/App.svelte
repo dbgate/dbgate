@@ -9,7 +9,6 @@
   import Screen from './Screen.svelte';
   import { loadingPluginStore, subscribeApiDependendStores } from './stores';
   import { setAppLoaded } from './utility/appLoadManager';
-  import axiosInstance from './utility/axiosInstance';
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
   import { shouldWaitForElectronInitialize } from './utility/getElectron';

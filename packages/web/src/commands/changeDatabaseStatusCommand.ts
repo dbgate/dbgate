@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { currentDatabase, getCurrentDatabase } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
-import axiosInstance from '../utility/axiosInstance';
 import { apiCall } from '../utility/api';
 
 registerCommand({

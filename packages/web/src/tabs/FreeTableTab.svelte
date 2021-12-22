@@ -43,7 +43,6 @@
   import useEditorData from '../query/useEditorData';
   import { apiCall } from '../utility/api';
   import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';

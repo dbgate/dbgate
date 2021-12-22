@@ -18,7 +18,6 @@
 
   import FontIcon from '../icons/FontIcon.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import createRef from '../utility/createRef';
   import { useDatabaseInfo } from '../utility/metadataLoaders';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
@@ -32,7 +31,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let conid;
   export let database;
@@ -128,7 +127,6 @@ import { apiCall } from '../utility/api';
     );
     closeCurrentModal();
   }
-
 </script>
 
 <FormProviderCore values={valuesStore} template={FormFieldTemplateTiny}>
@@ -258,5 +256,4 @@ import { apiCall } from '../utility/api';
   .dbname {
     color: var(--theme-font-3);
   }
-
 </style>

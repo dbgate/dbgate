@@ -36,9 +36,6 @@ let apiInstance = null;
 
 function initializeElectron(args) {
   apiInstance = new ElectronApi(args);
-  if (window['dbgate_recreateAxiosInstance']) {
-    window['dbgate_recreateAxiosInstance']();
-  }
   if (window['dbgate_recreateSocket']) {
     window['dbgate_recreateSocket']();
   }

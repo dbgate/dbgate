@@ -24,7 +24,6 @@
   import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
   import DropDownButton from '../elements/DropDownButton.svelte';

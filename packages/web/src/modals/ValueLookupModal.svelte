@@ -6,7 +6,6 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import DefineDictionaryDescriptionModal from './DefineDictionaryDescriptionModal.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import { getDictionaryDescription } from '../utility/dictionaryDescriptionTools';
   import { onMount } from 'svelte';
   import { dumpSqlSelect } from 'dbgate-sqltree';

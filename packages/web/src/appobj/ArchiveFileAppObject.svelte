@@ -69,7 +69,6 @@
 
   import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
 
-  import axiosInstance from '../utility/axiosInstance';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportElectronFile } from '../utility/exportElectronFile';
   import openNewTab from '../utility/openNewTab';

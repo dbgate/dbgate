@@ -1,6 +1,5 @@
 import { dumpSqlSelect, Select } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
-import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
 import { apiCall } from '../utility/api';
 

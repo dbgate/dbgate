@@ -7,22 +7,16 @@
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';
-import { apiCall } from '../utility/api';
+  import { apiCall, useApiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import hasPermission from '../utility/hasPermission';
 
   import { useInstalledPlugins } from '../utility/metadataLoaders';
-  import useFetch from '../utility/useFetch';
 
   export let packageName;
 
   $: installed = useInstalledPlugins();
-  $: info = useFetch({
-    params: { packageName },
-    url: 'plugins/info',
-    defaultValue: null,
-  });
+  $: info = useApiCall('plugins/info', { packageName }, null);
   $: readme = $info?.readme;
   $: manifest = $info?.manifest;
   $: isPackaged = $info?.isPackaged;

@@ -1,7 +1,7 @@
-let axios;
+let dbgateEnv;
 
 function initialize(dbgateEnv) {
-  axios = dbgateEnv.axios;
+  dbgateEnv = dbgateEnv;
 }
 
 const fileFormat = {
@@ -18,14 +18,14 @@ const fileFormat = {
   writerFunc: 'writer@dbgate-plugin-excel',
 
   addFileToSourceList: async ({ fileName }, newSources, newValues) => {
-    const resp = await axios.post('plugins/command', {
+    const resp = await dbgateEnv.apiCall('plugins/command', {
       command: 'analyse',
       packageName: 'dbgate-plugin-excel',
       args: {
         fileName,
       },
     });
-    const sheetNames = resp.data;
+    const sheetNames = resp;
     for (const sheetName of sheetNames) {
       newSources.push(sheetName);
       newValues[`sourceFile_${sheetName}`] = {

@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-  import { apiCall } from '../utility/api';
-
   async function loadRow(props, sql) {
     const { conid, database } = props;
 
@@ -18,9 +16,9 @@
 </script>
 
 <script lang="ts">
-  import axiosInstance from '../utility/axiosInstance';
   import ChangeSetFormer from './ChangeSetFormer';
   import FormView from './FormView.svelte';
+  import { apiCall } from '../utility/api';
 
   export let formDisplay;
   export let changeSetState;

@@ -21,7 +21,6 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
@@ -38,7 +37,7 @@
   import QueryDesignColumns from '../elements/QueryDesignColumns.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;

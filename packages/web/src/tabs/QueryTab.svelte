@@ -52,7 +52,6 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import socket from '../utility/socket';
@@ -69,7 +68,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;

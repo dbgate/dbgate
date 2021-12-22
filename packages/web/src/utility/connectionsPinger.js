@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { openedConnections, currentDatabase } from '../stores';
 import { apiCall } from './api';
-import axiosInstance from './axiosInstance';
 
 const doServerPing = value => {
   apiCall('server-connections/ping', { connections: value });

@@ -7,7 +7,6 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
 
   export let reader;
 

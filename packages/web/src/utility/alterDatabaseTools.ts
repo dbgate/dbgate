@@ -5,7 +5,6 @@ import { showModal } from '../modals/modalTools';
 import { getExtensions } from '../stores';
 import { getConnectionInfo, getDatabaseInfo } from './metadataLoaders';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-import axiosInstance from './axiosInstance';
 import { apiCall } from './api';
 
 export async function alterDatabaseDialog(conid, database, updateFunc) {

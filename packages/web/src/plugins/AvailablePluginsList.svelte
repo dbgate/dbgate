@@ -3,20 +3,14 @@
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
-  import useFetch from '../utility/useFetch';
+  import { useApiCall } from '../utility/api';
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import PluginsList from './PluginsList.svelte';
 
   let filter = '';
   let search = '';
 
-  $: plugins = useFetch({
-    url: 'plugins/search',
-    params: {
-      filter: search,
-    },
-    defaultValue: [],
-  });
+  $: plugins = useApiCall('plugins/search', { filter: search }, []);
 
   const setDebouncedFilter = _.debounce(value => (search = value), 500);
 

@@ -76,7 +76,6 @@
   import { currentDatabase } from '../stores';
 import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import hasPermission from '../utility/hasPermission';
   import openNewTab from '../utility/openNewTab';

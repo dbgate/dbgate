@@ -9,7 +9,6 @@
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import { commands, commandsCustomized, openedConnections } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import ToolbarButton from './ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';

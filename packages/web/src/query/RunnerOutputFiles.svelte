@@ -2,7 +2,6 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import TableControl from '../elements/TableControl.svelte';
 
-  import axiosInstance from '../utility/axiosInstance';
   import formatFileSize from '../utility/formatFileSize';
   import getElectron from '../utility/getElectron';
   import resolveApi from '../utility/resolveApi';

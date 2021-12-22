@@ -20,8 +20,7 @@
   import DataGridCore from '../datagrid/DataGridCore.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import FreeTableGrider from './FreeTableGrider';

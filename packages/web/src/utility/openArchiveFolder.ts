@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
 import getElectron from './getElectron';
 import { currentArchive, extensions, selectedWidget } from '../stores';
-import axiosInstance from '../utility/axiosInstance';
 import { showSnackbarSuccess } from './snackbar';
 import { apiCall } from './api';
 

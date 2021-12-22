@@ -117,7 +117,6 @@
   import { extensions } from '../stores';
   import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';

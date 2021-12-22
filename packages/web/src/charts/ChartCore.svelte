@@ -20,8 +20,7 @@
 <script lang="ts">
   import { onMount, afterUpdate, onDestroy } from 'svelte';
   import registerCommand from '../commands/registerCommand';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';

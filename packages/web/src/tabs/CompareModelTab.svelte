@@ -155,7 +155,6 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';

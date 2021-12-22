@@ -171,7 +171,6 @@
     pinnedDatabases,
     selectedWidget,
   } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';

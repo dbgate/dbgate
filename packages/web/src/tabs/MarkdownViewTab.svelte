@@ -8,8 +8,6 @@
   import Markdown from '../elements/Markdown.svelte';
   import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
-
   export let savedFile;
 
   let isLoading = false;

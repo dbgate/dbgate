@@ -6,9 +6,7 @@
   import { onMount } from 'svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Markdown from '../elements/Markdown.svelte';
-import { apiCall } from '../utility/api';
-
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
 
   let isLoading = false;
   let text = null;

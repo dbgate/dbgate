@@ -38,7 +38,6 @@
   import { writable } from 'svelte/store';
   import createUndoReducer from '../utility/createUndoReducer';
   import invalidateCommands from '../commands/invalidateCommands';
-  import axiosInstance from '../utility/axiosInstance';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';

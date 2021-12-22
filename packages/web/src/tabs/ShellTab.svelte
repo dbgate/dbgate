@@ -48,8 +48,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';

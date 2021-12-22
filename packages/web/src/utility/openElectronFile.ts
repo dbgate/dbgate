@@ -5,7 +5,6 @@ import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { currentDatabase, extensions } from '../stores';
 import { getUploadListener } from './uploadFiles';
-import axiosInstance from '../utility/axiosInstance';
 import { getDatabaseFileLabel } from './getConnectionLabel';
 import { apiCall } from './api';
 

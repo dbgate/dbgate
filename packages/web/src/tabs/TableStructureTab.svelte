@@ -51,7 +51,6 @@
   import { useConnectionInfo, useDatabaseInfo, useDbCore } from '../utility/metadataLoaders';
   import { showModal } from '../modals/modalTools';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import InputTextModal from '../modals/InputTextModal.svelte';

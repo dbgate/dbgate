@@ -11,8 +11,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { useArchiveFolders } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 

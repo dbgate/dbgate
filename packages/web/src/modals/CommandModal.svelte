@@ -11,8 +11,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { commandsSettings } from '../stores';
-import { apiCall } from '../utility/api';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import KeyboardModal from './KeyboardModal.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';

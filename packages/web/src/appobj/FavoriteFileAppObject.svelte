@@ -30,7 +30,6 @@
 </script>
 
 <script lang="ts">
-  import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { showModal } from '../modals/modalTools';

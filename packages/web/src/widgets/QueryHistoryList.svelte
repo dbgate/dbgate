@@ -3,12 +3,10 @@
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
-  import useFetch from '../utility/useFetch';
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { onMount } from 'svelte';
   import socket from '../utility/socket';
-  import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
   import { apiCall } from '../utility/api';

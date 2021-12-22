@@ -4,9 +4,8 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';

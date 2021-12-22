@@ -17,7 +17,6 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, getCurrentConfig, getOpenedConnections, openedConnections } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';

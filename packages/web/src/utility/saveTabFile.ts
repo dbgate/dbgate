@@ -1,7 +1,6 @@
 import { derived, get } from 'svelte/store';
 import { showModal } from '../modals/modalTools';
 import { openedTabs } from '../stores';
-import axiosInstance from '../utility/axiosInstance';
 import { changeTab } from './common';
 import SaveFileModal from '../modals/SaveFileModal.svelte';
 import registerCommand from '../commands/registerCommand';
