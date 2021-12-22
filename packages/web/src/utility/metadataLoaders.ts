@@ -2,7 +2,6 @@ import _ from 'lodash';
 import { cacheGet, cacheSet, getCachedPromise } from './cache';
 import stableStringify from 'json-stable-stringify';
 import { cacheClean } from './cache';
-import socket from './socket';
 import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
@@ -194,11 +193,11 @@ function useCore(loader, args) {
         }
       }
 
-      if (reloadTrigger && !socket) {
-        console.error('Socket not available, reloadTrigger not planned');
-      }
+      // if (reloadTrigger && !socket) {
+      //   console.error('Socket not available, reloadTrigger not planned');
+      // }
       handleReload();
-      if (reloadTrigger && socket) {
+      if (reloadTrigger) {
         for (const item of getAsArray(reloadTrigger)) {
           apiOn(item, handleReload);
         }

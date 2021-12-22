@@ -1,6 +1,16 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { writable } from 'svelte/store';
-import socket from './socket';
+import { cacheClean } from './cache';
+// import socket from './socket';
+
+let eventSource;
+
+function wantEventSource() {
+  if (!eventSource) {
+    eventSource = new EventSource(`${resolveApi()}/stream`);
+    eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
+  }
+}
 
 export async function apiCall(route: string, args: {} = undefined) {
   const resp = await fetch(`${resolveApi()}/${route}`, {
@@ -15,15 +25,27 @@ export async function apiCall(route: string, args: {} = undefined) {
   return resp.json();
 }
 
+const apiHandlers = new WeakMap();
+
 export function apiOn(event: string, handler: Function) {
-  socket().on(event, handler);
+  wantEventSource();
+  if (!apiHandlers.has(handler)) {
+    const handlerProxy = e => {
+      // console.log('RECEIVED', e.type, JSON.parse(e.data));
+      handler(JSON.parse(e.data));
+    };
+    apiHandlers.set(handler, handlerProxy);
+  }
+
+  eventSource.addEventListener(event, apiHandlers.get(handler));
 }
 
 export function apiOff(event: string, handler: Function) {
-  socket().off(event, handler);
+  wantEventSource();
+  if (apiHandlers.has(handler)) {
+    eventSource.removeEventListener(event, apiHandlers.get(handler));
+  }
 }
-
-import _ from 'lodash';
 
 export function useApiCall(route, args, defaultValue) {
   const result = writable(defaultValue);

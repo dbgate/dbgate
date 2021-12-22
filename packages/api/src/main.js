@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const http = require('http');
 const cors = require('cors');
-const io = require('socket.io');
+// const io = require('socket.io');
 const fs = require('fs');
 const getPort = require('get-port');
 const childProcessChecker = require('./utility/childProcessChecker');
@@ -43,7 +43,11 @@ function start() {
   const app = express();
 
   const server = http.createServer(app);
-  socket.set(io(server));
+
+  // const sse = new SSE();
+  // app.get('/stream', sse.init);
+  // socket.set(sse);
+  // socket.set(io(server));
 
   if (process.env.LOGIN && process.env.PASSWORD) {
     app.use(
@@ -81,6 +85,30 @@ function start() {
   });
 
   app.use(cors());
+
+  app.get('/stream', async function (req, res) {
+    res.set({
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'text/event-stream',
+      Connection: 'keep-alive',
+    });
+    res.flushHeaders();
+
+    // Tell the client to retry every 10 seconds if connectivity is lost
+    res.write('retry: 10000\n\n');
+    socket.set(res);
+
+    // let count = 0;
+
+    // while (true) {
+    //   await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    //   console.log("Emit", ++count);
+    //   // Emit an SSE that contains the current 'count' as a string
+    //   res.write(`event: ping\ndata: ${JSON.stringify({ count })}\n\n`);
+    // }
+  });
+
   app.use(bodyParser.json({ limit: '50mb' }));
 
   app.use(
