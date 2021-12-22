@@ -32,6 +32,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
+import { apiCall } from '../utility/api';
 
   export let conid;
   export let database;
@@ -86,7 +87,7 @@
     const loadid = uuidv1();
     loadRef.set(loadid);
     busy = true;
-    const response = await axiosInstance().post('database-connections/sql-preview', {
+    const response = await apiCall('database-connections/sql-preview', {
       conid,
       database,
       objects,
@@ -96,7 +97,7 @@
       // newer load exists
       return;
     }
-    const { sql, isTruncated, isError, errorMessage } = response.data || {};
+    const { sql, isTruncated, isError, errorMessage } = response || {};
 
     truncated = isTruncated;
     if (isError) {

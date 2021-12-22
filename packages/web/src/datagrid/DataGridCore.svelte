@@ -285,6 +285,7 @@
   import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
+import { apiCall } from '../utility/api';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -404,7 +405,7 @@
   }
 
   export async function reconnect() {
-    await axiosInstance().post('database-connections/refresh', { conid, database });
+    await apiCall('database-connections/refresh', { conid, database });
     display.reload();
   }
 

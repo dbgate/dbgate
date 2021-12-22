@@ -31,18 +31,14 @@
 
     const sql = display.getPageQuery(offset, limit);
 
-    const response = await axiosInstance().request({
-      url: 'database-connections/query-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
+    const response = await apiCall('database-connections/query-data', {
+      conid,
+      database,
+      sql,
     });
 
-    if (response.data.errorMessage) return response.data;
-    return response.data.rows;
+    if (response.errorMessage) return response;
+    return response.rows;
   }
 
   function dataPageAvailable(props) {
@@ -56,17 +52,13 @@
 
     const sql = display.getCountQuery();
 
-    const response = await axiosInstance().request({
-      url: 'database-connections/query-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
+    const response = await apiCall('database-connections/query-data', {
+      conid,
+      database,
+      sql,
     });
 
-    return parseInt(response.data.rows[0].count);
+    return parseInt(response.rows[0].count);
   }
 </script>
 
@@ -77,6 +69,7 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { extensions } from '../stores';
+  import { apiCall } from '../utility/api';
 
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';

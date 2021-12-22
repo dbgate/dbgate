@@ -3,6 +3,7 @@ import getElectron from './getElectron';
 import { currentArchive, extensions, selectedWidget } from '../stores';
 import axiosInstance from '../utility/axiosInstance';
 import { showSnackbarSuccess } from './snackbar';
+import { apiCall } from './api';
 
 export async function openArchiveFolder() {
   const electron = getElectron();
@@ -12,9 +13,9 @@ export async function openArchiveFolder() {
   });
   const linkedFolder = filePaths && filePaths[0];
   if (!linkedFolder) return;
-  const resp = await axiosInstance().post('archive/create-link', { linkedFolder });
+  const resp = await apiCall('archive/create-link', { linkedFolder });
 
-  currentArchive.set(resp.data);
+  currentArchive.set(resp);
   selectedWidget.set('archive');
-  showSnackbarSuccess(`Created link ${resp.data}`);
+  showSnackbarSuccess(`Created link ${resp}`);
 }

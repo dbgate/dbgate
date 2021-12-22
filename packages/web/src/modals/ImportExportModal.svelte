@@ -16,6 +16,7 @@
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -81,8 +82,8 @@
   const handleRunnerDone = () => {
     busy = false;
     if (refreshArchiveFolderRef.get()) {
-      axiosInstance().post('archive/refresh-folders', {});
-      axiosInstance().post('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
+      apiCall('archive/refresh-folders', {});
+      apiCall('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
       $currentArchive = refreshArchiveFolderRef.get();
       $selectedWidget = 'archive';
     }
@@ -108,8 +109,8 @@
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
     let runid = runnerId;
-    const resp = await axiosInstance().post('runners/start', { script });
-    runid = resp.data.runid;
+    const resp = await apiCall('runners/start', { script });
+    runid = resp.runid;
     runnerId = runid;
 
     if (values.targetStorageType == 'archive') {
@@ -120,7 +121,7 @@
   };
 
   const handleCancel = () => {
-    axiosInstance().post('runners/cancel', {
+    apiCall('runners/cancel', {
       runid: runnerId,
     });
   };

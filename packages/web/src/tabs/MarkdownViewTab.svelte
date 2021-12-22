@@ -6,6 +6,7 @@
   import { onMount } from 'svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Markdown from '../elements/Markdown.svelte';
+  import { apiCall } from '../utility/api';
 
   import axiosInstance from '../utility/axiosInstance';
 
@@ -16,12 +17,12 @@
 
   const handleLoad = async () => {
     isLoading = true;
-    const resp = await axiosInstance().post('files/load', {
+    const resp = await apiCall('files/load', {
       folder: 'markdown',
       file: savedFile,
       format: 'text',
     });
-    text = resp.data;
+    text = resp;
     isLoading = false;
   };
 

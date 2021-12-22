@@ -16,6 +16,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormButton from '../forms/FormButton.svelte';
+import { apiCall } from '../utility/api';
 
   export let editingData;
   export let savingTab;
@@ -69,7 +70,7 @@
   const saveTab = async values => {
     const data = await getTabSaveData(values);
 
-    axiosInstance().post('files/save', {
+    apiCall('files/save', {
       folder: 'favorites',
       file: uuidv1(),
       format: 'json',
@@ -78,18 +79,18 @@
   };
 
   const saveFile = async values => {
-    const oldDataResp = await axiosInstance().post('files/load', {
+    const oldDataResp = await apiCall('files/load', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',
     });
 
-    axiosInstance().post('files/save', {
+    apiCall('files/save', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',
       data: {
-        ...oldDataResp.data,
+        ...oldDataResp,
         ...values,
       },
     });

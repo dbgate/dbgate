@@ -69,6 +69,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
+import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -150,20 +151,20 @@
 
     let sesid = sessionId;
     if (!sesid) {
-      const resp = await axiosInstance().post('sessions/create', {
+      const resp = await apiCall('sessions/create', {
         conid,
         database,
       });
-      sesid = resp.data.sesid;
+      sesid = resp.sesid;
       sessionId = sesid;
     }
     busy = true;
     timerLabel.start();
-    await axiosInstance().post('sessions/execute-query', {
+    await apiCall('sessions/execute-query', {
       sesid,
       sql,
     });
-    await axiosInstance().post('query-history/write', {
+    await apiCall('query-history/write', {
       data: {
         sql,
         conid,
@@ -184,7 +185,7 @@
   }
 
   export async function kill() {
-    await axiosInstance().post('sessions/kill', {
+    await apiCall('sessions/kill', {
       sesid: sessionId,
     });
     sessionId = null;

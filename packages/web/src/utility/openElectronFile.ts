@@ -7,6 +7,7 @@ import { currentDatabase, extensions } from '../stores';
 import { getUploadListener } from './uploadFiles';
 import axiosInstance from '../utility/axiosInstance';
 import { getDatabaseFileLabel } from './getConnectionLabel';
+import { apiCall } from './api';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -21,7 +22,7 @@ export function canOpenByElectron(file, extensions) {
 
 export async function openSqliteFile(filePath) {
   const defaultDatabase = getDatabaseFileLabel(filePath);
-  const resp = await axiosInstance().post('connections/save', {
+  const resp = await apiCall('connections/save', {
     _id: undefined,
     databaseFile: filePath,
     engine: 'sqlite@dbgate-plugin-sqlite',
@@ -29,7 +30,7 @@ export async function openSqliteFile(filePath) {
     defaultDatabase,
   });
   currentDatabase.set({
-    connection: resp.data,
+    connection: resp,
     name: getDatabaseFileLabel(filePath),
   });
 }

@@ -58,6 +58,7 @@
   import { changeTab } from '../utility/common';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
+  import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -130,16 +131,8 @@
   }
 
   async function handleConfirmSql(sql, createTableName) {
-    const resp = await axiosInstance().request({
-      url: 'database-connections/run-script',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
-    });
-    const { errorMessage } = resp.data || {};
+    const resp = await apiCall('database-connections/run-script', { conid, database, sql });
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
@@ -154,14 +147,14 @@
         }));
       }
 
-      await axiosInstance().post('database-connections/sync-model', { conid, database });
+      await apiCall('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
       clearEditorData();
     }
   }
 
   export async function reset() {
-    await axiosInstance().post('database-connections/sync-model', { conid, database });
+    await apiCall('database-connections/sync-model', { conid, database });
     clearEditorData();
   }
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import ColorSelector from '../forms/ColorSelector.svelte';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
   import { useConnectionColor } from '../utility/useConnectionColor';
   import ModalBase from './ModalBase.svelte';
@@ -27,13 +28,13 @@
       value = e.detail;
 
       if (database) {
-        axiosInstance().post('connections/update-database', {
+        apiCall('connections/update-database', {
           conid,
           database,
           values: { connectionColor: e.detail },
         });
       } else {
-        axiosInstance().post('connections/update', {
+        apiCall('connections/update', {
           _id: conid,
           values: { connectionColor: e.detail },
         });

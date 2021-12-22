@@ -17,6 +17,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+import { apiCall } from '../utility/api';
 
   export let data;
 
@@ -26,7 +27,7 @@
         ? `Really delete link to folder ${data.name}? Folder content remains untouched.`
         : `Really delete folder ${data.name}?`,
       onConfirm: () => {
-        axiosInstance().post('archive/delete-folder', { folder: data.name });
+        apiCall('archive/delete-folder', { folder: data.name });
       },
     });
   };
@@ -41,7 +42,7 @@
       label: 'New folder name',
       header: 'Rename folder',
       onConfirm: async newFolder => {
-        await axiosInstance().post('archive/rename-folder', {
+        await apiCall('archive/rename-folder', {
           folder: data.name,
           newFolder: newFolder + suffix,
         });
@@ -78,16 +79,16 @@ await dbgateApi.deployDb(${JSON.stringify(
   };
 
   const handleGenerateDeploySql = async () => {
-    const resp = await axiosInstance().post('database-connections/generate-deploy-sql', {
+    const resp = await apiCall('database-connections/generate-deploy-sql', {
       conid: $currentDatabase.connection._id,
       database: $currentDatabase.name,
       archiveFolder: data.name,
     });
 
-    if (resp.data.errorMessage) {
-      showModal(ErrorMessageModal, { message: resp.data.errorMessage });
+    if (resp.errorMessage) {
+      showModal(ErrorMessageModal, { message: resp.errorMessage });
     } else {
-      newQuery({ initialData: resp.data.sql });
+      newQuery({ initialData: resp.sql });
     }
   };
 

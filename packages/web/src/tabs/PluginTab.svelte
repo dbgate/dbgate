@@ -7,6 +7,7 @@
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';
+import { apiCall } from '../utility/api';
 
   import axiosInstance from '../utility/axiosInstance';
   import hasPermission from '../utility/hasPermission';
@@ -27,13 +28,13 @@
   $: isPackaged = $info?.isPackaged;
 
   const handleInstall = async () => {
-    axiosInstance().post('plugins/install', { packageName });
+    apiCall('plugins/install', { packageName });
   };
   const handleUninstall = async () => {
-    axiosInstance().post('plugins/uninstall', { packageName });
+    apiCall('plugins/uninstall', { packageName });
   };
   const handleUpgrade = async () => {
-    axiosInstance().post('plugins/upgrade', { packageName });
+    apiCall('plugins/upgrade', { packageName });
   };
 
   $: installedFound = $installed?.find(x => x.name == packageName);

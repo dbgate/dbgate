@@ -3,6 +3,7 @@ import { currentDatabase, getCurrentDatabase } from '../stores';
 import getElectron from '../utility/getElectron';
 import registerCommand from './registerCommand';
 import axiosInstance from '../utility/axiosInstance';
+import { apiCall } from '../utility/api';
 
 registerCommand({
   id: 'database.changeState',
@@ -20,20 +21,20 @@ registerCommand({
       {
         text: 'Sync model',
         onClick: () => {
-          axiosInstance().post('database-connections/sync-model', dbid);
+          apiCall('database-connections/sync-model', dbid);
         },
       },
       {
         text: 'Reopen',
         onClick: () => {
-          axiosInstance().post('database-connections/refresh', dbid);
+          apiCall('database-connections/refresh', dbid);
         },
       },
       {
         text: 'Disconnect',
         onClick: () => {
           const electron = getElectron();
-          if (electron) axiosInstance().post('database-connections/disconnect', dbid);
+          if (electron) apiCall('database-connections/disconnect', dbid);
           currentDatabase.set(null);
         },
       },

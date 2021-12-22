@@ -11,6 +11,7 @@
   import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import { apiCall } from '../utility/api';
 
   let filter = '';
   let search = '';
@@ -18,15 +19,8 @@
   let historyItems = [];
 
   async function reloadItems() {
-    const resp = await axiosInstance().request({
-      method: 'get',
-      url: 'query-history/read',
-      params: {
-        filter: search,
-        limit: 100,
-      },
-    });
-    historyItems = resp.data;
+    const resp = await apiCall('query-history/read', { filter: search, limit: 100 });
+    historyItems = resp;
   }
 
   $: {

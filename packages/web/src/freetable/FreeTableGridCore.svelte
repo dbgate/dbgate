@@ -20,6 +20,7 @@
   import DataGridCore from '../datagrid/DataGridCore.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -45,7 +46,7 @@
 
   export async function exportGrid() {
     const jslid = uuidv1();
-    await axiosInstance().post('jsldata/save-free-table', { jslid, data: modelState.value });
+    await apiCall('jsldata/save-free-table', { jslid, data: modelState.value });
     const initialValues: any = {};
     initialValues.sourceStorageType = 'jsldata';
     initialValues.sourceJslId = jslid;

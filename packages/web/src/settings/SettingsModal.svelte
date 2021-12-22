@@ -13,10 +13,11 @@
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
   import { getCurrentSettings, getVisibleToolbar, getZoomKoef, visibleToolbar, zoomKoef } from '../stores';
+  import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
 
   function handleOk(e) {
-    axiosInstance().post(
+    apiCall(
       'config/update-settings',
       _.omitBy(e.detail, (v, k) => k.startsWith(':'))
     );

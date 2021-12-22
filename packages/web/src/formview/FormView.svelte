@@ -174,6 +174,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import { showModal } from '../modals/modalTools';
+import { apiCall } from '../utility/api';
 
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
@@ -260,7 +261,7 @@
   }
 
   export async function reconnect() {
-    await axiosInstance().post('database-connections/refresh', { conid, database });
+    await apiCall('database-connections/refresh', { conid, database });
     formDisplay.reload();
   }
 

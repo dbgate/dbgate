@@ -1,16 +1,17 @@
 import _ from 'lodash';
 import { openedConnections, currentDatabase } from '../stores';
+import { apiCall } from './api';
 import axiosInstance from './axiosInstance';
 
 const doServerPing = value => {
-  axiosInstance().post('server-connections/ping', { connections: value });
+  apiCall('server-connections/ping', { connections: value });
 };
 
 const doDatabasePing = value => {
   const database = _.get(value, 'name');
   const conid = _.get(value, 'connection._id');
   if (conid && database) {
-    axiosInstance().post('database-connections/ping', { conid, database });
+    apiCall('database-connections/ping', { conid, database });
   }
 };
 

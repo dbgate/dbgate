@@ -411,6 +411,7 @@
   import axiosInstance from '../utility/axiosInstance';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { apiCall } from '../utility/api';
 
   export let data;
   export let passProps;
@@ -559,13 +560,11 @@
                 message: `Really drop collection ${data.pureName}?`,
                 onConfirm: async () => {
                   const dbid = _.pick(data, ['conid', 'database']);
-                  await axiosInstance().request({
-                    url: 'database-connections/run-script',
-                    method: 'post',
-                    params: dbid,
-                    data: { sql: `db.dropCollection('${data.pureName}')` },
+                  await apiCall('database-connections/run-script', {
+                    ...dbid,
+                    sql: `db.dropCollection('${data.pureName}')`,
                   });
-                  axiosInstance().post('database-connections/sync-model', dbid);
+                  apiCall('database-connections/sync-model', dbid);
                 },
               });
             } else {

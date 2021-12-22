@@ -11,6 +11,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { commandsSettings } from '../stores';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
   import KeyboardModal from './KeyboardModal.svelte';
   import ModalBase from './ModalBase.svelte';
@@ -42,7 +43,7 @@
         value="OK"
         on:click={e => {
           closeCurrentModal();
-          axiosInstance().post('config/update-settings', {
+          apiCall('config/update-settings', {
             commands: {
               ...$commandsSettings,
               [command.id]: {
@@ -58,7 +59,7 @@
         value="Reset"
         on:click={() => {
           closeCurrentModal();
-          axiosInstance().post('config/update-settings', {
+          apiCall('config/update-settings', {
             commands: _.omit($commandsSettings, [command.id]),
           });
         }}

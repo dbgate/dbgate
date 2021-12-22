@@ -28,6 +28,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { currentArchive } from '../stores';
+  import { apiCall } from '../utility/api';
   import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
   import axiosInstance from '../utility/axiosInstance';
   import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
@@ -40,7 +41,7 @@
   $: files = useArchiveFiles({ folder });
 
   const handleRefreshFiles = () => {
-    axiosInstance().post('archive/refresh-files', { folder });
+    apiCall('archive/refresh-files', { folder });
   };
 
   function handleNewDataSheet() {
@@ -49,7 +50,7 @@
       label: 'New file name',
       header: 'Create new data sheet',
       onConfirm: async file => {
-        await axiosInstance().post('archive/save-free-table', {
+        await apiCall('archive/save-free-table', {
           folder: $currentArchive,
           file,
           data: createFreeTableModel(),

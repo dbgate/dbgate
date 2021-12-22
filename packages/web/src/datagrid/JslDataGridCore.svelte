@@ -13,7 +13,7 @@
   async function loadDataPage(props, offset, limit) {
     const { jslid, display } = props;
 
-    const response = await axiosInstance().post('jsldata/get-rows', {
+    const response = await apiCall('jsldata/get-rows', {
       jslid,
       offset,
       limit,
@@ -30,16 +30,9 @@
   async function loadRowCount(props) {
     const { jslid } = props;
 
-    const response = await axiosInstance().request({
-      url: 'jsldata/get-stats',
-      method: 'get',
-      params: {
-        jslid,
-      },
-    });
-    return response.data.rowCount;
+    const response = await apiCall('jsldata/get-stats', { jslid });
+    return response.rowCount;
   }
-
 </script>
 
 <script lang="ts">
@@ -48,6 +41,7 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { extensions } from '../stores';
+  import { apiCall } from '../utility/api';
 
   import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
@@ -140,7 +134,6 @@
     },
     { command: 'jslTableGrid.export', tag: 'export' }
   );
-
 </script>
 
 <LoadingDataGridCore

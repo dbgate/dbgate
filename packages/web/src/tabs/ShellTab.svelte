@@ -48,6 +48,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
@@ -140,8 +141,8 @@
   }
 
   export async function copyNodeScript() {
-    const resp = await axiosInstance().post('runners/get-node-script', { script: getActiveScript() });
-    copyTextToClipboard(resp.data);
+    const resp = await apiCall('runners/get-node-script', { script: getActiveScript() });
+    copyTextToClipboard(resp);
   }
 
   // export function openWizardEnabled() {
@@ -172,10 +173,10 @@
     executeNumber += 1;
 
     let runid = runnerId;
-    const resp = await axiosInstance().post('runners/start', {
+    const resp = await apiCall('runners/start', {
       script: getActiveScript(),
     });
-    runid = resp.data.runid;
+    runid = resp.runid;
     runnerId = runid;
     busy = true;
     timerLabel.start();
@@ -186,7 +187,7 @@
   }
 
   export function kill() {
-    axiosInstance().post('runners/cancel', {
+    apiCall('runners/cancel', {
       runid: runnerId,
     });
     timerLabel.stop();

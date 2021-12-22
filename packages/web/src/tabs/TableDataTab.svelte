@@ -53,6 +53,7 @@
   import openNewTab from '../utility/openNewTab';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { setContext } from 'svelte';
+  import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -70,16 +71,8 @@
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
 
   async function handleConfirmSql(sql) {
-    const resp = await axiosInstance().request({
-      url: 'database-connections/run-script',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql },
-    });
-    const { errorMessage } = resp.data || {};
+    const resp = await apiCall('database-connections/run-script', { conid, database, sql });
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {

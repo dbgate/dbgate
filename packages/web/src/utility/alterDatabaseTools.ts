@@ -6,6 +6,7 @@ import { getExtensions } from '../stores';
 import { getConnectionInfo, getDatabaseInfo } from './metadataLoaders';
 import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
 import axiosInstance from './axiosInstance';
+import { apiCall } from './api';
 
 export async function alterDatabaseDialog(conid, database, updateFunc) {
   const conn = await getConnectionInfo({ conid });
@@ -21,16 +22,8 @@ export async function alterDatabaseDialog(conid, database, updateFunc) {
     sql,
     recreates,
     onConfirm: async () => {
-      const resp = await axiosInstance().request({
-        url: 'database-connections/run-script',
-        method: 'post',
-        params: {
-          conid,
-          database,
-        },
-        data: { sql },
-      });
-      await axiosInstance().post('database-connections/sync-model', { conid, database });
+      const resp = await apiCall('database-connections/run-script', { conid, database, sql });
+      await apiCall('database-connections/sync-model', { conid, database });
     },
     engine: driver.engine,
   });

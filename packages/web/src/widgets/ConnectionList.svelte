@@ -16,6 +16,7 @@
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import { apiCall } from '../utility/api';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -29,7 +30,7 @@
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
-      axiosInstance().post('server-connections/refresh', { conid });
+      apiCall('server-connections/refresh', { conid });
     }
   };
 

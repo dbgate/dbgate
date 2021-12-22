@@ -42,6 +42,7 @@
   import axiosInstance from '../utility/axiosInstance';
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';
+  import { apiCall } from '../utility/api';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
@@ -64,7 +65,7 @@
 
   async function handleSyncModel() {
     if (connection && databaseName) {
-      await axiosInstance().post('database-connections/sync-model', { conid: connection._id, database: databaseName });
+      await apiCall('database-connections/sync-model', { conid: connection._id, database: databaseName });
     }
   }
 </script>

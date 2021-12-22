@@ -6,6 +6,7 @@
   import RowsArrayGrider from '../datagrid/RowsArrayGrider';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
 
   export let reader;
@@ -27,14 +28,16 @@
       }
       errorMessage = null;
       isLoading = true;
-      const resp = await axiosInstance().post('runners/load-reader', sourceReader);
+      const resp = await apiCall('runners/load-reader', sourceReader);
       // @ts-ignore
-      model = resp.data;
-      grider = new RowsArrayGrider(resp.data.rows);
+      model = resp;
+      grider = new RowsArrayGrider(resp.rows);
       isLoading = false;
     } catch (err) {
       isLoading = false;
-      errorMessage = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
+      // errorMessage = (err && err.response && err.response.data && err.response.data.error) || 'Loading failed';
+      // TODO API
+      errorMessage = 'Loading failed';
       console.error(err.response);
     }
   };

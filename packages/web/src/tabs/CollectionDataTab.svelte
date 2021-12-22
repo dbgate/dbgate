@@ -50,6 +50,7 @@
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
   import { setContext } from 'svelte';
   import _ from 'lodash';
+import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -91,14 +92,10 @@
   // $: console.log('LOADED ROWS MONGO', loadedRows);
 
   async function handleConfirmChange(changeSet) {
-    const resp = await axiosInstance().request({
-      url: 'database-connections/update-collection',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { changeSet },
+    const resp = await apiCall('database-connections/update-collection', {
+      conid,
+      database,
+      changeSet,
     });
     const { errorMessage } = resp.data || {};
     if (errorMessage) {

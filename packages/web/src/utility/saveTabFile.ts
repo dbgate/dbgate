@@ -5,6 +5,7 @@ import axiosInstance from '../utility/axiosInstance';
 import { changeTab } from './common';
 import SaveFileModal from '../modals/SaveFileModal.svelte';
 import registerCommand from '../commands/registerCommand';
+import { apiCall } from './api';
 
 // export function saveTabEnabledStore(editorStore) {
 //   return derived(editorStore, editor => editor != null);
@@ -18,10 +19,10 @@ export default function saveTabFile(editor, saveAs, folder, format, fileExtensio
 
   const handleSave = async () => {
     if (savedFile) {
-      await axiosInstance().post('files/save', { folder: savedFolder || folder, file: savedFile, data, format });
+      await apiCall('files/save', { folder: savedFolder || folder, file: savedFile, data, format });
     }
     if (savedFilePath) {
-      await axiosInstance().post('files/save-as', { filePath: savedFilePath, data, format });
+      await apiCall('files/save-as', { filePath: savedFilePath, data, format });
     }
   };
 

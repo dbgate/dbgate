@@ -16,7 +16,7 @@
     const connProps: any = {};
     let tooltip = undefined;
 
-    const resp = await axiosInstance().post('files/load', {
+    const resp = await apiCall('files/load', {
       folder: 'archive:' + folderName,
       file: fileName + '.' + fileType,
       format: 'text',
@@ -36,7 +36,7 @@
           ...connProps,
         },
       },
-      { editor: resp.data }
+      { editor: resp }
     );
   }
 
@@ -82,6 +82,7 @@
     markArchiveFileAsDataSheet,
     markArchiveFileAsReadonly,
   } from '../utility/archiveTools';
+import { apiCall } from '../utility/api';
 
   export let data;
 
@@ -91,7 +92,7 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance().post('archive/rename-file', {
+        apiCall('archive/rename-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,
@@ -105,7 +106,7 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.fileName}?`,
       onConfirm: () => {
-        axiosInstance().post('archive/delete-file', {
+        apiCall('archive/delete-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,

@@ -15,6 +15,7 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import _ from 'lodash';
+  import { apiCall } from '../utility/api';
 
   export let onConfirm;
   export let conid;
@@ -100,17 +101,13 @@
     dumpSqlSelect(dmp, select);
 
     isLoading = true;
-    const response = await axiosInstance().request({
-      url: 'database-connections/query-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { sql: dmp.s },
+    const response = await apiCall('database-connections/query-data', {
+      conid,
+      database,
+      sql: dmp.s,
     });
 
-    rows = response.data.rows;
+    rows = response.rows;
     isLoading = false;
   }
 

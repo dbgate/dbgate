@@ -34,6 +34,7 @@
   import { extensions } from '../stores';
   import newQuery from '../query/newQuery';
   import runCommand from '../commands/runCommand';
+  import { apiCall } from '../utility/api';
 
   export let conid;
   export let database;
@@ -62,7 +63,7 @@
   // $: objectList = generateObjectList(generateIndex);
 
   const handleRefreshDatabase = () => {
-    axiosInstance().post('database-connections/refresh', { conid, database });
+    apiCall('database-connections/refresh', { conid, database });
   };
 
   function createAddMenu() {

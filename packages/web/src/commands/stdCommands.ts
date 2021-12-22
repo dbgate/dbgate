@@ -25,6 +25,7 @@ import { openArchiveFolder } from '../utility/openArchiveFolder';
 import InputTextModal from '../modals/InputTextModal.svelte';
 import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
+import { apiCall } from '../utility/api';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -121,7 +122,7 @@ registerCommand({
       label: 'New archive folder name',
       header: 'Create archive folder',
       onConfirm: async folder => {
-        axiosInstance().post('archive/create-folder', { folder });
+        apiCall('archive/create-folder', { folder });
       },
     });
   },
@@ -188,13 +189,8 @@ registerCommand({
       label: 'New collection name',
       header: 'Create collection',
       onConfirm: async newCollection => {
-        await axiosInstance().request({
-          url: 'database-connections/run-script',
-          method: 'post',
-          params: dbid,
-          data: { sql: `db.createCollection('${newCollection}')` },
-        });
-        axiosInstance().post('database-connections/sync-model', dbid);
+        await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
+        apiCall('database-connections/sync-model', dbid);
       },
     });
   },
@@ -256,8 +252,8 @@ registerCommand({
       label: 'New database name',
       header: 'Create SQLite database',
       onConfirm: async file => {
-        const resp = await axiosInstance().post('connections/new-sqlite-database', { file });
-        const connection = resp.data;
+        const resp = await apiCall('connections/new-sqlite-database', { file });
+        const connection = resp;
         currentDatabase.set({ connection, name: `${file}.sqlite` });
       },
     });

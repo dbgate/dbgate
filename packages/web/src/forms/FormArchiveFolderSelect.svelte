@@ -2,6 +2,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
 
   import { showModal } from '../modals/modalTools';
+import { apiCall } from '../utility/api';
   import axiosInstance from '../utility/axiosInstance';
 
   import { useArchiveFolders } from '../utility/metadataLoaders';
@@ -34,7 +35,7 @@
   ];
 
   const createOption = folder => {
-    axiosInstance().post('archive/create-folder', { folder });
+    apiCall('archive/create-folder', { folder });
     setFieldValue(name, folder);
   };
 
