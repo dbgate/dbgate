@@ -10,7 +10,7 @@ const { saveFreeTableData } = require('../utility/freeTableStorage');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 
 module.exports = {
-  folders_meta: 'get',
+  folders_meta: true,
   async folders() {
     const folders = await fs.readdir(archivedir());
     return [
@@ -27,14 +27,14 @@ module.exports = {
     ];
   },
 
-  createFolder_meta: 'post',
+  createFolder_meta: true,
   async createFolder({ folder }) {
     await fs.mkdir(path.join(archivedir(), folder));
     socket.emitChanged('archive-folders-changed');
     return true;
   },
 
-  createLink_meta: 'post',
+  createLink_meta: true,
   async createLink({ linkedFolder }) {
     const folder = await this.getNewArchiveFolder({ database: path.parse(linkedFolder).name + '.link' });
     fs.writeFile(path.join(archivedir(), folder), linkedFolder);
@@ -43,7 +43,7 @@ module.exports = {
     return folder;
   },
 
-  files_meta: 'get',
+  files_meta: true,
   async files({ folder }) {
     const dir = resolveArchiveFolder(folder);
     if (!(await fs.exists(dir))) return [];
@@ -70,23 +70,23 @@ module.exports = {
     ];
   },
 
-  refreshFiles_meta: 'post',
+  refreshFiles_meta: true,
   async refreshFiles({ folder }) {
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
-  refreshFolders_meta: 'post',
+  refreshFolders_meta: true,
   async refreshFolders() {
     socket.emitChanged(`archive-folders-changed`);
   },
 
-  deleteFile_meta: 'post',
+  deleteFile_meta: true,
   async deleteFile({ folder, file, fileType }) {
     await fs.unlink(path.join(resolveArchiveFolder(folder), `${file}.${fileType}`));
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
-  renameFile_meta: 'post',
+  renameFile_meta: true,
   async renameFile({ folder, file, newFile, fileType }) {
     await fs.rename(
       path.join(resolveArchiveFolder(folder), `${file}.${fileType}`),
@@ -95,14 +95,14 @@ module.exports = {
     socket.emitChanged(`archive-files-changed-${folder}`);
   },
 
-  renameFolder_meta: 'post',
+  renameFolder_meta: true,
   async renameFolder({ folder, newFolder }) {
     const uniqueName = await this.getNewArchiveFolder({ database: newFolder });
     await fs.rename(path.join(archivedir(), folder), path.join(archivedir(), uniqueName));
     socket.emitChanged(`archive-folders-changed`);
   },
 
-  deleteFolder_meta: 'post',
+  deleteFolder_meta: true,
   async deleteFolder({ folder }) {
     if (!folder) throw new Error('Missing folder parameter');
     if (folder.endsWith('.link')) {
@@ -113,14 +113,14 @@ module.exports = {
     socket.emitChanged(`archive-folders-changed`);
   },
 
-  saveFreeTable_meta: 'post',
+  saveFreeTable_meta: true,
   async saveFreeTable({ folder, file, data }) {
     await saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
     socket.emitChanged(`archive-files-changed-${folder}`);
     return true;
   },
 
-  loadFreeTable_meta: 'post',
+  loadFreeTable_meta: true,
   async loadFreeTable({ folder, file }) {
     return new Promise((resolve, reject) => {
       const fileStream = fs.createReadStream(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));

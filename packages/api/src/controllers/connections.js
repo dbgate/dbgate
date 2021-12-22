@@ -126,7 +126,7 @@ module.exports = {
     }
   },
 
-  list_meta: 'get',
+  list_meta: true,
   async list() {
     return portalConnections || this.datastore.find();
   },
@@ -148,7 +148,7 @@ module.exports = {
     subprocess.send(req.body);
   },
 
-  save_meta: 'post',
+  save_meta: true,
   async save(connection) {
     if (portalConnections) return;
     let res;
@@ -162,7 +162,7 @@ module.exports = {
     return res;
   },
 
-  update_meta: 'post',
+  update_meta: true,
   async update({ _id, values }) {
     if (portalConnections) return;
     const res = await this.datastore.update({ _id }, { $set: values });
@@ -170,7 +170,7 @@ module.exports = {
     return res;
   },
 
-  updateDatabase_meta: 'post',
+  updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }) {
     if (portalConnections) return;
     const conn = await this.datastore.find({ _id: conid });
@@ -185,7 +185,7 @@ module.exports = {
     return res;
   },
 
-  delete_meta: 'post',
+  delete_meta: true,
   async delete(connection) {
     if (portalConnections) return;
     const res = await this.datastore.remove(_.pick(connection, '_id'));
@@ -193,14 +193,14 @@ module.exports = {
     return res;
   },
 
-  get_meta: 'get',
+  get_meta: true,
   async get({ conid }) {
     if (portalConnections) return portalConnections.find(x => x._id == conid);
     const res = await this.datastore.find({ _id: conid });
     return res[0];
   },
 
-  newSqliteDatabase_meta: 'post',
+  newSqliteDatabase_meta: true,
   async newSqliteDatabase({ file }) {
     const sqliteDir = path.join(filesdir(), 'sqlite');
     if (!(await fs.exists(sqliteDir))) {

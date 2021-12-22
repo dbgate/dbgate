@@ -121,7 +121,7 @@ module.exports = {
     return promise;
   },
 
-  queryData_meta: 'post',
+  queryData_meta: true,
   async queryData({ conid, database, sql }) {
     console.log(`Processing query, conid=${conid}, database=${database}, sql=${sql}`);
     const opened = await this.ensureOpened(conid, database);
@@ -132,7 +132,7 @@ module.exports = {
     return res;
   },
 
-  runScript_meta: 'post',
+  runScript_meta: true,
   async runScript({ conid, database, sql }) {
     console.log(`Processing script, conid=${conid}, database=${database}, sql=${sql}`);
     const opened = await this.ensureOpened(conid, database);
@@ -140,21 +140,21 @@ module.exports = {
     return res;
   },
 
-  collectionData_meta: 'post',
+  collectionData_meta: true,
   async collectionData({ conid, database, options }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'collectionData', options });
     return res.result;
   },
 
-  updateCollection_meta: 'post',
+  updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'updateCollection', changeSet });
     return res.result;
   },
 
-  status_meta: 'get',
+  status_meta: true,
   async status({ conid, database }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) {
@@ -176,7 +176,7 @@ module.exports = {
     };
   },
 
-  ping_meta: 'post',
+  ping_meta: true,
   async ping({ conid, database }) {
     let existing = this.opened.find(x => x.conid == conid && x.database == database);
 
@@ -192,7 +192,7 @@ module.exports = {
     };
   },
 
-  refresh_meta: 'post',
+  refresh_meta: true,
   async refresh({ conid, database, keepOpen }) {
     if (!keepOpen) this.close(conid, database);
 
@@ -200,7 +200,7 @@ module.exports = {
     return { status: 'ok' };
   },
 
-  syncModel_meta: 'post',
+  syncModel_meta: true,
   async syncModel({ conid, database }) {
     const conn = await this.ensureOpened(conid, database);
     conn.subprocess.send({ msgtype: 'syncModel' });
@@ -224,13 +224,13 @@ module.exports = {
     }
   },
 
-  disconnect_meta: 'post',
+  disconnect_meta: true,
   async disconnect({ conid, database }) {
     await this.close(conid, database, true);
     return { status: 'ok' };
   },
 
-  structure_meta: 'get',
+  structure_meta: true,
   async structure({ conid, database }) {
     if (conid == '__model') {
       const model = await importDbModel(database);
@@ -247,13 +247,13 @@ module.exports = {
     // };
   },
 
-  serverVersion_meta: 'get',
+  serverVersion_meta: true,
   async serverVersion({ conid, database }) {
     const opened = await this.ensureOpened(conid, database);
     return opened.serverVersion;
   },
 
-  sqlPreview_meta: 'post',
+  sqlPreview_meta: true,
   async sqlPreview({ conid, database, objects, options }) {
     // wait for structure
     await this.structure({ conid, database });
@@ -263,7 +263,7 @@ module.exports = {
     return res;
   },
 
-  exportModel_meta: 'post',
+  exportModel_meta: true,
   async exportModel({ conid, database }) {
     const archiveFolder = await archive.getNewArchiveFolder({ database });
     await fs.mkdir(path.join(archivedir(), archiveFolder));
@@ -273,7 +273,7 @@ module.exports = {
     return { archiveFolder };
   },
 
-  generateDeploySql_meta: 'post',
+  generateDeploySql_meta: true,
   async generateDeploySql({ conid, database, archiveFolder }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'generateDeploySql', modelFolder: resolveArchiveFolder(archiveFolder) });
@@ -300,7 +300,7 @@ module.exports = {
     // };
     // return sql;
   },
-  // runCommand_meta: 'post',
+  // runCommand_meta: true,
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);
   //   const opened = await this.ensureOpened(conid, database);
@@ -343,7 +343,7 @@ module.exports = {
     return res;
   },
 
-  generateDbDiffReport_meta: 'post',
+  generateDbDiffReport_meta: true,
   async generateDbDiffReport({ filePath, sourceConid, sourceDatabase, targetConid, targetDatabase }) {
     const unifiedDiff = await this.getUnifiedDiff({ sourceConid, sourceDatabase, targetConid, targetDatabase });
 

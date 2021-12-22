@@ -23,13 +23,13 @@ module.exports = function useController(app, route, controller) {
     const meta = controller[`${key}_meta`];
     if (!meta) continue;
 
-    let method = 'get';
+    let method = 'post';
     let raw = false;
     let rawParams = false;
 
-    if (_.isString(meta)) {
-      method = meta;
-    }
+    // if (_.isString(meta)) {
+    //   method = meta;
+    // }
     if (_.isPlainObject(meta)) {
       method = meta.method;
       raw = meta.raw;

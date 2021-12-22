@@ -104,7 +104,7 @@ module.exports = {
     return datastore;
   },
 
-  getInfo_meta: 'get',
+  getInfo_meta: true,
   async getInfo({ jslid }) {
     const file = getJslFileName(jslid);
     const firstLine = await readFirstLine(file);
@@ -112,13 +112,13 @@ module.exports = {
     return null;
   },
 
-  getRows_meta: 'post',
+  getRows_meta: true,
   async getRows({ jslid, offset, limit, filters }) {
     const datastore = await this.ensureDatastore(jslid);
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters);
   },
 
-  getStats_meta: 'get',
+  getStats_meta: true,
   getStats({ jslid }) {
     const file = `${getJslFileName(jslid)}.stats`;
     if (fs.existsSync(file)) {
@@ -146,7 +146,7 @@ module.exports = {
     // }
   },
 
-  saveFreeTable_meta: 'post',
+  saveFreeTable_meta: true,
   async saveFreeTable({ jslid, data }) {
     saveFreeTableData(getJslFileName(jslid), data);
     return true;

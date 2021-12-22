@@ -139,18 +139,18 @@ module.exports = {
     return newOpened;
   },
 
-  start_meta: 'post',
+  start_meta: true,
   async start({ script }) {
     const runid = uuidv1();
     return this.startCore(runid, scriptTemplate(script, false));
   },
 
-  getNodeScript_meta: 'post',
+  getNodeScript_meta: true,
   async getNodeScript({ script }) {
     return scriptTemplate(script, true);
   },
 
-  cancel_meta: 'post',
+  cancel_meta: true,
   async cancel({ runid }) {
     const runner = this.opened.find(x => x.runid == runid);
     if (!runner) {
@@ -160,7 +160,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  files_meta: 'get',
+  files_meta: true,
   async files({ runid }) {
     const directory = path.join(rundir(), runid);
     const files = await fs.readdir(directory);
@@ -176,7 +176,7 @@ module.exports = {
     return res;
   },
 
-  loadReader_meta: 'post',
+  loadReader_meta: true,
   async loadReader({ functionName, props }) {
     const promise = new Promise((resolve, reject) => {
       const runid = uuidv1();

@@ -34,7 +34,7 @@ function readCore(reader, skip, limit, filter) {
 }
 
 module.exports = {
-  read_meta: 'get',
+  read_meta: true,
   async read({ skip, limit, filter }) {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     // @ts-ignore
@@ -44,7 +44,7 @@ module.exports = {
     return res;
   },
 
-  write_meta: 'post',
+  write_meta: true,
   async write({ data }) {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     await fs.appendFile(fileName, JSON.stringify(data) + '\n');

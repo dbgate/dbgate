@@ -61,7 +61,7 @@ module.exports = {
 
   handle_ping() {},
 
-  create_meta: 'post',
+  create_meta: true,
   async create({ conid, database }) {
     const sesid = uuidv1();
     const connection = await connections.get({ conid });
@@ -84,7 +84,7 @@ module.exports = {
     return newOpened;
   },
 
-  executeQuery_meta: 'post',
+  executeQuery_meta: true,
   async executeQuery({ sesid, sql }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
@@ -98,7 +98,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  // cancel_meta: 'post',
+  // cancel_meta: true,
   // async cancel({ sesid }) {
   //   const session = this.opened.find((x) => x.sesid == sesid);
   //   if (!session) {
@@ -108,7 +108,7 @@ module.exports = {
   //   return { state: 'ok' };
   // },
 
-  kill_meta: 'post',
+  kill_meta: true,
   async kill({ sesid }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
@@ -119,7 +119,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  // runCommand_meta: 'post',
+  // runCommand_meta: true,
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);
   //   const opened = await this.ensureOpened(conid, database);

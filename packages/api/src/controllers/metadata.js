@@ -7,14 +7,14 @@ function pickObjectNames(array) {
 }
 
 module.exports = {
-  // tableData_meta: 'get',
+  // tableData_meta: true,
   // async tableData({ conid, database, schemaName, pureName }) {
   //   const opened = await databaseConnections.ensureOpened(conid, database);
   //   const res = await databaseConnections.sendRequest(opened, { msgtype: 'tableData', schemaName, pureName });
   //   return res;
   // },
 
-  listObjects_meta: 'get',
+  listObjects_meta: true,
   async listObjects({ conid, database }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const types = ['tables', 'collections', 'views', 'procedures', 'functions', 'triggers'];
@@ -27,7 +27,7 @@ module.exports = {
     );
   },
 
-  tableInfo_meta: 'get',
+  tableInfo_meta: true,
   async tableInfo({ conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const table = opened.structure.tables.find(x => x.pureName == pureName && x.schemaName == schemaName);
@@ -38,7 +38,7 @@ module.exports = {
     };
   },
 
-  sqlObjectInfo_meta: 'get',
+  sqlObjectInfo_meta: true,
   async sqlObjectInfo({ objectTypeField, conid, database, schemaName, pureName }) {
     const opened = await databaseConnections.ensureOpened(conid, database);
     const res = opened.structure[objectTypeField].find(x => x.pureName == pureName && x.schemaName == schemaName);

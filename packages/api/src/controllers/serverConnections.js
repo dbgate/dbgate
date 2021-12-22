@@ -86,25 +86,25 @@ module.exports = {
     }
   },
 
-  disconnect_meta: 'post',
+  disconnect_meta: true,
   async disconnect({ conid }) {
     await this.close(conid, true);
     return { status: 'ok' };
   },
 
-  listDatabases_meta: 'get',
+  listDatabases_meta: true,
   async listDatabases({ conid }) {
     const opened = await this.ensureOpened(conid);
     return opened.databases;
   },
 
-  version_meta: 'get',
+  version_meta: true,
   async version({ conid }) {
     const opened = await this.ensureOpened(conid);
     return opened.version;
   },
 
-  serverStatus_meta: 'get',
+  serverStatus_meta: true,
   async serverStatus() {
     return {
       ...this.closed,
@@ -112,7 +112,7 @@ module.exports = {
     };
   },
 
-  ping_meta: 'post',
+  ping_meta: true,
   async ping({ connections }) {
     await Promise.all(
       _.uniq(connections).map(async conid => {
@@ -128,7 +128,7 @@ module.exports = {
     return { status: 'ok' };
   },
 
-  refresh_meta: 'post',
+  refresh_meta: true,
   async refresh({ conid, keepOpen }) {
     if (!keepOpen) this.close(conid);
 
@@ -136,7 +136,7 @@ module.exports = {
     return { status: 'ok' };
   },
 
-  createDatabase_meta: 'post',
+  createDatabase_meta: true,
   async createDatabase({ conid, name }) {
     const opened = await this.ensureOpened(conid);
     opened.subprocess.send({ msgtype: 'createDatabase', name });

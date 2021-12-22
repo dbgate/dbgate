@@ -20,7 +20,7 @@ function deserialize(format, text) {
 }
 
 module.exports = {
-  list_meta: 'get',
+  list_meta: true,
   async list({ folder }) {
     if (!hasPermission(`files/${folder}/read`)) return [];
     const dir = path.join(filesdir(), folder);
@@ -29,7 +29,7 @@ module.exports = {
     return files;
   },
 
-  listAll_meta: 'get',
+  listAll_meta: true,
   async listAll() {
     const folders = await fs.readdir(filesdir());
     const res = [];
@@ -42,7 +42,7 @@ module.exports = {
     return res;
   },
 
-  delete_meta: 'post',
+  delete_meta: true,
   async delete({ folder, file }) {
     if (!hasPermission(`files/${folder}/write`)) return;
     await fs.unlink(path.join(filesdir(), folder, file));
@@ -50,7 +50,7 @@ module.exports = {
     socket.emitChanged(`all-files-changed`);
   },
 
-  rename_meta: 'post',
+  rename_meta: true,
   async rename({ folder, file, newFile }) {
     if (!hasPermission(`files/${folder}/write`)) return;
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
@@ -58,7 +58,7 @@ module.exports = {
     socket.emitChanged(`all-files-changed`);
   },
 
-  copy_meta: 'post',
+  copy_meta: true,
   async copy({ folder, file, newFile }) {
     if (!hasPermission(`files/${folder}/write`)) return;
     await fs.copyFile(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
@@ -66,7 +66,7 @@ module.exports = {
     socket.emitChanged(`all-files-changed`);
   },
 
-  load_meta: 'post',
+  load_meta: true,
   async load({ folder, file, format }) {
     if (folder.startsWith('archive:')) {
       const text = await fs.readFile(path.join(resolveArchiveFolder(folder.substring('archive:'.length)), file), {
@@ -80,7 +80,7 @@ module.exports = {
     }
   },
 
-  save_meta: 'post',
+  save_meta: true,
   async save({ folder, file, data, format }) {
     if (folder.startsWith('archive:')) {
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
@@ -101,12 +101,12 @@ module.exports = {
     }
   },
 
-  saveAs_meta: 'post',
+  saveAs_meta: true,
   async saveAs({ filePath, data, format }) {
     await fs.writeFile(filePath, serialize(format, data));
   },
 
-  favorites_meta: 'get',
+  favorites_meta: true,
   async favorites() {
     if (!hasPermission(`files/favorites/read`)) return [];
     const dir = path.join(filesdir(), 'favorites');
@@ -125,7 +125,7 @@ module.exports = {
     return res;
   },
 
-  generateUploadsFile_meta: 'get',
+  generateUploadsFile_meta: true,
   async generateUploadsFile() {
     const fileName = `${uuidv1()}.html`;
     return {
@@ -134,7 +134,7 @@ module.exports = {
     };
   },
 
-  exportChart_meta: 'post',
+  exportChart_meta: true,
   async exportChart({ filePath, title, config, image }) {
     const fileName = path.parse(filePath).base;
     const imageFile = fileName.replace('.html', '-preview.png');
