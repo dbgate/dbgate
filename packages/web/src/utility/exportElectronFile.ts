@@ -1,9 +1,8 @@
 import ScriptWriter from '../impexp/ScriptWriter';
 import getElectron from './getElectron';
-import socket from '../utility/socket';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
 import resolveApi from './resolveApi';
-import { apiCall } from './api';
+import { apiCall, apiOff, apiOn } from './api';
 
 export async function exportElectronFile(dataName, reader, format) {
   const electron = getElectron();
@@ -48,12 +47,12 @@ export async function exportElectronFile(dataName, reader, format) {
 
   function handleRunnerDone() {
     closeSnackbar(snackId);
-    socket().off(`runner-done-${runid}`, handleRunnerDone);
+    apiOff(`runner-done-${runid}`, handleRunnerDone);
     if (isCanceled) showSnackbarError(`Export ${dataName} canceled`);
     else showSnackbarInfo(`Export ${dataName} finished`);
   }
 
-  socket().on(`runner-done-${runid}`, handleRunnerDone);
+  apiOn(`runner-done-${runid}`, handleRunnerDone);
 }
 
 export async function saveFileToDisk(

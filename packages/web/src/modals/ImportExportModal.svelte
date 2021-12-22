@@ -16,10 +16,9 @@
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
@@ -67,9 +66,9 @@
 
   function registerRunnerDone(rid) {
     if (rid) {
-      socket().on(`runner-done-${rid}`, handleRunnerDone);
+      apiOn(`runner-done-${rid}`, handleRunnerDone);
       return () => {
-        socket().off(`runner-done-${rid}`, handleRunnerDone);
+        apiOff(`runner-done-${rid}`, handleRunnerDone);
       };
     } else {
       return () => {};

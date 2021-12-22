@@ -23,7 +23,6 @@
   import { extensions } from '../stores';
   import { changeTab } from '../utility/common';
   import { useConnectionInfo } from '../utility/metadataLoaders';
-  import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -37,7 +36,7 @@
   import QueryDesignColumns from '../elements/QueryDesignColumns.svelte';
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -62,9 +61,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket().on(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-done-${sid}`, handleSessionDone);
       return () => {
-        socket().off(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-done-${sid}`, handleSessionDone);
       };
     }
     return () => {};

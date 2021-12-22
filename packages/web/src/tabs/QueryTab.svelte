@@ -54,7 +54,6 @@
   import applyScriptTemplate from '../utility/applyScriptTemplate';
   import { changeTab } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
-  import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -68,7 +67,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -95,9 +94,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket().on(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-done-${sid}`, handleSessionDone);
       return () => {
-        socket().off(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-done-${sid}`, handleSessionDone);
       };
     }
     return () => {};

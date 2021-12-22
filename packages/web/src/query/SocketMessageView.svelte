@@ -1,9 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import { apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
-
-  import socket from '../utility/socket';
 
   import useEffect from '../utility/useEffect';
 
@@ -30,9 +29,9 @@
 
   $: effect = useEffect(() => {
     if (eventName) {
-      socket().on(eventName, handleInfo);
+      apiOn(eventName, handleInfo);
       return () => {
-        socket().off(eventName, handleInfo);
+        apiOff(eventName, handleInfo);
       };
     }
     return () => {};

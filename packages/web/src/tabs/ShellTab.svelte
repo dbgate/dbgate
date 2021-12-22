@@ -48,12 +48,11 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { showSnackbarError } from '../utility/snackbar';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
 
@@ -101,9 +100,9 @@
 
   function registerRunnerDone(rid) {
     if (rid) {
-      socket().on(`runner-done-${rid}`, handleRunnerDone);
+      apiOn(`runner-done-${rid}`, handleRunnerDone);
       return () => {
-        socket().off(`runner-done-${rid}`, handleRunnerDone);
+        apiOff(`runner-done-${rid}`, handleRunnerDone);
       };
     } else {
       return () => {};

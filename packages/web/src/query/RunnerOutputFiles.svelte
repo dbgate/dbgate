@@ -1,11 +1,11 @@
 <script>
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import TableControl from '../elements/TableControl.svelte';
+  import { apiOff, apiOn } from '../utility/api';
 
   import formatFileSize from '../utility/formatFileSize';
   import getElectron from '../utility/getElectron';
   import resolveApi from '../utility/resolveApi';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
   export let runnerId;
@@ -21,9 +21,9 @@
 
   function registerRunnerDone(rid) {
     if (rid) {
-      socket().on(`runner-done-${rid}`, handleRunnerDone);
+      apiOn(`runner-done-${rid}`, handleRunnerDone);
       return () => {
-        socket().off(`runner-done-${rid}`, handleRunnerDone);
+        apiOff(`runner-done-${rid}`, handleRunnerDone);
       };
     } else {
       return () => {};

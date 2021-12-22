@@ -20,7 +20,7 @@
       filters: display ? display.compileFilters() : null,
     });
 
-    return response.data;
+    return response;
   }
 
   function dataPageAvailable(props) {
@@ -41,13 +41,12 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { extensions } from '../stores';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportElectronFile } from '../utility/exportElectronFile';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
@@ -75,9 +74,9 @@
   $: effect = useEffect(() => onJslId(jslid));
   function onJslId(jslidVal) {
     if (jslidVal) {
-      socket().on(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+      apiOn(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       return () => {
-        socket().off(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+        apiOff(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       };
     }
   }

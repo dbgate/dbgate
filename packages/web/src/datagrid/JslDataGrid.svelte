@@ -2,8 +2,6 @@
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
   import { useApiCall } from '../utility/api';
-  import socket from '../utility/socket';
-  import useEffect from '../utility/useEffect';
 
   import DataGrid from './DataGrid.svelte';
   import JslDataGridCore from './JslDataGridCore.svelte';

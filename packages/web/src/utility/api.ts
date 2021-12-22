@@ -1,5 +1,6 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { writable } from 'svelte/store';
+import socket from './socket';
 
 export async function apiCall(route: string, args: {} = undefined) {
   const resp = await fetch(`${resolveApi()}/${route}`, {
@@ -14,9 +15,13 @@ export async function apiCall(route: string, args: {} = undefined) {
   return resp.json();
 }
 
-export function apiOn(event: string, hander: Function) {}
+export function apiOn(event: string, handler: Function) {
+  socket().on(event, handler);
+}
 
-export function apiOff(event: string, hander: Function) {}
+export function apiOff(event: string, handler: Function) {
+  socket().off(event, handler);
+}
 
 import _ from 'lodash';
 

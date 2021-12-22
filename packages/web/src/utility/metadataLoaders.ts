@@ -8,7 +8,7 @@ import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
-import { apiCall } from './api';
+import { apiCall, apiOff, apiOn } from './api';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
@@ -200,11 +200,11 @@ function useCore(loader, args) {
       handleReload();
       if (reloadTrigger && socket) {
         for (const item of getAsArray(reloadTrigger)) {
-          socket().on(item, handleReload);
+          apiOn(item, handleReload);
         }
         return () => {
           for (const item of getAsArray(reloadTrigger)) {
-            socket().off(item, handleReload);
+            apiOff(item, handleReload);
           }
         };
       }

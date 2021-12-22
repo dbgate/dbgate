@@ -6,10 +6,9 @@
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { onMount } from 'svelte';
-  import socket from '../utility/socket';
   import openNewTab from '../utility/openNewTab';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
-  import { apiCall } from '../utility/api';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   let filter = '';
   let search = '';
@@ -31,9 +30,9 @@
   $: setDebouncedFilter(filter);
 
   onMount(() => {
-    socket().on('query-history-changed', reloadItems);
+    apiOn('query-history-changed', reloadItems);
     return () => {
-      socket().off('query-history-changed', reloadItems);
+      apiOff('query-history-changed', reloadItems);
     };
   });
 </script>
