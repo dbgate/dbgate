@@ -121,19 +121,7 @@ function start() {
     }
   }
 
-  if (processArgs.dynport) {
-    childProcessChecker();
-
-    authorization = crypto.randomBytes(32).toString('hex');
-
-    getPort().then(port => {
-      checkLocalhostOrigin = `localhost:${port}`;
-      server.listen(port, () => {
-        console.log(`DbGate API listening on port ${port}`);
-        process.send({ msgtype: 'listening', port, authorization });
-      });
-    });
-  } else if (platformInfo.isNpmDist) {
+if (platformInfo.isNpmDist) {
     app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({ port: 5000 }).then(port => {
       server.listen(port, () => {
@@ -141,7 +129,7 @@ function start() {
       });
     });
   } else {
-    server.listen(3000);
+    server.listen(process.env.PORT || 3000);
   }
 }
 

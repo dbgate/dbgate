@@ -25,6 +25,7 @@ import InputTextModal from '../modals/InputTextModal.svelte';
 import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
 import { apiCall } from '../utility/api';
+import runCommand from './runCommand';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -532,4 +533,9 @@ export function registerFileCommands({
       onClick: () => getCurrentEditor().redo(),
     });
   }
+}
+
+const electron = getElectron();
+if (electron) {
+  electron.addEventListener('run-command', (e, commandId) => runCommand(commandId));
 }

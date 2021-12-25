@@ -38,7 +38,7 @@ function commandItem(id) {
     accelerator: command ? command.keyText : undefined,
     enabled: command ? command.enabled : false,
     click() {
-      mainWindow.webContents.executeJavaScript(`dbgate_runCommand('${id}')`);
+      mainWindow.webContents.send('run-command', id);
     },
   };
 }
@@ -179,11 +179,9 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
-      // enableRemoteModule: true,
     },
   });
-  mainWindow.webContents.openDevTools();
-  // require('@electron/remote/main').enable(mainWindow.webContents);
+
   if (store.get('winIsMaximized')) {
     mainWindow.maximize();
   }
@@ -199,18 +197,6 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
       });
-    // mainWindow.webContents.on('did-finish-load', function () {
-    //   mainWindow.webContents.executeJavaScript(
-    //     `runInit=()=>{
-    //       try{
-    //         dbgate_initializeElectron(${JSON.stringify(initArgs)});
-    //       }catch(e){
-    //         setTimeout(runInit,100)
-    //       }
-    //     };
-    //     runInit()`
-    //   );
-    // });
     mainWindow.on('close', () => {
       store.set('winBounds', mainWindow.getBounds());
       store.set('winIsMaximized', mainWindow.isMaximized());
@@ -231,34 +217,6 @@ function createWindow() {
   main.useAllControllers(null, electron);
 
   loadMainWindow();
-
-  // if (process.env.ELECTRON_START_URL) {
-  //   loadMainWindow({});
-  // } else {
-  //   const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
-  //     '--dynport',
-  //     '--is-electron-bundle',
-  //     '--native-modules',
-  //     path.join(__dirname, 'nativeModules'),
-  //     // '../../../src/nativeModules'
-  //   ]);
-  //   apiProcess.on('message', msg => {
-  //     if (msg.msgtype == 'listening') {
-  //       const { port, authorization } = msg;
-
-  //       loadMainWindow({
-  //         port,
-  //         authorization,
-  //       });
-  //     }
-  //   });
-  // }
-
-  // and load the index.html of the app.
-  // mainWindow.loadURL('http://localhost:3000');
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {

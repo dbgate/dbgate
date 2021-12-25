@@ -45,15 +45,6 @@ class ElectronApi {
   }
 }
 
-// function initializeElectron(args) {
-//   apiInstance = new ElectronApi(args);
-//   if (window['dbgate_recreateSocket']) {
-//     window['dbgate_recreateSocket']();
-//   }
-// }
-
-// window['dbgate_initializeElectron'] = initializeElectron;
-
 function getIpcRenderer() {
   if (window['require']) {
     const electron = window['require']('electron');
@@ -61,10 +52,6 @@ function getIpcRenderer() {
   }
   return null;
 }
-
-// export function shouldWaitForElectronInitialize() {
-//   return !!getIpcRenderer() && !apiInstance;
-// }
 
 export function isElectronAvailable() {
   return !!getIpcRenderer();
