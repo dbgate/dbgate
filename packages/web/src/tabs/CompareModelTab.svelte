@@ -276,7 +276,7 @@
     const database = $values?.targetDatabase;
 
     const resp = await apiCall('database-connections/run-script', { conid, database, sql });
-    const { errorMessage } = resp.data || {};
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {

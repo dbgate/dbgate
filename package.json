@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "start:api": "yarn workspace dbgate-api start",
+    "start:app": "cd app && yarn start",
     "start:api:portal": "yarn workspace dbgate-api start:portal",
     "start:api:covid": "yarn workspace dbgate-api start:covid",
     "start:web": "yarn workspace dbgate-web dev",

@@ -96,7 +96,7 @@ import { apiCall } from '../utility/api';
       database,
       changeSet,
     });
-    const { errorMessage } = resp.data || {};
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
