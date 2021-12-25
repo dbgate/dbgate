@@ -1,35 +1,29 @@
-let res = null;
+let sseResponse = null;
+let electronSender = null;
 let init = '';
 
 module.exports = {
-  set(value) {
-    res = value;
+  setSseResponse(value) {
+    sseResponse = value;
   },
-  // get() {
-  //   return socket;
-  // },
+  setElectronSender(value) {
+    electronSender = value;
+  },
   emit(message, data) {
-    if (res) {
+    if (electronSender) {
+      electronSender.send(message, data == null ? null : data);
+    } else if (sseResponse) {
       if (init) {
-        res.write(init);
+        sseResponse.write(init);
         init = '';
       }
-      res.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
+      sseResponse.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
     } else {
-      init += res;
+      init += sseResponse;
     }
-
-    // console.log('EMIT:', message, data);
-    // socket.emit(message, data);
   },
   emitChanged(key) {
     this.emit('clean-cache', key);
     this.emit(key);
-    // console.log('EMIT_CHANGED:', key);
-    // socket.emit('clean-cache', key);
-    // socket.emit(key);
-
-    // socket.send(key, 'clean-cache');
-    // socket.send(null, key);
   },
 };

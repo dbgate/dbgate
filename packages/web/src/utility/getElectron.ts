@@ -41,7 +41,7 @@ class ElectronApi {
   }
 
   removeEventListener(channel: string, listener: Function) {
-    this.ipcRenderer.removeEventListener(channel, listener);
+    this.ipcRenderer.removeListener(channel, listener);
   }
 }
 

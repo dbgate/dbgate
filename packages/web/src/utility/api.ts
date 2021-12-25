@@ -5,11 +5,12 @@ import getElectron from './getElectron';
 // import socket from './socket';
 
 let eventSource;
+let cacheCleanerRegistered;
 
 function wantEventSource() {
   if (!eventSource) {
     eventSource = new EventSource(`${resolveApi()}/stream`);
-    eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
+    // eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
   }
 }
 
@@ -37,7 +38,14 @@ const apiHandlers = new WeakMap();
 export function apiOn(event: string, handler: Function) {
   const electron = getElectron();
   if (electron) {
-    electron.addEventListener(event, handler);
+    if (!apiHandlers.has(handler)) {
+      const handlerProxy = (e, data) => {
+        handler(data);
+      };
+      apiHandlers.set(handler, handlerProxy);
+    }
+
+    electron.addEventListener(event, apiHandlers.get(handler));
   } else {
     wantEventSource();
     if (!apiHandlers.has(handler)) {
@@ -50,15 +58,20 @@ export function apiOn(event: string, handler: Function) {
 
     eventSource.addEventListener(event, apiHandlers.get(handler));
   }
+
+  if (!cacheCleanerRegistered) {
+    cacheCleanerRegistered = true;
+    apiOn('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
+  }
 }
 
 export function apiOff(event: string, handler: Function) {
   const electron = getElectron();
-  if (electron) {
-    electron.removeEventListener(event, handler);
-  } else {
-    wantEventSource();
-    if (apiHandlers.has(handler)) {
+  if (apiHandlers.has(handler)) {
+    if (electron) {
+      electron.removeEventListener(event, apiHandlers.get(handler));
+    } else {
+      wantEventSource();
       eventSource.removeEventListener(event, apiHandlers.get(handler));
     }
   }

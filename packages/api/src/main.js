@@ -90,7 +90,7 @@ function start() {
 
     // Tell the client to retry every 10 seconds if connectivity is lost
     res.write('retry: 10000\n\n');
-    socket.set(res);
+    socket.setSseResponse(res);
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
@@ -162,4 +162,8 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/query-history', queryHistory);
 }
 
-module.exports = { start, useAllControllers };
+function initializeElectronSender(electronSender) {
+  socket.setElectronSender(electronSender);
+}
+
+module.exports = { start, useAllControllers, initializeElectronSender };

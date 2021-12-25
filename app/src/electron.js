@@ -221,11 +221,14 @@ function createWindow() {
     }
   }
 
+  global.API_PACKAGE = process.env.DEVMODE ? '../packages/api/src/index' : '../packages/api/dist/bundle.js';
   const api = require(path.join(
     __dirname,
-    process.env.ELECTRON_DEBUG ? '../../packages/api' : '../packages/api/dist/bundle.js'
+    process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
   ));
-  api.getMainModule().useAllControllers(null, electron);
+  const main = api.getMainModule();
+  main.initializeElectronSender(mainWindow.webContents);
+  main.useAllControllers(null, electron);
 
   loadMainWindow();
 
@@ -267,7 +270,9 @@ function createWindow() {
 }
 
 function onAppReady() {
-  autoUpdater.checkForUpdatesAndNotify();
+  if (!process.env.DEVMODE) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
   createWindow();
 }
 

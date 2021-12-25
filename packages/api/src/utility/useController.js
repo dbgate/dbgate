@@ -28,7 +28,7 @@ module.exports = function useController(app, electron, route, controller) {
     if (electron) {
       if (meta === true) {
         const handler = `${route.substring(1)}-${_.kebabCase(key)}`;
-        console.log('REGISTERING HANDLER', handler);
+        // console.log('REGISTERING HANDLER', handler);
         electron.ipcMain.handle(handler, async (event, args) => {
           const data = await controller[key](args);
           return data;
