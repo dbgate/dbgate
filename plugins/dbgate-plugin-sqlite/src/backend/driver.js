@@ -175,8 +175,8 @@ const driver = {
 };
 
 driver.initialize = (dbgateEnv) => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['better-sqlite3']) {
-    Database = dbgateEnv.nativeModules['better-sqlite3']();
+  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['better-sqlite3-with-prebuilds']) {
+    Database = dbgateEnv.nativeModules['better-sqlite3-with-prebuilds']();
   }
 };
 

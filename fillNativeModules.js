@@ -5,7 +5,7 @@ let fillContent = '';
 if (process.platform == 'win32') {
   fillContent += `content.msnodesqlv8 = () => require('msnodesqlv8');`;
 }
-fillContent += `content['better-sqlite3'] = () => require('better-sqlite3');`;
+fillContent += `content['better-sqlite3-with-prebuilds'] = () => require('better-sqlite3-with-prebuilds');`;
 
 const getContent = (empty) => `
 // this file is generated automatically by script fillNativeModules.js, do not edit it manually
