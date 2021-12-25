@@ -102,20 +102,7 @@ function start() {
     })
   );
 
-  useController(app, '/connections', connections);
-  useController(app, '/server-connections', serverConnections);
-  useController(app, '/database-connections', databaseConnections);
-  useController(app, '/metadata', metadata);
-  useController(app, '/sessions', sessions);
-  useController(app, '/runners', runners);
-  useController(app, '/jsldata', jsldata);
-  useController(app, '/config', config);
-  useController(app, '/archive', archive);
-  useController(app, '/uploads', uploads);
-  useController(app, '/plugins', plugins);
-  useController(app, '/files', files);
-  useController(app, '/scheduler', scheduler);
-  useController(app, '/query-history', queryHistory);
+  useAllControllers(app, null);
 
   // if (process.env.PAGES_DIRECTORY) {
   //   app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
@@ -158,4 +145,21 @@ function start() {
   }
 }
 
-module.exports = { start };
+function useAllControllers(app, electron) {
+  useController(app, electron, '/connections', connections);
+  useController(app, electron, '/server-connections', serverConnections);
+  useController(app, electron, '/database-connections', databaseConnections);
+  useController(app, electron, '/metadata', metadata);
+  useController(app, electron, '/sessions', sessions);
+  useController(app, electron, '/runners', runners);
+  useController(app, electron, '/jsldata', jsldata);
+  useController(app, electron, '/config', config);
+  useController(app, electron, '/archive', archive);
+  useController(app, electron, '/uploads', uploads);
+  useController(app, electron, '/plugins', plugins);
+  useController(app, electron, '/files', files);
+  useController(app, electron, '/scheduler', scheduler);
+  useController(app, electron, '/query-history', queryHistory);
+}
+
+module.exports = { start, useAllControllers };

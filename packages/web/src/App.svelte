@@ -11,7 +11,7 @@
   import { setAppLoaded } from './utility/appLoadManager';
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
-  import { shouldWaitForElectronInitialize } from './utility/getElectron';
+  // import { shouldWaitForElectronInitialize } from './utility/getElectron';
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
@@ -19,10 +19,10 @@
   let loadedApi = false;
 
   async function loadApi() {
-    if (shouldWaitForElectronInitialize()) {
-      setTimeout(loadApi, 100);
-      return;
-    }
+    // if (shouldWaitForElectronInitialize()) {
+    //   setTimeout(loadApi, 100);
+    //   return;
+    // }
 
     try {
       // console.log('************** LOADING API');

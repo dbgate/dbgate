@@ -1,11 +1,11 @@
 class ElectronApi {
-  public port?: number;
-  public authorization?: string;
+  // public port?: number;
+  // public authorization?: string;
   private ipcRenderer = getIpcRenderer();
 
-  constructor(args) {
-    this.port = args.port;
-    this.authorization = args.authorization;
+  constructor() {
+    // this.port = args.port;
+    // this.authorization = args.authorization;
   }
 
   send(msg, args = null) {
@@ -30,18 +30,29 @@ class ElectronApi {
   async openExternal(url) {
     await this.ipcRenderer.invoke('openExternal', url);
   }
-}
 
-let apiInstance = null;
+  async invoke(route, args) {
+    const res = await this.ipcRenderer.invoke(route, args);
+    return res;
+  }
 
-function initializeElectron(args) {
-  apiInstance = new ElectronApi(args);
-  if (window['dbgate_recreateSocket']) {
-    window['dbgate_recreateSocket']();
+  addEventListener(channel: string, listener: Function) {
+    this.ipcRenderer.on(channel, listener);
+  }
+
+  removeEventListener(channel: string, listener: Function) {
+    this.ipcRenderer.removeEventListener(channel, listener);
   }
 }
 
-window['dbgate_initializeElectron'] = initializeElectron;
+// function initializeElectron(args) {
+//   apiInstance = new ElectronApi(args);
+//   if (window['dbgate_recreateSocket']) {
+//     window['dbgate_recreateSocket']();
+//   }
+// }
+
+// window['dbgate_initializeElectron'] = initializeElectron;
 
 function getIpcRenderer() {
   if (window['require']) {
@@ -51,13 +62,15 @@ function getIpcRenderer() {
   return null;
 }
 
-export function shouldWaitForElectronInitialize() {
-  return !!getIpcRenderer() && !apiInstance;
-}
+// export function shouldWaitForElectronInitialize() {
+//   return !!getIpcRenderer() && !apiInstance;
+// }
 
 export function isElectronAvailable() {
   return !!getIpcRenderer();
 }
+
+const apiInstance = isElectronAvailable() ? new ElectronApi() : null;
 
 export default function getElectron(): ElectronApi {
   return apiInstance;

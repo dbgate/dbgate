@@ -101,25 +101,25 @@ function buildMenu() {
         {
           label: 'dbgate.org',
           click() {
-            require('electron').shell.openExternal('https://dbgate.org');
+            electron.shell.openExternal('https://dbgate.org');
           },
         },
         {
           label: 'DbGate on GitHub',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbgate/dbgate');
+            electron.shell.openExternal('https://github.com/dbgate/dbgate');
           },
         },
         {
           label: 'DbGate on docker hub',
           click() {
-            require('electron').shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
+            electron.shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
           },
         },
         {
           label: 'Report problem or feature request',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
+            electron.shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
         commandItem('tabs.changelog'),
@@ -182,6 +182,7 @@ function createWindow() {
       // enableRemoteModule: true,
     },
   });
+  mainWindow.webContents.openDevTools();
   // require('@electron/remote/main').enable(mainWindow.webContents);
   if (store.get('winIsMaximized')) {
     mainWindow.maximize();
@@ -190,7 +191,7 @@ function createWindow() {
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
 
-  function loadMainWindow(initArgs) {
+  function loadMainWindow() {
     const startUrl =
       process.env.ELECTRON_START_URL ||
       url.format({
@@ -198,18 +199,18 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
       });
-    mainWindow.webContents.on('did-finish-load', function () {
-      mainWindow.webContents.executeJavaScript(
-        `runInit=()=>{
-          try{
-            dbgate_initializeElectron(${JSON.stringify(initArgs)});
-          }catch(e){
-            setTimeout(runInit,100)
-          }
-        };
-        runInit()`
-      );
-    });
+    // mainWindow.webContents.on('did-finish-load', function () {
+    //   mainWindow.webContents.executeJavaScript(
+    //     `runInit=()=>{
+    //       try{
+    //         dbgate_initializeElectron(${JSON.stringify(initArgs)});
+    //       }catch(e){
+    //         setTimeout(runInit,100)
+    //       }
+    //     };
+    //     runInit()`
+    //   );
+    // });
     mainWindow.on('close', () => {
       store.set('winBounds', mainWindow.getBounds());
       store.set('winIsMaximized', mainWindow.isMaximized());
@@ -220,27 +221,35 @@ function createWindow() {
     }
   }
 
-  if (process.env.ELECTRON_START_URL) {
-    loadMainWindow({});
-  } else {
-    const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
-      '--dynport',
-      '--is-electron-bundle',
-      '--native-modules',
-      path.join(__dirname, 'nativeModules'),
-      // '../../../src/nativeModules'
-    ]);
-    apiProcess.on('message', msg => {
-      if (msg.msgtype == 'listening') {
-        const { port, authorization } = msg;
+  const api = require(path.join(
+    __dirname,
+    process.env.ELECTRON_DEBUG ? '../../packages/api' : '../packages/api/dist/bundle.js'
+  ));
+  api.getMainModule().useAllControllers(null, electron);
 
-        loadMainWindow({
-          port,
-          authorization,
-        });
-      }
-    });
-  }
+  loadMainWindow();
+
+  // if (process.env.ELECTRON_START_URL) {
+  //   loadMainWindow({});
+  // } else {
+  //   const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
+  //     '--dynport',
+  //     '--is-electron-bundle',
+  //     '--native-modules',
+  //     path.join(__dirname, 'nativeModules'),
+  //     // '../../../src/nativeModules'
+  //   ]);
+  //   apiProcess.on('message', msg => {
+  //     if (msg.msgtype == 'listening') {
+  //       const { port, authorization } = msg;
+
+  //       loadMainWindow({
+  //         port,
+  //         authorization,
+  //       });
+  //     }
+  //   });
+  // }
 
   // and load the index.html of the app.
   // mainWindow.loadURL('http://localhost:3000');

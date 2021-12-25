@@ -4,7 +4,7 @@ const express = require('express');
 /**
  * @param {string} route
  */
-module.exports = function useController(app, route, controller) {
+module.exports = function useController(app, electron, route, controller) {
   const router = express.Router();
 
   if (controller._init) {
@@ -23,6 +23,21 @@ module.exports = function useController(app, route, controller) {
     const meta = controller[`${key}_meta`];
     if (!meta) continue;
 
+    const routeAction = `/${_.kebabCase(key)}`;
+
+    if (electron) {
+      if (meta === true) {
+        const handler = `${route.substring(1)}-${_.kebabCase(key)}`;
+        console.log('REGISTERING HANDLER', handler);
+        electron.ipcMain.handle(handler, async (event, args) => {
+          const data = await controller[key](args);
+          return data;
+        });
+      }
+
+      continue;
+    }
+
     let method = 'post';
     let raw = false;
     let rawParams = false;
@@ -36,11 +51,10 @@ module.exports = function useController(app, route, controller) {
       rawParams = meta.rawParams;
     }
 
-    const route = `/${_.kebabCase(key)}`;
     if (raw) {
-      router[method](route, controller[key]);
+      router[method](routeAction, controller[key]);
     } else {
-      router[method](route, async (req, res) => {
+      router[method](routeAction, async (req, res) => {
         // if (controller._init && !controller._init_called) {
         //   await controller._init();
         //   controller._init_called = true;
@@ -58,5 +72,7 @@ module.exports = function useController(app, route, controller) {
     }
   }
 
-  app.use(route, router);
+  if (app) {
+    app.use(route, router);
+  }
 };

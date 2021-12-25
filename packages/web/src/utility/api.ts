@@ -1,6 +1,7 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { writable } from 'svelte/store';
 import { cacheClean } from './cache';
+import getElectron from './getElectron';
 // import socket from './socket';
 
 let eventSource;
@@ -13,37 +14,53 @@ function wantEventSource() {
 }
 
 export async function apiCall(route: string, args: {} = undefined) {
-  const resp = await fetch(`${resolveApi()}/${route}`, {
-    method: 'POST',
-    cache: 'no-cache',
-    headers: {
-      'Content-Type': 'application/json',
-      ...resolveApiHeaders(),
-    },
-    body: JSON.stringify(args),
-  });
-  return resp.json();
+  const electron = getElectron();
+  if (electron) {
+    const resp = await electron.invoke(route.replace('/', '-'), args);
+    return resp;
+  } else {
+    const resp = await fetch(`${resolveApi()}/${route}`, {
+      method: 'POST',
+      cache: 'no-cache',
+      headers: {
+        'Content-Type': 'application/json',
+        ...resolveApiHeaders(),
+      },
+      body: JSON.stringify(args),
+    });
+    return resp.json();
+  }
 }
 
 const apiHandlers = new WeakMap();
 
 export function apiOn(event: string, handler: Function) {
-  wantEventSource();
-  if (!apiHandlers.has(handler)) {
-    const handlerProxy = e => {
-      // console.log('RECEIVED', e.type, JSON.parse(e.data));
-      handler(JSON.parse(e.data));
-    };
-    apiHandlers.set(handler, handlerProxy);
-  }
+  const electron = getElectron();
+  if (electron) {
+    electron.addEventListener(event, handler);
+  } else {
+    wantEventSource();
+    if (!apiHandlers.has(handler)) {
+      const handlerProxy = e => {
+        // console.log('RECEIVED', e.type, JSON.parse(e.data));
+        handler(JSON.parse(e.data));
+      };
+      apiHandlers.set(handler, handlerProxy);
+    }
 
-  eventSource.addEventListener(event, apiHandlers.get(handler));
+    eventSource.addEventListener(event, apiHandlers.get(handler));
+  }
 }
 
 export function apiOff(event: string, handler: Function) {
-  wantEventSource();
-  if (apiHandlers.has(handler)) {
-    eventSource.removeEventListener(event, apiHandlers.get(handler));
+  const electron = getElectron();
+  if (electron) {
+    electron.removeEventListener(event, handler);
+  } else {
+    wantEventSource();
+    if (apiHandlers.has(handler)) {
+      eventSource.removeEventListener(event, apiHandlers.get(handler));
+    }
   }
 }
 

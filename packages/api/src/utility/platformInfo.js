@@ -2,6 +2,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const processArgs = require('./processArgs');
+const isElectron = require('is-electron');
 
 const platform = process.env.OS_OVERRIDE ? process.env.OS_OVERRIDE : process.platform;
 const isWindows = platform === 'win32';
@@ -28,6 +29,7 @@ const platformInfo = {
   isLinux,
   isDocker,
   isElectronBundle,
+  isElectron: isElectron(),
   isDevMode,
   isNpmDist,
   isSnap: process.env.ELECTRON_SNAP == 'true',
