@@ -137,6 +137,7 @@ module.exports = {
   },
   test(req, res) {
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+      '--is-forked-api',
       '--start-process',
       'connectProcess',
       ...process.argv.slice(3),

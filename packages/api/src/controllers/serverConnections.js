@@ -38,6 +38,7 @@ module.exports = {
       if (existing) return existing;
       const connection = await connections.get({ conid });
       const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+        '--is-forked-api',
         '--start-process',
         'serverConnectionProcess',
         ...process.argv.slice(3),

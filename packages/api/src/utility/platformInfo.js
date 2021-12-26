@@ -11,6 +11,7 @@ const isLinux = platform === 'linux';
 const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
 const isNpmDist = !!global['dbgateApiModulePath'];
+const isForkedApi = processArgs.isForkedApi;
 
 // function moduleAvailable(name) {
 //   try {
@@ -21,14 +22,13 @@ const isNpmDist = !!global['dbgateApiModulePath'];
 //   }
 // }
 
-const isElectronBundle = processArgs.isElectronBundle;
-
 const platformInfo = {
   isWindows,
   isMac,
   isLinux,
   isDocker,
-  isElectronBundle,
+  isElectronBundle: isElectron() && !isDevMode,
+  isForkedApi,
   isElectron: isElectron(),
   isDevMode,
   isNpmDist,

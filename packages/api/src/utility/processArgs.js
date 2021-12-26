@@ -7,15 +7,13 @@ function getNamedArg(name) {
 }
 
 const checkParent = process.argv.includes('--checkParent');
-const dynport = process.argv.includes('--dynport');
 const nativeModules = getNamedArg('--native-modules');
 const startProcess = getNamedArg('--start-process');
-const isElectronBundle = process.argv.includes('--is-electron-bundle');
+const isForkedApi = process.argv.includes('--is-forked-api');
 
 module.exports = {
   checkParent,
   nativeModules,
   startProcess,
-  dynport,
-  isElectronBundle,
+  isForkedApi,
 };

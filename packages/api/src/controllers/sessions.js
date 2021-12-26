@@ -66,6 +66,7 @@ module.exports = {
     const sesid = uuidv1();
     const connection = await connections.get({ conid });
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+      '--is-forked-api',
       '--start-process',
       'sessionProcess',
       ...process.argv.slice(3),

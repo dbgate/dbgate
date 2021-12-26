@@ -207,11 +207,20 @@ function createWindow() {
     }
   }
 
-  global.API_PACKAGE = process.env.DEVMODE ? '../packages/api/src/index' : '../packages/api/dist/bundle.js';
+  global.API_PACKAGE = path.resolve(
+    process.env.DEVMODE ? '../packages/api/src/index' : './packages/api/dist/bundle.js'
+  );
+  // console.log('global.API_PACKAGE', global.API_PACKAGE);
   const api = require(path.join(
     __dirname,
     process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
   ));
+  // console.log(
+  //   'REQUIRED',
+  //   path.resolve(
+  //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
+  //   )
+  // );
   const main = api.getMainModule();
   main.initializeElectronSender(mainWindow.webContents);
   main.useAllControllers(null, electron);

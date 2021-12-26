@@ -30,6 +30,7 @@ class DatastoreProxy {
   async ensureSubprocess() {
     if (!this.subprocess) {
       this.subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+        '--is-forked-api',
         '--start-process',
         'jslDatastoreProcess',
         ...process.argv.slice(3),
