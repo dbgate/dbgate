@@ -26,7 +26,7 @@
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
   // @ts-ignore
-  import QueryParserWorker from 'web-worker:./QueryParserWorker';
+  // import QueryParserWorker from 'web-worker:./QueryParserWorker';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
@@ -138,12 +138,14 @@
     if (enabled) {
       if (!queryParserWorker) {
         try {
-          queryParserWorker = new QueryParserWorker();
+          queryParserWorker = new Worker('build/QueryParserWorker.js');
+          // console.log('WORKER', queryParserWorker);
           queryParserWorker.onmessage = e => {
             processParserResult(e.data);
           };
         } catch (err) {
-          console.warn('WORKER ERROR, using fallback worker', err.message);
+          // console.error('WORKER ERROR', err);
+          console.log('WORKER ERROR, using fallback worker', err.message);
           queryParserWorker = 'fallback';
         }
       }
