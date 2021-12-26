@@ -4,11 +4,8 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const http = require('http');
 const cors = require('cors');
-const fs = require('fs');
 const getPort = require('get-port');
-const childProcessChecker = require('./utility/childProcessChecker');
 const path = require('path');
-const crypto = require('crypto');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -30,10 +27,7 @@ const queryHistory = require('./controllers/queryHistory');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
-const processArgs = require('./utility/processArgs');
-const timingSafeCheckToken = require('./utility/timingSafeCheckToken');
 
-let authorization = null;
 let checkLocalhostOrigin = null;
 
 function start() {
@@ -56,9 +50,6 @@ function start() {
   }
 
   app.use(function (req, res, next) {
-    if (authorization && !timingSafeCheckToken(req.headers.authorization, authorization)) {
-      return res.status(403).json({ error: 'Not authorized!' });
-    }
     if (checkLocalhostOrigin) {
       if (
         req.headers.origin &&
@@ -121,7 +112,7 @@ function start() {
     }
   }
 
-if (platformInfo.isNpmDist) {
+  if (platformInfo.isNpmDist) {
     app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({ port: 5000 }).then(port => {
       server.listen(port, () => {
@@ -129,7 +120,9 @@ if (platformInfo.isNpmDist) {
       });
     });
   } else {
-    server.listen(process.env.PORT || 3000);
+    const port = process.env.PORT || 3000;
+    console.log('DbGate API listening on port', port);
+    server.listen(port);
   }
 }
 

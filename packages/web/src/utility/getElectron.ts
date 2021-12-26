@@ -1,11 +1,7 @@
 class ElectronApi {
-  // public port?: number;
-  // public authorization?: string;
   private ipcRenderer = getIpcRenderer();
 
   constructor() {
-    // this.port = args.port;
-    // this.authorization = args.authorization;
   }
 
   send(msg, args = null) {

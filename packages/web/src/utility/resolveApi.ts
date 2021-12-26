@@ -6,11 +6,6 @@ try {
 } catch {}
 
 export default function resolveApi() {
-  const electron = getElectron();
-  if (electron?.port) {
-    return `http://localhost:${electron.port}`;
-  }
-
   if (apiUrl) {
     return apiUrl;
   }
@@ -19,12 +14,6 @@ export default function resolveApi() {
 
 export function resolveApiHeaders() {
   const electron = getElectron();
-
-  if (electron?.authorization) {
-    return {
-      Authorization: electron.authorization,
-    };
-  }
 
   return {};
 }
