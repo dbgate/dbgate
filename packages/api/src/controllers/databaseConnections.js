@@ -25,6 +25,7 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { createTwoFilesPatch } = require('diff');
 const diff2htmlPage = require('../utility/diff2htmlPage');
+const processArgs = require('../utility/processArgs');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -78,7 +79,8 @@ module.exports = {
       '--is-forked-api',
       '--start-process',
       'databaseConnectionProcess',
-      ...process.argv.slice(3),
+      ...processArgs.getPassArgs(),
+      // ...process.argv.slice(3),
     ]);
     const lastClosed = this.closed[`${conid}/${database}`];
     const newOpened = {

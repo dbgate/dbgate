@@ -9,6 +9,8 @@ const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
 
+const processArgs = require('../utility/processArgs');
+
 function getNamedArgs() {
   const res = {};
   for (let i = 0; i < process.argv.length; i++) {
@@ -140,7 +142,8 @@ module.exports = {
       '--is-forked-api',
       '--start-process',
       'connectProcess',
-      ...process.argv.slice(3),
+      ...processArgs.getPassArgs(),
+      // ...process.argv.slice(3),
     ]);
     subprocess.on('message', resp => {
       if (handleProcessCommunication(resp, subprocess)) return;

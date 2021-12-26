@@ -7,13 +7,17 @@ function getNamedArg(name) {
 }
 
 const checkParent = process.argv.includes('--checkParent');
-const nativeModules = getNamedArg('--native-modules');
 const startProcess = getNamedArg('--start-process');
 const isForkedApi = process.argv.includes('--is-forked-api');
 
+function getPassArgs() {
+  if (global['NATIVE_MODULES']) return ['--native-modules', global['NATIVE_MODULES']];
+  return [];
+}
+
 module.exports = {
   checkParent,
-  nativeModules,
   startProcess,
   isForkedApi,
+  getPassArgs,
 };

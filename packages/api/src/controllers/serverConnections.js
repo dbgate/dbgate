@@ -6,6 +6,7 @@ const AsyncLock = require('async-lock');
 const { handleProcessCommunication } = require('../utility/processComm');
 const lock = new AsyncLock();
 const config = require('./config');
+const processArgs = require('../utility/processArgs');
 
 module.exports = {
   opened: [],
@@ -41,7 +42,8 @@ module.exports = {
         '--is-forked-api',
         '--start-process',
         'serverConnectionProcess',
-        ...process.argv.slice(3),
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
       ]);
       const newOpened = {
         conid,

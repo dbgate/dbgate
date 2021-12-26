@@ -1,6 +1,7 @@
 const { fork } = require('child_process');
 const uuidv1 = require('uuid/v1');
 const { handleProcessCommunication } = require('./processComm');
+const processArgs = require('../utility/processArgs');
 
 class DatastoreProxy {
   constructor(file) {
@@ -33,7 +34,8 @@ class DatastoreProxy {
         '--is-forked-api',
         '--start-process',
         'jslDatastoreProcess',
-        ...process.argv.slice(3),
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
       ]);
 
       this.subprocess.on('message', message => {

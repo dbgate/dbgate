@@ -8,6 +8,7 @@ const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
+const processArgs = require('../utility/processArgs');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -98,15 +99,22 @@ module.exports = {
     const pluginNames = _.union(fs.readdirSync(pluginsdir()), packagedPluginList);
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
-    const subprocess = fork(scriptFile, ['--checkParent', ...process.argv.slice(3)], {
-      cwd: directory,
-      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-      env: {
-        ...process.env,
-        DBGATE_API: global['API_PACKAGE'] || global['dbgateApiModulePath'] || process.argv[1],
-        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
-      },
-    });
+    const subprocess = fork(
+      scriptFile,
+      [
+        '--checkParent', // ...process.argv.slice(3)
+        ...processArgs.getPassArgs(),
+      ],
+      {
+        cwd: directory,
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+        env: {
+          ...process.env,
+          DBGATE_API: global['API_PACKAGE'] || global['dbgateApiModulePath'] || process.argv[1],
+          ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
+        },
+      }
+    );
     const pipeDispatcher = severity => data =>
       this.dispatchMessage(runid, { severity, message: data.toString().trim() });
 

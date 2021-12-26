@@ -225,6 +225,7 @@ function createWindow() {
   );
 
   global.API_PACKAGE = apiPackage;
+  global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
 
   // console.log('global.API_PACKAGE', global.API_PACKAGE);
   const api = require(apiPackage);

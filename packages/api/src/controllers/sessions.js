@@ -5,6 +5,7 @@ const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const jsldata = require('./jsldata');
 const { handleProcessCommunication } = require('../utility/processComm');
+const processArgs = require('../utility/processArgs');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -69,7 +70,8 @@ module.exports = {
       '--is-forked-api',
       '--start-process',
       'sessionProcess',
-      ...process.argv.slice(3),
+      ...processArgs.getPassArgs(),
+      // ...process.argv.slice(3),
     ]);
     const newOpened = {
       conid,
