@@ -25,8 +25,6 @@
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
-  // @ts-ignore
-  // import QueryParserWorker from 'web-worker:./QueryParserWorker';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;

@@ -7,7 +7,6 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
-// import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 import css from 'rollup-plugin-css-only';
 
 const production = !process.env.ROLLUP_WATCH;
@@ -120,8 +119,6 @@ export default [
       // If we're building for production (npm run build
       // instead of npm run dev), minify
       production && terser(),
-
-      // webWorkerLoader(),
     ],
     watch: {
       clearScreen: true,
