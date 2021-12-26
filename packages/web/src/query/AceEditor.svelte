@@ -136,7 +136,7 @@
     if (enabled) {
       if (!queryParserWorker) {
         try {
-          queryParserWorker = new Worker('build/QueryParserWorker.js');
+          queryParserWorker = new Worker('build/query-parser-worker.js');
           // console.log('WORKER', queryParserWorker);
           queryParserWorker.onmessage = e => {
             processParserResult(e.data);

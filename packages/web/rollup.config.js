@@ -38,7 +38,7 @@ export default [
     output: {
       sourcemap: true,
       format: 'iife',
-      file: 'public/build/QueryParserWorker.js',
+      file: 'public/build/query-parser-worker.js',
     },
     plugins: [
       commonjs(),
