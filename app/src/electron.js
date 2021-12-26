@@ -207,14 +207,15 @@ function createWindow() {
     }
   }
 
-  global.API_PACKAGE = path.resolve(
-    process.env.DEVMODE ? '../packages/api/src/index' : './packages/api/dist/bundle.js'
-  );
-  // console.log('global.API_PACKAGE', global.API_PACKAGE);
-  const api = require(path.join(
+  const apiPackage = path.join(
     __dirname,
     process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
-  ));
+  );
+
+  global.API_PACKAGE = apiPackage;
+
+  // console.log('global.API_PACKAGE', global.API_PACKAGE);
+  const api = require(apiPackage);
   // console.log(
   //   'REQUIRED',
   //   path.resolve(
