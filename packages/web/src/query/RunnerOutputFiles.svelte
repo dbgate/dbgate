@@ -1,7 +1,7 @@
 <script>
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import TableControl from '../elements/TableControl.svelte';
-  import { apiOff, apiOn } from '../utility/api';
+  import { apiOff, apiOn, apiCall } from '../utility/api';
 
   import formatFileSize from '../utility/formatFileSize';
   import getElectron from '../utility/getElectron';
