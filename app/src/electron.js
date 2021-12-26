@@ -168,7 +168,12 @@ ipcMain.handle('openExternal', async (event, url) => {
 });
 
 function createWindow() {
-  const bounds = store.get('winBounds');
+  let bounds = null;
+  try {
+    bounds = store.get('winBounds');
+  } catch (err) {
+    console.log('Error loading bounds from electron store', err.message);
+  }
 
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -182,8 +187,12 @@ function createWindow() {
     },
   });
 
-  if (store.get('winIsMaximized')) {
-    mainWindow.maximize();
+  try {
+    if (store.get('winIsMaximized')) {
+      mainWindow.maximize();
+    }
+  } catch (err) {
+    console.log('Error loading maximized flag from electron store', err.message);
   }
 
   mainMenu = buildMenu();
