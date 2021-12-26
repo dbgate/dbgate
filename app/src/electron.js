@@ -1,9 +1,8 @@
 const electron = require('electron');
 const os = require('os');
+const fs = require('fs');
 const { Menu, ipcMain } = require('electron');
-const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
-const Store = require('electron-store');
 const log = require('electron-log');
 
 // Module to control application life.
@@ -16,7 +15,15 @@ const url = require('url');
 
 // require('@electron/remote/main').initialize();
 
-const store = new Store();
+const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
+let initialConfig = {};
+
+try {
+  initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
+} catch (err) {
+  console.log('Error loading config-root:', err.message);
+  initialConfig = {};
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -168,13 +175,7 @@ ipcMain.handle('openExternal', async (event, url) => {
 });
 
 function createWindow() {
-  let bounds = null;
-  try {
-    bounds = store.get('winBounds');
-  } catch (err) {
-    console.log('Error loading bounds from electron store', err.message);
-  }
-
+  const bounds = initialConfig['winBounds'];
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -187,12 +188,8 @@ function createWindow() {
     },
   });
 
-  try {
-    if (store.get('winIsMaximized')) {
-      mainWindow.maximize();
-    }
-  } catch (err) {
-    console.log('Error loading maximized flag from electron store', err.message);
+  if (initialConfig['winIsMaximized']) {
+    mainWindow.maximize();
   }
 
   mainMenu = buildMenu();
@@ -207,8 +204,14 @@ function createWindow() {
         slashes: true,
       });
     mainWindow.on('close', () => {
-      store.set('winBounds', mainWindow.getBounds());
-      store.set('winIsMaximized', mainWindow.isMaximized());
+      fs.writeFileSync(
+        configRootPath,
+        JSON.stringify({
+          winBounds: mainWindow.getBounds(),
+          winIsMaximized: mainWindow.isMaximized(),
+        }),
+        'utf-8'
+      );
     });
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {

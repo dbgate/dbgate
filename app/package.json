@@ -6,7 +6,6 @@
   "description": "Opensource database administration tool",
   "dependencies": {
     "electron-log": "^4.4.1",
-    "electron-store": "^8.0.1",
     "electron-updater": "^4.6.1",
     "patch-package": "^6.4.7"
   },
