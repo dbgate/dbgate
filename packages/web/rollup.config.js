@@ -105,6 +105,6 @@ export default {
     webWorkerLoader(),
   ],
   watch: {
-    clearScreen: false,
+    clearScreen: true,
   },
 };

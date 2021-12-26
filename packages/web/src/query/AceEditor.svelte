@@ -143,6 +143,7 @@
             processParserResult(e.data);
           };
         } catch (err) {
+          console.warn('WORKER ERROR, using fallback worker', err.message);
           queryParserWorker = 'fallback';
         }
       }
