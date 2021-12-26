@@ -17,6 +17,7 @@ function wantEventSource() {
 export async function apiCall(route: string, args: {} = undefined) {
   const electron = getElectron();
   if (electron) {
+    // console.log('CALLING API', route.replace('/', '-'), JSON.stringify(args == null ? null : args));
     const resp = await electron.invoke(route.replace('/', '-'), args);
     return resp;
   } else {

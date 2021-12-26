@@ -31,6 +31,7 @@ module.exports = function useController(app, electron, route, controller) {
         // console.log('REGISTERING HANDLER', handler);
         electron.ipcMain.handle(handler, async (event, args) => {
           const data = await controller[key](args);
+          // console.log('HANDLED API', handler, data);
           return data;
         });
       }

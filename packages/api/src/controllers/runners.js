@@ -136,7 +136,7 @@ module.exports = {
       if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](runid, message);
     });
-    return newOpened;
+    return _.pick(newOpened, ['runid']);
   },
 
   start_meta: true,

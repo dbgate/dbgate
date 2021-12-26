@@ -33,7 +33,7 @@
   $: $effect;
 
   const handleRunnerDone = async () => {
-    const resp = await apiCall(`runners/files?runid=${runnerId}`);
+    const resp = await apiCall('runners/files', { runid: runnerId });
     files = resp;
   };
 </script>

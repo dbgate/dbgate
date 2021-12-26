@@ -86,7 +86,7 @@ module.exports = {
       this[`handle_${msgtype}`](sesid, message);
     });
     subprocess.send({ msgtype: 'connect', ...connection, database });
-    return newOpened;
+    return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
 
   executeQuery_meta: true,
