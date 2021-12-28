@@ -94,7 +94,8 @@
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
     "build:mac": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && node setMacPlatform x64 && yarn dist && node setMacPlatform arm64 && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
-    "postinstall": "electron-builder install-app-deps && patch-package",
+    "postinstall": "yarn rebuild && patch-package",
+    "rebuild": "electron-rebuild -f",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
   },
   "main": "src/electron.js",
@@ -102,7 +103,8 @@
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
     "electron": "15.3.4",
-    "electron-builder": "22.14.5"
+    "electron-builder": "22.14.5",
+    "electron-rebuild": "^3.2.5"
   },
   "optionalDependencies": {
     "better-sqlite3": "7.4.5",
