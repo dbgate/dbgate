@@ -124,6 +124,18 @@ function start() {
     console.log('DbGate API listening on port', port);
     server.listen(port);
   }
+
+  function shutdown() {
+    console.log('\nShutting down DbGate API server');
+    server.close( ()=> {
+      console.log('Server shut down, terminating');
+      process.exit(0);
+    });
+  }
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+  process.on('SIGBREAK', shutdown);
 }
 
 function useAllControllers(app, electron) {
