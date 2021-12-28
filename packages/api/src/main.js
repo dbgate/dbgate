@@ -127,10 +127,14 @@ function start() {
 
   function shutdown() {
     console.log('\nShutting down DbGate API server');
-    server.close( ()=> {
+    server.close(() => {
       console.log('Server shut down, terminating');
       process.exit(0);
     });
+    setTimeout(() => {
+      console.log('Server close timeout, terminating');
+      process.exit(0);
+    }, 1000);
   }
 
   process.on('SIGINT', shutdown);
