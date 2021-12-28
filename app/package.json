@@ -95,7 +95,7 @@
     "build:mac": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && node setMacPlatform x64 && yarn dist && node setMacPlatform arm64 && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
-    "rebuild": "electron-rebuild -f",
+    "rebuild": "electron-rebuild -f -v 15.3.4",
     "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
   },
   "main": "src/electron.js",
