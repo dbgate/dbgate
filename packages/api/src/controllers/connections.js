@@ -47,6 +47,7 @@ function getPortalCollections() {
       password: process.env[`PASSWORD_${id}`],
       port: process.env[`PORT_${id}`],
       databaseUrl: process.env[`URL_${id}`],
+      useDatabaseUrl: !!process.env[`URL_${id}`],
       databaseFile: process.env[`FILE_${id}`],
       defaultDatabase: process.env[`DATABASE_${id}`],
       singleDatabase: !!process.env[`DATABASE_${id}`],
