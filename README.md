@@ -108,27 +108,42 @@ Basic set of plugins is part of DbGate git repository and is installed with app.
 
 ## How to run development environment
 
+Simple variant - runs WEB application:
 ```sh
 yarn
 yarn start
 ```
 
-If you want to make modifications in libraries or plugins, run library compiler in watch mode in the second terminal:
+If you want more control, run WEB application:
 ```sh
-yarn lib
+yarn # install NPM packages
 ```
 
+And than run 3 terminals:
+```
+yarn start:api # run API on port 3000
+yarn start:web # run web on port 5000
+yarn lib # watch typescript libraries and plugins modifications
+```
+This runs API on port 3000 and web application on port 5000  
 Open http://localhost:5000 in your browser
 
-You could run electron app (requires running localhost:5000):
+If you want to run electron app:
 ```sh
+yarn # install NPM packages
 cd app
-yarn
-yarn start
+yarn # install NPM packages for electron
+```
+
+And than run 3 terminals:
+```
+yarn start:web # run web on port 5000 (only static JS and HTML files)
+yarn lib # watch typescript libraries and plugins modifications in third terminal
+yarn start:app # run electron app
 ```
 
 ## How to run built electron app locally
-This mode is very similar to production run of electron app. Electron app forks process with API on dynamically allocated port, works with compiled javascript files and uses compiled version of plugins (doesn't use localhost:5000)
+This mode is very similar to production run of electron app. Electron doesn't use localhost:5000.
 
 ```sh
 cd app
