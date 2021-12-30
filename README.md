@@ -119,7 +119,7 @@ If you want more control, run WEB application:
 yarn # install NPM packages
 ```
 
-And than run 3 terminals:
+And than run following 3 commands concurrently in 3 terminals:
 ```
 yarn start:api # run API on port 3000
 yarn start:web # run web on port 5000
@@ -135,10 +135,10 @@ cd app
 yarn # install NPM packages for electron
 ```
 
-And than run 3 terminals:
+And than run following 3 commands concurrently in 3 terminals:
 ```
 yarn start:web # run web on port 5000 (only static JS and HTML files)
-yarn lib # watch typescript libraries and plugins modifications in third terminal
+yarn lib # watch typescript libraries and plugins modifications
 yarn start:app # run electron app
 ```
 
