@@ -67,7 +67,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { getLocalStorage } from '../utility/storageCache';
+  import { getLocalStorage, getLocalStorage, getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let config;
   export let setConfig;
@@ -144,9 +144,23 @@
     { command: 'dataGrid.switchToJson', tag: 'switch', hideDisabled: true },
     { command: 'dataGrid.toggleLeftPanel', tag: 'switch' }
   );
+
+  $: if (managerSize) setLocalStorage('dataGridManagerWidth', managerSize);
+
+  function getInitialManagerSize() {
+    const width = getLocalStorage('dataGridManagerWidth');
+    if (_.isNumber(width) && width > 30 && width < 500) {
+      return `${width}px`;
+    }
+    return '300px';
+  }
 </script>
 
-<HorizontalSplitter initialValue="300px" bind:size={managerSize} hideFirst={$collapsedLeftColumnStore}>
+<HorizontalSplitter
+  initialValue={getInitialManagerSize()}
+  bind:size={managerSize}
+  hideFirst={$collapsedLeftColumnStore}
+>
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem

@@ -4,9 +4,13 @@ export function getLocalStorage(key, defaultValue = undefined) {
   if (key in cache) return cache[key];
   const item = localStorage.getItem(key);
   if (item) {
-    const res = JSON.parse(item);
-    cache[key] = res;
-    return res;
+    try {
+      const res = JSON.parse(item);
+      cache[key] = res;
+      return res;
+    } catch (e) {
+      return defaultValue;
+    }
   }
   return defaultValue;
 }
