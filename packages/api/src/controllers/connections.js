@@ -8,6 +8,7 @@ const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { pickSafeConnectionInfo } = require('../utility/crypting');
 
 const processArgs = require('../utility/processArgs');
 
@@ -53,6 +54,8 @@ function getPortalCollections() {
       singleDatabase: !!process.env[`DATABASE_${id}`],
       displayName: process.env[`LABEL_${id}`],
     }));
+    console.log('Using connections from ENV variables:');
+    console.log(JSON.stringify(connections.map(pickSafeConnectionInfo), undefined, 2));
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
       console.log(
