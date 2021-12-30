@@ -252,6 +252,7 @@ module.exports = {
 
   serverVersion_meta: true,
   async serverVersion({ conid, database }) {
+    if (!conid) return null;
     const opened = await this.ensureOpened(conid, database);
     return opened.serverVersion || null;
   },
