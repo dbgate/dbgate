@@ -116,7 +116,7 @@
 
 <script lang="ts">
   import { LogarithmicScale } from 'chart.js';
-  import _, { map, slice } from 'lodash';
+  import _, { map, slice, sortBy } from 'lodash';
   import { tick } from 'svelte';
   import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -266,7 +266,42 @@
       style={$connectionColorFactory(tabsByDb[dbKey][0].props, tabsByDb[dbKey][0].tabDbKey == currentDbKey ? 2 : 3)}
       draggable={true}
       on:dragstart={e => {
-        e.dataTransfer.setData('tabdb_drag_data', dbKey);
+        draggingDbKey = dbKey;
+      }}
+      on:dragenter={e => {
+        if (dbKey != draggingDbKey) {
+          const groupOrderFiltered = _.pickBy($tabDatabaseGroupOrder, (v, k) =>
+            $openedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
+          );
+
+          const items = _.sortBy(_.keys(groupOrderFiltered), x => groupOrderFiltered[x]);
+
+          const dstIndex = _.indexOf(items, dbKey);
+          const srcIndex = _.indexOf(items, draggingDbKey);
+          if (srcIndex < 0 || dstIndex < 0) {
+            console.warn('Drag tab group index not found');
+            return;
+          }
+          const newItems =
+            dstIndex < srcIndex
+              ? [...items.slice(0, dstIndex), draggingDbKey, ...items.slice(dstIndex).filter(x => x != draggingDbKey)]
+              : [
+                  ...items.slice(0, dstIndex + 1).filter(x => x != draggingDbKey),
+                  draggingDbKey,
+                  ...items.slice(dstIndex + 1),
+                ];
+
+          const newGroupOrder = {};
+          for (const key in groupOrderFiltered) {
+            const index = newItems.indexOf(key);
+            newGroupOrder[key] = index >= 0 ? index + 1 : groupOrderFiltered[key];
+          }
+
+          tabDatabaseGroupOrder.set(newGroupOrder);
+        }
+      }}
+      on:dragend={e => {
+        draggingDbKey = null;
       }}
     >
       <FontIcon icon={getDbIcon(dbKey)} />
