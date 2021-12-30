@@ -1,5 +1,5 @@
 <script lang="ts">
-  import _, { indexOf } from 'lodash';
+  import _, { indexOf, range } from 'lodash';
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
@@ -129,12 +129,17 @@
         currentColumnUniqueName = column.uniqueName;
       }}
       on:mousemove={e => {
-        if (e.buttons == 1 && !selectedColumns.includes(column.uniqueName)) {
-          selectedColumns = [...selectedColumns, column.uniqueName];
-          if (domFocusField) domFocusField.focus();
-          currentColumnUniqueName = column.uniqueName;
-          if (!isJsonView) {
-            display.focusColumn(column.uniqueName);
+        if (e.buttons == 1 && dragStartColumnIndex != null && dragStartColumnIndex >= 0) {
+          const index = _.findIndex(items, x => x.uniqueName == column.uniqueName);
+          if (index >= 0) {
+            selectedColumns = _.range(
+              Math.min(dragStartColumnIndex, index),
+              Math.max(dragStartColumnIndex, index) + 1
+            ).map(i => items[i].uniqueName);
+            currentColumnUniqueName = column.uniqueName;
+            if (!isJsonView) {
+              display.focusColumn(column.uniqueName);
+            }
           }
         }
       }}
@@ -143,6 +148,9 @@
         selectedColumns = [column.uniqueName];
         if (domFocusField) domFocusField.focus();
         currentColumnUniqueName = column.uniqueName;
+        if (!isJsonView) {
+          display.focusColumn(column.uniqueName);
+        }
       }}
       on:setvisibility={e => {
         for (const name of selectedColumns) {

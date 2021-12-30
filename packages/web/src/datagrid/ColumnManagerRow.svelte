@@ -42,6 +42,9 @@
       on:click={e => {
         e.stopPropagation();
       }}
+      on:mousedown={e => {
+        e.stopPropagation();
+      }}
       on:change={() => {
         const newValue = !column.isChecked;
         display.setColumnVisibility(column.uniquePath, newValue);
