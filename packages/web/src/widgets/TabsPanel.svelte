@@ -269,8 +269,8 @@
     }
   }
 
-  function dragDropTab(draggingTab, targetTab) {
-    if (draggingTab.tabid == targetTab.tabid) return;
+  function dragDropTabs(draggingTabs, targetTabs) {
+    if (draggingTabs.find(x => targetTabs.find(y => x.tabid == y.tabid))) return;
 
     // if (getTabDbKey(draggingTab) != getTabDbKey(targetTab)) {
     //   // dragDropDbKey(getTabDbKey(draggingTab), getTabDbKey(targetTab));
@@ -279,19 +279,25 @@
 
     // const dbKey = getTabDbKey(draggingTab);
     const items = sortTabs($openedTabs.filter(x => x.closedTime == null));
-    const dstIndex = _.findIndex(items, x => x.tabid == targetTab.tabid);
-    const srcIndex = _.findIndex(items, x => x.tabid == draggingTab.tabid);
-    if (srcIndex < 0 || dstIndex < 0) {
+    const dstIndexes = targetTabs.map(targetTab => _.findIndex(items, x => x.tabid == targetTab.tabid));
+    const dstIndexFirst = _.min(dstIndexes) as number;
+    const dstIndexLast = _.max(dstIndexes) as number;
+    const srcIndex = _.findIndex(items, x => x.tabid == draggingTabs[0].tabid);
+    if (srcIndex < 0 || dstIndexFirst < 0 || dstIndexLast < 0) {
       console.warn('Drag tab index not found');
       return;
     }
     const newItems =
-      dstIndex < srcIndex
-        ? [...items.slice(0, dstIndex), draggingTab, ...items.slice(dstIndex).filter(x => x.tabid != draggingTab.tabid)]
+      dstIndexFirst < srcIndex
+        ? [
+            ...items.slice(0, dstIndexFirst),
+            ...draggingTabs,
+            ...items.slice(dstIndexFirst).filter(x => !draggingTabs.find(y => y.tabid == x.tabid)),
+          ]
         : [
-            ...items.slice(0, dstIndex + 1).filter(x => x.tabid != draggingTab.tabid),
-            draggingTab,
-            ...items.slice(dstIndex + 1),
+            ...items.slice(0, dstIndexLast + 1).filter(x => !draggingTabs.find(y => y.tabid == x.tabid)),
+            ...draggingTabs,
+            ...items.slice(dstIndexLast + 1),
           ];
 
     openedTabs.update(tabs =>
@@ -364,7 +370,7 @@
         draggingDbGroupTarget = tabGroup;
       }}
       on:drop={e => {
-        // dragDropDbKey(draggingDbKey, dbKey);
+        dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
       }}
       on:dragend={e => {
         draggingDbGroup = null;
@@ -388,7 +394,7 @@
         <div
           id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"
-          class:selected={draggingTab ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
+          class:selected={draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
           use:contextMenu={getContextMenu(tab)}
@@ -402,7 +408,12 @@
             draggingTabTarget = tab;
           }}
           on:drop={e => {
-            dragDropTab(draggingTab, tab);
+            if (draggingTab) {
+              dragDropTabs([draggingTab], [tab]);
+            }
+            if (draggingDbGroup) {
+              dragDropTabs(draggingDbGroup.tabs, [tab]);
+            }
           }}
           on:dragend={e => {
             draggingTab = null;
