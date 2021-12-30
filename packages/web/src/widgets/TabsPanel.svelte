@@ -59,19 +59,6 @@
     return '(no DB)';
   }
 
-  function getTabDbKey(tab) {
-    if (tab.props && tab.props.conid && tab.props.database) {
-      return `database://${tab.props.database}-${tab.props.conid}`;
-    }
-    if (tab.props && tab.props.conid) {
-      return `server://${tab.props.conid}`;
-    }
-    if (tab.props && tab.props.archiveFolder) {
-      return `archive://${tab.props.archiveFolder}`;
-    }
-    return '_no';
-  }
-
   function getDbIcon(key) {
     if (key.startsWith('database://')) return 'icon database';
     if (key.startsWith('archive://')) return 'icon archive';
@@ -132,14 +119,22 @@
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
+  import {
+    currentDatabase,
+    getActiveTab,
+    getOpenedTabs,
+    openedTabs,
+    activeTabId,
+    getActiveTabId,
+    tabDatabaseGroupOrder,
+  } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
-  import { duplicateTab } from '../utility/openNewTab';
+  import { duplicateTab, getTabDbKey } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
 
   $: connectionList = useConnectionList();
@@ -160,7 +155,7 @@
     }));
 
   $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
-  $: dbKeys = _.keys(tabsByDb).sort();
+  $: dbKeys = _.sortBy(_.keys(tabsByDb), [x => $tabDatabaseGroupOrder[x] || 0, x => x]);
 
   $: scrollInViewTab($activeTabId);
 
@@ -265,12 +260,14 @@
       <FontIcon icon={getDbIcon(dbKey)} />
       {tabsByDb[dbKey][0].tabDbName}
 
-      <span class="close-button-right tabCloseButton" on:click={e => closeWithSameDb(tabsByDb[dbKey][0].tabid)}>
-        <FontIcon icon="icon close" />
-      </span>
+      {#if tabsByDb[dbKey].length > 1}
+        <span class="close-button-right tabCloseButton" on:click={e => closeWithSameDb(tabsByDb[dbKey][0].tabid)}>
+          <FontIcon icon="icon close" />
+        </span>
+      {/if}
     </div>
     <div class="db-group">
-      {#each _.sortBy(tabsByDb[dbKey], ['title', 'tabid']) as tab}
+      {#each _.sortBy(tabsByDb[dbKey], [x => x['tabOrder'] || 0, 'title', 'tabid']) as tab}
         <div
           id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"
@@ -317,9 +314,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .db-name:hover {
+  /* .db-name:hover {
     background-color: var(--theme-bg-3);
-  }
+  } */
   .db-name.selected {
     background-color: var(--theme-bg-1);
   }

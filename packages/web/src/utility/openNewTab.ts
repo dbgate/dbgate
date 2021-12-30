@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { get } from 'svelte/store';
-import { openedTabs } from '../stores';
+import { getOpenedTabs, openedTabs, tabDatabaseGroupOrder } from '../stores';
 import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 import localforage from 'localforage';
@@ -72,14 +72,37 @@ export default async function openNewTab(newTab, initialData = undefined, option
       }
     }
   }
+
   openedTabs.update(files => [
     ...(files || []).map(x => ({ ...x, selected: false })),
     {
       ...newTab,
       tabid,
       selected: true,
+      // @ts-ignore
+      tabOrder: (_.max(files.map(x => x.tabOrder || 0)) || 0) + 1,
     },
   ]);
+
+  const allOpenedTabs = getOpenedTabs();
+
+  tabDatabaseGroupOrder.update(groupOrder => {
+    const groupOrderFiltered = _.pickBy(groupOrder, (v, k) =>
+      allOpenedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
+    );
+    const dbKey = getTabDbKey({
+      ...newTab,
+      tabid,
+    });
+    const newOrder =
+    groupOrderFiltered[dbKey] ||
+      // @ts-ignore
+      (_.max(Object.values(groupOrderFiltered)) || 0) + 1;
+    return {
+      ...groupOrderFiltered,
+      [dbKey]: newOrder,
+    };
+  });
 
   // console.log('OPENING NEW TAB', newTab);
   // const tabid = uuidv1();
@@ -123,4 +146,17 @@ export async function duplicateTab(tab) {
     initialData,
     { forceNewTab: true }
   );
+}
+
+export function getTabDbKey(tab) {
+  if (tab.props && tab.props.conid && tab.props.database) {
+    return `database://${tab.props.database}-${tab.props.conid}`;
+  }
+  if (tab.props && tab.props.conid) {
+    return `server://${tab.props.conid}`;
+  }
+  if (tab.props && tab.props.archiveFolder) {
+    return `archive://${tab.props.archiveFolder}`;
+  }
+  return `no://${tab.tabid}`;
 }
