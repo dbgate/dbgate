@@ -8,6 +8,7 @@ export default {
   pauseBreak: 19,
   capsLock: 20,
   escape: 27,
+  space: 32,
   pageUp: 33,
   pageDown: 34,
   end: 35,

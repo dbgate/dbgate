@@ -1,5 +1,5 @@
 <script lang="ts">
-  import _ from 'lodash';
+  import _, { indexOf } from 'lodash';
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
@@ -25,6 +25,7 @@
 
   let selectedColumns = [];
   let currentColumnUniqueName = null;
+  let dragStartColumnIndex = null;
 
   $: items = display?.getColumns(filter)?.filter(column => filterName(filter, column.columnName)) || [];
 
@@ -67,9 +68,19 @@
     else if (e.keyCode == keycodes.end) moveIndex(() => items.length - 1);
     else if (e.keyCode == keycodes.pageUp) moveIndex(i => i - 10);
     else if (e.keyCode == keycodes.pageDown) moveIndex(i => i + 10);
+    else if (e.keyCode == keycodes.space) {
+      let checked = null;
+      for (const name of selectedColumns) {
+        const column = items.find(x => x.uniqueName == name);
+        if (column) {
+          if (checked == null) checked = !column.isChecked;
+          display.setColumnVisibility(column.uniquePath, checked);
+        }
+      }
+    }
   }
   function copyToClipboard() {
-    copyTextToClipboard(selectedColumns.join('\r\r'));
+    copyTextToClipboard(selectedColumns.join('\r\n'));
   }
 </script>
 
@@ -116,6 +127,30 @@
         if (domFocusField) domFocusField.focus();
         selectedColumns = [column.uniqueName];
         currentColumnUniqueName = column.uniqueName;
+      }}
+      on:mousemove={e => {
+        if (e.buttons == 1 && !selectedColumns.includes(column.uniqueName)) {
+          selectedColumns = [...selectedColumns, column.uniqueName];
+          if (domFocusField) domFocusField.focus();
+          currentColumnUniqueName = column.uniqueName;
+          if (!isJsonView) {
+            display.focusColumn(column.uniqueName);
+          }
+        }
+      }}
+      on:mousedown={e => {
+        dragStartColumnIndex = _.findIndex(items, x => x.uniqueName == column.uniqueName);
+        selectedColumns = [column.uniqueName];
+        if (domFocusField) domFocusField.focus();
+        currentColumnUniqueName = column.uniqueName;
+      }}
+      on:setvisibility={e => {
+        for (const name of selectedColumns) {
+          const column = items.find(x => x.uniqueName == name);
+          if (column) {
+            display.setColumnVisibility(column.uniquePath, e.detail);
+          }
+        }
       }}
     />
   {/each}
