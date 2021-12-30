@@ -152,6 +152,9 @@
           display.focusColumn(column.uniqueName);
         }
       }}
+      on:mouseup={e => {
+        if (domFocusField) domFocusField.focus();
+      }}
       on:setvisibility={e => {
         for (const name of selectedColumns) {
           const column = items.find(x => x.uniqueName == name);
