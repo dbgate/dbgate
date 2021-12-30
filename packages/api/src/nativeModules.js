@@ -1,5 +1,5 @@
 const argIndex = process.argv.indexOf('--native-modules');
-const redirectFile = argIndex > 0 ? process.argv[argIndex + 1] : null;
+const redirectFile = global['NATIVE_MODULES'] || (argIndex > 0 ? process.argv[argIndex + 1] : null);
 
 function requireDynamic(file) {
   try {
