@@ -52,10 +52,8 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
-  import socket from '../utility/socket';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
   import ResultTabs from '../query/ResultTabs.svelte';
@@ -69,6 +67,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -95,9 +94,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket.on(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-done-${sid}`, handleSessionDone);
       return () => {
-        socket.off(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-done-${sid}`, handleSessionDone);
       };
     }
     return () => {};
@@ -150,20 +149,20 @@
 
     let sesid = sessionId;
     if (!sesid) {
-      const resp = await axiosInstance.post('sessions/create', {
+      const resp = await apiCall('sessions/create', {
         conid,
         database,
       });
-      sesid = resp.data.sesid;
+      sesid = resp.sesid;
       sessionId = sesid;
     }
     busy = true;
     timerLabel.start();
-    await axiosInstance.post('sessions/execute-query', {
+    await apiCall('sessions/execute-query', {
       sesid,
       sql,
     });
-    await axiosInstance.post('query-history/write', {
+    await apiCall('query-history/write', {
       data: {
         sql,
         conid,
@@ -184,7 +183,7 @@
   }
 
   export async function kill() {
-    await axiosInstance.post('sessions/kill', {
+    await apiCall('sessions/kill', {
       sesid: sessionId,
     });
     sessionId = null;

@@ -8,6 +8,9 @@ const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { pickSafeConnectionInfo } = require('../utility/crypting');
+
+const processArgs = require('../utility/processArgs');
 
 function getNamedArgs() {
   const res = {};
@@ -37,7 +40,7 @@ function getDatabaseFileLabel(databaseFile) {
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
-    return _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
+    const connections = _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
       _id: id,
       engine: process.env[`ENGINE_${id}`],
       server: process.env[`SERVER_${id}`],
@@ -45,11 +48,22 @@ function getPortalCollections() {
       password: process.env[`PASSWORD_${id}`],
       port: process.env[`PORT_${id}`],
       databaseUrl: process.env[`URL_${id}`],
+      useDatabaseUrl: !!process.env[`URL_${id}`],
       databaseFile: process.env[`FILE_${id}`],
       defaultDatabase: process.env[`DATABASE_${id}`],
       singleDatabase: !!process.env[`DATABASE_${id}`],
       displayName: process.env[`LABEL_${id}`],
     }));
+    console.log('Using connections from ENV variables:');
+    console.log(JSON.stringify(connections.map(pickSafeConnectionInfo), undefined, 2));
+    const noengine = connections.filter(x => !x.engine);
+    if (noengine.length > 0) {
+      console.log(
+        'Warning: Invalid CONNECTIONS configutation, missing ENGINE for connection ID:',
+        noengine.map(x => x._id)
+      );
+    }
+    return connections;
   }
 
   const args = getNamedArgs();
@@ -126,29 +140,34 @@ module.exports = {
     }
   },
 
-  list_meta: 'get',
+  list_meta: true,
   async list() {
     return portalConnections || this.datastore.find();
   },
 
-  test_meta: {
-    method: 'post',
-    raw: true,
-  },
-  test(req, res) {
-    const subprocess = fork(process.argv[1], ['--start-process', 'connectProcess', ...process.argv.slice(3)]);
-    subprocess.on('message', resp => {
-      if (handleProcessCommunication(resp, subprocess)) return;
-      // @ts-ignore
-      const { msgtype } = resp;
-      if (msgtype == 'connected' || msgtype == 'error') {
-        res.json(resp);
-      }
+  test_meta: true,
+  test(connection) {
+    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+      '--is-forked-api',
+      '--start-process',
+      'connectProcess',
+      ...processArgs.getPassArgs(),
+      // ...process.argv.slice(3),
+    ]);
+    subprocess.send(connection);
+    return new Promise(resolve => {
+      subprocess.on('message', resp => {
+        if (handleProcessCommunication(resp, subprocess)) return;
+        // @ts-ignore
+        const { msgtype } = resp;
+        if (msgtype == 'connected' || msgtype == 'error') {
+          resolve(resp);
+        }
+      });
     });
-    subprocess.send(req.body);
   },
 
-  save_meta: 'post',
+  save_meta: true,
   async save(connection) {
     if (portalConnections) return;
     let res;
@@ -162,7 +181,7 @@ module.exports = {
     return res;
   },
 
-  update_meta: 'post',
+  update_meta: true,
   async update({ _id, values }) {
     if (portalConnections) return;
     const res = await this.datastore.update({ _id }, { $set: values });
@@ -170,7 +189,7 @@ module.exports = {
     return res;
   },
 
-  updateDatabase_meta: 'post',
+  updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }) {
     if (portalConnections) return;
     const conn = await this.datastore.find({ _id: conid });
@@ -185,7 +204,7 @@ module.exports = {
     return res;
   },
 
-  delete_meta: 'post',
+  delete_meta: true,
   async delete(connection) {
     if (portalConnections) return;
     const res = await this.datastore.remove(_.pick(connection, '_id'));
@@ -193,14 +212,14 @@ module.exports = {
     return res;
   },
 
-  get_meta: 'get',
+  get_meta: true,
   async get({ conid }) {
-    if (portalConnections) return portalConnections.find(x => x._id == conid);
+    if (portalConnections) return portalConnections.find(x => x._id == conid) || null;
     const res = await this.datastore.find({ _id: conid });
-    return res[0];
+    return res[0] || null;
   },
 
-  newSqliteDatabase_meta: 'post',
+  newSqliteDatabase_meta: true,
   async newSqliteDatabase({ file }) {
     const sqliteDir = path.join(filesdir(), 'sqlite');
     if (!(await fs.exists(sqliteDir))) {

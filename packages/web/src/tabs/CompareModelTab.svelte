@@ -154,7 +154,7 @@
   import SqlEditor from '../query/SqlEditor.svelte';
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { changeTab } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -228,7 +228,7 @@
 
   export async function showReport() {
     saveFileToDisk(async filePath => {
-      await axiosInstance.post('database-connections/generate-db-diff-report', {
+      await apiCall('database-connections/generate-db-diff-report', {
         filePath,
         sourceConid: $values?.sourceConid,
         sourceDatabase: $values?.sourceDatabase,
@@ -261,11 +261,11 @@
   }
 
   export function refreshModels() {
-    axiosInstance.post('database-connections/sync-model', {
+    apiCall('database-connections/sync-model', {
       conid: $values?.targetConid,
       database: $values?.targetDatabase,
     });
-    axiosInstance.post('database-connections/sync-model', {
+    apiCall('database-connections/sync-model', {
       conid: $values?.sourceConid,
       database: $values?.sourceDatabase,
     });
@@ -275,18 +275,13 @@
     const conid = $values?.targetConid;
     const database = $values?.targetDatabase;
 
-    const resp = await axiosInstance.request({
-      url: 'database-connections/run-script',
-      method: 'post',
-      params: { conid, database },
-      data: { sql },
-    });
-    const { errorMessage } = resp.data || {};
+    const resp = await apiCall('database-connections/run-script', { conid, database, sql });
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {
       $values = _.omitBy($values, (v, k) => k.startsWith('isChecked_'));
-      await axiosInstance.post('database-connections/sync-model', { conid, database });
+      await apiCall('database-connections/sync-model', { conid, database });
       showSnackbarSuccess('Saved to database');
     }
   }

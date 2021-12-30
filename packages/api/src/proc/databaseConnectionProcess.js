@@ -270,6 +270,7 @@ function start() {
     try {
       await handleMessage(message);
     } catch (e) {
+      console.error('Error in DB connection', e);
       process.send({ msgtype: 'error', error: e.message });
     }
   });

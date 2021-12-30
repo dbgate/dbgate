@@ -4,12 +4,8 @@ const bodyParser = require('body-parser');
 const fileUpload = require('express-fileupload');
 const http = require('http');
 const cors = require('cors');
-const io = require('socket.io');
-const fs = require('fs');
 const getPort = require('get-port');
-const childProcessChecker = require('./utility/childProcessChecker');
 const path = require('path');
-const crypto = require('crypto');
 
 const useController = require('./utility/useController');
 const socket = require('./utility/socket');
@@ -31,10 +27,7 @@ const queryHistory = require('./controllers/queryHistory');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
-const processArgs = require('./utility/processArgs');
-const timingSafeCheckToken = require('./utility/timingSafeCheckToken');
 
-let authorization = null;
 let checkLocalhostOrigin = null;
 
 function start() {
@@ -43,7 +36,6 @@ function start() {
   const app = express();
 
   const server = http.createServer(app);
-  socket.set(io(server));
 
   if (process.env.LOGIN && process.env.PASSWORD) {
     app.use(
@@ -58,9 +50,6 @@ function start() {
   }
 
   app.use(function (req, res, next) {
-    if (authorization && !timingSafeCheckToken(req.headers.authorization, authorization)) {
-      return res.status(403).json({ error: 'Not authorized!' });
-    }
     if (checkLocalhostOrigin) {
       if (
         req.headers.origin &&
@@ -81,6 +70,20 @@ function start() {
   });
 
   app.use(cors());
+
+  app.get('/stream', async function (req, res) {
+    res.set({
+      'Cache-Control': 'no-cache',
+      'Content-Type': 'text/event-stream',
+      Connection: 'keep-alive',
+    });
+    res.flushHeaders();
+
+    // Tell the client to retry every 10 seconds if connectivity is lost
+    res.write('retry: 10000\n\n');
+    socket.setSseResponse(res);
+  });
+
   app.use(bodyParser.json({ limit: '50mb' }));
 
   app.use(
@@ -90,20 +93,7 @@ function start() {
     })
   );
 
-  useController(app, '/connections', connections);
-  useController(app, '/server-connections', serverConnections);
-  useController(app, '/database-connections', databaseConnections);
-  useController(app, '/metadata', metadata);
-  useController(app, '/sessions', sessions);
-  useController(app, '/runners', runners);
-  useController(app, '/jsldata', jsldata);
-  useController(app, '/config', config);
-  useController(app, '/archive', archive);
-  useController(app, '/uploads', uploads);
-  useController(app, '/plugins', plugins);
-  useController(app, '/files', files);
-  useController(app, '/scheduler', scheduler);
-  useController(app, '/query-history', queryHistory);
+  useAllControllers(app, null);
 
   // if (process.env.PAGES_DIRECTORY) {
   //   app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
@@ -122,19 +112,7 @@ function start() {
     }
   }
 
-  if (processArgs.dynport) {
-    childProcessChecker();
-
-    authorization = crypto.randomBytes(32).toString('hex');
-
-    getPort().then(port => {
-      checkLocalhostOrigin = `localhost:${port}`;
-      server.listen(port, () => {
-        console.log(`DbGate API listening on port ${port}`);
-        process.send({ msgtype: 'listening', port, authorization });
-      });
-    });
-  } else if (platformInfo.isNpmDist) {
+  if (platformInfo.isNpmDist) {
     app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({ port: 5000 }).then(port => {
       server.listen(port, () => {
@@ -142,8 +120,47 @@ function start() {
       });
     });
   } else {
-    server.listen(3000);
+    const port = process.env.PORT || 3000;
+    console.log('DbGate API listening on port', port);
+    server.listen(port);
   }
+
+  function shutdown() {
+    console.log('\nShutting down DbGate API server');
+    server.close(() => {
+      console.log('Server shut down, terminating');
+      process.exit(0);
+    });
+    setTimeout(() => {
+      console.log('Server close timeout, terminating');
+      process.exit(0);
+    }, 1000);
+  }
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
+  process.on('SIGBREAK', shutdown);
 }
 
-module.exports = { start };
+function useAllControllers(app, electron) {
+  useController(app, electron, '/connections', connections);
+  useController(app, electron, '/server-connections', serverConnections);
+  useController(app, electron, '/database-connections', databaseConnections);
+  useController(app, electron, '/metadata', metadata);
+  useController(app, electron, '/sessions', sessions);
+  useController(app, electron, '/runners', runners);
+  useController(app, electron, '/jsldata', jsldata);
+  useController(app, electron, '/config', config);
+  useController(app, electron, '/archive', archive);
+  useController(app, electron, '/uploads', uploads);
+  useController(app, electron, '/plugins', plugins);
+  useController(app, electron, '/files', files);
+  useController(app, electron, '/scheduler', scheduler);
+  useController(app, electron, '/query-history', queryHistory);
+}
+
+function initializeElectronSender(electronSender) {
+  socket.setElectronSender(electronSender);
+}
+
+module.exports = { start, useAllControllers, initializeElectronSender };

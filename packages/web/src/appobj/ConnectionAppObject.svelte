@@ -17,7 +17,6 @@
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
   import { currentDatabase, extensions, getCurrentConfig, getOpenedConnections, openedConnections } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';
@@ -29,6 +28,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { getDatabaseList } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
+  import { apiCall } from '../utility/api';
 
   export let data;
   export let passProps;
@@ -44,14 +44,14 @@
   const handleConnect = () => {
     if (data.singleDatabase) {
       $currentDatabase = { connection: data, name: data.defaultDatabase };
-      axiosInstance.post('database-connections/refresh', {
+      apiCall('database-connections/refresh', {
         conid: data._id,
         database: data.defaultDatabase,
         keepOpen: true,
       });
     } else {
       $openedConnections = _.uniq([...$openedConnections, data._id]);
-      axiosInstance.post('server-connections/refresh', {
+      apiCall('server-connections/refresh', {
         conid: data._id,
         keepOpen: true,
       });
@@ -61,16 +61,16 @@
   const getContextMenu = () => {
     const config = getCurrentConfig();
     const handleRefresh = () => {
-      axiosInstance.post('server-connections/refresh', { conid: data._id });
+      apiCall('server-connections/refresh', { conid: data._id });
     };
     const handleDisconnect = () => {
       openedConnections.update(list => list.filter(x => x != data._id));
       if (electron) {
-        axiosInstance.post('server-connections/disconnect', { conid: data._id });
+        apiCall('server-connections/disconnect', { conid: data._id });
       }
       if (_.get($currentDatabase, 'connection._id') == data._id) {
         if (electron) {
-          axiosInstance.post('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
+          apiCall('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
         }
         currentDatabase.set(null);
       }
@@ -81,11 +81,11 @@
     const handleDelete = () => {
       showModal(ConfirmModal, {
         message: `Really delete connection ${getConnectionLabel(data)}?`,
-        onConfirm: () => axiosInstance.post('connections/delete', data),
+        onConfirm: () => apiCall('connections/delete', data),
       });
     };
     const handleDuplicate = () => {
-      axiosInstance.post('connections/save', {
+      apiCall('connections/save', {
         ...data,
         _id: undefined,
         displayName: `${getConnectionLabel(data)} - copy`,
@@ -97,7 +97,7 @@
         value: 'newdb',
         label: 'Database name',
         onConfirm: name =>
-          axiosInstance.post('server-connections/create-database', {
+        apiCall('server-connections/create-database', {
             conid: data._id,
             name,
           }),

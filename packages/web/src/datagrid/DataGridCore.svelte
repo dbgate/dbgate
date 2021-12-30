@@ -262,7 +262,6 @@
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
   import { copyRowsFormat, selectedCellsCallback } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import {
     copyRowsFormatDefs,
     copyRowsToClipboard,
@@ -285,6 +284,7 @@
   import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
+import { apiCall } from '../utility/api';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -404,7 +404,7 @@
   }
 
   export async function reconnect() {
-    await axiosInstance.post('database-connections/refresh', { conid, database });
+    await apiCall('database-connections/refresh', { conid, database });
     display.reload();
   }
 

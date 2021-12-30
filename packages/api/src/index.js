@@ -8,7 +8,7 @@ if (processArgs.startProcess) {
   const proc = require('./proc');
   const module = proc[processArgs.startProcess];
   module.start();
-} else if (!module['parent'] && !processArgs.checkParent) {
+} else if (!processArgs.checkParent && !global['API_PACKAGE'] && !global['dbgateApiModulePath']) {
   const main = require('./main');
 
   main.start();

@@ -19,11 +19,11 @@
 
   let isLoading = false;
 
-  const electron = getElectron();
   const { values } = getFormContext();
 
   const handleClick = async () => {
-    const files = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+    const electron = getElectron();
+    const files = await electron.showOpenDialog({
       properties: ['openFile', 'multiSelections'],
       filters: getFileFilters($extensions, $values.sourceStorageType),
     });

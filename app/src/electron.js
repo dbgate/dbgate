@@ -1,9 +1,8 @@
 const electron = require('electron');
 const os = require('os');
+const fs = require('fs');
 const { Menu, ipcMain } = require('electron');
-const { fork } = require('child_process');
 const { autoUpdater } = require('electron-updater');
-const Store = require('electron-store');
 const log = require('electron-log');
 
 // Module to control application life.
@@ -14,7 +13,17 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
-const store = new Store();
+// require('@electron/remote/main').initialize();
+
+const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
+let initialConfig = {};
+
+try {
+  initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
+} catch (err) {
+  console.log('Error loading config-root:', err.message);
+  initialConfig = {};
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -36,7 +45,7 @@ function commandItem(id) {
     accelerator: command ? command.keyText : undefined,
     enabled: command ? command.enabled : false,
     click() {
-      mainWindow.webContents.executeJavaScript(`dbgate_runCommand('${id}')`);
+      mainWindow.webContents.send('run-command', id);
     },
   };
 }
@@ -49,7 +58,7 @@ function buildMenu() {
         commandItem('new.connection'),
         commandItem('new.sqliteDatabase'),
         commandItem('new.modelCompare'),
-        commandItem('new.freetable'),        
+        commandItem('new.freetable'),
         { type: 'separator' },
         commandItem('file.open'),
         commandItem('file.openArchive'),
@@ -99,25 +108,25 @@ function buildMenu() {
         {
           label: 'dbgate.org',
           click() {
-            require('electron').shell.openExternal('https://dbgate.org');
+            electron.shell.openExternal('https://dbgate.org');
           },
         },
         {
           label: 'DbGate on GitHub',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbgate/dbgate');
+            electron.shell.openExternal('https://github.com/dbgate/dbgate');
           },
         },
         {
           label: 'DbGate on docker hub',
           click() {
-            require('electron').shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
+            electron.shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
           },
         },
         {
           label: 'Report problem or feature request',
           click() {
-            require('electron').shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
+            electron.shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
         commandItem('tabs.changelog'),
@@ -146,10 +155,27 @@ ipcMain.on('update-commands', async (event, arg) => {
     menu.enabled = command.enabled;
   }
 });
+ipcMain.on('close-window', async (event, arg) => {
+  mainWindow.close();
+});
+
+ipcMain.handle('showOpenDialog', async (event, options) => {
+  const res = electron.dialog.showOpenDialogSync(mainWindow, options);
+  return res;
+});
+ipcMain.handle('showSaveDialog', async (event, options) => {
+  const res = electron.dialog.showSaveDialogSync(mainWindow, options);
+  return res;
+});
+ipcMain.handle('showItemInFolder', async (event, path) => {
+  electron.shell.showItemInFolder(path);
+});
+ipcMain.handle('openExternal', async (event, url) => {
+  electron.shell.openExternal(url);
+});
 
 function createWindow() {
-  const bounds = store.get('winBounds');
-
+  const bounds = initialConfig['winBounds'];
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -158,10 +184,11 @@ function createWindow() {
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
+      contextIsolation: false,
     },
   });
-  if (store.get('winIsMaximized')) {
+
+  if (initialConfig['winIsMaximized']) {
     mainWindow.maximize();
   }
 
@@ -176,12 +203,15 @@ function createWindow() {
         protocol: 'file:',
         slashes: true,
       });
-    mainWindow.webContents.on('did-finish-load', function () {
-      // hideSplash();
-    });
     mainWindow.on('close', () => {
-      store.set('winBounds', mainWindow.getBounds());
-      store.set('winIsMaximized', mainWindow.isMaximized());
+      fs.writeFileSync(
+        configRootPath,
+        JSON.stringify({
+          winBounds: mainWindow.getBounds(),
+          winIsMaximized: mainWindow.isMaximized(),
+        }),
+        'utf-8'
+      );
     });
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
@@ -189,31 +219,27 @@ function createWindow() {
     }
   }
 
-  if (process.env.ELECTRON_START_URL) {
-    loadMainWindow();
-  } else {
-    const apiProcess = fork(path.join(__dirname, '../packages/api/dist/bundle.js'), [
-      '--dynport',
-      '--is-electron-bundle',
-      '--native-modules',
-      path.join(__dirname, 'nativeModules'),
-      // '../../../src/nativeModules'
-    ]);
-    apiProcess.on('message', msg => {
-      if (msg.msgtype == 'listening') {
-        const { port, authorization } = msg;
-        global['port'] = port;
-        global['authorization'] = authorization;
-        loadMainWindow();
-      }
-    });
-  }
+  const apiPackage = path.join(
+    __dirname,
+    process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
+  );
 
-  // and load the index.html of the app.
-  // mainWindow.loadURL('http://localhost:3000');
+  global.API_PACKAGE = apiPackage;
+  global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
 
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  // console.log('global.API_PACKAGE', global.API_PACKAGE);
+  const api = require(apiPackage);
+  // console.log(
+  //   'REQUIRED',
+  //   path.resolve(
+  //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
+  //   )
+  // );
+  const main = api.getMainModule();
+  main.initializeElectronSender(mainWindow.webContents);
+  main.useAllControllers(null, electron);
+
+  loadMainWindow();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -225,7 +251,9 @@ function createWindow() {
 }
 
 function onAppReady() {
-  autoUpdater.checkForUpdatesAndNotify();
+  if (!process.env.DEVMODE) {
+    autoUpdater.checkForUpdatesAndNotify();
+  }
   createWindow();
 }
 

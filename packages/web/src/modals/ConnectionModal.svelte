@@ -4,7 +4,6 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import TabControl from '../elements/TabControl.svelte';
   import ConnectionModalDriverFields from './ConnectionModalDriverFields.svelte';
   import ConnectionModalSshTunnelFields from './ConnectionModalSshTunnelFields.svelte';
@@ -21,6 +20,7 @@
   import { extensions } from '../stores';
   import _ from 'lodash';
   import { getDatabaseFileLabel } from '../utility/getConnectionLabel';
+  import { apiCall } from '../utility/api';
 
   export let connection;
 
@@ -38,11 +38,11 @@
     isTesting = true;
     testIdRef.update(x => x + 1);
     const testid = testIdRef.get();
-    const resp = await axiosInstance.post('connections/test', e.detail);
+    const resp = await apiCall('connections/test', e.detail);
     if (testIdRef.get() != testid) return;
 
     isTesting = false;
-    sqlConnectResult = resp.data;
+    sqlConnectResult = resp;
   }
 
   function handleCancelTest() {
@@ -70,10 +70,9 @@
     let connection = _.omit(e.detail, omitProps);
     if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
 
-    axiosInstance.post('connections/save', connection);
+    apiCall('connections/save', connection);
     closeCurrentModal();
   }
-
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -156,5 +155,4 @@
   .error-result {
     white-space: normal;
   }
-
 </style>

@@ -1,10 +1,8 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
-  import socket from '../utility/socket';
-  import useEffect from '../utility/useEffect';
+  import { useApiCall } from '../utility/api';
 
-  import useFetch from '../utility/useFetch';
   import DataGrid from './DataGrid.svelte';
   import JslDataGridCore from './JslDataGridCore.svelte';
 
@@ -12,11 +10,7 @@
 
   let loadedRows;
 
-  $: info = useFetch({
-    params: { jslid },
-    url: 'jsldata/get-info',
-    defaultValue: {},
-  });
+  $: info = useApiCall('jsldata/get-info', { jslid }, {});
 
   // $: columns = ($info && $info.columns) || [];
   const config = writable(createGridConfig());

@@ -41,8 +41,8 @@
   import { showModal } from '../modals/modalTools';
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
+  import { apiCall } from '../utility/api';
   import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
-  import axiosInstance from '../utility/axiosInstance';
   import { changeTab } from '../utility/common';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -61,10 +61,7 @@
 
   const { setEditorData, editorState } = useEditorData({
     tabid,
-    loadFromArgs:
-      initialArgs && initialArgs.functionName
-        ? () => axiosInstance.post('runners/load-reader', initialArgs).then(x => x.data)
-        : null,
+    loadFromArgs: initialArgs && initialArgs.functionName ? () => apiCall('runners/load-reader', initialArgs) : null,
     onInitialData: value => {
       dispatchModel({ type: 'reset', value });
     },
@@ -84,7 +81,7 @@
   }
 
   const doSave = async (folder, file) => {
-    await axiosInstance.post('archive/save-free-table', { folder, file, data: $modelState.value });
+    await apiCall('archive/save-free-table', { folder, file, data: $modelState.value });
     changeTab(tabid, tab => ({
       ...tab,
       title: file,

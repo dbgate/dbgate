@@ -4,8 +4,8 @@
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
+  import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
@@ -22,7 +22,7 @@
 
   const handleSubmit = async e => {
     const { name } = e.detail;
-    await axiosInstance.post('files/save', { folder, file: name, data, format });
+    await apiCall('files/save', { folder, file: name, data, format });
     closeCurrentModal();
     if (onSave) {
       onSave(name, {
@@ -38,7 +38,7 @@
     const parsed = path.parse(filePath);
     // if (!parsed.ext) filePath += `.${fileExtension}`;
 
-    await axiosInstance.post('files/save-as', { filePath, data, format });
+    await apiCall('files/save-as', { filePath, data, format });
     closeCurrentModal();
 
     if (onSave) {
@@ -61,8 +61,8 @@
         <FormStyledButton
           type="button"
           value="Save to disk"
-          on:click={() => {
-            const file = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+          on:click={async () => {
+            const file = await electron.showSaveDialog({
               filters: [
                 { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
                 { name: `All files`, extensions: ['*'] },

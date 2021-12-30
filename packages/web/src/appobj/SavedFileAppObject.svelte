@@ -74,8 +74,8 @@
   import { showModal } from '../modals/modalTools';
 
   import { currentDatabase } from '../stores';
+import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import hasPermission from '../utility/hasPermission';
   import openNewTab from '../utility/openNewTab';
@@ -114,7 +114,7 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.file}?`,
       onConfirm: () => {
-        axiosInstance.post('files/delete', data);
+        apiCall('files/delete', data);
       },
     });
   };
@@ -125,7 +125,7 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('files/rename', { ...data, newFile });
+        apiCall('files/rename', { ...data, newFile });
       },
     });
   };
@@ -136,13 +136,13 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        axiosInstance.post('files/copy', { ...data, newFile });
+        apiCall('files/copy', { ...data, newFile });
       },
     });
   };
 
   async function openTab() {
-    const resp = await axiosInstance.post('files/load', { folder, file: data.file, format: handler.format });
+    const resp = await apiCall('files/load', { folder, file: data.file, format: handler.format });
 
     const connProps: any = {};
     let tooltip = undefined;
@@ -168,7 +168,7 @@
           ...connProps,
         },
       },
-      { editor: resp.data }
+      { editor: resp }
     );
   }
 </script>

@@ -5,7 +5,6 @@
   import hasPermission from '../utility/hasPermission';
   import localforage from 'localforage';
   import ModalBase from './ModalBase.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import uuidv1 from 'uuid/v1';
   import { closeCurrentModal } from './modalTools';
   import { copyTextToClipboard } from '../utility/clipboard';
@@ -14,8 +13,9 @@
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormValues from '../forms/FormValues.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
-import FormSubmit from '../forms/FormSubmit.svelte';
-import FormButton from '../forms/FormButton.svelte';
+  import FormSubmit from '../forms/FormSubmit.svelte';
+  import FormButton from '../forms/FormButton.svelte';
+import { apiCall } from '../utility/api';
 
   export let editingData;
   export let savingTab;
@@ -69,7 +69,7 @@ import FormButton from '../forms/FormButton.svelte';
   const saveTab = async values => {
     const data = await getTabSaveData(values);
 
-    axiosInstance.post('files/save', {
+    apiCall('files/save', {
       folder: 'favorites',
       file: uuidv1(),
       format: 'json',
@@ -78,18 +78,18 @@ import FormButton from '../forms/FormButton.svelte';
   };
 
   const saveFile = async values => {
-    const oldDataResp = await axiosInstance.post('files/load', {
+    const oldDataResp = await apiCall('files/load', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',
     });
 
-    axiosInstance.post('files/save', {
+    apiCall('files/save', {
       folder: 'favorites',
       file: editingData.file,
       format: 'json',
       data: {
-        ...oldDataResp.data,
+        ...oldDataResp,
         ...values,
       },
     });

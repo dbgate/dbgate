@@ -6,16 +6,15 @@
   import { onMount } from 'svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import Markdown from '../elements/Markdown.svelte';
-
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
 
   let isLoading = false;
   let text = null;
 
   const handleLoad = async () => {
     isLoading = true;
-    const resp = await axiosInstance.get('config/changelog');
-    text = resp.data;
+    const resp = await apiCall('config/changelog');
+    text = resp;
     isLoading = false;
   };
 

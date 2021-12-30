@@ -26,7 +26,6 @@
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import useEditorData from '../query/useEditorData';
-  import axiosInstance from '../utility/axiosInstance';
   import { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';

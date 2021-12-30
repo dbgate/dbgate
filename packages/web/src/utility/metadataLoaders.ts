@@ -1,14 +1,13 @@
-import axiosInstance from './axiosInstance';
 import _ from 'lodash';
 import { cacheGet, cacheSet, getCachedPromise } from './cache';
 import stableStringify from 'json-stable-stringify';
 import { cacheClean } from './cache';
-import socket from './socket';
 import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
+import { apiCall, apiOff, apiOn } from './api';
 
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
@@ -143,12 +142,8 @@ async function getCore(loader, args) {
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
-    const resp = await axiosInstance.request({
-      method: 'get',
-      url,
-      params,
-    });
-    const res = (transform || (x => x))(resp.data);
+    const resp = await apiCall(url, params);
+    const res = (transform || (x => x))(resp);
     if (onLoaded) onLoaded(res);
     return res;
   }
@@ -169,12 +164,8 @@ function useCore(loader, args) {
     subscribe: onChange => {
       async function handleReload() {
         async function doLoad() {
-          const resp = await axiosInstance.request({
-            method: 'get',
-            params,
-            url,
-          });
-          const res = (transform || (x => x))(resp.data);
+          const resp = await apiCall(url, params);
+          const res = (transform || (x => x))(resp);
           if (onLoaded) onLoaded(res);
           return res;
         }
@@ -189,7 +180,7 @@ function useCore(loader, args) {
               cacheSet(cacheKey, res, reloadTrigger);
               onChange(res);
             } catch (err) {
-              console.error('Error when using cached promise', err);
+              console.error(`Error when using cached promise ${url}`, err);
               cacheClean(cacheKey);
               const res = await doLoad();
               cacheSet(cacheKey, res, reloadTrigger);
@@ -202,17 +193,17 @@ function useCore(loader, args) {
         }
       }
 
-      if (reloadTrigger && !socket) {
-        console.error('Socket not available, reloadTrigger not planned');
-      }
+      // if (reloadTrigger && !socket) {
+      //   console.error('Socket not available, reloadTrigger not planned');
+      // }
       handleReload();
-      if (reloadTrigger && socket) {
+      if (reloadTrigger) {
         for (const item of getAsArray(reloadTrigger)) {
-          socket.on(item, handleReload);
+          apiOn(item, handleReload);
         }
         return () => {
           for (const item of getAsArray(reloadTrigger)) {
-            socket.off(item, handleReload);
+            apiOff(item, handleReload);
           }
         };
       }

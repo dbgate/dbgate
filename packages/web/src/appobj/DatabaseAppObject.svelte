@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
-  const electron = getElectron();
 
   export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase) {
     const handleNewQuery = () => {
@@ -48,13 +47,11 @@
         header: 'Create collection',
         onConfirm: async newCollection => {
           const dbid = { conid: connection._id, database: name };
-          await axiosInstance.request({
-            url: 'database-connections/run-script',
-            method: 'post',
-            params: dbid,
-            data: { sql: `db.createCollection('${newCollection}')` },
+          await apiCall('database-connections/run-script', {
+            ...dbid,
+            sql: `db.createCollection('${newCollection}')`,
           });
-          axiosInstance.post('database-connections/sync-model', dbid);
+          await apiCall('database-connections/sync-model', dbid);
         },
       });
     };
@@ -89,20 +86,21 @@
     };
 
     const handleDisconnect = () => {
+      const electron = getElectron();
       if (electron) {
-        axiosInstance.post('database-connections/disconnect', { conid: connection._id, database: name });
+        apiCall('database-connections/disconnect', { conid: connection._id, database: name });
       }
       currentDatabase.set(null);
     };
 
     const handleExportModel = async () => {
-      const resp = await axiosInstance.post('database-connections/export-model', {
+      const resp = await apiCall('database-connections/export-model', {
         conid: connection._id,
         database: name,
       });
-      currentArchive.set(resp.data.archiveFolder);
+      currentArchive.set(resp.archiveFolder);
       selectedWidget.set('archive');
-      showSnackbarSuccess(`Saved to archive ${resp.data.archiveFolder}`);
+      showSnackbarSuccess(`Saved to archive ${resp.archiveFolder}`);
     };
 
     const handleCompareWithCurrentDb = () => {
@@ -173,7 +171,6 @@
     pinnedDatabases,
     selectedWidget,
   } from '../stores';
-  import axiosInstance from '../utility/axiosInstance';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
@@ -182,6 +179,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
+  import { apiCall } from '../utility/api';
 
   export let data;
   export let passProps;

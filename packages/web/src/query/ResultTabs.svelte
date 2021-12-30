@@ -6,7 +6,7 @@
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import { allResultsInOneTabDefault } from '../stores';
-  import socket from '../utility/socket';
+  import { apiOff, apiOn } from '../utility/api';
   import useEffect from '../utility/useEffect';
   import AllResultsTab from './AllResultsTab.svelte';
 
@@ -66,9 +66,9 @@
   });
   function onSession(sid) {
     if (sid) {
-      socket.on(`session-recordset-${sid}`, handleResultSet);
+      apiOn(`session-recordset-${sid}`, handleResultSet);
       return () => {
-        socket.off(`session-recordset-${sid}`, handleResultSet);
+        apiOff(`session-recordset-${sid}`, handleResultSet);
       };
     }
     return () => {};

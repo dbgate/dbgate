@@ -12,7 +12,7 @@ const _ = require('lodash');
 const packagedPluginsContent = require('../packagedPluginsContent');
 
 module.exports = {
-  script_meta: 'get',
+  script_meta: true,
   async script({ packageName }) {
     const packagedContent = packagedPluginsContent();
 
@@ -30,7 +30,7 @@ module.exports = {
     return data;
   },
 
-  search_meta: 'get',
+  search_meta: true,
   async search({ filter }) {
     // DOCS: https://github.com/npm/registry/blob/master/docs/REGISTRY-API.md#get-v1search
     const resp = await axios.default.get(
@@ -40,7 +40,7 @@ module.exports = {
     return (objects || []).map(x => x.package);
   },
 
-  info_meta: 'get',
+  info_meta: true,
   async info({ packageName }) {
     try {
       const infoResp = await axios.default.get(`https://registry.npmjs.org/${packageName}`);
@@ -63,7 +63,7 @@ module.exports = {
     }
   },
 
-  installed_meta: 'get',
+  installed_meta: true,
   async installed() {
     const packagedContent = packagedPluginsContent();
 
@@ -107,7 +107,7 @@ module.exports = {
   //   await fs.writeFile(path.join(datadir(), 'removed-plugins'), this.removedPlugins.join('\n'));
   // },
 
-  install_meta: 'post',
+  install_meta: true,
   async install({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
@@ -120,7 +120,7 @@ module.exports = {
     // await this.saveRemovePlugins();
   },
 
-  uninstall_meta: 'post',
+  uninstall_meta: true,
   async uninstall({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
@@ -130,7 +130,7 @@ module.exports = {
     await this.saveRemovePlugins();
   },
 
-  upgrade_meta: 'post',
+  upgrade_meta: true,
   async upgrade({ packageName }) {
     if (!hasPermission(`plugins/install`)) return;
     const dir = path.join(pluginsdir(), packageName);
@@ -143,13 +143,13 @@ module.exports = {
     socket.emitChanged(`installed-plugins-changed`);
   },
 
-  command_meta: 'post',
+  command_meta: true,
   async command({ packageName, command, args }) {
     const content = requirePlugin(packageName);
     return content.commands[command](args);
   },
 
-  authTypes_meta: 'get',
+  authTypes_meta: true,
   async authTypes({ engine }) {
     const packageName = extractPackageName(engine);
     const content = requirePlugin(packageName);

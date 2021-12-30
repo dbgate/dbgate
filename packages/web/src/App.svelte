@@ -7,20 +7,37 @@
 
   import PluginsProvider from './plugins/PluginsProvider.svelte';
   import Screen from './Screen.svelte';
-  import { loadingPluginStore } from './stores';
+  import { loadingPluginStore, subscribeApiDependendStores } from './stores';
   import { setAppLoaded } from './utility/appLoadManager';
-  import axiosInstance from './utility/axiosInstance';
   import ErrorHandler from './utility/ErrorHandler.svelte';
   import OpenTabsOnStartup from './utility/OpenTabsOnStartup.svelte';
+  // import { shouldWaitForElectronInitialize } from './utility/getElectron';
+  import { subscribeConnectionPingers } from './utility/connectionsPinger';
+  import { subscribePermissionCompiler } from './utility/hasPermission';
+  import { apiCall } from './utility/api';
 
   let loadedApi = false;
 
   async function loadApi() {
+    // if (shouldWaitForElectronInitialize()) {
+    //   setTimeout(loadApi, 100);
+    //   return;
+    // }
+
     try {
-      const settings = await axiosInstance.get('config/get-settings');
-      const connections = await axiosInstance.get('connections/list');
-      const config = await axiosInstance.get('config/get');
-      loadedApi = settings?.data && connections?.data && config?.data;
+      // console.log('************** LOADING API');
+
+      const settings = await apiCall('config/get-settings');
+      const connections = await apiCall('connections/list');
+      const config = await apiCall('config/get');
+      loadedApi = settings && connections && config;
+
+      if (loadedApi) {
+        subscribeApiDependendStores();
+        subscribeConnectionPingers();
+        subscribePermissionCompiler();
+      }
+
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
         setTimeout(loadApi, 1000);
@@ -43,14 +60,13 @@
       setAppLoaded();
     }
   }
-
 </script>
 
-<DataGridRowHeightMeter />
 <ErrorHandler />
-<CommandListener />
 
 {#if loadedApi}
+  <DataGridRowHeightMeter />
+  <CommandListener />
   <PluginsProvider />
   {#if $loadingPluginStore?.loaded}
     <OpenTabsOnStartup />

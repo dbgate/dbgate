@@ -8,6 +8,7 @@ const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
 const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
+const processArgs = require('../utility/processArgs');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -98,15 +99,22 @@ module.exports = {
     const pluginNames = _.union(fs.readdirSync(pluginsdir()), packagedPluginList);
     console.log(`RUNNING SCRIPT ${scriptFile}`);
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
-    const subprocess = fork(scriptFile, ['--checkParent', ...process.argv.slice(3)], {
-      cwd: directory,
-      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-      env: {
-        ...process.env,
-        DBGATE_API: global['dbgateApiModulePath'] || process.argv[1],
-        ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
-      },
-    });
+    const subprocess = fork(
+      scriptFile,
+      [
+        '--checkParent', // ...process.argv.slice(3)
+        ...processArgs.getPassArgs(),
+      ],
+      {
+        cwd: directory,
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+        env: {
+          ...process.env,
+          DBGATE_API: global['API_PACKAGE'] || global['dbgateApiModulePath'] || process.argv[1],
+          ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
+        },
+      }
+    );
     const pipeDispatcher = severity => data =>
       this.dispatchMessage(runid, { severity, message: data.toString().trim() });
 
@@ -136,21 +144,21 @@ module.exports = {
       if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](runid, message);
     });
-    return newOpened;
+    return _.pick(newOpened, ['runid']);
   },
 
-  start_meta: 'post',
+  start_meta: true,
   async start({ script }) {
     const runid = uuidv1();
     return this.startCore(runid, scriptTemplate(script, false));
   },
 
-  getNodeScript_meta: 'post',
+  getNodeScript_meta: true,
   async getNodeScript({ script }) {
     return scriptTemplate(script, true);
   },
 
-  cancel_meta: 'post',
+  cancel_meta: true,
   async cancel({ runid }) {
     const runner = this.opened.find(x => x.runid == runid);
     if (!runner) {
@@ -160,7 +168,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  files_meta: 'get',
+  files_meta: true,
   async files({ runid }) {
     const directory = path.join(rundir(), runid);
     const files = await fs.readdir(directory);
@@ -176,7 +184,7 @@ module.exports = {
     return res;
   },
 
-  loadReader_meta: 'post',
+  loadReader_meta: true,
   async loadReader({ functionName, props }) {
     const promise = new Promise((resolve, reject) => {
       const runid = uuidv1();

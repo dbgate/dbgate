@@ -48,12 +48,11 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { showSnackbarError } from '../utility/snackbar';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
 
@@ -101,9 +100,9 @@
 
   function registerRunnerDone(rid) {
     if (rid) {
-      socket.on(`runner-done-${rid}`, handleRunnerDone);
+      apiOn(`runner-done-${rid}`, handleRunnerDone);
       return () => {
-        socket.off(`runner-done-${rid}`, handleRunnerDone);
+        apiOff(`runner-done-${rid}`, handleRunnerDone);
       };
     } else {
       return () => {};
@@ -140,8 +139,8 @@
   }
 
   export async function copyNodeScript() {
-    const resp = await axiosInstance.post('runners/get-node-script', { script: getActiveScript() });
-    copyTextToClipboard(resp.data);
+    const resp = await apiCall('runners/get-node-script', { script: getActiveScript() });
+    copyTextToClipboard(resp);
   }
 
   // export function openWizardEnabled() {
@@ -172,10 +171,10 @@
     executeNumber += 1;
 
     let runid = runnerId;
-    const resp = await axiosInstance.post('runners/start', {
+    const resp = await apiCall('runners/start', {
       script: getActiveScript(),
     });
-    runid = resp.data.runid;
+    runid = resp.runid;
     runnerId = runid;
     busy = true;
     timerLabel.start();
@@ -186,7 +185,7 @@
   }
 
   export function kill() {
-    axiosInstance.post('runners/cancel', {
+    apiCall('runners/cancel', {
       runid: runnerId,
     });
     timerLabel.stop();

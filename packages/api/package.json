@@ -19,7 +19,6 @@
   "dependencies": {
     "async-lock": "^1.2.4",
     "axios": "^0.21.1",
-    "better-sqlite3-with-prebuilds": "^7.1.8",
     "body-parser": "^1.19.0",
     "bufferutil": "^4.0.1",
     "byline": "^5.0.0",
@@ -39,6 +38,7 @@
     "fs-reverse": "^0.0.3",
     "get-port": "^5.1.1",
     "http": "^0.0.0",
+    "is-electron": "^2.2.1",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
     "line-reader": "^0.4.0",
@@ -49,7 +49,6 @@
     "node-ssh-forward": "^0.7.2",
     "portfinder": "^1.0.28",
     "simple-encryptor": "^4.0.0",
-    "socket.io": "^2.3.0",
     "tar": "^6.0.5",
     "uuid": "^3.4.0"
   },
@@ -74,6 +73,7 @@
     "webpack-cli": "^3.3.11"
   },
   "optionalDependencies": {
-    "msnodesqlv8": "^2.4.0"
+    "better-sqlite3": "7.4.5",
+    "msnodesqlv8": "^2.4.4"
   }
 }

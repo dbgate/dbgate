@@ -1,15 +1,14 @@
 import ScriptWriter from '../impexp/ScriptWriter';
 import getElectron from './getElectron';
-import axiosInstance from '../utility/axiosInstance';
-import socket from '../utility/socket';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
 import resolveApi from './resolveApi';
+import { apiCall, apiOff, apiOn } from './api';
 
 export async function exportElectronFile(dataName, reader, format) {
   const electron = getElectron();
   const filters = [{ name: format.label, extensions: [format.extension] }];
 
-  const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+  const filePath = await electron.showSaveDialog({
     filters,
     defaultPath: `${dataName}.${format.extension}`,
     properties: ['showOverwriteConfirmation'],
@@ -28,8 +27,8 @@ export async function exportElectronFile(dataName, reader, format) {
   script.copyStream(sourceVar, targetVar);
   script.put();
 
-  const resp = await axiosInstance.post('runners/start', { script: script.getScript() });
-  const runid = resp.data.runid;
+  const resp = await apiCall('runners/start', { script: script.getScript() });
+  const runid = resp.runid;
   let isCanceled = false;
 
   const snackId = showSnackbar({
@@ -40,7 +39,7 @@ export async function exportElectronFile(dataName, reader, format) {
         label: 'Cancel',
         onClick: () => {
           isCanceled = true;
-          axiosInstance.post('runners/cancel', { runid });
+          apiCall('runners/cancel', { runid });
         },
       },
     ],
@@ -48,12 +47,12 @@ export async function exportElectronFile(dataName, reader, format) {
 
   function handleRunnerDone() {
     closeSnackbar(snackId);
-    socket.off(`runner-done-${runid}`, handleRunnerDone);
+    apiOff(`runner-done-${runid}`, handleRunnerDone);
     if (isCanceled) showSnackbarError(`Export ${dataName} canceled`);
     else showSnackbarInfo(`Export ${dataName} finished`);
   }
 
-  socket.on(`runner-done-${runid}`, handleRunnerDone);
+  apiOn(`runner-done-${runid}`, handleRunnerDone);
 }
 
 export async function saveFileToDisk(
@@ -65,17 +64,17 @@ export async function saveFileToDisk(
 
   if (electron) {
     const filters = [{ name: formatLabel, extensions: [formatExtension] }];
-    const filePath = electron.remote.dialog.showSaveDialogSync(electron.remote.getCurrentWindow(), {
+    const filePath = await electron.showSaveDialog({
       filters,
       defaultPath: `file.${formatExtension}`,
       properties: ['showOverwriteConfirmation'],
     });
     if (!filePath) return;
     await filePathFunc(filePath);
-    electron.shell.openExternal('file:///' + filePath);
+    electron.openExternal('file:///' + filePath);
   } else {
-    const resp = await axiosInstance.get('files/generate-uploads-file');
-    await filePathFunc(resp.data.filePath);
-    window.open(`${resolveApi()}/uploads/get?file=${resp.data.fileName}`, '_blank');
+    const resp = await apiCall('files/generate-uploads-file');
+    await filePathFunc(resp.filePath);
+    window.open(`${resolveApi()}/uploads/get?file=${resp.fileName}`, '_blank');
   }
 }

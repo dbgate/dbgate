@@ -40,7 +40,6 @@
   import { extensions } from '../stores';
   import CollectionJsonView from '../jsonview/CollectionJsonView.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import axiosInstance from '../utility/axiosInstance';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
@@ -50,6 +49,7 @@
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
   import { setContext } from 'svelte';
   import _ from 'lodash';
+import { apiCall } from '../utility/api';
 
   export let tabid;
   export let conid;
@@ -91,16 +91,12 @@
   // $: console.log('LOADED ROWS MONGO', loadedRows);
 
   async function handleConfirmChange(changeSet) {
-    const resp = await axiosInstance.request({
-      url: 'database-connections/update-collection',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: { changeSet },
+    const resp = await apiCall('database-connections/update-collection', {
+      conid,
+      database,
+      changeSet,
     });
-    const { errorMessage } = resp.data || {};
+    const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });
     } else {

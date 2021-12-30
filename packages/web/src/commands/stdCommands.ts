@@ -18,15 +18,14 @@ import { getCurrentConfig, getCurrentDatabase } from '../stores';
 import './recentDatabaseSwitch';
 import './changeDatabaseStatusCommand';
 import hasPermission from '../utility/hasPermission';
-import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
 import { findEngineDriver } from 'dbgate-tools';
 import { openArchiveFolder } from '../utility/openArchiveFolder';
 import InputTextModal from '../modals/InputTextModal.svelte';
 import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
-
-const electron = getElectron();
+import { apiCall } from '../utility/api';
+import runCommand from './runCommand';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -123,7 +122,7 @@ registerCommand({
       label: 'New archive folder name',
       header: 'Create archive folder',
       onConfirm: async folder => {
-        axiosInstance.post('archive/create-folder', { folder });
+        apiCall('archive/create-folder', { folder });
       },
     });
   },
@@ -190,13 +189,8 @@ registerCommand({
       label: 'New collection name',
       header: 'Create collection',
       onConfirm: async newCollection => {
-        await axiosInstance.request({
-          url: 'database-connections/run-script',
-          method: 'post',
-          params: dbid,
-          data: { sql: `db.createCollection('${newCollection}')` },
-        });
-        axiosInstance.post('database-connections/sync-model', dbid);
+        await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
+        apiCall('database-connections/sync-model', dbid);
       },
     });
   },
@@ -258,8 +252,8 @@ registerCommand({
       label: 'New database name',
       header: 'Create SQLite database',
       onConfirm: async file => {
-        const resp = await axiosInstance.post('connections/new-sqlite-database', { file });
-        const connection = resp.data;
+        const resp = await apiCall('connections/new-sqlite-database', { file });
+        const connection = resp;
         currentDatabase.set({ connection, name: `${file}.sqlite` });
       },
     });
@@ -316,22 +310,22 @@ registerCommand({
   group: 'redo',
 });
 
-if (electron) {
-  registerCommand({
-    id: 'file.open',
-    category: 'File',
-    name: 'Open',
-    keyText: 'Ctrl+O',
-    onClick: openElectronFile,
-  });
+registerCommand({
+  id: 'file.open',
+  category: 'File',
+  name: 'Open',
+  keyText: 'Ctrl+O',
+  testEnabled: () => getElectron() != null,
+  onClick: openElectronFile,
+});
 
-  registerCommand({
-    id: 'file.openArchive',
-    category: 'File',
-    name: 'Open DB Model/Archive',
-    onClick: openArchiveFolder,
-  });
-}
+registerCommand({
+  id: 'file.openArchive',
+  category: 'File',
+  name: 'Open DB Model/Archive',
+  testEnabled: () => getElectron() != null,
+  onClick: openArchiveFolder,
+});
 
 registerCommand({
   id: 'file.import',
@@ -419,14 +413,13 @@ if (hasPermission('settings/change')) {
   });
 }
 
-if (electron) {
-  registerCommand({
-    id: 'file.exit',
-    category: 'File',
-    name: 'Exit',
-    onClick: () => electron.remote.getCurrentWindow().close(),
-  });
-}
+registerCommand({
+  id: 'file.exit',
+  category: 'File',
+  name: 'Exit',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('close-window'),
+});
 
 export function registerFileCommands({
   idPrefix,
@@ -540,4 +533,9 @@ export function registerFileCommands({
       onClick: () => getCurrentEditor().redo(),
     });
   }
+}
+
+const electron = getElectron();
+if (electron) {
+  electron.addEventListener('run-command', (e, commandId) => runCommand(commandId));
 }

@@ -1,7 +1,7 @@
 import { dumpSqlSelect, Select } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
-import axiosInstance from '../utility/axiosInstance';
 import _ from 'lodash';
+import { apiCall } from '../utility/api';
 
 export async function loadChartStructure(driver: EngineDriver, conid, database, sql) {
   const select: Select = {
@@ -16,9 +16,9 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  const resp = await axiosInstance.post('database-connections/query-data', { conid, database, sql: dmp.s });
-  if (resp.data.errorMessage) throw new Error(resp.data.errorMessage);
-  return resp.data.columns.map(x => x.columnName);
+  const resp = await apiCall('database-connections/query-data', { conid, database, sql: dmp.s });
+  if (resp.errorMessage) throw new Error(resp.errorMessage);
+  return resp.columns.map(x => x.columnName);
 }
 
 export async function loadChartData(driver: EngineDriver, conid, database, sql, config) {
@@ -74,8 +74,8 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
 
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  const resp = await axiosInstance.post('database-connections/query-data', { conid, database, sql: dmp.s });
-  let { rows, columns, errorMessage } = resp.data;
+  const resp = await apiCall('database-connections/query-data', { conid, database, sql: dmp.s });
+  let { rows, columns, errorMessage } = resp;
   if (errorMessage) {
     throw new Error(errorMessage);
   }

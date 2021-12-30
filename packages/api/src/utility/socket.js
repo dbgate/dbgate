@@ -1,19 +1,29 @@
-let socket = null;
+let sseResponse = null;
+let electronSender = null;
+let init = '';
 
 module.exports = {
-  set(value) {
-    socket = value;
+  setSseResponse(value) {
+    sseResponse = value;
   },
-  get() {
-    return socket;
+  setElectronSender(value) {
+    electronSender = value;
   },
   emit(message, data) {
-    // console.log('EMIT:', message, data);
-    socket.emit(message, data);
+    if (electronSender) {
+      electronSender.send(message, data == null ? null : data);
+    } else if (sseResponse) {
+      if (init) {
+        sseResponse.write(init);
+        init = '';
+      }
+      sseResponse.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
+    } else {
+      init += sseResponse;
+    }
   },
   emitChanged(key) {
-    // console.log('EMIT_CHANGED:', key);
-    socket.emit('clean-cache', key);
-    socket.emit(key);
+    this.emit('clean-cache', key);
+    this.emit(key);
   },
 };

@@ -13,14 +13,14 @@
   async function loadDataPage(props, offset, limit) {
     const { jslid, display } = props;
 
-    const response = await axiosInstance.post('jsldata/get-rows', {
+    const response = await apiCall('jsldata/get-rows', {
       jslid,
       offset,
       limit,
       filters: display ? display.compileFilters() : null,
     });
 
-    return response.data;
+    return response;
   }
 
   function dataPageAvailable(props) {
@@ -30,16 +30,9 @@
   async function loadRowCount(props) {
     const { jslid } = props;
 
-    const response = await axiosInstance.request({
-      url: 'jsldata/get-stats',
-      method: 'get',
-      params: {
-        jslid,
-      },
-    });
-    return response.data.rowCount;
+    const response = await apiCall('jsldata/get-stats', { jslid });
+    return response.rowCount;
   }
-
 </script>
 
 <script lang="ts">
@@ -48,13 +41,12 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { extensions } from '../stores';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportElectronFile } from '../utility/exportElectronFile';
-  import socket from '../utility/socket';
   import useEffect from '../utility/useEffect';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
@@ -82,9 +74,9 @@
   $: effect = useEffect(() => onJslId(jslid));
   function onJslId(jslidVal) {
     if (jslidVal) {
-      socket.on(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+      apiOn(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       return () => {
-        socket.off(`jsldata-stats-${jslidVal}`, handleJslDataStats);
+        apiOff(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       };
     }
   }
@@ -140,7 +132,6 @@
     },
     { command: 'jslTableGrid.export', tag: 'export' }
   );
-
 </script>
 
 <LoadingDataGridCore

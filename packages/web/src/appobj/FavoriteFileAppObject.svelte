@@ -7,14 +7,14 @@
     const { icon, tabComponent, title, props, tabdata } = favorite;
     let tabdataNew = tabdata;
     if (props.savedFile) {
-      const resp = await axiosInstance.post('files/load', {
+      const resp = await apiCall('files/load', {
         folder: props.savedFolder,
         file: props.savedFile,
         format: props.savedFormat,
       });
       tabdataNew = {
         ...tabdata,
-        editor: resp.data,
+        editor: resp,
       };
     }
     openNewTab(
@@ -30,13 +30,13 @@
 </script>
 
 <script lang="ts">
-  import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { showModal } from '../modals/modalTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import getElectron from '../utility/getElectron';
   import FavoriteModal from '../modals/FavoriteModal.svelte';
+  import { apiCall } from '../utility/api';
 
   export let data;
 
@@ -47,7 +47,7 @@
   };
 
   const editFavoriteJson = async () => {
-    const resp = await axiosInstance.post('files/load', {
+    const resp = await apiCall('files/load', {
       folder: 'favorites',
       file: data.file,
       format: 'text',
@@ -64,7 +64,7 @@
           savedFolder: 'favorites',
         },
       },
-      { editor: JSON.stringify(JSON.parse(resp.data), null, 2) }
+      { editor: JSON.stringify(JSON.parse(resp), null, 2) }
     );
   };
 
@@ -76,7 +76,7 @@
     showModal(ConfirmModal, {
       message: `Really delete favorite ${data.title}?`,
       onConfirm: () => {
-        axiosInstance.post('files/delete', { file: data.file, folder: 'favorites' });
+        apiCall('files/delete', { file: data.file, folder: 'favorites' });
       },
     });
   };

@@ -3,14 +3,12 @@
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
-  import useFetch from '../utility/useFetch';
   import WidgetsInnerContainer from '../widgets/WidgetsInnerContainer.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { onMount } from 'svelte';
-  import socket from '../utility/socket';
-  import axiosInstance from '../utility/axiosInstance';
   import openNewTab from '../utility/openNewTab';
   import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import { apiCall, apiOff, apiOn } from '../utility/api';
 
   let filter = '';
   let search = '';
@@ -18,15 +16,8 @@
   let historyItems = [];
 
   async function reloadItems() {
-    const resp = await axiosInstance.request({
-      method: 'get',
-      url: 'query-history/read',
-      params: {
-        filter: search,
-        limit: 100,
-      },
-    });
-    historyItems = resp.data;
+    const resp = await apiCall('query-history/read', { filter: search, limit: 100 });
+    historyItems = resp;
   }
 
   $: {
@@ -39,9 +30,9 @@
   $: setDebouncedFilter(filter);
 
   onMount(() => {
-    socket.on('query-history-changed', reloadItems);
+    apiOn('query-history-changed', reloadItems);
     return () => {
-      socket.off('query-history-changed', reloadItems);
+      apiOff('query-history-changed', reloadItems);
     };
   });
 </script>

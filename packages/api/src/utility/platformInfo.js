@@ -2,6 +2,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const processArgs = require('./processArgs');
+const isElectron = require('is-electron');
 
 const platform = process.env.OS_OVERRIDE ? process.env.OS_OVERRIDE : process.platform;
 const isWindows = platform === 'win32';
@@ -10,6 +11,7 @@ const isLinux = platform === 'linux';
 const isDocker = fs.existsSync('/home/dbgate-docker/public');
 const isDevMode = process.env.DEVMODE == '1';
 const isNpmDist = !!global['dbgateApiModulePath'];
+const isForkedApi = processArgs.isForkedApi;
 
 // function moduleAvailable(name) {
 //   try {
@@ -20,14 +22,14 @@ const isNpmDist = !!global['dbgateApiModulePath'];
 //   }
 // }
 
-const isElectronBundle = processArgs.isElectronBundle;
-
 const platformInfo = {
   isWindows,
   isMac,
   isLinux,
   isDocker,
-  isElectronBundle,
+  isElectronBundle: isElectron() && !isDevMode,
+  isForkedApi,
+  isElectron: isElectron(),
   isDevMode,
   isNpmDist,
   isSnap: process.env.ELECTRON_SNAP == 'true',

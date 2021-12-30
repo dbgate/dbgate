@@ -63,26 +63,20 @@
   export async function loadCollectionDataPage(props, offset, limit) {
     const { conid, database } = props;
 
-    const response = await axiosInstance.request({
-      url: 'database-connections/collection-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: {
-        options: {
-          pureName: props.pureName,
-          limit,
-          skip: offset,
-          condition: buildGridMongoCondition(props),
-          sort: buildMongoSort(props),
-        },
+    const response = await apiCall('database-connections/collection-data', {
+      conid,
+      database,
+      options: {
+        pureName: props.pureName,
+        limit,
+        skip: offset,
+        condition: buildGridMongoCondition(props),
+        sort: buildMongoSort(props),
       },
     });
 
-    if (response.data.errorMessage) return response.data;
-    return response.data.rows;
+    if (response.errorMessage) return response;
+    return response.rows;
   }
 
   function dataPageAvailable(props) {
@@ -95,23 +89,17 @@
   async function loadRowCount(props) {
     const { conid, database } = props;
 
-    const response = await axiosInstance.request({
-      url: 'database-connections/collection-data',
-      method: 'post',
-      params: {
-        conid,
-        database,
-      },
-      data: {
-        options: {
-          pureName: props.pureName,
-          countDocuments: true,
-          condition: buildGridMongoCondition(props),
-        },
+    const response = await apiCall('database-connections/collection-data', {
+      conid,
+      database,
+      options: {
+        pureName: props.pureName,
+        countDocuments: true,
+        condition: buildGridMongoCondition(props),
       },
     });
 
-    return response.data.count;
+    return response.count;
   }
 </script>
 
@@ -127,8 +115,8 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { extensions } from '../stores';
+  import { apiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';

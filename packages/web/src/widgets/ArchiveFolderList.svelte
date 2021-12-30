@@ -11,7 +11,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
   import { useArchiveFolders } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
@@ -20,7 +20,7 @@
   $: folders = useArchiveFolders();
 
   const handleRefreshFolders = () => {
-    axiosInstance.post('archive/refresh-folders', {});
+    apiCall('archive/refresh-folders');
   };
 </script>
 

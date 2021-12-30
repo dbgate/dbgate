@@ -20,7 +20,7 @@
 <script lang="ts">
   import { onMount, afterUpdate, onDestroy } from 'svelte';
   import registerCommand from '../commands/registerCommand';
-  import axiosInstance from '../utility/axiosInstance';
+  import { apiCall } from '../utility/api';
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -61,7 +61,7 @@
 
   export async function exportChart() {
     saveFileToDisk(async filePath => {
-      await axiosInstance.post('files/export-chart', {
+      await apiCall('files/export-chart', {
         title,
         filePath,
         config: {

@@ -24,7 +24,6 @@
   import SubColumnParamList from '../appobj/SubColumnParamList.svelte';
   import { chevronExpandIcon } from '../icons/expandIcons';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
-  import axiosInstance from '../utility/axiosInstance';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
   import DropDownButton from '../elements/DropDownButton.svelte';
@@ -34,6 +33,7 @@
   import { extensions } from '../stores';
   import newQuery from '../query/newQuery';
   import runCommand from '../commands/runCommand';
+  import { apiCall } from '../utility/api';
 
   export let conid;
   export let database;
@@ -62,7 +62,7 @@
   // $: objectList = generateObjectList(generateIndex);
 
   const handleRefreshDatabase = () => {
-    axiosInstance.post('database-connections/refresh', { conid, database });
+    apiCall('database-connections/refresh', { conid, database });
   };
 
   function createAddMenu() {

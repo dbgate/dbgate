@@ -5,6 +5,7 @@ const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const jsldata = require('./jsldata');
 const { handleProcessCommunication } = require('../utility/processComm');
+const processArgs = require('../utility/processArgs');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -61,11 +62,17 @@ module.exports = {
 
   handle_ping() {},
 
-  create_meta: 'post',
+  create_meta: true,
   async create({ conid, database }) {
     const sesid = uuidv1();
     const connection = await connections.get({ conid });
-    const subprocess = fork(process.argv[1], ['--start-process', 'sessionProcess', ...process.argv.slice(3)]);
+    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
+      '--is-forked-api',
+      '--start-process',
+      'sessionProcess',
+      ...processArgs.getPassArgs(),
+      // ...process.argv.slice(3),
+    ]);
     const newOpened = {
       conid,
       database,
@@ -81,10 +88,10 @@ module.exports = {
       this[`handle_${msgtype}`](sesid, message);
     });
     subprocess.send({ msgtype: 'connect', ...connection, database });
-    return newOpened;
+    return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
 
-  executeQuery_meta: 'post',
+  executeQuery_meta: true,
   async executeQuery({ sesid, sql }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
@@ -98,7 +105,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  // cancel_meta: 'post',
+  // cancel_meta: true,
   // async cancel({ sesid }) {
   //   const session = this.opened.find((x) => x.sesid == sesid);
   //   if (!session) {
@@ -108,7 +115,7 @@ module.exports = {
   //   return { state: 'ok' };
   // },
 
-  kill_meta: 'post',
+  kill_meta: true,
   async kill({ sesid }) {
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
@@ -119,7 +126,7 @@ module.exports = {
     return { state: 'ok' };
   },
 
-  // runCommand_meta: 'post',
+  // runCommand_meta: true,
   // async runCommand({ conid, database, sql }) {
   //   console.log(`Running SQL command , conid=${conid}, database=${database}, sql=${sql}`);
   //   const opened = await this.ensureOpened(conid, database);

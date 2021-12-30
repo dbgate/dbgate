@@ -1,6 +1,4 @@
 <script context="module">
-  const electron = getElectron();
-
   registerCommand({
     id: 'commandPalette.show',
     category: 'Command palette',
@@ -20,7 +18,7 @@
     category: 'Database',
     toolbarName: 'Database search',
     name: 'Search',
-    keyText: electron ? 'Ctrl+P' : 'F3',
+    keyText: isElectronAvailable() ? 'Ctrl+P' : 'F3',
     onClick: () => visibleCommandPalette.set('database'),
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });
@@ -75,7 +73,7 @@
   } from '../stores';
   import clickOutside from '../utility/clickOutside';
   import getConnectionLabel from '../utility/getConnectionLabel';
-  import getElectron from '../utility/getElectron';
+  import { isElectronAvailable } from '../utility/getElectron';
   import keycodes from '../utility/keycodes';
   import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';

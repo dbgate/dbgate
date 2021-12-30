@@ -5,8 +5,8 @@ import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
 import { currentDatabase, extensions } from '../stores';
 import { getUploadListener } from './uploadFiles';
-import axiosInstance from '../utility/axiosInstance';
 import { getDatabaseFileLabel } from './getConnectionLabel';
+import { apiCall } from './api';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -21,7 +21,7 @@ export function canOpenByElectron(file, extensions) {
 
 export async function openSqliteFile(filePath) {
   const defaultDatabase = getDatabaseFileLabel(filePath);
-  const resp = await axiosInstance.post('connections/save', {
+  const resp = await apiCall('connections/save', {
     _id: undefined,
     databaseFile: filePath,
     engine: 'sqlite@dbgate-plugin-sqlite',
@@ -29,7 +29,7 @@ export async function openSqliteFile(filePath) {
     defaultDatabase,
   });
   currentDatabase.set({
-    connection: resp.data,
+    connection: resp,
     name: getDatabaseFileLabel(filePath),
   });
 }
@@ -107,10 +107,10 @@ function getFileFormatExtensions(extensions) {
   return extensions.fileFormats.filter(x => x.readerFunc).map(x => x.extension);
 }
 
-export function openElectronFile() {
+export async function openElectronFile() {
   const electron = getElectron();
   const ext = get(extensions);
-  const filePaths = electron.remote.dialog.showOpenDialogSync(electron.remote.getCurrentWindow(), {
+  const filePaths = await electron.showOpenDialog({
     filters: [
       { name: `All supported files`, extensions: ['sql', 'sqlite', 'db', 'sqlite3', ...getFileFormatExtensions(ext)] },
       { name: `SQL files`, extensions: ['sql'] },

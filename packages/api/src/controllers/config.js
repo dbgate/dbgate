@@ -21,7 +21,7 @@ module.exports = {
     }
   },
 
-  get_meta: 'get',
+  get_meta: true,
   async get() {
     const permissions = process.env.PERMISSIONS ? process.env.PERMISSIONS.split(',') : null;
 
@@ -33,17 +33,17 @@ module.exports = {
     };
   },
 
-  platformInfo_meta: 'get',
+  platformInfo_meta: true,
   async platformInfo() {
     return platformInfo;
   },
 
-  getSettings_meta: 'get',
+  getSettings_meta: true,
   async getSettings() {
     return this.settingsValue;
   },
 
-  updateSettings_meta: 'post',
+  updateSettings_meta: true,
   async updateSettings(values) {
     if (!hasPermission(`settings/change`)) return false;
     try {
@@ -60,7 +60,7 @@ module.exports = {
     }
   },
 
-  changelog_meta: 'get',
+  changelog_meta: true,
   async changelog() {
     const resp = await axios.default.get('https://raw.githubusercontent.com/dbgate/dbgate/master/CHANGELOG.md');
     return resp.data;

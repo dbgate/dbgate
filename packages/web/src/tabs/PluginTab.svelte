@@ -7,33 +7,28 @@
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';
+  import { apiCall, useApiCall } from '../utility/api';
 
-  import axiosInstance from '../utility/axiosInstance';
   import hasPermission from '../utility/hasPermission';
 
   import { useInstalledPlugins } from '../utility/metadataLoaders';
-  import useFetch from '../utility/useFetch';
 
   export let packageName;
 
   $: installed = useInstalledPlugins();
-  $: info = useFetch({
-    params: { packageName },
-    url: 'plugins/info',
-    defaultValue: null,
-  });
+  $: info = useApiCall('plugins/info', { packageName }, null);
   $: readme = $info?.readme;
   $: manifest = $info?.manifest;
   $: isPackaged = $info?.isPackaged;
 
   const handleInstall = async () => {
-    axiosInstance.post('plugins/install', { packageName });
+    apiCall('plugins/install', { packageName });
   };
   const handleUninstall = async () => {
-    axiosInstance.post('plugins/uninstall', { packageName });
+    apiCall('plugins/uninstall', { packageName });
   };
   const handleUpgrade = async () => {
-    axiosInstance.post('plugins/upgrade', { packageName });
+    apiCall('plugins/upgrade', { packageName });
   };
 
   $: installedFound = $installed?.find(x => x.name == packageName);

@@ -41,6 +41,10 @@ const archivedir = dirFunc('archive');
 const filesdir = dirFunc('files');
 
 function packagedPluginsDir() {
+  // console.log('CALL DIR FROM', new Error('xxx').stack);
+  // console.log('__dirname', __dirname);
+  // console.log('platformInfo.isElectronBundle', platformInfo.isElectronBundle);
+  // console.log('platformInfo.isForkedApi', platformInfo.isForkedApi);
   if (platformInfo.isDevMode) {
     return path.resolve(__dirname, '../../../../plugins');
   }
@@ -53,6 +57,12 @@ function packagedPluginsDir() {
   }
   if (platformInfo.isElectronBundle) {
     return path.resolve(__dirname, '../../plugins');
+
+    // if (platformInfo.isForkedApi) {
+    //   return path.resolve(__dirname, '../plugins');
+    // } else {
+    //   return path.resolve(__dirname, '../../plugins');
+    // }
   }
   return null;
 }
