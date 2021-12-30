@@ -165,7 +165,9 @@
   $: scrollInViewTab($activeTabId);
 
   let draggingTab = null;
+  let draggingTabTarget = null;
   let draggingDbKey = null;
+  let draggingDbKeyTarget = null;
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -260,15 +262,22 @@
   <div class="db-wrapper">
     <div
       class="db-name"
-      class:selected={tabsByDb[dbKey][0].tabDbKey == currentDbKey}
+      class:selected={draggingDbKey ? dbKey == draggingDbKeyTarget : tabsByDb[dbKey][0].tabDbKey == currentDbKey}
       on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
       use:contextMenu={getDatabaseContextMenu(tabsByDb[dbKey])}
-      style={$connectionColorFactory(tabsByDb[dbKey][0].props, tabsByDb[dbKey][0].tabDbKey == currentDbKey ? 2 : 3)}
+      style={$connectionColorFactory(
+        tabsByDb[dbKey][0].props,
+        (draggingDbKey ? dbKey == draggingDbKeyTarget : tabsByDb[dbKey][0].tabDbKey == currentDbKey) ? 2 : 3
+      )}
       draggable={true}
       on:dragstart={e => {
         draggingDbKey = dbKey;
       }}
       on:dragenter={e => {
+        draggingDbKeyTarget = dbKey;
+      }}
+      on:drop={e => {
+        if (!draggingDbKey) return;
         if (dbKey != draggingDbKey) {
           const groupOrderFiltered = _.pickBy($tabDatabaseGroupOrder, (v, k) =>
             $openedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
@@ -302,6 +311,7 @@
       }}
       on:dragend={e => {
         draggingDbKey = null;
+        draggingDbKeyTarget = null;
       }}
     >
       <FontIcon icon={getDbIcon(dbKey)} />
@@ -318,7 +328,7 @@
         <div
           id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"
-          class:selected={tab.selected}
+          class:selected={draggingTab ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
           use:contextMenu={getContextMenu(tab)}
@@ -329,8 +339,9 @@
             // e.dataTransfer.setData('tab_drag_data', tab.tabid);
           }}
           on:dragenter={e => {
-            // const tabid = e.dataTransfer.getData('tab_drag_data');
-            // e.preventDefault();
+            draggingTabTarget = tab;
+          }}
+          on:drop={e => {
             if (draggingTab.tabid != tab.tabid) {
               if (getTabDbKey(draggingTab) == getTabDbKey(tab)) {
                 const dbKey = getTabDbKey(draggingTab);
@@ -341,10 +352,6 @@
                   console.warn('Drag tab index not found');
                   return;
                 }
-                // console.log(
-                //   'items',
-                //   items.map(x => x.title)
-                // );
                 const newItems =
                   dstIndex < srcIndex
                     ? [
@@ -357,11 +364,6 @@
                         draggingTab,
                         ...items.slice(dstIndex + 1),
                       ];
-
-                // console.log(
-                //   'newItems',
-                //   newItems.map(x => x.title)
-                // );
 
                 openedTabs.update(tabs =>
                   tabs.map(x => {
@@ -380,6 +382,7 @@
           }}
           on:dragend={e => {
             draggingTab = null;
+            draggingTabTarget = null;
           }}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
