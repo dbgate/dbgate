@@ -22,6 +22,26 @@
     });
   };
 
+  const closeMultipleTabs = closeCondition => {
+    openedTabs.update(files => {
+      const newFiles = files.map(x => ({
+        ...x,
+        closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
+      }));
+
+      if (newFiles.find(x => x.selected && x.closedTime == null)) {
+        return newFiles;
+      }
+
+      const selectedIndex = _.findLastIndex(newFiles, x => x.closedTime == null);
+
+      return newFiles.map((x, index) => ({
+        ...x,
+        selected: index == selectedIndex,
+      }));
+    });
+  };
+
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = () => {
     const closedTime = new Date().getTime();
@@ -60,14 +80,12 @@
   }
 
   function getDbIcon(key) {
-    if (key.startsWith('database://')) return 'icon database';
-    if (key.startsWith('archive://')) return 'icon archive';
-    if (key.startsWith('server://')) return 'icon server';
+    if (key) {
+      if (key.startsWith('database://')) return 'icon database';
+      if (key.startsWith('archive://')) return 'icon archive';
+      if (key.startsWith('server://')) return 'icon server';
+    }
     return 'icon file';
-  }
-
-  function sortTabs(tabs) {
-    return _.sortBy(tabs, [x => x['tabOrder'] || 0, 'title', 'tabid']);
   }
 
   registerCommand({
@@ -124,22 +142,14 @@
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import {
-    currentDatabase,
-    getActiveTab,
-    getOpenedTabs,
-    openedTabs,
-    activeTabId,
-    getActiveTabId,
-    tabDatabaseGroupOrder,
-  } from '../stores';
+  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { isElectronAvailable } from '../utility/getElectron';
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
-  import { duplicateTab, getTabDbKey } from '../utility/openNewTab';
+  import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
 
   $: connectionList = useConnectionList();
@@ -159,15 +169,17 @@
       tabDbKey: getTabDbKey(tab),
     }));
 
-  $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
-  $: dbKeys = _.sortBy(_.keys(tabsByDb), [x => $tabDatabaseGroupOrder[x] || 0, x => x]);
+  $: groupedTabs = groupTabs(tabsWithDb);
+
+  // $: tabsByDb = _.groupBy(tabsWithDb, 'tabDbKey');
+  // $: dbKeys = _.sortBy(_.keys(tabsByDb), [x => $tabDatabaseGroupOrder[x] || 0, x => x]);
 
   $: scrollInViewTab($activeTabId);
 
   let draggingTab = null;
   let draggingTabTarget = null;
-  let draggingDbKey = null;
-  let draggingDbKeyTarget = null;
+  let draggingDbGroup = null;
+  let draggingDbGroupTarget = null;
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -260,13 +272,13 @@
   function dragDropTab(draggingTab, targetTab) {
     if (draggingTab.tabid == targetTab.tabid) return;
 
-    if (getTabDbKey(draggingTab) != getTabDbKey(targetTab)) {
-      dragDropDbKey(getTabDbKey(draggingTab), getTabDbKey(targetTab));
-      return;
-    }
+    // if (getTabDbKey(draggingTab) != getTabDbKey(targetTab)) {
+    //   // dragDropDbKey(getTabDbKey(draggingTab), getTabDbKey(targetTab));
+    //   return;
+    // }
 
-    const dbKey = getTabDbKey(draggingTab);
-    const items = sortTabs(tabsByDb[dbKey]);
+    // const dbKey = getTabDbKey(draggingTab);
+    const items = sortTabs($openedTabs.filter(x => x.closedTime == null));
     const dstIndex = _.findIndex(items, x => x.tabid == targetTab.tabid);
     const srcIndex = _.findIndex(items, x => x.tabid == draggingTab.tabid);
     if (srcIndex < 0 || dstIndex < 0) {
@@ -296,78 +308,83 @@
     );
   }
 
-  function dragDropDbKey(draggingDbKey, targetDbKey) {
-    if (!draggingDbKey) return;
-    if (targetDbKey == draggingDbKey) return;
+  // function dragDropDbKey(draggingDbKey, targetDbKey) {
+  //   if (!draggingDbKey) return;
+  //   if (targetDbKey == draggingDbKey) return;
 
-    const groupOrderFiltered = _.pickBy($tabDatabaseGroupOrder, (v, k) =>
-      $openedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
-    );
+  //   const groupOrderFiltered = _.pickBy($tabDatabaseGroupOrder, (v, k) =>
+  //     $openedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
+  //   );
 
-    const items = _.sortBy(_.keys(groupOrderFiltered), x => groupOrderFiltered[x]);
+  //   const items = _.sortBy(_.keys(groupOrderFiltered), x => groupOrderFiltered[x]);
 
-    const dstIndex = _.indexOf(items, targetDbKey);
-    const srcIndex = _.indexOf(items, draggingDbKey);
-    if (srcIndex < 0 || dstIndex < 0) {
-      console.warn('Drag tab group index not found');
-      return;
-    }
-    const newItems =
-      dstIndex < srcIndex
-        ? [...items.slice(0, dstIndex), draggingDbKey, ...items.slice(dstIndex).filter(x => x != draggingDbKey)]
-        : [
-            ...items.slice(0, dstIndex + 1).filter(x => x != draggingDbKey),
-            draggingDbKey,
-            ...items.slice(dstIndex + 1),
-          ];
+  //   const dstIndex = _.indexOf(items, targetDbKey);
+  //   const srcIndex = _.indexOf(items, draggingDbKey);
+  //   if (srcIndex < 0 || dstIndex < 0) {
+  //     console.warn('Drag tab group index not found');
+  //     return;
+  //   }
+  //   const newItems =
+  //     dstIndex < srcIndex
+  //       ? [...items.slice(0, dstIndex), draggingDbKey, ...items.slice(dstIndex).filter(x => x != draggingDbKey)]
+  //       : [
+  //           ...items.slice(0, dstIndex + 1).filter(x => x != draggingDbKey),
+  //           draggingDbKey,
+  //           ...items.slice(dstIndex + 1),
+  //         ];
 
-    const newGroupOrder = {};
-    for (const key in groupOrderFiltered) {
-      const index = newItems.indexOf(key);
-      newGroupOrder[key] = index >= 0 ? index + 1 : groupOrderFiltered[key];
-    }
+  //   const newGroupOrder = {};
+  //   for (const key in groupOrderFiltered) {
+  //     const index = newItems.indexOf(key);
+  //     newGroupOrder[key] = index >= 0 ? index + 1 : groupOrderFiltered[key];
+  //   }
 
-    tabDatabaseGroupOrder.set(newGroupOrder);
-  }
+  //   tabDatabaseGroupOrder.set(newGroupOrder);
+  // }
 </script>
 
-{#each dbKeys as dbKey}
+{#each groupedTabs as tabGroup}
   <div class="db-wrapper">
     <div
       class="db-name"
-      class:selected={draggingDbKey ? dbKey == draggingDbKeyTarget : tabsByDb[dbKey][0].tabDbKey == currentDbKey}
-      on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
-      use:contextMenu={getDatabaseContextMenu(tabsByDb[dbKey])}
+      class:selected={draggingDbGroup
+        ? tabGroup.grpid == draggingDbGroupTarget?.grpid
+        : tabGroup.tabDbKey == currentDbKey}
+      on:click={() => handleSetDb(tabGroup.tabs[0].props)}
+      use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
       style={$connectionColorFactory(
-        tabsByDb[dbKey][0].props,
-        (draggingDbKey ? dbKey == draggingDbKeyTarget : tabsByDb[dbKey][0].tabDbKey == currentDbKey) ? 2 : 3
+        tabGroup.tabs[0].props,
+        (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey) ? 2 : 3
       )}
       draggable={true}
       on:dragstart={e => {
-        draggingDbKey = dbKey;
+        draggingDbGroup = tabGroup;
       }}
       on:dragenter={e => {
-        draggingDbKeyTarget = dbKey;
+        draggingDbGroupTarget = tabGroup;
       }}
       on:drop={e => {
-        dragDropDbKey(draggingDbKey, dbKey);
+        // dragDropDbKey(draggingDbKey, dbKey);
       }}
       on:dragend={e => {
-        draggingDbKey = null;
-        draggingDbKeyTarget = null;
+        draggingDbGroup = null;
+        draggingDbGroupTarget = null;
       }}
     >
-      <FontIcon icon={getDbIcon(dbKey)} />
-      {tabsByDb[dbKey][0].tabDbName}
+      <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
+      {tabGroup.tabDbName}
 
-      {#if tabsByDb[dbKey].length > 1}
-        <span class="close-button-right tabCloseButton" on:click={e => closeWithSameDb(tabsByDb[dbKey][0].tabid)}>
+      {#if tabGroup.tabs.length > 1}
+        <span
+          class="close-button-right tabCloseButton"
+          on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+        >
           <FontIcon icon="icon close" />
         </span>
       {/if}
     </div>
     <div class="db-group">
-      {#each sortTabs(tabsByDb[dbKey]) as tab}
+      {#each tabGroup.tabs as tab}
         <div
           id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"

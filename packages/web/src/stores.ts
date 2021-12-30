@@ -6,7 +6,7 @@ import { GlobalCommand } from './commands/registerCommand';
 import { useConfig, useSettings } from './utility/metadataLoaders';
 import _ from 'lodash';
 
-interface TabDefinition {
+export interface TabDefinition {
   title: string;
   closedTime?: number;
   icon: string;
@@ -15,6 +15,7 @@ interface TabDefinition {
   busy: boolean;
   tabid: string;
   tabComponent: string;
+  tabOrder?: number;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {
@@ -44,7 +45,6 @@ export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.fi
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
 export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
 export const pinnedTables = writableWithStorage([], 'pinnedTables');
-export const tabDatabaseGroupOrder = writableWithStorage({}, 'tabDatabaseGroupOrder');
 export const commandsSettings = writable({});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
 export const archiveFilesAsDataSheets = writableWithStorage([], 'archiveFilesAsDataSheets');

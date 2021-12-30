@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { get } from 'svelte/store';
-import { getOpenedTabs, openedTabs, tabDatabaseGroupOrder } from '../stores';
+import { getOpenedTabs, openedTabs, TabDefinition } from '../stores';
 import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 import localforage from 'localforage';
@@ -73,35 +73,34 @@ export default async function openNewTab(newTab, initialData = undefined, option
     }
   }
 
-  openedTabs.update(files => [
-    ...(files || []).map(x => ({ ...x, selected: false })),
-    {
+  openedTabs.update(files => {
+    const dbKey = getTabDbKey(newTab);
+    const items = sortTabs(files.filter(x => x.closedTime == null));
+
+    const newItem = {
       ...newTab,
       tabid,
-      selected: true,
-      // @ts-ignore
-      tabOrder: (_.max(files.map(x => x.tabOrder || 0)) || 0) + 1,
-    },
-  ]);
-
-  const allOpenedTabs = getOpenedTabs();
-
-  tabDatabaseGroupOrder.update(groupOrder => {
-    const groupOrderFiltered = _.pickBy(groupOrder, (v, k) =>
-      allOpenedTabs.filter(x => x.closedTime == null).find(x => getTabDbKey(x) == k)
-    );
-    const dbKey = getTabDbKey({
-      ...newTab,
-      tabid,
-    });
-    const newOrder =
-    groupOrderFiltered[dbKey] ||
-      // @ts-ignore
-      (_.max(Object.values(groupOrderFiltered)) || 0) + 1;
-    return {
-      ...groupOrderFiltered,
-      [dbKey]: newOrder,
     };
+    if (dbKey != null) {
+      const lastIndex = _.findLastIndex(items, x => getTabDbKey(x) == dbKey);
+      if (lastIndex >= 0) {
+        items.splice(lastIndex + 1, 0, newItem);
+      } else {
+        items.push(newItem);
+      }
+    } else {
+      items.push(newItem);
+    }
+
+    return [
+      ...(files || []).map(x => ({ ...x, selected: false, tabOrder: _.findIndex(items, y => y.tabid == x.tabid) })),
+      {
+        ...newTab,
+        tabid,
+        selected: true,
+        tabOrder: _.findIndex(items, y => y.tabid == tabid),
+      },
+    ];
   });
 
   // console.log('OPENING NEW TAB', newTab);
@@ -158,5 +157,29 @@ export function getTabDbKey(tab) {
   if (tab.props && tab.props.archiveFolder) {
     return `archive://${tab.props.archiveFolder}`;
   }
-  return `no://${tab.tabid}`;
+  return null;
+}
+
+export function sortTabs(tabs: any[]): any[] {
+  return _.sortBy(tabs, [x => x.tabOrder || 0, x => getTabDbKey(x), 'title', 'tabid']);
+}
+
+export function groupTabs(tabs: any[]) {
+  const res = [];
+
+  for (const tab of sortTabs(tabs)) {
+    const lastGroup = res[res.length - 1];
+    if (lastGroup?.tabDbKey == tab.tabDbKey) {
+      lastGroup.tabs.push(tab);
+    } else {
+      res.push({
+        tabDbKey: tab.tabDbKey,
+        tabDbName: tab.tabDbName,
+        tabs: [tab],
+        grpid: tab.tabid,
+      });
+    }
+  }
+
+  return res;
 }
