@@ -47,6 +47,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import useGridConfig from '../utility/useGridConfig';
 
   export let tabid;
@@ -99,8 +100,9 @@
     dispatchModel({ type: 'set', value: newModel });
   }
 
-  const collapsedLeftColumnStore = writable(false);
+  const collapsedLeftColumnStore = writable(getLocalStorage('freeTable_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
+  $: setLocalStorage('freeTable_collapsedLeftColumn', $collapsedLeftColumnStore);
 
   export function toggleDynamicStructure() {
     let structure = $modelState.value.structure;

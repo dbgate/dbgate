@@ -53,6 +53,7 @@
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { setContext } from 'svelte';
   import { apiCall } from '../utility/api';
+  import { getLocalStorage, setLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let tabid;
   export let conid;
@@ -110,8 +111,9 @@
 
   registerMenu({ command: 'tableData.save', tag: 'save' });
 
-  const collapsedLeftColumnStore = writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+  const collapsedLeftColumnStore = writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
+  $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
 </script>
 
 <TableDataGrid

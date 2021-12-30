@@ -67,6 +67,7 @@
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import { getLocalStorage } from '../utility/storageCache';
 
   export let config;
   export let setConfig;
@@ -100,7 +101,7 @@
 
   let managerSize;
   const collapsedLeftColumnStore =
-    getContext('collapsedLeftColumnStore') || writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+    getContext('collapsedLeftColumnStore') || writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
 
   $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
   $: isJsonView = !!config?.isJsonView;

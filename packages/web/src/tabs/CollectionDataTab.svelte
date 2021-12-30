@@ -49,7 +49,8 @@
   import ChangeSetGrider from '../datagrid/ChangeSetGrider';
   import { setContext } from 'svelte';
   import _ from 'lodash';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let tabid;
   export let conid;
@@ -133,8 +134,9 @@ import { apiCall } from '../utility/api';
 
   registerMenu({ command: 'collectionTable.save', tag: 'save' });
 
-  const collapsedLeftColumnStore = writable(false);
+  const collapsedLeftColumnStore = writable(getLocalStorage('collection_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
+  $: setLocalStorage('collection_collapsedLeftColumn', $collapsedLeftColumnStore);
 </script>
 
 <DataGrid

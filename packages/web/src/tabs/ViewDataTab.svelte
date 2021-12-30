@@ -14,6 +14,7 @@
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { extensions } from '../stores';
   import { useConnectionInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import useGridConfig from '../utility/useGridConfig';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
 
@@ -44,8 +45,9 @@
         )
       : null;
 
-  const collapsedLeftColumnStore = writable(!getBoolSettingsValue('dataGrid.showLeftColumn', false));
+  const collapsedLeftColumnStore = writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
+  $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
 </script>
 
 {#if display}

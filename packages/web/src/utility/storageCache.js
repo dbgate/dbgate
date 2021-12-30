@@ -1,6 +1,6 @@
 const cache = {};
 
-export function getLocalStorage(key) {
+export function getLocalStorage(key, defaultValue = undefined) {
   if (key in cache) return cache[key];
   const item = localStorage.getItem(key);
   if (item) {
@@ -8,7 +8,7 @@ export function getLocalStorage(key) {
     cache[key] = res;
     return res;
   }
-  return undefined;
+  return defaultValue;
 }
 
 export function setLocalStorage(key, value) {
