@@ -66,6 +66,10 @@
     return 'icon file';
   }
 
+  function sortTabs(tabs) {
+    return _.sortBy(tabs, [x => x['tabOrder'] || 0, 'title', 'tabid']);
+  }
+
   registerCommand({
     id: 'tabs.nextTab',
     category: 'Tabs',
@@ -111,7 +115,8 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
+  import { LogarithmicScale } from 'chart.js';
+  import _, { map, slice } from 'lodash';
   import { tick } from 'svelte';
   import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -158,6 +163,9 @@
   $: dbKeys = _.sortBy(_.keys(tabsByDb), [x => $tabDatabaseGroupOrder[x] || 0, x => x]);
 
   $: scrollInViewTab($activeTabId);
+
+  let draggingTab = null;
+  let draggingDbKey = null;
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -256,6 +264,10 @@
       on:click={() => handleSetDb(tabsByDb[dbKey][0].props)}
       use:contextMenu={getDatabaseContextMenu(tabsByDb[dbKey])}
       style={$connectionColorFactory(tabsByDb[dbKey][0].props, tabsByDb[dbKey][0].tabDbKey == currentDbKey ? 2 : 3)}
+      draggable={true}
+      on:dragstart={e => {
+        e.dataTransfer.setData('tabdb_drag_data', dbKey);
+      }}
     >
       <FontIcon icon={getDbIcon(dbKey)} />
       {tabsByDb[dbKey][0].tabDbName}
@@ -267,7 +279,7 @@
       {/if}
     </div>
     <div class="db-group">
-      {#each _.sortBy(tabsByDb[dbKey], [x => x['tabOrder'] || 0, 'title', 'tabid']) as tab}
+      {#each sortTabs(tabsByDb[dbKey]) as tab}
         <div
           id={`file-tab-item-${tab.tabid}`}
           class="file-tab-item"
@@ -275,6 +287,65 @@
           on:click={e => handleTabClick(e, tab.tabid)}
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
           use:contextMenu={getContextMenu(tab)}
+          draggable={true}
+          on:dragstart={e => {
+            draggingTab = tab;
+            // console.log('START', tab.tabid);
+            // e.dataTransfer.setData('tab_drag_data', tab.tabid);
+          }}
+          on:dragenter={e => {
+            // const tabid = e.dataTransfer.getData('tab_drag_data');
+            // e.preventDefault();
+            if (draggingTab.tabid != tab.tabid) {
+              if (getTabDbKey(draggingTab) == getTabDbKey(tab)) {
+                const dbKey = getTabDbKey(draggingTab);
+                const items = sortTabs(tabsByDb[dbKey]);
+                const dstIndex = _.findIndex(items, x => x.tabid == tab.tabid);
+                const srcIndex = _.findIndex(items, x => x.tabid == draggingTab.tabid);
+                if (srcIndex < 0 || dstIndex < 0) {
+                  console.warn('Drag tab index not found');
+                  return;
+                }
+                // console.log(
+                //   'items',
+                //   items.map(x => x.title)
+                // );
+                const newItems =
+                  dstIndex < srcIndex
+                    ? [
+                        ...items.slice(0, dstIndex),
+                        draggingTab,
+                        ...items.slice(dstIndex).filter(x => x.tabid != draggingTab.tabid),
+                      ]
+                    : [
+                        ...items.slice(0, dstIndex + 1).filter(x => x.tabid != draggingTab.tabid),
+                        draggingTab,
+                        ...items.slice(dstIndex + 1),
+                      ];
+
+                // console.log(
+                //   'newItems',
+                //   newItems.map(x => x.title)
+                // );
+
+                openedTabs.update(tabs =>
+                  tabs.map(x => {
+                    const index = _.findIndex(newItems, y => y.tabid == x.tabid);
+                    if (index >= 0) {
+                      return {
+                        ...x,
+                        tabOrder: index + 1,
+                      };
+                    }
+                    return x;
+                  })
+                );
+              }
+            }
+          }}
+          on:dragend={e => {
+            draggingTab = null;
+          }}
         >
           <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
           <span class="file-name">
