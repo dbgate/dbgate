@@ -7,6 +7,7 @@
   export let column;
   export let display;
   export let isJsonView = false;
+  export let isSelected = false;
 </script>
 
 <div
@@ -17,6 +18,8 @@
     if (isJsonView) display.showFilter(column.uniqueName);
     else display.focusColumn(column.uniqueName);
   }}
+  class:isSelected
+  on:click
 >
   <span class="expandColumnIcon" style={`margin-right: ${5 + (column.uniquePath.length - 1) * 10}px`}>
     <FontIcon
@@ -45,5 +48,9 @@
   }
   .row:hover {
     background: var(--theme-bg-hover);
+  }
+
+  .row.isSelected {
+    background: var(--theme-bg-selected);
   }
 </style>
