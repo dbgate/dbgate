@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const simpleEncryptor = require('simple-encryptor');
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 
 const { datadir } = require('./directories');
 
@@ -81,8 +82,18 @@ function decryptConnection(connection) {
   return connection;
 }
 
+function pickSafeConnectionInfo(connection) {
+  return _.mapValues(connection, (v, k) => {
+    if (k == 'engine' || k == 'port' || k == 'authType' || k == 'sshMode' || k == 'passwordMode') return v;
+    if (v === null || v === true || v === false) return v;
+    if (v) return '***';
+    return undefined;
+  });
+}
+
 module.exports = {
   loadEncryptionKey,
   encryptConnection,
   decryptConnection,
+  pickSafeConnectionInfo,
 };

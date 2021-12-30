@@ -20,7 +20,7 @@
   import { extensions } from '../stores';
   import _ from 'lodash';
   import { getDatabaseFileLabel } from '../utility/getConnectionLabel';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let connection;
 
@@ -73,7 +73,6 @@ import { apiCall } from '../utility/api';
     apiCall('connections/save', connection);
     closeCurrentModal();
   }
-
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -156,5 +155,4 @@ import { apiCall } from '../utility/api';
   .error-result {
     white-space: normal;
   }
-
 </style>

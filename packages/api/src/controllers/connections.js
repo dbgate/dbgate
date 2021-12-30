@@ -39,7 +39,7 @@ function getDatabaseFileLabel(databaseFile) {
 
 function getPortalCollections() {
   if (process.env.CONNECTIONS) {
-    return _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
+    const connections = _.compact(process.env.CONNECTIONS.split(',')).map(id => ({
       _id: id,
       engine: process.env[`ENGINE_${id}`],
       server: process.env[`SERVER_${id}`],
@@ -53,6 +53,14 @@ function getPortalCollections() {
       singleDatabase: !!process.env[`DATABASE_${id}`],
       displayName: process.env[`LABEL_${id}`],
     }));
+    const noengine = connections.filter(x => !x.engine);
+    if (noengine.length > 0) {
+      console.log(
+        'Warning: Invalid CONNECTIONS configutation, missing ENGINE for connection ID:',
+        noengine.map(x => x._id)
+      );
+    }
+    return connections;
   }
 
   const args = getNamedArgs();
@@ -134,11 +142,8 @@ module.exports = {
     return portalConnections || this.datastore.find();
   },
 
-  test_meta: {
-    method: 'post',
-    raw: true,
-  },
-  test(req, res) {
+  test_meta: true,
+  test(connection) {
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
       '--is-forked-api',
       '--start-process',
@@ -146,15 +151,17 @@ module.exports = {
       ...processArgs.getPassArgs(),
       // ...process.argv.slice(3),
     ]);
-    subprocess.on('message', resp => {
-      if (handleProcessCommunication(resp, subprocess)) return;
-      // @ts-ignore
-      const { msgtype } = resp;
-      if (msgtype == 'connected' || msgtype == 'error') {
-        res.json(resp);
-      }
+    subprocess.send(connection);
+    return new Promise(resolve => {
+      subprocess.on('message', resp => {
+        if (handleProcessCommunication(resp, subprocess)) return;
+        // @ts-ignore
+        const { msgtype } = resp;
+        if (msgtype == 'connected' || msgtype == 'error') {
+          resolve(resp);
+        }
+      });
     });
-    subprocess.send(req.body);
   },
 
   save_meta: true,

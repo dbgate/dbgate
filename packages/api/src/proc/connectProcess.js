@@ -2,16 +2,8 @@ const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { pickSafeConnectionInfo } = require('../utility/crypting');
 const _ = require('lodash');
-
-function pickSafeConnectionInfo(connection) {
-  return _.mapValues(connection, (v, k) => {
-    if (k == 'engine' || k == 'port' || k == 'authType' || k == 'sshMode' || k == 'passwordMode') return v;
-    if (v === null || v === true || v === false) return v;
-    if (v) return '***';
-    return undefined;
-  });
-}
 
 const formatErrorDetail = (e, connection) => `${e.stack}
 
