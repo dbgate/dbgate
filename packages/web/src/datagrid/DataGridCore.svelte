@@ -284,7 +284,7 @@
   import { findCommand } from '../commands/runCommand';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -296,6 +296,7 @@ import { apiCall } from '../utility/api';
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
   export let onReferenceClick = undefined;
+  export let onChangeSelectedColumns = undefined;
   // export let onSelectedCellsPublishedChanged = undefined;
   export let focusOnVisible = false;
   export let formViewAvailable = false;
@@ -787,6 +788,8 @@ import { apiCall } from '../utility/api';
       const cellsValue = () => getCellsPublished(selectedCells);
       selectedCellsPublished = cellsValue;
       $selectedCellsCallback = cellsValue;
+
+      if (onChangeSelectedColumns) onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
       // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
     }
   }

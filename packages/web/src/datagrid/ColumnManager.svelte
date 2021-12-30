@@ -82,6 +82,11 @@
   function copyToClipboard() {
     copyTextToClipboard(selectedColumns.join('\r\n'));
   }
+
+  export function setSelectedColumns(value) {
+    selectedColumns = value;
+    if (value.length > 0) currentColumnUniqueName = value[0];
+  }
 </script>
 
 <SearchBoxWrapper>

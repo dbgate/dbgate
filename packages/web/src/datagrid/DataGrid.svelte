@@ -93,6 +93,7 @@
   export const activator = createActivator('DataGrid', false);
 
   let selectedCellsPublished = () => [];
+  let domColumnManager;
 
   const selectedMacro = writable(null);
   setContext('selectedMacro', selectedMacro);
@@ -169,7 +170,7 @@
         height="45%"
         show={(!freeTableColumn || isDynamicStructure) && !isFormView}
       >
-        <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} />
+        <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
@@ -226,6 +227,9 @@
             macroPreview={$selectedMacro}
             bind:loadedRows
             bind:selectedCellsPublished
+            onChangeSelectedColumns={cols => {
+              if (domColumnManager) domColumnManager.setSelectedColumns(cols);
+            }}
           />
         {/if}
       </svelte:fragment>
