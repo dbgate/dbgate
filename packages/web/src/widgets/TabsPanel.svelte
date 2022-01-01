@@ -307,7 +307,6 @@
       })
     );
   }
-
 </script>
 
 {#each groupedTabs as tabGroup}
@@ -360,8 +359,10 @@
           on:mouseup={e => handleMouseUp(e, tab.tabid)}
           use:contextMenu={getContextMenu(tab)}
           draggable={true}
-          on:dragstart={e => {
+          on:dragstart={async e => {
             draggingTab = tab;
+            await tick();
+            setSelectedTab(tab.tabid);
             // console.log('START', tab.tabid);
             // e.dataTransfer.setData('tab_drag_data', tab.tabid);
           }}
