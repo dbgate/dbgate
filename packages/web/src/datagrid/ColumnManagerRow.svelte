@@ -19,7 +19,7 @@
     // @ts-ignore
     if (e.target.closest('.expandColumnIcon')) return;
     if (isJsonView) display.showFilter(column.uniqueName);
-    else display.focusColumn(column.uniqueName);
+    else display.focusColumns([column.uniqueName]);
   }}
   class:isSelected
   on:click

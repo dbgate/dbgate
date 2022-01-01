@@ -20,7 +20,7 @@ export type GroupFunc = 'GROUP' | 'MAX' | 'MIN' | 'SUM' | 'AVG' | 'COUNT' | 'COU
 
 export interface GridConfig extends GridConfigColumns {
   filters: { [uniqueName: string]: string };
-  focusedColumn?: string;
+  focusedColumns?: string[];
   columnWidths: { [uniqueName: string]: number };
   sort: {
     uniqueName: string;
@@ -48,7 +48,7 @@ export function createGridConfig(): GridConfig {
     filters: {},
     columnWidths: {},
     sort: [],
-    focusedColumn: null,
+    focusedColumns: null,
     grouping: {},
     formFilterColumns: [],
   };

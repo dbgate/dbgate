@@ -740,9 +740,9 @@
 
   $: {
     tick().then(() => {
-      if (display && display.focusedColumn) {
+      if (display?.focusedColumns?.length > 0) {
         const invMap = _.invert(realColumnUniqueNames);
-        const colIndex = invMap[display.focusedColumn];
+        const colIndex = invMap[display.focusedColumns[0]];
         if (colIndex) {
           scrollIntoView([null, colIndex]);
         }
@@ -908,7 +908,7 @@
       }
     }
 
-    if (display.focusedColumn) display.focusColumn(null);
+    if (display.focusedColumns) display.focusColumns(null);
   }
 
   function handleGridMouseMove(event) {
@@ -1490,7 +1490,7 @@
             {isDynamicStructure}
             selectedCells={filterCellsForRow(selectedCells, rowIndex)}
             autofillMarkerCell={filterCellForRow(autofillMarkerCell, rowIndex)}
-            focusedColumn={display.focusedColumn}
+            focusedColumns={display.focusedColumns}
             inplaceEditorState={$inplaceEditorState}
             currentCellColumn={currentCell && currentCell[0] == rowIndex ? currentCell[1] : null}
             {dispatchInsplaceEditor}

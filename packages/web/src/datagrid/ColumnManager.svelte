@@ -26,48 +26,62 @@
   let selectedColumns = [];
   let currentColumnUniqueName = null;
   let dragStartColumnIndex = null;
+  let shiftOriginColumnIndex = null;
 
   $: items = display?.getColumns(filter)?.filter(column => filterName(filter, column.columnName)) || [];
 
-  function selectColumn(uniqueName) {
+  function selectColumnIndexCore(index, e) {
+    const uniqueName = items[index].uniqueName;
+    if (e.shiftKey) {
+      const curIndex = _.findIndex(items, x => x.uniqueName == currentColumnUniqueName);
+      if (curIndex >= 0 && shiftOriginColumnIndex == null) shiftOriginColumnIndex = curIndex;
+
+      selectedColumns = _.range(
+        Math.min(shiftOriginColumnIndex, index),
+        Math.max(shiftOriginColumnIndex, index) + 1
+      ).map(i => items[i].uniqueName);
+    } else {
+      selectedColumns = [uniqueName];
+      shiftOriginColumnIndex = null;
+    }
+
     currentColumnUniqueName = uniqueName;
-    selectedColumns = [uniqueName];
     if (!isJsonView) {
-      display.focusColumn(uniqueName);
+      display.focusColumns(selectedColumns);
     }
   }
 
-  function selectColumnIndex(index) {
+  function selectColumnIndex(index, e) {
     if (index >= 0 && index < items.length) {
-      selectColumn(items[index].uniqueName);
+      selectColumnIndexCore(index, e);
       return;
     }
     if (items.length == 0) {
       return;
     }
     if (index < 0) {
-      selectColumn(items[0].uniqueName);
+      selectColumnIndexCore(0, e);
       return;
     } else if (index >= items.length) {
-      selectColumn(items[items.length - 1].uniqueName);
+      selectColumnIndexCore(items.length - 1, e);
       return;
     }
   }
 
-  function moveIndex(indexFunc) {
+  function moveIndex(indexFunc, e) {
     const index = _.findIndex(items, x => x.uniqueName == currentColumnUniqueName);
     if (index >= 0) {
-      selectColumnIndex(indexFunc(index));
+      selectColumnIndex(indexFunc(index), e);
     }
   }
 
   function handleKeyDown(e) {
-    if (e.keyCode == keycodes.upArrow) moveIndex(i => i - 1);
-    else if (e.keyCode == keycodes.downArrow) moveIndex(i => i + 1);
-    else if (e.keyCode == keycodes.home) moveIndex(() => 0);
-    else if (e.keyCode == keycodes.end) moveIndex(() => items.length - 1);
-    else if (e.keyCode == keycodes.pageUp) moveIndex(i => i - 10);
-    else if (e.keyCode == keycodes.pageDown) moveIndex(i => i + 10);
+    if (e.keyCode == keycodes.upArrow) moveIndex(i => i - 1, e);
+    else if (e.keyCode == keycodes.downArrow) moveIndex(i => i + 1, e);
+    else if (e.keyCode == keycodes.home) moveIndex(() => 0, e);
+    else if (e.keyCode == keycodes.end) moveIndex(() => items.length - 1, e);
+    else if (e.keyCode == keycodes.pageUp) moveIndex(i => i - 10, e);
+    else if (e.keyCode == keycodes.pageDown) moveIndex(i => i + 10, e);
     else if (e.keyCode == keycodes.space) {
       let checked = null;
       for (const name of selectedColumns) {
@@ -143,7 +157,7 @@
             ).map(i => items[i].uniqueName);
             currentColumnUniqueName = column.uniqueName;
             if (!isJsonView) {
-              display.focusColumn(column.uniqueName);
+              display.focusColumns([currentColumnUniqueName, ...selectedColumns]);
             }
           }
         }
@@ -154,7 +168,7 @@
         if (domFocusField) domFocusField.focus();
         currentColumnUniqueName = column.uniqueName;
         if (!isJsonView) {
-          display.focusColumn(column.uniqueName);
+          display.focusColumns(selectedColumns);
         }
       }}
       on:mouseup={e => {

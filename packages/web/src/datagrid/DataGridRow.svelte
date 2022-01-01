@@ -17,7 +17,7 @@
   export let selectedCells = undefined;
   export let autofillSelectedCells = undefined;
   export let autofillMarkerCell = undefined;
-  export let focusedColumn = undefined;
+  export let focusedColumns = undefined;
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
   export let onSetFormView;
@@ -75,7 +75,7 @@
         isCurrentCell={col.colIndex == currentCellColumn}
         isFrameSelected={frameSelection ? cellIsSelected(rowIndex, col.colIndex, selectedCells) : false}
         isAutofillSelected={cellIsSelected(rowIndex, col.colIndex, autofillSelectedCells)}
-        isFocusedColumn={col.uniqueName == focusedColumn}
+        isFocusedColumn={focusedColumns?.includes(col.uniqueName)}
         isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
         isModifiedRow={rowStatus.status == 'updated'}
         isInserted={rowStatus.status == 'inserted' ||

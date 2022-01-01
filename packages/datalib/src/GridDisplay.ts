@@ -104,10 +104,10 @@ export abstract class GridDisplay {
     this.includeInColumnSet('addedColumns', name, true);
   }
 
-  focusColumn(uniqueName: string) {
+  focusColumns(uniqueNames: string[]) {
     this.setConfig(cfg => ({
       ...cfg,
-      focusedColumn: uniqueName,
+      focusedColumns: uniqueNames,
     }));
   }
 
@@ -115,8 +115,8 @@ export abstract class GridDisplay {
     return false;
   }
 
-  get focusedColumn() {
-    return this.config.focusedColumn;
+  get focusedColumns() {
+    return this.config.focusedColumns;
   }
 
   get engine() {
