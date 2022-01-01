@@ -127,6 +127,10 @@ export abstract class GridDisplay {
     return this.getColumns(null).filter(col => col.isChecked || col.uniquePath.length == 1);
   }
 
+  findColumn(uniqueName: string) {
+    return this.getColumns(null).find(x => x.uniqueName == uniqueName);
+  }
+
   getFkTarget(column: DisplayColumn): TableInfo {
     return null;
   }

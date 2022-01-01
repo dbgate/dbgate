@@ -176,10 +176,20 @@
       <WidgetColumnBarItem
         title="Filters"
         name="jsonFilters"
-        height="30%"
+        height={'30%'}
         skip={!isDynamicStructure || !display?.filterable}
       >
-        <JsonViewFilters {...$$props} {managerSize} />
+        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} />
+      </WidgetColumnBarItem>
+
+      <WidgetColumnBarItem
+        title="Filters"
+        name="tableFilters"
+        height={'15%'}
+        skip={!display?.filterable || isDynamicStructure || display.filterCount == 0}
+        collapsed={isDetailView}
+      >
+        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
