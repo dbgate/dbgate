@@ -85,19 +85,24 @@ export class DesignerQueryDumper {
       if (!table) continue;
       if (!tables.find(x => x.designerId == table.designerId)) continue;
 
-      const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
-      if (condition) {
-        select.where = mergeConditions(
-          select.where,
-          _.cloneDeepWith(condition, expr => {
-            if (expr.exprType == 'placeholder')
-              return {
-                exprType: 'column',
-                columnName: column.columnName,
-                source: findQuerySource(this.designer, column.designerId),
-              };
-          })
-        );
+      try {
+        const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
+        if (condition) {
+          select.where = mergeConditions(
+            select.where,
+            _.cloneDeepWith(condition, expr => {
+              if (expr.exprType == 'placeholder')
+                return {
+                  exprType: 'column',
+                  columnName: column.columnName,
+                  source: findQuerySource(this.designer, column.designerId),
+                };
+            })
+          );
+        }
+      } catch (err) {
+        // condition is skipped
+        continue;
       }
     }
   }
