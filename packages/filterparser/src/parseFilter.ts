@@ -223,8 +223,8 @@ const createParser = (filterType: FilterType) => {
     null: () => word('NULL').map(unaryCondition('isNull')),
     empty: () => word('EMPTY').map(unaryCondition('isEmpty')),
     notEmpty: r => r.not.then(r.empty).map(unaryCondition('isNotEmpty')),
-    true: () => word('TRUE').map(binaryFixedValueCondition(1)),
-    false: () => word('FALSE').map(binaryFixedValueCondition(0)),
+    true: () => P.regexp(/true/i).map(binaryFixedValueCondition(1)),
+    false: () => P.regexp(/false/i).map(binaryFixedValueCondition(0)),
     trueNum: () => word('1').map(binaryFixedValueCondition(1)),
     falseNum: () => word('0').map(binaryFixedValueCondition(0)),
 
