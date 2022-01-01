@@ -1,6 +1,17 @@
 <script lang="ts" context="module">
   const getCurrentEditor = () => getActiveComponent('QueryDesignTab');
 
+  registerCommand({
+    id: 'designer.openSql',
+    category: 'Designer',
+    icon: 'icon sql-file',
+    name: 'Open SQL',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().openSql(),
+  });
+
   registerFileCommands({
     idPrefix: 'designer',
     category: 'Designer',
@@ -37,6 +48,8 @@
   import useTimerLabel from '../utility/useTimerLabel';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { apiCall, apiOff, apiOn } from '../utility/api';
+  import registerCommand from '../commands/registerCommand';
+  import newQuery from '../query/newQuery';
 
   export let tabid;
   export let conid;
@@ -148,6 +161,10 @@
     dispatchModel({ type: 'redo' });
   }
 
+  export function openSql() {
+    newQuery({ initialData: sqlPreview });
+  }
+
   const generatePreview = (value, engine) => {
     if (!engine || !value) return;
     const sql = generateDesignedQuery(value, engine);
@@ -191,6 +208,7 @@
     return [
       { command: 'designer.execute' },
       { command: 'designer.kill' },
+      { command: 'designer.openSql' },
       { divider: true },
       { command: 'designer.save' },
       { command: 'designer.saveAs' },
