@@ -46,7 +46,8 @@
     chart = new Chart(domChart, {
       type,
       data: data,
-      options: _.cloneDeep(options),
+      // options must be cloned, because chartjs modifies options object, without cloning fails passing options to electron invoke
+      options: _.cloneDeep(options), 
     });
   });
 
