@@ -235,7 +235,8 @@
         ((cursor.row == x.start.line && cursor.column >= x.start.column) || cursor.row > x.start.line) &&
         ((cursor.row == x.end.line && cursor.column <= x.end.column) || cursor.row < x.end.line)
     );
-    if (part?.text != currentPart?.text) {
+
+    if (part?.text != currentPart?.text || part?.start?.position != currentPart?.start?.position) {
       removeCurrentPartMarker();
 
       currentPart = part;
