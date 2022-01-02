@@ -76,7 +76,8 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
         default: '3',
       },
     ],
-    description: 'Returns string of a specified length in which the beginning of the current string is padded with spaces or other character',
+    description:
+      'Returns string of a specified length in which the beginning of the current string is padded with spaces or other character',
     type: 'transformValue',
     code: `return modules.lodash.padStart(value, +args.length, args.character)`,
   },
@@ -98,7 +99,8 @@ return value ? value.toString().replace(new RegExp(rtext, rflags), args.replace 
         default: '3',
       },
     ],
-    description: 'Returns string of a specified length in which the end of the current string is padded with spaces or other character',
+    description:
+      'Returns string of a specified length in which the end of the current string is padded with spaces or other character',
     type: 'transformValue',
     code: `return modules.lodash.padEnd(value, +args.length, args.character)`,
   },
@@ -274,6 +276,22 @@ return {
         default: '_copy',
       },
     ],
+  },
+  {
+    title: 'Calculation',
+    name: 'calculation',
+    group: 'Tools',
+    description: 'Custom expression. Use row.column_name for accessing column values, value for original value',
+    type: 'transformValue',
+    args: [
+      {
+        type: 'text',
+        label: 'Expression',
+        name: 'expression',
+        default: 'value',
+      },
+    ],
+    code: `return eval(args.expression);`,
   },
   {
     title: 'Extract date fields',

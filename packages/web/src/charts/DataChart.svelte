@@ -55,6 +55,26 @@
         text: chartTitle,
       };
     }
+    res['zoom'] = {
+      zoom: {
+        wheel: {
+          enabled: true,
+        },
+        pinch: {
+          enabled: true,
+        },
+        drag: {
+          enabled: true,
+          modifierKey: 'shift',
+        },
+        mode: 'x',
+      },
+      pan: {
+        enabled: true,
+        mode: 'x',
+      },
+    };
+
     return res;
   }
 

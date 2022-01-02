@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   import Chart from 'chart.js/auto';
   import 'chartjs-adapter-moment';
+  import zoomPlugin from 'chartjs-plugin-zoom';
 
   const getCurrentEditor = () => getActiveComponent('ChartCore');
 
@@ -15,6 +16,8 @@
     onClick: () => getCurrentEditor().exportChart(),
     testEnabled: () => getCurrentEditor() != null,
   });
+
+  Chart.register(zoomPlugin);
 </script>
 
 <script lang="ts">
