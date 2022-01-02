@@ -169,7 +169,7 @@ export function groupTabs(tabs: any[]) {
 
   for (const tab of sortTabs(tabs)) {
     const lastGroup = res[res.length - 1];
-    if (lastGroup?.tabDbKey == tab.tabDbKey) {
+    if (lastGroup && tab.tabDbKey && lastGroup.tabDbKey == tab.tabDbKey) {
       lastGroup.tabs.push(tab);
     } else {
       res.push({
