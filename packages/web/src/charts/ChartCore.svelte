@@ -22,6 +22,7 @@
 
 <script lang="ts">
   import { onMount, afterUpdate, onDestroy } from 'svelte';
+  import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import { apiCall } from '../utility/api';
 
@@ -44,8 +45,8 @@
   onMount(() => {
     chart = new Chart(domChart, {
       type,
-      data,
-      options,
+      data: data,
+      options: _.cloneDeep(options),
     });
   });
 
@@ -53,7 +54,7 @@
     if (!chart) return;
     chart.data = data;
     chart.type = type;
-    chart.options = options;
+    chart.options = _.cloneDeep(options);
     // chart.plugins = plugins;
     chart.update();
   });
