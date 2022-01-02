@@ -106,6 +106,7 @@ export function generateDesignedQuery(designer: DesignerInfo, engine: EngineDriv
   const componentCreator = new DesignerComponentCreator(designer);
   const designerDumper = new DesignerQueryDumper(designer, componentCreator.components);
   const select = designerDumper.run();
+  select.distinct = !!designer?.settings?.isDistinct;
 
   const dmp = engine.createDumper();
   dumpSqlSelect(dmp, select);

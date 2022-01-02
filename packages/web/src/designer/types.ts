@@ -33,7 +33,12 @@ export type DesignerColumnInfo = {
   groupFilter?: string;
 };
 
+export type DesignerSettings = {
+  isDistinct?: boolean;
+};
+
 export type DesignerInfo = {
+  settings?: DesignerSettings;
   tables: DesignerTableInfo[];
   columns: DesignerColumnInfo[];
   references: DesignerReferenceInfo[];

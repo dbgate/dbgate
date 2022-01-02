@@ -215,6 +215,22 @@
       { divider: true },
       { command: 'designer.undo' },
       { command: 'designer.redo' },
+      { divider: true },
+      {
+        text: `Remove duplicates: ${$editorState.value?.settings?.isDistinct ? 'YES' : 'NO'}`,
+        onClick: () => {
+          handleChange(
+            {
+              ...$editorState.value,
+              settings: {
+                ...$editorState.value?.settings,
+                isDistinct: !$editorState.value?.settings?.isDistinct,
+              },
+            },
+            false
+          );
+        },
+      },
     ];
   }
 </script>
