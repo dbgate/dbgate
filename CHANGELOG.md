@@ -6,9 +6,10 @@
 - ADDED: Highlight and execute current query
 - CHANGED: Code completion offers objects only from current query
 - CHANGED: Big optimalizations of electron app - removed embedded web server, removed remote module, updated electron to version 13
-- CHANGED: Removed electron-store module
+- CHANGED: Removed dependency to electron-store module
 - FIXED: #201 fixed database URL definition, when running from Docvker container
 - FIXED: #192 Docker container stops in 1 second, ability to stop container with Ctrl+C
+- CHANGED: Web app - websocket replaced with SSE technology
 - CHANGED: Changed tab order, tabs are ordered by creation time
 - ADDED: Reorder tabs with drag & drop
 - CHANGED: Collapse left column in datagrid - removed from settings, remember last used state
