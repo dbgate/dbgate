@@ -1,5 +1,20 @@
 # ChangeLog
 
+### 4.5.0
+- ADDED: #220 functions, materialized views and stored procedures in code completion
+- ADDED: Query result in statusbar
+- ADDED: Highlight and execute current query
+- CHANGED: Code completion offers objects only from current query
+- CHANGED: Big optimalizations of electron app - removed embedded web server, removed remote module, updated electron to version 13
+- CHANGED: Removed electron-store module
+- FIXED: #201 fixed database URL definition, when running from Docvker container
+- FIXED: #192 Docker container stops in 1 second, ability to stop container with Ctrl+C
+- CHANGED: Changed tab order, tabs are ordered by creation time
+- ADDED: Reorder tabs with drag & drop
+- CHANGED: Collapse left column in datagrid - removed from settings, remember last used state
+- ADDED: Ability to select multiple columns in column manager in datagrid + copy column names
+- ADDED: Show used filters in left datagrid column
+- FIXED: Fixed delete dependency cycle detection (delete didn't work for some tables)
 ### 4.4.4
 - FIXED: Database colors
 - CHANGED: Precise work with MongoDB ObjectId
