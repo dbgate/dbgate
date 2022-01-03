@@ -17,7 +17,8 @@ function processDependencies(
   fkPath: ForeignKeyInfo[],
   table: TableInfo,
   baseCmd: ChangeSetItem,
-  dbinfo: DatabaseInfo
+  dbinfo: DatabaseInfo,
+  usedTables: string[]
 ) {
   if (result.find(x => x.title == table.pureName)) return;
 
@@ -28,8 +29,11 @@ function processDependencies(
   for (const fk of dependencies) {
     const depTable = dbinfo.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
     const subFkPath = [...fkPath, fk];
-    if (depTable && depTable.pureName != baseCmd.pureName) {
-      processDependencies(changeSet, result, allForeignKeys, subFkPath, depTable, baseCmd, dbinfo);
+    if (depTable && !usedTables.includes(depTable.pureName)) {
+      processDependencies(changeSet, result, allForeignKeys, subFkPath, depTable, baseCmd, dbinfo, [
+        ...usedTables,
+        depTable.pureName,
+      ]);
     }
 
     const refCmd: Delete = {
@@ -119,7 +123,7 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
     const table = dbinfo.tables.find(x => x.pureName == baseCmd.pureName && x.schemaName == baseCmd.schemaName);
     if (!table.primaryKey) continue;
 
-    processDependencies(changeSet, result, allForeignKeys, [], table, baseCmd, dbinfo);
+    processDependencies(changeSet, result, allForeignKeys, [], table, baseCmd, dbinfo, [table.pureName]);
 
     // let resItem = result.find(x => x.title == baseCmd.pureName);
     // if (!resItem) {
