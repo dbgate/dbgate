@@ -15,6 +15,7 @@
 - ADDED: Ability to select multiple columns in column manager in datagrid + copy column names
 - ADDED: Show used filters in left datagrid column
 - FIXED: Fixed delete dependency cycle detection (delete didn't work for some tables)
+
 ### 4.4.4
 - FIXED: Database colors
 - CHANGED: Precise work with MongoDB ObjectId
