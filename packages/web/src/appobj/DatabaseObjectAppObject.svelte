@@ -54,6 +54,10 @@
         isQueryDesigner: true,
       },
       {
+        label: 'Show diagram',
+        isDiagram: true,
+      },
+      {
         divider: true,
       },
       {
@@ -513,6 +517,30 @@
                   title: 'Query #',
                   icon: 'img query-design',
                   tabComponent: 'QueryDesignTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
+                },
+                {
+                  editor: {
+                    tables: [
+                      {
+                        ...data,
+                        designerId: uuidv1(),
+                        left: 50,
+                        top: 50,
+                      },
+                    ],
+                  },
+                }
+              );
+            } else if (menu.isDiagram) {
+              openNewTab(
+                {
+                  title: 'Diagram #',
+                  icon: 'img diagram',
+                  tabComponent: 'DiagramTab',
                   props: {
                     conid: data.conid,
                     database: data.database,
