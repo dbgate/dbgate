@@ -186,7 +186,7 @@
         title="Filters"
         name="tableFilters"
         height={'15%'}
-        skip={!display?.filterable || isDynamicStructure || display.filterCount == 0}
+        skip={!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView}
         collapsed={isDetailView}
       >
         <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} />

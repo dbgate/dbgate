@@ -24,11 +24,12 @@
       <ColumnLabel {...column} />
       <InlineButton
         square
+        narrow
         on:click={() => {
           formDisplay.removeFilter(column.uniqueName);
         }}
       >
-        <FontIcon icon="icon delete" />
+        <FontIcon icon="icon close" />
       </InlineButton>
     </div>
     <DataFilterControl
