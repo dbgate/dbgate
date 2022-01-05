@@ -18,7 +18,7 @@
   export let onChange;
   export let conid;
   export let database;
-   export let menu;
+  export let menu;
 
   let domCanvas;
 
@@ -163,6 +163,7 @@
             left: fromTable.left + 300,
             top: fromTable.top + 50,
             designerId: newTableDesignerId,
+            alias: getNewTableAlias(toTable, current.tables),
           },
         ],
         references: [
@@ -194,6 +195,14 @@
       }),
       true
     );
+  };
+
+  const getNewTableAlias = (table, tables) => {
+    const usedAliases = (tables || []).map(x => x.alias || x.pureName);
+    if (!usedAliases.includes(table.pureName)) return null;
+    let index = 2;
+    while (usedAliases.includes(`${table.pureName}${index}`)) index += 1;
+    return `${table.pureName}${index}`;
   };
 
   const handleChangeColumn = (column, changeFunc) => {
@@ -258,7 +267,13 @@
 
       return {
         ...current,
-        tables: [...((current || {}).tables || []), json],
+        tables: [
+          ...((current || {}).tables || []),
+          {
+            ...json,
+            alias: getNewTableAlias(json, current?.tables),
+          },
+        ],
         references:
           foreignKeys.length == 1
             ? [
