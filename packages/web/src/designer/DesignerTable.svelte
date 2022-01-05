@@ -31,6 +31,7 @@
   // export let domTablesRef;
   export let designer;
   export let onMoveReferences;
+  export let settings;
 
   let movingPosition = null;
   let domWrapper;
@@ -86,16 +87,18 @@
   function createMenu() {
     return [
       { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
-      { divider: true },
-      { text: 'Set table alias', onClick: handleSetTableAlias },
-      alias && {
-        text: 'Remove table alias',
-        onClick: () =>
-          onChangeTable({
-            ...table,
-            alias: null,
-          }),
-      },
+      settings?.allowTableAlias && [
+        { divider: true },
+        { text: 'Set table alias', onClick: handleSetTableAlias },
+        alias && {
+          text: 'Remove table alias',
+          onClick: () =>
+            onChangeTable({
+              ...table,
+              alias: null,
+            }),
+        },
+      ],
     ];
   }
 </script>
@@ -114,9 +117,11 @@
     use:contextMenu={createMenu}
   >
     <div>{alias || pureName}</div>
-    <div class="close" on:click={() => onRemoveTable(table)}>
-      <FontIcon icon="icon close" />
-    </div>
+    {#if settings?.showTableCloseButton}
+      <div class="close" on:click={() => onRemoveTable(table)}>
+        <FontIcon icon="icon close" />
+      </div>
+    {/if}
   </div>
   <div class="columns" on:scroll={() => tick().then(onMoveReferences)}>
     {#each columns || [] as column}
@@ -131,6 +136,7 @@
         {targetDragColumn$}
         {onCreateReference}
         {onAddReferenceByColumn}
+        {settings}
         bind:domLine={columnRefs[column.columnName]}
       />
     {/each}

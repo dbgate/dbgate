@@ -22,7 +22,7 @@
   import _ from 'lodash';
   import { findEngineDriver } from 'dbgate-tools';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import Designer from '../designer/Designer.svelte';
+  import DiagramDesigner from '../designer/DiagramDesigner.svelte';
 
   export let tabid;
   export let conid;
@@ -92,7 +92,7 @@
   }
 </script>
 
-<Designer
+<DiagramDesigner
   value={$modelState.value || {}}
   {conid}
   {database}

@@ -2,4 +2,12 @@
   import Designer from './Designer.svelte';
 </script>
 
-<Designer {...$$props} />
+<Designer
+  {...$$props}
+  settings={{
+    showTableCloseButton: true,
+    allowColumnOperations: true,
+    allowCreateRefByDrag: true,
+    allowTableAlias: true,
+  }}
+/>

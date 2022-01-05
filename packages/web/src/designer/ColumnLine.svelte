@@ -17,6 +17,7 @@
   export let onCreateReference;
   export let onAddReferenceByColumn;
   export let onSelectColumn;
+  export let settings;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
@@ -38,9 +39,11 @@
     };
 
     return [
-      { text: 'Sort ascending', onClick: () => setSortOrder(1) },
-      { text: 'Sort descending', onClick: () => setSortOrder(-1) },
-      { text: 'Unsort', onClick: () => setSortOrder(0) },
+      settings?.allowColumnOperations && [
+        { text: 'Sort ascending', onClick: () => setSortOrder(1) },
+        { text: 'Sort descending', onClick: () => setSortOrder(-1) },
+        { text: 'Unsort', onClick: () => setSortOrder(0) },
+      ],
       foreignKey && { text: 'Add reference', onClick: addReference },
     ];
   }
@@ -49,8 +52,10 @@
 <div
   class="line"
   bind:this={domLine}
-  draggable={true}
+  draggable={!!settings?.allowCreateRefByDrag}
   on:dragstart={e => {
+    if (!settings?.allowCreateRefByDrag) return;
+
     const dragData = {
       ...column,
       designerId,
@@ -92,30 +97,32 @@
     })}
   use:contextMenu={createMenu}
 >
-  <CheckboxField
-    checked={!!(designer.columns || []).find(
-      x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
-    )}
-    on:change={e => {
-      if (e.target.checked) {
-        onChangeColumn(
-          {
-            ...column,
-            designerId,
-          },
-          col => ({ ...col, isOutput: true })
-        );
-      } else {
-        onChangeColumn(
-          {
-            ...column,
-            designerId,
-          },
-          col => ({ ...col, isOutput: false })
-        );
-      }
-    }}
-  />
+  {#if settings?.allowColumnOperations}
+    <CheckboxField
+      checked={!!(designer.columns || []).find(
+        x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
+      )}
+      on:change={e => {
+        if (e.target.checked) {
+          onChangeColumn(
+            {
+              ...column,
+              designerId,
+            },
+            col => ({ ...col, isOutput: true })
+          );
+        } else {
+          onChangeColumn(
+            {
+              ...column,
+              designerId,
+            },
+            col => ({ ...col, isOutput: false })
+          );
+        }
+      }}
+    />
+  {/if}
   <ColumnLabel {...column} foreignKey={findForeignKeyForColumn(table, column)} forceIcon />
   {#if designerColumn?.filter}
     <FontIcon icon="img filter" />

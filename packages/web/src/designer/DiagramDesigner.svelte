@@ -1,0 +1,13 @@
+<script lang="ts">
+  import Designer from './Designer.svelte';
+</script>
+
+<Designer
+  {...$$props}
+  settings={{
+    showTableCloseButton: false,
+    allowColumnOperations: false,
+    allowCreateRefByDrag: false,
+    allowTableAlias: false,
+  }}
+/>

@@ -19,6 +19,7 @@
   export let conid;
   export let database;
   export let menu;
+  export let settings;
 
   let domCanvas;
 
@@ -153,7 +154,9 @@
     const newTableDesignerId = uuidv1();
     callChange(current => {
       const fromTable = (current.tables || []).find(x => x.designerId == designerId);
-      if (!fromTable) return;
+      if (!fromTable) return current;
+      const alias = getNewTableAlias(toTable, current.tables);
+      if (alias && !settings?.allowTableAlias) return current;
       return {
         ...current,
         tables: [
@@ -163,7 +166,7 @@
             left: fromTable.left + 300,
             top: fromTable.top + 50,
             designerId: newTableDesignerId,
-            alias: getNewTableAlias(toTable, current.tables),
+            alias,
           },
         ],
         references: [
@@ -265,13 +268,16 @@
         ),
       ]);
 
+      const alias = getNewTableAlias(json, current?.tables);
+      if (alias && !settings?.allowTableAlias) return current;
+
       return {
         ...current,
         tables: [
           ...((current || {}).tables || []),
           {
             ...json,
-            alias: getNewTableAlias(json, current?.tables),
+            alias,
           },
         ],
         references:
@@ -301,7 +307,7 @@
   }
 </script>
 
-<div class="wrapper" use:contextMenu={menu}>
+<div class="wrapper noselect" use:contextMenu={menu}>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
@@ -344,6 +350,7 @@
         designer={value}
         {sourceDragColumn$}
         {targetDragColumn$}
+        {settings}
       />
     {/each}
   </div>
