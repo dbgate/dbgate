@@ -5,7 +5,7 @@
   import DesignerTable from './DesignerTable.svelte';
   import { isConnectedByReference } from './designerTools';
   import uuidv1 from 'uuid/v1';
-  import { getTableInfo } from '../utility/metadataLoaders';
+  import { getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
   import createRef from '../utility/createRef';
@@ -13,6 +13,7 @@
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
+  import stableStringify from 'json-stable-stringify';
 
   export let value;
   export let onChange;
@@ -25,6 +26,8 @@
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
+
+  const dbInfo = settings?.updateFromDbInfo ? useDatabaseInfo({ conid, database }) : null;
 
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
@@ -46,6 +49,41 @@
       }));
     }
     return tables;
+  }
+
+  $: {
+    if (dbInfo) {
+      updateFromDbInfo($dbInfo);
+    }
+  }
+
+  function updateFromDbInfo(db) {
+    if (!settings?.updateFromDbInfo || !db) return;
+
+    onChange(current => {
+      let newTables = current.tables || [];
+      for (const table of current.tables || []) {
+        const dbTable = (db.tables || []).find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+        if (
+          stableStringify(_.pick(dbTable, ['columns', 'primaryKey', 'foreignKeys'])) !=
+          stableStringify(_.pick(table, ['columns', 'primaryKey', 'foreignKeys']))
+        ) {
+          newTables = newTables.map(x =>
+            x == table
+              ? {
+                  ...table,
+                  ..._.pick(dbTable, ['columns', 'primaryKey', 'foreignKeys']),
+                }
+              : x
+          );
+        }
+      }
+
+      return {
+        ...current,
+        tables: newTables,
+      };
+    }, true);
   }
 
   function callChange(changeFunc, skipUndoChain = undefined) {
@@ -169,19 +207,21 @@
             alias,
           },
         ],
-        references: [
-          ...(current.references || []),
-          {
-            designerId: uuidv1(),
-            sourceId: fromTable.designerId,
-            targetId: newTableDesignerId,
-            joinType: 'INNER JOIN',
-            columns: foreignKey.columns.map(col => ({
-              source: col.columnName,
-              target: col.refColumnName,
-            })),
-          },
-        ],
+        references: settings?.allowCreateRefByDrag
+          ? [
+              ...(current.references || []),
+              {
+                designerId: uuidv1(),
+                sourceId: fromTable.designerId,
+                targetId: newTableDesignerId,
+                joinType: 'INNER JOIN',
+                columns: foreignKey.columns.map(col => ({
+                  source: col.columnName,
+                  target: col.refColumnName,
+                })),
+              },
+            ]
+          : current.references,
       };
     });
   };

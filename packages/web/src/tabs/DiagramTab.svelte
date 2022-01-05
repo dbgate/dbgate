@@ -16,7 +16,7 @@
 <script lang="ts">
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
-  import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { registerFileCommands } from '../commands/stdCommands';
   import createUndoReducer from '../utility/createUndoReducer';
   import _ from 'lodash';
@@ -30,9 +30,6 @@
   export let initialArgs;
 
   export const activator = createActivator('DiagramTab', true);
-
-  $: connection = useConnectionInfo({ conid });
-  $: engine = findEngineDriver($connection, $extensions);
 
   $: setEditorData($modelState.value);
 
@@ -78,7 +75,6 @@
   const [modelState, dispatchModel] = createUndoReducer({
     tables: [],
     references: [],
-    columns: [],
   });
 
   function createMenu() {

@@ -9,5 +9,6 @@
     allowColumnOperations: false,
     allowCreateRefByDrag: false,
     allowTableAlias: false,
+    updateFromDbInfo: true,
   }}
 />
