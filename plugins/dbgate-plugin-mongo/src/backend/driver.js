@@ -9,7 +9,7 @@ const Cursor = require('mongodb').Cursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
 
 function transformMongoData(row) {
-  return _.mapValues(row, (v) => (v && v.constructor && v.constructor.name == 'ObjectID' ? { $oid: v.toString() } : v));
+  return _.mapValues(row, (v) => (v && v.constructor == ObjectId ? { $oid: v.toString() } : v));
 }
 
 function readCursor(cursor, options) {
