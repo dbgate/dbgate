@@ -118,7 +118,7 @@
       <FontIcon icon="icon close" />
     </div>
   </div>
-  <div class="columns">
+  <div class="columns" on:scroll={() => tick().then(onMoveReferences)}>
     {#each columns || [] as column}
       <ColumnLine
         {column}
