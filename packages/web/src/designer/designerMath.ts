@@ -12,15 +12,15 @@ interface IBoxBounds {
 
 // helpers for figuring out where to draw arrows
 export function intersectLineLine(p1: IPoint, p2: IPoint, p3: IPoint, p4: IPoint): IPoint {
-  var denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+  const denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
 
   // lines are parallel
   if (denom === 0) {
     return null;
   }
 
-  var ua = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denom;
-  var ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denom;
+  const ua = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x)) / denom;
+  const ub = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x)) / denom;
 
   if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
     return null;
@@ -32,25 +32,26 @@ export function intersectLineLine(p1: IPoint, p2: IPoint, p3: IPoint, p4: IPoint
   };
 }
 
-export function intersectLineBox(p1: IPoint, p2: IPoint, box: IBoxBounds): IPoint {
-  var tl = { x: box.left, y: box.top };
-  var tr = { x: box.right, y: box.top };
-  var bl = { x: box.left, y: box.bottom };
-  var br = { x: box.right, y: box.bottom };
+export function intersectLineBox(p1: IPoint, p2: IPoint, box: IBoxBounds): IPoint[] {
+  const tl = { x: box.left, y: box.top };
+  const tr = { x: box.right, y: box.top };
+  const bl = { x: box.left, y: box.bottom };
+  const br = { x: box.right, y: box.bottom };
 
-  var result;
-  if ((result = intersectLineLine(p1, p2, tl, tr))) {
-    return result;
+  const res = [];
+  let item;
+  if ((item = intersectLineLine(p1, p2, tl, tr))) {
+    res.push(item);
   } // top
-  if ((result = intersectLineLine(p1, p2, tr, br))) {
-    return result;
+  if ((item = intersectLineLine(p1, p2, tr, br))) {
+    res.push(item);
   } // right
-  if ((result = intersectLineLine(p1, p2, br, bl))) {
-    return result;
+  if ((item = intersectLineLine(p1, p2, br, bl))) {
+    res.push(item);
   } // bottom
-  if ((result = intersectLineLine(p1, p2, bl, tl))) {
-    return result;
+  if ((item = intersectLineLine(p1, p2, bl, tl))) {
+    res.push(item);
   } // left
 
-  return null;
+  return res;
 }

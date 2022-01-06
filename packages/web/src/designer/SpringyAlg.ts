@@ -11,6 +11,7 @@ const STEP_COUNT = 100;
 const TIMESTEP = 0.2;
 const MAX_OVERLAPS_MOVES = 100;
 const SOLVE_OVERLAPS_FROM_STEP = 90;
+const OVERLAP_DISTANCE_ADD = 15;
 
 export interface ISpringyNodePosition {
   nodeData: any;
@@ -331,6 +332,8 @@ export class ForceDirectedLayout {
     });
   }
 
+  attractFromLines() {}
+
   updateVelocity(timestep: number) {
     this.eachNode((node, point) => {
       // Is this, along with updatePosition below, the only places that your
@@ -354,7 +357,7 @@ export class ForceDirectedLayout {
   solveOverlaps() {
     this.eachNode((n1, point1) => {
       for (let i = 0; i < MAX_OVERLAPS_MOVES; i += 1) {
-        let overlap = false;
+        let overlapDistance = null;
         this.eachNode((n2, point2) => {
           if (n1 == n2) return;
           const distance = rectangle_distance(
@@ -368,13 +371,19 @@ export class ForceDirectedLayout {
             point2.position.y + n2.height / 2
           );
           if (distance == null) {
-            overlap = true;
+            overlapDistance = 0;
+          }
+          if (distance < OVERLAP_DISTANCE_ADD) {
+            if (overlapDistance == null || distance < overlapDistance) overlapDistance = distance;
           }
         });
-        if (!overlap) {
+        if (overlapDistance == null) {
           break;
         }
-        point1.position = point1.position.add(point1.velocity.multiply(TIMESTEP));
+        point1.position = point1.position.add(
+          point1.velocity.normalise().multiply(OVERLAP_DISTANCE_ADD - overlapDistance)
+        );
+        point1.velocity = point1.velocity.multiply(0.9);
       }
     });
   }
@@ -431,6 +440,7 @@ export class ForceDirectedLayout {
     this.applyCoulombsLaw();
     this.applyHookesLaw();
     this.attractToCentre();
+    this.attractFromLines();
     this.updateVelocity(timestep);
     this.updatePosition(timestep);
     if (stepNumber >= SOLVE_OVERLAPS_FROM_STEP) {

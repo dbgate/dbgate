@@ -41,7 +41,7 @@
       y: (targetRect.top + targetRect.bottom) / 2,
     };
 
-    arrowPt = intersectLineBox(src, dst, targetRect);
+    arrowPt = intersectLineBox(src, dst, targetRect)[0];
     arrowAngle = Math.atan2(dst.y - src.y, dst.x - src.x);
   }
 
