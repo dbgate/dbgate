@@ -28,6 +28,7 @@
   import { ForceDirectedLayout, SpringyGraph } from './SpringyAlg';
   import registerCommand from '../commands/registerCommand';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { GraphDefinition, GraphLayout } from './GraphLayout';
 
   export let value;
   export let onChange;
@@ -466,48 +467,81 @@
   }
 
   export function arrange(skipUndoChain = false) {
-    const graph = new SpringyGraph();
-    const nodes = {};
+    const graph = new GraphDefinition();
     for (const table of value?.tables || []) {
       const domTable = domTables[table.designerId] as any;
       if (!domTable) continue;
       const rect = domTable.getRect();
-      const node = graph.newNode({ designerId: table.designerId });
-      nodes[table.designerId] = node;
-      node.width = rect.right - rect.left;
-      node.height = rect.bottom - rect.top;
-      node.initX = (rect.right + rect.left) / 2;
-      node.initY = (rect.bottom + rect.top) / 2;
-      // console.log('RECT', rect);
+      graph.addNode(table.designerId, rect.right - rect.left, rect.bottom - rect.top);
     }
 
     for (const reference of value?.references) {
-      const source = nodes[reference.sourceId];
-      const target = nodes[reference.targetId];
-      if (source && target) {
-        graph.newEdge(source, target);
-      }
+      graph.addEdge(reference.sourceId, reference.targetId);
     }
 
-    const alg = new ForceDirectedLayout(graph);
-    const positions = alg.compute();
+    graph.initialize();
+
+    const layout = GraphLayout.createCircle(graph).fixViewBox();
 
     callChange(current => {
       return {
         ...current,
         tables: (current?.tables || []).map(table => {
-          const position = positions.find(x => x.nodeData?.designerId == table.designerId);
+          const node = layout.nodes[table.designerId];
           // console.log('POSITION', position);
-          return position
+          return node
             ? {
                 ...table,
-                left: position.x - position.nodeWidth / 2,
-                top: position.y - position.nodeHeight / 2,
+                left: node.x - node.node.width / 2,
+                top: node.y - node.node.height / 2,
               }
             : table;
         }),
       };
     }, skipUndoChain);
+
+    // const graph = new SpringyGraph();
+    // const nodes = {};
+    // for (const table of value?.tables || []) {
+    //   const domTable = domTables[table.designerId] as any;
+    //   if (!domTable) continue;
+    //   const rect = domTable.getRect();
+    //   const node = graph.newNode({ designerId: table.designerId });
+    //   nodes[table.designerId] = node;
+    //   node.width = rect.right - rect.left;
+    //   node.height = rect.bottom - rect.top;
+    //   node.initX = (rect.right + rect.left) / 2;
+    //   node.initY = (rect.bottom + rect.top) / 2;
+    //   // console.log('RECT', rect);
+    // }
+
+    // for (const reference of value?.references) {
+    //   const source = nodes[reference.sourceId];
+    //   const target = nodes[reference.targetId];
+    //   if (source && target) {
+    //     graph.newEdge(source, target);
+    //   }
+    // }
+
+    // const alg = new ForceDirectedLayout(graph);
+    // const positions = alg.compute();
+
+    // callChange(current => {
+    //   return {
+    //     ...current,
+    //     tables: (current?.tables || []).map(table => {
+    //       const position = positions.find(x => x.nodeData?.designerId == table.designerId);
+    //       // console.log('POSITION', position);
+    //       return position
+    //         ? {
+    //             ...table,
+    //             left: position.x - position.nodeWidth / 2,
+    //             top: position.y - position.nodeHeight / 2,
+    //           }
+    //         : table;
+    //     }),
+    //   };
+    // }, skipUndoChain);
   }
 </script>
 
