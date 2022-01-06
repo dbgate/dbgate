@@ -11,5 +11,7 @@
     allowTableAlias: true,
     updateFromDbInfo: false,
     useDatabaseReferences: false,
+    showJoinType: true,
+    showReferenceArrow: false,
   }}
 />

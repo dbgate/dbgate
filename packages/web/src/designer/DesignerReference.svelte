@@ -8,6 +8,7 @@
   export let onChangeReference;
   export let designer;
   export let domTables;
+  export let settings;
 
   let src = null;
   let dst = null;
@@ -17,6 +18,9 @@
 
   const buswi = 10;
   const extwi = 25;
+  const arwi = 12;
+  const arhi = 12;
+  const arpad = 3;
 
   export function recomputePosition() {
     const { designerId, sourceId, targetId, columns, joinType } = reference;
@@ -117,20 +121,31 @@
 `}
       />
     {/each}
+    {#if settings?.showReferenceArrow}
+      <polygon
+        points={`
+      ${dst.x - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y}
+      ${dst.x + arwi * minpos.dirdst - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y + arhi / 2}
+      ${dst.x + arwi * minpos.dirdst - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y - arhi / 2}
+      `}
+      />
+    {/if}
   </svg>
 
-  <div
-    use:contextMenu={createMenu}
-    class="wrapper"
-    style={`left: ${(src.x + extwi * minpos.dirsrc + dst.x + extwi * minpos.dirdst) / 2 - 16}px;
+  {#if settings?.showJoinType}
+    <div
+      use:contextMenu={createMenu}
+      class="wrapper"
+      style={`left: ${(src.x + extwi * minpos.dirsrc + dst.x + extwi * minpos.dirdst) / 2 - 16}px;
             top: ${(src.y + dst.y) / 2 - 16}px`}
-  >
-    <div class="text">
-      {_.snakeCase(reference?.joinType || 'CROSS JOIN')
-        .replace('_', '\xa0')
-        .replace('_', '\xa0')}
+    >
+      <div class="text">
+        {_.snakeCase(reference?.joinType || 'CROSS JOIN')
+          .replace('_', '\xa0')
+          .replace('_', '\xa0')}
+      </div>
     </div>
-  </div>
+  {/if}
 {/if}
 
 <style>

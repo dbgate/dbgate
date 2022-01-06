@@ -57,7 +57,8 @@
     }
   }
 
-  function updateFromDbInfo(db) {
+  function updateFromDbInfo(db = 'auto') {
+    if (db == 'auto' && dbInfo) db = $dbInfo;
     if (!settings?.updateFromDbInfo || !db) return;
 
     onChange(current => {
@@ -301,34 +302,36 @@
     json.top = e.clientY - rect.top;
 
     callChange(current => {
-      const foreignKeys = _.compact([
-        ...(json.foreignKeys || []).map(fk => {
-          const tables = ((current || {}).tables || []).filter(
-            tbl => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
-          );
-          if (tables.length == 1)
-            return {
-              ...fk,
-              sourceId: json.designerId,
-              targetId: tables[0].designerId,
-            };
-          return null;
-        }),
-        ..._.flatten(
-          ((current || {}).tables || []).map(tbl =>
-            (tbl.foreignKeys || []).map(fk => {
-              if (fk.refTableName == json.pureName && fk.refSchemaName == json.schemaName) {
+      const foreignKeys = settings?.useDatabaseReferences
+        ? []
+        : _.compact([
+            ...(json.foreignKeys || []).map(fk => {
+              const tables = ((current || {}).tables || []).filter(
+                tbl => fk.refTableName == tbl.pureName && fk.refSchemaName == tbl.schemaName
+              );
+              if (tables.length == 1)
                 return {
                   ...fk,
-                  sourceId: tbl.designerId,
-                  targetId: json.designerId,
+                  sourceId: json.designerId,
+                  targetId: tables[0].designerId,
                 };
-              }
               return null;
-            })
-          )
-        ),
-      ]);
+            }),
+            ..._.flatten(
+              ((current || {}).tables || []).map(tbl =>
+                (tbl.foreignKeys || []).map(fk => {
+                  if (fk.refTableName == json.pureName && fk.refSchemaName == json.schemaName) {
+                    return {
+                      ...fk,
+                      sourceId: tbl.designerId,
+                      targetId: json.designerId,
+                    };
+                  }
+                  return null;
+                })
+              )
+            ),
+          ]);
 
       const alias = getNewTableAlias(json, current?.tables);
       if (alias && !settings?.allowTableAlias) return current;
@@ -360,6 +363,7 @@
             : (current || {}).references,
       };
     });
+    updateFromDbInfo();
   };
 
   function recomputeReferencePositions() {
@@ -383,6 +387,7 @@
         onChangeReference={changeReference}
         onRemoveReference={removeReference}
         designer={value}
+        {settings}
       />
     {/each}
     <!-- 
