@@ -442,6 +442,8 @@
       nodes[table.designerId] = node;
       node.width = rect.right - rect.left;
       node.height = rect.bottom - rect.top;
+      node.initX = (rect.right + rect.left) / 2;
+      node.initY = (rect.bottom + rect.top) / 2;
       // console.log('RECT', rect);
     }
 

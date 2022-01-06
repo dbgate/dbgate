@@ -65,9 +65,10 @@ class Vector {
 }
 
 class Node {
-  // must be set by renderer
   width: number = 0;
   height: number = 0;
+  initX: number = null;
+  initY: number = null;
 
   constructor(public id: number, public data: {}) {}
 }
@@ -196,7 +197,11 @@ export class ForceDirectedLayout {
   point(node) {
     if (!(node.id in this.nodePoints)) {
       var mass = node.data.mass !== undefined ? node.data.mass : MASS;
-      this.nodePoints[node.id] = new ForceDirectedPoint(Vector.random(), mass, node);
+      this.nodePoints[node.id] = new ForceDirectedPoint(
+        node.initX && node.initY ? new Vector(node.initX, node.initY) : Vector.random(),
+        mass,
+        node
+      );
     }
 
     return this.nodePoints[node.id];
