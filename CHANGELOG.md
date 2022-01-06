@@ -1,4 +1,9 @@
 # ChangeLog
+### 4.5.1
+- FIXED: MongoId detection
+- FIXED: #203 disabled spellchecker
+- FIXED: Prevented display filters in form view twice
+- FIXED: Query designer fixes
 
 ### 4.5.0
 - ADDED: #220 functions, materialized views and stored procedures in code completion
