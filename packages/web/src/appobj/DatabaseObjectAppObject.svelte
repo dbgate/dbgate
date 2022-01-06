@@ -552,10 +552,11 @@
                       {
                         ...data,
                         designerId: uuidv1(),
-                        left: 50,
-                        top: 50,
+                        autoAddReferences: true,
                       },
                     ],
+                    references: [],
+                    autoLayout: true,
                   },
                 }
               );

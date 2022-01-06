@@ -74,6 +74,12 @@
     }
   }
 
+  $: {
+    if (dbInfo && value?.autoLayout) {
+      performAutoActions($dbInfo);
+    }
+  }
+
   function updateFromDbInfo(db = 'auto') {
     if (db == 'auto' && dbInfo) db = $dbInfo;
     if (!settings?.updateFromDbInfo || !db) return;
@@ -267,41 +273,69 @@
     updateFromDbInfo();
   };
 
+  const getTablesWithReferences = (db, table, current) => {
+    const dbTable = db.tables?.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
+    if (!dbTable) return;
+
+    const newTables = [];
+    for (const fk of dbTable.foreignKeys || []) {
+      const existing = [...current.tables, ...newTables].find(
+        x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName
+      );
+      if (!existing) {
+        const dst = db.tables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
+        if (dst) newTables.push(dst);
+      }
+    }
+    for (const fk of dbTable.dependencies || []) {
+      const existing = [...current.tables, ...newTables].find(
+        x => x.pureName == fk.pureName && x.schemaName == fk.schemaName
+      );
+      if (!existing) {
+        const dst = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
+        if (dst) newTables.push(dst);
+      }
+    }
+
+    return {
+      ...current,
+      tables: [
+        ...current.tables,
+        ...newTables.map(x => ({
+          ...x,
+          designerId: uuidv1(),
+        })),
+      ],
+    };
+  };
+
   const handleAddTableReferences = table => {
     if (!dbInfo) return;
     const db = $dbInfo;
     if (!db) return;
-    const dbTable = db.tables?.find(x => x.pureName == table.pureName && x.schemaName == table.schemaName);
-    if (!dbTable) return;
     callChange(current => {
-      const newTables = [];
-      for (const fk of dbTable.foreignKeys || []) {
-        const existing = current.tables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
-        if (!existing) {
-          const dst = db.tables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
-          if (dst) newTables.push(dst);
-        }
-      }
-      for (const fk of dbTable.dependencies || []) {
-        const existing = current.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-        if (!existing) {
-          const dst = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-          if (dst) newTables.push(dst);
-        }
+      return getTablesWithReferences(db, table, current);
+    });
+    updateFromDbInfo();
+  };
+
+  const performAutoActions = async db => {
+    if (!db) return;
+
+    callChange(current => {
+      for (const table of current?.tables || []) {
+        if (table.autoAddReferences) current = getTablesWithReferences(db, table, current);
       }
 
       return {
         ...current,
-        tables: [
-          ...current.tables,
-          ...newTables.map(x => ({
-            ...x,
-            designerId: uuidv1(),
-          })),
-        ],
+        autoLayout: false,
+        tables: (current?.tables || []).map(tbl => ({ ...tbl, autoAddReferences: false })),
       };
     });
     updateFromDbInfo();
+    await tick();
+    arrange();
   };
 
   const handleSelectColumn = column => {
