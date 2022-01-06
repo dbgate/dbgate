@@ -6,7 +6,8 @@ const MASS = 1.0;
 const EDGE_LENGTH = 10.0;
 const MIN_NODE_DISTANCE = 0.5;
 const NODE_DISTANCE_OVERRIDE = 0.05;
-const STEP_COUNT = 1;
+const MAX_SPEED = 1000;
+const STEP_COUNT = 100;
 const TIMESTEP = 0.2;
 
 export interface ISpringyNodePosition {
@@ -153,8 +154,9 @@ class ForceDirectedPoint {
   constructor(public position: Vector, public mass: number, public node: Node) {}
 
   applyForce(force: Vector) {
+    // console.log('this.acceleration', this.acceleration);
     this.acceleration = this.acceleration.add(force.divide(this.mass));
-    console.log('this.acceleration', this.acceleration);
+    // console.log('this.acceleration', this.acceleration);
   }
 }
 
@@ -180,7 +182,7 @@ export class ForceDirectedLayout {
     public repulsion: number = REPULSION,
     public damping: number = DAMPING,
     public minEnergyThreshold: number = MIN_ENERGY,
-    public maxSpeed: number = Infinity
+    public maxSpeed: number = MAX_SPEED
   ) {
     this.nodePoints = {}; // keep track of points associated with nodes
     this.edgeSprings = {}; // keep track of springs associated with edges
@@ -263,7 +265,7 @@ export class ForceDirectedLayout {
           var d = point1.position.subtract(point2.position);
           var direction = d.normalise();
 
-          //var distance = d.magnitude() + 0.1; // avoid massive forces at small distances (and divide by zero)
+          //   var distance = d.magnitude() + 0.1; // avoid massive forces at small distances (and divide by zero)
           var distance = rectangle_distance(
             point1.position.x - n1.width / 2,
             point1.position.y - n1.height / 2,
@@ -277,6 +279,10 @@ export class ForceDirectedLayout {
 
           if (distance == null) distance = NODE_DISTANCE_OVERRIDE;
           else distance += MIN_NODE_DISTANCE;
+
+          //   console.log('point1.position', point1.position);
+          //   console.log('point2.position', point2.position);
+          //   console.log('DIST', distance);
 
           // apply force to each end point
           point1.applyForce(direction.multiply(this.repulsion).divide(distance * distance * 0.5));
@@ -404,11 +410,12 @@ export class ForceDirectedLayout {
       this.tick(TIMESTEP);
     }
     const positions = [];
+    const boundingBox = this.getBoundingBox();
     this.eachNode((node, point) => {
       positions.push({
         nodeData: node.data,
-        x: point.position.x,
-        y: point.position.y,
+        x: point.position.x - boundingBox.bottomleft.x,
+        y: point.position.y - boundingBox.bottomleft.y,
         nodeWidth: node.width,
         nodeHeight: node.height,
       });
@@ -416,6 +423,29 @@ export class ForceDirectedLayout {
     return positions;
   }
 
+  getBoundingBox(): IBoundingBox {
+    var bottomleft = new Vector(-2, -2);
+    var topright = new Vector(2, 2);
+
+    this.eachNode((n, point) => {
+      if (point.position.x - n.width / 2 < bottomleft.x) {
+        bottomleft.x = point.position.x - n.width / 2;
+      }
+      if (point.position.y - n.height / 2 < bottomleft.y) {
+        bottomleft.y = point.position.y - n.height / 2;
+      }
+      if (point.position.x + n.width / 2 > topright.x) {
+        topright.x = point.position.x + n.width / 2;
+      }
+      if (point.position.y + n.height / 2 > topright.y) {
+        topright.y = point.position.y + n.height / 2;
+      }
+    });
+
+    var padding = topright.subtract(bottomleft).multiply(0.07); // ~5% padding
+
+    return { bottomleft: bottomleft.subtract(padding), topright: topright.add(padding) };
+  }
   // Find the nearest point to a particular position
   nearest(pos: Vector) {
     var min = { node: null, point: null, distance: null };

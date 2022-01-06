@@ -461,12 +461,12 @@
         ...current,
         tables: (current?.tables || []).map(table => {
           const position = positions.find(x => x.nodeData?.designerId == table.designerId);
-          console.log('POSITION', position);
+          // console.log('POSITION', position);
           return position
             ? {
                 ...table,
-                left: position.x,
-                top: position.y,
+                left: position.x - position.nodeWidth / 2,
+                top: position.y - position.nodeHeight / 2,
               }
             : table;
         }),
