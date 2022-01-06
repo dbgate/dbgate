@@ -205,14 +205,18 @@ function createWindow() {
         slashes: true,
       });
     mainWindow.on('close', () => {
-      fs.writeFileSync(
-        configRootPath,
-        JSON.stringify({
-          winBounds: mainWindow.getBounds(),
-          winIsMaximized: mainWindow.isMaximized(),
-        }),
-        'utf-8'
-      );
+      try {
+        fs.writeFileSync(
+          configRootPath,
+          JSON.stringify({
+            winBounds: mainWindow.getBounds(),
+            winIsMaximized: mainWindow.isMaximized(),
+          }),
+          'utf-8'
+        );
+      } catch (err) {
+        console.log('Error saving config-root:', err.message);
+      }
     });
     mainWindow.loadURL(startUrl);
     if (os.platform() == 'linux') {
