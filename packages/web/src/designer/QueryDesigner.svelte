@@ -1,5 +1,6 @@
 <script lang="ts">
   import Designer from './Designer.svelte';
+  import QueryDesignerReference from './QueryDesignerReference.svelte';
 </script>
 
 <Designer
@@ -11,9 +12,8 @@
     allowTableAlias: true,
     updateFromDbInfo: false,
     useDatabaseReferences: false,
-    showJoinType: true,
-    showReferenceArrow: false,
     allowScrollColumns: true,
     allowAddAllReferences: false,
   }}
+  referenceComponent={QueryDesignerReference}
 />

@@ -9,7 +9,6 @@
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
   import createRef from '../utility/createRef';
-  import DesignerReference from './DesignerReference.svelte';
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
@@ -21,6 +20,7 @@
   export let database;
   export let menu;
   export let settings;
+  export let referenceComponent;
 
   let domCanvas;
 
@@ -272,7 +272,7 @@
           if (dst) newTables.push(dst);
         }
       }
-      
+
       return {
         ...current,
         tables: [
@@ -418,7 +418,7 @@
 
   <div class="canvas" bind:this={domCanvas} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
     {#each references || [] as ref (ref.designerId)}
-      <DesignerReference
+      <svelte:component this={referenceComponent}
         bind:this={referenceRefs[ref.designerId]}
         {domTables}
         reference={ref}

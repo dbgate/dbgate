@@ -1,5 +1,6 @@
 <script lang="ts">
   import Designer from './Designer.svelte';
+  import DiagramDesignerReference from './DiagramDesignerReference.svelte';
 </script>
 
 <Designer
@@ -11,9 +12,8 @@
     allowTableAlias: false,
     updateFromDbInfo: true,
     useDatabaseReferences: true,
-    showJoinType: false,
-    showReferenceArrow: true,
     allowScrollColumns: false,
     allowAddAllReferences: true,
   }}
+  referenceComponent={DiagramDesignerReference}
 />
