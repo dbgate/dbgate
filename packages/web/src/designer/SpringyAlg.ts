@@ -9,6 +9,8 @@ const NODE_DISTANCE_OVERRIDE = 0.05;
 const MAX_SPEED = 1000;
 const STEP_COUNT = 100;
 const TIMESTEP = 0.2;
+const MAX_OVERLAPS_MOVES = 100;
+const SOLVE_OVERLAPS_FROM_STEP = 90;
 
 export interface ISpringyNodePosition {
   nodeData: any;
@@ -349,6 +351,34 @@ export class ForceDirectedLayout {
     });
   }
 
+  solveOverlaps() {
+    this.eachNode((n1, point1) => {
+      for (let i = 0; i < MAX_OVERLAPS_MOVES; i += 1) {
+        let overlap = false;
+        this.eachNode((n2, point2) => {
+          if (n1 == n2) return;
+          const distance = rectangle_distance(
+            point1.position.x - n1.width / 2,
+            point1.position.y - n1.height / 2,
+            point1.position.x + n1.width / 2,
+            point1.position.y + n1.height / 2,
+            point2.position.x - n2.width / 2,
+            point2.position.y - n2.height / 2,
+            point2.position.x + n2.width / 2,
+            point2.position.y + n2.height / 2
+          );
+          if (distance == null) {
+            overlap = true;
+          }
+        });
+        if (!overlap) {
+          break;
+        }
+        point1.position = point1.position.add(point1.velocity.multiply(TIMESTEP));
+      }
+    });
+  }
+
   // Calculate the total kinetic energy of the system
   totalEnergy() {
     var energy = 0.0;
@@ -394,7 +424,7 @@ export class ForceDirectedLayout {
   //     this._stop = true;
   //   }
 
-  tick(timestep: number) {
+  tick(timestep: number, stepNumber) {
     // for(let nodeid in this.nodePoints) {
     //     console.log(this.nodePoints[nodeid].position);
     // }
@@ -403,11 +433,13 @@ export class ForceDirectedLayout {
     this.attractToCentre();
     this.updateVelocity(timestep);
     this.updatePosition(timestep);
+    if (stepNumber >= SOLVE_OVERLAPS_FROM_STEP) {
+      this.solveOverlaps();
+    }
   }
-
   compute(): ISpringyNodePosition[] {
     for (let i = 0; i < STEP_COUNT; i += 1) {
-      this.tick(TIMESTEP);
+      this.tick(TIMESTEP, i);
     }
     const positions = [];
     const boundingBox = this.getBoundingBox();
