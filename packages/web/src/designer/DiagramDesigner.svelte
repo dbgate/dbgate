@@ -10,5 +10,6 @@
     allowCreateRefByDrag: false,
     allowTableAlias: false,
     updateFromDbInfo: true,
+    useDatabaseReferences: true,
   }}
 />

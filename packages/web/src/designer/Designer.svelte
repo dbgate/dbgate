@@ -79,9 +79,31 @@
         }
       }
 
+      let references = current?.references;
+      if (settings?.useDatabaseReferences) {
+        references = [];
+        for (const table of newTables) {
+          for (const fk of table.foreignKeys) {
+            const dst = newTables.find(x => x.pureName == fk.refTableName && x.schemaName == fk.refSchemaName);
+            if (!dst) continue;
+            references.push({
+              designerId: uuidv1(),
+              sourceId: table.designerId,
+              targetId: dst.designerId,
+              joinType: '',
+              columns: fk.columns.map(col => ({
+                source: col.columnName,
+                target: col.refColumnName,
+              })),
+            });
+          }
+        }
+      }
+
       return {
         ...current,
         tables: newTables,
+        references,
       };
     }, true);
   }
