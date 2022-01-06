@@ -350,9 +350,8 @@ export class ForceDirectedLayout {
         });
         if (overlaps.length == 2) {
           const mid = new Vector((overlaps[0].x + overlaps[1].x) / 2, (overlaps[0].y + overlaps[1].y) / 2);
-          var direction = point.position.subtract(mid); // .multiply(-1.0);
-          // console.log('OVERLAP', direction);
-          point.applyForce(direction.multiply(this.repulsion));
+          const direction = point.position.subtract(mid);
+          point.applyForce(direction.normalise().multiply(this.repulsion / (direction.magnitude() + 1)));
         }
       });
     });
