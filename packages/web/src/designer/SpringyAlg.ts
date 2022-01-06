@@ -1,3 +1,5 @@
+import { intersectLineBox } from './designerMath';
+
 const STIFFNESS = 400.0;
 const REPULSION = 400.0;
 const DAMPING = 0.5;
@@ -248,7 +250,7 @@ export class ForceDirectedLayout {
 
   // callback should accept two arguments: Edge, Spring
   eachEdge(callback: (node: Edge, spring: ForceDirectedSpring) => void) {
-    this.graph.edges.forEach(function (e) {
+    this.graph.edges.forEach(e => {
       callback(e, this.spring(e));
     });
   }
@@ -332,7 +334,24 @@ export class ForceDirectedLayout {
     });
   }
 
-  attractFromLines() {}
+  attractFromLines() {
+    this.eachEdge((edge, spring) => {
+      this.eachNode((node, point) => {
+        const overlaps = intersectLineBox(this.point(edge.source).position, this.point(edge.target).position, {
+          left: point.position.x - node.width / 2,
+          right: point.position.x + node.width / 2,
+          top: point.position.y - node.height / 2,
+          bottom: point.position.y + node.height / 2,
+        });
+        if (overlaps.length == 2) {
+          const mid = new Vector((overlaps[0].x + overlaps[1].x) / 2, (overlaps[0].y + overlaps[1].y) / 2);
+          var direction = point.position.subtract(mid); // .multiply(-1.0);
+          // console.log('OVERLAP', direction);
+          point.applyForce(direction.multiply(this.repulsion));
+        }
+      });
+    });
+  }
 
   updateVelocity(timestep: number) {
     this.eachNode((node, point) => {
