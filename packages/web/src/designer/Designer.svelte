@@ -1,4 +1,16 @@
 <script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('Designer');
+
+  registerCommand({
+    id: 'designer.arrange',
+    category: 'Designer',
+    icon: 'icon arrange',
+    name: 'Arrange',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.canArrange(),
+    onClick: () => getCurrentEditor().arrange(),
+  });
 </script>
 
 <script lang="ts">
@@ -13,6 +25,9 @@
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
   import stableStringify from 'json-stable-stringify';
+  import { ForceDirectedLayout, SpringyGraph } from './SpringyAlg';
+  import registerCommand from '../commands/registerCommand';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let value;
   export let onChange;
@@ -21,6 +36,8 @@
   export let menu;
   export let settings;
   export let referenceComponent;
+
+  export const activator = createActivator('Designer', true);
 
   let domCanvas;
 
@@ -409,6 +426,53 @@
       if (ref) ref.recomputePosition();
     }
   }
+
+  export function canArrange() {
+    return settings?.canArrange;
+  }
+
+  export function arrange(skipUndoChain = false) {
+    const graph = new SpringyGraph();
+    const nodes = {};
+    for (const table of value?.tables || []) {
+      const domTable = domTables[table.designerId] as any;
+      if (!domTable) continue;
+      const rect = domTable.getRect();
+      const node = graph.newNode({ designerId: table.designerId });
+      nodes[table.designerId] = node;
+      node.width = rect.right - rect.left;
+      node.height = rect.bottom - rect.top;
+      // console.log('RECT', rect);
+    }
+
+    for (const reference of value?.references) {
+      const source = nodes[reference.sourceId];
+      const target = nodes[reference.targetId];
+      if (source && target) {
+        graph.newEdge(source, target);
+      }
+    }
+
+    const alg = new ForceDirectedLayout(graph);
+    const positions = alg.compute();
+
+    callChange(current => {
+      return {
+        ...current,
+        tables: (current?.tables || []).map(table => {
+          const position = positions.find(x => x.nodeData?.designerId == table.designerId);
+          console.log('POSITION', position);
+          return position
+            ? {
+                ...table,
+                left: position.x,
+                top: position.y,
+              }
+            : table;
+        }),
+      };
+    }, skipUndoChain);
+  }
 </script>
 
 <div class="wrapper noselect" use:contextMenu={menu}>
@@ -418,7 +482,8 @@
 
   <div class="canvas" bind:this={domCanvas} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
     {#each references || [] as ref (ref.designerId)}
-      <svelte:component this={referenceComponent}
+      <svelte:component
+        this={referenceComponent}
         bind:this={referenceRefs[ref.designerId]}
         {domTables}
         reference={ref}

@@ -14,6 +14,7 @@
     useDatabaseReferences: true,
     allowScrollColumns: false,
     allowAddAllReferences: true,
+    canArrange: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />

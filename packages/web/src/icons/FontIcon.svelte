@@ -25,6 +25,7 @@
     'icon settings': 'mdi mdi-cog',
     'icon version': 'mdi mdi-ticket-confirmation',
     'icon pin': 'mdi mdi-pin',
+    'icon arrange': 'mdi mdi-arrange-send-to-back',
 
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',

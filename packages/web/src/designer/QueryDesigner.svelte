@@ -14,6 +14,7 @@
     useDatabaseReferences: false,
     allowScrollColumns: true,
     allowAddAllReferences: false,
+    canArrange: false,
   }}
   referenceComponent={QueryDesignerReference}
 />

@@ -10,42 +10,6 @@ interface IBoxBounds {
   bottom: number;
 }
 
-// export class Vector {
-//   constructor(public x: number, public y: number) {}
-
-//   static random() {
-//     return new Vector(10.0 * (Math.random() - 0.5), 10.0 * (Math.random() - 0.5));
-//   }
-
-//   add(v2: Vector) {
-//     return new Vector(this.x + v2.x, this.y + v2.y);
-//   }
-
-//   subtract(v2: Vector) {
-//     return new Vector(this.x - v2.x, this.y - v2.y);
-//   }
-
-//   multiply(n: number) {
-//     return new Vector(this.x * n, this.y * n);
-//   }
-
-//   divide(n: number) {
-//     return new Vector(this.x / n || 0, this.y / n || 0); // Avoid divide by zero errors..
-//   }
-
-//   magnitude() {
-//     return Math.sqrt(this.x * this.x + this.y * this.y);
-//   }
-
-//   normal(n: number) {
-//     return new Vector(-this.y, this.x);
-//   }
-
-//   normalise() {
-//     return this.divide(this.magnitude());
-//   }
-// }
-
 // helpers for figuring out where to draw arrows
 export function intersectLineLine(p1: IPoint, p2: IPoint, p3: IPoint, p4: IPoint): IPoint {
   var denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
