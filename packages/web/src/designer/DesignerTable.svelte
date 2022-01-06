@@ -13,6 +13,7 @@
   export let onChangeTable;
   export let onBringToFront;
   export let onRemoveTable;
+  export let onAddAllReferences;
   export let onCreateReference;
   export let onAddReferenceByColumn;
   export let onSelectColumn;
@@ -87,8 +88,8 @@
   function createMenu() {
     return [
       { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
+      { divider: true },
       settings?.allowTableAlias && [
-        { divider: true },
         { text: 'Set table alias', onClick: handleSetTableAlias },
         alias && {
           text: 'Remove table alias',
@@ -99,6 +100,7 @@
             }),
         },
       ],
+      settings?.allowAddAllReferences && { text: 'Add references', onClick: () => onAddAllReferences(table) },
     ];
   }
 </script>
@@ -123,7 +125,7 @@
       </div>
     {/if}
   </div>
-  <div class="columns" on:scroll={() => tick().then(onMoveReferences)}>
+  <div class="columns" on:scroll={() => tick().then(onMoveReferences)} class:scroll={settings?.allowScrollColumns}>
     {#each columns || [] as column}
       <ColumnLine
         {column}
@@ -175,9 +177,11 @@
     background: var(--theme-bg-3);
   }
   .columns {
-    max-height: 400px;
-    overflow-y: auto;
     width: calc(100% - 10px);
     padding: 5px;
+  }
+  .columns.scroll {
+    max-height: 400px;
+    overflow-y: auto;
   }
 </style>

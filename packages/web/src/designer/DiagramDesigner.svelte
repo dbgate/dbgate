@@ -13,5 +13,7 @@
     useDatabaseReferences: true,
     showJoinType: false,
     showReferenceArrow: true,
+    allowScrollColumns: false,
+    allowAddAllReferences: true,
   }}
 />
