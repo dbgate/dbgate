@@ -1,7 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { isConnectedByReference } from './designerTools';
-  import contextMenu from '../utility/contextMenu';
+  import { intersectLineBox } from './designerMath';
 
   export let reference;
   export let onRemoveReference;
@@ -13,11 +12,9 @@
   let src = null;
   let dst = null;
 
-  let minpos;
-  let columnsY = [];
+  let arrowPt = null;
+  let arrowAngle = 0;
 
-  const buswi = 10;
-  const extwi = 25;
   const arwi = 12;
   const arhi = 12;
   const arpad = 3;
@@ -34,103 +31,51 @@
     const targetRect = targetTable.getRect();
     if (!sourceRect || !targetRect) return null;
 
-    const possibilities = [];
-    possibilities.push({ xsrc: sourceRect.left - buswi, dirsrc: -1, xdst: targetRect.left - buswi, dirdst: -1 });
-    possibilities.push({ xsrc: sourceRect.left - buswi, dirsrc: -1, xdst: targetRect.right + buswi, dirdst: 1 });
-    possibilities.push({ xsrc: sourceRect.right + buswi, dirsrc: 1, xdst: targetRect.left - buswi, dirdst: -1 });
-    possibilities.push({ xsrc: sourceRect.right + buswi, dirsrc: 1, xdst: targetRect.right + buswi, dirdst: 1 });
+    src = {
+      x: (sourceRect.left + sourceRect.right) / 2,
+      y: (sourceRect.top + sourceRect.bottom) / 2,
+    };
 
-    minpos = _.minBy(possibilities, p => Math.abs(p.xsrc - p.xdst));
+    dst = {
+      x: (targetRect.left + targetRect.right) / 2,
+      y: (targetRect.top + targetRect.bottom) / 2,
+    };
 
-    let srcY = _.mean(columns.map(x => sourceTable.getColumnY(x.source)));
-    let dstY = _.mean(columns.map(x => targetTable.getColumnY(x.target)));
-
-    if (columns.length == 0) {
-      srcY = sourceTable.getColumnY('');
-      dstY = targetTable.getColumnY('');
-    }
-
-    src = { x: minpos.xsrc, y: srcY };
-    dst = { x: minpos.xdst, y: dstY };
-
-    columnsY = columns.map((col, colIndex) => {
-      const y1 = sourceTable.getColumnY(col.source);
-      const y2 = targetTable.getColumnY(col.target);
-      return [y1, y2];
-    });
+    arrowPt = intersectLineBox(src, dst, targetRect);
+    arrowAngle = Math.atan2(dst.y - src.y, dst.x - src.x);
   }
 
   $: {
     domTables;
     recomputePosition();
   }
-
-  function createMenu() {
-    const isConnected = isConnectedByReference(
-      designer,
-      { designerId: reference?.sourceId },
-      { designerId: reference?.targetId },
-      reference
-    );
-    const setJoinType = joinType => {
-      onChangeReference({
-        ...reference,
-        joinType,
-      });
-    };
-
-    return [
-      { text: 'Remove', onClick: () => onRemoveReference(reference) },
-      !isConnected && [
-        { divider: true },
-        { onClick: () => setJoinType('INNER JOIN'), text: 'Set INNER JOIN' },
-        { onClick: () => setJoinType('LEFT JOIN'), text: 'Set LEFT JOIN' },
-        { onClick: () => setJoinType('RIGHT JOIN'), text: 'Set RIGHT JOIN' },
-        { onClick: () => setJoinType('FULL OUTER JOIN'), text: 'Set FULL OUTER JOIN' },
-        { onClick: () => setJoinType('CROSS JOIN'), text: 'Set CROSS JOIN' },
-        { onClick: () => setJoinType('WHERE EXISTS'), text: 'Set WHERE EXISTS' },
-        { onClick: () => setJoinType('WHERE NOT EXISTS'), text: 'Set WHERE NOT EXISTS' },
-      ],
-    ];
-  }
 </script>
 
-{#if src && dst && minpos}
-  <svg>
+<svg>
+  {#if src && dst}
     <polyline
       points={`
       ${src.x},${src.y}
-      ${src.x + extwi * minpos.dirsrc},${src.y}
-      ${dst.x + extwi * minpos.dirdst},${dst.y}
       ${dst.x},${dst.y}
   `}
     />
-    {#each columnsY as coly}
-      <polyline
-        points={`
-  ${src.x},${src.y}
-  ${src.x},${coly[0]}
-  ${src.x - buswi * minpos.dirsrc},${coly[0]}
-`}
-      />
-      <polyline
-        points={`
-  ${dst.x},${dst.y}
-  ${dst.x},${coly[1]}
-  ${dst.x - buswi * minpos.dirdst},${coly[1]}
-`}
-      />
-    {/each}
-    <polygon
-      points={`
-      ${dst.x - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y}
-      ${dst.x + arwi * minpos.dirdst - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y + arhi / 2}
-      ${dst.x + arwi * minpos.dirdst - buswi * minpos.dirdst + arpad * minpos.dirdst},${dst.y - arhi / 2}
-      `}
-    />
-  </svg>
-{/if}
+  {/if}
 
+  {#if arrowPt}
+    <g transform={`translate(${arrowPt.x} ${arrowPt.y})`}>
+      <polygon
+        transform={`rotate(${180 + (arrowAngle * 180) / Math.PI})`}
+        points={`
+      0,0
+      ${arwi},${arhi / 2}
+      ${arwi},${-arhi / 2}
+  `}
+      />
+    </g>
+  {/if}
+</svg>
+
+<!--  -->
 <style>
   svg {
     position: absolute;
