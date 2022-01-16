@@ -3,7 +3,7 @@ interface IPoint {
   y: number;
 }
 
-interface IBoxBounds {
+export interface IBoxBounds {
   left: number;
   top: number;
   right: number;
@@ -56,26 +56,26 @@ export function intersectLineBox(p1: IPoint, p2: IPoint, box: IBoxBounds): IPoin
   return res;
 }
 
-export function rectangleDistance(
-  x1: number,
-  y1: number,
-  x1b: number,
-  y1b: number,
-  x2: number,
-  y2: number,
-  x2b: number,
-  y2b: number
-) {
+export function rectangleDistance(r1: IBoxBounds, r2: IBoxBounds) {
   function dist(x1: number, y1: number, x2: number, y2: number) {
     let dx = x1 - x2;
     let dy = y1 - y2;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  let left = x2b < x1;
-  let right = x1b < x2;
-  let bottom = y2b < y1;
-  let top = y1b < y2;
+  const x1 = r1.left;
+  const y1 = r1.top;
+  const x1b = r1.right;
+  const y1b = r1.bottom;
+  const x2 = r2.left;
+  const y2 = r2.top;
+  const x2b = r2.right;
+  const y2b = r2.bottom;
+
+  const left = x2b < x1;
+  const right = x1b < x2;
+  const bottom = y2b < y1;
+  const top = y1b < y2;
 
   if (top && left) return dist(x1, y1b, x2b, y2);
   else if (left && bottom) return dist(x1, y1, x2b, y2b);
@@ -87,6 +87,12 @@ export function rectangleDistance(
   else if (top) return y2 - y1b;
   // rectangles intersect
   else return 0;
+}
+
+export function rectangleIntersectArea(rect1: IBoxBounds, rect2: IBoxBounds) {
+  const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
+  const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+  return x_overlap * y_overlap;
 }
 
 export class Vector2D {

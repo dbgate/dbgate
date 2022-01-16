@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { rectangleDistance, Vector2D } from './designerMath';
+import { IBoxBounds, rectangleDistance, rectangleIntersectArea, Vector2D } from './designerMath';
 
 const MIN_NODE_DISTANCE = 50;
 const SPRING_LENGTH = 100;
@@ -7,6 +7,11 @@ const SPRINGY_STEPS = 50;
 const GRAVITY = 0.01;
 const REPULSION = 500_000;
 const MAX_FORCE_SIZE = 100;
+const NODE_MARGIN = 20;
+const MOVE_STEP = 20;
+const MOVE_BIG_STEP = 70;
+const MOVE_STEP_COUNT = 1000;
+const MINIMAL_SCORE_BENEFIT = 1;
 
 class GraphNode {
   neightboors: GraphNode[] = [];
@@ -69,6 +74,7 @@ class LayoutNode {
   right: number;
   top: number;
   bottom: number;
+  paddedRect: IBoxBounds;
 
   constructor(public node: GraphNode, public x: number, public y: number) {
     this.left = x - node.width / 2;
@@ -76,6 +82,13 @@ class LayoutNode {
     this.right = x + node.width / 2;
     this.bottom = y + node.height / 2;
     this.position = new Vector2D(x, y);
+
+    this.paddedRect = {
+      left: this.left - NODE_MARGIN,
+      top: this.top - NODE_MARGIN,
+      right: this.right + NODE_MARGIN,
+      bottom: this.bottom + NODE_MARGIN,
+    };
   }
 
   translate(dx: number, dy: number) {
@@ -83,16 +96,11 @@ class LayoutNode {
   }
 
   distanceTo(node: LayoutNode) {
-    return rectangleDistance(
-      this.left,
-      this.top,
-      this.right,
-      this.bottom,
-      node.left,
-      node.top,
-      node.right,
-      node.bottom
-    );
+    return rectangleDistance(this, node);
+  }
+
+  intersectArea(node: LayoutNode) {
+    return rectangleIntersectArea(this.paddedRect, node.paddedRect);
   }
 }
 
@@ -233,8 +241,8 @@ export class GraphLayout {
   }
 
   fixViewBox() {
-    const minX = _.min(_.values(this.nodes).map(n => n.x - n.node.width / 2));
-    const minY = _.min(_.values(this.nodes).map(n => n.y - n.node.height / 2));
+    const minX = _.min(_.values(this.nodes).map(n => n.left));
+    const minY = _.min(_.values(this.nodes).map(n => n.top));
 
     return this.changePositions(n => n.translate(-minX + 50, -minY + 50));
   }
@@ -251,6 +259,74 @@ export class GraphLayout {
     let res: GraphLayout = this;
     for (let step = 0; step < SPRINGY_STEPS; step++) {
       res = res.springyStep();
+    }
+    return res;
+  }
+
+  score() {
+    let res = 0;
+    for (const n1 of _.values(this.nodes)) {
+      for (const n2 of _.values(this.nodes)) {
+        if (n1.node.designerId == n2.node.designerId) {
+          continue;
+        }
+
+        res += n1.intersectArea(n2);
+      }
+    }
+
+    const minX = _.min(_.values(this.nodes).map(n => n.left));
+    const minY = _.min(_.values(this.nodes).map(n => n.top));
+    const maxX = _.max(_.values(this.nodes).map(n => n.right));
+    const maxY = _.max(_.values(this.nodes).map(n => n.bottom));
+
+    res += maxX - minX;
+    res += maxY - minY;
+
+    return res;
+  }
+
+  tryMoveNode(node: LayoutNode): GraphLayout[] {
+    return [
+      this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x)),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x)),
+      this.changePositions(x => (x == node ? node.translate(0, MOVE_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(0, -MOVE_STEP) : x)),
+
+      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, MOVE_BIG_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, -MOVE_BIG_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, MOVE_BIG_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, -MOVE_BIG_STEP) : x)),
+    ];
+  }
+
+  tryMoveElement() {
+    let res = null;
+    let resScore = null;
+
+    for (const node of _.values(this.nodes)) {
+      for (const item of this.tryMoveNode(node)) {
+        const score = item.score();
+        if (resScore == null || score < resScore) {
+          res = item;
+          resScore = score;
+        }
+      }
+    }
+
+    return res;
+  }
+
+  doMoveSteps() {
+    let res: GraphLayout = this;
+    let score = res.score();
+    for (let step = 0; step < MOVE_STEP_COUNT; step++) {
+      const lastRes = res;
+      res = res.tryMoveElement();
+      const newScore = res.score();
+      // console.log('SCORE, NEW SCORE', score, newScore);
+      if (score - newScore < MINIMAL_SCORE_BENEFIT) return lastRes;
+      score = newScore;
     }
     return res;
   }

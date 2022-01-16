@@ -481,7 +481,7 @@
 
     graph.initialize();
 
-    const layout = GraphLayout.createCircle(graph).springyAlg().fixViewBox();
+    const layout = GraphLayout.createCircle(graph).springyAlg().doMoveSteps().fixViewBox();
 
     callChange(current => {
       return {
