@@ -4,7 +4,8 @@ import { IBoxBounds, rectangleDistance, rectangleIntersectArea, Vector2D } from 
 const MIN_NODE_DISTANCE = 50;
 const SPRING_LENGTH = 100;
 const SPRINGY_STEPS = 50;
-const GRAVITY = 0.01;
+const GRAVITY_X = 0.005;
+const GRAVITY_Y = 0.01;
 const REPULSION = 500_000;
 const MAX_FORCE_SIZE = 100;
 const NODE_MARGIN = 20;
@@ -12,6 +13,7 @@ const MOVE_STEP = 20;
 const MOVE_BIG_STEP = 70;
 const MOVE_STEP_COUNT = 1000;
 const MINIMAL_SCORE_BENEFIT = 1;
+const SCORE_ASPECT_RATIO = 1.6;
 
 class GraphNode {
   neightboors: GraphNode[] = [];
@@ -159,7 +161,7 @@ class ForceAlgorithmStep {
   applyGravity() {
     for (const node of _.values(this.layout.nodes)) {
       var direction = node.position.multiply(-1.0);
-      this.applyForce(node, direction.multiply(GRAVITY));
+      this.applyForce(node, new Vector2D(direction.x * GRAVITY_X, direction.y * GRAVITY_Y));
     }
   }
 
@@ -281,7 +283,7 @@ export class GraphLayout {
     const maxY = _.max(_.values(this.nodes).map(n => n.bottom));
 
     res += maxX - minX;
-    res += maxY - minY;
+    res += (maxY - minY) * SCORE_ASPECT_RATIO;
 
     return res;
   }
