@@ -92,6 +92,10 @@ export function rectangleDistance(r1: IBoxBounds, r2: IBoxBounds) {
 export function rectangleIntersectArea(rect1: IBoxBounds, rect2: IBoxBounds) {
   const x_overlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
   const y_overlap = Math.max(0, Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top));
+  // console.log('rectangleIntersectArea', rect1, rect2, x_overlap * y_overlap);
+  // if (rect1.left < 100 && rect2.left < 100) {
+  //   console.log('rectangleIntersectArea', rect1, rect2, x_overlap * y_overlap);
+  // }
   return x_overlap * y_overlap;
 }
 

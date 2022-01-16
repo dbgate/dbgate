@@ -10,7 +10,7 @@ const REPULSION = 500_000;
 const MAX_FORCE_SIZE = 100;
 const NODE_MARGIN = 20;
 const MOVE_STEP = 20;
-const MOVE_BIG_STEP = 70;
+const MOVE_BIG_STEP = 50;
 const MOVE_STEP_COUNT = 100;
 const MINIMAL_SCORE_BENEFIT = 1;
 const SCORE_ASPECT_RATIO = 1.6;
@@ -123,8 +123,8 @@ class LayoutNode {
     };
   }
 
-  translate(dx: number, dy: number) {
-    if (this.node.fixedPosition) return this;
+  translate(dx: number, dy: number, forceMoveFixed = false) {
+    if (this.node.fixedPosition && !forceMoveFixed) return this;
     return new LayoutNode(this.node, this.x + dx, this.y + dy);
   }
 
@@ -142,10 +142,6 @@ class ForceAlgorithmStep {
   constructor(public layout: GraphLayout) {}
 
   applyForce(node: LayoutNode, force: Vector2D) {
-    // if (node.node.designerId == '7ef3dd10-6ec0-11ec-b179-6d02a7c011ad') {
-    //   console.log('APPLY', node.node.designerId, force.x, force.y);
-    // }
-
     const size = force.magnitude();
     if (size > MAX_FORCE_SIZE) {
       force = force.normalise().multiply(MAX_FORCE_SIZE);
@@ -159,8 +155,6 @@ class ForceAlgorithmStep {
   }
 
   applyCoulombsLaw() {
-    // console.log('****** COULOMB');
-
     for (const n1 of _.values(this.layout.nodes)) {
       for (const n2 of _.values(this.layout.nodes)) {
         if (n1.node.designerId == n2.node.designerId) {
@@ -296,7 +290,7 @@ export class GraphLayout {
     const minX = _.min(_.values(this.nodes).map(n => n.left));
     const minY = _.min(_.values(this.nodes).map(n => n.top));
 
-    return this.changePositions(n => n.translate(-minX + 50, -minY + 50));
+    return this.changePositions(n => n.translate(-minX + 50, -minY + 50, true));
   }
 
   springyStep() {
@@ -317,6 +311,7 @@ export class GraphLayout {
 
   score() {
     let res = 0;
+
     for (const n1 of _.values(this.nodes)) {
       for (const n2 of _.values(this.nodes)) {
         if (n1.node.designerId == n2.node.designerId) {
@@ -376,12 +371,31 @@ export class GraphLayout {
     for (let step = 0; step < MOVE_STEP_COUNT; step++) {
       const lastRes = res;
       res = res.tryMoveElement();
+      if (!res) {
+        lastRes.fillEdges();
+        return lastRes;
+      }
       const newScore = res.score();
       // console.log('STEP, SCORE, NEW SCORE', step, score, newScore);
-      if (score - newScore < MINIMAL_SCORE_BENEFIT) return lastRes;
+      if (score - newScore < MINIMAL_SCORE_BENEFIT) {
+        lastRes.fillEdges();
+        return lastRes;
+      }
       score = newScore;
     }
     res.fillEdges();
     return res;
+  }
+
+  print() {
+    for (const node of _.values(this.nodes)) {
+      console.log({
+        designerId: node.node.designerId,
+        left: node.left,
+        top: node.top,
+        right: node.right,
+        bottom: node.bottom,
+      });
+    }
   }
 }

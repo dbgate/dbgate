@@ -81,6 +81,7 @@
     return [
       { command: 'diagram.save' },
       { command: 'diagram.saveAs' },
+      { command: 'designer.arrange' },
       { divider: true },
       { command: 'diagram.undo' },
       { command: 'diagram.redo' },
@@ -88,10 +89,4 @@
   }
 </script>
 
-<DiagramDesigner
-  value={$modelState.value || {}}
-  {conid}
-  {database}
-  onChange={handleChange}
-  menu={createMenu}
-/>
+<DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />

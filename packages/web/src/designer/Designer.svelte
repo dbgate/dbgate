@@ -20,7 +20,6 @@
   import { getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
-  import createRef from '../utility/createRef';
   import { writable } from 'svelte/store';
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
@@ -235,7 +234,7 @@
       pureName: foreignKey.refTableName,
       schemaName: foreignKey.refSchemaName,
     });
-    const newTableDesignerId = uuidv1();
+    const newTableDesignerId = `${toTable.pureName}-${uuidv1()}`;
     callChange(current => {
       const fromTable = (current.tables || []).find(x => x.designerId == designerId);
       if (!fromTable) return current;
@@ -303,7 +302,7 @@
         ...current.tables,
         ...newTables.map(x => ({
           ...x,
-          designerId: uuidv1(),
+          designerId: `${x.pureName}-${uuidv1()}`,
           needsArrange: true,
         })),
       ],
@@ -391,7 +390,7 @@
     var json = JSON.parse(data);
     const { objectTypeField } = json;
     if (objectTypeField != 'tables' && objectTypeField != 'views') return;
-    json.designerId = uuidv1();
+    json.designerId = `${json.pureName}-${uuidv1()}`;
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
 
@@ -444,7 +443,7 @@
             ? [
                 ...((current || {}).references || []),
                 {
-                  designerId: uuidv1(),
+                  designerId: `${current?.pureName}-${uuidv1()}`,
                   sourceId: foreignKeys[0].sourceId,
                   targetId: foreignKeys[0].targetId,
                   joinType: 'INNER JOIN',
@@ -480,7 +479,7 @@
         table.designerId,
         rect.right - rect.left,
         rect.bottom - rect.top,
-        arrangeAll || table.needsArrange ? null : { x: rect.left + rect.right / 2, y: rect.top + rect.bottom / 2 }
+        arrangeAll || table.needsArrange ? null : { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 }
       );
     }
 
@@ -491,6 +490,7 @@
     graph.initialize();
 
     const layout = GraphLayout.createCircle(graph, circleMiddle).springyAlg().doMoveSteps().fixViewBox();
+    // layout.print();
 
     callChange(current => {
       return {
@@ -502,8 +502,8 @@
             ? {
                 ...table,
                 needsArrange: false,
-                left: node.x - node.node.width / 2,
-                top: node.y - node.node.height / 2,
+                left: node.left,
+                top: node.top,
               }
             : {
                 ...table,
