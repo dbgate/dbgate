@@ -82,6 +82,7 @@
       { command: 'diagram.save' },
       { command: 'diagram.saveAs' },
       { command: 'designer.arrange' },
+      { command: 'diagram.export' },
       { divider: true },
       { command: 'diagram.undo' },
       { command: 'diagram.redo' },

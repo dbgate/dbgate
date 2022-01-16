@@ -15,6 +15,7 @@
     allowScrollColumns: true,
     allowAddAllReferences: false,
     canArrange: false,
+    canExport: false,
   }}
   referenceComponent={QueryDesignerReference}
 />

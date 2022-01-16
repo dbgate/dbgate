@@ -15,6 +15,7 @@
     allowScrollColumns: false,
     allowAddAllReferences: true,
     canArrange: true,
+    canExport: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />

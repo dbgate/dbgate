@@ -6,6 +6,7 @@ const getChartExport = require('../utility/getChartExport');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
+const getDiagramExport = require('../utility/getDiagramExport');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -150,6 +151,12 @@ module.exports = {
         await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
       }
     }
+    return true;
+  },
+
+  exportDiagram_meta: true,
+  async exportDiagram({ filePath, html, css }) {
+    await fs.writeFile(filePath, getDiagramExport(html, css));
     return true;
   },
 };

@@ -11,6 +11,18 @@
     testEnabled: () => getCurrentEditor()?.canArrange(),
     onClick: () => getCurrentEditor().arrange(),
   });
+
+  registerCommand({
+    id: 'diagram.export',
+    category: 'Designer',
+    toolbarName: 'Export diagram',
+    name: 'Export diagram',
+    icon: 'icon report',
+    toolbar: true,
+    isRelatedToTab: true,
+    onClick: () => getCurrentEditor().exportDiagram(),
+    testEnabled: () => getCurrentEditor()?.canExport(),
+  });
 </script>
 
 <script lang="ts">
@@ -27,6 +39,8 @@
   import registerCommand from '../commands/registerCommand';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { GraphDefinition, GraphLayout } from './GraphLayout';
+  import { saveFileToDisk } from '../utility/exportElectronFile';
+  import { apiCall } from '../utility/api';
 
   export let value;
   export let onChange;
@@ -469,6 +483,10 @@
     return settings?.canArrange;
   }
 
+  export function canExport() {
+    return settings?.canExport;
+  }
+
   export function arrange(skipUndoChain = false, arrangeAll = true, circleMiddle = { x: 0, y: 0 }) {
     const graph = new GraphDefinition();
     for (const table of value?.tables || []) {
@@ -512,49 +530,24 @@
         }),
       };
     }, skipUndoChain);
+  }
 
-    // const graph = new SpringyGraph();
-    // const nodes = {};
-    // for (const table of value?.tables || []) {
-    //   const domTable = domTables[table.designerId] as any;
-    //   if (!domTable) continue;
-    //   const rect = domTable.getRect();
-    //   const node = graph.newNode({ designerId: table.designerId });
-    //   nodes[table.designerId] = node;
-    //   node.width = rect.right - rect.left;
-    //   node.height = rect.bottom - rect.top;
-    //   node.initX = (rect.right + rect.left) / 2;
-    //   node.initY = (rect.bottom + rect.top) / 2;
-    //   // console.log('RECT', rect);
-    // }
-
-    // for (const reference of value?.references) {
-    //   const source = nodes[reference.sourceId];
-    //   const target = nodes[reference.targetId];
-    //   if (source && target) {
-    //     graph.newEdge(source, target);
-    //   }
-    // }
-
-    // const alg = new ForceDirectedLayout(graph);
-    // const positions = alg.compute();
-
-    // callChange(current => {
-    //   return {
-    //     ...current,
-    //     tables: (current?.tables || []).map(table => {
-    //       const position = positions.find(x => x.nodeData?.designerId == table.designerId);
-    //       // console.log('POSITION', position);
-    //       return position
-    //         ? {
-    //             ...table,
-    //             left: position.x - position.nodeWidth / 2,
-    //             top: position.y - position.nodeHeight / 2,
-    //           }
-    //         : table;
-    //     }),
-    //   };
-    // }, skipUndoChain);
+  export async function exportDiagram() {
+    const cssLinks = ['global.css', 'build/bundle.css'];
+    let css = '';
+    for (const link of cssLinks) {
+      const cssResp = await fetch(link);
+      const cssItem = await cssResp.text();
+      if (css) css += '\n';
+      css += cssItem;
+    }
+    saveFileToDisk(async filePath => {
+      await apiCall('files/export-diagram', {
+        filePath,
+        html: domCanvas.outerHTML,
+        css,
+      });
+    });
   }
 </script>
 
