@@ -55,3 +55,72 @@ export function intersectLineBox(p1: IPoint, p2: IPoint, box: IBoxBounds): IPoin
 
   return res;
 }
+
+export function rectangleDistance(
+  x1: number,
+  y1: number,
+  x1b: number,
+  y1b: number,
+  x2: number,
+  y2: number,
+  x2b: number,
+  y2b: number
+) {
+  function dist(x1: number, y1: number, x2: number, y2: number) {
+    let dx = x1 - x2;
+    let dy = y1 - y2;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  let left = x2b < x1;
+  let right = x1b < x2;
+  let bottom = y2b < y1;
+  let top = y1b < y2;
+
+  if (top && left) return dist(x1, y1b, x2b, y2);
+  else if (left && bottom) return dist(x1, y1, x2b, y2b);
+  else if (bottom && right) return dist(x1b, y1, x2, y2b);
+  else if (right && top) return dist(x1b, y1b, x2, y2);
+  else if (left) return x1 - x2b;
+  else if (right) return x2 - x1b;
+  else if (bottom) return y1 - y2b;
+  else if (top) return y2 - y1b;
+  // rectangles intersect
+  else return 0;
+}
+
+export class Vector2D {
+  constructor(public x: number, public y: number) {}
+
+  static random() {
+    return new Vector2D(10.0 * (Math.random() - 0.5), 10.0 * (Math.random() - 0.5));
+  }
+
+  add(v2: Vector2D) {
+    return new Vector2D(this.x + v2.x, this.y + v2.y);
+  }
+
+  subtract(v2: Vector2D) {
+    return new Vector2D(this.x - v2.x, this.y - v2.y);
+  }
+
+  multiply(n: number) {
+    return new Vector2D(this.x * n, this.y * n);
+  }
+
+  divide(n: number) {
+    return new Vector2D(this.x / n || 0, this.y / n || 0); // Avoid divide by zero errors..
+  }
+
+  magnitude() {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  normal(n: number) {
+    return new Vector2D(-this.y, this.x);
+  }
+
+  normalise() {
+    return this.divide(this.magnitude());
+  }
+}

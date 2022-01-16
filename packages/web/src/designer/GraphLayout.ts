@@ -1,4 +1,12 @@
 import _ from 'lodash';
+import { rectangleDistance, Vector2D } from './designerMath';
+
+const MIN_NODE_DISTANCE = 50;
+const SPRING_LENGTH = 100;
+const SPRINGY_STEPS = 50;
+const GRAVITY = 0.01;
+const REPULSION = 500_000;
+const MAX_FORCE_SIZE = 100;
 
 class GraphNode {
   neightboors: GraphNode[] = [];
@@ -56,16 +64,111 @@ export class GraphDefinition {
 }
 
 class LayoutNode {
-  constructor(public node: GraphNode, public x: number, public y: number) {}
+  position: Vector2D;
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+
+  constructor(public node: GraphNode, public x: number, public y: number) {
+    this.left = x - node.width / 2;
+    this.top = y - node.height / 2;
+    this.right = x + node.width / 2;
+    this.bottom = y + node.height / 2;
+    this.position = new Vector2D(x, y);
+  }
 
   translate(dx: number, dy: number) {
     return new LayoutNode(this.node, this.x + dx, this.y + dy);
+  }
+
+  distanceTo(node: LayoutNode) {
+    return rectangleDistance(
+      this.left,
+      this.top,
+      this.right,
+      this.bottom,
+      node.left,
+      node.top,
+      node.right,
+      node.bottom
+    );
+  }
+}
+
+class ForceAlgorithmStep {
+  nodeForces: { [designerId: string]: Vector2D } = {};
+  constructor(public layout: GraphLayout) {}
+
+  applyForce(node: LayoutNode, force: Vector2D) {
+    // if (node.node.designerId == '7ef3dd10-6ec0-11ec-b179-6d02a7c011ad') {
+    //   console.log('APPLY', node.node.designerId, force.x, force.y);
+    // }
+
+    const size = force.magnitude();
+    if (size > MAX_FORCE_SIZE) {
+      force = force.normalise().multiply(MAX_FORCE_SIZE);
+    }
+
+    if (node.node.designerId in this.nodeForces) {
+      this.nodeForces[node.node.designerId] = this.nodeForces[node.node.designerId].add(force);
+    } else {
+      this.nodeForces[node.node.designerId] = force;
+    }
+  }
+
+  applyCoulombsLaw() {
+    // console.log('****** COULOMB');
+
+    for (const n1 of _.values(this.layout.nodes)) {
+      for (const n2 of _.values(this.layout.nodes)) {
+        if (n1.node.designerId == n2.node.designerId) {
+          continue;
+        }
+
+        const d = n1.position.subtract(n2.position);
+        const direction = d.normalise();
+        const distance = n1.distanceTo(n2) + MIN_NODE_DISTANCE;
+
+        this.applyForce(n1, direction.multiply((+0.5 * REPULSION) / (distance * distance)));
+        this.applyForce(n2, direction.multiply((-0.5 * REPULSION) / (distance * distance)));
+      }
+    }
+  }
+
+  applyHooksLaw() {
+    for (const edge of this.layout.edges) {
+      const d = edge.target.position.subtract(edge.source.position); // the direction of the spring
+      const displacement = SPRING_LENGTH - edge.length;
+      var direction = d.normalise();
+
+      // apply force to each end point
+      this.applyForce(edge.source, direction.multiply(displacement * -0.5));
+      this.applyForce(edge.target, direction.multiply(displacement * +0.5));
+    }
+  }
+
+  applyGravity() {
+    for (const node of _.values(this.layout.nodes)) {
+      var direction = node.position.multiply(-1.0);
+      this.applyForce(node, direction.multiply(GRAVITY));
+    }
+  }
+
+  moveNode(node: LayoutNode): LayoutNode {
+    const force = this.nodeForces[node.node.designerId];
+    if (force) {
+      return node.translate(force.x, force.y);
+    }
+    return node;
   }
 }
 
 class LayoutEdge {
   edge: GraphEdge;
   length: number;
+  source: LayoutNode;
+  target: LayoutNode;
 }
 
 function addNodeNeighboors(nodes: GraphNode[], res: GraphNode[], addedNodes: Set<string>) {
@@ -104,13 +207,28 @@ export class GraphLayout {
       res.nodes[node.designerId] = new LayoutNode(node, Math.sin(angle) * radius, Math.cos(angle) * radius);
       angle += dangle;
     }
+    res.fillEdges();
 
     return res;
+  }
+
+  fillEdges() {
+    this.edges = this.graph.edges.map(edge => {
+      const res = new LayoutEdge();
+      res.edge = edge;
+      const n1 = this.nodes[edge.source.designerId];
+      const n2 = this.nodes[edge.target.designerId];
+      res.length = n1.distanceTo(n2);
+      res.source = n1;
+      res.target = n2;
+      return res;
+    });
   }
 
   changePositions(nodeFunc: (node: LayoutNode) => LayoutNode): GraphLayout {
     const res = new GraphLayout(this.graph);
     res.nodes = _.mapValues(this.nodes, nodeFunc);
+    res.fillEdges();
     return res;
   }
 
@@ -118,6 +236,22 @@ export class GraphLayout {
     const minX = _.min(_.values(this.nodes).map(n => n.x - n.node.width / 2));
     const minY = _.min(_.values(this.nodes).map(n => n.y - n.node.height / 2));
 
-    return this.changePositions(n => n.translate(-minX + 10, -minY + 10));
+    return this.changePositions(n => n.translate(-minX + 50, -minY + 50));
+  }
+
+  springyStep() {
+    const step = new ForceAlgorithmStep(this);
+    step.applyHooksLaw();
+    step.applyCoulombsLaw();
+    step.applyGravity();
+    return this.changePositions(node => step.moveNode(node));
+  }
+
+  springyAlg() {
+    let res: GraphLayout = this;
+    for (let step = 0; step < SPRINGY_STEPS; step++) {
+      res = res.springyStep();
+    }
+    return res;
   }
 }
