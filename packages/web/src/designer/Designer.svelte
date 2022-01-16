@@ -305,12 +305,13 @@
         ...newTables.map(x => ({
           ...x,
           designerId: uuidv1(),
+          needsArrange: true,
         })),
       ],
     };
   };
 
-  const handleAddTableReferences = table => {
+  const handleAddTableReferences = async table => {
     if (!dbInfo) return;
     const db = $dbInfo;
     if (!db) return;
@@ -318,6 +319,10 @@
       return getTablesWithReferences(db, table, current);
     });
     updateFromDbInfo();
+    await tick();
+
+    const rect = (domTables[table.designerId] as any)?.getRect();
+    arrange(true, false, rect ? { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 } : null);
   };
 
   const performAutoActions = async db => {
@@ -466,13 +471,18 @@
     return settings?.canArrange;
   }
 
-  export function arrange(skipUndoChain = false) {
+  export function arrange(skipUndoChain = false, arrangeAll = true, circleMiddle = { x: 0, y: 0 }) {
     const graph = new GraphDefinition();
     for (const table of value?.tables || []) {
       const domTable = domTables[table.designerId] as any;
       if (!domTable) continue;
       const rect = domTable.getRect();
-      graph.addNode(table.designerId, rect.right - rect.left, rect.bottom - rect.top);
+      graph.addNode(
+        table.designerId,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        arrangeAll || table.needsArrange ? null : { x: rect.left + rect.right / 2, y: rect.top + rect.bottom / 2 }
+      );
     }
 
     for (const reference of value?.references) {
@@ -481,7 +491,7 @@
 
     graph.initialize();
 
-    const layout = GraphLayout.createCircle(graph).springyAlg().doMoveSteps().fixViewBox();
+    const layout = GraphLayout.createCircle(graph, circleMiddle).springyAlg().doMoveSteps().fixViewBox();
 
     callChange(current => {
       return {
@@ -492,10 +502,14 @@
           return node
             ? {
                 ...table,
+                needsArrange: false,
                 left: node.x - node.node.width / 2,
                 top: node.y - node.node.height / 2,
               }
-            : table;
+            : {
+                ...table,
+                needsArrange: false,
+              };
         }),
       };
     }, skipUndoChain);

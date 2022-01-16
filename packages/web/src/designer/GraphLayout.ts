@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { IBoxBounds, rectangleDistance, rectangleIntersectArea, Vector2D } from './designerMath';
+import { IBoxBounds, IPoint, rectangleDistance, rectangleIntersectArea, Vector2D } from './designerMath';
 
 const MIN_NODE_DISTANCE = 50;
 const SPRING_LENGTH = 100;
@@ -18,7 +18,13 @@ const SCORE_ASPECT_RATIO = 1.6;
 class GraphNode {
   neightboors: GraphNode[] = [];
   radius: number;
-  constructor(public graph: GraphDefinition, public designerId: string, public width: number, public height: number) {}
+  constructor(
+    public graph: GraphDefinition,
+    public designerId: string,
+    public width: number,
+    public height: number,
+    public fixedPosition: IPoint
+  ) {}
 
   initialize() {
     this.radius = Math.sqrt((this.width * this.width) / 4 + (this.height * this.height) / 4);
@@ -43,8 +49,8 @@ export class GraphDefinition {
   nodes: { [designerId: string]: GraphNode } = {};
   edges: GraphEdge[] = [];
 
-  addNode(designerId: string, width: number, height: number) {
-    this.nodes[designerId] = new GraphNode(this, designerId, width, height);
+  addNode(designerId: string, width: number, height: number, fixedPosition: IPoint) {
+    this.nodes[designerId] = new GraphNode(this, designerId, width, height, fixedPosition);
   }
 
   addEdge(sourceId: string, targetId: string) {
@@ -94,6 +100,7 @@ class LayoutNode {
   }
 
   translate(dx: number, dy: number) {
+    if (this.node.fixedPosition) return this;
     return new LayoutNode(this.node, this.x + dx, this.y + dy);
   }
 
@@ -199,14 +206,18 @@ export class GraphLayout {
 
   constructor(public graph: GraphDefinition) {}
 
-  static createCircle(graph: GraphDefinition): GraphLayout {
+  static createCircle(graph: GraphDefinition, middle: IPoint = { x: 0, y: 0 }): GraphLayout {
     const res = new GraphLayout(graph);
     if (_.isEmpty(graph.nodes)) return res;
 
     const addedNodes = new Set<string>();
     const circleSortedNodes: GraphNode[] = [];
 
-    addNodeNeighboors(_.values(graph.nodes), circleSortedNodes, addedNodes);
+    addNodeNeighboors(
+      _.values(graph.nodes).filter(x => !x.fixedPosition),
+      circleSortedNodes,
+      addedNodes
+    );
     const nodeRadius = _.max(circleSortedNodes.map(x => x.radius));
     const nodeCount = circleSortedNodes.length;
     const radius = (nodeCount * nodeRadius) / (2 * Math.PI) + nodeRadius;
@@ -214,9 +225,18 @@ export class GraphLayout {
     let angle = 0;
     const dangle = (2 * Math.PI) / circleSortedNodes.length;
     for (const node of circleSortedNodes) {
-      res.nodes[node.designerId] = new LayoutNode(node, Math.sin(angle) * radius, Math.cos(angle) * radius);
+      res.nodes[node.designerId] = new LayoutNode(
+        node,
+        middle.x + Math.sin(angle) * radius,
+        middle.y + Math.cos(angle) * radius
+      );
       angle += dangle;
     }
+
+    for (const node of _.values(graph.nodes).filter(x => x.fixedPosition)) {
+      res.nodes[node.designerId] = new LayoutNode(node, node.fixedPosition.x, node.fixedPosition.y);
+    }
+
     res.fillEdges();
 
     return res;
@@ -289,6 +309,7 @@ export class GraphLayout {
   }
 
   tryMoveNode(node: LayoutNode): GraphLayout[] {
+    if (node.node.fixedPosition) return [];
     return [
       this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x)),
       this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x)),
