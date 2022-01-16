@@ -25,7 +25,6 @@
   import { tick } from 'svelte';
   import contextMenu from '../utility/contextMenu';
   import stableStringify from 'json-stable-stringify';
-  import { ForceDirectedLayout, SpringyGraph } from './SpringyAlg';
   import registerCommand from '../commands/registerCommand';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { GraphDefinition, GraphLayout } from './GraphLayout';
