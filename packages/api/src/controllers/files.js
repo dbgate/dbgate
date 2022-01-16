@@ -86,8 +86,9 @@ module.exports = {
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
+      return true;
     } else {
-      if (!hasPermission(`files/${folder}/write`)) return;
+      if (!hasPermission(`files/${folder}/write`)) return false;
       const dir = path.join(filesdir(), folder);
       if (!(await fs.exists(dir))) {
         await fs.mkdir(dir);
@@ -98,6 +99,7 @@ module.exports = {
       if (folder == 'shell') {
         scheduler.reload();
       }
+      return true;
     }
   },
 
