@@ -47,8 +47,8 @@ jobs:
           yarn run build:app
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
-          WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
+          # WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
+          # WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
 
       - name: Publish Mac
         if: matrix.os == 'macOS-10.15'
