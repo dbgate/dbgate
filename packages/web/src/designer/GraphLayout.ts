@@ -11,7 +11,7 @@ const MAX_FORCE_SIZE = 100;
 const NODE_MARGIN = 20;
 const MOVE_STEP = 20;
 const MOVE_BIG_STEP = 70;
-const MOVE_STEP_COUNT = 1000;
+const MOVE_STEP_COUNT = 100;
 const MINIMAL_SCORE_BENEFIT = 1;
 const SCORE_ASPECT_RATIO = 1.6;
 
@@ -73,6 +73,30 @@ export class GraphDefinition {
       }
       node.initialize();
     }
+  }
+
+  detectCentreNode(): GraphNode {
+    if (_.values(this.nodes).find(x => x.fixedPosition)) {
+      return null;
+    }
+    const res: GraphNode[] = [];
+    for (const n1 of _.values(this.nodes)) {
+      let candidate = true;
+      for (const n2 of _.values(this.nodes)) {
+        if (n1 == n2) {
+          continue;
+        }
+        if (!n1.neightboors.includes(n2)) {
+          candidate = false;
+          break;
+        }
+      }
+      if (candidate) {
+        res.push(n1);
+      }
+    }
+    if (res.length == 1) return res[0];
+    return null;
   }
 }
 
@@ -213,8 +237,10 @@ export class GraphLayout {
     const addedNodes = new Set<string>();
     const circleSortedNodes: GraphNode[] = [];
 
+    const centreNode = graph.detectCentreNode();
+
     addNodeNeighboors(
-      _.values(graph.nodes).filter(x => !x.fixedPosition),
+      _.values(graph.nodes).filter(x => x != centreNode && !x.fixedPosition),
       circleSortedNodes,
       addedNodes
     );
@@ -237,6 +263,10 @@ export class GraphLayout {
       res.nodes[node.designerId] = new LayoutNode(node, node.fixedPosition.x, node.fixedPosition.y);
     }
 
+    if (centreNode) {
+      res.nodes[centreNode.designerId] = new LayoutNode(centreNode, middle.x, middle.y);
+    }
+
     res.fillEdges();
 
     return res;
@@ -255,10 +285,10 @@ export class GraphLayout {
     });
   }
 
-  changePositions(nodeFunc: (node: LayoutNode) => LayoutNode): GraphLayout {
+  changePositions(nodeFunc: (node: LayoutNode) => LayoutNode, callFillEdges = true): GraphLayout {
     const res = new GraphLayout(this.graph);
     res.nodes = _.mapValues(this.nodes, nodeFunc);
-    res.fillEdges();
+    if (callFillEdges) res.fillEdges();
     return res;
   }
 
@@ -311,15 +341,15 @@ export class GraphLayout {
   tryMoveNode(node: LayoutNode): GraphLayout[] {
     if (node.node.fixedPosition) return [];
     return [
-      this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x)),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x)),
-      this.changePositions(x => (x == node ? node.translate(0, MOVE_STEP) : x)),
-      this.changePositions(x => (x == node ? node.translate(0, -MOVE_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x), false),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x), false),
+      this.changePositions(x => (x == node ? node.translate(0, MOVE_STEP) : x), false),
+      this.changePositions(x => (x == node ? node.translate(0, -MOVE_STEP) : x), false),
 
-      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, MOVE_BIG_STEP) : x)),
-      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, -MOVE_BIG_STEP) : x)),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, MOVE_BIG_STEP) : x)),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, -MOVE_BIG_STEP) : x)),
+      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
+      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
+      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
     ];
   }
 
@@ -347,10 +377,11 @@ export class GraphLayout {
       const lastRes = res;
       res = res.tryMoveElement();
       const newScore = res.score();
-      // console.log('SCORE, NEW SCORE', score, newScore);
+      // console.log('STEP, SCORE, NEW SCORE', step, score, newScore);
       if (score - newScore < MINIMAL_SCORE_BENEFIT) return lastRes;
       score = newScore;
     }
+    res.fillEdges();
     return res;
   }
 }
