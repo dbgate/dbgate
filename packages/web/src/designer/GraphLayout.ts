@@ -368,6 +368,7 @@ export class GraphLayout {
   doMoveSteps() {
     let res: GraphLayout = this;
     let score = res.score();
+    const start = new Date().getTime();
     for (let step = 0; step < MOVE_STEP_COUNT; step++) {
       const lastRes = res;
       res = res.tryMoveElement();
@@ -377,7 +378,7 @@ export class GraphLayout {
       }
       const newScore = res.score();
       // console.log('STEP, SCORE, NEW SCORE', step, score, newScore);
-      if (score - newScore < MINIMAL_SCORE_BENEFIT) {
+      if (score - newScore < MINIMAL_SCORE_BENEFIT || new Date().getTime() - start > 1000) {
         lastRes.fillEdges();
         return lastRes;
       }

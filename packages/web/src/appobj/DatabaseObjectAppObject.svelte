@@ -551,7 +551,7 @@
                     tables: [
                       {
                         ...data,
-                        designerId: uuidv1(),
+                        designerId: `${data.pureName}-${uuidv1()}`,
                         autoAddReferences: true,
                       },
                     ],

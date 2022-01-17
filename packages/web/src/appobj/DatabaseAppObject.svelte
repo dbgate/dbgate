@@ -85,6 +85,34 @@
       });
     };
 
+    const handleShowDiagram = async () => {
+      const db = await getDatabaseInfo({
+        conid: connection._id,
+        database: name,
+      });
+      openNewTab(
+        {
+          title: 'Diagram #',
+          icon: 'img diagram',
+          tabComponent: 'DiagramTab',
+          props: {
+            conid: connection._id,
+            database: name,
+          },
+        },
+        {
+          editor: {
+            tables: db.tables.map(table => ({
+              ...table,
+              designerId: `${table.pureName}-${uuidv1()}`,
+            })),
+            references: [],
+            autoLayout: true,
+          },
+        }
+      );
+    };
+
     const handleDisconnect = () => {
       const electron = getElectron();
       if (electron) {
@@ -138,6 +166,7 @@
       { divider: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
+      { onClick: handleShowDiagram, text: 'Show diagram' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },
       { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       { onClick: handleExportModel, text: 'Export DB model - experimental' },
@@ -157,6 +186,7 @@
 
 <script lang="ts">
   import getConnectionLabel from '../utility/getConnectionLabel';
+  import uuidv1 from 'uuid/v1';
 
   import _, { find } from 'lodash';
   import ImportExportModal from '../modals/ImportExportModal.svelte';

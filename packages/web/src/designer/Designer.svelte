@@ -53,6 +53,8 @@
   export const activator = createActivator('Designer', true);
 
   let domCanvas;
+  let canvasWidth = 3000;
+  let canvasHeight = 3000;
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
@@ -85,6 +87,10 @@
     if (dbInfo) {
       updateFromDbInfo($dbInfo);
     }
+  }
+
+  $: {
+    detectSize(tables, domTables);
   }
 
   $: {
@@ -143,6 +149,16 @@
         references,
       };
     }, true);
+  }
+
+  async function detectSize(tables, domTables) {
+    await tick();
+    const rects = _.values(domTables).map(x => x.getRect());
+    const maxX = _.max(rects.map(x => x.right));
+    const maxY = _.max(rects.map(x => x.bottom));
+
+    canvasWidth = Math.max(3000, maxX + 50);
+    canvasHeight = Math.max(3000, maxY + 50);
   }
 
   function callChange(changeFunc, skipUndoChain = undefined) {
@@ -556,7 +572,13 @@
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}
 
-  <div class="canvas" bind:this={domCanvas} on:dragover={e => e.preventDefault()} on:drop={handleDrop}>
+  <div
+    class="canvas"
+    bind:this={domCanvas}
+    on:dragover={e => e.preventDefault()}
+    on:drop={handleDrop}
+    style={`width:${canvasWidth}px;height:${canvasHeight}px;`}
+  >
     {#each references || [] as ref (ref.designerId)}
       <svelte:component
         this={referenceComponent}
@@ -614,8 +636,6 @@
     font-size: 20px;
   }
   .canvas {
-    width: 3000px;
-    height: 3000px;
     position: relative;
   }
 </style>
