@@ -148,7 +148,7 @@ export function solveOverlapsInIntervalArray(position: number, size: number, use
     if (interval[1] < position) {
       candidates.push(interval[1] - size / 2);
     } else if (interval[0] > position) {
-      candidates.push(interval[0] - size / 2);
+      candidates.push(interval[0] + size / 2);
     } else {
       // position is in interval
       let candidate = position;

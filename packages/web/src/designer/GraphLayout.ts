@@ -151,9 +151,13 @@ class LayoutNode {
   //   return rectangleIntersectArea(this.paddedRect, node.paddedRect);
   // }
   hasPaddedIntersect(node: LayoutNode) {
-    return !!(
-      intersection(this.rangeXPadded, node.rangeXPadded) &&
-      intersection(this.rangeYPadded, node.rangeYPadded)
+    const xIntersection = intersection(this.rangeXPadded, node.rangeXPadded) as [number, number];
+    const yIntersection = intersection(this.rangeYPadded, node.rangeYPadded) as [number, number];
+    return (
+      xIntersection &&
+      xIntersection[1] - xIntersection[0] > 0.1 &&
+      yIntersection &&
+      yIntersection[1] - yIntersection[0] > 0.1
     );
   }
 }
@@ -415,24 +419,41 @@ export class GraphLayout {
     for (const node of nodes) {
       const placedNodes = _.values(res.nodes);
       if (placedNodes.find(x => x.hasPaddedIntersect(node))) {
+        // if (node.node.designerId.startsWith('ProtocolWinPriceAllocation')) {
+        //   console.log('PLACING NODE', node);
+        //   console.log('PLACED NODES', placedNodes);
+        // }
+
         // intersection found, must perform moving algorithm
         const xIntervalArray = union(
-          ...placedNodes
-            .filter(x => intersection(x.rangeYPadded, node.rangeYPadded))
-            .map(x => x.rangeXPadded)
+          ...placedNodes.filter(x => intersection(x.rangeYPadded, node.rangeYPadded)).map(x => x.rangeXPadded)
         );
 
         const yIntervalArray = union(
-          ...placedNodes
-            .filter(x => intersection(x.rangeXPadded, node.rangeXPadded))
-            .map(x => x.rangeYPadded)
+          ...placedNodes.filter(x => intersection(x.rangeXPadded, node.rangeXPadded)).map(x => x.rangeYPadded)
         );
 
-        const newX = solveOverlapsInIntervalArray(node.x, node.node.width, xIntervalArray as any);
-        const newY = solveOverlapsInIntervalArray(node.y, node.node.height, yIntervalArray as any);
+        // if (node.node.designerId.startsWith('ProtocolWinPriceAllocation')) {
+        //   console.log('xIntervalArray', xIntervalArray);
+        //   console.log('yIntervalArray', yIntervalArray);
+        // }
 
-        if (newX < newY) res.nodes[node.node.designerId] = new LayoutNode(node.node, newX, node.y);
-        else res.nodes[node.node.designerId] = new LayoutNode(node.node, node.x, newY);
+        const newX = solveOverlapsInIntervalArray(node.x, node.node.width + NODE_MARGIN * 2, xIntervalArray as any);
+        const newY = solveOverlapsInIntervalArray(node.y, node.node.height + NODE_MARGIN * 2, yIntervalArray as any);
+
+        // if (node.node.designerId.startsWith('ProtocolWinPriceAllocation')) {
+        //   console.log('NEWXY', newX, newY);
+        // }
+
+        const newNode =
+          Math.abs(newX - node.x) < Math.abs(newY - node.y)
+            ? new LayoutNode(node.node, newX, node.y)
+            : new LayoutNode(node.node, node.x, newY);
+        res.nodes[node.node.designerId] = newNode;
+
+        // if (placedNodes.find(x => x.hasPaddedIntersect(newNode))) {
+        //   console.log('!!!!! LOGICAL ERROR WHEN PLACING', newNode);
+        // }
       } else {
         res.nodes[node.node.designerId] = node;
       }
