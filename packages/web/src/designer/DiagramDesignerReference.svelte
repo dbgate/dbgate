@@ -91,4 +91,8 @@
     stroke: var(--theme-bg-4);
     stroke-width: 2;
   }
+
+  polygon {
+    fill: var(--theme-bg-4);
+  }
 </style>

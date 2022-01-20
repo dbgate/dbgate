@@ -18,6 +18,7 @@
     canExport: true,
     canSelectColumns: false,
     canSelectTables: true,
+    allowChangeColor: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />

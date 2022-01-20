@@ -1,13 +1,15 @@
 <script lang="ts">
+  import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
+
   import { tick } from 'svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import { currentThemeDefinition } from '../stores';
   import contextMenu from '../utility/contextMenu';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
-import { rectanglesHaveIntersection } from './designerMath';
   import DomTableRef from './DomTableRef';
 
   export let table;
@@ -20,6 +22,7 @@ import { rectanglesHaveIntersection } from './designerMath';
   export let onAddReferenceByColumn;
   export let onSelectColumn;
   export let onChangeColumn;
+  export let onChangeTableColor;
 
   export let onMoveStart;
   export let onMove;
@@ -105,6 +108,14 @@ import { rectanglesHaveIntersection } from './designerMath';
     }
   }
 
+  function getTableColorStyle(themeDef, table, colorIndex = 3) {
+    if (!table?.tableColor) return null;
+    const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
+    const palette = palettes[table?.tableColor];
+    if (!palette) return null;
+    return `background: ${palette[colorIndex]}`;
+  }
+
   export function getDomTable() {
     const domRefs = { ...columnRefs };
     domRefs[''] = domWrapper;
@@ -141,6 +152,7 @@ import { rectanglesHaveIntersection } from './designerMath';
         },
       ],
       settings?.allowAddAllReferences && { text: 'Add references', onClick: () => onAddAllReferences(table) },
+      settings?.allowChangeColor && { text: 'Change color', onClick: () => onChangeTableColor(table) },
     ];
   }
 </script>
@@ -169,6 +181,7 @@ import { rectanglesHaveIntersection } from './designerMath';
     class:isView={objectTypeField == 'views'}
     use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
     use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
+    style={getTableColorStyle($currentThemeDefinition, table)}
   >
     <div>{alias || pureName}</div>
     {#if settings?.showTableCloseButton}

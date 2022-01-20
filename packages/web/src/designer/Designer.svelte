@@ -43,6 +43,9 @@
   import { apiCall } from '../utility/api';
   import moveDrag from '../utility/moveDrag';
   import { rectanglesHaveIntersection } from './designerMath';
+  import { showModal } from '../modals/modalTools';
+  import ChooseColorModal from '../modals/ChooseColorModal.svelte';
+  import { currentThemeDefinition } from '../stores';
 
   export let value;
   export let onChange;
@@ -371,6 +374,26 @@
     arrange(true, false, rect ? { x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 } : null);
   };
 
+  const handleChangeTableColor = table => {
+    showModal(ChooseColorModal, {
+      onChange: color => {
+        callChange(current => {
+          return {
+            ...current,
+            tables: (current?.tables || []).map(table =>
+              table.isSelectedTable
+                ? {
+                    ...table,
+                    tableColor: color,
+                  }
+                : table
+            ),
+          };
+        });
+      },
+    });
+  };
+
   const performAutoActions = async db => {
     if (!db) return;
 
@@ -663,6 +686,8 @@
         filePath,
         html: domCanvas.outerHTML,
         css,
+        themeType: $currentThemeDefinition?.themeType,
+        themeClassName: $currentThemeDefinition?.className,
       });
     });
   }
@@ -723,6 +748,7 @@
         onChangeColumn={handleChangeColumn}
         onAddReferenceByColumn={handleAddReferenceByColumn}
         onAddAllReferences={handleAddTableReferences}
+        onChangeTableColor={handleChangeTableColor}
         onMoveReferences={recomputeReferencePositions}
         {table}
         onChangeTable={changeTable}
