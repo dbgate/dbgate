@@ -71,6 +71,8 @@
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
 
+  $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
+
   const tableRefs = {};
   const referenceRefs = {};
   $: domTables = _.pickBy(_.mapValues(tableRefs, (tbl: any) => tbl?.getDomTable()));
@@ -205,14 +207,22 @@
   };
 
   const removeTable = table => {
-    callChange(current => ({
-      ...current,
-      tables: (current.tables || []).filter(x => x.designerId != table.designerId),
-      references: (current.references || []).filter(
-        x => x.sourceId != table.designerId && x.targetId != table.designerId
-      ),
-      columns: (current.columns || []).filter(x => x.designerId != table.designerId),
-    }));
+    if (isMultipleTableSelection && settings?.useDatabaseReferences && settings?.canSelectTables) {
+      callChange(current => ({
+        ...current,
+        tables: (current.tables || []).filter(x => !x.isSelectedTable),
+      }));
+      updateFromDbInfo();
+    } else {
+      callChange(current => ({
+        ...current,
+        tables: (current.tables || []).filter(x => x.designerId != table.designerId),
+        references: (current.references || []).filter(
+          x => x.sourceId != table.designerId && x.targetId != table.designerId
+        ),
+        columns: (current.columns || []).filter(x => x.designerId != table.designerId),
+      }));
+    }
   };
 
   const changeReference = ref => {
@@ -753,6 +763,7 @@
         {table}
         {conid}
         {database}
+        {isMultipleTableSelection}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
         onSelectTable={selectTable}

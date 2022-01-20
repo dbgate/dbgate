@@ -26,6 +26,7 @@
   export let onSelectColumn;
   export let onChangeColumn;
   export let onChangeTableColor;
+  export let isMultipleTableSelection;
 
   export let onMoveStart;
   export let onMove;
@@ -143,20 +144,23 @@
     return [
       { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
       { divider: true },
-      settings?.allowTableAlias && [
-        { text: 'Set table alias', onClick: handleSetTableAlias },
-        alias && {
-          text: 'Remove table alias',
-          onClick: () =>
-            onChangeTable({
-              ...table,
-              alias: null,
-            }),
-        },
-      ],
-      settings?.allowAddAllReferences && { text: 'Add references', onClick: () => onAddAllReferences(table) },
+      settings?.allowTableAlias &&
+        !isMultipleTableSelection && [
+          { text: 'Set table alias', onClick: handleSetTableAlias },
+          alias && {
+            text: 'Remove table alias',
+            onClick: () =>
+              onChangeTable({
+                ...table,
+                alias: null,
+              }),
+          },
+        ],
+      settings?.allowAddAllReferences &&
+        !isMultipleTableSelection && { text: 'Add references', onClick: () => onAddAllReferences(table) },
       settings?.allowChangeColor && { text: 'Change color', onClick: () => onChangeTableColor(table) },
-      settings?.appendTableSystemMenu && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
+      settings?.appendTableSystemMenu &&
+        !isMultipleTableSelection && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
     ];
   }
 </script>
