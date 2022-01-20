@@ -717,7 +717,7 @@
   function createMenu() {
     return [
       menu,
-      settings?.chooseColumnProperties && [
+      settings?.customizeStyle && [
         { divider: true },
         {
           text: 'Column properties',
@@ -755,7 +755,39 @@
               text: 'Keys And Not Null',
               onClick: changeStyleFunc('filterColumns', 'keysAndNotNull'),
             },
-            
+          ],
+        },
+        {
+          text: `Zoom - ${(value?.style?.zoomKoef || 1) * 100}%`,
+          submenu: [
+            {
+              text: `10 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.1),
+            },
+            {
+              text: `15 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.15),
+            },
+            {
+              text: `20 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.2),
+            },
+            {
+              text: `40 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.4),
+            },
+            {
+              text: `60 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.6),
+            },
+            {
+              text: `80 %`,
+              onClick: changeStyleFunc('zoomKoef', 0.8),
+            },
+            {
+              text: `100 %`,
+              onClick: changeStyleFunc('zoomKoef', 1),
+            },
           ],
         },
       ],
@@ -773,7 +805,9 @@
     bind:this={domCanvas}
     on:dragover={e => e.preventDefault()}
     on:drop={handleDrop}
-    style={`width:${canvasWidth}px;height:${canvasHeight}px;`}
+    style={`width:${canvasWidth}px;height:${canvasHeight}px;
+      ${settings?.customizeStyle && value?.style?.zoomKoef ? `zoom:${value?.style?.zoomKoef};` : ''}
+    `}
     on:mousedown={e => {
       if (e.button == 0 && settings?.canSelectTables) {
         callChange(

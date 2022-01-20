@@ -85,7 +85,7 @@
   }
 
   function shouldShowColumn(table, column, style) {
-    if (!settings?.chooseColumnProperties) {
+    if (!settings?.customizeStyle) {
       return true;
     }
     switch (style?.filterColumns || 'all') {
