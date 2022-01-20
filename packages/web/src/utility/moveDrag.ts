@@ -11,10 +11,12 @@ export default function moveDrag(node, dragEvents) {
   const handleMoveDown = e => {
     if (e.button != 0) return;
 
+    const zoomKoef = window.getComputedStyle(node)['zoom'];
+
     const clientRect = node.getBoundingClientRect();
-    clientX = clientRect.left;
-    clientY = clientRect.top;
-  
+    clientX = clientRect.left * zoomKoef;
+    clientY = clientRect.top * zoomKoef;
+
     startX = e.clientX;
     startY = e.clientY;
     document.addEventListener('mousemove', handleMoveMove, true);
@@ -23,6 +25,8 @@ export default function moveDrag(node, dragEvents) {
   };
 
   const handleMoveMove = e => {
+    const zoomKoef = window.getComputedStyle(node)['zoom'];
+
     e.preventDefault();
     const diffX = e.clientX - startX;
     startX = e.clientX;
@@ -32,6 +36,8 @@ export default function moveDrag(node, dragEvents) {
     onMove(diffX, diffY, e.clientX - clientX, e.clientY - clientY);
   };
   const handleMoveEnd = e => {
+    const zoomKoef = window.getComputedStyle(node)['zoom'];
+
     e.preventDefault();
     startX = null;
     startY = null;

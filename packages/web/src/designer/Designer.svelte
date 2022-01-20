@@ -70,6 +70,7 @@
 
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
+  $: zoomKoef = settings?.customizeStyle && value?.style?.zoomKoef ? value?.style?.zoomKoef : 1;
 
   $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
 
@@ -580,10 +581,10 @@
   };
 
   const handleMoveStart = (x, y) => {
-    dragStartPoint = { x, y };
+    dragStartPoint = { x: x / zoomKoef, y: y / zoomKoef };
   };
   const handleMove = (dx, dy, x, y) => {
-    dragCurrentPoint = { x, y };
+    dragCurrentPoint = { x: x / zoomKoef, y: y / zoomKoef };
   };
   const handleMoveEnd = (x, y) => {
     if (dragStartPoint && dragCurrentPoint) {
@@ -857,6 +858,7 @@
         {table}
         {conid}
         {database}
+        {zoomKoef}
         {isMultipleTableSelection}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
@@ -872,21 +874,21 @@
         {settings}
       />
     {/each}
-  </div>
 
-  {#if dragStartPoint && dragCurrentPoint}
-    <svg class="drag-rect">
-      <polyline
-        points={`
+    {#if dragStartPoint && dragCurrentPoint}
+      <svg class="drag-rect">
+        <polyline
+          points={`
         ${dragStartPoint.x},${dragStartPoint.y}
         ${dragStartPoint.x},${dragCurrentPoint.y}
         ${dragCurrentPoint.x},${dragCurrentPoint.y}
         ${dragCurrentPoint.x},${dragStartPoint.y}
         ${dragStartPoint.x},${dragStartPoint.y}
     `}
-      />
-    </svg>
-  {/if}
+        />
+      </svg>
+    {/if}
+  </div>
 </div>
 
 <style>

@@ -17,6 +17,7 @@
   export let conid;
   export let database;
   export let table;
+  export let zoomKoef;
   export let onChangeTable;
   export let onBringToFront;
   export let onSelectTable;
@@ -74,8 +75,8 @@
   }
 
   export function move(x, y) {
-    movingPosition.left += x;
-    movingPosition.top += y;
+    movingPosition.left += x / zoomKoef;
+    movingPosition.top += y / zoomKoef;
   }
 
   export function moveEnd() {
