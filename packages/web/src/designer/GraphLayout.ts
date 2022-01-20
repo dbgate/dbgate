@@ -1,19 +1,29 @@
 import _ from 'lodash';
-import { IBoxBounds, IPoint, rectangleDistance, rectangleIntersectArea, Vector2D } from './designerMath';
+import {
+  IBoxBounds,
+  IPoint,
+  rectangleDistance,
+  rectangleIntersectArea,
+  solveOverlapsInIntervalArray,
+  Vector2D,
+} from './designerMath';
+import { union, intersection } from 'interval-operations';
 
 const MIN_NODE_DISTANCE = 50;
 const SPRING_LENGTH = 100;
 const SPRINGY_STEPS = 50;
 const GRAVITY_X = 0.005;
 const GRAVITY_Y = 0.01;
-const REPULSION = 500_000;
+// const REPULSION = 500_000;
+const REPULSION = 1000;
 const MAX_FORCE_SIZE = 100;
-const NODE_MARGIN = 20;
-const MOVE_STEP = 20;
-const MOVE_BIG_STEP = 50;
-const MOVE_STEP_COUNT = 100;
-const MINIMAL_SCORE_BENEFIT = 1;
-const SCORE_ASPECT_RATIO = 1.6;
+const NODE_MARGIN = 30;
+
+// const MOVE_STEP = 20;
+// const MOVE_BIG_STEP = 50;
+// const MOVE_STEP_COUNT = 100;
+// const MINIMAL_SCORE_BENEFIT = 1;
+// const SCORE_ASPECT_RATIO = 1.6;
 
 class GraphNode {
   neightboors: GraphNode[] = [];
@@ -106,7 +116,10 @@ class LayoutNode {
   right: number;
   top: number;
   bottom: number;
-  paddedRect: IBoxBounds;
+  // paddedRect: IBoxBounds;
+
+  rangeXPadded: [number, number];
+  rangeYPadded: [number, number];
 
   constructor(public node: GraphNode, public x: number, public y: number) {
     this.left = x - node.width / 2;
@@ -115,12 +128,14 @@ class LayoutNode {
     this.bottom = y + node.height / 2;
     this.position = new Vector2D(x, y);
 
-    this.paddedRect = {
-      left: this.left - NODE_MARGIN,
-      top: this.top - NODE_MARGIN,
-      right: this.right + NODE_MARGIN,
-      bottom: this.bottom + NODE_MARGIN,
-    };
+    this.rangeXPadded = [this.left - NODE_MARGIN, this.right + NODE_MARGIN];
+    this.rangeYPadded = [this.top - NODE_MARGIN, this.bottom + NODE_MARGIN];
+    // this.paddedRect = {
+    //   left: this.left - NODE_MARGIN,
+    //   top: this.top - NODE_MARGIN,
+    //   right: this.right + NODE_MARGIN,
+    //   bottom: this.bottom + NODE_MARGIN,
+    // };
   }
 
   translate(dx: number, dy: number, forceMoveFixed = false) {
@@ -132,8 +147,14 @@ class LayoutNode {
     return rectangleDistance(this, node);
   }
 
-  intersectArea(node: LayoutNode) {
-    return rectangleIntersectArea(this.paddedRect, node.paddedRect);
+  // intersectArea(node: LayoutNode) {
+  //   return rectangleIntersectArea(this.paddedRect, node.paddedRect);
+  // }
+  hasPaddedIntersect(node: LayoutNode) {
+    return !!(
+      intersection(this.rangeXPadded, node.rangeXPadded) &&
+      intersection(this.rangeYPadded, node.rangeYPadded)
+    );
   }
 }
 
@@ -309,80 +330,112 @@ export class GraphLayout {
     return res;
   }
 
-  score() {
-    let res = 0;
+  // score() {
+  //   let res = 0;
 
-    for (const n1 of _.values(this.nodes)) {
-      for (const n2 of _.values(this.nodes)) {
-        if (n1.node.designerId == n2.node.designerId) {
-          continue;
-        }
+  //   for (const n1 of _.values(this.nodes)) {
+  //     for (const n2 of _.values(this.nodes)) {
+  //       if (n1.node.designerId == n2.node.designerId) {
+  //         continue;
+  //       }
 
-        res += n1.intersectArea(n2);
+  //       res += n1.intersectArea(n2);
+  //     }
+  //   }
+
+  //   const minX = _.min(_.values(this.nodes).map(n => n.left));
+  //   const minY = _.min(_.values(this.nodes).map(n => n.top));
+  //   const maxX = _.max(_.values(this.nodes).map(n => n.right));
+  //   const maxY = _.max(_.values(this.nodes).map(n => n.bottom));
+
+  //   res += maxX - minX;
+  //   res += (maxY - minY) * SCORE_ASPECT_RATIO;
+
+  //   return res;
+  // }
+
+  // tryMoveNode(node: LayoutNode): GraphLayout[] {
+  //   if (node.node.fixedPosition) return [];
+  //   return [
+  //     this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(0, MOVE_STEP) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(0, -MOVE_STEP) : x), false),
+
+  //     this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
+  //     this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
+  //   ];
+  // }
+
+  // tryMoveElement() {
+  //   let res = null;
+  //   let resScore = null;
+
+  //   for (const node of _.values(this.nodes)) {
+  //     for (const item of this.tryMoveNode(node)) {
+  //       const score = item.score();
+  //       if (resScore == null || score < resScore) {
+  //         res = item;
+  //         resScore = score;
+  //       }
+  //     }
+  //   }
+
+  //   return res;
+  // }
+
+  // doMoveSteps() {
+  //   let res: GraphLayout = this;
+  //   let score = res.score();
+  //   const start = new Date().getTime();
+  //   for (let step = 0; step < MOVE_STEP_COUNT; step++) {
+  //     const lastRes = res;
+  //     res = res.tryMoveElement();
+  //     if (!res) {
+  //       lastRes.fillEdges();
+  //       return lastRes;
+  //     }
+  //     const newScore = res.score();
+  //     // console.log('STEP, SCORE, NEW SCORE', step, score, newScore);
+  //     if (score - newScore < MINIMAL_SCORE_BENEFIT || new Date().getTime() - start > 1000) {
+  //       lastRes.fillEdges();
+  //       return lastRes;
+  //     }
+  //     score = newScore;
+  //   }
+  //   res.fillEdges();
+  //   return res;
+  // }
+
+  solveOverlaps(): GraphLayout {
+    const nodes = _.sortBy(_.values(this.nodes), x => x.position.magnitude());
+    const res = new GraphLayout(this.graph);
+    for (const node of nodes) {
+      const placedNodes = _.values(res.nodes);
+      if (placedNodes.find(x => x.hasPaddedIntersect(node))) {
+        // intersection found, must perform moving algorithm
+        const xIntervalArray = union(
+          ...placedNodes
+            .filter(x => intersection(x.rangeYPadded, node.rangeYPadded))
+            .map(x => x.rangeXPadded)
+        );
+
+        const yIntervalArray = union(
+          ...placedNodes
+            .filter(x => intersection(x.rangeXPadded, node.rangeXPadded))
+            .map(x => x.rangeYPadded)
+        );
+
+        const newX = solveOverlapsInIntervalArray(node.x, node.node.width, xIntervalArray as any);
+        const newY = solveOverlapsInIntervalArray(node.y, node.node.height, yIntervalArray as any);
+
+        if (newX < newY) res.nodes[node.node.designerId] = new LayoutNode(node.node, newX, node.y);
+        else res.nodes[node.node.designerId] = new LayoutNode(node.node, node.x, newY);
+      } else {
+        res.nodes[node.node.designerId] = node;
       }
-    }
-
-    const minX = _.min(_.values(this.nodes).map(n => n.left));
-    const minY = _.min(_.values(this.nodes).map(n => n.top));
-    const maxX = _.max(_.values(this.nodes).map(n => n.right));
-    const maxY = _.max(_.values(this.nodes).map(n => n.bottom));
-
-    res += maxX - minX;
-    res += (maxY - minY) * SCORE_ASPECT_RATIO;
-
-    return res;
-  }
-
-  tryMoveNode(node: LayoutNode): GraphLayout[] {
-    if (node.node.fixedPosition) return [];
-    return [
-      this.changePositions(x => (x == node ? node.translate(MOVE_STEP, 0) : x), false),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_STEP, 0) : x), false),
-      this.changePositions(x => (x == node ? node.translate(0, MOVE_STEP) : x), false),
-      this.changePositions(x => (x == node ? node.translate(0, -MOVE_STEP) : x), false),
-
-      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
-      this.changePositions(x => (x == node ? node.translate(MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, MOVE_BIG_STEP) : x), false),
-      this.changePositions(x => (x == node ? node.translate(-MOVE_BIG_STEP, -MOVE_BIG_STEP) : x), false),
-    ];
-  }
-
-  tryMoveElement() {
-    let res = null;
-    let resScore = null;
-
-    for (const node of _.values(this.nodes)) {
-      for (const item of this.tryMoveNode(node)) {
-        const score = item.score();
-        if (resScore == null || score < resScore) {
-          res = item;
-          resScore = score;
-        }
-      }
-    }
-
-    return res;
-  }
-
-  doMoveSteps() {
-    let res: GraphLayout = this;
-    let score = res.score();
-    const start = new Date().getTime();
-    for (let step = 0; step < MOVE_STEP_COUNT; step++) {
-      const lastRes = res;
-      res = res.tryMoveElement();
-      if (!res) {
-        lastRes.fillEdges();
-        return lastRes;
-      }
-      const newScore = res.score();
-      // console.log('STEP, SCORE, NEW SCORE', step, score, newScore);
-      if (score - newScore < MINIMAL_SCORE_BENEFIT || new Date().getTime() - start > 1000) {
-        lastRes.fillEdges();
-        return lastRes;
-      }
-      score = newScore;
     }
     res.fillEdges();
     return res;

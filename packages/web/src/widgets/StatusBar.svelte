@@ -1,35 +1,5 @@
-<script lang="ts" context="module">
-  const statusBarTabInfo = writable({});
-
-  // export function updateStatuBarInfo(tabid, info) {
-  //   statusBarTabInfo.update(x => ({
-  //     ...x,
-  //     [tabid]: info,
-  //   }));
-  // }
-
-  export function updateStatuBarInfoItem(tabid, key, item) {
-    statusBarTabInfo.update(tabs => {
-      const items = tabs[tabid] || [];
-      let newItems;
-      if (item == null) {
-        newItems = items.filter(x => x.key != key);
-      } else if (items.find(x => x.key == key)) {
-        newItems = items.map(x => (x.key == key ? { ...item, key } : x));
-      } else {
-        newItems = [...items, { ...item, key }];
-      }
-      return {
-        ...tabs,
-        [tabid]: newItems,
-      };
-    });
-  }
-</script>
-
 <script lang="ts">
   import _ from 'lodash';
-  import { writable } from 'svelte/store';
   import moment from 'moment';
   import { showModal } from '../modals/modalTools';
   import ChooseConnectionColorModal from '../modals/ChooseConnectionColorModal.svelte';
@@ -42,6 +12,7 @@
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';
   import { apiCall } from '../utility/api';
+import { statusBarTabInfo } from '../utility/statusBarStore';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;

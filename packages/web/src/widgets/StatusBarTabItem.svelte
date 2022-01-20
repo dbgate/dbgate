@@ -2,7 +2,7 @@
   import { getContext, onDestroy, onMount } from 'svelte';
 
   import uuidv1 from 'uuid/v1';
-  import { updateStatuBarInfoItem } from './StatusBar.svelte';
+  import { updateStatuBarInfoItem } from '../utility/statusBarStore';
 
   export let text;
   export let clickable = false;

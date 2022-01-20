@@ -523,7 +523,16 @@
 
     graph.initialize();
 
-    const layout = GraphLayout.createCircle(graph, circleMiddle).springyAlg().doMoveSteps().fixViewBox();
+    const layout = GraphLayout
+      // initial circle layout
+      .createCircle(graph, circleMiddle)
+      // simulation with Hook's, Coulomb's and gravity law
+      .springyAlg()
+      // move nodes to avoid overlaps
+      .solveOverlaps()
+      // view box starts with [0,0]
+      .fixViewBox();
+
     // layout.print();
 
     callChange(current => {

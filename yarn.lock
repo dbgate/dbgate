@@ -5177,6 +5177,11 @@ interpret@1.2.0:
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.2.0.tgz#d5061a6224be58e8083985f5014d844359576296"
   integrity sha512-mT34yGKMNceBQUoVn7iCDKDntA7SC6gycMAWzGx1z/CMCTV7b2AAtXlo3nRyHZ1FelRkQbQjprHSYGwzLtkVbw==
 
+interval-operations@^1.0.7:
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/interval-operations/-/interval-operations-1.0.7.tgz#c935dfed6bb040064d488f542b9a2c0004d7a333"
+  integrity sha512-VBxXaK+DxTt7Hwr8Rhg03bgdyv5OZ0OfH3hotg9fT2jqufF3VOtvkX33n3t6jNjS8tx1jTKBt7fs++SqNd1OQg==
+
 invariant@^2.2.4:
   version "2.2.4"
   resolved "https://registry.yarnpkg.com/invariant/-/invariant-2.2.4.tgz#610f3c92c9359ce1db616e538008d23ff35158e6"

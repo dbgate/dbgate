@@ -1,3 +1,5 @@
+import { arrayDifference } from 'interval-operations';
+import _ from 'lodash';
 export interface IPoint {
   x: number;
   y: number;
@@ -133,4 +135,28 @@ export class Vector2D {
   normalise() {
     return this.divide(this.magnitude());
   }
+}
+
+export function solveOverlapsInIntervalArray(position: number, size: number, usedIntervals: [number, number][]) {
+  const freeIntervals = arrayDifference([[-Infinity, Infinity]], usedIntervals) as [number, number][];
+
+  const candidates = [];
+
+  for (const interval of freeIntervals) {
+    const intervalSize = interval[1] - interval[0];
+    if (intervalSize < size) continue;
+    if (interval[1] < position) {
+      candidates.push(interval[1] - size / 2);
+    } else if (interval[0] > position) {
+      candidates.push(interval[0] - size / 2);
+    } else {
+      // position is in interval
+      let candidate = position;
+      if (candidate - size / 2 < interval[0]) candidate = interval[0] + size / 2;
+      if (candidate + size / 2 > interval[1]) candidate = interval[1] - size / 2;
+      candidates.push(candidate);
+    }
+  }
+
+  return _.minBy(candidates, x => Math.abs(x - position));
 }
