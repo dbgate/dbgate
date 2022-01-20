@@ -1,5 +1,6 @@
-import { arrayDifference } from 'interval-operations';
+import { intersection, arrayDifference } from 'interval-operations';
 import _ from 'lodash';
+
 export interface IPoint {
   x: number;
   y: number;
@@ -99,6 +100,13 @@ export function rectangleIntersectArea(rect1: IBoxBounds, rect2: IBoxBounds) {
   //   console.log('rectangleIntersectArea', rect1, rect2, x_overlap * y_overlap);
   // }
   return x_overlap * y_overlap;
+}
+
+export function rectanglesHaveIntersection(rect1: IBoxBounds, rect2: IBoxBounds) {
+  const xIntersection = intersection([rect1.left, rect1.right], [rect2.left, rect2.right]);
+  const yIntersection = intersection([rect1.top, rect1.bottom], [rect2.top, rect2.bottom]);
+
+  return !!xIntersection && !!yIntersection;
 }
 
 export class Vector2D {

@@ -7,6 +7,7 @@
   import contextMenu from '../utility/contextMenu';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
+import { rectanglesHaveIntersection } from './designerMath';
   import DomTableRef from './DomTableRef';
 
   export let table;

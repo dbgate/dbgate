@@ -41,6 +41,8 @@
   import { GraphDefinition, GraphLayout } from './GraphLayout';
   import { saveFileToDisk } from '../utility/exportElectronFile';
   import { apiCall } from '../utility/api';
+  import moveDrag from '../utility/moveDrag';
+  import { rectanglesHaveIntersection } from './designerMath';
 
   export let value;
   export let onChange;
@@ -55,6 +57,8 @@
   let domCanvas;
   let canvasWidth = 3000;
   let canvasHeight = 3000;
+  let dragStartPoint = null;
+  let dragCurrentPoint = null;
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
@@ -542,6 +546,41 @@
     tick().then(recomputeReferencePositions);
   };
 
+  const handleMoveStart = (x, y) => {
+    dragStartPoint = { x, y };
+  };
+  const handleMove = (dx, dy, x, y) => {
+    dragCurrentPoint = { x, y };
+  };
+  const handleMoveEnd = (x, y) => {
+    if (dragStartPoint && dragCurrentPoint) {
+      const bounds = {
+        left: Math.min(dragStartPoint.x, dragCurrentPoint.x),
+        right: Math.max(dragStartPoint.x, dragCurrentPoint.x),
+        top: Math.min(dragStartPoint.y, dragCurrentPoint.y),
+        bottom: Math.max(dragStartPoint.y, dragCurrentPoint.y),
+      };
+
+      callChange(
+        current => ({
+          ...current,
+          tables: (current.tables || []).map(x => {
+            const domTable = domTables[x.designerId] as any;
+            const rect = domTable.getRect();
+            return {
+              ...x,
+              isSelectedTable: rectanglesHaveIntersection(rect, bounds),
+            };
+          }),
+        }),
+        true
+      );
+    }
+
+    dragStartPoint = null;
+    dragCurrentPoint = null;
+  };
+
   function recomputeReferencePositions() {
     for (const ref of Object.values(referenceRefs) as any[]) {
       if (ref) ref.recomputePosition();
@@ -651,6 +690,7 @@
         );
       }
     }}
+    use:moveDrag={settings?.canSelectTables ? [handleMoveStart, handleMove, handleMoveEnd] : null}
   >
     {#each references || [] as ref (ref.designerId)}
       <svelte:component
@@ -700,6 +740,20 @@
       />
     {/each}
   </div>
+
+  {#if dragStartPoint && dragCurrentPoint}
+    <svg class="drag-rect">
+      <polyline
+        points={`
+        ${dragStartPoint.x},${dragStartPoint.y}
+        ${dragStartPoint.x},${dragCurrentPoint.y}
+        ${dragCurrentPoint.x},${dragCurrentPoint.y}
+        ${dragCurrentPoint.x},${dragStartPoint.y}
+        ${dragStartPoint.x},${dragStartPoint.y}
+    `}
+      />
+    </svg>
+  {/if}
 </div>
 
 <style>
@@ -714,5 +768,25 @@
   }
   .canvas {
     position: relative;
+  }
+
+  svg.drag-rect {
+    visibility: hidden;
+    pointer-events: none;
+  }
+  :global(.dbgate-screen) svg.drag-rect {
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+  }
+  :global(.dbgate-screen) svg.drag-rect polyline {
+    fill: none;
+    stroke: var(--theme-bg-4);
+    stroke-width: 2;
   }
 </style>
