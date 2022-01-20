@@ -543,7 +543,7 @@
   function forEachSelected(op: Function) {
     for (const tbl of _.values(tableRefs)) {
       const table = tbl as any;
-      if (!table.isSelected()) continue;
+      if (!table?.isSelected()) continue;
       op(table);
     }
   }
