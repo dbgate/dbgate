@@ -701,9 +701,43 @@
       });
     });
   }
+
+  const changeStyleFunc = (name, value) => () => {
+    callChange(current => {
+      return {
+        ...current,
+        style: {
+          ...current?.style,
+          [name]: value,
+        },
+      };
+    });
+  };
+
+  function createMenu() {
+    return [
+      menu,
+      settings?.chooseColumnProperties && [
+        { divider: true },
+        {
+          text: 'Column properties',
+          submenu: [
+            {
+              text: `Nullability: ${value?.style?.showNullability ? 'YES' : 'NO'}`,
+              onClick: changeStyleFunc('showNullability', !value?.style?.showNullability),
+            },
+            {
+              text: `Data type: ${value?.style?.showDataType ? 'YES' : 'NO'}`,
+              onClick: changeStyleFunc('showDataType', !value?.style?.showDataType),
+            },
+          ],
+        },
+      ],
+    ];
+  }
 </script>
 
-<div class="wrapper noselect" use:contextMenu={menu}>
+<div class="wrapper noselect" use:contextMenu={createMenu}>
   {#if !(tables?.length > 0)}
     <div class="empty">Drag &amp; drop tables or views from left panel here</div>
   {/if}

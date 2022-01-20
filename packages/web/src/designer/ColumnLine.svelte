@@ -137,6 +137,20 @@
   {#if designerColumn?.isGrouped}
     <FontIcon icon="img group" />
   {/if}
+
+  {#if designer?.style?.showNullability || designer?.style?.showDataType}
+    <div class="space" />
+    {#if designer?.style?.showDataType && column?.dataType}
+      <div class="ml-2">
+        {column?.dataType.toLowerCase()}
+      </div>
+    {/if}
+    {#if designer?.style?.showNullability}
+      <div class="ml-2">
+        {column?.notNull ? 'NOT NULL' : 'NULL'}
+      </div>
+    {/if}
+  {/if}
 </div>
 
 <style>
@@ -148,5 +162,11 @@
   }
   :global(.dbgate-screen) .line.isDragTarget {
     background: var(--theme-bg-gold);
+  }
+  .line {
+    display: flex;
+  }
+  .space {
+    flex-grow: 1;
   }
 </style>

@@ -20,6 +20,7 @@
     canSelectTables: true,
     allowChangeColor: true,
     appendTableSystemMenu: true,
+    chooseColumnProperties: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />
