@@ -27,7 +27,7 @@
 </script>
 
 <div
-  class={`${$currentTheme} ${currentThemeType} root`}
+  class={`${$currentTheme} ${currentThemeType} root dbgate-screen`}
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
 >

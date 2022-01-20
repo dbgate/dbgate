@@ -107,16 +107,19 @@
 
 <div
   class="wrapper"
+  class:canSelectColumns={settings?.canSelectColumns}
   style={`left: ${movingPosition ? movingPosition.left : left}px; top:${movingPosition ? movingPosition.top : top}px`}
   bind:this={domWrapper}
   on:mousedown={() => onBringToFront(table)}
+  use:contextMenu={settings?.canSelectColumns ? '__no_menu' : createMenu}
+  use:moveDrag={settings?.canSelectColumns ? null : [handleMoveStart, handleMove, handleMoveEnd]}
 >
   <div
     class="header"
     class:isTable={objectTypeField == 'tables'}
     class:isView={objectTypeField == 'views'}
-    use:moveDrag={[handleMoveStart, handleMove, handleMoveEnd]}
-    use:contextMenu={createMenu}
+    use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
+    use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
   >
     <div>{alias || pureName}</div>
     {#if settings?.showTableCloseButton}
@@ -152,14 +155,20 @@
     border: 1px solid var(--theme-border);
   }
 
+  :global(.dbgate-screen) .wrapper:not(.canSelectColumns) {
+    cursor: pointer;
+  }
+
   .header {
     font-weight: bold;
     text-align: center;
     padding: 2px;
     border-bottom: 1px solid var(--theme-border);
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
+  }
+  :global(.dbgate-screen) .header {
+    cursor: pointer;
   }
   .header.isTable {
     background: var(--theme-bg-blue);

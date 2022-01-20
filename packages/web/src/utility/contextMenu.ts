@@ -9,19 +9,21 @@ export function registerMenu(...items) {
   setContext('componentContextMenu', [parentMenu, ...items]);
 }
 
-export default function contextMenu(node, items = []) {
+export default function contextMenu(node, items: any = []) {
   const handleContextMenu = async e => {
     e.preventDefault();
     e.stopPropagation();
 
     await invalidateCommands();
-    
+
     if (items) {
       const left = e.pageX;
       const top = e.pageY;
       currentDropDownMenu.set({ left, top, items, targetElement: e.target });
     }
   };
+
+  if (items == '__no_menu') return;
 
   node.addEventListener('contextmenu', handleContextMenu);
 

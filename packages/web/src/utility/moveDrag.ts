@@ -1,4 +1,7 @@
-export default function moveDrag(node, [onStart, onMove, onEnd]) {
+export default function moveDrag(node, dragEvents) {
+  if (!dragEvents) return;
+  
+  const [onStart, onMove, onEnd] = dragEvents;
   let startX = null;
   let startY = null;
 

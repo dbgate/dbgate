@@ -51,6 +51,7 @@
 
 <div
   class="line"
+  class:canSelectColumns={settings?.canSelectColumns}
   bind:this={domLine}
   draggable={!!settings?.allowCreateRefByDrag}
   on:dragstart={e => {
@@ -95,7 +96,7 @@
       ...column,
       designerId,
     })}
-  use:contextMenu={createMenu}
+  use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
 >
   {#if settings?.allowColumnOperations}
     <CheckboxField
@@ -139,13 +140,13 @@
 </div>
 
 <style>
-  .line:hover {
+  :global(.dbgate-screen) .line.canSelectColumns:hover {
     background: var(--theme-bg-1);
   }
-  .line.isDragSource {
+  :global(.dbgate-screen) .line.isDragSource {
     background: var(--theme-bg-gold);
   }
-  .line.isDragTarget {
+  :global(.dbgate-screen) .line.isDragTarget {
     background: var(--theme-bg-gold);
   }
 </style>
