@@ -12,6 +12,7 @@
   export let table;
   export let onChangeTable;
   export let onBringToFront;
+  export let onSelectTable;
   export let onRemoveTable;
   export let onAddAllReferences;
   export let onCreateReference;
@@ -108,9 +109,18 @@
 <div
   class="wrapper"
   class:canSelectColumns={settings?.canSelectColumns}
+  class:isSelectedTable={table?.isSelectedTable}
   style={`left: ${movingPosition ? movingPosition.left : left}px; top:${movingPosition ? movingPosition.top : top}px`}
   bind:this={domWrapper}
-  on:mousedown={() => onBringToFront(table)}
+  on:mousedown={e => {
+    if (e.button == 0) {
+      e.stopPropagation();
+      onBringToFront(table);
+      if (settings?.canSelectTables && !table?.isSelectedTable) {
+        onSelectTable(table, e.ctrlKey);
+      }
+    }
+  }}
   use:contextMenu={settings?.canSelectColumns ? '__no_menu' : createMenu}
   use:moveDrag={settings?.canSelectColumns ? null : [handleMoveStart, handleMove, handleMoveEnd]}
 >
@@ -146,6 +156,12 @@
       />
     {/each}
   </div>
+  {#if table?.isSelectedTable}
+     <div class='selection-marker lt' />
+     <div class='selection-marker rt' />
+     <div class='selection-marker lb' />
+     <div class='selection-marker rb' />
+  {/if}
 </div>
 
 <style>
@@ -154,7 +170,35 @@
     background-color: var(--theme-bg-0);
     border: 1px solid var(--theme-border);
   }
-
+  /* :global(.dbgate-screen) .isSelectedTable {
+    border: 3px solid var(--theme-border);
+  } */
+  .selection-marker {
+    display: none;
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--theme-font-1);
+  }
+  .selection-marker.lt {
+    left: -3px;
+    top: -3px;
+  }
+  .selection-marker.rt {
+    right: -3px;
+    top: -3px;
+  }
+  .selection-marker.lb {
+    left: -3px;
+    bottom: -3px;
+  }
+  .selection-marker.rb {
+    right: -3px;
+    bottom: -3px;
+  }
+  :global(.dbgate-screen) .selection-marker {
+    display: block;
+  }
   :global(.dbgate-screen) .wrapper:not(.canSelectColumns) {
     cursor: pointer;
   }
@@ -170,6 +214,7 @@
   :global(.dbgate-screen) .header {
     cursor: pointer;
   }
+
   .header.isTable {
     background: var(--theme-bg-blue);
   }

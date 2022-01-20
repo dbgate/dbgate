@@ -17,6 +17,7 @@
     canArrange: true,
     canExport: true,
     canSelectColumns: false,
+    canSelectTables: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />

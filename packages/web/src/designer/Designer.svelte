@@ -183,6 +183,20 @@
     );
   };
 
+  const selectTable = (table, addToSelection) => {
+    callChange(
+      current => ({
+        ...current,
+        tables: (current.tables || []).map(x =>
+          x.designerId == table.designerId
+            ? { ...x, isSelectedTable: true }
+            : { ...x, isSelectedTable: addToSelection ? x.isSelectedTable : false }
+        ),
+      }),
+      true
+    );
+  };
+
   const removeTable = table => {
     callChange(current => ({
       ...current,
@@ -587,6 +601,17 @@
     on:dragover={e => e.preventDefault()}
     on:drop={handleDrop}
     style={`width:${canvasWidth}px;height:${canvasHeight}px;`}
+    on:mousedown={e => {
+      if (e.button == 0 && settings?.canSelectTables) {
+        callChange(
+          current => ({
+            ...current,
+            tables: (current.tables || []).map(x => ({ ...x, isSelectedTable: false })),
+          }),
+          true
+        );
+      }
+    }}
   >
     {#each references || [] as ref (ref.designerId)}
       <svelte:component
@@ -623,6 +648,7 @@
         {table}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
+        onSelectTable={selectTable}
         onRemoveTable={removeTable}
         {domCanvas}
         designer={value}
