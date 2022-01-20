@@ -18,6 +18,7 @@ const GRAVITY_Y = 0.01;
 const REPULSION = 1000;
 const MAX_FORCE_SIZE = 100;
 const NODE_MARGIN = 30;
+const GRAVITY_EXPONENT = 1.05;
 
 // const MOVE_STEP = 20;
 // const MOVE_BIG_STEP = 50;
@@ -210,8 +211,15 @@ class ForceAlgorithmStep {
 
   applyGravity() {
     for (const node of _.values(this.layout.nodes)) {
-      var direction = node.position.multiply(-1.0);
-      this.applyForce(node, new Vector2D(direction.x * GRAVITY_X, direction.y * GRAVITY_Y));
+      this.applyForce(
+        node,
+        // new Vector2D(-node.position.x * GRAVITY_X, -node.position.y * GRAVITY_Y)
+
+        new Vector2D(
+          -Math.pow(Math.abs(node.position.x), GRAVITY_EXPONENT) * Math.sign(node.position.x) * GRAVITY_X,
+          -Math.pow(Math.abs(node.position.y), GRAVITY_EXPONENT) * Math.sign(node.position.y) * GRAVITY_Y
+        )
+      );
     }
   }
 
