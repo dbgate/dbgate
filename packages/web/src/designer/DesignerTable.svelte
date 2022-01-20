@@ -1,5 +1,6 @@
 <script lang="ts">
   import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
+  import { computeDbDiffRows } from 'dbgate-tools';
 
   import { tick } from 'svelte';
   import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
@@ -54,7 +55,7 @@
 
   $: pureName = table?.pureName;
   $: alias = table?.alias;
-  $: columns = table?.columns as any[];
+  $: columns = (table?.columns as any[]).filter(x => shouldShowColumn(table, x, designer?.style));
   $: designerId = table?.designerId;
   $: objectTypeField = table?.objectTypeField;
   $: left = table?.left;
@@ -81,6 +82,30 @@
     const res = movingPosition;
     movingPosition = null;
     return res;
+  }
+
+  function shouldShowColumn(table, column, style) {
+    if (!settings?.chooseColumnProperties) {
+      return true;
+    }
+    switch (style?.filterColumns || 'all') {
+      case 'primaryKey':
+        return table?.primaryKey?.columns?.find(x => x.columnName == column?.columnName);
+      case 'allKeys':
+        return (
+          table?.primaryKey?.columns?.find(x => x.columnName == column?.columnName) ||
+          table?.foreignKeys?.find(fk => fk.columns.find(x => x.columnName == column?.columnName))
+        );
+      case 'keysAndNotNull':
+        return (
+          column?.notNull ||
+          table?.primaryKey?.columns?.find(x => x.columnName == column?.columnName) ||
+          table?.foreignKeys?.find(fk => fk.columns.find(x => x.columnName == column?.columnName))
+        );
+      case 'notNull':
+        return column?.notNull;
+    }
+    return true;
   }
 
   function handleMoveStart() {

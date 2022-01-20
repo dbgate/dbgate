@@ -732,6 +732,32 @@
             },
           ],
         },
+        {
+          text: `Columns - ${_.startCase(value?.style?.filterColumns || 'all')}`,
+          submenu: [
+            {
+              text: 'All',
+              onClick: changeStyleFunc('filterColumns', null),
+            },
+            {
+              text: 'Primary Key',
+              onClick: changeStyleFunc('filterColumns', 'primaryKey'),
+            },
+            {
+              text: 'All Keys',
+              onClick: changeStyleFunc('filterColumns', 'allKeys'),
+            },
+            {
+              text: 'Not Null',
+              onClick: changeStyleFunc('filterColumns', 'notNull'),
+            },
+            {
+              text: 'Keys And Not Null',
+              onClick: changeStyleFunc('filterColumns', 'keysAndNotNull'),
+            },
+            
+          ],
+        },
       ],
     ];
   }
