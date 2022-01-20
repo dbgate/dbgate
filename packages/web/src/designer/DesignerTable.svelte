@@ -20,6 +20,10 @@
   export let onSelectColumn;
   export let onChangeColumn;
 
+  export let onMoveStart;
+  export let onMove;
+  export let onMoveEnd;
+
   // export let sourceDragColumn;
   // export let setSourceDragColumn;
   // export let targetDragColumn;
@@ -48,22 +52,56 @@
   $: left = table?.left;
   $: top = table?.top;
 
-  function handleMoveStart() {
+  export function isSelected() {
+    return table?.isSelectedTable;
+  }
+
+  export function getDesignerId() {
+    return designerId;
+  }
+
+  export function moveStart() {
     movingPosition = { left, top };
   }
-  function handleMove(x, y) {
+
+  export function move(x, y) {
     movingPosition.left += x;
     movingPosition.top += y;
-    tick().then(onMoveReferences);
+  }
+
+  export function moveEnd() {
+    const res = movingPosition;
+    movingPosition = null;
+    return res;
+  }
+
+  function handleMoveStart() {
+    if (settings?.canSelectTables) {
+      onMoveStart();
+    } else {
+      moveStart();
+    }
+  }
+  function handleMove(x, y) {
+    if (settings?.canSelectTables) {
+      onMove(x, y);
+    } else {
+      move(x, y);
+      tick().then(onMoveReferences);
+    }
   }
   function handleMoveEnd() {
-    onChangeTable({
-      ...table,
-      left: movingPosition.left,
-      top: movingPosition.top,
-    });
-    movingPosition = null;
-    tick().then(onMoveReferences);
+    if (settings?.canSelectTables) {
+      onMoveEnd();
+    } else {
+      const position = moveEnd();
+      onChangeTable({
+        ...table,
+        left: position.left,
+        top: position.top,
+      });
+      tick().then(onMoveReferences);
+    }
   }
 
   export function getDomTable() {
@@ -157,10 +195,10 @@
     {/each}
   </div>
   {#if table?.isSelectedTable}
-     <div class='selection-marker lt' />
-     <div class='selection-marker rt' />
-     <div class='selection-marker lb' />
-     <div class='selection-marker rb' />
+    <div class="selection-marker lt" />
+    <div class="selection-marker rt" />
+    <div class="selection-marker lb" />
+    <div class="selection-marker rb" />
   {/if}
 </div>
 

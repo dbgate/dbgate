@@ -503,6 +503,45 @@
     updateFromDbInfo();
   };
 
+  function forEachSelected(op: Function) {
+    for (const tbl of _.values(tableRefs)) {
+      const table = tbl as any;
+      if (!table.isSelected()) continue;
+      op(table);
+    }
+  }
+
+  const tableMoveStart = () => {
+    forEachSelected(t => t.moveStart());
+  };
+  const tableMove = (x, y) => {
+    forEachSelected(t => t.move(x, y));
+    tick().then(recomputeReferencePositions);
+  };
+  const tableMoveEnd = () => {
+    const moves = {};
+    forEachSelected(t => {
+      moves[t.getDesignerId()] = t.moveEnd();
+    });
+    callChange(current => {
+      return {
+        ...current,
+        tables: (current?.tables || []).map(table => {
+          const position = moves[table.designerId];
+          return position
+            ? {
+                ...table,
+                left: position.left,
+                top: position.top,
+              }
+            : table;
+        }),
+      };
+    });
+
+    tick().then(recomputeReferencePositions);
+  };
+
   function recomputeReferencePositions() {
     for (const ref of Object.values(referenceRefs) as any[]) {
       if (ref) ref.recomputePosition();
@@ -650,6 +689,9 @@
         onBringToFront={bringToFront}
         onSelectTable={selectTable}
         onRemoveTable={removeTable}
+        onMoveStart={tableMoveStart}
+        onMove={tableMove}
+        onMoveEnd={tableMoveEnd}
         {domCanvas}
         designer={value}
         {sourceDragColumn$}
