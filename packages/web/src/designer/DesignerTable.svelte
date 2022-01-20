@@ -2,6 +2,7 @@
   import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
 
   import { tick } from 'svelte';
+  import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
@@ -12,6 +13,8 @@
   import ColumnLine from './ColumnLine.svelte';
   import DomTableRef from './DomTableRef';
 
+  export let conid;
+  export let database;
   export let table;
   export let onChangeTable;
   export let onBringToFront;
@@ -153,6 +156,7 @@
       ],
       settings?.allowAddAllReferences && { text: 'Add references', onClick: () => onAddAllReferences(table) },
       settings?.allowChangeColor && { text: 'Change color', onClick: () => onChangeTableColor(table) },
+      settings?.appendTableSystemMenu && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
     ];
   }
 </script>

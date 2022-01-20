@@ -19,6 +19,7 @@
     canSelectColumns: true,
     canSelectTables: false,
     allowChangeColor: false,
+    appendTableSystemMenu: false,
   }}
   referenceComponent={QueryDesignerReference}
 />

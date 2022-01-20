@@ -751,6 +751,8 @@
         onChangeTableColor={handleChangeTableColor}
         onMoveReferences={recomputeReferencePositions}
         {table}
+        {conid}
+        {database}
         onChangeTable={changeTable}
         onBringToFront={bringToFront}
         onSelectTable={selectTable}

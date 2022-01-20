@@ -93,6 +93,6 @@
   }
 
   polygon {
-    fill: var(--theme-bg-4);
+    fill: var(--theme-font-1);
   }
 </style>
