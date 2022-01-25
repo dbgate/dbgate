@@ -42,7 +42,7 @@ jobs:
         if: matrix.os == 'ubuntu-18.04'
         uses: samuelmeuli/action-snapcraft@v1
       - name: Publish
-        if: matrix.os != 'macOS-10.15'
+        # if: matrix.os != 'macOS-10.15'
         run: |
           yarn run build:app
         env:
@@ -50,12 +50,12 @@ jobs:
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
 
-      - name: Publish Mac
-        if: matrix.os == 'macOS-10.15'
-        run: |
-          yarn run build:app:mac
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+      # - name: Publish Mac
+      #   if: matrix.os == 'macOS-10.15'
+      #   run: |
+      #     yarn run build:app:mac
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       - name: Save snap login
         if: matrix.os == 'ubuntu-18.04'
