@@ -92,7 +92,6 @@
     "start:local": "cross-env electron .",
     "dist": "electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
-    "build:mac": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && node setMacPlatform x64 && yarn dist && node setMacPlatform arm64 && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
     "rebuild": "electron-builder install-app-deps",
