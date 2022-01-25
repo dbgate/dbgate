@@ -73,7 +73,7 @@ jobs:
           cp app/dist/*win*.exe artifacts/dbgate-beta.exe || true
           cp app/dist/*win_x64.zip artifacts/dbgate-windows-beta.zip || true
           cp app/dist/*win_arm64.zip artifacts/dbgate-windows-beta-arm64.zip || true
-          cp app/dist/*-mac.dmg artifacts/dbgate-beta.dmg || true
+          cp app/dist/*-mac_x64.dmg artifacts/dbgate-beta.dmg || true
           cp app/dist/*-mac_arm64.dmg artifacts/dbgate-beta-arm64.dmg || true
 
           mv app/dist/*.exe artifacts/ || true
