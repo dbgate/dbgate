@@ -1,4 +1,12 @@
 # ChangeLog
+### 4.6.0
+- ADDED: ER diagrams #118
+    - Generate diagram from table or for database
+    - Automatic layout
+    - Diagram styles - colors, select columns to display, optional displaying data type or nullability
+    - Export diagram to HTML file
+- FIXED: Mac latest build link #204
+
 ### 4.5.1
 - FIXED: MongoId detection
 - FIXED: #203 disabled spellchecker
