@@ -50,6 +50,7 @@ DbGate is licensed under MIT license and is completely free.
 * Table data editing, with SQL change script preview
 * Edit table schema, indexes, primary and foreign keys
 * Compare and synchronize database structure
+* ER diagram
 * Light and dark theme
 * Master/detail views, foreign key lookups
 * Query designer
