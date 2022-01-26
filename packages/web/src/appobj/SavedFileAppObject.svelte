@@ -55,6 +55,14 @@
     currentConnection: true,
   };
 
+  const diagrams: FileTypeHandler = {
+    icon: 'img diagram',
+    format: 'json',
+    tabComponent: 'DiagramTab',
+    folder: 'diagrams',
+    currentConnection: true,
+  };
+
   const HANDLERS = {
     sql,
     shell,
@@ -62,6 +70,7 @@
     charts,
     query,
     sqlite,
+    diagrams,
   };
 
   export const extractKey = data => data.file;
@@ -74,7 +83,7 @@
   import { showModal } from '../modals/modalTools';
 
   import { currentDatabase } from '../stores';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   import getConnectionLabel from '../utility/getConnectionLabel';
   import hasPermission from '../utility/hasPermission';

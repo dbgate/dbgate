@@ -8,6 +8,7 @@
   export let onChangeReference;
   export let designer;
   export let domTables;
+  export let settings;
 
   let src = null;
   let dst = null;

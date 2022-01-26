@@ -42,20 +42,12 @@ jobs:
         if: matrix.os == 'ubuntu-18.04'
         uses: samuelmeuli/action-snapcraft@v1
       - name: Publish
-        if: matrix.os != 'macOS-10.15'
         run: |
           yarn run build:app
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
-
-      - name: Publish Mac
-        if: matrix.os == 'macOS-10.15'
-        run: |
-          yarn run build:app:mac
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       - name: Save snap login
         if: matrix.os == 'ubuntu-18.04'
@@ -81,7 +73,7 @@ jobs:
           cp app/dist/*win*.exe artifacts/dbgate-beta.exe || true
           cp app/dist/*win_x64.zip artifacts/dbgate-windows-beta.zip || true
           cp app/dist/*win_arm64.zip artifacts/dbgate-windows-beta-arm64.zip || true
-          cp app/dist/*-mac.dmg artifacts/dbgate-beta.dmg || true
+          cp app/dist/*-mac_x64.dmg artifacts/dbgate-beta.dmg || true
           cp app/dist/*-mac_arm64.dmg artifacts/dbgate-beta-arm64.dmg || true
 
           mv app/dist/*.exe artifacts/ || true

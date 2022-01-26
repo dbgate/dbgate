@@ -55,6 +55,7 @@
     "uuid": "^3.4.0"
   },
   "dependencies": {
-    "chartjs-plugin-zoom": "^1.2.0"
+    "chartjs-plugin-zoom": "^1.2.0",
+    "interval-operations": "^1.0.7"
   }
 }

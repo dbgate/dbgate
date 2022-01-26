@@ -54,6 +54,10 @@
         isQueryDesigner: true,
       },
       {
+        label: 'Show diagram',
+        isDiagram: true,
+      },
+      {
         divider: true,
       },
       {
@@ -388,45 +392,15 @@
       a.schemaName == b.schemaName
     );
   }
-</script>
 
-<script lang="ts">
-  import _ from 'lodash';
-  import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, openedConnections, pinnedTables } from '../stores';
-  import openNewTab from '../utility/openNewTab';
-  import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
-  import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
-  import fullDisplayName from '../utility/fullDisplayName';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
-  import { showModal } from '../modals/modalTools';
-  import { findEngineDriver } from 'dbgate-tools';
-  import uuidv1 from 'uuid/v1';
-  import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
-  import getConnectionLabel from '../utility/getConnectionLabel';
-  import getElectron from '../utility/getElectron';
-  import { exportElectronFile } from '../utility/exportElectronFile';
-  import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
-  import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
-  import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import { apiCall } from '../utility/api';
+  export function createDatabaseObjectMenu(data) {
+    const getDriver = async () => {
+      const conn = await getConnectionInfo(data);
+      if (!conn) return;
+      const driver = findEngineDriver(conn, getExtensions());
+      return driver;
+    };
 
-  export let data;
-  export let passProps;
-
-  function handleClick(forceNewTab = false) {
-    handleDatabaseObjectClick(data, forceNewTab);
-  }
-
-  const getDriver = async () => {
-    const conn = await getConnectionInfo(data);
-    if (!conn) return;
-    const driver = findEngineDriver(conn, $extensions);
-    return driver;
-  };
-
-  function createMenu() {
     const { objectTypeField } = data;
     return menus[objectTypeField]
       .filter(x => x)
@@ -434,7 +408,7 @@
         if (menu.divider) return menu;
 
         if (menu.isQuickExport) {
-          return createQuickExportMenu($extensions, fmt => async () => {
+          return createQuickExportMenu(getExtensions(), fmt => async () => {
             const coninfo = await getConnectionInfo(data);
             exportElectronFile(
               data.pureName,
@@ -531,6 +505,31 @@
                   },
                 }
               );
+            } else if (menu.isDiagram) {
+              openNewTab(
+                {
+                  title: 'Diagram #',
+                  icon: 'img diagram',
+                  tabComponent: 'DiagramTab',
+                  props: {
+                    conid: data.conid,
+                    database: data.database,
+                  },
+                },
+                {
+                  editor: {
+                    tables: [
+                      {
+                        ...data,
+                        designerId: `${data.pureName}-${uuidv1()}`,
+                        autoAddReferences: true,
+                      },
+                    ],
+                    references: [],
+                    autoLayout: true,
+                  },
+                }
+              );
             } else if (menu.sqlGeneratorProps) {
               showModal(SqlGeneratorModal, {
                 initialObjects: [data],
@@ -579,6 +578,40 @@
           },
         };
       });
+  }
+</script>
+
+<script lang="ts">
+  import _ from 'lodash';
+  import AppObjectCore from './AppObjectCore.svelte';
+  import { currentDatabase, extensions, getExtensions, openedConnections, pinnedTables } from '../stores';
+  import openNewTab from '../utility/openNewTab';
+  import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
+  import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
+  import fullDisplayName from '../utility/fullDisplayName';
+  import ImportExportModal from '../modals/ImportExportModal.svelte';
+  import { showModal } from '../modals/modalTools';
+  import { findEngineDriver } from 'dbgate-tools';
+  import uuidv1 from 'uuid/v1';
+  import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
+  import getConnectionLabel from '../utility/getConnectionLabel';
+  import getElectron from '../utility/getElectron';
+  import { exportElectronFile } from '../utility/exportElectronFile';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { apiCall } from '../utility/api';
+
+  export let data;
+  export let passProps;
+
+  function handleClick(forceNewTab = false) {
+    handleDatabaseObjectClick(data, forceNewTab);
+  }
+
+  function createMenu() {
+    return createDatabaseObjectMenu(data);
   }
 
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));

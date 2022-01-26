@@ -1,10 +1,8 @@
 <script lang="ts">
-import _ from 'lodash';
-
+  import _ from 'lodash';
   import AppObjectList from '../appobj/AppObjectList.svelte';
-import * as savedFileAppObject from '../appobj/SavedFileAppObject.svelte';
-import { useFiles } from '../utility/metadataLoaders';
-
+  import * as savedFileAppObject from '../appobj/SavedFileAppObject.svelte';
+  import { useFiles } from '../utility/metadataLoaders';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   const sqlFiles = useFiles({ folder: 'sql' });
@@ -13,6 +11,7 @@ import { useFiles } from '../utility/metadataLoaders';
   const chartFiles = useFiles({ folder: 'charts' });
   const queryFiles = useFiles({ folder: 'query' });
   const sqliteFiles = useFiles({ folder: 'sqlite' });
+  const diagramFiles = useFiles({ folder: 'diagrams' });
 
   $: files = [
     ...($sqlFiles || []),
@@ -21,8 +20,8 @@ import { useFiles } from '../utility/metadataLoaders';
     ...($chartFiles || []),
     ...($queryFiles || []),
     ...($sqliteFiles || []),
+    ...($diagramFiles || []),
   ];
-
 </script>
 
 <WidgetsInnerContainer>

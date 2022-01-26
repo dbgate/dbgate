@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { getContext, onDestroy } from 'svelte';
-import { updateStatuBarInfoItem } from '../widgets/StatusBar.svelte';
+import { updateStatuBarInfoItem } from './statusBarStore';
 
 function formatSeconds(duration) {
   if (duration == null) return '';

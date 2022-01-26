@@ -6,6 +6,7 @@ const getChartExport = require('../utility/getChartExport');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
+const getDiagramExport = require('../utility/getDiagramExport');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -86,8 +87,9 @@ module.exports = {
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
+      return true;
     } else {
-      if (!hasPermission(`files/${folder}/write`)) return;
+      if (!hasPermission(`files/${folder}/write`)) return false;
       const dir = path.join(filesdir(), folder);
       if (!(await fs.exists(dir))) {
         await fs.mkdir(dir);
@@ -98,6 +100,7 @@ module.exports = {
       if (folder == 'shell') {
         scheduler.reload();
       }
+      return true;
     }
   },
 
@@ -148,6 +151,12 @@ module.exports = {
         await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
       }
     }
+    return true;
+  },
+
+  exportDiagram_meta: true,
+  async exportDiagram({ filePath, html, css, themeType, themeClassName }) {
+    await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName));
     return true;
   },
 };

@@ -17,6 +17,7 @@
   export let onCreateReference;
   export let onAddReferenceByColumn;
   export let onSelectColumn;
+  export let settings;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
@@ -38,9 +39,11 @@
     };
 
     return [
-      { text: 'Sort ascending', onClick: () => setSortOrder(1) },
-      { text: 'Sort descending', onClick: () => setSortOrder(-1) },
-      { text: 'Unsort', onClick: () => setSortOrder(0) },
+      settings?.allowColumnOperations && [
+        { text: 'Sort ascending', onClick: () => setSortOrder(1) },
+        { text: 'Sort descending', onClick: () => setSortOrder(-1) },
+        { text: 'Unsort', onClick: () => setSortOrder(0) },
+      ],
       foreignKey && { text: 'Add reference', onClick: addReference },
     ];
   }
@@ -48,9 +51,12 @@
 
 <div
   class="line"
+  class:canSelectColumns={settings?.canSelectColumns}
   bind:this={domLine}
-  draggable={true}
+  draggable={!!settings?.allowCreateRefByDrag}
   on:dragstart={e => {
+    if (!settings?.allowCreateRefByDrag) return;
+
     const dragData = {
       ...column,
       designerId,
@@ -90,32 +96,34 @@
       ...column,
       designerId,
     })}
-  use:contextMenu={createMenu}
+  use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
 >
-  <CheckboxField
-    checked={!!(designer.columns || []).find(
-      x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
-    )}
-    on:change={e => {
-      if (e.target.checked) {
-        onChangeColumn(
-          {
-            ...column,
-            designerId,
-          },
-          col => ({ ...col, isOutput: true })
-        );
-      } else {
-        onChangeColumn(
-          {
-            ...column,
-            designerId,
-          },
-          col => ({ ...col, isOutput: false })
-        );
-      }
-    }}
-  />
+  {#if settings?.allowColumnOperations}
+    <CheckboxField
+      checked={!!(designer.columns || []).find(
+        x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
+      )}
+      on:change={e => {
+        if (e.target.checked) {
+          onChangeColumn(
+            {
+              ...column,
+              designerId,
+            },
+            col => ({ ...col, isOutput: true })
+          );
+        } else {
+          onChangeColumn(
+            {
+              ...column,
+              designerId,
+            },
+            col => ({ ...col, isOutput: false })
+          );
+        }
+      }}
+    />
+  {/if}
   <ColumnLabel {...column} foreignKey={findForeignKeyForColumn(table, column)} forceIcon />
   {#if designerColumn?.filter}
     <FontIcon icon="img filter" />
@@ -129,16 +137,36 @@
   {#if designerColumn?.isGrouped}
     <FontIcon icon="img group" />
   {/if}
+
+  {#if designer?.style?.showNullability || designer?.style?.showDataType}
+    <div class="space" />
+    {#if designer?.style?.showDataType && column?.dataType}
+      <div class="ml-2">
+        {column?.dataType.toLowerCase()}
+      </div>
+    {/if}
+    {#if designer?.style?.showNullability}
+      <div class="ml-2">
+        {column?.notNull ? 'NOT NULL' : 'NULL'}
+      </div>
+    {/if}
+  {/if}
 </div>
 
 <style>
-  .line:hover {
+  :global(.dbgate-screen) .line.canSelectColumns:hover {
     background: var(--theme-bg-1);
   }
-  .line.isDragSource {
+  :global(.dbgate-screen) .line.isDragSource {
     background: var(--theme-bg-gold);
   }
-  .line.isDragTarget {
+  :global(.dbgate-screen) .line.isDragTarget {
     background: var(--theme-bg-gold);
+  }
+  .line {
+    display: flex;
+  }
+  .space {
+    flex-grow: 1;
   }
 </style>

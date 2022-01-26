@@ -25,6 +25,7 @@
     'icon settings': 'mdi mdi-cog',
     'icon version': 'mdi mdi-ticket-confirmation',
     'icon pin': 'mdi mdi-pin',
+    'icon arrange': 'mdi mdi-arrange-send-to-back',
 
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',
@@ -122,6 +123,7 @@
     'img preview': 'mdi mdi-file-find color-icon-red',
     'img favorite': 'mdi mdi-star color-icon-yellow',
     'img query-design': 'mdi mdi-vector-polyline-edit color-icon-red',
+    'img diagram': 'mdi mdi-graph color-icon-blue',
     'img yaml': 'mdi mdi-code-brackets color-icon-red',
     'img compare': 'mdi mdi-compare color-icon-red',
 

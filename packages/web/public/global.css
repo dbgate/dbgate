@@ -45,6 +45,9 @@ body {
 .nowrap {
   white-space: nowrap;
 }
+.noselect {
+  user-select: none;
+}
 .bold {
   font-weight: bold;
 }
