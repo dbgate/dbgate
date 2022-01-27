@@ -126,7 +126,6 @@ module.exports = {
         }
       }
     }
-    console.log('APPS', apps);
     for (const folder of apps) {
       res.push(await this.loadApp({ folder }));
     }
