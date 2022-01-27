@@ -1,23 +1,10 @@
 <script lang="ts" context="module">
-  function openArchive(fileName, folderName) {
-    openNewTab({
-      title: fileName,
-      icon: 'img archive',
-      tooltip: `${folderName}\n${fileName}`,
-      tabComponent: 'ArchiveFileTab',
-      props: {
-        archiveFile: fileName,
-        archiveFolder: folderName,
-      },
-    });
-  }
-
   async function openTextFile(fileName, fileType, folderName, tabComponent, icon) {
     const connProps: any = {};
     let tooltip = undefined;
 
     const resp = await apiCall('files/load', {
-      folder: 'archive:' + folderName,
+      folder: 'app:' + folderName,
       file: fileName + '.' + fileType,
       format: 'text',
     });
@@ -30,9 +17,9 @@
         tooltip,
         props: {
           savedFile: fileName + '.' + fileType,
-          savedFolder: 'archive:' + folderName,
+          savedFolder: 'app:' + folderName,
           savedFormat: 'text',
-          archiveFolder: folderName,
+          appFolder: folderName,
           ...connProps,
         },
       },
@@ -42,22 +29,13 @@
 
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
-  const ARCHIVE_ICONS = {
-    'table.yaml': 'img table',
-    'view.sql': 'img view',
-    'proc.sql': 'img procedure',
-    'func.sql': 'img function',
-    'trigger.sql': 'img sql-file',
-    'matview.sql': 'img view',
+  const APP_ICONS = {
+    'command.sql': 'img app-command',
+    'query.sql': 'img app-query',
   };
 
-  function getArchiveIcon(archiveFilesAsDataSheets, data) {
-    if (data.fileType == 'jsonl') {
-      return isArchiveFileMarkedAsDataSheet(archiveFilesAsDataSheets, data.folderName, data.fileName)
-        ? 'img free-table'
-        : 'img archive';
-    }
-    return ARCHIVE_ICONS[data.fileType];
+  function getAppIcon( data) {
+    return APP_ICONS[data.fileType];
   }
 </script>
 
@@ -91,7 +69,7 @@
       label: 'New file name',
       header: 'Rename file',
       onConfirm: newFile => {
-        apiCall('archive/rename-file', {
+        apiCall('apps/rename-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,
@@ -105,7 +83,7 @@
     showModal(ConfirmModal, {
       message: `Really delete file ${data.fileName}?`,
       onConfirm: () => {
-        apiCall('archive/delete-file', {
+        apiCall('apps/delete-file', {
           file: data.fileName,
           folder: data.folderName,
           fileType: data.fileType,
@@ -113,42 +91,9 @@
       },
     });
   };
-  const handleOpenRead = () => {
-    markArchiveFileAsReadonly(data.folderName, data.fileName);
-    openArchive(data.fileName, data.folderName);
-  };
-  const handleOpenWrite = () => {
-    markArchiveFileAsDataSheet(data.folderName, data.fileName);
-    openNewTab({
-      title: data.fileName,
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
-      props: {
-        initialArgs: {
-          functionName: 'archiveReader',
-          props: {
-            fileName: data.fileName,
-            folderName: data.folderName,
-          },
-        },
-        archiveFile: data.fileName,
-        archiveFolder: data.folderName,
-      },
-    });
-  };
   const handleClick = () => {
-    if (data.fileType == 'jsonl') {
-      if (isArchiveFileMarkedAsDataSheet($archiveFilesAsDataSheets, data.folderName, data.fileName)) {
-        handleOpenWrite();
-      } else {
-        handleOpenRead();
-      }
-    }
     if (data.fileType.endsWith('.sql')) {
       handleOpenSqlFile();
-    }
-    if (data.fileType.endsWith('.yaml')) {
-      handleOpenYamlFile();
     }
   };
   const handleOpenSqlFile = () => {
@@ -160,38 +105,10 @@
 
   function createMenu() {
     return [
-      data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
-      data.fileType == 'jsonl' && { text: 'Open as data sheet', onClick: handleOpenWrite },
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
-      data.fileType == 'jsonl' &&
-        createQuickExportMenu($extensions, fmt => async () => {
-          exportElectronFile(
-            data.fileName,
-            {
-              functionName: 'archiveReader',
-              props: {
-                fileName: data.fileName,
-                folderName: data.folderName,
-              },
-            },
-            fmt
-          );
-        }),
-      data.fileType == 'jsonl' && {
-        text: 'Export',
-        onClick: () => {
-          showModal(ImportExportModal, {
-            initialValues: {
-              sourceStorageType: 'archive',
-              sourceArchiveFolder: data.folderName,
-              sourceList: [data.fileName],
-            },
-          });
-        },
-      },
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
-      data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
+      // data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];
   }
 </script>
@@ -200,7 +117,7 @@
   {...$$restProps}
   {data}
   title={data.fileLabel}
-  icon={getArchiveIcon($archiveFilesAsDataSheets, data)}
+  icon={getAppIcon( data)}
   menu={createMenu}
   on:click={handleClick}
 />

@@ -129,6 +129,23 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.application',
+  category: 'New',
+  icon: 'img app',
+  name: 'Application',
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'New application name',
+      header: 'Create application',
+      onConfirm: async folder => {
+        apiCall('apps/create-folder', { folder });
+      },
+    });
+  },
+});
+
+registerCommand({
   id: 'new.table',
   category: 'New',
   icon: 'icon table',

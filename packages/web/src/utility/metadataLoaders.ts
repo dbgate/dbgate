@@ -103,6 +103,18 @@ const archiveFilesLoader = ({ folder }) => ({
   reloadTrigger: `archive-files-changed-${folder}`,
 });
 
+const appFoldersLoader = () => ({
+  url: 'apps/folders',
+  params: {},
+  reloadTrigger: `app-folders-changed`,
+});
+
+const appFilesLoader = ({ folder }) => ({
+  url: 'apps/files',
+  params: { folder },
+  reloadTrigger: `app-files-changed-${folder}`,
+});
+
 const serverStatusLoader = () => ({
   url: 'server-connections/server-status',
   params: {},
@@ -399,6 +411,20 @@ export function getArchiveFolders(args = {}) {
 }
 export function useArchiveFolders(args = {}) {
   return useCore(archiveFoldersLoader, args);
+}
+
+export function getAppFiles(args) {
+  return getCore(appFilesLoader, args);
+}
+export function useAppFiles(args) {
+  return useCore(appFilesLoader, args);
+}
+
+export function getAppFolders(args = {}) {
+  return getCore(appFoldersLoader, args);
+}
+export function useAppFolders(args = {}) {
+  return useCore(appFoldersLoader, args);
 }
 
 export function getInstalledPlugins(args = {}) {

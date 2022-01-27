@@ -64,6 +64,7 @@ export const openedModals = writable([]);
 export const openedSnackbars = writable([]);
 export const nullStore = readable(null, () => {});
 export const currentArchive = writableWithStorage('default', 'currentArchive');
+export const currentApplication = writableWithStorage(null, 'currentApplication');
 export const isFileDragActive = writable(false);
 export const selectedCellsCallback = writable(null);
 export const loadingPluginStore = writable({

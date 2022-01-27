@@ -40,6 +40,11 @@
       name: 'cell-data',
       title: 'Selected cell data detail view',
     },
+    {
+      icon: 'icon app',
+      name: 'app',
+      title: 'Application layers',
+    },
     // {
     //   icon: 'icon settings',
     //   name: 'settings',

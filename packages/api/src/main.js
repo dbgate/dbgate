@@ -19,6 +19,7 @@ const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 const archive = require('./controllers/archive');
+const apps = require('./controllers/apps');
 const uploads = require('./controllers/uploads');
 const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
@@ -157,6 +158,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/files', files);
   useController(app, electron, '/scheduler', scheduler);
   useController(app, electron, '/query-history', queryHistory);
+  useController(app, electron, '/apps', apps);
 }
 
 function initializeElectronSender(electronSender) {
