@@ -22,6 +22,8 @@
   export let tableInfo;
   export let constraintLabel;
   export let constraintType;
+  export let constraintNameLabel = 'Constraint name';
+  export let getExtractConstraintProps;
 
   let constraintName = constraintInfo?.constraintName;
   let columns = constraintInfo?.columns || [];
@@ -35,6 +37,7 @@
       schemaName: tableInfo.schemaName,
       constraintName,
       constraintType,
+      ...(getExtractConstraintProps ? getExtractConstraintProps() : {}),
     };
   }
 </script>
@@ -47,11 +50,15 @@
 
     <div class="largeFormMarker">
       <div class="row">
-        <div class="label col-3">Constraint name</div>
+        <div class="label col-3">{constraintNameLabel}</div>
         <div class="col-9">
           <TextField value={constraintName} on:input={e => (constraintName = e.target['value'])} focused />
         </div>
       </div>
+
+      {#if $$slots.constraintProps}
+        <slot name="constraintProps" />
+      {/if}
 
       {#each columns as column, index}
         <div class="row">

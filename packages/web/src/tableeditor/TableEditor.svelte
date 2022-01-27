@@ -162,7 +162,7 @@
     columns={[
       {
         fieldName: 'notNull',
-        header: 'Not NULL',
+        header: 'Nullability',
         sortable: true,
         slot: 0,
       },
@@ -202,7 +202,7 @@
         : null,
     ]}
   >
-    <svelte:fragment slot="0" let:row>{row?.notNull ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="0" let:row>{row?.notNull ? 'NOT NULL' : 'NULL'}</svelte:fragment>
     <svelte:fragment slot="1" let:row>{row?.isSparse ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="2" let:row>{row?.isPersisted ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="3" let:row
@@ -256,25 +256,31 @@
     title={`Indexes (${indexes?.length || 0})`}
     emptyMessage={writable() ? 'No index defined' : null}
     clickable={writable()}
-    on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+    on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
         fieldName: 'columns',
         header: 'Columns',
         slot: 0,
       },
+      {
+        fieldName: 'unique',
+        header: 'Unique',
+        slot: 1,
+      },
       writable()
         ? {
             fieldName: 'actions',
             sortable: true,
-            slot: 1,
+            slot: 2,
           }
         : null,
     ]}
   >
     <svelte:fragment slot="name" let:row><ConstraintLabel {...row} /></svelte:fragment>
     <svelte:fragment slot="0" let:row>{row?.columns.map(x => x.columnName).join(', ')}</svelte:fragment>
-    <svelte:fragment slot="1" let:row
+    <svelte:fragment slot="1" let:row>{row?.isUnique ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="2" let:row
       ><Link
         onClick={e => {
           e.stopPropagation();
@@ -290,7 +296,7 @@
     title={`Unique constraints (${uniques?.length || 0})`}
     emptyMessage={writable() ? 'No unique defined' : null}
     clickable={writable()}
-    on:clickrow={e => showModal(IndexEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
+    on:clickrow={e => showModal(UniqueEditorModal, { constraintInfo: e.detail, tableInfo, setTableInfo })}
     columns={[
       {
         fieldName: 'columns',
