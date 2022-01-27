@@ -115,6 +115,12 @@ const appFilesLoader = ({ folder }) => ({
   reloadTrigger: `app-files-changed-${folder}`,
 });
 
+const dbAppsLoader = ({ conid, database }) => ({
+  url: 'apps/get-apps-for-db',
+  params: { conid, database },
+  reloadTrigger: `db-apps-changed-${conid}-${database}`,
+});
+
 const serverStatusLoader = () => ({
   url: 'server-connections/server-status',
   params: {},
@@ -425,6 +431,13 @@ export function getAppFolders(args = {}) {
 }
 export function useAppFolders(args = {}) {
   return useCore(appFoldersLoader, args);
+}
+
+export function getDbApps(args = {}) {
+  return getCore(dbAppsLoader, args);
+}
+export function useDbApps(args = {}) {
+  return useCore(dbAppsLoader, args);
 }
 
 export function getInstalledPlugins(args = {}) {

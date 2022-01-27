@@ -3,6 +3,14 @@
     'command.sql': 'SQL commands',
     'query.sql': 'SQL queries',
   };
+
+  const COMMAND_TEMPLATE = `-- Write SQL command here
+-- After save, you can execute it from database context menu, for all databases, which use this application
+`;
+
+  const QUERY_TEMPLATE = `-- Write SQL query here
+-- After save, you can view it in tables list, for all databases, which use this application
+`;
 </script>
 
 <script lang="ts">
@@ -39,7 +47,7 @@
     apiCall('apps/refresh-files', { folder });
   };
 
-  function handleNewSqlFile(fileType, header) {
+  function handleNewSqlFile(fileType, header, initialData) {
     showModal(InputTextModal, {
       value: '',
       label: 'New file name',
@@ -47,6 +55,7 @@
       onConfirm: async file => {
         newQuery({
           title: file,
+          initialData,
           // @ts-ignore
           savedFile: file + '.' + fileType,
           savedFolder: 'app:' + $currentApplication,
@@ -59,8 +68,11 @@
 
   function createAddMenu() {
     return [
-      { text: 'New SQL command', onClick: () => handleNewSqlFile('command.sql', 'Create new SQL command') },
-      { text: 'New query view', onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query') },
+      {
+        text: 'New SQL command',
+        onClick: () => handleNewSqlFile('command.sql', 'Create new SQL command', COMMAND_TEMPLATE),
+      },
+      { text: 'New query view', onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query', QUERY_TEMPLATE) },
     ];
   }
 </script>

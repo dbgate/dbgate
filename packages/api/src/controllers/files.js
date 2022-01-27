@@ -7,6 +7,7 @@ const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');
+const apps = require('./apps');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -94,8 +95,10 @@ module.exports = {
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
       return true;
     } else if (folder.startsWith('app:')) {
-      await fs.writeFile(path.join(appdir(), folder.substring('app:'.length), file), serialize(format, data));
-      socket.emitChanged(`app-files-changed-${folder.substring('app:'.length)}`);
+      const app = folder.substring('app:'.length);
+      await fs.writeFile(path.join(appdir(), app, file), serialize(format, data));
+      socket.emitChanged(`app-files-changed-${app}`);
+      apps.emitChangedDbApp(folder);
       return true;
     } else {
       if (!hasPermission(`files/${folder}/write`)) return false;

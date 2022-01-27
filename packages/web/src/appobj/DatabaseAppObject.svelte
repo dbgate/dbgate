@@ -1,7 +1,7 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
 
-  export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase) {
+  export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase, $apps) {
     const handleNewQuery = () => {
       const tooltip = `${getConnectionLabel(connection)}\n${name}`;
       openNewTab({
@@ -157,7 +157,19 @@
       openJsonDocument(db, name);
     };
 
+    async function handleConfirmSql(sql) {
+      const resp = await apiCall('database-connections/run-script', { conid: connection._id, database: name, sql });
+      const { errorMessage } = resp || {};
+      if (errorMessage) {
+        showModal(ErrorMessageModal, { title: 'Error when executing script', message: errorMessage });
+      } else {
+        showSnackbarSuccess('Saved to database');
+      }
+    }
+
     const driver = findEngineDriver(connection, getExtensions());
+
+    const commands = _.flatten(($apps || []).map(x => x.commands || []));
 
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
@@ -180,6 +192,20 @@
 
       _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
         _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
+
+      commands.length > 0 && [
+        { divider: true },
+        commands.map((cmd: any) => ({
+          text: cmd.name,
+          onClick: () => {
+            showModal(ConfirmSqlModal, {
+              sql: cmd.sql,
+              onConfirm: () => handleConfirmSql(cmd.sql),
+              engine: driver.engine,
+            });
+          },
+        })),
+      ],
     ];
   }
 </script>
@@ -207,18 +233,21 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { getDatabaseInfo } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useDbApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
 
   export let data;
   export let passProps;
 
   function createMenu() {
-    return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase);
+    return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase, $apps);
   }
 
   $: isPinned = !!$pinnedDatabases.find(x => x.name == data.name && x.connection?._id == data.connection?._id);
+  $: apps = useDbApps({ conid: data?.connection?._id, database: data?.name });
 </script>
 
 <AppObjectCore

@@ -7,7 +7,7 @@
   import _ from 'lodash';
   import { filterName } from 'dbgate-tools';
 
-  import { currentApplication } from '../stores';
+  import { currentApplication, currentDatabase } from '../stores';
 
   import AppObjectCore from './AppObjectCore.svelte';
   import { showModal } from '../modals/modalTools';
@@ -45,10 +45,25 @@
     });
   };
 
+  function setOnCurrentDb(value) {
+    apiCall('connections/update-database', {
+      conid: $currentDatabase?.connection?._id,
+      database: $currentDatabase?.name,
+      values: {
+        [`useApp:${data.name}`]: value,
+      },
+    });
+  }
+
   function createMenu() {
     return [
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
+
+      $currentDatabase && [
+        { text: 'Enable on current database', onClick: () => setOnCurrentDb(true) },
+        { text: 'Disable on current database', onClick: () => setOnCurrentDb(false) },
+      ],
     ];
   }
 </script>

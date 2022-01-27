@@ -34,7 +34,7 @@
     'query.sql': 'img app-query',
   };
 
-  function getAppIcon( data) {
+  function getAppIcon(data) {
     return APP_ICONS[data.fileType];
   }
 </script>
@@ -42,24 +42,14 @@
 <script lang="ts">
   import _ from 'lodash';
   import { filterName } from 'dbgate-tools';
-  import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
-
-  import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import {
-    isArchiveFileMarkedAsDataSheet,
-    markArchiveFileAsDataSheet,
-    markArchiveFileAsReadonly,
-  } from '../utility/archiveTools';
   import { apiCall } from '../utility/api';
+  import { currentDatabase, currentDatabase } from '../stores';
 
   export let data;
 
@@ -108,6 +98,7 @@
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
+
       // data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];
   }
@@ -117,7 +108,7 @@
   {...$$restProps}
   {data}
   title={data.fileLabel}
-  icon={getAppIcon( data)}
+  icon={getAppIcon(data)}
   menu={createMenu}
   on:click={handleClick}
 />
