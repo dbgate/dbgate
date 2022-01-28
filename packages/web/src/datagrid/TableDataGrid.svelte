@@ -7,7 +7,7 @@
     TableGridDisplay,
   } from 'dbgate-datalib';
   import { getFilterValueExpression } from 'dbgate-filterparser';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { extendDatabaseInfoFromApps, findEngineDriver } from 'dbgate-tools';
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -19,6 +19,7 @@
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
+    useUsedApps,
   } from '../utility/metadataLoaders';
 
   import DataGrid from './DataGrid.svelte';
@@ -46,6 +47,8 @@
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
+  $: apps = useUsedApps();
+  $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
 
   // $: console.log('serverVersion', $serverVersion);
 
@@ -64,7 +67,7 @@
           setConfig,
           cache,
           setCache,
-          $dbinfo,
+          extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database)
@@ -80,7 +83,7 @@
           setConfig,
           cache,
           setCache,
-          $dbinfo,
+          extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
           table => getDictionaryDescription(table, conid, database)

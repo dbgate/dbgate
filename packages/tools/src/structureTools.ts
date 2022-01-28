@@ -1,4 +1,4 @@
-import { DatabaseInfo, TableInfo } from 'dbgate-types';
+import { DatabaseInfo, TableInfo, ApplicationDefinition } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
@@ -89,4 +89,32 @@ function fillDatabaseExtendedInfo(db: DatabaseInfo): DatabaseInfo {
 
 export function extendDatabaseInfo(db: DatabaseInfo): DatabaseInfo {
   return fillDatabaseExtendedInfo(addTableDependencies(db));
+}
+
+export function extendDatabaseInfoFromApps(db: DatabaseInfo, apps: ApplicationDefinition[]): DatabaseInfo {
+  if (!db || !apps) return db;
+  const dbExt = {
+    ...db,
+    tables: db.tables.map(table => ({
+      ...table,
+      foreignKeys: [
+        ...(table.foreignKeys || []),
+        ..._flatten(apps.map(app => app.virtualReferences || []))
+          .filter(fk => fk.pureName == table.pureName && fk.schemaName == table.schemaName)
+          .map(fk => ({ ...fk, isVirtual: true })),
+      ],
+    })),
+  };
+  return addTableDependencies(dbExt);
+}
+
+export function isTableColumnUnique(table: TableInfo, column: string) {
+  if (table.primaryKey && table.primaryKey.columns.length == 1 && table.primaryKey.columns[0].columnName == column) {
+    return true;
+  }
+  const uqs = [...(table.uniques || []), ...(table.indexes || []).filter(x => x.isUnique)];
+  if (uqs.find(uq => uq.columns.length == 1 && uq.columns[0].columnName == column)) {
+    return true;
+  }
+  return false;
 }

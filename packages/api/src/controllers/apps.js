@@ -185,6 +185,14 @@ module.exports = {
       await processType('.query.sql', 'queries');
     }
 
+    try {
+      res.virtualReferences = JSON.parse(
+        await fs.readFile(path.join(dir, 'virtual-references.json'), { encoding: 'utf-8' })
+      );
+    } catch (err) {
+      res.virtualReferences = [];
+    }
+
     return res;
   },
 

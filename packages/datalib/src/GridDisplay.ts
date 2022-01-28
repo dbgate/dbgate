@@ -28,6 +28,7 @@ export interface DisplayColumn {
   autoIncrement?: boolean;
   isPrimaryKey?: boolean;
   foreignKey?: ForeignKeyInfo;
+  isForeignKeyUnique?: boolean;
   isExpandable?: boolean;
   isChecked?: boolean;
   hintColumnNames?: string[];
