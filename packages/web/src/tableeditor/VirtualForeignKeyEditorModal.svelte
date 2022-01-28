@@ -1,38 +1,25 @@
 <script lang="ts">
   import FormStyledButton from '../elements/FormStyledButton.svelte';
-  import uuidv1 from 'uuid/v1';
-
-  import FormSelectField from '../forms/FormSelectField.svelte';
-  import FormTextField from '../forms/FormTextField.svelte';
-  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
-  import DropDownButton from '../elements/DropDownButton.svelte';
-  import DataTypeEditor from './DataTypeEditor.svelte';
-  import {
-    editorAddConstraint,
-    editorDeleteConstraint,
-    editorModifyConstraint,
-    fullNameFromString,
-    fullNameToLabel,
-    fullNameToString,
-  } from 'dbgate-tools';
-  import TextField from '../forms/TextField.svelte';
+  import { fullNameFromString, fullNameToLabel, fullNameToString } from 'dbgate-tools';
   import SelectField from '../forms/SelectField.svelte';
   import _ from 'lodash';
   import { useDatabaseInfo, useTableInfo } from '../utility/metadataLoaders';
   import { onMount } from 'svelte';
-  import TargetApplicationSelect from '../elements/TargetApplicationSelect.svelte';
+  import TargetApplicationSelect, { saveDbToApp } from '../elements/TargetApplicationSelect.svelte';
+  import { apiCall } from '../utility/api';
 
   export let conid;
   export let database;
   export let schemaName;
   export let pureName;
   export let columnName;
+
+  let dstApp;
 
   const dbInfo = useDatabaseInfo({ conid, database });
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
@@ -69,7 +56,10 @@
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
             isNative
             notSelected
-            options={[...($dbInfo?.tables || []), ...($dbInfo?.views || [])].map(tbl => ({
+            options={[
+              ..._.sortBy($dbInfo?.tables || [], ['schemaName', 'pureName']),
+              ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
+            ].map(tbl => ({
               label: fullNameToLabel(tbl),
               value: fullNameToString(tbl),
             }))}
@@ -155,7 +145,7 @@
       <div class="row">
         <div class="label col-3">Target application</div>
         <div class="col-9">
-          <TargetApplicationSelect />
+          <TargetApplicationSelect bind:value={dstApp} />
         </div>
       </div>
     </div>
@@ -163,7 +153,16 @@
     <svelte:fragment slot="footer">
       <FormSubmit
         value={'Save'}
-        on:click={() => {
+        on:click={async () => {
+          const appFolder = await saveDbToApp(conid, database, dstApp);
+          await apiCall('apps/save-vfk', {
+            appFolder,
+            schemaName,
+            pureName,
+            refSchemaName,
+            refTableName,
+            columns,
+          });
           closeCurrentModal();
         }}
       />

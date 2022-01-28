@@ -3,9 +3,11 @@
     const connProps: any = {};
     let tooltip = undefined;
 
+    const savedFile = fileType == 'vfk.json' ? fileName : fileName + '.' + fileType;
+
     const resp = await apiCall('files/load', {
       folder: 'app:' + folderName,
-      file: fileName + '.' + fileType,
+      file: savedFile,
       format: 'text',
     });
 
@@ -16,7 +18,7 @@
         tabComponent,
         tooltip,
         props: {
-          savedFile: fileName + '.' + fileType,
+          savedFile,
           savedFolder: 'app:' + folderName,
           savedFormat: 'text',
           appFolder: folderName,
@@ -30,6 +32,7 @@
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
   const APP_ICONS = {
+    'vfk.json': 'img json',
     'command.sql': 'img app-command',
     'query.sql': 'img app-query',
   };
@@ -85,12 +88,15 @@
     if (data.fileType.endsWith('.sql')) {
       handleOpenSqlFile();
     }
+    if (data.fileType.endsWith('.json')) {
+      handleOpenJsonFile();
+    }
   };
   const handleOpenSqlFile = () => {
     openTextFile(data.fileName, data.fileType, data.folderName, 'QueryTab', 'img sql-file');
   };
-  const handleOpenYamlFile = () => {
-    openTextFile(data.fileName, data.fileType, data.folderName, 'YamlEditorTab', 'img yaml');
+  const handleOpenJsonFile = () => {
+    openTextFile(data.fileName, data.fileType, data.folderName, 'JsonEditorTab', 'img json');
   };
 
   function createMenu() {
@@ -98,6 +104,7 @@
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
+      data.fileType.endsWith('.json') && { text: 'Open JSON', onClick: handleOpenJsonFile },
 
       // data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];

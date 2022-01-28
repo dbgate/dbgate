@@ -18,9 +18,10 @@ module.exports = {
 
   createFolder_meta: true,
   async createFolder({ folder }) {
-    await fs.mkdir(path.join(appdir(), folder));
+    const name = await this.getNewAppFolder({ name: folder });
+    await fs.mkdir(path.join(appdir(), name));
     socket.emitChanged('app-folders-changed');
-    return true;
+    return name;
   },
 
   files_meta: true,
@@ -45,7 +46,7 @@ module.exports = {
         .map(name => ({
           name: 'virtual-references.json',
           label: 'virtual-references.json',
-          type: 'vfk',
+          type: 'vfk.json',
         }));
     }
 
@@ -185,5 +186,47 @@ module.exports = {
     }
 
     return res;
+  },
+
+  saveVfk_meta: true,
+  async saveVfk({ appFolder, schemaName, pureName, refSchemaName, refTableName, columns }) {
+    const file = path.join(appdir(), appFolder, 'virtual-references.json');
+
+    let json;
+    try {
+      json = JSON.parse(await fs.readFile(file, { encoding: 'utf-8' }));
+    } catch (err) {
+      json = [];
+    }
+
+    if (columns.length == 1) {
+      json = json.filter(
+        x =>
+          !(
+            x.schemaName == schemaName &&
+            x.pureName == pureName &&
+            x.columns.length == 1 &&
+            x.columns[0].columnName == columns[0].columnName
+          )
+      );
+    }
+
+    json = [
+      ...json,
+      {
+        schemaName,
+        pureName,
+        refSchemaName,
+        refTableName,
+        columns,
+      },
+    ];
+
+    await fs.writeFile(file, JSON.stringify(json, undefined, 2));
+
+    socket.emitChanged(`app-files-changed-${appFolder}`);
+    socket.emitChanged('used-apps-changed');
+
+    return true;
   },
 };
