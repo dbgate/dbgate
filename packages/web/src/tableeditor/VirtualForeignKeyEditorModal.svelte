@@ -26,6 +26,7 @@
   import _ from 'lodash';
   import { useDatabaseInfo, useTableInfo } from '../utility/metadataLoaders';
   import { onMount } from 'svelte';
+  import TargetApplicationSelect from '../elements/TargetApplicationSelect.svelte';
 
   export let conid;
   export let database;
@@ -142,15 +143,22 @@
           </div>
         </div>
       {/each}
-    </div>
 
-    <FormStyledButton
-      type="button"
-      value="Add column"
-      on:click={() => {
-        columns = [...columns, {}];
-      }}
-    />
+      <FormStyledButton
+        type="button"
+        value="Add column"
+        on:click={() => {
+          columns = [...columns, {}];
+        }}
+      />
+
+      <div class="row">
+        <div class="label col-3">Target application</div>
+        <div class="col-9">
+          <TargetApplicationSelect />
+        </div>
+      </div>
+    </div>
 
     <svelte:fragment slot="footer">
       <FormSubmit
