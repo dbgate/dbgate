@@ -115,10 +115,16 @@ const appFilesLoader = ({ folder }) => ({
   reloadTrigger: `app-files-changed-${folder}`,
 });
 
-const dbAppsLoader = ({ conid, database }) => ({
-  url: 'apps/get-apps-for-db',
-  params: { conid, database },
-  reloadTrigger: `db-apps-changed-${conid}-${database}`,
+// const dbAppsLoader = ({ conid, database }) => ({
+//   url: 'apps/get-apps-for-db',
+//   params: { conid, database },
+//   reloadTrigger: `db-apps-changed-${conid}-${database}`,
+// });
+
+const usedAppsLoader = ({ conid, database }) => ({
+  url: 'apps/get-used-apps',
+  params: {  },
+  reloadTrigger: `used-apps-changed`,
 });
 
 const serverStatusLoader = () => ({
@@ -433,12 +439,21 @@ export function useAppFolders(args = {}) {
   return useCore(appFoldersLoader, args);
 }
 
-export function getDbApps(args = {}) {
-  return getCore(dbAppsLoader, args);
+
+
+export function getUsedApps(args = {}) {
+  return getCore(usedAppsLoader, args);
 }
-export function useDbApps(args = {}) {
-  return useCore(dbAppsLoader, args);
+export function useUsedApps(args = {}) {
+  return useCore(usedAppsLoader, args);
 }
+
+// export function getDbApps(args = {}) {
+//   return getCore(dbAppsLoader, args);
+// }
+// export function useDbApps(args = {}) {
+//   return useCore(dbAppsLoader, args);
+// }
 
 export function getInstalledPlugins(args = {}) {
   return getCore(installedPluginsLoader, args) || [];

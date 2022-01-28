@@ -26,7 +26,7 @@
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
   import getConnectionLabel from '../utility/getConnectionLabel';
-  import { getDatabaseList, useDbApps } from '../utility/metadataLoaders';
+  import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall } from '../utility/api';
 
@@ -187,7 +187,7 @@
     }
   }
 
-  $: apps = useDbApps({ conid: data?._id, database: data.defaultDatabase });
+  $: apps = useUsedApps();
 </script>
 
 <AppObjectCore

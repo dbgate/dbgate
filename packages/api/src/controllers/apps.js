@@ -53,12 +53,9 @@ module.exports = {
   },
 
   async emitChangedDbApp(folder) {
-    for (const conn of await connections.list()) {
-      for (const db of conn.databases || []) {
-        if (db[`useApp:${folder}`]) {
-          socket.emitChanged(`db-apps-changed-${conn._id}-${db.name}`);
-        }
-      }
+    const used = await this.getUsedAppFolders();
+    if (used.includes(folder)) {
+      socket.emitChanged('used-apps-changed');
     }
   },
 
@@ -112,25 +109,54 @@ module.exports = {
     return `${name}${index}`;
   },
 
-  getAppsForDb_meta: true,
-  async getAppsForDb({ conid, database }) {
-    const connection = await connections.get({ conid });
-    if (!connection) return [];
-    const db = (connection.databases || []).find(x => x.name == database);
+  getUsedAppFolders_meta: true,
+  async getUsedAppFolders() {
+    const list = await connections.list();
     const apps = [];
-    const res = [];
-    if (db) {
-      for (const key of _.keys(db || {})) {
-        if (key.startsWith('useApp:') && db[key]) {
-          apps.push(key.substring('useApp:'.length));
+
+    for (const connection of list) {
+      for (const db of connection.databases || []) {
+        for (const key of _.keys(db || {})) {
+          if (key.startsWith('useApp:') && db[key]) {
+            apps.push(key.substring('useApp:'.length));
+          }
         }
       }
     }
+
+    return _.uniq(apps);
+  },
+
+  getUsedApps_meta: true,
+  async getUsedApps() {
+    const apps = await this.getUsedAppFolders();
+    const res = [];
+
     for (const folder of apps) {
       res.push(await this.loadApp({ folder }));
     }
     return res;
   },
+
+  // getAppsForDb_meta: true,
+  // async getAppsForDb({ conid, database }) {
+  //   const connection = await connections.get({ conid });
+  //   if (!connection) return [];
+  //   const db = (connection.databases || []).find(x => x.name == database);
+  //   const apps = [];
+  //   const res = [];
+  //   if (db) {
+  //     for (const key of _.keys(db || {})) {
+  //       if (key.startsWith('useApp:') && db[key]) {
+  //         apps.push(key.substring('useApp:'.length));
+  //       }
+  //     }
+  //   }
+  //   for (const folder of apps) {
+  //     res.push(await this.loadApp({ folder }));
+  //   }
+  //   return res;
+  // },
 
   loadApp_meta: true,
   async loadApp({ folder }) {

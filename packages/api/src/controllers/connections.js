@@ -178,9 +178,10 @@ module.exports = {
       res = await this.datastore.insert(encrypted);
     }
     socket.emitChanged('connection-list-changed');
-    for (const db of connection.databases || []) {
-      socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
-    }
+    socket.emitChanged('used-apps-changed');
+    // for (const db of connection.databases || []) {
+    //   socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
+    // }
     return res;
   },
 
@@ -204,7 +205,8 @@ module.exports = {
     }
     const res = await this.datastore.update({ _id: conid }, { $set: { databases } });
     socket.emitChanged('connection-list-changed');
-    socket.emitChanged(`db-apps-changed-${conid}-${database}`);
+    socket.emitChanged('used-apps-changed');
+    // socket.emitChanged(`db-apps-changed-${conid}-${database}`);
     return res;
   },
 

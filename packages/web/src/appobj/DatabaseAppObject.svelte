@@ -1,7 +1,13 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
 
+  export function filterAppsForDatabase(connection, database, $apps) {
+    const db = (connection?.databases || []).find(x => x.name == database);
+    return $apps.filter(app => db && db[`useApp:${app.name}`]);
+  }
+
   export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase, $apps) {
+    const apps = filterAppsForDatabase(connection, name, $apps);
     const handleNewQuery = () => {
       const tooltip = `${getConnectionLabel(connection)}\n${name}`;
       openNewTab({
@@ -169,7 +175,7 @@
 
     const driver = findEngineDriver(connection, getExtensions());
 
-    const commands = _.flatten(($apps || []).map(x => x.commands || []));
+    const commands = _.flatten((apps || []).map(x => x.commands || []));
 
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
@@ -233,7 +239,7 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import { getDatabaseInfo, useDbApps } from '../utility/metadataLoaders';
+  import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
@@ -247,7 +253,7 @@
   }
 
   $: isPinned = !!$pinnedDatabases.find(x => x.name == data.name && x.connection?._id == data.connection?._id);
-  $: apps = useDbApps({ conid: data?.connection?._id, database: data?.name });
+  $: apps = useUsedApps();
 </script>
 
 <AppObjectCore
