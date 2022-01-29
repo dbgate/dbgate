@@ -26,7 +26,7 @@
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
   import getConnectionLabel from '../utility/getConnectionLabel';
-  import { getDatabaseList } from '../utility/metadataLoaders';
+  import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall } from '../utility/api';
 
@@ -97,7 +97,7 @@
         value: 'newdb',
         label: 'Database name',
         onConfirm: name =>
-        apiCall('server-connections/create-database', {
+          apiCall('server-connections/create-database', {
             conid: data._id,
             name,
           }),
@@ -153,7 +153,7 @@
       ],
       data.singleDatabase && [
         { divider: true },
-        getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase),
+        getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase, $apps),
       ],
     ];
   };
@@ -186,6 +186,8 @@
       statusTitle = null;
     }
   }
+
+  $: apps = useUsedApps();
 </script>
 
 <AppObjectCore

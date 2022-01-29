@@ -9,11 +9,13 @@
   export let name;
   export let options;
   export let isClearable = false;
+  export let selectFieldComponent = SelectField;
 
   const { values, setFieldValue } = getFormContext();
 </script>
 
-<SelectField
+<svelte:component
+  this={selectFieldComponent}
   {...$$restProps}
   value={$values && $values[name]}
   options={_.compact(options)}

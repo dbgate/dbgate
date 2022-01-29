@@ -15,6 +15,7 @@ import * as FavoriteEditorTab from './FavoriteEditorTab.svelte';
 import * as QueryDesignTab from './QueryDesignTab.svelte';
 import * as CommandListTab from './CommandListTab.svelte';
 import * as YamlEditorTab from './YamlEditorTab.svelte';
+import * as JsonEditorTab from './JsonEditorTab.svelte';
 import * as CompareModelTab from './CompareModelTab.svelte';
 import * as JsonTab from './JsonTab.svelte';
 import * as ChangelogTab from './ChangelogTab.svelte';
@@ -38,6 +39,7 @@ export default {
   QueryDesignTab,
   CommandListTab,
   YamlEditorTab,
+  JsonEditorTab,
   CompareModelTab,
   JsonTab,
   ChangelogTab,

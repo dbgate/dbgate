@@ -7,7 +7,7 @@
     TableGridDisplay,
   } from 'dbgate-datalib';
   import { getFilterValueExpression } from 'dbgate-filterparser';
-  import { findEngineDriver } from 'dbgate-tools';
+  import { extendDatabaseInfoFromApps, findEngineDriver } from 'dbgate-tools';
   import _ from 'lodash';
   import { writable } from 'svelte/store';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -16,9 +16,11 @@
 
   import {
     useConnectionInfo,
+    useConnectionList,
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
+    useUsedApps,
   } from '../utility/metadataLoaders';
 
   import DataGrid from './DataGrid.svelte';
@@ -46,6 +48,9 @@
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
   $: serverVersion = useDatabaseServerVersion({ conid, database });
+  $: apps = useUsedApps();
+  $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
+  $: connections = useConnectionList();
 
   // $: console.log('serverVersion', $serverVersion);
 
@@ -64,10 +69,10 @@
           setConfig,
           cache,
           setCache,
-          $dbinfo,
+          extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections)
         )
       : null;
 
@@ -80,10 +85,10 @@
           setConfig,
           cache,
           setCache,
-          $dbinfo,
+          extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections)
         )
       : null;
 
@@ -159,6 +164,7 @@
       macroCondition={macro => macro.type == 'transformValue'}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
       multipleGridsOnTab={multipleGridsOnTab || !!reference}
+      allowDefineVirtualReferences
       onReferenceClick={value => {
         if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {
           // reference not changed

@@ -1,7 +1,6 @@
 const path = require('path');
 const { fork } = require('child_process');
 const _ = require('lodash');
-const nedb = require('nedb-promises');
 const fs = require('fs-extra');
 
 const { datadir, filesdir } = require('../utility/directories');
@@ -9,6 +8,7 @@ const socket = require('../utility/socket');
 const { encryptConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { pickSafeConnectionInfo } = require('../utility/crypting');
+const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
 
@@ -136,7 +136,7 @@ module.exports = {
     const dir = datadir();
     if (!portalConnections) {
       // @ts-ignore
-      this.datastore = nedb.create(path.join(dir, 'connections.jsonl'));
+      this.datastore = new JsonLinesDatabase(path.join(dir, 'connections.jsonl'));
     }
   },
 
@@ -173,18 +173,22 @@ module.exports = {
     let res;
     const encrypted = encryptConnection(connection);
     if (connection._id) {
-      res = await this.datastore.update(_.pick(connection, '_id'), encrypted);
+      res = await this.datastore.update(encrypted);
     } else {
       res = await this.datastore.insert(encrypted);
     }
     socket.emitChanged('connection-list-changed');
+    socket.emitChanged('used-apps-changed');
+    // for (const db of connection.databases || []) {
+    //   socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
+    // }
     return res;
   },
 
   update_meta: true,
   async update({ _id, values }) {
     if (portalConnections) return;
-    const res = await this.datastore.update({ _id }, { $set: values });
+    const res = await this.datastore.patch(_id, values);
     socket.emitChanged('connection-list-changed');
     return res;
   },
@@ -192,22 +196,24 @@ module.exports = {
   updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }) {
     if (portalConnections) return;
-    const conn = await this.datastore.find({ _id: conid });
-    let databases = conn[0].databases || [];
+    const conn = await this.datastore.get(conid);
+    let databases = (conn && conn.databases) || [];
     if (databases.find(x => x.name == database)) {
       databases = databases.map(x => (x.name == database ? { ...x, ...values } : x));
     } else {
       databases = [...databases, { name: database, ...values }];
     }
-    const res = await this.datastore.update({ _id: conid }, { $set: { databases } });
+    const res = await this.datastore.patch(conid, { databases });
     socket.emitChanged('connection-list-changed');
+    socket.emitChanged('used-apps-changed');
+    // socket.emitChanged(`db-apps-changed-${conid}-${database}`);
     return res;
   },
 
   delete_meta: true,
   async delete(connection) {
     if (portalConnections) return;
-    const res = await this.datastore.remove(_.pick(connection, '_id'));
+    const res = await this.datastore.remove(connection._id);
     socket.emitChanged('connection-list-changed');
     return res;
   },
@@ -215,8 +221,8 @@ module.exports = {
   get_meta: true,
   async get({ conid }) {
     if (portalConnections) return portalConnections.find(x => x._id == conid) || null;
-    const res = await this.datastore.find({ _id: conid });
-    return res[0] || null;
+    const res = await this.datastore.get(conid);
+    return res || null;
   },
 
   newSqliteDatabase_meta: true,

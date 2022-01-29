@@ -15,6 +15,7 @@
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
+  import { getUsedApps } from './utility/metadataLoaders';
 
   let loadedApi = false;
 
@@ -30,7 +31,8 @@
       const settings = await apiCall('config/get-settings');
       const connections = await apiCall('connections/list');
       const config = await apiCall('config/get');
-      loadedApi = settings && connections && config;
+      const apps = await getUsedApps();
+      loadedApi = settings && connections && config && apps;
 
       if (loadedApi) {
         subscribeApiDependendStores();

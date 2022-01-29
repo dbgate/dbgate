@@ -1,13 +1,13 @@
 <script lang="ts" context="module">
-  const getCurrentEditor = () => getActiveComponent('YamlEditorTab');
+  const getCurrentEditor = () => getActiveComponent('JsonEditorTab');
 
   registerFileCommands({
-    idPrefix: 'yaml',
-    category: 'Yaml',
+    idPrefix: 'json',
+    category: 'Json',
     getCurrentEditor,
     folder: 'yaml',
     format: 'text',
-    fileExtension: 'yaml',
+    fileExtension: 'json',
 
     toggleComment: true,
     findReplace: true,
@@ -16,22 +16,18 @@
 
 <script lang="ts">
   import { getContext } from 'svelte';
-  import registerCommand from '../commands/registerCommand';
   import { registerFileCommands } from '../commands/stdCommands';
 
   import AceEditor from '../query/AceEditor.svelte';
   import useEditorData from '../query/useEditorData';
-  import { openedTabs } from '../stores';
   import invalidateCommands from '../commands/invalidateCommands';
-  import openNewTab from '../utility/openNewTab';
-  import { setSelectedTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
   export let tabid;
 
   const tabVisible: any = getContext('tabVisible');
 
-  export const activator = createActivator('YamlEditorTab', false);
+  export const activator = createActivator('JsonEditorTab', false);
 
   let domEditor;
 
@@ -63,13 +59,13 @@
 
   function createMenu() {
     return [
-      { command: 'yaml.toggleComment' },
+      { command: 'json.toggleComment' },
       { divider: true },
-      { command: 'yaml.save' },
-      { command: 'yaml.saveAs' },
+      { command: 'json.save' },
+      { command: 'json.saveAs' },
       { divider: true },
-      { command: 'yaml.find' },
-      { command: 'yaml.replace' },
+      { command: 'json.find' },
+      { command: 'json.replace' },
     ];
   }
 </script>
@@ -83,5 +79,5 @@
     invalidateCommands();
   }}
   bind:this={domEditor}
-  mode="yaml"
+  mode="json"
 />

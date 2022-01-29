@@ -9,6 +9,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { currentThemeDefinition } from '../stores';
+  import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
   import contextMenu from '../utility/contextMenu';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
@@ -166,6 +167,15 @@
     });
   };
 
+  const handleDefineVirtualForeignKey = table => {
+    showModal(VirtualForeignKeyEditorModal, {
+      schemaName: table.schemaName,
+      pureName: table.pureName,
+      conid,
+      database,
+    });
+  };
+
   function createMenu() {
     return [
       { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
@@ -185,6 +195,11 @@
       settings?.allowAddAllReferences &&
         !isMultipleTableSelection && { text: 'Add references', onClick: () => onAddAllReferences(table) },
       settings?.allowChangeColor && { text: 'Change color', onClick: () => onChangeTableColor(table) },
+      settings?.allowDefineVirtualReferences &&
+        !isMultipleTableSelection && {
+          text: 'Define virtual foreign key',
+          onClick: () => handleDefineVirtualForeignKey(table),
+        },
       settings?.appendTableSystemMenu &&
         !isMultipleTableSelection && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
     ];

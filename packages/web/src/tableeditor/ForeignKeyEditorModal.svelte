@@ -81,7 +81,7 @@
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
             isNative
             notSelected
-            options={(dbInfo?.tables || []).map(tbl => ({
+            options={_.sortBy(dbInfo?.tables || [], ['schemaName', 'pureName']).map(tbl => ({
               label: fullNameToLabel(tbl),
               value: fullNameToString(tbl),
             }))}

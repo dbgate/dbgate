@@ -26,6 +26,12 @@
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 </script>
 
+<svelte:head>
+  {#if $currentThemeDefinition?.themeCss}
+  {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
+  {/if}
+</svelte:head>
+
 <div
   class={`${$currentTheme} ${currentThemeType} root dbgate-screen`}
   use:dragDropFileTarget

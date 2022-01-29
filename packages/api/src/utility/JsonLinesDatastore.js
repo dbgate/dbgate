@@ -4,7 +4,7 @@ const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
 
-async function fetchNextLine(reader) {
+function fetchNextLineFromReader(reader) {
   return new Promise((resolve, reject) => {
     if (!reader.hasNextLine()) {
       resolve(null);
@@ -62,7 +62,7 @@ class JsonLinesDatastore {
 
   async _readLine(parse) {
     for (;;) {
-      const line = await fetchNextLine(this.reader);
+      const line = await fetchNextLineFromReader(this.reader);
       if (!line) {
         // EOF
         return null;

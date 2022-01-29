@@ -26,6 +26,7 @@
     'icon version': 'mdi mdi-ticket-confirmation',
     'icon pin': 'mdi mdi-pin',
     'icon arrange': 'mdi mdi-arrange-send-to-back',
+    'icon app': 'mdi mdi-layers-triple',
 
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',
@@ -126,6 +127,9 @@
     'img diagram': 'mdi mdi-graph color-icon-blue',
     'img yaml': 'mdi mdi-code-brackets color-icon-red',
     'img compare': 'mdi mdi-compare color-icon-red',
+    'img app': 'mdi mdi-layers-triple color-icon-magenta',
+    'img app-command': 'mdi mdi-flash color-icon-green',
+    'img app-query': 'mdi mdi-view-comfy color-icon-magenta',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

@@ -1,12 +1,13 @@
 const uuidv1 = require('uuid/v1');
 const fs = require('fs-extra');
 const path = require('path');
-const { filesdir, archivedir, resolveArchiveFolder, uploadsdir } = require('../utility/directories');
+const { filesdir, archivedir, resolveArchiveFolder, uploadsdir, appdir } = require('../utility/directories');
 const getChartExport = require('../utility/getChartExport');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');
+const apps = require('./apps');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -74,6 +75,11 @@ module.exports = {
         encoding: 'utf-8',
       });
       return deserialize(format, text);
+    } else if (folder.startsWith('app:')) {
+      const text = await fs.readFile(path.join(appdir(), folder.substring('app:'.length), file), {
+        encoding: 'utf-8',
+      });
+      return deserialize(format, text);
     } else {
       if (!hasPermission(`files/${folder}/read`)) return null;
       const text = await fs.readFile(path.join(filesdir(), folder, file), { encoding: 'utf-8' });
@@ -87,6 +93,12 @@ module.exports = {
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
+      return true;
+    } else if (folder.startsWith('app:')) {
+      const app = folder.substring('app:'.length);
+      await fs.writeFile(path.join(appdir(), app, file), serialize(format, data));
+      socket.emitChanged(`app-files-changed-${app}`);
+      apps.emitChangedDbApp(folder);
       return true;
     } else {
       if (!hasPermission(`files/${folder}/write`)) return false;

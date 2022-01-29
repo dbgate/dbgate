@@ -43,3 +43,4 @@ export * from './dumper';
 export * from './dbtypes';
 export * from './extensions';
 export * from './alter-processor';
+export * from './appdefs';

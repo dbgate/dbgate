@@ -7,6 +7,8 @@
   import { isTypeDateTime } from 'dbgate-tools';
   import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject.svelte';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
+  import { showModal } from '../modals/modalTools';
 
   export let column;
   export let conid = undefined;
@@ -14,6 +16,7 @@
   export let setSort;
   export let grouping = undefined;
   export let order = undefined;
+  export let allowDefineVirtualReferences = false;
   export let setGrouping;
 
   const openReferencedTable = () => {
@@ -23,6 +26,16 @@
       conid,
       database,
       objectTypeField: 'tables',
+    });
+  };
+
+  const handleDefineVirtualForeignKey = () => {
+    showModal(VirtualForeignKeyEditorModal, {
+      schemaName: column.schemaName,
+      pureName: column.pureName,
+      conid,
+      database,
+      columnName: column.columnName,
     });
   };
 
@@ -48,6 +61,11 @@
         { onClick: () => setGrouping('GROUP:YEAR'), text: 'Group by YEAR' },
         { onClick: () => setGrouping('GROUP:MONTH'), text: 'Group by MONTH' },
         { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
+      ],
+
+      allowDefineVirtualReferences && [
+        { divider: true },
+        { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
       ],
     ];
   }

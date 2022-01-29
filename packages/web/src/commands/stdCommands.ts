@@ -30,7 +30,7 @@ import runCommand from './runCommand';
 function themeCommand(theme: ThemeDefinition) {
   return {
     text: theme.themeName,
-    onClick: () => currentTheme.set(theme.className),
+    onClick: () => currentTheme.set(theme.themeClassName),
     // onPreview: () => {
     //   const old = get(currentTheme);
     //   currentTheme.set(css);
@@ -123,6 +123,23 @@ registerCommand({
       header: 'Create archive folder',
       onConfirm: async folder => {
         apiCall('archive/create-folder', { folder });
+      },
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.application',
+  category: 'New',
+  icon: 'img app',
+  name: 'Application',
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'New application name',
+      header: 'Create application',
+      onConfirm: async folder => {
+        apiCall('apps/create-folder', { folder });
       },
     });
   },

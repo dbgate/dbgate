@@ -6,6 +6,7 @@
   import PluginsWidget from './PluginsWidget.svelte';
   import CellDataWidget from './CellDataWidget.svelte';
   import HistoryWidget from './HistoryWidget.svelte';
+  import AppWidget from './AppWidget.svelte';
 </script>
 
 <DatabaseWidget hidden={$selectedWidget != 'database'} />
@@ -24,4 +25,7 @@
 {/if}
 {#if $selectedWidget == 'cell-data'}
   <CellDataWidget />
+{/if}
+{#if $selectedWidget == 'app'}
+  <AppWidget />
 {/if}

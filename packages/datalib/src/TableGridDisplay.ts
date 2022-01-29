@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { filterName } from 'dbgate-tools';
+import { filterName, isTableColumnUnique } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
 import {
   TableInfo,
@@ -79,10 +79,11 @@ export class TableGridDisplay extends GridDisplay {
           ...col,
           isChecked: this.isColumnChecked(col),
           hintColumnNames:
-            this.getFkDictionaryDescription(col.foreignKey)?.columns?.map(
+            this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)?.columns?.map(
               columnName => `hint_${col.uniqueName}_${columnName}`
             ) || null,
-          hintColumnDelimiter: this.getFkDictionaryDescription(col.foreignKey)?.delimiter,
+          hintColumnDelimiter: this.getFkDictionaryDescription(col.isForeignKeyUnique ? col.foreignKey : null)
+            ?.delimiter,
           isExpandable: !!col.foreignKey,
         })) || []
     );
@@ -203,7 +204,8 @@ export class TableGridDisplay extends GridDisplay {
   }
 
   getFkTarget(column: DisplayColumn) {
-    const { uniqueName, foreignKey } = column;
+    const { uniqueName, foreignKey, isForeignKeyUnique } = column;
+    if (!isForeignKeyUnique) return null;
     const pureName = foreignKey.refTableName;
     const schemaName = foreignKey.refSchemaName;
     return this.findTable({ schemaName, pureName });
@@ -230,7 +232,7 @@ export class TableGridDisplay extends GridDisplay {
     const uniquePath = [...parentPath, col.columnName];
     const uniqueName = uniquePath.join('.');
     // console.log('this.config.addedColumns', this.config.addedColumns, uniquePath);
-    return {
+    const res = {
       ...col,
       pureName: table.pureName,
       schemaName: table.schemaName,
@@ -241,7 +243,19 @@ export class TableGridDisplay extends GridDisplay {
       foreignKey:
         table.foreignKeys &&
         table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == col.columnName),
+      isForeignKeyUnique: false,
     };
+
+    if (res.foreignKey) {
+      const refTableInfo = this.dbinfo.tables.find(
+        x => x.schemaName == res.foreignKey.refSchemaName && x.pureName == res.foreignKey.refTableName
+      );
+      if (refTableInfo && isTableColumnUnique(refTableInfo, res.foreignKey.columns[0].refColumnName)) {
+        res.isForeignKeyUnique = true;
+      }
+    }
+
+    return res;
   }
 
   addAddedColumnsToSelect(

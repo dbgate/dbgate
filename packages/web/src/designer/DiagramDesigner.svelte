@@ -21,6 +21,7 @@
     allowChangeColor: true,
     appendTableSystemMenu: true,
     customizeStyle: true,
+    allowDefineVirtualReferences: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />
