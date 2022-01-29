@@ -78,6 +78,7 @@ Any contributions are welcome. If you want to contribute without coding, conside
 * Write review on [Slant.co](https://www.slant.co/improve/options/41086/~dbgate-review) or [G2](https://www.g2.com/products/dbgate/reviews) 
 * Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
 * Become a backer on [Open collective](https://opencollective.com/dbgate)
+* Where a small coding is acceptable for you, you could [create plugin](https://github.com/dbgate/dbgate/wiki/Plugin-development). Plugins for new themes can be created actually without JS coding.
 
 Thank you!
 
@@ -157,3 +158,16 @@ yarn build:app:local
 yarn start:app:local
 ```
 
+## How to create plugin
+Creating plugin is described in [documentation](https://github.com/dbgate/dbgate/wiki/Plugin-development)
+
+But it is very simple:
+
+```sh
+npm install -g yo # install yeoman
+npm install -g generator-dbgate # install dbgate generator
+cd my-plugin-directory # this directory is created by wizard, edit, what you need to change
+yarn plugin # this compiles plugin and copies it into existing DbGate installation
+```
+
+After restarting DbGate, you could use your new plugin from DbGate.
