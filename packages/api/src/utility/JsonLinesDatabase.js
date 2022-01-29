@@ -1,5 +1,8 @@
+const AsyncLock = require('async-lock');
 const fs = require('fs-extra');
 const uuidv1 = require('uuid/v1');
+
+const lock = new AsyncLock();
 
 // const lineReader = require('line-reader');
 // const { fetchNextLineFromReader } = require('./JsonLinesDatastore');
@@ -8,31 +11,40 @@ class JsonLinesDatabase {
   constructor(filename) {
     this.filename = filename;
     this.data = [];
-    this.loaded = false;
+    this.loadedOk = false;
+    this.loadPerformed = false;
   }
 
-  async _read() {
-    this.data = [];
-    if (!(await fs.exists(this.filename))) return;
-    try {
-      const text = await fs.readFile(this.filename, { encoding: 'utf-8' });
-      this.data = text
-        .split('\n')
-        .filter(x => x.trim())
-        .map(x => JSON.parse(x));
-    } catch (err) {
-      console.error(`Error loading file ${this.filename}`, err);
+  async _save() {
+    if (!this.loadedOk) {
+      // don't override data
+      return;
     }
-  }
-
-  async _write() {
     await fs.writeFile(this.filename, this.data.map(x => JSON.stringify(x)).join('\n'));
   }
 
   async _ensureLoaded() {
-    if (!this.loaded) {
-      this._read();
-      this.loaded = true;
+    if (!this.loadPerformed) {
+      await lock.acquire('reader', async () => {
+        if (!this.loadPerformed) {
+          if (!(await fs.exists(this.filename))) {
+            this.loadedOk = true;
+            this.loadPerformed = true;
+            return;
+          }
+          try {
+            const text = await fs.readFile(this.filename, { encoding: 'utf-8' });
+            this.data = text
+              .split('\n')
+              .filter(x => x.trim())
+              .map(x => JSON.parse(x));
+            this.loadedOk = true;
+          } catch (err) {
+            console.error(`Error loading file ${this.filename}`, err);
+          }
+          this.loadPerformed = true;
+        }
+      });
     }
   }
 
@@ -48,7 +60,7 @@ class JsonLinesDatabase {
           _id: uuidv1(),
         };
     this.data.push(elem);
-    await this._write();
+    await this._save();
     return elem;
   }
 
@@ -74,19 +86,23 @@ class JsonLinesDatabase {
   async update(obj) {
     await this._ensureLoaded();
     this.data = this.data.map(x => (x._id == obj._id ? obj : x));
-    await this._write();
+    await this._save();
+    return obj;
   }
 
   async patch(id, values) {
     await this._ensureLoaded();
     this.data = this.data.map(x => (x._id == id ? { ...x, ...values } : x));
-    await this._write();
+    await this._save();
+    return this.data.find(x => x._id == id);
   }
 
   async remove(id) {
     await this._ensureLoaded();
+    const removed = this.data.find(x => x._id == id);
     this.data = this.data.filter(x => x._id != id);
-    await this._write();
+    await this._save();
+    return removed;
   }
 
   //   async _openReader() {

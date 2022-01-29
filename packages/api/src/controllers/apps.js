@@ -119,7 +119,7 @@ module.exports = {
       }
     }
 
-    return _.uniq(apps);
+    return _.intersection(_.uniq(apps), await fs.readdir(appdir()));
   },
 
   getUsedApps_meta: true,
