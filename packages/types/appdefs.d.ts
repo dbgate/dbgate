@@ -22,7 +22,7 @@ interface VirtualReferenceDefinition {
 interface DictionaryDescriptionDefinition {
   pureName: string;
   schemaName?: string;
-  expresssion: string;
+  expression: string;
   columns: string[];
   delimiter: string;
 }

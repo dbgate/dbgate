@@ -245,7 +245,7 @@ module.exports = {
   },
 
   saveDictionaryDescription_meta: true,
-  async saveDictionaryDescription({ appFolder, pureName, schemaName, expresssion, columns, delimiter }) {
+  async saveDictionaryDescription({ appFolder, pureName, schemaName, expression, columns, delimiter }) {
     await this.saveConfigFile(
       appFolder,
       'dictionary-descriptions.config.json',
@@ -253,7 +253,7 @@ module.exports = {
       {
         schemaName,
         pureName,
-        expresssion,
+        expression,
         columns,
         delimiter,
       }
