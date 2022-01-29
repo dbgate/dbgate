@@ -22,9 +22,10 @@ export interface FileFormatDefinition {
 }
 
 export interface ThemeDefinition {
-  className: string;
+  themeClassName: string;
   themeName: string;
   themeType: 'light' | 'dark';
+  themeCss?: string;
 }
 
 export interface PluginDefinition {

@@ -73,7 +73,7 @@ export const loadingPluginStore = writable({
 });
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
-  $extensions.themes.find(x => x.className == $currentTheme)
+  $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
 
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');

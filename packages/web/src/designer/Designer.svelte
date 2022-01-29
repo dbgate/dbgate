@@ -695,13 +695,17 @@
       if (css) css += '\n';
       css += cssItem;
     }
+    if ($currentThemeDefinition?.themeCss) {
+      if (css) css += '\n';
+      css += $currentThemeDefinition?.themeCss;
+    }
     saveFileToDisk(async filePath => {
       await apiCall('files/export-diagram', {
         filePath,
         html: domCanvas.outerHTML,
         css,
         themeType: $currentThemeDefinition?.themeType,
-        themeClassName: $currentThemeDefinition?.className,
+        themeClassName: $currentThemeDefinition?.themeClassName,
       });
     });
   }

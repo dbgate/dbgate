@@ -30,7 +30,7 @@ import runCommand from './runCommand';
 function themeCommand(theme: ThemeDefinition) {
   return {
     text: theme.themeName,
-    onClick: () => currentTheme.set(theme.className),
+    onClick: () => currentTheme.set(theme.themeClassName),
     // onPreview: () => {
     //   const old = get(currentTheme);
     //   currentTheme.set(css);

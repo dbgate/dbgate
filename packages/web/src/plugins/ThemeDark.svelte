@@ -1,5 +1,5 @@
 <script context="module">
-  export const className = 'theme-dark';
+  export const themeClassName = 'theme-dark';
   export const themeName = 'Dark';
   export const themeType = 'dark';
 </script>
