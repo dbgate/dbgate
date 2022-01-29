@@ -3,11 +3,9 @@
     const connProps: any = {};
     let tooltip = undefined;
 
-    const savedFile = fileType == 'vfk.json' ? fileName : fileName + '.' + fileType;
-
     const resp = await apiCall('files/load', {
       folder: 'app:' + folderName,
-      file: savedFile,
+      file: fileName + '.' + fileType,
       format: 'text',
     });
 
@@ -18,7 +16,7 @@
         tabComponent,
         tooltip,
         props: {
-          savedFile,
+          savedFile:fileName + '.' + fileType,
           savedFolder: 'app:' + folderName,
           savedFormat: 'text',
           appFolder: folderName,
@@ -32,7 +30,7 @@
   export const extractKey = data => data.fileName;
   export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
   const APP_ICONS = {
-    'vfk.json': 'img json',
+    'config.json': 'img json',
     'command.sql': 'img app-command',
     'query.sql': 'img app-query',
   };

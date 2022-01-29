@@ -29,18 +29,18 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     // console.log('ANALYSING', name, structure);
     if (structure && options.dropIfExists) {
       console.log(`Dropping table ${fullNameQuoted}`);
-      await driver.query(pool, `DROP TABLE ${fullNameQuoted}`);
+      await driver.script(pool, `DROP TABLE ${fullNameQuoted}`);
     }
     if (options.createIfNotExists && (!structure || options.dropIfExists)) {
       console.log(`Creating table ${fullNameQuoted}`);
       const dmp = driver.createDumper();
       dmp.createTable(prepareTableForImport({ ...writable.structure, ...name }));
       console.log(dmp.s);
-      await driver.query(pool, dmp.s);
+      await driver.script(pool, dmp.s);
       structure = await driver.analyseSingleTable(pool, name);
     }
     if (options.truncate) {
-      await driver.query(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
+      await driver.script(pool, `TRUNCATE TABLE ${fullNameQuoted}`);
     }
 
     writable.columnNames = _intersection(

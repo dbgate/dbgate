@@ -19,10 +19,19 @@ interface VirtualReferenceDefinition {
   }[];
 }
 
-interface ApplicationDefinition {
+interface ColumnDescriptionDefinition {
+  pureName: string;
+  schemaName?: string;
+  expresssion?: string;
+  columns: string[];
+  delimiter: string;
+}
+
+export interface ApplicationDefinition {
   name: string;
 
   queries: ApplicationQuery[];
   commands: ApplicationCommand[];
   virtualReferences: VirtualReferenceDefinition[];
+  columnDescriptions: ColumnDescriptionDefinition[];
 }

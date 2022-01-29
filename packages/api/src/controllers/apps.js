@@ -40,17 +40,11 @@ module.exports = {
         }));
     }
 
-    function refsType() {
-      return files
-        .filter(name => name == 'virtual-references.json')
-        .map(name => ({
-          name: 'virtual-references.json',
-          label: 'virtual-references.json',
-          type: 'vfk.json',
-        }));
-    }
-
-    return [...refsType(), ...fileType('.command.sql', 'command.sql'), ...fileType('.query.sql', 'query.sql')];
+    return [
+      ...fileType('.command.sql', 'command.sql'),
+      ...fileType('.query.sql', 'query.sql'),
+      ...fileType('.config.json', 'config.json'),
+    ];
   },
 
   async emitChangedDbApp(folder) {
@@ -187,7 +181,7 @@ module.exports = {
 
     try {
       res.virtualReferences = JSON.parse(
-        await fs.readFile(path.join(dir, 'virtual-references.json'), { encoding: 'utf-8' })
+        await fs.readFile(path.join(dir, 'virtual-references.config.json'), { encoding: 'utf-8' })
       );
     } catch (err) {
       res.virtualReferences = [];
@@ -198,7 +192,7 @@ module.exports = {
 
   saveVfk_meta: true,
   async saveVfk({ appFolder, schemaName, pureName, refSchemaName, refTableName, columns }) {
-    const file = path.join(appdir(), appFolder, 'virtual-references.json');
+    const file = path.join(appdir(), appFolder, 'virtual-references.config.json');
 
     let json;
     try {
