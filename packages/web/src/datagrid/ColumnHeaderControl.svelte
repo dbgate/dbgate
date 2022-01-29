@@ -16,6 +16,7 @@
   export let setSort;
   export let grouping = undefined;
   export let order = undefined;
+  export let allowDefineVirtualReferences = false;
   export let setGrouping;
 
   const openReferencedTable = () => {
@@ -62,8 +63,10 @@
         { onClick: () => setGrouping('GROUP:DAY'), text: 'Group by DAY' },
       ],
 
-      { divider: true },
-      { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      allowDefineVirtualReferences && [
+        { divider: true },
+        { onClick: handleDefineVirtualForeignKey, text: 'Define virtual foreign key' },
+      ],
     ];
   }
 </script>

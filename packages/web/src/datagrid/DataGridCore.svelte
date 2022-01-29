@@ -303,6 +303,7 @@
   export let errorMessage = undefined;
   export let pureName = undefined;
   export let schemaName = undefined;
+  export let allowDefineVirtualReferences = false;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -1425,6 +1426,7 @@
                 }}
                 setGrouping={display.groupable ? groupFunc => display.setGrouping(col.uniqueName, groupFunc) : null}
                 grouping={display.getGrouping(col.uniqueName)}
+                {allowDefineVirtualReferences}
               />
             </td>
           {/each}

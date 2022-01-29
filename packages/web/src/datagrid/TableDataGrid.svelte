@@ -164,6 +164,7 @@
       macroCondition={macro => macro.type == 'transformValue'}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}
       multipleGridsOnTab={multipleGridsOnTab || !!reference}
+      allowDefineVirtualReferences
       onReferenceClick={value => {
         if (value && value.referenceId && reference && reference.referenceId == value.referenceId) {
           // reference not changed
