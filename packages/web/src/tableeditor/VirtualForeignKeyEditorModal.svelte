@@ -29,9 +29,8 @@
   let refTableName = null;
   let refSchemaName = null;
 
-  $: refTableInfo =
-    $dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName) ||
-    $dbInfo?.views?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
+  $: refTableInfo = $dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
+  // $dbInfo?.views?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
 
   onMount(() => {
     if (columnName) {
@@ -59,7 +58,7 @@
             notSelected
             options={[
               ..._.sortBy($dbInfo?.tables || [], ['schemaName', 'pureName']),
-              ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
+              // ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
             ].map(tbl => ({
               label: fullNameToLabel(tbl),
               value: fullNameToString(tbl),

@@ -72,7 +72,7 @@
         text: 'New SQL command',
         onClick: () => handleNewSqlFile('command.sql', 'Create new SQL command', COMMAND_TEMPLATE),
       },
-      { text: 'New query view', onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query', QUERY_TEMPLATE) },
+      // { text: 'New query view', onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query', QUERY_TEMPLATE) },
     ];
   }
 </script>
