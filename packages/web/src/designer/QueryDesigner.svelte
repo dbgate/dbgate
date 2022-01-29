@@ -21,6 +21,7 @@
     allowChangeColor: false,
     appendTableSystemMenu: false,
     customizeStyle: false,
+    allowDefineVirtualReferences: false,
   }}
   referenceComponent={QueryDesignerReference}
 />
