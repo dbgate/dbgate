@@ -29,7 +29,7 @@
   import DesignerTable from './DesignerTable.svelte';
   import { isConnectedByReference } from './designerTools';
   import uuidv1 from 'uuid/v1';
-  import { getTableInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import { getTableInfo, useDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';
   import cleanupDesignColumns from './cleanupDesignColumns';
   import _ from 'lodash';
   import { writable } from 'svelte/store';
@@ -46,6 +46,7 @@
   import { showModal } from '../modals/modalTools';
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
+  import { extendDatabaseInfoFromApps } from 'dbgate-tools';
 
   export let value;
   export let onChange;
@@ -67,10 +68,12 @@
   const targetDragColumn$ = writable(null);
 
   const dbInfo = settings?.updateFromDbInfo ? useDatabaseInfo({ conid, database }) : null;
+  $: dbInfoExtended = $dbInfo ? extendDatabaseInfoFromApps($dbInfo, $apps) : null;
 
   $: tables = value?.tables as any[];
   $: references = value?.references as any[];
   $: zoomKoef = settings?.customizeStyle && value?.style?.zoomKoef ? value?.style?.zoomKoef : 1;
+  $: apps = useUsedApps();
 
   $: isMultipleTableSelection = tables.filter(x => x.isSelectedTable).length >= 2;
 
@@ -94,8 +97,8 @@
   }
 
   $: {
-    if (dbInfo) {
-      updateFromDbInfo($dbInfo);
+    if (dbInfoExtended) {
+      updateFromDbInfo(dbInfoExtended as any);
     }
   }
 
@@ -104,13 +107,13 @@
   }
 
   $: {
-    if (dbInfo && value?.autoLayout) {
-      performAutoActions($dbInfo);
+    if (dbInfoExtended && value?.autoLayout) {
+      performAutoActions(dbInfoExtended);
     }
   }
 
   function updateFromDbInfo(db = 'auto') {
-    if (db == 'auto' && dbInfo) db = $dbInfo;
+    if (db == 'auto' && dbInfo) db = dbInfoExtended as any;
     if (!settings?.updateFromDbInfo || !db) return;
 
     onChange(current => {
@@ -372,8 +375,8 @@
   };
 
   const handleAddTableReferences = async table => {
-    if (!dbInfo) return;
-    const db = $dbInfo;
+    if (!dbInfoExtended) return;
+    const db = dbInfoExtended;
     if (!db) return;
     callChange(current => {
       return getTablesWithReferences(db, table, current);
