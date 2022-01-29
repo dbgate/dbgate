@@ -166,7 +166,7 @@ But it is very simple:
 ```sh
 npm install -g yo # install yeoman
 npm install -g generator-dbgate # install dbgate generator
-cd my-plugin-directory # this directory is created by wizard, edit, what you need to change
+cd dbgate-plugin-my-new-plugin # this directory is created by wizard, edit, what you need to change
 yarn plugin # this compiles plugin and copies it into existing DbGate installation
 ```
 
