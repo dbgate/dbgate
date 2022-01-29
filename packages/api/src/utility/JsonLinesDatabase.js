@@ -4,7 +4,7 @@ const uuidv1 = require('uuid/v1');
 // const lineReader = require('line-reader');
 // const { fetchNextLineFromReader } = require('./JsonLinesDatastore');
 
-export default class JsonLinesDatabase {
+class JsonLinesDatabase {
   constructor(filename) {
     this.filename = filename;
     this.data = [];
@@ -37,6 +37,7 @@ export default class JsonLinesDatabase {
   }
 
   async insert(obj) {
+    await this._ensureLoaded();
     if (obj._id && (await this.get(obj._id))) {
       throw new Error(`Cannot insert duplicate ID ${obj._id} into ${this.filename}`);
     }
@@ -52,10 +53,12 @@ export default class JsonLinesDatabase {
   }
 
   async get(id) {
+    await this._ensureLoaded();
     return this.data.find(x => x._id == id);
   }
 
   async find(cond) {
+    await this._ensureLoaded();
     if (cond) {
       return this.data.filter(x => {
         for (const key of Object.keys(cond)) {
@@ -69,17 +72,20 @@ export default class JsonLinesDatabase {
   }
 
   async update(obj) {
+    await this._ensureLoaded();
     this.data = this.data.map(x => (x._id == obj._id ? obj : x));
     await this._write();
   }
 
   async patch(id, values) {
+    await this._ensureLoaded();
     this.data = this.data.map(x => (x._id == id ? { ...x, ...values } : x));
     await this._write();
   }
 
   async remove(id) {
-    this.data = this.data.filter(x => x._id!=id);
+    await this._ensureLoaded();
+    this.data = this.data.filter(x => x._id != id);
     await this._write();
   }
 
@@ -116,3 +122,5 @@ export default class JsonLinesDatabase {
   //     await fw.end();
   //   }
 }
+
+module.exports = JsonLinesDatabase;
