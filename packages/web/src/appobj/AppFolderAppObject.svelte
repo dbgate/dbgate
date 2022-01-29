@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
+  import _, { find } from 'lodash';
   import { filterName } from 'dbgate-tools';
 
   import { currentApplication, currentDatabase } from '../stores';
@@ -14,8 +14,11 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { apiCall } from '../utility/api';
+  import { useConnectionList } from '../utility/metadataLoaders';
 
   export let data;
+
+  $: connections = useConnectionList();
 
   const handleDelete = () => {
     showModal(ConfirmModal, {
@@ -61,10 +64,22 @@
       { text: 'Rename', onClick: handleRename },
 
       $currentDatabase && [
-        { text: 'Enable on current database', onClick: () => setOnCurrentDb(true) },
-        { text: 'Disable on current database', onClick: () => setOnCurrentDb(false) },
+        !isOnCurrentDb($currentDatabase, $connections) && {
+          text: 'Enable on current database',
+          onClick: () => setOnCurrentDb(true),
+        },
+        isOnCurrentDb($currentDatabase, $connections) && {
+          text: 'Disable on current database',
+          onClick: () => setOnCurrentDb(false),
+        },
       ],
     ];
+  }
+
+  function isOnCurrentDb(currentDb, connections) {
+    const conn = connections.find(x => x._id == currentDb?.connection?._id);
+    const db = conn?.databases?.find(x => x.name == currentDb?.name);
+    return db && db[`useApp:${data.name}`];
   }
 </script>
 
@@ -73,6 +88,8 @@
   {data}
   title={data.name}
   icon={'img app'}
+  statusIcon={isOnCurrentDb($currentDatabase, $connections) ? 'icon check' : null}
+  statusTitle={`Application ${data.name} is used for database ${$currentDatabase?.name}`}
   isBold={data.name == $currentApplication}
   on:click={() => ($currentApplication = data.name)}
   menu={createMenu}
