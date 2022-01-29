@@ -1,10 +1,11 @@
 <script lang="ts">
   import FormProvider from '../forms/FormProvider.svelte';
+  import _ from 'lodash';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormStyledButton from '../elements/FormStyledButton.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
-  import { useTableInfo } from '../utility/metadataLoaders';
+  import { useAppFolders, useConnectionList, useTableInfo, useUsedApps } from '../utility/metadataLoaders';
   import TableControl from '../elements/TableControl.svelte';
   import TextField from '../forms/TextField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
@@ -19,6 +20,10 @@
   } from '../utility/dictionaryDescriptionTools';
   import { includes } from 'lodash';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
+  import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
+  import { currentDatabase } from '../stores';
+  import { filterAppsForDatabase } from '../utility/appTools';
 
   export let conid;
   export let database;
@@ -28,18 +33,41 @@
 
   $: tableInfo = useTableInfo({ conid, database, schemaName, pureName });
 
-  $: descriptionInfo = getDictionaryDescription($tableInfo, conid, database, true);
+  $: apps = useUsedApps();
+  $: appFolders = useAppFolders();
+  $: connections = useConnectionList();
 
-  const values = writable({});
+  $: descriptionInfo = getDictionaryDescription($tableInfo, conid, database, $apps, $connections, true);
+
+  const values = writable({ targetApplication: '#new' } as any);
 
   function initValues(descriptionInfo) {
     $values = {
+      targetApplication: $values.targetApplication,
       columns: descriptionInfo.expression,
       delimiter: descriptionInfo.delimiter,
     };
   }
 
-  $: if (descriptionInfo) initValues(descriptionInfo);
+  $: {
+    if (descriptionInfo) initValues(descriptionInfo);
+  }
+
+  $: {
+    if ($values.targetApplication == '#new' && $currentDatabase) {
+      const filtered = filterAppsForDatabase($currentDatabase.connection, $currentDatabase.name, $apps || []);
+      const common = _.intersection(
+        ($appFolders || []).map(x => x.name),
+        filtered.map(x => x.name)
+      );
+      if (common.length > 0) {
+        $values = {
+          ...$values,
+          targetApplication: common[0],
+        };
+      }
+    }
+  }
 </script>
 
 <FormProviderCore {values}>
@@ -75,7 +103,14 @@
 
     <FormTextField name="delimiter" label="Delimiter" />
 
-    <FormCheckboxField name="useForAllDatabases" label="Use for all databases" />
+    <FormSelectField
+      label="Target application"
+      name="targetApplication"
+      disableInitialize
+      selectFieldComponent={TargetApplicationSelect}
+    />
+
+    <!-- <FormCheckboxField name="useForAllDatabases" label="Use for all databases" /> -->
 
     <svelte:fragment slot="footer">
       <FormSubmit
@@ -89,7 +124,7 @@
             database,
             $values.columns,
             $values.delimiter,
-            $values.useForAllDatabases
+            $values.targetApplication
           );
           onConfirm();
         }}

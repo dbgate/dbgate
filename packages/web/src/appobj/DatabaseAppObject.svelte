@@ -1,11 +1,6 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
 
-  export function filterAppsForDatabase(connection, database, $apps) {
-    const db = (connection?.databases || []).find(x => x.name == database);
-    return $apps.filter(app => db && db[`useApp:${app.name}`]);
-  }
-
   export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase, $apps) {
     const apps = filterAppsForDatabase(connection, name, $apps);
     const handleNewQuery = () => {
@@ -244,6 +239,7 @@
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import { filterAppsForDatabase } from '../utility/appTools';
 
   export let data;
   export let passProps;

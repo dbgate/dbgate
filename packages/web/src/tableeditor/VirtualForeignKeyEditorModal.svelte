@@ -10,8 +10,9 @@
   import _ from 'lodash';
   import { useDatabaseInfo, useTableInfo } from '../utility/metadataLoaders';
   import { onMount } from 'svelte';
-  import TargetApplicationSelect, { saveDbToApp } from '../elements/TargetApplicationSelect.svelte';
+  import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
   import { apiCall } from '../utility/api';
+  import { saveDbToApp } from '../utility/appTools';
 
   export let conid;
   export let database;
@@ -155,7 +156,7 @@
         value={'Save'}
         on:click={async () => {
           const appFolder = await saveDbToApp(conid, database, dstApp);
-          await apiCall('apps/save-vfk', {
+          await apiCall('apps/save-virtual-reference', {
             appFolder,
             schemaName,
             pureName,

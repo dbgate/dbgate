@@ -1,47 +1,22 @@
-<script lang="ts" context="module">
-  export async function saveDbToApp(conid, database, app) {
-    if (app == '#new') {
-      const folder = await apiCall('apps/create-folder', { folder: database });
-
-      await apiCall('connections/update-database', {
-        conid,
-        database,
-        values: {
-          [`useApp:${folder}`]: true,
-        },
-      });
-
-      return folder;
-    }
-
-    await apiCall('connections/update-database', {
-      conid,
-      database,
-      values: {
-        [`useApp:${app}`]: true,
-      },
-    });
-
-    return app;
-  }
-</script>
-
 <script lang="ts">
   import _ from 'lodash';
-  import { filterAppsForDatabase } from '../appobj/DatabaseAppObject.svelte';
+  import { createEventDispatcher } from 'svelte';
 
   import SelectField from '../forms/SelectField.svelte';
   import { currentDatabase } from '../stores';
-  import { apiCall } from '../utility/api';
+  import { filterAppsForDatabase } from '../utility/appTools';
   import { useAppFolders, useUsedApps } from '../utility/metadataLoaders';
 
   export let value = '#new';
+  export let disableInitialize = false;
+
+  const dispatch = createEventDispatcher();
 
   $: appFolders = useAppFolders();
   $: usedApps = useUsedApps();
 
   $: {
-    if (value == '#new' && $currentDatabase) {
+    if (!disableInitialize && value == '#new' && $currentDatabase) {
       const filtered = filterAppsForDatabase($currentDatabase.connection, $currentDatabase.name, $usedApps || []);
       const common = _.intersection(
         ($appFolders || []).map(x => x.name),
@@ -49,6 +24,7 @@
       );
       if (common.length > 0) {
         value = common[0] as string;
+        dispatch('change', value);
       }
     }
   }
@@ -60,6 +36,7 @@
   {value}
   on:change={e => {
     value = e.detail;
+    dispatch('change', value);
   }}
   options={[
     { label: '(New application linked to current DB)', value: '#new' },

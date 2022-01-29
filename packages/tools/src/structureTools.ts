@@ -101,10 +101,10 @@ export function extendDatabaseInfoFromApps(db: DatabaseInfo, apps: ApplicationDe
         ...(table.foreignKeys || []),
         ..._flatten(apps.map(app => app.virtualReferences || []))
           .filter(fk => fk.pureName == table.pureName && fk.schemaName == table.schemaName)
-          .map(fk => ({ ...fk, isVirtual: true })),
+          .map(fk => ({ ...fk, constraintType: 'foreignKey', isVirtual: true })),
       ],
     })),
-  };
+  } as DatabaseInfo;
   return addTableDependencies(dbExt);
 }
 

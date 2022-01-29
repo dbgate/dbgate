@@ -186,13 +186,19 @@ module.exports = {
     } catch (err) {
       res.virtualReferences = [];
     }
+    try {
+      res.dictionaryDescriptions = JSON.parse(
+        await fs.readFile(path.join(dir, 'dictionary-descriptions.config.json'), { encoding: 'utf-8' })
+      );
+    } catch (err) {
+      res.dictionaryDescriptions = [];
+    }
 
     return res;
   },
 
-  saveVfk_meta: true,
-  async saveVfk({ appFolder, schemaName, pureName, refSchemaName, refTableName, columns }) {
-    const file = path.join(appdir(), appFolder, 'virtual-references.config.json');
+  async saveConfigFile(appFolder, filename, filterFunc, newItem) {
+    const file = path.join(appdir(), appFolder, filename);
 
     let json;
     try {
@@ -201,33 +207,57 @@ module.exports = {
       json = [];
     }
 
-    if (columns.length == 1) {
-      json = json.filter(
-        x =>
-          !(
-            x.schemaName == schemaName &&
-            x.pureName == pureName &&
-            x.columns.length == 1 &&
-            x.columns[0].columnName == columns[0].columnName
-          )
-      );
+    if (filterFunc) {
+      json = json.filter(filterFunc);
     }
 
-    json = [
-      ...json,
+    json = [...json, newItem];
+
+    await fs.writeFile(file, JSON.stringify(json, undefined, 2));
+
+    socket.emitChanged(`app-files-changed-${appFolder}`);
+    socket.emitChanged('used-apps-changed');
+  },
+
+  saveVirtualReference_meta: true,
+  async saveVirtualReference({ appFolder, schemaName, pureName, refSchemaName, refTableName, columns }) {
+    await this.saveConfigFile(
+      appFolder,
+      'virtual-references.config.json',
+      columns.length == 1
+        ? x =>
+            !(
+              x.schemaName == schemaName &&
+              x.pureName == pureName &&
+              x.columns.length == 1 &&
+              x.columns[0].columnName == columns[0].columnName
+            )
+        : null,
       {
         schemaName,
         pureName,
         refSchemaName,
         refTableName,
         columns,
-      },
-    ];
+      }
+    );
+    return true;
+  },
 
-    await fs.writeFile(file, JSON.stringify(json, undefined, 2));
-
-    socket.emitChanged(`app-files-changed-${appFolder}`);
-    socket.emitChanged('used-apps-changed');
+  saveDictionaryDescription_meta: true,
+  async saveDictionaryDescription({ appFolder, pureName, schemaName, expresssion, columns, delimiter }) {
+    await this.saveConfigFile(
+      appFolder,
+      'dictionary-descriptions.config.json',
+      x => !(x.schemaName == schemaName && x.pureName == pureName),
+      {
+        schemaName,
+        pureName,
+        expresssion,
+        columns,
+        delimiter,
+      }
+    );
 
     return true;
   },

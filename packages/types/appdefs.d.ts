@@ -19,10 +19,10 @@ interface VirtualReferenceDefinition {
   }[];
 }
 
-interface ColumnDescriptionDefinition {
+interface DictionaryDescriptionDefinition {
   pureName: string;
   schemaName?: string;
-  expresssion?: string;
+  expresssion: string;
   columns: string[];
   delimiter: string;
 }
@@ -33,5 +33,5 @@ export interface ApplicationDefinition {
   queries: ApplicationQuery[];
   commands: ApplicationCommand[];
   virtualReferences: VirtualReferenceDefinition[];
-  columnDescriptions: ColumnDescriptionDefinition[];
+  dictionaryDescriptions: DictionaryDescriptionDefinition[];
 }

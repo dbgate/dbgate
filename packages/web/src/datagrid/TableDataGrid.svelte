@@ -16,6 +16,7 @@
 
   import {
     useConnectionInfo,
+    useConnectionList,
     useDatabaseInfo,
     useDatabaseServerVersion,
     useServerVersion,
@@ -49,6 +50,7 @@
   $: serverVersion = useDatabaseServerVersion({ conid, database });
   $: apps = useUsedApps();
   $: extendedDbInfo = extendDatabaseInfoFromApps($dbinfo, $apps);
+  $: connections = useConnectionList();
 
   // $: console.log('serverVersion', $serverVersion);
 
@@ -70,7 +72,7 @@
           extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections)
         )
       : null;
 
@@ -86,7 +88,7 @@
           extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections)
         )
       : null;
 

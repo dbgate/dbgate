@@ -1,7 +1,8 @@
 import { DictionaryDescription } from 'dbgate-datalib';
-import { TableInfo } from 'dbgate-types';
+import { ApplicationDefinition, TableInfo } from 'dbgate-types';
 import _ from 'lodash';
-import { getLocalStorage, setLocalStorage, removeLocalStorage } from './storageCache';
+import { apiCall } from './api';
+import { filterAppsForDatabase, saveDbToApp } from './appTools';
 
 function checkDescriptionColumns(columns: string[], table: TableInfo) {
   if (!columns?.length) return false;
@@ -14,17 +15,20 @@ export function getDictionaryDescription(
   table: TableInfo,
   conid: string,
   database: string,
+  apps: ApplicationDefinition[],
+  connections,
   skipCheckSaved: boolean = false
 ): DictionaryDescription {
-  const keySpecific = `dictionary_spec_${table.schemaName}||${table.pureName}||${conid}||${database}`;
-  const keyCommon = `dictionary_spec_${table.schemaName}||${table.pureName}`;
+  const conn = connections.find(x => x._id == conid);
+  const dbApps = filterAppsForDatabase(conn, database, apps);
 
-  const cachedSpecific = getLocalStorage(keySpecific);
-  const cachedCommon = getLocalStorage(keyCommon);
+  const cached = _.flatten(dbApps.map(x => x.dictionaryDescriptions || [])).find(
+    x => x.pureName == table.pureName && x.schemaName == table.schemaName
+  );
 
-  if (cachedSpecific && (skipCheckSaved || checkDescriptionColumns(cachedSpecific.columns, table)))
-    return cachedSpecific;
-  if (cachedCommon && (skipCheckSaved || checkDescriptionColumns(cachedCommon.columns, table))) return cachedCommon;
+  if (cached && (skipCheckSaved || checkDescriptionColumns(cached.columns, table))) {
+    return cached;
+  }
 
   const descColumn = table.columns.find(x => x?.dataType?.toLowerCase()?.includes('char'));
   if (descColumn) {
@@ -57,29 +61,22 @@ export function changeDelimitedColumnList(columns, columnName, isChecked) {
   return parsed.join(',');
 }
 
-export function saveDictionaryDescription(
+export async function saveDictionaryDescription(
   table: TableInfo,
   conid: string,
   database: string,
   expression: string,
   delimiter: string,
-  useForAllDatabases: boolean
+  targetApplication: string
 ) {
-  const keySpecific = `dictionary_spec_${table.schemaName}||${table.pureName}||${conid}||${database}`;
-  const keyCommon = `dictionary_spec_${table.schemaName}||${table.pureName}`;
+  const appFolder = await saveDbToApp(conid, database, targetApplication);
 
-  removeLocalStorage(keySpecific);
-  if (useForAllDatabases) removeLocalStorage(keyCommon);
-
-  const description = {
+  await apiCall('apps/save-dictionary-description', {
+    appFolder,
+    schemaName: table.schemaName,
+    pureName: table.pureName,
     columns: parseDelimitedColumnList(expression),
     expression,
     delimiter,
-  };
-
-  if (useForAllDatabases) {
-    setLocalStorage(keyCommon, description);
-  } else {
-    setLocalStorage(keySpecific, description);
-  }
+  });
 }
