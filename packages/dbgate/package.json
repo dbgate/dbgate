@@ -21,7 +21,6 @@
     "dbgate-api": "^4.1.1",
     "dbgate-web": "^4.1.1",
     "dbgate-plugin-csv": "^4.1.1",
-    "dbgate-plugin-xml": "^4.1.1",
     "dbgate-plugin-excel": "^4.1.1",
     "dbgate-plugin-mongo": "^4.1.1",
     "dbgate-plugin-mysql": "^4.1.1",
