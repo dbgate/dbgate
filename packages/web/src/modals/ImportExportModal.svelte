@@ -3,6 +3,7 @@
   import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import LargeButton from '../elements/LargeButton.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
@@ -146,6 +147,10 @@
     <HorizontalSplitter initialValue="70%">
       <div class="content" slot="1">
         <ImportExportConfigurator {uploadedFile} {openedFile} {previewReaderStore} />
+
+        {#if busy}
+          <LoadingInfo wrapper message="Processing import/export ..." />
+        {/if}
       </div>
 
       <svelte:fragment slot="2">

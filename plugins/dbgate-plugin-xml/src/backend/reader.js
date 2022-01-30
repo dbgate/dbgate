@@ -5,10 +5,21 @@ const NodeXmlStream = require('node-xml-stream');
 class ParseStream extends stream.Transform {
   constructor({ itemElementName }) {
     super({ objectMode: true });
+
+    let element = itemElementName;
+
+    this.push({
+      __isStreamHeader: true,
+      __isDynamicStructure: true,
+    });
+
     this.rowsWritten = 0;
     this.parser = new NodeXmlStream();
     this.stack = [];
     this.parser.on('opentag', (name, attrs) => {
+      if (!element && this.stack.length == 1) {
+        element = name;
+      }
       this.stack.push({ name, attrs, nodes: {} });
     });
     this.parser.on('text', (text) => {
@@ -17,9 +28,12 @@ class ParseStream extends stream.Transform {
       }
     });
     this.parser.on('closetag', (name, attrs) => {
-      if (name == itemElementName) {
-        this.rowsWritten += 1;
-        this.push({ ...this.stack[this.stack.length - 1].attrs, ...this.stack[this.stack.length - 1].nodes });
+      if (name == element) {
+        const obj = { ...this.stack[this.stack.length - 1].attrs, ...this.stack[this.stack.length - 1].nodes };
+        if (Object.keys(obj).length > 0) {
+          this.rowsWritten += 1;
+          this.push(obj);
+        }
       }
       this.stack.splice(-1);
     });
