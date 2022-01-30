@@ -1,4 +1,20 @@
 # ChangeLog
+
+### 4.6.1
+- ADDED: Ability to configure SSH tunnel over environment variables #210 (for docker container)
+- ADDED: XML export and import
+- ADDED: Archive file - show and edit source text file
+- ADDED: Window title shows current tab and database
+- ADDED: DbGate documentation
+- ADDED: Introduced application layers
+- ADDED: Virtual foreign key editor
+- ADDED: Application commands (SQL scripts related to database)
+- ADDED: Theme can be implemented in plugin
+- CHANGED: Dictionary description is stored in app
+- FIXED: Unique and index editor
+- FIXED: Posibility to edit UNIQUE index flag
+- CHANGED: UX improvements of table editor
+
 ### 4.6.0
 - ADDED: ER diagrams #118
     - Generate diagram from table or for database
