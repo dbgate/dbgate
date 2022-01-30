@@ -53,6 +53,16 @@ function getPortalCollections() {
       defaultDatabase: process.env[`DATABASE_${id}`],
       singleDatabase: !!process.env[`DATABASE_${id}`],
       displayName: process.env[`LABEL_${id}`],
+
+      // SSH tunnel
+      useSshTunnel: process.env[`USE_SSH_${id}`],
+      sshHost: process.env[`SSH_HOST_${id}`],
+      sshPort: process.env[`SSH_PORT_${id}`],
+      sshMode: process.env[`SSH_MODE_${id}`],
+      sshLogin: process.env[`SSH_LOGIN_${id}`],
+      sshPassword: process.env[`SSH_PASSWORD_${id}`],
+      sshKeyfile: process.env[`SSH_KEY_FILE_${id}`],
+      sshKeyfilePassword: process.env[`SSH_KEY_FILE_PASSWORD_${id}`],
     }));
     console.log('Using connections from ENV variables:');
     console.log(JSON.stringify(connections.map(pickSafeConnectionInfo), undefined, 2));
