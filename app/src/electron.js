@@ -164,6 +164,9 @@ ipcMain.on('update-commands', async (event, arg) => {
 ipcMain.on('close-window', async (event, arg) => {
   mainWindow.close();
 });
+ipcMain.on('set-title', async (event, arg) => {
+  mainWindow.setTitle(arg);
+});
 
 ipcMain.handle('showOpenDialog', async (event, options) => {
   const res = electron.dialog.showOpenDialogSync(mainWindow, options);

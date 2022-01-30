@@ -16,6 +16,7 @@
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
   import { getUsedApps } from './utility/metadataLoaders';
+import AppTitleProvider from './utility/AppTitleProvider.svelte';
 
   let loadedApi = false;
 
@@ -70,6 +71,7 @@
   <DataGridRowHeightMeter />
   <CommandListener />
   <PluginsProvider />
+  <AppTitleProvider />
   {#if $loadingPluginStore?.loaded}
     <OpenTabsOnStartup />
     <Screen />
