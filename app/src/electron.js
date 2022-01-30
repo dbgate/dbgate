@@ -106,6 +106,12 @@ function buildMenu() {
       role: 'help',
       submenu: [
         {
+          label: 'Documentation',
+          click() {
+            electron.shell.openExternal('https://github.com/dbgate/dbgate/wiki');
+          },
+        },
+        {
           label: 'dbgate.org',
           click() {
             electron.shell.openExternal('https://dbgate.org');
