@@ -63,6 +63,14 @@ function getPortalCollections() {
       sshPassword: process.env[`SSH_PASSWORD_${id}`],
       sshKeyfile: process.env[`SSH_KEY_FILE_${id}`],
       sshKeyfilePassword: process.env[`SSH_KEY_FILE_PASSWORD_${id}`],
+
+      // SSL
+      useSsl: process.env[`USE_SSL_${id}`],
+      sslCaFile: process.env[`SSL_CA_FILE_${id}`],
+      sslCertFile: process.env[`SSL_CERT_FILE_${id}`],
+      sslCertFilePassword: process.env[`SSL_CERT_FILE_PASSWORD_${id}`],
+      sslKeyFile: process.env[`SSL_KEY_FILE_${id}`],
+      sslRejectUnauthorized: process.env[`SSL_REJECT_UNAUTHORIZED_${id}`],
     }));
     console.log('Using connections from ENV variables:');
     console.log(JSON.stringify(connections.map(pickSafeConnectionInfo), undefined, 2));
