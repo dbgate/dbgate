@@ -7607,6 +7607,11 @@ node-ssh-forward@^0.7.2:
     debug "^4.1.1"
     ssh2 "^0.8.9"
 
+node-xml-stream@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/node-xml-stream/-/node-xml-stream-1.0.2.tgz#7aa510f39ab125cc420e60a302f49147e80b000f"
+  integrity sha512-W4LzsKQ1x3TldQQmXZfM/JO+3SPp+zzvA2Nf82chE7vXnZy7LqHjIqQe9yDUw58g2fTOaJo+DlPnIDfmozgsuw==
+
 nodemon@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-2.0.2.tgz#9c7efeaaf9b8259295a97e5d4585ba8f0cbe50b0"
