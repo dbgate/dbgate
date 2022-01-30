@@ -1,8 +1,9 @@
 <script lang="ts">
-  import { currentDatabase } from '../stores';
+  import { activeTab, currentDatabase } from '../stores';
   import getElectron from './getElectron';
+  import _ from 'lodash';
 
-  $: title = $currentDatabase?.name ? `${$currentDatabase?.name} - DbGate` : 'DbGate';
+  $: title = _.compact([$activeTab?.title, $currentDatabase?.name, 'DbGate']).join(' - ');
 
   $: {
     const electron = getElectron();
