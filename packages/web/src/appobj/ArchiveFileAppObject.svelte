@@ -157,11 +157,15 @@
   const handleOpenYamlFile = () => {
     openTextFile(data.fileName, data.fileType, data.folderName, 'YamlEditorTab', 'img yaml');
   };
+  const handleOpenJsonText = () => {
+    openTextFile(data.fileName, data.fileType, data.folderName, 'JsonEditorTab', 'img json');
+  };
 
   function createMenu() {
     return [
       data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
       data.fileType == 'jsonl' && { text: 'Open as data sheet', onClick: handleOpenWrite },
+      data.fileType == 'jsonl' && { text: 'Open in text editor', onClick: handleOpenJsonText },
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
