@@ -14,9 +14,16 @@ const fileFormat = {
     args: [
       {
         type: 'text',
-        name: 'elementName',
-        label: 'Element name',
-        apiName: 'elementName',
+        name: 'rootElementName',
+        label: 'Root element name',
+        apiName: 'rootElementName',
+        direction: 'target',
+      },
+      {
+        type: 'text',
+        name: 'itemElementName',
+        label: 'Item element name',
+        apiName: 'itemElementName',
       },
     ],
   };

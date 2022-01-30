@@ -3,7 +3,7 @@ const stream = require('stream');
 const NodeXmlStream = require('node-xml-stream');
 
 class ParseStream extends stream.Transform {
-  constructor({ elementName }) {
+  constructor({ itemElementName }) {
     super({ objectMode: true });
     this.rowsWritten = 0;
     this.parser = new NodeXmlStream();
@@ -17,7 +17,7 @@ class ParseStream extends stream.Transform {
       }
     });
     this.parser.on('closetag', (name, attrs) => {
-      if (name == elementName) {
+      if (name == itemElementName) {
         this.rowsWritten += 1;
         this.push({ ...this.stack[this.stack.length - 1].attrs, ...this.stack[this.stack.length - 1].nodes });
       }
@@ -30,11 +30,11 @@ class ParseStream extends stream.Transform {
   }
 }
 
-async function reader({ fileName, encoding = 'utf-8', elementName }) {
+async function reader({ fileName, encoding = 'utf-8', itemElementName }) {
   console.log(`Reading file ${fileName}`);
 
   const fileStream = fs.createReadStream(fileName, encoding);
-  const parser = new ParseStream({ elementName });
+  const parser = new ParseStream({ itemElementName });
   fileStream.pipe(parser);
   return parser;
 }

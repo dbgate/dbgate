@@ -18,7 +18,7 @@ export class JslGridDisplay extends GridDisplay {
 
     this.filterable = true;
 
-    if (structure.columns) {
+    if (structure?.columns) {
       this.columns = _.uniqBy(
         structure.columns
           .map(col => ({
@@ -39,7 +39,7 @@ export class JslGridDisplay extends GridDisplay {
       );
     }
 
-    if (structure.__isDynamicStructure) {
+    if (structure?.__isDynamicStructure) {
       this.columns = analyseCollectionDisplayColumns(rows, this);
     }
 

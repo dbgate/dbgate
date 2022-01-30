@@ -9,7 +9,7 @@
         rows: rowFunc ? model.rows.map(rowFunc) : model.rows,
         structure: {
           ...model.structure,
-          columns: func(model.structure.columns),
+          columns: func(model.structure?.columns),
         },
       },
     });
@@ -40,7 +40,7 @@
 </script>
 
 <ManagerInnerContainer width={managerSize}>
-  {#each structure.columns || [] as column, index}
+  {#each structure?.columns || [] as column, index}
     {#if index == editingColumn}
       <ColumnNameEditor
         defaultValue={column.columnName}
@@ -54,7 +54,7 @@
         onBlur={() => (editingColumn = null)}
         focusOnCreate
         blurOnEnter
-        existingNames={structure.columns.map(x => x.columnName)}
+        existingNames={structure?.columns.map(x => x.columnName)}
       />
     {:else}
       <ColumnManagerRow
@@ -77,6 +77,6 @@
       dispatchChangeColumns($$props, cols => [...cols, { columnName }]);
     }}
     placeholder="New column"
-    existingNames={(structure.columns || []).map(x => x.columnName)}
+    existingNames={(structure?.columns || []).map(x => x.columnName)}
   />
 </ManagerInnerContainer>

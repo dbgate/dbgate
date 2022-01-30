@@ -38,6 +38,7 @@
     'icon file': 'mdi mdi-file',
     'icon loading': 'mdi mdi-loading mdi-spin',
     'icon close': 'mdi mdi-close',
+    'icon stop': 'mdi mdi-close-octagon',
     'icon filter': 'mdi mdi-filter',
     'icon filter-off': 'mdi mdi-filter-off',
     'icon reload': 'mdi mdi-reload',

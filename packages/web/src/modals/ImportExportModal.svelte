@@ -174,7 +174,7 @@
     <svelte:fragment slot="footer">
       <div class="flex m-2">
         {#if busy}
-          <LargeButton icon="icon close" on:click={handleCancel}>Cancel</LargeButton>
+          <LargeButton icon="icon stop" on:click={handleCancel}>Stop</LargeButton>
         {:else}
           <LargeFormButton on:click={handleExecute} icon="icon run">Run</LargeFormButton>
         {/if}
