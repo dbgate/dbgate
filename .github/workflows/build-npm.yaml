@@ -99,6 +99,11 @@ jobs:
         run: |
           npm publish
 
+      - name: Publish dbgate-plugin-xml
+        working-directory: plugins/dbgate-plugin-xml
+        run: |
+          npm publish
+
       - name: Publish dbgate-plugin-excel
         working-directory: plugins/dbgate-plugin-excel
         run: |

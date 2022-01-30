@@ -42,6 +42,7 @@ changePackageFile('packages/filterparser', json.version);
 changePackageFile('packages/query-splitter', json.version);
 
 changePackageFile('plugins/dbgate-plugin-csv', json.version);
+changePackageFile('plugins/dbgate-plugin-xml', json.version);
 changePackageFile('plugins/dbgate-plugin-excel', json.version);
 changePackageFile('plugins/dbgate-plugin-mssql', json.version);
 changePackageFile('plugins/dbgate-plugin-mysql', json.version);

@@ -1,0 +1,39 @@
+{
+  "name": "dbgate-plugin-xml",
+  "main": "dist/backend.js",
+  "version": "1.0.0",
+  "homepage": "https://dbgate.org",
+  "description": "XML import/export plugin for DbGate",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbgate/dbgate"
+  },
+  "author": "Jan Prochazka",
+  "license": "MIT",
+  "keywords": [
+    "xml",
+    "import",
+    "export",
+    "dbgate",
+    "dbgateplugin"
+  ],
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build:frontend": "webpack --config webpack-frontend.config",
+    "build:frontend:watch": "webpack --watch --config webpack-frontend.config",
+    "build:backend": "webpack --config webpack-backend.config.js",
+    "build": "yarn build:frontend && yarn build:backend",
+    "plugin": "yarn build && yarn pack && dbgate-plugin dbgate-plugin-xml",
+    "plugout": "dbgate-plugout dbgate-plugin-xml",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "node-xml-stream": "^1.0.2",
+    "dbgate-plugin-tools": "^1.0.4",
+    "dbgate-tools": "^1.0.4",
+    "webpack": "^4.42.0",
+    "webpack-cli": "^3.3.11"
+  }
+}
