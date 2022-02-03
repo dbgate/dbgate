@@ -50,8 +50,10 @@ function getPortalCollections() {
       databaseUrl: process.env[`URL_${id}`],
       useDatabaseUrl: !!process.env[`URL_${id}`],
       databaseFile: process.env[`FILE_${id}`],
-      defaultDatabase: process.env[`DATABASE_${id}`],
-      singleDatabase: !!process.env[`DATABASE_${id}`],
+      defaultDatabase:
+        process.env[`DATABASE_${id}`] ||
+        (process.env[`FILE_${id}`] ? getDatabaseFileLabel(process.env[`FILE_${id}`]) : null),
+      singleDatabase: !!process.env[`DATABASE_${id}`] || !!process.env[`FILE_${id}`],
       displayName: process.env[`LABEL_${id}`],
 
       // SSH tunnel
