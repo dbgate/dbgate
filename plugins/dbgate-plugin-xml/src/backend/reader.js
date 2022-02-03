@@ -1,6 +1,6 @@
 const fs = require('fs');
 const stream = require('stream');
-const NodeXmlStream = require('node-xml-stream');
+const NodeXmlStream = require('node-xml-stream-parser');
 
 class ParseStream extends stream.Transform {
   constructor({ itemElementName }) {
@@ -25,6 +25,17 @@ class ParseStream extends stream.Transform {
     this.parser.on('text', (text) => {
       if (this.stack.length >= 2) {
         this.stack[this.stack.length - 2].nodes[this.stack[this.stack.length - 1].name] = text;
+      }
+      if (this.stack.length >= 1) {
+        this.stack[this.stack.length - 1].nodes.$text = text;
+      }
+    });
+    this.parser.on('cdata', (text) => {
+      if (this.stack.length >= 2) {
+        this.stack[this.stack.length - 2].nodes[this.stack[this.stack.length - 1].name] = text;
+      }
+      if (this.stack.length >= 1) {
+        this.stack[this.stack.length - 1].nodes.$text = text;
       }
     });
     this.parser.on('closetag', (name, attrs) => {
