@@ -278,6 +278,50 @@ return {
     ],
   },
   {
+    title: 'Split columns',
+    name: 'splitColumns',
+    group: 'Tools',
+    description: 'Split selected columns',
+    type: 'transformData',
+    code: `
+const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
+const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
+
+const addedColumnNames = new Set();
+
+const resultRows = modules.lodash.cloneDeep(rows);
+resultRows.forEach((row, rowIndex) => {
+  for(const cell of selectedCells) {
+    if (cell.row == rowIndex && modules.lodash.isString(cell.value)) {
+      const splitted = cell.value.split(args.delimiter);
+      splitted.forEach((value, valueIndex) => {
+        const name = cell.column + '_' + (valueIndex + 1).toString();
+        row[name] = value;
+        addedColumnNames.add(name);
+      });
+    }
+  }
+});
+
+const resultCols = [
+  ...cols,
+  ...addedColumnNames,
+];
+return {
+  rows: resultRows,
+  cols: resultCols,
+}
+    `,
+    args: [
+      {
+        type: 'text',
+        label: 'Delimiter',
+        name: 'delimiter',
+        default: ','
+      },
+    ],
+  },
+  {
     title: 'Calculation',
     name: 'calculation',
     group: 'Tools',
