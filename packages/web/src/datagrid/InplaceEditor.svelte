@@ -1,26 +1,9 @@
 <script lang="ts" context="module">
   function getEditedValue(value) {
-    if (value?.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
+    if (value?.type == 'Buffer' && _.isArray(value.data)) return '0x' + arrayToHexString(value.data);
     if (value?.$oid) return `ObjectId("${value?.$oid}")`;
     if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
     return value;
-  }
-
-  function getStoredValue(originalValue, newString) {
-    if (originalValue?.type == 'Buffer' && _.isArray(originalValue?.data)) {
-      return {
-        type: 'Buffer',
-        data: hexStringToArray(newString),
-      };
-    }
-    if (_.isString(newString)) {
-      const m = newString.match(/ObjectId\("([0-9a-f]{24})"\)/);
-      if (m) {
-        return { $oid: m[1] };
-      }
-    }
-
-    return newString;
   }
 </script>
 
@@ -29,7 +12,7 @@
   import { onMount } from 'svelte';
   import createRef from '../utility/createRef';
   import _ from 'lodash';
-  import { arrayToHexString, hexStringToArray } from 'dbgate-tools';
+  import { arrayToHexString, parseCellValue, stringifyCellValue } from 'dbgate-tools';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
@@ -53,7 +36,7 @@
       case keycodes.enter:
         if (isChangedRef.get()) {
           // grider.setCellValue(rowIndex, uniqueName, editor.value);
-          onSetValue(getStoredValue(cellValue, domEditor.value));
+          onSetValue(parseCellValue(domEditor.value));
           isChangedRef.set(false);
         }
         domEditor.blur();
@@ -62,7 +45,7 @@
       case keycodes.s:
         if (event.ctrlKey) {
           if (isChangedRef.get()) {
-            onSetValue(getStoredValue(cellValue, domEditor.value));
+            onSetValue(parseCellValue(domEditor.value));
             // grider.setCellValue(rowIndex, uniqueName, editor.value);
             isChangedRef.set(false);
           }
@@ -75,7 +58,7 @@
 
   function handleBlur() {
     if (isChangedRef.get()) {
-      onSetValue(getStoredValue(cellValue, domEditor.value));
+      onSetValue(parseCellValue(domEditor.value));
       // grider.setCellValue(rowIndex, uniqueName, editor.value);
       isChangedRef.set(false);
     }
@@ -83,7 +66,7 @@
   }
 
   onMount(() => {
-    domEditor.value = inplaceEditorState.text || getEditedValue(cellValue);
+    domEditor.value = inplaceEditorState.text || stringifyCellValue(cellValue);
     domEditor.focus();
     if (inplaceEditorState.selectAll) {
       domEditor.select();

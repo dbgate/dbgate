@@ -22,6 +22,8 @@ import {
 import _isString from 'lodash/isString';
 import _isNumber from 'lodash/isNumber';
 import _isDate from 'lodash/isDate';
+import _isArray from 'lodash/isArray';
+import _isPlainObject from 'lodash/isPlainObject';
 import uuidv1 from 'uuid/v1';
 
 export class SqlDumper implements AlterProcessor {
@@ -57,6 +59,9 @@ export class SqlDumper implements AlterProcessor {
     this.putRaw(this.escapeString(value));
     this.putRaw("'");
   }
+  putByteArrayValue(value) {
+    this.putRaw('NULL');
+  }
   putValue(value) {
     if (value === null) this.putRaw('NULL');
     else if (value === true) this.putRaw('1');
@@ -64,6 +69,8 @@ export class SqlDumper implements AlterProcessor {
     else if (_isString(value)) this.putStringValue(value);
     else if (_isNumber(value)) this.putRaw(value.toString());
     else if (_isDate(value)) this.putStringValue(new Date(value).toISOString());
+    else if (value?.type == 'Buffer' && _isArray(value?.data)) this.putByteArrayValue(value?.data);
+    else if (_isPlainObject(value) || _isArray(value)) this.putStringValue(JSON.stringify(value));
     else this.putRaw('NULL');
   }
   putCmd(format, ...args) {

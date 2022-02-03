@@ -235,7 +235,7 @@
 
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
-  import { driverBase } from 'dbgate-tools';
+  import { driverBase, parseCellValue } from 'dbgate-tools';
   import { getContext } from 'svelte';
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -1176,7 +1176,7 @@
           }
           let colIndex = startCol;
           for (const cell of rowData) {
-            setCellValue([rowIndex, colIndex], cell == '(NULL)' ? null : cell);
+            setCellValue([rowIndex, colIndex], parseCellValue(cell));
             colIndex += 1;
           }
           rowIndex += 1;

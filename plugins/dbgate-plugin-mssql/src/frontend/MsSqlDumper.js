@@ -1,4 +1,4 @@
-const { SqlDumper, testEqualColumns } = global.DBGATE_TOOLS;
+const { SqlDumper, testEqualColumns, arrayToHexString } = global.DBGATE_TOOLS;
 
 class MsSqlDumper extends SqlDumper {
   constructor(driver, options) {
@@ -10,7 +10,7 @@ class MsSqlDumper extends SqlDumper {
 
   endCommand() {
     if (this.useHardSeparator) {
-      this.putRaw('\nGO\n');  
+      this.putRaw('\nGO\n');
     } else {
       super.endCommand();
     }
@@ -25,6 +25,10 @@ class MsSqlDumper extends SqlDumper {
       this.putRaw('N');
     }
     super.putStringValue(value);
+  }
+
+  putByteArrayValue(value) {
+    super.putRaw('0x' + arrayToHexString(value));
   }
 
   allowIdentityInsert(table, allow) {

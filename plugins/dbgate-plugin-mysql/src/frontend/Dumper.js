@@ -65,12 +65,8 @@ class Dumper extends SqlDumper {
     this.putCmd('^create ^table %f (^select * ^from %f)', targetName, sourceName);
   }
 
-  putValue(value) {
-    if (value && value.type == 'Buffer' && _isArray(value.data)) {
-      this.putRaw(`unhex('${arrayToHexString(value.data)}')`);
-    } else {
-      super.putValue(value);
-    }
+  putByteArrayValue(value) {
+    this.putRaw(`unhex('${arrayToHexString(value)}')`);
   }
 }
 

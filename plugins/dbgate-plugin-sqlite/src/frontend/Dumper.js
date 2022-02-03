@@ -8,6 +8,10 @@ class Dumper extends SqlDumper {
   renameTable(obj, newname) {
     this.putCmd('^alter ^table %f ^rename ^to %i', obj, newname);
   }
+
+  putByteArrayValue(value) {
+    this.putRaw(`x'${arrayToHexString(value)}'`);
+  }
 }
 
 module.exports = Dumper;

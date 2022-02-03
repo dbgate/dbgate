@@ -120,7 +120,7 @@
     {/if}
   {:else if value?.type == 'Buffer' && _.isArray(value.data)}
     {#if value.data.length <= 16}
-      <span class="value">{arrayToHexString(value.data)}</span>
+      <span class="value">{'0x' + arrayToHexString(value.data)}</span>
     {:else}
       <span class="null">({value.data.length} bytes)</span>
     {/if}

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { arrayToHexString } from 'dbgate-tools';
+import { arrayToHexString, stringifyCellValue } from 'dbgate-tools';
 import yaml from 'js-yaml';
 
 export function copyTextToClipboard(text) {
@@ -69,12 +69,7 @@ export function copyTextToClipboard(text) {
 export function extractRowCopiedValue(row, col) {
   let value = row[col];
   if (value === undefined) value = _.get(row, col);
-  if (value === null) return '(NULL)';
-  if (value === undefined) return '(NoField)';
-  if (value && value.$oid) return `ObjectId("${value.$oid}")`;
-  if (value && value.type == 'Buffer' && _.isArray(value.data)) return arrayToHexString(value.data);
-  if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
-  return value;
+  return stringifyCellValue(value);
 }
 
 const clipboardTextFormatter = (delimiter, headers) => (columns, rows) => {

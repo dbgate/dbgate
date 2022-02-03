@@ -92,6 +92,10 @@ class Dumper extends SqlDumper {
     else if (value === false) this.putRaw('false');
     else super.putValue(value);
   }
+
+  putByteArrayValue(value) {
+    this.putRaw(`e'\\\\x${arrayToHexString(value)}'`);
+  }
 }
 
 module.exports = Dumper;

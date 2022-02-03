@@ -24,6 +24,12 @@
       component: JsonRowView,
       single: false,
     },
+    {
+      type: 'picture',
+      title: 'Picture',
+      component: PictureCellView,
+      single: true,
+    },
   ];
 
   function autodetect(selection) {
@@ -51,6 +57,7 @@
 
   import JsonCellView from '../celldata/JsonCellView.svelte';
   import JsonRowView from '../celldata/JsonRowView.svelte';
+  import PictureCellView from '../celldata/PictureCellView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -124,5 +131,6 @@
   .data {
     display: flex;
     flex: 1;
+    position: relative;
   }
 </style>
