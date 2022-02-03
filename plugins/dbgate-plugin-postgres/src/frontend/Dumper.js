@@ -1,4 +1,4 @@
-const { SqlDumper, testEqualTypes } = global.DBGATE_TOOLS;
+const { SqlDumper, arrayToHexString, testEqualTypes } = global.DBGATE_TOOLS;
 
 class Dumper extends SqlDumper {
   /** @param type {import('dbgate-types').TransformType} */
