@@ -129,12 +129,12 @@ function buildMenu() {
             electron.shell.openExternal('https://opencollective.com/dbgate');
           },
         },
-        {
-          label: 'Discussions',
-          click() {
-            electron.shell.openExternal('https://github.com/dbgate/dbgate/discussions');
-          },
-        },
+        // {
+        //   label: 'Discussions',
+        //   click() {
+        //     electron.shell.openExternal('https://github.com/dbgate/dbgate/discussions');
+        //   },
+        // },
         { type: 'separator' },
         commandItem('tabs.changelog'),
         commandItem('about.show'),
