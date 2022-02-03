@@ -112,21 +112,9 @@ function buildMenu() {
           },
         },
         {
-          label: 'dbgate.org',
+          label: 'DbGate web',
           click() {
             electron.shell.openExternal('https://dbgate.org');
-          },
-        },
-        {
-          label: 'DbGate on GitHub',
-          click() {
-            electron.shell.openExternal('https://github.com/dbgate/dbgate');
-          },
-        },
-        {
-          label: 'DbGate on docker hub',
-          click() {
-            electron.shell.openExternal('https://hub.docker.com/r/dbgate/dbgate');
           },
         },
         {
@@ -135,6 +123,19 @@ function buildMenu() {
             electron.shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
           },
         },
+        {
+          label: 'Become sponsor',
+          click() {
+            electron.shell.openExternal('https://opencollective.com/dbgate');
+          },
+        },
+        {
+          label: 'Discussions',
+          click() {
+            electron.shell.openExternal('https://github.com/dbgate/dbgate/discussions');
+          },
+        },
+        { type: 'separator' },
         commandItem('tabs.changelog'),
         commandItem('about.show'),
       ],
