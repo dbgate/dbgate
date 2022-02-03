@@ -30,6 +30,12 @@
       component: PictureCellView,
       single: true,
     },
+    {
+      type: 'html',
+      title: 'HTML',
+      component: HtmlCellView,
+      single: false,
+    },
   ];
 
   function autodetect(selection) {
@@ -53,8 +59,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
-  import { onMount } from 'svelte';
-
+  import HtmlCellView from '../celldata/HtmlCellView.svelte';
   import JsonCellView from '../celldata/JsonCellView.svelte';
   import JsonRowView from '../celldata/JsonRowView.svelte';
   import PictureCellView from '../celldata/PictureCellView.svelte';
