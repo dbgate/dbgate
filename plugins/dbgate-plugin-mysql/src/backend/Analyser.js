@@ -65,17 +65,14 @@ class Analyser extends DatabaseAnalyser {
   async _runAnalysis() {
     const tables = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
-    const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
-    const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
-    const programmables = await this.driver.query(
-      this.pool,
-      this.createQuery('programmables', ['procedures', 'functions'])
-    );
+    const pkColumns = await this.safeQuery(this.createQuery('primaryKeys', ['tables']));
+    const fkColumns = await this.safeQuery(this.createQuery('foreignKeys', ['tables']));
+    const views = await this.safeQuery(this.createQuery('views', ['views']));
+    const programmables = await this.safeQuery(this.createQuery('programmables', ['procedures', 'functions']));
 
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
-    const indexes = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
-    const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
+    const indexes = await this.safeQuery(this.createQuery('indexes', ['tables']));
+    const uniqueNames = await this.safeQuery(this.createQuery('uniqueNames', ['tables']));
 
     return {
       tables: tables.rows.map(table => ({

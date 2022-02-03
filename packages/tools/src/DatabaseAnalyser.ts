@@ -229,6 +229,17 @@ export class DatabaseAnalyser {
     return [..._compact(res), ...this.getDeletedObjects(snapshot)];
   }
 
+  async safeQuery(sql) {
+    try {
+      return await this.driver.query(this.pool, sql);
+    } catch (err) {
+      console.log('Error running analyser query', err.message);
+      return {
+        rows: [],
+      };
+    }
+  }
+
   static createEmptyStructure(): DatabaseInfo {
     return {
       tables: [],
