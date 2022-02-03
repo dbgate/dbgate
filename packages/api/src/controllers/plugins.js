@@ -72,7 +72,8 @@ module.exports = {
 
     const res = [];
     for (const packageName of _.union(files1, files2)) {
-      if (!/^dbgate-plugin-.*$/.test(packageName)) continue;
+      if (packageName == 'dist') continue;
+      // if (!/^dbgate-plugin-.*$/.test(packageName)) continue;
       try {
         if (packagedContent && packagedContent[packageName]) {
           const manifest = {
