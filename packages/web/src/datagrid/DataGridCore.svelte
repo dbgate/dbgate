@@ -132,6 +132,22 @@
     onClick: () => getCurrentDataGrid().openJsonArrayInSheet(),
   });
 
+  registerCommand({
+    id: 'dataGrid.saveCellToFile',
+    category: 'Data grid',
+    name: 'Save cell to file',
+    testEnabled: () => getCurrentDataGrid()?.saveCellToFileEnabled(),
+    onClick: () => getCurrentDataGrid().saveCellToFile(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.loadCellFromFile',
+    category: 'Data grid',
+    name: 'Load cell from file',
+    testEnabled: () => getCurrentDataGrid()?.loadCellFromFileEnabled(),
+    onClick: () => getCurrentDataGrid().loadCellFromFile(),
+  });
+
   // registerCommand({
   //   id: 'dataGrid.copyJsonDocument',
   //   category: 'Data grid',
@@ -285,6 +301,7 @@
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import { apiCall } from '../utility/api';
+  import getElectron from '../utility/getElectron';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -498,6 +515,61 @@
     const rowIndex = selectedCells[0][0];
     const json = grider.getRowData(rowIndex);
     openJsonDocument(json);
+  }
+
+  function getSelectedExportableCell() {
+    const electron = getElectron();
+    if (electron && selectedCells.length == 1) {
+      const cell = selectedCells[0];
+      const rowData = grider.getRowData(cell[0]);
+      if (!rowData) return null;
+      const cellData = rowData[realColumnUniqueNames[cell[1]]];
+      return cellData;
+    }
+  }
+
+  export function saveCellToFileEnabled() {
+    const value = getSelectedExportableCell();
+    return _.isString(value) || (value?.type == 'Buffer' && _.isArray(value?.data));
+  }
+
+  export async function saveCellToFile() {
+    const electron = getElectron();
+    const file = await electron.showSaveDialog({});
+    if (file) {
+      const fs = window.require('fs');
+      const value = getSelectedExportableCell();
+      if (_.isString(value)) {
+        fs.promises.writeFile(file, value);
+      } else if (value?.type == 'Buffer' && _.isArray(value?.data)) {
+        fs.promises.writeFile(file, window['Buffer'].from(value.data));
+      }
+    }
+  }
+
+  export function loadCellFromFileEnabled() {
+    const electron = getElectron();
+    return electron && selectedCells.length == 1 && isRegularCell(selectedCells[0]);
+  }
+
+  export async function loadCellFromFile() {
+    const electron = getElectron();
+    const files = await electron.showOpenDialog({});
+    const file = files && files[0];
+    if (file) {
+      const fs = window.require('fs');
+      const isText = file.endsWith('.json') || file.endsWith('.txt') || file.endsWith('.html') || file.endsWith('.xml');
+      const data = await fs.promises.readFile(file, isText ? { encoding: 'utf-8' } : null);
+      setCellValue(
+        selectedCells[0],
+        isText
+          ? data
+          : {
+              type: 'Buffer',
+              data: [...data],
+            }
+      );
+    }
   }
 
   function getSelectedDataJson(forceArray = false) {
@@ -1313,6 +1385,8 @@
     { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonValue', hideDisabled: true },
     { command: 'dataGrid.openJsonArrayInSheet', hideDisabled: true },
+    { command: 'dataGrid.saveCellToFile', hideDisabled: true },
+    { command: 'dataGrid.loadCellFromFile', hideDisabled: true },
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },

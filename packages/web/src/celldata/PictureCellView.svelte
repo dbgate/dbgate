@@ -5,11 +5,16 @@
   export let selection;
 
   function extractPicture(values) {
-    const value = values;
-    if (value?.type == 'Buffer' && _.isArray(value?.data)) {
-      return 'data:image/png;base64, ' + btoa(String.fromCharCode.apply(null, value?.data));
+    try {
+      const value = values;
+      if (value?.type == 'Buffer' && _.isArray(value?.data)) {
+        return 'data:image/png;base64, ' + btoa(String.fromCharCode.apply(null, value?.data));
+      }
+      return null;
+    } catch (err) {
+      console.log('Error showing picture', err);
+      return null;
     }
-    return null;
   }
 
   $: picture = extractPicture(selection[0]?.value);

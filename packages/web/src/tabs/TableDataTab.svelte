@@ -91,7 +91,7 @@
       title,
       script: scriptToSql(driver, commands),
     }));
-    console.log('deleteCascadesScripts', deleteCascadesScripts);
+    // console.log('deleteCascadesScripts', deleteCascadesScripts);
     showModal(ConfirmSqlModal, {
       sql,
       onConfirm: sqlOverride => handleConfirmSql(sqlOverride || sql),
