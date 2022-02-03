@@ -74,6 +74,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const schemaRows = await this.driver.query(this.pool, this.createQuery('getSchemas'));
     const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
     const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
 
     const schemas = schemaRows.rows;
 
@@ -150,6 +151,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
       procedures,
       functions,
       schemas,
+      defaultSchema: defaultSchemaRows.rows[0] ? defaultSchemaRows.rows[0].name : undefined,
     };
   }
 

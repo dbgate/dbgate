@@ -23,6 +23,53 @@ const COMMON_KEYWORDS = [
   'go',
 ];
 
+function createTableLikeList(dbinfo, schemaCondition) {
+  return [
+    ...(dbinfo.schemas?.map(x => ({
+      name: x.schemaName,
+      value: x.schemaName,
+      caption: x.schemaName,
+      meta: 'schema',
+      score: 1000,
+    })) || []),
+    ...dbinfo.tables.filter(schemaCondition).map(x => ({
+      name: x.pureName,
+      value: x.pureName,
+      caption: x.pureName,
+      meta: 'table',
+      score: 1000,
+    })),
+    ...dbinfo.views.filter(schemaCondition).map(x => ({
+      name: x.pureName,
+      value: x.pureName,
+      caption: x.pureName,
+      meta: 'view',
+      score: 1000,
+    })),
+    ...dbinfo.matviews.filter(schemaCondition).map(x => ({
+      name: x.pureName,
+      value: x.pureName,
+      caption: x.pureName,
+      meta: 'matview',
+      score: 1000,
+    })),
+    ...dbinfo.functions.filter(schemaCondition).map(x => ({
+      name: x.pureName,
+      value: x.pureName,
+      caption: x.pureName,
+      meta: 'function',
+      score: 1000,
+    })),
+    ...dbinfo.procedures.filter(schemaCondition).map(x => ({
+      name: x.pureName,
+      value: x.pureName,
+      caption: x.pureName,
+      meta: 'procedure',
+      score: 1000,
+    })),
+  ];
+}
+
 export function mountCodeCompletion({ conid, database, editor, getText }) {
   setCompleters([]);
   addCompleter({
@@ -90,6 +137,11 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
                 })),
               ];
             }
+          } else {
+            const schema = (dbinfo.schemas || []).find(x => x.schemaName == colMatch[1]);
+            if (schema) {
+              list = createTableLikeList(dbinfo, x => x.schemaName == schema.schemaName);
+            }
           }
         } else {
           const onlyTables =
@@ -106,41 +158,8 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
           } else {
             list = [
               ...(onlyTables ? [] : list),
-              ...dbinfo.tables.map(x => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'table',
-                score: 1000,
-              })),
-              ...dbinfo.views.map(x => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'view',
-                score: 1000,
-              })),
-              ...dbinfo.matviews.map(x => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'matview',
-                score: 1000,
-              })),
-              ...dbinfo.functions.map(x => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'function',
-                score: 1000,
-              })),
-              ...dbinfo.procedures.map(x => ({
-                name: x.pureName,
-                value: x.pureName,
-                caption: x.pureName,
-                meta: 'procedure',
-                score: 1000,
-              })),
+              ...createTableLikeList(dbinfo, x => !dbinfo.defaultSchema || dbinfo.defaultSchema == x.schemaName),
+
               ...(onlyTables
                 ? []
                 : _.flatten(
