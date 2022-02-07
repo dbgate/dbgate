@@ -18,9 +18,18 @@ export interface TabDefinition {
   tabOrder?: number;
 }
 
+function safeJsonParse(json, defaultValue) {
+  try {
+    return JSON.parse(json);
+  } catch (err) {
+    console.error(`Error parsing JSON value "${json}"`, err);
+    return defaultValue;
+  }
+}
+
 export function writableWithStorage<T>(defaultValue: T, storageName) {
   const init = localStorage.getItem(storageName);
-  const res = writable<T>(init ? JSON.parse(init) : defaultValue);
+  const res = writable<T>(init ? safeJsonParse(init, defaultValue) : defaultValue);
   res.subscribe(value => {
     localStorage.setItem(storageName, JSON.stringify(value));
   });
