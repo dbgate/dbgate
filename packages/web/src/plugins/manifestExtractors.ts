@@ -21,5 +21,21 @@ export function extractPluginIcon(packageManifest) {
 }
 
 export function extractPluginAuthor(packageManifest) {
-  return _.isPlainObject(packageManifest.author) ? packageManifest.author.name : packageManifest.author;
+  if (_.isPlainObject(packageManifest.author) && packageManifest.author.name) {
+    return packageManifest.author.name;
+  }
+  if (packageManifest.author) {
+    return packageManifest.author;
+  }
+  if (_.isPlainObject(packageManifest.publisher) && packageManifest.publisher.username) {
+    return packageManifest.publisher.username;
+  }
+  if (
+    packageManifest.maintainers &&
+    _.isPlainObject(packageManifest.maintainers[0]) &&
+    packageManifest.maintainers[0].username
+  ) {
+    return packageManifest.maintainers[0].username;
+  }
+  return '(Unknown author)';
 }

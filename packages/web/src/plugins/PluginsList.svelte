@@ -30,7 +30,7 @@
         {/if}
       </div>
       <div>
-        {packageManifest.description}
+        {(packageManifest.description?.indexOf('[![') >= 0 ? null : packageManifest.description) || '(No description)'}
       </div>
       <div class="bold">
         {extractPluginAuthor(packageManifest)}
