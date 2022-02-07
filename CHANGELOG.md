@@ -1,5 +1,16 @@
 # ChangeLog
 
+### 4.6.2
+- FIXED: fixed same issues of XML import plugin
+- ADDED: Split columns macro (available in data sheet editor)
+- CHANGED: Accepting non standard plugins names (which doesn't start with dbgate-plugin-)
+- ADDED: Support BLOB values #211
+- ADDED: Picture cell view
+- ADDED: HTML cell view
+- CHANGED: Code completion supports non-default schema names
+- FIXED: More robust MySQL analyser, when connecting to non-standard servers #214
+- FIXED: Fixed configuring connection to SQLite with environment variables #215
+
 ### 4.6.1
 - ADDED: Ability to configure SSH tunnel over environment variables #210 (for docker container)
 - ADDED: XML export and import
