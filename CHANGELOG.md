@@ -1,12 +1,12 @@
 # ChangeLog
 
 ### 4.6.3
-- FIXED: Fixed windows build
-- FIXED: Fixed srash, when there is invalid value in browser local storage
+- FIXED: Fixed Windows build
+- FIXED: Fixed crash, when there is invalid value in browser local storage
 - FIXED: Fixed plugin description display, where author name or description is not correctly filled
 
 ### 4.6.2
-- FIXED: fixed same issues of XML import plugin
+- FIXED: Fixed issues of XML import plugin
 - ADDED: Split columns macro (available in data sheet editor)
 - CHANGED: Accepting non standard plugins names (which doesn't start with dbgate-plugin-)
 - ADDED: Support BLOB values #211
