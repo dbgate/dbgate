@@ -1,5 +1,10 @@
 # ChangeLog
 
+### 4.6.3
+- FIXED: Fixed windows build
+- FIXED: Fixed srash, when there is invalid value in browser local storage
+- FIXED: Fixed plugin description display, where author name or description is not correctly filled
+
 ### 4.6.2
 - FIXED: fixed same issues of XML import plugin
 - ADDED: Split columns macro (available in data sheet editor)
