@@ -10,12 +10,15 @@
   export let key = '';
   export let menu = null;
   export let value;
-  export let expanded = false;
+  export let expandAll = false;
+  export let expanded = expandAll;
   export let labelOverride = null;
 
   export let isDeleted;
   export let isInserted;
   export let isModified;
+
+  setContext('json-tree-default-expanded', expandAll);
 
   const elementData = new WeakMap();
 

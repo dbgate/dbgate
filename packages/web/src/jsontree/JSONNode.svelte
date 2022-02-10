@@ -7,12 +7,13 @@
   import JSONValueNode from './JSONValueNode.svelte';
   import ErrorNode from './ErrorNode.svelte';
   import objType from './objType';
+  import { getContext } from 'svelte';
 
   export let key;
   export let value;
   export let isParentExpanded;
   export let isParentArray;
-  export let expanded = false;
+  export let expanded = !!getContext('json-tree-default-expanded');
   export let labelOverride = null;
 
   $: nodeType = objType(value);

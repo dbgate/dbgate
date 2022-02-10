@@ -41,7 +41,7 @@
   import { showModal } from '../modals/modalTools';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
-import openNewTab from '../utility/openNewTab';
+  import openNewTab from '../utility/openNewTab';
 
   export let rowIndex;
   export let col;
@@ -153,7 +153,7 @@ import openNewTab from '../utility/openNewTab';
   {/if}
 
   {#if isJson}
-    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value)} />
+    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
   {/if}
 
   {#if _.isArray(value)}

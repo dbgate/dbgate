@@ -1,10 +1,13 @@
 <script lang="ts" context="module">
-  export function openJsonDocument(json, title = 'JSON') {
+  export function openJsonDocument(json, title = 'JSON', expandAll = false) {
     openNewTab(
       {
         title,
         icon: 'img json',
         tabComponent: 'JsonTab',
+        props: {
+          expandAll,
+        },
       },
       { editor: json }
     );
@@ -21,6 +24,7 @@
   export let selection;
   export let showWholeRow = false;
   export let tabid;
+  export let expandAll;
 
   let json = null;
   let error = null;
@@ -35,7 +39,7 @@
 
 <div class="outer">
   <div class="inner">
-    <JSONTree value={json} expanded />
+    <JSONTree value={json} {expandAll} />
   </div>
 </div>
 
