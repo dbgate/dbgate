@@ -2,6 +2,7 @@ const columns = require('./columns');
 const foreignKeys = require('./foreignKeys');
 const primaryKeys = require('./primaryKeys');
 const tables = require('./tables');
+const tableSizes = require('./tableSizes');
 const modifications = require('./modifications');
 const loadSqlCode = require('./loadSqlCode');
 const views = require('./views');
@@ -24,4 +25,5 @@ module.exports = {
   getSchemas,
   indexes,
   indexcols,
+  tableSizes,
 };

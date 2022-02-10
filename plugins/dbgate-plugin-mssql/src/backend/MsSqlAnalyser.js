@@ -75,8 +75,11 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
     const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
+    const tableSizes = await this.driver.query(this.pool, this.createQuery('tableSizes'));
 
     const schemas = schemaRows.rows;
+
+    const tableSizesDict = _.mapValues(_.keyBy(tableSizes.rows, 'objectId'), 'tableRowCount');
 
     const sqlCodeRows = await this.driver.query(
       this.pool,
@@ -120,6 +123,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
               ..._.pick(col, ['columnName']),
             })),
         })),
+      tableRowCount: tableSizesDict[row.objectId],
     }));
 
     const views = viewsRows.rows.map(row => ({
@@ -157,6 +161,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const modificationsQueryData = await this.driver.query(this.pool, this.createQuery('modifications'));
+    const tableSizes = await this.driver.query(this.pool, this.createQuery('tableSizes'));
 
     const res = DatabaseAnalyser.createEmptyStructure();
     for (const item of modificationsQueryData.rows) {
@@ -170,6 +175,13 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         schemaName,
         pureName,
       });
+    }
+
+    for (const tableSize of tableSizes.rows) {
+      const table = (res.tables || []).find(x => x.objectId == tableSize.objectId);
+      if (table) {
+        table.tableRowCount = tableSize.tableRowCount;
+      }
     }
     return res;
   }
