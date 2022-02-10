@@ -176,7 +176,8 @@
         bind:this={domInput}
         bind:value={filter}
         on:keydown={handleKeyDown}
-        placeholder={parentCommand?.text || ''}
+        placeholder={parentCommand?.text ||
+          ($visibleCommandPalette == 'database' ? 'Search in database' : 'Search in commands')}
       />
     </div>
     <div class="content">
