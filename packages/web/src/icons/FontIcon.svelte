@@ -27,6 +27,7 @@
     'icon pin': 'mdi mdi-pin',
     'icon arrange': 'mdi mdi-arrange-send-to-back',
     'icon app': 'mdi mdi-layers-triple',
+    'icon open-in-new': 'mdi mdi-open-in-new',
 
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',

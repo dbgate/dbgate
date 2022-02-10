@@ -40,6 +40,8 @@
   import { arrayToHexString } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import { openJsonDocument } from '../tabs/JsonTab.svelte';
+import openNewTab from '../utility/openNewTab';
 
   export let rowIndex;
   export let col;
@@ -80,6 +82,8 @@
   }
 
   $: style = computeStyle(maxWidth, col);
+
+  $: isJson = _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid;
 </script>
 
 <td
@@ -146,6 +150,31 @@
 
   {#if col.foreignKey && isCurrentCell && onDictionaryLookup}
     <ShowFormButton icon="icon dots-horizontal" on:click={onDictionaryLookup} />
+  {/if}
+
+  {#if isJson}
+    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value)} />
+  {/if}
+
+  {#if _.isArray(value)}
+    <ShowFormButton
+      icon="icon open-in-new"
+      on:click={() =>
+        openNewTab(
+          {
+            title: 'Data #',
+            icon: 'img free-table',
+            tabComponent: 'FreeTableTab',
+            props: {},
+          },
+          {
+            editor: {
+              rows: value,
+              structure: { __isDynamicStructure: true, columns: [] },
+            },
+          }
+        )}
+    />
   {/if}
 
   {#if isAutoFillMarker}
