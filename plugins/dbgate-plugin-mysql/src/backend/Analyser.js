@@ -14,6 +14,7 @@ function getColumnInfo({
   numericPrecision,
   numericScale,
   defaultValue,
+  columnComment,
 }) {
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
@@ -23,6 +24,7 @@ function getColumnInfo({
     notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
     autoIncrement: !!(extra && extra.toLowerCase().includes('auto_increment')),
     columnName,
+    columnComment,
     dataType: fullDataType,
     defaultValue,
   };

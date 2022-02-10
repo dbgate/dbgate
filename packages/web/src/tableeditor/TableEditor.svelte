@@ -87,6 +87,7 @@
   export let tableInfo;
   export let setTableInfo;
   export let dbInfo;
+  export let driver;
 
   export function writable() {
     return !!setTableInfo;
@@ -176,7 +177,7 @@
         header: 'Default value',
         sortable: true,
       },
-      {
+      driver?.dialect?.columnProperties?.isSparse && {
         fieldName: 'isSparse',
         header: 'Is Sparse',
         sortable: true,
@@ -187,11 +188,16 @@
         header: 'Computed Expression',
         sortable: true,
       },
-      {
+      driver?.dialect?.columnProperties?.isPersisted && {
         fieldName: 'isPersisted',
         header: 'Is Persisted',
         sortable: true,
         slot: 2,
+      },
+      driver?.dialect?.columnProperties?.columnComment && {
+        fieldName: 'columnComment',
+        header: 'Comment',
+        sortable: true,
       },
       writable()
         ? {

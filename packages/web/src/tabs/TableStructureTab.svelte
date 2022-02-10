@@ -75,6 +75,7 @@
   $: dbInfo = useDatabaseInfo({ conid, database });
   $: tableInfoWithPairingId = $tableInfo ? generateTablePairingId($tableInfo) : null;
   $: connection = useConnectionInfo({ conid });
+  $: driver = findEngineDriver($connection, $extensions);
 
   const { editorState, editorValue, setEditorData, clearEditorData } = useEditorData({ tabid });
 
@@ -108,8 +109,6 @@
   }
 
   function doSave(createTableName) {
-    const driver = findEngineDriver($connection, $extensions);
-
     const { sql, recreates } = getAlterTableScript(
       $editorValue.base,
       extendTableInfo(fillConstraintNames($editorValue.current, driver.dialect)),
@@ -167,6 +166,7 @@
   bind:this={domEditor}
   tableInfo={showTable}
   dbInfo={$dbInfo}
+  {driver}
   setTableInfo={objectTypeField == 'tables'
     ? tableInfoUpdater =>
         setEditorData(tbl =>

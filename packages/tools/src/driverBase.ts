@@ -10,6 +10,10 @@ const dialect = {
   quoteIdentifier(s) {
     return s;
   },
+  columnProperties: {
+    isSparse: false,
+    isPersisted: false,
+  },
 };
 
 export const driverBase = {

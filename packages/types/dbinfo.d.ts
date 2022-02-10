@@ -54,6 +54,7 @@ export interface ColumnInfo extends NamedObjectInfo {
   isSparse?: boolean;
   defaultValue?: string;
   defaultConstraint?: string;
+  columnComment?: string;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
@@ -63,6 +64,7 @@ export interface DatabaseObjectInfo extends NamedObjectInfo {
   modifyDate?: string;
   hashCode?: string;
   objectTypeField?: string;
+  obejctComment?: string;
 }
 
 export interface SqlObjectInfo extends DatabaseObjectInfo {

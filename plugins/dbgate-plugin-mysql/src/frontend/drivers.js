@@ -30,6 +30,10 @@ const dialect = {
   dropCheck: true,
 
   dropReferencesWhenDropTable: false,
+
+  columnProperties: {
+    columnComment: true,
+  },
 };
 
 const mysqlDriverBase = {
@@ -44,7 +48,11 @@ const mysqlDriverBase = {
   getNewObjectTemplates() {
     return [
       { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
-      { label: 'New procedure', sql: 'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;' },
+      {
+        label: 'New procedure',
+        sql:
+          'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
+      },
       { label: 'New function', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
     ];
   },
