@@ -34,7 +34,7 @@
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
+  import _, { join } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { arrayToHexString, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
@@ -134,11 +134,13 @@
   {:else if _.isPlainObject(value)}
     <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
   {:else if _.isArray(value)}
-    <span class="null">[{value.length} items]</span>
+    <span class="null" title={value.map(x => JSON.stringify(x)).join('\n')}>[{value.length} items]</span>
   {:else if _.isPlainObject(jsonParsedValue)}
     <span class="null" title={JSON.stringify(jsonParsedValue, undefined, 2)}>(JSON)</span>
   {:else if _.isArray(jsonParsedValue)}
-    <span class="null">[{jsonParsedValue.length} items]</span>
+    <span class="null" title={jsonParsedValue.map(x => JSON.stringify(x)).join('\n')}
+      >[{jsonParsedValue.length} items]</span
+    >
   {:else}
     {value.toString()}
   {/if}
