@@ -132,7 +132,7 @@ module.exports = {
   },
 
   async notifyChangedStats(stats) {
-    console.log('SENDING STATS', JSON.stringify(stats));
+    // console.log('SENDING STATS', JSON.stringify(stats));
     const datastore = this.datastores[stats.jslid];
     if (datastore) await datastore.notifyChanged();
     socket.emit(`jsldata-stats-${stats.jslid}`, stats);

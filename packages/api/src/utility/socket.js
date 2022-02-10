@@ -23,6 +23,7 @@ module.exports = {
     }
   },
   emitChanged(key) {
+    // console.log('EMIT CHANGED', key);
     this.emit('changed-cache', key);
     // this.emit(key);
   },
