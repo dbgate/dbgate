@@ -1,11 +1,11 @@
 import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { writable } from 'svelte/store';
-import { cacheClean } from './cache';
+// import { cacheClean } from './cache';
 import getElectron from './getElectron';
 // import socket from './socket';
 
 let eventSource;
-let cacheCleanerRegistered;
+// let cacheCleanerRegistered;
 
 function wantEventSource() {
   if (!eventSource) {
@@ -60,10 +60,10 @@ export function apiOn(event: string, handler: Function) {
     eventSource.addEventListener(event, apiHandlers.get(handler));
   }
 
-  if (!cacheCleanerRegistered) {
-    cacheCleanerRegistered = true;
-    apiOn('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
-  }
+  // if (!cacheCleanerRegistered) {
+  //   cacheCleanerRegistered = true;
+  //   apiOn('clean-cache', reloadTrigger => cacheClean(reloadTrigger));
+  // }
 }
 
 export function apiOff(event: string, handler: Function) {

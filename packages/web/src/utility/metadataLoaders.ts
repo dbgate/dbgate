@@ -1,7 +1,6 @@
 import _ from 'lodash';
-import { cacheGet, cacheSet, getCachedPromise } from './cache';
+import { loadCachedValue, subscribeCacheChange, unsubscribeCacheChange } from './cache';
 import stableStringify from 'json-stable-stringify';
-import { cacheClean } from './cache';
 import getAsArray from './getAsArray';
 import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
@@ -123,7 +122,7 @@ const appFilesLoader = ({ folder }) => ({
 
 const usedAppsLoader = ({ conid, database }) => ({
   url: 'apps/get-used-apps',
-  params: {  },
+  params: {},
   reloadTrigger: `used-apps-changed`,
 });
 
@@ -172,11 +171,7 @@ async function getCore(loader, args) {
     return res;
   }
 
-  const fromCache = cacheGet(key);
-  if (fromCache) return fromCache;
-  const res = await getCachedPromise(key, doLoad);
-
-  cacheSet(key, res, reloadTrigger);
+  const res = await loadCachedValue(reloadTrigger, key, doLoad);
   return res;
 }
 
@@ -187,77 +182,20 @@ function useCore(loader, args) {
   return {
     subscribe: onChange => {
       async function handleReload() {
-        async function doLoad() {
-          const resp = await apiCall(url, params);
-          const res = (transform || (x => x))(resp);
-          if (onLoaded) onLoaded(res);
-          return res;
-        }
-
-        if (cacheKey) {
-          const fromCache = cacheGet(cacheKey);
-          if (fromCache) {
-            onChange(fromCache);
-          } else {
-            try {
-              const res = await getCachedPromise(cacheKey, doLoad);
-              cacheSet(cacheKey, res, reloadTrigger);
-              onChange(res);
-            } catch (err) {
-              console.error(`Error when using cached promise ${url}`, err);
-              cacheClean(cacheKey);
-              const res = await doLoad();
-              cacheSet(cacheKey, res, reloadTrigger);
-              onChange(res);
-            }
-          }
-        } else {
-          const res = await doLoad();
-          onChange(res);
-        }
+        const res = await getCore(loader, args);
+        onChange(res);
       }
 
-      // if (reloadTrigger && !socket) {
-      //   console.error('Socket not available, reloadTrigger not planned');
-      // }
       handleReload();
+
       if (reloadTrigger) {
-        for (const item of getAsArray(reloadTrigger)) {
-          apiOn(item, handleReload);
-        }
+        subscribeCacheChange(reloadTrigger, cacheKey, handleReload);
         return () => {
-          for (const item of getAsArray(reloadTrigger)) {
-            apiOff(item, handleReload);
-          }
+          unsubscribeCacheChange(reloadTrigger, cacheKey, handleReload);
         };
       }
     },
   };
-
-  // const useTrack = track => ({
-  //   subscribe: onChange => {
-  //     onChange('TRACK ' + track);
-  //     if (track) {
-  //       const handle = setInterval(() => onChange('TRACK ' + track + ';' + new Date()), 1000);
-  //       // console.log("ON", track);
-  //       const oldTrack = track;
-  //       return () => {
-  //         clearInterval(handle);
-  //         // console.log("OFF", oldTrack);
-  //       };
-  //     }
-  //   },
-  // });
-
-  // const res = useFetch({
-  //   url,
-  //   params,
-  //   reloadTrigger,
-  //   cacheKey,
-  //   transform,
-  // });
-
-  // return res;
 }
 
 /** @returns {Promise<import('dbgate-types').DatabaseInfo>} */
@@ -438,8 +376,6 @@ export function getAppFolders(args = {}) {
 export function useAppFolders(args = {}) {
   return useCore(appFoldersLoader, args);
 }
-
-
 
 export function getUsedApps(args = {}) {
   return getCore(usedAppsLoader, args);

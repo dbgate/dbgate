@@ -48,7 +48,7 @@ module.exports = {
   async write({ data }) {
     const fileName = path.join(datadir(), 'query-history.jsonl');
     await fs.appendFile(fileName, JSON.stringify(data) + '\n');
-    socket.emitChanged('query-history-changed');
+    socket.emit('query-history-changed');
     return 'OK';
   },
 };

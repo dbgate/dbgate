@@ -23,7 +23,7 @@ module.exports = {
     }
   },
   emitChanged(key) {
-    this.emit('clean-cache', key);
-    this.emit(key);
+    this.emit('changed-cache', key);
+    // this.emit(key);
   },
 };
