@@ -100,16 +100,29 @@
 
   let loadedRows = [];
 
+  let grider;
+
   // $: console.log('loadedRows BIND', loadedRows);
-  $: grider = new ChangeSetGrider(
-    loadedRows,
-    changeSetState,
-    dispatchChangeSet,
-    display,
-    macroPreview,
-    macroValues,
-    selectedCellsPublished()
-  );
+
+  $: {
+    if (macroPreview) {
+      grider = new ChangeSetGrider(
+        loadedRows,
+        changeSetState,
+        dispatchChangeSet,
+        display,
+        macroPreview,
+        macroValues,
+        selectedCellsPublished()
+      );
+    }
+  }
+  // prevent recreate grider, if no macro is selected, so there is no need to selectedcells in macro
+  $: {
+    if (!macroPreview) {
+      grider = new ChangeSetGrider(loadedRows, changeSetState, dispatchChangeSet, display);
+    }
+  }
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
 
@@ -200,4 +213,5 @@
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}
   {grider}
+  {display}
 />

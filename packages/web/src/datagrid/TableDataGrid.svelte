@@ -58,8 +58,6 @@
 
   const childCache = writable(createGridCache());
 
-  // $: console.log('display', display);
-
   $: display =
     connection && $serverVersion
       ? new TableGridDisplay(

@@ -6,6 +6,8 @@ import Grider from './Grider';
 import { isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
 
 export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {
+  // console.log('COUNT SIZES');
+
   const columnSizes = new SeriesSizes();
   if (!grider || !columns || !display) return columnSizes;
 

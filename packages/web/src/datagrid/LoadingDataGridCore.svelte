@@ -121,14 +121,15 @@
 </script>
 
 <DataGridCore
-  bind:this={domGrid}
   {...$$props}
+  bind:this={domGrid}
+  bind:selectedCellsPublished
   onLoadNextData={handleLoadNextData}
   {errorMessage}
-  {grider}
   {isLoading}
   allRowCount={rowCountLoaded || allRowCount}
   {isLoadedAll}
   {loadedTime}
-  bind:selectedCellsPublished
+  {grider}
+  {display}
 />
