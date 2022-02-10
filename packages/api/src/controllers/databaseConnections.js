@@ -62,9 +62,10 @@ module.exports = {
     delete this.requests[msgid];
   },
   handle_status(conid, database, { status }) {
+    // console.log('HANDLE SET STATUS', status);
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
-    if (existing.status == status) return;
+    if (existing.status && status && existing.status.counter > status.counter) return;
     existing.status = status;
     socket.emitChanged(`database-status-changed-${conid}-${database}`);
   },

@@ -85,6 +85,7 @@ export interface TableInfo extends DatabaseObjectInfo {
   preloadedRows?: any[];
   preloadedRowsKey?: string[];
   preloadedRowsInsertOnly?: string[];
+  tableRowCount?: number | string;
   __isDynamicStructure?: boolean;
 }
 

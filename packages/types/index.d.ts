@@ -11,6 +11,7 @@ export interface OpenedDatabaseConnection {
   status?: {
     name: string;
     message?: string;
+    counter: number;
   };
 }
 

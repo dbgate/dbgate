@@ -88,6 +88,7 @@ class Analyser extends DatabaseAnalyser {
         columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
+        tableRowCount: table.tableRowCount,
         indexes: _.uniqBy(
           indexes.rows.filter(
             idx =>
@@ -163,6 +164,7 @@ class Analyser extends DatabaseAnalyser {
           ...x,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
+          tableRowCount: x.tableRowCount,
         })),
       views: tableModificationsQueryData.rows
         .filter(x => x.objectType == 'VIEW')

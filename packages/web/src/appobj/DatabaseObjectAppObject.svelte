@@ -627,6 +627,7 @@
   showPinnedInsteadOfUnpin={passProps?.showPinnedInsteadOfUnpin}
   onPin={isPinned ? null : () => pinnedTables.update(list => [...list, data])}
   onUnpin={isPinned ? () => pinnedTables.update(list => list.filter(x => !testEqual(x, data))) : null}
+  extInfo={data.tableRowCount != null ? `${data.tableRowCount} rows` : null}
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:expand

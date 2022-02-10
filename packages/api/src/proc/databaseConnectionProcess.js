@@ -18,6 +18,12 @@ let lastStatus = null;
 let analysedTime = 0;
 let serverVersion;
 
+let statusCounter = 0;
+function getStatusCounter() {
+  statusCounter += 1;
+  return statusCounter;
+}
+
 async function checkedAsyncCall(promise) {
   try {
     const res = await promise;
@@ -79,7 +85,7 @@ function handleSyncModel() {
 function setStatus(status) {
   const statusString = stableStringify(status);
   if (lastStatus != statusString) {
-    process.send({ msgtype: 'status', status });
+    process.send({ msgtype: 'status', status: { ...status, counter: getStatusCounter() } });
     lastStatus = statusString;
   }
 }

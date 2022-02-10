@@ -8,6 +8,26 @@ const STRUCTURE_FIELDS = ['tables', 'collections', 'views', 'matviews', 'functio
 
 const fp_pick = arg => array => _pick(array, arg);
 
+function mergeTableRowCounts(info: DatabaseInfo, rowCounts): DatabaseInfo {
+  return {
+    ...info,
+    tables: (info.tables || []).map(table => ({
+      ...table,
+      tableRowCount: rowCounts.find(x => x.objectId == table.objectId)?.tableRowCount ?? table.tableRowCount,
+    })),
+  };
+}
+
+function areDifferentRowCounts(db1: DatabaseInfo, db2: DatabaseInfo) {
+  for (const t1 of db1.tables || []) {
+    const t2 = (db2.tables || []).find(x => x.objectId == t1.objectId);
+    if (t1?.tableRowCount !== t2?.tableRowCount) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export class DatabaseAnalyser {
   structure: DatabaseInfo;
   modifications: DatabaseModification[];
@@ -64,13 +84,29 @@ export class DatabaseAnalyser {
   async incrementalAnalysis(structure) {
     this.structure = structure;
 
-    this.modifications = await this.getModifications();
-    if (this.modifications == null) {
+    const modifications = await this.getModifications();
+    if (modifications == null) {
       // modifications not implemented, perform full analysis
       this.structure = null;
       return this.addEngineField(await this._runAnalysis());
     }
-    if (this.modifications.length == 0) return null;
+    const structureModifications = modifications.filter(x => x.action != 'setTableRowCounts');
+    const setTableRowCounts = modifications.find(x => x.action == 'setTableRowCounts');
+
+    let structureWithRowCounts = null;
+    if (setTableRowCounts) {
+      const newStructure = mergeTableRowCounts(structure, setTableRowCounts.rowCounts);
+      if (areDifferentRowCounts(structure, newStructure)) {
+        structureWithRowCounts = newStructure;
+      }
+    }
+
+    if (structureModifications.length == 0) {
+      return structureWithRowCounts ? this.addEngineField(structureWithRowCounts) : null;
+    }
+
+    this.modifications = structureModifications;
+    if (structureWithRowCounts) this.structure = structureWithRowCounts;
     console.log('DB modifications detected:', this.modifications);
     return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
@@ -224,6 +260,20 @@ export class DatabaseAnalyser {
             };
         res.push(action);
       }
+    }
+
+    const rowCounts = (snapshot.tables || [])
+      .filter(x => x.tableRowCount != null)
+      .map(x => ({
+        objectId: x.objectId,
+        tableRowCount: x.tableRowCount,
+      }));
+
+    if (rowCounts.length > 0) {
+      res.push({
+        action: 'setTableRowCounts',
+        rowCounts,
+      });
     }
 
     return [..._compact(res), ...this.getDeletedObjects(snapshot)];
