@@ -37,7 +37,7 @@
   import _ from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { arrayToHexString } from 'dbgate-tools';
+  import { arrayToHexString, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
@@ -84,6 +84,7 @@
   $: style = computeStyle(maxWidth, col);
 
   $: isJson = _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid;
+  $: jsonParsedValue = isJsonLikeLongString(value) ? safeJsonParse(value) : null;
 </script>
 
 <td
@@ -114,7 +115,7 @@
     <span class="value">false</span>
   {:else if _.isNumber(value)}
     <span class="value">{formatNumber(value)}</span>
-  {:else if _.isString(value)}
+  {:else if _.isString(value) && !jsonParsedValue}
     {#if dateTimeRegex.test(value)}
       <span class="value">
         {formatDateTime(value)}
@@ -134,6 +135,10 @@
     <span class="null" title={JSON.stringify(value, undefined, 2)}>(JSON)</span>
   {:else if _.isArray(value)}
     <span class="null">[{value.length} items]</span>
+  {:else if _.isPlainObject(jsonParsedValue)}
+    <span class="null" title={JSON.stringify(jsonParsedValue, undefined, 2)}>(JSON)</span>
+  {:else if _.isArray(jsonParsedValue)}
+    <span class="null">[{jsonParsedValue.length} items]</span>
   {:else}
     {value.toString()}
   {/if}
@@ -156,7 +161,11 @@
     <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(value, undefined, true)} />
   {/if}
 
-  {#if _.isArray(value)}
+  {#if jsonParsedValue && _.isPlainObject(jsonParsedValue)}
+    <ShowFormButton icon="icon open-in-new" on:click={() => openJsonDocument(jsonParsedValue, undefined, true)} />
+  {/if}
+
+  {#if _.isArray(jsonParsedValue || value)}
     <ShowFormButton
       icon="icon open-in-new"
       on:click={() =>
@@ -169,7 +178,7 @@
           },
           {
             editor: {
-              rows: value,
+              rows: jsonParsedValue || value,
               structure: { __isDynamicStructure: true, columns: [] },
             },
           }

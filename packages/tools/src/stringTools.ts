@@ -44,3 +44,18 @@ export function stringifyCellValue(value) {
   if (_isPlainObject(value) || _isArray(value)) return JSON.stringify(value);
   return value;
 }
+
+export function safeJsonParse(json, defaultValue?, logError = false) {
+  try {
+    return JSON.parse(json);
+  } catch (err) {
+    if (logError) {
+      console.error(`Error parsing JSON value "${json}"`, err);
+    }
+    return defaultValue;
+  }
+}
+
+export function isJsonLikeLongString(value) {
+  return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/);
+}
