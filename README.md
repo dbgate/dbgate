@@ -64,7 +64,7 @@ DbGate is licensed under MIT license and is completely free.
   * Add SQL LEFT/INNER/RIGHT join utility
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
-* Import, export from/to CSV, Excel, JSON
+* Import, export from/to CSV, Excel, JSON, XML
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
 * Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
 * Charts, export chart to HTML page
