@@ -132,6 +132,7 @@ class Analyser extends DatabaseAnalyser {
         .map(fp.omit(['objectType']))
         .map(x => ({
           ...x,
+          createSql: `DELIMITER //\n\nCREATE PROCEDURE \`${x.pureName}\`()\n${x.routineDefinition}\n\nDELIMITER ;\n`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
@@ -140,6 +141,9 @@ class Analyser extends DatabaseAnalyser {
         .map(fp.omit(['objectType']))
         .map(x => ({
           ...x,
+          createSql: `CREATE FUNCTION \`${x.pureName}\`()\nRETURNS ${x.returnDataType} ${
+            x.isDeterministic == 'YES' ? 'DETERMINISTIC' : 'NOT DETERMINISTIC'
+          }\n${x.routineDefinition}`,
           objectId: x.pureName,
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),

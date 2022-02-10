@@ -97,7 +97,9 @@ export interface ViewInfo extends SqlObjectInfo {
 
 export interface ProcedureInfo extends SqlObjectInfo {}
 
-export interface FunctionInfo extends SqlObjectInfo {}
+export interface FunctionInfo extends SqlObjectInfo {
+  // returnDataType?: string;
+}
 
 export interface TriggerInfo extends SqlObjectInfo {}
 
