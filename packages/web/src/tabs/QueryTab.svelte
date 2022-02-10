@@ -254,6 +254,7 @@
   function createMenu() {
     return [
       { command: 'query.execute' },
+      { command: 'query.executeCurrent' },
       { command: 'query.kill' },
       { divider: true },
       { command: 'query.toggleComment' },
