@@ -24,11 +24,20 @@
   import dragDropFileTarget from './utility/dragDropFileTarget';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
+
+  let domTabs;
+
+  function handleTabsWheel(e) {
+    if (!e.shiftKey) {
+      e.preventDefault();
+      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+    }
+  }
 </script>
 
 <svelte:head>
   {#if $currentThemeDefinition?.themeCss}
-  {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
+    {@html `<style id="themePlugin" ✂prettier:content✂="JHskY3VycmVudFRoZW1lRGVmaW5pdGlvbj8udGhlbWVDc3N9" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂=""></style>`}
   {/if}
 </svelte:head>
 
@@ -48,7 +57,7 @@
       <WidgetContainer />
     </div>
   {/if}
-  <div class="tabs">
+  <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
     <TabsPanel />
   </div>
   <div class="content">
