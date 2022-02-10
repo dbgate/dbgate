@@ -54,7 +54,6 @@ class Dumper extends SqlDumper {
   }
 
   columnDefinition(col, options) {
-    const { autoIncrement } = options || {};
     if (col.autoIncrement) {
       this.put('^serial');
       return;

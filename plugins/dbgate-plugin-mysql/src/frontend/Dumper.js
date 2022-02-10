@@ -38,6 +38,22 @@ class Dumper extends SqlDumper {
     this.endCommand();
   }
 
+  specialColumnOptions(column) {
+    if (column.isUnsigned) {
+      this.put('^unsigned ');
+    }
+    if (column.isZerofill) {
+      this.put('^zerofill ');
+    }
+  }
+
+  columnDefinition(col, options) {
+    super.columnDefinition(col, options);
+    if (col.columnComment) {
+      this.put(' ^comment %v ', col.columnComment);
+    }
+  }
+
   renameColumn(column, newcol) {
     this.changeColumn(
       column,

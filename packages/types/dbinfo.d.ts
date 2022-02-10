@@ -55,6 +55,8 @@ export interface ColumnInfo extends NamedObjectInfo {
   defaultValue?: string;
   defaultConstraint?: string;
   columnComment?: string;
+  isUnsigned?: boolean;
+  isZerofill?: boolean;
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {

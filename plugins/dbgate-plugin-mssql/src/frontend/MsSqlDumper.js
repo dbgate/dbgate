@@ -129,6 +129,12 @@ class MsSqlDumper extends SqlDumper {
     }
   }
 
+  specialColumnOptions(column) {
+    if (column.isSparse) {
+      this.put('^sparse ');
+    }
+  }
+
   renameConstraint(cnt, newname) {
     if (cnt.constraintType == 'index')
       this.putCmd("^execute sp_rename '%f.%i', '%s', 'INDEX'", cnt, cnt.constraintName, newname);

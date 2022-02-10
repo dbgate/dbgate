@@ -15,7 +15,9 @@ function getColumnInfo({
   numericScale,
   defaultValue,
   columnComment,
+  columnType,
 }) {
+  const columnTypeTokens = _.isString(columnType) ? columnType.split(' ').map(x => x.trim().toLowerCase()) : [];
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
   if (numericPrecision && numericScale && isTypeNumeric(dataType))
@@ -27,6 +29,8 @@ function getColumnInfo({
     columnComment,
     dataType: fullDataType,
     defaultValue,
+    isUnsigned: columnTypeTokens.includes('unsigned'),
+    isZerofill: columnTypeTokens.includes('zerofill'),
   };
 }
 

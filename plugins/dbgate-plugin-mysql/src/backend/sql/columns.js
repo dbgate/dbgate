@@ -9,6 +9,7 @@ select
 	NUMERIC_SCALE as numericScale,
 	COLUMN_DEFAULT as defaultValue,
 	COLUMN_COMMENT as columnComment,
+	COLUMN_TYPE as columnType,
 	EXTRA as extra
 from INFORMATION_SCHEMA.COLUMNS
 where TABLE_SCHEMA = '#DATABASE#' and TABLE_NAME =OBJECT_ID_CONDITION

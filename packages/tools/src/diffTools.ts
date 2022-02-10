@@ -217,6 +217,24 @@ export function testEqualColumns(
     // opts.DiffLogger.Trace('Column {0}, {1}: different is_sparse: {2}; {3}', a, b, a.IsSparse, b.IsSparse);
     return false;
   }
+  if ((a.isUnsigned || false) != (b.isUnsigned || false)) {
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different unsigned: ${a.isUnsigned}, ${b.isUnsigned}`
+    );
+    return false;
+  }
+  if ((a.isZerofill || false) != (b.isZerofill || false)) {
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different zerofill: ${a.isZerofill}, ${b.isZerofill}`
+    );
+    return false;
+  }
+  if ((a.columnComment || '') != (b.columnComment || '')) {
+    console.debug(
+      `Column ${a.pureName}.${a.columnName}, ${b.pureName}.${b.columnName}: different comment: ${a.columnComment}, ${b.columnComment}`
+    );
+    return false;
+  }
 
   if (!testEqualTypes(a, b, opts)) {
     return false;

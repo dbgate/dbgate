@@ -33,6 +33,8 @@ const dialect = {
 
   columnProperties: {
     columnComment: true,
+    isUnsigned: true,
+    isZerofill: true,
   },
 };
 

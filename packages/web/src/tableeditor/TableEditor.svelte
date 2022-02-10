@@ -97,6 +97,7 @@
     showModal(ColumnEditorModal, {
       setTableInfo,
       tableInfo,
+      driver,
       onAddNext: async () => {
         await tick();
         addColumn();
@@ -158,7 +159,7 @@
     title={`Columns (${columns?.length || 0})`}
     emptyMessage="No columns defined"
     clickable={writable()}
-    on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo })}
+    on:clickrow={e => showModal(ColumnEditorModal, { columnInfo: e.detail, tableInfo, setTableInfo, driver })}
     onAddNew={writable() ? addColumn : null}
     columns={[
       {
@@ -194,6 +195,18 @@
         sortable: true,
         slot: 2,
       },
+      driver?.dialect?.columnProperties?.isUnsigned && {
+        fieldName: 'isUnsigned',
+        header: 'Unsigned',
+        sortable: true,
+        slot: 4,
+      },
+      driver?.dialect?.columnProperties?.isZerofill && {
+        fieldName: 'isZerofill',
+        header: 'Zero fill',
+        sortable: true,
+        slot: 5,
+      },
       driver?.dialect?.columnProperties?.columnComment && {
         fieldName: 'columnComment',
         header: 'Comment',
@@ -219,6 +232,8 @@
         }}>Remove</Link
       ></svelte:fragment
     >
+    <svelte:fragment slot="4" let:row>{row?.isUnsigned ? 'YES' : 'NO'}</svelte:fragment>
+    <svelte:fragment slot="5" let:row>{row?.isZerofill ? 'YES' : 'NO'}</svelte:fragment>
     <svelte:fragment slot="name" let:row><ColumnLabel {...row} forceIcon /></svelte:fragment>
   </ObjectListControl>
 

@@ -181,6 +181,8 @@ export class SqlDumper implements AlterProcessor {
     this.put(' ^auto_increment');
   }
 
+  specialColumnOptions(column) {}
+
   columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
     if (column.computedExpression) {
       this.put('^as %s', column.computedExpression);
@@ -193,9 +195,7 @@ export class SqlDumper implements AlterProcessor {
     }
 
     this.putRaw(' ');
-    if (column.isSparse) {
-      this.put(' ^sparse ');
-    }
+    this.specialColumnOptions(column);
     if (includeNullable) {
       this.put(column.notNull ? '^not ^null' : '^null');
     }

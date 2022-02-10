@@ -20,6 +20,7 @@
   export let setTableInfo;
   export let tableInfo;
   export let onAddNext;
+  export let driver;
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
@@ -36,6 +37,18 @@
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
     <FormTextField name="defaultValue" label="Default value" />
     <FormTextField name="computedExpression" label="Computed expression" />
+    {#if driver?.dialect?.columnProperties?.isUnsigned}
+      <FormCheckboxField name="isUnsigned" label="Unsigned" />
+    {/if}
+    {#if driver?.dialect?.columnProperties?.isZerofill}
+      <FormCheckboxField name="isZerofill" label="Zero fill" />
+    {/if}
+    {#if driver?.dialect?.columnProperties?.columnComment}
+      <FormTextField name="columnComment" label="Comment" />
+    {/if}
+    {#if driver?.dialect?.columnProperties?.isSparse}
+      <FormCheckboxField name="isSparse" label="Sparse" />
+    {/if}
 
     <svelte:fragment slot="footer">
       <FormSubmit
