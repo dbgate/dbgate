@@ -79,6 +79,12 @@
       </span>
     {/if}
     <ColumnLabel {...column} />
+
+    {#if column.dataType && !order}
+      <span class="data-type" title={column.dataType}>
+        {column.dataType}
+      </span>
+    {/if}
   </div>
   {#if order == 'ASC'}
     <span class="icon">
@@ -120,5 +126,8 @@
   .grouping {
     color: var(--theme-font-alt);
     white-space: nowrap;
+  }
+  .data-type {
+    color: var(--theme-font-3);
   }
 </style>
