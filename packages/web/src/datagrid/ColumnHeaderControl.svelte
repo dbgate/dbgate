@@ -2,6 +2,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import DropDownButton from '../elements/DropDownButton.svelte';
   import splitterDrag from '../utility/splitterDrag';
+  import _ from 'lodash';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import { isTypeDateTime } from 'dbgate-tools';
@@ -80,9 +81,9 @@
     {/if}
     <ColumnLabel {...column} />
 
-    {#if column.dataType && !order}
+    {#if _.isString(column.dataType) && !order}
       <span class="data-type" title={column.dataType}>
-        {column.dataType}
+        {column.dataType.toLowerCase()}
       </span>
     {/if}
   </div>
