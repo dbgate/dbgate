@@ -168,7 +168,7 @@
   registerCommand({
     id: 'dataGrid.findColumn',
     category: 'Data grid',
-    name: 'Find colunn',
+    name: 'Find column',
     keyText: 'Ctrl+F',
     testEnabled: () => getCurrentDataGrid() != null,
     getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
@@ -177,7 +177,7 @@
   registerCommand({
     id: 'dataGrid.hideColumn',
     category: 'Data grid',
-    name: 'Hide colunn',
+    name: 'Hide column',
     keyText: 'Ctrl+H',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().hideColumn(),
