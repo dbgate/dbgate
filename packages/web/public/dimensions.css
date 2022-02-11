@@ -13,9 +13,14 @@
   );
 
   --dim-visible-toolbar: 1; /* set from JS */
+  --dim-visible-titlebar: 0; /* set from JS */
 
   --dim-toolbar-height: 30px;
-  --dim-header-top: calc(var(--dim-toolbar-height) * var(--dim-visible-toolbar));
+  --dim-titlebar-height: 30px;
+  --dim-toolbar-top: calc(var(--dim-titlebar-height) * var(--dim-visible-titlebar));
+  --dim-header-top: calc(
+    var(--dim-titlebar-height) * var(--dim-visible-titlebar) + var(--dim-toolbar-height) * var(--dim-visible-toolbar)
+  );
   --dim-content-top: calc(var(--dim-header-top) + var(--dim-tabs-panel-height));
 
   --dim-large-form-margin: 20px;

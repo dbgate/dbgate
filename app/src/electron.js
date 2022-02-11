@@ -13,6 +13,8 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 
+let isNativeMenu = true;
+
 // require('@electron/remote/main').initialize();
 
 const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
@@ -168,6 +170,24 @@ ipcMain.on('close-window', async (event, arg) => {
 ipcMain.on('set-title', async (event, arg) => {
   mainWindow.setTitle(arg);
 });
+ipcMain.on('window-action', async (event, arg) => {
+  switch (arg) {
+    case 'minimize':
+      mainWindow.minimize();
+      break;
+    case 'maximize':
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize();
+      } else {
+        mainWindow.maximize();
+      }
+      break;
+    case 'close':
+      mainWindow.close();
+      break;
+  }
+  mainWindow.setTitle(arg);
+});
 
 ipcMain.handle('showOpenDialog', async (event, options) => {
   const res = electron.dialog.showOpenDialogSync(mainWindow, options);
@@ -183,13 +203,22 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
+ipcMain.handle('isNativeMenu', async () => {
+  return isNativeMenu;
+});
 
 function createWindow() {
   const bounds = initialConfig['winBounds'];
+  isNativeMenu = os.platform() == 'darwin' ? true : false;
+  if (initialConfig['menuStyle'] == 'native') isNativeMenu = true;
+  if (initialConfig['menuStyle'] == 'client') isNativeMenu = false;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     title: 'DbGate',
+    frame: isNativeMenu,
+    titleBarStyle: isNativeMenu ? undefined : 'hidden',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     webPreferences: {

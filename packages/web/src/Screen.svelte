@@ -22,10 +22,25 @@
   import ModalLayer from './modals/ModalLayer.svelte';
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
   import dragDropFileTarget from './utility/dragDropFileTarget';
+  import TitleBar from './widgets/TitleBar.svelte';
+  import { onMount } from 'svelte';
+  import getElectron from './utility/getElectron';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
   let domTabs;
+
+  let drawTitleBar = false;
+  onMount(async () => {
+    let draw = true;
+    const electron = getElectron();
+    if (electron && (await electron.isNativeMenu())) {
+      draw = false;
+    }
+    drawTitleBar = draw;
+    document.documentElement.style.setProperty('--dim-visible-titlebar', drawTitleBar ? 1 : 0);
+    console.log('drawTitleBar', drawTitleBar);
+  });
 
   function handleTabsWheel(e) {
     if (!e.shiftKey) {
@@ -37,7 +52,7 @@
 
 <svelte:head>
   {#if $currentThemeDefinition?.themeCss}
-    {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
+  {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
   {/if}
 </svelte:head>
 
@@ -46,6 +61,11 @@
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
 >
+  {#if drawTitleBar}
+    <div class="titlebar">
+      <TitleBar />
+    </div>
+  {/if}
   <div class="iconbar">
     <WidgetIconPanel />
   </div>
@@ -153,7 +173,7 @@
   }
   .toolbar {
     position: fixed;
-    top: 0;
+    top: var(--dim-toolbar-top);
     height: var(--dim-toolbar-height);
     left: 0;
     right: 0;
@@ -171,5 +191,13 @@
     position: fixed;
     right: 0;
     bottom: var(--dim-statusbar-height);
+  }
+
+  .titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--dim-titlebar-height);
   }
 </style>

@@ -27,6 +27,10 @@ class ElectronApi {
     await this.ipcRenderer.invoke('openExternal', url);
   }
 
+  async isNativeMenu() {
+    await this.ipcRenderer.invoke('isNativeMenu');
+  }
+
   async invoke(route, args) {
     const res = await this.ipcRenderer.invoke(route, args);
     return res;

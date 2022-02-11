@@ -29,6 +29,11 @@
     'icon app': 'mdi mdi-layers-triple',
     'icon open-in-new': 'mdi mdi-open-in-new',
 
+    'icon window-restore': 'mdi mdi-window-restore',
+    'icon window-close': 'mdi mdi-window-close',
+    'icon window-minimize': 'mdi mdi-window-minimize',
+    'img dbgate': 'mdi mdi-database color-icon-gold',
+
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',
 
