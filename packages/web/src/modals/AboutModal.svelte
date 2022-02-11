@@ -8,8 +8,8 @@
   import Link from '../elements/Link.svelte';
 
   const config = useConfig();
-  $: version = $config.version;
-  $: buildTime = $config.buildTime;
+  $: version = $config?.version;
+  $: buildTime = $config?.buildTime;
 </script>
 
 <ModalBase {...$$restProps}>
