@@ -37,7 +37,7 @@
 
 <svelte:head>
   {#if $currentThemeDefinition?.themeCss}
-    {@html `<style id="themePlugin" ✂prettier:content✂="JHskY3VycmVudFRoZW1lRGVmaW5pdGlvbj8udGhlbWVDc3N9" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂="" ✂prettier:content✂=""></style>`}
+    {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
   {/if}
 </svelte:head>
 
