@@ -6,7 +6,7 @@
 
 <style>
   :global(.theme-light) {
-    --theme-font-1: #000000;
+    --theme-font-1: #262626;
     --theme-font-2: #4d4d4d;
     --theme-font-3: #808080;
     --theme-font-4: #b3b3b3;
