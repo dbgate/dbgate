@@ -424,7 +424,7 @@
     background-color: var(--theme-bg-3);
   } */
   .db-name.selected {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-bg-0);
   }
   .file-tab-item {
     border-right: 1px solid var(--theme-border);
@@ -439,7 +439,7 @@
     user-select: none;
   }
   .file-tab-item.selected {
-    background-color: var(--theme-bg-1);
+    background-color: var(--theme-bg-0);
   }
   .file-name {
     margin-left: 5px;

@@ -146,7 +146,7 @@
     left: var(--dim-content-left);
     height: var(--dim-tabs-panel-height);
     right: 0;
-    background-color: var(--theme-bg-2);
+    background-color: var(--theme-bg-1);
     border-top: 1px solid var(--theme-border);
 
     overflow-x: auto;
