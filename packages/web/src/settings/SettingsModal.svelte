@@ -49,7 +49,7 @@
 
     <FormValues let:values>
       <div class="heading">Appearance</div>
-      <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
+      <!-- <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} /> -->
       {#if electron}
         <FormCheckboxField name=":useNativeMenu" label="Use system native menu" />
       {/if}
