@@ -33,47 +33,6 @@
     if (newLeft != null) element.style.left = `${newLeft}px`;
     if (newTop != null) element.style.top = `${newTop}px`;
   }
-
-  function mapItem(item, commands) {
-    if (item.command) {
-      const command = commands[item.command];
-      if (command) {
-        return {
-          text: command.menuName || command.toolbarName || command.name,
-          keyText: command.keyText || command.keyTextFromGroup,
-          onClick: () => {
-            if (command.getSubCommands) visibleCommandPalette.set(command);
-            else if (command.onClick) command.onClick();
-          },
-          disabled: !command.enabled,
-          hideDisabled: item.hideDisabled,
-        };
-      }
-      return null;
-    }
-    return item;
-  }
-
-  function filterMenuItems(items) {
-    const res = [];
-    let wasDivider = false;
-    let wasItem = false;
-    for (const item of items.filter(x => !x.disabled || !x.hideDisabled)) {
-      if (item.divider) {
-        if (wasItem) {
-          wasDivider = true;
-        }
-      } else {
-        if (wasDivider) {
-          res.push({ divider: true });
-        }
-        wasDivider = false;
-        wasItem = true;
-        res.push(item);
-      }
-    }
-    return res;
-  }
 </script>
 
 <script>
@@ -81,7 +40,7 @@
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import { commandsCustomized, visibleCommandPalette } from '../stores';
-  import { extractMenuItems } from '../utility/contextMenu';
+  import { prepareMenuItems } from '../utility/contextMenu';
   import FontIcon from '../icons/FontIcon.svelte';
 
   export let items;
@@ -124,9 +83,7 @@
     submenuOffset = hoverOffset;
   }, 500);
 
-  $: extracted = extractMenuItems(items, { targetElement });
-  $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
-  $: filtered = filterMenuItems(compacted);
+  $: preparedItems = prepareMenuItems(items, { targetElement }, $commandsCustomized);
 
   const handleClickOutside = event => {
     // if (element && !element.contains(event.target) && !event.defaultPrevented) {
@@ -144,7 +101,7 @@
 </script>
 
 <ul class="dropDownMenuMarker" style={`left: ${left}px; top: ${top}px`} bind:this={element}>
-  {#each filtered as item}
+  {#each preparedItems as item}
     {#if item.divider}
       <li class="divider" />
     {:else}

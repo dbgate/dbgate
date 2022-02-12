@@ -75,7 +75,6 @@
     const rect = domMainMenu.getBoundingClientRect();
     const left = rect.right;
     const top = rect.top;
-    console.log('mainMenuDefinition', mainMenuDefinition);
     const items = mainMenuDefinition;
     currentDropDownMenu.set({ left, top, items });
   }

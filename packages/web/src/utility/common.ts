@@ -46,7 +46,7 @@ export async function shouldDrawTitleBar() {
     return false;
   }
   if (await electron.isNativeMenu()) {
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }

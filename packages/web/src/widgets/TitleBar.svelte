@@ -1,6 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
+  import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import FontIcon from '../icons/FontIcon.svelte';
+  import HorizontalMenu from '../modals/HorizontalMenu.svelte';
 
   import { activeTab, currentDatabase } from '../stores';
   import getElectron from '../utility/getElectron';
@@ -11,7 +13,9 @@
 
 <div class="container">
   <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
-  <div class="menu">File Edit Window</div>
+  <div class="menu">
+    <HorizontalMenu items={mainMenuDefinition} />
+  </div>
   <div class="title">{title}</div>
 
   <div class="actions">
@@ -34,7 +38,7 @@
     height: var(--dim-titlebar-height);
     display: flex;
     align-items: center;
-    background: var(--theme-bg-3);
+    background: var(--theme-bg-2);
     color: var(--theme-font-1);
   }
 
@@ -67,6 +71,7 @@
 
   .menu {
     margin-left: 10px;
+    -webkit-app-region: no-drag;
   }
 
   .actions {

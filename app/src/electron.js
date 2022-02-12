@@ -235,7 +235,7 @@ function createWindow() {
   isNativeMenu = os.platform() == 'darwin' ? true : false;
   if (initialConfig['menuStyle'] == 'native') isNativeMenu = true;
   if (initialConfig['menuStyle'] == 'client') isNativeMenu = false;
-  isNativeMenu = true;
+  // isNativeMenu = true;
 
   mainWindow = new BrowserWindow({
     width: 1200,

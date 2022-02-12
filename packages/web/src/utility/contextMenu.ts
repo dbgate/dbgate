@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { getContext, setContext } from 'svelte';
 import invalidateCommands from '../commands/invalidateCommands';
-import { currentDropDownMenu } from '../stores';
+import { currentDropDownMenu, visibleCommandPalette } from '../stores';
 import getAsArray from './getAsArray';
 
 export function registerMenu(...items) {
@@ -83,13 +83,61 @@ function processTags(items) {
   return res;
 }
 
-export function extractMenuItems(menu, options = null) {
+function extractMenuItems(menu, options = null) {
   let res = [];
   doExtractMenuItems(menu, res, options);
   res = processTags(res);
   return res;
 }
 
+function mapItem(item, commands) {
+  if (item.command) {
+    const command = commands[item.command];
+    if (command) {
+      return {
+        text: command.menuName || command.toolbarName || command.name,
+        keyText: command.keyText || command.keyTextFromGroup,
+        onClick: () => {
+          if (command.getSubCommands) visibleCommandPalette.set(command);
+          else if (command.onClick) command.onClick();
+        },
+        disabled: !command.enabled,
+        hideDisabled: item.hideDisabled,
+      };
+    }
+    return null;
+  }
+  return item;
+}
+
+function filterMenuItems(items) {
+  const res = [];
+  let wasDivider = false;
+  let wasItem = false;
+  for (const item of items.filter(x => !x.disabled || !x.hideDisabled)) {
+    if (item.divider) {
+      if (wasItem) {
+        wasDivider = true;
+      }
+    } else {
+      if (wasDivider) {
+        res.push({ divider: true });
+      }
+      wasDivider = false;
+      wasItem = true;
+      res.push(item);
+    }
+  }
+  return res;
+}
+
 export function getContextMenu(): any {
   return getContext('componentContextMenu');
+}
+
+export function prepareMenuItems(items, options, commandsCustomized) {
+  const extracted = extractMenuItems(items, options);
+  const compacted = _.compact(extracted.map(x => mapItem(x, commandsCustomized)));
+  const filtered = filterMenuItems(compacted);
+  return filtered;
 }
