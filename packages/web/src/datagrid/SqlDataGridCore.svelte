@@ -21,6 +21,7 @@
     id: 'sqlDataGrid.export',
     category: 'Data grid',
     name: 'Export',
+    icon: 'icon export',
     keyText: 'Ctrl+E',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().exportGrid(),
@@ -64,6 +65,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import { getContext } from 'svelte';
 
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -177,27 +179,31 @@
     );
   }
 
+  const quickExportHandler = fmt => async () => {
+    const coninfo = await getConnectionInfo({ conid });
+    exportElectronFile(
+      pureName || 'Data',
+      {
+        functionName: 'queryReader',
+        props: {
+          connection: {
+            ..._.omit(coninfo, ['_id', 'displayName']),
+            database,
+          },
+          sql: display.getExportQuery(),
+        },
+      },
+      fmt
+    );
+  };
+  const setQuickExportHandler = getContext('setQuickExportHandler');
+  if (setQuickExportHandler) (setQuickExportHandler as any)(quickExportHandler);
+
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
     {
-      ...createQuickExportMenu($extensions, fmt => async () => {
-        const coninfo = await getConnectionInfo({ conid });
-        exportElectronFile(
-          pureName || 'Data',
-          {
-            functionName: 'queryReader',
-            props: {
-              connection: {
-                ..._.omit(coninfo, ['_id', 'displayName']),
-                database,
-              },
-              sql: display.getExportQuery(),
-            },
-          },
-          fmt
-        );
-      }),
+      ...createQuickExportMenu($extensions, quickExportHandler),
       tag: 'export',
     },
     { command: 'sqlDataGrid.export', tag: 'export' }

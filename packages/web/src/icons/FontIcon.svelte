@@ -18,6 +18,7 @@
     'icon favorite': 'mdi mdi-star',
     'icon share': 'mdi mdi-share-variant',
     'icon add': 'mdi mdi-plus-circle',
+    'icon minus': 'mdi mdi-minus-circle',
     'icon connection': 'mdi mdi-connection',
     'icon cell-data': 'mdi mdi-details',
     'icon sql-generator': 'mdi mdi-cog-transfer',

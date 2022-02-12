@@ -11,7 +11,7 @@
 
   function handleClick(e) {
     if (disabled) return;
-    dispatch('click');
+    dispatch('click', { target: e.target });
   }
 </script>
 

@@ -95,7 +95,7 @@ function mapItem(item, commands) {
     const command = commands[item.command];
     if (command) {
       return {
-        text: command.menuName || command.toolbarName || command.name,
+        text: item.text || command.menuName || command.toolbarName || command.name,
         keyText: command.keyText || command.keyTextFromGroup,
         onClick: () => {
           if (command.getSubCommands) visibleCommandPalette.set(command);

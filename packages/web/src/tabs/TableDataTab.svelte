@@ -56,6 +56,8 @@
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
+  import { createQuickExportMenuItems } from '../utility/createQuickExportMenu';
 
   export let tabid;
   export let conid;
@@ -116,6 +118,19 @@
   const collapsedLeftColumnStore = writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
   $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
+
+  let quickExportHandler = null;
+  function setQuickExportHandler(value) {
+    quickExportHandler = value;
+  }
+  setContext('setQuickExportHandler', setQuickExportHandler);
+  function getExportMenu() {
+    return [
+      quickExportHandler ? createQuickExportMenuItems($extensions, quickExportHandler) : null,
+      { divider: true },
+      { command: 'sqlDataGrid.export', text: 'Advanced settings' },
+    ];
+  }
 </script>
 
 <ToolStripContainer>
@@ -135,6 +150,8 @@
     <ToolStripCommandButton command="dataGrid.refresh" />
     <ToolStripCommandButton command="tableData.save" />
     <ToolStripCommandButton command="dataGrid.insertNewRow" />
+    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" />
+    <ToolStripDropDownButton menu={getExportMenu} label="Export" icon="icon export" />
   </svelte:fragment>
 </ToolStripContainer>
 

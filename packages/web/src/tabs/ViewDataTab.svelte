@@ -8,6 +8,8 @@
   import { findEngineDriver } from 'dbgate-tools';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
+import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
 
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';
@@ -51,16 +53,22 @@
 </script>
 
 {#if display}
-  <DataGrid
-    {...$$props}
-    {display}
-    config={$config}
-    setConfig={config.update}
-    cache={$cache}
-    setCache={cache.update}
-    focusOnVisible
-    gridCoreComponent={SqlDataGridCore}
-  />
+  <ToolStripContainer>
+    <DataGrid
+      {...$$props}
+      {display}
+      config={$config}
+      setConfig={config.update}
+      cache={$cache}
+      setCache={cache.update}
+      focusOnVisible
+      gridCoreComponent={SqlDataGridCore}
+    />
+    <svelte:fragment slot="toolstrip">
+      <ToolStripCommandButton command="dataGrid.refresh" />
+      <ToolStripCommandButton command="sqlDataGrid.export" />
+    </svelte:fragment>
+  </ToolStripContainer>
 {/if}
 
 <StatusBarTabItem

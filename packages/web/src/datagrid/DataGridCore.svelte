@@ -34,7 +34,9 @@
     id: 'dataGrid.deleteSelectedRows',
     category: 'Data grid',
     name: 'Delete selected rows',
+    toolbarName: 'Delete row(s)',
     keyText: 'Ctrl+Delete',
+    icon: 'icon minus',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),
   });
