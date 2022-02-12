@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import ToolbarButton from '../widgets/ToolbarButton.svelte';
+  import ToolbarButton from '../buttons/ToolbarButton.svelte';
 
   export let onExecute;
 

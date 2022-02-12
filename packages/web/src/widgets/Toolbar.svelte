@@ -14,7 +14,7 @@
   import { activeTab, commands, commandsCustomized } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useFavorites } from '../utility/metadataLoaders';
-  import ToolbarButton from './ToolbarButton.svelte';
+  import ToolbarButton from '../buttons/ToolbarButton.svelte';
 
   const electron = getElectron();
 

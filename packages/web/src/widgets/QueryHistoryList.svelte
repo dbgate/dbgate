@@ -7,7 +7,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { onMount } from 'svelte';
   import openNewTab from '../utility/openNewTab';
-  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall, apiOff, apiOn } from '../utility/api';
 
   let filter = '';

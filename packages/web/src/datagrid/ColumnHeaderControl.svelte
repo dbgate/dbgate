@@ -1,6 +1,6 @@
 <script>
   import FontIcon from '../icons/FontIcon.svelte';
-  import DropDownButton from '../elements/DropDownButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
   import splitterDrag from '../utility/splitterDrag';
   import _ from 'lodash';
 

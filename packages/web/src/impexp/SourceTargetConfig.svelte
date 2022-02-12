@@ -1,6 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormArchiveFilesSelect from '../forms/FormArchiveFilesSelect.svelte';
   import moment from 'moment';
 

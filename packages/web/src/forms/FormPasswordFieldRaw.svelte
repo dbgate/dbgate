@@ -1,7 +1,7 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   import { getFormContext } from './FormProviderCore.svelte';
   import TextField from './TextField.svelte';

@@ -2,9 +2,9 @@
   import _, { indexOf, range } from 'lodash';
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
-  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';

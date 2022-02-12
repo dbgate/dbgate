@@ -2,14 +2,10 @@
   import _ from 'lodash';
   import { writable } from 'svelte/store';
 
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
-
-  import FormProvider from '../forms/FormProvider.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
-  import FontIcon from '../icons/FontIcon.svelte';
   import { commandsSettings } from '../stores';
   import { apiCall } from '../utility/api';
   import KeyboardModal from './KeyboardModal.svelte';

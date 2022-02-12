@@ -1,7 +1,7 @@
 <script lang="ts">
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal, showModal } from './modalTools';
   import DefineDictionaryDescriptionModal from './DefineDictionaryDescriptionModal.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { getFormContext } from './FormProviderCore.svelte';
   import { createEventDispatcher } from 'svelte';
 

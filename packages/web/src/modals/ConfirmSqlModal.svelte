@@ -1,7 +1,7 @@
 <script>
   import _, { startsWith } from 'lodash';
   import { writable } from 'svelte/store';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';

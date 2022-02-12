@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import { writable } from 'svelte/store';
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import resizeObserver from '../utility/resizeObserver';
 

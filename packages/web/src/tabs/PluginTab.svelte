@@ -4,7 +4,7 @@
 
 <script lang="ts">
   import compareVersions from 'compare-versions';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import Markdown from '../elements/Markdown.svelte';
   import { extractPluginAuthor, extractPluginIcon } from '../plugins/manifestExtractors';
   import { apiCall, useApiCall } from '../utility/api';

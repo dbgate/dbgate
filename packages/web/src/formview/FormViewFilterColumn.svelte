@@ -4,7 +4,7 @@
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
   export let column;

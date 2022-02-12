@@ -7,7 +7,7 @@
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
 
-  import LargeButton from '../elements/LargeButton.svelte';
+  import LargeButton from '../buttons/LargeButton.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';

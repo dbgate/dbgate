@@ -135,7 +135,7 @@
   import { derived, writable } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import DiffView from '../elements/DiffView.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import ScrollableTableControl from '../elements/ScrollableTableControl.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import TabControl from '../elements/TabControl.svelte';

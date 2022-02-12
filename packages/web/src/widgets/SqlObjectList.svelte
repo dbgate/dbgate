@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
   import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
@@ -26,9 +26,9 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { getObjectTypeFieldLabel } from '../utility/common';
-  import DropDownButton from '../elements/DropDownButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { findEngineDriver } from 'dbgate-tools';
   import { extensions } from '../stores';
   import newQuery from '../query/newQuery';

@@ -1,11 +1,9 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import InlineButton from '../elements/InlineButton.svelte';
-
   import { getFormContext } from './FormProviderCore.svelte';
   import TextField from './TextField.svelte';
-  import DropDownButton from '../elements/DropDownButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
   export let name;
   export let disabled = false;

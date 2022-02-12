@@ -13,7 +13,7 @@
 </script>
 
 <script lang="ts">
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import ChangeDownloadUrlModal from '../modals/ChangeDownloadUrlModal.svelte';
   import { showModal } from '../modals/modalTools';
@@ -22,7 +22,7 @@
   import getElectron from '../utility/getElectron';
   import ElectronFilesInput from './ElectronFilesInput.svelte';
   import { addFilesToSourceList } from './ImportExportConfigurator.svelte';
-  import UploadButton from './UploadButton.svelte';
+  import UploadButton from '../buttons/UploadButton.svelte';
 
   export let setPreviewSource = undefined;
 

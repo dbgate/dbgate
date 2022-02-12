@@ -1,5 +1,5 @@
 <script lang="ts">
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import TextField from '../forms/TextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { createEventDispatcher } from 'svelte';

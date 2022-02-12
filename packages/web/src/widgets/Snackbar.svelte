@@ -1,7 +1,7 @@
 <script lang="ts">
   import FontIcon from '../icons/FontIcon.svelte';
   import { onMount } from 'svelte';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { openedSnackbars } from '../stores';
 
   export let message;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FormStyledButton from './FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   export let selectedColumns;
   export let allColumns;

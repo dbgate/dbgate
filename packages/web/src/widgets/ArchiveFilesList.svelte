@@ -17,10 +17,10 @@
 
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as archiveFileAppObject from '../appobj/ArchiveFileAppObject.svelte';
-  import CloseSearchButton from '../elements/CloseSearchButton.svelte';
-  import DropDownButton from '../elements/DropDownButton.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';

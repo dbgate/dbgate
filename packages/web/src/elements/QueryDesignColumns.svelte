@@ -7,13 +7,12 @@
 </script>
 
 <script>
-  import { map } from 'lodash';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
   import { findDesignerFilterType } from '../designer/designerTools';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import TextField from '../forms/TextField.svelte';
-  import InlineButton from './InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   import TableControl from './TableControl.svelte';
 

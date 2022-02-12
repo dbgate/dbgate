@@ -2,7 +2,7 @@
   import moment from 'moment';
   import { writable } from 'svelte/store';
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import LargeButton from '../elements/LargeButton.svelte';
+  import LargeButton from '../buttons/LargeButton.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
 

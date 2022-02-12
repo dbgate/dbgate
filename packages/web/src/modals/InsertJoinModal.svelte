@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import TextField from '../forms/TextField.svelte';
   import analyseQuerySources from '../query/analyseQuerySources';

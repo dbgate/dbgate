@@ -54,8 +54,8 @@
   import { setContext } from 'svelte';
   import { apiCall } from '../utility/api';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
-  import ToolStripContainer from '../widgets/ToolStripContainer.svelte';
-  import ToolbarCommandButton from '../widgets/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 
   export let tabid;
   export let conid;
@@ -132,9 +132,9 @@
   />
 
   <svelte:fragment slot="toolstrip">
-    <ToolbarCommandButton command="dataGrid.refresh" />
-    <ToolbarCommandButton command="tableData.save" />
-    <ToolbarCommandButton command="dataGrid.insertNewRow" />
+    <ToolStripCommandButton command="dataGrid.refresh" />
+    <ToolStripCommandButton command="tableData.save" />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" />
   </svelte:fragment>
 </ToolStripContainer>
 

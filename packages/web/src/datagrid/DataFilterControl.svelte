@@ -12,8 +12,8 @@
   import SetFilterModal from '../modals/SetFilterModal.svelte';
   import keycodes from '../utility/keycodes';
 
-  import DropDownButton from '../elements/DropDownButton.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
   import ValueLookupModal from '../modals/ValueLookupModal.svelte';

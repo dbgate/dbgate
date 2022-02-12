@@ -1,6 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import DropDownButton from './DropDownButton.svelte';
+  import DropDownButton from '../buttons/DropDownButton.svelte';
 
   interface TabDef {
     label: string;

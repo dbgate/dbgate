@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getContext } from 'svelte';
 
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   import WidgetTitle from '../widgets/WidgetTitle.svelte';
   import MacroParameters from './MacroParameters.svelte';

@@ -1,7 +1,7 @@
 <script>
   import { getFormContext } from './FormProviderCore.svelte';
   import { createEventDispatcher } from 'svelte';
-  import LargeButton from '../elements/LargeButton.svelte';
+  import LargeButton from '../buttons/LargeButton.svelte';
 
   const dispatch = createEventDispatcher();
 

@@ -1,18 +1,11 @@
 <script lang="ts">
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import uuidv1 from 'uuid/v1';
-
-  import FormSelectField from '../forms/FormSelectField.svelte';
-  import FormTextField from '../forms/FormTextField.svelte';
-  import FormCheckboxField from '../forms/FormCheckboxField.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
-  import DropDownButton from '../elements/DropDownButton.svelte';
-  import DataTypeEditor from './DataTypeEditor.svelte';
   import { editorAddConstraint, editorDeleteConstraint, editorModifyConstraint } from 'dbgate-tools';
   import TextField from '../forms/TextField.svelte';
   import SelectField from '../forms/SelectField.svelte';

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FormStyledButtonLikeLabel from '../elements/FormStyledButtonLikeLabel.svelte';
+  import FormStyledButtonLikeLabel from '../buttons/FormStyledButtonLikeLabel.svelte';
   import uploadFiles from '../utility/uploadFiles';
 
   const handleChange = e => {

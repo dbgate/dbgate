@@ -274,7 +274,7 @@
   import { cellFromEvent, emptyCellArray, getCellRange, isRegularCell, nullCell, topLeftCell } from './selection';
   import VerticalScrollBar from './VerticalScrollBar.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
@@ -292,7 +292,7 @@
   import openNewTab from '../utility/openNewTab';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import CollapseButton from './CollapseButton.svelte';

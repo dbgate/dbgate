@@ -1,5 +1,5 @@
 <script lang="ts">
-  import InlineButton from '../elements/InlineButton.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
   export let icon;

@@ -2,9 +2,8 @@
   import { GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import { createEventDispatcher } from 'svelte';
-import CloseSearchButton from '../elements/CloseSearchButton.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
-  import InlineButton from '../elements/InlineButton.svelte';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';

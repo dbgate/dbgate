@@ -1,6 +1,6 @@
 <script lang="ts">
   import CheckableColumnList from '../elements/CheckableColumnList.svelte';
-  import FormStyledButton from '../elements/FormStyledButton.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
