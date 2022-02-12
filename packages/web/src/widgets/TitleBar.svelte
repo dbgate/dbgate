@@ -10,7 +10,7 @@
 </script>
 
 <div class="container">
-  <div class="icon"><FontIcon icon="img dbgate" /></div>
+  <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
   <div class="menu">File Edit Window</div>
   <div class="title">{title}</div>
 
@@ -41,6 +41,7 @@
   .title {
     flex-grow: 1;
     text-align: center;
+    /* font-weight: bold; */
   }
 
   .icon {

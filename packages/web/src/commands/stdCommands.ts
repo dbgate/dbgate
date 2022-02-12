@@ -26,6 +26,7 @@ import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
 import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
+import { openWebLink } from '../utility/exportElectronFile';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -551,6 +552,66 @@ export function registerFileCommands({
     });
   }
 }
+
+registerCommand({
+  id: 'app.minimize',
+  category: 'Application',
+  name: 'Minimize',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'minimize'),
+});
+
+registerCommand({
+  id: 'app.toggleFullScreen',
+  category: 'Application',
+  name: 'Toggle full screen',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'fullscreen'),
+});
+
+registerCommand({
+  id: 'app.toggleDevTools',
+  category: 'Application',
+  name: 'Toggle Dev Tools',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'devtools'),
+});
+
+registerCommand({
+  id: 'app.reload',
+  category: 'Application',
+  name: 'Reload',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'reload'),
+});
+
+registerCommand({
+  id: 'app.openDocs',
+  category: 'Application',
+  name: 'Documentation',
+  onClick: () => openWebLink('https://github.com/dbgate/dbgate/wiki'),
+});
+
+registerCommand({
+  id: 'app.openWeb',
+  category: 'Application',
+  name: 'DbGate web',
+  onClick: () => openWebLink('https://dbgate.org'),
+});
+
+registerCommand({
+  id: 'app.openIssue',
+  category: 'Application',
+  name: 'Report problem or feature request',
+  onClick: () => openWebLink('https://github.com/dbgate/dbgate/issues/new'),
+});
+
+registerCommand({
+  id: 'app.openSponsoring',
+  category: 'Application',
+  name: 'Become sponsor',
+  onClick: () => openWebLink('https://opencollective.com/dbgate'),
+});
 
 const electron = getElectron();
 if (electron) {

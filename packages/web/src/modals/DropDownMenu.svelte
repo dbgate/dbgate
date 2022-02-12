@@ -136,7 +136,7 @@
         }}
       >
         <a on:click={e => handleClick(e, item)} class:disabled={item.disabled}>
-          {item.text}
+          {item.text || item.label}
           {#if item.keyText}
             <span class="keyText">{item.keyText}</span>
           {/if}

@@ -78,3 +78,13 @@ export async function saveFileToDisk(
     window.open(`${resolveApi()}/uploads/get?file=${resp.fileName}`, '_blank');
   }
 }
+
+export function openWebLink(href) {
+  const electron = getElectron();
+
+  if (electron) {
+    electron.send('open-link', href);
+  } else {
+    window.open(href, '_blank');
+  }
+}

@@ -4,6 +4,7 @@ const fs = require('fs');
 const { Menu, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
+const _cloneDeepWith = require('lodash.clonedeepwith');
 
 // Module to control application life.
 const app = electron.app;
@@ -12,6 +13,7 @@ const BrowserWindow = electron.BrowserWindow;
 
 const path = require('path');
 const url = require('url');
+const mainMenuDefinition = require('./mainMenuDefinition');
 
 let isNativeMenu = true;
 
@@ -53,96 +55,105 @@ function commandItem(id) {
 }
 
 function buildMenu() {
-  const template = [
-    {
-      label: 'File',
-      submenu: [
-        commandItem('new.connection'),
-        commandItem('new.sqliteDatabase'),
-        commandItem('new.modelCompare'),
-        commandItem('new.freetable'),
-        { type: 'separator' },
-        commandItem('file.open'),
-        commandItem('file.openArchive'),
-        { type: 'separator' },
-        commandItem('group.save'),
-        commandItem('group.saveAs'),
-        commandItem('database.search'),
-        { type: 'separator' },
-        commandItem('tabs.closeTab'),
-        commandItem('file.exit'),
-      ],
-    },
-    {
-      label: 'Window',
-      submenu: [commandItem('new.query'), { type: 'separator' }, commandItem('tabs.closeAll'), { role: 'minimize' }],
-    },
+  const template = _cloneDeepWith(mainMenuDefinition, item => {
+    if (item.divider) {
+      return { type: 'separator' };
+    }
 
-    // {
-    //   label: 'Edit',
-    //   submenu: [
-    //     { role: 'undo' },
-    //     { role: 'redo' },
-    //     { type: 'separator' },
-    //     { role: 'cut' },
-    //     { role: 'copy' },
-    //     { role: 'paste' },
-    //   ],
-    // },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forcereload' },
-        { role: 'toggledevtools' },
-        { type: 'separator' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' },
-        commandItem('theme.changeTheme'),
-      ],
-    },
-    {
-      role: 'help',
-      submenu: [
-        {
-          label: 'Documentation',
-          click() {
-            electron.shell.openExternal('https://github.com/dbgate/dbgate/wiki');
-          },
-        },
-        {
-          label: 'DbGate web',
-          click() {
-            electron.shell.openExternal('https://dbgate.org');
-          },
-        },
-        {
-          label: 'Report problem or feature request',
-          click() {
-            electron.shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
-          },
-        },
-        {
-          label: 'Become sponsor',
-          click() {
-            electron.shell.openExternal('https://opencollective.com/dbgate');
-          },
-        },
-        // {
-        //   label: 'Discussions',
-        //   click() {
-        //     electron.shell.openExternal('https://github.com/dbgate/dbgate/discussions');
-        //   },
-        // },
-        { type: 'separator' },
-        commandItem('tabs.changelog'),
-        commandItem('about.show'),
-      ],
-    },
-  ];
+    if (item.command) {
+      return commandItem(item.command);
+    }
+  });
+  // const template = [
+  //   {
+  //     label: 'File',
+  //     submenu: [
+  //       commandItem('new.connection'),
+  //       commandItem('new.sqliteDatabase'),
+  //       commandItem('new.modelCompare'),
+  //       commandItem('new.freetable'),
+  //       { type: 'separator' },
+  //       commandItem('file.open'),
+  //       commandItem('file.openArchive'),
+  //       { type: 'separator' },
+  //       commandItem('group.save'),
+  //       commandItem('group.saveAs'),
+  //       commandItem('database.search'),
+  //       { type: 'separator' },
+  //       commandItem('tabs.closeTab'),
+  //       commandItem('file.exit'),
+  //     ],
+  //   },
+  //   {
+  //     label: 'Window',
+  //     submenu: [commandItem('new.query'), { type: 'separator' }, commandItem('tabs.closeAll'), { role: 'minimize' }],
+  //   },
+
+  //   // {
+  //   //   label: 'Edit',
+  //   //   submenu: [
+  //   //     { role: 'undo' },
+  //   //     { role: 'redo' },
+  //   //     { type: 'separator' },
+  //   //     { role: 'cut' },
+  //   //     { role: 'copy' },
+  //   //     { role: 'paste' },
+  //   //   ],
+  //   // },
+  //   {
+  //     label: 'View',
+  //     submenu: [
+  //       { role: 'reload' },
+  //       { role: 'forcereload' },
+  //       { role: 'toggledevtools' },
+  //       { type: 'separator' },
+  //       { role: 'resetzoom' },
+  //       { role: 'zoomin' },
+  //       { role: 'zoomout' },
+  //       { type: 'separator' },
+  //       { role: 'togglefullscreen' },
+  //       commandItem('theme.changeTheme'),
+  //     ],
+  //   },
+  //   {
+  //     role: 'help',
+  //     submenu: [
+  //       {
+  //         label: 'Documentation',
+  //         click() {
+  //           electron.shell.openExternal('https://github.com/dbgate/dbgate/wiki');
+  //         },
+  //       },
+  //       {
+  //         label: 'DbGate web',
+  //         click() {
+  //           electron.shell.openExternal('https://dbgate.org');
+  //         },
+  //       },
+  //       {
+  //         label: 'Report problem or feature request',
+  //         click() {
+  //           electron.shell.openExternal('https://github.com/dbgate/dbgate/issues/new');
+  //         },
+  //       },
+  //       {
+  //         label: 'Become sponsor',
+  //         click() {
+  //           electron.shell.openExternal('https://opencollective.com/dbgate');
+  //         },
+  //       },
+  //       // {
+  //       //   label: 'Discussions',
+  //       //   click() {
+  //       //     electron.shell.openExternal('https://github.com/dbgate/dbgate/discussions');
+  //       //   },
+  //       // },
+  //       { type: 'separator' },
+  //       commandItem('tabs.changelog'),
+  //       commandItem('about.show'),
+  //     ],
+  //   },
+  // ];
 
   return Menu.buildFromTemplate(template);
 }
@@ -170,6 +181,9 @@ ipcMain.on('close-window', async (event, arg) => {
 ipcMain.on('set-title', async (event, arg) => {
   mainWindow.setTitle(arg);
 });
+ipcMain.on('open-link', async (event, arg) => {
+  electron.shell.openExternal(arg);
+});
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
     case 'minimize':
@@ -184,6 +198,15 @@ ipcMain.on('window-action', async (event, arg) => {
       break;
     case 'close':
       mainWindow.close();
+      break;
+    case 'fullscreen':
+      mainWindow.setFullScreen(!mainWindow.isFullScreen());
+      break;
+    case 'devtools':
+      mainWindow.webContents.toggleDevTools();
+      break;
+    case 'reload':
+      mainWindow.webContents.reloadIgnoringCache();
       break;
   }
   mainWindow.setTitle(arg);
@@ -212,6 +235,7 @@ function createWindow() {
   isNativeMenu = os.platform() == 'darwin' ? true : false;
   if (initialConfig['menuStyle'] == 'native') isNativeMenu = true;
   if (initialConfig['menuStyle'] == 'client') isNativeMenu = false;
+  isNativeMenu = true;
 
   mainWindow = new BrowserWindow({
     width: 1200,
