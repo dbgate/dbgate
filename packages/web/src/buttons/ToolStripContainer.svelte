@@ -10,7 +10,8 @@
   .content {
     position: absolute;
     left: 0;
-    top: var(--dim-toolbar-height);
+    top: var(--dim-toolstrip-height);
+    border-top: 1px solid var(--theme-border);
     right: 0;
     bottom: 0;
     display: flex;
@@ -19,9 +20,9 @@
   .toolstrip {
     position: absolute;
     left: 0;
-    height: var(--dim-toolbar-height);
+    height: var(--dim-toolstrip-height);
     right: 0;
     display: flex;
-    background: var(--theme-bg-0);
+    background: var(--theme-bg-1);
   }
 </style>

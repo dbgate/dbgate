@@ -66,6 +66,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import { getContext } from 'svelte';
+import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
 
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -196,8 +197,7 @@
       fmt
     );
   };
-  const setQuickExportHandler = getContext('setQuickExportHandler');
-  if (setQuickExportHandler) (setQuickExportHandler as any)(quickExportHandler);
+  registerQuickExportHandler(quickExportHandler);
 
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },

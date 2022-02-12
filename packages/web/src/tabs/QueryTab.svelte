@@ -68,6 +68,8 @@
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
   import { apiCall, apiOff, apiOn } from '../utility/api';
+import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
 
   export let tabid;
   export let conid;
@@ -270,52 +272,60 @@
   }
 </script>
 
-<VerticalSplitter isSplitter={visibleResultTabs}>
-  <svelte:fragment slot="1">
-    {#if driver?.dialect?.nosql}
-      <AceEditor
-        mode="javascript"
-        value={$editorState.value || ''}
-        splitterOptions={driver?.getQuerySplitterOptions('script')}
-        menu={createMenu()}
-        on:input={e => setEditorData(e.detail)}
-        on:focus={() => {
-          activator.activate();
-          invalidateCommands();
-        }}
-        bind:this={domEditor}
-      />
-    {:else}
-      <SqlEditor
-        engine={$connection && $connection.engine}
-        {conid}
-        {database}
-        splitterOptions={driver?.getQuerySplitterOptions('script')}
-        value={$editorState.value || ''}
-        menu={createMenu()}
-        on:input={e => setEditorData(e.detail)}
-        on:focus={() => {
-          activator.activate();
-          invalidateCommands();
-        }}
-        bind:this={domEditor}
-      />
-    {/if}
-  </svelte:fragment>
-  <svelte:fragment slot="2">
-    <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber}>
-      <svelte:fragment slot="0">
-        <SocketMessageView
-          eventName={sessionId ? `session-info-${sessionId}` : null}
-          on:messageClick={handleMesageClick}
-          {executeNumber}
-          showProcedure
-          showLine
+<ToolStripContainer>
+  <VerticalSplitter isSplitter={visibleResultTabs}>
+    <svelte:fragment slot="1">
+      {#if driver?.dialect?.nosql}
+        <AceEditor
+          mode="javascript"
+          value={$editorState.value || ''}
+          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          menu={createMenu()}
+          on:input={e => setEditorData(e.detail)}
+          on:focus={() => {
+            activator.activate();
+            invalidateCommands();
+          }}
+          bind:this={domEditor}
         />
-      </svelte:fragment>
-    </ResultTabs>
+      {:else}
+        <SqlEditor
+          engine={$connection && $connection.engine}
+          {conid}
+          {database}
+          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          value={$editorState.value || ''}
+          menu={createMenu()}
+          on:input={e => setEditorData(e.detail)}
+          on:focus={() => {
+            activator.activate();
+            invalidateCommands();
+          }}
+          bind:this={domEditor}
+        />
+      {/if}
+    </svelte:fragment>
+    <svelte:fragment slot="2">
+      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber}>
+        <svelte:fragment slot="0">
+          <SocketMessageView
+            eventName={sessionId ? `session-info-${sessionId}` : null}
+            on:messageClick={handleMesageClick}
+            {executeNumber}
+            showProcedure
+            showLine
+          />
+        </svelte:fragment>
+      </ResultTabs>
+    </svelte:fragment>
+  </VerticalSplitter>
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="query.execute" />
+    <ToolStripCommandButton command="query.kill" />
+    <ToolStripCommandButton command="query.save" />
+    <ToolStripCommandButton command="query.formatCode" />
   </svelte:fragment>
-</VerticalSplitter>
+</ToolStripContainer>
 
 {#if sessionId}
   <StatusBarTabItem icon={busy ? 'icon loading' : 'icon check'} text={busy ? 'Running...' : 'Finished'} />

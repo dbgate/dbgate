@@ -10,6 +10,7 @@
   import { writable } from 'svelte/store';
 import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';
@@ -50,6 +51,8 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   const collapsedLeftColumnStore = writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
   $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 </script>
 
 {#if display}
@@ -66,7 +69,7 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
     />
     <svelte:fragment slot="toolstrip">
       <ToolStripCommandButton command="dataGrid.refresh" />
-      <ToolStripCommandButton command="sqlDataGrid.export" />
+      <ToolStripExportButton {quickExportHandlerRef} />
     </svelte:fragment>
   </ToolStripContainer>
 {/if}
