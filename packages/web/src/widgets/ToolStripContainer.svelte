@@ -1,5 +1,5 @@
-<div class="toolbar">
-  <slot name="toolbar" />
+<div class="toolstrip">
+  <slot name="toolstrip" />
 </div>
 
 <div class="content">
@@ -16,7 +16,7 @@
     display: flex;
   }
 
-  .toolbar {
+  .toolstrip {
     position: absolute;
     left: 0;
     height: var(--dim-toolbar-height);

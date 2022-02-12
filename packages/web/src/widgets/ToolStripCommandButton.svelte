@@ -8,10 +8,10 @@
 
 <script lang="ts">
   import { commandsCustomized } from '../stores';
-  import RoundToolbarButton from './RoundToolbarButton.svelte';
+  import ToolStripButton from './ToolStripButton.svelte';
 
   export let command;
-  export let component = RoundToolbarButton;
+  export let component = ToolStripButton;
 
   $: cmd = Object.values($commandsCustomized).find((x: any) => x.id == command) as any;
 </script>

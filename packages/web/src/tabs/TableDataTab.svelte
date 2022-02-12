@@ -53,9 +53,9 @@
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { setContext } from 'svelte';
   import { apiCall } from '../utility/api';
-  import { getLocalStorage, setLocalStorage, setLocalStorage } from '../utility/storageCache';
-  import TabToolbarContainer from '../widgets/TabToolbarContainer.svelte';
-  import ToolbarCommandButton from '../widgets/ToolbarCommandButton.svelte';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import ToolStripContainer from '../widgets/ToolStripContainer.svelte';
+  import ToolbarCommandButton from '../widgets/ToolStripCommandButton.svelte';
 
   export let tabid;
   export let conid;
@@ -118,7 +118,7 @@
   $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
 </script>
 
-<TabToolbarContainer>
+<ToolStripContainer>
   <TableDataGrid
     {...$$props}
     config={$config}
@@ -131,12 +131,12 @@
     {dispatchChangeSet}
   />
 
-  <svelte:fragment slot="toolbar">
+  <svelte:fragment slot="toolstrip">
     <ToolbarCommandButton command="dataGrid.refresh" />
     <ToolbarCommandButton command="tableData.save" />
     <ToolbarCommandButton command="dataGrid.insertNewRow" />
   </svelte:fragment>
-</TabToolbarContainer>
+</ToolStripContainer>
 
 <StatusBarTabItem
   text="Open structure"

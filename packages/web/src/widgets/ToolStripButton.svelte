@@ -15,8 +15,8 @@
   }
 </script>
 
-<div class="button" on:click={handleClick} class:disabled {title}>
-  <div class="inner" class:disabled>
+<div class="button" class:disabled {title}>
+  <div class="inner" class:disabled on:click={handleClick}>
     {#if externalImage}
       <img src={externalImage} />
     {:else}
@@ -36,7 +36,7 @@
     align-self: stretch;
     display: flex;
     user-select: none;
-}
+  }
   .button.disabled {
     color: var(--theme-font-3);
   }
@@ -59,8 +59,9 @@
     white-space: nowrap;
     align-self: center;
     background: var(--theme-bg-2);
-    padding: 2px 8px;
+    padding: 3px 8px;
     border-radius: 4px;
+    cursor: pointer;
   }
   img {
     width: 20px;
