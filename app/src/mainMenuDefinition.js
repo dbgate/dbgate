@@ -45,7 +45,9 @@ module.exports = [
       { command: 'app.toggleDevTools', hideDisabled: true },
       { command: 'app.toggleFullScreen', hideDisabled: true },
       { command: 'app.minimize', hideDisabled: true },
+      { divider: true },
       { command: 'theme.changeTheme', hideDisabled: true },
+      { command: 'settings.show' },
     ],
   },
   {

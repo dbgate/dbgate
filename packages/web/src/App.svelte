@@ -16,7 +16,8 @@
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
   import { getUsedApps } from './utility/metadataLoaders';
-import AppTitleProvider from './utility/AppTitleProvider.svelte';
+  import AppTitleProvider from './utility/AppTitleProvider.svelte';
+  import { initTitleBarVisibility } from './utility/common';
 
   let loadedApi = false;
 
@@ -25,6 +26,8 @@ import AppTitleProvider from './utility/AppTitleProvider.svelte';
     //   setTimeout(loadApi, 100);
     //   return;
     // }
+
+    await initTitleBarVisibility();
 
     try {
       // console.log('************** LOADING API');

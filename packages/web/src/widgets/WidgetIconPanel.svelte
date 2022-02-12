@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { currentDropDownMenu, selectedWidget, visibleCommandPalette } from '../stores';
-  import { shouldDrawTitleBar } from '../utility/common';
+  import { getTitleBarVisibility } from '../utility/common';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
 
   let domSettings;
@@ -78,15 +78,10 @@
     const items = mainMenuDefinition;
     currentDropDownMenu.set({ left, top, items });
   }
-
-  let showMainMenu = false;
-  onMount(async () => {
-    showMainMenu = !(await shouldDrawTitleBar());
-  });
 </script>
 
 <div class="main">
-  {#if showMainMenu}
+  {#if !getTitleBarVisibility()}
     <div class="wrapper mb-3" on:click={handleMainMenu} bind:this={domMainMenu}>
       <FontIcon icon="icon menu" />
     </div>

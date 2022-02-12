@@ -24,17 +24,11 @@
   import dragDropFileTarget from './utility/dragDropFileTarget';
   import TitleBar from './widgets/TitleBar.svelte';
   import { onMount } from 'svelte';
-  import { shouldDrawTitleBar } from './utility/common';
+  import { getTitleBarVisibility } from './utility/common';
   
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
   let domTabs;
-
-  let drawTitleBar = false;
-  onMount(async () => {
-    drawTitleBar = await shouldDrawTitleBar();
-    document.documentElement.style.setProperty('--dim-visible-titlebar', drawTitleBar ? 1 : 0);
-  });
 
   function handleTabsWheel(e) {
     if (!e.shiftKey) {
@@ -57,7 +51,7 @@
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
 >
-  {#if drawTitleBar}
+  {#if getTitleBarVisibility()}
     <div class="titlebar">
       <TitleBar />
     </div>

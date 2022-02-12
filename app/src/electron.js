@@ -15,7 +15,8 @@ const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 
-let isNativeMenu = true;
+let useNativeMenu = true;
+let useNativeMenuSpecified = null;
 
 // require('@electron/remote/main').initialize();
 
@@ -184,6 +185,9 @@ ipcMain.on('set-title', async (event, arg) => {
 ipcMain.on('open-link', async (event, arg) => {
   electron.shell.openExternal(arg);
 });
+ipcMain.on('set-use-native-menu', async (event, arg) => {
+  useNativeMenuSpecified = arg;
+});
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
     case 'minimize':
@@ -226,23 +230,28 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
-ipcMain.handle('isNativeMenu', async () => {
-  return isNativeMenu;
+ipcMain.handle('useNativeMenu', async () => {
+  return useNativeMenu;
 });
 
 function createWindow() {
   const bounds = initialConfig['winBounds'];
-  isNativeMenu = os.platform() == 'darwin' ? true : false;
-  if (initialConfig['menuStyle'] == 'native') isNativeMenu = true;
-  if (initialConfig['menuStyle'] == 'client') isNativeMenu = false;
-  // isNativeMenu = true;
+  useNativeMenu = os.platform() == 'darwin' ? true : false;
+  if (initialConfig['useNativeMenu'] === true) {
+    useNativeMenu = true;
+    useNativeMenuSpecified = true;
+  }
+  if (initialConfig['useNativeMenu'] === false) {
+    useNativeMenu = false;
+    useNativeMenuSpecified = false;
+  }
 
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     title: 'DbGate',
-    frame: isNativeMenu,
-    titleBarStyle: isNativeMenu ? undefined : 'hidden',
+    frame: useNativeMenu,
+    titleBarStyle: useNativeMenu ? undefined : 'hidden',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
     webPreferences: {
@@ -274,6 +283,7 @@ function createWindow() {
           JSON.stringify({
             winBounds: mainWindow.getBounds(),
             winIsMaximized: mainWindow.isMaximized(),
+            useNativeMenu: useNativeMenuSpecified,
           }),
           'utf-8'
         );

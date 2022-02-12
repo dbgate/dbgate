@@ -3,6 +3,7 @@
 
   import FormButton from '../forms/FormButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import FormProvider from '../forms/FormProvider.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSelectField from '../forms/FormSelectField.svelte';
@@ -14,6 +15,9 @@
   import { closeCurrentModal } from '../modals/modalTools';
   import { getCurrentSettings, getVisibleToolbar, getZoomKoef, visibleToolbar, zoomKoef } from '../stores';
   import { apiCall } from '../utility/api';
+  import { getTitleBarVisibility } from '../utility/common';
+  import getElectron from '../utility/getElectron';
+  import { showSnackbarInfo } from '../utility/snackbar';
 
   function handleOk(e) {
     apiCall(
@@ -22,8 +26,14 @@
     );
     visibleToolbar.set(!!e.detail[':visibleToolbar']);
     zoomKoef.set(e.detail[':zoomKoef']);
+    if (electron && !getTitleBarVisibility() != !!e.detail[':useNativeMenu']) {
+      electron.send('set-use-native-menu', !!e.detail[':useNativeMenu']);
+      showSnackbarInfo('Native menu settings will be applied after app restart');
+    }
     closeCurrentModal();
   }
+
+  const electron = getElectron();
 </script>
 
 <FormProvider
@@ -31,6 +41,7 @@
     ...getCurrentSettings(),
     ':visibleToolbar': getVisibleToolbar(),
     ':zoomKoef': getZoomKoef(),
+    ':useNativeMenu': !getTitleBarVisibility(),
   }}
 >
   <ModalBase {...$$restProps}>
@@ -39,6 +50,9 @@
     <FormValues let:values>
       <div class="heading">Appearance</div>
       <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} />
+      {#if electron}
+        <FormCheckboxField name=":useNativeMenu" label="Use system native menu" />
+      {/if}
       <FormSelectField
         name=":zoomKoef"
         label="Zoom"
