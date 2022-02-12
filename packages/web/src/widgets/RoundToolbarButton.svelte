@@ -16,7 +16,7 @@
 </script>
 
 <div class="button" on:click={handleClick} class:disabled {title}>
-  <div class="inner">
+  <div class="inner" class:disabled>
     {#if externalImage}
       <img src={externalImage} />
     {:else}
@@ -29,23 +29,22 @@
 <style>
   .button {
     /* padding: 5px 15px; */
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 5px;
+    padding-right: 5px;
     color: var(--theme-font-1);
     border: 0;
-    border-right: 1px solid var(--theme-border);
     align-self: stretch;
     display: flex;
     user-select: none;
-  }
+}
   .button.disabled {
     color: var(--theme-font-3);
   }
-  .button:hover:not(.disabled) {
-    background: var(--theme-bg-2);
-  }
-  .button:active:hover:not(.disabled) {
+  .inner:hover:not(.disabled) {
     background: var(--theme-bg-3);
+  }
+  .inner:active:hover:not(.disabled) {
+    background: var(--theme-bg-4);
   }
   .icon {
     margin-right: 5px;
@@ -59,6 +58,9 @@
     top: 2px; */
     white-space: nowrap;
     align-self: center;
+    background: var(--theme-bg-2);
+    padding: 2px 8px;
+    border-radius: 4px;
   }
   img {
     width: 20px;

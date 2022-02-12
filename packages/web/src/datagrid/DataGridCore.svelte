@@ -43,6 +43,8 @@
     id: 'dataGrid.insertNewRow',
     category: 'Data grid',
     name: 'Insert new row',
+    toolbarName: 'New row',
+    icon: 'icon add',
     keyText: 'Insert',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().insertNewRow(),

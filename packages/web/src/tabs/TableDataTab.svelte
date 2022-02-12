@@ -54,6 +54,8 @@
   import { setContext } from 'svelte';
   import { apiCall } from '../utility/api';
   import { getLocalStorage, setLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import TabToolbarContainer from '../widgets/TabToolbarContainer.svelte';
+  import ToolbarCommandButton from '../widgets/ToolbarCommandButton.svelte';
 
   export let tabid;
   export let conid;
@@ -116,17 +118,25 @@
   $: setLocalStorage('dataGrid_collapsedLeftColumn', $collapsedLeftColumnStore);
 </script>
 
-<TableDataGrid
-  {...$$props}
-  config={$config}
-  setConfig={config.update}
-  cache={$cache}
-  setCache={cache.update}
-  changeSetState={$changeSetStore}
-  focusOnVisible
-  {changeSetStore}
-  {dispatchChangeSet}
-/>
+<TabToolbarContainer>
+  <TableDataGrid
+    {...$$props}
+    config={$config}
+    setConfig={config.update}
+    cache={$cache}
+    setCache={cache.update}
+    changeSetState={$changeSetStore}
+    focusOnVisible
+    {changeSetStore}
+    {dispatchChangeSet}
+  />
+
+  <svelte:fragment slot="toolbar">
+    <ToolbarCommandButton command="dataGrid.refresh" />
+    <ToolbarCommandButton command="tableData.save" />
+    <ToolbarCommandButton command="dataGrid.insertNewRow" />
+  </svelte:fragment>
+</TabToolbarContainer>
 
 <StatusBarTabItem
   text="Open structure"
