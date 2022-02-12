@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { update } from 'lodash';
+  import { onMount } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { currentDropDownMenu, selectedWidget, visibleCommandPalette, visibleToolbar } from '../stores';
+  import { currentDropDownMenu, selectedWidget, visibleCommandPalette } from '../stores';
+  import { shouldDrawTitleBar } from '../utility/common';
+  import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
 
   let domSettings;
+  let domMainMenu;
 
   const widgets = [
     {
@@ -63,15 +66,29 @@
   function handleSettingsMenu() {
     const rect = domSettings.getBoundingClientRect();
     const left = rect.right;
-    const top = rect.top;
+    const top = rect.bottom;
     const items = [{ command: 'settings.commands' }, { command: 'theme.changeTheme' }, { command: 'settings.show' }];
     currentDropDownMenu.set({ left, top, items });
   }
+
+  function handleMainMenu() {
+    const rect = domMainMenu.getBoundingClientRect();
+    const left = rect.right;
+    const top = rect.top;
+    console.log('mainMenuDefinition', mainMenuDefinition);
+    const items = mainMenuDefinition;
+    currentDropDownMenu.set({ left, top, items });
+  }
+
+  let showMainMenu = false;
+  onMount(async () => {
+    showMainMenu = !(await shouldDrawTitleBar());
+  });
 </script>
 
 <div class="main">
-  {#if !$visibleToolbar}
-    <div class="wrapper mb-3" on:click={() => ($visibleCommandPalette = 'menu')}>
+  {#if showMainMenu}
+    <div class="wrapper mb-3" on:click={handleMainMenu} bind:this={domMainMenu}>
       <FontIcon icon="icon menu" />
     </div>
   {/if}

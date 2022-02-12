@@ -1,8 +1,7 @@
 class ElectronApi {
   private ipcRenderer = getIpcRenderer();
 
-  constructor() {
-  }
+  constructor() {}
 
   send(msg, args = null) {
     this.ipcRenderer.send(msg, args);
@@ -28,7 +27,8 @@ class ElectronApi {
   }
 
   async isNativeMenu() {
-    await this.ipcRenderer.invoke('isNativeMenu');
+    const res = await this.ipcRenderer.invoke('isNativeMenu');
+    return res;
   }
 
   async invoke(route, args) {

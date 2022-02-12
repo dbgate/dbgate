@@ -53,11 +53,31 @@
     }
     return item;
   }
+
+  function filterMenuItems(items) {
+    const res = [];
+    let wasDivider = false;
+    let wasItem = false;
+    for (const item of items.filter(x => !x.disabled || !x.hideDisabled)) {
+      if (item.divider) {
+        if (wasItem) {
+          wasDivider = true;
+        }
+      } else {
+        if (wasDivider) {
+          res.push({ divider: true });
+        }
+        wasDivider = false;
+        wasItem = true;
+        res.push(item);
+      }
+    }
+    return res;
+  }
 </script>
 
 <script>
   import _ from 'lodash';
-  import clickOutside from '../utility/clickOutside';
   import { createEventDispatcher } from 'svelte';
   import { onMount } from 'svelte';
   import { commandsCustomized, visibleCommandPalette } from '../stores';
@@ -106,7 +126,7 @@
 
   $: extracted = extractMenuItems(items, { targetElement });
   $: compacted = _.compact(extracted.map(x => mapItem(x, $commandsCustomized)));
-  $: filtered = compacted.filter(x => !x.disabled || !x.hideDisabled);
+  $: filtered = filterMenuItems(compacted);
 
   const handleClickOutside = event => {
     // if (element && !element.contains(event.target) && !event.defaultPrevented) {

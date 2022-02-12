@@ -1,5 +1,6 @@
 import { openedTabs } from '../stores';
 import _ from 'lodash';
+import getElectron from './getElectron';
 
 export class LoadingToken {
   isCanceled = false;
@@ -37,4 +38,15 @@ export async function asyncFilter(arr, predicate) {
   const results = await Promise.all(arr.map(predicate));
 
   return arr.filter((_v, index) => results[index]);
+}
+
+export async function shouldDrawTitleBar() {
+  const electron = getElectron();
+  if (!electron) {
+    return false;
+  }
+  if (await electron.isNativeMenu()) {
+    return true;
+  }
+  return false;
 }

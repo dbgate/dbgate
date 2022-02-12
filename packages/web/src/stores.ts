@@ -56,7 +56,8 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
   }))
 );
 
-export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
+// export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
+export const visibleToolbar = writable(false);
 export const zoomKoef = writableWithStorage(1, 'zoomKoef');
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
 export const currentDropDownMenu = writable(null);
@@ -77,7 +78,7 @@ export const currentThemeDefinition = derived([currentTheme, extensions], ([$cur
 );
 
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
-subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
+// subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 
 let activeTabIdValue = null;

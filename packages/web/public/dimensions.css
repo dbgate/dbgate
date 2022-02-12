@@ -12,7 +12,7 @@
       (var(--dim-left-panel-width) + var(--dim-splitter-thickness))
   );
 
-  --dim-visible-toolbar: 1; /* set from JS */
+  --dim-visible-toolbar: 0; /* set from JS */
   --dim-visible-titlebar: 0; /* set from JS */
 
   --dim-toolbar-height: 30px;

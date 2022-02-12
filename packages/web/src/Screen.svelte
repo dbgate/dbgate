@@ -24,22 +24,16 @@
   import dragDropFileTarget from './utility/dragDropFileTarget';
   import TitleBar from './widgets/TitleBar.svelte';
   import { onMount } from 'svelte';
-  import getElectron from './utility/getElectron';
-
+  import { shouldDrawTitleBar } from './utility/common';
+  
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
   let domTabs;
 
   let drawTitleBar = false;
   onMount(async () => {
-    let draw = true;
-    const electron = getElectron();
-    if (electron && (await electron.isNativeMenu())) {
-      draw = false;
-    }
-    drawTitleBar = draw;
+    drawTitleBar = await shouldDrawTitleBar();
     document.documentElement.style.setProperty('--dim-visible-titlebar', drawTitleBar ? 1 : 0);
-    console.log('drawTitleBar', drawTitleBar);
   });
 
   function handleTabsWheel(e) {
@@ -48,11 +42,13 @@
       domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
     }
   }
+
+  $: themeStyle = `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`;
 </script>
 
 <svelte:head>
   {#if $currentThemeDefinition?.themeCss}
-  {@html `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`}
+    {@html themeStyle}
   {/if}
 </svelte:head>
 
