@@ -37,6 +37,7 @@
 
 <script lang="ts">
   import _ from 'lodash';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
@@ -99,35 +100,38 @@
     showModal(ImportExportModal, { initialValues });
   }
 
+  const quickExportHandler = fmt => async () => {
+    const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
+    if (archiveMatch) {
+      exportElectronFile(
+        archiveMatch[2],
+        {
+          functionName: 'archiveReader',
+          props: {
+            folderName: archiveMatch[1],
+            fileName: archiveMatch[2],
+          },
+        },
+        fmt
+      );
+    } else {
+      exportElectronFile(
+        'Query',
+        {
+          functionName: 'jslDataReader',
+          props: {
+            jslid,
+          },
+        },
+        fmt
+      );
+    }
+  };
+  registerQuickExportHandler(quickExportHandler);
+
   registerMenu(
     {
-      ...createQuickExportMenu($extensions, fmt => async () => {
-        const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
-        if (archiveMatch) {
-          exportElectronFile(
-            archiveMatch[2],
-            {
-              functionName: 'archiveReader',
-              props: {
-                folderName: archiveMatch[1],
-                fileName: archiveMatch[2],
-              },
-            },
-            fmt
-          );
-        } else {
-          exportElectronFile(
-            'Query',
-            {
-              functionName: 'jslDataReader',
-              props: {
-                jslid,
-              },
-            },
-            fmt
-          );
-        }
-      }),
+      ...createQuickExportMenu($extensions, quickExportHandler),
       tag: 'export',
     },
     { command: 'jslTableGrid.export', tag: 'export' }

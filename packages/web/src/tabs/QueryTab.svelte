@@ -68,8 +68,9 @@
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import { showSnackbarError } from '../utility/snackbar';
   import { apiCall, apiOff, apiOn } from '../utility/api';
-import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
-import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   export let tabid;
   export let conid;
@@ -85,6 +86,7 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   let executeNumber = 0;
   let visibleResultTabs = false;
   let sessionId = null;
+  let resultCount;
 
   let domEditor;
 
@@ -270,6 +272,8 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
       { command: 'query.replace' },
     ];
   }
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 </script>
 
 <ToolStripContainer>
@@ -306,7 +310,7 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
       {/if}
     </svelte:fragment>
     <svelte:fragment slot="2">
-      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber}>
+      <ResultTabs tabs={[{ label: 'Messages', slot: 0 }]} {sessionId} {executeNumber} bind:resultCount>
         <svelte:fragment slot="0">
           <SocketMessageView
             eventName={sessionId ? `session-info-${sessionId}` : null}
@@ -324,6 +328,9 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
     <ToolStripCommandButton command="query.kill" />
     <ToolStripCommandButton command="query.save" />
     <ToolStripCommandButton command="query.formatCode" />
+    {#if resultCount == 1}
+      <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>
 

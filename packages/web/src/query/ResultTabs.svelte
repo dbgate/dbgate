@@ -14,6 +14,8 @@
   export let sessionId;
   export let executeNumber;
 
+  export let resultCount;
+
   onMount(() => {
     allResultsInOneTab = $allResultsInOneTabDefault;
   });
@@ -21,6 +23,8 @@
   let allResultsInOneTab = null;
   let resultInfos = [];
   let domTabs;
+
+  $: resultCount = resultInfos.length;
 
   const handleResultSet = async props => {
     const { jslid, resultIndex } = props;

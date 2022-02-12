@@ -26,18 +26,20 @@
 
   const electron = getElectron();
 
-  export let quickExportHandlerRef;
+  export let quickExportHandlerRef = null;
+  export let command = 'sqlDataGrid.export';
+  export let label = 'Advanced settings';
 
   function getExportMenu() {
     return [
       quickExportHandlerRef?.value ? createQuickExportMenuItems($extensions, quickExportHandlerRef?.value) : null,
       { divider: true },
-      { command: 'sqlDataGrid.export', text: 'Advanced settings' },
+      { command, text: label },
     ];
   }
 </script>
 
-{#if electron}
+{#if quickExportHandlerRef && electron}
   <ToolStripDropDownButton menu={getExportMenu} label="Export" icon="icon export" />
 {:else}
   <ToolStripCommandButton command="sqlDataGrid.export" />

@@ -50,6 +50,9 @@
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import registerCommand from '../commands/registerCommand';
   import newQuery from '../query/newQuery';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   export let tabid;
   export let conid;
@@ -233,53 +236,64 @@
       },
     ];
   }
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 </script>
 
-<VerticalSplitter initialValue="70%">
-  <svelte:fragment slot="1">
-    <QueryDesigner
-      value={$modelState.value || {}}
-      {conid}
-      {database}
-      engine={$connection && $connection.engine}
-      onChange={handleChange}
-      menu={createMenu}
-    />
-  </svelte:fragment>
+<ToolStripContainer>
+  <VerticalSplitter initialValue="70%">
+    <svelte:fragment slot="1">
+      <QueryDesigner
+        value={$modelState.value || {}}
+        {conid}
+        {database}
+        engine={$connection && $connection.engine}
+        onChange={handleChange}
+        menu={createMenu}
+      />
+    </svelte:fragment>
 
-  <svelte:fragment slot="2">
-    <ResultTabs
-      tabs={[
-        {
-          label: 'Columns',
-          component: QueryDesignColumns,
-          props: {
-            value: $modelState.value || {},
-            onChange: handleChange,
+    <svelte:fragment slot="2">
+      <ResultTabs
+        tabs={[
+          {
+            label: 'Columns',
+            component: QueryDesignColumns,
+            props: {
+              value: $modelState.value || {},
+              onChange: handleChange,
+            },
           },
-        },
-        {
-          label: 'SQL',
-          component: SqlEditor,
-          props: {
-            engine: $connection && $connection.engine,
-            readOnly: true,
-            value: sqlPreview,
+          {
+            label: 'SQL',
+            component: SqlEditor,
+            props: {
+              engine: $connection && $connection.engine,
+              readOnly: true,
+              value: sqlPreview,
+            },
           },
-        },
-        visibleResultTabs && { label: 'Messages', slot: 0 },
-      ]}
-      {sessionId}
-      {executeNumber}
-    >
-      <svelte:fragment slot="0">
-        <SocketMessageView
-          eventName={sessionId ? `session-info-${sessionId}` : null}
-          {executeNumber}
-          showProcedure
-          showLine
-        />
-      </svelte:fragment>
-    </ResultTabs>
+          visibleResultTabs && { label: 'Messages', slot: 0 },
+        ]}
+        {sessionId}
+        {executeNumber}
+      >
+        <svelte:fragment slot="0">
+          <SocketMessageView
+            eventName={sessionId ? `session-info-${sessionId}` : null}
+            {executeNumber}
+            showProcedure
+            showLine
+          />
+        </svelte:fragment>
+      </ResultTabs>
+    </svelte:fragment>
+  </VerticalSplitter>
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="designer.execute" />
+    <ToolStripCommandButton command="designer.kill" />
+    <ToolStripCommandButton command="designer.openSql" />
+    <ToolStripCommandButton command="designer.save" />
+    <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
   </svelte:fragment>
-</VerticalSplitter>
+</ToolStripContainer>
