@@ -141,6 +141,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import newQuery from '../query/newQuery';
 
   import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
   import tabs from '../tabs';
@@ -307,95 +308,142 @@
       })
     );
   }
+
+  let domTabs;
+
+  function handleTabsWheel(e) {
+    if (!e.shiftKey) {
+      e.preventDefault();
+      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
+    }
+  }
 </script>
 
-{#each groupedTabs as tabGroup}
-  <div class="db-wrapper">
-    <div
-      class="db-name"
-      class:selected={draggingDbGroup
-        ? tabGroup.grpid == draggingDbGroupTarget?.grpid
-        : tabGroup.tabDbKey == currentDbKey}
-      on:click={() => handleSetDb(tabGroup.tabs[0].props)}
-      use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
-      style={$connectionColorFactory(
-        tabGroup.tabs[0].props,
-        (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey) ? 2 : 3
-      )}
-      draggable={true}
-      on:dragstart={e => {
-        draggingDbGroup = tabGroup;
-      }}
-      on:dragenter={e => {
-        draggingDbGroupTarget = tabGroup;
-      }}
-      on:drop={e => {
-        dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
-      }}
-      on:dragend={e => {
-        draggingDbGroup = null;
-        draggingDbGroupTarget = null;
-      }}
-    >
-      <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
-      {tabGroup.tabDbName}
-
-      {#if tabGroup.tabs.length > 1}
-        <span
-          class="close-button-right tabCloseButton"
-          on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
-        >
-          <FontIcon icon="icon close" />
-        </span>
-      {/if}
-    </div>
-    <div class="db-group">
-      {#each tabGroup.tabs as tab}
+<div class="root">
+  <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
+    {#each groupedTabs as tabGroup}
+      <div class="db-wrapper">
         <div
-          id={`file-tab-item-${tab.tabid}`}
-          class="file-tab-item"
-          class:selected={draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
-          on:click={e => handleTabClick(e, tab.tabid)}
-          on:mouseup={e => handleMouseUp(e, tab.tabid)}
-          use:contextMenu={getContextMenu(tab)}
+          class="db-name"
+          class:selected={draggingDbGroup
+            ? tabGroup.grpid == draggingDbGroupTarget?.grpid
+            : tabGroup.tabDbKey == currentDbKey}
+          on:click={() => handleSetDb(tabGroup.tabs[0].props)}
+          use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
+          style={$connectionColorFactory(
+            tabGroup.tabs[0].props,
+            (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
+              ? 2
+              : 3
+          )}
           draggable={true}
-          on:dragstart={async e => {
-            draggingTab = tab;
-            await tick();
-            setSelectedTab(tab.tabid);
-            // console.log('START', tab.tabid);
-            // e.dataTransfer.setData('tab_drag_data', tab.tabid);
+          on:dragstart={e => {
+            draggingDbGroup = tabGroup;
           }}
           on:dragenter={e => {
-            draggingTabTarget = tab;
+            draggingDbGroupTarget = tabGroup;
           }}
           on:drop={e => {
-            if (draggingTab) {
-              dragDropTabs([draggingTab], [tab]);
-            }
-            if (draggingDbGroup) {
-              dragDropTabs(draggingDbGroup.tabs, [tab]);
-            }
+            dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
           }}
           on:dragend={e => {
-            draggingTab = null;
-            draggingTabTarget = null;
+            draggingDbGroup = null;
+            draggingDbGroupTarget = null;
           }}
         >
-          <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
-          <span class="file-name">
-            {tab.title}
-          </span>
-          <span class="close-button tabCloseButton" on:click={e => closeTab(tab.tabid)}>
-            <FontIcon icon="icon close" />
-          </span>
+          <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
+          {tabGroup.tabDbName}
+
+          {#if tabGroup.tabs.length > 1}
+            <span
+              class="close-button-right tabCloseButton"
+              on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+            >
+              <FontIcon icon="icon close" />
+            </span>
+          {/if}
         </div>
-      {/each}
-    </div>
+        <div class="db-group">
+          {#each tabGroup.tabs as tab}
+            <div
+              id={`file-tab-item-${tab.tabid}`}
+              class="file-tab-item"
+              class:selected={draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
+              on:click={e => handleTabClick(e, tab.tabid)}
+              on:mouseup={e => handleMouseUp(e, tab.tabid)}
+              use:contextMenu={getContextMenu(tab)}
+              draggable={true}
+              on:dragstart={async e => {
+                draggingTab = tab;
+                await tick();
+                setSelectedTab(tab.tabid);
+                // console.log('START', tab.tabid);
+                // e.dataTransfer.setData('tab_drag_data', tab.tabid);
+              }}
+              on:dragenter={e => {
+                draggingTabTarget = tab;
+              }}
+              on:drop={e => {
+                if (draggingTab) {
+                  dragDropTabs([draggingTab], [tab]);
+                }
+                if (draggingDbGroup) {
+                  dragDropTabs(draggingDbGroup.tabs, [tab]);
+                }
+              }}
+              on:dragend={e => {
+                draggingTab = null;
+                draggingTabTarget = null;
+              }}
+            >
+              <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
+              <span class="file-name">
+                {tab.title}
+              </span>
+              <span class="close-button tabCloseButton" on:click={e => closeTab(tab.tabid)}>
+                <FontIcon icon="icon close" />
+              </span>
+            </div>
+          {/each}
+        </div>
+      </div>
+    {/each}
   </div>
-{/each}
+  <div class="add-icon" on:click={() => newQuery({})} title="New query"><FontIcon icon="icon add" /></div>
+</div>
 
 <style>
+  .root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+  }
+  .add-icon {
+    position: absolute;
+    right: 5px;
+    font-size: 20pt;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    color: var(--theme-font-2);
+    cursor: pointer;
+  }
+  .add-icon:hover {
+    color: var(--theme-font-1);
+  }
+  .tabs {
+    height: var(--dim-tabs-panel-height);
+    display: flex;
+    overflow-x: auto;
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 35px;
+    bottom: 0;
+  }
   .db-group {
     display: flex;
     flex: 1;
@@ -428,6 +476,7 @@
   }
   .file-tab-item {
     border-right: 1px solid var(--theme-border);
+    border-bottom: 2px solid var(--theme-border);
     padding-left: 15px;
     padding-right: 15px;
     flex-shrink: 1;

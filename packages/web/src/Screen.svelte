@@ -25,17 +25,8 @@
   import TitleBar from './widgets/TitleBar.svelte';
   import { onMount } from 'svelte';
   import { getTitleBarVisibility } from './utility/common';
-  
+
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
-
-  let domTabs;
-
-  function handleTabsWheel(e) {
-    if (!e.shiftKey) {
-      e.preventDefault();
-      domTabs.scrollBy({ top: 0, left: e.deltaY < 0 ? -150 : 150, behavior: 'smooth' });
-    }
-  }
 
   $: themeStyle = `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`;
 </script>
@@ -67,7 +58,7 @@
       <WidgetContainer />
     </div>
   {/if}
-  <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
+  <div class="tabs">
     <TabsPanel />
   </div>
   <div class="content">
@@ -134,7 +125,6 @@
     display: flex;
   }
   .tabs {
-    display: flex;
     position: fixed;
     top: var(--dim-header-top);
     left: var(--dim-content-left);
@@ -142,8 +132,6 @@
     right: 0;
     background-color: var(--theme-bg-1);
     border-top: 1px solid var(--theme-border);
-
-    overflow-x: auto;
   }
   .tabs::-webkit-scrollbar {
     height: 7px;
