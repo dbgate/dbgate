@@ -69,31 +69,31 @@
     </div>
   {/if}
 
-  {#if direction == 'target'}
-    <div class="buttons">
-      {#if $currentDatabase}
-        <FormStyledButton
-          value="Current DB"
-          on:click={() => {
-            values.update(x => ({
-              ...x,
-              [storageTypeField]: 'database',
-              [connectionIdField]: $currentDatabase?.connection?._id,
-              [databaseNameField]: $currentDatabase?.name,
-            }));
-          }}
-        />
-      {/if}
+  <div class="buttons">
+    {#if $currentDatabase}
       <FormStyledButton
-        value="Current archive"
+        value="Current DB"
         on:click={() => {
           values.update(x => ({
             ...x,
-            [storageTypeField]: 'archive',
-            [archiveFolderField]: $currentArchive,
+            [storageTypeField]: 'database',
+            [connectionIdField]: $currentDatabase?.connection?._id,
+            [databaseNameField]: $currentDatabase?.name,
           }));
         }}
       />
+    {/if}
+    <FormStyledButton
+      value="Current archive"
+      on:click={() => {
+        values.update(x => ({
+          ...x,
+          [storageTypeField]: 'archive',
+          [archiveFolderField]: $currentArchive,
+        }));
+      }}
+    />
+    {#if direction == 'target'}
       <FormStyledButton
         value="New archive"
         on:click={() => {
@@ -104,8 +104,8 @@
           }));
         }}
       />
-    </div>
-  {/if}
+    {/if}
+  </div>
 
   <FormSelectField
     options={types.filter(x => x.directions.includes(direction))}
@@ -170,12 +170,11 @@
   {/if}
 
   {#if driver?.importExportArgs}
-  <FormArgumentList
-    args={driver?.importExportArgs.filter(arg => !arg.direction || arg.direction == direction)}
-    namePrefix={`${direction}_${driver.engine}_`}
-  />
-{/if}
-
+    <FormArgumentList
+      args={driver?.importExportArgs.filter(arg => !arg.direction || arg.direction == direction)}
+      namePrefix={`${direction}_${driver.engine}_`}
+    />
+  {/if}
 </div>
 
 <style>
