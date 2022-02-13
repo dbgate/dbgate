@@ -90,7 +90,6 @@ class JsonLinesDatastore {
           return parse ? parsedLine : true;
         }
       } else {
-        console.log('NO !!!');
         this.readedDataRowCount += 1;
         return parse ? JSON.parse(line) : true;
       }
