@@ -5,8 +5,9 @@
 <script lang="ts">
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
 
-  export let archiveFolder;
-  export let archiveFile;
+  export let archiveFolder = undefined;
+  export let archiveFile = undefined;
+  export let jslid = undefined;
 </script>
 
-<JslDataGrid jslid={`archive://${archiveFolder}/${archiveFile}`} />
+<JslDataGrid jslid={jslid || `archive://${archiveFolder}/${archiveFile}`} />

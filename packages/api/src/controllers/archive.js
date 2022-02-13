@@ -141,6 +141,13 @@ module.exports = {
     });
   },
 
+  saveText_meta: true,
+  async saveText({ folder, file, text }) {
+    await fs.writeFile(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), text);
+    socket.emitChanged(`archive-files-changed-${folder}`);
+    return true;
+  },
+
   async getNewArchiveFolder({ database }) {
     const isLink = database.endsWith(database);
     const name = isLink ? database.slice(0, -5) : database;

@@ -32,6 +32,9 @@
   } from 'dbgate-datalib';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+import ToolStripExportButton from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import DataGrid from '../datagrid/DataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -141,18 +144,24 @@
 {:else if errorMessage}
   <ErrorInfo message={errorMessage} />
 {:else}
-  <DataGrid
-    config={$config}
-    setConfig={config.update}
-    modelState={$modelState}
-    {dispatchModel}
-    focusOnVisible
-    gridCoreComponent={FreeTableGridCore}
-    freeTableColumn
-    showMacros
-    expandMacros
-    onRunMacro={handleRunMacro}
-    isDynamicStructure={$modelState.value?.structure?.__isDynamicStructure}
-    {display}
-  />
+  <ToolStripContainer>
+    <DataGrid
+      config={$config}
+      setConfig={config.update}
+      modelState={$modelState}
+      {dispatchModel}
+      focusOnVisible
+      gridCoreComponent={FreeTableGridCore}
+      freeTableColumn
+      showMacros
+      expandMacros
+      onRunMacro={handleRunMacro}
+      isDynamicStructure={$modelState.value?.structure?.__isDynamicStructure}
+      {display}
+    />
+    <svelte:fragment slot="toolstrip">
+      <ToolStripCommandButton command="freeTable.save" />
+      <ToolStripExportButton command="freeTableGrid.export" />
+    </svelte:fragment>
+  </ToolStripContainer>
 {/if}

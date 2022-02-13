@@ -10,7 +10,10 @@ const socket = require('../utility/socket');
 function readFirstLine(file) {
   return new Promise((resolve, reject) => {
     lineReader.open(file, (err, reader) => {
-      if (err) reject(err);
+      if (err) {
+        reject(err);
+        return;
+      }
       if (reader.hasNextLine()) {
         reader.nextLine((err, line) => {
           if (err) reject(err);
@@ -149,6 +152,12 @@ module.exports = {
   saveFreeTable_meta: true,
   async saveFreeTable({ jslid, data }) {
     saveFreeTableData(getJslFileName(jslid), data);
+    return true;
+  },
+
+  saveText_meta: true,
+  async saveText({ jslid, text }) {
+    await fs.promises.writeFile(getJslFileName(jslid), text);
     return true;
   },
 };
