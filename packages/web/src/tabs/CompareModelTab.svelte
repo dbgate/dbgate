@@ -162,6 +162,8 @@
   import { useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 
   export let tabid;
 
@@ -336,226 +338,234 @@
   const menu = getContextMenu();
 </script>
 
-<div class="wrapper" use:contextMenu={menu}>
-  <VerticalSplitter>
-    <div slot="1" class="flexcol">
-      <FormProviderCore {values}>
-        <div class="topbar">
-          <div class="col-3">
-            <FormConnectionSelect
-              name="sourceConid"
-              label="Source server"
-              templateProps={{ noMargin: true }}
-              isNative
-              allowChooseModel
-              notSelected
-            />
-          </div>
-          <div class="col-3">
-            {#if $values?.sourceConid == '__model'}
-              <FormSelectField
-                name="sourceDatabase"
-                label="Source DB model"
+<ToolStripContainer>
+  <div class="wrapper" use:contextMenu={menu}>
+    <VerticalSplitter>
+      <div slot="1" class="flexcol">
+        <FormProviderCore {values}>
+          <div class="topbar">
+            <div class="col-3">
+              <FormConnectionSelect
+                name="sourceConid"
+                label="Source server"
                 templateProps={{ noMargin: true }}
                 isNative
-                options={($archiveFolders || []).map(x => ({ label: x.name, value: `archive:${x.name}` }))}
+                allowChooseModel
                 notSelected
               />
-            {:else}
+            </div>
+            <div class="col-3">
+              {#if $values?.sourceConid == '__model'}
+                <FormSelectField
+                  name="sourceDatabase"
+                  label="Source DB model"
+                  templateProps={{ noMargin: true }}
+                  isNative
+                  options={($archiveFolders || []).map(x => ({ label: x.name, value: `archive:${x.name}` }))}
+                  notSelected
+                />
+              {:else}
+                <FormDatabaseSelect
+                  conidName="sourceConid"
+                  name="sourceDatabase"
+                  label="Source database"
+                  templateProps={{ noMargin: true }}
+                  isNative
+                  notSelected
+                />
+              {/if}
+            </div>
+            <div class="deployButton">
+              <InlineButton on:click={deploy}>
+                <div class="arrow">
+                  <FontIcon icon="icon arrow-right-bold" />
+                </div>
+                Deploy (experimental)
+              </InlineButton>
+            </div>
+            <div class="col-3">
+              <FormConnectionSelect
+                name="targetConid"
+                label="Target server"
+                templateProps={{ noMargin: true }}
+                isNative
+                notSelected
+              />
+            </div>
+            <div class="col-3">
               <FormDatabaseSelect
-                conidName="sourceConid"
-                name="sourceDatabase"
-                label="Source database"
+                conidName="targetConid"
+                name="targetDatabase"
+                label="Target database"
                 templateProps={{ noMargin: true }}
                 isNative
                 notSelected
               />
-            {/if}
+            </div>
           </div>
-          <div class="deployButton">
-            <InlineButton on:click={deploy}>
-              <div class="arrow">
-                <FontIcon icon="icon arrow-right-bold" />
-              </div>
-              Deploy (experimental)
-            </InlineButton>
-          </div>
-          <div class="col-3">
-            <FormConnectionSelect
-              name="targetConid"
-              label="Target server"
-              templateProps={{ noMargin: true }}
-              isNative
-              notSelected
-            />
-          </div>
-          <div class="col-3">
-            <FormDatabaseSelect
-              conidName="targetConid"
-              name="targetDatabase"
-              label="Target database"
-              templateProps={{ noMargin: true }}
-              isNative
-              notSelected
-            />
-          </div>
-        </div>
-        <div class="filters">
-          <SearchInput placeholder="Search tables or objects" bind:value={filter} />
+          <div class="filters">
+            <SearchInput placeholder="Search tables or objects" bind:value={filter} />
 
-          <RowsFilterSwitcher
-            icon="img add"
-            label="Added"
-            {values}
-            field="hideAdded"
-            count={filterDiffRowsByFlag(
-              diffRowsAll.filter(x => x.state == 'added'),
-              $values,
-              'added'
-            ).length}
-          />
-          <RowsFilterSwitcher
-            icon="img minus"
-            label="Removed"
-            {values}
-            field="hideRemoved"
-            count={filterDiffRowsByFlag(
-              diffRowsAll.filter(x => x.state == 'removed'),
-              $values,
-              'removed'
-            ).length}
-          />
-          <RowsFilterSwitcher
-            icon="img changed"
-            label="Changed"
-            {values}
-            field="hideChanged"
-            count={filterDiffRowsByFlag(
-              diffRowsAll.filter(x => x.state == 'changed'),
-              $values,
-              'changed'
-            ).length}
-          />
-          <RowsFilterSwitcher
-            icon="img equal"
-            label="Equal"
-            {values}
-            field="hideEqual"
-            count={filterDiffRowsByFlag(
-              diffRowsAll.filter(x => x.state == 'equal'),
-              $values,
-              'equal'
-            ).length}
-          />
-
-          {#each _.keys(DbDiffCompareDefs) as objectTypeField}
             <RowsFilterSwitcher
-              icon={DbDiffCompareDefs[objectTypeField].icon}
-              label={DbDiffCompareDefs[objectTypeField].plural}
+              icon="img add"
+              label="Added"
               {values}
-              field={'hide_' + objectTypeField}
+              field="hideAdded"
               count={filterDiffRowsByFlag(
-                diffRowsAll.filter(x => x.objectTypeField == objectTypeField),
+                diffRowsAll.filter(x => x.state == 'added'),
                 $values,
-                objectTypeField
+                'added'
               ).length}
             />
-          {/each}
-        </div>
-      </FormProviderCore>
+            <RowsFilterSwitcher
+              icon="img minus"
+              label="Removed"
+              {values}
+              field="hideRemoved"
+              count={filterDiffRowsByFlag(
+                diffRowsAll.filter(x => x.state == 'removed'),
+                $values,
+                'removed'
+              ).length}
+            />
+            <RowsFilterSwitcher
+              icon="img changed"
+              label="Changed"
+              {values}
+              field="hideChanged"
+              count={filterDiffRowsByFlag(
+                diffRowsAll.filter(x => x.state == 'changed'),
+                $values,
+                'changed'
+              ).length}
+            />
+            <RowsFilterSwitcher
+              icon="img equal"
+              label="Equal"
+              {values}
+              field="hideEqual"
+              count={filterDiffRowsByFlag(
+                diffRowsAll.filter(x => x.state == 'equal'),
+                $values,
+                'equal'
+              ).length}
+            />
 
-      <div class="tableWrapper">
-        <ScrollableTableControl
-          rows={diffRows}
-          bind:selectedIndex={pairIndex}
-          selectable
-          disableFocusOutline
-          columns={[
-            { fieldName: 'isChecked', header: '', width: '50px', slot: 1, headerSlot: 2 },
-            { fieldName: 'type', header: 'Type', width: '100px', slot: 3 },
-            { fieldName: 'sourceSchemaName', header: 'Schema' },
-            { fieldName: 'sourcePureName', header: 'Name' },
-            { fieldName: 'state', header: 'Action', width: '100px' },
-            { fieldName: 'targetSchemaName', header: 'Schema' },
-            { fieldName: 'targetPureName', header: 'Name' },
-          ]}
-        >
-          <input
-            type="checkbox"
-            slot="1"
-            let:row
-            disabled={row.state == 'equal'}
-            checked={!!$values[`isChecked_${row['identifier']}`]}
-            on:change={e => {
-              // @ts-ignore
-              $values = { ...$values, [`isChecked_${row.identifier}`]: e.target.checked };
-            }}
-          />
-          <svelte:fragment slot="2">
-            <InlineButton on:click={handleCheckAll}>
-              <FontIcon icon="icon check-all" />
-            </InlineButton>
-          </svelte:fragment>
-          <svelte:fragment slot="3" let:row>
-            <FontIcon icon={row.typeIcon} />
-            {row.typeName}
-          </svelte:fragment>
-        </ScrollableTableControl>
-      </div>
-    </div>
+            {#each _.keys(DbDiffCompareDefs) as objectTypeField}
+              <RowsFilterSwitcher
+                icon={DbDiffCompareDefs[objectTypeField].icon}
+                label={DbDiffCompareDefs[objectTypeField].plural}
+                {values}
+                field={'hide_' + objectTypeField}
+                count={filterDiffRowsByFlag(
+                  diffRowsAll.filter(x => x.objectTypeField == objectTypeField),
+                  $values,
+                  objectTypeField
+                ).length}
+              />
+            {/each}
+          </div>
+        </FormProviderCore>
 
-    <svelte:fragment slot="2">
-      <TabControl
-        tabs={[
-          {
-            label: 'DDL',
-            slot: 1,
-          },
-          {
-            label: 'Synchronize script',
-            slot: 2,
-          },
-          {
-            label: 'Columns',
-            slot: 3,
-          },
-        ]}
-      >
-        <svelte:fragment slot="1">
-          <DiffView
-            leftTitle={diffRows[pairIndex]?.target?.pureName}
-            rightTitle={diffRows[pairIndex]?.source?.pureName}
-            leftText={getCreateObjectScript(diffRows[pairIndex]?.target, driver)}
-            rightText={getCreateObjectScript(diffRows[pairIndex]?.source, driver)}
-          />
-        </svelte:fragment>
-
-        <svelte:fragment slot="2">
-          <SqlEditor readOnly value={sqlPreview} />
-        </svelte:fragment>
-
-        <svelte:fragment slot="3">
+        <div class="tableWrapper">
           <ScrollableTableControl
-            rows={diffColumns}
+            rows={diffRows}
+            bind:selectedIndex={pairIndex}
+            selectable
             disableFocusOutline
             columns={[
-              { fieldName: 'sourceColumnName', header: 'Name', width: '100px' },
-              { fieldName: 'sourceDataType', header: 'Type' },
-              { fieldName: 'sourceNotNull', header: 'Not null', slot: 1 },
+              { fieldName: 'isChecked', header: '', width: '50px', slot: 1, headerSlot: 2 },
+              { fieldName: 'type', header: 'Type', width: '100px', slot: 3 },
+              { fieldName: 'sourceSchemaName', header: 'Schema' },
+              { fieldName: 'sourcePureName', header: 'Name' },
               { fieldName: 'state', header: 'Action', width: '100px' },
-              { fieldName: 'targetColumnName', header: 'Schema' },
-              { fieldName: 'targetDataType', header: 'Name' },
-              { fieldName: 'targetNotNull', header: 'Not null', slot: 2 },
+              { fieldName: 'targetSchemaName', header: 'Schema' },
+              { fieldName: 'targetPureName', header: 'Name' },
             ]}
           >
-            <input type="checkbox" disabled slot="1" let:row checked={!!row.sourceNotNull} />
-            <input type="checkbox" disabled slot="2" let:row checked={!!row.targetNotNull} />
+            <input
+              type="checkbox"
+              slot="1"
+              let:row
+              disabled={row.state == 'equal'}
+              checked={!!$values[`isChecked_${row['identifier']}`]}
+              on:change={e => {
+                // @ts-ignore
+                $values = { ...$values, [`isChecked_${row.identifier}`]: e.target.checked };
+              }}
+            />
+            <svelte:fragment slot="2">
+              <InlineButton on:click={handleCheckAll}>
+                <FontIcon icon="icon check-all" />
+              </InlineButton>
+            </svelte:fragment>
+            <svelte:fragment slot="3" let:row>
+              <FontIcon icon={row.typeIcon} />
+              {row.typeName}
+            </svelte:fragment>
           </ScrollableTableControl>
-        </svelte:fragment>
-      </TabControl>
-    </svelte:fragment>
-  </VerticalSplitter>
-</div>
+        </div>
+      </div>
+
+      <svelte:fragment slot="2">
+        <TabControl
+          tabs={[
+            {
+              label: 'DDL',
+              slot: 1,
+            },
+            {
+              label: 'Synchronize script',
+              slot: 2,
+            },
+            {
+              label: 'Columns',
+              slot: 3,
+            },
+          ]}
+        >
+          <svelte:fragment slot="1">
+            <DiffView
+              leftTitle={diffRows[pairIndex]?.target?.pureName}
+              rightTitle={diffRows[pairIndex]?.source?.pureName}
+              leftText={getCreateObjectScript(diffRows[pairIndex]?.target, driver)}
+              rightText={getCreateObjectScript(diffRows[pairIndex]?.source, driver)}
+            />
+          </svelte:fragment>
+
+          <svelte:fragment slot="2">
+            <SqlEditor readOnly value={sqlPreview} />
+          </svelte:fragment>
+
+          <svelte:fragment slot="3">
+            <ScrollableTableControl
+              rows={diffColumns}
+              disableFocusOutline
+              columns={[
+                { fieldName: 'sourceColumnName', header: 'Name', width: '100px' },
+                { fieldName: 'sourceDataType', header: 'Type' },
+                { fieldName: 'sourceNotNull', header: 'Not null', slot: 1 },
+                { fieldName: 'state', header: 'Action', width: '100px' },
+                { fieldName: 'targetColumnName', header: 'Schema' },
+                { fieldName: 'targetDataType', header: 'Name' },
+                { fieldName: 'targetNotNull', header: 'Not null', slot: 2 },
+              ]}
+            >
+              <input type="checkbox" disabled slot="1" let:row checked={!!row.sourceNotNull} />
+              <input type="checkbox" disabled slot="2" let:row checked={!!row.targetNotNull} />
+            </ScrollableTableControl>
+          </svelte:fragment>
+        </TabControl>
+      </svelte:fragment>
+    </VerticalSplitter>
+  </div>
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="compareModels.reportDiff" />
+    <ToolStripCommandButton command="compareModels.swap" />
+    <ToolStripCommandButton command="compareModels.deploy" />
+    <ToolStripCommandButton command="compareModels.refresh" />
+  </svelte:fragment>
+</ToolStripContainer>
 
 <style>
   .wrapper {

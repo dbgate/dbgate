@@ -103,6 +103,7 @@ registerCommand({
   category: 'New',
   icon: 'img shell',
   name: 'JavaScript Shell',
+  menuName:' New JavaScript shell',
   onClick: () => {
     openNewTab({
       title: 'Shell #',
@@ -539,6 +540,7 @@ export function registerFileCommands({
       category,
       name: 'Undo',
       group: 'undo',
+      icon: 'icon undo',
       testEnabled: () => getCurrentEditor()?.canUndo(),
       onClick: () => getCurrentEditor().undo(),
     });
@@ -547,6 +549,7 @@ export function registerFileCommands({
       category,
       group: 'redo',
       name: 'Redo',
+      icon: 'icon redo',
       testEnabled: () => getCurrentEditor()?.canRedo(),
       onClick: () => getCurrentEditor().redo(),
     });

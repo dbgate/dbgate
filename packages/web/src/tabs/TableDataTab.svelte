@@ -137,10 +137,13 @@
   />
 
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="dataGrid.refresh" />
+    <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
+    <ToolStripCommandButton command="dataForm.refresh" hideDisabled />
     <ToolStripCommandButton command="tableData.save" />
-    <ToolStripCommandButton command="dataGrid.insertNewRow" />
-    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
     <ToolStripExportButton {quickExportHandlerRef} />
   </svelte:fragment>
 </ToolStripContainer>

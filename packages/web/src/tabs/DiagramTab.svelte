@@ -23,6 +23,9 @@
   import { findEngineDriver } from 'dbgate-tools';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import DiagramDesigner from '../designer/DiagramDesigner.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';
 
   export let tabid;
   export let conid;
@@ -47,6 +50,7 @@
 
   export function undo() {
     dispatchModel({ type: 'undo' });
+    invalidateCommands();
   }
 
   export function canRedo() {
@@ -55,20 +59,24 @@
 
   export function redo() {
     dispatchModel({ type: 'redo' });
+    invalidateCommands();
   }
 
-  const handleChange = (value, skipUndoChain) =>
+  const handleChange = (value, skipUndoChain) => {
     // @ts-ignore
     dispatchModel({
       type: 'compute',
       useMerge: skipUndoChain,
       compute: v => (_.isFunction(value) ? value(v) : value),
     });
+    invalidateCommands();
+  };
 
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     onInitialData: value => {
       dispatchModel({ type: 'reset', value });
+      invalidateCommands();
     },
   });
 
@@ -90,4 +98,13 @@
   }
 </script>
 
-<DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
+<ToolStripContainer>
+  <DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="designer.arrange" />
+    <ToolStripCommandButton command="diagram.save" />
+    <ToolStripCommandButton command="diagram.export" />
+    <ToolStripCommandButton command="diagram.undo" />
+    <ToolStripCommandButton command="diagram.redo" />
+  </svelte:fragment>
+</ToolStripContainer>

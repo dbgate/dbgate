@@ -37,6 +37,8 @@
 
 <script lang="ts">
   import { getContext } from 'svelte';
+import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
 
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
@@ -211,21 +213,29 @@
   }
 </script>
 
-<VerticalSplitter>
-  <svelte:fragment slot="1">
-    <AceEditor
-      value={$editorState.value || ''}
-      menu={createMenu()}
-      on:input={e => setEditorData(e.detail)}
-      on:focus={() => {
-        activator.activate();
-        invalidateCommands();
-      }}
-      bind:this={domEditor}
-      mode="javascript"
-    />
+<ToolStripContainer>
+  <VerticalSplitter>
+    <svelte:fragment slot="1">
+      <AceEditor
+        value={$editorState.value || ''}
+        menu={createMenu()}
+        on:input={e => setEditorData(e.detail)}
+        on:focus={() => {
+          activator.activate();
+          invalidateCommands();
+        }}
+        bind:this={domEditor}
+        mode="javascript"
+      />
+    </svelte:fragment>
+    <svelte:fragment slot="2">
+      <RunnerOutputPane {runnerId} {executeNumber} />
+    </svelte:fragment>
+  </VerticalSplitter>
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="shell.execute" />
+    <ToolStripCommandButton command="shell.kill" />
+    <ToolStripCommandButton command="shell.save" />
+    <ToolStripCommandButton command="shell.copyNodeScript" />
   </svelte:fragment>
-  <svelte:fragment slot="2">
-    <RunnerOutputPane {runnerId} {executeNumber} />
-  </svelte:fragment>
-</VerticalSplitter>
+</ToolStripContainer>

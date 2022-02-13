@@ -58,6 +58,8 @@
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
   import { apiCall } from '../utility/api';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 
   export let tabid;
   export let conid;
@@ -162,26 +164,34 @@
   // }
 </script>
 
-<TableEditor
-  bind:this={domEditor}
-  tableInfo={showTable}
-  dbInfo={$dbInfo}
-  {driver}
-  setTableInfo={objectTypeField == 'tables'
-    ? tableInfoUpdater =>
-        setEditorData(tbl =>
-          tbl
-            ? {
-                base: tbl.base,
-                current: tableInfoUpdater(tbl.current),
-              }
-            : {
-                base: tableInfoWithPairingId,
-                current: tableInfoUpdater(tableInfoWithPairingId),
-              }
-        )
-    : null}
-/>
+<ToolStripContainer>
+  <TableEditor
+    bind:this={domEditor}
+    tableInfo={showTable}
+    dbInfo={$dbInfo}
+    {driver}
+    setTableInfo={objectTypeField == 'tables'
+      ? tableInfoUpdater =>
+          setEditorData(tbl =>
+            tbl
+              ? {
+                  base: tbl.base,
+                  current: tableInfoUpdater(tbl.current),
+                }
+              : {
+                  base: tableInfoWithPairingId,
+                  current: tableInfoUpdater(tableInfoWithPairingId),
+                }
+          )
+      : null}
+  />
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="tableStructure.save" />
+    <ToolStripCommandButton command="tableStructure.reset" />
+    <ToolStripCommandButton command="tableEditor.addColumn" />
+    <ToolStripCommandButton command="tableEditor.addIndex" />
+  </svelte:fragment>
+</ToolStripContainer>
 
 {#if objectTypeField == 'tables'}
   <StatusBarTabItem

@@ -356,6 +356,7 @@
     return {};
   }, {});
   registerMenu(
+    { command: 'dataForm.refresh' },
     { placeTag: 'switch' },
     { command: 'dataForm.copyToClipboard' },
     { divider: true },

@@ -12,11 +12,12 @@
 
   export let command;
   export let component = ToolStripButton;
+  export let hideDisabled = false;
 
   $: cmd = Object.values($commandsCustomized).find((x: any) => x.id == command) as any;
 </script>
 
-{#if cmd}
+{#if cmd && (!hideDisabled || cmd.enabled)}
   <svelte:component
     this={component}
     title={getCommandTitle(cmd)}

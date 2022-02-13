@@ -19,8 +19,8 @@ module.exports = [
     label: 'Window',
     submenu: [
       { command: 'new.query', hideDisabled: true },
-      { command: 'new.modelCompare', hideDisabled: true },
       { command: 'new.freetable', hideDisabled: true },
+      { command: 'new.shell', hideDisabled: true },
       { divider: true },
       { command: 'tabs.closeTab', hideDisabled: true },
       { command: 'tabs.closeAll', hideDisabled: true },
@@ -48,6 +48,14 @@ module.exports = [
       { divider: true },
       { command: 'theme.changeTheme', hideDisabled: true },
       { command: 'settings.show' },
+    ],
+  },
+  {
+    label: 'Tools',
+    submenu: [
+      { command: 'sql.generator' },
+      { command: 'file.import' },
+      { command: 'new.modelCompare' },
     ],
   },
   {
