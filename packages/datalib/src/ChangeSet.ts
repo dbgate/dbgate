@@ -337,6 +337,25 @@ export function revertChangeSetRowChanges(changeSet: ChangeSet, definition: Chan
   return changeSet;
 }
 
+function consolidateInsertIndexes(changeSet: ChangeSet, name: NamedObjectInfo): ChangeSet {
+  const indexes = changeSet.inserts
+    .filter(x => x.pureName == name.pureName && x.schemaName == name.schemaName)
+    .map(x => x.insertedRowIndex);
+
+  indexes.sort((a, b) => a - b);
+  if (indexes[indexes.length - 1] != indexes.length - 1) {
+    return {
+      ...changeSet,
+      inserts: changeSet.inserts.map(x => ({
+        ...x,
+        insertedRowIndex: indexes.indexOf(x.insertedRowIndex),
+      })),
+    };
+  }
+
+  return changeSet;
+}
+
 export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetRowDefinition): ChangeSet {
   let [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   if (fieldName == 'updates') {
@@ -344,7 +363,7 @@ export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetR
     [fieldName, existingItem] = findExistingChangeSetItem(changeSet, definition);
   }
   if (fieldName == 'inserts') {
-    return revertChangeSetRowChanges(changeSet, definition);
+    return consolidateInsertIndexes(revertChangeSetRowChanges(changeSet, definition), definition);
   } else {
     if (existingItem && fieldName == 'deletes') return changeSet;
     return {
@@ -390,11 +409,7 @@ export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectIn
   };
 }
 
-export function changeSetInsertDocuments(
-  changeSet: ChangeSet,
-  documents: any[],
-  name?: NamedObjectInfo
-): ChangeSet {
+export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[], name?: NamedObjectInfo): ChangeSet {
   const insertedRows = getChangeSetInsertedRows(changeSet, name);
   return {
     ...changeSet,

@@ -68,7 +68,7 @@ export class SeriesSizes {
       // _.map(this.intKeys(_.keys(this.sizeOverridesByModelIndex)), (x) => this.modelToReal(x) - this.frozenCount),
       x => x >= 0
     );
-    this.scrollIndexes.sort();
+    this.scrollIndexes.sort((a, b) => a - b);
     let lastScrollIndex: number = -1;
     let lastEndPosition: number = 0;
     this.scrollIndexes.forEach(scrollIndex => {

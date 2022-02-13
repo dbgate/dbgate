@@ -391,7 +391,7 @@
 
   export function deleteSelectedRows() {
     grider.beginUpdate();
-    for (const index of getSelectedRowIndexes()) {
+    for (const index of _.sortBy(getSelectedRowIndexes(), x => -x)) {
       if (_.isNumber(index)) grider.deleteRow(index);
     }
     grider.endUpdate();
@@ -750,7 +750,7 @@
 
   export function generateSqlFromData() {
     const columnIndexes = _.uniq(selectedCells.map(x => x[1]));
-    columnIndexes.sort();
+    columnIndexes.sort((a, b) => a - b);
 
     showModal(GenerateSqlFromDataModal, {
       rows: getSelectedRowData(),
