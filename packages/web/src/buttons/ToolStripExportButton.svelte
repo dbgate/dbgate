@@ -42,5 +42,5 @@
 {#if quickExportHandlerRef && electron}
   <ToolStripDropDownButton menu={getExportMenu} label="Export" icon="icon export" />
 {:else}
-  <ToolStripCommandButton command="sqlDataGrid.export" />
+  <ToolStripCommandButton {command} />
 {/if}
