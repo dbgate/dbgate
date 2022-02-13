@@ -237,12 +237,14 @@
   }
   td.isDeleted {
     background: var(--theme-bg-volcano);
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
-    background-repeat: repeat-x;
-    background-position: 50% 50%;
   }
   td.isSelected {
     background: var(--theme-bg-selected);
+  }
+  td.isDeleted {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAEElEQVQImWNgIAX8x4KJBAD+agT8INXz9wAAAABJRU5ErkJggg==');
+    background-repeat: repeat-x;
+    background-position: 50% 50%;
   }
 
   .hint {
