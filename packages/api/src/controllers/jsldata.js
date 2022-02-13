@@ -1,6 +1,7 @@
 const fs = require('fs');
 const lineReader = require('line-reader');
 const _ = require('lodash');
+const { __ } = require('lodash/fp');
 const DatastoreProxy = require('../utility/DatastoreProxy');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const getJslFileName = require('../utility/getJslFileName');
@@ -111,7 +112,16 @@ module.exports = {
   async getInfo({ jslid }) {
     const file = getJslFileName(jslid);
     const firstLine = await readFirstLine(file);
-    if (firstLine) return JSON.parse(firstLine);
+    if (firstLine) {
+      const parsed = JSON.parse(firstLine);
+      if (parsed.__isStreamHeader) {
+        return parsed;
+      }
+      return {
+        __isStreamHeader: true,
+        __isDynamicStructure: true,
+      };
+    }
     return null;
   },
 

@@ -16,7 +16,7 @@
   const config = writable(createGridConfig());
   const cache = writable(createGridCache());
 
-  $: display = new JslGridDisplay(jslid, $info, $config, config.update, $cache, cache.update, loadedRows);
+  $: display = new JslGridDisplay(jslid, $info, $config, config.update, $cache, cache.update, loadedRows, $info?.__isDynamicStructure);
 </script>
 
 {#key jslid}

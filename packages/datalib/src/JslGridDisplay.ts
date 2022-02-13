@@ -12,11 +12,14 @@ export class JslGridDisplay extends GridDisplay {
     setConfig: ChangeConfigFunc,
     cache: GridCache,
     setCache: ChangeCacheFunc,
-    rows: any
+    rows: any,
+    isDynamicStructure: boolean
   ) {
     super(config, setConfig, cache, setCache, null);
 
     this.filterable = true;
+    this.isDynamicStructure = isDynamicStructure;
+    if (isDynamicStructure) this.filterTypeOverride = 'string';
 
     if (structure?.columns) {
       this.columns = _.uniqBy(

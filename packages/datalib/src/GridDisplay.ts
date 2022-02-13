@@ -90,6 +90,7 @@ export abstract class GridDisplay {
   isLoadedCorrectly = true;
   supportsReload = false;
   isDynamicStructure = false;
+  filterTypeOverride = null;
 
   setColumnVisibility(uniquePath: string[], isVisible: boolean) {
     const uniqueName = uniquePath.join('.');
@@ -622,16 +623,16 @@ export abstract class GridDisplay {
     if (!filters) return null;
     const conditions = [];
     for (const name in filters) {
-      const column = this.columns.find(x => (x.columnName = name));
-      if (!column) continue;
-      const filterType = getFilterType(column.dataType);
+      const column = this.isDynamicStructure ? null : this.columns.find(x => x.columnName == name);
+      if (!this.isDynamicStructure && !column) continue;
+      const filterType = this.isDynamicStructure ? this.filterTypeOverride ?? 'mongo' : getFilterType(column.dataType);
       try {
         const condition = parseFilter(filters[name], filterType);
         const replaced = _.cloneDeepWith(condition, (expr: Expression) => {
           if (expr.exprType == 'placeholder')
             return {
               exprType: 'column',
-              columnName: column.columnName,
+              columnName: this.isDynamicStructure ? name : column.columnName,
             };
         });
         conditions.push(replaced);

@@ -30,6 +30,7 @@
     category: 'JSON Lines editor',
     name: 'Preview',
     icon: 'icon preview',
+    keyText: 'F5',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
   });
@@ -99,6 +100,7 @@
       title: 'Preview #',
       icon: 'img archive',
       tabComponent: 'ArchiveFileTab',
+      forceNewTab: true,
       props: {
         jslid,
       },

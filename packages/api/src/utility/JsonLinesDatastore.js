@@ -27,6 +27,7 @@ class JsonLinesDatastore {
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
+    // this.firstRowToBeReturned = null;
     this.notifyChangedCallback = null;
     this.currentFilter = null;
   }
@@ -37,6 +38,7 @@ class JsonLinesDatastore {
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
+    // this.firstRowToBeReturned = null;
     this.currentFilter = null;
     reader.close(() => {});
   }
@@ -61,6 +63,11 @@ class JsonLinesDatastore {
   }
 
   async _readLine(parse) {
+    // if (this.firstRowToBeReturned) {
+    //   const res = this.firstRowToBeReturned;
+    //   this.firstRowToBeReturned = null;
+    //   return res;
+    // }
     for (;;) {
       const line = await fetchNextLineFromReader(this.reader);
       if (!line) {
@@ -70,7 +77,11 @@ class JsonLinesDatastore {
 
       if (!this.readedSchemaRow) {
         this.readedSchemaRow = true;
-        return true;
+        const parsedLine = JSON.parse(line);
+        if (parsedLine.__isStreamHeader) {
+          // skip to next line
+          continue;
+        }
       }
       if (this.currentFilter) {
         const parsedLine = JSON.parse(line);
@@ -79,6 +90,7 @@ class JsonLinesDatastore {
           return parse ? parsedLine : true;
         }
       } else {
+        console.log('NO !!!');
         this.readedDataRowCount += 1;
         return parse ? JSON.parse(line) : true;
       }
@@ -130,11 +142,21 @@ class JsonLinesDatastore {
       this.reader = reader;
       this.currentFilter = filter;
     }
-    if (!this.readedSchemaRow) {
-      await this._readLine(false); // skip structure
-    }
+    // if (!this.readedSchemaRow) {
+    //   const line = await this._readLine(true); // skip structure
+    //   if (!line.__isStreamHeader) {
+    //     // line contains data
+    //     this.firstRowToBeReturned = line;
+    //   }
+    // }
     while (this.readedDataRowCount < offset) {
-      await this._readLine(false);
+      const line = await this._readLine(false);
+      if (line == null) break;
+      // if (this.firstRowToBeReturned) {
+      //   this.firstRowToBeReturned = null;
+      // } else {
+      //   await this._readLine(false);
+      // }
     }
   }
 
@@ -148,7 +170,6 @@ class JsonLinesDatastore {
         res.push(line);
       }
     });
-    // console.log('RETURN', res.length);
     return res;
   }
 }
