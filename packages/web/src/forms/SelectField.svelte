@@ -44,9 +44,9 @@
     <SvelteSelect
       {...$$restProps}
       items={options}
-      selectedValue={isMulti
-        ? value?.map(item => options.find(x => x.value == item))
-        : options.find(x => x.value == value)}
+      value={isMulti
+        ? _.compact(value?.map(item => options.find(x => x.value == item)) ?? [])
+        : options.find(x => x.value == value) ?? null}
       on:select={e => {
         if (isMulti) {
           dispatch(
