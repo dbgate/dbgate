@@ -260,6 +260,21 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.jsonl',
+  category: 'New',
+  icon: 'img archive',
+  name: 'JSON Lines',
+  menuName: 'New JSON lines file',
+  onClick: () => {
+    openNewTab({
+      title: 'Lines #',
+      icon: 'img archive',
+      tabComponent: 'JsonLinesEditorTab',
+    });
+  },
+});
+
+registerCommand({
   id: 'new.sqliteDatabase',
   category: 'New',
   icon: 'img sqlite-database',

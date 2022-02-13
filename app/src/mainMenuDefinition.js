@@ -21,6 +21,7 @@ module.exports = [
       { command: 'new.query', hideDisabled: true },
       { command: 'new.freetable', hideDisabled: true },
       { command: 'new.shell', hideDisabled: true },
+      { command: 'new.jsonl', hideDisabled: true },
       { divider: true },
       { command: 'tabs.closeTab', hideDisabled: true },
       { command: 'tabs.closeAll', hideDisabled: true },
@@ -52,11 +53,7 @@ module.exports = [
   },
   {
     label: 'Tools',
-    submenu: [
-      { command: 'sql.generator' },
-      { command: 'file.import' },
-      { command: 'new.modelCompare' },
-    ],
+    submenu: [{ command: 'sql.generator' }, { command: 'file.import' }, { command: 'new.modelCompare' }],
   },
   {
     label: 'Help',
