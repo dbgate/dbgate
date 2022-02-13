@@ -133,9 +133,6 @@
     background-color: var(--theme-bg-1);
     border-top: 1px solid var(--theme-border);
   }
-  .tabs::-webkit-scrollbar {
-    height: 7px;
-  }
   .content {
     position: fixed;
     top: var(--dim-content-top);

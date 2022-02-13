@@ -10,10 +10,10 @@
   .content {
     position: absolute;
     left: 0;
-    top: var(--dim-toolstrip-height);
-    border-top: 1px solid var(--theme-border);
+    top: 0;
+    border-bottom: 1px solid var(--theme-border);
     right: 0;
-    bottom: 0;
+    bottom: var(--dim-toolstrip-height);
     display: flex;
   }
 
@@ -22,6 +22,7 @@
     left: 0;
     height: var(--dim-toolstrip-height);
     right: 0;
+    bottom: 0;
     display: flex;
     background: var(--theme-bg-1);
   }

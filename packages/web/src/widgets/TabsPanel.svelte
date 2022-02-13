@@ -444,6 +444,10 @@
     right: 35px;
     bottom: 0;
   }
+  .tabs::-webkit-scrollbar {
+    height: 7px;
+  }
+
   .db-group {
     display: flex;
     flex: 1;
