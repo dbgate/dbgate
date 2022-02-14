@@ -28,6 +28,7 @@ export function evaluateCondition(condition: Condition, values) {
         case '=':
           return left == right;
         case '!=':
+        case '<>':
           return left != right;
         case '<=':
           return left <= right;

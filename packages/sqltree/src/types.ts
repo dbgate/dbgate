@@ -58,7 +58,7 @@ export interface UnaryCondition {
 
 export interface BinaryCondition {
   conditionType: 'binary';
-  operator: '=' | '!=' | '<' | '>' | '>=' | '<=';
+  operator: '=' | '!=' | '<>' | '<' | '>' | '>=' | '<=';
   left: Expression;
   right: Expression;
 }
