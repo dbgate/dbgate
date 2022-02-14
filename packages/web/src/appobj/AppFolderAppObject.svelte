@@ -77,6 +77,7 @@
   }
 
   function isOnCurrentDb(currentDb, connections) {
+    if (!currentDb || !connections) return false;
     const conn = connections.find(x => x._id == currentDb?.connection?._id);
     const db = conn?.databases?.find(x => x.name == currentDb?.name);
     return db && db[`useApp:${data.name}`];
