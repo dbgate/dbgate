@@ -50,15 +50,11 @@
 
   .icon {
     padding: 5px;
-    font-size: 12pt;
   }
 
   .button {
-    padding: 5px;
-  }
-
-  .close-button {
-    padding: 5px 7px;
+    padding: 5px 10px;
+    font-size: 14pt;
   }
 
   .button:hover {
