@@ -213,7 +213,6 @@ ipcMain.on('window-action', async (event, arg) => {
       mainWindow.webContents.reloadIgnoringCache();
       break;
   }
-  mainWindow.setTitle(arg);
 });
 
 ipcMain.handle('showOpenDialog', async (event, options) => {
