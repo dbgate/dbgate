@@ -24,6 +24,7 @@
     icon={cmd.icon}
     on:click={cmd.onClick}
     disabled={!cmd.enabled}
+    {...$$restProps}
   >
     {cmd.toolbarName || cmd.name}
   </svelte:component>

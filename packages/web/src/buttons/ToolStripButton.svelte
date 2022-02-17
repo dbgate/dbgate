@@ -5,7 +5,6 @@
   export let disabled = false;
   export let icon = null;
   export let title = null;
-  export let externalImage = null;
 
   const dispatch = createEventDispatcher();
 
@@ -17,12 +16,8 @@
 
 <div class="button" class:disabled {title}>
   <div class="inner" class:disabled on:click={handleClick}>
-    {#if externalImage}
-      <img src={externalImage} />
-    {:else}
-      <span class="icon" class:disabled><FontIcon {icon} /></span>
-      <slot />
-    {/if}
+    <span class="icon" class:disabled><FontIcon {icon} /></span>
+    <slot />
   </div>
 </div>
 
@@ -62,9 +57,5 @@
     padding: 3px 8px;
     border-radius: 4px;
     cursor: pointer;
-  }
-  img {
-    width: 20px;
-    height: 20px;
   }
 </style>
