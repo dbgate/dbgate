@@ -16,6 +16,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall } from '../utility/api';
+  import LargeButton from '../buttons/LargeButton.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -59,8 +60,11 @@
     passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
   />
   {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
-    <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>
+    <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
+      >Add new connection</LargeButton
+    >
+    <!-- <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>
       Add new connection
-    </ToolbarButton>
+    </ToolbarButton> -->
   {/if}
 </WidgetsInnerContainer>

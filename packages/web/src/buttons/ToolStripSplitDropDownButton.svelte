@@ -9,6 +9,7 @@
   export let label;
   export let icon;
   export let component = ToolStripButton;
+  export let disabled = false;
 
   function handleClick(e) {
     const rect = e.detail.target.getBoundingClientRect();
@@ -18,6 +19,6 @@
   }
 </script>
 
-<ToolStripSplitButton {title} {icon} on:splitclick={handleClick} on:click>
+<ToolStripSplitButton {title} {icon} {disabled} on:splitclick={handleClick} on:click>
   <slot />
 </ToolStripSplitButton>

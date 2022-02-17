@@ -4,6 +4,7 @@
 
   export let icon;
   export let disabled = false;
+  export let fillHorizontal = false;
 
   const dispatch = createEventDispatcher();
 
@@ -12,7 +13,7 @@
   }
 </script>
 
-<div class="button" on:click={handleClick} class:disabled>
+<div class="button" on:click={handleClick} class:disabled class:fillHorizontal>
   <div class="icon">
     <FontIcon {icon} />
   </div>
@@ -29,6 +30,11 @@
     width: 120px;
     height: 60px;
     background-color: var(--theme-bg-1);
+  }
+
+  .button.fillHorizontal {
+    width: auto;
+    margin: 0px 10px;
   }
 
   .button:not(.disabled):hover {
