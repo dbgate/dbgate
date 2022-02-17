@@ -172,6 +172,6 @@
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
-    <ToolStripExportButton {quickExportHandlerRef} />
+    <ToolStripExportButton {quickExportHandlerRef} command='collectionDataGrid.export' />
   </svelte:fragment>
 </ToolStripContainer>
