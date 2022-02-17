@@ -10,16 +10,16 @@ var config = {
   target: 'node',
   node: {
     __dirname: false,
-  },  
+  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     libraryTarget: 'commonjs2',
   },
 
-//   optimization: {
-//     minimize: false,
-//   },
+  // optimization: {
+  //   minimize: false,
+  // },
 
   module: {
     rules: [
@@ -45,6 +45,9 @@ var config = {
       },
     }),
   ],
+  externals: {
+    'better-sqlite3': 'commonjs better-sqlite3',
+  },
 };
 
 module.exports = config;

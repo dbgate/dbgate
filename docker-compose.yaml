@@ -1,0 +1,18 @@
+# this compose file is for testing purposes only
+# use it for testing docker containsers built on local machine
+version: "3"
+services:
+  dbgate:
+    # build: docker
+    image: dbgate/dbgate:beta
+    restart: always
+    ports:
+      - 3100:3000
+    volumes:
+      - /mnt/sqt:/home/jena/test/chinook
+    environment:
+      CONNECTIONS: sqlite
+
+      LABEL_sqlite: sqt
+      FILE_sqlite: /mnt/sqt/Chinook.db
+      ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
