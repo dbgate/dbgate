@@ -5,6 +5,7 @@
     id: 'jslTableGrid.export',
     category: 'Data grid',
     name: 'Export',
+    icon: 'icon export',
     keyText: 'Ctrl+E',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().exportGrid(),

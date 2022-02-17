@@ -4,6 +4,7 @@
   registerCommand({
     id: 'freeTableGrid.export',
     category: 'Data grid',
+    icon: 'icon export',
     name: 'Export',
     keyText: 'Ctrl+E',
     testEnabled: () => getCurrentEditor() != null,

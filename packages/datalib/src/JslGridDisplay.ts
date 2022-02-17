@@ -13,11 +13,13 @@ export class JslGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc,
     rows: any,
-    isDynamicStructure: boolean
+    isDynamicStructure: boolean,
+    supportsReload: boolean
   ) {
     super(config, setConfig, cache, setCache, null);
 
     this.filterable = true;
+    this.supportsReload = supportsReload;
     this.isDynamicStructure = isDynamicStructure;
     if (isDynamicStructure) this.filterTypeOverride = 'string';
 

@@ -7,6 +7,7 @@
   import JslDataGridCore from './JslDataGridCore.svelte';
 
   export let jslid;
+  export let supportsReload;
 
   let loadedRows;
 
@@ -16,7 +17,17 @@
   const config = writable(createGridConfig());
   const cache = writable(createGridCache());
 
-  $: display = new JslGridDisplay(jslid, $info, $config, config.update, $cache, cache.update, loadedRows, $info?.__isDynamicStructure);
+  $: display = new JslGridDisplay(
+    jslid,
+    $info,
+    $config,
+    config.update,
+    $cache,
+    cache.update,
+    loadedRows,
+    $info?.__isDynamicStructure,
+    supportsReload
+  );
 </script>
 
 {#key jslid}
