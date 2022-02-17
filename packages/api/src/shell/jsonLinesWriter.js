@@ -10,11 +10,7 @@ class StringifyStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     let skip = false;
     if (!this.wasHeader) {
-      skip =
-        (chunk.__isStreamHeader ||
-          // TODO remove isArray test
-          Array.isArray(chunk.columns)) &&
-        !this.header;
+      skip = (chunk.__isStreamHeader && !this.header) || (chunk.__isStreamHeader && chunk.__isDynamicStructure);
       this.wasHeader = true;
     }
     if (!skip) {

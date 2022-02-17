@@ -11,10 +11,7 @@ class StringifyStream extends stream.Transform {
     let skip = false;
 
     if (!this.wasHeader) {
-      skip =
-        chunk.__isStreamHeader ||
-        // TODO remove isArray test
-        Array.isArray(chunk.columns);
+      skip = chunk.__isStreamHeader;
       this.wasHeader = true;
     }
     if (!skip) {

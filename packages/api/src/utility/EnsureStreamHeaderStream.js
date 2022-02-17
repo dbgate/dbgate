@@ -13,11 +13,7 @@ class EnsureStreamHeaderStream extends stream.Transform {
         return;
       }
 
-      if (
-        !chunk.__isStreamHeader &&
-        // TODO remove isArray test
-        !Array.isArray(chunk.columns)
-      ) {
+      if (!chunk.__isStreamHeader) {
         this.push({
           __isStreamHeader: true,
           __isComputedStructure: true,

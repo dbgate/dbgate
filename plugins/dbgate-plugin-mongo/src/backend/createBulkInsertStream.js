@@ -14,18 +14,13 @@ function createBulkInsertStream(driver, stream, pool, name, options) {
   writable.addRow = (row) => {
     if (!writable.wasHeader) {
       writable.wasHeader = true;
-      if (
-        row.__isStreamHeader ||
-        // TODO remove isArray test
-        Array.isArray(row.columns)
-      )
-        return;
+      if (row.__isStreamHeader) return;
     }
     if (options.createStringId) {
       row = {
         _id: new ObjectId().toString(),
         ...row,
-      }
+      };
     }
     writable.buffer.push(row);
   };

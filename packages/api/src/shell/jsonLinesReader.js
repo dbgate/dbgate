@@ -12,14 +12,14 @@ class ParseStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     const obj = JSON.parse(chunk);
     if (!this.wasHeader) {
-      if (
-        !obj.__isStreamHeader &&
-        // TODO remove isArray test
-        !Array.isArray(obj.columns)
-      ) {
-        this.push({ columns: Object.keys(obj).map(columnName => ({ columnName })) });
+      if (!obj.__isStreamHeader) {
+        this.push({
+          __isStreamHeader: true,
+          __isDynamicStructure: true,
+          // columns: Object.keys(obj).map(columnName => ({ columnName })),
+        });
       }
-      
+
       this.wasHeader = true;
     }
     if (!this.limitRows || this.rowsWritten < this.limitRows) {

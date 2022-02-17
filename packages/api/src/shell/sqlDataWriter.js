@@ -14,11 +14,7 @@ class SqlizeStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     let skip = false;
     if (!this.wasHeader) {
-      if (
-        chunk.__isStreamHeader ||
-        // TODO remove isArray test
-        Array.isArray(chunk.columns)
-      ) {
+      if (chunk.__isStreamHeader) {
         skip = true;
         this.tableName = chunk.pureName;
         if (chunk.engine) {
