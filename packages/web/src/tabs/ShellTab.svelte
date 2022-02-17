@@ -39,6 +39,7 @@
   import { getContext } from 'svelte';
 import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
@@ -235,7 +236,7 @@ import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="shell.execute" />
     <ToolStripCommandButton command="shell.kill" />
-    <ToolStripCommandButton command="shell.save" />
+    <ToolStripSaveButton idPrefix="shell" />
     <ToolStripCommandButton command="shell.copyNodeScript" />
   </svelte:fragment>
 </ToolStripContainer>

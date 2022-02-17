@@ -5,12 +5,13 @@ import { changeTab } from './common';
 import SaveFileModal from '../modals/SaveFileModal.svelte';
 import registerCommand from '../commands/registerCommand';
 import { apiCall } from './api';
+import getElectron from './getElectron';
 
 // export function saveTabEnabledStore(editorStore) {
 //   return derived(editorStore, editor => editor != null);
 // }
 
-export default function saveTabFile(editor, saveAs, folder, format, fileExtension) {
+export default async function saveTabFile(editor, saveMode, folder, format, fileExtension) {
   const tabs = get(openedTabs);
   const tabid = editor.activator.tabid;
   const data = editor.getData();
@@ -37,7 +38,29 @@ export default function saveTabFile(editor, saveAs, folder, format, fileExtensio
     }));
   };
 
-  if ((savedFile || savedFilePath) && !saveAs) {
+  if (saveMode == 'save-to-disk') {
+    const electron = getElectron();
+    const file = await electron.showSaveDialog({
+      filters: [
+        { name: `${fileExtension.toUpperCase()} files`, extensions: [fileExtension] },
+        { name: `All files`, extensions: ['*'] },
+      ],
+      defaultPath: savedFilePath || `file.${fileExtension}`,
+      properties: ['showOverwriteConfirmation'],
+    });
+    if (file) {
+      await apiCall('files/save-as', { filePath: file, data, format });
+
+      const path = window.require('path');
+      const parsed = path.parse(file);
+
+      onSave(parsed.name, {
+        savedFile: null,
+        savedFolder: null,
+        savedFilePath: file,
+      });
+    }
+  } else if ((savedFile || savedFilePath) && saveMode == 'save') {
     handleSave();
   } else {
     showModal(SaveFileModal, {

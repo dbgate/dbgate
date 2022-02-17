@@ -73,6 +73,7 @@
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripSplitButton from '../buttons/ToolStripSplitButton.svelte';
   import ToolStripSplitDropDownButton from '../buttons/ToolStripSplitDropDownButton.svelte';
+import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   export let tabid;
   export let conid;
@@ -331,9 +332,8 @@
       component={ToolStripSplitDropDownButton}
       menu={[{ command: 'query.execute' }, { command: 'query.executeCurrent' }]}
     />
-    <!-- <ToolStripCommandButton command="query.execute" /> -->
     <ToolStripCommandButton command="query.kill" />
-    <ToolStripCommandButton command="query.save" />
+    <ToolStripSaveButton idPrefix="query" />
     <ToolStripCommandButton command="query.formatCode" />
     {#if resultCount == 1}
       <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />

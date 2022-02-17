@@ -26,6 +26,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   export let tabid;
   export let conid;
@@ -102,7 +103,7 @@
   <DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="designer.arrange" />
-    <ToolStripCommandButton command="diagram.save" />
+    <ToolStripSaveButton idPrefix="diagram" />
     <ToolStripCommandButton command="diagram.export" />
     <ToolStripCommandButton command="diagram.undo" />
     <ToolStripCommandButton command="diagram.redo" />

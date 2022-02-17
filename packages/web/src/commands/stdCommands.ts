@@ -103,7 +103,7 @@ registerCommand({
   category: 'New',
   icon: 'img shell',
   name: 'JavaScript Shell',
-  menuName:' New JavaScript shell',
+  menuName: ' New JavaScript shell',
   onClick: () => {
     openNewTab({
       title: 'Shell #',
@@ -480,7 +480,7 @@ export function registerFileCommands({
       toolbar: true,
       isRelatedToTab: true,
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), false, folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save', folder, format, fileExtension),
     });
     registerCommand({
       id: idPrefix + '.saveAs',
@@ -488,7 +488,14 @@ export function registerFileCommands({
       category,
       name: 'Save As',
       testEnabled: () => getCurrentEditor() != null,
-      onClick: () => saveTabFile(getCurrentEditor(), true, folder, format, fileExtension),
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-as', folder, format, fileExtension),
+    });
+    registerCommand({
+      id: idPrefix + '.saveToDisk',
+      category,
+      name: 'Save to disk',
+      testEnabled: () => getCurrentEditor() != null && getElectron() != null,
+      onClick: () => saveTabFile(getCurrentEditor(), 'save-to-disk', folder, format, fileExtension),
     });
   }
 

@@ -53,6 +53,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   export let tabid;
   export let conid;
@@ -293,7 +294,7 @@
     <ToolStripCommandButton command="designer.execute" />
     <ToolStripCommandButton command="designer.kill" />
     <ToolStripCommandButton command="designer.openSql" />
-    <ToolStripCommandButton command="designer.save" />
+    <ToolStripSaveButton idPrefix="designer" />
     <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} label="Export result" />
   </svelte:fragment>
 </ToolStripContainer>
