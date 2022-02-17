@@ -266,11 +266,16 @@ registerCommand({
   name: 'JSON Lines',
   menuName: 'New JSON lines file',
   onClick: () => {
-    openNewTab({
-      title: 'Lines #',
-      icon: 'img archive',
-      tabComponent: 'JsonLinesEditorTab',
-    });
+    openNewTab(
+      {
+        title: 'Lines #',
+        icon: 'img archive',
+        tabComponent: 'JsonLinesEditorTab',
+      },
+      {
+        editor: '{"col1": "val1", "col2": "val2"}',
+      }
+    );
   },
 });
 

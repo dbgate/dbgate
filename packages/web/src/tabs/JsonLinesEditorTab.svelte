@@ -34,6 +34,24 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
   });
+
+  registerCommand({
+    id: 'jsonl.previewNewTab',
+    category: 'JSON Lines editor',
+    name: 'Preview in new tab',
+    icon: 'icon preview',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().previewMewTab(),
+  });
+
+  registerCommand({
+    id: 'jsonl.closePreview',
+    category: 'JSON Lines editor',
+    name: 'Close preview',
+    icon: 'icon close',
+    testEnabled: () => getCurrentEditor()?.isPreview(),
+    onClick: () => getCurrentEditor().closePreview(),
+  });
 </script>
 
 <script lang="ts">
@@ -53,10 +71,16 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import openNewTab from '../utility/openNewTab';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import JslDataGrid from '../datagrid/JslDataGrid.svelte';
+  import runCommand from '../commands/runCommand';
+  import ToolStripSplitDropDownButton from '../buttons/ToolStripSplitDropDownButton.svelte';
 
   export let tabid;
   export let archiveFolder;
   export let archiveFile;
+
+  let jslid = null;
 
   const tabVisible: any = getContext('tabVisible');
 
@@ -84,6 +108,14 @@
     return tabid;
   }
 
+  export function isPreview() {
+    return !!jslid;
+  }
+
+  export function closePreview() {
+    jslid = null;
+  }
+
   export function save() {
     showModal(SaveArchiveModal, {
       folder: archiveFolder,
@@ -92,19 +124,27 @@
     });
   }
 
-  export async function preview() {
+  export async function previewMewTab() {
     const jslid = uuidv1();
     await apiCall('jsldata/save-text', { jslid, text: $editorState.value || '' });
 
-    openNewTab({
-      title: 'Preview #',
-      icon: 'img archive',
-      tabComponent: 'ArchiveFileTab',
-      forceNewTab: true,
-      props: {
-        jslid,
+    openNewTab(
+      {
+        title: 'Preview #',
+        icon: 'img archive',
+        tabComponent: 'ArchiveFileTab',
+        props: {
+          jslid,
+        },
       },
-    });
+      undefined,
+      { forceNewTab: true }
+    );
+  }
+
+  export async function preview() {
+    jslid = uuidv1();
+    await apiCall('jsldata/save-text', { jslid, text: $editorState.value || '' });
   }
 
   const doSave = async (folder, file) => {
@@ -134,19 +174,37 @@
 </script>
 
 <ToolStripContainer>
-  <AceEditor
-    value={$editorState.value || ''}
-    menu={createMenu()}
-    on:input={e => setEditorData(e.detail)}
-    on:focus={() => {
-      activator.activate();
-      invalidateCommands();
-    }}
-    bind:this={domEditor}
-    mode="json"
-  />
+  <VerticalSplitter isSplitter={jslid}>
+    <svelte:fragment slot="1">
+      <AceEditor
+        value={$editorState.value || ''}
+        menu={createMenu()}
+        on:input={e => setEditorData(e.detail)}
+        on:focus={() => {
+          activator.activate();
+          invalidateCommands();
+        }}
+        bind:this={domEditor}
+        mode="json"
+      />
+    </svelte:fragment>
+    <svelte:fragment slot="2">
+      {#if jslid}
+        {#key jslid}
+          <JslDataGrid {jslid} supportsReload />
+        {/key}
+      {/if}
+    </svelte:fragment>
+  </VerticalSplitter>
+
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="jsonl.save" />
-    <ToolStripCommandButton command="jsonl.preview" />
+    <ToolStripCommandButton
+      command="jsonl.preview"
+      component={ToolStripSplitDropDownButton}
+      menu={[{ command: 'jsonl.preview' }, { command: 'jsonl.previewNewTab' }]}
+    />
+
+    <ToolStripCommandButton command="jsonl.closePreview" />
   </svelte:fragment>
 </ToolStripContainer>
