@@ -73,8 +73,7 @@
   import openNewTab from '../utility/openNewTab';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
-  import runCommand from '../commands/runCommand';
-  import ToolStripSplitDropDownButton from '../buttons/ToolStripSplitDropDownButton.svelte';
+  import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
 
   export let tabid;
   export let archiveFolder;
@@ -199,11 +198,7 @@
 
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="jsonl.save" />
-    <ToolStripCommandButton
-      command="jsonl.preview"
-      component={ToolStripSplitDropDownButton}
-      menu={[{ command: 'jsonl.preview' }, { command: 'jsonl.previewNewTab' }]}
-    />
+    <ToolStripCommandSplitButton commands={['jsonl.preview', 'jsonl.previewNewTab']} />
 
     <ToolStripCommandButton command="jsonl.closePreview" />
   </svelte:fragment>

@@ -71,9 +71,8 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
-  import ToolStripSplitButton from '../buttons/ToolStripSplitButton.svelte';
-  import ToolStripSplitDropDownButton from '../buttons/ToolStripSplitDropDownButton.svelte';
-import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
 
   export let tabid;
   export let conid;
@@ -327,11 +326,7 @@ import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
     </svelte:fragment>
   </VerticalSplitter>
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton
-      command="query.execute"
-      component={ToolStripSplitDropDownButton}
-      menu={[{ command: 'query.execute' }, { command: 'query.executeCurrent' }]}
-    />
+    <ToolStripCommandSplitButton commands={['query.execute', 'query.executeCurrent']} />
     <ToolStripCommandButton command="query.kill" />
     <ToolStripSaveButton idPrefix="query" />
     <ToolStripCommandButton command="query.formatCode" />
