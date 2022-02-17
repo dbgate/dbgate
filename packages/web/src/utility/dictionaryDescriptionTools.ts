@@ -19,8 +19,17 @@ export function getDictionaryDescription(
   connections,
   skipCheckSaved: boolean = false
 ): DictionaryDescription {
-  const conn = connections.find(x => x._id == conid);
+  const conn = connections?.find(x => x._id == conid);
+
+  if (!conn) {
+    return null;
+  }
+
   const dbApps = filterAppsForDatabase(conn, database, apps);
+
+  if (!dbApps) {
+    return null;
+  }
 
   const cached = _.flatten(dbApps.map(x => x.dictionaryDescriptions || [])).find(
     x => x.pureName == table.pureName && x.schemaName == table.schemaName

@@ -21,6 +21,7 @@ module.exports = {
     const name = await this.getNewAppFolder({ name: folder });
     await fs.mkdir(path.join(appdir(), name));
     socket.emitChanged('app-folders-changed');
+    this.emitChangedDbApp(folder);
     return name;
   },
 
@@ -93,6 +94,8 @@ module.exports = {
     if (!folder) throw new Error('Missing folder parameter');
     await fs.rmdir(path.join(appdir(), folder), { recursive: true });
     socket.emitChanged(`app-folders-changed`);
+    socket.emitChanged(`app-files-changed-${folder}`);
+    socket.emitChanged('used-apps-changed');
   },
 
   async getNewAppFolder({ name }) {
