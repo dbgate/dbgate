@@ -9,7 +9,7 @@ services:
     ports:
       - 3100:3000
     volumes:
-      - /mnt/sqt:/home/jena/test/chinook
+      - /home/jena/test/chinook:/mnt/sqt
     environment:
       CONNECTIONS: sqlite
 
