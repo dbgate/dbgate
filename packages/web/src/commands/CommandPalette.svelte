@@ -3,7 +3,7 @@
     id: 'commandPalette.show',
     category: 'Command palette',
     name: 'Show',
-    toolbarName: 'Search',
+    toolbarName: 'Command palette',
     toolbarOrder: 0,
     keyText: 'F1',
     toolbar: true,
