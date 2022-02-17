@@ -30,5 +30,19 @@ const fileFormat = {
   
   export default {
     fileFormats: [fileFormat],
+
+    quickExports: [
+      {
+        label: 'XML file',
+        extension: 'xml',
+        createWriter: (fileName) => ({
+          functionName: 'writer@dbgate-plugin-xml',
+          props: {
+            fileName,
+          },
+        }),
+      },
+    ],
+  
   };
   

@@ -21,16 +21,17 @@ function escapeXml(value) {
 class StringifyStream extends stream.Transform {
   constructor({ itemElementName, rootElementName }) {
     super({ objectMode: true });
-    this.itemElementName = itemElementName;
-    this.rootElementName = rootElementName;
+    this.itemElementName = itemElementName || 'row';
+    this.rootElementName = rootElementName || 'root';
 
     this.startElement(this.rootElementName);
+    this.push('\n');
   }
 
   startElement(element) {
     this.push('<');
     this.push(element);
-    this.push('>\n');
+    this.push('>');
   }
 
   endElement(element) {
@@ -47,6 +48,7 @@ class StringifyStream extends stream.Transform {
 
   _transform(chunk, encoding, done) {
     this.startElement(this.itemElementName);
+    this.push('\n');
     for (const key of Object.keys(chunk)) {
       this.elementValue(key, chunk[key]);
     }
