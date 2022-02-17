@@ -15,6 +15,7 @@
     id: 'dataGrid.switchToJson',
     category: 'Data grid',
     name: 'Switch to JSON',
+    icon: 'icon json',
     keyText: 'F4',
     testEnabled: () => getCurrentEditor()?.switchViewEnabled('json'),
     onClick: () => getCurrentEditor().switchToView('json'),

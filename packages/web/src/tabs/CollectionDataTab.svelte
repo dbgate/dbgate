@@ -51,6 +51,9 @@
   import _ from 'lodash';
   import { apiCall } from '../utility/api';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   export let tabid;
   export let conid;
@@ -137,24 +140,38 @@
   const collapsedLeftColumnStore = writable(getLocalStorage('collection_collapsedLeftColumn', false));
   setContext('collapsedLeftColumnStore', collapsedLeftColumnStore);
   $: setLocalStorage('collection_collapsedLeftColumn', $collapsedLeftColumnStore);
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 </script>
 
-<DataGrid
-  bind:loadedRows
-  {...$$props}
-  config={$config}
-  setConfig={config.update}
-  cache={$cache}
-  setCache={cache.update}
-  changeSetState={$changeSetStore}
-  focusOnVisible
-  {display}
-  {changeSetStore}
-  {dispatchChangeSet}
-  gridCoreComponent={CollectionDataGridCore}
-  jsonViewComponent={CollectionJsonView}
-  isDynamicStructure
-  showMacros
-  macroCondition={macro => macro.type == 'transformValue'}
-  onRunMacro={handleRunMacro}
-/>
+<ToolStripContainer>
+  <DataGrid
+    bind:loadedRows
+    {...$$props}
+    config={$config}
+    setConfig={config.update}
+    cache={$cache}
+    setCache={cache.update}
+    changeSetState={$changeSetStore}
+    focusOnVisible
+    {display}
+    {changeSetStore}
+    {dispatchChangeSet}
+    gridCoreComponent={CollectionDataGridCore}
+    jsonViewComponent={CollectionJsonView}
+    isDynamicStructure
+    showMacros
+    macroCondition={macro => macro.type == 'transformValue'}
+    onRunMacro={handleRunMacro}
+  />
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
+    <ToolStripCommandButton command="dataForm.refresh" hideDisabled />
+    <ToolStripCommandButton command="collectionTable.save" />
+    <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />
+    <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
+    <ToolStripExportButton {quickExportHandlerRef} />
+  </svelte:fragment>
+</ToolStripContainer>
