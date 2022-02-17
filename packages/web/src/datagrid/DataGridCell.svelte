@@ -34,7 +34,7 @@
 </script>
 
 <script lang="ts">
-  import _, { join } from 'lodash';
+  import _, { isPlainObject, join } from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { arrayToHexString, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
@@ -170,21 +170,26 @@
   {#if _.isArray(jsonParsedValue || value)}
     <ShowFormButton
       icon="icon open-in-new"
-      on:click={() =>
-        openNewTab(
-          {
-            title: 'Data #',
-            icon: 'img free-table',
-            tabComponent: 'FreeTableTab',
-            props: {},
-          },
-          {
-            editor: {
-              rows: jsonParsedValue || value,
-              structure: { __isDynamicStructure: true, columns: [] },
+      on:click={() => {
+        if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
+          openNewTab(
+            {
+              title: 'Data #',
+              icon: 'img free-table',
+              tabComponent: 'FreeTableTab',
+              props: {},
             },
-          }
-        )}
+            {
+              editor: {
+                rows: jsonParsedValue || value,
+                structure: { __isDynamicStructure: true, columns: [] },
+              },
+            }
+          );
+        } else {
+          openJsonDocument(jsonParsedValue || value, undefined, true);
+        }
+      }}
     />
   {/if}
 
