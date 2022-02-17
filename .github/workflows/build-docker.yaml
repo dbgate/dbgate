@@ -51,3 +51,11 @@ jobs:
           docker tag dbgate dbgate/dbgate
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker push dbgate/dbgate
+      - name: Build alpine docker image
+        run: |
+          docker build ./docker -t dbgate -f docker/Dockerfile-alpine
+      - name: Push alpine docker image
+        run: |
+          docker tag dbgate dbgate/dbgate:alpine
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push dbgate/dbgate:alpine
