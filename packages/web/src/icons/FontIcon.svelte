@@ -41,6 +41,7 @@
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',
     'icon table': 'mdi mdi-table',
+    'icon form': 'mdi mdi-form-select',
     'icon archive': 'mdi mdi-archive',
     'icon file': 'mdi mdi-file',
     'icon loading': 'mdi mdi-loading mdi-spin',
