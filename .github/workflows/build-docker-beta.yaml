@@ -31,8 +31,8 @@ jobs:
           node-version: 14.x
       - name: yarn install
         run: |
-          yarn --version
-          yarn config set network-timeout 300000
+          # yarn --version
+          # yarn config set network-timeout 300000
           yarn install
       - name: setCurrentVersion
         run: |
