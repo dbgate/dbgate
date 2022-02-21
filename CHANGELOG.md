@@ -1,5 +1,22 @@
 # ChangeLog
 
+### 4.7.0
+- CHANGED: Changed main menu style, menu and title bar is in one line (+ability to switch to system menu)
+- REMOVED: Removed main toolbar, use main menu or tab related bottom tool instead
+- ADDED: Added tab related context bottom toolbar
+- ADDED: Added support of SQLite to docker container #219
+- ADDED: Added Debian and Alpine docker distributions (default is Debian)
+- FIXED: Fixed performance problem of data grid, especially when there are cells with large data (eg. JSONs), now it is much faster
+- ADDED: Open JSON and array cell buttons
+- ADDED: Handle JSON in varchar cells
+- ADDED: Scroll tabs on mouse wheel
+- ADDED: Show edit edit MySQL column comments #218 #81
+- ADDED: Handle sparse (mssql), unsigned (mysql), zerofill (mysql) column flags
+- FIXED: Fixed same caching problems (eg. leading to indefinitely loading DB structure sometimes)
+- ADDED: Show estimated table row count for MySQL and MS SQL
+- FIXED: Fixed deleting rows from added rows in table data editor
+- ADDED: Better work with JSON lines file, added JSONL editor with preview
+
 ### 4.6.3
 - FIXED: Fixed Windows build
 - FIXED: Fixed crash, when there is invalid value in browser local storage
