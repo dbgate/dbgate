@@ -4,6 +4,7 @@
 - CHANGED: Changed main menu style, menu and title bar is in one line (+ability to switch to system menu)
 - REMOVED: Removed main toolbar, use main menu or tab related bottom tool instead
 - ADDED: Added tab related context bottom toolbar
+- ADDED: Main menu is available also in web application, by clicking on hamburger menu
 - ADDED: Added support of SQLite to docker container #219
 - ADDED: Added Debian and Alpine docker distributions (default is Debian)
 - FIXED: Fixed performance problem of data grid, especially when there are cells with large data (eg. JSONs), now it is much faster
