@@ -42,6 +42,8 @@
       ];
     }
   });
+
+  // $: console.log('$dbInfo?.tables', $dbInfo?.tables);
 </script>
 
 <FormProvider>
@@ -76,7 +78,7 @@
 
       <div class="row">
         <div class="col-5 mr-1">
-          Base column - {$tableInfo.pureName}
+          Base column - {$tableInfo?.pureName}
         </div>
         <div class="col-5 ml-1">
           Ref column - {refTableName || '(table not set)'}
@@ -91,7 +93,7 @@
                 value={column.columnName}
                 isNative
                 notSelected
-                options={$tableInfo.columns.map(col => ({
+                options={($tableInfo?.columns || []).map(col => ({
                   label: col.columnName,
                   value: col.columnName,
                 }))}
