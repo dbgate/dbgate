@@ -18,9 +18,11 @@
   import 'ace-builds/src-noconflict/theme-github';
   // import 'ace-builds/src-noconflict/theme-sqlserver';
 
-  import 'ace-builds/src-noconflict/theme-twilight';
+  // import 'ace-builds/src-noconflict/theme-twilight';
   // import 'ace-builds/src-noconflict/theme-monokai';
-
+  // import 'ace-builds/src-noconflict/theme-chaos';
+  import 'ace-builds/src-noconflict/theme-merbivore';
+  
   import { currentDropDownMenu, currentThemeDefinition } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
@@ -73,7 +75,7 @@
     showPrintMargin: false,
   };
 
-  $: theme = $currentThemeDefinition?.themeType == 'dark' ? 'twilight' : 'github';
+  $: theme = $currentThemeDefinition?.themeType == 'dark' ? 'merbivore' : 'github';
 
   export function getEditor(): ace.Editor {
     return editor;
