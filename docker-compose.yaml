@@ -3,16 +3,26 @@
 version: "3"
 services:
   dbgate:
-    # build: docker
-    image: dbgate/dbgate:beta
+    build: docker
+    # image: dbgate/dbgate:beta
     restart: always
     ports:
       - 3100:3000
-    volumes:
-      - /home/jena/test/chinook:/mnt/sqt
-    environment:
-      CONNECTIONS: sqlite
+    # volumes:
+    #   - /home/jena/dbgate-data:/root/dbgate-data
 
-      LABEL_sqlite: sqt
-      FILE_sqlite: /mnt/sqt/Chinook.db
-      ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
+    volumes:
+      - dbgate-data:/root/dbgate-data
+
+    # volumes:
+    #   - /home/jena/test/chinook:/mnt/sqt
+    # environment:
+    #   CONNECTIONS: sqlite
+
+    #   LABEL_sqlite: sqt
+    #   FILE_sqlite: /mnt/sqt/Chinook.db
+    #   ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
+
+volumes:
+  dbgate-data:
+    driver: local
