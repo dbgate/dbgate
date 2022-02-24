@@ -16,3 +16,9 @@ App Version [help -> about]:
 
 **Screenshot [if appropriate]**:
 A screenshot of the app if that helps
+
+**Additional info**
+You could provide additional context, to better understand your case.
+ - How looks your typical DbGate usage?
+ - What other DB software do you use?
+ - Anything else you think might be helpful
