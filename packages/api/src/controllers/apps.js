@@ -27,6 +27,7 @@ module.exports = {
 
   files_meta: true,
   async files({ folder }) {
+    if (!folder) return [];
     const dir = path.join(appdir(), folder);
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
