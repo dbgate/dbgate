@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const express = require('express');
+const getExpressPath = require('./getExpressPath');
 
 /**
  * @param {string} route
@@ -74,6 +75,6 @@ module.exports = function useController(app, electron, route, controller) {
   }
 
   if (app) {
-    app.use(route, router);
+    app.use(getExpressPath(route), router);
   }
 };

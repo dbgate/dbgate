@@ -28,8 +28,7 @@ const queryHistory = require('./controllers/queryHistory');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
-
-let checkLocalhostOrigin = null;
+const getExpressPath = require('./utility/getExpressPath');
 
 function start() {
   // console.log('process.argv', process.argv);
@@ -50,29 +49,9 @@ function start() {
     );
   }
 
-  app.use(function (req, res, next) {
-    if (checkLocalhostOrigin) {
-      if (
-        req.headers.origin &&
-        req.headers.origin != checkLocalhostOrigin &&
-        req.headers.origin != `http://${checkLocalhostOrigin}`
-      ) {
-        console.log('API origin check FAILED');
-        console.log('HEADERS', { ...req.headers, authorization: '***' });
-        return res.status(403).json({ error: 'Not authorized!' });
-      }
-      if (!req.headers.origin && req.headers.host != checkLocalhostOrigin) {
-        console.log('API host check FAILED');
-        console.log('HEADERS', { ...req.headers, authorization: '***' });
-        return res.status(403).json({ error: 'Not authorized!' });
-      }
-    }
-    next();
-  });
-
   app.use(cors());
 
-  app.get('/stream', async function (req, res) {
+  app.get(getExpressPath('/stream'), async function (req, res) {
     res.set({
       'Cache-Control': 'no-cache',
       'Content-Type': 'text/event-stream',
@@ -88,7 +67,7 @@ function start() {
   app.use(bodyParser.json({ limit: '50mb' }));
 
   app.use(
-    '/uploads',
+    getExpressPath('/uploads'),
     fileUpload({
       limits: { fileSize: 4 * 1024 * 1024 },
     })
@@ -100,21 +79,21 @@ function start() {
   //   app.use('/pages', express.static(process.env.PAGES_DIRECTORY));
   // }
 
-  app.use('/runners/data', express.static(rundir()));
+  app.use(getExpressPath('/runners/data'), express.static(rundir()));
 
   if (platformInfo.isDocker) {
     // server static files inside docker container
-    app.use(express.static('/home/dbgate-docker/public'));
+    app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
   } else {
     if (!platformInfo.isNpmDist) {
-      app.get('/', (req, res) => {
+      app.get(getExpressPath('/'), (req, res) => {
         res.send('DbGate API');
       });
     }
   }
 
   if (platformInfo.isNpmDist) {
-    app.use(express.static(path.join(__dirname, '../../dbgate-web/public')));
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({ port: 5000 }).then(port => {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);

@@ -4,7 +4,7 @@ version: "3"
 services:
   dbgate:
     build: docker
-    # image: dbgate/dbgate:beta
+    # image: dbgate/dbgate:beta-alpine
     restart: always
     ports:
       - 3100:3000
@@ -13,6 +13,9 @@ services:
 
     volumes:
       - dbgate-data:/root/dbgate-data
+    
+    # environment:
+    #   WEB_ROOT: /dbgate
 
     # volumes:
     #   - /home/jena/test/chinook:/mnt/sqt
