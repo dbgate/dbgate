@@ -594,6 +594,7 @@ registerCommand({
   id: 'app.toggleFullScreen',
   category: 'Application',
   name: 'Toggle full screen',
+  keyText: 'F11',
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'fullscreen'),
 });
@@ -641,7 +642,6 @@ registerCommand({
   name: 'Become sponsor',
   onClick: () => openWebLink('https://opencollective.com/dbgate'),
 });
-
 
 registerCommand({
   id: 'app.zoomIn',

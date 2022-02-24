@@ -183,6 +183,9 @@ function createWindow() {
   if (initialConfig['winIsMaximized']) {
     mainWindow.maximize();
   }
+  if (initialConfig['winIsFullscreen']) {
+    mainWindow.setFullScreen(true);
+  }
 
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
@@ -203,6 +206,7 @@ function createWindow() {
             winBounds: mainWindow.getBounds(),
             winIsMaximized: mainWindow.isMaximized(),
             useNativeMenu: useNativeMenuSpecified,
+            winIsFullscreen: mainWindow.isFullScreen(),
           }),
           'utf-8'
         );
