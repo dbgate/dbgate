@@ -15,7 +15,7 @@
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
-  import { getUsedApps } from './utility/metadataLoaders';
+  import { getConfig, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import { initTitleBarVisibility } from './utility/common';
 
@@ -34,7 +34,7 @@
 
       const settings = await apiCall('config/get-settings');
       const connections = await apiCall('connections/list');
-      const config = await apiCall('config/get');
+      const config = await getConfig();
       const apps = await getUsedApps();
       loadedApi = settings && connections && config && apps;
 

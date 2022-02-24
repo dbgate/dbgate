@@ -30,6 +30,15 @@ try {
   initialConfig = {};
 }
 
+let settingsJson = {};
+try {
+  const datadir = path.join(os.homedir(), 'dbgate-data');
+  settingsJson = JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }));
+} catch (err) {
+  console.log('Error loading settings.json:', err.message);
+  settingsJson = {};
+}
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
