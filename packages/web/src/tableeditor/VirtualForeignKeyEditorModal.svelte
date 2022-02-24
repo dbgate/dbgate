@@ -29,7 +29,12 @@
   let refTableName = null;
   let refSchemaName = null;
 
-  $: refTableInfo = $dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
+  $: tableList = [
+    ..._.sortBy($dbInfo?.tables || [], ['schemaName', 'pureName']),
+    // ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
+  ];
+
+  $: refTableInfo = tableList.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
   // $dbInfo?.views?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
 
   onMount(() => {
@@ -43,6 +48,7 @@
     }
   });
 
+  // $: console.log('conid, database', conid, database);
   // $: console.log('$dbInfo?.tables', $dbInfo?.tables);
 </script>
 
@@ -58,10 +64,7 @@
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
             isNative
             notSelected
-            options={[
-              ..._.sortBy($dbInfo?.tables || [], ['schemaName', 'pureName']),
-              // ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
-            ].map(tbl => ({
+            options={tableList.map(tbl => ({
               label: fullNameToLabel(tbl),
               value: fullNameToString(tbl),
             }))}
