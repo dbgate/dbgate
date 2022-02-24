@@ -58,7 +58,6 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
 
 // export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const visibleToolbar = writable(false);
-export const zoomKoef = writableWithStorage(1, 'zoomKoef');
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');
 export const currentDropDownMenu = writable(null);
 export const openedModals = writable([]);
@@ -101,13 +100,6 @@ visibleToolbar.subscribe(value => {
   invalidateCommands();
 });
 export const getVisibleToolbar = () => visibleToolbarValue;
-
-let zommKoefValue = null;
-zoomKoef.subscribe(value => {
-  zommKoefValue = value;
-  document.body.style.setProperty('zoom', zommKoefValue);
-});
-export const getZoomKoef = () => zommKoefValue;
 
 let openedTabsValue = null;
 openedTabs.subscribe(value => {

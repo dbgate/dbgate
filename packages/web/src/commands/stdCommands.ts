@@ -387,7 +387,6 @@ registerCommand({
     const keys = [
       'leftPanelWidth',
       'visibleToolbar',
-      'zoomKoef',
       'selectedWidget',
       'currentTheme',
 
@@ -641,6 +640,33 @@ registerCommand({
   category: 'Application',
   name: 'Become sponsor',
   onClick: () => openWebLink('https://opencollective.com/dbgate'),
+});
+
+
+registerCommand({
+  id: 'app.zoomIn',
+  category: 'Application',
+  name: 'Zoom in',
+  keyText: 'Ctrl+=',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'zoomin'),
+});
+
+registerCommand({
+  id: 'app.zoomOut',
+  category: 'Application',
+  name: 'Zoom out',
+  keyText: 'Ctrl+-',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'zoomout'),
+});
+
+registerCommand({
+  id: 'app.zoomReset',
+  category: 'Application',
+  name: 'Reset zoom',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'zoomreset'),
 });
 
 const electron = getElectron();

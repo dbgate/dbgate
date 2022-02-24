@@ -25,7 +25,6 @@
       _.omitBy(e.detail, (v, k) => k.startsWith(':'))
     );
     visibleToolbar.set(!!e.detail[':visibleToolbar']);
-    zoomKoef.set(e.detail[':zoomKoef']);
     if (electron && !getTitleBarVisibility() != !!e.detail[':useNativeMenu']) {
       electron.send('set-use-native-menu', !!e.detail[':useNativeMenu']);
       showSnackbarInfo('Native menu settings will be applied after app restart');
@@ -40,7 +39,6 @@
   initialValues={{
     ...getCurrentSettings(),
     ':visibleToolbar': getVisibleToolbar(),
-    ':zoomKoef': getZoomKoef(),
     ':useNativeMenu': !getTitleBarVisibility(),
   }}
 >
@@ -48,23 +46,10 @@
     <div slot="header">Settings</div>
 
     <FormValues let:values>
-      <div class="heading">Appearance</div>
-      <!-- <FormCheckboxField name=":visibleToolbar" label="Show toolbar" defaultValue={true} /> -->
       {#if electron}
+        <div class="heading">Appearance</div>
         <FormCheckboxField name=":useNativeMenu" label="Use system native menu" />
       {/if}
-      <FormSelectField
-        name=":zoomKoef"
-        label="Zoom"
-        defaultValue="1"
-        options={[
-          { label: '60%', value: '0.6' },
-          { label: '80%', value: '0.8' },
-          { label: '100%', value: '1' },
-          { label: '120%', value: '1.2' },
-          { label: '140%', value: '1.4' },
-        ]}
-      />
 
       <div class="heading">Data grid</div>
       <FormTextField

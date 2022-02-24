@@ -24,6 +24,10 @@ module.exports = [
     submenu: [
       { command: 'tabs.closeTab', hideDisabled: true },
       { command: 'tabs.closeAll', hideDisabled: true },
+      { divider: true },
+      { command: 'app.zoomIn', hideDisabled: true },
+      { command: 'app.zoomOut', hideDisabled: true },
+      { command: 'app.zoomReset', hideDisabled: true },
     ],
   },
 

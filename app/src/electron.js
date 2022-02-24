@@ -212,6 +212,15 @@ ipcMain.on('window-action', async (event, arg) => {
     case 'reload':
       mainWindow.webContents.reloadIgnoringCache();
       break;
+    case 'zoomin':
+      mainWindow.webContents.zoomLevel += 0.5;
+      break;
+    case 'zoomout':
+      mainWindow.webContents.zoomLevel -= 0.5;
+      break;
+    case 'zoomreset':
+      mainWindow.webContents.zoomLevel = 0;
+      break;
   }
 });
 
@@ -253,6 +262,7 @@ function createWindow() {
     titleBarStyle: useNativeMenu ? undefined : 'hidden',
     ...bounds,
     icon: os.platform() == 'win32' ? 'icon.ico' : path.resolve(__dirname, '../icon.png'),
+    partition: 'persist:dbgate',
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
