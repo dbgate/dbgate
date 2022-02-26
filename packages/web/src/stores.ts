@@ -76,9 +76,25 @@ export const currentThemeDefinition = derived([currentTheme, extensions], ([$cur
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
 
+export const visibleTitleBar = derived(useSettings(), $settings => {
+  const electron = getElectron();
+  if (!electron) return false;
+  // console.log('visibleTitleBar:settings', $settings);
+  if (!$settings) return false;
+  return !$settings['app.fullscreen'] && !$settings['app.useNativeMenu'];
+});
+
+export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
+  const electron = getElectron();
+  if (!electron) return true;
+  if (!$settings) return false;
+  return !!$settings['app.fullscreen'];
+});
+
 subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 // subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
+subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
 
 let activeTabIdValue = null;
 activeTabId.subscribe(value => {

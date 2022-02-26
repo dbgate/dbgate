@@ -14,9 +14,7 @@ const BrowserWindow = electron.BrowserWindow;
 const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
-
-let useNativeMenu = true;
-let useNativeMenuSpecified = null;
+const { settings } = require('cluster');
 
 // require('@electron/remote/main').initialize();
 
@@ -104,9 +102,6 @@ ipcMain.on('set-title', async (event, arg) => {
 ipcMain.on('open-link', async (event, arg) => {
   electron.shell.openExternal(arg);
 });
-ipcMain.on('set-use-native-menu', async (event, arg) => {
-  useNativeMenuSpecified = arg;
-});
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
     case 'minimize':
@@ -122,8 +117,11 @@ ipcMain.on('window-action', async (event, arg) => {
     case 'close':
       mainWindow.close();
       break;
-    case 'fullscreen':
-      mainWindow.setFullScreen(!mainWindow.isFullScreen());
+    case 'fullscreen-on':
+      mainWindow.setFullScreen(true);
+      break;
+    case 'fullscreen-off':
+      mainWindow.setFullScreen(false);
       break;
     case 'devtools':
       mainWindow.webContents.toggleDevTools();
@@ -157,21 +155,31 @@ ipcMain.handle('showItemInFolder', async (event, path) => {
 ipcMain.handle('openExternal', async (event, url) => {
   electron.shell.openExternal(url);
 });
-ipcMain.handle('useNativeMenu', async () => {
-  return useNativeMenu;
-});
+
+function fillMissingSettings(value) {
+  const res = {
+    ...value,
+  };
+  if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
+    res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
+  }
+  return res;
+}
 
 function createWindow() {
+  let settingsJson = {};
+  try {
+    const datadir = path.join(os.homedir(), 'dbgate-data');
+    settingsJson = fillMissingSettings(
+      JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
+    );
+  } catch (err) {
+    console.log('Error loading settings.json:', err.message);
+    settingsJson = fillMissingSettings({});
+  }
+
   const bounds = initialConfig['winBounds'];
-  useNativeMenu = os.platform() == 'darwin' ? true : false;
-  if (initialConfig['useNativeMenu'] === true) {
-    useNativeMenu = true;
-    useNativeMenuSpecified = true;
-  }
-  if (initialConfig['useNativeMenu'] === false) {
-    useNativeMenu = false;
-    useNativeMenuSpecified = false;
-  }
+  useNativeMenu = settingsJson['app.useNativeMenu'];
 
   mainWindow = new BrowserWindow({
     width: 1200,
@@ -192,17 +200,14 @@ function createWindow() {
   if (initialConfig['winIsMaximized']) {
     mainWindow.maximize();
   }
-  if (initialConfig['winIsFullscreen']) {
+  if (settingsJson['app.fullscreen']) {
     mainWindow.setFullScreen(true);
   }
 
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
 
-  async function loadMainWindow() {
-    const settings = await main.configController.getSettings();
-    console.log(settings);
-  
+  function loadMainWindow() {
     const startUrl =
       process.env.ELECTRON_START_URL ||
       url.format({
@@ -217,8 +222,6 @@ function createWindow() {
           JSON.stringify({
             winBounds: mainWindow.getBounds(),
             winIsMaximized: mainWindow.isMaximized(),
-            useNativeMenu: useNativeMenuSpecified,
-            winIsFullscreen: mainWindow.isFullScreen(),
           }),
           'utf-8'
         );
@@ -230,6 +233,7 @@ function createWindow() {
     if (os.platform() == 'linux') {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
+    // mainWindow.webContents.toggleDevTools();
   }
 
   const apiPackage = path.join(

@@ -15,9 +15,8 @@
   import { subscribeConnectionPingers } from './utility/connectionsPinger';
   import { subscribePermissionCompiler } from './utility/hasPermission';
   import { apiCall } from './utility/api';
-  import { getConfig, getUsedApps } from './utility/metadataLoaders';
+  import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
-  import { initTitleBarVisibility } from './utility/common';
 
   let loadedApi = false;
 
@@ -27,13 +26,11 @@
     //   return;
     // }
 
-    await initTitleBarVisibility();
-
     try {
       // console.log('************** LOADING API');
 
-      const settings = await apiCall('config/get-settings');
       const connections = await apiCall('connections/list');
+      const settings = await getSettings();
       const config = await getConfig();
       const apps = await getUsedApps();
       loadedApi = settings && connections && config && apps;

@@ -1,4 +1,5 @@
 const fs = require('fs-extra');
+const os = require('os');
 const path = require('path');
 const axios = require('axios');
 const { datadir } = require('../utility/directories');
@@ -44,10 +45,22 @@ module.exports = {
   getSettings_meta: true,
   async getSettings() {
     try {
-      return JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
+      return this.fillMissingSettings(
+        JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }))
+      );
     } catch (err) {
-      return {};
+      return this.fillMissingSettings({});
     }
+  },
+
+  fillMissingSettings(value) {
+    const res = {
+      ...value,
+    };
+    if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
+      res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
+    }
+    return res;
   },
 
   updateSettings_meta: true,

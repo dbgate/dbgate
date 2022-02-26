@@ -2,39 +2,15 @@
   import _ from 'lodash';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
-  import FormButton from '../forms/FormButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
-  import FormProvider from '../forms/FormProvider.svelte';
-
-  import FormProvider from '../forms/FormProvider.svelte';
-  import FormSelectField from '../forms/FormSelectField.svelte';
-  import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormValues from '../forms/FormValues.svelte';
-  import SettingsCheckboxField from '../forms/SettingsCheckboxField.svelte';
   import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
-  import SettingsTextField from '../forms/SettingsTextField.svelte';
-
+  
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import { getCurrentSettings, getVisibleToolbar, getZoomKoef, visibleToolbar, zoomKoef } from '../stores';
-  import { apiCall } from '../utility/api';
-  import { getTitleBarVisibility } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import { showSnackbarInfo } from '../utility/snackbar';
-
-  // function handleOk(e) {
-  //   apiCall(
-  //     'config/update-settings',
-  //     _.omitBy(e.detail, (v, k) => k.startsWith(':'))
-  //   );
-  //   visibleToolbar.set(!!e.detail[':visibleToolbar']);
-  //   if (electron && !getTitleBarVisibility() != !!e.detail[':useNativeMenu']) {
-  //     electron.send('set-use-native-menu', !!e.detail[':useNativeMenu']);
-  //     showSnackbarInfo('Native menu settings will be applied after app restart');
-  //   }
-  //   closeCurrentModal();
-  // }
 
   const electron = getElectron();
 </script>

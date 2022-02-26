@@ -39,24 +39,3 @@ export async function asyncFilter(arr, predicate) {
 
   return arr.filter((_v, index) => results[index]);
 }
-
-async function computeTitleBarVisibility() {
-  const electron = getElectron();
-  if (!electron) {
-    return false;
-  }
-  if (await electron.useNativeMenu()) {
-    return false;
-  }
-  return true;
-}
-
-let titleBarVisibility = false;
-export async function initTitleBarVisibility() {
-  titleBarVisibility = await computeTitleBarVisibility();
-  document.documentElement.style.setProperty('--dim-visible-titlebar', titleBarVisibility ? '1' : '0');
-}
-
-export function getTitleBarVisibility() {
-  return titleBarVisibility;
-}

@@ -9,6 +9,7 @@
     openedSnackbars,
     selectedWidget,
     visibleCommandPalette,
+    visibleTitleBar,
     visibleToolbar,
   } from './stores';
   import TabsPanel from './widgets/TabsPanel.svelte';
@@ -23,8 +24,6 @@
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
   import dragDropFileTarget from './utility/dragDropFileTarget';
   import TitleBar from './widgets/TitleBar.svelte';
-  import { onMount } from 'svelte';
-  import { getTitleBarVisibility } from './utility/common';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
@@ -42,7 +41,7 @@
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
 >
-  {#if getTitleBarVisibility()}
+  {#if $visibleTitleBar}
     <div class="titlebar">
       <TitleBar />
     </div>

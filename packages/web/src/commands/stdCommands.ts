@@ -27,6 +27,7 @@ import { showSnackbarSuccess } from '../utility/snackbar';
 import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportElectronFile';
+import { getSettings } from '../utility/metadataLoaders';
 
 function themeCommand(theme: ThemeDefinition) {
   return {
@@ -596,7 +597,13 @@ registerCommand({
   name: 'Toggle full screen',
   keyText: 'F11',
   testEnabled: () => getElectron() != null,
-  onClick: () => getElectron().send('window-action', 'fullscreen'),
+  onClick: async () => {
+    const settings = await getSettings();
+    const value = !settings['app.fullscreen'];
+    apiCall('config/update-settings', { 'app.fullscreen': value });
+    if (value) getElectron().send('window-action', 'fullscreen-on');
+    else getElectron().send('window-action', 'fullscreen-off');
+  },
 });
 
 registerCommand({

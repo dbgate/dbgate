@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { currentDropDownMenu, selectedWidget, visibleCommandPalette } from '../stores';
-  import { getTitleBarVisibility } from '../utility/common';
+  import { currentDropDownMenu, selectedWidget, visibleCommandPalette, visibleHamburgerMenuWidget } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
 
   let domSettings;
@@ -81,7 +80,7 @@
 </script>
 
 <div class="main">
-  {#if !getTitleBarVisibility()}
+  {#if $visibleHamburgerMenuWidget}
     <div class="wrapper mb-3" on:click={handleMainMenu} bind:this={domMainMenu}>
       <FontIcon icon="icon menu" />
     </div>
