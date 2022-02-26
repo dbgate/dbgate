@@ -76,12 +76,16 @@ export const currentThemeDefinition = derived([currentTheme, extensions], ([$cur
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
 
+let nativeMenuOnStartup = null;
 export const visibleTitleBar = derived(useSettings(), $settings => {
   const electron = getElectron();
   if (!electron) return false;
   // console.log('visibleTitleBar:settings', $settings);
   if (!$settings) return false;
-  return !$settings['app.fullscreen'] && !$settings['app.useNativeMenu'];
+  if (nativeMenuOnStartup == null) {
+    nativeMenuOnStartup = !!$settings['app.useNativeMenu'];
+  }
+  return !$settings['app.fullscreen'] && !nativeMenuOnStartup;
 });
 
 export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {

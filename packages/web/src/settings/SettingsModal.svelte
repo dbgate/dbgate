@@ -6,13 +6,15 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import FormValues from '../forms/FormValues.svelte';
   import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
-  
+  import FontIcon from '../icons/FontIcon.svelte';
+
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
   import getElectron from '../utility/getElectron';
   import { showSnackbarInfo } from '../utility/snackbar';
 
   const electron = getElectron();
+  let restartWarning = false;
 </script>
 
 <SettingsFormProvider>
@@ -25,8 +27,15 @@
         <FormCheckboxField
           name="app.useNativeMenu"
           label="Use system native menu"
-          on:change={() => showSnackbarInfo('Native menu settings will be applied after app restart')}
+          on:change={() => {
+            restartWarning = true;
+          }}
         />
+        {#if restartWarning}
+          <div class="ml-5 mb-3">
+            <FontIcon icon="img warn" /> Native menu settings will be applied after app restart
+          </div>
+        {/if}
       {/if}
 
       <div class="heading">Data grid</div>
