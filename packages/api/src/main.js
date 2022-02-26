@@ -55,6 +55,7 @@ function start() {
     res.set({
       'Cache-Control': 'no-cache',
       'Content-Type': 'text/event-stream',
+      'X-Accel-Buffering': 'no',
       Connection: 'keep-alive',
     });
     res.flushHeaders();
