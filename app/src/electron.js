@@ -30,14 +30,14 @@ try {
   initialConfig = {};
 }
 
-let settingsJson = {};
-try {
-  const datadir = path.join(os.homedir(), 'dbgate-data');
-  settingsJson = JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }));
-} catch (err) {
-  console.log('Error loading settings.json:', err.message);
-  settingsJson = {};
-}
+// let settingsJson = {};
+// try {
+//   const datadir = path.join(os.homedir(), 'dbgate-data');
+//   settingsJson = JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }));
+// } catch (err) {
+//   console.log('Error loading settings.json:', err.message);
+//   settingsJson = {};
+// }
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -199,7 +199,10 @@ function createWindow() {
   mainMenu = buildMenu();
   mainWindow.setMenu(mainMenu);
 
-  function loadMainWindow() {
+  async function loadMainWindow() {
+    const settings = await main.configController.getSettings();
+    console.log(settings);
+  
     const startUrl =
       process.env.ELECTRON_START_URL ||
       url.format({

@@ -145,4 +145,4 @@ function initializeElectronSender(electronSender) {
   socket.setElectronSender(electronSender);
 }
 
-module.exports = { start, useAllControllers, initializeElectronSender };
+module.exports = { start, useAllControllers, initializeElectronSender, configController: config };

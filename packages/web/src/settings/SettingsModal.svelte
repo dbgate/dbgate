@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   import FormButton from '../forms/FormButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
@@ -10,6 +11,9 @@
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormValues from '../forms/FormValues.svelte';
+  import SettingsCheckboxField from '../forms/SettingsCheckboxField.svelte';
+  import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
+  import SettingsTextField from '../forms/SettingsTextField.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
@@ -19,36 +23,34 @@
   import getElectron from '../utility/getElectron';
   import { showSnackbarInfo } from '../utility/snackbar';
 
-  function handleOk(e) {
-    apiCall(
-      'config/update-settings',
-      _.omitBy(e.detail, (v, k) => k.startsWith(':'))
-    );
-    visibleToolbar.set(!!e.detail[':visibleToolbar']);
-    if (electron && !getTitleBarVisibility() != !!e.detail[':useNativeMenu']) {
-      electron.send('set-use-native-menu', !!e.detail[':useNativeMenu']);
-      showSnackbarInfo('Native menu settings will be applied after app restart');
-    }
-    closeCurrentModal();
-  }
+  // function handleOk(e) {
+  //   apiCall(
+  //     'config/update-settings',
+  //     _.omitBy(e.detail, (v, k) => k.startsWith(':'))
+  //   );
+  //   visibleToolbar.set(!!e.detail[':visibleToolbar']);
+  //   if (electron && !getTitleBarVisibility() != !!e.detail[':useNativeMenu']) {
+  //     electron.send('set-use-native-menu', !!e.detail[':useNativeMenu']);
+  //     showSnackbarInfo('Native menu settings will be applied after app restart');
+  //   }
+  //   closeCurrentModal();
+  // }
 
   const electron = getElectron();
 </script>
 
-<FormProvider
-  initialValues={{
-    ...getCurrentSettings(),
-    ':visibleToolbar': getVisibleToolbar(),
-    ':useNativeMenu': !getTitleBarVisibility(),
-  }}
->
+<SettingsFormProvider>
   <ModalBase {...$$restProps}>
     <div slot="header">Settings</div>
 
     <FormValues let:values>
       {#if electron}
         <div class="heading">Appearance</div>
-        <FormCheckboxField name=":useNativeMenu" label="Use system native menu" />
+        <FormCheckboxField
+          name="app.useNativeMenu"
+          label="Use system native menu"
+          on:change={() => showSnackbarInfo('Native menu settings will be applied after app restart')}
+        />
       {/if}
 
       <div class="heading">Data grid</div>
@@ -58,6 +60,7 @@
         defaultValue="100"
       />
       <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} />
+      <!-- <FormCheckboxField name="dataGrid.showHintColumns" label="Show foreign key hints" defaultValue={true} /> -->
 
       <FormCheckboxField name="dataGrid.thousandsSeparator" label="Use thousands separator for numbers" />
 
@@ -76,11 +79,11 @@
     </FormValues>
 
     <div slot="footer">
-      <FormSubmit value="OK" on:click={handleOk} />
-      <FormButton value="Cancel" on:click={closeCurrentModal} />
+      <!-- <FormSubmit value="OK" on:click={handleOk} /> -->
+      <FormStyledButton value="Close" on:click={closeCurrentModal} />
     </div>
   </ModalBase>
-</FormProvider>
+</SettingsFormProvider>
 
 <style>
   .heading {

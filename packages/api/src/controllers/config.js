@@ -5,21 +5,24 @@ const { datadir } = require('../utility/directories');
 const hasPermission = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
+const AsyncLock = require('async-lock');
 
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
 
-module.exports = {
-  settingsValue: {},
+const lock = new AsyncLock();
 
-  async _init() {
-    try {
-      this.settingsValue = JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
-    } catch (err) {
-      this.settingsValue = {};
-    }
-  },
+module.exports = {
+  // settingsValue: {},
+
+  // async _init() {
+  //   try {
+  //     this.settingsValue = JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
+  //   } catch (err) {
+  //     this.settingsValue = {};
+  //   }
+  // },
 
   get_meta: true,
   async get() {
@@ -40,24 +43,33 @@ module.exports = {
 
   getSettings_meta: true,
   async getSettings() {
-    return this.settingsValue;
+    try {
+      return JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }));
+    } catch (err) {
+      return {};
+    }
   },
 
   updateSettings_meta: true,
   async updateSettings(values) {
     if (!hasPermission(`settings/change`)) return false;
-    try {
-      const updated = {
-        ...this.settingsValue,
-        ...values,
-      };
-      await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
-      this.settingsValue = updated;
-      socket.emitChanged(`settings-changed`);
-      return updated;
-    } catch (err) {
-      return false;
-    }
+
+    const res = await lock.acquire('update', async () => {
+      const currentValue = await this.getSettings();
+      try {
+        const updated = {
+          ...currentValue,
+          ...values,
+        };
+        await fs.writeFile(path.join(datadir(), 'settings.json'), JSON.stringify(updated, undefined, 2));
+        // this.settingsValue = updated;
+        socket.emitChanged(`settings-changed`);
+        return updated;
+      } catch (err) {
+        return false;
+      }
+    });
+    return res;
   },
 
   changelog_meta: true,
