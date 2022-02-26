@@ -2,9 +2,10 @@ import { writable, derived, readable } from 'svelte/store';
 import { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
-import { useConfig, useSettings } from './utility/metadataLoaders';
+import { getSettings, useConfig, useSettings } from './utility/metadataLoaders';
 import _ from 'lodash';
 import { safeJsonParse } from 'dbgate-tools';
+import { apiCall } from './utility/api';
 
 export interface TabDefinition {
   title: string;
@@ -27,6 +28,19 @@ export function writableWithStorage<T>(defaultValue: T, storageName) {
   return res;
 }
 
+export function writableSettingsValue<T>(defaultValue: T, storageName) {
+  const res = derived(useSettings(), $settings => ($settings || {})[storageName] ?? defaultValue);
+  return {
+    ...res,
+    set: value => apiCall('config/update-settings', { [storageName]: value }),
+    update: async func => {
+      const settings = await getSettings();
+      const newValue = func(settings[storageName] ?? defaultValue);
+      apiCall('config/update-settings', { [storageName]: newValue });
+    },
+  };
+}
+
 function subscribeCssVariable(store, transform, cssVariable) {
   store.subscribe(value => document.documentElement.style.setProperty(cssVariable, transform(value)));
 }
@@ -39,7 +53,9 @@ export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRow
 export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
 export const commands = writable({});
-export const currentTheme = writableWithStorage('theme-light', 'currentTheme');
+export const currentTheme = getElectron()
+  ? writableSettingsValue('theme-light', 'currentTheme')
+  : writableWithStorage('theme-light', 'currentTheme');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');
