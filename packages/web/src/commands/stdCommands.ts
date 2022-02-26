@@ -29,26 +29,27 @@ import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportElectronFile';
 import { getSettings } from '../utility/metadataLoaders';
 
-function themeCommand(theme: ThemeDefinition) {
-  return {
-    text: theme.themeName,
-    onClick: () => currentTheme.set(theme.themeClassName),
-    // onPreview: () => {
-    //   const old = get(currentTheme);
-    //   currentTheme.set(css);
-    //   return ok => {
-    //     if (!ok) currentTheme.set(old);
-    //   };
-    // },
-  };
-}
+// function themeCommand(theme: ThemeDefinition) {
+//   return {
+//     text: theme.themeName,
+//     onClick: () => currentTheme.set(theme.themeClassName),
+//     // onPreview: () => {
+//     //   const old = get(currentTheme);
+//     //   currentTheme.set(css);
+//     //   return ok => {
+//     //     if (!ok) currentTheme.set(old);
+//     //   };
+//     // },
+//   };
+// }
 
 registerCommand({
   id: 'theme.changeTheme',
   category: 'Theme',
   name: 'Change',
   toolbarName: 'Change theme',
-  getSubCommands: () => get(extensions).themes.map(themeCommand),
+  onClick: () => showModal(SettingsModal, { selectedTab: 1 }),
+  // getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 
 registerCommand({

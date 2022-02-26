@@ -17,6 +17,8 @@
 
   const electron = getElectron();
   let restartWarning = false;
+
+  export let selectedTab = 0;
 </script>
 
 <SettingsFormProvider>
@@ -25,6 +27,7 @@
 
     <FormValues let:values>
       <TabControl
+        bind:value={selectedTab}
         isInline
         tabs={[
           { label: 'General', slot: 1 },
