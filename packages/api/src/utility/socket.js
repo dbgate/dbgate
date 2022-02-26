@@ -5,6 +5,7 @@ let init = '';
 module.exports = {
   setSseResponse(value) {
     sseResponse = value;
+    setInterval(() => this.emit('ping'), 30 * 1000);
   },
   setElectronSender(value) {
     electronSender = value;
