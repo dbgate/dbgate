@@ -4,14 +4,19 @@
   import TabControl from '../elements/TabControl.svelte';
 
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
+  import FormSelectField from '../forms/FormSelectField.svelte';
   import FormTextField from '../forms/FormTextField.svelte';
   import FormValues from '../forms/FormValues.svelte';
+  import SelectField from '../forms/SelectField.svelte';
   import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import { extensions } from '../stores';
+  import { EDITOR_THEMES } from '../query/AceEditor.svelte';
+  import SqlEditor from '../query/SqlEditor.svelte';
+  import { currentEditorTheme, extensions } from '../stores';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
 
@@ -19,6 +24,22 @@
   let restartWarning = false;
 
   export let selectedTab = 0;
+
+  const sqlPreview = `-- example query
+SELECT
+  MAX(Album.AlbumId) AS max_album,
+  MAX(Album.Title) AS max_title,
+  Artist.ArtistId,
+  'album' AS test_string,
+  123 AS test_number
+FROM
+  Album
+  INNER JOIN Artist ON Album.ArtistId = Artist.ArtistId
+GROUP BY
+  Artist.ArtistId
+ORDER BY
+  Artist.Name ASC
+  `;
 </script>
 
 <SettingsFormProvider>
@@ -82,6 +103,22 @@
               <ThemeSkeleton {theme} />
             {/each}
           </div>
+
+          <div class="heading">Editor theme</div>
+
+          <FormFieldTemplateLarge label="Theme" type='combo'>
+            <SelectField
+              isNative
+              notSelected="(use theme default)"
+              options={EDITOR_THEMES.map(theme => ({ label: theme, value: theme }))}
+              value={$currentEditorTheme}
+              on:change={e => ($currentEditorTheme = e.detail)}
+            />
+          </FormFieldTemplateLarge>
+
+          <div class="editor">
+            <SqlEditor value={sqlPreview} readOnly />
+          </div>
         </svelte:fragment>
       </TabControl>
     </FormValues>
@@ -104,5 +141,12 @@
   .themes {
     overflow-x: scroll;
     display: flex;
+  }
+
+  .editor {
+    position: relative;
+    height: 200px;
+    width: 400px;
+    margin-left: var(--dim-large-form-margin);
   }
 </style>

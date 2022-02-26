@@ -1,7 +1,7 @@
 <script lang="ts">
   export let type;
   export let label;
-  export let noMargin;
+  export let noMargin = false;
   export let disabled = false;
   export let labelProps: any = {};
 </script>
