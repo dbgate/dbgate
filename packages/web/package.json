@@ -45,7 +45,7 @@
     "rollup-plugin-terser": "^7.0.0",
     "sirv-cli": "^1.0.0",
     "sql-formatter": "^2.3.3",
-    "svelte": "^3.43.0",
+    "svelte": "^3.46.4",
     "svelte-check": "^1.0.0",
     "svelte-markdown": "^0.1.4",
     "svelte-preprocess": "^4.9.5",

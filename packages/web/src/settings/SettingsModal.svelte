@@ -11,7 +11,9 @@
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
+  import { extensions } from '../stores';
   import getElectron from '../utility/getElectron';
+  import ThemeSkeleton from './ThemeSkeleton.svelte';
 
   const electron = getElectron();
   let restartWarning = false;
@@ -70,6 +72,14 @@
             disabled={values['connection.autoRefresh'] === false}
           />
         </svelte:fragment>
+        <svelte:fragment slot="2">
+          <div class="heading">Application theme</div>
+          <div class="themes">
+            {#each $extensions.themes as theme}
+              <ThemeSkeleton {theme} />
+            {/each}
+          </div>
+        </svelte:fragment>
       </TabControl>
     </FormValues>
 
@@ -86,5 +96,10 @@
     margin: 5px;
     margin-left: var(--dim-large-form-margin);
     margin-top: var(--dim-large-form-margin);
+  }
+
+  .themes {
+    overflow-x: scroll;
+    display: flex;
   }
 </style>
