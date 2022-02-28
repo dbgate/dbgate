@@ -627,7 +627,7 @@ registerCommand({
   id: 'app.openDocs',
   category: 'Application',
   name: 'Documentation',
-  onClick: () => openWebLink('https://github.com/dbgate/dbgate/wiki'),
+  onClick: () => openWebLink('https://dbgate.org/docs/'),
 });
 
 registerCommand({
