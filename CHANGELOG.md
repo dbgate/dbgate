@@ -7,7 +7,7 @@
 - ADDED: DbGate in Docker can run in subdirectory #228
 - FIXED: DbGate in Docker can be proxied with nginx #228
 - FIDED: Theme persists when opening multiple windows #207
-- ADDED: Remember fullscreen stte #230
+- ADDED: Remember fullscreen state #230
 - ADDED: Improved fullscreen state, title bar with menu is hidden, menu is in hamburger menu, like in web version
 - ADDED: Theme choose dialog (added as tab in settings)
 - FIXED: Fixed crash when clicking on application layers #231
