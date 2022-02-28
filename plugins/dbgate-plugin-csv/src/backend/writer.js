@@ -30,6 +30,7 @@ async function writer({ fileName, encoding = 'utf-8', header = true, delimiter, 
   csvPrepare.pipe(csvStream);
   csvStream.pipe(fileStream);
   csvPrepare['finisher'] = fileStream;
+  csvPrepare.requireFixedStructure = true;
   return csvPrepare;
 }
 

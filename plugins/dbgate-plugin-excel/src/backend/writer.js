@@ -24,6 +24,7 @@ class ExcelSheetWriterStream extends stream.Writable {
     this.structure = null;
     this.fileName = fileName;
     this.sheetName = sheetName;
+    this.requireFixedStructure = true;
   }
   _write(chunk, enc, next) {
     if (this.structure) {
