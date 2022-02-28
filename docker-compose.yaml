@@ -5,6 +5,7 @@ services:
   dbgate:
     build: docker
     # image: dbgate/dbgate:beta-alpine
+    # image: dbgate/dbgate:beta
     restart: always
     ports:
       - 3100:3000
@@ -17,6 +18,13 @@ services:
     environment:
       WEB_ROOT: /dbgate
 
+      # CONNECTIONS: mssql
+      # LABEL_mssql: MS Sql
+      # SERVER_mssql: mssql
+      # USER_mssql: sa
+      # PORT_mssql: 1433
+      # PASSWORD_mssql: Pwd2020Db
+      # ENGINE_mssql: mssql@dbgate-plugin-mssql
   proxy:
     # image: nginx
     build: test/nginx
@@ -31,6 +39,14 @@ services:
     #   LABEL_sqlite: sqt
     #   FILE_sqlite: /mnt/sqt/Chinook.db
     #   ENGINE_sqlite: sqlite@dbgate-plugin-sqlite
+
+  # mssql:
+  #   image: mcr.microsoft.com/mssql/server
+  #   restart: always
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=Pwd2020Db
+  #     - MSSQL_PID=Express
 
 volumes:
   dbgate-data:

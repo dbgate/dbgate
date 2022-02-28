@@ -24,6 +24,20 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
 
 async function tediousConnect({ server, port, user, password, database, ssl }) {
   return new Promise((resolve, reject) => {
+    const connectionOptions = {
+      encrypt: !!ssl,
+      cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
+      trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
+      enableArithAbort: true,
+      validateBulkLoadParameters: false,
+      requestTimeout: 1000 * 3600,
+      port: port ? parseInt(port) : undefined,
+    };
+
+    if (database) {
+      connectionOptions.database = database;
+    }
+
     const connection = new tedious.Connection({
       server,
 
@@ -35,16 +49,7 @@ async function tediousConnect({ server, port, user, password, database, ssl }) {
         },
       },
 
-      options: {
-        encrypt: !!ssl,
-        cryptoCredentialsDetails: ssl ? _.pick(ssl, ['ca', 'cert', 'key']) : undefined,
-        trustServerCertificate: ssl ? (!ssl.ca && !ssl.cert && !ssl.key ? true : ssl.rejectUnauthorized) : undefined,
-        enableArithAbort: true,
-        validateBulkLoadParameters: false,
-        requestTimeout: 1000 * 3600,
-        database,
-        port: port ? parseInt(port) : undefined,
-      },
+      options: connectionOptions,
     });
     connection.on('connect', function (err) {
       if (err) {
