@@ -1,5 +1,16 @@
 # ChangeLog
 
+### 4.7.1
+- FIXED: Fixed connecting to MS SQL server running in docker container from DbGate running in docker container #236 
+- FIXED: Fixed export MongoDB collections into Excel and CSV #240
+- ADDED: Added support for docker volumes to persiste connections, when not using configuration via env variables #232
+- ADDED: DbGate in Docker can run in subdirectory #228
+- FIXED: DbGate in Docker can be proxied with nginx #228
+- FIDED: Theme persists when opening multiple windows #207
+- ADDED: Remember fullscreen stte #230
+- ADDED: Improved fullscreen state, title bar with menu is hidden, menu is in hamburger menu, like in web version
+- ADDED: Theme choose dialog (added as tab in settings)
+- FIXED: Fixed crash when clicking on application layers #231
 ### 4.7.0
 - CHANGED: Changed main menu style, menu and title bar is in one line (+ability to switch to system menu)
 - REMOVED: Removed main toolbar, use main menu or tab related bottom tool instead
