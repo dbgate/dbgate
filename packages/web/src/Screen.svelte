@@ -24,10 +24,14 @@
   import DragAndDropFileTarget from './DragAndDropFileTarget.svelte';
   import dragDropFileTarget from './utility/dragDropFileTarget';
   import TitleBar from './widgets/TitleBar.svelte';
+  import FontIcon from './icons/FontIcon.svelte';
+  import getElectron from './utility/getElectron';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
   $: themeStyle = `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`;
+
+  const isElectron = !!getElectron();
 </script>
 
 <svelte:head>
@@ -36,8 +40,15 @@
   {/if}
 </svelte:head>
 
+<div class="not-supported" class:isElectron>
+  <div class="m-5 big-icon"><FontIcon icon="img warn" /></div>
+  <div class="m-3">Sorry, DbGate is not supported on mobile devices.</div>
+  <div class="m-3">Please visit <a href="https://dbgate.org">DbGate web</a> for more info.</div>
+</div>
+
 <div
   class={`${$currentTheme} ${currentThemeType} root dbgate-screen`}
+  class:isElectron
   use:dragDropFileTarget
   on:contextmenu={e => e.preventDefault()}
 >
@@ -173,5 +184,26 @@
     left: 0;
     right: 0;
     height: var(--dim-titlebar-height);
+  }
+
+  .not-supported {
+    display: none;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .dbgate-screen:not(.isElectron) {
+      display: none;
+    }
+
+    .not-supported:not(.isElectron) {
+      display: block;
+    }
+  }
+
+  .not-supported {
+    text-align: center;
+  }
+  .big-icon {
+    font-size: 20pt;
   }
 </style>
