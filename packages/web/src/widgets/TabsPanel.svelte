@@ -354,14 +354,12 @@
           <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
           {tabGroup.tabDbName}
 
-          {#if tabGroup.tabs.length > 1}
-            <span
-              class="close-button-right tabCloseButton"
-              on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
-            >
-              <FontIcon icon="icon close" />
-            </span>
-          {/if}
+          <span
+            class="close-button-right tabCloseButton"
+            on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+          >
+            <FontIcon icon="icon close" />
+          </span>
         </div>
         <div class="db-group">
           {#each tabGroup.tabs as tab}
