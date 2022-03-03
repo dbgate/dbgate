@@ -317,6 +317,10 @@
         isDropCollection: true,
       },
       {
+        label: 'Rename collection',
+        isRenameCollection: true,
+      },
+      {
         divider: true,
       },
       {
@@ -565,6 +569,20 @@
                   apiCall('database-connections/sync-model', dbid);
                 },
               });
+            } else if (menu.isRenameCollection) {
+              showModal(InputTextModal, {
+                label: 'New collection name',
+                header: 'Rename collection',
+                value: data.pureName,
+                onConfirm: async newName => {
+                  const dbid = _.pick(data, ['conid', 'database']);
+                  await apiCall('database-connections/run-script', {
+                    ...dbid,
+                    sql: `db.renameCollection('${data.pureName}', '${newName}')`,
+                  });
+                  apiCall('database-connections/sync-model', dbid);
+                },
+              });
             } else {
               openDatabaseObjectDetail(
                 menu.tab,
@@ -608,6 +626,7 @@
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
+  import InputTextModal from '../modals/InputTextModal.svelte';
 
   export let data;
   export let passProps;
