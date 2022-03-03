@@ -53,6 +53,18 @@
       }))
     );
   };
+  const closeTabsWithCurrentDb = () => {
+    const db = getCurrentDatabase();
+    closeMultipleTabs(tab => {
+      return db?.connection?._id == tab?.props?.conid && db?.name == tab?.props?.database;
+    });
+  };
+  const closeTabsButCurrentDb = () => {
+    const db = getCurrentDatabase();
+    closeMultipleTabs(tab => {
+      return db?.connection?._id != tab?.props?.conid || db?.name != tab?.props?.database;
+    });
+  };
   const closeCurrentTab = () => {
     closeTab(getActiveTabId());
   };
@@ -118,6 +130,22 @@
   });
 
   registerCommand({
+    id: 'tabs.closeTabsWithCurrentDb',
+    category: 'Tabs',
+    name: 'Close tabs with current DB',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
+    onClick: closeTabsWithCurrentDb,
+  });
+
+  registerCommand({
+    id: 'tabs.closeTabsButCurrentDb',
+    category: 'Tabs',
+    name: 'Close tabs but current DB',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1 && !!getCurrentDatabase(),
+    onClick: closeTabsButCurrentDb,
+  });
+
+  registerCommand({
     id: 'tabs.addToFavorites',
     category: 'Tabs',
     name: 'Add current tab to favorites',
@@ -143,7 +171,15 @@
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
 
-  import { currentDatabase, getActiveTab, getOpenedTabs, openedTabs, activeTabId, getActiveTabId } from '../stores';
+  import {
+    currentDatabase,
+    getActiveTab,
+    getOpenedTabs,
+    openedTabs,
+    activeTabId,
+    getActiveTabId,
+    getCurrentDatabase,
+  } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
   import contextMenu from '../utility/contextMenu';

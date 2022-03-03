@@ -22,8 +22,10 @@ module.exports = [
   {
     label: 'Window',
     submenu: [
-      { command: 'tabs.closeTab', hideDisabled: true },
-      { command: 'tabs.closeAll', hideDisabled: true },
+      { command: 'tabs.closeTab', hideDisabled: false },
+      { command: 'tabs.closeAll', hideDisabled: false },
+      { command: 'tabs.closeTabsWithCurrentDb', hideDisabled: false },
+      { command: 'tabs.closeTabsButCurrentDb', hideDisabled: false },
       { divider: true },
       { command: 'app.zoomIn', hideDisabled: true },
       { command: 'app.zoomOut', hideDisabled: true },
