@@ -20,10 +20,6 @@
   $: config = useConfig();
   $: singleDatabase = $currentDatabase?.connection?.singleDatabase;
   $: database = $currentDatabase?.name;
-
-  $: console.log('CONID', conid);
-  $: console.log('CONN', $connection);
-  $: console.log('DRIVER', driver);
 </script>
 
 <WidgetColumnBar {hidden}>
