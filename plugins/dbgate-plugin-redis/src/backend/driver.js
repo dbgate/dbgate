@@ -102,6 +102,7 @@ const driver = {
           res[keySplit[rootSplit.length]] = {
             text: keySplit[rootSplit.length],
             type: 'dir',
+            root: keySplit.slice(0, rootSplit.length + 1).join(':'),
           };
         }
       }
