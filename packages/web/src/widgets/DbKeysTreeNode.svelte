@@ -1,4 +1,8 @@
 <script lang="ts">
+  import AppObjectCore from '../appobj/AppObjectCore.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
+  import FontIcon from '../icons/FontIcon.svelte';
+
   import DbKeysSubTree from './DbKeysSubTree.svelte';
 
   export let conid;
@@ -7,14 +11,52 @@
   export let root;
 
   export let item;
+  export let indentLevel = 0;
 
   let isExpanded;
+
+  function getIconForType(type) {
+    switch (type) {
+      case 'dir':
+        return 'img folder';
+      case 'string':
+        return 'img type-string';
+      case 'hash':
+        return 'img type-hash';
+      case 'set':
+        return 'img type-set';
+      case 'list':
+        return 'img type-list';
+      case 'zset':
+        return 'img type-zset';
+      case 'stream':
+        return 'img type-stream';
+      case 'binary':
+        return 'img type-binary';
+      case 'ReJSON-RL':
+        return 'img type-rejson';
+      default:
+        return null;
+    }
+  }
+
+  // $: console.log(item.text, indentLevel);
 </script>
 
-<div on:click={() => (isExpanded = !isExpanded)}>
+<AppObjectCore
+  icon={getIconForType(item.type)}
+  title={item.text}
+  expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
+  on:expand={() => {
+    isExpanded = !isExpanded;
+  }}
+  {indentLevel}
+/>
+<!-- <div on:click={() => (isExpanded = !isExpanded)}>
+  <FontIcon icon={} />
   {item.text}
-</div>
+</div> -->
 
 {#if isExpanded}
-  <DbKeysSubTree {conid} {database} root={item.root} />
+  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} />
 {/if}
