@@ -124,7 +124,7 @@
   }
 
   export function isSqlEditor() {
-    return !driver?.dialect?.nosql;
+    return driver?.databaseEngineTypes?.includes('sql');
   }
 
   export function canKill() {
@@ -281,7 +281,7 @@
 <ToolStripContainer>
   <VerticalSplitter isSplitter={visibleResultTabs}>
     <svelte:fragment slot="1">
-      {#if driver?.dialect?.nosql}
+      {#if driver?.databaseEngineTypes?.includes('document')}
         <AceEditor
           mode="javascript"
           value={$editorState.value || ''}

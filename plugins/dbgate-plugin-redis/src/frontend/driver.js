@@ -21,6 +21,7 @@ const driver = {
   engine: 'redis@dbgate-plugin-redis',
   title: 'Redis',
   defaultPort: 6379,
+  databaseEngineTypes: ['keyvalue'],
 
   showConnectionField: (field, values) => {
     return ['server', 'port', 'password'].includes(field);

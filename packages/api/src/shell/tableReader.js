@@ -9,7 +9,7 @@ async function tableReader({ connection, pureName, schemaName }) {
 
   const fullName = { pureName, schemaName };
 
-  if (driver.dialect.nosql) {
+  if (driver.databaseEngineTypes.includes('document')) {
     // @ts-ignore
     console.log(`Reading collection ${fullNameToString(fullName)}`);
     // @ts-ignore

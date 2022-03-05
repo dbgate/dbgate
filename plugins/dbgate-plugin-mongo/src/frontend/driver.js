@@ -16,7 +16,6 @@ const dialect = {
   offsetFetchRangeSyntax: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
-  nosql: true,
   quoteIdentifier(s) {
     return `[${s}]`;
   },
@@ -26,6 +25,7 @@ const dialect = {
 const driver = {
   ...driverBase,
   dumperClass: Dumper,
+  databaseEngineTypes: ['document'],
   dialect,
   engine: 'mongo@dbgate-plugin-mongo',
   title: 'MongoDB',

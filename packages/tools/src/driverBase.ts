@@ -20,6 +20,7 @@ export const driverBase = {
   analyserClass: null,
   dumperClass: SqlDumper,
   dialect,
+  databaseEngineTypes: ['sql'],
 
   async analyseFull(pool, version) {
     const analyser = new this.analyserClass(pool, this, version);
@@ -45,7 +46,7 @@ export const driverBase = {
     }
   },
   getNewObjectTemplates() {
-    if (!this.dialect?.nosql) {
+    if (this.databaseEngineTypes.includes('sql')) {
       return [{ label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' }];
     }
     return [];

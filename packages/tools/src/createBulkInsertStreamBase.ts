@@ -14,7 +14,7 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
   writable.buffer = [];
   writable.structure = null;
   writable.columnNames = null;
-  writable.requireFixedStructure = !driver.dialect.nosql;
+  writable.requireFixedStructure = driver.databaseEngineTypes.includes('sql');
 
   writable.addRow = async row => {
     if (writable.structure) {

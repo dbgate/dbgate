@@ -67,9 +67,10 @@
 
   function createAddMenu() {
     const res = [];
-    if (driver?.dialect?.nosql) {
+    if (driver?.databaseEngineTypes?.includes('document')) {
       res.push({ command: 'new.collection' });
-    } else {
+    } 
+    if (driver?.databaseEngineTypes?.includes('sql')) {
       res.push({ command: 'new.table' });
     }
     if (driver)
@@ -100,11 +101,11 @@
     />
     <div class="m-1" />
     <InlineButton on:click={handleRefreshDatabase}>Refresh</InlineButton>
-    {#if !driver?.dialect?.nosql}
+    {#if driver?.databaseEngineTypes?.includes('sql')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.table')}>New table</InlineButton>
     {/if}
-    {#if driver?.dialect?.nosql}
+    {#if driver?.databaseEngineTypes?.includes('document')}
       <div class="m-1" />
       <InlineButton on:click={() => runCommand('new.collection')}>New collection</InlineButton>
     {/if}

@@ -5,10 +5,12 @@
 
   import ConnectionList from './ConnectionList.svelte';
   import PinnedObjectsList from './PinnedObjectsList.svelte';
-  import SqlObjectListWrapper from './SqlObjectListWrapper.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
+  import SqlObjectList from './SqlObjectList.svelte';
 
   export let hidden = false;
 
@@ -16,6 +18,12 @@
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
   $: config = useConfig();
+  $: singleDatabase = $currentDatabase?.connection?.singleDatabase;
+  $: database = $currentDatabase?.name;
+
+  $: console.log('CONID', conid);
+  $: console.log('CONN', $connection);
+  $: console.log('DRIVER', driver);
 </script>
 
 <WidgetColumnBar {hidden}>
@@ -34,11 +42,24 @@
   >
     <PinnedObjectsList />
   </WidgetColumnBarItem>
-  <WidgetColumnBarItem
-    title={driver?.dialect?.nosql ? 'Collections' : 'Tables, views, functions'}
-    name="dbObjects"
-    storageName="dbObjectsWidget"
-  >
-    <SqlObjectListWrapper />
-  </WidgetColumnBarItem>
+
+  {#if conid && (database || singleDatabase)}
+    {#if driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document')}
+      <WidgetColumnBarItem
+        title={driver?.databaseEngineTypes?.includes('document') ? 'Collections' : 'Tables, views, functions'}
+        name="dbObjects"
+        storageName="dbObjectsWidget"
+      >
+        <SqlObjectList {conid} {database} />
+      </WidgetColumnBarItem>
+    {:else if driver?.databaseEngineTypes?.includes('keyvalue')}
+      <WidgetColumnBarItem title={'Keys'} name="dbObjects" storageName="dbObjectsWidget" />
+    {/if}
+  {:else}
+    <WidgetColumnBarItem title="Database content" name="dbObjects" storageName="dbObjectsWidget">
+      <WidgetsInnerContainer>
+        <ErrorInfo message="Database not selected" icon="img alert" />
+      </WidgetsInnerContainer>
+    </WidgetColumnBarItem>
+  {/if}
 </WidgetColumnBar>

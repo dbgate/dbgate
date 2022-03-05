@@ -46,6 +46,7 @@ export interface EngineDriver {
   engine: string;
   title: string;
   defaultPort?: number;
+  databaseEngineTypes: string[];
   supportsDatabaseUrl?: boolean;
   isElectronOnly?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;

@@ -158,7 +158,7 @@ registerCommand({
   toolbarName: 'New table',
   testEnabled: () => {
     const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
-    return !!get(currentDatabase) && !driver?.dialect?.nosql;
+    return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('sql');
   },
   onClick: () => {
     const $currentDatabase = get(currentDatabase);
@@ -196,7 +196,7 @@ registerCommand({
   toolbarName: 'New collection',
   testEnabled: () => {
     const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
-    return !!get(currentDatabase) && driver?.dialect?.nosql;
+    return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('document');
   },
   onClick: async () => {
     const $currentDatabase = get(currentDatabase);
