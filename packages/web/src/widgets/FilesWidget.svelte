@@ -15,19 +15,18 @@
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
 
   $: favorites = useFavorites();
-
 </script>
 
 <WidgetColumnBar>
+  <WidgetColumnBarItem title="Saved files" name="files" height="70%" storageName="savedFilesWidget">
+    <SavedFilesList />
+  </WidgetColumnBarItem>
+
   {#if hasPermission('files/favorites/read')}
-    <WidgetColumnBarItem title="Favorites" name="favorites" height="20%" storageName="favoritesWidget">
+    <WidgetColumnBarItem title="Favorites" name="favorites" storageName="favoritesWidget">
       <WidgetsInnerContainer>
         <AppObjectList list={$favorites || []} module={favoriteFileAppObject} />
       </WidgetsInnerContainer>
     </WidgetColumnBarItem>
   {/if}
-
-  <WidgetColumnBarItem title="Saved files" name="files" storageName="savedFilesWidget">
-    <SavedFilesList />
-  </WidgetColumnBarItem>
 </WidgetColumnBar>
