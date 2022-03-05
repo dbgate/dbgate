@@ -93,17 +93,24 @@ const driver = {
       if (!key.startsWith(prefix)) continue;
       const keySplit = key.split(':');
       if (keySplit.length > rootSplit.length) {
+        const text = keySplit[rootSplit.length];
         if (keySplit.length == rootSplit.length + 1) {
-          res[keySplit[rootSplit.length]] = {
-            text: keySplit[rootSplit.length],
+          res[text] = {
+            text,
             key,
           };
         } else {
-          res[keySplit[rootSplit.length]] = {
-            text: keySplit[rootSplit.length],
-            type: 'dir',
-            root: keySplit.slice(0, rootSplit.length + 1).join(':'),
-          };
+          const dctKey = '::' + text;
+          if (res[dctKey]) {
+            res[dctKey].count++;
+          } else {
+            res[dctKey] = {
+              text: text + ':*',
+              type: 'dir',
+              root: keySplit.slice(0, rootSplit.length + 1).join(':'),
+              count: 1,
+            };
+          }
         }
       }
     }
@@ -111,8 +118,21 @@ const driver = {
   },
 
   async enrichOneKeyInfo(pool, item) {
-    const type = await pool.type(item.key);
-    item.type = type;
+    item.type = await pool.type(item.key);
+    switch (item.type) {
+      case 'list':
+        item.count = await pool.llen(item.key);
+        break;
+      case 'set':
+        item.count = await pool.scard(item.key);
+        break;
+      case 'zset':
+        item.count = await pool.zcard(item.key);
+        break;
+      case 'stream':
+        item.count = await pool.xlen(item.key);
+        break;
+    }
   },
 
   async enrichKeyInfo(pool, levelInfo) {

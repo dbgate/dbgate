@@ -48,8 +48,16 @@
   title={item.text}
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
-    isExpanded = !isExpanded;
+    if (item.type == 'dir') {
+      isExpanded = !isExpanded;
+    }
   }}
+  on:click={() => {
+    if (item.type == 'dir') {
+      isExpanded = !isExpanded;
+    }
+  }}
+  extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
 />
 <!-- <div on:click={() => (isExpanded = !isExpanded)}>
