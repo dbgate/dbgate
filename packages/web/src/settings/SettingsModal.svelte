@@ -14,9 +14,9 @@
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import { EDITOR_THEMES } from '../query/AceEditor.svelte';
+  import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import { currentEditorTheme, extensions } from '../stores';
+  import { currentEditorFontSize, currentEditorTheme, extensions } from '../stores';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
 
@@ -106,15 +106,31 @@ ORDER BY
 
           <div class="heading">Editor theme</div>
 
-          <FormFieldTemplateLarge label="Theme" type='combo'>
-            <SelectField
-              isNative
-              notSelected="(use theme default)"
-              options={EDITOR_THEMES.map(theme => ({ label: theme, value: theme }))}
-              value={$currentEditorTheme}
-              on:change={e => ($currentEditorTheme = e.detail)}
-            />
-          </FormFieldTemplateLarge>
+          <div class="flex">
+            <div class="col-6">
+              <FormFieldTemplateLarge label="Theme" type="combo">
+                <SelectField
+                  isNative
+                  notSelected="(use theme default)"
+                  options={EDITOR_THEMES.map(theme => ({ label: theme, value: theme }))}
+                  value={$currentEditorTheme}
+                  on:change={e => ($currentEditorTheme = e.detail)}
+                />
+              </FormFieldTemplateLarge>
+            </div>
+
+            <div class="col-6">
+              <FormFieldTemplateLarge label="Font size " type="combo">
+                <SelectField
+                  isNative
+                  notSelected="(default)"
+                  options={FONT_SIZES}
+                  value={$currentEditorFontSize}
+                  on:change={e => ($currentEditorFontSize = e.detail)}
+                />
+              </FormFieldTemplateLarge>
+            </div>
+          </div>
 
           <div class="editor">
             <SqlEditor value={sqlPreview} readOnly />

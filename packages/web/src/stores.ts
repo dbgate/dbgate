@@ -59,6 +59,9 @@ export const currentTheme = getElectron()
 export const currentEditorTheme = getElectron()
   ? writableSettingsValue(null, 'currentEditorTheme')
   : writableWithStorage(null, 'currentEditorTheme');
+export const currentEditorFontSize = getElectron()
+  ? writableSettingsValue(null, 'currentEditorFontSize')
+  : writableWithStorage(null, 'currentEditorFontSize');
 export const activeTabId = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected)?.tabid);
 export const activeTab = derived([openedTabs], ([$openedTabs]) => $openedTabs.find(x => x.selected));
 export const recentDatabases = writableWithStorage([], 'recentDatabases');

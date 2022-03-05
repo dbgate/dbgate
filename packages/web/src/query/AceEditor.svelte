@@ -37,6 +37,19 @@
     'tomorrow_night',
     'twilight',
   ];
+
+  export const FONT_SIZES = [
+    { label: '8', value: '8' },
+    { label: '9', value: '9' },
+    { label: '10', value: '10' },
+    { label: '11', value: '11' },
+    { label: '12 - Normal', value: '12' },
+    { label: '13', value: '13' },
+    { label: '14', value: '14' },
+    { label: '15', value: '15' },
+    { label: '16', value: '16' },
+    { label: '17', value: '17' },
+  ];
 </script>
 
 <script lang="ts">
@@ -101,7 +114,7 @@
   import 'ace-builds/src-noconflict/theme-tomorrow_night';
   import 'ace-builds/src-noconflict/theme-twilight';
 
-  import { currentDropDownMenu, currentEditorTheme, currentThemeDefinition } from '../stores';
+  import { currentDropDownMenu, currentEditorFontSize, currentEditorTheme, currentThemeDefinition } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
@@ -149,11 +162,14 @@
 
   let queryParserWorker;
 
+  let defaultFontSize;
+
   const stdOptions = {
     showPrintMargin: false,
   };
 
   $: theme = $currentEditorTheme || ($currentThemeDefinition?.themeType == 'dark' ? 'merbivore' : 'github');
+  $: watchEditorFontSize($currentEditorFontSize);
 
   export function getEditor(): ace.Editor {
     return editor;
@@ -184,6 +200,12 @@
     if (contentBackup !== val && editor && typeof val === 'string') {
       editor.session.setValue(val);
       contentBackup = val;
+    }
+  }
+
+  function watchEditorFontSize(value) {
+    if (editor) {
+      editor.setFontSize(value ? parseInt(value) : defaultFontSize);
     }
   }
 
@@ -400,6 +422,10 @@
       contentBackup = content;
       changedQueryParts();
     });
+    defaultFontSize = editor.getFontSize();
+    if ($currentEditorFontSize) {
+      editor.setFontSize($currentEditorFontSize);
+    }
 
     editor.on('changeSelection', () => {
       changedCurrentQueryPart();
