@@ -11,6 +11,7 @@
   import WidgetColumnBar from './WidgetColumnBar.svelte';
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
+  import DbKeysTree from './DbKeysTree.svelte';
 
   export let hidden = false;
 
@@ -49,7 +50,9 @@
         <SqlObjectList {conid} {database} />
       </WidgetColumnBarItem>
     {:else if driver?.databaseEngineTypes?.includes('keyvalue')}
-      <WidgetColumnBarItem title={'Keys'} name="dbObjects" storageName="dbObjectsWidget" />
+      <WidgetColumnBarItem title={'Keys'} name="dbObjects" storageName="dbObjectsWidget">
+        <DbKeysTree {conid} {database} />
+      </WidgetColumnBarItem>
     {/if}
   {:else}
     <WidgetColumnBarItem title="Database content" name="dbObjects" storageName="dbObjectsWidget">

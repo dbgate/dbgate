@@ -75,6 +75,7 @@ export interface EngineDriver {
       name: string;
     }[]
   >;
+  loadKeys(pool, root: string): Promise;
   analyseFull(pool: any, serverVersion): Promise<DatabaseInfo>;
   analyseIncremental(pool: any, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;

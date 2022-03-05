@@ -183,6 +183,17 @@ async function handleCollectionData({ msgid, options }) {
   }
 }
 
+async function handleLoadKeys({ msgid, root }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.loadKeys(systemConnection, root);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleUpdateCollection({ msgid, changeSet }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -248,6 +259,7 @@ const messageHandlers = {
   runScript: handleRunScript,
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
+  loadKeys: handleLoadKeys,
   sqlPreview: handleSqlPreview,
   ping: handlePing,
   syncModel: handleSyncModel,

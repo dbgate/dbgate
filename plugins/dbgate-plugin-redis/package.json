@@ -37,6 +37,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
+    "async": "^3.2.3",
     "ioredis": "^4.28.5"
   }
 }

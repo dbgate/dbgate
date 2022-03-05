@@ -151,6 +151,16 @@ module.exports = {
     return res.result;
   },
 
+  loadKeys_meta: true,
+  async loadKeys({ conid, database, root }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'loadKeys', root });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+    }
+    return res.result || null;
+  },
+
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }) {
     const opened = await this.ensureOpened(conid, database);
