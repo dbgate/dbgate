@@ -26,6 +26,9 @@
   $: disabledFields = (currentAuthType ? currentAuthType.disabledFields : null) || [];
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
+
+  $: showUser = !driver?.showConnectionField || driver.showConnectionField('user', $values);
+  $: showPassword = !driver?.showConnectionField || driver.showConnectionField('password', $values);
 </script>
 
 <FormSelectField
@@ -100,17 +103,19 @@
   </div>
 {/if}
 
-{#if !driver?.showConnectionField || driver.showConnectionField('user', $values)}
+{#if showUser && showPassword}
   <div class="row">
-    <div class="col-6 mr-1">
-      <FormTextField
-        label="User"
-        name="user"
-        disabled={disabledFields.includes('user')}
-        templateProps={{ noMargin: true }}
-      />
-    </div>
-    {#if !driver?.showConnectionField || driver.showConnectionField('password', $values)}
+    {#if showUser}
+      <div class="col-6 mr-1">
+        <FormTextField
+          label="User"
+          name="user"
+          disabled={disabledFields.includes('user')}
+          templateProps={{ noMargin: true }}
+        />
+      </div>
+    {/if}
+    {#if showPassword}
       <div class="col-6 mr-1">
         <FormPasswordField
           label="Password"
@@ -122,8 +127,14 @@
     {/if}
   </div>
 {/if}
+{#if showUser && !showPassword}
+  <FormTextField label="User" name="user" disabled={disabledFields.includes('user')} />
+{/if}
+{#if !showUser && showPassword}
+  <FormPasswordField label="Password" name="password" disabled={disabledFields.includes('password')} />
+{/if}
 
-{#if !disabledFields.includes('password') && (!driver?.showConnectionField || driver.showConnectionField('password', $values))}
+{#if !disabledFields.includes('password') && showPassword}
   <FormSelectField
     label="Password mode"
     isNative

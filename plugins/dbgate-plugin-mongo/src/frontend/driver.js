@@ -1,4 +1,3 @@
-const _isString = require('lodash/isString');
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');

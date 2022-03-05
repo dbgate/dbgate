@@ -256,6 +256,7 @@
   {...$$restProps}
   {data}
   title={data.name}
+  extInfo={data.extInfo}
   icon="img database"
   colorMark={passProps?.connectionColorFactory &&
     passProps?.connectionColorFactory({ conid: _.get(data.connection, '_id'), database: data.name }, null, null, false)}

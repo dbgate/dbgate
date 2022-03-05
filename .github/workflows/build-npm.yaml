@@ -133,3 +133,8 @@ jobs:
         working-directory: plugins/dbgate-plugin-sqlite
         run: |
           npm publish
+
+      - name: Publish dbgate-plugin-redis
+        working-directory: plugins/dbgate-plugin-redis
+        run: |
+          npm publish
