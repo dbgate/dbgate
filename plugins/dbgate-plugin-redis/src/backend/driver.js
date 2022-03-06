@@ -117,22 +117,24 @@ const driver = {
     return Object.values(res);
   },
 
+  async getKeyCardinality(pool, key, type) {
+    switch (type) {
+      case 'list':
+        return pool.llen(key);
+      case 'set':
+        return pool.scard(key);
+      case 'zset':
+        return pool.zcard(key);
+      case 'stream':
+        return pool.xlen(key);
+      case 'hash':
+        return pool.hlen(key);
+    }
+  },
+
   async enrichOneKeyInfo(pool, item) {
     item.type = await pool.type(item.key);
-    switch (item.type) {
-      case 'list':
-        item.count = await pool.llen(item.key);
-        break;
-      case 'set':
-        item.count = await pool.scard(item.key);
-        break;
-      case 'zset':
-        item.count = await pool.zcard(item.key);
-        break;
-      case 'stream':
-        item.count = await pool.xlen(item.key);
-        break;
-    }
+    item.count = await this.getKeyCardinality(pool, item.key, item.type);
   },
 
   async enrichKeyInfo(pool, levelInfo) {
@@ -141,6 +143,74 @@ const driver = {
       10,
       async (item) => await this.enrichOneKeyInfo(pool, item)
     );
+  },
+
+  async loadKeyInfo(pool, key) {
+    const res = {};
+    const type = await pool.type(key);
+
+    res.key = key;
+    res.type = type;
+    res.ttl = await pool.ttl(key);
+    res.count = await this.getKeyCardinality(pool, key, type);
+
+    switch (type) {
+      case 'string':
+        res.value = await pool.get(key);
+        break;
+      case 'list':
+        res.tableColumns = ['value'];
+        break;
+      case 'set':
+        res.tableColumns = ['value'];
+        res.keyColumn = 'value';
+        break;
+      case 'zset':
+        res.tableColumns = ['value', 'score'];
+        res.keyColumn = 'value';
+        break;
+      case 'hash':
+        res.tableColumns = ['key', 'value'];
+        res.keyColumn = 'key';
+        break;
+    }
+
+    return res;
+  },
+
+  async loadKeyTableRange(pool, key, cursor, count) {
+    const type = await pool.type(key);
+    switch (type) {
+      case 'list': {
+        const res = await pool.lrange(key, cursor, start + count);
+        return {
+          cursor: res.length > count ? cursor + count : 0,
+          items: res.map((value) => ({ value })).slice(0, count),
+        };
+      }
+      case 'set': {
+        const res = await pool.sscan(key, cursor, 'COUNT', count);
+        return {
+          cursor: parseInt(res[0]),
+          items: res[1].map((value) => ({ value })),
+        };
+      }
+      case 'zset': {
+        const res = await pool.zscan(key, cursor, 'COUNT', count);
+        return {
+          cursor: parseInt(res[0]),
+          items: _.chunk(res[1], 2).map((item) => ({ value: item[0], score: item[1] })),
+        };
+      }
+      case 'hash': {
+        const res = await pool.hscan(key, cursor, 'COUNT', count);
+        return {
+          cursor: parseInt(res[0]),
+          items: _.chunk(res[1], 2).map((item) => ({ key: item[0], value: item[1] })),
+        };
+      }
+    }
+    return null;
   },
 };
 

@@ -2,6 +2,7 @@
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
+  import openNewTab from '../utility/openNewTab';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
 
@@ -55,6 +56,16 @@
   on:click={() => {
     if (item.type == 'dir') {
       isExpanded = !isExpanded;
+    } else {
+      openNewTab({
+        tabComponent: 'DbKeyDetailTab',
+        title: 'Key: ' + database,
+        props: {
+          isDefaultBrowser: true,
+          conid,
+          database,
+        },
+      });
     }
   }}
   extInfo={item.count ? `(${item.count})` : null}

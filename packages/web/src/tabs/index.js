@@ -21,6 +21,7 @@ import * as CompareModelTab from './CompareModelTab.svelte';
 import * as JsonTab from './JsonTab.svelte';
 import * as ChangelogTab from './ChangelogTab.svelte';
 import * as DiagramTab from './DiagramTab.svelte';
+import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
 
 export default {
   TableDataTab,
@@ -46,4 +47,5 @@ export default {
   JsonTab,
   ChangelogTab,
   DiagramTab,
+  DbKeyDetailTab,
 };
