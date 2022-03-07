@@ -59,3 +59,28 @@ export function safeJsonParse(json, defaultValue?, logError = false) {
 export function isJsonLikeLongString(value) {
   return _isString(value) && value.length > 100 && value.match(/^\s*\{.*\}\s*$|^\s*\[.*\]\s*$/);
 }
+
+export function getIconForRedisType(type) {
+  switch (type) {
+    case 'dir':
+      return 'img folder';
+    case 'string':
+      return 'img type-string';
+    case 'hash':
+      return 'img type-hash';
+    case 'set':
+      return 'img type-set';
+    case 'list':
+      return 'img type-list';
+    case 'zset':
+      return 'img type-zset';
+    case 'stream':
+      return 'img type-stream';
+    case 'binary':
+      return 'img type-binary';
+    case 'ReJSON-RL':
+      return 'img type-rejson';
+    default:
+      return null;
+  }
+}

@@ -161,6 +161,26 @@ module.exports = {
     return res.result || null;
   },
 
+  loadKeyInfo_meta: true,
+  async loadKeyInfo({ conid, database, key }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'loadKeyInfo', key });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+    }
+    return res.result || null;
+  },
+
+  loadKeyTableRange_meta: true,
+  async loadKeyTableRange({ conid, database, key, cursor, count }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'loadKeyTableRange', key, cursor, count });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+    }
+    return res.result || null;
+  },
+
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }) {
     const opened = await this.ensureOpened(conid, database);

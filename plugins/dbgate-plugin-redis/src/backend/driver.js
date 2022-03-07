@@ -182,7 +182,7 @@ const driver = {
     const type = await pool.type(key);
     switch (type) {
       case 'list': {
-        const res = await pool.lrange(key, cursor, start + count);
+        const res = await pool.lrange(key, cursor, cursor + count);
         return {
           cursor: res.length > count ? cursor + count : 0,
           items: res.map((value) => ({ value })).slice(0, count),

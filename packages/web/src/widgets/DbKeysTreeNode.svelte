@@ -1,7 +1,10 @@
 <script lang="ts">
+import { getIconForRedisType } from 'dbgate-tools';
+
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { activeDbKeysStore } from '../stores';
   import openNewTab from '../utility/openNewTab';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
@@ -16,36 +19,12 @@
 
   let isExpanded;
 
-  function getIconForType(type) {
-    switch (type) {
-      case 'dir':
-        return 'img folder';
-      case 'string':
-        return 'img type-string';
-      case 'hash':
-        return 'img type-hash';
-      case 'set':
-        return 'img type-set';
-      case 'list':
-        return 'img type-list';
-      case 'zset':
-        return 'img type-zset';
-      case 'stream':
-        return 'img type-stream';
-      case 'binary':
-        return 'img type-binary';
-      case 'ReJSON-RL':
-        return 'img type-rejson';
-      default:
-        return null;
-    }
-  }
 
   // $: console.log(item.text, indentLevel);
 </script>
 
 <AppObjectCore
-  icon={getIconForType(item.type)}
+  icon={getIconForRedisType(item.type)}
   title={item.text}
   expandIcon={item.type == 'dir' ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
   on:expand={() => {
@@ -66,6 +45,10 @@
           database,
         },
       });
+      $activeDbKeysStore = {
+        ...$activeDbKeysStore,
+        [`${conid}:${database}`]: item.key,
+      };
     }
   }}
   extInfo={item.count ? `(${item.count})` : null}
