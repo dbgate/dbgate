@@ -1,5 +1,13 @@
 # ChangeLog
 
+### 4.7.2
+- CHANGED: documentation URL - https://dbgate.org/docs/
+- CHANGED: Close button available for all tab groups - #238
+- ADDED: Search function for the Keyboard Shortcuts overview - #239
+- ADDED: Editor font size settings - #229
+- ADDED: Rename MongoDB collection - #223
+- FIXED: bug in cache subsystem
+
 ### 4.7.1
 - FIXED: Fixed connecting to MS SQL server running in docker container from DbGate running in docker container #236 
 - FIXED: Fixed export MongoDB collections into Excel and CSV #240
