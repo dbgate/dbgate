@@ -109,6 +109,7 @@
   import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
+import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
@@ -193,26 +194,30 @@
     );
   }
 
+  const quickExportHandler = fmt => async () => {
+    const coninfo = await getConnectionInfo({ conid });
+    exportElectronFile(
+      pureName || 'Data',
+      {
+        functionName: 'queryReader',
+        props: {
+          connection: {
+            ..._.omit(coninfo, ['_id', 'displayName']),
+            database,
+          },
+          sql: getExportQuery(),
+        },
+      },
+      fmt
+    );
+  };
+
+  registerQuickExportHandler(quickExportHandler);
+
   registerMenu(
     { command: 'collectionDataGrid.openQuery', tag: 'export' },
     {
-      ...createQuickExportMenu($extensions, fmt => async () => {
-        const coninfo = await getConnectionInfo({ conid });
-        exportElectronFile(
-          pureName || 'Data',
-          {
-            functionName: 'queryReader',
-            props: {
-              connection: {
-                ..._.omit(coninfo, ['_id', 'displayName']),
-                database,
-              },
-              sql: getExportQuery(),
-            },
-          },
-          fmt
-        );
-      }),
+      ...createQuickExportMenu($extensions, quickExportHandler),
       tag: 'export',
     },
 
