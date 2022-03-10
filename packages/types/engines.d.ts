@@ -91,6 +91,8 @@ export interface EngineDriver {
   getQuerySplitterOptions(usage: 'stream' | 'script'): any;
   script(pool: any, sql: string): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
+  // direct call of pool method, only some methods could be supported, on only some drivers
+  callMethod(pool, method, args);
 
   analyserClass?: any;
   dumperClass?: any;

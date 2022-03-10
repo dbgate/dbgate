@@ -181,6 +181,16 @@ module.exports = {
     return res.result || null;
   },
 
+  callMethod_meta: true,
+  async callMethod({ conid, database, method, args }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'callMethod', method, args });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+    }
+    return res.result || null;
+  },
+
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }) {
     const opened = await this.ensureOpened(conid, database);

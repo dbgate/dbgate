@@ -61,7 +61,7 @@
     }
   }
 
-  $: console.log(title, indentLevel);
+  // $: console.log(title, indentLevel);
 </script>
 
 <div

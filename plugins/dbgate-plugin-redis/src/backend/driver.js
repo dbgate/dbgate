@@ -59,7 +59,10 @@ const driver = {
   async getVersion(pool) {
     const info = await this.info(pool);
 
-    return { version: info.redis_version };
+    return {
+      version: info.redis_version,
+      versionText: `Redis ${info.redis_version}`,
+    };
   },
   async listDatabases(pool) {
     const info = await this.info(pool);
@@ -159,23 +162,27 @@ const driver = {
         res.value = await pool.get(key);
         break;
       case 'list':
-        res.tableColumns = ['value'];
+        res.tableColumns = [{ name: 'value' }];
         break;
       case 'set':
-        res.tableColumns = ['value'];
+        res.tableColumns = [{ name: 'value' }];
         res.keyColumn = 'value';
         break;
       case 'zset':
-        res.tableColumns = ['value', 'score'];
+        res.tableColumns = [{ name: 'value' }, { name: 'score' }];
         res.keyColumn = 'value';
         break;
       case 'hash':
-        res.tableColumns = ['key', 'value'];
+        res.tableColumns = [{ name: 'key' }, { name: 'value' }];
         res.keyColumn = 'key';
         break;
     }
 
     return res;
+  },
+
+  async callMethod(pool, method, args) {
+    return await pool[method](...args);
   },
 
   async loadKeyTableRange(pool, key, cursor, count) {

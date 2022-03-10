@@ -205,6 +205,17 @@ async function handleLoadKeyInfo({ msgid, key }) {
   }
 }
 
+async function handleCallMethod({ msgid, method, args }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.callMethod(systemConnection, method, args);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -283,6 +294,7 @@ const messageHandlers = {
   collectionData: handleCollectionData,
   loadKeys: handleLoadKeys,
   loadKeyInfo: handleLoadKeyInfo,
+  callMethod: handleCallMethod,
   loadKeyTableRange: handleLoadKeyTableRange,
   sqlPreview: handleSqlPreview,
   ping: handlePing,

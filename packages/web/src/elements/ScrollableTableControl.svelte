@@ -15,7 +15,7 @@
 <script lang="ts">
   import _ from 'lodash';
 
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import keycodes from '../utility/keycodes';
   import { createEventDispatcher } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
@@ -27,12 +27,44 @@
   export let selectedIndex = 0;
   export let clickable = false;
   export let disableFocusOutline = false;
+  export let onLoadNext = null;
+  export let singleLineRow = false;
 
   export let domTable = undefined;
 
   let clientHeight = 0;
   let headerHeight = 0;
   let domBody;
+
+  let domLoadNext;
+  let observer;
+
+  function startObserver(dom) {
+    if (observer) {
+      // console.log('STOP OBSERVE');
+      observer.disconnect();
+      observer = null;
+    }
+    if (dom) {
+      // console.log('OBSERVE');
+      observer = new IntersectionObserver(entries => {
+        // console.log('ENTRIES', entries);
+        if (entries.find(x => x.isIntersecting)) {
+          // console.log('INVOKE LOAD NEXT');
+          onLoadNext();
+        }
+      });
+      observer.observe(dom);
+    }
+  }
+
+  $: startObserver(domLoadNext);
+
+  onDestroy(() => {
+    if (observer) {
+      observer.disconnect();
+    }
+  });
 
   const dispatch = createEventDispatcher();
 
@@ -86,6 +118,7 @@
     bind:this={domTable}
     class:selectable
     class:disableFocusOutline
+    class:singleLineRow
     on:keydown
     tabindex={selectable ? -1 : undefined}
     on:keydown={handleKeyDown}
@@ -163,6 +196,13 @@
           {/each}
         </tr>
       {/each}
+      {#if onLoadNext}
+        {#key rows}
+          <tr>
+            <td colspan={columnList.length} bind:this={domLoadNext}> Loading next rows... </td>
+          </tr>
+        {/key}
+      {/if}
     </tbody>
   </table>
 </div>
@@ -193,6 +233,11 @@
   table tbody tr td {
     overflow: hidden;
   }
+
+  table.singleLineRow tbody tr td {
+    white-space: nowrap;
+  }
+  
   table tbody {
     display: block;
     overflow-y: scroll;
