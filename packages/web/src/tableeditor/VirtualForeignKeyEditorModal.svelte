@@ -9,7 +9,7 @@
   import SelectField from '../forms/SelectField.svelte';
   import _ from 'lodash';
   import { useDatabaseInfo, useTableInfo } from '../utility/metadataLoaders';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
   import { apiCall } from '../utility/api';
   import { saveDbToApp } from '../utility/appTools';
@@ -34,6 +34,19 @@
     // ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
   ];
 
+  let tableOptions = [];
+
+  $: (async () => {
+    // without this has svelte problem, doesn't invalidate SelectField options
+    await tick();
+    // to replicate try to invoke VFK editor after page refresh, when active widget without DB, eg. application layers
+    // and comment line above. Tables list in vFK editor will be empty
+
+    tableOptions = tableList.map(tbl => ({
+      label: fullNameToLabel(tbl),
+      value: fullNameToString(tbl),
+    }));
+  })();
   $: refTableInfo = tableList.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
   // $dbInfo?.views?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
 
@@ -50,6 +63,8 @@
 
   // $: console.log('conid, database', conid, database);
   // $: console.log('$dbInfo?.tables', $dbInfo?.tables);
+  // $: console.log('tableList', tableList);
+  // $: console.log('tableOptions', tableOptions);
 </script>
 
 <FormProvider>
@@ -64,15 +79,23 @@
             value={fullNameToString({ pureName: refTableName, schemaName: refSchemaName })}
             isNative
             notSelected
-            options={tableList.map(tbl => ({
-              label: fullNameToLabel(tbl),
-              value: fullNameToString(tbl),
-            }))}
+            options={tableOptions}
             on:change={e => {
               if (e.detail) {
                 const name = fullNameFromString(e.detail);
                 refTableName = name.pureName;
                 refSchemaName = name.schemaName;
+                if (columns?.length == 1) {
+                  const table = $dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
+                  if (table?.primaryKey?.columns?.length == 1) {
+                    columns = [
+                      {
+                        ...columns[0],
+                        refColumnName: table.primaryKey.columns[0].columnName,
+                      },
+                    ];
+                  }
+                }
               }
             }}
           />

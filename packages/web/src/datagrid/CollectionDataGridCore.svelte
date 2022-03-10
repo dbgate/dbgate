@@ -109,6 +109,7 @@
   import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
@@ -121,7 +122,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
@@ -193,31 +194,30 @@
     );
   }
 
-  registerMenu(
-    { command: 'collectionDataGrid.openQuery', tag: 'export' },
-    {
-      ...createQuickExportMenu($extensions, fmt => async () => {
-        const coninfo = await getConnectionInfo({ conid });
-        exportElectronFile(
-          pureName || 'Data',
-          {
-            functionName: 'queryReader',
-            props: {
-              connection: {
-                ..._.omit(coninfo, ['_id', 'displayName']),
-                database,
-              },
-              sql: getExportQuery(),
-            },
+  const quickExportHandler = fmt => async () => {
+    const coninfo = await getConnectionInfo({ conid });
+    exportQuickExportFile(
+      pureName || 'Data',
+      {
+        functionName: 'queryReader',
+        props: {
+          connection: {
+            ..._.omit(coninfo, ['_id', 'displayName']),
+            database,
           },
-          fmt
-        );
-      }),
-      tag: 'export',
-    },
+          sql: getExportQuery(),
+        },
+      },
+      fmt
+    );
+  };
 
-    { command: 'collectionDataGrid.export', tag: 'export' }
-  );
+  registerQuickExportHandler(quickExportHandler);
+
+  registerMenu({ command: 'collectionDataGrid.openQuery', tag: 'export' }, () => ({
+    ...createQuickExportMenu(quickExportHandler, { command: 'collectionDataGrid.export' }),
+    tag: 'export',
+  }));
 </script>
 
 <LoadingDataGridCore

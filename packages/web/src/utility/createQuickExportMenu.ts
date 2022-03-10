@@ -1,30 +1,27 @@
-import { ExtensionsDirectory, QuickExportDefinition } from 'dbgate-types';
-import getElectron from './getElectron';
+import { QuickExportDefinition } from 'dbgate-types';
+import { getExtensions } from '../stores';
 
-export function createQuickExportMenuItems(
-  extensions: ExtensionsDirectory,
-  handler: (fmt: QuickExportDefinition) => Function
-) {
-  const electron = getElectron();
-  if (!electron) {
-    return null;
-  }
-  return extensions.quickExports.map(fmt => ({
-    text: fmt.label,
-    onClick: handler(fmt),
-  }));
+export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
+  const extensions = getExtensions();
+  return [
+    ...extensions.quickExports.map(fmt => ({
+      text: fmt.label,
+      onClick: handler(fmt),
+    })),
+    { divider: true },
+    {
+      text: 'More...',
+      ...advancedExportMenuItem,
+    },
+  ];
 }
 
 export default function createQuickExportMenu(
-  extensions: ExtensionsDirectory,
-  handler: (fmt: QuickExportDefinition) => Function
+  handler: (fmt: QuickExportDefinition) => Function,
+  advancedExportMenuItem
 ) {
-  const electron = getElectron();
-  if (!electron) {
-    return { _skip: true };
-  }
   return {
-    text: 'Quick export',
-    submenu: createQuickExportMenuItems(extensions, handler),
+    text: 'Export',
+    submenu: createQuickExportMenuItems(handler, advancedExportMenuItem),
   };
 }

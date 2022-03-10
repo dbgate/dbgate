@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-  export const createMatcher = ({ pureName }) => filter => filterName(filter, pureName);
+  export const createMatcher = ({ schemaName, pureName }) => filter => filterName(filter, pureName, schemaName);
   const electron = getElectron();
 
   export const databaseObjectIcons = {
@@ -61,11 +61,8 @@
         divider: true,
       },
       {
-        isQuickExport: true,
-        functionName: 'tableReader',
-      },
-      {
         label: 'Export',
+        functionName: 'tableReader',
         isExport: true,
       },
       {
@@ -132,12 +129,9 @@
         divider: true,
       },
       {
-        isQuickExport: true,
-        functionName: 'tableReader',
-      },
-      {
         label: 'Export',
         isExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Open as data sheet',
@@ -197,12 +191,9 @@
         divider: true,
       },
       {
-        isQuickExport: true,
-        functionName: 'tableReader',
-      },
-      {
         label: 'Export',
         isExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Open as data sheet',
@@ -305,12 +296,9 @@
         },
       },
       {
-        isQuickExport: true,
-        functionName: 'tableReader',
-      },
-      {
         label: 'Export',
         isExport: true,
+        functionName: 'tableReader',
       },
       {
         label: 'Drop collection',
@@ -411,40 +399,45 @@
       .map(menu => {
         if (menu.divider) return menu;
 
-        if (menu.isQuickExport) {
-          return createQuickExportMenu(getExtensions(), fmt => async () => {
-            const coninfo = await getConnectionInfo(data);
-            exportElectronFile(
-              data.pureName,
-              {
-                functionName: menu.functionName,
-                props: {
-                  connection: {
-                    ..._.omit(coninfo, ['_id', 'displayName']),
-                    ..._.pick(data, ['database']),
+        if (menu.isExport) {
+          return createQuickExportMenu(
+            fmt => async () => {
+              const coninfo = await getConnectionInfo(data);
+              exportQuickExportFile(
+                data.pureName,
+                {
+                  functionName: menu.functionName,
+                  props: {
+                    connection: {
+                      ..._.omit(coninfo, ['_id', 'displayName']),
+                      ..._.pick(data, ['database']),
+                    },
+                    ..._.pick(data, ['pureName', 'schemaName']),
                   },
-                  ..._.pick(data, ['pureName', 'schemaName']),
                 },
+                fmt
+              );
+            },
+            {
+              onClick: () => {
+                showModal(ImportExportModal, {
+                  initialValues: {
+                    sourceStorageType: 'database',
+                    sourceConnectionId: data.conid,
+                    sourceDatabaseName: data.database,
+                    sourceSchemaName: data.schemaName,
+                    sourceList: [data.pureName],
+                  },
+                });
               },
-              fmt
-            );
-          });
+            }
+          );
         }
 
         return {
           text: menu.label,
           onClick: async () => {
-            if (menu.isExport) {
-              showModal(ImportExportModal, {
-                initialValues: {
-                  sourceStorageType: 'database',
-                  sourceConnectionId: data.conid,
-                  sourceDatabaseName: data.database,
-                  sourceSchemaName: data.schemaName,
-                  sourceList: [data.pureName],
-                },
-              });
-            } else if (menu.isOpenFreeTable) {
+            if (menu.isOpenFreeTable) {
               const coninfo = await getConnectionInfo(data);
               openNewTab({
                 title: data.pureName,
@@ -620,7 +613,7 @@
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';

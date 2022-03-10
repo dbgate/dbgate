@@ -48,7 +48,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import useEffect from '../utility/useEffect';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
@@ -104,7 +104,7 @@
   const quickExportHandler = fmt => async () => {
     const archiveMatch = jslid.match(/^archive:\/\/([^/]+)\/(.*)$/);
     if (archiveMatch) {
-      exportElectronFile(
+      exportQuickExportFile(
         archiveMatch[2],
         {
           functionName: 'archiveReader',
@@ -116,7 +116,7 @@
         fmt
       );
     } else {
-      exportElectronFile(
+      exportQuickExportFile(
         'Query',
         {
           functionName: 'jslDataReader',
@@ -130,13 +130,10 @@
   };
   registerQuickExportHandler(quickExportHandler);
 
-  registerMenu(
-    {
-      ...createQuickExportMenu($extensions, quickExportHandler),
-      tag: 'export',
-    },
-    { command: 'jslTableGrid.export', tag: 'export' }
-  );
+  registerMenu(() => ({
+    ...createQuickExportMenu(quickExportHandler, { command: 'jslTableGrid.export' }),
+    tag: 'export',
+  }));
 </script>
 
 <LoadingDataGridCore

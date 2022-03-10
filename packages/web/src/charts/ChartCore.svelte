@@ -28,7 +28,7 @@
 
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { saveFileToDisk } from '../utility/exportElectronFile';
+  import { saveFileToDisk } from '../utility/exportFileTools';
 
   export let data;
   export let title;

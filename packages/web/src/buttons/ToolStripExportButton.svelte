@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   import { getContext, setContext } from 'svelte';
-  import { extensions } from '../stores';
   import { createQuickExportMenuItems } from '../utility/createQuickExportMenu';
 
   import createRef from '../utility/createRef';
@@ -24,23 +23,21 @@
   import ToolStripCommandButton from './ToolStripCommandButton.svelte';
   import ToolStripDropDownButton from './ToolStripDropDownButton.svelte';
 
-  const electron = getElectron();
-
   export let quickExportHandlerRef = null;
   export let command = 'sqlDataGrid.export';
-  export let label = 'Advanced settings';
+  export let label = 'Export';
 
   function getExportMenu() {
     return [
-      quickExportHandlerRef?.value ? createQuickExportMenuItems($extensions, quickExportHandlerRef?.value) : null,
-      { divider: true },
-      { command, text: label },
+      quickExportHandlerRef?.value
+        ? createQuickExportMenuItems(quickExportHandlerRef?.value, { command })
+        : { command },
     ];
   }
 </script>
 
-{#if quickExportHandlerRef && electron}
-  <ToolStripDropDownButton menu={getExportMenu} label="Export" icon="icon export" />
+{#if quickExportHandlerRef}
+  <ToolStripDropDownButton menu={getExportMenu} {label} icon="icon export" />
 {:else}
   <ToolStripCommandButton {command} />
 {/if}

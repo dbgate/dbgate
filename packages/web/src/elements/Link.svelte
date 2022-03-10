@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { openWebLink } from '../utility/exportElectronFile';
+  import { openWebLink } from '../utility/exportFileTools';
 
   export let href = undefined;
   export let onClick = undefined;

@@ -4,16 +4,23 @@ import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from
 import resolveApi from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 
-export async function exportElectronFile(dataName, reader, format) {
+export async function exportQuickExportFile(dataName, reader, format) {
   const electron = getElectron();
-  const filters = [{ name: format.label, extensions: [format.extension] }];
 
-  const filePath = await electron.showSaveDialog({
-    filters,
-    defaultPath: `${dataName}.${format.extension}`,
-    properties: ['showOverwriteConfirmation'],
-  });
-  if (!filePath) return;
+  let filePath;
+  let pureFileName;
+  if (electron) {
+    const filters = [{ name: format.label, extensions: [format.extension] }];
+    filePath = electron.showSaveDialog({
+      filters,
+      defaultPath: `${dataName}.${format.extension}`,
+      properties: ['showOverwriteConfirmation'],
+    });
+  } else {
+    const resp = await apiCall('files/generate-uploads-file', { extension: format.extension });
+    filePath = resp.filePath;
+    pureFileName = resp.fileName;
+  }
 
   const script = new ScriptWriter();
 
@@ -50,6 +57,10 @@ export async function exportElectronFile(dataName, reader, format) {
     apiOff(`runner-done-${runid}`, handleRunnerDone);
     if (isCanceled) showSnackbarError(`Export ${dataName} canceled`);
     else showSnackbarInfo(`Export ${dataName} finished`);
+
+    if (!electron) {
+      window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
+    }
   }
 
   apiOn(`runner-done-${runid}`, handleRunnerDone);

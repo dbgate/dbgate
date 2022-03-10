@@ -66,18 +66,17 @@
 <script lang="ts">
   import _ from 'lodash';
   import { getContext } from 'svelte';
-import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
 
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { extensions } from '../stores';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
@@ -182,7 +181,7 @@ import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.sve
 
   const quickExportHandler = fmt => async () => {
     const coninfo = await getConnectionInfo({ conid });
-    exportElectronFile(
+    exportQuickExportFile(
       pureName || 'Data',
       {
         functionName: 'queryReader',
@@ -202,11 +201,10 @@ import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.sve
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
-    {
-      ...createQuickExportMenu($extensions, quickExportHandler),
+    () => ({
+      ...createQuickExportMenu(quickExportHandler, { command: 'sqlDataGrid.export' }),
       tag: 'export',
-    },
-    { command: 'sqlDataGrid.export', tag: 'export' }
+    })
   );
 </script>
 

@@ -158,7 +158,7 @@
   import { changeTab } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
-  import { saveFileToDisk } from '../utility/exportElectronFile';
+  import { saveFileToDisk } from '../utility/exportFileTools';
   import { useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import resolveApi from '../utility/resolveApi';
   import { showSnackbarSuccess } from '../utility/snackbar';

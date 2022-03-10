@@ -39,7 +39,7 @@
   import registerCommand from '../commands/registerCommand';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { GraphDefinition, GraphLayout } from './GraphLayout';
-  import { saveFileToDisk } from '../utility/exportElectronFile';
+  import { saveFileToDisk } from '../utility/exportFileTools';
   import { apiCall } from '../utility/api';
   import moveDrag from '../utility/moveDrag';
   import { rectanglesHaveIntersection } from './designerMath';

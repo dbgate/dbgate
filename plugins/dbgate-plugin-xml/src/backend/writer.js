@@ -47,6 +47,10 @@ class StringifyStream extends stream.Transform {
   }
 
   _transform(chunk, encoding, done) {
+    if (chunk.__isStreamHeader) {
+      done();
+      return;
+    }
     this.startElement(this.itemElementName);
     this.push('\n');
     for (const key of Object.keys(chunk)) {

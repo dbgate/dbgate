@@ -70,7 +70,7 @@
   import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -169,31 +169,33 @@
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
-        createQuickExportMenu($extensions, fmt => async () => {
-          exportElectronFile(
-            data.fileName,
-            {
-              functionName: 'archiveReader',
-              props: {
-                fileName: data.fileName,
-                folderName: data.folderName,
+        createQuickExportMenu(
+          fmt => async () => {
+            exportQuickExportFile(
+              data.fileName,
+              {
+                functionName: 'archiveReader',
+                props: {
+                  fileName: data.fileName,
+                  folderName: data.folderName,
+                },
               },
+              fmt
+            );
+          },
+          {
+            text: 'Export',
+            onClick: () => {
+              showModal(ImportExportModal, {
+                initialValues: {
+                  sourceStorageType: 'archive',
+                  sourceArchiveFolder: data.folderName,
+                  sourceList: [data.fileName],
+                },
+              });
             },
-            fmt
-          );
-        }),
-      data.fileType == 'jsonl' && {
-        text: 'Export',
-        onClick: () => {
-          showModal(ImportExportModal, {
-            initialValues: {
-              sourceStorageType: 'archive',
-              sourceArchiveFolder: data.folderName,
-              sourceList: [data.fileName],
-            },
-          });
-        },
-      },
+          }
+        ),
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
       data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];

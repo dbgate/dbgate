@@ -387,7 +387,7 @@
             draggingDbGroupTarget = null;
           }}
         >
-          <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
+          <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} padRight />
           {tabGroup.tabDbName}
 
           <span
@@ -493,6 +493,7 @@
     align-items: stretch;
   }
   .db-name {
+    display: flex;
     text-align: center;
     font-size: 8pt;
     border-bottom: 1px solid var(--theme-border);
@@ -501,10 +502,10 @@
     user-select: none;
     padding: 1px;
     position: relative;
-    white-space: nowrap;
-
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    justify-content: center;
   }
   /* .db-name:hover {
     background-color: var(--theme-bg-3);
