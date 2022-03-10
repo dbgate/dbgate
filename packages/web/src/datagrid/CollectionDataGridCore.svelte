@@ -214,15 +214,10 @@
 
   registerQuickExportHandler(quickExportHandler);
 
-  registerMenu(
-    { command: 'collectionDataGrid.openQuery', tag: 'export' },
-    () => ({
-      ...createQuickExportMenu(quickExportHandler),
-      tag: 'export',
-    }),
-
-    { command: 'collectionDataGrid.export', tag: 'export' }
-  );
+  registerMenu({ command: 'collectionDataGrid.openQuery', tag: 'export' }, () => ({
+    ...createQuickExportMenu(quickExportHandler, { command: 'collectionDataGrid.export' }),
+    tag: 'export',
+  }));
 </script>
 
 <LoadingDataGridCore

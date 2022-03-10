@@ -202,10 +202,9 @@
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
     () => ({
-      ...createQuickExportMenu(quickExportHandler),
+      ...createQuickExportMenu(quickExportHandler, { command: 'sqlDataGrid.export' }),
       tag: 'export',
-    }),
-    { command: 'sqlDataGrid.export', tag: 'export' }
+    })
   );
 </script>
 

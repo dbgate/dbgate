@@ -169,31 +169,33 @@
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
-        createQuickExportMenu(fmt => async () => {
-          exportQuickExportFile(
-            data.fileName,
-            {
-              functionName: 'archiveReader',
-              props: {
-                fileName: data.fileName,
-                folderName: data.folderName,
+        createQuickExportMenu(
+          fmt => async () => {
+            exportQuickExportFile(
+              data.fileName,
+              {
+                functionName: 'archiveReader',
+                props: {
+                  fileName: data.fileName,
+                  folderName: data.folderName,
+                },
               },
+              fmt
+            );
+          },
+          {
+            text: 'Export',
+            onClick: () => {
+              showModal(ImportExportModal, {
+                initialValues: {
+                  sourceStorageType: 'archive',
+                  sourceArchiveFolder: data.folderName,
+                  sourceList: [data.fileName],
+                },
+              });
             },
-            fmt
-          );
-        }),
-      data.fileType == 'jsonl' && {
-        text: 'Export',
-        onClick: () => {
-          showModal(ImportExportModal, {
-            initialValues: {
-              sourceStorageType: 'archive',
-              sourceArchiveFolder: data.folderName,
-              sourceList: [data.fileName],
-            },
-          });
-        },
-      },
+          }
+        ),
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
       data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
     ];

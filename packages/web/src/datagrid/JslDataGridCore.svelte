@@ -130,13 +130,10 @@
   };
   registerQuickExportHandler(quickExportHandler);
 
-  registerMenu(
-    () => ({
-      ...createQuickExportMenu(quickExportHandler),
-      tag: 'export',
-    }),
-    { command: 'jslTableGrid.export', tag: 'export' }
-  );
+  registerMenu(() => ({
+    ...createQuickExportMenu(quickExportHandler, { command: 'jslTableGrid.export' }),
+    tag: 'export',
+  }));
 </script>
 
 <LoadingDataGridCore
