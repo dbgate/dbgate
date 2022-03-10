@@ -22,6 +22,8 @@
   import { showModal } from '../modals/modalTools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import _ from 'lodash';
+  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
 
   export let conid;
   export let database;
@@ -34,6 +36,7 @@
 
   $: key = $activeDbKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
+  let editedValue = null;
 
   function handleChangeTtl(keyInfo) {
     showModal(InputTextModal, {
@@ -65,7 +68,22 @@
   }
 
   function refresh() {
+    editedValue = null;
     refreshToken += 1;
+  }
+
+  async function saveString() {
+    await apiCall('database-connections/call-method', {
+      conid,
+      database,
+      method: 'set',
+      args: [key, editedValue],
+    });
+    refresh();
+  }
+
+  async function addItem(keyInfo) {
+    showModal(DbKeyAddItemModal, { keyInfo });
   }
 </script>
 
@@ -82,6 +100,12 @@
         <TextField value={key} readOnly />
       </div>
       <FormStyledButton value={`TTL:${keyInfo.ttl}`} on:click={() => handleChangeTtl(keyInfo)} />
+      {#if keyInfo.type == 'string'}
+        <FormStyledButton value="Save" on:click={saveString} disabled={!editedValue} />
+      {/if}
+      {#if keyInfo.addMethod}
+        <FormStyledButton value="Add item" on:click={() => addItem(keyInfo)} />
+      {/if}
       <FormStyledButton value="Refresh" on:click={refresh} />
     </div>
 
@@ -98,17 +122,17 @@
               }}
             />
           </svelte:fragment>
-          <div slot="2" class="props">
-            {#each keyInfo.tableColumns as column}
-              <div class="colname">{column.name}</div>
-              <div class="colvalue">
-                <AceEditor readOnly value={currentRow && currentRow[column.name]} />
-              </div>
-            {/each}
-          </div>
+          <svelte:fragment slot="2">
+            <DbKeyItemDetail {keyInfo} item={currentRow} />
+          </svelte:fragment>
         </VerticalSplitter>
       {:else}
-        <AceEditor readOnly value={keyInfo.value} />
+        <AceEditor
+          value={editedValue || keyInfo.value}
+          on:input={e => {
+            editedValue = e.detail;
+          }}
+        />
       {/if}
     </div>
   </div>
@@ -135,21 +159,6 @@
     font-weight: bold;
     margin-right: 10px;
     align-self: center;
-  }
-
-  .props {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .colname {
-    margin: 10px;
-  }
-
-  .colvalue {
-    position: relative;
-    flex: 1;
   }
 
   .key-name {
