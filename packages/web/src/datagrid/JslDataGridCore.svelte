@@ -48,7 +48,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportElectronFile } from '../utility/exportFileTools';
   import useEffect from '../utility/useEffect';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';

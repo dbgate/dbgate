@@ -620,7 +620,7 @@
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportElectronFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';

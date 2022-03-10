@@ -77,7 +77,7 @@ import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.sve
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportElectronFile';
+  import { exportElectronFile } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';

@@ -26,7 +26,7 @@ import { removeLocalStorage } from '../utility/storageCache';
 import { showSnackbarSuccess } from '../utility/snackbar';
 import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
-import { openWebLink } from '../utility/exportElectronFile';
+import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 
 // function themeCommand(theme: ThemeDefinition) {
