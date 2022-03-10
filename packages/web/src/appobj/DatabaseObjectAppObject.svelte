@@ -414,7 +414,7 @@
         if (menu.isQuickExport) {
           return createQuickExportMenu(fmt => async () => {
             const coninfo = await getConnectionInfo(data);
-            exportElectronFile(
+            exportQuickExportFile(
               data.pureName,
               {
                 functionName: menu.functionName,
@@ -620,7 +620,7 @@
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
-  import { exportElectronFile } from '../utility/exportFileTools';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';

@@ -70,7 +70,7 @@
   import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportFileTools';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -170,7 +170,7 @@
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
         createQuickExportMenu(fmt => async () => {
-          exportElectronFile(
+          exportQuickExportFile(
             data.fileName,
             {
               functionName: 'archiveReader',

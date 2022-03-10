@@ -4,7 +4,7 @@ import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from
 import resolveApi from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 
-export async function exportElectronFile(dataName, reader, format) {
+export async function exportQuickExportFile(dataName, reader, format) {
   const electron = getElectron();
 
   let filePath;
@@ -17,7 +17,7 @@ export async function exportElectronFile(dataName, reader, format) {
       properties: ['showOverwriteConfirmation'],
     });
   } else {
-    const resp = await apiCall('files/generate-uploads-file');
+    const resp = await apiCall('files/generate-uploads-file', { extension: format.extension });
     filePath = resp.filePath;
     pureFileName = resp.fileName;
   }

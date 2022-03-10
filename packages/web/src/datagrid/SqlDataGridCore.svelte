@@ -76,7 +76,7 @@
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import { exportElectronFile } from '../utility/exportFileTools';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import ChangeSetGrider from './ChangeSetGrider';
@@ -181,7 +181,7 @@
 
   const quickExportHandler = fmt => async () => {
     const coninfo = await getConnectionInfo({ conid });
-    exportElectronFile(
+    exportQuickExportFile(
       pureName || 'Data',
       {
         functionName: 'queryReader',

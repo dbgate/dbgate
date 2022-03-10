@@ -141,8 +141,8 @@ module.exports = {
   },
 
   generateUploadsFile_meta: true,
-  async generateUploadsFile() {
-    const fileName = `${uuidv1()}.html`;
+  async generateUploadsFile({ extension }) {
+    const fileName = `${uuidv1()}.${extension || 'html'}`;
     return {
       fileName,
       filePath: path.join(uploadsdir(), fileName),
