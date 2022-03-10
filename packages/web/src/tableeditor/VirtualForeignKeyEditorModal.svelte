@@ -50,6 +50,7 @@
 
   // $: console.log('conid, database', conid, database);
   // $: console.log('$dbInfo?.tables', $dbInfo?.tables);
+  // $: console.log('tableList', tableList);
 </script>
 
 <FormProvider>
@@ -73,6 +74,17 @@
                 const name = fullNameFromString(e.detail);
                 refTableName = name.pureName;
                 refSchemaName = name.schemaName;
+                if (columns?.length == 1) {
+                  const table = $dbInfo?.tables?.find(x => x.pureName == refTableName && x.schemaName == refSchemaName);
+                  if (table?.primaryKey?.columns?.length == 1) {
+                    columns = [
+                      {
+                        ...columns[0],
+                        refColumnName: table.primaryKey.columns[0].columnName,
+                      },
+                    ];
+                  }
+                }
               }
             }}
           />
