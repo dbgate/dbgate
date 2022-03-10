@@ -169,7 +169,7 @@
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
       data.fileType == 'jsonl' &&
-        createQuickExportMenu($extensions, fmt => async () => {
+        createQuickExportMenu(fmt => async () => {
           exportElectronFile(
             data.fileName,
             {

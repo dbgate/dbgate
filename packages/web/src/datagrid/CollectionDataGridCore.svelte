@@ -109,7 +109,7 @@
   import { parseFilter } from 'dbgate-filterparser';
   import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
-import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
@@ -216,10 +216,10 @@ import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.sve
 
   registerMenu(
     { command: 'collectionDataGrid.openQuery', tag: 'export' },
-    {
-      ...createQuickExportMenu($extensions, quickExportHandler),
+    () => ({
+      ...createQuickExportMenu(quickExportHandler),
       tag: 'export',
-    },
+    }),
 
     { command: 'collectionDataGrid.export', tag: 'export' }
   );

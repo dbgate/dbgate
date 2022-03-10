@@ -66,12 +66,11 @@
 <script lang="ts">
   import _ from 'lodash';
   import { getContext } from 'svelte';
-import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
 
   import registerCommand from '../commands/registerCommand';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { extensions } from '../stores';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';
@@ -202,10 +201,10 @@ import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.sve
   registerMenu(
     { command: 'sqlDataGrid.openActiveChart', tag: 'chart' },
     { command: 'sqlDataGrid.openQuery', tag: 'export' },
-    {
-      ...createQuickExportMenu($extensions, quickExportHandler),
+    () => ({
+      ...createQuickExportMenu(quickExportHandler),
       tag: 'export',
-    },
+    }),
     { command: 'sqlDataGrid.export', tag: 'export' }
   );
 </script>

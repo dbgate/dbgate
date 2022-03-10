@@ -412,7 +412,7 @@
         if (menu.divider) return menu;
 
         if (menu.isQuickExport) {
-          return createQuickExportMenu(getExtensions(), fmt => async () => {
+          return createQuickExportMenu(fmt => async () => {
             const coninfo = await getConnectionInfo(data);
             exportElectronFile(
               data.pureName,

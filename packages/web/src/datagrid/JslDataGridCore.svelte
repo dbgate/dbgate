@@ -131,10 +131,10 @@
   registerQuickExportHandler(quickExportHandler);
 
   registerMenu(
-    {
-      ...createQuickExportMenu($extensions, quickExportHandler),
+    () => ({
+      ...createQuickExportMenu(quickExportHandler),
       tag: 'export',
-    },
+    }),
     { command: 'jslTableGrid.export', tag: 'export' }
   );
 </script>

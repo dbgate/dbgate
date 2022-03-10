@@ -50,14 +50,11 @@
   import { showSnackbarSuccess } from '../utility/snackbar';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
   import openNewTab from '../utility/openNewTab';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
   import { setContext } from 'svelte';
   import { apiCall } from '../utility/api';
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
-  import ToolStripDropDownButton from '../buttons/ToolStripDropDownButton.svelte';
-  import { createQuickExportMenuItems } from '../utility/createQuickExportMenu';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   export let tabid;

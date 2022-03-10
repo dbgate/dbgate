@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   import { getContext, setContext } from 'svelte';
-  import { extensions } from '../stores';
   import { createQuickExportMenuItems } from '../utility/createQuickExportMenu';
 
   import createRef from '../utility/createRef';
@@ -32,7 +31,7 @@
 
   function getExportMenu() {
     return [
-      quickExportHandlerRef?.value ? createQuickExportMenuItems($extensions, quickExportHandlerRef?.value) : null,
+      quickExportHandlerRef?.value ? createQuickExportMenuItems(quickExportHandlerRef?.value) : null,
       { divider: true },
       { command, text: label },
     ];
