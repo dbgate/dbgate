@@ -387,15 +387,17 @@
             draggingDbGroupTarget = null;
           }}
         >
-          <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} padRight />
-          {tabGroup.tabDbName}
+          <div class="db-name-inner">
+            <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
+            {tabGroup.tabDbName}
+          </div>
 
-          <span
+          <div
             class="close-button-right tabCloseButton"
             on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
           >
             <FontIcon icon="icon close" />
-          </span>
+          </div>
         </div>
         <div class="db-group">
           {#each tabGroup.tabs as tab}
@@ -505,7 +507,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .db-name-inner {
     justify-content: center;
+    flex-grow: 1;
   }
   /* .db-name:hover {
     background-color: var(--theme-bg-3);
@@ -541,7 +546,6 @@
     margin-left: 5px;
     margin-right: 5px;
     color: var(--theme-font-3);
-    float: right;
   }
 
   .close-button:hover {
