@@ -22,6 +22,8 @@
   import useEditorData from '../query/useEditorData';
   import invalidateCommands from '../commands/invalidateCommands';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   export let tabid;
 
@@ -70,14 +72,20 @@
   }
 </script>
 
-<AceEditor
-  value={$editorState.value || ''}
-  menu={createMenu()}
-  on:input={e => setEditorData(e.detail)}
-  on:focus={() => {
-    activator.activate();
-    invalidateCommands();
-  }}
-  bind:this={domEditor}
-  mode="json"
-/>
+<ToolStripContainer>
+  <AceEditor
+    value={$editorState.value || ''}
+    menu={createMenu()}
+    on:input={e => setEditorData(e.detail)}
+    on:focus={() => {
+      activator.activate();
+      invalidateCommands();
+    }}
+    bind:this={domEditor}
+    mode="json"
+  />
+
+  <svelte:fragment slot="toolstrip">
+    <ToolStripSaveButton idPrefix="json" />
+  </svelte:fragment>
+</ToolStripContainer>

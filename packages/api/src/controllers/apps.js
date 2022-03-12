@@ -265,4 +265,16 @@ module.exports = {
 
     return true;
   },
+
+  createConfigFile_meta: true,
+  async createConfigFile({ appFolder, fileName, content }) {
+    const file = path.join(appdir(), appFolder, fileName);
+    if (!(await fs.exists(file))) {
+      await fs.writeFile(file, JSON.stringify(content, undefined, 2));
+      socket.emitChanged(`app-files-changed-${appFolder}`);
+      socket.emitChanged('used-apps-changed');
+      return true;
+    }
+    return false;
+  },
 };
