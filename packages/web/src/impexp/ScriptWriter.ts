@@ -25,12 +25,20 @@ export default class ScriptWriter {
     this.packageNames.push(...extractShellApiPlugins(functionName, props));
   }
 
+  assignValue(variableName, jsonValue) {
+    this.put(`const ${variableName} = ${JSON.stringify(jsonValue)};`);
+  }
+
   requirePackage(packageName) {
     this.packageNames.push(packageName);
   }
 
-  copyStream(sourceVar, targetVar) {
-    this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
+  copyStream(sourceVar, targetVar, colmapVar) {
+    if (colmapVar) {
+      this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, {columns: ${colmapVar}});`);
+    } else {
+      this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar});`);
+    }
   }
 
   comment(s) {

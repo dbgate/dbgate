@@ -2,8 +2,8 @@
   import { onMount } from 'svelte';
 
   export let value;
-  export let focused;
-  export let domEditor;
+  export let focused = false;
+  export let domEditor = undefined;
 
   if (focused) onMount(() => domEditor.focus());
 </script>

@@ -186,7 +186,14 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     // @ts-ignore
     script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
 
-    script.copyStream(sourceVar, targetVar);
+    const colmap = (values[`columns_${sourceName}`] || []).filter(x => !x.skip);
+    let colmapVar = null;
+    if (colmap.length > 0) {
+      colmapVar = script.allocVariable();
+      script.assignValue(colmapVar, colmap);
+    }
+
+    script.copyStream(sourceVar, targetVar, colmapVar);
     script.put();
   }
   if (addEditorInfo) {

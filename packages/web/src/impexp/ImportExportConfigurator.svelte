@@ -42,11 +42,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { writable } from 'svelte/store';
+  import Link from '../elements/Link.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import { getFormContext } from '../forms/FormProviderCore.svelte';
   import TextField from '../forms/TextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import ColumnMapModal from '../modals/ColumnMapModal.svelte';
+  import { showModal } from '../modals/modalTools';
   import { findFileFormat } from '../plugins/fileformats';
   import { extensions } from '../stores';
   import getAsArray from '../utility/getAsArray';
@@ -189,6 +192,11 @@
           header: 'Preview',
           slot: 0,
         },
+        {
+          fieldName: 'columns',
+          header: 'Columns',
+          slot: 2,
+        },
       ]}
     >
       <svelte:fragment slot="0" let:row>
@@ -213,6 +221,18 @@
               e.target.value
             )}
         />
+      </svelte:fragment>
+      <svelte:fragment slot="2" let:row>
+        {@const columnCount = ($values[`columns_${row}`] || []).filter(x => !x.skip).length}
+        <Link
+          onClick={() => {
+            showModal(ColumnMapModal, {
+              value: $values[`columns_${row}`],
+              onConfirm: value => setFieldValue(`columns_${row}`, value),
+            });
+          }}
+          >{columnCount > 0 ? `(${columnCount} columns)` : '(copy from source)'}
+        </Link>
       </svelte:fragment>
     </TableControl>
   </div>
