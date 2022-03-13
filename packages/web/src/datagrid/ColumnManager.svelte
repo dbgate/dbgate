@@ -175,10 +175,12 @@
         if (domFocusField) domFocusField.focus();
       }}
       on:setvisibility={e => {
-        for (const name of selectedColumns) {
-          const column = items.find(x => x.uniqueName == name);
-          if (column) {
-            display.setColumnVisibility(column.uniquePath, e.detail);
+        if (selectedColumns.includes(column.uniqueName)) {
+          for (const name of selectedColumns) {
+            const column = items.find(x => x.uniqueName == name);
+            if (column) {
+              display.setColumnVisibility(column.uniquePath, e.detail);
+            }
           }
         }
       }}

@@ -37,6 +37,7 @@
   import { useAppFiles, useArchiveFolders } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
+  import { showSnackbarError } from '../utility/snackbar';
 
   let filter = '';
 
@@ -66,12 +67,27 @@
     });
   }
 
+  async function handleNewConfigFile(fileName, content) {
+    if (!(await apiCall('apps/create-config-file', { fileName, content, appFolder: $currentApplication }))) {
+      showSnackbarError('File not created, probably already exists');
+    }
+  }
+
   function createAddMenu() {
     return [
       {
         text: 'New SQL command',
         onClick: () => handleNewSqlFile('command.sql', 'Create new SQL command', COMMAND_TEMPLATE),
       },
+      {
+        text: 'New virtual references file',
+        onClick: () => handleNewConfigFile('virtual-references.config.json', []),
+      },
+      {
+        text: 'New disctionary descriptions file',
+        onClick: () => handleNewConfigFile('dictionary-descriptions.config.json', []),
+      },
+
       // { text: 'New query view', onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query', QUERY_TEMPLATE) },
     ];
   }

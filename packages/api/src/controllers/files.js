@@ -98,6 +98,7 @@ module.exports = {
       const app = folder.substring('app:'.length);
       await fs.writeFile(path.join(appdir(), app, file), serialize(format, data));
       socket.emitChanged(`app-files-changed-${app}`);
+      socket.emitChanged('used-apps-changed');
       apps.emitChangedDbApp(folder);
       return true;
     } else {

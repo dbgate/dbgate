@@ -166,11 +166,12 @@ export abstract class GridDisplay {
   hideAllColumns() {
     this.setConfig(cfg => ({
       ...cfg,
-      hiddenColumns: this.columns.map(x => x.uniqueName),
+      hiddenColumns: this.columns.filter(x => x.uniquePath.length == 1).map(x => x.uniqueName),
     }));
   }
 
   get hiddenColumnIndexes() {
+    // console.log('GridDisplay.hiddenColumn', this.config.hiddenColumns);
     return (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
   }
 
@@ -567,6 +568,20 @@ export abstract class GridDisplay {
     if (postprocessSelect) postprocessSelect(select);
     const sql = treeToSql(this.driver, select, dumpSqlSelect);
     return sql;
+  }
+
+  getExportColumnMap() {
+    const changesDefined = this.config.hiddenColumns?.length > 0 || this.config.addedColumns?.length > 0;
+    if (this.isDynamicStructure && !changesDefined) {
+      return null;
+    }
+    return this.getColumns(null)
+      .filter(col => col.isChecked)
+      .map(col => ({
+        dst: col.headerText,
+        src: col.uniqueName,
+        ignore: !changesDefined,
+      }));
   }
 
   resizeColumn(uniqueName: string, computedSize: number, diff: number) {

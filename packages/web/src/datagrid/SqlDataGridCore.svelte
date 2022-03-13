@@ -135,6 +135,7 @@
     initialValues.sourceDatabaseName = database;
     initialValues.sourceSql = display.getExportQuery();
     initialValues.sourceList = display.baseTableOrSimilar ? [display.baseTableOrSimilar.pureName] : [];
+    initialValues[`columns_${pureName}`] = display.getExportColumnMap();
     showModal(ImportExportModal, { initialValues });
   }
 
@@ -193,7 +194,8 @@
           sql: display.getExportQuery(),
         },
       },
-      fmt
+      fmt,
+      display.getExportColumnMap()
     );
   };
   registerQuickExportHandler(quickExportHandler);

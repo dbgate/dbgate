@@ -16,6 +16,7 @@
   import { createGridCache, FreeTableGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
   import uuidv1 from 'uuid/v1';
+  import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
 
   import DataGridCore from '../datagrid/DataGridCore.svelte';
@@ -24,6 +25,8 @@
   import { apiCall } from '../utility/api';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import createQuickExportMenu from '../utility/createQuickExportMenu';
+  import { exportQuickExportFile } from '../utility/exportFileTools';
   import FreeTableGrider from './FreeTableGrider';
   import MacroPreviewGrider from './MacroPreviewGrider';
 
@@ -51,10 +54,31 @@
     initialValues.sourceStorageType = 'jsldata';
     initialValues.sourceJslId = jslid;
     initialValues.sourceList = ['editor-data'];
+    initialValues[`columns_editor-data`] = display.getExportColumnMap();
     showModal(ImportExportModal, { initialValues: initialValues });
   }
 
-  registerMenu({ command: 'freeTableGrid.export', tag: 'export' });
+  const quickExportHandler = fmt => async () => {
+    const jslid = uuidv1();
+    await apiCall('jsldata/save-free-table', { jslid, data: modelState.value });
+    exportQuickExportFile(
+      'editor-data',
+      {
+        functionName: 'jslDataReader',
+        props: {
+          jslid,
+        },
+      },
+      fmt,
+      display.getExportColumnMap()
+    );
+  };
+  registerQuickExportHandler(quickExportHandler);
+
+  registerMenu(() => ({
+    ...createQuickExportMenu(quickExportHandler, { command: 'freeTableGrid.export' }),
+    tag: 'export',
+  }));
 </script>
 
 <DataGridCore {...$$props} {grider} {display} frameSelection={!!macroPreview} bind:selectedCellsPublished />

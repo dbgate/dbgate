@@ -34,7 +34,7 @@
   import { writable } from 'svelte/store';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
-import ToolStripExportButton from '../buttons/ToolStripExportButton.svelte';
+  import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import DataGrid from '../datagrid/DataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
@@ -137,6 +137,8 @@ import ToolStripExportButton from '../buttons/ToolStripExportButton.svelte';
 
   // display is overridden in FreeTableGridCore, this is because of column manager
   $: display = new FreeTableGridDisplay($modelState.value, $config, config.update, null, null);
+
+  const quickExportHandlerRef = createQuickExportHandlerRef();
 </script>
 
 {#if isLoading}
@@ -161,7 +163,7 @@ import ToolStripExportButton from '../buttons/ToolStripExportButton.svelte';
     />
     <svelte:fragment slot="toolstrip">
       <ToolStripCommandButton command="freeTable.save" />
-      <ToolStripExportButton command="freeTableGrid.export" />
+      <ToolStripExportButton command="freeTableGrid.export" {quickExportHandlerRef} />
     </svelte:fragment>
   </ToolStripContainer>
 {/if}

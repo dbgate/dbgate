@@ -24,6 +24,7 @@
   export let selectedIndex = 0;
   export let clickable = false;
   export let disableFocusOutline = false;
+  export let emptyMessage = null;
 
   export let domTable = undefined;
 
@@ -99,6 +100,11 @@
         {/each}
       </tr>
     {/each}
+    {#if emptyMessage && rows.length == 0}
+      <tr>
+        <td colspan={columnList.length}>{emptyMessage}</td>
+      </tr>
+    {/if}
   </tbody>
 </table>
 

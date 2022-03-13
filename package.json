@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "4.7.3-beta.1",
+  "version": "4.7.3-beta.4",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -11,7 +11,7 @@
     "start:api": "yarn workspace dbgate-api start",
     "start:app": "cd app && yarn start",
     "start:api:portal": "yarn workspace dbgate-api start:portal",
-    "start:api:covid": "yarn workspace dbgate-api start:covid",
+    "start:api:singledb": "yarn workspace dbgate-api start:singledb",
     "start:web": "yarn workspace dbgate-web dev",
     "start:sqltree": "yarn workspace dbgate-sqltree start",
     "start:tools": "yarn workspace dbgate-tools start",

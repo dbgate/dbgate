@@ -95,7 +95,12 @@ function start() {
 
   if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
-    getPort({ port: 5000 }).then(port => {
+    getPort({
+      port: parseInt(
+        // @ts-ignore
+        process.env.PORT || 3000
+      ),
+    }).then(port => {
       server.listen(port, () => {
         console.log(`DbGate API listening on port ${port}`);
       });
