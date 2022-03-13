@@ -161,26 +161,28 @@ const driver = {
       case 'string':
         res.value = await pool.get(key);
         break;
-      case 'list':
-        res.tableColumns = [{ name: 'value' }];
-        res.addMethod = 'rpush';
-        break;
-      case 'set':
-        res.tableColumns = [{ name: 'value' }];
-        res.keyColumn = 'value';
-        res.addMethod = 'sadd';
-        break;
-      case 'zset':
-        res.tableColumns = [{ name: 'score' }, { name: 'value' }];
-        res.keyColumn = 'value';
-        res.addMethod = 'zadd';
-        break;
-      case 'hash':
-        res.tableColumns = [{ name: 'key' }, { name: 'value' }];
-        res.keyColumn = 'key';
-        res.addMethod = 'hset';
-        break;
+      // case 'list':
+      //   res.tableColumns = [{ name: 'value' }];
+      //   res.addMethod = 'rpush';
+      //   break;
+      // case 'set':
+      //   res.tableColumns = [{ name: 'value' }];
+      //   res.keyColumn = 'value';
+      //   res.addMethod = 'sadd';
+      //   break;
+      // case 'zset':
+      //   res.tableColumns = [{ name: 'score' }, { name: 'value' }];
+      //   res.keyColumn = 'value';
+      //   res.addMethod = 'zadd';
+      //   break;
+      // case 'hash':
+      //   res.tableColumns = [{ name: 'key' }, { name: 'value' }];
+      //   res.keyColumn = 'key';
+      //   res.addMethod = 'hset';
+      //   break;
     }
+
+    res.keyType = this.supportedKeyTypes.find((x) => x.name == type);
 
     return res;
   },

@@ -19,6 +19,9 @@
   const oldIndexRef = createRef(null);
 
   async function loadNextRows() {
+    if (isLoadedAll) {
+      return;
+    }
     if (isLoading) {
       // console.log('ALREADY LOADING');
       loadNextNeeded = true;
@@ -79,7 +82,7 @@
       header: 'num',
       width: '60px',
     },
-    ...keyInfo.tableColumns.map(column => ({
+    ...keyInfo.keyType.dbKeyFields.map(column => ({
       fieldName: column.name,
       header: column.name,
     })),

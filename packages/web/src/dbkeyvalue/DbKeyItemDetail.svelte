@@ -1,13 +1,13 @@
 <script lang="ts">
   import AceEditor from '../query/AceEditor.svelte';
 
-  export let keyInfo;
+  export let dbKeyFields;
   export let item;
-  export let onChangeItem;
+  export let onChangeItem = null;
 </script>
 
 <div class="props">
-  {#each keyInfo.tableColumns as column}
+  {#each dbKeyFields as column}
     <div class="colname">{column.name}</div>
     <div class="colvalue">
       <AceEditor

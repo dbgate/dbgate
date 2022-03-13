@@ -89,8 +89,8 @@
         await apiCall('database-connections/call-method', {
           conid,
           database,
-          method: keyInfo.addMethod,
-          args: [keyInfo.key, ...keyInfo.tableColumns.map(col => row[col.name])],
+          method: keyInfo.keyType.addMethod,
+          args: [keyInfo.key, ...keyInfo.keyType.dbKeyFields.map(col => row[col.name])],
         });
         refresh();
       },
@@ -114,14 +114,14 @@
       {#if keyInfo.type == 'string'}
         <FormStyledButton value="Save" on:click={saveString} disabled={!editedValue} />
       {/if}
-      {#if keyInfo.addMethod}
+      {#if keyInfo.keyType?.addMethod && keyInfo.keyType?.showItemList}
         <FormStyledButton value="Add item" on:click={() => addItem(keyInfo)} />
       {/if}
       <FormStyledButton value="Refresh" on:click={refresh} />
     </div>
 
     <div class="content">
-      {#if keyInfo.tableColumns}
+      {#if keyInfo.keyType?.dbKeyFields && keyInfo.keyType?.showItemList}
         <VerticalSplitter>
           <svelte:fragment slot="1">
             <DbKeyTableControl
@@ -134,7 +134,7 @@
             />
           </svelte:fragment>
           <svelte:fragment slot="2">
-            <DbKeyItemDetail {keyInfo} item={currentRow} />
+            <DbKeyItemDetail dbKeyFields={keyInfo.keyType.dbKeyFields} item={currentRow} />
           </svelte:fragment>
         </VerticalSplitter>
       {:else}

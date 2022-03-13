@@ -4,6 +4,7 @@ import { get } from 'svelte/store';
 import { ThemeDefinition } from 'dbgate-types';
 import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
+import AddDbKeyModal from '../modals/AddDbKeyModal.svelte';
 import SettingsModal from '../settings/SettingsModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
@@ -213,6 +214,30 @@ registerCommand({
         await apiCall('database-connections/run-script', { ...dbid, sql: `db.createCollection('${newCollection}')` });
         apiCall('database-connections/sync-model', dbid);
       },
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.dbKey',
+  category: 'New',
+  name: 'Key',
+  toolbar: true,
+  toolbarName: 'New key',
+  testEnabled: () => {
+    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
+    return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('keyvalue');
+  },
+  onClick: async () => {
+    const $currentDatabase = get(currentDatabase);
+    const connection = _.get($currentDatabase, 'connection') || {};
+    const database = _.get($currentDatabase, 'name');
+    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
+
+    showModal(AddDbKeyModal, {
+      conid: connection._id,
+      database,
+      driver,
     });
   },
 });

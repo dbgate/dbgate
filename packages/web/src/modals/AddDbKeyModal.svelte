@@ -3,14 +3,17 @@
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
+  import SelectField from '../forms/SelectField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
-  export let keyInfo;
-  export let label;
+  export let conid;
+  export let database;
+  export let driver;
   export let onConfirm;
 
   let item = {};
+  let type = driver.supportedKeyTypes[0].name;
 
   const handleSubmit = async () => {
     closeCurrentModal();
@@ -23,8 +26,16 @@
     <svelte:fragment slot="header">Add item</svelte:fragment>
 
     <div class="container">
+      <SelectField
+        options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
+        value={type}
+        on:change={e => {
+          type = e.detail;
+        }}
+      />
+
       <DbKeyItemDetail
-      dbKeyFields={keyInfo.keyType.dbKeyFields}
+      dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
         {item}
         onChangeItem={value => {
           item = value;
