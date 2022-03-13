@@ -11,7 +11,7 @@ npm install -g dbgate
 
 After installing, you can run dbgate with command:
 ```sh
-dbgate
+dbgate-serve
 ```
 
 Then open http://localhost:5000 in your browser
