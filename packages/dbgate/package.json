@@ -10,7 +10,7 @@
   "author": "Jan Prochazka",
   "license": "MIT",
   "bin": {
-    "dbgate": "./bin/dbgate-serve.js"
+    "dbgate-serve": "./bin/dbgate-serve.js"
   },
   "keywords": [
     "sql",

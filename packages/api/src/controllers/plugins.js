@@ -89,6 +89,12 @@ module.exports = {
               encoding: 'utf-8',
             })
             .then(x => JSON.parse(x));
+          if (!manifest.keywords) {
+            continue;
+          }
+          if (!manifest.keywords.includes('dbgateplugin')) {
+            continue;
+          }
           const readmeFile = path.join(isPackaged ? packagedPluginsDir() : pluginsdir(), packageName, 'README.md');
           // @ts-ignore
           if (await fs.exists(readmeFile)) {
