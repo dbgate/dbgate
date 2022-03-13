@@ -83,7 +83,18 @@
   }
 
   async function addItem(keyInfo) {
-    showModal(DbKeyAddItemModal, { keyInfo });
+    showModal(DbKeyAddItemModal, {
+      keyInfo,
+      onConfirm: async row => {
+        await apiCall('database-connections/call-method', {
+          conid,
+          database,
+          method: keyInfo.addMethod,
+          args: [keyInfo.key, ...keyInfo.tableColumns.map(col => row[col.name])],
+        });
+        refresh();
+      },
+    });
   }
 </script>
 

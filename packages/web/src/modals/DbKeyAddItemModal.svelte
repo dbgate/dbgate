@@ -1,36 +1,47 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
-  import FormSubmit from '../forms/FormSubmit.svelte';
-  import FormTextField from '../forms/FormTextField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
   export let keyInfo;
-  export let value;
   export let label;
   export let onConfirm;
 
-  const handleSubmit = async values => {
-    const { value } = values;
+  let item = {};
+
+  const handleSubmit = async () => {
     closeCurrentModal();
-    onConfirm(value);
+    onConfirm(item);
   };
 </script>
 
-<FormProvider initialValues={{ value }}>
+<FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">
-      Add item
-    </svelte:fragment>
+    <svelte:fragment slot="header">Add item</svelte:fragment>
 
-    <DbKeyItemDetail {keyInfo} />
+    <div class="container">
+      <DbKeyItemDetail
+        {keyInfo}
+        {item}
+        onChangeItem={value => {
+          item = value;
+        }}
+      />
+    </div>
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={e => handleSubmit(e.detail)} />
+      <FormStyledButton value="OK" on:click={e => handleSubmit()} />
       <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>
 </FormProvider>
+
+<style>
+  .container {
+    display: flex;
+    height: 30vh;
+  }
+</style>
