@@ -3189,6 +3189,11 @@ dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7:
     pacote "^11.1.13"
     rimraf "^3.0.2"
 
+dbgate-plugin-xml@^4.1.1:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-4.7.2.tgz#4a1817a7fc3b1ac5191e45dc7b1016b2f97c3158"
+  integrity sha512-LA52/Wg+blaRp/H+v4ypT+l6kbi4sYsTD/JdPaTbfwErMXhGZew9wtDolvbDjKZZ/zfRig0TDXj9fhLILw2cGw==
+
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -3465,6 +3470,11 @@ dot-prop@^4.1.0:
   integrity sha512-l0p4+mIuJIua0mhxGoh4a+iNL9bmeK5DvnSVQa6T0OhrVmaEa1XScX5Etc673FePCJOArq/4Pa2cLGODUWTPOQ==
   dependencies:
     is-obj "^1.0.0"
+
+dotenv@^16.0.0:
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-16.0.0.tgz#c619001253be89ebb638d027b609c75c26e47411"
+  integrity sha512-qD9WU0MPM4SWLPJy/r2Be+2WgQj8plChsyrCNQzW/0WjvcJQiKQJ9mH3ZgB3fxbUUxgc/11ZJ0Fi5KiimWGz2Q==
 
 duplexer2@~0.0.2:
   version "0.0.2"
