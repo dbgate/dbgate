@@ -209,7 +209,8 @@
           sql: getExportQuery(),
         },
       },
-      fmt
+      fmt,
+      display.getExportColumnMap()
     );
   };
 

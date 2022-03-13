@@ -116,7 +116,8 @@
             fileName: archiveMatch[2],
           },
         },
-        fmt
+        fmt,
+        display.getExportColumnMap()
       );
     } else {
       exportQuickExportFile(
@@ -127,7 +128,8 @@
             jslid,
           },
         },
-        fmt
+        fmt,
+        display.getExportColumnMap()
       );
     }
   };

@@ -194,7 +194,8 @@
           sql: display.getExportQuery(),
         },
       },
-      fmt
+      fmt,
+      display.getExportColumnMap()
     );
   };
   registerQuickExportHandler(quickExportHandler);

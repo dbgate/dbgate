@@ -160,6 +160,21 @@ function getTargetExpr(extensions, sourceName, values, targetConnection, targetD
   throw new Error(`Unknown target storage type: ${targetStorageType}`);
 }
 
+export function normalizeExportColumnMap(colmap) {
+  if (!colmap) {
+    return null;
+  }
+  if (!colmap.find(x => !x.ignore)) {
+    // all values are ignored, ignore column map
+    return null;
+  }
+  colmap = colmap.filter(x => !x.skip);
+  if (colmap.length > 0) {
+    return colmap.map(x => _.omit(x, ['ignore']));
+  }
+  return null;
+}
+
 export default async function createImpExpScript(extensions, values, addEditorInfo = true) {
   const script = new ScriptWriter(values.startVariableIndex || 0);
 
@@ -186,16 +201,11 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     // @ts-ignore
     script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
 
-    let colmap = values[`columns_${sourceName}`] || [];
-    if (!colmap.find(x => !x.ignore)) {
-      // all values are ignored, ignore column map
-      colmap = [];
-    }
-    colmap = colmap.filter(x => !x.skip);
+    const colmap = normalizeExportColumnMap(values[`columns_${sourceName}`] );
+
     let colmapVar = null;
-    if (colmap.length > 0) {
+    if (colmap) {
       colmapVar = script.allocVariable();
-      colmap = colmap.map(x => _.omit(x, ['ignore']));
       script.assignValue(colmapVar, colmap);
     }
 

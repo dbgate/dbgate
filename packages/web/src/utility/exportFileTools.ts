@@ -3,8 +3,9 @@ import getElectron from './getElectron';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
 import resolveApi from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
+import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 
-export async function exportQuickExportFile(dataName, reader, format) {
+export async function exportQuickExportFile(dataName, reader, format, columnMap = null) {
   const electron = getElectron();
 
   let filePath;
@@ -31,7 +32,14 @@ export async function exportQuickExportFile(dataName, reader, format) {
   const writer = format.createWriter(filePath, dataName);
   script.assign(targetVar, writer.functionName, writer.props);
 
-  script.copyStream(sourceVar, targetVar);
+  const colmap = normalizeExportColumnMap(columnMap);
+  let colmapVar = null;
+  if (colmap) {
+    colmapVar = script.allocVariable();
+    script.assignValue(colmapVar, colmap);
+  }
+
+  script.copyStream(sourceVar, targetVar, colmapVar);
   script.put();
 
   const resp = await apiCall('runners/start', { script: script.getScript() });

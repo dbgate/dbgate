@@ -33,7 +33,7 @@ export default class ScriptWriter {
     this.packageNames.push(packageName);
   }
 
-  copyStream(sourceVar, targetVar, colmapVar) {
+  copyStream(sourceVar, targetVar, colmapVar = null) {
     if (colmapVar) {
       this.put(`await dbgateApi.copyStream(${sourceVar}, ${targetVar}, {columns: ${colmapVar}});`);
     } else {
