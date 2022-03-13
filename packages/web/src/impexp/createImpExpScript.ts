@@ -186,10 +186,16 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     // @ts-ignore
     script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
 
-    const colmap = (values[`columns_${sourceName}`] || []).filter(x => !x.skip);
+    let colmap = values[`columns_${sourceName}`] || [];
+    if (!colmap.find(x => !x.ignore)) {
+      // all values are ignored, ignore column map
+      colmap = [];
+    }
+    colmap = colmap.filter(x => !x.skip);
     let colmapVar = null;
     if (colmap.length > 0) {
       colmapVar = script.allocVariable();
+      colmap = colmap.map(x => _.omit(x, ['ignore']));
       script.assignValue(colmapVar, colmap);
     }
 

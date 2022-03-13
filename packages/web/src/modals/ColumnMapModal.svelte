@@ -36,19 +36,22 @@
       <svelte:fragment slot="4" let:row let:index>
         <CheckboxField
           checked={!row['skip']}
-          on:change={e => (value = (value || []).map((x, i) => (i == index ? { ...x, skip: !e.target.checked } : x)))}
+          on:change={e =>
+            (value = (value || []).map((x, i) => (i == index ? { ...x, skip: !e.target.checked, ignore: false } : x)))}
         />
       </svelte:fragment>
       <svelte:fragment slot="1" let:row let:index>
         <TextField
           value={row['src']}
-          on:change={e => (value = (value || []).map((x, i) => (i == index ? { ...x, src: e.target.value } : x)))}
+          on:change={e =>
+            (value = (value || []).map((x, i) => (i == index ? { ...x, src: e.target.value, ignore: false } : x)))}
         />
       </svelte:fragment>
       <svelte:fragment slot="2" let:row let:index>
         <TextField
           value={row['dst']}
-          on:change={e => (value = (value || []).map((x, i) => (i == index ? { ...x, dst: e.target.value } : x)))}
+          on:change={e =>
+            (value = (value || []).map((x, i) => (i == index ? { ...x, dst: e.target.value, ignore: false } : x)))}
         />
       </svelte:fragment>
       <svelte:fragment slot="3" let:index>

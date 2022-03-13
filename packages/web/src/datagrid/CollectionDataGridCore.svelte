@@ -174,6 +174,7 @@
     initialValues.sourceDatabaseName = database;
     initialValues.sourceSql = getExportQuery();
     initialValues.sourceList = [pureName];
+    initialValues[`columns_${pureName}`] = display.getExportColumnMap();
     showModal(ImportExportModal, { initialValues });
   }
 

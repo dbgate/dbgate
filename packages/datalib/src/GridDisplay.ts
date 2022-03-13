@@ -570,6 +570,20 @@ export abstract class GridDisplay {
     return sql;
   }
 
+  getExportColumnMap() {
+    const changesDefined = this.config.hiddenColumns?.length > 0 || this.config.addedColumns?.length > 0;
+    if (this.isDynamicStructure && !changesDefined) {
+      return null;
+    }
+    return this.getColumns(null)
+      .filter(col => col.isChecked)
+      .map(col => ({
+        dst: col.headerText,
+        src: col.uniqueName,
+        ignore: !changesDefined,
+      }));
+  }
+
   resizeColumn(uniqueName: string, computedSize: number, diff: number) {
     this.setConfig(cfg => {
       const columnWidths = {

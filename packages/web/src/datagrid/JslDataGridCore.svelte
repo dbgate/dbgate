@@ -55,6 +55,7 @@
   import RowsArrayGrider from './RowsArrayGrider';
 
   export let jslid;
+  export let display;
 
   export const activator = createActivator('JslDataGridCore', false);
 
@@ -93,10 +94,12 @@
       initialValues.sourceStorageType = 'archive';
       initialValues.sourceArchiveFolder = archiveMatch[1];
       initialValues.sourceList = [archiveMatch[2]];
+      initialValues[`columns_${archiveMatch[2]}`] = display.getExportColumnMap();
     } else {
       initialValues.sourceStorageType = 'jsldata';
       initialValues.sourceJslId = jslid;
       initialValues.sourceList = ['query-data'];
+      initialValues[`columns_query-data`] = display.getExportColumnMap();
     }
     showModal(ImportExportModal, { initialValues });
   }
