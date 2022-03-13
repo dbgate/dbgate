@@ -800,6 +800,7 @@
   // $: console.log('containerHeight', containerHeight);
 
   // $: console.log('COLUMNS', columns);
+  // $: console.log('columnSizes.realCount', columnSizes.realCount);
   // $: console.log('realColumnUniqueNames', realColumnUniqueNames);
   // $: console.log('columnSizes.realCount', columnSizes.realCount);
 

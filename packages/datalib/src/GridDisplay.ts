@@ -166,11 +166,12 @@ export abstract class GridDisplay {
   hideAllColumns() {
     this.setConfig(cfg => ({
       ...cfg,
-      hiddenColumns: this.columns.map(x => x.uniqueName),
+      hiddenColumns: this.columns.filter(x => x.uniquePath.length == 1).map(x => x.uniqueName),
     }));
   }
 
   get hiddenColumnIndexes() {
+    // console.log('GridDisplay.hiddenColumn', this.config.hiddenColumns);
     return (this.config.hiddenColumns || []).map(x => _.findIndex(this.allColumns, y => y.uniqueName == x));
   }
 

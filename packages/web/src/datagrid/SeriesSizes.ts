@@ -99,9 +99,12 @@ export class SeriesSizes {
     }
 
     this.modelIndexes = _.range(0, this.count);
+    // console.log('SeriesSize:build:this.modelIndexes-before', this.modelIndexes);
+    // console.log('SeriesSize:build:this.hiddenAndFrozenModelIndexes', this.hiddenAndFrozenModelIndexes);
     if (this.hiddenAndFrozenModelIndexes) {
       this.modelIndexes = this.modelIndexes.filter(col => !this.hiddenAndFrozenModelIndexes.includes(col));
     }
+    // console.log('SeriesSize:build:this.modelIndexes-result', this.modelIndexes);
   }
 
   public getScrollIndexOnPosition(position: number): number {
