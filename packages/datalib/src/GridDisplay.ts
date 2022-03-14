@@ -578,7 +578,7 @@ export abstract class GridDisplay {
     return this.getColumns(null)
       .filter(col => col.isChecked)
       .map(col => ({
-        dst: col.headerText,
+        dst: col.uniqueName,
         src: col.uniqueName,
         ignore: !changesDefined,
       }));
