@@ -1,5 +1,19 @@
 # ChangeLog
 
+### 4.7.3
+- CHANGED: Export menu redesign, quick export menu merged with old export menu
+- REMOVED: Quick export menu
+- ADDED: Export column mapping
+- ADDED: Export invoked from data grid respects columns choosed in column manager
+- ADDED: Quick export (now merged in export menu) is now possible also in web app
+- FIXED: Virtual foreign key editor fixes
+- FIXED: Tabs panel style fix
+- ADDED: Find by schema in databases widget
+- FIXED: Column manager selection fix
+- FIXED: NPM dist - fixed error when loading plugins
+- CHANGED: NPN dist is now executed by dbgate-serve command
+- ADDED: NPM dist accepts .env configuration
+
 ### 4.7.2
 - CHANGED: documentation URL - https://dbgate.org/docs/
 - CHANGED: Close button available for all tab groups - #238
