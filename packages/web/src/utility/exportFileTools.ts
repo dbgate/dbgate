@@ -12,7 +12,7 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
   let pureFileName;
   if (electron) {
     const filters = [{ name: format.label, extensions: [format.extension] }];
-    filePath = electron.showSaveDialog({
+    filePath = await electron.showSaveDialog({
       filters,
       defaultPath: `${dataName}.${format.extension}`,
       properties: ['showOverwriteConfirmation'],
@@ -22,6 +22,8 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
     filePath = resp.filePath;
     pureFileName = resp.fileName;
   }
+
+  if (!filePath) return;
 
   const script = new ScriptWriter();
 
