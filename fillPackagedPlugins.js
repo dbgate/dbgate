@@ -6,6 +6,8 @@ function load() {
 
   for (const packageName of fs.readdirSync('plugins')) {
     if (!packageName.startsWith('dbgate-plugin-')) continue;
+    // TODO skip redis when creating output bundle
+    if (packageName == 'dbgate-plugin-redis') continue;
     const dir = path.join('plugins', packageName);
     const frontend = fs.readFileSync(path.join(dir, 'dist', 'frontend.js'), 'utf-8');
     const readme = fs.readFileSync(path.join(dir, 'README.md'), 'utf-8');
