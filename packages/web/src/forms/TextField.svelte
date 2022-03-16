@@ -8,4 +8,13 @@
   if (focused) onMount(() => domEditor.focus());
 </script>
 
-<input type="text" {...$$restProps} bind:value on:change on:input bind:this={domEditor} on:keydown autocomplete="new-password" />
+<input
+  type="text"
+  {...$$restProps}
+  bind:value
+  on:change
+  on:input
+  bind:this={domEditor}
+  on:keydown
+  autocomplete="new-password"
+/>

@@ -10,7 +10,6 @@ export interface SqlDialect {
   explicitDropConstraint?: boolean;
   anonymousPrimaryKey?: boolean;
   enableConstraintsPerTable?: boolean;
-  nosql?: boolean; // mongo
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];

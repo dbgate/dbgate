@@ -78,6 +78,12 @@ const databaseListLoader = ({ conid }) => ({
   },
 });
 
+const databaseKeysLoader = ({ conid, database, root }) => ({
+  url: 'database-connections/load-keys',
+  params: { conid, database, root },
+  reloadTrigger: `database-keys-changed-${conid}-${database}`,
+});
+
 const serverVersionLoader = ({ conid }) => ({
   url: 'server-connections/version',
   params: { conid },
@@ -428,4 +434,11 @@ export function getAuthTypes(args) {
 }
 export function useAuthTypes(args) {
   return useCore(authTypesLoader, args);
+}
+
+export function getDatabaseKeys(args) {
+  return getCore(databaseKeysLoader, args);
+}
+export function useDatabaseKeys(args) {
+  return useCore(databaseKeysLoader, args);
 }

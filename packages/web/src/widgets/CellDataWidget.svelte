@@ -39,7 +39,7 @@
   ];
 
   function autodetect(selection) {
-    if (selection[0]?.engine?.dialect?.nosql) {
+    if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
       return 'jsonRow';
     }
     const value = selection.length == 1 ? selection[0].value : null;

@@ -93,6 +93,7 @@ export const loadingPluginStore = writable({
   loaded: false,
   loadingPackageName: null,
 });
+export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)

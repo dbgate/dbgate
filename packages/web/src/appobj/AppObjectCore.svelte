@@ -8,8 +8,8 @@
 
   export let icon;
   export let title;
-  export let data;
-  export let module;
+  export let data = null;
+  export let module = null;
 
   export let isBold = false;
   export let isBusy = false;
@@ -24,8 +24,10 @@
   export let onPin = null;
   export let onUnpin = null;
   export let showPinnedInsteadOfUnpin = false;
+  export let indentLevel = 0;
 
-  $: isChecked = checkedObjectsStore && $checkedObjectsStore.find(x => module.extractKey(data) == module.extractKey(x));
+  $: isChecked =
+    checkedObjectsStore && $checkedObjectsStore.find(x => module?.extractKey(data) == module?.extractKey(x));
 
   function handleExpand() {
     dispatch('expand');
@@ -33,7 +35,7 @@
   function handleClick() {
     if (checkedObjectsStore) {
       if (isChecked) {
-        checkedObjectsStore.update(x => x.filter(y => module.extractKey(data) != module.extractKey(y)));
+        checkedObjectsStore.update(x => x.filter(y => module?.extractKey(data) != module?.extractKey(y)));
       } else {
         checkedObjectsStore.update(x => [...x, data]);
       }
@@ -52,12 +54,14 @@
 
   function setChecked(value) {
     if (!value && isChecked) {
-      checkedObjectsStore.update(x => x.filter(y => module.extractKey(data) != module.extractKey(y)));
+      checkedObjectsStore.update(x => x.filter(y => module?.extractKey(data) != module?.extractKey(y)));
     }
     if (value && !isChecked) {
       checkedObjectsStore.update(x => [...x, data]);
     }
   }
+
+  // $: console.log(title, indentLevel);
 </script>
 
 <div
@@ -84,6 +88,9 @@
     <span class="expand-icon" on:click|stopPropagation={handleExpand}>
       <FontIcon icon={expandIcon} />
     </span>
+  {/if}
+  {#if indentLevel}
+    <span style:margin-right={`${indentLevel * 16}px`} />
   {/if}
   {#if isBusy}
     <FontIcon icon="icon loading" />
@@ -188,5 +195,4 @@
     float: right;
     color: var(--theme-font-2);
   }
-
 </style>

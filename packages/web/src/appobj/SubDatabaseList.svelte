@@ -15,7 +15,7 @@
 <AppObjectList
   list={_.sortBy(
     ($databases || []).filter(x => filterName(filter, x.name)),
-    'name'
+    x => x.sortOrder ?? x.name
   ).map(db => ({ ...db, connection: data }))}
   module={databaseAppObject}
   {passProps}

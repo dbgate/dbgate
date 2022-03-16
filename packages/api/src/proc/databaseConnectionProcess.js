@@ -183,6 +183,50 @@ async function handleCollectionData({ msgid, options }) {
   }
 }
 
+async function handleLoadKeys({ msgid, root }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.loadKeys(systemConnection, root);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
+async function handleLoadKeyInfo({ msgid, key }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.loadKeyInfo(systemConnection, key);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
+async function handleCallMethod({ msgid, method, args }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.callMethod(systemConnection, method, args);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
+async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await driver.loadKeyTableRange(systemConnection, key, cursor, count);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
 async function handleUpdateCollection({ msgid, changeSet }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -248,6 +292,10 @@ const messageHandlers = {
   runScript: handleRunScript,
   updateCollection: handleUpdateCollection,
   collectionData: handleCollectionData,
+  loadKeys: handleLoadKeys,
+  loadKeyInfo: handleLoadKeyInfo,
+  callMethod: handleCallMethod,
+  loadKeyTableRange: handleLoadKeyTableRange,
   sqlPreview: handleSqlPreview,
   ping: handlePing,
   syncModel: handleSyncModel,

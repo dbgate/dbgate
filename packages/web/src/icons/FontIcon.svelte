@@ -167,6 +167,16 @@
     'img link': 'mdi mdi-link',
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
+
+    'img folder': 'mdi mdi-folder color-icon-yellow',
+    'img type-string': 'mdi mdi-alphabetical color-icon-blue',
+    'img type-hash': 'mdi mdi-pound color-icon-blue',
+    'img type-set': 'mdi mdi-format-list-bulleted color-icon-blue',
+    'img type-list': 'mdi mdi-format-list-numbered color-icon-blue',
+    'img type-zset': 'mdi mdi-format-list-checks  color-icon-blue',
+    'img type-stream': 'mdi mdi-view-stream color-icon-blue',
+    'img type-binary': 'mdi mdi-file color-icon-blue',
+    'img type-rejson': 'mdi mdi-color-json color-icon-blue',
   };
 </script>
 

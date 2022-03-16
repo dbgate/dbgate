@@ -240,6 +240,7 @@ module.exports = {
 
   get_meta: true,
   async get({ conid }) {
+    if (!conid) return null;
     if (portalConnections) return portalConnections.find(x => x._id == conid) || null;
     const res = await this.datastore.get(conid);
     return res || null;

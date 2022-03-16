@@ -46,6 +46,8 @@ export interface EngineDriver {
   engine: string;
   title: string;
   defaultPort?: number;
+  databaseEngineTypes: string[];
+  supportedKeyTypes: { name: string; label: string }[];
   supportsDatabaseUrl?: boolean;
   isElectronOnly?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
@@ -74,6 +76,9 @@ export interface EngineDriver {
       name: string;
     }[]
   >;
+  loadKeys(pool, root: string): Promise;
+  loadKeyInfo(pool, key): Promise;
+  loadKeyTableRange(pool, key, cursor, count): Promise;
   analyseFull(pool: any, serverVersion): Promise<DatabaseInfo>;
   analyseIncremental(pool: any, structure: DatabaseInfo, serverVersion): Promise<DatabaseInfo>;
   dialect: SqlDialect;
@@ -87,6 +92,8 @@ export interface EngineDriver {
   getQuerySplitterOptions(usage: 'stream' | 'script'): any;
   script(pool: any, sql: string): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
+  // direct call of pool method, only some methods could be supported, on only some drivers
+  callMethod(pool, method, args);
 
   analyserClass?: any;
   dumperClass?: any;

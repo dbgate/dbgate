@@ -1,4 +1,3 @@
-const _isString = require('lodash/isString');
 const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { mongoSplitterOptions } = require('dbgate-query-splitter/lib/options');
@@ -17,7 +16,6 @@ const dialect = {
   offsetFetchRangeSyntax: true,
   stringEscapeChar: "'",
   fallbackDataType: 'nvarchar(max)',
-  nosql: true,
   quoteIdentifier(s) {
     return `[${s}]`;
   },
@@ -27,6 +25,7 @@ const dialect = {
 const driver = {
   ...driverBase,
   dumperClass: Dumper,
+  databaseEngineTypes: ['document'],
   dialect,
   engine: 'mongo@dbgate-plugin-mongo',
   title: 'MongoDB',

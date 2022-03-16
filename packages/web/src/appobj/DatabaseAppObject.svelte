@@ -174,8 +174,8 @@
 
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
-      !driver?.dialect?.nosql && { onClick: handleNewTable, text: 'New table' },
-      driver?.dialect?.nosql && { onClick: handleNewCollection, text: 'New collection' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
+      driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
       { divider: true },
       { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
@@ -256,6 +256,7 @@
   {...$$restProps}
   {data}
   title={data.name}
+  extInfo={data.extInfo}
   icon="img database"
   colorMark={passProps?.connectionColorFactory &&
     passProps?.connectionColorFactory({ conid: _.get(data.connection, '_id'), database: data.name }, null, null, false)}
