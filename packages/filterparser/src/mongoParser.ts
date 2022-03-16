@@ -92,6 +92,7 @@ const createParser = () => {
 
     eq: r => word('=').then(r.value).map(operatorCondition('$eq')),
     ne: r => word('!=').then(r.value).map(operatorCondition('$ne')),
+    ne2: r => word('<>').then(r.value).map(operatorCondition('$ne')),
     lt: r => word('<').then(r.value).map(operatorCondition('$lt')),
     gt: r => word('>').then(r.value).map(operatorCondition('$gt')),
     le: r => word('<=').then(r.value).map(operatorCondition('$lte')),
@@ -111,6 +112,7 @@ const createParser = () => {
         r.false,
         r.eq,
         r.ne,
+        r.ne2,
         r.lt,
         r.gt,
         r.le,
