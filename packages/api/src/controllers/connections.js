@@ -55,6 +55,7 @@ function getPortalCollections() {
         (process.env[`FILE_${id}`] ? getDatabaseFileLabel(process.env[`FILE_${id}`]) : null),
       singleDatabase: !!process.env[`DATABASE_${id}`] || !!process.env[`FILE_${id}`],
       displayName: process.env[`LABEL_${id}`],
+      isReadOnly: process.env[`READONLY_${id}`],
 
       // SSH tunnel
       useSshTunnel: process.env[`USE_SSH_${id}`],
