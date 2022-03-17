@@ -14,13 +14,14 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import _ from 'lodash';
   import { apiCall } from '../utility/api';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let onConfirm;
   export let conid;
   export let database;
   export let pureName;
   export let schemaName;
-  export let columnName;
+  export let field;
   export let driver;
   export let multiselect = false;
 
@@ -41,7 +42,7 @@
       search,
       schemaName,
       pureName,
-      field: columnName,
+      field,
     });
 
     isLoading = false;
@@ -59,7 +60,7 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Choose value from {columnName}</svelte:fragment>
+    <svelte:fragment slot="header">Choose value from {field}</svelte:fragment>
 
     <!-- <FormTextField name="search" label='Search' placeholder="Search" bind:value={search} /> -->
     <div class="largeFormMarker">
@@ -71,51 +72,55 @@
     {/if}
 
     {#if !isLoading && rows}
-      <div class="tableWrapper">
-        <ScrollableTableControl
-          {rows}
-          clickable
-          on:clickrow={e => {
-            const { value } = e.detail;
-            if (multiselect) {
-              if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
-              else checkedKeys = [...checkedKeys, value];
-            } else {
-              closeCurrentModal();
-              onConfirm(value);
-            }
-          }}
-          columns={[
-            multiselect && {
-              fieldName: 'checked',
-              header: '',
-              width: '30px',
-              slot: 1,
-            },
-            {
-              fieldName: 'value',
-              header: 'Value',
-              formatter: row => (row.value == null ? '(NULL)' : row.value),
-            },
-          ]}
-        >
-          <input
-            type="checkbox"
-            let:row
-            slot="1"
-            checked={checkedKeys.includes(row['value'])}
-            on:change={e => {
-              const value = row['value'];
-              if (e.target.checked) {
-                if (!checkedKeys.includes(value)) checkedKeys = [...checkedKeys, value];
-              } else {
+      {#if rows.errorMessage}
+        <ErrorInfo message={rows.errorMessage} />
+      {:else}
+        <div class="tableWrapper">
+          <ScrollableTableControl
+            {rows}
+            clickable
+            on:clickrow={e => {
+              const { value } = e.detail;
+              if (multiselect) {
                 if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
+                else checkedKeys = [...checkedKeys, value];
+              } else {
+                closeCurrentModal();
+                onConfirm(value);
               }
-              e.stopPropagation();
             }}
-          />
-        </ScrollableTableControl>
-      </div>
+            columns={[
+              multiselect && {
+                fieldName: 'checked',
+                header: '',
+                width: '30px',
+                slot: 1,
+              },
+              {
+                fieldName: 'value',
+                header: 'Value',
+                formatter: row => (row.value == null ? '(NULL)' : row.value),
+              },
+            ]}
+          >
+            <input
+              type="checkbox"
+              let:row
+              slot="1"
+              checked={checkedKeys.includes(row['value'])}
+              on:change={e => {
+                const value = row['value'];
+                if (e.target.checked) {
+                  if (!checkedKeys.includes(value)) checkedKeys = [...checkedKeys, value];
+                } else {
+                  if (checkedKeys.includes(value)) checkedKeys = checkedKeys.filter(x => x != value);
+                }
+                e.stopPropagation();
+              }}
+            />
+          </ScrollableTableControl>
+        </div>
+      {/if}
     {/if}
 
     <svelte:fragment slot="footer">

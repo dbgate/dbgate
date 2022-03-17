@@ -33,6 +33,7 @@
   export let pureName = null;
   export let schemaName = null;
   export let columnName = null;
+  export let uniqueName = null;
 
   let value;
   let isError;
@@ -223,7 +224,7 @@
       multiselect: true,
       schemaName,
       pureName,
-      columnName,
+      field: columnName || uniqueName,
       onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
     });
   }
@@ -271,7 +272,7 @@
       <InlineButton on:click={handleShowDictionary} narrow square>
         <FontIcon icon="icon dots-horizontal" />
       </InlineButton>
-    {:else if pureName && columnName}
+    {:else if (pureName && columnName) || (pureName && uniqueName && driver?.databaseEngineTypes?.includes('document'))}
       <InlineButton on:click={handleShowValuesModal} narrow square>
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>

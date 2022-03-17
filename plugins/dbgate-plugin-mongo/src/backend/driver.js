@@ -277,6 +277,54 @@ const driver = {
     const db = pool.db(name);
     await db.createCollection('collection1');
   },
+
+  async loadFieldValues(pool, name, field, search) {
+    try {
+      const collection = pool.__getDatabase().collection(name.pureName);
+      // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
+
+      const pipelineMatch = [];
+
+      if (search) {
+        const tokens = _.compact(search.split(' ').map((x) => x.trim()));
+        if (tokens.length > 0) {
+          pipelineMatch.push({
+            $match: {
+              $and: tokens.map((token) => ({
+                [field]: {
+                  $regex: `.*${token}.*`,
+                  $options: 'i',
+                },
+              })),
+            },
+          });
+        }
+      }
+
+      let cursor = await collection.aggregate([
+        ...pipelineMatch,
+        {
+          $group: { _id: '$' + field },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $limit: 100,
+        },
+      ]);
+      const rows = await cursor.toArray();
+      return _.uniqBy(
+        rows.map(transformMongoData).map(({ _id }) => {
+          if (_.isArray(_id) || _.isPlainObject(_id)) return { value: null };
+          return { value: _id };
+        }),
+        (x) => x.value
+      );
+    } catch (err) {
+      return { errorMessage: err.message };
+    }
+  },
 };
 
 module.exports = driver;
