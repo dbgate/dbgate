@@ -42,7 +42,8 @@ const driver = {
   dialect,
   engine: 'sqlite@dbgate-plugin-sqlite',
   title: 'SQLite',
-  showConnectionField: (field, values) => field == 'databaseFile',
+  readOnlySessions: true,
+  showConnectionField: (field, values) => field == 'databaseFile' || field == 'isReadOnly',
   showConnectionTab: (field) => false,
   beforeConnectionSave: (connection) => ({
     ...connection,

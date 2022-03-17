@@ -52,8 +52,8 @@ function runStreamItem(client, sql, options, rowCounter) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ databaseFile }) {
-    const pool = new Database(databaseFile);
+  async connect({ databaseFile, isReadOnly }) {
+    const pool = new Database(databaseFile, { readonly: !!isReadOnly });
     return pool;
   },
   async close(pool) {
