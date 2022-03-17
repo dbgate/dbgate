@@ -22,6 +22,7 @@ import * as JsonTab from './JsonTab.svelte';
 import * as ChangelogTab from './ChangelogTab.svelte';
 import * as DiagramTab from './DiagramTab.svelte';
 import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
+import * as QueryDataTab from './QueryDataTab.svelte';
 
 export default {
   TableDataTab,
@@ -48,4 +49,5 @@ export default {
   ChangelogTab,
   DiagramTab,
   DbKeyDetailTab,
+  QueryDataTab,
 };

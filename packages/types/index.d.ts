@@ -19,6 +19,7 @@ export interface OpenedSession {
   sesid: string;
   conid: string;
   database: string;
+  killOnDone?: boolean;
   subprocess: ChildProcess;
 }
 

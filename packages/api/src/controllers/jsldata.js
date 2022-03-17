@@ -111,18 +111,22 @@ module.exports = {
   getInfo_meta: true,
   async getInfo({ jslid }) {
     const file = getJslFileName(jslid);
-    const firstLine = await readFirstLine(file);
-    if (firstLine) {
-      const parsed = JSON.parse(firstLine);
-      if (parsed.__isStreamHeader) {
-        return parsed;
+    try {
+      const firstLine = await readFirstLine(file);
+      if (firstLine) {
+        const parsed = JSON.parse(firstLine);
+        if (parsed.__isStreamHeader) {
+          return parsed;
+        }
+        return {
+          __isStreamHeader: true,
+          __isDynamicStructure: true,
+        };
       }
-      return {
-        __isStreamHeader: true,
-        __isDynamicStructure: true,
-      };
+      return null;
+    } catch (err) {
+      return null;
     }
-    return null;
   },
 
   getRows_meta: true,

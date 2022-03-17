@@ -155,6 +155,7 @@
     'img sqlite-database': 'mdi mdi-database color-icon-blue',
     'img table': 'mdi mdi-table color-icon-blue',
     'img collection': 'mdi mdi-table color-icon-red',
+    'img query-data': 'mdi mdi-table color-icon-yellow',
     'img view': 'mdi mdi-table color-icon-magenta',
     'img procedure': 'mdi mdi-cog color-icon-blue',
     'img function': 'mdi mdi-function-variant',

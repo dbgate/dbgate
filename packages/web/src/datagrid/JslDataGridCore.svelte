@@ -81,6 +81,8 @@
       return () => {
         apiOff(`jsldata-stats-${jslidVal}`, handleJslDataStats);
       };
+    } else {
+      return () => {};
     }
   }
   $: $effect;

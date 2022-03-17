@@ -4,8 +4,10 @@ const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const jsldata = require('./jsldata');
+const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
+const { appdir } = require('../utility/directories');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -46,9 +48,15 @@ module.exports = {
     this.dispatchMessage(sesid, info);
   },
 
-  handle_done(sesid) {
+  handle_done(sesid, props) {
     socket.emit(`session-done-${sesid}`);
-    this.dispatchMessage(sesid, 'Query execution finished');
+    if (!props.skipFinishedMessage) {
+      this.dispatchMessage(sesid, 'Query execution finished');
+    }
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (session.killOnDone) {
+      this.kill({ sesid });
+    }
   },
 
   handle_recordset(sesid, props) {
@@ -58,6 +66,11 @@ module.exports = {
 
   handle_stats(sesid, stats) {
     jsldata.notifyChangedStats(stats);
+  },
+
+  handle_initializeFile(sesid, props) {
+    const { jslid } = props;
+    socket.emit(`session-initialize-file-${jslid}`);
   },
 
   handle_ping() {},
@@ -103,6 +116,19 @@ module.exports = {
     session.subprocess.send({ msgtype: 'executeQuery', sql });
 
     return { state: 'ok' };
+  },
+
+  executeReader_meta: true,
+  async executeReader({ conid, database, sql, queryName, appFolder }) {
+    const { sesid } = await this.create({ conid, database });
+    const session = this.opened.find(x => x.sesid == sesid);
+    session.killOnDone = true;
+    const jslid = uuidv1();
+    const fileName = queryName && appFolder ? path.join(appdir(), appFolder, `${queryName}.query.sql`) : null;
+
+    session.subprocess.send({ msgtype: 'executeReader', sql, fileName, jslid });
+
+    return { jslid };
   },
 
   // cancel_meta: true,

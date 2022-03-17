@@ -1,21 +1,41 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
-  import { useApiCall } from '../utility/api';
+  import { apiOff, apiOn, useApiCall } from '../utility/api';
+  import useEffect from '../utility/useEffect';
 
   import DataGrid from './DataGrid.svelte';
   import JslDataGridCore from './JslDataGridCore.svelte';
 
   export let jslid;
-  export let supportsReload;
+  export let supportsReload = false;
+  export let listenInitializeFile = false;
 
   let loadedRows;
+  let infoCounter = 0;
 
-  $: info = useApiCall('jsldata/get-info', { jslid }, {});
+  $: info = useApiCall('jsldata/get-info', { jslid, infoCounter }, {});
 
   // $: columns = ($info && $info.columns) || [];
   const config = writable(createGridConfig());
   const cache = writable(createGridCache());
+
+  function handleInitializeFile() {
+    infoCounter += 1;
+  }
+
+  $: effect = useEffect(() => onJslId(jslid));
+  function onJslId(jslidVal) {
+    if (jslidVal && listenInitializeFile) {
+      apiOn(`session-initialize-file-${jslidVal}`, handleInitializeFile);
+      return () => {
+        apiOff(`session-initialize-file-${jslidVal}`, handleInitializeFile);
+      };
+    } else {
+      return () => {};
+    }
+  }
+  $: $effect;
 
   $: display = new JslGridDisplay(
     jslid,

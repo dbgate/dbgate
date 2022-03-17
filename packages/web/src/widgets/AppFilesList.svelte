@@ -80,11 +80,15 @@
         onClick: () => handleNewSqlFile('command.sql', 'Create new SQL command', COMMAND_TEMPLATE),
       },
       {
+        text: 'New SQL query',
+        onClick: () => handleNewSqlFile('query.sql', 'Create new SQL query', QUERY_TEMPLATE),
+      },
+      {
         text: 'New virtual references file',
         onClick: () => handleNewConfigFile('virtual-references.config.json', []),
       },
       {
-        text: 'New disctionary descriptions file',
+        text: 'New dictionary descriptions file',
         onClick: () => handleNewConfigFile('dictionary-descriptions.config.json', []),
       },
 

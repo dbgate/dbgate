@@ -10,6 +10,7 @@
     matviews: 'img view',
     procedures: 'img procedure',
     functions: 'img function',
+    queries: 'img query-data',
   };
 
   const defaultTabs = {
@@ -17,6 +18,7 @@
     collections: 'CollectionDataTab',
     views: 'ViewDataTab',
     matviews: 'ViewDataTab',
+    queries: 'QueryDataTab',
   };
 
   const menus = {
@@ -229,6 +231,13 @@
         sqlGeneratorProps: {
           dropMatviews: true,
         },
+      },
+    ],
+    queries: [
+      {
+        label: 'Open data',
+        tab: 'QueryDataTab',
+        forceNewTab: true,
       },
     ],
     procedures: [

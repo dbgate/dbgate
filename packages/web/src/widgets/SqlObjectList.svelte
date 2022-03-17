@@ -16,7 +16,7 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import { useConnectionInfo, useDatabaseInfo, useDatabaseStatus, useUsedApps } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import _ from 'lodash';
@@ -30,10 +30,11 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { findEngineDriver } from 'dbgate-tools';
-  import { extensions } from '../stores';
+  import { currentDatabase, extensions } from '../stores';
   import newQuery from '../query/newQuery';
   import runCommand from '../commands/runCommand';
   import { apiCall } from '../utility/api';
+  import { filterAppsForDatabase } from '../utility/appTools';
 
   export let conid;
   export let database;
@@ -46,16 +47,28 @@
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
 
+  $: apps = useUsedApps();
+
+  $: dbApps = filterAppsForDatabase($currentDatabase.connection, $currentDatabase.name, $apps || []);
+
   // $: console.log('OBJECTS', $objects);
 
-  $: objectList = _.flatten(
-    ['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
+  $: objectList = _.flatten([
+    ...['tables', 'collections', 'views', 'matviews', 'procedures', 'functions'].map(objectTypeField =>
       _.sortBy(
         (($objects || {})[objectTypeField] || []).map(obj => ({ ...obj, objectTypeField })),
         ['schemaName', 'pureName']
       )
-    )
-  );
+    ),
+    ...dbApps.map(app =>
+      app.queries.map(query => ({
+        objectTypeField: 'queries',
+        pureName: query.name,
+        schemaName: app.name,
+        sql: query.sql
+      }))
+    ),
+  ]);
 
   // let generateIndex = 0;
   // setInterval(() => (generateIndex += 1), 2000);
@@ -69,7 +82,7 @@
     const res = [];
     if (driver?.databaseEngineTypes?.includes('document')) {
       res.push({ command: 'new.collection' });
-    } 
+    }
     if (driver?.databaseEngineTypes?.includes('sql')) {
       res.push({ command: 'new.table' });
     }

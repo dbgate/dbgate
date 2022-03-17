@@ -140,7 +140,7 @@
   }
 
   export function hasConnection() {
-    return !!conid && (!$connection.isReadOnly || driver.readOnlySessions);
+    return !!conid && (!$connection?.isReadOnly || driver?.readOnlySessions);
   }
 
   async function executeCore(sql) {
