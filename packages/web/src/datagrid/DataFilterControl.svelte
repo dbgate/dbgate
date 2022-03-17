@@ -266,8 +266,8 @@
     class:isOk
     placeholder="Filter"
   />
-  {#if conid && database && driver && driver?.databaseEngineTypes?.includes('sql')}
-    {#if foreignKey}
+  {#if conid && database && driver}
+    {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
       <InlineButton on:click={handleShowDictionary} narrow square>
         <FontIcon icon="icon dots-horizontal" />
       </InlineButton>

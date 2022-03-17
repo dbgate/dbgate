@@ -151,34 +151,33 @@ module.exports = {
     return res.result;
   },
 
-  loadKeys_meta: true,
-  async loadKeys({ conid, database, root }) {
+  async loadDataCore(msgtype, {conid, database, ...args}) {
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'loadKeys', root });
+    const res = await this.sendRequest(opened, { msgtype, ...args });
     if (res.errorMessage) {
       console.error(res.errorMessage);
     }
     return res.result || null;
+  },
+
+  loadKeys_meta: true,
+  async loadKeys({ conid, database, root }) {
+    return this.loadDataCore('loadKeys', { conid, database, root });
   },
 
   loadKeyInfo_meta: true,
   async loadKeyInfo({ conid, database, key }) {
-    const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'loadKeyInfo', key });
-    if (res.errorMessage) {
-      console.error(res.errorMessage);
-    }
-    return res.result || null;
+    return this.loadDataCore('loadKeyInfo', { conid, database, key });
   },
 
   loadKeyTableRange_meta: true,
   async loadKeyTableRange({ conid, database, key, cursor, count }) {
-    const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'loadKeyTableRange', key, cursor, count });
-    if (res.errorMessage) {
-      console.error(res.errorMessage);
-    }
-    return res.result || null;
+    return this.loadDataCore('loadKeyTableRange', { conid, database, key, cursor, count });
+  },
+
+  loadFieldValues_meta: true,
+  async loadFieldValues({ conid, database, schemaName, pureName, field, search }) {
+    return this.loadDataCore('loadFieldValues', { conid, database, schemaName, pureName, field, search });
   },
 
   callMethod_meta: true,

@@ -172,59 +172,41 @@ async function handleQueryData({ msgid, sql }) {
   }
 }
 
-async function handleCollectionData({ msgid, options }) {
+async function handleDriverDataCore(msgid, callMethod) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
-    const result = await driver.readCollection(systemConnection, options);
+    const result = await callMethod(driver);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });
   }
+}
+
+async function handleCollectionData({ msgid, options }) {
+  return handleDriverDataCore(msgid, driver => driver.readCollection(systemConnection, options));
 }
 
 async function handleLoadKeys({ msgid, root }) {
-  await waitConnected();
-  const driver = requireEngineDriver(storedConnection);
-  try {
-    const result = await driver.loadKeys(systemConnection, root);
-    process.send({ msgtype: 'response', msgid, result });
-  } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
-  }
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(systemConnection, root));
 }
 
 async function handleLoadKeyInfo({ msgid, key }) {
-  await waitConnected();
-  const driver = requireEngineDriver(storedConnection);
-  try {
-    const result = await driver.loadKeyInfo(systemConnection, key);
-    process.send({ msgtype: 'response', msgid, result });
-  } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
-  }
+  return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(systemConnection, key));
 }
 
 async function handleCallMethod({ msgid, method, args }) {
-  await waitConnected();
-  const driver = requireEngineDriver(storedConnection);
-  try {
-    const result = await driver.callMethod(systemConnection, method, args);
-    process.send({ msgtype: 'response', msgid, result });
-  } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
-  }
+  return handleDriverDataCore(msgid, driver => driver.callMethod(systemConnection, method, args));
 }
 
 async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
-  await waitConnected();
-  const driver = requireEngineDriver(storedConnection);
-  try {
-    const result = await driver.loadKeyTableRange(systemConnection, key, cursor, count);
-    process.send({ msgtype: 'response', msgid, result });
-  } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
-  }
+  return handleDriverDataCore(msgid, driver => driver.loadKeyTableRange(systemConnection, key, cursor, count));
+}
+
+async function handleLoadFieldValues({ msgid, schemaName, pureName, field, search }) {
+  return handleDriverDataCore(msgid, driver =>
+    driver.loadFieldValues(systemConnection, { schemaName, pureName }, field, search)
+  );
 }
 
 async function handleUpdateCollection({ msgid, changeSet }) {
@@ -300,6 +282,7 @@ const messageHandlers = {
   ping: handlePing,
   syncModel: handleSyncModel,
   generateDeploySql: handleGenerateDeploySql,
+  loadFieldValues: handleLoadFieldValues,
   // runCommand: handleRunCommand,
 };
 
