@@ -32,6 +32,7 @@ module.exports = {
     return {
       runAsPortal: !!connections.portalConnections,
       singleDatabase: connections.singleDatabase,
+      hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       permissions,
       ...currentVersion,
     };

@@ -3,6 +3,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import { currentDropDownMenu, selectedWidget, visibleCommandPalette, visibleHamburgerMenuWidget } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
+  import { useConfig } from '../utility/metadataLoaders';
 
   let domSettings;
   let domMainMenu;
@@ -77,6 +78,8 @@
     const items = mainMenuDefinition;
     currentDropDownMenu.set({ left, top, items });
   }
+
+  $: config = useConfig();
 </script>
 
 <div class="main">
@@ -85,7 +88,7 @@
       <FontIcon icon="icon menu" />
     </div>
   {/if}
-  {#each widgets as item}
+  {#each widgets.filter(x => !$config?.hideAppEditor || x.name != 'app') as item}
     <div class="wrapper" class:selected={item.name == $selectedWidget} on:click={() => handleChangeWidget(item.name)}>
       <FontIcon icon={item.icon} title={item.title} />
     </div>

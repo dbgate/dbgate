@@ -149,6 +149,10 @@ module.exports = {
 
   start_meta: true,
   async start({ script }) {
+    if (process.env.DISABLE_SHELL) {
+      return { errorMessage: 'Shell is disabled' };
+    }
+
     const runid = uuidv1();
     return this.startCore(runid, scriptTemplate(script, false));
   },
