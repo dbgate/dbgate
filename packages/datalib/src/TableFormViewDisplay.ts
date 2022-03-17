@@ -23,7 +23,8 @@ export class TableFormViewDisplay extends FormViewDisplay {
     dbinfo: DatabaseInfo,
     displayOptions,
     serverVersion,
-    getDictionaryDescription: DictionaryDescriptionFunc = null
+    getDictionaryDescription: DictionaryDescriptionFunc = null,
+    isReadOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
     this.gridDisplay = new TableGridDisplay(
@@ -36,7 +37,8 @@ export class TableFormViewDisplay extends FormViewDisplay {
       dbinfo,
       displayOptions,
       serverVersion,
-      getDictionaryDescription
+      getDictionaryDescription,
+      isReadOnly
     );
     this.gridDisplay.addAllExpandedColumnsToSelected = true;
 
@@ -262,5 +264,9 @@ export class TableFormViewDisplay extends FormViewDisplay {
 
   isExpandedColumn(uniqueName: string) {
     return this.gridDisplay.isExpandedColumn(uniqueName);
+  }
+
+  get editable() {
+    return this.gridDisplay.editable;
   }
 }

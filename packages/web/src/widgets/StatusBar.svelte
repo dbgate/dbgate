@@ -12,7 +12,7 @@
   import { findCommand } from '../commands/runCommand';
   import { useConnectionColor } from '../utility/useConnectionColor';
   import { apiCall } from '../utility/api';
-import { statusBarTabInfo } from '../utility/statusBarStore';
+  import { statusBarTabInfo } from '../utility/statusBarStore';
 
   $: databaseName = $currentDatabase && $currentDatabase.name;
   $: connection = $currentDatabase && $currentDatabase.connection;
@@ -44,7 +44,11 @@ import { statusBarTabInfo } from '../utility/statusBarStore';
   <div class="container">
     {#if databaseName}
       <div class="item">
-        <FontIcon icon="icon database" padRight />
+        {#if connection?.isReadOnly}
+          <FontIcon icon="icon lock" padRight />
+        {:else}
+          <FontIcon icon="icon database" padRight />
+        {/if}
         {databaseName}
       </div>
       {#if dbid}

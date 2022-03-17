@@ -390,6 +390,9 @@
           <div class="db-name-inner">
             <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
             {tabGroup.tabDbName}
+            {#if $connectionList?.find(x => x._id == tabGroup.tabs[0]?.props?.conid)?.isReadOnly}
+              <FontIcon icon="icon lock" />
+            {/if}
           </div>
 
           <div

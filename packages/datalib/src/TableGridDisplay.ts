@@ -36,7 +36,8 @@ export class TableGridDisplay extends GridDisplay {
     dbinfo: DatabaseInfo,
     public displayOptions: any,
     serverVersion,
-    public getDictionaryDescription: DictionaryDescriptionFunc = null
+    public getDictionaryDescription: DictionaryDescriptionFunc = null,
+    isReadOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
 
@@ -53,7 +54,7 @@ export class TableGridDisplay extends GridDisplay {
     this.filterable = true;
     this.sortable = true;
     this.groupable = true;
-    this.editable = true;
+    this.editable = !isReadOnly;
     this.supportsReload = true;
     this.baseTable = this.table;
     if (this.table && this.table.columns) {

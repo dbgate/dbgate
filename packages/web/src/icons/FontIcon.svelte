@@ -93,6 +93,7 @@
     'icon dots-vertical': 'mdi mdi-dots-vertical',
     'icon add': 'mdi mdi-plus-circle',
     'icon json': 'mdi mdi-code-json',
+    'icon lock': 'mdi mdi-lock',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

@@ -95,7 +95,8 @@ export class CollectionGridDisplay extends GridDisplay {
     cache: GridCache,
     setCache: ChangeCacheFunc,
     loadedRows,
-    changeSet
+    changeSet, 
+    readOnly = false
   ) {
     super(config, setConfig, cache, setCache, driver);
     const changedDocs = _.compact(changeSet.updates.map(chs => chs.document));
@@ -103,7 +104,7 @@ export class CollectionGridDisplay extends GridDisplay {
     this.columns = analyseCollectionDisplayColumns([...(loadedRows || []), ...changedDocs, ...insertedDocs], this);
     this.filterable = true;
     this.sortable = true;
-    this.editable = true;
+    this.editable = !readOnly;
     this.supportsReload = true;
     this.isDynamicStructure = true;
     this.changeSetKeyFields = ['_id'];

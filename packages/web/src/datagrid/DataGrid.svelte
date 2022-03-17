@@ -69,8 +69,7 @@
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { getLocalStorage, getLocalStorage, getLocalStorage, setLocalStorage } from '../utility/storageCache';
+  import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
 
   export let config;
   export let setConfig;

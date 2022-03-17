@@ -70,7 +70,8 @@
           extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database, $apps, $connections)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections),
+          $connection?.isReadOnly
         )
       : null;
 
@@ -86,7 +87,8 @@
           extendedDbInfo,
           { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
           $serverVersion,
-          table => getDictionaryDescription(table, conid, database, $apps, $connections)
+          table => getDictionaryDescription(table, conid, database, $apps, $connections),
+          $connection?.isReadOnly
         )
       : null;
 

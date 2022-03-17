@@ -89,7 +89,8 @@
           $cache,
           cache.update,
           loadedRows,
-          $changeSetStore?.value
+          $changeSetStore?.value,
+          $connection?.isReadOnly
         )
       : null;
   // $: console.log('LOADED ROWS MONGO', loadedRows);

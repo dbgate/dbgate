@@ -177,7 +177,7 @@
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
       driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
       { divider: true },
-      { onClick: handleImport, text: 'Import' },
+      !connection.isReadOnly && { onClick: handleImport, text: 'Import' },
       { onClick: handleExport, text: 'Export' },
       { onClick: handleShowDiagram, text: 'Show diagram' },
       { onClick: handleSqlGenerator, text: 'SQL Generator' },

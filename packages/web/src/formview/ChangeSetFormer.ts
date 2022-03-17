@@ -82,6 +82,9 @@ export default class ChangeSetFormer extends Former {
   redo() {
     this.dispatchChangeSet({ type: 'redo' });
   }
+  get editable() {
+    return this.display.editable;
+  }
   get canUndo() {
     return this.changeSetState.canUndo;
   }

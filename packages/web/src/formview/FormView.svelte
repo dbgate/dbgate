@@ -327,6 +327,7 @@
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show': {
+        if (!former.editable) return {};
         const column = getCellColumn(action.cell);
         if (!column) return state;
         if (column.uniquePath.length > 1) return state;
