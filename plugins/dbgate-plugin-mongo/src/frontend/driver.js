@@ -38,9 +38,9 @@ const driver = {
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
     if (values.useDatabaseUrl) {
-      return ['databaseUrl', 'defaultDatabase', 'singleDatabase'].includes(field);
+      return ['databaseUrl', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
     }
-    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
+    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
   },
 
   importExportArgs: [

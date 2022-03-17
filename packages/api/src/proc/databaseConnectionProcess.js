@@ -155,6 +155,7 @@ async function handleRunScript({ msgid, sql }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
+    ensureExecuteCustomScript(driver);
     await driver.script(systemConnection, sql);
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
@@ -166,6 +167,7 @@ async function handleQueryData({ msgid, sql }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
+    ensureExecuteCustomScript(driver);
     const res = await driver.query(systemConnection, sql);
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
@@ -204,7 +206,10 @@ async function handleLoadKeyInfo({ msgid, key }) {
 }
 
 async function handleCallMethod({ msgid, method, args }) {
-  return handleDriverDataCore(msgid, driver => driver.callMethod(systemConnection, method, args));
+  return handleDriverDataCore(msgid, driver => {
+    ensureExecuteCustomScript(driver);
+    return driver.callMethod(systemConnection, method, args);
+  });
 }
 
 async function handleLoadKeyTableRange({ msgid, key, cursor, count }) {
@@ -217,10 +222,20 @@ async function handleLoadFieldValues({ msgid, schemaName, pureName, field, searc
   );
 }
 
+function ensureExecuteCustomScript(driver) {
+  if (driver.readOnlySessions) {
+    return;
+  }
+  if (storedConnection.isReadOnly) {
+    throw new Error('Connection is read only');
+  }
+}
+
 async function handleUpdateCollection({ msgid, changeSet }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
+    ensureExecuteCustomScript(driver);
     const result = await driver.updateCollection(systemConnection, changeSet);
     process.send({ msgtype: 'response', msgid, result });
   } catch (err) {

@@ -159,7 +159,7 @@ module.exports = {
   async collectionData({ conid, database, options }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'collectionData', options });
-    return res.result;
+    return res.result || null;
   },
 
   async loadDataCore(msgtype, { conid, database, ...args }) {
@@ -167,6 +167,10 @@ module.exports = {
     const res = await this.sendRequest(opened, { msgtype, ...args });
     if (res.errorMessage) {
       console.error(res.errorMessage);
+
+      return {
+        errorMessage: res.errorMessage,
+      };
     }
     return res.result || null;
   },
@@ -193,19 +197,26 @@ module.exports = {
 
   callMethod_meta: true,
   async callMethod({ conid, database, method, args }) {
-    const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'callMethod', method, args });
-    if (res.errorMessage) {
-      console.error(res.errorMessage);
-    }
-    return res.result || null;
+    return this.loadDataCore('callMethod', { conid, database, method, args });
+
+    // const opened = await this.ensureOpened(conid, database);
+    // const res = await this.sendRequest(opened, { msgtype: 'callMethod', method, args });
+    // if (res.errorMessage) {
+    //   console.error(res.errorMessage);
+    // }
+    // return res.result || null;
   },
 
   updateCollection_meta: true,
   async updateCollection({ conid, database, changeSet }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'updateCollection', changeSet });
-    return res.result;
+    if (res.errorMessage) {
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || null;
   },
 
   status_meta: true,

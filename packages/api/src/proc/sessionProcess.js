@@ -135,10 +135,20 @@ function handleStream(driver, resultIndexHolder, sql) {
   });
 }
 
+function ensureExecuteCustomScript(driver) {
+  if (driver.readOnlySessions) {
+    return;
+  }
+  if (storedConnection.isReadOnly) {
+    throw new Error('Connection is read only');
+  }
+}
+
 async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = requireEngineDriver(storedConnection);
+  ensureExecuteCustomScript(driver);
   systemConnection = await connectUtility(driver, storedConnection);
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
