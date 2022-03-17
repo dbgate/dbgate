@@ -14,9 +14,7 @@ export async function loadChartStructure(driver: EngineDriver, conid, database, 
     },
   };
 
-  const dmp = driver.createDumper();
-  dumpSqlSelect(dmp, select);
-  const resp = await apiCall('database-connections/query-data', { conid, database, sql: dmp.s });
+  const resp = await apiCall('database-connections/sql-select', { conid, database, select });
   if (resp.errorMessage) throw new Error(resp.errorMessage);
   return resp.columns.map(x => x.columnName);
 }
@@ -72,9 +70,7 @@ export async function loadChartData(driver: EngineDriver, conid, database, sql, 
     ],
   };
 
-  const dmp = driver.createDumper();
-  dumpSqlSelect(dmp, select);
-  const resp = await apiCall('database-connections/query-data', { conid, database, sql: dmp.s });
+  const resp = await apiCall('database-connections/sql-select', { conid, database, select });
   let { rows, columns, errorMessage } = resp;
   if (errorMessage) {
     throw new Error(errorMessage);

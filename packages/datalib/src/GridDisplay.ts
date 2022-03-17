@@ -463,7 +463,10 @@ export abstract class GridDisplay {
     const orderColumnName = columns[0].columnName;
     const select: Select = {
       commandType: 'select',
-      from: { name, alias: 'basetbl' },
+      from: {
+        name: _.pick(name, ['schemaName', 'pureName']),
+        alias: 'basetbl',
+      },
       columns: columns.map(col => ({
         exprType: 'column',
         alias: col.columnName,
@@ -558,8 +561,9 @@ export abstract class GridDisplay {
     else if (this.dialect.rowNumberOverPaging && offset > 0)
       select = this.getRowNumberOverSelect(select, offset, count);
     else if (this.dialect.limitSelect) select.topRecords = count;
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
+    // const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    // return sql;
   }
 
   getExportQuery(postprocessSelect = null) {
@@ -629,8 +633,9 @@ export abstract class GridDisplay {
         },
       ];
     }
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
+    // const sql = treeToSql(this.driver, select, dumpSqlSelect);
+    // return sql;
   }
 
   compileFilters(): Condition {

@@ -1,17 +1,9 @@
 import { FormViewDisplay } from './FormViewDisplay';
 import _ from 'lodash';
-import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
-import { TableInfo, EngineDriver, ViewInfo, ColumnInfo, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
-import { GridConfig, GridCache, createGridCache } from './GridConfig';
-import {
-  Expression,
-  Select,
-  treeToSql,
-  dumpSqlSelect,
-  mergeConditions,
-  Condition,
-  OrderByExpression,
-} from 'dbgate-sqltree';
+import { ChangeCacheFunc, DisplayColumn, ChangeConfigFunc } from './GridDisplay';
+import { EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import { GridConfig, GridCache } from './GridConfig';
+import { mergeConditions, Condition, OrderByExpression } from 'dbgate-sqltree';
 import { TableGridDisplay } from './TableGridDisplay';
 import stableStringify from 'json-stable-stringify';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
@@ -160,8 +152,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     if (!select) return null;
 
     select.where = mergeConditions(select.where, this.getPrimaryKeyEqualCondition());
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
   }
 
   getCountSelect() {
@@ -183,8 +174,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     if (!this.driver) return null;
     const select = this.getCountSelect();
     if (!select) return null;
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
   }
 
   getBeforeCountQuery() {
@@ -192,8 +182,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
     const select = this.getCountSelect();
     if (!select) return null;
     select.where = mergeConditions(select.where, this.getPrimaryKeyOperatorCondition('<'));
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
   }
 
   navigate(row) {
@@ -242,8 +231,7 @@ export class TableFormViewDisplay extends FormViewDisplay {
         break;
     }
 
-    const sql = treeToSql(this.driver, select, dumpSqlSelect);
-    return sql;
+    return select;
   }
 
   getChangeSetRow(row): ChangeSetRowDefinition {

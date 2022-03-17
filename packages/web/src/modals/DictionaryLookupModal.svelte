@@ -99,14 +99,11 @@
       }
     }
 
-    // @ts-ignore
-    dumpSqlSelect(dmp, select);
-
     isLoading = true;
-    const response = await apiCall('database-connections/query-data', {
+    const response = await apiCall('database-connections/sql-select', {
       conid,
       database,
-      sql: dmp.s,
+      select
     });
 
     rows = response.rows;

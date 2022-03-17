@@ -7,6 +7,7 @@ const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
+const { dumpSqlSelect } = require('dbgate-sqltree');
 
 let systemConnection;
 let storedConnection;
@@ -172,6 +173,13 @@ async function handleQueryData({ msgid, sql }) {
   }
 }
 
+async function handleSqlSelect({ msgid, select }) {
+  const driver = requireEngineDriver(storedConnection);
+  const dmp = driver.createDumper();
+  dumpSqlSelect(dmp, select);
+  return handleQueryData({ msgid, sql: dmp.s });
+}
+
 async function handleDriverDataCore(msgid, callMethod) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -283,6 +291,7 @@ const messageHandlers = {
   syncModel: handleSyncModel,
   generateDeploySql: handleGenerateDeploySql,
   loadFieldValues: handleLoadFieldValues,
+  sqlSelect: handleSqlSelect,
   // runCommand: handleRunCommand,
 };
 

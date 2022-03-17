@@ -30,12 +30,12 @@
   async function loadDataPage(props, offset, limit) {
     const { display, conid, database } = props;
 
-    const sql = display.getPageQuery(offset, limit);
+    const select = display.getPageQuery(offset, limit);
 
-    const response = await apiCall('database-connections/query-data', {
+    const response = await apiCall('database-connections/sql-select', {
       conid,
       database,
-      sql,
+      select,
     });
 
     if (response.errorMessage) return response;
@@ -44,19 +44,19 @@
 
   function dataPageAvailable(props) {
     const { display } = props;
-    const sql = display.getPageQuery(0, 1);
-    return !!sql;
+    const select = display.getPageQuery(0, 1);
+    return !!select;
   }
 
   async function loadRowCount(props) {
     const { display, conid, database } = props;
 
-    const sql = display.getCountQuery();
+    const select = display.getCountQuery();
 
-    const response = await apiCall('database-connections/query-data', {
+    const response = await apiCall('database-connections/sql-select', {
       conid,
       database,
-      sql,
+      select,
     });
 
     return parseInt(response.rows[0].count);

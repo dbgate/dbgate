@@ -136,6 +136,13 @@ module.exports = {
     return res;
   },
 
+  sqlSelect_meta: true,
+  async sqlSelect({ conid, database, select }) {
+    const opened = await this.ensureOpened(conid, database);
+    const res = await this.sendRequest(opened, { msgtype: 'sqlSelect', select });
+    return res;
+  },
+
   runScript_meta: true,
   async runScript({ conid, database, sql }) {
     console.log(`Processing script, conid=${conid}, database=${database}, sql=${sql}`);

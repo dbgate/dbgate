@@ -1,13 +1,13 @@
 <script lang="ts" context="module">
-  async function loadRow(props, sql) {
+  async function loadRow(props, select) {
     const { conid, database } = props;
 
-    if (!sql) return null;
+    if (!select) return null;
 
-    const response = await apiCall('database-connections/query-data', {
+    const response = await apiCall('database-connections/sql-select', {
       conid,
       database,
-      sql,
+      select,
     });
 
     if (response.errorMessage) return response;
