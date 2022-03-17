@@ -11,6 +11,7 @@ const { pickSafeConnectionInfo } = require('../utility/crypting');
 const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
+const { safeJsonParse } = require('dbgate-tools');
 
 function getNamedArgs() {
   const res = {};
@@ -56,6 +57,7 @@ function getPortalCollections() {
       singleDatabase: !!process.env[`DATABASE_${id}`] || !!process.env[`FILE_${id}`],
       displayName: process.env[`LABEL_${id}`],
       isReadOnly: process.env[`READONLY_${id}`],
+      databases: process.env[`DBCONFIG_${id}`] ? safeJsonParse(process.env[`DBCONFIG_${id}`]) : null,
 
       // SSH tunnel
       useSshTunnel: process.env[`USE_SSH_${id}`],
