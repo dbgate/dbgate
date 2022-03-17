@@ -41,15 +41,16 @@ const postgresDriverBase = {
   // showConnectionField: (field, values) =>
   //   ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
   getQuerySplitterOptions: () => postgreSplitterOptions,
+  readOnlySessions: true,
 
   databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
     if (values.useDatabaseUrl) {
-      return ['databaseUrl'].includes(field);
+      return ['databaseUrl', 'isReadOnly'].includes(field);
     }
-    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field);
+    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
   },
 
   beforeConnectionSave: connection => {
@@ -153,7 +154,7 @@ const redshiftDriver = {
   title: 'Amazon Redshift',
   defaultPort: 5439,
   databaseUrlPlaceholder: 'e.g. redshift-cluster-1.xxxx.redshift.amazonaws.com:5439/dev',
-  showConnectionField: (field, values) => ['databaseUrl', 'user', 'password'].includes(field),
+  showConnectionField: (field, values) => ['databaseUrl', 'user', 'password', 'isReadOnly'].includes(field),
   beforeConnectionSave: connection => {
     const { databaseUrl } = connection;
     if (databaseUrl) {

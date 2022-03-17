@@ -6,9 +6,9 @@ const Analyser = require('./Analyser');
 const pg = require('pg');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
-pg.types.setTypeParser(1082, 'text', (val) => val); // date
-pg.types.setTypeParser(1114, 'text', (val) => val); // timestamp without timezone
-pg.types.setTypeParser(1184, 'text', (val) => val); // timestamp
+pg.types.setTypeParser(1082, 'text', val => val); // date
+pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
+pg.types.setTypeParser(1184, 'text', val => val); // timestamp
 
 function extractPostgresColumns(result) {
   if (!result || !result.fields) return [];
@@ -31,7 +31,7 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ engine, server, port, user, password, database, databaseUrl, useDatabaseUrl, ssl }) {
+  async connect({ engine, server, port, user, password, database, databaseUrl, useDatabaseUrl, ssl, isReadOnly }) {
     let options = null;
 
     if (engine == 'redshift@dbgate-plugin-postgres') {
@@ -67,6 +67,11 @@ const drivers = driverBases.map(driverBase => ({
 
     const client = new pg.Client(options);
     await client.connect();
+
+    if (isReadOnly) {
+      await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
+    }
+
     return client;
   },
   async close(pool) {
