@@ -37,9 +37,9 @@
 
 <script lang="ts">
   import { getContext } from 'svelte';
-import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
-import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
-import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
 
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';

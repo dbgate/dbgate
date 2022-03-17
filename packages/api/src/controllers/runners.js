@@ -148,8 +148,8 @@ module.exports = {
   },
 
   start_meta: true,
-  async start({ script }) {
-    if (process.env.DISABLE_SHELL) {
+  async start({ script, isGeneratedScript }) {
+    if (!isGeneratedScript && process.env.DISABLE_SHELL) {
       return { errorMessage: 'Shell is disabled' };
     }
 

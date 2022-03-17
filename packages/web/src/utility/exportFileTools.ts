@@ -44,7 +44,7 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
   script.copyStream(sourceVar, targetVar, colmapVar);
   script.put();
 
-  const resp = await apiCall('runners/start', { script: script.getScript() });
+  const resp = await apiCall('runners/start', { script: script.getScript(), isGeneratedScript: true });
   const runid = resp.runid;
   let isCanceled = false;
 

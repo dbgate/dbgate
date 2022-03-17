@@ -108,7 +108,7 @@
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
     let runid = runnerId;
-    const resp = await apiCall('runners/start', { script });
+    const resp = await apiCall('runners/start', { script, isGeneratedScript: true });
     runid = resp.runid;
     runnerId = runid;
 
