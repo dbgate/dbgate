@@ -28,7 +28,7 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ server, port, user, password, database, ssl }) {
+  async connect({ server, port, user, password, database, ssl, isReadOnly }) {
     const connection = mysql2.createConnection({
       host: server,
       port,
@@ -44,6 +44,9 @@ const drivers = driverBases.map(driverBase => ({
       // multipleStatements: true,
     });
     connection._database_name = database;
+    if (isReadOnly) {
+      await this.query(connection, 'SET SESSION TRANSACTION READ ONLY');
+    }
     return connection;
   },
   async close(pool) {

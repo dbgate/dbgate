@@ -33,6 +33,10 @@ module.exports = {
   closed: {},
   requests: {},
 
+  async _init() {
+    connections._closeAll = conid => this.closeAll(conid);
+  },
+
   handle_structure(conid, database, { structure }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
@@ -158,7 +162,7 @@ module.exports = {
     return res.result;
   },
 
-  async loadDataCore(msgtype, {conid, database, ...args}) {
+  async loadDataCore(msgtype, { conid, database, ...args }) {
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype, ...args });
     if (res.errorMessage) {
@@ -271,6 +275,12 @@ module.exports = {
         structure: existing.structure,
       };
       socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    }
+  },
+
+  closeAll(conid, kill = true) {
+    for (const existing of this.opened.filter(x => x.conid == conid)) {
+      this.close(conid, existing.database, kill);
     }
   },
 

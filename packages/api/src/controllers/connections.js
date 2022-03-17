@@ -199,6 +199,9 @@ module.exports = {
     }
     socket.emitChanged('connection-list-changed');
     socket.emitChanged('used-apps-changed');
+    if (this._closeAll) {
+      this._closeAll(connection._id);
+    }
     // for (const db of connection.databases || []) {
     //   socket.emitChanged(`db-apps-changed-${connection._id}-${db.name}`);
     // }

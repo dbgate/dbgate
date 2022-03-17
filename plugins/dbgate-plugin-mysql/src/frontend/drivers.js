@@ -41,7 +41,7 @@ const dialect = {
 const mysqlDriverBase = {
   ...driverBase,
   showConnectionField: (field, values) =>
-    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field),
   dumperClass: Dumper,
   dialect,
   defaultPort: 3306,

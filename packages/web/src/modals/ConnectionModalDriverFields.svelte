@@ -147,6 +147,10 @@
   />
 {/if}
 
+{#if driver.showConnectionField('isReadOnly', $values)}
+  <FormCheckboxField label="Is read only" name="isReadOnly" />
+{/if}
+
 {#if !driver?.showConnectionField || driver.showConnectionField('defaultDatabase', $values)}
   <FormTextField label="Default database" name="defaultDatabase" />
 {/if}
