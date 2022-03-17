@@ -47,6 +47,7 @@ const driver = {
   ...driverBase,
   dumperClass: MsSqlDumper,
   dialect,
+  readOnlySessions: false,
   dialectByVersion(version) {
     if (version && version.productVersionNumber < 11) {
       return {
@@ -58,7 +59,9 @@ const driver = {
     return dialect;
   },
   showConnectionField: (field, values) =>
-    ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
+    ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(
+      field
+    ),
   getQuerySplitterOptions: () => mssqlSplitterOptions,
 
   engine: 'mssql@dbgate-plugin-mssql',
