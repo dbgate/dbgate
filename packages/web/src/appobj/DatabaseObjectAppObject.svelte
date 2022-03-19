@@ -417,10 +417,7 @@
                 {
                   functionName: menu.functionName,
                   props: {
-                    connection: {
-                      ..._.omit(coninfo, ['_id', 'displayName']),
-                      ..._.pick(data, ['database']),
-                    },
+                    connection: extractShellConnection(coninfo, data.database),
                     ..._.pick(data, ['pureName', 'schemaName']),
                   },
                 },
@@ -629,6 +626,7 @@
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
   import InputTextModal from '../modals/InputTextModal.svelte';
+  import { extractShellConnection } from '../impexp/createImpExpScript';
 
   export let data;
   export let passProps;

@@ -4,11 +4,47 @@ const fs = require('fs-extra');
 const { decryptConnection } = require('./crypting');
 const { getSshTunnel } = require('./sshTunnel');
 const { getSshTunnelProxy } = require('./sshTunnelProxy');
+const platformInfo = require('../utility/platformInfo');
+const connections = require('../controllers/connections');
 
-async function connectUtility(driver, storedConnection) {
+async function loadConnection(driver, storedConnection, connectionMode) {
+  const { allowShellConnection } = platformInfo;
+
+  if (connectionMode == 'app') {
+    return storedConnection;
+  }
+
+  if (storedConnection._id || !allowShellConnection) {
+    if (!storedConnection._id) {
+      throw new Error('Missing connection _id');
+    }
+
+    await connections._init();
+    const loaded = await connections.get({ conid: storedConnection._id });
+    const loadedWithDb = {
+      ...loaded,
+      database: storedConnection.database,
+    };
+
+    if (loaded.isReadOnly) {
+      if (connectionMode == 'read') return loadedWithDb;
+      if (connectionMode == 'write') throw new Error('Cannot wwrite readonly connection');
+      if (connectionMode == 'script') {
+        if (driver.readOnlySessions) return loadedWithDb;
+        throw new Error('Cannot wwrite readonly connection');
+      }
+    }
+    return loadedWithDb;
+  }
+  return storedConnection;
+}
+
+async function connectUtility(driver, storedConnection, connectionMode) {
+  const connectionLoaded = await loadConnection(driver, storedConnection, connectionMode);
+
   const connection = {
-    database: storedConnection.defaultDatabase,
-    ...decryptConnection(storedConnection),
+    database: connectionLoaded.defaultDatabase,
+    ...decryptConnection(connectionLoaded),
   };
 
   if (!connection.port && driver.defaultPort) connection.port = driver.defaultPort.toString();

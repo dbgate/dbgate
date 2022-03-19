@@ -4,7 +4,7 @@ const connectUtility = require('../utility/connectUtility');
 
 async function tableReader({ connection, pureName, schemaName }) {
   const driver = requireEngineDriver(connection);
-  const pool = await connectUtility(driver, connection);
+  const pool = await connectUtility(driver, connection, 'read');
   console.log(`Connected.`);
 
   const fullName = { pureName, schemaName };

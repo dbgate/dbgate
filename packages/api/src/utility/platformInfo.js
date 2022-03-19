@@ -39,6 +39,7 @@ const platformInfo = {
   environment: process.env.NODE_ENV,
   platform,
   runningInWebpack: !!process.env.WEBPACK_DEV_SERVER_URL,
+  allowShellConnection: !!process.env.SHELL_CONNECTION || !!isElectron(),
   defaultKeyfile: path.join(os.homedir(), '.ssh/id_rsa'),
 };
 

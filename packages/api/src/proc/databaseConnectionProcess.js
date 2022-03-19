@@ -108,7 +108,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
 
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection));
+  systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
   await checkedAsyncCall(readVersion());
   if (structure) {
     analysedStructure = structure;

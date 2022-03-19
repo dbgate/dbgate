@@ -112,6 +112,7 @@
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import { extractShellConnection } from '../impexp/createImpExpScript';
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -202,10 +203,7 @@
       {
         functionName: 'queryReader',
         props: {
-          connection: {
-            ..._.omit(coninfo, ['_id', 'displayName']),
-            database,
-          },
+          connection: extractShellConnection(coninfo, database),
           sql: getExportQuery(),
         },
       },

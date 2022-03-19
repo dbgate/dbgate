@@ -4,6 +4,7 @@ import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
 import { findFileFormat } from '../plugins/fileformats';
+import { getCurrentConfig } from '../stores';
 
 export function getTargetName(extensions, source, values) {
   const key = `targetName_${source}`;
@@ -33,17 +34,27 @@ function extractDriverApiParameters(values, direction, driver) {
   return _.fromPairs(pairs);
 }
 
+export function extractShellConnection(connection, database) {
+  const config = getCurrentConfig();
+
+  return config.allowShellConnection
+    ? {
+        ..._.omit(connection, ['_id', 'displayName', 'databases', 'connectionColor']),
+        database,
+      }
+    : {
+        _id: connection._id,
+        engine: connection.engine,
+        database,
+      };
+}
+
 async function getConnection(extensions, storageType, conid, database) {
   if (storageType == 'database' || storageType == 'query') {
     const conn = await getConnectionInfo({ conid });
     const driver = findEngineDriver(conn, extensions);
-    return [
-      {
-        ..._.omit(conn, ['_id', 'displayName']),
-        database,
-      },
-      driver,
-    ];
+    const connection = extractShellConnection(conn, database);
+    return [connection, driver];
   }
   return [null, null];
 }
@@ -201,7 +212,7 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     // @ts-ignore
     script.assign(targetVar, ...getTargetExpr(extensions, sourceName, values, targetConnection, targetDriver));
 
-    const colmap = normalizeExportColumnMap(values[`columns_${sourceName}`] );
+    const colmap = normalizeExportColumnMap(values[`columns_${sourceName}`]);
 
     let colmapVar = null;
     if (colmap) {

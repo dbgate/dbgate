@@ -21,7 +21,7 @@ async function generateDeploySql({
 }) {
   if (!driver) driver = requireEngineDriver(connection);
 
-  const pool = systemConnection || (await connectUtility(driver, connection));
+  const pool = systemConnection || (await connectUtility(driver, connection, 'read'));
   if (!analysedStructure) {
     analysedStructure = await driver.analyseFull(pool);
   }

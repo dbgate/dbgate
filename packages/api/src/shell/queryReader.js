@@ -6,7 +6,7 @@ async function queryReader({ connection, sql }) {
   console.log(`Reading query ${sql}`);
 
   const driver = requireEngineDriver(connection);
-  const pool = await connectUtility(driver, connection);
+  const pool = await connectUtility(driver, connection, 'script');
   console.log(`Connected.`);
   return await driver.readQuery(pool, sql);
 }

@@ -181,7 +181,7 @@ async function handleConnect(connection) {
   storedConnection = connection;
 
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await connectUtility(driver, storedConnection);
+  systemConnection = await connectUtility(driver, storedConnection, 'app');
   for (const [resolve] of afterConnectCallbacks) {
     resolve();
   }

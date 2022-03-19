@@ -58,11 +58,14 @@ async function handleConnect(connection) {
 
   const driver = requireEngineDriver(storedConnection);
   try {
-    systemConnection = await connectUtility(driver, storedConnection);
+    systemConnection = await connectUtility(driver, storedConnection, 'app');
     readVersion();
     handleRefresh();
     if (extractBoolSettingsValue(globalSettings, 'connection.autoRefresh', false)) {
-      setInterval(handleRefresh, extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 5, 3600) * 1000);
+      setInterval(
+        handleRefresh,
+        extractIntSettingsValue(globalSettings, 'connection.autoRefreshInterval', 30, 5, 3600) * 1000
+      );
     }
   } catch (err) {
     setStatus({
@@ -80,7 +83,7 @@ function handlePing() {
 
 async function handleCreateDatabase({ name }) {
   const driver = requireEngineDriver(storedConnection);
-  systemConnection = await connectUtility(driver, storedConnection);
+  systemConnection = await connectUtility(driver, storedConnection, 'app');
   console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
   if (driver.createDatabase) {
     await driver.createDatabase(systemConnection, name);
