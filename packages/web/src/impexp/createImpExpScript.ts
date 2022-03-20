@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import ScriptWriter from './ScriptWriter';
+import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 import getAsArray from '../utility/getAsArray';
 import { getConnectionInfo } from '../utility/metadataLoaders';
 import { findEngineDriver, findObjectLike } from 'dbgate-tools';
@@ -187,8 +187,12 @@ export function normalizeExportColumnMap(colmap) {
   return null;
 }
 
-export default async function createImpExpScript(extensions, values, addEditorInfo = true) {
-  const script = new ScriptWriter(values.startVariableIndex || 0);
+export default async function createImpExpScript(extensions, values, addEditorInfo = true, forceScript = false) {
+  const config = getCurrentConfig();
+  const script =
+    config.allowShellScripting || forceScript
+      ? new ScriptWriter(values.startVariableIndex || 0)
+      : new ScriptWriterJson(values.startVariableIndex || 0);
 
   const [sourceConnection, sourceDriver] = await getConnection(
     extensions,
@@ -222,7 +226,7 @@ export default async function createImpExpScript(extensions, values, addEditorIn
     }
 
     script.copyStream(sourceVar, targetVar, colmapVar);
-    script.put();
+    script.endLine();
   }
   if (addEditorInfo) {
     script.comment('@ImportExportConfigurator');

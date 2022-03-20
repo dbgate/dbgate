@@ -12,6 +12,7 @@
     execute: true,
     toggleComment: true,
     findReplace: true,
+    executeAdditionalCondition: () => getCurrentConfig().allowShellScripting,
   });
 
   registerCommand({
@@ -51,6 +52,7 @@
   import AceEditor from '../query/AceEditor.svelte';
   import RunnerOutputPane from '../query/RunnerOutputPane.svelte';
   import useEditorData from '../query/useEditorData';
+  import { getCurrentConfig } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import { copyTextToClipboard } from '../utility/clipboard';
   import { changeTab } from '../utility/common';
@@ -177,6 +179,11 @@
     const resp = await apiCall('runners/start', {
       script: getActiveScript(),
     });
+    if (resp.errorMessage) {
+      showSnackbarError(resp.errorMessage);
+      return;
+    }
+
     runid = resp.runid;
     runnerId = runid;
     busy = true;

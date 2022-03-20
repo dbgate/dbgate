@@ -6,9 +6,10 @@ const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
-const { extractShellApiPlugins, extractShellApiFunctionName } = require('dbgate-tools');
+const { extractShellApiPlugins, extractShellApiFunctionName, jsonScriptToJavascript } = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
+const platformInfo = require('../utility/platformInfo');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -148,12 +149,18 @@ module.exports = {
   },
 
   start_meta: true,
-  async start({ script, isGeneratedScript }) {
-    if (!isGeneratedScript && process.env.DISABLE_SHELL) {
-      return { errorMessage: 'Shell is disabled' };
+  async start({ script }) {
+    const runid = uuidv1();
+
+    if (script.type == 'json') {
+      const js = jsonScriptToJavascript(script);
+      return this.startCore(runid, scriptTemplate(js, false));
     }
 
-    const runid = uuidv1();
+    if (!platformInfo.allowShellScripting) {
+      return { errorMessage: 'Shell scripting is not allowed' };
+    }
+
     return this.startCore(runid, scriptTemplate(script, false));
   },
 

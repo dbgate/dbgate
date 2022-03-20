@@ -1,9 +1,10 @@
-import ScriptWriter from '../impexp/ScriptWriter';
+import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
 import resolveApi from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
+import { getCurrentConfig } from '../stores';
 
 export async function exportQuickExportFile(dataName, reader, format, columnMap = null) {
   const electron = getElectron();
@@ -25,7 +26,7 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
 
   if (!filePath) return;
 
-  const script = new ScriptWriter();
+  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
 
   const sourceVar = script.allocVariable();
   script.assign(sourceVar, reader.functionName, reader.props);
@@ -42,9 +43,9 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
   }
 
   script.copyStream(sourceVar, targetVar, colmapVar);
-  script.put();
+  script.endLine();
 
-  const resp = await apiCall('runners/start', { script: script.getScript(), isGeneratedScript: true });
+  const resp = await apiCall('runners/start', { script: script.getScript() });
   const runid = resp.runid;
   let isCanceled = false;
 

@@ -16,7 +16,7 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, currentDatabase, extensions, selectedWidget } from '../stores';
+  import { currentArchive, currentDatabase, extensions, getCurrentConfig, selectedWidget } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -90,7 +90,7 @@
 
   const handleGenerateScript = async e => {
     closeCurrentModal();
-    const code = await createImpExpScript($extensions, e.detail);
+    const code = await createImpExpScript($extensions, e.detail, undefined, true);
     openNewTab(
       {
         title: 'Shell #',
@@ -108,7 +108,7 @@
     const script = await createImpExpScript($extensions, values);
     executeNumber += 1;
     let runid = runnerId;
-    const resp = await apiCall('runners/start', { script, isGeneratedScript: true });
+    const resp = await apiCall('runners/start', { script });
     runid = resp.runid;
     runnerId = runid;
 
