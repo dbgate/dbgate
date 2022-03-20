@@ -20,7 +20,7 @@ async function loadConnection(driver, storedConnection, connectionMode) {
     }
 
     await connections._init();
-    const loaded = await connections.get({ conid: storedConnection._id });
+    const loaded = await connections.getCore({ conid: storedConnection._id });
     const loadedWithDb = {
       ...loaded,
       database: storedConnection.database,

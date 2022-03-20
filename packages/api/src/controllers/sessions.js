@@ -78,7 +78,7 @@ module.exports = {
   create_meta: true,
   async create({ conid, database }) {
     const sesid = uuidv1();
-    const connection = await connections.get({ conid });
+    const connection = await connections.getCore({ conid });
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
       '--is-forked-api',
       '--start-process',

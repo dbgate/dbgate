@@ -37,7 +37,7 @@ module.exports = {
     const res = await lock.acquire(conid, async () => {
       const existing = this.opened.find(x => x.conid == conid);
       if (existing) return existing;
-      const connection = await connections.get({ conid });
+      const connection = await connections.getCore({ conid });
       const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
         '--is-forked-api',
         '--start-process',

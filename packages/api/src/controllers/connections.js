@@ -5,13 +5,14 @@ const fs = require('fs-extra');
 
 const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
-const { encryptConnection } = require('../utility/crypting');
+const { encryptConnection, maskConnection } = require('../utility/crypting');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { pickSafeConnectionInfo } = require('../utility/crypting');
 const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
 const { safeJsonParse } = require('dbgate-tools');
+const platformInfo = require('../utility/platformInfo');
 
 function getNamedArgs() {
   const res = {};
@@ -165,7 +166,9 @@ module.exports = {
 
   list_meta: true,
   async list() {
-    return portalConnections || this.datastore.find();
+    return portalConnections && !platformInfo.allowShellConnection
+      ? portalConnections.map(maskConnection)
+      : this.datastore.find();
   },
 
   test_meta: true,
@@ -244,12 +247,19 @@ module.exports = {
     return res;
   },
 
-  get_meta: true,
-  async get({ conid }) {
+  async getCore({ conid, mask = false }) {
     if (!conid) return null;
-    if (portalConnections) return portalConnections.find(x => x._id == conid) || null;
+    if (portalConnections) {
+      const res = portalConnections.find(x => x._id == conid) || null;
+      return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;
+    }
     const res = await this.datastore.get(conid);
     return res || null;
+  },
+
+  get_meta: true,
+  async get({ conid }) {
+    return this.getCore({ conid, mask: true });
   },
 
   newSqliteDatabase_meta: true,

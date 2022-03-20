@@ -79,7 +79,7 @@ module.exports = {
   async ensureOpened(conid, database) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
-    const connection = await connections.get({ conid });
+    const connection = await connections.getCore({ conid });
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
       '--is-forked-api',
       '--start-process',
@@ -392,8 +392,8 @@ module.exports = {
     const targetDb = generateDbPairingId(
       extendDatabaseInfo(await this.structure({ conid: targetConid, database: targetDatabase }))
     );
-    // const sourceConnection = await connections.get({conid:sourceConid})
-    const connection = await connections.get({ conid: targetConid });
+    // const sourceConnection = await connections.getCore({conid:sourceConid})
+    const connection = await connections.getCore({ conid: targetConid });
     const driver = requireEngineDriver(connection);
     const targetDbPaired = matchPairedObjects(sourceDb, targetDb, dbDiffOptions);
     const diffRows = computeDbDiffRows(sourceDb, targetDbPaired, dbDiffOptions, driver);

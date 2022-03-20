@@ -55,7 +55,7 @@ function encryptPasswordField(connection, field) {
       [field]: 'crypt:' + getEncryptor().encrypt(connection[field]),
     };
   }
-return connection;
+  return connection;
 }
 
 function decryptPasswordField(connection, field) {
@@ -73,6 +73,11 @@ function encryptConnection(connection) {
   connection = encryptPasswordField(connection, 'sshPassword');
   connection = encryptPasswordField(connection, 'sshKeyfilePassword');
   return connection;
+}
+
+function maskConnection(connection) {
+  if (!connection) return connection;
+  return _.omit(connection, ['password', 'sshPassword', 'sshKeyfilePassword']);
 }
 
 function decryptConnection(connection) {
@@ -95,5 +100,6 @@ module.exports = {
   loadEncryptionKey,
   encryptConnection,
   decryptConnection,
+  maskConnection,
   pickSafeConnectionInfo,
 };
