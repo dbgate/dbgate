@@ -28,10 +28,10 @@ async function loadConnection(driver, storedConnection, connectionMode) {
 
     if (loaded.isReadOnly) {
       if (connectionMode == 'read') return loadedWithDb;
-      if (connectionMode == 'write') throw new Error('Cannot wwrite readonly connection');
+      if (connectionMode == 'write') throw new Error('Cannot write readonly connection');
       if (connectionMode == 'script') {
         if (driver.readOnlySessions) return loadedWithDb;
-        throw new Error('Cannot wwrite readonly connection');
+        throw new Error('Cannot write readonly connection');
       }
     }
     return loadedWithDb;
