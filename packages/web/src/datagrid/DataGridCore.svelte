@@ -9,7 +9,7 @@
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
-    testEnabled: () => getCurrentDataGrid()?.getDisplay()?.supportsReload,
+    testEnabled: () => getCurrentDataGrid()?.canRefresh(),
     onClick: () => getCurrentDataGrid().refresh(),
   });
 
@@ -334,6 +334,7 @@
   export let collapsedLeftColumnStore;
   export let multipleGridsOnTab = false;
   export let tabControlHiddenTab = false;
+  export let onCustomGridRefresh;
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
@@ -362,7 +363,13 @@
   const tabid = getContext('tabid');
 
   export function refresh() {
-    display.reload();
+    if (onCustomGridRefresh) onCustomGridRefresh();
+    else display.reload();
+  }
+
+  export function canRefresh() {
+    if (onCustomGridRefresh) return true;
+    return getDisplay()?.supportsReload;
   }
 
   export function getGrider() {

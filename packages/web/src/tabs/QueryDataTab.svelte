@@ -21,8 +21,19 @@
   let jslid;
 
   async function loadData(conid, database, sql) {
-    const resp = await apiCall('sessions/execute-reader', { conid, database, sql, appFolder: schemaName, queryName: pureName });
+    const resp = await apiCall('sessions/execute-reader', {
+      conid,
+      database,
+      sql,
+      appFolder: schemaName,
+      queryName: pureName,
+    });
     jslid = resp.jslid;
+  }
+
+  function handleRefresh() {
+    jslid = null;
+    loadData(conid, database, sql)
   }
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
@@ -32,7 +43,7 @@
 
 <ToolStripContainer>
   {#if jslid}
-    <JslDataGrid {jslid} listenInitializeFile />
+    <JslDataGrid {jslid} listenInitializeFile onCustomGridRefresh={handleRefresh} focusOnVisible />
   {:else}
     <LoadingInfo message="Loading data..." />
   {/if}
