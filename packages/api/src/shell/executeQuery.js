@@ -5,7 +5,7 @@ async function executeQuery({ connection = undefined, systemConnection = undefin
   console.log(`Execute query ${sql}`);
 
   if (!driver) driver = requireEngineDriver(connection);
-  const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
+  const pool = systemConnection || (await connectUtility(driver, connection, 'script'));
   console.log(`Connected.`);
 
   await driver.script(pool, sql);
