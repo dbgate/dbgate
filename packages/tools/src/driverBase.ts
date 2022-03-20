@@ -1,4 +1,4 @@
-import _compact from 'lodash/compact'
+import _compact from 'lodash/compact';
 import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
@@ -104,5 +104,10 @@ export const driverBase = {
 
     const resp = await this.query(pool, dmp.s);
     return resp.rows;
+  },
+  readJsonQuery(pool, select, structure) {
+    const dmp = this.createDumper();
+    dumpSqlSelect(dmp, select);
+    return this.readQuery(pool, dmp.s, structure);
   },
 };

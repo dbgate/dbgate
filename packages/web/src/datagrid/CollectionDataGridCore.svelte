@@ -168,12 +168,24 @@
       .sort(${JSON.stringify(buildMongoSort($$props) || {})})`;
   }
 
-  export function exportGrid() {
+  function getExportQueryJson() {
+    return {
+      collection: pureName,
+      condition: buildGridMongoCondition($$props) || {},
+      sort: buildMongoSort($$props) || {},
+    };
+  }
+
+  export async function exportGrid() {
+    const coninfo = await getConnectionInfo({ conid });
     const initialValues: any = {};
     initialValues.sourceStorageType = 'query';
     initialValues.sourceConnectionId = conid;
     initialValues.sourceDatabaseName = database;
-    initialValues.sourceSql = getExportQuery();
+    initialValues.sourceQuery = coninfo.isReadOnly
+      ? JSON.stringify(getExportQueryJson(), undefined, 2)
+      : getExportQuery();
+    initialValues.sourceQueryType = coninfo.isReadOnly ? 'json' : 'native';
     initialValues.sourceList = [pureName];
     initialValues[`columns_${pureName}`] = display.getExportColumnMap();
     showModal(ImportExportModal, { initialValues });
@@ -204,7 +216,8 @@
         functionName: 'queryReader',
         props: {
           connection: extractShellConnection(coninfo, database),
-          sql: getExportQuery(),
+          queryType: coninfo.isReadOnly ? 'json' : 'native',
+          query: coninfo.isReadOnly ? getExportQueryJson() : getExportQuery(),
         },
       },
       fmt,

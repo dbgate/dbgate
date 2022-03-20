@@ -574,6 +574,13 @@ export abstract class GridDisplay {
     return sql;
   }
 
+  getExportQueryJson(postprocessSelect = null) {
+    const select = this.createSelect({ isExport: true });
+    if (!select) return null;
+    if (postprocessSelect) postprocessSelect(select);
+    return select;
+  }
+
   getExportColumnMap() {
     const changesDefined = this.config.hiddenColumns?.length > 0 || this.config.addedColumns?.length > 0;
     if (this.isDynamicStructure && !changesDefined) {

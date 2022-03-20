@@ -47,7 +47,7 @@ export interface EngineDriver {
   title: string;
   defaultPort?: number;
   databaseEngineTypes: string[];
-  readOnlySessions: boolean,
+  readOnlySessions: boolean;
   supportedKeyTypes: { name: string; label: string }[];
   supportsDatabaseUrl?: boolean;
   isElectronOnly?: boolean;
@@ -62,6 +62,7 @@ export interface EngineDriver {
   query(pool: any, sql: string, options?: QueryOptions): Promise<QueryResult>;
   stream(pool: any, sql: string, options: StreamOptions);
   readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
+  readJsonQuery(pool: any, query: any, structure?: TableInfo): Promise<stream.Readable>;
   writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writeable>;
   analyseSingleObject(
     pool: any,

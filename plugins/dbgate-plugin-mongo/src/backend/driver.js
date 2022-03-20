@@ -325,6 +325,18 @@ const driver = {
       return { errorMessage: err.message };
     }
   },
+
+  readJsonQuery(pool, select, structure) {
+    const { collection, condition, sort } = select;
+
+    const db = pool.__getDatabase();
+    const res = db
+      .collection(collection)
+      .find(condition || {})
+      .sort(sort || {});
+
+    return res;
+  },
 };
 
 module.exports = driver;

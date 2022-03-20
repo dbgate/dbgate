@@ -78,7 +78,8 @@ function getSourceExpr(extensions, sourceName, values, sourceConnection, sourceD
       {
         connection: sourceConnection,
         ...extractDriverApiParameters(values, 'source', sourceDriver),
-        sql: values.sourceSql,
+        queryType: values.sourceQueryType,
+        query: values.sourceQueryType == 'json' ? JSON.parse(values.sourceQuery) : values.sourceQuery,
       },
     ];
   }

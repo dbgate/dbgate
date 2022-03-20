@@ -129,12 +129,17 @@
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
 
-  export function exportGrid() {
+  export async function exportGrid() {
+    const coninfo = await getConnectionInfo({ conid });
+
     const initialValues: any = {};
     initialValues.sourceStorageType = 'query';
     initialValues.sourceConnectionId = conid;
     initialValues.sourceDatabaseName = database;
-    initialValues.sourceSql = display.getExportQuery();
+    initialValues.sourceQuery = coninfo.isReadOnly
+      ? JSON.stringify(display.getExportQueryJson(), undefined, 2)
+      : display.getExportQuery();
+    initialValues.sourceQueryType = coninfo.isReadOnly ? 'json' : 'native';
     initialValues.sourceList = display.baseTableOrSimilar ? [display.baseTableOrSimilar.pureName] : [];
     initialValues[`columns_${pureName}`] = display.getExportColumnMap();
     showModal(ImportExportModal, { initialValues });
@@ -189,7 +194,8 @@
         functionName: 'queryReader',
         props: {
           connection: extractShellConnection(coninfo, database),
-          sql: display.getExportQuery(),
+          queryType: coninfo.isReadOnly ? 'json' : 'native',
+          query: coninfo.isReadOnly ? display.getExportQueryJson() : display.getExportQuery(),
         },
       },
       fmt,
