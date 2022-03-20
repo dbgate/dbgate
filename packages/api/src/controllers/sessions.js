@@ -54,6 +54,9 @@ module.exports = {
       this.dispatchMessage(sesid, 'Query execution finished');
     }
     const session = this.opened.find(x => x.sesid == sesid);
+    if (session.loadingReader_jslid) {
+      socket.emit(`session-jslid-done-${session.loadingReader_jslid}`);
+    }
     if (session.killOnDone) {
       this.kill({ sesid });
     }
@@ -124,11 +127,21 @@ module.exports = {
     const session = this.opened.find(x => x.sesid == sesid);
     session.killOnDone = true;
     const jslid = uuidv1();
+    session.loadingReader_jslid = jslid;
     const fileName = queryName && appFolder ? path.join(appdir(), appFolder, `${queryName}.query.sql`) : null;
 
     session.subprocess.send({ msgtype: 'executeReader', sql, fileName, jslid });
 
     return { jslid };
+  },
+
+  stopLoadingReader_meta: true,
+  async stopLoadingReader({ jslid }) {
+    const session = this.opened.find(x => x.loadingReader_jslid == jslid);
+    if (session) {
+      this.kill({ sesid: session.sesid });
+    }
+    return true;
   },
 
   // cancel_meta: true,

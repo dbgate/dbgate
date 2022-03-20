@@ -20,6 +20,7 @@ export interface OpenedSession {
   conid: string;
   database: string;
   killOnDone?: boolean;
+  loadingReader_jslid: string;
   subprocess: ChildProcess;
 }
 
