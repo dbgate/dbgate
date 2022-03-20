@@ -4,6 +4,7 @@
   import { currentDropDownMenu, selectedWidget, visibleCommandPalette, visibleHamburgerMenuWidget } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import { useConfig } from '../utility/metadataLoaders';
+  import hasPermission from '../utility/hasPermission';
 
   let domSettings;
   let domMainMenu;
@@ -88,7 +89,7 @@
       <FontIcon icon="icon menu" />
     </div>
   {/if}
-  {#each widgets.filter(x => !$config?.hideAppEditor || x.name != 'app') as item}
+  {#each widgets.filter(x => hasPermission(`widgets/${x.name}`)) as item}
     <div class="wrapper" class:selected={item.name == $selectedWidget} on:click={() => handleChangeWidget(item.name)}>
       <FontIcon icon={item.icon} title={item.title} />
     </div>

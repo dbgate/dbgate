@@ -32,7 +32,7 @@ module.exports = {
     return {
       runAsPortal: !!connections.portalConnections,
       singleDatabase: connections.singleDatabase,
-      hideAppEditor: !!process.env.HIDE_APP_EDITOR,
+      // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,
       allowShellScripting: platformInfo.allowShellConnection,
       permissions,

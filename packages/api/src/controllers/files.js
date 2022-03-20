@@ -46,26 +46,29 @@ module.exports = {
 
   delete_meta: true,
   async delete({ folder, file }) {
-    if (!hasPermission(`files/${folder}/write`)) return;
+    if (!hasPermission(`files/${folder}/write`)) return false;
     await fs.unlink(path.join(filesdir(), folder, file));
     socket.emitChanged(`files-changed-${folder}`);
     socket.emitChanged(`all-files-changed`);
+    return true;
   },
 
   rename_meta: true,
   async rename({ folder, file, newFile }) {
-    if (!hasPermission(`files/${folder}/write`)) return;
+    if (!hasPermission(`files/${folder}/write`)) return false;
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed-${folder}`);
     socket.emitChanged(`all-files-changed`);
+    return true;
   },
 
   copy_meta: true,
   async copy({ folder, file, newFile }) {
-    if (!hasPermission(`files/${folder}/write`)) return;
+    if (!hasPermission(`files/${folder}/write`)) return false;
     await fs.copyFile(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
     socket.emitChanged(`files-changed-${folder}`);
     socket.emitChanged(`all-files-changed`);
+    return true;
   },
 
   load_meta: true,
@@ -90,11 +93,13 @@ module.exports = {
   save_meta: true,
   async save({ folder, file, data, format }) {
     if (folder.startsWith('archive:')) {
+      if (!hasPermission(`archive/write`)) return false;
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
       socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
       return true;
     } else if (folder.startsWith('app:')) {
+      if (!hasPermission(`apps/write`)) return false;
       const app = folder.substring('app:'.length);
       await fs.writeFile(path.join(appdir(), app, file), serialize(format, data));
       socket.emitChanged(`app-files-changed-${app}`);
