@@ -29,6 +29,8 @@ const queryHistory = require('./controllers/queryHistory');
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
+const { getLogins } = require('./utility/hasPermission');
+const _ = require('lodash');
 
 function start() {
   // console.log('process.argv', process.argv);
@@ -37,12 +39,11 @@ function start() {
 
   const server = http.createServer(app);
 
-  if (process.env.LOGIN && process.env.PASSWORD) {
+  const logins = getLogins();
+  if (logins) {
     app.use(
       basicAuth({
-        users: {
-          [process.env.LOGIN]: process.env.PASSWORD,
-        },
+        users: _.fromPairs(logins.map(x => [x.login, x.password])),
         challenge: true,
         realm: 'DbGate Web App',
       })
@@ -85,15 +86,7 @@ function start() {
   if (platformInfo.isDocker) {
     // server static files inside docker container
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
-  } else {
-    if (!platformInfo.isNpmDist) {
-      app.get(getExpressPath('/'), (req, res) => {
-        res.send('DbGate API');
-      });
-    }
-  }
-
-  if (platformInfo.isNpmDist) {
+  } else if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({
       port: parseInt(
@@ -105,7 +98,19 @@ function start() {
         console.log(`DbGate API listening on port ${port}`);
       });
     });
+  } else if (process.env.DEVWEB) {
+    console.log('__dirname', __dirname);
+    console.log(path.join(__dirname, '../../web/public/build'));
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
+
+    const port = process.env.PORT || 3000;
+    console.log('DbGate API & web listening on port', port);
+    server.listen(port);
   } else {
+    app.get(getExpressPath('/'), (req, res) => {
+      res.send('DbGate API');
+    });
+
     const port = process.env.PORT || 3000;
     console.log('DbGate API listening on port', port);
     server.listen(port);

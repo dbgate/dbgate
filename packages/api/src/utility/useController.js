@@ -62,7 +62,7 @@ module.exports = function useController(app, electron, route, controller) {
         //   controller._init_called = true;
         // }
         try {
-          let params = [{ ...req.body, ...req.query }];
+          let params = [{ ...req.body, ...req.query }, req];
           if (rawParams) params = [req, res];
           const data = await controller[key](...params);
           res.json(data);

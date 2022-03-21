@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const axios = require('axios');
 const { datadir } = require('../utility/directories');
-const hasPermission = require('../utility/hasPermission');
+const { hasPermission, getLogins } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
@@ -26,8 +26,10 @@ module.exports = {
   // },
 
   get_meta: true,
-  async get() {
-    const permissions = process.env.PERMISSIONS ? process.env.PERMISSIONS.split(',') : null;
+  async get(_params, req) {
+    const logins = getLogins();
+    const login = logins ? logins.find(x => x.login == (req.auth && req.auth.user)) : null;
+    const permissions = login ? login.permissions : null;
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -67,8 +69,8 @@ module.exports = {
   },
 
   updateSettings_meta: true,
-  async updateSettings(values) {
-    if (!hasPermission(`settings/change`)) return false;
+  async updateSettings(values, req) {
+    if (!hasPermission(`settings/change`, req)) return false;
 
     const res = await lock.acquire('update', async () => {
       const currentValue = await this.getSettings();
