@@ -17,6 +17,7 @@ module.exports = [
       { command: 'group.saveAs', hideDisabled: true },
       { divider: true },
       { command: 'file.exit', hideDisabled: true },
+      { command: 'app.logout', hideDisabled: true },
     ],
   },
   {

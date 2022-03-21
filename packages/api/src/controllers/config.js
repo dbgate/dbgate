@@ -38,8 +38,17 @@ module.exports = {
       allowShellConnection: platformInfo.allowShellConnection,
       allowShellScripting: platformInfo.allowShellConnection,
       permissions,
+      login,
       ...currentVersion,
     };
+  },
+
+  logout_meta: {
+    method: 'get',
+    raw: true,
+  },
+  logout(req, res) {
+    res.status(401).send('Logged out<br><a href="../..">Back to DbGate</a>');
   },
 
   platformInfo_meta: true,

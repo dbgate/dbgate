@@ -486,6 +486,16 @@ registerCommand({
   onClick: () => getElectron().send('close-window'),
 });
 
+registerCommand({
+  id: 'app.logout',
+  category: 'App',
+  name: 'Logout',
+  testEnabled: () => getCurrentConfig()?.login != null,
+  onClick: () => {
+    window.location.href = 'config/logout';
+  },
+});
+
 export function registerFileCommands({
   idPrefix,
   category,
