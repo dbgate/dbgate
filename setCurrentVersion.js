@@ -38,6 +38,7 @@ changePackageFile('packages/tools', json.version);
 changePackageFile('packages/web', json.version);
 changePackageFile('packages/datalib', json.version);
 changePackageFile('packages/dbgate', json.version);
+changePackageFile('packages/serve', json.version);
 changePackageFile('packages/filterparser', json.version);
 changePackageFile('packages/query-splitter', json.version);
 

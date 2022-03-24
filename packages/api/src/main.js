@@ -88,7 +88,7 @@ function start() {
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
 
     const port = process.env.PORT || 3000;
-    console.log('DbGate API listening on port', port);
+    console.log('DbGate API listening on port (docker build)', port);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
@@ -99,7 +99,7 @@ function start() {
       ),
     }).then(port => {
       server.listen(port, () => {
-        console.log(`DbGate API listening on port ${port}`);
+        console.log(`DbGate API listening on port ${port} (NPM build)`);
       });
     });
   } else if (process.env.DEVWEB) {
@@ -108,7 +108,7 @@ function start() {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
 
     const port = process.env.PORT || 3000;
-    console.log('DbGate API & web listening on port', port);
+    console.log('DbGate API & web listening on port (dev web build)', port);
     server.listen(port);
   } else {
     app.get(getExpressPath('/'), (req, res) => {
@@ -116,7 +116,7 @@ function start() {
     });
 
     const port = process.env.PORT || 3000;
-    console.log('DbGate API listening on port', port);
+    console.log('DbGate API listening on port (dev API build)', port);
     server.listen(port);
   }
 

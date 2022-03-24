@@ -6,7 +6,7 @@ DbGate is fast and easy to use database administration tool for MySQL, PostgreSQ
 
 ## Install using npm
 ```sh
-npm install -g dbgate-servee
+npm install -g dbgate-serve
 ```
 
 After installing, you can run dbgate with command:
