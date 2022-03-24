@@ -3,8 +3,9 @@
 const path = require('path');
 require('dotenv').config();
 
-global.dbgateApiModulePath = path.dirname(path.dirname(require.resolve('dbgate-api')));
-global.dbgateApiPackagedPluginsPath = path.dirname(global.dbgateApiModulePath);
+global.API_PACKAGE = path.dirname(path.dirname(require.resolve('dbgate-api')));
+global.PLUGINS_DIR = path.dirname(global.API_PACKAGE);
+global.IS_NPM_DIST = true;
 
 const dbgateApi = require('dbgate-api');
 

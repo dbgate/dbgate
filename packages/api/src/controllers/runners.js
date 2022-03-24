@@ -111,7 +111,7 @@ module.exports = {
         stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
         env: {
           ...process.env,
-          DBGATE_API: global['API_PACKAGE'] || global['dbgateApiModulePath'] || process.argv[1],
+          DBGATE_API: global['API_PACKAGE'] || process.argv[1],
           ..._.fromPairs(pluginNames.map(name => [`PLUGIN_${_.camelCase(name)}`, getPluginBackendPath(name)])),
         },
       }
