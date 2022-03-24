@@ -20,6 +20,8 @@
   export let item;
   export let indentLevel = 0;
 
+  export let onRefreshParent;
+
   let isExpanded;
   let reloadToken = 0;
 
@@ -38,6 +40,10 @@
                 method: 'del',
                 args: [item.key],
               });
+
+              if (onRefreshParent) {
+                onRefreshParent();
+              }
             },
           });
         },
