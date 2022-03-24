@@ -219,40 +219,6 @@ registerCommand({
 });
 
 registerCommand({
-  id: 'new.dbKey',
-  category: 'New',
-  name: 'Key',
-  toolbar: true,
-  toolbarName: 'New key',
-  testEnabled: () => {
-    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
-    return !!get(currentDatabase) && driver?.databaseEngineTypes?.includes('keyvalue');
-  },
-  onClick: async () => {
-    const $currentDatabase = get(currentDatabase);
-    const connection = _.get($currentDatabase, 'connection') || {};
-    const database = _.get($currentDatabase, 'name');
-    const driver = findEngineDriver(get(currentDatabase)?.connection, getExtensions());
-
-    showModal(AddDbKeyModal, {
-      conid: connection._id,
-      database,
-      driver,
-      onConfirm: async item => {
-        const type = driver.supportedKeyTypes.find(x => x.name == item.type);
-
-        await apiCall('database-connections/call-method', {
-          conid: connection._id,
-          database,
-          method: type.addMethod,
-          args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
-        });
-      },
-    });
-  },
-});
-
-registerCommand({
   id: 'new.markdown',
   category: 'New',
   icon: 'img markdown',
