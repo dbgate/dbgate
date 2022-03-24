@@ -1,4 +1,6 @@
 <script lang="ts">
+  import _ from 'lodash';
+
   import AceEditor from '../query/AceEditor.svelte';
 
   export let dbKeyFields;
@@ -8,7 +10,7 @@
 
 <div class="props">
   {#each dbKeyFields as column}
-    <div class="colname">{column.name}</div>
+    <div class="colname">{_.startCase(column.name)}</div>
     <div class="colvalue">
       <AceEditor
         readOnly={!onChangeItem}
@@ -34,7 +36,8 @@
   }
 
   .colname {
-    margin: 10px;
+    margin-top: 20px;
+    color: var(--theme-font-3);
   }
 
   .colvalue {

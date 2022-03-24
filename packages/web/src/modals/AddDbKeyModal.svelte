@@ -26,26 +26,28 @@
 
 <FormProvider>
   <ModalBase {...$$restProps}>
-    <svelte:fragment slot="header">Add item</svelte:fragment>
+    <svelte:fragment slot="header">Add key</svelte:fragment>
 
     <div class="container">
-      <FormFieldTemplateLarge label="Type" type="combo">
+      <FormFieldTemplateLarge label="Key" type="text" noMargin>
+        <TextField
+          value={keyName}
+          on:change={e => {
+            // @ts-ignore
+            keyName = e.target.value;
+          }}
+        />
+      </FormFieldTemplateLarge>
+
+      <div class="m-3" />
+
+      <FormFieldTemplateLarge label="Type" type="combo" noMargin>
         <SelectField
           options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
           value={type}
           isNative
           on:change={e => {
             type = e.detail;
-          }}
-        />
-      </FormFieldTemplateLarge>
-
-      <FormFieldTemplateLarge label="Name" type="text">
-        <TextField
-          value={keyName}
-          on:change={e => {
-            // @ts-ignore
-            keyName = e.target.value;
           }}
         />
       </FormFieldTemplateLarge>
