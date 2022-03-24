@@ -14,8 +14,11 @@
   export let database;
 
   let filter;
+  let reloadToken = 0;
 
-  function handleRefreshDatabase() {}
+  function handleRefreshDatabase() {
+    reloadToken += 1;
+  }
 </script>
 
 <SearchBoxWrapper>
@@ -29,5 +32,5 @@
   </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <DbKeysSubTree {conid} {database} root="" />
+  <DbKeysSubTree {conid} {database} root="" {reloadToken} />
 </WidgetsInnerContainer>

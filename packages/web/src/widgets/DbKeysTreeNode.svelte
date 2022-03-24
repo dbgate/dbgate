@@ -21,6 +21,7 @@
   export let indentLevel = 0;
 
   let isExpanded;
+  let reloadToken = 0;
 
   // $: console.log(item.text, indentLevel);
   function createMenu() {
@@ -39,6 +40,12 @@
               });
             },
           });
+        },
+      },
+      item.type == 'dir' && {
+        label: 'Reload',
+        onClick: () => {
+          reloadToken += 1;
         },
       },
     ];
@@ -83,5 +90,5 @@
 </div> -->
 
 {#if isExpanded}
-  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} />
+  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} {reloadToken} />
 {/if}
