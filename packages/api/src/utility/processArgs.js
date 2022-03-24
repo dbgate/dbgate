@@ -10,6 +10,7 @@ const checkParent = process.argv.includes('--checkParent');
 const startProcess = getNamedArg('--start-process');
 const isForkedApi = process.argv.includes('--is-forked-api');
 const pluginsDir = getNamedArg('--plugins-dir');
+const workspaceDir = getNamedArg('--workspace-dir');
 
 function getPassArgs() {
   const res = [];
@@ -28,4 +29,5 @@ module.exports = {
   isForkedApi,
   getPassArgs,
   pluginsDir,
+  workspaceDir,
 };

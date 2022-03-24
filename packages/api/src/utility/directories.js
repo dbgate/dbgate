@@ -20,8 +20,18 @@ const ensureDirectory = (dir, clean) => {
   }
 };
 
+function datadirCore() {
+  if (process.env.WORKSPACE_DIR) {
+    return process.env.WORKSPACE_DIR;
+  }
+  if (processArgs.workspaceDir) {
+    return processArgs.workspaceDir;
+  }
+  return path.join(os.homedir(), 'dbgate-data');
+}
+
 function datadir() {
-  const dir = path.join(os.homedir(), 'dbgate-data');
+  const dir = datadirCore();
   ensureDirectory(dir);
 
   return dir;

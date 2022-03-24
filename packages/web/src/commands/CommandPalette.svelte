@@ -39,6 +39,8 @@
     const databaseList = [];
     for (const connection of connectionList || []) {
       const conid = connection._id;
+      if (connection.singleDatabase) continue;
+      if (getCurrentConfig()?.singleDatabase) continue;
       const databases = getLocalStorage(`database_list_${conid}`) || [];
       for (const db of databases) {
         databaseList.push({
@@ -65,9 +67,9 @@
   import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import {
-    commands,
     commandsCustomized,
     currentDatabase,
+    getCurrentConfig,
     getVisibleCommandPalette,
     visibleCommandPalette,
   } from '../stores';
