@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cleanDirectory = require('./cleanDirectory');
 const platformInfo = require('./platformInfo');
+const processArgs = require('./processArgs');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
@@ -55,6 +56,9 @@ function packagedPluginsDir() {
   if (platformInfo.isNpmDist) {
     // node_modules
     return global['PLUGINS_DIR'];
+  }
+  if (processArgs.pluginsDir) {
+    return processArgs.pluginsDir;
   }
   if (platformInfo.isElectronBundle) {
     return path.resolve(__dirname, '../../plugins');

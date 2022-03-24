@@ -9,10 +9,17 @@ function getNamedArg(name) {
 const checkParent = process.argv.includes('--checkParent');
 const startProcess = getNamedArg('--start-process');
 const isForkedApi = process.argv.includes('--is-forked-api');
+const pluginsDir = getNamedArg('--plugins-dir');
 
 function getPassArgs() {
-  if (global['NATIVE_MODULES']) return ['--native-modules', global['NATIVE_MODULES']];
-  return [];
+  const res = [];
+  if (global['NATIVE_MODULES']) {
+    res.push('--native-modules', global['NATIVE_MODULES']);
+  }
+  if (global['PLUGINS_DIR']) {
+    res.push('--plugins-dir', global['PLUGINS_DIR']);
+  }
+  return res;
 }
 
 module.exports = {
@@ -20,4 +27,5 @@ module.exports = {
   startProcess,
   isForkedApi,
   getPassArgs,
+  pluginsDir,
 };
