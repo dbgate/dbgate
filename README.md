@@ -1,4 +1,4 @@
-[![NPM version](https://img.shields.io/npm/v/dbgate.svg)](https://www.npmjs.com/package/dbgate)
+[![NPM version](https://img.shields.io/npm/v/dbgate-serve.svg)](https://www.npmjs.com/package/dbgate-serve)
 ![GitHub All Releases](https://img.shields.io/github/downloads/dbgate/dbgate/total) 
 [![dbgate](https://snapcraft.io/dbgate/badge.svg)](https://snapcraft.io/dbgate)
 [![dbgate](https://snapcraft.io/dbgate/trending.svg?name=0)](https://snapcraft.io/dbgate)
@@ -16,7 +16,7 @@ DbGate is licensed under MIT license and is completely free.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * **Download** application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
-* Run web version as [NPM package](https://www.npmjs.com/package/dbgate) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
+* Run web version as [NPM package](https://www.npmjs.com/package/dbgate-serve) or as [docker image](https://hub.docker.com/r/dbgate/dbgate)
 
 ## Supported databases
 * MySQL
