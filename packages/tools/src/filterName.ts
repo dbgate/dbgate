@@ -33,6 +33,27 @@ import _compact from 'lodash/compact';
 //     return DoMatch(Filter, value) || camelMatch;
 // }
 
+function fuzzysearch(needle, haystack) {
+  var hlen = haystack.length;
+  var nlen = needle.length;
+  if (nlen > hlen) {
+    return false;
+  }
+  if (nlen === hlen) {
+    return needle === haystack;
+  }
+  outer: for (var i = 0, j = 0; i < nlen; i++) {
+    var nch = needle.charCodeAt(i);
+    while (j < hlen) {
+      if (haystack.charCodeAt(j++) === nch) {
+        continue outer;
+      }
+    }
+    return false;
+  }
+  return true;
+}
+
 export function filterName(filter: string, ...names: string[]) {
   if (!filter) return true;
 
@@ -42,7 +63,7 @@ export function filterName(filter: string, ...names: string[]) {
   const namesCompacted = _compact(names);
   for (const token of tokens) {
     const tokenUpper = token.toUpperCase();
-    const found = namesCompacted.find(name => name.toUpperCase().includes(tokenUpper));
+    const found = namesCompacted.find(name => fuzzysearch(tokenUpper, name.toUpperCase()));
     if (!found) return false;
   }
 
