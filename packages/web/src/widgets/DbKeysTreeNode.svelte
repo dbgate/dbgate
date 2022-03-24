@@ -1,10 +1,13 @@
 <script lang="ts">
-import { getIconForRedisType } from 'dbgate-tools';
+  import { getIconForRedisType } from 'dbgate-tools';
 
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+  import { showModal } from '../modals/modalTools';
   import { activeDbKeysStore } from '../stores';
+  import { apiCall } from '../utility/api';
   import openNewTab from '../utility/openNewTab';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
@@ -19,8 +22,27 @@ import { getIconForRedisType } from 'dbgate-tools';
 
   let isExpanded;
 
-
   // $: console.log(item.text, indentLevel);
+  function createMenu() {
+    return [
+      item.key != null && {
+        label: 'Delete',
+        onClick: () => {
+          showModal(ConfirmModal, {
+            message: `Really delete key ${item.key}?`,
+            onConfirm: async () => {
+              await apiCall('database-connections/call-method', {
+                conid,
+                database,
+                method: 'del',
+                args: [item.key],
+              });
+            },
+          });
+        },
+      },
+    ];
+  }
 </script>
 
 <AppObjectCore
@@ -53,6 +75,7 @@ import { getIconForRedisType } from 'dbgate-tools';
   }}
   extInfo={item.count ? `(${item.count})` : null}
   {indentLevel}
+  menu={createMenu}
 />
 <!-- <div on:click={() => (isExpanded = !isExpanded)}>
   <FontIcon icon={} />
