@@ -42,13 +42,22 @@ export interface NewObjectTemplate {
   sql: string;
 }
 
+export interface SupportedDbKeyType {
+  name: string;
+  label: string;
+  dbKeyFields: { name: string }[];
+  addMethod: string;
+  keyColumn?: string;
+  showItemList?: boolean;
+}
+
 export interface EngineDriver {
   engine: string;
   title: string;
   defaultPort?: number;
   databaseEngineTypes: string[];
   readOnlySessions: boolean;
-  supportedKeyTypes: { name: string; label: string }[];
+  supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;
   isElectronOnly?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;

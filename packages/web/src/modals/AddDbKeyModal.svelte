@@ -1,9 +1,11 @@
 <script lang="ts">
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import TextField from '../forms/TextField.svelte';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
@@ -13,11 +15,12 @@
   export let onConfirm;
 
   let item = {};
+  let keyName = '';
   let type = driver.supportedKeyTypes[0].name;
 
   const handleSubmit = async () => {
     closeCurrentModal();
-    onConfirm(item);
+    onConfirm({ type, keyName, ...item });
   };
 </script>
 
@@ -26,16 +29,29 @@
     <svelte:fragment slot="header">Add item</svelte:fragment>
 
     <div class="container">
-      <SelectField
-        options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
-        value={type}
-        on:change={e => {
-          type = e.detail;
-        }}
-      />
+      <FormFieldTemplateLarge label="Type" type="combo">
+        <SelectField
+          options={driver.supportedKeyTypes.map(t => ({ value: t.name, label: t.label }))}
+          value={type}
+          isNative
+          on:change={e => {
+            type = e.detail;
+          }}
+        />
+      </FormFieldTemplateLarge>
+
+      <FormFieldTemplateLarge label="Name" type="text">
+        <TextField
+          value={keyName}
+          on:change={e => {
+            // @ts-ignore
+            keyName = e.target.value;
+          }}
+        />
+      </FormFieldTemplateLarge>
 
       <DbKeyItemDetail
-      dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
+        dbKeyFields={driver.supportedKeyTypes.find(x => x.name == type).dbKeyFields}
         {item}
         onChangeItem={value => {
           item = value;
@@ -53,6 +69,7 @@
 <style>
   .container {
     display: flex;
+    flex-direction: column;
     height: 30vh;
   }
 </style>

@@ -238,6 +238,16 @@ registerCommand({
       conid: connection._id,
       database,
       driver,
+      onConfirm: async item => {
+        const type = driver.supportedKeyTypes.find(x => x.name == item.type);
+
+        await apiCall('database-connections/call-method', {
+          conid: connection._id,
+          database,
+          method: type.addMethod,
+          args: [item.keyName, ...type.dbKeyFields.map(fld => item[fld.name])],
+        });
+      },
     });
   },
 });
