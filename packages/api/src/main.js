@@ -86,6 +86,10 @@ function start() {
   if (platformInfo.isDocker) {
     // server static files inside docker container
     app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
+
+    const port = process.env.PORT || 3000;
+    console.log('DbGate API listening on port', port);
+    server.listen(port);
   } else if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({

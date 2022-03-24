@@ -3,9 +3,9 @@
 version: "3"
 services:
   dbgate:
-    # build: docker
+    build: docker
     # image: dbgate/dbgate:beta-alpine
-    image: dbgate/dbgate:alpine
+    # image: dbgate/dbgate:alpine
     # image: dbgate/dbgate:beta
     restart: always
     ports:
