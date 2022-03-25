@@ -1,5 +1,24 @@
 # ChangeLog
 
+Builds:
+ - docker - build
+ - npm - npm package dbgate-serve
+ - app - classic electron app
+ - all - docker, npm, app
+### 4.7.4
+- ADDED(all): Experimental Redis support (full support is planned to version  4.8.0)
+- ADDED(all): Read-only connections
+- FIXED(all): MongoDB filters
+- ADDED(all): MongoDB column value selection
+- ADDED(all): App related queries
+- ADDED(docker, npm): New permissions
+- FIXED(npm): NPM build no longer allocates additonal ports
+- CHANGED(npm): renamed NPM package dbgate => dbgate-serve 
+- CHANGED(docker): custom JavaScripts and connections defined in scripts are now prohibited by default, use SHELL_CONNECTION and SHELL_SCRIPTING environment variables for allowing this
+- ADDED(docker, npm): Better documentation of environment variables configuration, https://dbgate.org/docs/env-variables.html
+- ADDED(docker): support for multiple users with different permissions
+- ADDED(docker): logout operation
+
 ### 4.7.3
 - CHANGED: Export menu redesign, quick export menu merged with old export menu
 - REMOVED: Quick export menu
