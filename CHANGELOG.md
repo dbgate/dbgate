@@ -11,6 +11,7 @@ Builds:
 - FIXED(all): MongoDB filters
 - ADDED(all): MongoDB column value selection
 - ADDED(all): App related queries
+- ADDED(all): Fuzzy search #246
 - ADDED(docker, npm): New permissions
 - FIXED(npm): NPM build no longer allocates additonal ports
 - CHANGED(npm): renamed NPM package dbgate => dbgate-serve 
