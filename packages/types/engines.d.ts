@@ -56,6 +56,7 @@ export interface EngineDriver {
   title: string;
   defaultPort?: number;
   databaseEngineTypes: string[];
+  editorMode?: string;
   readOnlySessions: boolean;
   supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;

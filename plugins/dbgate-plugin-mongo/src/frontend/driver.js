@@ -29,6 +29,7 @@ const driver = {
   dialect,
   engine: 'mongo@dbgate-plugin-mongo',
   title: 'MongoDB',
+  editorMode: 'javascript',
   defaultPort: 27017,
   supportsDatabaseUrl: true,
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',

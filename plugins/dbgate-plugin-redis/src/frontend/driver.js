@@ -1,4 +1,5 @@
 const { driverBase } = global.DBGATE_TOOLS;
+const { redisSplitterOptions } = require('dbgate-query-splitter/lib/options');
 const Dumper = require('./Dumper');
 
 /** @type {import('dbgate-types').SqlDialect} */
@@ -21,7 +22,9 @@ const driver = {
   engine: 'redis@dbgate-plugin-redis',
   title: 'Redis (experimental)',
   defaultPort: 6379,
+  editorMode: 'text',
   databaseEngineTypes: ['keyvalue'],
+  getQuerySplitterOptions: () => redisSplitterOptions,
   supportedKeyTypes: [
     {
       name: 'string',

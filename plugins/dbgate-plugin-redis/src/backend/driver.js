@@ -4,6 +4,77 @@ const stream = require('stream');
 const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Redis = require('ioredis');
+const RedisDump = require('node-redis-dump2');
+
+function splitCommandLine(str) {
+  let results = [];
+  let word = '';
+  let validWord;
+  for (let i = 0; i < str.length; ) {
+    if (/\s/.test(str[i])) {
+      //Skips spaces.
+      while (i < str.length && /\s/.test(str[i])) {
+        i++;
+      }
+      results.push(word);
+      word = '';
+      validWord = false;
+      continue;
+    }
+
+    if (str[i] === '"') {
+      i++;
+      while (i < str.length) {
+        if (str[i] === '"') {
+          validWord = true;
+          break;
+        }
+
+        if (str[i] === '\\') {
+          i++;
+          word += str[i++];
+          continue;
+        }
+
+        word += str[i++];
+      }
+      i++;
+      continue;
+    }
+
+    if (str[i] === "'") {
+      i++;
+      while (i < str.length) {
+        if (str[i] === "'") {
+          validWord = true;
+          break;
+        }
+
+        if (str[i] === '\\') {
+          i++;
+          word += str[i++];
+          continue;
+        }
+
+        word += str[i++];
+      }
+      i++;
+      continue;
+    }
+
+    if (str[i] === '\\') {
+      i++;
+      word += str[i++];
+      continue;
+    }
+    validWord = true;
+    word += str[i++];
+  }
+  if (validWord) {
+    results.push(word);
+  }
+  return results;
+}
 
 /** @type {import('dbgate-types').EngineDriver} */
 const driver = {
@@ -29,7 +100,22 @@ const driver = {
     };
   },
   async stream(pool, sql, options) {
-    return null;
+    const parts = splitCommandLine(sql);
+    if (parts.length < 1) {
+      options.done();
+      return;
+    }
+    const command = parts[0].toLowerCase();
+    const args = parts.slice(1);
+    const res = await pool.call(command, ...args);
+
+    options.info({
+      message: JSON.stringify(res),
+      time: new Date(),
+      severity: 'info',
+    });
+
+    options.done();
   },
   async readQuery(pool, sql, structure) {
     const pass = new stream.PassThrough({

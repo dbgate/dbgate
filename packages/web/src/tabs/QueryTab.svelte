@@ -281,11 +281,13 @@
 <ToolStripContainer>
   <VerticalSplitter isSplitter={visibleResultTabs}>
     <svelte:fragment slot="1">
-      {#if driver?.databaseEngineTypes?.includes('document')}
-        <AceEditor
-          mode="javascript"
-          value={$editorState.value || ''}
+      {#if driver?.databaseEngineTypes?.includes('sql')}
+        <SqlEditor
+          engine={$connection && $connection.engine}
+          {conid}
+          {database}
           splitterOptions={driver?.getQuerySplitterOptions('script')}
+          value={$editorState.value || ''}
           menu={createMenu()}
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {
@@ -295,12 +297,10 @@
           bind:this={domEditor}
         />
       {:else}
-        <SqlEditor
-          engine={$connection && $connection.engine}
-          {conid}
-          {database}
-          splitterOptions={driver?.getQuerySplitterOptions('script')}
+        <AceEditor
+          mode={driver?.editorMode || 'text'}
           value={$editorState.value || ''}
+          splitterOptions={driver?.getQuerySplitterOptions('script')}
           menu={createMenu()}
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {
