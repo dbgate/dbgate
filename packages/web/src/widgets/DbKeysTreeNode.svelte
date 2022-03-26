@@ -48,12 +48,35 @@
           });
         },
       },
-      item.type == 'dir' && {
-        label: 'Reload',
-        onClick: () => {
-          reloadToken += 1;
+      item.type == 'dir' && [
+        {
+          label: 'Reload',
+          onClick: () => {
+            reloadToken += 1;
+          },
         },
-      },
+        {
+          label: 'Delete branch',
+          onClick: () => {
+            const branch = `${item.root}:*`;
+            showModal(ConfirmModal, {
+              message: `Really delete branch ${branch} with all keys?`,
+              onConfirm: async () => {
+                await apiCall('database-connections/call-method', {
+                  conid,
+                  database,
+                  method: 'mdel',
+                  args: [branch],
+                });
+
+                if (onRefreshParent) {
+                  onRefreshParent();
+                }
+              },
+            });
+          },
+        },
+      ],
     ];
   }
 </script>

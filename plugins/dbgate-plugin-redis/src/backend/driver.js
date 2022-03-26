@@ -71,17 +71,17 @@ const driver = {
   },
 
   async loadKeys(pool, root = '') {
-    const keys = await this.getKeys(pool, root);
+    const keys = await this.getKeys(pool, root ? `${root}:*` : '*');
     const res = this.extractKeysFromLevel(root, keys);
     await this.enrichKeyInfo(pool, res);
     return res;
   },
 
-  async getKeys(pool, root = '') {
+  async getKeys(pool, keyQuery = '*') {
     const res = [];
     let cursor = 0;
     do {
-      const [strCursor, keys] = await pool.scan(cursor, 'MATCH', root ? `${root}:*` : '*', 'COUNT', 100);
+      const [strCursor, keys] = await pool.scan(cursor, 'MATCH', keyQuery, 'COUNT', 100);
       res.push(...keys);
       cursor = parseInt(strCursor);
     } while (cursor > 0);
@@ -187,7 +187,17 @@ const driver = {
     return res;
   },
 
+  async deleteBranch(pool, keyQuery) {
+    const keys = await this.getKeys(pool, keyQuery);
+    const keysChunked = _.chunk(keys, 10);
+    await async.eachLimit(keysChunked, 10, async (keysChunk) => await pool.del(...keysChunk));
+  },
+
   async callMethod(pool, method, args) {
+    switch (method) {
+      case 'mdel':
+        return await this.deleteBranch(pool, args[0]);
+    }
     return await pool[method](...args);
   },
 

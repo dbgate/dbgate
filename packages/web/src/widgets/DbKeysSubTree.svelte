@@ -1,4 +1,6 @@
 <script lang="ts">
+  import _ from 'lodash';
+
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { apiCall } from '../utility/api';
@@ -24,7 +26,9 @@
 {#await apiCall('database-connections/load-keys', { conid, database, root, reloadToken, reloadToken2 })}
   <LoadingInfo message="Loading key list" wrapper />
 {:then items}
-  {#each (items || []).slice(0, maxShowCount) as item}
+  {@const itemsSorted = _.sortBy(items || [], 'text')}
+
+  {#each itemsSorted.slice(0, maxShowCount) as item}
     <DbKeysTreeNode
       {conid}
       {database}
@@ -37,7 +41,7 @@
     />
   {/each}
 
-  {#if (items || []).length > maxShowCount}
+  {#if itemsSorted.length > maxShowCount}
     <AppObjectCore
       {indentLevel}
       title="Show more..."
