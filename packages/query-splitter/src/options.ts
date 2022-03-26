@@ -13,6 +13,7 @@ export interface SplitterOptions {
   javaScriptComments: boolean;
 
   returnRichInfo: boolean;
+  splitByLines: boolean;
 }
 
 export const defaultSplitterOptions: SplitterOptions = {
@@ -31,6 +32,7 @@ export const defaultSplitterOptions: SplitterOptions = {
   javaScriptComments: false,
 
   returnRichInfo: false,
+  splitByLines: false,
 };
 
 export const mysqlSplitterOptions: SplitterOptions = {
@@ -82,4 +84,10 @@ export const noSplitSplitterOptions: SplitterOptions = {
   ...defaultSplitterOptions,
 
   noSplit: true,
+};
+
+export const redisSplitterOptions: SplitterOptions = {
+  ...defaultSplitterOptions,
+
+  splitByLines: true,
 };

@@ -265,7 +265,30 @@ function markStartCommand(context: SplitLineContext) {
   }
 }
 
+function splitByLines(context: SplitLineContext) {
+  while (context.position < context.end) {
+    if (context.source[context.position] == '\n') {
+      pushQuery(context);
+      context.commandPart = '';
+      movePosition(context, 1);
+      context.currentCommandStart = context.position;
+      markStartCommand(context);
+    } else {
+      movePosition(context, 1);
+    }
+  }
+
+  if (context.end > context.currentCommandStart) {
+    context.commandPart += context.source.slice(context.currentCommandStart, context.position);
+  }
+}
+
 export function splitQueryLine(context: SplitLineContext) {
+  if (context.options.splitByLines) {
+    splitByLines(context);
+    return;
+  }
+
   while (context.position < context.end) {
     const token = scanToken(context);
     if (!token) {

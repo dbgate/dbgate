@@ -4,6 +4,7 @@ import {
   postgreSplitterOptions,
   mongoSplitterOptions,
   noSplitSplitterOptions,
+  redisSplitterOptions,
 } from './options';
 import { splitQuery } from './splitQuery';
 
@@ -88,6 +89,16 @@ test('split mongo', () => {
   const input = 'db.collection.insert({x:1});db.collection.insert({y:2})';
   const output = splitQuery(input, mongoSplitterOptions);
   expect(output).toEqual(['db.collection.insert({x:1})', 'db.collection.insert({y:2})']);
+});
+
+test('redis split by newline', () => {
+  const output = splitQuery('SET x 1\nSET y 2', redisSplitterOptions);
+  expect(output).toEqual(['SET x 1', 'SET y 2']);
+});
+
+test('redis split by newline 2', () => {
+  const output = splitQuery('SET x 1\n\nSET y 2\n', redisSplitterOptions);
+  expect(output).toEqual(['SET x 1', 'SET y 2']);
 });
 
 test('count lines', () => {
