@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-  export const matchingProps = ['archiveFile', 'archiveFolder'];
+  export const matchingProps = ['archiveFile', 'archiveFolder', 'jslid'];
 </script>
 
 <script lang="ts">

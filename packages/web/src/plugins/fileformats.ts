@@ -3,7 +3,8 @@ import { FileFormatDefinition, QuickExportDefinition } from 'dbgate-types';
 const jsonlFormat = {
   storageType: 'jsonl',
   extension: 'jsonl',
-  name: 'JSON lines',
+  extensions: ['jsonl', 'ndjson'],
+  name: 'JSON lines/NDJSON',
   readerFunc: 'jsonLinesReader',
   writerFunc: 'jsonLinesWriter',
 };
@@ -23,7 +24,7 @@ const sqlFormat = {
 };
 
 const jsonlQuickExport = {
-  label: 'JSON lines',
+  label: 'JSON lines/NDJSON',
   extension: 'jsonl',
   createWriter: fileName => ({
     functionName: 'jsonLinesWriter',

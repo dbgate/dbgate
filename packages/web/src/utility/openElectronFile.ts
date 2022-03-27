@@ -7,6 +7,8 @@ import { currentDatabase, extensions } from '../stores';
 import { getUploadListener } from './uploadFiles';
 import { getDatabaseFileLabel } from './getConnectionLabel';
 import { apiCall } from './api';
+import openNewTab from './openNewTab';
+import _ from 'lodash';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
@@ -15,6 +17,7 @@ export function canOpenByElectron(file, extensions) {
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) return true;
+    if (format.extensions?.find(ext => nameLower.endsWith(`.${ext}`))) return true;
   }
   return false;
 }
@@ -50,6 +53,18 @@ function getFileEncoding(filePath, fs) {
   return e;
 }
 
+function openElectronJsonLinesFile(filePath, parsed) {
+  openNewTab({
+    title: parsed.name,
+    tooltip: filePath,
+    icon: 'img sql-file',
+    tabComponent: 'ArchiveFileTab',
+    props: {
+      jslid: `file://${filePath}`,
+    },
+  });
+}
+
 export function openElectronFileCore(filePath, extensions) {
   const nameLower = filePath.toLowerCase();
   const path = window.require('path');
@@ -72,6 +87,10 @@ export function openElectronFileCore(filePath, extensions) {
   }
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite')) {
     openSqliteFile(filePath);
+    return;
+  }
+  if (nameLower.endsWith('.jsonl') || nameLower.endsWith('.ndjson')) {
+    openElectronJsonLinesFile(filePath, parsed);
     return;
   }
   for (const format of extensions.fileFormats) {
@@ -100,16 +119,19 @@ export function openElectronFileCore(filePath, extensions) {
 }
 
 function getFileFormatFilters(extensions) {
-  return extensions.fileFormats.filter(x => x.readerFunc).map(x => ({ name: x.name, extensions: [x.extension] }));
+  return extensions.fileFormats
+    .filter(x => x.readerFunc)
+    .map(x => ({ name: x.name, extensions: x.extensions || [x.extension] }));
 }
 
 function getFileFormatExtensions(extensions) {
-  return extensions.fileFormats.filter(x => x.readerFunc).map(x => x.extension);
+  return _.flatten(extensions.fileFormats.filter(x => x.readerFunc).map(x => x.extensions || [x.extension]));
 }
 
 export async function openElectronFile() {
   const electron = getElectron();
   const ext = get(extensions);
+
   const filePaths = await electron.showOpenDialog({
     filters: [
       { name: `All supported files`, extensions: ['sql', 'sqlite', 'db', 'sqlite3', ...getFileFormatExtensions(ext)] },

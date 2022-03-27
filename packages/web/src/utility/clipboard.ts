@@ -167,8 +167,8 @@ export const copyRowsFormatDefs = {
     formatter: clipboardJsonFormatter(),
   },
   jsonLines: {
-    label: 'Copy as JSON lines',
-    name: 'JSON lines',
+    label: 'Copy as JSON lines/NDJSON',
+    name: 'JSON lines/NDJSON',
     formatter: clipboardJsonLinesFormatter(),
   },
   yaml: {
