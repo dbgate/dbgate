@@ -211,6 +211,10 @@ async function handleLoadKeyInfo({ msgid, key }) {
 
 async function handleCallMethod({ msgid, method, args }) {
   return handleDriverDataCore(msgid, driver => {
+    if (storedConnection.isReadOnly) {
+      throw new Error('Connection is read only, cannot call custom methods');
+    }
+
     ensureExecuteCustomScript(driver);
     return driver.callMethod(systemConnection, method, args);
   });

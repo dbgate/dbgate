@@ -3,15 +3,15 @@
 
   import AppObjectCore from '../appobj/AppObjectCore.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
-  import FontIcon from '../icons/FontIcon.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
   import { activeDbKeysStore } from '../stores';
   import { apiCall } from '../utility/api';
+  import { getConnectionInfo } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
-import { showSnackbarError } from '../utility/snackbar';
+  import { showSnackbarError } from '../utility/snackbar';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
 
@@ -29,56 +29,60 @@ import { showSnackbarError } from '../utility/snackbar';
   let reloadToken = 0;
 
   // $: console.log(item.text, indentLevel);
-  function createMenu() {
+  async function createMenu() {
+    const connection = await getConnectionInfo({ conid });
     return [
-      item.key != null && {
-        label: 'Delete key',
-        onClick: () => {
-          showModal(ConfirmModal, {
-            message: `Really delete key ${item.key}?`,
-            onConfirm: async () => {
-              await apiCall('database-connections/call-method', {
-                conid,
-                database,
-                method: 'del',
-                args: [item.key],
-              });
+      item.key != null &&
+        !connection?.isReadOnly && {
+          label: 'Delete key',
+          onClick: () => {
+            showModal(ConfirmModal, {
+              message: `Really delete key ${item.key}?`,
+              onConfirm: async () => {
+                await apiCall('database-connections/call-method', {
+                  conid,
+                  database,
+                  method: 'del',
+                  args: [item.key],
+                });
 
-              if (onRefreshParent) {
-                onRefreshParent();
-              }
-            },
-          });
+                if (onRefreshParent) {
+                  onRefreshParent();
+                }
+              },
+            });
+          },
         },
-      },
-      item.key != null && {
-        label: 'Rename key',
-        onClick: () => {
-          showModal(InputTextModal, {
-            value: item.key,
-            label: 'New name',
-            header: 'Rename key',
-            onConfirm: async newName => {
-              await apiCall('database-connections/call-method', {
-                conid,
-                database,
-                method: 'rename',
-                args: [item.key, newName],
-              });
+      item.key != null &&
+        !connection?.isReadOnly && {
+          label: 'Rename key',
+          onClick: () => {
+            showModal(InputTextModal, {
+              value: item.key,
+              label: 'New name',
+              header: 'Rename key',
+              onConfirm: async newName => {
+                await apiCall('database-connections/call-method', {
+                  conid,
+                  database,
+                  method: 'rename',
+                  args: [item.key, newName],
+                });
 
-              if (onRefreshParent) {
-                onRefreshParent();
-              }
-            },
-          });
+                if (onRefreshParent) {
+                  onRefreshParent();
+                }
+              },
+            });
+          },
         },
-      },
-      item.type == 'dir' && {
-        label: 'Reload',
-        onClick: () => {
-          reloadToken += 1;
+      item.type == 'dir' &&
+        !connection?.isReadOnly && {
+          label: 'Reload',
+          onClick: () => {
+            reloadToken += 1;
+          },
         },
-      },
       item.type == 'dir' && {
         label: 'Delete branch',
         onClick: () => {

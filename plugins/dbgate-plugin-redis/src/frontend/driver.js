@@ -26,6 +26,7 @@ const driver = {
   databaseEngineTypes: ['keyvalue'],
   supportedCreateDatabase: false,
   getQuerySplitterOptions: () => redisSplitterOptions,
+  databaseUrlPlaceholder: 'e.g. redis://:authpassword@127.0.0.1:6380/4',
   supportedKeyTypes: [
     {
       name: 'string',
@@ -75,7 +76,11 @@ const driver = {
   ],
 
   showConnectionField: (field, values) => {
-    return ['server', 'port', 'password'].includes(field);
+    if (field == 'useDatabaseUrl') return true;
+    if (values.useDatabaseUrl) {
+      return ['databaseUrl', 'isReadOnly'].includes(field);
+    }
+    return ['server', 'port', 'password', 'isReadOnly'].includes(field);
   },
 };
 

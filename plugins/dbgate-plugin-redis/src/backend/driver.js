@@ -80,16 +80,22 @@ function splitCommandLine(str) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, password, database }) {
+  async connect({ server, port, password, database, useDatabaseUrl, databaseUrl }) {
     let db = 0;
-    if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
-    if (_.isNumber(database)) db = database;
-    const pool = new Redis({
-      host: server,
-      port,
-      password,
-      db,
-    });
+    let pool;
+    if (useDatabaseUrl) {
+      pool = new Redis(databaseUrl);
+    } else {
+      if (_.isString(database) && database.startsWith('db')) db = parseInt(database.substring(2));
+      if (_.isNumber(database)) db = database;
+      pool = new Redis({
+        host: server,
+        port,
+        password,
+        db,
+      });
+    }
+
     return pool;
   },
   // @ts-ignore
