@@ -16,6 +16,7 @@
   export let indentLevel = 0;
 
   export let reloadToken = 0;
+  export let connection;
   let reloadToken2 = 0;
 
   let maxShowCount = SHOW_INCREMENT;
@@ -33,6 +34,7 @@
       {conid}
       {database}
       {root}
+      {connection}
       {item}
       {indentLevel}
       onRefreshParent={() => {

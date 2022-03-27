@@ -17,6 +17,7 @@
 
   export let conid;
   export let database;
+  export let connection;
 
   export let root;
 
@@ -29,8 +30,7 @@
   let reloadToken = 0;
 
   // $: console.log(item.text, indentLevel);
-  async function createMenu() {
-    const connection = await getConnectionInfo({ conid });
+  function createMenu() {
     return [
       item.key != null &&
         !connection?.isReadOnly && {
@@ -83,27 +83,28 @@
             reloadToken += 1;
           },
         },
-      item.type == 'dir' && {
-        label: 'Delete branch',
-        onClick: () => {
-          const branch = `${item.root}:*`;
-          showModal(ConfirmModal, {
-            message: `Really delete branch ${branch} with all keys?`,
-            onConfirm: async () => {
-              await apiCall('database-connections/call-method', {
-                conid,
-                database,
-                method: 'mdel',
-                args: [branch],
-              });
+      item.type == 'dir' &&
+        !connection?.isReadOnly && {
+          label: 'Delete branch',
+          onClick: () => {
+            const branch = `${item.root}:*`;
+            showModal(ConfirmModal, {
+              message: `Really delete branch ${branch} with all keys?`,
+              onConfirm: async () => {
+                await apiCall('database-connections/call-method', {
+                  conid,
+                  database,
+                  method: 'mdel',
+                  args: [branch],
+                });
 
-              if (onRefreshParent) {
-                onRefreshParent();
-              }
-            },
-          });
+                if (onRefreshParent) {
+                  onRefreshParent();
+                }
+              },
+            });
+          },
         },
-      },
       ,
       {
         label: 'Generate script',
@@ -169,5 +170,5 @@
 </div> -->
 
 {#if isExpanded}
-  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} {reloadToken} />
+  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} {reloadToken} {connection} />
 {/if}

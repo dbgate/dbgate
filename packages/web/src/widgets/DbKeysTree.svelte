@@ -12,6 +12,7 @@
   import { showModal } from '../modals/modalTools';
   import { currentDatabase, getExtensions } from '../stores';
   import { apiCall } from '../utility/api';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -62,5 +63,5 @@
   </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <DbKeysSubTree {conid} {database} root="" {reloadToken} />
+  <DbKeysSubTree {conid} {database} root="" {reloadToken} connection={$currentDatabase?.connection} />
 </WidgetsInnerContainer>
