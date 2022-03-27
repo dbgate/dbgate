@@ -158,6 +158,21 @@
       openJsonDocument(db, name);
     };
 
+    const handleGenerateScript = async () => {
+      const data = await apiCall('database-connections/export-keys', {
+        conid: connection?._id,
+        database: name,
+        options: {
+          keyPrefix: '',
+        },
+      });
+
+      newQuery({
+        title: 'Export #',
+        initialData: data,
+      });
+    };
+
     async function handleConfirmSql(sql) {
       const resp = await apiCall('database-connections/run-script', { conid: connection._id, database: name, sql });
       const { errorMessage } = resp || {};
@@ -172,24 +187,30 @@
 
     const commands = _.flatten((apps || []).map(x => x.commands || []));
 
+    const isSqlOrDoc =
+      driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document');
+
     return [
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
       driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
       { divider: true },
-      !connection.isReadOnly && { onClick: handleImport, text: 'Import' },
-      { onClick: handleExport, text: 'Export' },
-      { onClick: handleShowDiagram, text: 'Show diagram' },
-      { onClick: handleSqlGenerator, text: 'SQL Generator' },
-      { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
-      { onClick: handleExportModel, text: 'Export DB model - experimental' },
-      _.get($currentDatabase, 'connection._id') &&
+      isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import' },
+      isSqlOrDoc && { onClick: handleExport, text: 'Export' },
+      isSqlOrDoc && { onClick: handleShowDiagram, text: 'Show diagram' },
+      isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      isSqlOrDoc && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
+      isSqlOrDoc && { onClick: handleExportModel, text: 'Export DB model - experimental' },
+      isSqlOrDoc &&
+        _.get($currentDatabase, 'connection._id') &&
         (_.get($currentDatabase, 'connection._id') != _.get(connection, '_id') ||
           (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
             _.get($currentDatabase, 'name') != _.get(connection, 'name'))) && {
           onClick: handleCompareWithCurrentDb,
           text: `Compare with ${_.get($currentDatabase, 'name')}`,
         },
+
+      driver?.databaseEngineTypes?.includes('keyvalue') && { onClick: handleGenerateScript, text: 'Generate script' },
 
       _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
         _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
@@ -240,6 +261,7 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
   import { filterAppsForDatabase } from '../utility/appTools';
+  import newQuery from '../query/newQuery';
 
   export let data;
   export let passProps;

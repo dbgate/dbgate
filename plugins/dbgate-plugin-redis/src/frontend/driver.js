@@ -24,6 +24,7 @@ const driver = {
   defaultPort: 6379,
   editorMode: 'text',
   databaseEngineTypes: ['keyvalue'],
+  supportedCreateDatabase: false,
   getQuerySplitterOptions: () => redisSplitterOptions,
   supportedKeyTypes: [
     {

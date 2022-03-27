@@ -142,6 +142,7 @@ module.exports = {
   createDatabase_meta: true,
   async createDatabase({ conid, name }) {
     const opened = await this.ensureOpened(conid);
+    if (opened.connection.isReadOnly) return false;
     opened.subprocess.send({ msgtype: 'createDatabase', name });
     return { status: 'ok' };
   },

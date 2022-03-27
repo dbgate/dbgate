@@ -59,6 +59,7 @@
   };
 
   const getContextMenu = () => {
+    const driver = $extensions.drivers.find(x => x.engine == data.engine);
     const config = getCurrentConfig();
     const handleRefresh = () => {
       apiCall('server-connections/refresh', { conid: data._id });
@@ -146,10 +147,12 @@
           text: 'Disconnect',
           onClick: handleDisconnect,
         },
-        $openedConnections.includes(data._id) && {
-          text: 'Create database',
-          onClick: handleCreateDatabase,
-        },
+        $openedConnections.includes(data._id) &&
+          driver?.supportedCreateDatabase &&
+          !data.isReadOnly && {
+            text: 'Create database',
+            onClick: handleCreateDatabase,
+          },
       ],
       data.singleDatabase && [
         { divider: true },

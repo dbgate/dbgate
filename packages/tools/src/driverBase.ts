@@ -23,6 +23,7 @@ export const driverBase = {
   dumperClass: SqlDumper,
   dialect,
   databaseEngineTypes: ['sql'],
+  supportedCreateDatabase: true,
 
   async analyseFull(pool, version) {
     const analyser = new this.analyserClass(pool, this, version);

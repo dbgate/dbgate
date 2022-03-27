@@ -61,6 +61,7 @@ export interface EngineDriver {
   supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;
   isElectronOnly?: boolean;
+  supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
   showConnectionTab?: (tab: 'ssl' | 'sshTunnel', values: any) => boolean;
   beforeConnectionSave?: (values: any) => any;
