@@ -20,7 +20,7 @@ const driver = {
   dumperClass: Dumper,
   dialect,
   engine: 'redis@dbgate-plugin-redis',
-  title: 'Redis (experimental)',
+  title: 'Redis',
   defaultPort: 6379,
   editorMode: 'text',
   databaseEngineTypes: ['keyvalue'],
