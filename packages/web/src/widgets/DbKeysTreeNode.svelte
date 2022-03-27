@@ -5,6 +5,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
+import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
   import { activeDbKeysStore } from '../stores';
@@ -30,7 +31,7 @@
   function createMenu() {
     return [
       item.key != null && {
-        label: 'Delete',
+        label: 'Delete key',
         onClick: () => {
           showModal(ConfirmModal, {
             message: `Really delete key ${item.key}?`,
@@ -49,35 +50,56 @@
           });
         },
       },
-      item.type == 'dir' && [
-        {
-          label: 'Reload',
-          onClick: () => {
-            reloadToken += 1;
-          },
-        },
-        {
-          label: 'Delete branch',
-          onClick: () => {
-            const branch = `${item.root}:*`;
-            showModal(ConfirmModal, {
-              message: `Really delete branch ${branch} with all keys?`,
-              onConfirm: async () => {
-                await apiCall('database-connections/call-method', {
-                  conid,
-                  database,
-                  method: 'mdel',
-                  args: [branch],
-                });
+      item.key != null && {
+        label: 'Rename key',
+        onClick: () => {
+          showModal(InputTextModal, {
+            value: item.key,
+            label: 'New name',
+            header: 'Rename key',
+            onConfirm: async newName => {
+              await apiCall('database-connections/call-method', {
+                conid,
+                database,
+                method: 'rename',
+                args: [item.key, newName],
+              });
 
-                if (onRefreshParent) {
-                  onRefreshParent();
-                }
-              },
-            });
-          },
+              if (onRefreshParent) {
+                onRefreshParent();
+              }
+            },
+          });
         },
-      ],
+      },
+      item.type == 'dir' && {
+        label: 'Reload',
+        onClick: () => {
+          reloadToken += 1;
+        },
+      },
+      item.type == 'dir' && {
+        label: 'Delete branch',
+        onClick: () => {
+          const branch = `${item.root}:*`;
+          showModal(ConfirmModal, {
+            message: `Really delete branch ${branch} with all keys?`,
+            onConfirm: async () => {
+              await apiCall('database-connections/call-method', {
+                conid,
+                database,
+                method: 'mdel',
+                args: [branch],
+              });
+
+              if (onRefreshParent) {
+                onRefreshParent();
+              }
+            },
+          });
+        },
+      },
+      ,
       {
         label: 'Generate script',
         onClick: async () => {
