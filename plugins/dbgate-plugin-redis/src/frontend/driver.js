@@ -64,6 +64,14 @@ const driver = {
       addMethod: 'hset',
       showItemList: true,
     },
+    {
+      name: 'stream',
+      label: 'Stream',
+      dbKeyFields: [{ name: 'id' }, { name: 'value' }],
+      keyColumn: 'id',
+      addMethod: 'xaddjson',
+      showItemList: true,
+    },
   ],
 
   showConnectionField: (field, values) => {

@@ -24,6 +24,7 @@
   import _ from 'lodash';
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
   export let conid;
   export let database;
@@ -86,13 +87,18 @@
     showModal(DbKeyAddItemModal, {
       keyInfo,
       onConfirm: async row => {
-        await apiCall('database-connections/call-method', {
+        const res = await apiCall('database-connections/call-method', {
           conid,
           database,
           method: keyInfo.keyType.addMethod,
           args: [keyInfo.key, ...keyInfo.keyType.dbKeyFields.map(col => row[col.name])],
         });
+        if (res.errorMessage) {
+          showModal(ErrorMessageModal, { message: res.errorMessage });
+          return false;
+        }
         refresh();
+        return true;
       },
     });
   }

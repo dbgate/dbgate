@@ -5,12 +5,13 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-import InputTextModal from '../modals/InputTextModal.svelte';
+  import InputTextModal from '../modals/InputTextModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
   import { activeDbKeysStore } from '../stores';
   import { apiCall } from '../utility/api';
   import openNewTab from '../utility/openNewTab';
+import { showSnackbarError } from '../utility/snackbar';
 
   import DbKeysSubTree from './DbKeysSubTree.svelte';
 
@@ -110,6 +111,11 @@ import InputTextModal from '../modals/InputTextModal.svelte';
               keyPrefix: item.root || item.key,
             },
           });
+
+          if (data.errorMessage) {
+            showSnackbarError(data.errorMessage);
+            return;
+          }
 
           newQuery({
             title: 'Export #',

@@ -297,6 +297,14 @@ const driver = {
     switch (method) {
       case 'mdel':
         return await this.deleteBranch(pool, args[0]);
+      case 'xaddjson':
+        let json;
+        try {
+          json = JSON.parse(args[2]);
+        } catch (e) {
+          throw new Error('Value must be valid JSON. ' + e.message);
+        }
+        return await pool.xadd(args[0], args[1] || '*', ..._.flatten(_.toPairs(json)));
     }
     return await pool[method](...args);
   },
@@ -330,6 +338,22 @@ const driver = {
         return {
           cursor: parseInt(res[0]),
           items: _.chunk(res[1], 2).map((item) => ({ key: item[0], value: item[1] })),
+        };
+      }
+      case 'stream': {
+        const res = await pool.xrange(key, cursor == 0 ? '-' : cursor, '+', 'COUNT', count);
+        let newCursor = 0;
+        if (res.length > 0) {
+          const id = res[res.length - 1][0];
+          const idParts = id.split('-');
+          newCursor = `${idParts[0]}-${parseInt(idParts[1] + 1)}`;
+        }
+        return {
+          cursor: newCursor,
+          items: res.map(([id, vals]) => ({
+            id,
+            value: JSON.stringify(_.fromPairs(_.chunk(vals, 2)), undefined, 2),
+          })),
         };
       }
     }

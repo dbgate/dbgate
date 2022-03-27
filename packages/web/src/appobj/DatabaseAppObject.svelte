@@ -167,6 +167,11 @@
         },
       });
 
+      if (data.errorMessage) {
+        showSnackbarError(data.errorMessage);
+        return;
+      }
+
       newQuery({
         title: 'Export #',
         initialData: data,
@@ -252,7 +257,7 @@
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { showSnackbarSuccess } from '../utility/snackbar';
+  import { showSnackbarError, showSnackbarSuccess } from '../utility/snackbar';
   import { findEngineDriver } from 'dbgate-tools';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { getDatabaseInfo, useUsedApps } from '../utility/metadataLoaders';

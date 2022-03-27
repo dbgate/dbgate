@@ -13,8 +13,9 @@
   let item = {};
 
   const handleSubmit = async () => {
-    closeCurrentModal();
-    onConfirm(item);
+    if (await onConfirm(item)) {
+      closeCurrentModal();
+    }
   };
 </script>
 
@@ -24,7 +25,7 @@
 
     <div class="container">
       <DbKeyItemDetail
-      dbKeyFields={keyInfo.keyType.dbKeyFields}
+        dbKeyFields={keyInfo.keyType.dbKeyFields}
         {item}
         onChangeItem={value => {
           item = value;
