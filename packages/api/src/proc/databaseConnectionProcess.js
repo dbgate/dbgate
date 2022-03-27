@@ -201,6 +201,10 @@ async function handleLoadKeys({ msgid, root }) {
   return handleDriverDataCore(msgid, driver => driver.loadKeys(systemConnection, root));
 }
 
+async function handleExportKeys({ msgid, options }) {
+  return handleDriverDataCore(msgid, driver => driver.exportKeys(systemConnection, options));
+}
+
 async function handleLoadKeyInfo({ msgid, key }) {
   return handleDriverDataCore(msgid, driver => driver.loadKeyInfo(systemConnection, key));
 }
@@ -307,6 +311,7 @@ const messageHandlers = {
   generateDeploySql: handleGenerateDeploySql,
   loadFieldValues: handleLoadFieldValues,
   sqlSelect: handleSqlSelect,
+  exportKeys: handleExportKeys,
   // runCommand: handleRunCommand,
 };
 

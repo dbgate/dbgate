@@ -180,6 +180,11 @@ module.exports = {
     return this.loadDataCore('loadKeys', { conid, database, root });
   },
 
+  exportKeys_meta: true,
+  async exportKeys({ conid, database, options }) {
+    return this.loadDataCore('exportKeys', { conid, database, options });
+  },
+
   loadKeyInfo_meta: true,
   async loadKeyInfo({ conid, database, key }) {
     return this.loadDataCore('loadKeyInfo', { conid, database, key });

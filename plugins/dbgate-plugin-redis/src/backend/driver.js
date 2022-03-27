@@ -163,6 +163,20 @@ const driver = {
     return res;
   },
 
+  async exportKeys(pool, options) {
+    const dump = new RedisDump({ client: pool });
+    return new Promise((resolve, reject) => {
+      dump.export({
+        type: 'redis',
+        keyPrefix: options.keyPrefix,
+        callback: (err, data) => {
+          if (err) reject(err);
+          else resolve(data);
+        },
+      });
+    });
+  },
+
   async getKeys(pool, keyQuery = '*') {
     const res = [];
     let cursor = 0;

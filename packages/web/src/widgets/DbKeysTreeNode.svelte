@@ -6,6 +6,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { showModal } from '../modals/modalTools';
+  import newQuery from '../query/newQuery';
   import { activeDbKeysStore } from '../stores';
   import { apiCall } from '../utility/api';
   import openNewTab from '../utility/openNewTab';
@@ -77,6 +78,23 @@
           },
         },
       ],
+      {
+        label: 'Generate script',
+        onClick: async () => {
+          const data = await apiCall('database-connections/export-keys', {
+            conid,
+            database,
+            options: {
+              keyPrefix: item.root || item.key,
+            },
+          });
+
+          newQuery({
+            title: 'Export #',
+            initialData: data,
+          });
+        },
+      },
     ];
   }
 </script>
