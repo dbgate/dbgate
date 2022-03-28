@@ -23,6 +23,7 @@ DbGate is licensed under MIT license and is completely free.
 * PostgreSQL
 * SQL Server
 * MongoDB
+* Redis
 * SQLite
 * Amazon Redshift
 * CockroachDB
@@ -63,6 +64,7 @@ DbGate is licensed under MIT license and is completely free.
   * SQL code completion
   * Add SQL LEFT/INNER/RIGHT join utility
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
+* Redis tree view, generate script from keys, run Redis script
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
 * Import, export from/to CSV, Excel, JSON, XML
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)

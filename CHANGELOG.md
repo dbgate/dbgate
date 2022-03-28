@@ -5,6 +5,11 @@ Builds:
  - npm - npm package dbgate-serve
  - app - classic electron app
  - all - docker, npm, app
+### 4.8.0
+- ADDED(all): Redis support (support stream type), removed experimental status
+- ADDED(all): Redis readonly support
+- ADDED(all): Explicit NDJSON support, when opening NDJSON/JSON lines file, table data are immediately shown, without neccesarity to import
+- ADDED(app): Opening developer tools when crashing without reload app
 ### 4.7.4
 - ADDED(all): Experimental Redis support (full support is planned to version  4.8.0)
 - ADDED(all): Read-only connections
