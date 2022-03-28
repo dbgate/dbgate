@@ -57,7 +57,7 @@ function openElectronJsonLinesFile(filePath, parsed) {
   openNewTab({
     title: parsed.name,
     tooltip: filePath,
-    icon: 'img sql-file',
+    icon: 'img archive',
     tabComponent: 'ArchiveFileTab',
     props: {
       jslid: `file://${filePath}`,

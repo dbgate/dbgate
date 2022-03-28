@@ -7,6 +7,7 @@ import { findFileFormat } from '../plugins/fileformats';
 import { showModal } from '../modals/modalTools';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+import openNewTab from './openNewTab';
 
 let uploadListener;
 
@@ -53,8 +54,21 @@ export default function uploadFiles(files) {
 
     fileData.shortName = file.name;
 
+    if (file.name.endsWith('.jsonl') || file.name.endsWith('.ndjson')) {
+      openNewTab({
+        title: fileData.shortName,
+        icon: 'img archive',
+        tabComponent: 'ArchiveFileTab',
+        props: {
+          jslid: `file://${fileData.filePath}`,
+        },
+      });
+      return;
+    }
+
     for (const format of ext.fileFormats) {
       if (file.name.endsWith('.' + format.extension)) {
+        // || format.extensions?.find(ext => file.name.endsWith('.' + ext))
         fileData.shortName = file.name.slice(0, -format.extension.length - 1);
         fileData.storageType = format.storageType;
       }

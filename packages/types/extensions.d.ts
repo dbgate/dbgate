@@ -3,6 +3,7 @@ import { EngineDriver } from './engines';
 export interface FileFormatDefinition {
   storageType: string;
   extension: string;
+  extensions?: string[];
   name: string;
   readerFunc?: string;
   writerFunc?: string;
