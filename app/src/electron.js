@@ -102,6 +102,9 @@ ipcMain.on('set-title', async (event, arg) => {
 ipcMain.on('open-link', async (event, arg) => {
   electron.shell.openExternal(arg);
 });
+ipcMain.on('open-dev-tools', () => {
+  mainWindow.webContents.openDevTools();
+});
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
     case 'minimize':

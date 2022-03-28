@@ -1,6 +1,7 @@
 <script lang="ts">
   import localforage from 'localforage';
   import _ from 'lodash';
+  import getElectron from './getElectron';
   import { getLocalStorage, setLocalStorage } from './storageCache';
 
   let counter = 0;
@@ -41,6 +42,8 @@
             //   console.error('Error clearing app data', err);
             // }
             window.location.reload();
+          } else {
+            getElectron()?.send('open-dev-tools');
           }
         } else {
           if (
@@ -50,6 +53,8 @@
           ) {
             localStorage.setItem('lastDbGateCrash', JSON.stringify(new Date().getTime()));
             window.location.reload();
+          } else {
+            getElectron()?.send('open-dev-tools');
           }
         }
       }
