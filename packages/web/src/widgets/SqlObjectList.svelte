@@ -49,7 +49,7 @@
 
   $: apps = useUsedApps();
 
-  $: dbApps = filterAppsForDatabase($currentDatabase.connection, $currentDatabase.name, $apps || []);
+  $: dbApps = filterAppsForDatabase($currentDatabase?.connection, $currentDatabase?.name, $apps || []);
 
   // $: console.log('OBJECTS', $objects);
 
