@@ -5,6 +5,10 @@ Builds:
  - npm - npm package dbgate-serve
  - app - classic electron app
  - all - docker, npm, app
+
+ ### 4.8.1
+ - FIXED crash after disconnecting from all DBs
+
 ### 4.8.0
 - ADDED(all): Redis support (support stream type), removed experimental status
 - ADDED(all): Redis readonly support
