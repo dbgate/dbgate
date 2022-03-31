@@ -24,6 +24,7 @@
   export let field;
   export let driver;
   export let multiselect = false;
+  export let jslid;
 
   // console.log('ValueLookupModal', conid, database, pureName, schemaName, columnName, driver);
 
@@ -36,14 +37,22 @@
 
   async function reload() {
     isLoading = true;
-    rows = await apiCall('database-connections/load-field-values', {
-      conid,
-      database,
-      search,
-      schemaName,
-      pureName,
-      field,
-    });
+    if (jslid) {
+      rows = await apiCall('jsldata/load-field-values', {
+        jslid,
+        search,
+        field,
+      });
+    } else {
+      rows = await apiCall('database-connections/load-field-values', {
+        conid,
+        database,
+        search,
+        schemaName,
+        pureName,
+        field,
+      });
+    }
 
     isLoading = false;
   }

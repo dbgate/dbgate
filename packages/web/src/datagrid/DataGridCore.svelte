@@ -336,6 +336,7 @@
   export let tabControlHiddenTab = false;
   export let onCustomGridRefresh;
   export let useEvalFilters = false;
+  export let jslid;
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
@@ -1548,6 +1549,7 @@
                   schemaName={col.schemaName}
                   {conid}
                   {database}
+                  {jslid}
                   driver={display?.driver}
                   filterType={useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}

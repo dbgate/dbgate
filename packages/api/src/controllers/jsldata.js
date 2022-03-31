@@ -1,3 +1,4 @@
+const { filterName } = require('dbgate-tools');
 const fs = require('fs');
 const lineReader = require('line-reader');
 const _ = require('lodash');
@@ -146,6 +147,19 @@ module.exports = {
       }
     }
     return {};
+  },
+
+  loadFieldValues_meta: true,
+  async loadFieldValues({ jslid, field, search }) {
+    const datastore = await this.ensureDatastore(jslid);
+    const res = new Set();
+    await datastore.enumRows(row => {
+      if (!filterName(search, row[field])) return true;
+      res.add(row[field]);
+      return res.size < 100;
+    });
+    // @ts-ignore
+    return [...res].map(value => ({ value }));
   },
 
   async notifyChangedStats(stats) {

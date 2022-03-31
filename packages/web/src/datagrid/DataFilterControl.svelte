@@ -29,6 +29,7 @@
   export let conid = null;
   export let database = null;
   export let driver = null;
+  export let jslid = null;
 
   export let pureName = null;
   export let schemaName = null;
@@ -177,9 +178,8 @@
           { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
           { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
           { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
-          
-          { divider: true },
 
+          { divider: true },
 
           { onClick: () => openFilterWindow('+'), text: 'Contains...' },
           { onClick: () => openFilterWindow('~'), text: 'Does Not Contain...' },
@@ -248,6 +248,7 @@
       conid,
       database,
       driver,
+      jslid,
       multiselect: true,
       schemaName,
       pureName,
@@ -304,6 +305,10 @@
         <FontIcon icon="icon dots-vertical" />
       </InlineButton>
     {/if}
+  {:else if jslid}
+    <InlineButton on:click={handleShowValuesModal} narrow square>
+      <FontIcon icon="icon dots-vertical" />
+    </InlineButton>
   {/if}
   <DropDownButton icon="icon filter" menu={createMenu} narrow />
   {#if showResizeSplitter}

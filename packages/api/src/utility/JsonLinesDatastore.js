@@ -159,6 +159,18 @@ class JsonLinesDatastore {
     }
   }
 
+  async enumRows(eachRow) {
+    await lock.acquire('reader', async () => {
+      await this._ensureReader(0, null);
+      for (;;) {
+        const line = await this._readLine(true);
+        if (line == null) break;
+        const shouldContinue = eachRow(line);
+        if (!shouldContinue) break;
+      }
+    });
+  }
+
   async getRows(offset, limit, filter) {
     const res = [];
     await lock.acquire('reader', async () => {
