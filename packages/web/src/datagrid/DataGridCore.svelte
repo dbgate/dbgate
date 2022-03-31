@@ -1139,7 +1139,7 @@
 
     handleCursorMove(event);
 
-    if (event.shiftKey && event.keyCode != keycodes.shift) {
+    if (event.shiftKey && event.keyCode != keycodes.shift && event.keyCode != keycodes.tab) {
       selectedCells = getCellRange(shiftDragStartCell || currentCell, currentCell);
     }
   }
@@ -1188,6 +1188,21 @@
           return moveCurrentCell(currentCell[0] - visibleRowCountLowerBound, currentCell[1], event);
         case keycodes.pageDown:
           return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
+        case keycodes.tab: {
+          if (event.shiftKey) {
+            if (currentCell[1] > 0) {
+              return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+            } else {
+              return moveCurrentCell(currentCell[0] - 1, columnSizes.realCount - 1, event);
+            }
+          } else {
+            if (currentCell[1] < columnSizes.realCount - 1) {
+              return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+            } else {
+              return moveCurrentCell(currentCell[0] + 1, 0, event);
+            }
+          }
+        }
       }
     }
     return null;
