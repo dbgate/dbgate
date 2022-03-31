@@ -89,7 +89,7 @@ export interface EngineDriver {
       name: string;
     }[]
   >;
-  loadKeys(pool, root: string): Promise;
+  loadKeys(pool, root: string, filter?: string): Promise;
   exportKeys(pool, options: {}): Promise;
   loadKeyInfo(pool, key): Promise;
   loadKeyTableRange(pool, key, cursor, count): Promise;

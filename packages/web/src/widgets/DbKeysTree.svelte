@@ -53,7 +53,7 @@
 </script>
 
 <SearchBoxWrapper>
-  <SearchInput placeholder="Search keys" bind:value={filter} />
+  <SearchInput placeholder="Search keys" bind:value={filter} isDebounced />
   <CloseSearchButton bind:filter />
   <InlineButton on:click={handleAddKey} title="Add new key">
     <FontIcon icon="icon plus-thick" />
@@ -63,5 +63,5 @@
   </InlineButton>
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <DbKeysSubTree {conid} {database} root="" {reloadToken} connection={$currentDatabase?.connection} />
+  <DbKeysSubTree {conid} {database} root="" {reloadToken} connection={$currentDatabase?.connection} {filter} />
 </WidgetsInnerContainer>

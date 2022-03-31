@@ -5,6 +5,7 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const Redis = require('ioredis');
 const RedisDump = require('node-redis-dump2');
+const { filterName } = require('dbgate-tools');
 
 function splitCommandLine(str) {
   let results = [];
@@ -162,9 +163,10 @@ const driver = {
     return _.range(16).map((index) => ({ name: `db${index}`, extInfo: info[`db${index}`], sortOrder: index }));
   },
 
-  async loadKeys(pool, root = '') {
+  async loadKeys(pool, root = '', filter = null) {
     const keys = await this.getKeys(pool, root ? `${root}:*` : '*');
-    const res = this.extractKeysFromLevel(root, keys);
+    const keysFiltered = keys.filter((x) => filterName(filter, x));
+    const res = this.extractKeysFromLevel(root, keysFiltered);
     await this.enrichKeyInfo(pool, res);
     return res;
   },

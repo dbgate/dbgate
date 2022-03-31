@@ -197,8 +197,8 @@ async function handleCollectionData({ msgid, options }) {
   return handleDriverDataCore(msgid, driver => driver.readCollection(systemConnection, options));
 }
 
-async function handleLoadKeys({ msgid, root }) {
-  return handleDriverDataCore(msgid, driver => driver.loadKeys(systemConnection, root));
+async function handleLoadKeys({ msgid, root, filter }) {
+  return handleDriverDataCore(msgid, driver => driver.loadKeys(systemConnection, root, filter));
 }
 
 async function handleExportKeys({ msgid, options }) {

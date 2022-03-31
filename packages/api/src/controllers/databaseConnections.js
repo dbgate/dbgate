@@ -176,8 +176,8 @@ module.exports = {
   },
 
   loadKeys_meta: true,
-  async loadKeys({ conid, database, root }) {
-    return this.loadDataCore('loadKeys', { conid, database, root });
+  async loadKeys({ conid, database, root, filter }) {
+    return this.loadDataCore('loadKeys', { conid, database, root, filter });
   },
 
   exportKeys_meta: true,

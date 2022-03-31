@@ -17,6 +17,8 @@
 
   export let reloadToken = 0;
   export let connection;
+  export let filter;
+
   let reloadToken2 = 0;
 
   let maxShowCount = SHOW_INCREMENT;
@@ -24,7 +26,7 @@
   // $: items = useDatabaseKeys({ conid, database, root, reloadToken });
 </script>
 
-{#await apiCall('database-connections/load-keys', { conid, database, root, reloadToken, reloadToken2 })}
+{#await apiCall('database-connections/load-keys', { conid, database, root, filter, reloadToken, reloadToken2 })}
   <LoadingInfo message="Loading key list" wrapper />
 {:then items}
   {@const itemsSorted = _.sortBy(items || [], 'text')}
@@ -36,6 +38,7 @@
       {root}
       {connection}
       {item}
+      {filter}
       {indentLevel}
       onRefreshParent={() => {
         reloadToken2 += 1;

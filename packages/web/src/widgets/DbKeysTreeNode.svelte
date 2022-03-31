@@ -23,6 +23,7 @@
 
   export let item;
   export let indentLevel = 0;
+  export let filter;
 
   export let onRefreshParent;
 
@@ -170,5 +171,13 @@
 </div> -->
 
 {#if isExpanded}
-  <DbKeysSubTree {conid} {database} root={item.root} indentLevel={indentLevel + 1} {reloadToken} {connection} />
+  <DbKeysSubTree
+    {conid}
+    {database}
+    root={item.root}
+    indentLevel={indentLevel + 1}
+    {reloadToken}
+    {connection}
+    {filter}
+  />
 {/if}
