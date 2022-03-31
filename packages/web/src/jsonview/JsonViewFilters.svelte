@@ -7,6 +7,7 @@
   export let managerSize;
   export let display;
   export let isDynamicStructure;
+  export let useEvalFilters;
 
   $: filters = display?.config?.filters;
 
@@ -15,6 +16,6 @@
 
 <ManagerInnerContainer width={managerSize}>
   {#each allFilterNames as uniqueName}
-    <JsonViewFilterColumn {uniqueName} {display} {filters} {isDynamicStructure} />
+    <JsonViewFilterColumn {uniqueName} {display} {filters} {isDynamicStructure} {useEvalFilters} />
   {/each}
 </ManagerInnerContainer>

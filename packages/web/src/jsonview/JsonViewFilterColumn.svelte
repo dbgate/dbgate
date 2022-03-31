@@ -10,8 +10,10 @@
   export let display;
   export let filters;
   export let isDynamicStructure;
+  export let useEvalFilters;
 
-  function computeFilterType(isDynamicStructure, display, uniqueName) {
+  function computeFilterType(isDynamicStructure, display, uniqueName, useEvalFilters) {
+    if (useEvalFilters) return 'eval';
     if (isDynamicStructure) return 'mongo';
     const col = display.findColumn(uniqueName);
     if (col) {
@@ -35,7 +37,7 @@
     </InlineButton>
   </div>
   <DataFilterControl
-    filterType={computeFilterType(isDynamicStructure, display, uniqueName)}
+    filterType={computeFilterType(isDynamicStructure, display, uniqueName, useEvalFilters)}
     filter={filters[uniqueName]}
     setFilter={value => display.setFilter(uniqueName, value)}
   />

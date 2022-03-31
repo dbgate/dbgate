@@ -58,5 +58,6 @@
     gridCoreComponent={JslDataGridCore}
     bind:loadedRows
     isDynamicStructure={$info?.__isDynamicStructure}
+    useEvalFilters
   />
 {/key}

@@ -21,7 +21,7 @@ export class JslGridDisplay extends GridDisplay {
     this.filterable = true;
     this.supportsReload = supportsReload;
     this.isDynamicStructure = isDynamicStructure;
-    if (isDynamicStructure) this.filterTypeOverride = 'string';
+    this.filterTypeOverride = 'eval';
 
     if (structure?.columns) {
       this.columns = _.uniqBy(

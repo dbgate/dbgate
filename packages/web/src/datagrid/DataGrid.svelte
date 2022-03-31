@@ -80,6 +80,7 @@
   export let display;
   export let changeSetState;
   export let dispatchChangeSet;
+  export let useEvalFilters = false;
 
   export let isDetailView = false;
   export let showReferences = false;
@@ -181,7 +182,7 @@
         height={'30%'}
         skip={!isDynamicStructure || !display?.filterable}
       >
-        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} />
+        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} {useEvalFilters} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
@@ -191,7 +192,7 @@
         skip={!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView}
         collapsed={isDetailView}
       >
-        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} />
+        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} {useEvalFilters} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem

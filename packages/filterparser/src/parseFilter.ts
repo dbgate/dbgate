@@ -254,10 +254,10 @@ const createParser = (filterType: FilterType) => {
     eq: r => word('=').then(r.value).map(binaryCondition('=')),
     ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
     ne2: r => word('<>').then(r.value).map(binaryCondition('<>')),
-    lt: r => word('<').then(r.value).map(binaryCondition('<')),
-    gt: r => word('>').then(r.value).map(binaryCondition('>')),
     le: r => word('<=').then(r.value).map(binaryCondition('<=')),
     ge: r => word('>=').then(r.value).map(binaryCondition('>=')),
+    lt: r => word('<').then(r.value).map(binaryCondition('<')),
+    gt: r => word('>').then(r.value).map(binaryCondition('>')),
     startsWith: r => word('^').then(r.value).map(likeCondition('like', '#VALUE#%')),
     endsWith: r => word('$').then(r.value).map(likeCondition('like', '%#VALUE#')),
     contains: r => word('+').then(r.value).map(likeCondition('like', '%#VALUE#%')),
@@ -271,24 +271,30 @@ const createParser = (filterType: FilterType) => {
   };
 
   const allowedValues = []; // 'string1', 'string2', 'number', 'noQuotedString'];
-  if (filterType == 'string') allowedValues.push('string1', 'string2', 'noQuotedString');
-  if (filterType == 'number') allowedValues.push('string1Num', 'string2Num', 'number');
+  if (filterType == 'string' || filterType == 'eval') {
+    allowedValues.push('string1', 'string2', 'noQuotedString');
+  }
+  if (filterType == 'number') {
+    allowedValues.push('string1Num', 'string2Num', 'number');
+  }
 
   const allowedElements = ['null', 'notNull', 'eq', 'ne', 'ne2'];
-  if (filterType == 'number' || filterType == 'datetime') allowedElements.push('lt', 'gt', 'le', 'ge');
-  if (filterType == 'string')
-    allowedElements.push(
-      'empty',
-      'notEmpty',
-      'startsWith',
-      'endsWith',
-      'contains',
-      'startsWithNot',
-      'endsWithNot',
-      'containsNot'
-    );
-  if (filterType == 'logical') allowedElements.push('true', 'false', 'trueNum', 'falseNum');
-  if (filterType == 'datetime')
+  if (filterType == 'number' || filterType == 'datetime' || filterType == 'eval') {
+    allowedElements.push('le', 'ge', 'lt', 'gt');
+  }
+  if (filterType == 'string') {
+    allowedElements.push('empty', 'notEmpty');
+  }
+  if (filterType == 'eval' || filterType == 'string') {
+    allowedElements.push('startsWith', 'endsWith', 'contains', 'startsWithNot', 'endsWithNot', 'containsNot');
+  }
+  if (filterType == 'logical') {
+    allowedElements.push('true', 'false', 'trueNum', 'falseNum');
+  }
+  if (filterType == 'eval') {
+    allowedElements.push('true', 'false');
+  }
+  if (filterType == 'datetime') {
     allowedElements.push(
       'yearMonthDaySecond',
       'yearMonthDayMinute',
@@ -308,10 +314,13 @@ const createParser = (filterType: FilterType) => {
       'thisYear',
       'nextYear'
     );
-
+  }
   // must be last
-  if (filterType == 'string') allowedElements.push('valueTestStr');
-  else allowedElements.push('valueTestEq');
+  if (filterType == 'string' || filterType == 'eval') {
+    allowedElements.push('valueTestStr');
+  } else {
+    allowedElements.push('valueTestEq');
+  }
 
   return P.createLanguage(langDef);
 };
@@ -321,6 +330,7 @@ const parsers = {
   string: createParser('string'),
   datetime: createParser('datetime'),
   logical: createParser('logical'),
+  eval: createParser('eval'),
   mongo: mongoParser,
 };
 

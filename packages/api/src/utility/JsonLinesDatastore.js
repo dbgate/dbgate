@@ -163,6 +163,7 @@ class JsonLinesDatastore {
     const res = [];
     await lock.acquire('reader', async () => {
       await this._ensureReader(offset, filter);
+      // console.log(JSON.stringify(this.currentFilter, undefined, 2));
       for (let i = 0; i < limit; i += 1) {
         const line = await this._readLine(true);
         if (line == null) break;

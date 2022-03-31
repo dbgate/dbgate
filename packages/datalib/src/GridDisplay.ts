@@ -652,7 +652,8 @@ export abstract class GridDisplay {
     for (const name in filters) {
       const column = this.isDynamicStructure ? null : this.columns.find(x => x.columnName == name);
       if (!this.isDynamicStructure && !column) continue;
-      const filterType = this.isDynamicStructure ? this.filterTypeOverride ?? 'mongo' : getFilterType(column.dataType);
+      const filterType =
+        this.filterTypeOverride ?? (this.isDynamicStructure ? 'mongo' : getFilterType(column.dataType));
       try {
         const condition = parseFilter(filters[name], filterType);
         const replaced = _.cloneDeepWith(condition, (expr: Expression) => {

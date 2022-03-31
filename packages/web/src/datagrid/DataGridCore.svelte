@@ -335,6 +335,7 @@
   export let multipleGridsOnTab = false;
   export let tabControlHiddenTab = false;
   export let onCustomGridRefresh;
+  export let useEvalFilters = false;
   // export let generalAllowSave = false;
 
   export const activator = createActivator('DataGridCore', false);
@@ -1548,7 +1549,7 @@
                   {conid}
                   {database}
                   driver={display?.driver}
-                  filterType={col.filterType || getFilterType(col.dataType)}
+                  filterType={useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}
                   setFilter={value => display.setFilter(col.uniqueName, value)}
                   showResizeSplitter

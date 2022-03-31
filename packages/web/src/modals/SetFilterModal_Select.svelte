@@ -54,6 +54,21 @@
           { value: '$', label: 'ends with' },
           { value: '!$', label: 'does not end with' },
         ];
+      case 'eval':
+        return [
+          { value: '=', label: 'eqals' },
+          { value: '<>', label: 'does not equal' },
+          { value: '<', label: 'is smaller' },
+          { value: '>', label: 'is greater' },
+          { value: '<=', label: 'is smaller or equal' },
+          { value: '>=', label: 'is greater or equal' },
+          { value: '+', label: 'contains' },
+          { value: '~', label: 'does not contain' },
+          { value: '^', label: 'begins with' },
+          { value: '!^', label: 'does not begin with' },
+          { value: '$', label: 'ends with' },
+          { value: '!$', label: 'does not end with' },
+        ];
     }
   }
 </script>
