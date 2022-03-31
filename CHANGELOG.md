@@ -6,8 +6,11 @@ Builds:
  - app - classic electron app
  - all - docker, npm, app
 
+ ### 4.8.2
+ - ADDED(all): implemented missing redis search key logic
+
  ### 4.8.1
- - FIXED crash after disconnecting from all DBs
+ - FIXED(all): fixed crash after disconnecting from all DBs
 
 ### 4.8.0
 - ADDED(all): Redis support (support stream type), removed experimental status
