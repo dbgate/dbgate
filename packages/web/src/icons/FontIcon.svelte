@@ -179,6 +179,7 @@
     'img type-stream': 'mdi mdi-view-stream color-icon-blue',
     'img type-binary': 'mdi mdi-file color-icon-blue',
     'img type-rejson': 'mdi mdi-color-json color-icon-blue',
+    'img keydb': 'mdi mdi-key color-icon-blue',
   };
 </script>
 

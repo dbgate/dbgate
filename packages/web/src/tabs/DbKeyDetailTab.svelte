@@ -4,7 +4,13 @@
   const getCurrentEditor = () => getActiveComponent('DbKeyDetailTab');
 
   export const matchingProps = ['conid', 'database', 'isDefaultBrowser'];
-  export const allowAddToFavorites = props => true;
+  export const allowAddToFavorites = props => false;
+
+  function getKeyText(key) {
+    const keySplit = key.split(':');
+    if (keySplit.length > 1) return keySplit[keySplit.length - 1];
+    return key;
+  }
 </script>
 
 <script lang="ts">
@@ -25,7 +31,9 @@
   import DbKeyItemDetail from '../dbkeyvalue/DbKeyItemDetail.svelte';
   import DbKeyAddItemModal from '../modals/DbKeyAddItemModal.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import { changeTab } from '../utility/common';
 
+  export let tabid;
   export let conid;
   export let database;
   export let key;
@@ -38,6 +46,11 @@
   $: key = $activeDbKeysStore[`${conid}:${database}`];
   let refreshToken = 0;
   let editedValue = null;
+
+  $: changeTab(tabid, tab => ({
+    ...tab,
+    title: getKeyText(key),
+  }));
 
   function handleChangeTtl(keyInfo) {
     showModal(InputTextModal, {

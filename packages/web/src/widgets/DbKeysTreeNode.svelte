@@ -148,7 +148,8 @@
     } else {
       openNewTab({
         tabComponent: 'DbKeyDetailTab',
-        title: 'Key: ' + database,
+        title: item.text,
+        icon: 'img keydb',
         props: {
           isDefaultBrowser: true,
           conid,
