@@ -76,6 +76,7 @@ module.exports = [
       { command: 'app.openIssue', hideDisabled: true },
       { command: 'app.openSponsoring', hideDisabled: true },
       { divider: true },
+      { command: 'settings.commands', hideDisabled: true },
       { command: 'tabs.changelog', hideDisabled: true },
       { command: 'about.show', hideDisabled: true },
     ],
