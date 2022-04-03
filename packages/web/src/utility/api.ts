@@ -5,6 +5,7 @@ import getElectron from './getElectron';
 // import socket from './socket';
 
 let eventSource;
+let apiLogging = false;
 // let cacheCleanerRegistered;
 
 function wantEventSource() {
@@ -15,10 +16,18 @@ function wantEventSource() {
 }
 
 export async function apiCall(route: string, args: {} = undefined) {
+  if (apiLogging) {
+    console.log('>>> API CALL', route, args);
+  }
+
   const electron = getElectron();
   if (electron) {
-    // console.log('CALLING API', route.replace('/', '-'), JSON.stringify(args == null ? null : args));
     const resp = await electron.invoke(route.replace('/', '-'), args);
+
+    if (apiLogging) {
+      console.log('<<< API RESPONSE', route, args, resp);
+    }
+
     return resp;
   } else {
     const resp = await fetch(`${resolveApi()}/${route}`, {
@@ -30,7 +39,14 @@ export async function apiCall(route: string, args: {} = undefined) {
       },
       body: JSON.stringify(args),
     });
-    return resp.json();
+
+    const json = await resp.json();
+
+    if (apiLogging) {
+      console.log('<<< API RESPONSE', route, args, json);
+    }
+
+    return json;
   }
 }
 
@@ -41,6 +57,9 @@ export function apiOn(event: string, handler: Function) {
   if (electron) {
     if (!apiHandlers.has(handler)) {
       const handlerProxy = (e, data) => {
+        if (apiLogging) {
+          console.log('@@@ API EVENT', event, data);
+        }
         handler(data);
       };
       apiHandlers.set(handler, handlerProxy);
@@ -51,8 +70,12 @@ export function apiOn(event: string, handler: Function) {
     wantEventSource();
     if (!apiHandlers.has(handler)) {
       const handlerProxy = e => {
-        // console.log('RECEIVED', e.type, JSON.parse(e.data));
-        handler(JSON.parse(e.data));
+        const json = JSON.parse(e.data);
+        if (apiLogging) {
+          console.log('@@@ API EVENT', event, json);
+        }
+
+        handler(json);
       };
       apiHandlers.set(handler, handlerProxy);
     }
@@ -87,3 +110,15 @@ export function useApiCall(route, args, defaultValue) {
 
   return result;
 }
+
+function enableApiLog() {
+  apiLogging = true;
+  console.log('API loggin enabled');
+}
+function disableApiLog() {
+  apiLogging = false;
+  console.log('API loggin disabled');
+}
+
+window['enableApiLog'] = enableApiLog;
+window['disableApiLog'] = disableApiLog;
