@@ -22,8 +22,13 @@ function processApiResponse(route, args, resp) {
   }
 
   if (resp?.apiErrorMessage) {
-    showSnackbarError(resp?.apiErrorMessage);
+    showSnackbarError('API error:' + resp?.apiErrorMessage);
+    return {
+      errorMessage: resp.apiErrorMessage,
+    };
   }
+
+  return resp;
 }
 
 export async function apiCall(route: string, args: {} = undefined) {
@@ -34,8 +39,7 @@ export async function apiCall(route: string, args: {} = undefined) {
   const electron = getElectron();
   if (electron) {
     const resp = await electron.invoke(route.replace('/', '-'), args);
-    processApiResponse(route, args, resp);
-    return resp;
+    return processApiResponse(route, args, resp);
   } else {
     const resp = await fetch(`${resolveApi()}/${route}`, {
       method: 'POST',
@@ -48,8 +52,7 @@ export async function apiCall(route: string, args: {} = undefined) {
     });
 
     const json = await resp.json();
-    processApiResponse(route, args, json);
-    return json;
+    return processApiResponse(route, args, json);
   }
 }
 
