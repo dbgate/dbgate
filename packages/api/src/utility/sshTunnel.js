@@ -6,7 +6,6 @@ const lock = new AsyncLock();
 const { fork } = require('child_process');
 const processArgs = require('../utility/processArgs');
 
-// const sshConnectionCache = {};
 const sshTunnelCache = {};
 
 const CONNECTION_FIELDS = [
@@ -21,7 +20,7 @@ const CONNECTION_FIELDS = [
 ];
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
-function callForwardProcess(connection, tunnelConfig) {
+function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
   let subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
     '--is-forked-api',
     '--start-process',
@@ -39,7 +38,7 @@ function callForwardProcess(connection, tunnelConfig) {
       // @ts-ignore
       const { msgtype, errorMessage } = resp;
       if (msgtype == 'connected') {
-        resolve(resp);
+        resolve(subprocess);
       }
       if (msgtype == 'error') {
         reject(errorMessage);
@@ -47,6 +46,7 @@ function callForwardProcess(connection, tunnelConfig) {
     });
     subprocess.on('exit', code => {
       console.log('SSH forward process exited');
+      delete sshTunnelCache[tunnelCacheKey];
     });
   });
 }
@@ -69,7 +69,7 @@ async function getSshTunnel(connection) {
         `Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
-      await callForwardProcess(connection, tunnelConfig);
+      const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey);
 
       console.log(
         `Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
@@ -78,6 +78,7 @@ async function getSshTunnel(connection) {
       sshTunnelCache[tunnelCacheKey] = {
         state: 'ok',
         localPort,
+        subprocess,
       };
       return sshTunnelCache[tunnelCacheKey];
     } catch (err) {
