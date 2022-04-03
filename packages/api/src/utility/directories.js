@@ -8,7 +8,7 @@ const processArgs = require('./processArgs');
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
-    if (clean && fs.existsSync(dir)) {
+    if (clean && fs.existsSync(dir) && !platformInfo.isForkedApi) {
       console.log(`Cleaning directory ${dir}`);
       cleanDirectory(dir);
     }
