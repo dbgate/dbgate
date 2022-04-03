@@ -15,6 +15,8 @@
   export let headerText = '';
   export let columnName = '';
   export let extInfo = null;
+  export let dataType = null;
+  export let showDataType = false;
 
   $: icon = getColumnIcon($$props, forceIcon);
 </script>
@@ -26,6 +28,9 @@
   {headerText || columnName}
   {#if extInfo}
     <span class="extinfo">{extInfo}</span>
+  {/if}
+  {#if showDataType && dataType}
+    <span class="extinfo">{dataType.toLowerCase()}</span>
   {/if}
 </span>
 

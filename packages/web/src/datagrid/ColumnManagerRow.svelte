@@ -52,7 +52,7 @@
       }}
     />
   {/if}
-  <ColumnLabel {...column} />
+  <ColumnLabel {...column} showDataType />
 </div>
 
 <style>

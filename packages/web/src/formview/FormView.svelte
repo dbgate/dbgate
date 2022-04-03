@@ -567,6 +567,7 @@
                   {...col}
                   headerText={col.columnName}
                   extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
+                  showDataType={!col.foreignKey}
                 />
               </div>
             </td>
