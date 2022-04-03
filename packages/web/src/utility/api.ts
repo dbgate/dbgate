@@ -3,6 +3,7 @@ import { writable } from 'svelte/store';
 // import { cacheClean } from './cache';
 import getElectron from './getElectron';
 // import socket from './socket';
+import { showSnackbarError } from '../utility/snackbar';
 
 let eventSource;
 let apiLogging = false;
@@ -15,6 +16,16 @@ function wantEventSource() {
   }
 }
 
+function processApiResponse(route, args, resp) {
+  if (apiLogging) {
+    console.log('<<< API RESPONSE', route, args, resp);
+  }
+
+  if (resp?.apiErrorMessage) {
+    showSnackbarError(resp?.apiErrorMessage);
+  }
+}
+
 export async function apiCall(route: string, args: {} = undefined) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
@@ -23,11 +34,7 @@ export async function apiCall(route: string, args: {} = undefined) {
   const electron = getElectron();
   if (electron) {
     const resp = await electron.invoke(route.replace('/', '-'), args);
-
-    if (apiLogging) {
-      console.log('<<< API RESPONSE', route, args, resp);
-    }
-
+    processApiResponse(route, args, resp);
     return resp;
   } else {
     const resp = await fetch(`${resolveApi()}/${route}`, {
@@ -41,11 +48,7 @@ export async function apiCall(route: string, args: {} = undefined) {
     });
 
     const json = await resp.json();
-
-    if (apiLogging) {
-      console.log('<<< API RESPONSE', route, args, json);
-    }
-
+    processApiResponse(route, args, json);
     return json;
   }
 }

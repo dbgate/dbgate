@@ -31,9 +31,14 @@ module.exports = function useController(app, electron, route, controller) {
         const handler = `${route.substring(1)}-${_.kebabCase(key)}`;
         // console.log('REGISTERING HANDLER', handler);
         electron.ipcMain.handle(handler, async (event, args) => {
-          const data = await controller[key](args);
-          // console.log('HANDLED API', handler, data);
-          return data;
+          try {
+            const data = await controller[key](args);
+            // console.log('HANDLED API', handler, data);
+            if (data === undefined) return null;
+            return data;
+          } catch (err) {
+            return { apiErrorMessage: err.message };
+          }
         });
       }
 
@@ -68,7 +73,7 @@ module.exports = function useController(app, electron, route, controller) {
           res.json(data);
         } catch (e) {
           console.log(e);
-          res.status(500).json({ error: e.message });
+          res.status(500).json({ apiErrorMessage: e.message });
         }
       });
     }
