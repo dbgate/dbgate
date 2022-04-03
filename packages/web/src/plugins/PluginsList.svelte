@@ -1,7 +1,7 @@
 <script lang="ts">
   import openNewTab from '../utility/openNewTab';
 
-  import { extractPluginAuthor, extractPluginIcon } from './manifestExtractors';
+  import { extractPluginAuthor, extractPluginDescription, extractPluginIcon } from './manifestExtractors';
 
   export let plugins: any[];
 
@@ -30,7 +30,7 @@
         {/if}
       </div>
       <div>
-        {(packageManifest.description?.indexOf('[![') >= 0 ? null : packageManifest.description) || '(No description)'}
+        {extractPluginDescription(packageManifest)}
       </div>
       <div class="bold">
         {extractPluginAuthor(packageManifest)}
