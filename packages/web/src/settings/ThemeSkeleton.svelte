@@ -2,27 +2,32 @@
   import { ThemeDefinition } from 'dbgate-types';
   import FontIcon from '../icons/FontIcon.svelte';
   import { currentTheme } from '../stores';
+  import _ from 'lodash';
+
+  function extractThemeColors(theme: ThemeDefinition) {
+    if (!theme.themeCss) return {};
+
+    return _.fromPairs(
+      [...theme.themeCss.matchAll(/(--theme-[a-z0-9\-]+)\s*\:\s*(\#[0-9a-fA-F]{6})/g)].map(x => [x[1], x[2]])
+    );
+  }
 
   export let theme: ThemeDefinition;
-  // export let theme;
 
-  function getThemeStyle(val: ThemeDefinition) {
-    return `<style id="themePlugin">${val.themeCss}</style>`;
-  }
+  $: colors = extractThemeColors(theme);
+  $: cssVarColors = Object.entries(colors)
+    .map(([key, value]) => `${key}:${value}`)
+    .join(';');
 </script>
 
-{#if theme.themeCss}
-  {@html getThemeStyle(theme)}
-{/if}
-
 <div
-  style={theme?.themeCss || ''}
+  style={cssVarColors}
   class={`container ${theme.themeClassName}`}
   on:click={() => {
     $currentTheme = theme.themeClassName;
   }}
 >
-  <div class="iconbar">
+  <div class="iconbar-settings-modal">
     <div class="icon">
       <FontIcon icon="icon database" />
     </div>
@@ -32,7 +37,7 @@
     <div class="icon"><FontIcon icon="icon plugin" /></div>
   </div>
 
-  <div class="titlebar" />
+  <div class="titlebar-settings-modal" />
 
   <div class="content">
     <div class:current={$currentTheme == theme.themeClassName}>
@@ -51,7 +56,7 @@
     margin: 10px;
     cursor: pointer;
   }
-  .iconbar {
+  .iconbar-settings-modal {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -63,7 +68,7 @@
     background: var(--theme-bg-inv-1);
     color: var(--theme-font-inv-2);
   }
-  .titlebar {
+  .titlebar-settings-modal {
     left: 0;
     top: 0;
     right: 0;
