@@ -135,7 +135,7 @@ module.exports = {
     await fs.rmdir(dir, { recursive: true });
     socket.emitChanged(`installed-plugins-changed`);
     // this.removedPlugins.push(packageName);
-    await this.saveRemovePlugins();
+    // await this.saveRemovePlugins();
     return true;
   },
 

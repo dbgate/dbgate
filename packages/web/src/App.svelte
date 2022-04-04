@@ -19,6 +19,7 @@
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
 
   let loadedApi = false;
+  let loadedPlugins = false;
 
   async function loadApi() {
     // if (shouldWaitForElectronInitialize()) {
@@ -61,6 +62,7 @@
   $: {
     if (loadedApi && $loadingPluginStore?.loaded) {
       setAppLoaded();
+      loadedPlugins = true;
     }
   }
 </script>
@@ -72,7 +74,7 @@
   <CommandListener />
   <PluginsProvider />
   <AppTitleProvider />
-  {#if $loadingPluginStore?.loaded}
+  {#if loadedPlugins}
     <OpenTabsOnStartup />
     <Screen />
   {:else}
