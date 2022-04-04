@@ -125,6 +125,7 @@ module.exports = {
     socket.emitChanged(`installed-plugins-changed`);
     // this.removedPlugins = this.removedPlugins.filter(x => x != packageName);
     // await this.saveRemovePlugins();
+    return true;
   },
 
   uninstall_meta: true,
@@ -135,6 +136,7 @@ module.exports = {
     socket.emitChanged(`installed-plugins-changed`);
     // this.removedPlugins.push(packageName);
     await this.saveRemovePlugins();
+    return true;
   },
 
   upgrade_meta: true,
@@ -148,6 +150,7 @@ module.exports = {
     }
 
     socket.emitChanged(`installed-plugins-changed`);
+    return true;
   },
 
   command_meta: true,
