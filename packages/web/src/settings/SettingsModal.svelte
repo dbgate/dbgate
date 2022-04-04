@@ -1,6 +1,7 @@
 <script lang="ts">
   import _ from 'lodash';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import Link from '../elements/Link.svelte';
   import TabControl from '../elements/TabControl.svelte';
 
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
@@ -16,7 +17,7 @@
   import { closeCurrentModal } from '../modals/modalTools';
   import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import { currentEditorFontSize, currentEditorTheme, extensions } from '../stores';
+  import { currentEditorFontSize, currentEditorTheme, extensions, selectedWidget } from '../stores';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
 
@@ -40,6 +41,11 @@ GROUP BY
 ORDER BY
   Artist.Name ASC
   `;
+
+  function openThemePlugins() {
+    closeCurrentModal();
+    $selectedWidget = 'plugins';
+  }
 </script>
 
 <SettingsFormProvider>
@@ -102,6 +108,12 @@ ORDER BY
             {#each $extensions.themes as theme}
               <ThemeSkeleton {theme} />
             {/each}
+          </div>
+
+          <div class="m-5">
+            More themes are available as <Link onClick={openThemePlugins}>plugins</Link>
+            <br />
+            After installing theme plugin (try search "theme" in available extensions) new themes will be available here.
           </div>
 
           <div class="heading">Editor theme</div>
