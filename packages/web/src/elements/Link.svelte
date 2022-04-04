@@ -6,8 +6,8 @@
 </script>
 
 <a
-  on:click={() => {
-    if (onClick) onClick();
+  on:click={(e) => {
+    if (onClick) onClick(e);
     else openWebLink(href);
   }}
 >
