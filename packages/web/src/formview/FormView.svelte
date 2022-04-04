@@ -563,12 +563,7 @@
                   <FontIcon icon="icon invisible-box" />
                 {/if}
                 <span style={`margin-left: ${(col.uniquePath.length - 1) * 20}px`} />
-                <ColumnLabel
-                  {...col}
-                  headerText={col.columnName}
-                  extInfo={col.foreignKey ? ` -> ${col.foreignKey.refTableName}` : null}
-                  showDataType={!col.foreignKey}
-                />
+                <ColumnLabel {...col} headerText={col.columnName} showDataType {conid} {database} />
               </div>
             </td>
             <DataGridCell

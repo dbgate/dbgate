@@ -335,9 +335,9 @@
     tabComponent,
     scriptTemplate,
     { schemaName, pureName, conid, database, objectTypeField },
-    forceNewTab,
-    initialData,
-    icon
+    forceNewTab?,
+    initialData?,
+    icon?
   ) {
     const connection = await getConnectionInfo({ conid });
     const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({

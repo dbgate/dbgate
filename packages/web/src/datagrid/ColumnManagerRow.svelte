@@ -9,6 +9,8 @@
   export let display;
   export let isJsonView = false;
   export let isSelected = false;
+  export let conid;
+  export let database;
 
   const dispatch = createEventDispatcher();
 </script>
@@ -52,7 +54,7 @@
       }}
     />
   {/if}
-  <ColumnLabel {...column} showDataType />
+  <ColumnLabel {...column} showDataType {conid} {database} />
 </div>
 
 <style>

@@ -19,6 +19,8 @@
   export let display: GridDisplay;
   export let isJsonView = false;
   export let isDynamicStructure = false;
+  export let conid;
+  export let database;
 
   let filter;
   let domFocusField;
@@ -141,6 +143,8 @@
       {display}
       {column}
       {isJsonView}
+      {conid}
+      {database}
       isSelected={selectedColumns.includes(column.uniqueName) || currentColumnUniqueName == column.uniqueName}
       on:click={() => {
         if (domFocusField) domFocusField.focus();

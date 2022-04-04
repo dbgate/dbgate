@@ -8,7 +8,10 @@
 </script>
 
 <script lang="ts">
+  import { openDatabaseObjectDetail } from '../appobj/DatabaseObjectAppObject.svelte';
+
   import FontIcon from '../icons/FontIcon.svelte';
+  import Link from './Link.svelte';
 
   export let notNull = false;
   export let forceIcon = false;
@@ -17,6 +20,9 @@
   export let extInfo = null;
   export let dataType = null;
   export let showDataType = false;
+  export let foreignKey;
+  export let conid = undefined;
+  export let database = undefined;
 
   $: icon = getColumnIcon($$props, forceIcon);
 </script>
@@ -29,8 +35,31 @@
   {#if extInfo}
     <span class="extinfo">{extInfo}</span>
   {/if}
-  {#if showDataType && dataType}
-    <span class="extinfo">{dataType.toLowerCase()}</span>
+  {#if showDataType}
+    {#if foreignKey}
+      <span class="extinfo">
+        <FontIcon icon="icon arrow-right" />
+        {#if conid && database}
+          <Link
+            onClick={e => {
+              e.stopPropagation();
+
+              openDatabaseObjectDetail('TableDataTab', null, {
+                schemaName: foreignKey.refSchemaName,
+                pureName: foreignKey.refTableName,
+                conid,
+                database,
+                objectTypeField: 'tables',
+              });
+            }}>{foreignKey.refTableName}</Link
+          >
+        {:else}
+          {foreignKey.refTableName}
+        {/if}
+      </span>
+    {:else if dataType}
+      <span class="extinfo">{dataType.toLowerCase()}</span>
+    {/if}
   {/if}
 </span>
 
