@@ -6,6 +6,16 @@ Builds:
  - app - classic electron app
  - all - docker, npm, app
 
+### 4.8.3
+- FIXED(all): filters in query result and NDJSON/archive viewer
+- ADDED(all): Added select values from query result and NDJSON/archive viewer
+- ADDED(all): tab navigation in datagrid #254
+- ADDED(all): Keyboard shortcuts added to help menu #254
+- ADDED(all): API logging (run enableApiLog() in developers console to enable logging)
+- ADDED(all): SSH reconnect + moved SSH forward into separate fork #253
+- ADDED(all): Data type + reference link in column manager
+- FIXED(app): Unable to change theme after installing plugin #244
+
  ### 4.8.2
  - ADDED(all): implemented missing redis search key logic
 
