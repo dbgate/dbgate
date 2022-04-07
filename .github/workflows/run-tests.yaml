@@ -31,11 +31,6 @@ jobs:
         run: |
           cd packages/filterparser
           yarn test:ci
-      - name: Query spliiter tests
-        if: always()
-        run: |
-          cd packages/query-splitter
-          yarn test:ci
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
@@ -48,12 +43,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: packages/filterparser/result.json
           action-name: Filter parser test results
-      - uses: tanmen/jest-reporter@v1
-        if: always()
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          result-file: packages/query-splitter/result.json
-          action-name: Query splitter test results
 
     services:
       postgres:

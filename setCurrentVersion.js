@@ -4,7 +4,9 @@ const path = require('path');
 function changeDependencies(deps, version) {
   if (!deps) return;
   for (const key of Object.keys(deps)) {
-    if (key.startsWith('dbgate-') && key != 'dbgate-plugin-tools') deps[key] = `^${version}`;
+    if (key.startsWith('dbgate-') && key != 'dbgate-plugin-tools' && key != 'dbgate-query-splitter') {
+      deps[key] = `^${version}`;
+    }
   }
 }
 
@@ -40,7 +42,6 @@ changePackageFile('packages/datalib', json.version);
 changePackageFile('packages/dbgate', json.version);
 changePackageFile('packages/serve', json.version);
 changePackageFile('packages/filterparser', json.version);
-changePackageFile('packages/query-splitter', json.version);
 
 changePackageFile('plugins/dbgate-plugin-csv', json.version);
 changePackageFile('plugins/dbgate-plugin-xml', json.version);
