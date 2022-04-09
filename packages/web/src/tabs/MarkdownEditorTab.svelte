@@ -20,7 +20,7 @@
     icon: 'icon run',
     toolbar: true,
     isRelatedToTab: true,
-    keyText: 'F5 | Ctrl+Enter',
+    keyText: 'F5 | CtrlOrCommand+Enter',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
   });

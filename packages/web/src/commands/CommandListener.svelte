@@ -2,6 +2,7 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
+import { resolveKeyText } from '../utility/common';
 
   export function handleCommandKeyDown(e) {
     let keyText = '';
@@ -15,13 +16,13 @@
     const commandsFiltered: any = Object.values(commandsValue).filter(
       (x: any) =>
         x.keyText &&
-        x.keyText
+        resolveKeyText(x.keyText)
           .toLowerCase()
           .split('|')
           .map(x => x.trim())
           .includes(keyText.toLowerCase()) &&
         (x.disableHandleKeyText == null ||
-          !x.disableHandleKeyText
+          !resolveKeyText(x.disableHandleKeyText)
             .toLowerCase()
             .split('|')
             .map(x => x.trim())

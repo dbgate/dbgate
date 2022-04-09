@@ -24,7 +24,7 @@
     id: 'favoriteJsonEditor.preview',
     name: 'Preview',
     category: 'Favorite JSON editor',
-    keyText: 'F5 | Ctrl+Enter',
+    keyText: 'F5 | CtrlOrCommand+Enter',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().preview(),
   });

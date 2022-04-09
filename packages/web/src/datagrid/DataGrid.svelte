@@ -35,7 +35,7 @@
     id: 'dataGrid.toggleLeftPanel',
     category: 'Data grid',
     name: 'Toggle left panel',
-    keyText: 'Ctrl+L',
+    keyText: 'CtrlOrCommand+L',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().toggleLeftPanel(),
   });

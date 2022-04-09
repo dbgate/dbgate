@@ -104,7 +104,7 @@
     id: 'tabs.nextTab',
     category: 'Tabs',
     name: 'Next tab',
-    keyText: 'Ctrl+Tab',
+    keyText: 'CtrlOrCommand+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => {
       const tabs = get(openedTabs).filter(x => x.closedTime == null);
@@ -124,7 +124,7 @@
     id: 'tabs.closeTab',
     category: 'Tabs',
     name: 'Close tab',
-    keyText: isElectronAvailable() ? 'Ctrl+W' : null,
+    keyText: isElectronAvailable() ? 'CtrlOrCommand+W' : null,
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 1,
     onClick: closeCurrentTab,
   });

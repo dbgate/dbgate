@@ -13,7 +13,7 @@
     id: 'query.insertSqlJoin',
     category: 'Query',
     name: 'Insert SQL Join',
-    keyText: 'Ctrl+J',
+    keyText: 'CtrlOrCommand+J',
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
@@ -34,7 +34,7 @@
     id: 'query.executeCurrent',
     category: 'Query',
     name: 'Execute current',
-    keyText: 'Ctrl+Shift+Enter',
+    keyText: 'CtrlOrCommand+Shift+Enter',
     testEnabled: () =>
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
     onClick: () => getCurrentEditor().executeCurrent(),

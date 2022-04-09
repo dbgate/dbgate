@@ -1,13 +1,16 @@
 <script context="module">
   function getCommandTitle(command) {
     let res = command.text;
-    if (command.keyText || command.keyTextFromGroup) res += ` (${command.keyText || command.keyTextFromGroup})`;
+    if (command.keyText || command.keyTextFromGroup) {
+      res += ` (${formatKeyText(command.keyText || command.keyTextFromGroup)})`;
+    }
     return res;
   }
 </script>
 
 <script lang="ts">
   import { commandsCustomized } from '../stores';
+  import { formatKeyText } from '../utility/common';
   import ToolStripButton from './ToolStripButton.svelte';
 
   export let command;

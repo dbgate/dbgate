@@ -6,7 +6,7 @@
     group: 'save',
     category: 'Table data',
     name: 'Save',
-    // keyText: 'Ctrl+S',
+    // keyText: 'CtrlOrCommand+S',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon save',

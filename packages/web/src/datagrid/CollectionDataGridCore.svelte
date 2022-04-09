@@ -13,7 +13,7 @@
     id: 'collectionDataGrid.export',
     category: 'Data grid',
     name: 'Export',
-    keyText: 'Ctrl+E',
+    keyText: 'CtrlOrCommand+E',
     icon: 'icon export',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().exportGrid(),

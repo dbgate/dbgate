@@ -6,7 +6,7 @@
     category: 'Data grid',
     name: 'Export',
     icon: 'icon export',
-    keyText: 'Ctrl+E',
+    keyText: 'CtrlOrCommand+E',
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().exportGrid(),
   });

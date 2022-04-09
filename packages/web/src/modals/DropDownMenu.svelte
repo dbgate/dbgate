@@ -42,6 +42,7 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { prepareMenuItems } from '../utility/contextMenu';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { formatKeyText } from '../utility/common';
 
   export let items;
   export let top;
@@ -115,7 +116,7 @@
         <a on:click={e => handleClick(e, item)} class:disabled={item.disabled}>
           {item.text || item.label}
           {#if item.keyText}
-            <span class="keyText">{item.keyText}</span>
+            <span class="keyText">{formatKeyText(item.keyText)}</span>
           {/if}
           {#if item.submenu}
             <div class="menu-right">

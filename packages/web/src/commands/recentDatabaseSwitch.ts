@@ -25,6 +25,6 @@ registerCommand({
   id: 'database.switch',
   category: 'Database',
   name: 'Change to recent',
-  keyText: 'Ctrl+D',
+  keyText: 'CtrlOrCommand+D',
   getSubCommands: () => getRecentDatabases().map(switchDatabaseCommand),
 });

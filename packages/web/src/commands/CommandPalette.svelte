@@ -18,7 +18,7 @@
     category: 'Database',
     toolbarName: 'Database search',
     name: 'Search',
-    keyText: isElectronAvailable() ? 'Ctrl+P' : 'F3',
+    keyText: isElectronAvailable() ? 'CtrlOrCommand+P' : 'F3',
     onClick: () => visibleCommandPalette.set('database'),
     testEnabled: () => getVisibleCommandPalette() != 'database',
   });

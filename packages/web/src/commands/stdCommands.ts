@@ -97,7 +97,7 @@ registerCommand({
   toolbarOrder: 2,
   name: 'Query',
   toolbarName: 'New query',
-  keyText: 'Ctrl+Q',
+  keyText: 'CtrlOrCommand+Q',
   onClick: () => newQuery(),
 });
 
@@ -321,7 +321,7 @@ registerCommand({
   category: null,
   isGroupCommand: true,
   name: 'Save',
-  keyText: 'Ctrl+S',
+  keyText: 'CtrlOrCommand+S',
   group: 'save',
 });
 
@@ -330,7 +330,7 @@ registerCommand({
   category: null,
   isGroupCommand: true,
   name: 'Save As',
-  keyText: 'Ctrl+Shift+S',
+  keyText: 'CtrlOrCommand+Shift+S',
   group: 'saveAs',
 });
 
@@ -339,7 +339,7 @@ registerCommand({
   category: null,
   isGroupCommand: true,
   name: 'Undo',
-  keyText: 'Ctrl+Z',
+  keyText: 'CtrlOrCommand+Z',
   group: 'undo',
 });
 
@@ -348,7 +348,7 @@ registerCommand({
   category: null,
   isGroupCommand: true,
   name: 'Redo',
-  keyText: 'Ctrl+Y',
+  keyText: 'CtrlOrCommand+Y',
   group: 'redo',
 });
 
@@ -356,7 +356,7 @@ registerCommand({
   id: 'file.open',
   category: 'File',
   name: 'Open',
-  keyText: 'Ctrl+O',
+  keyText: 'CtrlOrCommand+O',
   testEnabled: () => getElectron() != null,
   onClick: openElectronFile,
 });
@@ -492,7 +492,7 @@ export function registerFileCommands({
       group: 'save',
       category,
       name: 'Save',
-      // keyText: 'Ctrl+S',
+      // keyText: 'CtrlOrCommand+S',
       icon: 'icon save',
       toolbar: true,
       isRelatedToTab: true,
@@ -524,7 +524,7 @@ export function registerFileCommands({
       icon: 'icon run',
       toolbar: true,
       isRelatedToTab: true,
-      keyText: 'F5 | Ctrl+Enter',
+      keyText: 'F5 | CtrlOrCommand+Enter',
       testEnabled: () =>
         getCurrentEditor() != null &&
         !getCurrentEditor()?.isBusy() &&
@@ -548,8 +548,8 @@ export function registerFileCommands({
       id: idPrefix + '.toggleComment',
       category,
       name: 'Toggle comment',
-      keyText: 'Ctrl+/',
-      disableHandleKeyText: 'Ctrl+/',
+      keyText: 'CtrlOrCommand+/',
+      disableHandleKeyText: 'CtrlOrCommand+/',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().toggleComment(),
     });
@@ -560,14 +560,14 @@ export function registerFileCommands({
       id: idPrefix + '.find',
       category,
       name: 'Find',
-      keyText: 'Ctrl+F',
+      keyText: 'CtrlOrCommand+F',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().find(),
     });
     registerCommand({
       id: idPrefix + '.replace',
       category,
-      keyText: 'Ctrl+H',
+      keyText: 'CtrlOrCommand+H',
       name: 'Replace',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().replace(),
@@ -666,7 +666,7 @@ registerCommand({
   id: 'app.zoomIn',
   category: 'Application',
   name: 'Zoom in',
-  keyText: 'Ctrl+=',
+  keyText: 'CtrlOrCommand+=',
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'zoomin'),
 });
@@ -675,7 +675,7 @@ registerCommand({
   id: 'app.zoomOut',
   category: 'Application',
   name: 'Zoom out',
-  keyText: 'Ctrl+-',
+  keyText: 'CtrlOrCommand+-',
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'zoomout'),
 });

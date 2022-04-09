@@ -17,7 +17,7 @@
     id: 'dataGrid.revertRowChanges',
     category: 'Data grid',
     name: 'Revert row changes',
-    keyText: 'Ctrl+R',
+    keyText: 'CtrlOrCommand+R',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertRowChanges(),
   });
@@ -35,7 +35,7 @@
     category: 'Data grid',
     name: 'Delete selected rows',
     toolbarName: 'Delete row(s)',
-    keyText: 'Ctrl+Delete',
+    keyText: 'CtrlOrCommand+Delete',
     icon: 'icon minus',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),
@@ -56,7 +56,7 @@
     id: 'dataGrid.setNull',
     category: 'Data grid',
     name: 'Set NULL',
-    keyText: 'Ctrl+0',
+    keyText: 'CtrlOrCommand+0',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().setFixedValue(null),
   });
@@ -97,8 +97,8 @@
     id: 'dataGrid.copyToClipboard',
     category: 'Data grid',
     name: 'Copy to clipboard',
-    keyText: 'Ctrl+C',
-    disableHandleKeyText: 'Ctrl+C',
+    keyText: 'CtrlOrCommand+C',
+    disableHandleKeyText: 'CtrlOrCommand+C',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().copyToClipboard(),
   });
@@ -106,7 +106,7 @@
   registerCommand({
     id: 'dataGrid.editJsonDocument',
     category: 'Data grid',
-    keyText: 'Ctrl+J',
+    keyText: 'CtrlOrCommand+J',
     name: 'Edit row as JSON document',
     testEnabled: () => getCurrentDataGrid()?.editJsonEnabled(),
     onClick: () => getCurrentDataGrid().editJsonDocument(),
@@ -164,7 +164,7 @@
     id: 'dataGrid.filterSelected',
     category: 'Data grid',
     name: 'Filter selected value',
-    keyText: 'Ctrl+Shift+F',
+    keyText: 'CtrlOrCommand+Shift+F',
     testEnabled: () => getCurrentDataGrid()?.getDisplay().filterable,
     onClick: () => getCurrentDataGrid().filterSelectedValue(),
   });
@@ -173,7 +173,7 @@
     id: 'dataGrid.findColumn',
     category: 'Data grid',
     name: 'Find column',
-    keyText: 'Ctrl+F',
+    keyText: 'CtrlOrCommand+F',
     testEnabled: () => getCurrentDataGrid() != null,
     getSubCommands: () => getCurrentDataGrid().buildFindMenu(),
   });
@@ -182,7 +182,7 @@
     id: 'dataGrid.hideColumn',
     category: 'Data grid',
     name: 'Hide column',
-    keyText: 'Ctrl+H',
+    keyText: 'CtrlOrCommand+H',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().hideColumn(),
   });
@@ -191,7 +191,7 @@
     id: 'dataGrid.clearFilter',
     category: 'Data grid',
     name: 'Clear filter',
-    keyText: 'Ctrl+I',
+    keyText: 'CtrlOrCommand+I',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
@@ -200,7 +200,7 @@
     id: 'dataGrid.generateSqlFromData',
     category: 'Data grid',
     name: 'Generate SQL',
-    keyText: 'Ctrl+G',
+    keyText: 'CtrlOrCommand+G',
     testEnabled: () => getCurrentDataGrid()?.generateSqlFromDataEnabled(),
     onClick: () => getCurrentDataGrid().generateSqlFromData(),
   });
@@ -1433,7 +1433,7 @@
       {
         text: copyRowsFormatDefs[$copyRowsFormat].label,
         onClick: () => copyToClipboardCore($copyRowsFormat),
-        keyText: 'Ctrl+C',
+        keyText: 'CtrlOrCommand+C',
         tag: 'copy',
       },
     ];
