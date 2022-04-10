@@ -54,6 +54,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
+          CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
 
       - name: generatePadFile
         run: |
