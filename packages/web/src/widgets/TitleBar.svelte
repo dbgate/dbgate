@@ -5,6 +5,7 @@
   import HorizontalMenu from '../modals/HorizontalMenu.svelte';
 
   import { activeTab, currentDatabase } from '../stores';
+  import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
 
   $: title = _.compact([$activeTab?.title, $currentDatabase?.name, 'DbGate']).join(' - ');
@@ -12,23 +13,27 @@
 </script>
 
 <div class="container">
-  <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
-  <div class="menu">
-    <HorizontalMenu items={mainMenuDefinition} />
-  </div>
+  {#if !isMac()}
+    <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
+    <div class="menu">
+      <HorizontalMenu items={mainMenuDefinition} />
+    </div>
+  {/if}
   <div class="title">{title}</div>
 
-  <div class="actions">
-    <div class="button" on:click={() => electron.send('window-action', 'minimize')}>
-      <FontIcon icon="icon window-minimize" />
+  {#if !isMac()}
+    <div class="actions">
+      <div class="button" on:click={() => electron.send('window-action', 'minimize')}>
+        <FontIcon icon="icon window-minimize" />
+      </div>
+      <div class="button">
+        <FontIcon icon="icon window-restore" on:click={() => electron.send('window-action', 'maximize')} />
+      </div>
+      <div class="button close-button" on:click={() => electron.send('window-action', 'close')}>
+        <FontIcon icon="icon window-close" />
+      </div>
     </div>
-    <div class="button">
-      <FontIcon icon="icon window-restore" on:click={() => electron.send('window-action', 'maximize')} />
-    </div>
-    <div class="button close-button" on:click={() => electron.send('window-action', 'close')}>
-      <FontIcon icon="icon window-close" />
-    </div>
-  </div>
+  {/if}
 </div>
 
 <style>

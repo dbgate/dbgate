@@ -18,6 +18,7 @@
   import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import { currentEditorFontSize, currentEditorTheme, extensions, selectedWidget } from '../stores';
+  import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
 
@@ -66,7 +67,7 @@ ORDER BY
             <div class="heading">Appearance</div>
             <FormCheckboxField
               name="app.useNativeMenu"
-              label="Use system native menu"
+              label={isMac() ? 'Use native window title' : 'Use system native menu'}
               on:change={() => {
                 restartWarning = true;
               }}

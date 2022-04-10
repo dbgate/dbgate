@@ -106,7 +106,7 @@ registerCommand({
   category: 'New',
   icon: 'img shell',
   name: 'JavaScript Shell',
-  menuName: ' New JavaScript shell',
+  menuName: 'New JavaScript shell',
   onClick: () => {
     openNewTab({
       title: 'Shell #',
