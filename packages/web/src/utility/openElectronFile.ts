@@ -139,6 +139,7 @@ export async function openElectronFile() {
       { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
       ...getFileFormatFilters(ext),
     ],
+    properties: ['showHiddenFiles', 'openFile'],
   });
   const filePath = filePaths && filePaths[0];
   if (canOpenByElectron(filePath, ext)) {

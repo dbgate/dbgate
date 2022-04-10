@@ -16,7 +16,7 @@
     if (!electron) return;
     const filePaths = await electron.showOpenDialog({
       defaultPath: values[name],
-      properties: ['showHiddenFiles'],
+      properties: ['showHiddenFiles', 'openFile'],
       filters: [{ name: 'All Files', extensions: ['*'] }],
     });
     const filePath = filePaths && filePaths[0];

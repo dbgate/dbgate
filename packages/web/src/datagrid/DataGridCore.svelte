@@ -567,7 +567,10 @@
 
   export async function loadCellFromFile() {
     const electron = getElectron();
-    const files = await electron.showOpenDialog({});
+    const files = await electron.showOpenDialog({
+      properties: ['showHiddenFiles', 'openFile'],
+      filters: [{ name: 'All Files', extensions: ['*'] }],
+    });
     const file = files && files[0];
     if (file) {
       const fs = window.require('fs');

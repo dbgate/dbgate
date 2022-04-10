@@ -164,14 +164,19 @@ const authTypesLoader = ({ engine }) => ({
   url: 'plugins/auth-types',
   params: { engine },
   reloadTrigger: `installed-plugins-changed`,
+  errorValue: null,
 });
 
 async function getCore(loader, args) {
-  const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
+  const { url, params, reloadTrigger, transform, onLoaded, errorValue } = loader(args);
   const key = stableStringify({ url, ...params });
 
   async function doLoad() {
     const resp = await apiCall(url, params);
+    if (resp?.errorMessage && errorValue !== undefined) {
+      if (onLoaded) onLoaded(errorValue);
+      return errorValue;
+    }
     const res = (transform || (x => x))(resp);
     if (onLoaded) onLoaded(res);
     return res;
