@@ -2,7 +2,7 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
-import { resolveKeyText } from '../utility/common';
+  import { resolveKeyText } from '../utility/common';
 
   export function handleCommandKeyDown(e) {
     let keyText = '';

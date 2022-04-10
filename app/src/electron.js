@@ -49,12 +49,22 @@ autoUpdater.logger = log;
 
 let commands = {};
 
+function formatKeyText(keyText) {
+  if (!keyText) {
+    return keyText;
+  }
+  if (os.platform() == 'darwin') {
+    return keyText.replace('CtrlOrCommand+', 'Command+');
+  }
+  return keyText;
+}
+
 function commandItem(id) {
   const command = commands[id];
   return {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
-    accelerator: command ? command.keyText : undefined,
+    accelerator: formatKeyText(command ? command.keyText : undefined),
     enabled: command ? command.enabled : false,
     click() {
       mainWindow.webContents.send('run-command', id);
@@ -86,7 +96,9 @@ ipcMain.on('update-commands', async (event, arg) => {
     // rebuild menu
     if (menu.label != command.text || menu.accelerator != command.keyText) {
       mainMenu = buildMenu();
-      mainWindow.setMenu(mainMenu);
+
+      Menu.setApplicationMenu(mainMenu);
+      // mainWindow.setMenu(mainMenu);
       return;
     }
 
