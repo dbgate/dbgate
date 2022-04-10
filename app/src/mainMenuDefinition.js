@@ -62,6 +62,7 @@ module.exports = [
     submenu: [
       { command: 'database.search', hideDisabled: true },
       { command: 'commandPalette.show', hideDisabled: true },
+      { command: 'database.switch', hideDisabled: true },
       { divider: true },
       { command: 'sql.generator', hideDisabled: true },
       { command: 'file.import', hideDisabled: true },
