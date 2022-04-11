@@ -56,7 +56,7 @@ function formatKeyText(keyText) {
   if (os.platform() == 'darwin') {
     return keyText.replace('CtrlOrCommand+', 'Command+');
   }
-  return keyText;
+  return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
 function commandItem(id) {
