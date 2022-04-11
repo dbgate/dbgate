@@ -42,20 +42,25 @@ export async function asyncFilter(arr, predicate) {
 
 export function isMac() {
   // @ts-ignore
-  const platform = navigator?.platform || navigator?.userAgentData?.platform || 'unknown'
+  const platform = navigator?.platform || navigator?.userAgentData?.platform || 'unknown';
   return platform.toUpperCase().indexOf('MAC') >= 0;
 }
 
 export function formatKeyText(keyText: string): string {
   if (isMac()) {
-    return keyText.replace('CtrlOrCommand+', '⌘ ').replace('Shift+', '⇧ ').replace('Alt+', '⌥ ')
+    return keyText
+      .replace('CtrlOrCommand+', '⌘ ')
+      .replace('Shift+', '⇧ ')
+      .replace('Alt+', '⌥ ')
+      .replace('Command+', '⌘ ')
+      .replace('Ctrl+', '⌃ ');
   }
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
 export function resolveKeyText(keyText: string): string {
   if (isMac()) {
-    return keyText.replace('CtrlOrCommand+', 'Command+')
+    return keyText.replace('CtrlOrCommand+', 'Command+');
   }
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
