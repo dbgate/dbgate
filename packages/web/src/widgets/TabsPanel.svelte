@@ -540,6 +540,7 @@
   .file-name {
     margin-left: 5px;
     white-space: nowrap;
+    flex-grow: 1;
   }
   .close-button {
     margin-left: 5px;
