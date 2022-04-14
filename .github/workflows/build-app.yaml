@@ -85,8 +85,7 @@ jobs:
           cp app/dist/*.exe artifacts/dbgate-latest.exe || true
           cp app/dist/*win_x64.zip artifacts/dbgate-windows-latest.zip || true
           cp app/dist/*win_arm64.zip artifacts/dbgate-windows-latest-arm64.zip || true
-          cp app/dist/*-mac_x64.dmg artifacts/dbgate-latest.dmg || true
-          cp app/dist/*-mac_arm64.dmg artifacts/dbgate-latest-arm64.dmg || true
+          cp app/dist/*-mac_universal.dmg artifacts/dbgate-latest.dmg || true
 
           mv app/dist/*.exe artifacts/ || true
           mv app/dist/*.zip artifacts/ || true

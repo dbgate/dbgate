@@ -15,7 +15,7 @@ Builds:
 - FIXED(mac): Fixed handling Command key on macOS
 - FIXED(mac): Fixed system menu on macOS
 - FIXED(mac): Fixed reopening main window on macOS
-- CHANGED: Shortcut for net query is now Ctrl+T or COmmand+T on macOS, former it was Ctrl+Q
+- CHANGED: Shortcut for net query is now Ctrl+T or Command+T on macOS, former it was Ctrl+Q
 - FIXED: Fixed misplaced tab close icon #260
 - ADDED: Added menu command "Tools/Change to recent database"
 
