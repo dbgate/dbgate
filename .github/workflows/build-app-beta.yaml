@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         # os: [macOS-10.15, windows-2022, ubuntu-18.04]
-        os: [macos-arm64]
+        os: [macOS-10.15]
 
     steps:
       - name: Context
