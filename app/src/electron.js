@@ -20,6 +20,7 @@ const { settings } = require('cluster');
 
 const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
+let apiLoaded = false;
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
@@ -41,6 +42,7 @@ try {
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let mainMenu;
+let runCommandOnLoad = null;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -59,15 +61,24 @@ function formatKeyText(keyText) {
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
-function commandItem(id) {
+function commandItem(item) {
+  const id = item.command;
   const command = commands[id];
+  if (item.skipInApp) {
+    return { skip: true };
+  }
   return {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
     enabled: command ? command.enabled : false,
     click() {
-      mainWindow.webContents.send('run-command', id);
+      if (mainWindow) {
+        mainWindow.webContents.send('run-command', id);
+      } else {
+        runCommandOnLoad = id;
+        createWindow();
+      }
     },
   };
 }
@@ -79,11 +90,17 @@ function buildMenu() {
     }
 
     if (item.command) {
-      return commandItem(item.command);
+      return commandItem(item);
     }
   });
 
-  return Menu.buildFromTemplate(template);
+  const templateFiltered = _cloneDeepWith(template, item => {
+    if (Array.isArray(item) && item.find(x => x.skip)) {
+      return item.filter(x => x && !x.skip);
+    }
+  });
+
+  return Menu.buildFromTemplate(templateFiltered);
 }
 
 ipcMain.on('update-commands', async (event, arg) => {
@@ -105,8 +122,12 @@ ipcMain.on('update-commands', async (event, arg) => {
     menu.enabled = command.enabled;
   }
 });
-ipcMain.on('close-window', async (event, arg) => {
-  mainWindow.close();
+ipcMain.on('quit-app', async (event, arg) => {
+  if (os.platform() == 'darwin') {
+    app.quit();
+  } else {
+    mainWindow.close();
+  }
 });
 ipcMain.on('set-title', async (event, arg) => {
   mainWindow.setTitle(arg);
@@ -250,27 +271,34 @@ function createWindow() {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
     // mainWindow.webContents.toggleDevTools();
+    if (runCommandOnLoad) {
+      mainWindow.webContents.send('run-command', runCommandOnLoad);
+      runCommandOnLoad = null;
+    }
   }
 
-  const apiPackage = path.join(
-    __dirname,
-    process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
-  );
+  if (!apiLoaded) {
+    const apiPackage = path.join(
+      __dirname,
+      process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
+    );
 
-  global.API_PACKAGE = apiPackage;
-  global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
+    global.API_PACKAGE = apiPackage;
+    global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
 
-  // console.log('global.API_PACKAGE', global.API_PACKAGE);
-  const api = require(apiPackage);
-  // console.log(
-  //   'REQUIRED',
-  //   path.resolve(
-  //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
-  //   )
-  // );
-  const main = api.getMainModule();
-  main.initializeElectronSender(mainWindow.webContents);
-  main.useAllControllers(null, electron);
+    // console.log('global.API_PACKAGE', global.API_PACKAGE);
+    const api = require(apiPackage);
+    // console.log(
+    //   'REQUIRED',
+    //   path.resolve(
+    //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
+    //   )
+    // );
+    const main = api.getMainModule();
+    main.initializeElectronSender(mainWindow.webContents);
+    main.useAllControllers(null, electron);
+    apiLoaded = true;
+  }
 
   loadMainWindow();
 
