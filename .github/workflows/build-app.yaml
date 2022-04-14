@@ -52,10 +52,15 @@ jobs:
           yarn run build:app
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
+
           WIN_CSC_LINK: ${{ secrets.WINCERT_CERTIFICATE }}
           WIN_CSC_KEY_PASSWORD: ${{ secrets.WINCERT_PASSWORD }}
+
           CSC_LINK: ${{ secrets.APPLECERT_CERTIFICATE }}
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
+
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: generatePadFile
         run: |
