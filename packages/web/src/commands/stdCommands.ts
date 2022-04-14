@@ -29,6 +29,7 @@ import { apiCall } from '../utility/api';
 import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
+import { isMac } from '../utility/common';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -97,7 +98,7 @@ registerCommand({
   toolbarOrder: 2,
   name: 'Query',
   toolbarName: 'New query',
-  keyText: 'CtrlOrCommand+Q',
+  keyText: 'CtrlOrCommand+T',
   onClick: () => newQuery(),
 });
 
@@ -457,9 +458,10 @@ if (hasPermission('settings/change')) {
 registerCommand({
   id: 'file.exit',
   category: 'File',
-  name: 'Exit',
+  name: isMac() ? 'Quit' : 'Exit',
+  // keyText: isMac() ? 'Command+Q' : null,
   testEnabled: () => getElectron() != null,
-  onClick: () => getElectron().send('close-window'),
+  onClick: () => getElectron().send('quit-app'),
 });
 
 registerCommand({

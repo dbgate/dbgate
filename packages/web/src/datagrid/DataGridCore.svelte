@@ -306,6 +306,7 @@
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
+  import { isCtrlOrCommandKey } from '../utility/common';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -976,7 +977,7 @@
       const oldCurrentCell = currentCell;
       currentCell = cell;
 
-      if (event.ctrlKey) {
+      if (isCtrlOrCommandKey(event)) {
         if (isRegularCell(cell)) {
           if (selectedCells.find(x => x[0] == cell[0] && x[1] == cell[1])) {
             selectedCells = selectedCells.filter(x => x[0] != cell[0] || x[1] != cell[1]);
@@ -1116,6 +1117,7 @@
     if (
       !event.ctrlKey &&
       !event.altKey &&
+      !event.metaKey &&
       ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
         (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
@@ -1150,7 +1152,7 @@
   function handleCursorMove(event) {
     if (!isRegularCell(currentCell)) return null;
     let rowCount = grider.rowCount;
-    if (event.ctrlKey) {
+    if (isCtrlOrCommandKey(event)) {
       switch (event.keyCode) {
         case keycodes.upArrow:
         case keycodes.pageUp:

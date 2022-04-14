@@ -177,6 +177,7 @@
   import { apiCall } from '../utility/api';
 
   import { copyTextToClipboard, extractRowCopiedValue } from '../utility/clipboard';
+  import { isCtrlOrCommandKey } from '../utility/common';
   import contextMenu, { getContextMenu, registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createReducer from '../utility/createReducer';
@@ -383,6 +384,7 @@
 
     if (
       !event.ctrlKey &&
+      !event.metaKey &&
       !event.altKey &&
       ((event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
         (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
@@ -472,7 +474,7 @@
       return moveCurrentCell(columnIndex % formDisplay.columns.length, Math.floor(columnIndex / rowCount) * 2);
     };
 
-    if (event.ctrlKey) {
+    if (isCtrlOrCommandKey(event)) {
       switch (event.keyCode) {
         case keycodes.leftArrow:
           return moveCurrentCell(currentCell[0], 0);

@@ -20,6 +20,9 @@ const { settings } = require('cluster');
 
 const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
+let apiLoaded = false;
+
+const isMac = () => os.platform() == 'darwin';
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
@@ -41,6 +44,7 @@ try {
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
 let mainMenu;
+let runCommandOnLoad = null;
 
 log.transports.file.level = 'debug';
 autoUpdater.logger = log;
@@ -59,29 +63,61 @@ function formatKeyText(keyText) {
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
 
-function commandItem(id) {
+function commandItem(item) {
+  const id = item.command;
   const command = commands[id];
+  if (item.skipInApp) {
+    return { skip: true };
+  }
   return {
     id,
     label: command ? command.menuName || command.toolbarName || command.name : id,
     accelerator: formatKeyText(command ? command.keyText : undefined),
     enabled: command ? command.enabled : false,
     click() {
-      mainWindow.webContents.send('run-command', id);
+      if (mainWindow) {
+        mainWindow.webContents.send('run-command', id);
+      } else {
+        runCommandOnLoad = id;
+        createWindow();
+      }
     },
   };
 }
 
 function buildMenu() {
-  const template = _cloneDeepWith(mainMenuDefinition, item => {
+  let template = _cloneDeepWith(mainMenuDefinition, item => {
     if (item.divider) {
       return { type: 'separator' };
     }
 
     if (item.command) {
-      return commandItem(item.command);
+      return commandItem(item);
     }
   });
+
+  template = _cloneDeepWith(template, item => {
+    if (Array.isArray(item) && item.find(x => x.skip)) {
+      return item.filter(x => x && !x.skip);
+    }
+  });
+
+  if (isMac()) {
+    template = [
+      {
+        label: 'DbGate',
+        submenu: [
+          commandItem({ command: 'about.show' }),
+          { role: 'services' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { role: 'quit' },
+        ],
+      },
+      ...template,
+    ];
+  }
 
   return Menu.buildFromTemplate(template);
 }
@@ -105,8 +141,12 @@ ipcMain.on('update-commands', async (event, arg) => {
     menu.enabled = command.enabled;
   }
 });
-ipcMain.on('close-window', async (event, arg) => {
-  mainWindow.close();
+ipcMain.on('quit-app', async (event, arg) => {
+  if (isMac()) {
+    app.quit();
+  } else {
+    mainWindow.close();
+  }
 });
 ipcMain.on('set-title', async (event, arg) => {
   mainWindow.setTitle(arg);
@@ -116,6 +156,12 @@ ipcMain.on('open-link', async (event, arg) => {
 });
 ipcMain.on('open-dev-tools', () => {
   mainWindow.webContents.openDevTools();
+});
+ipcMain.on('app-started', async (event, arg) => {
+  if (runCommandOnLoad) {
+    mainWindow.webContents.send('run-command', runCommandOnLoad);
+    runCommandOnLoad = null;
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
@@ -252,25 +298,28 @@ function createWindow() {
     // mainWindow.webContents.toggleDevTools();
   }
 
-  const apiPackage = path.join(
-    __dirname,
-    process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
-  );
+  if (!apiLoaded) {
+    const apiPackage = path.join(
+      __dirname,
+      process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js'
+    );
 
-  global.API_PACKAGE = apiPackage;
-  global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
+    global.API_PACKAGE = apiPackage;
+    global.NATIVE_MODULES = path.join(__dirname, 'nativeModules');
 
-  // console.log('global.API_PACKAGE', global.API_PACKAGE);
-  const api = require(apiPackage);
-  // console.log(
-  //   'REQUIRED',
-  //   path.resolve(
-  //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
-  //   )
-  // );
-  const main = api.getMainModule();
-  main.initializeElectronSender(mainWindow.webContents);
-  main.useAllControllers(null, electron);
+    // console.log('global.API_PACKAGE', global.API_PACKAGE);
+    const api = require(apiPackage);
+    // console.log(
+    //   'REQUIRED',
+    //   path.resolve(
+    //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
+    //   )
+    // );
+    const main = api.getMainModule();
+    main.initializeElectronSender(mainWindow.webContents);
+    main.useAllControllers(null, electron);
+    apiLoaded = true;
+  }
 
   loadMainWindow();
 
@@ -299,7 +348,7 @@ app.on('ready', onAppReady);
 app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (!isMac()) {
     app.quit();
   }
 });

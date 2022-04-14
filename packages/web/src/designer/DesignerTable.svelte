@@ -10,6 +10,7 @@
   import { showModal } from '../modals/modalTools';
   import { currentThemeDefinition } from '../stores';
   import VirtualForeignKeyEditorModal from '../tableeditor/VirtualForeignKeyEditorModal.svelte';
+  import { isCtrlOrCommandKey } from '../utility/common';
   import contextMenu from '../utility/contextMenu';
   import moveDrag from '../utility/moveDrag';
   import ColumnLine from './ColumnLine.svelte';
@@ -217,7 +218,7 @@
       e.stopPropagation();
       onBringToFront(table);
       if (settings?.canSelectTables && !table?.isSelectedTable) {
-        onSelectTable(table, e.ctrlKey);
+        onSelectTable(table, isCtrlOrCommandKey(e));
       }
     }
   }}

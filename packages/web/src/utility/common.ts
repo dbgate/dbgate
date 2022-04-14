@@ -64,3 +64,10 @@ export function resolveKeyText(keyText: string): string {
   }
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
+
+export function isCtrlOrCommandKey(event) {
+  if (isMac()) {
+    return event.metaKey;
+  }
+  return event.ctrlKey;
+}

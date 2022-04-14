@@ -13,6 +13,7 @@
   import createRef from '../utility/createRef';
   import _ from 'lodash';
   import { arrayToHexString, parseCellValue, stringifyCellValue } from 'dbgate-tools';
+  import { isCtrlOrCommandKey } from '../utility/common';
 
   export let inplaceEditorState;
   export let dispatchInsplaceEditor;
@@ -43,7 +44,7 @@
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
         break;
       case keycodes.s:
-        if (event.ctrlKey) {
+        if (isCtrlOrCommandKey(event)) {
           if (isChangedRef.get()) {
             onSetValue(parseCellValue(domEditor.value));
             // grider.setCellValue(rowIndex, uniqueName, editor.value);

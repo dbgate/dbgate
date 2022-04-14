@@ -15,8 +15,9 @@
     "url": "https://github.com/dbgate/dbgate.git"
   },
   "build": {
-    "artifactName": "${productName}-${version}-${os}_${arch}.${ext}",
+    "artifactName": "dbgate-${version}-${os}_${arch}.${ext}",
     "appId": "org.dbgate",
+    "productName": "DbGate",
     "mac": {
       "category": "database",
       "icon": "icon512.png",
@@ -26,8 +27,7 @@
       "target": {
         "target": "default",
         "arch": [
-          "arm64",
-          "x64"
+          "universal"
         ]
       }
     },
