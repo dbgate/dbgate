@@ -17,6 +17,7 @@
   import { apiCall } from './utility/api';
   import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
+  import getElectron from './utility/getElectron';
 
   let loadedApi = false;
   let loadedPlugins = false;
@@ -63,6 +64,7 @@
     if (loadedApi && $loadingPluginStore?.loaded) {
       setAppLoaded();
       loadedPlugins = true;
+      getElectron()?.send('app-started');
     }
   }
 </script>

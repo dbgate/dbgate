@@ -138,6 +138,12 @@ ipcMain.on('open-link', async (event, arg) => {
 ipcMain.on('open-dev-tools', () => {
   mainWindow.webContents.openDevTools();
 });
+ipcMain.on('app-started', async (event, arg) => {
+  if (runCommandOnLoad) {
+    mainWindow.webContents.send('run-command', runCommandOnLoad);
+    runCommandOnLoad = null;
+  }
+});
 ipcMain.on('window-action', async (event, arg) => {
   switch (arg) {
     case 'minimize':
@@ -271,10 +277,6 @@ function createWindow() {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
     // mainWindow.webContents.toggleDevTools();
-    if (runCommandOnLoad) {
-      mainWindow.webContents.send('run-command', runCommandOnLoad);
-      runCommandOnLoad = null;
-    }
   }
 
   if (!apiLoaded) {
