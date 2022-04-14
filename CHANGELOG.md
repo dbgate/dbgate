@@ -4,36 +4,49 @@ Builds:
  - docker - build
  - npm - npm package dbgate-serve
  - app - classic electron app
- - all - docker, npm, app
+ - mac - application for macOS
+ - linux - application for linux
+ - win - application for Windows
+
+### 4.8.4
+- FIXED(mac): Fixed build for macOS arm64 #259
+- FIXED(mac): Fixed opening SQLite files on macOS #243
+- FIXED(mac): Fixed opening PEM certificates on macOS #206
+- FIXED(mac): Fixed handling Command key on macOS
+- FIXED(mac): Fixed system menu on macOS
+- FIXED(mac): Fixed reopening main window on macOS
+- CHANGED: Shortcut for net query is now Ctrl+T or COmmand+T on macOS, former it was Ctrl+Q
+- FIXED: Fixed misplaced tab close icon #260
+- ADDED: Added menu command "Tools/Change to recent database"
 
 ### 4.8.3
-- FIXED(all): filters in query result and NDJSON/archive viewer
-- ADDED(all): Added select values from query result and NDJSON/archive viewer
-- ADDED(all): tab navigation in datagrid #254
-- ADDED(all): Keyboard shortcuts added to help menu #254
-- ADDED(all): API logging (run enableApiLog() in developers console to enable logging)
-- ADDED(all): SSH reconnect + moved SSH forward into separate fork #253
-- ADDED(all): Data type + reference link in column manager
-- FIXED(app): Unable to change theme after installing plugin #244
+- FIXED: filters in query result and NDJSON/archive viewer
+- ADDED: Added select values from query result and NDJSON/archive viewer
+- ADDED: tab navigation in datagrid #254
+- ADDED: Keyboard shortcuts added to help menu #254
+- ADDED: API logging (run enableApiLog() in developers console to enable logging)
+- ADDED: SSH reconnect + moved SSH forward into separate fork #253
+- ADDED: Data type + reference link in column manager
+- FIXED(win,linux,mac): Unable to change theme after installing plugin #244
 
  ### 4.8.2
- - ADDED(all): implemented missing redis search key logic
+ - ADDED: implemented missing redis search key logic
 
  ### 4.8.1
- - FIXED(all): fixed crash after disconnecting from all DBs
+ - FIXED: fixed crash after disconnecting from all DBs
 
 ### 4.8.0
-- ADDED(all): Redis support (support stream type), removed experimental status
-- ADDED(all): Redis readonly support
-- ADDED(all): Explicit NDJSON support, when opening NDJSON/JSON lines file, table data are immediately shown, without neccesarity to import
-- ADDED(app): Opening developer tools when crashing without reload app
+- ADDED: Redis support (support stream type), removed experimental status
+- ADDED: Redis readonly support
+- ADDED: Explicit NDJSON support, when opening NDJSON/JSON lines file, table data are immediately shown, without neccesarity to import
+- ADDED(win,linux,mac): Opening developer tools when crashing without reload app
 ### 4.7.4
-- ADDED(all): Experimental Redis support (full support is planned to version  4.8.0)
-- ADDED(all): Read-only connections
-- FIXED(all): MongoDB filters
-- ADDED(all): MongoDB column value selection
-- ADDED(all): App related queries
-- ADDED(all): Fuzzy search #246
+- ADDED: Experimental Redis support (full support is planned to version  4.8.0)
+- ADDED: Read-only connections
+- FIXED: MongoDB filters
+- ADDED: MongoDB column value selection
+- ADDED: App related queries
+- ADDED: Fuzzy search #246
 - ADDED(docker, npm): New permissions
 - FIXED(npm): NPM build no longer allocates additonal ports
 - CHANGED(npm): renamed NPM package dbgate => dbgate-serve 
