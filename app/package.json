@@ -27,7 +27,8 @@
       "target": {
         "target": "default",
         "arch": [
-          "universal"
+          "universal",
+          "x64"
         ]
       }
     },
