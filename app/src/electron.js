@@ -22,6 +22,8 @@ const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
 
+const isMac = () => os.platform() == 'darwin';
+
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
 } catch (err) {
@@ -84,7 +86,7 @@ function commandItem(item) {
 }
 
 function buildMenu() {
-  const template = _cloneDeepWith(mainMenuDefinition, item => {
+  let template = _cloneDeepWith(mainMenuDefinition, item => {
     if (item.divider) {
       return { type: 'separator' };
     }
@@ -94,13 +96,30 @@ function buildMenu() {
     }
   });
 
-  const templateFiltered = _cloneDeepWith(template, item => {
+  template = _cloneDeepWith(template, item => {
     if (Array.isArray(item) && item.find(x => x.skip)) {
       return item.filter(x => x && !x.skip);
     }
   });
 
-  return Menu.buildFromTemplate(templateFiltered);
+  if (isMac()) {
+    template = [
+      {
+        label: 'DbGate',
+        submenu: [
+          commandItem({ command: 'about.show' }),
+          { role: 'services' },
+          { role: 'hide' },
+          { role: 'hideOthers' },
+          { role: 'unhide' },
+          { role: 'quit' },
+        ],
+      },
+      ...template,
+    ];
+  }
+
+  return Menu.buildFromTemplate(template);
 }
 
 ipcMain.on('update-commands', async (event, arg) => {
@@ -123,7 +142,7 @@ ipcMain.on('update-commands', async (event, arg) => {
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {
-  if (os.platform() == 'darwin') {
+  if (isMac()) {
     app.quit();
   } else {
     mainWindow.close();
@@ -329,7 +348,7 @@ app.on('ready', onAppReady);
 app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (!isMac()) {
     app.quit();
   }
 });

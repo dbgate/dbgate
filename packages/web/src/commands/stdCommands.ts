@@ -458,8 +458,8 @@ if (hasPermission('settings/change')) {
 registerCommand({
   id: 'file.exit',
   category: 'File',
-  name: isMac() ? 'Quit DbGate' : 'Exit',
-  keyText: isMac() ? 'Command+Q' : null,
+  name: isMac() ? 'Quit' : 'Exit',
+  // keyText: isMac() ? 'Command+Q' : null,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('quit-app'),
 });
