@@ -51,6 +51,10 @@ export interface SupportedDbKeyType {
   showItemList?: boolean;
 }
 
+export interface SqlBackupDumper {
+  run();
+}
+
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -60,6 +64,7 @@ export interface EngineDriver {
   readOnlySessions: boolean;
   supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;
+  supportsDatabaseDump?: boolean;
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
@@ -99,6 +104,7 @@ export interface EngineDriver {
   dialect: SqlDialect;
   dialectByVersion(version): SqlDialect;
   createDumper(options = null): SqlDumper;
+  createBackupDumper(pool: any, options): Promise<SqlBackupDumper>;
   getAuthTypes(): EngineAuthType[];
   readCollection(pool: any, options: ReadCollectionOptions): Promise<any>;
   updateCollection(pool: any, changeSet: any): Promise<any>;

@@ -39,7 +39,7 @@ async function loadConnection(driver, storedConnection, connectionMode) {
   return storedConnection;
 }
 
-async function connectUtility(driver, storedConnection, connectionMode) {
+async function connectUtility(driver, storedConnection, connectionMode, additionalOptions = null) {
   const connectionLoaded = await loadConnection(driver, storedConnection, connectionMode);
 
   const connection = {
@@ -93,7 +93,7 @@ async function connectUtility(driver, storedConnection, connectionMode) {
     }
   }
 
-  const conn = await driver.connect(connection);
+  const conn = await driver.connect({ ...connection, ...additionalOptions });
   return conn;
 }
 

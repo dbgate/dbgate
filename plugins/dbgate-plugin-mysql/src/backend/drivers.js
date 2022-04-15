@@ -4,6 +4,7 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const { MySqlDumper } = require('antares-mysql-dumper');
 
 function extractColumns(fields) {
   if (fields) {
@@ -28,7 +29,7 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ server, port, user, password, database, ssl, isReadOnly }) {
+  async connect({ server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects }) {
     const connection = mysql2.createConnection({
       host: server,
       port,
@@ -36,7 +37,7 @@ const drivers = driverBases.map(driverBase => ({
       password,
       database,
       ssl,
-      rowsAsArray: true,
+      rowsAsArray: forceRowsAsObjects ? false : true,
       supportBigNumbers: true,
       bigNumberStrings: true,
       dateStrings: true,
@@ -171,6 +172,15 @@ const drivers = driverBases.map(driverBase => ({
   async writeTable(pool, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
+  },
+  async createBackupDumper(pool, options) {
+    const { outputFile, databaseName, schemaName } = options;
+    const res = new MySqlDumper({
+      connection: pool,
+      schema: databaseName || schemaName,
+      outputFile,
+    });
+    return res;
   },
 }));
 

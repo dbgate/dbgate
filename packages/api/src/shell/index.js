@@ -21,6 +21,7 @@ const executeQuery = require('./executeQuery');
 const loadFile = require('./loadFile');
 const deployDb = require('./deployDb');
 const initializeApiEnvironment = require('./initializeApiEnvironment');
+const dumpDatabase = require('./dumpDatabase');
 
 const dbgateApi = {
   queryReader,
@@ -45,6 +46,7 @@ const dbgateApi = {
   loadFile,
   deployDb,
   initializeApiEnvironment,
+  dumpDatabase,
 };
 
 requirePlugin.initializeDbgateApi(dbgateApi);

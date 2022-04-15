@@ -47,6 +47,7 @@ const mysqlDriverBase = {
   defaultPort: 3306,
   getQuerySplitterOptions: () => mysqlSplitterOptions,
   readOnlySessions: true,
+  supportsDatabaseDump: true,
 
   getNewObjectTemplates() {
     return [
