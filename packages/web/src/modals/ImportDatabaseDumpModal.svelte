@@ -1,13 +1,11 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
 
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import UploadButton from '../buttons/UploadButton.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
-  import FormTextField from '../forms/FormTextField.svelte';
-  import ElectronFilesInput from '../impexp/ElectronFilesInput.svelte';
   import { importSqlDump } from '../utility/exportFileTools';
   import getElectron from '../utility/getElectron';
   import { setUploadListener } from '../utility/uploadFiles';
@@ -23,7 +21,6 @@
   const handleSubmit = async values => {
     const { value } = values;
     closeCurrentModal();
-    // onConfirm(value);
     importSqlDump(inputFile, connection);
   };
 
@@ -42,13 +39,15 @@
     };
   });
 
-  const handleAddUrl = () =>
+  const handleAddUrl = () => {
     showModal(ChangeDownloadUrlModal, {
-      onConfirm: url => {
+      onConfirm: async url => {
+        await tick();
         inputLabel = url;
         inputFile = url;
       },
     });
+  };
 
   const handleBrowse = async () => {
     const electron = getElectron();

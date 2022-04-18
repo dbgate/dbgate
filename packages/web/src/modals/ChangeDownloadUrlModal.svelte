@@ -9,7 +9,7 @@
 
   export let onConfirm;
 
-  const handleSubmit = async e => {
+  const handleSubmit = e => {
     onConfirm(e.detail.url);
     closeCurrentModal();
   };

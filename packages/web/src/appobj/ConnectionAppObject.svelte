@@ -29,6 +29,7 @@
   import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall } from '../utility/api';
+  import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
 
   export let data;
   export let passProps;
@@ -56,6 +57,12 @@
         keepOpen: true,
       });
     }
+  };
+
+  const handleSqlRestore = () => {
+    showModal(ImportDatabaseDumpModal, {
+      connection: data,
+    });
   };
 
   const getContextMenu = () => {
@@ -158,6 +165,8 @@
         { divider: true },
         getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase, $apps),
       ],
+
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
     ];
   };
 
