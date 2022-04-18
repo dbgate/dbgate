@@ -29,7 +29,7 @@
             .includes(keyText.toLowerCase()))
     );
 
-    if (commandsFiltered.length > 0) {
+    if (commandsFiltered.length > 0 && commandsFiltered.find(x => !x.systemCommand)) {
       e.preventDefault();
       e.stopPropagation();
     }
