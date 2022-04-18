@@ -5,6 +5,8 @@ import resolveApi from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { getCurrentConfig } from '../stores';
+import { showModal } from '../modals/modalTools';
+import RunScriptModal from '../modals/RunScriptModal.svelte';
 
 export async function importSqlDump(inputFile, connection) {
   const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
@@ -14,12 +16,14 @@ export async function importSqlDump(inputFile, connection) {
     connection,
   });
 
-  await runImportExportScript({
-    script: script.getScript(),
-    runningMessage: 'Importing database',
-    canceledMessage: 'Database import canceled',
-    finishedMessage: 'Database import finished',
-  });
+  showModal(RunScriptModal, { script: script.getScript(), header: 'Importing database' });
+
+  // await runImportExportScript({
+  //   script: script.getScript(),
+  //   runningMessage: 'Importing database',
+  //   canceledMessage: 'Database import canceled',
+  //   finishedMessage: 'Database import finished',
+  // });
 }
 
 async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
