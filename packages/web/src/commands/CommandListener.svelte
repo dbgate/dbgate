@@ -13,7 +13,7 @@
     keyText += e.key;
 
     const commandsValue = get(commandsCustomized);
-    const commandsFiltered: any = Object.values(commandsValue).filter(
+    let commandsFiltered: any = Object.values(commandsValue).filter(
       (x: any) =>
         x.keyText &&
         resolveKeyText(x.keyText)
@@ -34,7 +34,20 @@
       e.stopPropagation();
     }
 
+    if (
+      commandsFiltered.length > 1 &&
+      commandsFiltered.find(x => x.systemCommand) &&
+      commandsFiltered.find(x => !x.systemCommand)
+    ) {
+      commandsFiltered = commandsFiltered.filter(x => !x.systemCommand);
+    }
+
     const notGroup = commandsFiltered.filter(x => x.enabled && !x.isGroupCommand);
+
+    if (notGroup.length > 1) {
+      console.log('Warning, multiple commands mapped to', keyText, notGroup);
+    }
+
     if (notGroup.length == 1) {
       const command = notGroup[0];
       if (command.onClick) command.onClick();
@@ -43,6 +56,10 @@
     }
 
     const group = commandsFiltered.filter(x => x.enabled && x.isGroupCommand);
+
+    if (group.length > 1) {
+      console.log('Warning, multiple commands mapped to', keyText, group);
+    }
 
     if (group.length == 1) {
       const command = group[0];

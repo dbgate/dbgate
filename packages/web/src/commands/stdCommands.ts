@@ -695,6 +695,7 @@ registerCommand({
   category: 'Edit',
   name: 'Undo',
   keyText: 'CtrlOrCommand+Z',
+  systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'undo'),
 });
@@ -703,6 +704,7 @@ registerCommand({
   id: 'edit.redo',
   category: 'Edit',
   name: 'Redo',
+  systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'redo'),
 });
@@ -712,6 +714,7 @@ registerCommand({
   category: 'Edit',
   name: 'Cut',
   keyText: 'CtrlOrCommand+X',
+  systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'cut'),
 });
@@ -721,6 +724,7 @@ registerCommand({
   category: 'Edit',
   name: 'Copy',
   keyText: 'CtrlOrCommand+C',
+  systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'copy'),
 });
@@ -730,6 +734,7 @@ registerCommand({
   category: 'Edit',
   name: 'Paste',
   keyText: 'CtrlOrCommand+V',
+  systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'paste'),
 });
