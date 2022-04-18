@@ -690,6 +690,55 @@ registerCommand({
   onClick: () => getElectron().send('window-action', 'zoomreset'),
 });
 
+registerCommand({
+  id: 'edit.undo',
+  category: 'Edit',
+  name: 'Undo',
+  keyText: 'CtrlOrCommand+Z',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'undo'),
+});
+
+registerCommand({
+  id: 'edit.redo',
+  category: 'Edit',
+  name: 'Redo',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'redo'),
+});
+
+registerCommand({
+  id: 'edit.cut',
+  category: 'Edit',
+  name: 'Cut',
+  keyText: 'CtrlOrCommand+X',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'cut'),
+});
+
+registerCommand({
+  id: 'edit.copy',
+  category: 'Edit',
+  name: 'Copy',
+  keyText: 'CtrlOrCommand+C',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'copy'),
+});
+
+registerCommand({
+  id: 'edit.paste',
+  category: 'Edit',
+  name: 'Paste',
+  keyText: 'CtrlOrCommand+V',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'paste'),
+});
+
 const electron = getElectron();
 if (electron) {
   electron.addEventListener('run-command', (e, commandId) => runCommand(commandId));

@@ -16,7 +16,7 @@
   {#if !isMac()}
     <div class="icon"><img src="logo192.png" width="20" height="20" /></div>
     <div class="menu">
-      <HorizontalMenu items={mainMenuDefinition} />
+      <HorizontalMenu items={mainMenuDefinition({ editMenu: !!electron })} />
     </div>
   {/if}
   <div class="title">{title}</div>

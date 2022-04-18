@@ -47,7 +47,7 @@
     name: 'Insert new row',
     toolbarName: 'New row',
     icon: 'icon add',
-    keyText: 'Insert',
+    keyText: isMac() ? 'Command+I' : 'Insert',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().insertNewRow(),
   });
@@ -191,7 +191,6 @@
     id: 'dataGrid.clearFilter',
     category: 'Data grid',
     name: 'Clear filter',
-    keyText: 'CtrlOrCommand+I',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
@@ -306,7 +305,7 @@
   import EditJsonModal from '../modals/EditJsonModal.svelte';
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
-  import { isCtrlOrCommandKey } from '../utility/common';
+  import { isCtrlOrCommandKey, isMac } from '../utility/common';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
