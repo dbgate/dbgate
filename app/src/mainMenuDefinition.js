@@ -1,4 +1,4 @@
-module.exports = [
+module.exports = ({ editMenu }) => [
   {
     label: 'File',
     submenu: [
@@ -33,6 +33,20 @@ module.exports = [
       { command: 'app.zoomReset', hideDisabled: true },
     ],
   },
+
+  editMenu
+    ? {
+        label: 'Edit',
+        submenu: [
+          { command: 'edit.undo' },
+          { command: 'edit.redo' },
+          { divider: true },
+          { command: 'edit.cut' },
+          { command: 'edit.copy' },
+          { command: 'edit.paste' },
+        ],
+      }
+    : null,
 
   // {
   //   label: 'Edit',

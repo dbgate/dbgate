@@ -86,7 +86,7 @@ function commandItem(item) {
 }
 
 function buildMenu() {
-  let template = _cloneDeepWith(mainMenuDefinition, item => {
+  let template = _cloneDeepWith(mainMenuDefinition({ editMenu: true }), item => {
     if (item.divider) {
       return { type: 'separator' };
     }
@@ -164,6 +164,9 @@ ipcMain.on('app-started', async (event, arg) => {
   }
 });
 ipcMain.on('window-action', async (event, arg) => {
+  if (!mainWindow) {
+    return;
+  }
   switch (arg) {
     case 'minimize':
       mainWindow.minimize();
@@ -198,6 +201,23 @@ ipcMain.on('window-action', async (event, arg) => {
       break;
     case 'zoomreset':
       mainWindow.webContents.zoomLevel = 0;
+      break;
+
+    // edit
+    case 'undo':
+      mainWindow.webContents.undo();
+      break;
+    case 'redo':
+      mainWindow.webContents.redo();
+      break;
+    case 'cut':
+      mainWindow.webContents.cut();
+      break;
+    case 'copy':
+      mainWindow.webContents.copy();
+      break;
+    case 'paste':
+      mainWindow.webContents.paste();
       break;
   }
 });
