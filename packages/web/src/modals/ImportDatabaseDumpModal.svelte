@@ -49,6 +49,22 @@
         inputFile = url;
       },
     });
+
+  const handleBrowse = async () => {
+    const electron = getElectron();
+    const files = await electron.showOpenDialog({
+      properties: ['openFile'],
+      filters: [
+        { name: 'SQL Files', extensions: ['*.sql'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+    if (files && files[0]) {
+      const path = window.require('path');
+      inputFile = files[0];
+      inputLabel = path.parse(inputFile).name;
+    }
+  };
 </script>
 
 <FormProvider>
@@ -56,16 +72,19 @@
     <svelte:fragment slot="header">Import database dump</svelte:fragment>
 
     <div class="m-3">Source: {inputLabel}</div>
-    {#if electron}
-      <ElectronFilesInput />
-    {:else}
-      <UploadButton />
-    {/if}
 
-    <FormStyledButton value="Add web URL" on:click={handleAddUrl} />
+    <div class="flex">
+      {#if electron}
+        <FormStyledButton type="button" value="Browse" on:click={handleBrowse} />
+      {:else}
+        <UploadButton />
+      {/if}
+
+      <FormStyledButton value="Add web URL" on:click={handleAddUrl} />
+    </div>
 
     <svelte:fragment slot="footer">
-      <FormSubmit value="OK" on:click={e => handleSubmit(e.detail)} />
+      <FormSubmit value="Run import" on:click={e => handleSubmit(e.detail)} disabled={!inputFile} />
       <FormStyledButton type="button" value="Cancel" on:click={closeCurrentModal} />
     </svelte:fragment>
   </ModalBase>

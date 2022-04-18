@@ -13,7 +13,11 @@ class ImportStream extends stream.Transform {
     this.driver = driver;
   }
   async _transform(chunk, encoding, cb) {
-    await this.driver.script(this.pool, chunk);
+    try {
+      await this.driver.script(this.pool, chunk);
+    } catch (err) {
+      this.emit('error', err.message);
+    }
     cb();
   }
 }

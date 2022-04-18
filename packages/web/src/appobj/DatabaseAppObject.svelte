@@ -213,7 +213,7 @@
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
       driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
-      driver?.supportsDatabaseDump && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
       { divider: true },
       isSqlOrDoc && { onClick: handleShowDiagram, text: 'Show diagram' },
       isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
