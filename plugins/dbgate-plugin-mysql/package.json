@@ -31,7 +31,7 @@
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
-    "antares-mysql-dumper": "link:/Users/jena/jenasoft/antares-mysql-dumper",
+    "antares-mysql-dumper": "^0.0.1-alpha.2",
     "dbgate-plugin-tools": "^1.0.7",
     "dbgate-query-splitter": "^4.8.3",
     "dbgate-tools": "^4.1.1",
