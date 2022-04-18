@@ -6,6 +6,57 @@ import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { getCurrentConfig } from '../stores';
 
+export async function importSqlDump(inputFile, connection) {
+  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+
+  script.importDatabase({
+    inputFile,
+    connection,
+  });
+
+  await runImportExportScript({
+    script: script.getScript(),
+    runningMessage: 'Importing database',
+    canceledMessage: 'Database import canceled',
+    finishedMessage: 'Database import finished',
+  });
+}
+
+async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
+  const electron = getElectron();
+
+  const resp = await apiCall('runners/start', { script });
+  const runid = resp.runid;
+  let isCanceled = false;
+
+  const snackId = showSnackbar({
+    message: runningMessage,
+    icon: 'icon loading',
+    buttons: [
+      {
+        label: 'Cancel',
+        onClick: () => {
+          isCanceled = true;
+          apiCall('runners/cancel', { runid });
+        },
+      },
+    ],
+  });
+
+  function handleRunnerDone() {
+    closeSnackbar(snackId);
+    apiOff(`runner-done-${runid}`, handleRunnerDone);
+    if (isCanceled) {
+      showSnackbarError(canceledMessage);
+    } else {
+      showSnackbarInfo(finishedMessage);
+      if (afterFinish) afterFinish();
+    }
+  }
+
+  apiOn(`runner-done-${runid}`, handleRunnerDone);
+}
+
 export async function saveExportedFile(filters, defaultPath, extension, dataName, getScript: (filaPath: string) => {}) {
   const electron = getElectron();
 
@@ -27,36 +78,17 @@ export async function saveExportedFile(filters, defaultPath, extension, dataName
 
   const script = getScript(filePath);
 
-  const resp = await apiCall('runners/start', { script });
-  const runid = resp.runid;
-  let isCanceled = false;
-
-  const snackId = showSnackbar({
-    message: `Exporting ${dataName}`,
-    icon: 'icon loading',
-    buttons: [
-      {
-        label: 'Cancel',
-        onClick: () => {
-          isCanceled = true;
-          apiCall('runners/cancel', { runid });
-        },
-      },
-    ],
+  runImportExportScript({
+    script,
+    runningMessage: `Exporting ${dataName}`,
+    canceledMessage: `Export ${dataName} canceled`,
+    finishedMessage: `Export ${dataName} finished`,
+    afterFinish: () => {
+      if (!electron) {
+        window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
+      }
+    },
   });
-
-  function handleRunnerDone() {
-    closeSnackbar(snackId);
-    apiOff(`runner-done-${runid}`, handleRunnerDone);
-    if (isCanceled) showSnackbarError(`Export ${dataName} canceled`);
-    else showSnackbarInfo(`Export ${dataName} finished`);
-
-    if (!electron) {
-      window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
-    }
-  }
-
-  apiOn(`runner-done-${runid}`, handleRunnerDone);
 }
 
 export async function exportQuickExportFile(dataName, reader, format, columnMap = null) {

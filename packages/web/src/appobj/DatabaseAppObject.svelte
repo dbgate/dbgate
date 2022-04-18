@@ -90,6 +90,12 @@
       exportSqlDump(connection, name);
     };
 
+    const handleSqlRestore = () => {
+      showModal(ImportDatabaseDumpModal, {
+        connection: { ...connection, database: name },
+      });
+    };
+
     const handleShowDiagram = async () => {
       const db = await getDatabaseInfo({
         conid: connection._id,
@@ -207,6 +213,7 @@
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
       driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
+      driver?.supportsDatabaseDump && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
       { divider: true },
       isSqlOrDoc && { onClick: handleShowDiagram, text: 'Show diagram' },
       isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
@@ -274,6 +281,7 @@
   import { filterAppsForDatabase } from '../utility/appTools';
   import newQuery from '../query/newQuery';
   import { exportSqlDump } from '../utility/exportFileTools';
+  import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
 
   export let data;
   export let passProps;
