@@ -2,9 +2,16 @@ FROM node:14-alpine
 
 WORKDIR /home/dbgate-docker
 
+RUN apk --no-cache upgrade \
+ && apk --no-cache add  \
+    iputils
+
 COPY . .
+
+RUN ["chmod", "+x", "/home/dbgate-docker/entrypoint.sh"]
 
 WORKDIR /home/dbgate-docker
 EXPOSE 3000
 VOLUME /root/dbgate-data
-CMD node bundle.js
+
+CMD ["/home/dbgate-docker/entrypoint.sh"]
