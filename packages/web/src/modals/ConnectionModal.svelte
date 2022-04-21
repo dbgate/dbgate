@@ -17,7 +17,7 @@
   import ErrorMessageModal from './ErrorMessageModal.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import { extensions } from '../stores';
+  import { extensions, getCurrentConfig } from '../stores';
   import _ from 'lodash';
   import { getDatabaseFileLabel } from '../utility/getConnectionLabel';
   import { apiCall } from '../utility/api';
@@ -27,7 +27,12 @@
   let isTesting;
   let sqlConnectResult;
 
-  const values = writable(connection || { server: 'localhost', engine: 'mssql@dbgate-plugin-mssql' });
+  const values = writable(
+    connection || {
+      server: getCurrentConfig().isDocker ? 'dockerhost' : 'localhost',
+      engine: 'mssql@dbgate-plugin-mssql',
+    }
+  );
 
   $: engine = $values.engine;
   $: driver = $extensions.drivers.find(x => x.engine == engine);

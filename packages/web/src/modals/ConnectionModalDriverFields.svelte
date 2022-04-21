@@ -10,10 +10,11 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
 
   import FormTextField from '../forms/FormTextField.svelte';
-  import { extensions } from '../stores';
+  import { extensions, getCurrentConfig } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useAuthTypes } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   const { values } = getFormContext();
   const electron = getElectron();
@@ -101,6 +102,12 @@
       </div>
     {/if}
   </div>
+  {#if getCurrentConfig().isDocker}
+    <div class="row">
+      <FontIcon icon="img warn" padRight />
+      Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead
+    </div>
+  {/if}
 {/if}
 
 {#if showUser && showPassword}

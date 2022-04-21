@@ -37,6 +37,7 @@ module.exports = {
       // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,
       allowShellScripting: platformInfo.allowShellConnection,
+      isDocker: platformInfo.isDocker,
       permissions,
       login,
       ...currentVersion,
