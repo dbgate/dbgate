@@ -42,7 +42,7 @@
       commandsFiltered = commandsFiltered.filter(x => !x.systemCommand);
     }
 
-    if (commandsFiltered.every(x => x.systemCommand) && !isMac()) {
+    if (commandsFiltered.every(x => x.systemCommand)) {
       return;
     }
 

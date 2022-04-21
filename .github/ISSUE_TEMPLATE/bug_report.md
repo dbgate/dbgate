@@ -28,9 +28,3 @@ If applicable, add screenshots to help explain your problem.
  - Install source [e.g. installer/SNAP/Docker/NPM]
  - Type - Web/Application
  - Database engine: [e.g. MySQL/PostgreSQL/SQL Server]
-
-**Additional info**
-You could provide additional context, to better understand your case.
- - How looks your typical DbGate usage?
- - What other DB software do you use?
- - Anything else you think might be helpful

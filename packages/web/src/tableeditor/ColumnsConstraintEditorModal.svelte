@@ -113,10 +113,10 @@
                   label: 'Choose column',
                   value: '',
                 },
-                ...tableInfo.columns.map(col => ({
+                ...(tableInfo?.columns?.map(col => ({
                   label: col.columnName,
                   value: col.columnName,
-                })),
+                })) || []),
               ]}
             />
           {/key}
