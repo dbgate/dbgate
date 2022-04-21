@@ -100,7 +100,7 @@ $$ LANGUAGE plpgsql;`,
 const postgresDriver = {
   ...postgresDriverBase,
   engine: 'postgres@dbgate-plugin-postgres',
-  title: 'Postgre SQL',
+  title: 'PostgreSQL',
   defaultPort: 5432,
   dialect: {
     ...dialect,
