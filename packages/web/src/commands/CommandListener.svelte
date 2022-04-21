@@ -12,6 +12,8 @@
     if (e.altKey) keyText += 'Alt+';
     keyText += e.key;
 
+    // console.log('keyText', keyText);
+
     const commandsValue = get(commandsCustomized);
     let commandsFiltered: any = Object.values(commandsValue).filter(
       (x: any) =>

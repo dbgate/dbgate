@@ -35,7 +35,7 @@
     category: 'Data grid',
     name: 'Delete selected rows',
     toolbarName: 'Delete row(s)',
-    keyText: 'CtrlOrCommand+Delete',
+    keyText: isMac() ? 'Command+Backspace' : 'CtrlOrCommand+Delete',
     icon: 'icon minus',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().deleteSelectedRows(),

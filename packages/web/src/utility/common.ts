@@ -53,7 +53,8 @@ export function formatKeyText(keyText: string): string {
       .replace('Shift+', '⇧ ')
       .replace('Alt+', '⌥ ')
       .replace('Command+', '⌘ ')
-      .replace('Ctrl+', '⌃ ');
+      .replace('Ctrl+', '⌃ ')
+      .replace('Backspace', '⌫ ');
   }
   return keyText.replace('CtrlOrCommand+', 'Ctrl+');
 }
