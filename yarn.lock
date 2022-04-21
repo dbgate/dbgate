@@ -1673,9 +1673,13 @@ ansi-styles@^5.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-5.2.0.tgz#07449690ad45777d1924ac2abb2fc8895dba836b"
   integrity sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==
 
-"antares-mysql-dumper@link:../antares-mysql-dumper":
-  version "0.0.0"
-  uid ""
+antares-mysql-dumper@^0.0.1-alpha.2:
+  version "0.0.1-alpha.2"
+  resolved "https://registry.yarnpkg.com/antares-mysql-dumper/-/antares-mysql-dumper-0.0.1-alpha.2.tgz#6dc7ef85d43f2bfc7447b49e3c1709f4c8501e7e"
+  integrity sha512-ktn6Qwc5Strzjhp2cPunLvO4CYHF5CTti9uzgH2uJsxgAfLtGPMxi/eZrn7G7c8gN+BSgq22d4Awm++jNmD6Gg==
+  dependencies:
+    "@turf/helpers" "^6.5.0"
+    moment "^2.29.2"
 
 anymatch@^2.0.0:
   version "2.0.0"
@@ -3213,10 +3217,10 @@ dbgate-plugin-xml@^4.1.1:
   resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-4.7.2.tgz#4a1817a7fc3b1ac5191e45dc7b1016b2f97c3158"
   integrity sha512-LA52/Wg+blaRp/H+v4ypT+l6kbi4sYsTD/JdPaTbfwErMXhGZew9wtDolvbDjKZZ/zfRig0TDXj9fhLILw2cGw==
 
-dbgate-query-splitter@^4.8.3:
-  version "4.8.3"
-  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.8.3.tgz#d4c943154c325de4647f313b42996e731a3ae2e4"
-  integrity sha512-AjQiImY01p1qmgSRRiFo6szwKmLRWXlQTFG1LH9tJoQNPzvN+6B0P70VpHLsRDLSWQsPdy0S7LyQ+bkH4ib9EA==
+dbgate-query-splitter@^4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.9.0.tgz#37475929b76ebe60436fcc44f223d4d47d6483af"
+  integrity sha512-POifNiMDkeksA9YXaC82u5O6krYC21xyROoNjDh3ouKI4xeB37DG+cP/D4IdICWHYZudlgKiziQ4v3W+5+O1DA==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"

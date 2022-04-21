@@ -33,7 +33,7 @@
   "devDependencies": {
     "antares-mysql-dumper": "^0.0.1-alpha.2",
     "dbgate-plugin-tools": "^1.0.7",
-    "dbgate-query-splitter": "^4.8.3",
+    "dbgate-query-splitter": "^4.9.0",
     "dbgate-tools": "^4.1.1",
     "mysql2": "^2.2.5",
     "webpack": "^4.42.0",

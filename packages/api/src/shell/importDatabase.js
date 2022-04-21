@@ -1,5 +1,4 @@
 const fs = require('fs');
-const byline = require('byline');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { splitQueryStream } = require('dbgate-query-splitter/lib/splitQueryStream');
@@ -19,6 +18,11 @@ class ImportStream extends stream.Transform {
       this.emit('error', err.message);
     }
     cb();
+  }
+  _flush(cb) {
+    this.push('finish');
+    cb();
+    this.emit('end');
   }
 }
 
@@ -43,12 +47,11 @@ async function importDatabase({ connection = undefined, systemConnection = undef
   const downloadedFile = await download(inputFile);
 
   const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
-  const lineStream = byline(fileStream);
-  const splittedStream = splitQueryStream(lineStream, driver.getQuerySplitterOptions());
+  const splittedStream = splitQueryStream(fileStream, driver.getQuerySplitterOptions());
   const importStream = new ImportStream(pool, driver);
   // @ts-ignore
   splittedStream.pipe(importStream);
-  await awaitStreamEnd(splittedStream);
+  await awaitStreamEnd(importStream);
 }
 
 module.exports = importDatabase;
