@@ -2,7 +2,7 @@
   import { commandsCustomized, visibleCommandPalette } from '../stores';
   import { get } from 'svelte/store';
   import { runGroupCommand } from './runCommand';
-  import { resolveKeyText } from '../utility/common';
+  import { isMac, resolveKeyText } from '../utility/common';
 
   export function handleCommandKeyDown(e) {
     let keyText = '';
@@ -40,6 +40,10 @@
       commandsFiltered.find(x => !x.systemCommand)
     ) {
       commandsFiltered = commandsFiltered.filter(x => !x.systemCommand);
+    }
+
+    if (commandsFiltered.every(x => x.systemCommand) && !isMac()) {
+      return;
     }
 
     const notGroup = commandsFiltered.filter(x => x.enabled && !x.isGroupCommand);
