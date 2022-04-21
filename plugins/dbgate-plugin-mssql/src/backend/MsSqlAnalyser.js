@@ -36,9 +36,12 @@ function getColumnInfo({
   defaultConstraint,
 }) {
   let fullDataType = dataType;
-  if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
-  if (numericPrecision && numericScale && isTypeNumeric(dataType))
+  if (charMaxLength && isTypeString(dataType)) {
+    fullDataType = `${dataType}(${charMaxLength < 0 ? 'MAX' : charMaxLength})`;
+  }
+  if (numericPrecision && numericScale && isTypeNumeric(dataType)) {
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
+  }
   return {
     columnName,
     dataType: fullDataType,
