@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 4.8.7
+- ADDED: MySQL dump/backup database
+- ADDED: Import SQL dump from file or from URL
+- FIXED(mac): Fixed Cmd+C, Cmd+V, Cmd+X - shortcuts for copy/cut/paste #270
+- FIXED(mac): Some minor issues on macOS
+- FIXED: Analysing MS SQL nvarchar(max)
+- ADDED: Support for dockerhost network name under docker #271
+
 ### 4.8.4
 - FIXED(mac): Fixed build for macOS arm64 #259
 - FIXED(mac): Fixed opening SQLite files on macOS #243
