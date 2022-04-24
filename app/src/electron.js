@@ -336,10 +336,10 @@ function createWindow() {
     //   )
     // );
     const main = api.getMainModule();
-    main.initializeElectronSender(mainWindow.webContents);
     main.useAllControllers(null, electron);
     apiLoaded = true;
   }
+  main.setElectronSender(mainWindow.webContents);
 
   loadMainWindow();
 
@@ -349,6 +349,7 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
+    main.setElectronSender(null);
   });
 }
 
