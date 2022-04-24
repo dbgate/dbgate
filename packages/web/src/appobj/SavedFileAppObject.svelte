@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import { filterName } from 'dbgate-tools';
+
   interface FileTypeHandler {
     icon: string;
     format: string;
@@ -74,6 +76,7 @@
   };
 
   export const extractKey = data => data.file;
+  export const createMatcher = ({ file }) => filter => filterName(filter, file);
 </script>
 
 <script lang="ts">

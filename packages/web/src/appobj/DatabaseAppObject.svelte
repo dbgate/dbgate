@@ -87,7 +87,10 @@
     };
 
     const handleSqlDump = () => {
-      exportSqlDump(connection, name);
+      showModal(ExportDatabaseDumpModal, {
+        connection: { ...connection, database: name },
+      });
+      // exportSqlDump(connection, name);
     };
 
     const handleSqlRestore = () => {
@@ -212,8 +215,8 @@
       { divider: true },
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
-      driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
+      driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
       { divider: true },
       isSqlOrDoc && { onClick: handleShowDiagram, text: 'Show diagram' },
       isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
@@ -282,6 +285,7 @@
   import newQuery from '../query/newQuery';
   import { exportSqlDump } from '../utility/exportFileTools';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
+import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
 
   export let data;
   export let passProps;

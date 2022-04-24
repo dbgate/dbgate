@@ -12,7 +12,10 @@
   export let script;
   export let header;
 
-  let isRunning;
+  export let openResultLabel;
+  export let onOpenResult;
+
+  let isRunning = true;
   let runid;
   let isCanceled;
 
@@ -67,6 +70,16 @@
         <FormStyledButton value="Stop" on:click={handleStop} />
       {:else}
         <FormStyledButton value="Close" on:click={handleClose} />
+      {/if}
+
+      {#if onOpenResult && !isRunning}
+        <FormStyledButton
+          value={openResultLabel || 'Open result'}
+          on:click={() => {
+            closeCurrentModal();
+            onOpenResult();
+          }}
+        />
       {/if}
     </svelte:fragment>
   </ModalBase>

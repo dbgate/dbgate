@@ -26,6 +26,28 @@ export async function importSqlDump(inputFile, connection) {
   // });
 }
 
+export async function exportSqlDump(outputFile, connection, databaseName, pureFileName) {
+  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+
+  script.dumpDatabase({
+    connection,
+    databaseName,
+    outputFile,
+  });
+
+  showModal(RunScriptModal, {
+    script: script.getScript(),
+    header: 'Exporting database',
+    onOpenResult:
+      pureFileName && !getElectron()
+        ? () => {
+            window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
+          }
+        : null,
+    openResultLabel: 'Download SQL file',
+  });
+}
+
 async function runImportExportScript({ script, runningMessage, canceledMessage, finishedMessage, afterFinish = null }) {
   const electron = getElectron();
 
@@ -126,25 +148,25 @@ export async function exportQuickExportFile(dataName, reader, format, columnMap 
   );
 }
 
-export async function exportSqlDump(connection, databaseName) {
-  await saveExportedFile(
-    [{ name: 'SQL files', extensions: ['sql'] }],
-    `${databaseName}.sql`,
-    'sql',
-    `${databaseName}-dump`,
-    filePath => {
-      const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+// export async function exportSqlDump(connection, databaseName) {
+//   await saveExportedFile(
+//     [{ name: 'SQL files', extensions: ['sql'] }],
+//     `${databaseName}.sql`,
+//     'sql',
+//     `${databaseName}-dump`,
+//     filePath => {
+//       const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
 
-      script.dumpDatabase({
-        connection,
-        databaseName,
-        outputFile: filePath,
-      });
+//       script.dumpDatabase({
+//         connection,
+//         databaseName,
+//         outputFile: filePath,
+//       });
 
-      return script.getScript();
-    }
-  );
-}
+//       return script.getScript();
+//     }
+//   );
+// }
 
 export async function saveFileToDisk(
   filePathFunc,

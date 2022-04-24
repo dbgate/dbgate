@@ -79,7 +79,7 @@
         <UploadButton />
       {/if}
 
-      <FormStyledButton value="Add web URL" on:click={handleAddUrl} />
+      <FormStyledButton value="Import from web URL" on:click={handleAddUrl} />
     </div>
 
     <svelte:fragment slot="footer">

@@ -9,12 +9,14 @@
 <style>
   label {
     border: 1px solid var(--theme-bg-button-inv-2);
-    padding: 5px;
+    padding: 4px;
     margin: 2px;
     width: 100px;
     background-color: var(--theme-bg-button-inv);
     color: var(--theme-font-inv-1);
     border-radius: 2px;
+    position: relative;
+    top: 3px;
   }
 
   label:hover:not(.disabled) {

@@ -62,6 +62,15 @@ module.exports = {
     return true;
   },
 
+  refresh_meta: true,
+  async refresh({ folders }, req) {
+    for (const folder of folders) {
+      socket.emitChanged(`files-changed-${folder}`);
+      socket.emitChanged(`all-files-changed`);
+    }
+    return true;
+  },
+
   copy_meta: true,
   async copy({ folder, file, newFile }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
@@ -176,5 +185,25 @@ module.exports = {
   async exportDiagram({ filePath, html, css, themeType, themeClassName }) {
     await fs.writeFile(filePath, getDiagramExport(html, css, themeType, themeClassName));
     return true;
+  },
+
+  getFileRealPath_meta: true,
+  async getFileRealPath({ folder, file }, req) {
+    if (folder.startsWith('archive:')) {
+      if (!hasPermission(`archive/write`, req)) return false;
+      const dir = resolveArchiveFolder(folder.substring('archive:'.length));
+      return path.join(dir, file);
+    } else if (folder.startsWith('app:')) {
+      if (!hasPermission(`apps/write`, req)) return false;
+      const app = folder.substring('app:'.length);
+      return path.join(appdir(), app, file);
+    } else {
+      if (!hasPermission(`files/${folder}/write`, req)) return false;
+      const dir = path.join(filesdir(), folder);
+      if (!(await fs.exists(dir))) {
+        await fs.mkdir(dir);
+      }
+      return path.join(dir, file);
+    }
   },
 };
