@@ -21,6 +21,7 @@ const { settings } = require('cluster');
 const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
+let mainModule;
 
 const isMac = () => os.platform() == 'darwin';
 
@@ -337,9 +338,10 @@ function createWindow() {
     // );
     const main = api.getMainModule();
     main.useAllControllers(null, electron);
+    mainModule = main;
     apiLoaded = true;
   }
-  main.setElectronSender(mainWindow.webContents);
+  mainModule.setElectronSender(mainWindow.webContents);
 
   loadMainWindow();
 
@@ -349,7 +351,7 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null;
-    main.setElectronSender(null);
+    mainModule.setElectronSender(null);
   });
 }
 
