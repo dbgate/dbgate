@@ -10,9 +10,15 @@
   function handleClick() {
     if (!disabled) dispatch('click');
   }
+
+  let domButton;
+
+  export function getBoundingClientRect() {
+    return domButton.getBoundingClientRect();
+  }
 </script>
 
-<input {type} {value} class:disabled {...$$restProps} on:click={handleClick} />
+<input {type} {value} class:disabled {...$$restProps} on:click={handleClick} bind:this={domButton} />
 
 <style>
   input {

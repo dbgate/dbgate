@@ -6,6 +6,8 @@
 
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
+  import { currentDropDownMenu } from '../stores';
+  import { apiCall } from '../utility/api';
   import { importSqlDump } from '../utility/exportFileTools';
   import getElectron from '../utility/getElectron';
   import { setUploadListener } from '../utility/uploadFiles';
@@ -17,6 +19,7 @@
 
   let inputLabel = '(not selected)';
   let inputFile = null;
+  let domButton;
 
   const handleSubmit = async values => {
     const { value } = values;
@@ -64,6 +67,23 @@
       inputLabel = path.parse(inputFile).name;
     }
   };
+
+  async function handleFilesClick() {
+    const rect = domButton.getBoundingClientRect();
+    const left = rect.left;
+    const top = rect.bottom;
+    const files = await apiCall('files/list', { folder: 'sql' });
+    const menu = files.map(({ file }) => ({
+      label: file,
+      onClick: async () => {
+        inputFile = await apiCall('files/get-file-real-path', { folder: 'sql', file });
+        if (inputFile) {
+          inputLabel = file;
+        }
+      },
+    }));
+    currentDropDownMenu.set({ left, top, items: menu });
+  }
 </script>
 
 <FormProvider>
@@ -79,7 +99,8 @@
         <UploadButton />
       {/if}
 
-      <FormStyledButton value="Import from web URL" on:click={handleAddUrl} />
+      <FormStyledButton value="Web URL" on:click={handleAddUrl} />
+      <FormStyledButton value="From files" on:click={handleFilesClick} bind:this={domButton} />
     </div>
 
     <svelte:fragment slot="footer">
