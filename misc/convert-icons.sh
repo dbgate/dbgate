@@ -38,6 +38,11 @@ magick -size 1000x1000 xc:transparent \
     -strokewidth 10 -stroke '#002766' \
     -fill '#1890ff' \
     -draw "arc 150,50 950,250  0,360" \
+    -strokewidth 10 -stroke '#0050b3' -fill transparent \
+    -draw "arc 150,225 950,425  0,180" \
+    -draw "arc 150,400 950,600  0,180" \
+    -draw "arc 150,575 950,775  0,180" \
+    -draw "arc 150,750 950,950  0,180" \
     -fill '#fafafa' -stroke '#8c8c8c' -strokewidth 3 \
     -pointsize 700 -font Arial \
     -gravity center \
