@@ -42,6 +42,15 @@ magick -size 1000x1000 xc:transparent \
     -pointsize 700 -font Arial \
     -gravity center \
     -draw 'text 50,100 "G"' \
+    \( \
+        -size 1000x1000 -define gradient:direction=east 'gradient:#096dd9-#40a9ff' \
+        \( +clone -fill Black -colorize 100 \
+        -fill White -draw "arc 150,50 950,250  0,360" \
+        \) \
+        -alpha off \
+        -compose CopyOpacity -composite \
+    \) \
+    -compose Over -composite \
     icon.png
 
 
