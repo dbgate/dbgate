@@ -29,6 +29,12 @@
     if (preferedStorageType && preferedStorageType != values.sourceStorageType) {
       newValues['sourceStorageType'] = preferedStorageType;
     }
+    for (const source of newSources) {
+      if (values.fixedTargetPureName) {
+        values[`targetName_${source}`] = values.fixedTargetPureName;
+        values[`actionType_${source}`] = 'appendData';
+      }
+    }
     valuesStore.set({
       ...values,
       ...newValues,

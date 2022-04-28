@@ -15,6 +15,6 @@
 <SelectField
   {options}
   isNative
-  value={values[`actionType_${name}`] || options[0].value}
+  value={$values[`actionType_${name}`] || options[0].value}
   on:change={e => setFieldValue(`actionType_${name}`, e.detail)}
 />

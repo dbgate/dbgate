@@ -72,6 +72,10 @@
         isExport: true,
       },
       {
+        label: 'Import',
+        isImport: true,
+      },
+      {
         label: 'Open as data sheet',
         isOpenFreeTable: true,
       },
@@ -615,6 +619,17 @@
                 },
                 engine: driver.engine,
               });
+            } else if (menu.isImport) {
+              const { conid, database } = data;
+              showModal(ImportExportModal, {
+                initialValues: {
+                  sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+                  targetStorageType: 'database',
+                  targetConnectionId: conid,
+                  targetDatabaseName: database,
+                  fixedTargetPureName: data.pureName,
+                },
+              });
             } else {
               openDatabaseObjectDetail(
                 menu.tab,
@@ -661,6 +676,7 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import { format as dateFormat } from 'date-fns';
+  import { getDefaultFileFormat } from '../plugins/fileformats';
 
   export let data;
   export let passProps;

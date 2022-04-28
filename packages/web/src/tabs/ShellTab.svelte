@@ -23,13 +23,13 @@
     onClick: () => getCurrentEditor().copyNodeScript(),
   });
 
-  // registerCommand({
-  //   id: 'shell.openWizard',
-  //   category: 'Shell',
-  //   name: 'Open wizard',
-  //   // testEnabled: () => getCurrentEditor()?.openWizardEnabled(),
-  //   onClick: () => getCurrentEditor().openWizard(),
-  // });
+  registerCommand({
+    id: 'shell.openWizard',
+    category: 'Shell',
+    name: 'Open wizard',
+    // testEnabled: () => getCurrentEditor()?.openWizardEnabled(),
+    onClick: () => getCurrentEditor().openWizard(),
+  });
 
   const configRegex = /\s*\/\/\s*@ImportExportConfigurator\s*\n\s*\/\/\s*(\{[^\n]+\})\n/;
   const requireRegex = /\s*(\/\/\s*@require\s+[^\n]+)\n/g;
