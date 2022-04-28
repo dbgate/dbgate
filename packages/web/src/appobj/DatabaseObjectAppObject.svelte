@@ -52,6 +52,10 @@
         isRename: true,
       },
       {
+        label: 'Create table backup',
+        isDuplicateTable: true,
+      },
+      {
         label: 'Query designer',
         isQueryDesigner: true,
       },
@@ -582,6 +586,34 @@
                   apiCall('database-connections/sync-model', dbid);
                 },
               });
+            } else if (menu.isDuplicateTable) {
+              const driver = await getDriver();
+              const dmp = driver.createDumper();
+              const newTable = _.cloneDeep(data);
+              const { conid, database } = data;
+
+              newTable.pureName = `_${newTable.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
+              newTable.columns.forEach(x => {
+                x.autoIncrement = false;
+              });
+              newTable.foreignKeys = [];
+              dmp.createTable(newTable);
+              dmp.putCmd(
+                '^insert ^into %f(%,i) ^select %,i from %f',
+                newTable,
+                newTable.columns.map(x => x.columnName),
+                data.columns.map(x => x.columnName),
+                data
+              );
+
+              showModal(ConfirmSqlModal, {
+                sql: dmp.s,
+                onConfirm: async () => {
+                  const resp = await apiCall('database-connections/run-script', { conid, database, sql: dmp.s });
+                  await apiCall('database-connections/sync-model', { conid, database });
+                },
+                engine: driver.engine,
+              });
             } else {
               openDatabaseObjectDetail(
                 menu.tab,
@@ -627,6 +659,7 @@
   import { apiCall } from '../utility/api';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
+  import { format as dateFormat } from 'date-fns';
 
   export let data;
   export let passProps;

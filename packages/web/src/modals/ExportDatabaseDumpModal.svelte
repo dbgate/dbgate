@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { format } from 'date-fns';
+  import { format as dateFormat } from 'date-fns';
 
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import UploadButton from '../buttons/UploadButton.svelte';
@@ -23,7 +23,7 @@
   let pureFileName = null;
 
   function getDefaultFileName() {
-    return `${connection.database}-${format(new Date(), 'yyyy-MM-dd-hh-mm-ss')}.sql`;
+    return `${connection.database}-${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}.sql`;
   }
 
   onMount(async () => {
@@ -88,7 +88,7 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Export database dump</svelte:fragment>
-    
+
     <div class="m-3">Target: {outputLabel}</div>
 
     <div class="flex">
