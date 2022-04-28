@@ -104,7 +104,7 @@
     id: 'tabs.nextTab',
     category: 'Tabs',
     name: 'Next tab',
-    keyText: 'CtrlOrCommand+Tab',
+    keyText: 'Ctrl+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
     onClick: () => {
       const tabs = get(openedTabs).filter(x => x.closedTime == null);
