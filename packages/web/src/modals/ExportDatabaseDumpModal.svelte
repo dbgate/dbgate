@@ -88,14 +88,14 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Export database dump</svelte:fragment>
-
+    
     <div class="m-3">Target: {outputLabel}</div>
 
     <div class="flex">
       {#if electron}
         <FormStyledButton type="button" value="Browse" on:click={handleBrowse} />
       {:else}
-        <FormStyledButton type="button" value="Download" on:click={handleDownload} />
+        <FormStyledButton type="button" value="Set download" on:click={handleDownload} />
       {/if}
       <FormStyledButton type="button" value="Files folder" on:click={handleFilesFolder} />
     </div>

@@ -4,8 +4,10 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   import FormProvider from '../forms/FormProvider.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import { apiCall, apiOff, apiOn } from '../utility/api';
+  import { showSnackbarError } from '../utility/snackbar';
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
@@ -24,6 +26,7 @@
   const handleStop = async () => {
     closeCurrentModal();
     apiCall('runners/cancel', { runid });
+    isCanceled = true;
   };
 
   const handleClose = () => {
@@ -39,12 +42,9 @@
     function handleRunnerDone() {
       isRunning = false;
       apiOff(`runner-done-${runid}`, handleRunnerDone);
-      //   if (isCanceled) {
-      //     showSnackbarError(canceledMessage);
-      //   } else {
-      //     showSnackbarInfo(finishedMessage);
-      //     if (afterFinish) afterFinish();
-      //   }
+      if (isCanceled) {
+        showSnackbarError('Process canceled');
+      }
     }
 
     apiOn(`runner-done-${runid}`, handleRunnerDone);
@@ -58,7 +58,12 @@
 <FormProvider>
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">
-      {header}
+      <div class="flex">
+        {header}
+        {#if isRunning}
+          <FontIcon icon="icon loading" padLeft />
+        {/if}
+      </div>
     </svelte:fragment>
 
     <div class="messages">
