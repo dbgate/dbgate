@@ -1673,10 +1673,10 @@ ansi-styles@^5.0.0:
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-5.2.0.tgz#07449690ad45777d1924ac2abb2fc8895dba836b"
   integrity sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==
 
-antares-mysql-dumper@^0.0.1-alpha.2:
-  version "0.0.1-alpha.2"
-  resolved "https://registry.yarnpkg.com/antares-mysql-dumper/-/antares-mysql-dumper-0.0.1-alpha.2.tgz#6dc7ef85d43f2bfc7447b49e3c1709f4c8501e7e"
-  integrity sha512-ktn6Qwc5Strzjhp2cPunLvO4CYHF5CTti9uzgH2uJsxgAfLtGPMxi/eZrn7G7c8gN+BSgq22d4Awm++jNmD6Gg==
+antares-mysql-dumper@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/antares-mysql-dumper/-/antares-mysql-dumper-0.0.1.tgz#a57124f9aa4e93493181d3227f3335e5bde0282d"
+  integrity sha512-iQ1H4u6nna7EXMj15miTQMRooZTTSYKCI2SSdFcnVGKJ6yXvOt21QoyJzMsfEH68qoRs6K5ujrnXugccol3E4A==
   dependencies:
     "@turf/helpers" "^6.5.0"
     moment "^2.29.2"
