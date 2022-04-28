@@ -100,16 +100,35 @@
     return 'icon file';
   }
 
+  function switchTabByOrder(reverse) {
+    const tabs = _.sortBy(
+      get(openedTabs).filter(x => x.closedTime == null),
+      'tabOrder'
+    );
+    if (reverse) tabs.reverse();
+    const selectedTab = tabs.find(x => x.selected);
+    if (!selectedTab) return;
+    const { tabOrder } = selectedTab;
+    const newTab = tabs.filter(x => (reverse ? x.tabOrder < tabOrder : x.tabOrder > tabOrder))[0] || tabs[0];
+    if (newTab) setSelectedTab(newTab.tabid);
+  }
+
   registerCommand({
     id: 'tabs.nextTab',
     category: 'Tabs',
     name: 'Next tab',
     keyText: 'Ctrl+Tab',
     testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
-    onClick: () => {
-      const tabs = get(openedTabs).filter(x => x.closedTime == null);
-      if (tabs.length >= 2) setSelectedTab(tabs[tabs.length - 2].tabid);
-    },
+    onClick: () => switchTabByOrder(false),
+  });
+
+  registerCommand({
+    id: 'tabs.previousTab',
+    category: 'Tabs',
+    name: 'Previous tab',
+    keyText: 'Ctrl+Shift+Tab',
+    testEnabled: () => getOpenedTabs().filter(x => !x.closedTime).length >= 2,
+    onClick: () => switchTabByOrder(true),
   });
 
   registerCommand({
