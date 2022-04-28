@@ -597,6 +597,7 @@
                 x.autoIncrement = false;
               });
               newTable.foreignKeys = [];
+              newTable.indexes = [];
               dmp.createTable(newTable);
               dmp.putCmd(
                 '^insert ^into %f(%,i) ^select %,i from %f',

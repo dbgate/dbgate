@@ -28,6 +28,11 @@
       errorMessage = null;
       isLoading = true;
       const resp = await apiCall('runners/load-reader', sourceReader);
+      if (resp.errorMessage) {
+        isLoading = false;
+        errorMessage = resp.errorMessage;
+        return;
+      }
       // @ts-ignore
       model = resp;
       grider = new RowsArrayGrider(resp.rows);
