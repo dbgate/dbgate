@@ -123,6 +123,11 @@ function getFlagsFroAction(action) {
         createIfNotExists: true,
         truncate: true,
       };
+    case 'appendData':
+      return {
+        createIfNotExists: false,
+        truncate: false,
+      };
   }
 
   return {
@@ -237,32 +242,23 @@ export default async function createImpExpScript(extensions, values, addEditorIn
 
 export function getActionOptions(extensions, source, values, targetDbinfo) {
   const res = [];
-  const targetName = getTargetName(extensions, source, values);
   if (values.targetStorageType == 'database') {
-    let existing = findObjectLike(
-      { schemaName: values.targetSchemaName, pureName: targetName },
-      targetDbinfo,
-      'tables'
-    );
-    if (existing) {
-      res.push({
-        label: 'Append data',
-        value: 'appendData',
-      });
-      res.push({
-        label: 'Truncate and import',
-        value: 'truncate',
-      });
-      res.push({
-        label: 'Drop and create table',
-        value: 'dropCreateTable',
-      });
-    } else {
-      res.push({
-        label: 'Create table',
-        value: 'createTable',
-      });
-    }
+    res.push({
+      label: 'Create table/append',
+      value: 'createTable',
+    });
+    res.push({
+      label: 'Append data',
+      value: 'appendData',
+    });
+    res.push({
+      label: 'Truncate and import',
+      value: 'truncate',
+    });
+    res.push({
+      label: 'Drop and create table',
+      value: 'dropCreateTable',
+    });
   } else {
     res.push({
       label: 'Create file',
