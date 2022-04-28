@@ -9,6 +9,7 @@
   import { currentDropDownMenu } from '../stores';
   import { apiCall } from '../utility/api';
   import { importSqlDump } from '../utility/exportFileTools';
+  import getConnectionLabel from '../utility/getConnectionLabel';
   import getElectron from '../utility/getElectron';
   import { setUploadListener } from '../utility/uploadFiles';
   import ChangeDownloadUrlModal from './ChangeDownloadUrlModal.svelte';
@@ -90,9 +91,9 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Import database dump</svelte:fragment>
 
-    <div class="m-3">Source: {inputLabel}</div>
+    <div class="ml-3 mr-3 mt-3"><strong>Source:</strong> {inputLabel}</div>
 
-    <div class="flex">
+    <div class="flex ml-3 mr-3 mb-3">
       {#if electron}
         <FormStyledButton type="button" value="Browse" on:click={handleBrowse} />
       {:else}
@@ -101,6 +102,14 @@
 
       <FormStyledButton value="Web URL" on:click={handleAddUrl} />
       <FormStyledButton value="From files" on:click={handleFilesClick} bind:this={domButton} />
+    </div>
+
+    <div class="m-3">
+      <strong>Target:</strong>
+      {getConnectionLabel(connection)}
+      {#if connection.database}
+        ({connection.database})
+      {/if}
     </div>
 
     <svelte:fragment slot="footer">

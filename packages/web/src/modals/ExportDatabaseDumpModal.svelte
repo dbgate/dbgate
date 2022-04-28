@@ -15,6 +15,7 @@
   import { closeCurrentModal, showModal } from './modalTools';
   import InputTextModal from './InputTextModal.svelte';
   import { apiCall } from '../utility/api';
+  import getConnectionLabel from '../utility/getConnectionLabel';
 
   export let connection;
 
@@ -89,9 +90,16 @@
   <ModalBase {...$$restProps}>
     <svelte:fragment slot="header">Export database dump</svelte:fragment>
 
-    <div class="m-3">Target: {outputLabel}</div>
+    <div class="m-3">
+      <strong>Source:</strong>
+      {getConnectionLabel(connection)}
+      {#if connection.database}
+        ({connection.database})
+      {/if}
+    </div>
 
-    <div class="flex">
+    <div class="ml-3 mr-3 mt-3"><strong>Target:</strong> {outputLabel}</div>
+    <div class="flex ml-3">
       {#if electron}
         <FormStyledButton type="button" value="Browse" on:click={handleBrowse} />
       {:else}
