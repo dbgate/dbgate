@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 4.8.8
+- CHANGED: New app icon
+- ADDED: SQL dump, SQL import - also from/to saved queries
+- FIXED(mac): Fixed crash when reopening main window
+- FIXED: MySQL dump now handles correctly dependand views
+- FIXED(app): Browse tabs with Ctrl+Tab
+- ADDED(app): Browse tabs in reverse order with Ctrl+Shift+Tab #245
+
 ### 4.8.7
 - ADDED: MySQL dump/backup database
 - ADDED: Import SQL dump from file or from URL
