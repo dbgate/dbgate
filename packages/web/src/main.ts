@@ -11,4 +11,6 @@ const app = new App({
   props: {},
 });
 
+// const app = null;
+
 export default app;

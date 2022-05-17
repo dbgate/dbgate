@@ -18,6 +18,7 @@
   import { getConfig, getSettings, getUsedApps } from './utility/metadataLoaders';
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
+  import AppStartInfo from './widgets/AppStartInfo.svelte';
 
   let loadedApi = false;
   let loadedPlugins = false;
@@ -80,13 +81,12 @@
     <OpenTabsOnStartup />
     <Screen />
   {:else}
-    <LoadingInfo
+    <AppStartInfo
       message={$loadingPluginStore.loadingPackageName
         ? `Loading plugin ${$loadingPluginStore.loadingPackageName} ...`
         : 'Preparing plugins ...'}
-      wrapper
     />
   {/if}
 {:else}
-  <LoadingInfo message="Starting DbGate ..." wrapper />
+  <AppStartInfo message="Starting DbGate" />
 {/if}
