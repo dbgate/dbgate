@@ -14,7 +14,7 @@ services:
     #   - /home/jena/dbgate-data:/root/dbgate-data
 
     volumes:
-      - dbgate-data:/root/dbgate-data
+      - dbgate-data:/root/.dbgate
     
     # environment:
     #   WEB_ROOT: /dbgate

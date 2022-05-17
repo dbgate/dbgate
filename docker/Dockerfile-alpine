@@ -12,6 +12,6 @@ RUN ["chmod", "+x", "/home/dbgate-docker/entrypoint.sh"]
 
 WORKDIR /home/dbgate-docker
 EXPOSE 3000
-VOLUME /root/dbgate-data
+VOLUME /root/.dbgate
 
 CMD ["/home/dbgate-docker/entrypoint.sh"]

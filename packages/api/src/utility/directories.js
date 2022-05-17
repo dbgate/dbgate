@@ -4,6 +4,7 @@ const fs = require('fs');
 const cleanDirectory = require('./cleanDirectory');
 const platformInfo = require('./platformInfo');
 const processArgs = require('./processArgs');
+const consoleObjectWriter = require('../shell/consoleObjectWriter');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
@@ -27,7 +28,7 @@ function datadirCore() {
   if (processArgs.workspaceDir) {
     return processArgs.workspaceDir;
   }
-  return path.join(os.homedir(), 'dbgate-data');
+  return path.join(os.homedir(), '.dbgate');
 }
 
 function datadir() {
@@ -111,6 +112,27 @@ function resolveArchiveFolder(folder) {
 function clearArchiveLinksCache() {
   archiveLinksCache = {};
 }
+
+function migrateDataDir() {
+  if (process.env.WORKSPACE_DIR) {
+    return;
+  }
+  if (processArgs.workspaceDir) {
+    return;
+  }
+
+  try {
+    const oldDir = path.join(os.homedir(), 'dbgate-data');
+    const newDir = path.join(os.homedir(), '.dbgate');
+    if (fs.existsSync(oldDir) && !fs.existsSync(newDir)) {
+      fs.renameSync(oldDir, newDir);
+    }
+  } catch (e) {
+    console.log('Error migrating data dir:', e.message);
+  }
+}
+
+migrateDataDir();
 
 module.exports = {
   datadir,
