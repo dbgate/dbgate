@@ -387,7 +387,13 @@
           class:selected={draggingDbGroup
             ? tabGroup.grpid == draggingDbGroupTarget?.grpid
             : tabGroup.tabDbKey == currentDbKey}
-          on:click={() => handleSetDb(tabGroup.tabs[0].props)}
+          on:mouseup={e => {
+            if (e.button == 1) {
+              closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid));
+            } else {
+              handleSetDb(tabGroup.tabs[0].props);
+            }
+          }}
           use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
           style={$connectionColorFactory(
             tabGroup.tabs[0].props,
