@@ -3154,10 +3154,10 @@ dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7:
     pacote "^11.1.13"
     rimraf "^3.0.2"
 
-dbgate-plugin-xml@^4.1.1:
-  version "4.7.2"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-4.7.2.tgz#4a1817a7fc3b1ac5191e45dc7b1016b2f97c3158"
-  integrity sha512-LA52/Wg+blaRp/H+v4ypT+l6kbi4sYsTD/JdPaTbfwErMXhGZew9wtDolvbDjKZZ/zfRig0TDXj9fhLILw2cGw==
+dbgate-plugin-xml@^5.0.0-alpha.1:
+  version "5.0.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-5.0.0-alpha.1.tgz#5011c808265d56c822c5e4b143208a26cd1c2acc"
+  integrity sha512-jiqS0cUdKJJlYRMdl0vexDVRGr8Jt4nRjm1ZFWgt5evGWFqTD5SpgUtP2Vx/HsrehXK2Xs9JC9EN3I7B3fesLg==
 
 dbgate-query-splitter@^4.9.0:
   version "4.9.0"

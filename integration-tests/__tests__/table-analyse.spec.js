@@ -14,7 +14,7 @@ const txMatch = (tname, vcolname, nextcol) =>
       expect.objectContaining({
         columnName: 'id',
         notNull: true,
-        dataType: expect.stringContaining('int'),
+        dataType: expect.stringContaining('INT'),
       }),
       expect.objectContaining({
         columnName: vcolname,
