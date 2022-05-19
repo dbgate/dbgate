@@ -1,5 +1,5 @@
 {
-  "version": "4.1.1",
+  "version": "5.0.0-alpha.1",
   "name": "dbgate-tools",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -25,7 +25,7 @@
   ],
   "devDependencies": {
     "@types/node": "^13.7.0",
-    "dbgate-types": "^4.1.1",
+    "dbgate-types": "^5.0.0-alpha.1",
     "jest": "^24.9.0",
     "ts-jest": "^25.2.1",
     "typescript": "^4.4.3"
@@ -33,7 +33,7 @@
   "dependencies": {
     "lodash": "^4.17.21",
     "dbgate-query-splitter": "^4.9.0",
-    "dbgate-sqltree": "^4.1.1",
+    "dbgate-sqltree": "^5.0.0-alpha.1",
     "uuid": "^3.4.0"
   }
 }

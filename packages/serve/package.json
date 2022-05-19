@@ -1,6 +1,6 @@
 {
   "name": "dbgate-serve",
-  "version": "4.1.1",
+  "version": "5.0.0-alpha.1",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -18,15 +18,15 @@
     "web"
   ],
   "dependencies": {
-    "dbgate-api": "^4.1.1",
-    "dbgate-plugin-csv": "^4.1.1",
-    "dbgate-plugin-excel": "^4.1.1",
-    "dbgate-plugin-mongo": "^4.1.1",
-    "dbgate-plugin-mssql": "^4.1.1",
-    "dbgate-plugin-mysql": "^4.1.1",
-    "dbgate-plugin-postgres": "^4.1.1",
-    "dbgate-plugin-xml": "^4.1.1",
-    "dbgate-web": "^4.1.1",
+    "dbgate-api": "^5.0.0-alpha.1",
+    "dbgate-plugin-csv": "^5.0.0-alpha.1",
+    "dbgate-plugin-excel": "^5.0.0-alpha.1",
+    "dbgate-plugin-mongo": "^5.0.0-alpha.1",
+    "dbgate-plugin-mssql": "^5.0.0-alpha.1",
+    "dbgate-plugin-mysql": "^5.0.0-alpha.1",
+    "dbgate-plugin-postgres": "^5.0.0-alpha.1",
+    "dbgate-plugin-xml": "^5.0.0-alpha.1",
+    "dbgate-web": "^5.0.0-alpha.1",
     "dotenv": "^16.0.0"
   }
 }
