@@ -186,14 +186,3 @@ export function groupTabs(tabs: any[]) {
 
   return res;
 }
-
-export function closeTabWithNoHistory(tabid) {
-  openedTabs.update(tabs => {
-    const res = tabs.filter(x => x.tabid != tabid);
-    const selectedIndex = _.findLastIndex(res, x => x.closedTime == null);
-    return res.map((x, index) => ({
-      ...x,
-      selected: index == selectedIndex,
-    }));
-  });
-}

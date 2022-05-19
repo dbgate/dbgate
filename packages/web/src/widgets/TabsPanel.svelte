@@ -22,12 +22,14 @@
     });
   };
 
-  export const closeMultipleTabs = closeCondition => {
+  export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => {
     openedTabs.update(files => {
-      const newFiles = files.map(x => ({
-        ...x,
-        closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
-      }));
+      const newFiles = deleteFromHistory
+        ? files.filter(x => !closeCondition(x))
+        : files.map(x => ({
+            ...x,
+            closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
+          }));
 
       if (newFiles.find(x => x.selected && x.closedTime == null)) {
         return newFiles;

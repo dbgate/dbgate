@@ -27,6 +27,7 @@
       });
       expandedConnections.update(x => _.uniq([...x, connection._id]));
     }
+    closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
   }
 </script>
 
@@ -46,7 +47,7 @@
   import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import openNewTab from '../utility/openNewTab';
+  import openNewTab, { closeTabWithNoHistory } from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -257,6 +258,7 @@
   on:click={handleOpenConnectionTab}
   on:click
   on:expand
+  on:dblclick={handleConnect}
   on:middleclick={() => {
     _.flattenDeep(getContextMenu())
       .find(x => x.isNewQuery)

@@ -24,7 +24,6 @@
   import { changeTab } from '../utility/common';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { onMount } from 'svelte';
-  import { closeTabWithNoHistory } from '../utility/openNewTab';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
 
   export let connection;
@@ -133,7 +132,6 @@
         unsaved: true,
       };
     const saved = await apiCall('connections/save', connection);
-    closeTabWithNoHistory(tabid);
     openConnection(saved);
   }
 
