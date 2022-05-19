@@ -187,6 +187,10 @@ export const getPinnedDatabases = () => _.compact(pinnedDatabasesValue);
 let currentDatabaseValue = null;
 currentDatabase.subscribe(value => {
   currentDatabaseValue = value;
+  if (value?.connection?._id) {
+    openedConnections.update(x => _.uniq([...x, value?.connection?._id]));
+    expandedConnections.update(x => _.uniq([...x, value?.connection?._id]));
+  }
   invalidateCommands();
 });
 export const getCurrentDatabase = () => currentDatabaseValue;
