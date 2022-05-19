@@ -6,9 +6,9 @@
   import FormButton from '../forms/FormButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import TabControl from '../elements/TabControl.svelte';
-  import ConnectionModalDriverFields from '../modals/ConnectionModalDriverFields.svelte';
-  import ConnectionModalSshTunnelFields from '../modals/ConnectionModalSshTunnelFields.svelte';
-  import ConnectionModalSslFields from '../modals/ConnectionModalSslFields.svelte';
+  import ConnectionDriverFields from '../settings/ConnectionDriverFields.svelte';
+  import ConnectionSshTunnelFields from '../settings/ConnectionSshTunnelFields.svelte';
+  import ConnectionSslFields from '../settings/ConnectionSslFields.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
   import { showModal } from '../modals/modalTools';
@@ -155,15 +155,15 @@
       tabs={[
         {
           label: 'General',
-          component: ConnectionModalDriverFields,
+          component: ConnectionDriverFields,
         },
         driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
-          component: ConnectionModalSshTunnelFields,
+          component: ConnectionSshTunnelFields,
         },
         driver?.showConnectionTab('ssl', $values) && {
           label: 'SSL',
-          component: ConnectionModalSslFields,
+          component: ConnectionSslFields,
         },
       ]}
     />

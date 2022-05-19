@@ -44,10 +44,9 @@
   } from '../stores';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
-  import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
-  import openNewTab, { closeTabWithNoHistory } from '../utility/openNewTab';
+  import openNewTab from '../utility/openNewTab';
   import { getDatabaseMenuItems } from './DatabaseAppObject.svelte';
   import getElectron from '../utility/getElectron';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -122,9 +121,6 @@
         });
       }
     };
-    // const handleEdit = () => {
-    //   showModal(ConnectionModal, { connection: data });
-    // };
     const handleDelete = () => {
       showModal(ConfirmModal, {
         message: `Really delete connection ${getConnectionLabel(data)}?`,

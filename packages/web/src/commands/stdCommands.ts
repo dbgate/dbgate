@@ -1,10 +1,7 @@
 import { currentDatabase, currentTheme, extensions, getExtensions, getVisibleToolbar, visibleToolbar } from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
-import { ThemeDefinition } from 'dbgate-types';
-import ConnectionModal from '../modals/ConnectionModal.svelte';
 import AboutModal from '../modals/AboutModal.svelte';
-import AddDbKeyModal from '../modals/AddDbKeyModal.svelte';
 import SettingsModal from '../settings/SettingsModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
