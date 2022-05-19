@@ -87,7 +87,13 @@ registerCommand({
   toolbarOrder: 1,
   name: 'Connection',
   testEnabled: () => !getCurrentConfig()?.runAsPortal,
-  onClick: () => showModal(ConnectionModal),
+  onClick: () => {
+    openNewTab({
+      title: 'New Connection',
+      icon: 'img connection',
+      tabComponent: 'ConnectionTab',
+    });
+  },
 });
 
 registerCommand({

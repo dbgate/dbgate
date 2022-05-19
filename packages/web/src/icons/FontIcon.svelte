@@ -141,6 +141,7 @@
     'img app': 'mdi mdi-layers-triple color-icon-magenta',
     'img app-command': 'mdi mdi-flash color-icon-green',
     'img app-query': 'mdi mdi-view-comfy color-icon-magenta',
+    'img connection': 'mdi mdi-connection color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

@@ -13,6 +13,8 @@
   export let value = 0;
   export let menu = null;
   export let isInline = false;
+  export let containerMaxWidth = undefined;
+  export let flex1 = true;
 
   export function setValue(index) {
     value = index;
@@ -22,7 +24,7 @@
   }
 </script>
 
-<div class="main">
+<div class="main" class:flex1>
   <div class="tabs">
     {#each _.compact(tabs) as tab, index}
       <div class="tab-item" class:selected={value == index} on:click={() => (value = index)}>
@@ -38,7 +40,7 @@
 
   <div class="content-container">
     {#each _.compact(tabs) as tab, index}
-      <div class="container" class:isInline class:tabVisible={index == value}>
+      <div class="container" class:isInline class:tabVisible={index == value} style:max-width={containerMaxWidth}>
         <svelte:component this={tab.component} {...tab.props} tabControlHiddenTab={index != value} />
         {#if tab.slot != null}
           {#if tab.slot == 0}<slot name="0" />
@@ -59,8 +61,11 @@
 <style>
   .main {
     display: flex;
-    flex: 1;
     flex-direction: column;
+  }
+
+  .main.flex1 {
+    flex: 1;
   }
 
   .tabs {
