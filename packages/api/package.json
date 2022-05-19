@@ -72,7 +72,7 @@
     "webpack-cli": "^3.3.11"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.4.5",
+    "better-sqlite3": "7.5.0",
     "msnodesqlv8": "^2.4.4"
   }
 }
