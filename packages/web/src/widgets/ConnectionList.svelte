@@ -8,7 +8,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
-  import { commands, commandsCustomized, expandedConnections, openedConnections } from '../stores';
+  import { commands, commandsCustomized, expandedConnections, openedConnections, openedTabs } from '../stores';
   import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -17,6 +17,7 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
+  import { matchingProps } from '../tabs/TableDataTab.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -66,7 +67,7 @@
     setIsExpanded={(data, value) =>
       expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)))}
   />
-  {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
+  {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
       >Add new connection</LargeButton
     >

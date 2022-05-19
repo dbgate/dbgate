@@ -25,6 +25,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { onMount } from 'svelte';
   import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
 
   export let connection;
   export let tabid;
@@ -112,6 +113,7 @@
     $values = {
       ...$values,
       _id: saved._id,
+      unsaved: false,
     };
     changeTab(tabid, tab => ({
       ...tab,
@@ -126,13 +128,15 @@
 
   async function handleConnect() {
     let connection = getCurrentConnection();
-    if (!connection._id)
+    if (!connection._id) {
       connection = {
         ...connection,
-        unsaved: true,
+        unsaved: !connection._id,
       };
+    }
     const saved = await apiCall('connections/save', connection);
     openConnection(saved);
+    closeMultipleTabs(x => x.tabid == tabid, true);
   }
 
   onMount(async () => {
