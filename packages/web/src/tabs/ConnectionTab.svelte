@@ -1,8 +1,5 @@
 <script lang="ts">
-  import registerCommand from '../commands/registerCommand';
   import FormButton from '../forms/FormButton.svelte';
-  import FormProvider from '../forms/FormProvider.svelte';
-  import FormSubmit from '../forms/FormSubmit.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import TabControl from '../elements/TabControl.svelte';
   import ConnectionModalDriverFields from '../modals/ConnectionModalDriverFields.svelte';
@@ -10,19 +7,25 @@
   import ConnectionModalSslFields from '../modals/ConnectionModalSslFields.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
 
-  import ModalBase from '../modals/ModalBase.svelte';
-  import { closeCurrentModal, closeModal, showModal } from '../modals/modalTools';
+  import { showModal } from '../modals/modalTools';
   import createRef from '../utility/createRef';
   import Link from '../elements/Link.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import { extensions, getCurrentConfig } from '../stores';
-  import _ from 'lodash';
-  import { getDatabaseFileLabel } from '../utility/getConnectionLabel';
+  import { extensions, getCurrentConfig, openedTabs } from '../stores';
+  import _, { Dictionary } from 'lodash';
   import { apiCall } from '../utility/api';
+  import { showSnackbarSuccess } from '../utility/snackbar';
+  import { changeTab } from '../utility/common';
+  import getConnectionLabel from '../utility/getConnectionLabel';
+  import { onMount } from 'svelte';
+  import { closeTabWithNoHistory } from '../utility/openNewTab';
+  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
 
   export let connection;
+  export let tabid;
+  export let conid;
 
   let isTesting;
   let sqlConnectResult;
@@ -55,7 +58,7 @@
     isTesting = false;
   }
 
-  async function handleSave(e) {
+  function getCurrentConnection() {
     const allProps = [
       'databaseFile',
       'useDatabaseUrl',
@@ -72,14 +75,65 @@
     const omitProps = _.difference(allProps, visibleProps);
     if (!$values.defaultDatabase) omitProps.push('singleDatabase');
 
-    let connection = _.omit(e.detail, omitProps);
+    let connection: Dictionary<string | boolean> = _.omit($values, omitProps);
     if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
 
-    apiCall('connections/save', connection);
-    closeCurrentModal();
+    if (!driver?.showConnectionTab('sshTunnel', $values)) {
+      if (!$values.useSshTunnel) {
+        connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
+      }
+    } else {
+      connection = _.omit(connection, ['useSshTunnel']);
+      connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
+    }
+
+    if (!driver?.showConnectionTab('ssl', $values)) {
+      if (!$values.useSsl) {
+        connection = _.omitBy(connection, (v, k) => k.startsWith('ssl'));
+      }
+    } else {
+      connection = _.omit(connection, ['useSsl']);
+      connection = _.omitBy(connection, (v, k) => k.startsWith('ssl'));
+    }
+
+    return connection;
   }
 
-  async function handleConnect() {}
+  async function handleSave() {
+    const connection = getCurrentConnection();
+    const saved = await apiCall('connections/save', connection);
+    $values = {
+      ...$values,
+      _id: saved._id,
+    };
+    changeTab(tabid, tab => ({
+      ...tab,
+      title: getConnectionLabel(saved),
+      props: {
+        ...tab.props,
+        conid: saved._id,
+      },
+    }));
+    showSnackbarSuccess('Connection saved');
+  }
+
+  async function handleConnect() {
+    let connection = getCurrentConnection();
+    if (!connection._id)
+      connection = {
+        ...connection,
+        unsaved: true,
+      };
+    await apiCall('connections/save', connection);
+    closeTabWithNoHistory(tabid);
+    openConnection(connection);
+  }
+
+  onMount(async () => {
+    if (conid) {
+      $values = await apiCall('connections/get', { conid });
+    }
+  });
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -93,11 +147,11 @@
           label: 'General',
           component: ConnectionModalDriverFields,
         },
-        (driver?.showConnectionTab('sshTunnel', $values)) && {
+        driver?.showConnectionTab('sshTunnel', $values) && {
           label: 'SSH Tunnel',
           component: ConnectionModalSshTunnelFields,
         },
-        (driver?.showConnectionTab('ssl', $values)) && {
+        driver?.showConnectionTab('ssl', $values) && {
           label: 'SSL',
           component: ConnectionModalSslFields,
         },
@@ -111,7 +165,7 @@
           {#if isTesting}
             <FormButton value="Cancel test" on:click={handleCancelTest} />
           {:else}
-          <FormButton value="Test" on:click={handleTest} />
+            <FormButton value="Test" on:click={handleTest} />
           {/if}
           <FormButton value="Save" on:click={handleSave} />
         </div>

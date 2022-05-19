@@ -11,6 +11,22 @@
     const databases = getLocalStorage(`database_list_${_id}`) || [];
     return filterName(filter, ...databases.map(x => x.name));
   };
+  export function openConnection(connection) {
+    if (connection.singleDatabase) {
+      currentDatabase.set({ connection, name: connection.defaultDatabase });
+      apiCall('database-connections/refresh', {
+        conid: connection._id,
+        database: connection.defaultDatabase,
+        keepOpen: true,
+      });
+    } else {
+      openedConnections.update(x => _.uniq([...x, connection._id]));
+      apiCall('server-connections/refresh', {
+        conid: connection._id,
+        keepOpen: true,
+      });
+    }
+  }
 </script>
 
 <script lang="ts">
@@ -43,20 +59,18 @@
   const electron = getElectron();
 
   const handleConnect = () => {
-    if (data.singleDatabase) {
-      $currentDatabase = { connection: data, name: data.defaultDatabase };
-      apiCall('database-connections/refresh', {
+    openConnection(data);
+  };
+
+  const handleOpenConnectionTab = () => {
+    openNewTab({
+      title: getConnectionLabel(data),
+      icon: 'img connection',
+      tabComponent: 'ConnectionTab',
+      props: {
         conid: data._id,
-        database: data.defaultDatabase,
-        keepOpen: true,
-      });
-    } else {
-      $openedConnections = _.uniq([...$openedConnections, data._id]);
-      apiCall('server-connections/refresh', {
-        conid: data._id,
-        keepOpen: true,
-      });
-    }
+      },
+    });
   };
 
   const handleSqlRestore = () => {
@@ -83,9 +97,9 @@
         currentDatabase.set(null);
       }
     };
-    const handleEdit = () => {
-      showModal(ConnectionModal, { connection: data });
-    };
+    // const handleEdit = () => {
+    //   showModal(ConnectionModal, { connection: data });
+    // };
     const handleDelete = () => {
       showModal(ConfirmModal, {
         message: `Really delete connection ${getConnectionLabel(data)}?`,
@@ -128,7 +142,7 @@
       config.runAsPortal == false && [
         {
           text: 'Edit',
-          onClick: handleEdit,
+          onClick: handleOpenConnectionTab,
         },
         {
           text: 'Delete',
@@ -216,7 +230,7 @@
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
-  on:click={handleConnect}
+  on:click={handleOpenConnectionTab}
   on:click
   on:expand
   on:middleclick={() => {
