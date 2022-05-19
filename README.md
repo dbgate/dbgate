@@ -93,8 +93,8 @@ There are many database managers now, so why DbGate?
 ## Design goals
 * Application simplicity - DbGate takes the best and only the best from old [DbGate](http://www.jenasoft.com/dbgate), [DatAdmin](http://www.jenasoft.com/datadmin) and [DbMouse](http://www.jenasoft.com/dbmouse) .
 * Minimal dependencies
-    * Frontend - Svelte, socket.io
-    * Backend - NodeJs, ExpressJs, socket.io, database connection drivers
+    * Frontend - Svelte
+    * Backend - NodeJs, ExpressJs, database connection drivers
     * JavaScript + TypeScript
     * App - electron
 * Platform independent - runs as web application in single docker container on server, or as application using Electron platform on Linux, Windows and Mac
