@@ -8,7 +8,7 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
-  import { commands, commandsCustomized, openedConnections } from '../stores';
+  import { commands, commandsCustomized, expandedConnections, openedConnections } from '../stores';
   import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -27,6 +27,10 @@
     $connections && $serverStatus
       ? $connections.map(conn => ({ ...conn, status: $serverStatus[conn._id] }))
       : $connections;
+
+  $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(
+    x => !x.unsaved || $openedConnections.includes(x._id)
+  );
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
@@ -51,13 +55,16 @@
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList
-    list={_.sortBy(connectionsWithStatus, connection => (getConnectionLabel(connection) || '').toUpperCase())}
+    list={_.sortBy(connectionsWithStatusFiltered, connection => (getConnectionLabel(connection) || '').toUpperCase())}
     module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick
     isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
     {filter}
     passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+    getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+    setIsExpanded={(data, value) =>
+      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)))}
   />
   {#if $connections && $connections.length == 0 && $commandsCustomized['new.connection']?.enabled}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal

@@ -47,6 +47,7 @@ function subscribeCssVariable(store, transform, cssVariable) {
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
 export const openedConnections = writable([]);
+export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
 export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');

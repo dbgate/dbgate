@@ -25,6 +25,7 @@
         conid: connection._id,
         keepOpen: true,
       });
+      expandedConnections.update(x => _.uniq([...x, connection._id]));
     }
   }
 </script>
@@ -32,7 +33,14 @@
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, getCurrentConfig, getOpenedConnections, openedConnections } from '../stores';
+  import {
+    currentDatabase,
+    expandedConnections,
+    extensions,
+    getCurrentConfig,
+    getOpenedConnections,
+    openedConnections,
+  } from '../stores';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
   import ConnectionModal from '../modals/ConnectionModal.svelte';
@@ -46,6 +54,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall } from '../utility/api';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
+  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
 
   export let data;
   export let passProps;
@@ -63,6 +72,10 @@
   };
 
   const handleOpenConnectionTab = () => {
+    if ($openedConnections.includes(data._id)) {
+      return;
+    }
+
     openNewTab({
       title: getConnectionLabel(data),
       icon: 'img connection',
@@ -95,6 +108,17 @@
           apiCall('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
         }
         currentDatabase.set(null);
+      }
+      closeMultipleTabs(x => x.props.conid == data._id);
+      if (data.unsaved) {
+        openNewTab({
+          title: 'New Connection',
+          icon: 'img connection',
+          tabComponent: 'ConnectionTab',
+          props: {
+            conid: data._id,
+          },
+        });
       }
     };
     // const handleEdit = () => {
@@ -140,11 +164,11 @@
 
     return [
       config.runAsPortal == false && [
-        {
+        !$openedConnections.includes(data._id) && {
           text: 'Edit',
           onClick: handleOpenConnectionTab,
         },
-        {
+        !$openedConnections.includes(data._id) && {
           text: 'Delete',
           onClick: handleDelete,
         },
@@ -219,7 +243,7 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={getConnectionLabel(data)}
+  title={getConnectionLabel(data, { showUnsaved: true })}
   icon={data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
     ? _.get($currentDatabase, 'connection._id') == data._id && _.get($currentDatabase, 'name') == data.defaultDatabase

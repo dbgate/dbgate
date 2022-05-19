@@ -1,3 +1,7 @@
+<script lang="ts" context="module">
+  export const matchingProps = ['conid'];
+</script>
+
 <script lang="ts">
   import FormButton from '../forms/FormButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -100,7 +104,11 @@
   }
 
   async function handleSave() {
-    const connection = getCurrentConnection();
+    let connection = getCurrentConnection();
+    connection = {
+      ...connection,
+      unsaved: false,
+    };
     const saved = await apiCall('connections/save', connection);
     $values = {
       ...$values,
@@ -124,9 +132,9 @@
         ...connection,
         unsaved: true,
       };
-    await apiCall('connections/save', connection);
+    const saved = await apiCall('connections/save', connection);
     closeTabWithNoHistory(tabid);
-    openConnection(connection);
+    openConnection(saved);
   }
 
   onMount(async () => {

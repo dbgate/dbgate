@@ -22,7 +22,7 @@
     });
   };
 
-  const closeMultipleTabs = closeCondition => {
+  export const closeMultipleTabs = closeCondition => {
     openedTabs.update(files => {
       const newFiles = files.map(x => ({
         ...x,
@@ -81,6 +81,7 @@
   const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
 
   function getTabDbName(tab, connectionList) {
+    if (tab.tabComponent == 'ConnectionTab') return 'Connections';
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
       const connection = connectionList?.find(x => x._id == tab.props.conid);
@@ -96,6 +97,7 @@
       if (key.startsWith('database://')) return 'icon database';
       if (key.startsWith('archive://')) return 'icon archive';
       if (key.startsWith('server://')) return 'icon server';
+      if (key.startsWith('connections.')) return 'icon connection';
     }
     return 'icon file';
   }
