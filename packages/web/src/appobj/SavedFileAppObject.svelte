@@ -65,7 +65,7 @@
     currentConnection: true,
   };
 
-  const HANDLERS = {
+  export const SAVED_FILE_HANDLERS = {
     sql,
     shell,
     markdown,
@@ -97,7 +97,7 @@
   export let data;
 
   $: folder = data?.folder;
-  $: handler = HANDLERS[folder] as FileTypeHandler;
+  $: handler = SAVED_FILE_HANDLERS[folder] as FileTypeHandler;
 
   const showMarkdownPage = () => {
     openNewTab({

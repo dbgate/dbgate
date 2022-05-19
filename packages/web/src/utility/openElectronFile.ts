@@ -3,17 +3,19 @@ import { get } from 'svelte/store';
 import newQuery from '../query/newQuery';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import getElectron from './getElectron';
-import { currentDatabase, extensions } from '../stores';
+import { currentDatabase, extensions, getCurrentDatabase } from '../stores';
 import { getUploadListener } from './uploadFiles';
-import { getDatabaseFileLabel } from './getConnectionLabel';
+import getConnectionLabel, { getDatabaseFileLabel } from './getConnectionLabel';
 import { apiCall } from './api';
 import openNewTab from './openNewTab';
+import { SAVED_FILE_HANDLERS } from '../appobj/SavedFileAppObject.svelte';
 import _ from 'lodash';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
   const nameLower = file.toLowerCase();
   if (nameLower.endsWith('.sql')) return true;
+  if (nameLower.endsWith('.diagram')) return true;
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) return true;
@@ -65,6 +67,40 @@ function openElectronJsonLinesFile(filePath, parsed) {
   });
 }
 
+async function openSavedElectronFile(filePath, parsed, folder) {
+  const handler = SAVED_FILE_HANDLERS[folder];
+  const resp = await apiCall('files/load-from', { filePath, format: handler.format });
+
+  const connProps: any = {};
+  let tooltip = undefined;
+
+  const db = getCurrentDatabase();
+  if (handler.currentConnection) {
+    const connection = db?.connection || {};
+    const database = db?.name;
+    connProps.conid = db?.connection?._id;
+    connProps.database = database;
+    tooltip = `${getConnectionLabel(connection)}\n${database}`;
+  }
+
+  openNewTab(
+    {
+      title: parsed.name,
+      icon: handler.icon,
+      tabComponent: handler.tabComponent,
+      tooltip,
+      props: {
+        savedFile: null,
+        savedFolder: null,
+        savedFilePath: filePath,
+        savedFormat: handler.format,
+        ...connProps,
+      },
+    },
+    { editor: resp }
+  );
+}
+
 export function openElectronFileCore(filePath, extensions) {
   const nameLower = filePath.toLowerCase();
   const path = window.require('path');
@@ -91,6 +127,10 @@ export function openElectronFileCore(filePath, extensions) {
   }
   if (nameLower.endsWith('.jsonl') || nameLower.endsWith('.ndjson')) {
     openElectronJsonLinesFile(filePath, parsed);
+    return;
+  }
+  if (nameLower.endsWith('.diagram')) {
+    openSavedElectronFile(filePath, parsed, 'diagrams');
     return;
   }
   for (const format of extensions.fileFormats) {
@@ -134,8 +174,12 @@ export async function openElectronFile() {
 
   const filePaths = await electron.showOpenDialog({
     filters: [
-      { name: `All supported files`, extensions: ['sql', 'sqlite', 'db', 'sqlite3', ...getFileFormatExtensions(ext)] },
+      {
+        name: `All supported files`,
+        extensions: ['sql', 'sqlite', 'db', 'sqlite3', 'diagram', ...getFileFormatExtensions(ext)],
+      },
       { name: `SQL files`, extensions: ['sql'] },
+      { name: `Diagram files`, extensions: ['diagram'] },
       { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
       ...getFileFormatFilters(ext),
     ],
