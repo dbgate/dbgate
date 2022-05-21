@@ -115,6 +115,7 @@
     bottom: var(--dim-statusbar-height);
     width: var(--dim-widget-icon-size);
     background: var(--theme-bg-inv-1);
+    -webkit-app-region: drag;
   }
   .statusbar {
     position: fixed;
