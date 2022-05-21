@@ -141,7 +141,7 @@ yarn # install NPM packages for electron
 
 And than run following 3 commands concurrently in 3 terminals:
 ```
-yarn start:web # run web on port 5000 (only static JS and HTML files)
+yarn start:web # run web on port 5001 (only static JS and HTML files)
 yarn lib # watch typescript libraries and plugins modifications
 yarn start:app # run electron app
 ```
