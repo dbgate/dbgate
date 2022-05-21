@@ -126,11 +126,11 @@ yarn # install NPM packages
 And than run following 3 commands concurrently in 3 terminals:
 ```
 yarn start:api # run API on port 3000
-yarn start:web # run web on port 5000
+yarn start:web # run web on port 5001
 yarn lib # watch typescript libraries and plugins modifications
 ```
-This runs API on port 3000 and web application on port 5000  
-Open http://localhost:5000 in your browser
+This runs API on port 3000 and web application on port 5001  
+Open http://localhost:5001 in your browser
 
 If you want to run electron app:
 ```sh
@@ -141,13 +141,13 @@ yarn # install NPM packages for electron
 
 And than run following 3 commands concurrently in 3 terminals:
 ```
-yarn start:web # run web on port 5000 (only static JS and HTML files)
+yarn start:web # run web on port 5001 (only static JS and HTML files)
 yarn lib # watch typescript libraries and plugins modifications
 yarn start:app # run electron app
 ```
 
 ## How to run built electron app locally
-This mode is very similar to production run of electron app. Electron doesn't use localhost:5000.
+This mode is very similar to production run of electron app. Electron doesn't use localhost:5001.
 
 ```sh
 cd app

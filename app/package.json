@@ -94,7 +94,7 @@
   },
   "homepage": "./",
   "scripts": {
-    "start": "cross-env ELECTRON_START_URL=http://localhost:5000 DEVMODE=1 electron .",
+    "start": "cross-env ELECTRON_START_URL=http://localhost:5001 DEVMODE=1 electron .",
     "start:local": "cross-env electron .",
     "dist": "electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
