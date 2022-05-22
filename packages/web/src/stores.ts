@@ -110,6 +110,7 @@ export const visibleTitleBar = derived(useSettings(), $settings => {
   if (nativeMenuOnStartup == null) {
     nativeMenuOnStartup = !!$settings['app.useNativeMenu'];
   }
+  // console.log('nativeMenuOnStartup', nativeMenuOnStartup);
   return !$settings['app.fullscreen'] && !nativeMenuOnStartup;
 });
 
