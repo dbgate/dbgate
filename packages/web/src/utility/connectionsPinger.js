@@ -1,6 +1,13 @@
 import _ from 'lodash';
 import { openedConnections, currentDatabase } from '../stores';
 import { apiCall } from './api';
+import { getConnectionList } from './metadataLoaders';
+
+// const doServerPing = async value => {
+//   const connectionList = getConnectionList();
+//   const connections = value.filter(id => !connectionList.find(x => x._id == id)?.singleDatabase);
+//   apiCall('server-connections/ping', { connections });
+// };
 
 const doServerPing = value => {
   apiCall('server-connections/ping', { connections: value });

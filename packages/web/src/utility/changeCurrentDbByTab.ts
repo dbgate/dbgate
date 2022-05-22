@@ -8,6 +8,7 @@ let lastCurrentTab = null;
 openedTabs.subscribe(value => {
   const newCurrentTab = (value || []).find(x => x.selected);
   if (newCurrentTab == lastCurrentTab) return;
+  if (lastCurrentTab?.tabComponent == 'ConnectionTab') return;
 
   if (newCurrentTab) {
     const { conid, database } = newCurrentTab.props || {};

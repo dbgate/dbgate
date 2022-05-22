@@ -19,6 +19,7 @@
         database: connection.defaultDatabase,
         keepOpen: true,
       });
+      openedSingleDatabaseConnections.update(x => _.uniq([...x, connection._id]));
     } else {
       openedConnections.update(x => _.uniq([...x, connection._id]));
       apiCall('server-connections/refresh', {
@@ -41,6 +42,7 @@
     getCurrentConfig,
     getOpenedConnections,
     openedConnections,
+    openedSingleDatabaseConnections,
   } from '../stores';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
@@ -55,6 +57,7 @@
   import { apiCall } from '../utility/api';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import AboutModal from '../modals/AboutModal.svelte';
 
   export let data;
   export let passProps;
@@ -72,10 +75,6 @@
   };
 
   const handleOpenConnectionTab = () => {
-    if ($openedConnections.includes(data._id)) {
-      return;
-    }
-
     openNewTab({
       title: getConnectionLabel(data),
       icon: 'img connection',
@@ -84,6 +83,18 @@
         conid: data._id,
       },
     });
+  };
+
+  const handleClick = () => {
+    if ($openedSingleDatabaseConnections.includes(data._id)) {
+      currentDatabase.set({ connection: data, name: data.defaultDatabase });
+      return;
+    }
+    if ($openedConnections.includes(data._id)) {
+      return;
+    }
+
+    handleOpenConnectionTab();
   };
 
   const handleSqlRestore = () => {
@@ -198,7 +209,14 @@
       ],
       data.singleDatabase && [
         { divider: true },
-        getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase, $apps),
+        getDatabaseMenuItems(
+          data,
+          data.defaultDatabase,
+          $extensions,
+          $currentDatabase,
+          $apps,
+          $openedSingleDatabaseConnections
+        ),
       ],
 
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
@@ -251,7 +269,7 @@
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
-  on:click={handleOpenConnectionTab}
+  on:click={handleClick}
   on:click
   on:expand
   on:dblclick={handleConnect}
