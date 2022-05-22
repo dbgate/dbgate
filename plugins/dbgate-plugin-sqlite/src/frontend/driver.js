@@ -53,6 +53,8 @@ const driver = {
   getQuerySplitterOptions: (usage) => (usage == 'stream' ? noSplitSplitterOptions : sqliteSplitterOptions),
   // isFileDatabase: true,
   isElectronOnly: true,
+
+  predefinedDataTypes: ['integer', 'real', 'text', 'blob'],
 };
 
 module.exports = driver;

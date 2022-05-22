@@ -32,4 +32,6 @@ export interface SqlDialect {
 
   dropReferencesWhenDropTable?: boolean;
   disableExplicitTransaction?: boolean;
+
+  predefinedDataTypes: string[];
 }

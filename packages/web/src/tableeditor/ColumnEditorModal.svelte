@@ -26,7 +26,7 @@
     >
 
     <FormTextField name="columnName" label="Column name" focused />
-    <DataTypeEditor />
+    <DataTypeEditor dialect={driver?.dialect} />
 
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
