@@ -48,10 +48,11 @@ const jsonQuickExport = {
 const sqlQuickExport = {
   label: 'SQL',
   extension: 'sql',
-  createWriter: fileName => ({
+  createWriter: (fileName, dataName) => ({
     functionName: 'sqlDataWriter',
     props: {
       fileName,
+      dataName,
     },
   }),
 };
