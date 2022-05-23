@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 5.0.0 - unreleased
+### 5.0.0
 - CHANGED: Connection workflow, connections are opened on tabs instead of modals
 - ADDED: Posibility to connect to DB without saving connection
 - ADDED(mac): Support for SQLite on Mac M1
