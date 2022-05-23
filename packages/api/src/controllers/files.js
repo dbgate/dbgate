@@ -99,6 +99,12 @@ module.exports = {
     }
   },
 
+  loadFrom_meta: true,
+  async loadFrom({ filePath, format }, req) {
+    const text = await fs.readFile(filePath, { encoding: 'utf-8' });
+    return deserialize(format, text);
+  },
+
   save_meta: true,
   async save({ folder, file, data, format }, req) {
     if (folder.startsWith('archive:')) {

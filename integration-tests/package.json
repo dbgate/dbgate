@@ -1,6 +1,6 @@
 {
   "name": "dbgate-integration-tests",
-  "version": "4.1.1",
+  "version": "5.0.0-alpha.1",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",

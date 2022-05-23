@@ -71,6 +71,7 @@
   draggable={true}
   on:click={handleClick}
   on:mouseup={handleMouseUp}
+  on:dblclick
   use:contextMenu={disableContextMenu ? null : menu}
   on:dragstart={e => {
     e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));

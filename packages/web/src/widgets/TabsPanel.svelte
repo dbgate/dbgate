@@ -22,12 +22,14 @@
     });
   };
 
-  const closeMultipleTabs = closeCondition => {
+  export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => {
     openedTabs.update(files => {
-      const newFiles = files.map(x => ({
-        ...x,
-        closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
-      }));
+      const newFiles = deleteFromHistory
+        ? files.filter(x => !closeCondition(x))
+        : files.map(x => ({
+            ...x,
+            closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
+          }));
 
       if (newFiles.find(x => x.selected && x.closedTime == null)) {
         return newFiles;
@@ -81,6 +83,7 @@
   const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
 
   function getTabDbName(tab, connectionList) {
+    if (tab.tabComponent == 'ConnectionTab') return 'Connections';
     if (tab.props && tab.props.conid && tab.props.database) return tab.props.database;
     if (tab.props && tab.props.conid) {
       const connection = connectionList?.find(x => x._id == tab.props.conid);
@@ -96,6 +99,7 @@
       if (key.startsWith('database://')) return 'icon database';
       if (key.startsWith('archive://')) return 'icon archive';
       if (key.startsWith('server://')) return 'icon server';
+      if (key.startsWith('connections.')) return 'icon connection';
     }
     return 'icon file';
   }
@@ -383,7 +387,13 @@
           class:selected={draggingDbGroup
             ? tabGroup.grpid == draggingDbGroupTarget?.grpid
             : tabGroup.tabDbKey == currentDbKey}
-          on:click={() => handleSetDb(tabGroup.tabs[0].props)}
+          on:mouseup={e => {
+            if (e.button == 1) {
+              closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid));
+            } else {
+              handleSetDb(tabGroup.tabs[0].props);
+            }
+          }}
           use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
           style={$connectionColorFactory(
             tabGroup.tabs[0].props,

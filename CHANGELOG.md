@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.0 - unreleased
+- CHANGED: Connection workflow, connections are opened on tabs instead of modals
+- ADDED: Posibility to connect to DB without saving connection
+- ADDED(mac): Support for SQLite on Mac M1
+- FIXED(mac): Unable to drag window on MacOS #281 #283
+- CHANGED: Renamed dbgate-data directory to .dbgate #248
+- FIXED: Exported SQL has table name undefined #277
+- ADDED: More data types in table create dialogt #285
+- ADDED(app): Open previously saved ERD diagrams #278
+- CHANGED: Better app loading progress UX
+- FIXED: Removed SSL tab on Redis connection (SSL is not supported for Redis)
+
 ### 4.8.8
 - CHANGED: New app icon
 - ADDED: SQL dump, SQL import - also from/to saved queries

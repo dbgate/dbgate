@@ -47,6 +47,8 @@ function subscribeCssVariable(store, transform, cssVariable) {
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
 export const openedConnections = writable([]);
+export const openedSingleDatabaseConnections = writable([]);
+export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
 export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
@@ -108,6 +110,7 @@ export const visibleTitleBar = derived(useSettings(), $settings => {
   if (nativeMenuOnStartup == null) {
     nativeMenuOnStartup = !!$settings['app.useNativeMenu'];
   }
+  // console.log('nativeMenuOnStartup', nativeMenuOnStartup);
   return !$settings['app.fullscreen'] && !nativeMenuOnStartup;
 });
 
@@ -186,6 +189,14 @@ export const getPinnedDatabases = () => _.compact(pinnedDatabasesValue);
 let currentDatabaseValue = null;
 currentDatabase.subscribe(value => {
   currentDatabaseValue = value;
+  if (value?.connection?._id) {
+    if (value?.connection?.singleDatabase) {
+      openedSingleDatabaseConnections.update(x => _.uniq([...x, value?.connection?._id]));
+    } else {
+      openedConnections.update(x => _.uniq([...x, value?.connection?._id]));
+      expandedConnections.update(x => _.uniq([...x, value?.connection?._id]));
+    }
+  }
   invalidateCommands();
 });
 export const getCurrentDatabase = () => currentDatabaseValue;

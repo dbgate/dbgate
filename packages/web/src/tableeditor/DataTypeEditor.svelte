@@ -4,7 +4,7 @@
 
   const { values, setFieldValue } = getFormContext();
 
-  $: dataTypes = ['int', 'nvarchar(250)', 'datetime', 'numeric(10,2)', 'float'];
+  $: dataTypes = dialect?.predefinedDataTypes || ['int', 'varchar(250)', 'datetime', 'numeric(10,2)', 'float'];
 
   function createDataTypesMenu() {
     return dataTypes.map(type => ({
@@ -13,6 +13,7 @@
     }));
   }
 
+  export let dialect;
 </script>
 
 <FormDropDownTextField name="dataType" label="Data type" menu={createDataTypesMenu} />

@@ -11,15 +11,41 @@
     const databases = getLocalStorage(`database_list_${_id}`) || [];
     return filterName(filter, ...databases.map(x => x.name));
   };
+  export function openConnection(connection) {
+    if (connection.singleDatabase) {
+      currentDatabase.set({ connection, name: connection.defaultDatabase });
+      apiCall('database-connections/refresh', {
+        conid: connection._id,
+        database: connection.defaultDatabase,
+        keepOpen: true,
+      });
+      openedSingleDatabaseConnections.update(x => _.uniq([...x, connection._id]));
+    } else {
+      openedConnections.update(x => _.uniq([...x, connection._id]));
+      apiCall('server-connections/refresh', {
+        conid: connection._id,
+        keepOpen: true,
+      });
+      expandedConnections.update(x => _.uniq([...x, connection._id]));
+    }
+    closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
+  }
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, getCurrentConfig, getOpenedConnections, openedConnections } from '../stores';
+  import {
+    currentDatabase,
+    expandedConnections,
+    extensions,
+    getCurrentConfig,
+    getOpenedConnections,
+    openedConnections,
+    openedSingleDatabaseConnections,
+  } from '../stores';
   import { filterName } from 'dbgate-tools';
   import { showModal } from '../modals/modalTools';
-  import ConnectionModal from '../modals/ConnectionModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import openNewTab from '../utility/openNewTab';
@@ -30,6 +56,8 @@
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall } from '../utility/api';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
+  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import AboutModal from '../modals/AboutModal.svelte';
 
   export let data;
   export let passProps;
@@ -43,20 +71,30 @@
   const electron = getElectron();
 
   const handleConnect = () => {
-    if (data.singleDatabase) {
-      $currentDatabase = { connection: data, name: data.defaultDatabase };
-      apiCall('database-connections/refresh', {
+    openConnection(data);
+  };
+
+  const handleOpenConnectionTab = () => {
+    openNewTab({
+      title: getConnectionLabel(data),
+      icon: 'img connection',
+      tabComponent: 'ConnectionTab',
+      props: {
         conid: data._id,
-        database: data.defaultDatabase,
-        keepOpen: true,
-      });
-    } else {
-      $openedConnections = _.uniq([...$openedConnections, data._id]);
-      apiCall('server-connections/refresh', {
-        conid: data._id,
-        keepOpen: true,
-      });
+      },
+    });
+  };
+
+  const handleClick = () => {
+    if ($openedSingleDatabaseConnections.includes(data._id)) {
+      currentDatabase.set({ connection: data, name: data.defaultDatabase });
+      return;
     }
+    if ($openedConnections.includes(data._id)) {
+      return;
+    }
+
+    handleOpenConnectionTab();
   };
 
   const handleSqlRestore = () => {
@@ -82,9 +120,17 @@
         }
         currentDatabase.set(null);
       }
-    };
-    const handleEdit = () => {
-      showModal(ConnectionModal, { connection: data });
+      closeMultipleTabs(x => x.props.conid == data._id);
+      if (data.unsaved) {
+        openNewTab({
+          title: 'New Connection',
+          icon: 'img connection',
+          tabComponent: 'ConnectionTab',
+          props: {
+            conid: data._id,
+          },
+        });
+      }
     };
     const handleDelete = () => {
       showModal(ConfirmModal, {
@@ -126,11 +172,11 @@
 
     return [
       config.runAsPortal == false && [
-        {
+        !$openedConnections.includes(data._id) && {
           text: 'Edit',
-          onClick: handleEdit,
+          onClick: handleOpenConnectionTab,
         },
-        {
+        !$openedConnections.includes(data._id) && {
           text: 'Delete',
           onClick: handleDelete,
         },
@@ -163,7 +209,14 @@
       ],
       data.singleDatabase && [
         { divider: true },
-        getDatabaseMenuItems(data, data.defaultDatabase, $extensions, $currentDatabase, $apps),
+        getDatabaseMenuItems(
+          data,
+          data.defaultDatabase,
+          $extensions,
+          $currentDatabase,
+          $apps,
+          $openedSingleDatabaseConnections
+        ),
       ],
 
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
@@ -205,7 +258,7 @@
 <AppObjectCore
   {...$$restProps}
   {data}
-  title={getConnectionLabel(data)}
+  title={getConnectionLabel(data, { showUnsaved: true })}
   icon={data.singleDatabase ? 'img database' : 'img server'}
   isBold={data.singleDatabase
     ? _.get($currentDatabase, 'connection._id') == data._id && _.get($currentDatabase, 'name') == data.defaultDatabase
@@ -216,9 +269,10 @@
   {extInfo}
   colorMark={passProps?.connectionColorFactory && passProps?.connectionColorFactory({ conid: data._id })}
   menu={getContextMenu}
-  on:click={handleConnect}
+  on:click={handleClick}
   on:click
   on:expand
+  on:dblclick={handleConnect}
   on:middleclick={() => {
     _.flattenDeep(getContextMenu())
       .find(x => x.isNewQuery)

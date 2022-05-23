@@ -15,6 +15,8 @@
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
   export let passProps;
+  export let getIsExpanded = null;
+  export let setIsExpanded = null;
 
   export let groupFunc = undefined;
 
@@ -33,7 +35,6 @@
         return true;
       })
     : null;
-
 
   // let filtered = [];
 
@@ -77,6 +78,8 @@
       {disableContextMenu}
       {filter}
       {passProps}
+      {getIsExpanded}
+      {setIsExpanded}
     />
   {/each}
 {:else}
@@ -95,6 +98,8 @@
       {filter}
       isExpandedBySearch={childrenMatched.includes(data)}
       {passProps}
+      {getIsExpanded}
+      {setIsExpanded}
     />
   {/each}
 {/if}

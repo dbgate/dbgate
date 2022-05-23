@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "4.8.9-beta.1",
+  "version": "5.0.0",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -50,8 +50,7 @@
   },
   "dependencies": {
     "concurrently": "^5.1.0",
-    "patch-package": "^6.2.1",
-    "socket.io": "^2.3.0"
+    "patch-package": "^6.2.1"
   },
   "devDependencies": {
     "copyfiles": "^2.2.0",

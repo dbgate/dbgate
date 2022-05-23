@@ -111,4 +111,6 @@ export const driverBase = {
     dumpSqlSelect(dmp, select);
     return this.readQuery(pool, dmp.s, structure);
   },
+  showConnectionField: (field, values) => false,
+  showConnectionTab: (field) => true,
 };

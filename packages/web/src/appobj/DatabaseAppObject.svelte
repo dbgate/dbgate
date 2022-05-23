@@ -1,7 +1,14 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
 
-  export function getDatabaseMenuItems(connection, name, $extensions, $currentDatabase, $apps) {
+  export function getDatabaseMenuItems(
+    connection,
+    name,
+    $extensions,
+    $currentDatabase,
+    $apps,
+    $openedSingleDatabaseConnections
+  ) {
     const apps = filterAppsForDatabase(connection, name, $apps);
     const handleNewQuery = () => {
       const tooltip = `${getConnectionLabel(connection)}\n${name}`;
@@ -132,7 +139,10 @@
       if (electron) {
         apiCall('database-connections/disconnect', { conid: connection._id, database: name });
       }
-      currentDatabase.set(null);
+      if (getCurrentDatabase()?.connection?._id == connection._id && getCurrentDatabase()?.name == name) {
+        currentDatabase.set(null);
+      }
+      openedSingleDatabaseConnections.update(list => list.filter(x => x != connection._id));
     };
 
     const handleExportModel = async () => {
@@ -233,8 +243,9 @@
 
       driver?.databaseEngineTypes?.includes('keyvalue') && { onClick: handleGenerateScript, text: 'Generate script' },
 
-      _.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
-        _.get($currentDatabase, 'name') == name && { onClick: handleDisconnect, text: 'Disconnect' },
+      ($openedSingleDatabaseConnections.includes(connection._id) ||
+        (_.get($currentDatabase, 'connection._id') == _.get(connection, '_id') &&
+          _.get($currentDatabase, 'name') == name)) && { onClick: handleDisconnect, text: 'Disconnect' },
 
       commands.length > 0 && [
         { divider: true },
@@ -266,7 +277,10 @@
     currentArchive,
     currentDatabase,
     extensions,
+    getCurrentDatabase,
     getExtensions,
+    openedConnections,
+    openedSingleDatabaseConnections,
     pinnedDatabases,
     selectedWidget,
   } from '../stores';
@@ -285,13 +299,20 @@
   import newQuery from '../query/newQuery';
   import { exportSqlDump } from '../utility/exportFileTools';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
-import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
+  import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
 
   export let data;
   export let passProps;
 
   function createMenu() {
-    return getDatabaseMenuItems(data.connection, data.name, $extensions, $currentDatabase, $apps);
+    return getDatabaseMenuItems(
+      data.connection,
+      data.name,
+      $extensions,
+      $currentDatabase,
+      $apps,
+      $openedSingleDatabaseConnections
+    );
   }
 
   $: isPinned = !!$pinnedDatabases.find(x => x.name == data.name && x.connection?._id == data.connection?._id);

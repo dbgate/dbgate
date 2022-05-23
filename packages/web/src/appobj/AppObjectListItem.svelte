@@ -22,23 +22,28 @@
   export let disableContextMenu = false;
   export let isExpandedBySearch = false;
   export let passProps;
+  export let getIsExpanded = null;
+  export let setIsExpanded = null;
 
-  let isExpanded = false;
+  let isExpandedCore = false;
 
   async function handleExpand() {
     if (subItemsComponent && expandOnClick) {
       await tick();
-      isExpanded = !isExpanded;
+      handleExpandButton();
     }
   }
 
   function handleExpandButton() {
-    isExpanded = !isExpanded;
+    if (getIsExpanded && setIsExpanded) {
+      setIsExpanded(data, !isExpanded);
+    } else {
+      isExpandedCore = !isExpandedCore;
+    }
   }
 
   $: expandable = data && isExpandable && isExpandable(data);
-
-  $: if (!expandable && isExpanded) isExpanded = false;
+  $: isExpanded = expandable ? (getIsExpanded && setIsExpanded ? getIsExpanded(data) : isExpandedCore) : false;
 </script>
 
 {#if !isHidden}

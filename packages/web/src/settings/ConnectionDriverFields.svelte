@@ -28,8 +28,8 @@
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
 
-  $: showUser = !driver?.showConnectionField || driver.showConnectionField('user', $values);
-  $: showPassword = !driver?.showConnectionField || driver.showConnectionField('password', $values);
+  $: showUser = driver?.showConnectionField('user', $values);
+  $: showPassword = driver?.showConnectionField('password', $values);
 </script>
 
 <FormSelectField
@@ -47,11 +47,11 @@
   ]}
 />
 
-{#if !driver?.showConnectionField || driver.showConnectionField('databaseFile', $values)}
+{#if driver?.showConnectionField('databaseFile', $values)}
   <FormElectronFileSelector label="Database file" name="databaseFile" disabled={!electron} />
 {/if}
 
-{#if !driver?.showConnectionField || driver.showConnectionField('useDatabaseUrl', $values)}
+{#if driver?.showConnectionField('useDatabaseUrl', $values)}
   <div class="radio">
     <FormRadioGroupField
       name="useDatabaseUrl"
@@ -63,11 +63,11 @@
   </div>
 {/if}
 
-{#if !driver?.showConnectionField || driver.showConnectionField('databaseUrl', $values)}
+{#if driver?.showConnectionField('databaseUrl', $values)}
   <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
 {/if}
 
-{#if $authTypes && (!driver?.showConnectionField || driver.showConnectionField('authType', $values))}
+{#if $authTypes && driver?.showConnectionField('authType', $values)}
   <FormSelectField
     label="Authentication"
     name="authType"
@@ -80,7 +80,7 @@
   />
 {/if}
 
-{#if !driver?.showConnectionField || driver.showConnectionField('server', $values)}
+{#if driver?.showConnectionField('server', $values)}
   <div class="row">
     <div class="col-9 mr-1">
       <FormTextField
@@ -90,7 +90,7 @@
         templateProps={{ noMargin: true }}
       />
     </div>
-    {#if !driver?.showConnectionField || driver.showConnectionField('port', $values)}
+    {#if driver?.showConnectionField('port', $values)}
       <div class="col-3 mr-1">
         <FormTextField
           label="Port"
@@ -154,32 +154,34 @@
   />
 {/if}
 
-{#if driver.showConnectionField('isReadOnly', $values)}
+{#if driver?.showConnectionField('isReadOnly', $values)}
   <FormCheckboxField label="Is read only" name="isReadOnly" />
 {/if}
 
-{#if !driver?.showConnectionField || driver.showConnectionField('defaultDatabase', $values)}
+{#if driver?.showConnectionField('defaultDatabase', $values)}
   <FormTextField label="Default database" name="defaultDatabase" />
 {/if}
 
-{#if defaultDatabase && (!driver?.showConnectionField || driver.showConnectionField('singleDatabase', $values))}
+{#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values)}
   <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
 {/if}
 
-<div class="row">
-  <div class="col-6 mr-1">
-    <FormTextField label="Display name" name="displayName" templateProps={{ noMargin: true }} />
+{#if driver}
+  <div class="row">
+    <div class="col-6 mr-1">
+      <FormTextField label="Display name" name="displayName" templateProps={{ noMargin: true }} />
+    </div>
+    <div class="col-6 mr-1">
+      <FormColorField
+        useSelector
+        label="Color"
+        name="connectionColor"
+        emptyLabel="(not selected)"
+        templateProps={{ noMargin: true }}
+      />
+    </div>
   </div>
-  <div class="col-6 mr-1">
-    <FormColorField
-      useSelector
-      label="Color"
-      name="connectionColor"
-      emptyLabel="(not selected)"
-      templateProps={{ noMargin: true }}
-    />
-  </div>
-</div>
+{/if}
 
 <style>
   .row {

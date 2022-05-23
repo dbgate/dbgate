@@ -73,7 +73,8 @@ module.exports = {
       ...value,
     };
     if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
-      res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
+      // res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
+      res['app.useNativeMenu'] = false;
     }
     return res;
   },

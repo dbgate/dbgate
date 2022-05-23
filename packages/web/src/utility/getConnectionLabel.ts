@@ -5,7 +5,7 @@ export function getDatabaseFileLabel(databaseFile) {
   return databaseFile;
 }
 
-export default function getConnectionLabel(connection, { allowExplicitDatabase = true } = {}) {
+function getConnectionLabelCore(connection, { allowExplicitDatabase = true } = {}) {
   if (!connection) {
     return null;
   }
@@ -26,4 +26,14 @@ export default function getConnectionLabel(connection, { allowExplicitDatabase =
   }
 
   return '';
+}
+
+export default function getConnectionLabel(connection, { allowExplicitDatabase = true, showUnsaved = false } = {}) {
+  const res = getConnectionLabelCore(connection, { allowExplicitDatabase });
+
+  if (res && showUnsaved && connection?.unsaved) {
+    return `${res} - unsaved`;
+  }
+
+  return res;
 }

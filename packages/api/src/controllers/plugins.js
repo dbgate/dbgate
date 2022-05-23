@@ -162,6 +162,7 @@ module.exports = {
   authTypes_meta: true,
   async authTypes({ engine }) {
     const packageName = extractPackageName(engine);
+    if (!packageName) return null;
     const content = requirePlugin(packageName);
     const driver = content.drivers.find(x => x.engine == engine);
     if (!driver || !driver.getAuthTypes) return null;

@@ -1,7 +1,7 @@
 {
   "name": "dbgate-api",
   "main": "src/index.js",
-  "version": "4.1.1",
+  "version": "5.0.0-alpha.1",
   "homepage": "https://dbgate.org/",
   "repository": {
     "type": "git",
@@ -26,8 +26,8 @@
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
     "dbgate-query-splitter": "^4.9.0",
-    "dbgate-sqltree": "^4.1.1",
-    "dbgate-tools": "^4.1.1",
+    "dbgate-sqltree": "^5.0.0-alpha.1",
+    "dbgate-tools": "^5.0.0-alpha.1",
     "diff": "^5.0.0",
     "diff2html": "^3.4.13",
     "eslint": "^6.8.0",
@@ -63,7 +63,7 @@
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",
     "@types/lodash": "^4.14.149",
-    "dbgate-types": "^4.1.1",
+    "dbgate-types": "^5.0.0-alpha.1",
     "env-cmd": "^10.1.0",
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
@@ -72,7 +72,7 @@
     "webpack-cli": "^3.3.11"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.4.5",
+    "better-sqlite3": "7.5.0",
     "msnodesqlv8": "^2.4.4"
   }
 }
