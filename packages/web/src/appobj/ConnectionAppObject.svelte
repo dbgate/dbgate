@@ -86,6 +86,11 @@
   };
 
   const handleClick = () => {
+    const config = getCurrentConfig();
+    if (config.runAsPortal) {
+      handleConnect();
+      return;
+    }
     if ($openedSingleDatabaseConnections.includes(data._id)) {
       currentDatabase.set({ connection: data, name: data.defaultDatabase });
       return;
