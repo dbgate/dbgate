@@ -64,8 +64,9 @@
     {filter}
     passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
     getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
-    setIsExpanded={(data, value) =>
-      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)))}
+    setIsExpanded={(data, value) => {
+      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+    }}
   />
   {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
     <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal

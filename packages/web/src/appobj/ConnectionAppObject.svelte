@@ -12,6 +12,7 @@
     return filterName(filter, ...databases.map(x => x.name));
   };
   export function openConnection(connection) {
+    const config = getCurrentConfig();
     if (connection.singleDatabase) {
       currentDatabase.set({ connection, name: connection.defaultDatabase });
       apiCall('database-connections/refresh', {
@@ -26,7 +27,9 @@
         conid: connection._id,
         keepOpen: true,
       });
-      expandedConnections.update(x => _.uniq([...x, connection._id]));
+      if (!config.runAsPortal) {
+        expandedConnections.update(x => _.uniq([...x, connection._id]));
+      }
     }
     closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
   }
