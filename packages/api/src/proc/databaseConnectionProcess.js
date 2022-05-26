@@ -15,6 +15,7 @@ let afterConnectCallbacks = [];
 let afterAnalyseCallbacks = [];
 let analysedStructure = null;
 let lastPing = null;
+let lastStatusString = null;
 let lastStatus = null;
 let analysedTime = 0;
 let serverVersion;
@@ -84,15 +85,17 @@ function handleSyncModel() {
 }
 
 function setStatus(status) {
-  const statusString = stableStringify(status);
-  if (lastStatus != statusString) {
-    process.send({ msgtype: 'status', status: { ...status, counter: getStatusCounter() } });
-    lastStatus = statusString;
+  const newStatus = { ...lastStatus, ...status };
+  const statusString = stableStringify(newStatus);
+  if (lastStatusString != statusString) {
+    process.send({ msgtype: 'status', status: { ...newStatus, counter: getStatusCounter() } });
+    lastStatusString = statusString;
+    lastStatus = newStatus;
   }
 }
 
 function setStatusName(name) {
-  setStatus({ name });
+  setStatus({ name, message: null });
 }
 
 async function readVersion() {
@@ -109,6 +112,7 @@ async function handleConnect({ connection, structure, globalSettings }) {
   if (!structure) setStatusName('pending');
   const driver = requireEngineDriver(storedConnection);
   systemConnection = await checkedAsyncCall(connectUtility(driver, storedConnection, 'app'));
+  systemConnection.feedback = feedback => setStatus({ feedback });
   await checkedAsyncCall(readVersion());
   if (structure) {
     analysedStructure = structure;

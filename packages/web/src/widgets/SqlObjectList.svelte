@@ -65,7 +65,7 @@
         objectTypeField: 'queries',
         pureName: query.name,
         schemaName: app.name,
-        sql: query.sql
+        sql: query.sql,
       }))
     ),
   ]);
@@ -134,7 +134,7 @@
   </SearchBoxWrapper>
   <WidgetsInnerContainer>
     {#if ($status && ($status.name == 'pending' || $status.name == 'checkStructure' || $status.name == 'loadStructure') && $objects) || !$objects}
-      <LoadingInfo message="Loading database structure" />
+      <LoadingInfo message={$status?.feedback?.analysingMessage || 'Loading database structure'} />
     {:else}
       <AppObjectList
         list={objectList.map(x => ({ ...x, conid, database }))}

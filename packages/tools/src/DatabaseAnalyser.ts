@@ -220,6 +220,12 @@ export class DatabaseAnalyser {
     ];
   }
 
+  feedback(obj) {
+    if (this.pool.feedback) {
+      this.pool.feedback(obj);
+    }
+  }
+
   async getModifications() {
     const snapshot = await this._getFastSnapshot();
     if (!snapshot) return null;

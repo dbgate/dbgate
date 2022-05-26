@@ -52,28 +52,40 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
+    this.feedback({ analysingMessage: 'Loading tables' });
     const tables = await this.driver.query(
       this.pool,
       this.createQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', ['tables'])
     );
+    this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+    this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading foreign keys' });
     const fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    this.feedback({ analysingMessage: 'Loading materialized views' });
     const matviews = this.driver.dialect.materializedViews
       ? await this.driver.query(this.pool, this.createQuery('matviews', ['matviews']))
       : null;
+    this.feedback({ analysingMessage: 'Loading materialized view columns' });
     const matviewColumns = this.driver.dialect.materializedViews
       ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
       : null;
+    this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
+    this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
       : await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcols = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
       : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    this.feedback({ analysingMessage: 'Loading unique names' });
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
+    this.feedback({ analysingMessage: null });
 
     return {
       tables: tables.rows.map(table => {
