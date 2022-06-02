@@ -56,15 +56,21 @@ class Analyser extends DatabaseAnalyser {
 
   async getViewTexts(allViewNames) {
     const res = {};
-    for (const viewName of this.getRequestedViewNames(allViewNames)) {
-      try {
-        const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
-        res[viewName] = resp.rows[0]['Create View'];
-      } catch (err) {
-        console.log('ERROR', err);
-        res[viewName] = `${err}`;
-      }
+
+    const views = await this.safeQuery(this.createQuery('viewTexts', ['views']));
+    for (const view of views.rows) {
+      res[view.pureName] = `CREATE VIEW \`${view.pureName}\` AS ${view.viewDefinition}`;
     }
+
+    // for (const viewName of this.getRequestedViewNames(allViewNames)) {
+    //   try {
+    //     const resp = await this.driver.query(this.pool, `SHOW CREATE VIEW \`${viewName}\``);
+    //     res[viewName] = resp.rows[0]['Create View'];
+    //   } catch (err) {
+    //     console.log('ERROR', err);
+    //     res[viewName] = `${err}`;
+    //   }
+    // }
     return res;
   }
 
