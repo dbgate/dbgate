@@ -2,7 +2,7 @@
   import _ from 'lodash';
   import FontIcon from './icons/FontIcon.svelte';
 
-  import { extensions } from './stores';
+  import { extensions, isFileDragActive } from './stores';
 
   import getElectron from './utility/getElectron';
 
@@ -21,6 +21,15 @@
     </div>
     <div class="title">Drop the files to upload to DbGate</div>
     <div class="info">Supported file types: {fileTypeNames.join(', ')}</div>
+    <div
+      class="class-button"
+      on:click={() => {
+        $isFileDragActive = false;
+      }}
+    >
+      <FontIcon icon="icon close" padRight />
+      Close
+    </div>
   </div>
 </div>
 
@@ -52,5 +61,13 @@
     font-size: 30px;
     display: flex;
     justify-content: space-around;
+  }
+
+  .class-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    font-size: 14pt;
+    cursor: pointer;
   }
 </style>
