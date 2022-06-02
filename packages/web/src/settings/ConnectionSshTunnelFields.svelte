@@ -21,7 +21,7 @@
 
   $: {
     if (!$values.sshMode) setFieldValue('sshMode', 'userPassword');
-    if (!$values.sshPort) setFieldValue('sshPort', '22');
+    // if (!$values.sshPort) setFieldValue('sshPort', '22');
     if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyfile);
   }
 </script>
@@ -33,7 +33,13 @@
     <FormTextField label="Host" name="sshHost" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
   </div>
   <div class="col-3">
-    <FormTextField label="Port" name="sshPort" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+    <FormTextField
+      label="Port"
+      name="sshPort"
+      disabled={!useSshTunnel}
+      templateProps={{ noMargin: true }}
+      placeholder="22"
+    />
   </div>
 </div>
 <FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={!useSshTunnel} />
