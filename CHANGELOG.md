@@ -8,6 +8,12 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.2
+- FIXED: Cannot use SSH Tunnel after update #291
+
+### 5.0.1
+- FIXED(app): Can't Click Sidebar Menu Item #287
+
 ### 5.0.0
 - CHANGED: Connection workflow, connections are opened on tabs instead of modals
 - ADDED: Posibility to connect to DB without saving connection
