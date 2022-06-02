@@ -70,20 +70,30 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
+    this.feedback({ analysingMessage: 'Loading tables' });
     const tablesRows = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    this.feedback({ analysingMessage: 'Loading columns' });
     const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
+    this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading foreign keys' });
     const fkColumnsRows = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading schemas' });
     const schemaRows = await this.driver.query(this.pool, this.createQuery('getSchemas'));
+    this.feedback({ analysingMessage: 'Loading indexes' });
     const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    this.feedback({ analysingMessage: 'Loading default schema' });
     const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
+    this.feedback({ analysingMessage: 'Loading table sizes' });
     const tableSizes = await this.driver.query(this.pool, this.createQuery('tableSizes'));
 
     const schemas = schemaRows.rows;
 
     const tableSizesDict = _.mapValues(_.keyBy(tableSizes.rows, 'objectId'), 'tableRowCount');
 
+    this.feedback({ analysingMessage: 'Loading SQL code' });
     const sqlCodeRows = await this.driver.query(
       this.pool,
       this.createQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers'])
@@ -93,13 +103,18 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         .filter(x => x.pureName == row.pureName && x.schemaName == row.schemaName)
         .map(x => x.codeText)
         .join('');
+
+    this.feedback({ analysingMessage: 'Loading views' });
     const viewsRows = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    this.feedback({ analysingMessage: 'Loading procedures & functions' });
     const programmableRows = await this.driver.query(
       this.pool,
       this.createQuery('programmables', ['procedures', 'functions'])
     );
+    this.feedback({ analysingMessage: 'Loading view columns' });
     const viewColumnRows = await this.driver.query(this.pool, this.createQuery('viewColumns', ['views']));
 
+    this.feedback({ analysingMessage: 'Finalizing DB structure' });
     const tables = tablesRows.rows.map(row => ({
       ...row,
       contentHash: row.modifyDate && row.modifyDate.toISOString(),
@@ -152,6 +167,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         createSql: getCreateSql(row),
       }));
 
+    this.feedback({ analysingMessage: null });
     return {
       tables,
       views,
