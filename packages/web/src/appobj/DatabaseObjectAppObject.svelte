@@ -606,7 +606,12 @@
                 x.autoIncrement = false;
               });
               newTable.foreignKeys = [];
+              newTable.checks = [];
+              newTable.uniques = [];
               newTable.indexes = [];
+              if (newTable.primaryKey) {
+                newTable.primaryKey.constarintName = null;
+              }
               dmp.createTable(newTable);
               dmp.putCmd(
                 '^insert ^into %f(%,i) ^select %,i from %f',
