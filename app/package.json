@@ -107,7 +107,7 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "13.6.3",
+    "electron": "13.6.6",
     "electron-builder": "22.14.5",
     "electron-builder-notarize": "^1.4.0"
   },
