@@ -271,9 +271,9 @@ module.exports = {
   },
 
   syncModel_meta: true,
-  async syncModel({ conid, database }) {
+  async syncModel({ conid, database, isFullRefresh }) {
     const conn = await this.ensureOpened(conid, database);
-    conn.subprocess.send({ msgtype: 'syncModel' });
+    conn.subprocess.send({ msgtype: 'syncModel', isFullRefresh });
     return { status: 'ok' };
   },
 

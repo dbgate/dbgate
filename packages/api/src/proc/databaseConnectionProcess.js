@@ -79,9 +79,10 @@ async function handleIncrementalRefresh(forceSend) {
   resolveAnalysedPromises();
 }
 
-function handleSyncModel() {
+function handleSyncModel({ isFullRefresh }) {
   if (loadingModel) return;
-  handleIncrementalRefresh();
+  if (isFullRefresh) handleFullRefresh();
+  else handleIncrementalRefresh();
 }
 
 function setStatus(status) {

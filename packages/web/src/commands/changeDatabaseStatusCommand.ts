@@ -18,9 +18,15 @@ registerCommand({
     };
     return [
       {
-        text: 'Sync model',
+        text: 'Sync model (incremental)',
         onClick: () => {
           apiCall('database-connections/sync-model', dbid);
+        },
+      },
+      {
+        text: 'Sync model (full)',
+        onClick: () => {
+          apiCall('database-connections/sync-model', { ...dbid, isFullRefresh: true });
         },
       },
       {
