@@ -38,7 +38,7 @@ export async function apiCall(route: string, args: {} = undefined) {
 
   const electron = getElectron();
   if (electron) {
-    const resp = await electron.invoke(route.replace('/', '-'), args);
+    const resp = await electron.invokeApi(route.replace('/', '-'), args);
     return processApiResponse(route, args, resp);
   } else {
     const resp = await fetch(`${resolveApi()}/${route}`, {

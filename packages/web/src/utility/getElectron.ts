@@ -1,32 +1,40 @@
 class ElectronApi {
   private ipcRenderer = getIpcRenderer();
+  winid = null;
 
-  constructor() {}
+  constructor() {
+    this.winid = window.process?.argv?.find(x => x.startsWith('winid='))?.substring('winid='.length);
+  }
 
   send(msg, args = null) {
     this.ipcRenderer.send(msg, args);
   }
 
   async showOpenDialog(options) {
-    const res = await this.ipcRenderer.invoke('showOpenDialog', options);
+    const res = await this.invoke('showOpenDialog', options);
     return res;
   }
 
   async showSaveDialog(options) {
-    const res = await this.ipcRenderer.invoke('showSaveDialog', options);
+    const res = await this.invoke('showSaveDialog', options);
     return res;
   }
 
   async showItemInFolder(path) {
-    const res = await this.ipcRenderer.invoke('showItemInFolder', path);
+    const res = await this.invoke('showItemInFolder', path);
     return res;
   }
 
   async openExternal(url) {
-    await this.ipcRenderer.invoke('openExternal', url);
+    await this.invoke('openExternal', url);
   }
 
   async invoke(route, args) {
+    const res = await this.ipcRenderer.invoke(route, { winid: this.winid, args });
+    return res;
+  }
+
+  async invokeApi(route, args) {
     const res = await this.ipcRenderer.invoke(route, args);
     return res;
   }

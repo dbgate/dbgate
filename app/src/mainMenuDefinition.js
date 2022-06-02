@@ -4,6 +4,7 @@ module.exports = ({ editMenu }) => [
     submenu: [
       { command: 'new.connection', hideDisabled: true },
       { command: 'new.sqliteDatabase', hideDisabled: true },
+      { command: 'new.window', hideDisabled: true },
       { divider: true },
       { command: 'new.query', hideDisabled: true },
       { command: 'new.freetable', hideDisabled: true },

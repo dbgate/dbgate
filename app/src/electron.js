@@ -22,6 +22,7 @@ const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
 let mainModule;
+let winCounter = 0;
 
 const isMac = () => os.platform() == 'darwin';
 
@@ -34,8 +35,8 @@ try {
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
-let mainMenu;
+const mainWindows = {};
+const mainMenus = {};
 let runCommandOnLoad = null;
 
 log.transports.file.level = 'debug';
@@ -134,6 +135,7 @@ ipcMain.on('update-commands', async (event, arg) => {
   }
 });
 ipcMain.on('quit-app', async (event, arg) => {
+  app.quit();
   if (isMac()) {
     app.quit();
   } else {
@@ -154,6 +156,9 @@ ipcMain.on('app-started', async (event, arg) => {
     mainWindow.webContents.send('run-command', runCommandOnLoad);
     runCommandOnLoad = null;
   }
+});
+ipcMain.on('new-window', async (event, arg) => {
+  createWindow();
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -214,18 +219,18 @@ ipcMain.on('window-action', async (event, arg) => {
   }
 });
 
-ipcMain.handle('showOpenDialog', async (event, options) => {
+ipcMain.handle('showOpenDialog', async (event, { winid, options }) => {
   const res = electron.dialog.showOpenDialogSync(mainWindow, options);
   return res;
 });
-ipcMain.handle('showSaveDialog', async (event, options) => {
+ipcMain.handle('showSaveDialog', async (event, { winid, options }) => {
   const res = electron.dialog.showSaveDialogSync(mainWindow, options);
   return res;
 });
-ipcMain.handle('showItemInFolder', async (event, path) => {
+ipcMain.handle('showItemInFolder', async (event, { winid, path }) => {
   electron.shell.showItemInFolder(path);
 });
-ipcMain.handle('openExternal', async (event, url) => {
+ipcMain.handle('openExternal', async (event, { winid, url }) => {
   electron.shell.openExternal(url);
 });
 
@@ -268,6 +273,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       spellcheck: false,
+      additionalArguments: [`--winid=${++winCounter}`],
     },
   });
 
@@ -282,13 +288,14 @@ function createWindow() {
   mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
-    const startUrl =
-      process.env.ELECTRON_START_URL ||
-      url.format({
-        pathname: path.join(__dirname, '../packages/web/public/index.html'),
-        protocol: 'file:',
-        slashes: true,
-      });
+    const startUrl = process.env.ELECTRON_START_URL
+      ? `${process.env.ELECTRON_START_URL}?${'111-222'}`
+      : url.format({
+          pathname: path.join(__dirname, '../packages/web/public/index.html'),
+          protocol: 'file:',
+          slashes: true,
+        });
+    console.log('START URL', startUrl);
     mainWindow.on('close', () => {
       try {
         fs.writeFileSync(
@@ -303,11 +310,13 @@ function createWindow() {
         console.log('Error saving config-root:', err.message);
       }
     });
+    // mainWindow.webContents.executeJavaScript(`sessionStorage.setItem('_dbgate_window_id, ${JSON.stringify('1234')})`);
     mainWindow.loadURL(startUrl);
+    // mainWindow.webContents.executeJavaScript(`sessionStorage.setItem('_dbgate_window_id, ${JSON.stringify('1234')})`);
     if (os.platform() == 'linux') {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
-    // mainWindow.webContents.toggleDevTools();
+    mainWindow.webContents.toggleDevTools();
   }
 
   if (!apiLoaded) {
@@ -332,7 +341,7 @@ function createWindow() {
     mainModule = main;
     apiLoaded = true;
   }
-  mainModule.setElectronSender(mainWindow.webContents);
+  mainModule.addElectronSender(mainWindow.webContents);
 
   loadMainWindow();
 
@@ -341,8 +350,8 @@ function createWindow() {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
+    mainModule.removeElectronSender(mainWindow.webContents);
     mainWindow = null;
-    mainModule.setElectronSender(null);
   });
 }
 

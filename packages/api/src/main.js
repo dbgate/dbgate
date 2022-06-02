@@ -155,8 +155,17 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/apps', apps);
 }
 
-function setElectronSender(electronSender) {
-  socket.setElectronSender(electronSender);
+function addElectronSender(electronSender) {
+  socket.addElectronSender(electronSender);
+}
+function removeElectronSender(electronSender) {
+  socket.removeElectronSender(electronSender);
 }
 
-module.exports = { start, useAllControllers, setElectronSender, configController: config };
+module.exports = {
+  start,
+  useAllControllers,
+  addElectronSender,
+  removeElectronSender,
+  configController: config,
+};

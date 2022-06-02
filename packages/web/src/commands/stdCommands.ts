@@ -468,6 +468,15 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'new.window',
+  category: 'New',
+  name: 'New Window',
+  keyText: 'CtrlOrCommand+N',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('new-window'),
+});
+
+registerCommand({
   id: 'app.logout',
   category: 'App',
   name: 'Logout',

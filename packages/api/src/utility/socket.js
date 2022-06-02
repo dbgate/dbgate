@@ -1,5 +1,5 @@
 let sseResponse = null;
-let electronSender = null;
+let electronSenders = [];
 let init = [];
 
 module.exports = {
@@ -7,18 +7,25 @@ module.exports = {
     sseResponse = value;
     setInterval(() => this.emit('ping'), 29 * 1000);
   },
-  setElectronSender(value) {
-    electronSender = value;
+  addElectronSender(value) {
+    electronSenders = [...electronSenders, value];
+  },
+  removeElectronSender(value) {
+    electronSenders = electronSenders.filter(x => x != value);
   },
   emit(message, data) {
-    if (electronSender) {
+    if (electronSenders.length > 0) {
       if (init.length > 0) {
         for (const item of init) {
-          electronSender.send(item.message, item.data == null ? null : item.data);
+          for (const sender of electronSenders) {
+            sender.send(item.message, item.data == null ? null : item.data);
+          }
         }
         init = [];
       }
-      electronSender.send(message, data == null ? null : data);
+      for (const sender of electronSenders) {
+        sender.send(message, data == null ? null : data);
+      }
     } else if (sseResponse) {
       if (init.length > 0) {
         for (const item of init) {
