@@ -82,7 +82,7 @@
     let connection: Dictionary<string | boolean> = _.omit($values, omitProps);
     if (driver?.beforeConnectionSave) connection = driver?.beforeConnectionSave(connection);
 
-    if (!driver?.showConnectionTab('sshTunnel', $values)) {
+    if (driver?.showConnectionTab('sshTunnel', $values)) {
       if (!$values.useSshTunnel) {
         connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
       }
@@ -91,7 +91,7 @@
       connection = _.omitBy(connection, (v, k) => k.startsWith('ssh'));
     }
 
-    if (!driver?.showConnectionTab('ssl', $values)) {
+    if (driver?.showConnectionTab('ssl', $values)) {
       if (!$values.useSsl) {
         connection = _.omitBy(connection, (v, k) => k.startsWith('ssl'));
       }
