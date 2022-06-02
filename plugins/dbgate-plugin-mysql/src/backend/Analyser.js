@@ -69,18 +69,28 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
+    this.feedback({ analysingMessage: 'Loading tables' });
     const tables = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+    this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumns = await this.safeQuery(this.createQuery('primaryKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading foreign keys' });
     const fkColumns = await this.safeQuery(this.createQuery('foreignKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.safeQuery(this.createQuery('views', ['views']));
+    this.feedback({ analysingMessage: 'Loading programmables' });
     const programmables = await this.safeQuery(this.createQuery('programmables', ['procedures', 'functions']));
 
+    this.feedback({ analysingMessage: 'Loading view texts' });
     const viewTexts = await this.getViewTexts(views.rows.map(x => x.pureName));
+    this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = await this.safeQuery(this.createQuery('indexes', ['tables']));
+    this.feedback({ analysingMessage: 'Loading uniques' });
     const uniqueNames = await this.safeQuery(this.createQuery('uniqueNames', ['tables']));
+    this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
-    return {
+    const res = {
       tables: tables.rows.map(table => ({
         ...table,
         objectId: table.pureName,
@@ -148,6 +158,8 @@ class Analyser extends DatabaseAnalyser {
           contentHash: _.isDate(x.modifyDate) ? x.modifyDate.toISOString() : x.modifyDate,
         })),
     };
+    this.feedback({ analysingMessage: null });
+    return res;
   }
 
   async _getFastSnapshot() {
