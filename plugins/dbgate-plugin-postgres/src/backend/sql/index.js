@@ -14,6 +14,10 @@ const indexes = require('./indexes');
 const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
 
+const fk_keyColumnUsage = require('./fk_key_column_usage');
+const fk_referentialConstraints = require('./fk_referential_constraints');
+const fk_tableConstraints = require('./fk_table_constraints');
+
 module.exports = {
   columns,
   tableModifications,
@@ -21,6 +25,9 @@ module.exports = {
   viewModifications,
   primaryKeys,
   foreignKeys,
+  fk_keyColumnUsage,
+  fk_referentialConstraints,
+  fk_tableConstraints,
   views,
   routines,
   routineModifications,

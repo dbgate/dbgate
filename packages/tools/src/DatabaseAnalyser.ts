@@ -170,7 +170,15 @@ export class DatabaseAnalyser {
   //   return this.structure.tables.find((x) => x.objectId == id);
   // }
 
+  containsObjectIdCondition(typeFields) {
+    return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
+  }
+
   createQuery(template, typeFields) {
+    return this.createQueryCore(template, typeFields);
+  }
+
+  createQueryCore(template, typeFields) {
     // let res = template;
     if (this.singleObjectFilter) {
       const { typeField } = this.singleObjectFilter;

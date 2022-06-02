@@ -32,6 +32,23 @@ const engines = [
     dbSnapshotBySeconds: true,
   },
   {
+    label: 'MariaDB',
+    connection: {
+      engine: 'mariadb@dbgate-plugin-mysql',
+      password: 'Pwd2020Db',
+      user: 'root',
+      server: 'mysql',
+      port: 3306,
+    },
+    local: {
+      server: 'localhost',
+      port: 15004,
+    },
+    skipOnCI: true,
+    objects: [views],
+    dbSnapshotBySeconds: true,
+  },
+  {
     label: 'PostgreSQL',
     connection: {
       engine: 'postgres@dbgate-plugin-postgres',
@@ -117,9 +134,10 @@ const engines = [
 const filterLocal = [
   // filter local testing
   '-MySQL',
-  '-PostgreSQL',
+  '-MariaDB',
+  'PostgreSQL',
   '-SQL Server',
-  'SQLite',
+  '-SQLite',
   '-CockroachDB',
 ];
 
