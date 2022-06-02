@@ -36,7 +36,7 @@ module.exports = {
       singleDatabase: connections.singleDatabase,
       // hideAppEditor: !!process.env.HIDE_APP_EDITOR,
       allowShellConnection: platformInfo.allowShellConnection,
-      allowShellScripting: platformInfo.allowShellConnection,
+      allowShellScripting: platformInfo.allowShellScripting,
       isDocker: platformInfo.isDocker,
       permissions,
       login,

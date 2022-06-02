@@ -29,11 +29,7 @@ function runBulkInsertBatch(pool, tableName, writable, rows) {
       );
     }
 
-    for (const row of rows) {
-      bulkLoad.addRow(row);
-    }
-
-    pool.execBulkLoad(bulkLoad);
+    pool.execBulkLoad(bulkLoad, rows);
   });
 }
 
