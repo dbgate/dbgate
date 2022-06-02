@@ -722,4 +722,8 @@
   on:click={() => handleClick()}
   on:middleclick={() => handleClick(true)}
   on:expand
+  on:dragstart
+  on:dragenter
+  on:dragend
+  on:drop
 />

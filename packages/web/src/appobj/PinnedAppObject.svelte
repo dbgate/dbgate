@@ -10,19 +10,43 @@
   };
 
   function dragExchange(dragged, data, pinned, setPinned, compare) {
-
+    if (!compare(dragged, data)) {
+      const i1 = _.findIndex(pinned, x => compare(x, dragged));
+      const i2 = _.findIndex(pinned, x => compare(x, data));
+      const newPinned = [...pinned];
+      const tmp = newPinned[i1];
+      newPinned[i1] = newPinned[i2];
+      newPinned[i2] = tmp;
+      setPinned(newPinned);
+    }
   }
 </script>
 
 <script lang="ts">
-  import _ from 'lodash';
-  import { draggedPinnedObject, pinnedDatabases } from '../stores';
+  import _, { values } from 'lodash';
+  import { draggedPinnedObject, pinnedDatabases, pinnedTables } from '../stores';
 
   export let data;
 </script>
 
 {#if data.objectTypeField}
-  <DatabaseObjectAppObject {...$$props} 
+  <DatabaseObjectAppObject
+    {...$$props}
+    on:dragstart={() => {
+      $draggedPinnedObject = data;
+    }}
+    on:dragenter={e => {
+      dragExchange(
+        $draggedPinnedObject,
+        data,
+        $pinnedTables,
+        value => ($pinnedTables = value),
+        (a, b) => a?.pureName == b?.pureName && a?.schemaName == b?.schemaName
+      );
+    }}
+    on:dragend={() => {
+      $draggedPinnedObject = null;
+    }}
   />
 {:else}
   <DatabaseAppObject
@@ -31,17 +55,13 @@
       $draggedPinnedObject = data;
     }}
     on:dragenter={e => {
-      const dragged = $draggedPinnedObject;
-      if (dragged?.connection?._id != data?.connection?._id || dragged?.name != data?.name) {
-        const dbs = $pinnedDatabases;
-        const i1 = _.findIndex(dbs, x => x?.name == dragged?.name && x?.connection?._id == dragged?.connection?._id);
-        const i2 = _.findIndex(dbs, x => x?.name == data?.name && x?.connection?._id == data?.connection?._id);
-        const newDbs = [...dbs];
-        const tmp = newDbs[i1];
-        newDbs[i1] = newDbs[i2];
-        newDbs[i2] = tmp;
-        $pinnedDatabases = newDbs;
-      }
+      dragExchange(
+        $draggedPinnedObject,
+        data,
+        $pinnedDatabases,
+        value => ($pinnedDatabases = value),
+        (a, b) => a?.name == b?.name && a?.connection?._id == b?.connection?._id
+      );
     }}
     on:dragend={() => {
       $draggedPinnedObject = null;
