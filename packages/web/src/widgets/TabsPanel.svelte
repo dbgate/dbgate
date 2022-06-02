@@ -193,6 +193,7 @@
   import FavoriteModal from '../modals/FavoriteModal.svelte';
   import { showModal } from '../modals/modalTools';
   import newQuery from '../query/newQuery';
+  import appObjectTypes from '../appobj';
 
   import {
     currentDatabase,
@@ -258,7 +259,9 @@
   };
 
   const getContextMenu = tab => () => {
-    const { tabid, props, tabComponent } = tab;
+    const { tabid, props, tabComponent, appObject, appObjectData } = tab;
+
+    const appobj = appObject ? appObjectTypes[appObject] : null;
 
     return [
       {
@@ -287,6 +290,14 @@
             onClick: () => showModal(FavoriteModal, { savingTab: tab }),
           },
         ],
+      { divider: true },
+      appobj &&
+        appobj.createAppObjectMenu &&
+        appobj.createTitle &&
+        appObjectData && {
+          text: appobj.createTitle(appObjectData),
+          submenu: appobj.createAppObjectMenu(appObjectData),
+        },
     ];
   };
 

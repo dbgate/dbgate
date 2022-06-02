@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher = ({ schemaName, pureName }) => filter => filterName(filter, pureName, schemaName);
+  export const createTitle = ({ pureName }) => pureName;
   const electron = getElectron();
 
   export const databaseObjectIcons = {
@@ -345,7 +346,8 @@
     { schemaName, pureName, conid, database, objectTypeField },
     forceNewTab?,
     initialData?,
-    icon?
+    icon?,
+    appObjectData?
   ) {
     const connection = await getConnectionInfo({ conid });
     const tooltip = `${getConnectionLabel(connection)}\n${database}\n${fullDisplayName({
@@ -359,6 +361,8 @@
         tooltip,
         icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,
+        appObject: 'DatabaseObjectAppObject',
+        appObjectData,
         props: {
           schemaName,
           pureName,
@@ -388,7 +392,8 @@
       },
       forceNewTab,
       null,
-      null
+      null,
+      data
     );
   }
 
@@ -637,7 +642,8 @@
                 data,
                 menu.forceNewTab,
                 menu.initialData,
-                menu.icon
+                menu.icon,
+                data
               );
             }
           },
@@ -649,6 +655,10 @@
     const num = parseInt(value);
     if (_.isNaN(num)) return value;
     return num.toLocaleString();
+  }
+
+  export function createAppObjectMenu(data) {
+    return createDatabaseObjectMenu(data);
   }
 </script>
 
