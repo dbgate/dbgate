@@ -147,6 +147,26 @@ class Analyser extends DatabaseAnalyser {
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
+    const columnColumnsMapped = fkColumns.rows.map(x => ({
+      pureName: x.pure_name,
+      schemaName: x.schema_name,
+      constraintSchema: x.constraint_schema,
+      constraintName: x.constraint_name,
+      columnName: x.column_name,
+      refColumnName: x.ref_column_name,
+      updateAction: x.update_action,
+      deleteAction: x.delete_action,
+      refTableName: x.ref_table_name,
+      refSchemaName: x.ref_schema_name,
+    }));
+    const pkColumnsMapped = pkColumns.rows.map(x => ({
+      pureName: x.pure_name,
+      schemaName: x.schema_name,
+      constraintSchema: x.constraint_schema,
+      constraintName: x.constraint_name,
+      columnName: x.column_name,
+    }));
+
     const res = {
       tables: tables.rows.map(table => {
         const newTable = {
@@ -160,31 +180,8 @@ class Analyser extends DatabaseAnalyser {
           columns: columns.rows
             .filter(col => col.pure_name == table.pure_name && col.schema_name == table.schema_name)
             .map(getColumnInfo),
-          primaryKey: DatabaseAnalyser.extractPrimaryKeys(
-            newTable,
-            pkColumns.rows.map(x => ({
-              pureName: x.pure_name,
-              schemaName: x.schema_name,
-              constraintSchema: x.constraint_schema,
-              constraintName: x.constraint_name,
-              columnName: x.column_name,
-            }))
-          ),
-          foreignKeys: DatabaseAnalyser.extractForeignKeys(
-            newTable,
-            fkColumns.rows.map(x => ({
-              pureName: x.pure_name,
-              schemaName: x.schema_name,
-              constraintSchema: x.constraint_schema,
-              constraintName: x.constraint_name,
-              columnName: x.column_name,
-              refColumnName: x.ref_column_name,
-              updateAction: x.update_action,
-              deleteAction: x.delete_action,
-              refTableName: x.ref_table_name,
-              refSchemaName: x.ref_schema_name,
-            }))
-          ),
+          primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
+          foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, columnColumnsMapped),
           indexes: indexes.rows
             .filter(
               x =>
