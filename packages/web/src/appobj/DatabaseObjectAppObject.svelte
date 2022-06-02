@@ -604,13 +604,14 @@
               newTable.pureName = `_${newTable.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
               newTable.columns.forEach(x => {
                 x.autoIncrement = false;
+                x.defaultConstraint = null;
               });
               newTable.foreignKeys = [];
               newTable.checks = [];
               newTable.uniques = [];
               newTable.indexes = [];
               if (newTable.primaryKey) {
-                newTable.primaryKey.constarintName = null;
+                newTable.primaryKey.constraintName = null;
               }
               dmp.createTable(newTable);
               dmp.putCmd(
