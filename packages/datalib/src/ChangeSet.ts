@@ -1,5 +1,14 @@
 import _ from 'lodash';
-import { Command, Insert, Update, Delete, UpdateField, Condition, AllowIdentityInsert } from 'dbgate-sqltree';
+import {
+  Command,
+  Insert,
+  Update,
+  Delete,
+  UpdateField,
+  Condition,
+  AllowIdentityInsert,
+  Expression,
+} from 'dbgate-sqltree';
 import { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
 
 export interface ChangeSetItem {
@@ -262,27 +271,39 @@ function changeSetInsertToSql(
 }
 
 export function extractChangeSetCondition(item: ChangeSetItem, alias?: string): Condition {
+  function getColumnCondition(columnName: string): Condition {
+    const value = item.condition[columnName];
+    const expr: Expression = {
+      exprType: 'column',
+      columnName,
+      source: {
+        name: {
+          pureName: item.pureName,
+          schemaName: item.schemaName,
+        },
+        alias,
+      },
+    };
+    if (value == null) {
+      return {
+        conditionType: 'isNull',
+        expr,
+      };
+    } else {
+      return {
+        conditionType: 'binary',
+        operator: '=',
+        left: expr,
+        right: {
+          exprType: 'value',
+          value,
+        },
+      };
+    }
+  }
   return {
     conditionType: 'and',
-    conditions: _.keys(item.condition).map(columnName => ({
-      conditionType: 'binary',
-      operator: '=',
-      left: {
-        exprType: 'column',
-        columnName,
-        source: {
-          name: {
-            pureName: item.pureName,
-            schemaName: item.schemaName,
-          },
-          alias,
-        },
-      },
-      right: {
-        exprType: 'value',
-        value: item.condition[columnName],
-      },
-    })),
+    conditions: _.keys(item.condition).map(columnName => getColumnCondition(columnName)),
   };
 }
 
