@@ -315,7 +315,7 @@
     );
   }
 
-  $: isPinned = !!$pinnedDatabases.find(x => x.name == data.name && x.connection?._id == data.connection?._id);
+  $: isPinned = !!$pinnedDatabases.find(x => x?.name == data.name && x?.connection?._id == data.connection?._id);
   $: apps = useUsedApps();
 </script>
 
