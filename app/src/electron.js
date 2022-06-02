@@ -288,14 +288,13 @@ function createWindow() {
   mainWindow.setMenu(mainMenu);
 
   function loadMainWindow() {
-    const startUrl = process.env.ELECTRON_START_URL
-      ? `${process.env.ELECTRON_START_URL}?${'111-222'}`
-      : url.format({
-          pathname: path.join(__dirname, '../packages/web/public/index.html'),
-          protocol: 'file:',
-          slashes: true,
-        });
-    console.log('START URL', startUrl);
+    const startUrl =
+      process.env.ELECTRON_START_URL ||
+      url.format({
+        pathname: path.join(__dirname, '../packages/web/public/index.html'),
+        protocol: 'file:',
+        slashes: true,
+      });
     mainWindow.on('close', () => {
       try {
         fs.writeFileSync(
@@ -310,13 +309,11 @@ function createWindow() {
         console.log('Error saving config-root:', err.message);
       }
     });
-    // mainWindow.webContents.executeJavaScript(`sessionStorage.setItem('_dbgate_window_id, ${JSON.stringify('1234')})`);
     mainWindow.loadURL(startUrl);
-    // mainWindow.webContents.executeJavaScript(`sessionStorage.setItem('_dbgate_window_id, ${JSON.stringify('1234')})`);
     if (os.platform() == 'linux') {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
-    mainWindow.webContents.toggleDevTools();
+    // mainWindow.webContents.toggleDevTools();
   }
 
   if (!apiLoaded) {
