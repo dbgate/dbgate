@@ -76,6 +76,10 @@
   on:dragstart={e => {
     e.dataTransfer.setData('app_object_drag_data', JSON.stringify(data));
   }}
+  on:dragstart
+  on:dragenter
+  on:dragend
+  on:drop
 >
   {#if checkedObjectsStore}
     <CheckboxField

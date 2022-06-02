@@ -330,6 +330,10 @@
   isBold={_.get($currentDatabase, 'connection._id') == _.get(data.connection, '_id') &&
     _.get($currentDatabase, 'name') == data.name}
   on:click={() => ($currentDatabase = data)}
+  on:dragstart
+  on:dragenter
+  on:dragend
+  on:drop
   on:middleclick={() => {
     createMenu()
       .find(x => x.isNewQuery)
