@@ -8,6 +8,20 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### Not released
+- CHANGED: Optimalization of loading DB structure for PostgreSQL, MySQL #273
+- CHANGED: Upgraded mysql driver #293
+- CHANGED: Better UX when defining SSH port #291
+- ADDED: Database object menu from tab 
+- CHANGED: Ability to close file uploader
+- FIXED: Correct handling of NUL values in update keys
+- CHANGED: Upgraded MS SQL tedious driver
+- ADDED: Change order of pinned tables & databases #227
+- FIXED: #294 Statusbar doesn't match active tab
+- CHANGED: Improved connection worklflow, disconnecting shws confirmations, when it leads to close any tabs
+- ADDED: Configurable object actions #255
+- ADDED: Multiple sort criteria #235
+- ADDED(app): Open JSON file
 ### 5.0.2
 - FIXED: Cannot use SSH Tunnel after update #291
 
