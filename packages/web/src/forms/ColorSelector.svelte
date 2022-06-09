@@ -7,6 +7,7 @@
   import { createEventDispatcher } from 'svelte';
 
   export let value;
+  export let disabled = false;
 
   function colorValue(color, colorIndex, themeDef) {
     const palettes = themeDef?.themeType == 'dark' ? presetDarkPalettes : presetPalettes;
@@ -19,6 +20,7 @@
 <div class="container">
   <div
     class="item"
+    class:disabled
     class:selected={!value}
     on:click={() => {
       dispatch('change', null);
@@ -30,8 +32,10 @@
     <div
       style={`background:${colorValue(color, 3, $currentThemeDefinition)}`}
       class="item"
+      class:disabled
       class:selected={color == value}
       on:click={() => {
+        if (disabled) return;
         dispatch('change', color);
       }}
     >
@@ -58,7 +62,7 @@
     align-items: center;
   }
 
-  .item:hover {
+  .item:hover:not(.disabled) {
     border: 1px solid var(--theme-font-2);
   }
 

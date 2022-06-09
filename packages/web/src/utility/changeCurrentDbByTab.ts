@@ -11,7 +11,7 @@ openedTabs.subscribe(value => {
 
   const lastTab = lastCurrentTab;
   lastCurrentTab = newCurrentTab;
-  if (lastTab?.tabComponent == 'ConnectionTab') return;
+  // if (lastTab?.tabComponent == 'ConnectionTab') return;
 
   if (newCurrentTab) {
     const { conid, database } = newCurrentTab.props || {};

@@ -17,15 +17,22 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import { writable } from 'svelte/store';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
-  import { extensions, getCurrentConfig, openedTabs } from '../stores';
+  import {
+    extensions,
+    getCurrentConfig,
+    openedConnections,
+    openedSingleDatabaseConnections,
+    openedTabs,
+  } from '../stores';
   import _, { Dictionary } from 'lodash';
   import { apiCall } from '../utility/api';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { changeTab } from '../utility/common';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { onMount } from 'svelte';
-  import { openConnection } from '../appobj/ConnectionAppObject.svelte';
+  import { disconnectServerConnection, openConnection } from '../appobj/ConnectionAppObject.svelte';
   import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';
 
   export let connection;
   export let tabid;
@@ -136,7 +143,15 @@
     }
     const saved = await apiCall('connections/save', connection);
     openConnection(saved);
-    closeMultipleTabs(x => x.tabid == tabid, true);
+    // closeMultipleTabs(x => x.tabid == tabid, true);
+  }
+
+  async function handleDisconnect() {
+    if ($values.singleDatabase) {
+      disconnectDatabaseConnection($values._id, $values.defaultDatabase);
+    } else {
+      disconnectServerConnection($values._id);
+    }
   }
 
   onMount(async () => {
@@ -144,6 +159,8 @@
       $values = await apiCall('connections/get', { conid });
     }
   });
+
+  $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
@@ -171,13 +188,17 @@
     {#if driver}
       <div class="flex">
         <div class="buttons">
-          <FormButton value="Connect" on:click={handleConnect} />
-          {#if isTesting}
-            <FormButton value="Cancel test" on:click={handleCancelTest} />
+          {#if isConnected}
+            <FormButton value="Disconnect" on:click={handleDisconnect} />
           {:else}
-            <FormButton value="Test" on:click={handleTest} />
+            <FormButton value="Connect" on:click={handleConnect} />
+            {#if isTesting}
+              <FormButton value="Cancel test" on:click={handleCancelTest} />
+            {:else}
+              <FormButton value="Test" on:click={handleTest} />
+            {/if}
+            <FormButton value="Save" on:click={handleSave} />
           {/if}
-          <FormButton value="Save" on:click={handleSave} />
         </div>
         <div class="test-result">
           {#if !isTesting && sqlConnectResult && sqlConnectResult.msgtype == 'connected'}

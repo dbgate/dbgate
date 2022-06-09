@@ -31,7 +31,45 @@
         expandedConnections.update(x => _.uniq([...x, connection._id]));
       }
     }
-    closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
+    // closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
+  }
+  export function disconnectServerConnection(conid, showConfirmation = true) {
+    const closeCondition = x => x.props?.conid == conid && x.tabComponent != 'ConnectionTab' && x.closedTime == null;
+
+    if (showConfirmation) {
+      const count = getOpenedTabs().filter(closeCondition).length;
+      if (count > 0) {
+        showModal(ConfirmModal, {
+          message: `Closing connection will close ${count} opened tabs, continue?`,
+          onConfirm: () => disconnectServerConnection(conid, false),
+        });
+        return;
+      }
+    }
+
+    const electron = getElectron();
+    const currentDb = getCurrentDatabase();
+    openedConnections.update(list => list.filter(x => x != conid));
+    if (electron) {
+      apiCall('server-connections/disconnect', { conid });
+    }
+    if (currentDb?.connection?._id == conid) {
+      if (electron) {
+        apiCall('database-connections/disconnect', { conid, database: currentDb.name });
+      }
+      currentDatabase.set(null);
+    }
+    closeMultipleTabs(closeCondition);
+    // if (data.unsaved) {
+    //   openNewTab({
+    //     title: 'New Connection',
+    //     icon: 'img connection',
+    //     tabComponent: 'ConnectionTab',
+    //     props: {
+    //       conid: data._id,
+    //     },
+    //   });
+    // }
   }
 </script>
 
@@ -43,7 +81,9 @@
     expandedConnections,
     extensions,
     getCurrentConfig,
+    getCurrentDatabase,
     getOpenedConnections,
+    getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
   } from '../stores';
@@ -118,27 +158,7 @@
       apiCall('server-connections/refresh', { conid: data._id });
     };
     const handleDisconnect = () => {
-      openedConnections.update(list => list.filter(x => x != data._id));
-      if (electron) {
-        apiCall('server-connections/disconnect', { conid: data._id });
-      }
-      if (_.get($currentDatabase, 'connection._id') == data._id) {
-        if (electron) {
-          apiCall('database-connections/disconnect', { conid: data._id, database: $currentDatabase.name });
-        }
-        currentDatabase.set(null);
-      }
-      closeMultipleTabs(x => x.props.conid == data._id);
-      if (data.unsaved) {
-        openNewTab({
-          title: 'New Connection',
-          icon: 'img connection',
-          tabComponent: 'ConnectionTab',
-          props: {
-            conid: data._id,
-          },
-        });
-      }
+      disconnectServerConnection(data._id);
     };
     const handleDelete = () => {
       showModal(ConfirmModal, {
@@ -180,8 +200,8 @@
 
     return [
       config.runAsPortal == false && [
-        !$openedConnections.includes(data._id) && {
-          text: 'Edit',
+        {
+          text: $openedConnections.includes(data._id) ? 'View details' : 'Edit',
           onClick: handleOpenConnectionTab,
         },
         !$openedConnections.includes(data._id) && {

@@ -10,7 +10,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
 
   import FormTextField from '../forms/FormTextField.svelte';
-  import { extensions, getCurrentConfig } from '../stores';
+  import { extensions, getCurrentConfig, openedConnections, openedSingleDatabaseConnections } from '../stores';
   import getElectron from '../utility/getElectron';
   import { useAuthTypes } from '../utility/metadataLoaders';
   import FormColorField from '../forms/FormColorField.svelte';
@@ -30,12 +30,14 @@
 
   $: showUser = driver?.showConnectionField('user', $values);
   $: showPassword = driver?.showConnectionField('password', $values);
+  $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
 
 <FormSelectField
   label="Database engine"
   name="engine"
   isNative
+  disabled={isConnected}
   options={[
     { label: '(select driver)', value: '' },
     ...$extensions.drivers
@@ -48,12 +50,13 @@
 />
 
 {#if driver?.showConnectionField('databaseFile', $values)}
-  <FormElectronFileSelector label="Database file" name="databaseFile" disabled={!electron} />
+  <FormElectronFileSelector label="Database file" name="databaseFile" disabled={isConnected || !electron} />
 {/if}
 
 {#if driver?.showConnectionField('useDatabaseUrl', $values)}
   <div class="radio">
     <FormRadioGroupField
+      disabled={isConnected}
       name="useDatabaseUrl"
       options={[
         { label: 'Fill database connection details', value: '', default: true },
@@ -64,7 +67,12 @@
 {/if}
 
 {#if driver?.showConnectionField('databaseUrl', $values)}
-  <FormTextField label="Database URL" name="databaseUrl" placeholder={driver?.databaseUrlPlaceholder} />
+  <FormTextField
+    label="Database URL"
+    name="databaseUrl"
+    placeholder={driver?.databaseUrlPlaceholder}
+    disabled={isConnected}
+  />
 {/if}
 
 {#if $authTypes && driver?.showConnectionField('authType', $values)}
@@ -72,6 +80,7 @@
     label="Authentication"
     name="authType"
     isNative
+    disabled={isConnected}
     defaultValue={driver?.defaultAuthTypeName}
     options={$authTypes.map(auth => ({
       value: auth.name,
@@ -86,7 +95,7 @@
       <FormTextField
         label="Server"
         name="server"
-        disabled={disabledFields.includes('server')}
+        disabled={isConnected || disabledFields.includes('server')}
         templateProps={{ noMargin: true }}
       />
     </div>
@@ -95,7 +104,7 @@
         <FormTextField
           label="Port"
           name="port"
-          disabled={disabledFields.includes('port')}
+          disabled={isConnected || disabledFields.includes('port')}
           templateProps={{ noMargin: true }}
           placeholder={driver && driver.defaultPort}
         />
@@ -117,7 +126,7 @@
         <FormTextField
           label="User"
           name="user"
-          disabled={disabledFields.includes('user')}
+          disabled={isConnected || disabledFields.includes('user')}
           templateProps={{ noMargin: true }}
         />
       </div>
@@ -127,7 +136,7 @@
         <FormPasswordField
           label="Password"
           name="password"
-          disabled={disabledFields.includes('password')}
+          disabled={isConnected || disabledFields.includes('password')}
           templateProps={{ noMargin: true }}
         />
       </div>
@@ -135,10 +144,10 @@
   </div>
 {/if}
 {#if showUser && !showPassword}
-  <FormTextField label="User" name="user" disabled={disabledFields.includes('user')} />
+  <FormTextField label="User" name="user" disabled={isConnected || disabledFields.includes('user')} />
 {/if}
 {#if !showUser && showPassword}
-  <FormPasswordField label="Password" name="password" disabled={disabledFields.includes('password')} />
+  <FormPasswordField label="Password" name="password" disabled={isConnected || disabledFields.includes('password')} />
 {/if}
 
 {#if !disabledFields.includes('password') && showPassword}
@@ -147,6 +156,7 @@
     isNative
     name="passwordMode"
     defaultValue="saveEncrypted"
+    disabled={isConnected}
     options={[
       { value: 'saveEncrypted', label: 'Save and encrypt' },
       { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
@@ -155,21 +165,26 @@
 {/if}
 
 {#if driver?.showConnectionField('isReadOnly', $values)}
-  <FormCheckboxField label="Is read only" name="isReadOnly" />
+  <FormCheckboxField label="Is read only" name="isReadOnly" disabled={isConnected} />
 {/if}
 
 {#if driver?.showConnectionField('defaultDatabase', $values)}
-  <FormTextField label="Default database" name="defaultDatabase" />
+  <FormTextField label="Default database" name="defaultDatabase" disabled={isConnected} />
 {/if}
 
 {#if defaultDatabase && driver?.showConnectionField('singleDatabase', $values)}
-  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" />
+  <FormCheckboxField label={`Use only database ${defaultDatabase}`} name="singleDatabase" disabled={isConnected} />
 {/if}
 
 {#if driver}
   <div class="row">
     <div class="col-6 mr-1">
-      <FormTextField label="Display name" name="displayName" templateProps={{ noMargin: true }} />
+      <FormTextField
+        label="Display name"
+        name="displayName"
+        templateProps={{ noMargin: true }}
+        disabled={isConnected}
+      />
     </div>
     <div class="col-6 mr-1">
       <FormColorField
@@ -178,6 +193,7 @@
         name="connectionColor"
         emptyLabel="(not selected)"
         templateProps={{ noMargin: true }}
+        disabled={isConnected}
       />
     </div>
   </div>

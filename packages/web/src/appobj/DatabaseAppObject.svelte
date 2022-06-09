@@ -1,6 +1,35 @@
 <script lang="ts" context="module">
   export const extractKey = props => props.name;
 
+  export function disconnectDatabaseConnection(conid, database, showConfirmation = true) {
+    const closeCondition = x =>
+      x.props?.conid == conid &&
+      x.props?.database == database &&
+      x.tabComponent != 'ConnectionTab' &&
+      x.closedTime == null;
+
+    if (showConfirmation) {
+      const count = getOpenedTabs().filter(closeCondition).length;
+      if (count > 0) {
+        showModal(ConfirmModal, {
+          message: `Closing connection will close ${count} opened tabs, continue?`,
+          onConfirm: () => disconnectDatabaseConnection(conid, database, false),
+        });
+        return;
+      }
+    }
+
+    const electron = getElectron();
+    if (electron) {
+      apiCall('database-connections/disconnect', { conid, database });
+    }
+    if (getCurrentDatabase()?.connection?._id == conid && getCurrentDatabase()?.name == database) {
+      currentDatabase.set(null);
+    }
+    openedSingleDatabaseConnections.update(list => list.filter(x => x != conid));
+    closeMultipleTabs(closeCondition);
+  }
+
   export function getDatabaseMenuItems(
     connection,
     name,
@@ -135,14 +164,7 @@
     };
 
     const handleDisconnect = () => {
-      const electron = getElectron();
-      if (electron) {
-        apiCall('database-connections/disconnect', { conid: connection._id, database: name });
-      }
-      if (getCurrentDatabase()?.connection?._id == connection._id && getCurrentDatabase()?.name == name) {
-        currentDatabase.set(null);
-      }
-      openedSingleDatabaseConnections.update(list => list.filter(x => x != connection._id));
+      disconnectDatabaseConnection(connection._id, name);
     };
 
     const handleExportModel = async () => {
@@ -279,6 +301,7 @@
     extensions,
     getCurrentDatabase,
     getExtensions,
+    getOpenedTabs,
     openedConnections,
     openedSingleDatabaseConnections,
     pinnedDatabases,
@@ -300,6 +323,8 @@
   import { exportSqlDump } from '../utility/exportFileTools';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
+import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
 
   export let data;
   export let passProps;

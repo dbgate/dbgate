@@ -12,6 +12,7 @@
 
   export let label;
   export let name;
+  export let disabled = false;
 
   const { template } = getFormContext();
   const { values, setFieldValue } = getFormContext();
@@ -21,6 +22,7 @@
   <svelte:component this={template} type="text" {label} {...templateProps}>
     <ColorSelector
       value={$values && $values[name]}
+      {disabled}
       on:change={e => {
         setFieldValue(name, e.detail);
       }}
@@ -29,6 +31,7 @@
 {:else}
   <FormSelectField
     isNative
+    {disabled}
     {...$$restProps}
     {label}
     {name}

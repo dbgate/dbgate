@@ -11,7 +11,7 @@
   import getElectron from '../utility/getElectron';
   import { usePlatformInfo } from '../utility/metadataLoaders';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { extensions } from '../stores';
+  import { extensions, openedConnections, openedSingleDatabaseConnections } from '../stores';
 
   const { values, setFieldValue } = getFormContext();
   const electron = getElectron();
@@ -24,31 +24,38 @@
     // if (!$values.sshPort) setFieldValue('sshPort', '22');
     if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyfile);
   }
+
+  $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
 
-<FormCheckboxField label="Use SSH tunnel" name="useSshTunnel" />
+<FormCheckboxField label="Use SSH tunnel" name="useSshTunnel" disabled={isConnected} />
 
 <div class="row">
   <div class="col-9 mr-1">
-    <FormTextField label="Host" name="sshHost" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+    <FormTextField
+      label="Host"
+      name="sshHost"
+      disabled={isConnected || !useSshTunnel}
+      templateProps={{ noMargin: true }}
+    />
   </div>
   <div class="col-3">
     <FormTextField
       label="Port"
       name="sshPort"
-      disabled={!useSshTunnel}
+      disabled={isConnected || !useSshTunnel}
       templateProps={{ noMargin: true }}
       placeholder="22"
     />
   </div>
 </div>
-<FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={!useSshTunnel} />
+<FormTextField label="Bastion host (Jump host)" name="sshBastionHost" disabled={isConnected || !useSshTunnel} />
 
 <FormSelectField
   label="SSH Authentication"
   name="sshMode"
   isNative
-  disabled={!useSshTunnel}
+  disabled={isConnected || !useSshTunnel}
   options={[
     { value: 'userPassword', label: 'Username & password' },
     { value: 'agent', label: 'SSH agent' },
@@ -57,19 +64,24 @@
 />
 
 {#if $values.sshMode != 'userPassword'}
-  <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} />
+  <FormTextField label="Login" name="sshLogin" disabled={isConnected || !useSshTunnel} />
 {/if}
 
 {#if $values.sshMode == 'userPassword'}
   <div class="row">
     <div class="col-6 mr-1">
-      <FormTextField label="Login" name="sshLogin" disabled={!useSshTunnel} templateProps={{ noMargin: true }} />
+      <FormTextField
+        label="Login"
+        name="sshLogin"
+        disabled={isConnected || !useSshTunnel}
+        templateProps={{ noMargin: true }}
+      />
     </div>
     <div class="col-6">
       <FormPasswordField
         label="Password"
         name="sshPassword"
-        disabled={!useSshTunnel}
+        disabled={isConnected || !useSshTunnel}
         templateProps={{ noMargin: true }}
       />
     </div>
@@ -82,7 +94,7 @@
       <FormElectronFileSelector
         label="Private key file"
         name="sshKeyfile"
-        disabled={!useSshTunnel}
+        disabled={isConnected || !useSshTunnel}
         templateProps={{ noMargin: true }}
       />
     </div>
@@ -90,7 +102,7 @@
       <FormPasswordField
         label="Key file passphrase"
         name="sshKeyfilePassword"
-        disabled={!useSshTunnel}
+        disabled={isConnected || !useSshTunnel}
         templateProps={{ noMargin: true }}
       />
     </div>
