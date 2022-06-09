@@ -372,6 +372,22 @@ export abstract class GridDisplay {
     this.reload();
   }
 
+  addToSort(uniqueName, order) {
+    this.setConfig(cfg => ({
+      ...cfg,
+      sort: [...(cfg.sort || []), { uniqueName, order }],
+    }));
+    this.reload();
+  }
+
+  clearSort() {
+    this.setConfig(cfg => ({
+      ...cfg,
+      sort: [],
+    }));
+    this.reload();
+  }
+
   setGrouping(uniqueName, groupFunc: GroupFunc) {
     this.setConfig(cfg => ({
       ...cfg,
@@ -406,6 +422,15 @@ export abstract class GridDisplay {
 
   getSortOrder(uniqueName) {
     return this.config.sort.find(x => x.uniqueName == uniqueName)?.order;
+  }
+
+  getSortOrderIndex(uniqueName) {
+    if (this.config.sort.length <= 1) return -1;
+    return _.findIndex(this.config.sort, x => x.uniqueName == uniqueName);
+  }
+
+  isSortDefined() {
+    return (this.config.sort || []).length > 0;
   }
 
   get filterCount() {

@@ -1526,7 +1526,11 @@
                 {conid}
                 {database}
                 setSort={display.sortable ? order => display.setSort(col.uniqueName, order) : null}
-                order={display.getSortOrder(col.uniqueName)}
+                addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
+                order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
+                orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
+                isSortDefined={display.sortable ? display.isSortDefined() : false}
+                clearSort={display.sortable ? () => display.clearSort() : null}
                 on:resizeSplitter={e => {
                   // @ts-ignore
                   display.resizeColumn(col.uniqueName, col.width, e.detail);
