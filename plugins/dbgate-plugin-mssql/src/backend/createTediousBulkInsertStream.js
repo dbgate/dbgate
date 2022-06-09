@@ -1,6 +1,7 @@
 const { createBulkInsertStreamBase } = require('dbgate-tools');
 const tedious = require('tedious');
 const getConcreteType = require('./getConcreteType');
+const _ = require('lodash');
 
 function runBulkInsertBatch(pool, tableName, writable, rows) {
   return new Promise((resolve, reject) => {
@@ -12,24 +13,34 @@ function runBulkInsertBatch(pool, tableName, writable, rows) {
       else resolve();
     });
 
-    for (const column of writable.columnNames) {
-      const tcol = writable.templateColumns.find((x) => x.columnName == column);
+    const stringColumns = new Set();
 
-      bulkLoad.addColumn(
-        column,
-        tcol
-          ? getConcreteType(tcol.driverNativeColumn.type, tcol.driverNativeColumn.dataLength)
-          : tedious.TYPES.NVarChar,
-        {
-          nullable: tcol ? !tcol.notNull : true,
-          length: tcol ? tcol.driverNativeColumn.dataLength : undefined,
-          precision: tcol ? tcol.driverNativeColumn.precision : undefined,
-          scale: tcol ? tcol.driverNativeColumn.scale : undefined,
-        }
-      );
+    for (const column of writable.columnNames) {
+      const tcol = writable.templateColumns.find(x => x.columnName == column);
+
+      const type = tcol
+        ? getConcreteType(tcol.driverNativeColumn.type, tcol.driverNativeColumn.dataLength)
+        : tedious.TYPES.NVarChar;
+
+      if (type.type.toLowerCase().includes('char')) stringColumns.add(column);
+
+      bulkLoad.addColumn(column, type, {
+        nullable: tcol ? !tcol.notNull : true,
+        length: tcol ? tcol.driverNativeColumn.dataLength : undefined,
+        precision: tcol ? tcol.driverNativeColumn.precision : undefined,
+        scale: tcol ? tcol.driverNativeColumn.scale : undefined,
+      });
     }
 
-    pool.execBulkLoad(bulkLoad, rows);
+    const rowsMapped = rows.map(row =>
+      _.mapValues(row, (v, k) => {
+        if (stringColumns.has(k)) return v ? v.toString() : null;
+        return v;
+      })
+    );
+    // console.log('IMPORT ROWS', rowsMapped);
+
+    pool.execBulkLoad(bulkLoad, rowsMapped);
   });
 }
 
