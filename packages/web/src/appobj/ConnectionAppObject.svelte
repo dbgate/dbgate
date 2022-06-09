@@ -27,9 +27,11 @@
         conid: connection._id,
         keepOpen: true,
       });
-      if (!config.runAsPortal) {
-        expandedConnections.update(x => _.uniq([...x, connection._id]));
-      }
+      expandedConnections.update(x => _.uniq([...x, connection._id]));
+
+      // if (!config.runAsPortal && getCurrentSettings()['defaultAction.connectionClick'] != 'connect') {
+      //   expandedConnections.update(x => _.uniq([...x, connection._id]));
+      // }
     }
     // closeMultipleTabs(x => x.tabComponent == 'ConnectionTab' && x.props?.conid == connection._id, true);
   }
@@ -82,6 +84,7 @@
     extensions,
     getCurrentConfig,
     getCurrentDatabase,
+    getCurrentSettings,
     getOpenedConnections,
     getOpenedTabs,
     openedConnections,
@@ -101,6 +104,7 @@
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';
+import { tick } from 'svelte';
 
   export let data;
   export let passProps;
@@ -128,9 +132,10 @@
     });
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     const config = getCurrentConfig();
     if (config.runAsPortal) {
+      await tick();
       handleConnect();
       return;
     }
@@ -142,7 +147,12 @@
       return;
     }
 
-    handleOpenConnectionTab();
+    if (getCurrentSettings()['defaultAction.connectionClick'] == 'connect') {
+      await tick();
+      handleConnect();
+    } else {
+      handleOpenConnectionTab();
+    }
   };
 
   const handleSqlRestore = () => {

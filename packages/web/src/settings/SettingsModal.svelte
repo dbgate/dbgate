@@ -102,6 +102,18 @@ ORDER BY
             defaultValue="30"
             disabled={values['connection.autoRefresh'] === false}
           />
+
+          <div class="heading">Default actions</div>
+          <FormSelectField
+            label="Connection click"
+            name="defaultAction.connectionClick"
+            isNative
+            defaultValue='openDetails'
+            options={[
+              { value: 'openDetails', label: 'Edit / open details' },
+              { value: 'connect', label: 'Connect' },
+            ]}
+          />
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Application theme</div>
