@@ -15,11 +15,7 @@ openedTabs.subscribe(value => {
 
   if (newCurrentTab) {
     const { conid, database } = newCurrentTab.props || {};
-    if (
-      conid &&
-      database &&
-      (conid != _.get(lastTab, 'props.conid') || database != _.get(lastTab, 'props.database'))
-    ) {
+    if (conid && database && (conid != lastTab?.props?.conid || database != lastTab?.props?.database)) {
       const doWork = async () => {
         const connection = await getConnectionInfo({ conid });
         currentDatabase.set({
