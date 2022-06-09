@@ -8,7 +8,14 @@
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
-  import { commands, commandsCustomized, expandedConnections, openedConnections, openedTabs } from '../stores';
+  import {
+    commands,
+    commandsCustomized,
+    expandedConnections,
+    openedConnections,
+    openedSingleDatabaseConnections,
+    openedTabs,
+  } from '../stores';
   import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -30,7 +37,7 @@
       : $connections;
 
   $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(
-    x => !x.unsaved || $openedConnections.includes(x._id)
+    x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
   );
 
   const handleRefreshConnections = () => {
