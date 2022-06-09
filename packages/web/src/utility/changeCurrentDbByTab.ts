@@ -8,14 +8,17 @@ let lastCurrentTab = null;
 openedTabs.subscribe(value => {
   const newCurrentTab = (value || []).find(x => x.selected);
   if (newCurrentTab == lastCurrentTab) return;
-  if (lastCurrentTab?.tabComponent == 'ConnectionTab') return;
+
+  const lastTab = lastCurrentTab;
+  lastCurrentTab = newCurrentTab;
+  if (lastTab?.tabComponent == 'ConnectionTab') return;
 
   if (newCurrentTab) {
     const { conid, database } = newCurrentTab.props || {};
     if (
       conid &&
       database &&
-      (conid != _.get(lastCurrentTab, 'props.conid') || database != _.get(lastCurrentTab, 'props.database'))
+      (conid != _.get(lastTab, 'props.conid') || database != _.get(lastTab, 'props.database'))
     ) {
       const doWork = async () => {
         const connection = await getConnectionInfo({ conid });
@@ -27,6 +30,4 @@ openedTabs.subscribe(value => {
       callWhenAppLoaded(doWork);
     }
   }
-
-  lastCurrentTab = newCurrentTab;
 });
