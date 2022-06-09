@@ -138,10 +138,15 @@
     if (!connection._id) {
       connection = {
         ...connection,
-        unsaved: !connection._id,
+        unsaved: true,
       };
     }
     const saved = await apiCall('connections/save', connection);
+    $values = {
+      ...$values,
+      unsaved: connection.unsaved,
+      _id: saved._id,
+    };
     openConnection(saved);
     // closeMultipleTabs(x => x.tabid == tabid, true);
   }
@@ -161,6 +166,8 @@
   });
 
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
+
+  $: console.log('CONN VALUES', $values);
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>
