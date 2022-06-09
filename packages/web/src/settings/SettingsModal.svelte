@@ -60,6 +60,7 @@ ORDER BY
         tabs={[
           { label: 'General', slot: 1 },
           { label: 'Themes', slot: 2 },
+          { label: 'Actions', slot: 3 },
         ]}
       >
         <svelte:fragment slot="1">
@@ -101,18 +102,6 @@ ORDER BY
             label="Interval between automatic refreshes in seconds"
             defaultValue="30"
             disabled={values['connection.autoRefresh'] === false}
-          />
-
-          <div class="heading">Default actions</div>
-          <FormSelectField
-            label="Connection click"
-            name="defaultAction.connectionClick"
-            isNative
-            defaultValue='openDetails'
-            options={[
-              { value: 'openDetails', label: 'Edit / open details' },
-              { value: 'connect', label: 'Connect' },
-            ]}
           />
         </svelte:fragment>
         <svelte:fragment slot="2">
@@ -160,6 +149,70 @@ ORDER BY
           <div class="editor">
             <SqlEditor value={sqlPreview} readOnly />
           </div>
+        </svelte:fragment>
+        <svelte:fragment slot="3">
+          <div class="heading">Default actions</div>
+          <FormSelectField
+            label="Connection click"
+            name="defaultAction.connectionClick"
+            isNative
+            defaultValue="openDetails"
+            options={[
+              { value: 'openDetails', label: 'Edit / open details' },
+              { value: 'connect', label: 'Connect' },
+            ]}
+          />
+
+          <FormSelectField
+            label="Table click"
+            name="defaultAction.dbObjectClick.tables"
+            isNative
+            defaultValue=""
+            options={[
+              { value: '', label: 'Open data, or open existing' },
+              { value: 'Open data', label: 'Open data (always new tab)' },
+              { value: 'Open form', label: 'Open form (always new tab)' },
+              { value: 'Open structure', label: 'Open structure' },
+              { value: 'SQL: CREATE TABLE', label: 'SQL: CREATE' },
+              { value: 'SQL: SELECT', label: 'SQL: SELECT' },
+            ]}
+          />
+
+          <FormSelectField
+            label="View click"
+            name="defaultAction.dbObjectClick.views"
+            isNative
+            defaultValue=""
+            options={[
+              { value: '', label: 'Open data, or open existing' },
+              { value: 'Open data', label: 'Open data (always new tab)' },
+              { value: 'SQL: CREATE VIEW', label: 'SQL: CREATE' },
+            ]}
+          />
+
+          <FormSelectField
+            label="Materialized view click"
+            name="defaultAction.dbObjectClick.matviews"
+            isNative
+            defaultValue=""
+            options={[
+              { value: '', label: 'Open data, or open existing' },
+              { value: 'Open data', label: 'Open data (always new tab)' },
+              { value: 'SQL: CREATE MATERIALIZED VIEW', label: 'SQL: CREATE' },
+            ]}
+          />
+
+          <FormSelectField
+            label="Procedure click"
+            name="defaultAction.dbObjectClick.procedures"
+            isNative
+            defaultValue=""
+            options={[
+              { value: '', label: 'SQL: CREATE' },
+              { value: 'SQL: EXECUTE', label: 'SQL: EXECUTE' },
+              // { value: 'SQL: CREATE PROCEDURE', label: 'SQL: CREATE' },
+            ]}
+          />
         </svelte:fragment>
       </TabControl>
     </FormValues>

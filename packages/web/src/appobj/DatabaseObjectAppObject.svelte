@@ -340,6 +340,210 @@
     ],
   };
 
+  async function databaseObjectMenuClickHandler(data, menu) {
+    const getDriver = async () => {
+      const conn = await getConnectionInfo(data);
+      if (!conn) return;
+      const driver = findEngineDriver(conn, getExtensions());
+      return driver;
+    };
+
+    if (menu.isOpenFreeTable) {
+      const coninfo = await getConnectionInfo(data);
+      openNewTab({
+        title: data.pureName,
+        icon: 'img free-table',
+        tabComponent: 'FreeTableTab',
+        props: {
+          initialArgs: {
+            functionName: 'tableReader',
+            props: {
+              connection: {
+                ...coninfo,
+                database: data.database,
+              },
+              schemaName: data.schemaName,
+              pureName: data.pureName,
+            },
+          },
+        },
+      });
+    } else if (menu.isActiveChart) {
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.put('^select * from %f', data);
+      openNewTab(
+        {
+          title: data.pureName,
+          icon: 'img chart',
+          tabComponent: 'ChartTab',
+          props: {
+            conid: data.conid,
+            database: data.database,
+          },
+        },
+        {
+          editor: {
+            config: { chartType: 'bar' },
+            sql: dmp.s,
+          },
+        }
+      );
+    } else if (menu.isQueryDesigner) {
+      openNewTab(
+        {
+          title: 'Query #',
+          icon: 'img query-design',
+          tabComponent: 'QueryDesignTab',
+          props: {
+            conid: data.conid,
+            database: data.database,
+          },
+        },
+        {
+          editor: {
+            tables: [
+              {
+                ...data,
+                designerId: uuidv1(),
+                left: 50,
+                top: 50,
+              },
+            ],
+          },
+        }
+      );
+    } else if (menu.isDiagram) {
+      openNewTab(
+        {
+          title: 'Diagram #',
+          icon: 'img diagram',
+          tabComponent: 'DiagramTab',
+          props: {
+            conid: data.conid,
+            database: data.database,
+          },
+        },
+        {
+          editor: {
+            tables: [
+              {
+                ...data,
+                designerId: `${data.pureName}-${uuidv1()}`,
+                autoAddReferences: true,
+              },
+            ],
+            references: [],
+            autoLayout: true,
+          },
+        }
+      );
+    } else if (menu.sqlGeneratorProps) {
+      showModal(SqlGeneratorModal, {
+        initialObjects: [data],
+        initialConfig: menu.sqlGeneratorProps,
+        conid: data.conid,
+        database: data.database,
+      });
+    } else if (menu.isDrop) {
+      const { conid, database } = data;
+      alterDatabaseDialog(conid, database, db => {
+        _.remove(
+          db[data.objectTypeField] as any[],
+          x => x.schemaName == data.schemaName && x.pureName == data.pureName
+        );
+      });
+    } else if (menu.isRename) {
+      const { conid, database } = data;
+      renameDatabaseObjectDialog(conid, database, data.pureName, (db, newName) => {
+        const obj = db[data.objectTypeField].find(x => x.schemaName == data.schemaName && x.pureName == data.pureName);
+        obj.pureName = newName;
+      });
+    } else if (menu.isDropCollection) {
+      showModal(ConfirmModal, {
+        message: `Really drop collection ${data.pureName}?`,
+        onConfirm: async () => {
+          const dbid = _.pick(data, ['conid', 'database']);
+          await apiCall('database-connections/run-script', {
+            ...dbid,
+            sql: `db.dropCollection('${data.pureName}')`,
+          });
+          apiCall('database-connections/sync-model', dbid);
+        },
+      });
+    } else if (menu.isRenameCollection) {
+      showModal(InputTextModal, {
+        label: 'New collection name',
+        header: 'Rename collection',
+        value: data.pureName,
+        onConfirm: async newName => {
+          const dbid = _.pick(data, ['conid', 'database']);
+          await apiCall('database-connections/run-script', {
+            ...dbid,
+            sql: `db.renameCollection('${data.pureName}', '${newName}')`,
+          });
+          apiCall('database-connections/sync-model', dbid);
+        },
+      });
+    } else if (menu.isDuplicateTable) {
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      const newTable = _.cloneDeep(data);
+      const { conid, database } = data;
+
+      newTable.pureName = `_${newTable.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
+      newTable.columns.forEach(x => {
+        x.autoIncrement = false;
+        x.defaultConstraint = null;
+      });
+      newTable.foreignKeys = [];
+      newTable.checks = [];
+      newTable.uniques = [];
+      newTable.indexes = [];
+      if (newTable.primaryKey) {
+        newTable.primaryKey.constraintName = null;
+      }
+      dmp.createTable(newTable);
+      dmp.putCmd(
+        '^insert ^into %f(%,i) ^select %,i from %f',
+        newTable,
+        newTable.columns.map(x => x.columnName),
+        data.columns.map(x => x.columnName),
+        data
+      );
+
+      showModal(ConfirmSqlModal, {
+        sql: dmp.s,
+        onConfirm: async () => {
+          const resp = await apiCall('database-connections/run-script', { conid, database, sql: dmp.s });
+          await apiCall('database-connections/sync-model', { conid, database });
+        },
+        engine: driver.engine,
+      });
+    } else if (menu.isImport) {
+      const { conid, database } = data;
+      showModal(ImportExportModal, {
+        initialValues: {
+          sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
+          targetStorageType: 'database',
+          targetConnectionId: conid,
+          targetDatabaseName: database,
+          fixedTargetPureName: data.pureName,
+        },
+      });
+    } else {
+      openDatabaseObjectDetail(
+        menu.tab,
+        menu.scriptTemplate,
+        data,
+        menu.forceNewTab,
+        menu.initialData,
+        menu.icon,
+        data
+      );
+    }
+  }
+
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
@@ -380,6 +584,13 @@
   export function handleDatabaseObjectClick(data, forceNewTab = false) {
     const { schemaName, pureName, conid, database, objectTypeField } = data;
 
+    const configuredAction = getCurrentSettings()[`defaultAction.dbObjectClick.${objectTypeField}`];
+    const overrideMenu = menus[objectTypeField].find(x => x.label && x.label == configuredAction);
+    if (overrideMenu) {
+      databaseObjectMenuClickHandler(data, overrideMenu);
+      return;
+    }
+
     openDatabaseObjectDetail(
       defaultTabs[objectTypeField],
       defaultTabs[objectTypeField] ? null : 'CREATE OBJECT',
@@ -408,13 +619,6 @@
   }
 
   export function createDatabaseObjectMenu(data) {
-    const getDriver = async () => {
-      const conn = await getConnectionInfo(data);
-      if (!conn) return;
-      const driver = findEngineDriver(conn, getExtensions());
-      return driver;
-    };
-
     const { objectTypeField } = data;
     return menus[objectTypeField]
       .filter(x => x)
@@ -455,203 +659,8 @@
 
         return {
           text: menu.label,
-          onClick: async () => {
-            if (menu.isOpenFreeTable) {
-              const coninfo = await getConnectionInfo(data);
-              openNewTab({
-                title: data.pureName,
-                icon: 'img free-table',
-                tabComponent: 'FreeTableTab',
-                props: {
-                  initialArgs: {
-                    functionName: 'tableReader',
-                    props: {
-                      connection: {
-                        ...coninfo,
-                        database: data.database,
-                      },
-                      schemaName: data.schemaName,
-                      pureName: data.pureName,
-                    },
-                  },
-                },
-              });
-            } else if (menu.isActiveChart) {
-              const driver = await getDriver();
-              const dmp = driver.createDumper();
-              dmp.put('^select * from %f', data);
-              openNewTab(
-                {
-                  title: data.pureName,
-                  icon: 'img chart',
-                  tabComponent: 'ChartTab',
-                  props: {
-                    conid: data.conid,
-                    database: data.database,
-                  },
-                },
-                {
-                  editor: {
-                    config: { chartType: 'bar' },
-                    sql: dmp.s,
-                  },
-                }
-              );
-            } else if (menu.isQueryDesigner) {
-              openNewTab(
-                {
-                  title: 'Query #',
-                  icon: 'img query-design',
-                  tabComponent: 'QueryDesignTab',
-                  props: {
-                    conid: data.conid,
-                    database: data.database,
-                  },
-                },
-                {
-                  editor: {
-                    tables: [
-                      {
-                        ...data,
-                        designerId: uuidv1(),
-                        left: 50,
-                        top: 50,
-                      },
-                    ],
-                  },
-                }
-              );
-            } else if (menu.isDiagram) {
-              openNewTab(
-                {
-                  title: 'Diagram #',
-                  icon: 'img diagram',
-                  tabComponent: 'DiagramTab',
-                  props: {
-                    conid: data.conid,
-                    database: data.database,
-                  },
-                },
-                {
-                  editor: {
-                    tables: [
-                      {
-                        ...data,
-                        designerId: `${data.pureName}-${uuidv1()}`,
-                        autoAddReferences: true,
-                      },
-                    ],
-                    references: [],
-                    autoLayout: true,
-                  },
-                }
-              );
-            } else if (menu.sqlGeneratorProps) {
-              showModal(SqlGeneratorModal, {
-                initialObjects: [data],
-                initialConfig: menu.sqlGeneratorProps,
-                conid: data.conid,
-                database: data.database,
-              });
-            } else if (menu.isDrop) {
-              const { conid, database } = data;
-              alterDatabaseDialog(conid, database, db => {
-                _.remove(
-                  db[data.objectTypeField] as any[],
-                  x => x.schemaName == data.schemaName && x.pureName == data.pureName
-                );
-              });
-            } else if (menu.isRename) {
-              const { conid, database } = data;
-              renameDatabaseObjectDialog(conid, database, data.pureName, (db, newName) => {
-                const obj = db[data.objectTypeField].find(
-                  x => x.schemaName == data.schemaName && x.pureName == data.pureName
-                );
-                obj.pureName = newName;
-              });
-            } else if (menu.isDropCollection) {
-              showModal(ConfirmModal, {
-                message: `Really drop collection ${data.pureName}?`,
-                onConfirm: async () => {
-                  const dbid = _.pick(data, ['conid', 'database']);
-                  await apiCall('database-connections/run-script', {
-                    ...dbid,
-                    sql: `db.dropCollection('${data.pureName}')`,
-                  });
-                  apiCall('database-connections/sync-model', dbid);
-                },
-              });
-            } else if (menu.isRenameCollection) {
-              showModal(InputTextModal, {
-                label: 'New collection name',
-                header: 'Rename collection',
-                value: data.pureName,
-                onConfirm: async newName => {
-                  const dbid = _.pick(data, ['conid', 'database']);
-                  await apiCall('database-connections/run-script', {
-                    ...dbid,
-                    sql: `db.renameCollection('${data.pureName}', '${newName}')`,
-                  });
-                  apiCall('database-connections/sync-model', dbid);
-                },
-              });
-            } else if (menu.isDuplicateTable) {
-              const driver = await getDriver();
-              const dmp = driver.createDumper();
-              const newTable = _.cloneDeep(data);
-              const { conid, database } = data;
-
-              newTable.pureName = `_${newTable.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
-              newTable.columns.forEach(x => {
-                x.autoIncrement = false;
-                x.defaultConstraint = null;
-              });
-              newTable.foreignKeys = [];
-              newTable.checks = [];
-              newTable.uniques = [];
-              newTable.indexes = [];
-              if (newTable.primaryKey) {
-                newTable.primaryKey.constraintName = null;
-              }
-              dmp.createTable(newTable);
-              dmp.putCmd(
-                '^insert ^into %f(%,i) ^select %,i from %f',
-                newTable,
-                newTable.columns.map(x => x.columnName),
-                data.columns.map(x => x.columnName),
-                data
-              );
-
-              showModal(ConfirmSqlModal, {
-                sql: dmp.s,
-                onConfirm: async () => {
-                  const resp = await apiCall('database-connections/run-script', { conid, database, sql: dmp.s });
-                  await apiCall('database-connections/sync-model', { conid, database });
-                },
-                engine: driver.engine,
-              });
-            } else if (menu.isImport) {
-              const { conid, database } = data;
-              showModal(ImportExportModal, {
-                initialValues: {
-                  sourceStorageType: getDefaultFileFormat(getExtensions()).storageType,
-                  targetStorageType: 'database',
-                  targetConnectionId: conid,
-                  targetDatabaseName: database,
-                  fixedTargetPureName: data.pureName,
-                },
-              });
-            } else {
-              openDatabaseObjectDetail(
-                menu.tab,
-                menu.scriptTemplate,
-                data,
-                menu.forceNewTab,
-                menu.initialData,
-                menu.icon,
-                data
-              );
-            }
+          onClick: () => {
+            databaseObjectMenuClickHandler(data, menu);
           },
         };
       });
@@ -671,7 +680,14 @@
 <script lang="ts">
   import _ from 'lodash';
   import AppObjectCore from './AppObjectCore.svelte';
-  import { currentDatabase, extensions, getExtensions, openedConnections, pinnedTables } from '../stores';
+  import {
+    currentDatabase,
+    extensions,
+    getCurrentSettings,
+    getExtensions,
+    openedConnections,
+    pinnedTables,
+  } from '../stores';
   import openNewTab from '../utility/openNewTab';
   import { filterName, generateDbPairingId, getAlterDatabaseScript } from 'dbgate-tools';
   import { getConnectionInfo, getDatabaseInfo } from '../utility/metadataLoaders';
