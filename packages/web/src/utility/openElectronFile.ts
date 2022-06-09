@@ -8,14 +8,17 @@ import { getUploadListener } from './uploadFiles';
 import getConnectionLabel, { getDatabaseFileLabel } from './getConnectionLabel';
 import { apiCall } from './api';
 import openNewTab from './openNewTab';
+import { openJsonDocument } from '../tabs/JsonTab.svelte';
 import { SAVED_FILE_HANDLERS } from '../appobj/SavedFileAppObject.svelte';
 import _ from 'lodash';
+import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
 export function canOpenByElectron(file, extensions) {
   if (!file) return false;
   const nameLower = file.toLowerCase();
   if (nameLower.endsWith('.sql')) return true;
   if (nameLower.endsWith('.diagram')) return true;
+  if (nameLower.endsWith('.json')) return true;
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) return true;
@@ -129,6 +132,21 @@ export function openElectronFileCore(filePath, extensions) {
     openElectronJsonLinesFile(filePath, parsed);
     return;
   }
+  if (nameLower.endsWith('.json')) {
+    fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
+      if (err) {
+        showModal(ErrorMessageModal, { message: err?.message || 'File cannot be loaded' });
+      } else {
+        try {
+          const json = JSON.parse(data);
+          openJsonDocument(json);
+        } catch (err) {
+          showModal(ErrorMessageModal, { message: err.message });
+        }
+      }
+    });
+    return;
+  }
   if (nameLower.endsWith('.diagram')) {
     openSavedElectronFile(filePath, parsed, 'diagrams');
     return;
@@ -176,9 +194,10 @@ export async function openElectronFile() {
     filters: [
       {
         name: `All supported files`,
-        extensions: ['sql', 'sqlite', 'db', 'sqlite3', 'diagram', ...getFileFormatExtensions(ext)],
+        extensions: ['sql', 'sqlite', 'db', 'sqlite3', 'diagram', 'json', ...getFileFormatExtensions(ext)],
       },
       { name: `SQL files`, extensions: ['sql'] },
+      { name: `JSON files`, extensions: ['json'] },
       { name: `Diagram files`, extensions: ['diagram'] },
       { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
       ...getFileFormatFilters(ext),
