@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### Not released
+### 5.0.3
 - CHANGED: Optimalization of loading DB structure for PostgreSQL, MySQL #273
 - CHANGED: Upgraded mysql driver #293
 - CHANGED: Better UX when defining SSH port #291
