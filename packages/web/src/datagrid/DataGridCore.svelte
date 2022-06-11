@@ -113,6 +113,14 @@
   });
 
   registerCommand({
+    id: 'dataGrid.openSelectionInMap',
+    category: 'Data grid',
+    name: 'Open selection in map',
+    testEnabled: () => getCurrentDataGrid() != null, // ?.openSelectionInMapEnabled(),
+    onClick: () => getCurrentDataGrid().openSelectionInMap(),
+  });
+
+  registerCommand({
     id: 'dataGrid.viewJsonDocument',
     category: 'Data grid',
     name: 'View row as JSON document',
@@ -306,6 +314,8 @@
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
+  import { selectionCouldBeShownOnMap } from '../elements/MapView.svelte';
+  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -528,6 +538,23 @@
     const rowIndex = selectedCells[0][0];
     const json = grider.getRowData(rowIndex);
     openJsonDocument(json);
+  }
+
+  export function openSelectionInMap() {
+    const selection = getCellsPublished(selectedCells);
+    if (!selectionCouldBeShownOnMap(selection)) {
+      showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
+      return;
+    }
+    openNewTab({
+      title: 'Map',
+      icon: 'img map',
+      tabComponent: 'MapTab',
+      props: {
+        selection,
+      },
+    });
+    return;
   }
 
   function getSelectedExportableCell() {
@@ -1426,6 +1453,7 @@
     { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
+    { command: 'dataGrid.openSelectionInMap', hideDisabled: true },
     { placeTag: 'chart' }
   );
 

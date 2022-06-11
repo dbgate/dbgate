@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-import { isWktGeometry } from 'dbgate-tools';
+  import { isWktGeometry } from 'dbgate-tools';
 
   const formats = [
     {
@@ -51,15 +51,7 @@ import { isWktGeometry } from 'dbgate-tools';
       return 'jsonRow';
     }
 
-    if (selection.length > 0 && _.find(selection, x => isWktGeometry(x.value))) {
-      return 'map';
-    }
-
-    if (
-      selection.find(x => x.column.toLowerCase().includes('lat')) &&
-      (selection.find(x => x.column.toLowerCase().includes('lon')) ||
-        selection.find(x => x.column.toLowerCase().includes('lng')))
-    ) {
+    if (selectionCouldBeShownOnMap(selection)) {
       return 'map';
     }
 
@@ -88,6 +80,7 @@ import { isWktGeometry } from 'dbgate-tools';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import { selectionCouldBeShownOnMap } from '../elements/MapView.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { selectedCellsCallback } from '../stores';
   import WidgetTitle from './WidgetTitle.svelte';
