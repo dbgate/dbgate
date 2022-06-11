@@ -30,40 +30,61 @@
 
     const geoValues = selection.map(x => x.value).filter(isWktGeometry);
 
+    const geometries = [];
+
     if (geoValues.length > 0) {
       // parse WKT to geoJSON array
-      const geometries = geoValues.map(wellknown);
-      const geoJson = {
-        type: 'GeometryCollection',
-        geometries,
-      };
-
-      const geoJsonObj = leaflet
-        .geoJSON(geoJson, {
-          style: function () {
-            return {
-              weight: 2,
-              fillColor: '#ff7800',
-              color: '#ff7800',
-              opacity: 0.8,
-              fillOpacity: 0.4,
-            };
-          },
-          pointToLayer: function (feature, latlng) {
-            return leaflet.circleMarker(latlng, {
-              radius: 7,
-              weight: 2,
-              fillColor: '#ff7800',
-              color: '#ff7800',
-              opacity: 0.8,
-              fillOpacity: 0.4,
-            });
-          },
-        })
-        .addTo(map);
-      map.fitBounds(geoJsonObj.getBounds());
-      selectionLayers.push(geoJsonObj);
+      geometries.push(...geoValues.map(wellknown));
     }
+
+    const selectedRows = _.groupBy(selection || [], 'row');
+    for (const rowKey of _.keys(selectedRows)) {
+      const cells = selectedRows[rowKey];
+      const lat = cells.find(x => x.column.toLowerCase().includes('lat'));
+      const lon = cells.find(x => x.column.toLowerCase().includes('lon') || x.column.toLowerCase().includes('lng'));
+
+      if (lat && lon) {
+        geometries.push({
+          type: 'Point',
+          coordinates: [lon.value, lat.value],
+        });
+      }
+    }
+
+    if (geometries.length == 0) {
+      return;
+    }
+
+    const geoJson = {
+      type: 'GeometryCollection',
+      geometries,
+    };
+
+    const geoJsonObj = leaflet
+      .geoJSON(geoJson, {
+        style: function () {
+          return {
+            weight: 2,
+            fillColor: '#ff7800',
+            color: '#ff7800',
+            opacity: 0.8,
+            fillOpacity: 0.4,
+          };
+        },
+        pointToLayer: function (feature, latlng) {
+          return leaflet.circleMarker(latlng, {
+            radius: 7,
+            weight: 2,
+            fillColor: '#ff7800',
+            color: '#ff7800',
+            opacity: 0.8,
+            fillOpacity: 0.4,
+          });
+        },
+      })
+      .addTo(map);
+    map.fitBounds(geoJsonObj.getBounds());
+    selectionLayers.push(geoJsonObj);
   }
 
   onMount(() => {
