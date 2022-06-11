@@ -35,17 +35,24 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
       dmp.put(')');
       break;
 
+    case 'methodCall':
+      dumpSqlExpression(dmp, expr.thisObject)
+      dmp.put('.%s(', expr.method);
+      dmp.putCollection(',', expr.args, x => dumpSqlExpression(dmp, x));
+      dmp.put(')');
+      break;
+
     case 'transform':
       dmp.transform(expr.transform, () => dumpSqlExpression(dmp, expr.expr));
       break;
 
     case 'rowNumber':
-      dmp.put(" ^row_number() ^over (^order ^by ");
+      dmp.put(' ^row_number() ^over (^order ^by ');
       dmp.putCollection(', ', expr.orderBy, x => {
         dumpSqlExpression(dmp, x);
         dmp.put(' %k', x.direction);
       });
-      dmp.put(")");
+      dmp.put(')');
       break;
   }
 }

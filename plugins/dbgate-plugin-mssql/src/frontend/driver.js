@@ -2,6 +2,8 @@ const { driverBase } = global.DBGATE_TOOLS;
 const MsSqlDumper = require('./MsSqlDumper');
 const { mssqlSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
+const spatialTypes = ['GEOGRAPHY'];
+
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   limitSelect: true,
@@ -70,6 +72,21 @@ const dialect = {
     'image',
     'xml',
   ],
+
+  createColumnViewExpression(columnName, dataType, source, alias) {
+    if (dataType && spatialTypes.includes(dataType.toUpperCase())) {
+      return {
+        exprType: 'methodCall',
+        method: 'STAsText',
+        alias: alias || columnName,
+        thisObject: {
+          exprType: 'column',
+          columnName,
+          source,
+        },
+      };
+    }
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

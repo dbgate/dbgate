@@ -155,6 +155,13 @@ export interface CallExpression {
   argsPrefix?: string; // DISTINCT in case of COUNT DISTINCT
 }
 
+export interface MethodCallExpression {
+  exprType: 'methodCall';
+  method: string;
+  args: Expression[];
+  thisObject: Expression;
+}
+
 export interface TranformExpression {
   exprType: 'transform';
   expr: Expression;
@@ -172,6 +179,7 @@ export type Expression =
   | PlaceholderExpression
   | RawExpression
   | CallExpression
+  | MethodCallExpression
   | TranformExpression
   | RowNumberExpression;
 export type OrderByExpression = Expression & { direction: 'ASC' | 'DESC' };

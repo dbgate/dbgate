@@ -20,6 +20,9 @@ export function evaluateExpression(expr: Expression, values) {
     case 'call':
       return null;
 
+    case 'methodCall':
+      return null;
+
     case 'transform':
       return null;
   }
