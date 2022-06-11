@@ -18,7 +18,7 @@ const getMapExport = (geoJson) => {
     leaflet
       .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '© OpenStreetMap',
+        attribution: '<a href="https://dbgate.org" title="Exported from DbGate">DbGate</a> | © OpenStreetMap',
       })
       .addTo(map);
       
@@ -47,6 +47,7 @@ const getMapExport = (geoJson) => {
           // does this feature have a property named popupContent?
           if (feature.properties && feature.properties.popupContent) {
             layer.bindPopup(feature.properties.popupContent);
+            layer.bindTooltip(feature.properties.popupContent);
           }
         },
       })
