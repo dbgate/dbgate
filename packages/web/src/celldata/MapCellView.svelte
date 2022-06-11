@@ -1,10 +1,11 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import 'leaflet/dist/leaflet.css';
   import leaflet from 'leaflet';
   import wellknown from 'wellknown';
   import { isWktGeometry } from 'dbgate-tools';
+  import resizeObserver from '../utility/resizeObserver';
 
   //   import Map from 'ol/Map';
   //   import View from 'ol/View';
@@ -140,4 +141,12 @@
   }
 </script>
 
-<div bind:this={refContainer} class="flex1" />
+<div
+  bind:this={refContainer}
+  class="flex1"
+  use:resizeObserver={true}
+  on:resize={async e => {
+    await tick();
+    map.invalidateSize();
+  }}
+/>
