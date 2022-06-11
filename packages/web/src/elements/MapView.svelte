@@ -175,7 +175,7 @@
         },
       },
       {
-        text: 'Save to file',
+        text: 'Export to HTML file',
         onClick: () => {
           saveFileToDisk(async filePath => {
             await apiCall('files/export-map', {
