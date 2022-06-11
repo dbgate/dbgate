@@ -34,4 +34,7 @@ export interface SqlDialect {
   disableExplicitTransaction?: boolean;
 
   predefinedDataTypes: string[];
+
+  // create sql-tree expression
+  createColumnViewExpression(columnName: string, dataType: string, source: { alias: string }, alias?: string): any;
 }

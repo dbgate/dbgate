@@ -483,6 +483,22 @@ export abstract class GridDisplay {
 
   processReferences(select: Select, displayedColumnInfo: DisplayedColumnInfo, options) {}
 
+  createColumnExpression(col, source, alias?) {
+    let expr = null;
+    if (this.dialect.createColumnViewExpression) {
+      expr = this.dialect.createColumnViewExpression(col.columnName, col.dataType, source, alias);
+      if (expr) {
+        return expr;
+      }
+    }
+    return {
+      exprType: 'column',
+      alias: alias || col.columnName,
+      source,
+      ...col,
+    };
+  }
+
   createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[], options) {
     if (!columns) return null;
     const orderColumnName = columns[0].columnName;
@@ -492,12 +508,7 @@ export abstract class GridDisplay {
         name: _.pick(name, ['schemaName', 'pureName']),
         alias: 'basetbl',
       },
-      columns: columns.map(col => ({
-        exprType: 'column',
-        alias: col.columnName,
-        source: { alias: 'basetbl' },
-        ...col,
-      })),
+      columns: columns.map(col => this.createColumnExpression(col, { alias: 'basetbl' })),
       orderBy: [
         {
           exprType: 'column',

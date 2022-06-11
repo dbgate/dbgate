@@ -84,3 +84,18 @@ export function getIconForRedisType(type) {
       return null;
   }
 }
+
+export function isWktGeometry(s) {
+  if (!_isString(s)) return false;
+
+  return (
+    s.startsWith('POINT(') ||
+    s.startsWith('LINESTRING(') ||
+    s.startsWith('POLYGON(') ||
+    s.startsWith('MULTIPOINT(') ||
+    s.startsWith('MULTILINESTRING(') ||
+    s.startsWith('MULTIPOLYGON(') ||
+    s.startsWith('GEOMCOLLECTION(') ||
+    s.startsWith('GEOMETRYCOLLECTION(')
+  );
+}

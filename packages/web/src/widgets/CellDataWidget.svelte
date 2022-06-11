@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+import { isWktGeometry } from 'dbgate-tools';
+
   const formats = [
     {
       type: 'textWrap',
@@ -36,12 +38,31 @@
       component: HtmlCellView,
       single: false,
     },
+    {
+      type: 'map',
+      title: 'Map',
+      component: MapCellView,
+      single: false,
+    },
   ];
 
   function autodetect(selection) {
     if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
       return 'jsonRow';
     }
+
+    if (selection.length > 0 && _.every(selection, x => isWktGeometry(x.value))) {
+      return 'map';
+    }
+
+    if (
+      selection.find(x => x.column.toLowerCase().includes('lat')) &&
+      (selection.find(x => x.column.toLowerCase().includes('lon')) ||
+        selection.find(x => x.column.toLowerCase().includes('lng')))
+    ) {
+      return 'map';
+    }
+
     const value = selection.length == 1 ? selection[0].value : null;
     if (_.isString(value)) {
       if (value.startsWith('[') || value.startsWith('{')) return 'json';
@@ -62,6 +83,7 @@
   import HtmlCellView from '../celldata/HtmlCellView.svelte';
   import JsonCellView from '../celldata/JsonCellView.svelte';
   import JsonRowView from '../celldata/JsonRowView.svelte';
+  import MapCellView from '../celldata/MapCellView.svelte';
   import PictureCellView from '../celldata/PictureCellView.svelte';
   import TextCellViewNoWrap from '../celldata/TextCellViewNoWrap.svelte';
   import TextCellViewWrap from '../celldata/TextCellViewWrap.svelte';
