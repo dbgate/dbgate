@@ -11,21 +11,36 @@ function normalizeTypeName(dataType) {
   return dataType;
 }
 
-function getColumnInfo({
-  is_nullable,
-  column_name,
-  data_type,
-  char_max_length,
-  numeric_precision,
-  numeric_ccale,
-  default_value,
-}) {
+function getColumnInfo(
+  { is_nullable, column_name, data_type, char_max_length, numeric_precision, numeric_ccale, default_value },
+  table = undefined,
+  geometryColumns = undefined,
+  geographyColumns = undefined
+) {
   const normDataType = normalizeTypeName(data_type);
   let fullDataType = normDataType;
   if (char_max_length && isTypeString(normDataType)) fullDataType = `${normDataType}(${char_max_length})`;
   if (numeric_precision && numeric_ccale && isTypeNumeric(normDataType))
     fullDataType = `${normDataType}(${numeric_precision},${numeric_ccale})`;
   const autoIncrement = !!(default_value && default_value.startsWith('nextval('));
+  if (
+    table &&
+    geometryColumns &&
+    geometryColumns.rows.find(
+      x => x.schema_name == table.schemaName && x.pure_name == table.pureName && x.column_name == column_name
+    )
+  ) {
+    fullDataType = 'geometry';
+  }
+  if (
+    table &&
+    geographyColumns &&
+    geographyColumns.rows.find(
+      x => x.schema_name == table.schemaName && x.pure_name == table.pureName && x.column_name == column_name
+    )
+  ) {
+    fullDataType = 'geography';
+  }
   return {
     columnName: column_name,
     dataType: fullDataType,
@@ -145,6 +160,18 @@ class Analyser extends DatabaseAnalyser {
       : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     this.feedback({ analysingMessage: 'Loading unique names' });
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
+
+    let geometryColumns = { rows: [] };
+    if (views.rows.find(x => (x.pure_name = 'geometry_columns' && x.schema_name == 'public'))) {
+      this.feedback({ analysingMessage: 'Loading geometry columns' });
+      geometryColumns = await this.driver.query(this.pool, this.createQuery('geometryColumns', ['tables']));
+    }
+    let geographyColumns = { rows: [] };
+    if (views.rows.find(x => (x.pure_name = 'geography_columns' && x.schema_name == 'public'))) {
+      this.feedback({ analysingMessage: 'Loading geography columns' });
+      geographyColumns = await this.driver.query(this.pool, this.createQuery('geographyColumns', ['tables']));
+    }
+
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const columnColumnsMapped = fkColumns.rows.map(x => ({
@@ -179,7 +206,7 @@ class Analyser extends DatabaseAnalyser {
           ...newTable,
           columns: columns.rows
             .filter(col => col.pure_name == table.pure_name && col.schema_name == table.schema_name)
-            .map(getColumnInfo),
+            .map(col => getColumnInfo(col, newTable, geometryColumns, geographyColumns)),
           primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
           foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, columnColumnsMapped),
           indexes: indexes.rows
@@ -231,7 +258,7 @@ class Analyser extends DatabaseAnalyser {
         createSql: `CREATE VIEW "${view.schema_name}"."${view.pure_name}"\nAS\n${view.create_sql}`,
         columns: columns.rows
           .filter(col => col.pure_name == view.pure_name && col.schema_name == view.schema_name)
-          .map(getColumnInfo),
+          .map(col => getColumnInfo(col)),
       })),
       matviews: matviews
         ? matviews.rows.map(matview => ({
@@ -242,7 +269,7 @@ class Analyser extends DatabaseAnalyser {
             createSql: `CREATE MATERIALIZED VIEW "${matview.schema_name}"."${matview.pure_name}"\nAS\n${matview.definition}`,
             columns: matviewColumns.rows
               .filter(col => col.pure_name == matview.pure_name && col.schema_name == matview.schema_name)
-              .map(getColumnInfo),
+              .map(col => getColumnInfo(col)),
           }))
         : undefined,
       procedures: routines.rows

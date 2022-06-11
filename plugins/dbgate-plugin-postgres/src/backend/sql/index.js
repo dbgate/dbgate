@@ -13,6 +13,8 @@ const matviewColumns = require('./matviewColumns');
 const indexes = require('./indexes');
 const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
+const geometryColumns = require('./geometryColumns');
+const geographyColumns = require('./geographyColumns');
 
 const fk_keyColumnUsage = require('./fk_key_column_usage');
 const fk_referentialConstraints = require('./fk_referential_constraints');
@@ -37,4 +39,6 @@ module.exports = {
   indexes,
   indexcols,
   uniqueNames,
+  geometryColumns,
+  geographyColumns,
 };
