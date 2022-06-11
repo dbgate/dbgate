@@ -8,6 +8,7 @@ const socket = require('../utility/socket');
 const scheduler = require('./scheduler');
 const getDiagramExport = require('../utility/getDiagramExport');
 const apps = require('./apps');
+const getMapExport = require('../utility/getMapExport');
 
 function serialize(format, data) {
   if (format == 'text') return data;
@@ -184,6 +185,12 @@ module.exports = {
         await fs.writeFile(filePath.replace('.html', '-preview.png'), buf);
       }
     }
+    return true;
+  },
+
+  exportMap_meta: true,
+  async exportMap({ filePath, geoJson }) {
+    await fs.writeFile(filePath, getMapExport(geoJson));
     return true;
   },
 

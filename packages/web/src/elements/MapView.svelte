@@ -22,8 +22,13 @@
   import 'leaflet/dist/leaflet.css';
   import leaflet from 'leaflet';
   import wellknown from 'wellknown';
-  import { isWktGeometry } from 'dbgate-tools';
+  import { isWktGeometry, ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
   import resizeObserver from '../utility/resizeObserver';
+  import openNewTab from '../utility/openNewTab';
+  import contextMenu from '../utility/contextMenu';
+  import { saveExportedFile, saveFileToDisk } from '../utility/exportFileTools';
+  import { getCurrentConfig } from '../stores';
+  import { apiCall } from '../utility/api';
 
   export let selection;
 
@@ -31,6 +36,7 @@
   let map;
 
   let selectionLayers = [];
+  let geoJson;
 
   function createColumnsTable(cells) {
     return `<table>${cells.map(cell => `<tr><td>${cell.column}</td><td>${cell.value}</td></tr>`).join('\n')}</table>`;
@@ -87,7 +93,7 @@
       return;
     }
 
-    const geoJson = {
+    geoJson = {
       type: 'FeatureCollection',
       features,
     };
@@ -107,10 +113,10 @@
           return leaflet.circleMarker(latlng, {
             radius: 7,
             weight: 2,
-            fillColor: '#ff7800',
-            color: '#ff7800',
-            opacity: 0.8,
-            fillOpacity: 0.4,
+            fillColor: '#ff0000',
+            color: '#ff0000',
+            opacity: 0.9,
+            fillOpacity: 0.9,
           });
         },
         onEachFeature: (feature, layer) => {
@@ -151,10 +157,40 @@
     selection;
     addSelectionToMap();
   }
+
+  function createMenu() {
+    return [
+      {
+        text: 'Open on new tab',
+        onClick: () => {
+          openNewTab({
+            title: 'Map',
+            icon: 'img map',
+            tabComponent: 'MapTab',
+            props: {
+              selection,
+            },
+          });
+        },
+      },
+      {
+        text: 'Save to file',
+        onClick: () => {
+          saveFileToDisk(async filePath => {
+            await apiCall('files/export-map', {
+              geoJson,
+              filePath,
+            });
+          });
+        },
+      },
+    ];
+  }
 </script>
 
 <div
   bind:this={refContainer}
+  use:contextMenu={createMenu}
   class="flex1"
   use:resizeObserver={true}
   on:resize={async e => {
