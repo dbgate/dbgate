@@ -51,7 +51,7 @@ import { isWktGeometry } from 'dbgate-tools';
       return 'jsonRow';
     }
 
-    if (selection.length > 0 && _.every(selection, x => isWktGeometry(x.value))) {
+    if (selection.length > 0 && _.find(selection, x => isWktGeometry(x.value))) {
       return 'map';
     }
 

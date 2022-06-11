@@ -19,6 +19,10 @@
 
   let selectionLayers = [];
 
+  function createColumnsTable(cells) {
+    return `<table>${cells.map(cell => `<tr><td>${cell.column}</td><td>${cell.value}</td></tr>`).join('\n')}</table>`;
+  }
+
   function addSelectionToMap() {
     if (!map) return;
     if (!selection) return;
@@ -28,36 +32,51 @@
     }
     selectionLayers = [];
 
-    const geoValues = selection.map(x => x.value).filter(isWktGeometry);
-
-    const geometries = [];
-
-    if (geoValues.length > 0) {
-      // parse WKT to geoJSON array
-      geometries.push(...geoValues.map(wellknown));
-    }
-
     const selectedRows = _.groupBy(selection || [], 'row');
+
+    const features = [];
+
     for (const rowKey of _.keys(selectedRows)) {
       const cells = selectedRows[rowKey];
       const lat = cells.find(x => x.column.toLowerCase().includes('lat'));
       const lon = cells.find(x => x.column.toLowerCase().includes('lon') || x.column.toLowerCase().includes('lng'));
 
+      const geoValues = cells.map(x => x.value).filter(isWktGeometry);
+
       if (lat && lon) {
-        geometries.push({
-          type: 'Point',
-          coordinates: [lon.value, lat.value],
+        features.push({
+          type: 'Feature',
+          properties: {
+            popupContent: createColumnsTable(cells),
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: [lon.value, lat.value],
+          },
         });
+      }
+
+      if (geoValues.length > 0) {
+        // parse WKT to geoJSON array
+        features.push(
+          ...geoValues.map(wellknown).map(geometry => ({
+            type: 'Feature',
+            properties: {
+              popupContent: createColumnsTable(cells.filter(x => !isWktGeometry(x.value))),
+            },
+            geometry,
+          }))
+        );
       }
     }
 
-    if (geometries.length == 0) {
+    if (features.length == 0) {
       return;
     }
 
     const geoJson = {
-      type: 'GeometryCollection',
-      geometries,
+      type: 'FeatureCollection',
+      features,
     };
 
     const geoJsonObj = leaflet
@@ -71,7 +90,7 @@
             fillOpacity: 0.4,
           };
         },
-        pointToLayer: function (feature, latlng) {
+        pointToLayer: (feature, latlng) => {
           return leaflet.circleMarker(latlng, {
             radius: 7,
             weight: 2,
@@ -81,29 +100,21 @@
             fillOpacity: 0.4,
           });
         },
+        onEachFeature: (feature, layer) => {
+          // does this feature have a property named popupContent?
+          if (feature.properties && feature.properties.popupContent) {
+            layer.bindPopup(feature.properties.popupContent);
+          }
+        },
       })
       .addTo(map);
+    // geoJsonObj.bindPopup('This is the Transamerica Pyramid'); //.openPopup();
     map.fitBounds(geoJsonObj.getBounds());
     selectionLayers.push(geoJsonObj);
   }
 
   onMount(() => {
-    // new Map({
-    //   target: refContainer,
-    //   layers: [
-    //     new TileLayer({
-    //       source: new XYZ({
-    //         url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-    //       }),
-    //     }),
-    //   ],
-    //   view: new View({
-    //     center: [0, 0],
-    //     zoom: 2,
-    //   }),
-    // });
-
-    map = leaflet.map(refContainer); // .setView([51.505, -0.09], 13);
+    map = leaflet.map(refContainer).setView([50, 15], 13);
 
     leaflet
       .tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
