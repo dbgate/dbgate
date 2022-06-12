@@ -162,14 +162,14 @@ class Analyser extends DatabaseAnalyser {
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
 
     let geometryColumns = { rows: [] };
-    if (views.rows.find(x => (x.pure_name = 'geometry_columns' && x.schema_name == 'public'))) {
+    if (views.rows.find(x => x.pure_name == 'geometry_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geometry columns' });
-      geometryColumns = await this.driver.query(this.pool, this.createQuery('geometryColumns', ['tables']));
+      geometryColumns = await this.safeQuery(this.createQuery('geometryColumns', ['tables']));
     }
     let geographyColumns = { rows: [] };
-    if (views.rows.find(x => (x.pure_name = 'geography_columns' && x.schema_name == 'public'))) {
+    if (views.rows.find(x => x.pure_name == 'geography_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geography columns' });
-      geographyColumns = await this.driver.query(this.pool, this.createQuery('geographyColumns', ['tables']));
+      geographyColumns = await this.safeQuery(this.createQuery('geographyColumns', ['tables']));
     }
 
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
