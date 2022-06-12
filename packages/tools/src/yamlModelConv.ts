@@ -1,4 +1,5 @@
 import { ColumnInfo, TableInfo, ForeignKeyInfo, DatabaseInfo } from 'dbgate-types';
+import { StringNullableChain } from 'lodash';
 import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import { DatabaseAnalyser } from './DatabaseAnalyser';
@@ -11,6 +12,7 @@ export interface ColumnInfoYaml {
   autoIncrement?: boolean;
   references?: string;
   primaryKey?: boolean;
+  default?: string;
 }
 
 export interface DatabaseModelFile {
@@ -39,6 +41,7 @@ function columnInfoToYaml(column: ColumnInfo, table: TableInfo): ColumnInfoYaml 
   const res: ColumnInfoYaml = {
     name: column.columnName,
     type: column.dataType,
+    default: column.defaultValue,
   };
   if (column.autoIncrement) res.autoIncrement = true;
   if (column.notNull) res.notNull = true;
@@ -71,6 +74,7 @@ function columnInfoFromYaml(column: ColumnInfoYaml, table: TableInfoYaml): Colum
     dataType: column.length ? `${column.type}(${column.length})` : column.type,
     autoIncrement: column.autoIncrement,
     notNull: column.notNull || (table.primaryKey && table.primaryKey.includes(column.name)),
+    defaultValue: column.default,
   };
   return res;
 }

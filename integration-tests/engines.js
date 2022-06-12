@@ -141,6 +141,10 @@ const filterLocal = [
   '-CockroachDB',
 ];
 
+const enginesPostgre = engines.filter(x => x.label == 'PostgreSQL');
+
 module.exports = process.env.CITEST
   ? engines.filter(x => !x.skipOnCI)
   : engines.filter(x => filterLocal.find(y => x.label == y));
+
+module.exports.enginesPostgre = enginesPostgre;
