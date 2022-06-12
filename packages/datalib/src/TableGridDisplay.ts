@@ -267,12 +267,9 @@ export class TableGridDisplay extends GridDisplay {
   ) {
     for (const column of columns) {
       if (this.addAllExpandedColumnsToSelected || this.config.addedColumns.includes(column.uniqueName)) {
-        select.columns.push({
-          exprType: 'column',
-          columnName: column.columnName,
-          alias: column.uniqueName,
-          source: { name: column, alias: parentAlias },
-        });
+        select.columns.push(
+          this.createColumnExpression(column, { name: column, alias: parentAlias }, column.uniqueName)
+        );
         displayedColumnInfo[column.uniqueName] = {
           ...column,
           sourceAlias: parentAlias,

@@ -2,6 +2,8 @@ const { driverBase } = global.DBGATE_TOOLS;
 const Dumper = require('./Dumper');
 const { postgreSplitterOptions } = require('dbgate-query-splitter/lib/options');
 
+const spatialTypes = ['GEOGRAPHY'];
+
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
   rangeSelect: true,
@@ -78,6 +80,23 @@ const dialect = {
     'uuid',
     'xml',
   ],
+
+  createColumnViewExpression(columnName, dataType, source, alias) {
+    if (dataType && spatialTypes.includes(dataType.toUpperCase())) {
+      return {
+        exprType: 'call',
+        func: 'ST_AsText',
+        alias: alias || columnName,
+        args: [
+          {
+            exprType: 'column',
+            columnName,
+            source,
+          },
+        ],
+      };
+    }
+  },
 };
 
 const postgresDriverBase = {

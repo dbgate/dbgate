@@ -297,4 +297,33 @@ describe('Deploy database', () => {
       expect(res.rows[0].val.toString()).toEqual('5');
     })
   );
+
+  test.each(engines.enginesPostgre.map(engine => [engine.label, engine]))(
+    'Current timestamp default value - %s',
+    testWrapper(async (conn, driver, engine) => {
+      await testDatabaseDeploy(conn, driver, [
+        [
+          {
+            name: 't1.table.yaml',
+            json: {
+              name: 't1',
+              columns: [
+                { name: 'id', type: 'int' },
+                {
+                  name: 'val',
+                  type: 'timestamp',
+                  default: 'current_timestamp',
+                },
+              ],
+              primaryKey: ['id'],
+            },
+          },
+        ],
+      ]);
+
+      await driver.query(conn, `insert into t1 (id) values (1)`);
+      const res = await driver.query(conn, ` select val from t1 where id = 1`);
+      expect(res.rows[0].val.toString().substring(0, 2)).toEqual('20');
+    })
+  );
 });
