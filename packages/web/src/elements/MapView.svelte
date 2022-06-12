@@ -1,6 +1,5 @@
 <script lang="ts" context="module">
   export function selectionCouldBeShownOnMap(selection) {
-    console.log('selection', selection);
     if (selection.length > 0 && _.find(selection, x => isWktGeometry(x.value))) {
       return true;
     }
@@ -39,6 +38,7 @@
   let geoJson;
 
   function createColumnsTable(cells) {
+    if (cells.length == 0) return '';
     return `<table>${cells.map(cell => `<tr><td>${cell.column}</td><td>${cell.value}</td></tr>`).join('\n')}</table>`;
   }
 
@@ -164,14 +164,14 @@
       {
         text: 'Open on new tab',
         onClick: () => {
-          openNewTab({
-            title: 'Map',
-            icon: 'img map',
-            tabComponent: 'MapTab',
-            props: {
-              selection,
+          openNewTab(
+            {
+              title: 'Map',
+              icon: 'img map',
+              tabComponent: 'MapTab',
             },
-          });
+            { editor: selection.map(x => _.omit(x, ['engine'])) }
+          );
         },
       },
       {

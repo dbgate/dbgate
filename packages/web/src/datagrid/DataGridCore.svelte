@@ -546,14 +546,14 @@
       showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
       return;
     }
-    openNewTab({
-      title: 'Map',
-      icon: 'img map',
-      tabComponent: 'MapTab',
-      props: {
-        selection,
+    openNewTab(
+      {
+        title: 'Map',
+        icon: 'img map',
+        tabComponent: 'MapTab',
       },
-    });
+      { editor: selection.map(x => _.omit(x, ['engine'])) }
+    );
     return;
   }
 
