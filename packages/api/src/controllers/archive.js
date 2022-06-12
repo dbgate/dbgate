@@ -1,11 +1,8 @@
 const fs = require('fs-extra');
-const stream = require('stream');
 const readline = require('readline');
 const path = require('path');
-const { formatWithOptions } = require('util');
 const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
 const socket = require('../utility/socket');
-const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 
@@ -45,29 +42,34 @@ module.exports = {
 
   files_meta: true,
   async files({ folder }) {
-    const dir = resolveArchiveFolder(folder);
-    if (!(await fs.exists(dir))) return [];
-    const files = await loadFilesRecursive(dir); // fs.readdir(dir);
+    try {
+      const dir = resolveArchiveFolder(folder);
+      if (!(await fs.exists(dir))) return [];
+      const files = await loadFilesRecursive(dir); // fs.readdir(dir);
 
-    function fileType(ext, type) {
-      return files
-        .filter(name => name.endsWith(ext))
-        .map(name => ({
-          name: name.slice(0, -ext.length),
-          label: path.parse(name.slice(0, -ext.length)).base,
-          type,
-        }));
+      function fileType(ext, type) {
+        return files
+          .filter(name => name.endsWith(ext))
+          .map(name => ({
+            name: name.slice(0, -ext.length),
+            label: path.parse(name.slice(0, -ext.length)).base,
+            type,
+          }));
+      }
+
+      return [
+        ...fileType('.jsonl', 'jsonl'),
+        ...fileType('.table.yaml', 'table.yaml'),
+        ...fileType('.view.sql', 'view.sql'),
+        ...fileType('.proc.sql', 'proc.sql'),
+        ...fileType('.func.sql', 'func.sql'),
+        ...fileType('.trigger.sql', 'trigger.sql'),
+        ...fileType('.matview.sql', 'matview.sql'),
+      ];
+    } catch (err) {
+      console.log('Error reading archive files', err.message);
+      return [];
     }
-
-    return [
-      ...fileType('.jsonl', 'jsonl'),
-      ...fileType('.table.yaml', 'table.yaml'),
-      ...fileType('.view.sql', 'view.sql'),
-      ...fileType('.proc.sql', 'proc.sql'),
-      ...fileType('.func.sql', 'func.sql'),
-      ...fileType('.trigger.sql', 'trigger.sql'),
-      ...fileType('.matview.sql', 'matview.sql'),
-    ];
   },
 
   refreshFiles_meta: true,
