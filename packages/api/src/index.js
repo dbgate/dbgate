@@ -8,9 +8,10 @@ if (processArgs.startProcess) {
   const proc = require('./proc');
   const module = proc[processArgs.startProcess];
   module.start();
-} else if (!processArgs.checkParent && !global['API_PACKAGE']) {
-  const main = require('./main');
+} 
 
+if (processArgs.startApi) {
+  const main = require('./main');
   main.start();
 }
 

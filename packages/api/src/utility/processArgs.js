@@ -11,6 +11,7 @@ const startProcess = getNamedArg('--start-process');
 const isForkedApi = process.argv.includes('--is-forked-api');
 const pluginsDir = getNamedArg('--plugins-dir');
 const workspaceDir = getNamedArg('--workspace-dir');
+const startApi = process.argv.includes('--start-api');
 
 function getPassArgs() {
   const res = [];
@@ -30,4 +31,5 @@ module.exports = {
   getPassArgs,
   pluginsDir,
   workspaceDir,
+  startApi,
 };
