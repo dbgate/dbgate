@@ -12,6 +12,7 @@ const isForkedApi = process.argv.includes('--is-forked-api');
 const pluginsDir = getNamedArg('--plugins-dir');
 const workspaceDir = getNamedArg('--workspace-dir');
 const listenApi = process.argv.includes('--listen-api');
+const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
 
 function getPassArgs() {
   const res = [];
@@ -20,6 +21,9 @@ function getPassArgs() {
   }
   if (global['PLUGINS_DIR']) {
     res.push('--plugins-dir', global['PLUGINS_DIR']);
+  }
+  if (listenApiChild) {
+    res.push('listen-api-child');
   }
   return res;
 }
@@ -32,4 +36,5 @@ module.exports = {
   pluginsDir,
   workspaceDir,
   listenApi,
+  listenApiChild,
 };
