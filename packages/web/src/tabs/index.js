@@ -25,6 +25,7 @@ import * as DbKeyDetailTab from './DbKeyDetailTab.svelte';
 import * as QueryDataTab from './QueryDataTab.svelte';
 import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
+import * as PerspectiveTab from './PerspectiveTab.svelte';
 
 export default {
   TableDataTab,
@@ -54,4 +55,5 @@ export default {
   QueryDataTab,
   ConnectionTab,
   MapTab,
+  PerspectiveTab,
 };

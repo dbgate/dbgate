@@ -171,6 +171,7 @@
     'img link': 'mdi mdi-link',
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
+    'img perspective': 'mdi mdi-eye color-icon-yellow',
 
     'img folder': 'mdi mdi-folder color-icon-yellow',
     'img type-string': 'mdi mdi-alphabetical color-icon-blue',

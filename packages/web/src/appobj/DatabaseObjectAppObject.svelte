@@ -116,6 +116,12 @@
           insert: true,
         },
       },
+      {
+        label: 'Create perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
     ],
     views: [
       {
@@ -178,6 +184,12 @@
         sqlGeneratorProps: {
           dropViews: true,
         },
+      },
+      {
+        label: 'Create perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
       },
     ],
     matviews: [
