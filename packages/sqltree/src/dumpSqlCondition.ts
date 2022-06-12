@@ -1,7 +1,6 @@
 import { SqlDumper } from 'dbgate-types';
 import { Condition, BinaryCondition } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
-import { link } from 'fs';
 import { dumpSqlSelect } from './dumpSqlCommand';
 
 export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
