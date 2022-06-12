@@ -10,7 +10,7 @@ if (processArgs.startProcess) {
   module.start();
 } 
 
-if (processArgs.startApi) {
+if (processArgs.listenApi) {
   const main = require('./main');
   main.start();
 }
