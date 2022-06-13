@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 5.0.4
+### 5.0.5
 - ADDED: Visualisation geographics objects on map #288
 - ADDED: Support for native SQL as default value inside yaml files #296
 - FIXED: Postgres boolean columns don't filter correctly #298
