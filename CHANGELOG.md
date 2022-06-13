@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.5
+- ADDED: Visualisation geographics objects on map #288
+- ADDED: Support for native SQL as default value inside yaml files #296
+- FIXED: Postgres boolean columns don't filter correctly #298
+- FIXED: Importing dbgate-api as NPM package now works correctly
+- FIXED: Handle error when reading deleted archive
+
 ### 5.0.3
 - CHANGED: Optimalization of loading DB structure for PostgreSQL, MySQL #273
 - CHANGED: Upgraded mysql driver #293
