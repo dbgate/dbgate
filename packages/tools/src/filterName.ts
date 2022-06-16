@@ -1,4 +1,9 @@
 import _compact from 'lodash/compact';
+import _isString from 'lodash/isString';
+
+export interface FilterNameDefinition {
+  childName: string;
+}
 
 // original C# variant
 // public bool Match(string value)
@@ -54,17 +59,29 @@ function fuzzysearch(needle, haystack) {
   return true;
 }
 
-export function filterName(filter: string, ...names: string[]) {
+export function filterName(filter: string, ...names: (string | FilterNameDefinition)[]) {
   if (!filter) return true;
 
   // const camelVariants = [name.replace(/[^A-Z]/g, '')]
   const tokens = filter.split(' ').map(x => x.trim());
 
   const namesCompacted = _compact(names);
+
+  // @ts-ignore
+  const namesOwn: string[] = namesCompacted.filter(x => _isString(x));
+  // @ts-ignore
+  const namesChild: string[] = namesCompacted.filter(x => x.childName).map(x => x.childName);
+
   for (const token of tokens) {
     const tokenUpper = token.toUpperCase();
-    const found = namesCompacted.find(name => fuzzysearch(tokenUpper, name.toUpperCase()));
-    if (!found) return false;
+    if (tokenUpper.startsWith('#')) {
+      const tokenUpperSub = tokenUpper.substring(1);
+      const found = namesChild.find(name => fuzzysearch(tokenUpperSub, name.toUpperCase()));
+      if (!found) return false;
+    } else {
+      const found = namesOwn.find(name => fuzzysearch(tokenUpper, name.toUpperCase()));
+      if (!found) return false;
+    }
   }
 
   return true;

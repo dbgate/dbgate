@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-  export const createMatcher = ({ schemaName, pureName }) => filter => filterName(filter, pureName, schemaName);
+  export const createMatcher = ({ schemaName, pureName, columns }) => filter =>
+    filterName(filter, pureName, schemaName, ...columns?.map(({ columnName }) => ({ childName: columnName })));
   export const createTitle = ({ pureName }) => pureName;
   const electron = getElectron();
 
