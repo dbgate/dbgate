@@ -1,8 +1,8 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-  export const createMatcher = ({ schemaName, pureName }) => filter => filterName(filter, pureName, schemaName);
+  export const createMatcher = ({ schemaName, pureName, columns }) => filter =>
+    filterName(filter, pureName, schemaName, ...(columns?.map(({ columnName }) => ({ childName: columnName })) || []));
   export const createTitle = ({ pureName }) => pureName;
-  const electron = getElectron();
 
   export const databaseObjectIcons = {
     tables: 'img table',
@@ -710,7 +710,6 @@
   import uuidv1 from 'uuid/v1';
   import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
   import getConnectionLabel from '../utility/getConnectionLabel';
-  import getElectron from '../utility/getElectron';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';

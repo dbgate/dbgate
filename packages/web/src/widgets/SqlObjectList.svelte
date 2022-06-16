@@ -125,7 +125,7 @@
   </WidgetsInnerContainer>
 {:else}
   <SearchBoxWrapper>
-    <SearchInput placeholder="Search tables or objects" bind:value={filter} />
+    <SearchInput placeholder="Search in tables, objects, # prefix in columns" bind:value={filter} />
     <CloseSearchButton bind:filter />
     <DropDownButton icon="icon plus-thick" menu={createAddMenu} />
     <InlineButton on:click={handleRefreshDatabase} title="Refresh database connection and object list">

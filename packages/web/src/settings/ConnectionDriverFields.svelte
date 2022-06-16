@@ -34,12 +34,12 @@
 </script>
 
 <FormSelectField
-  label="Database engine"
+  label="Connection type"
   name="engine"
   isNative
   disabled={isConnected}
   options={[
-    { label: '(select driver)', value: '' },
+    { label: '(select connection type)', value: '' },
     ...$extensions.drivers
       .filter(driver => !driver.isElectronOnly || electron)
       .map(driver => ({
