@@ -1,5 +1,7 @@
 export * from './GridDisplay';
 export * from './GridConfig';
+export * from './PerspectiveConfig';
+export * from './PerspectiveColumnDefinition';
 export * from './TableGridDisplay';
 export * from './ViewGridDisplay';
 export * from './JslGridDisplay';

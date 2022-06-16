@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { PerspectiveTableColumnDefinition } from 'dbgate-datalib';
+
   import _ from 'lodash';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
@@ -15,6 +17,9 @@
   export let schemaName;
   export let pureName;
 
+  export let config;
+  export let setConfig;
+
   let managerSize;
 
   $: if (managerSize) setLocalStorage('perspectiveManagerWidth', managerSize);
@@ -30,15 +35,31 @@
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
 
-  $: console.log('tableInfo', $tableInfo);
-  $: console.log('viewInfo', $viewInfo);
+  // $: console.log('tableInfo', $tableInfo);
+  // $: console.log('viewInfo', $viewInfo);
+
+  function getTableColumns(table, config, setConfig) {
+    return table.columns.map(col => new PerspectiveTableColumnDefinition(col, table, config, setConfig));
+  }
+
+  function getViewColumns(view, config, setConfig) {
+    return [];
+  }
+
+  $: columns = $tableInfo
+    ? getTableColumns($tableInfo, config, setConfig)
+    : $viewInfo
+    ? getViewColumns($viewInfo, config, setConfig)
+    : null;
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Columns" name="columns" height="45%">
-        <PerspectiveColumns />
+        {#if columns}
+          <PerspectiveColumns {columns} />
+        {/if}
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>
