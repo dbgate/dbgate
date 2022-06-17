@@ -10,7 +10,7 @@
   <span class="expandColumnIcon" style={`margin-right: ${5 + column.level * 10}px`}>
     <FontIcon
       icon={column.isExpandable ? plusExpandIcon(column.isExpanded) : 'icon invisible-box'}
-      on:click={() => column.togglExpanded()}
+      on:click={() => column.toggleExpanded()}
     />
   </span>
 

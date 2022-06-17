@@ -4,8 +4,23 @@
   import PerspectiveColumnRow from './PerspectiveColumnRow.svelte';
 
   export let columns = [];
+
+  function processFlatColumns(res, columns) {
+    for (const col of columns) {
+      res.push(col);
+      if (col.isExpanded) {
+        processFlatColumns(res, col.childColumns);
+      }
+    }
+  }
+
+  function getFlatColumns(columns) {
+    const res = [];
+    processFlatColumns(res, columns);
+    return res;
+  }
 </script>
 
-{#each columns as column}
+{#each getFlatColumns(columns) as column}
   <PerspectiveColumnRow {column} />
 {/each}

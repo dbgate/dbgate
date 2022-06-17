@@ -4,7 +4,7 @@
   import _ from 'lodash';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import { useTableInfo, useViewInfo } from '../utility/metadataLoaders';
+  import { useDatabaseInfo, useTableInfo, useViewInfo } from '../utility/metadataLoaders';
 
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
@@ -32,24 +32,27 @@
     return '300px';
   }
 
+  const dbInfo = useDatabaseInfo({ conid, database });
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
 
   // $: console.log('tableInfo', $tableInfo);
   // $: console.log('viewInfo', $viewInfo);
 
-  function getTableColumns(table, config, setConfig) {
-    return table.columns.map(col => new PerspectiveTableColumnDefinition(col, table, config, setConfig));
+  function getTableColumns(table, dbInfo, config, setConfig) {
+    return table.columns.map(col => new PerspectiveTableColumnDefinition(col, table, dbInfo, config, setConfig, null));
   }
 
-  function getViewColumns(view, config, setConfig) {
+  function getViewColumns(view, dbInfo, config, setConfig) {
     return [];
   }
 
+  $: console.log('CFG', config);
+
   $: columns = $tableInfo
-    ? getTableColumns($tableInfo, config, setConfig)
+    ? getTableColumns($tableInfo, $dbInfo, config, setConfig)
     : $viewInfo
-    ? getViewColumns($viewInfo, config, setConfig)
+    ? getViewColumns($viewInfo, $dbInfo, config, setConfig)
     : null;
 </script>
 
