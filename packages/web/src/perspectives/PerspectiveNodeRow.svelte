@@ -3,20 +3,20 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
 
-  export let column;
+  export let node;
 </script>
 
 <div class="row">
-  <span class="expandColumnIcon" style={`margin-right: ${5 + column.level * 10}px`}>
+  <span class="expandColumnIcon" style={`margin-right: ${5 + node.level * 10}px`}>
     <FontIcon
-      icon={column.isExpandable ? plusExpandIcon(column.isExpanded) : 'icon invisible-box'}
-      on:click={() => column.toggleExpanded()}
+      icon={node.isExpandable ? plusExpandIcon(node.isExpanded) : 'icon invisible-box'}
+      on:click={() => node.toggleExpanded()}
     />
   </span>
 
   <input
     type="checkbox"
-    checked={column.isChecked}
+    checked={node.isChecked}
     on:click={e => {
       e.stopPropagation();
     }}
@@ -24,13 +24,15 @@
       e.stopPropagation();
     }}
     on:change={() => {
-      const newValue = !column.isChecked;
+      const newValue = !node.isChecked;
       // display.setColumnVisibility(column.uniquePath, newValue);
       // dispatch('setvisibility', newValue);
     }}
   />
 
-  <ColumnLabel {...column.props} showDataType />
+  <FontIcon icon={node.icon} />
+
+  <span>{node.title}</span>
 </div>
 
 <style>

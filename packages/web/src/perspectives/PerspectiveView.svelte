@@ -9,7 +9,7 @@
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
-  import PerspectiveColumns from './PerspectiveColumns.svelte';
+  import PerspectiveTree from './PerspectiveTree.svelte';
   import PerspectiveCore from './PerspectiveCore.svelte';
 
   export let conid;
@@ -39,29 +39,29 @@
   // $: console.log('tableInfo', $tableInfo);
   // $: console.log('viewInfo', $viewInfo);
 
-  function getTableColumns(table, dbInfo, config, setConfig) {
+  function getTableNodes(table, dbInfo, config, setConfig) {
     return getTableChildPerspectiveNodes(table, dbInfo, config, setConfig, null);
   }
 
-  function getViewColumns(view, dbInfo, config, setConfig) {
+  function getViewNodes(view, dbInfo, config, setConfig) {
     return [];
   }
 
   // $: console.log('CFG', config);
 
-  $: columns = $tableInfo
-    ? getTableColumns($tableInfo, $dbInfo, config, setConfig)
+  $: nodes = $tableInfo
+    ? getTableNodes($tableInfo, $dbInfo, config, setConfig)
     : $viewInfo
-    ? getViewColumns($viewInfo, $dbInfo, config, setConfig)
+    ? getViewNodes($viewInfo, $dbInfo, config, setConfig)
     : null;
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height="45%">
-        {#if columns}
-          <PerspectiveColumns {columns} />
+      <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height="45%">
+        {#if nodes}
+          <PerspectiveTree {nodes} />
         {/if}
       </WidgetColumnBarItem>
     </WidgetColumnBar>

@@ -10,9 +10,9 @@ export abstract class PerspectiveTreeNode {
   ) {}
   abstract get title();
   abstract get codeName();
-  abstract get props();
   abstract get isExpandable();
   abstract get childNodes(): PerspectiveTreeNode[];
+  abstract get icon(): string;
   get uniqueName() {
     if (this.parentNode) return `${this.parentNode.uniqueName}.${this.codeName}`;
     return this.codeName;
@@ -61,16 +61,18 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName);
   }
 
+  get icon() {
+    if (this.column.autoIncrement) return 'img autoincrement';
+    if (this.foreignKey) return 'img foreign-key';
+    return 'img column';
+  }
+
   get codeName() {
     return this.column.columnName;
   }
 
   get title() {
     return this.column.columnName;
-  }
-
-  get props() {
-    return this.column;
   }
 
   get isExpandable() {
@@ -83,10 +85,40 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
     return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this);
-    // return (
-    //   tbl?.columns?.map(col => new PerspectiveTableColumnNode(col, tbl, this.db, this.config, this.setConfig, this)) ||
-    //   []
-    // );
+  }
+}
+
+export class PerspectiveTableReferenceNode extends PerspectiveTreeNode {
+  foreignKey: ForeignKeyInfo;
+  constructor(
+    public fk: ForeignKeyInfo,
+    public table: TableInfo,
+    public db: DatabaseInfo,
+    config: PerspectiveConfig,
+    setConfig: ChangePerspectiveConfigFunc,
+    parentColumn: PerspectiveTreeNode
+  ) {
+    super(config, setConfig, parentColumn);
+  }
+
+  get codeName() {
+    return this.table.schemaName ? `${this.table.schemaName}:${this.table.pureName}` : this.table.pureName;
+  }
+
+  get title() {
+    return this.table.pureName;
+  }
+
+  get isExpandable() {
+    return true;
+  }
+
+  get childNodes(): PerspectiveTreeNode[] {
+    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this);
+  }
+
+  get icon() {
+    return 'img table';
   }
 }
 
@@ -98,5 +130,15 @@ export function getTableChildPerspectiveNodes(
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
-  return table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, parentColumn));
+  const res = [];
+  res.push(
+    ...table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, parentColumn))
+  );
+  if (db && table.dependencies) {
+    for (const fk of table.dependencies) {
+      const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
+      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, parentColumn));
+    }
+  }
+  return res;
 }
