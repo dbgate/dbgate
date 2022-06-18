@@ -9,7 +9,7 @@
     for (const col of columns) {
       res.push(col);
       if (col.isExpanded) {
-        processFlatColumns(res, col.childColumns);
+        processFlatColumns(res, col.childNodes);
       }
     }
   }

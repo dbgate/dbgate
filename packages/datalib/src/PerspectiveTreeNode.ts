@@ -2,23 +2,23 @@ import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, TableInfo } from 'dbgate-type
 import { clearConfigCache } from 'prettier';
 import { ChangePerspectiveConfigFunc, PerspectiveConfig } from './PerspectiveConfig';
 
-export abstract class PerspectiveColumnDefinition {
+export abstract class PerspectiveTreeNode {
   constructor(
     public config: PerspectiveConfig,
     public setConfig: ChangePerspectiveConfigFunc,
-    public parentColumn: PerspectiveTableColumnDefinition
+    public parentNode: PerspectiveTreeNode
   ) {}
   abstract get title();
   abstract get codeName();
   abstract get props();
   abstract get isExpandable();
-  abstract get childColumns(): PerspectiveColumnDefinition[];
+  abstract get childNodes(): PerspectiveTreeNode[];
   get uniqueName() {
-    if (this.parentColumn) return `${this.parentColumn.uniqueName}.${this.codeName}`;
+    if (this.parentNode) return `${this.parentNode.uniqueName}.${this.codeName}`;
     return this.codeName;
   }
   get level() {
-    if (this.parentColumn) return this.parentColumn.level + 1;
+    if (this.parentNode) return this.parentNode.level + 1;
     return 0;
   }
   get isExpanded() {
@@ -44,7 +44,7 @@ export abstract class PerspectiveColumnDefinition {
   }
 }
 
-export class PerspectiveTableColumnDefinition extends PerspectiveColumnDefinition {
+export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   foreignKey: ForeignKeyInfo;
   constructor(
     public column: ColumnInfo,
@@ -52,7 +52,7 @@ export class PerspectiveTableColumnDefinition extends PerspectiveColumnDefinitio
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    parentColumn: PerspectiveTableColumnDefinition
+    parentColumn: PerspectiveTreeNode
   ) {
     super(config, setConfig, parentColumn);
 
@@ -77,15 +77,26 @@ export class PerspectiveTableColumnDefinition extends PerspectiveColumnDefinitio
     return !!this.foreignKey;
   }
 
-  get childColumns(): PerspectiveColumnDefinition[] {
+  get childNodes(): PerspectiveTreeNode[] {
     if (!this.foreignKey) return [];
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
-    return (
-      tbl?.columns?.map(
-        col => new PerspectiveTableColumnDefinition(col, tbl, this.db, this.config, this.setConfig, this)
-      ) || []
-    );
+    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this);
+    // return (
+    //   tbl?.columns?.map(col => new PerspectiveTableColumnNode(col, tbl, this.db, this.config, this.setConfig, this)) ||
+    //   []
+    // );
   }
+}
+
+export function getTableChildPerspectiveNodes(
+  table: TableInfo,
+  db: DatabaseInfo,
+  config: PerspectiveConfig,
+  setConfig: ChangePerspectiveConfigFunc,
+  parentColumn: PerspectiveTreeNode
+) {
+  if (!table) return [];
+  return table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, parentColumn));
 }

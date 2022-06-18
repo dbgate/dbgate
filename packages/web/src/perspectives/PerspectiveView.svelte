@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PerspectiveTableColumnDefinition } from 'dbgate-datalib';
+  import { getTableChildPerspectiveNodes, PerspectiveTableColumnNode } from 'dbgate-datalib';
 
   import _ from 'lodash';
 
@@ -40,14 +40,14 @@
   // $: console.log('viewInfo', $viewInfo);
 
   function getTableColumns(table, dbInfo, config, setConfig) {
-    return table.columns.map(col => new PerspectiveTableColumnDefinition(col, table, dbInfo, config, setConfig, null));
+    return getTableChildPerspectiveNodes(table, dbInfo, config, setConfig, null);
   }
 
   function getViewColumns(view, dbInfo, config, setConfig) {
     return [];
   }
 
-  $: console.log('CFG', config);
+  // $: console.log('CFG', config);
 
   $: columns = $tableInfo
     ? getTableColumns($tableInfo, $dbInfo, config, setConfig)
