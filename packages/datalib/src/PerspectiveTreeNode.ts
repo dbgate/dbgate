@@ -1,18 +1,62 @@
 import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, TableInfo } from 'dbgate-types';
 import { clearConfigCache } from 'prettier';
 import { ChangePerspectiveConfigFunc, PerspectiveConfig } from './PerspectiveConfig';
+import _isEqual from 'lodash/isEqual';
+import _cloneDeep from 'lodash/cloneDeep';
+
+export interface PerspectiveDataLoadProps {
+  schemaName: string;
+  pureName: string;
+  bindingColumns?: string[];
+  bindingValues?: any[][];
+}
+
+export interface PerspectiveDataLoadPropsWithNode {
+  props: PerspectiveDataLoadProps;
+  node: PerspectiveTreeNode;
+}
+
+// export function groupPerspectiveLoadProps(
+//   ...list: PerspectiveDataLoadPropsWithNode[]
+// ): PerspectiveDataLoadPropsWithNode[] {
+//   const res: PerspectiveDataLoadPropsWithNode[] = [];
+//   for (const item of list) {
+//     const existing = res.find(
+//       x =>
+//         x.node == item.node &&
+//         x.props.schemaName == item.props.schemaName &&
+//         x.props.pureName == item.props.pureName &&
+//         _isEqual(x.props.bindingColumns, item.props.bindingColumns)
+//     );
+//     if (existing) {
+//       existing.props.bindingValues.push(...item.props.bindingValues);
+//     } else {
+//       res.push(_cloneDeep(item));
+//     }
+//   }
+//   return res;
+// }
 
 export abstract class PerspectiveTreeNode {
   constructor(
     public config: PerspectiveConfig,
     public setConfig: ChangePerspectiveConfigFunc,
-    public parentNode: PerspectiveTreeNode
+    public parentNode: PerspectiveTreeNode,
+    public loader: (props: PerspectiveDataLoadProps) => Promise<any[]>
   ) {}
   abstract get title();
   abstract get codeName();
   abstract get isExpandable();
   abstract get childNodes(): PerspectiveTreeNode[];
   abstract get icon(): string;
+  abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
+  get isRoot() {
+    return this.parentNode == null;
+  }
+  matchChildRow(parentRow: any, childRow: any): boolean {
+    return true;
+  }
+
   get uniqueName() {
     if (this.parentNode) return `${this.parentNode.uniqueName}.${this.codeName}`;
     return this.codeName;
@@ -24,9 +68,16 @@ export abstract class PerspectiveTreeNode {
   get isExpanded() {
     return this.config.expandedColumns.includes(this.uniqueName);
   }
+  get isChecked() {
+    return this.config.checkedColumns.includes(this.uniqueName);
+  }
 
   toggleExpanded(value?: boolean) {
     this.includeInColumnSet('expandedColumns', this.uniqueName, value == null ? !this.isExpanded : value);
+  }
+
+  toggleChecked(value?: boolean) {
+    this.includeInColumnSet('checkedColumns', this.uniqueName, value == null ? !this.isChecked : value);
   }
 
   includeInColumnSet(field: keyof PerspectiveConfig, uniqueName: string, isIncluded: boolean) {
@@ -52,13 +103,29 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    parentColumn: PerspectiveTreeNode
+    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentColumn);
+    super(config, setConfig, parentNode, loader);
 
     this.foreignKey =
       table.foreignKeys &&
       table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName);
+  }
+
+  matchChildRow(parentRow: any, childRow: any): boolean {
+    if (!this.foreignKey) return false;
+    return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
+  }
+
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    if (!this.foreignKey) return null;
+    return {
+      schemaName: this.foreignKey.refSchemaName,
+      pureName: this.foreignKey.refTableName,
+      bindingColumns: [this.foreignKey.columns[0].refColumnName],
+      bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].columnName]),
+    };
   }
 
   get icon() {
@@ -84,21 +151,27 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
-    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this);
+    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this.loader, this);
   }
 }
 
-export class PerspectiveTableReferenceNode extends PerspectiveTreeNode {
-  foreignKey: ForeignKeyInfo;
+export class PerspectiveTableNode extends PerspectiveTreeNode {
   constructor(
-    public fk: ForeignKeyInfo,
     public table: TableInfo,
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    parentColumn: PerspectiveTreeNode
+    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentColumn);
+    super(config, setConfig, parentNode, loader);
+  }
+
+  getNodeLoadProps(parentRows: any[]) {
+    return {
+      schemaName: this.table.schemaName,
+      pureName: this.table.pureName,
+    };
   }
 
   get codeName() {
@@ -114,11 +187,40 @@ export class PerspectiveTableReferenceNode extends PerspectiveTreeNode {
   }
 
   get childNodes(): PerspectiveTreeNode[] {
-    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this);
+    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this.loader, this);
   }
 
   get icon() {
     return 'img table';
+  }
+}
+
+export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
+  constructor(
+    public foreignKey: ForeignKeyInfo,
+    table: TableInfo,
+    db: DatabaseInfo,
+    config: PerspectiveConfig,
+    setConfig: ChangePerspectiveConfigFunc,
+    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    parentNode: PerspectiveTreeNode
+  ) {
+    super(table, db, config, setConfig, loader, parentNode);
+  }
+
+  matchChildRow(parentRow: any, childRow: any): boolean {
+    if (!this.foreignKey) return false;
+    return parentRow[this.foreignKey.columns[0].refColumnName] == childRow[this.foreignKey.columns[0].columnName];
+  }
+
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    if (!this.foreignKey) return null;
+    return {
+      schemaName: this.table.schemaName,
+      pureName: this.table.pureName,
+      bindingColumns: [this.foreignKey.columns[0].columnName],
+      bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
+    };
   }
 }
 
@@ -127,17 +229,18 @@ export function getTableChildPerspectiveNodes(
   db: DatabaseInfo,
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
+  loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
   const res = [];
   res.push(
-    ...table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, parentColumn))
+    ...table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, loader, parentColumn))
   );
   if (db && table.dependencies) {
     for (const fk of table.dependencies) {
       const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, parentColumn));
+      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, loader, parentColumn));
     }
   }
   return res;

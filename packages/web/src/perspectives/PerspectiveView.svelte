@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { getTableChildPerspectiveNodes, PerspectiveTableColumnNode } from 'dbgate-datalib';
+  import {
+    getTableChildPerspectiveNodes,
+    PerspectiveDataLoadProps,
+    PerspectiveTableColumnNode,
+    PerspectiveTableNode,
+  } from 'dbgate-datalib';
 
   import _ from 'lodash';
 
@@ -10,7 +15,9 @@
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import PerspectiveTree from './PerspectiveTree.svelte';
-  import PerspectiveCore from './PerspectiveCore.svelte';
+  import PerspectiveTable from './PerspectiveTable.svelte';
+  import { apiCall } from '../utility/api';
+  import { Select } from 'dbgate-sqltree';
 
   export let conid;
   export let database;
@@ -39,36 +46,70 @@
   // $: console.log('tableInfo', $tableInfo);
   // $: console.log('viewInfo', $viewInfo);
 
-  function getTableNodes(table, dbInfo, config, setConfig) {
-    return getTableChildPerspectiveNodes(table, dbInfo, config, setConfig, null);
+  // function getTableNodes(table, dbInfo, config, setConfig) {
+  //   return getTableChildPerspectiveNodes(table, dbInfo, config, setConfig, null);
+  // }
+
+  // function getViewNodes(view, dbInfo, config, setConfig) {
+  //   return [];
+  // }
+
+  // // $: console.log('CFG', config);
+
+  // $: nodes = $tableInfo
+  //   ? getTableNodes($tableInfo, $dbInfo, config, setConfig)
+  //   : $viewInfo
+  //   ? getViewNodes($viewInfo, $dbInfo, config, setConfig)
+  //   : null;
+
+  async function loader(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns, bindingValues } = props;
+    const select: Select = {
+      commandType: 'select',
+      from: {
+        name: { schemaName, pureName },
+      },
+      selectAll: true,
+    };
+    if (bindingColumns?.length == 1) {
+      select.where = {
+        conditionType: 'in',
+        expr: {
+          exprType: 'column',
+          columnName: bindingColumns[0],
+          source: {
+            name: { schemaName, pureName },
+          },
+        },
+        values: bindingValues,
+      };
+    }
+    const response = await apiCall('database-connections/sql-select', {
+      conid,
+      database,
+      select,
+    });
+
+    if (response.errorMessage) return response;
+    return response.rows;
   }
 
-  function getViewNodes(view, dbInfo, config, setConfig) {
-    return [];
-  }
-
-  // $: console.log('CFG', config);
-
-  $: nodes = $tableInfo
-    ? getTableNodes($tableInfo, $dbInfo, config, setConfig)
-    : $viewInfo
-    ? getViewNodes($viewInfo, $dbInfo, config, setConfig)
-    : null;
+  $: root = $tableInfo ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, loader as any, null) : null;
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height="45%">
-        {#if nodes}
-          <PerspectiveTree {nodes} />
+        {#if root}
+          <PerspectiveTree {root} />
         {/if}
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>
 
   <svelte:fragment slot="2">
-    <PerspectiveCore />
+    <PerspectiveTable {root} />
   </svelte:fragment>
 </HorizontalSplitter>
 

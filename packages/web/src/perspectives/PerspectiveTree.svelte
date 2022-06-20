@@ -1,7 +1,7 @@
 <script lang="ts">
   import PerspectiveNodeRow from './PerspectiveNodeRow.svelte';
 
-  export let nodes = [];
+  export let root;
 
   function processFlatColumns(res, columns) {
     for (const col of columns) {
@@ -12,13 +12,13 @@
     }
   }
 
-  function getFlatColumns(columns) {
+  function getFlatColumns(root) {
     const res = [];
-    processFlatColumns(res, columns);
+    processFlatColumns(res, root?.childNodes || []);
     return res;
   }
 </script>
 
-{#each getFlatColumns(nodes) as node}
+{#each getFlatColumns(root) as node}
   <PerspectiveNodeRow {node} />
 {/each}

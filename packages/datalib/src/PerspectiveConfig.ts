@@ -1,16 +1,14 @@
 export interface PerspectiveConfig {
-  hiddenColumns: string[];
-  shownColumns: string[];
   expandedColumns: string[];
-  collapsedColumns: string[];
+  checkedColumns: string[];
+  uncheckedColumns: string[];
 }
 
 export function createPerspectiveConfig(): PerspectiveConfig {
   return {
-    hiddenColumns: [],
-    shownColumns: [],
     expandedColumns: [],
-    collapsedColumns: [],
+    checkedColumns: [],
+    uncheckedColumns: [],
   };
 }
 
