@@ -344,7 +344,8 @@
   export let collapsedLeftColumnStore;
   export let multipleGridsOnTab = false;
   export let tabControlHiddenTab = false;
-  export let onCustomGridRefresh;
+  export let onCustomGridRefresh = null;
+  export let onOpenQuery = null;
   export let useEvalFilters = false;
   export let jslid;
   // export let generalAllowSave = false;
@@ -1488,8 +1489,11 @@
   <div>
     <ErrorInfo message={errorMessage} alignTop />
     <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
-      <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
-      </div>
+    <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
+    {#if onOpenQuery}
+      <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+    {/if}
+  </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
   <div>
     <ErrorInfo

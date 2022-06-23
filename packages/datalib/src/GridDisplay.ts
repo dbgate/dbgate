@@ -194,12 +194,14 @@ export abstract class GridDisplay {
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, (expr: Expression) => {
-              if (expr.exprType == 'placeholder')
-                return {
-                  exprType: 'column',
-                  columnName: column.columnName,
-                  source: { alias: column.sourceAlias },
-                };
+              if (expr.exprType == 'placeholder') {
+                return this.createColumnExpression(column, { alias: column.sourceAlias });
+              }
+              // return {
+              //   exprType: 'column',
+              //   columnName: column.columnName,
+              //   source: { alias: column.sourceAlias },
+              // };
             })
           );
         }
