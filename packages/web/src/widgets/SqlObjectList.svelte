@@ -145,7 +145,7 @@
           data.objectTypeField == 'tables' || data.objectTypeField == 'views' || data.objectTypeField == 'matviews'}
         expandIconFunc={chevronExpandIcon}
         {filter}
-        passProps={{ showPinnedInsteadOfUnpin: true }}
+        passProps={{ showPinnedInsteadOfUnpin: true, connection: $connection }}
       />
     {/if}
   </WidgetsInnerContainer>

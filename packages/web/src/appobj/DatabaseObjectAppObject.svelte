@@ -47,18 +47,22 @@
       {
         label: 'Drop table',
         isDrop: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Rename table',
         isRename: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Create table backup',
         isDuplicateTable: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Query designer',
         isQueryDesigner: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Show diagram',
@@ -75,6 +79,7 @@
       {
         label: 'Import',
         isImport: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Open as data sheet',
@@ -613,7 +618,7 @@
     );
   }
 
-  export function createDatabaseObjectMenu(data) {
+  export function createDatabaseObjectMenu(data, connection = null) {
     const { objectTypeField } = data;
     return menus[objectTypeField]
       .filter(x => x)
@@ -652,6 +657,9 @@
           );
         }
 
+        if (connection?.isReadOnly && menu.requiresWriteAccess) {
+          return null;
+        }
         return {
           text: menu.label,
           onClick: () => {
@@ -712,7 +720,7 @@
   }
 
   function createMenu() {
-    return createDatabaseObjectMenu(data);
+    return createDatabaseObjectMenu(data, passProps?.connection);
   }
 
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));
