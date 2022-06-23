@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
+import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc, createGridConfig } from './GridConfig';
 import {
   ForeignKeyInfo,
   TableInfo,
@@ -194,12 +194,14 @@ export abstract class GridDisplay {
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, (expr: Expression) => {
-              if (expr.exprType == 'placeholder')
-                return {
-                  exprType: 'column',
-                  columnName: column.columnName,
-                  source: { alias: column.sourceAlias },
-                };
+              if (expr.exprType == 'placeholder') {
+                return this.createColumnExpression(column, { alias: column.sourceAlias });
+              }
+              // return {
+              //   exprType: 'column',
+              //   columnName: column.columnName,
+              //   source: { alias: column.sourceAlias },
+              // };
             })
           );
         }
@@ -442,6 +444,11 @@ export abstract class GridDisplay {
       ...cfg,
       filters: {},
     }));
+    this.reload();
+  }
+
+  resetConfig() {
+    this.setConfig(cfg => createGridConfig());
     this.reload();
   }
 

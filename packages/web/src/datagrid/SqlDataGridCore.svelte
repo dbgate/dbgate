@@ -224,4 +224,5 @@
   frameSelection={!!macroPreview}
   {grider}
   {display}
+  onOpenQuery={openQuery}
 />

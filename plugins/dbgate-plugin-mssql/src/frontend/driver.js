@@ -86,6 +86,24 @@ const dialect = {
         },
       };
     }
+    if (dataType && dataType.toUpperCase() == 'XML') {
+      return {
+        exprType: 'call',
+        func: 'CONVERT',
+        alias: alias || columnName,
+        args: [
+          {
+            exprType: 'raw',
+            sql: 'NVARCHAR(MAX)',
+          },
+          {
+            exprType: 'column',
+            columnName,
+            source,
+          },
+        ],
+      };
+    }
   },
 };
 

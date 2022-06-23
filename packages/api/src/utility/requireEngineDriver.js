@@ -16,7 +16,9 @@ function requireEngineDriver(connection) {
   if (engine.includes('@')) {
     const [shortName, packageName] = engine.split('@');
     const plugin = requirePlugin(packageName);
-    return plugin.drivers.find(x => x.engine == engine);
+    if (plugin.drivers) {
+      return plugin.drivers.find(x => x.engine == engine);
+    }
   }
   throw new Error(`Could not find engine driver ${engine}`);
 }
