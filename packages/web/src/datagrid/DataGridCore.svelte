@@ -1485,7 +1485,11 @@
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
   <LoadingInfo wrapper message="Waiting for structure" />
 {:else if errorMessage}
-  <ErrorInfo message={errorMessage} alignTop />
+  <div>
+    <ErrorInfo message={errorMessage} alignTop />
+    <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
+      <FormStyledButton value="Reset view" on:click={() => display.resetConfig()} />
+      </div>
 {:else if isDynamicStructure && isLoadedAll && grider?.rowCount == 0}
   <div>
     <ErrorInfo

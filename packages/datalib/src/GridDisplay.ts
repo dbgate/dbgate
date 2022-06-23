@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
+import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc, createGridConfig } from './GridConfig';
 import {
   ForeignKeyInfo,
   TableInfo,
@@ -442,6 +442,11 @@ export abstract class GridDisplay {
       ...cfg,
       filters: {},
     }));
+    this.reload();
+  }
+
+  resetConfig() {
+    this.setConfig(cfg => createGridConfig());
     this.reload();
   }
 
