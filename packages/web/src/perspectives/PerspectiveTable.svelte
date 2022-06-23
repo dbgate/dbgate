@@ -26,7 +26,7 @@
     } else {
       for (const parentRow of parentRows) {
         const childRows = rows.filter(row => node.matchChildRow(parentRow, row));
-        parentRow[node.codeName] = childRows;
+        parentRow[node.fieldName] = childRows;
       }
     }
 

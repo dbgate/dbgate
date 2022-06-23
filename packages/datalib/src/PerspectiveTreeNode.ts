@@ -49,6 +49,9 @@ export abstract class PerspectiveTreeNode {
   abstract get isExpandable();
   abstract get childNodes(): PerspectiveTreeNode[];
   abstract get icon(): string;
+  get fieldName() {
+    return this.codeName;
+  }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
     return this.parentNode == null;
@@ -136,6 +139,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
   get codeName() {
     return this.column.columnName;
+  }
+
+  get fieldName() {
+    return this.codeName + 'Ref';
   }
 
   get title() {
