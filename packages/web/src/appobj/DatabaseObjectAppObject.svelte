@@ -463,12 +463,8 @@
       showModal(ConfirmModal, {
         message: `Really drop collection ${data.pureName}?`,
         onConfirm: async () => {
+          saveScriptToDatabase(_.pick(data, ['conid', 'database']), `db.dropCollection('${data.pureName}')`);
           const dbid = _.pick(data, ['conid', 'database']);
-          await apiCall('database-connections/run-script', {
-            ...dbid,
-            sql: `db.dropCollection('${data.pureName}')`,
-          });
-          apiCall('database-connections/sync-model', dbid);
         },
       });
     } else if (menu.isRenameCollection) {
@@ -515,8 +511,7 @@
       showModal(ConfirmSqlModal, {
         sql: dmp.s,
         onConfirm: async () => {
-          const resp = await apiCall('database-connections/run-script', { conid, database, sql: dmp.s });
-          await apiCall('database-connections/sync-model', { conid, database });
+          saveScriptToDatabase({ conid, database }, dmp.s);
         },
         engine: driver.engine,
       });
@@ -700,7 +695,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
