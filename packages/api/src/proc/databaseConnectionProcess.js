@@ -156,11 +156,11 @@ function resolveAnalysedPromises() {
   afterAnalyseCallbacks = [];
 }
 
-async function handleRunScript({ msgid, sql }) {
+async function handleRunScript({ msgid, sql }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
-    ensureExecuteCustomScript(driver);
+    if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     await driver.script(systemConnection, sql);
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
@@ -168,11 +168,11 @@ async function handleRunScript({ msgid, sql }) {
   }
 }
 
-async function handleQueryData({ msgid, sql }) {
+async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
-    ensureExecuteCustomScript(driver);
+    if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
     const res = await driver.query(systemConnection, sql);
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
@@ -184,7 +184,7 @@ async function handleSqlSelect({ msgid, select }) {
   const driver = requireEngineDriver(storedConnection);
   const dmp = driver.createDumper();
   dumpSqlSelect(dmp, select);
-  return handleQueryData({ msgid, sql: dmp.s });
+  return handleQueryData({ msgid, sql: dmp.s }, true);
 }
 
 async function handleDriverDataCore(msgid, callMethod) {
