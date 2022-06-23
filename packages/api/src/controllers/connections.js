@@ -166,9 +166,11 @@ module.exports = {
 
   list_meta: true,
   async list() {
-    return portalConnections && !platformInfo.allowShellConnection
-      ? portalConnections.map(maskConnection)
-      : this.datastore.find();
+    if (portalConnections) {
+      if (platformInfo.allowShellConnection) return portalConnections;
+      return portalConnections.map(maskConnection);
+    }
+    return this.datastore.find();
   },
 
   test_meta: true,
