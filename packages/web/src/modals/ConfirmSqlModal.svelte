@@ -1,3 +1,21 @@
+<script context='module'>
+  export function saveScriptToDatabase({ conid, database }, sql, syncModel = true) {
+    await apiCall('database-connections/run-script', {
+        conid,
+        database,
+        sql,
+    });
+
+    const { errorMessage } = resp || {};
+    if (errorMessage) {
+        showModal(ErrorMessageModal, { title: 'Error when executing script', message: errorMessage });
+    } else {
+        showSnackbarSuccess('Saved to database');
+        if (syncModel) apiCall('database-connections/sync-model', { conid, database });
+    }
+  }
+</script>
+
 <script>
   import _, { startsWith } from 'lodash';
   import { writable } from 'svelte/store';
