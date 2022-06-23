@@ -3,6 +3,7 @@
     // groupPerspectiveLoadProps,
     PerspectiveDataLoadProps,
     PerspectiveDataLoadPropsWithNode,
+    PerspectiveDisplay,
     PerspectiveTreeNode,
   } from 'dbgate-datalib';
   import _ from 'lodash';
@@ -10,13 +11,13 @@
   import { prop_dev } from 'svelte/internal';
 
   export let root: PerspectiveTreeNode;
+  let dataRows;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[]) {
     // const loadProps: PerspectiveDataLoadPropsWithNode[] = [];
     const loadChildNodes = [];
     const loadChildRows = [];
     const loadProps = node.getNodeLoadProps(parentRows);
-    console.log('LOADER', loadProps.pureName);
     const rows = await node.loader(loadProps);
     // console.log('ROWS', rows, node.isRoot);
 
@@ -58,7 +59,8 @@
     if (!node) return;
     const rows = [];
     await loadLevelData(node, rows);
-    console.log('RESULT', rows);
+    dataRows = rows;
+    // console.log('RESULT', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
     //   const loadProps = [];
@@ -69,8 +71,44 @@
   }
 
   $: loadData(root);
+  $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
 </script>
 
-<table>
-  <tr><td>xxx</td></tr>
-</table>
+<div class="wrapper">
+  {#if display}
+    <table>
+      <thead>
+        <tr>
+          {#each display.columns as column}
+            <th>{column.label}</th>
+          {/each}
+        </tr>
+      </thead>
+      <tbody>
+        {#each display.rows as row}
+          <tr>
+            {#each display.columns as column}
+              <td>{row[column.field]}</td>
+            {/each}
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  {/if}
+</div>
+
+<style>
+  .wrapper {
+    overflow: scroll;
+  }
+
+  table {
+    border: 1px solid;
+    border-collapse: collapse;
+  }
+
+  td,
+  th {
+    border: 1px solid;
+  }
+</style>

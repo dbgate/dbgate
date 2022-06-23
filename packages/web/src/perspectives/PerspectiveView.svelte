@@ -63,13 +63,20 @@
   //   : null;
 
   async function loader(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues } = props;
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
     const select: Select = {
       commandType: 'select',
       from: {
         name: { schemaName, pureName },
       },
-      selectAll: true,
+      columns: dataColumns?.map(columnName => ({
+        exprType: 'column',
+        columnName,
+        source: {
+          name: { schemaName, pureName },
+        },
+      })),
+      selectAll: !dataColumns,
     };
     if (bindingColumns?.length == 1) {
       select.where = {

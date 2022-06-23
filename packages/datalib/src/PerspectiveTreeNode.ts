@@ -7,6 +7,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 export interface PerspectiveDataLoadProps {
   schemaName: string;
   pureName: string;
+  dataColumns: string[];
   bindingColumns?: string[];
   bindingValues?: any[][];
 }
@@ -128,6 +129,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       pureName: this.foreignKey.refTableName,
       bindingColumns: [this.foreignKey.columns[0].refColumnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].columnName]),
+      dataColumns: null,
     };
   }
 
@@ -178,6 +180,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
+      dataColumns: null,
     };
   }
 
@@ -227,6 +230,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       pureName: this.table.pureName,
       bindingColumns: [this.foreignKey.columns[0].columnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
+      dataColumns: null,
     };
   }
 }

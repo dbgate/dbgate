@@ -14,3 +14,4 @@ export * from './FormViewDisplay';
 export * from './TableFormViewDisplay';
 export * from './CollectionGridDisplay';
 export * from './deleteCascade';
+export * from './PerspectiveDisplay';
