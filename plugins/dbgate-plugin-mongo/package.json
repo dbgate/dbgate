@@ -37,7 +37,7 @@
     "webpack-cli": "^3.3.11",
     "dbgate-tools": "^5.0.0-alpha.1",
     "is-promise": "^4.0.0",
-    "mongodb": "^3.6.5",
-    "mongodb-client-encryption": "^1.2.3"
+    "mongodb": "^4.7.0",
+    "mongodb-client-encryption": "^2.1.0"
   }
 }
