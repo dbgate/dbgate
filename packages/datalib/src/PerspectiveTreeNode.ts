@@ -53,6 +53,9 @@ export abstract class PerspectiveTreeNode {
   get fieldName() {
     return this.codeName;
   }
+  get dataField() {
+    return this.codeName;
+  }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
     return this.parentNode == null;
@@ -74,6 +77,9 @@ export abstract class PerspectiveTreeNode {
   }
   get isChecked() {
     return this.config.checkedColumns.includes(this.uniqueName);
+  }
+  get columnTitle() {
+    return this.title;
   }
 
   toggleExpanded(value?: boolean) {
@@ -232,6 +238,10 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
       dataColumns: null,
     };
+  }
+
+  get columnTitle() {
+    return this.table.pureName;
   }
 }
 

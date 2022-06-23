@@ -78,9 +78,15 @@
   {#if display}
     <table>
       <thead>
+        <!-- {#each display.columnLevels as columnLevel}
+        <tr>
+
+        </tr>
+        {/each} -->
+
         <tr>
           {#each display.columns as column}
-            <th>{column.label}</th>
+            <th>{column.title}</th>
           {/each}
         </tr>
       </thead>
@@ -88,7 +94,7 @@
         {#each display.rows as row}
           <tr>
             {#each display.columns as column}
-              <td>{row[column.field]}</td>
+              <td>{row[column.dataField]}</td>
             {/each}
           </tr>
         {/each}
