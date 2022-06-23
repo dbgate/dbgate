@@ -47,18 +47,22 @@
       {
         label: 'Drop table',
         isDrop: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Rename table',
         isRename: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Create table backup',
         isDuplicateTable: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Query designer',
         isQueryDesigner: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Show diagram',
@@ -75,6 +79,7 @@
       {
         label: 'Import',
         isImport: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Open as data sheet',
@@ -475,12 +480,8 @@
       showModal(ConfirmModal, {
         message: `Really drop collection ${data.pureName}?`,
         onConfirm: async () => {
+          saveScriptToDatabase(_.pick(data, ['conid', 'database']), `db.dropCollection('${data.pureName}')`);
           const dbid = _.pick(data, ['conid', 'database']);
-          await apiCall('database-connections/run-script', {
-            ...dbid,
-            sql: `db.dropCollection('${data.pureName}')`,
-          });
-          apiCall('database-connections/sync-model', dbid);
         },
       });
     } else if (menu.isRenameCollection) {
@@ -527,8 +528,7 @@
       showModal(ConfirmSqlModal, {
         sql: dmp.s,
         onConfirm: async () => {
-          const resp = await apiCall('database-connections/run-script', { conid, database, sql: dmp.s });
-          await apiCall('database-connections/sync-model', { conid, database });
+          saveScriptToDatabase({ conid, database }, dmp.s);
         },
         engine: driver.engine,
       });
@@ -630,7 +630,7 @@
     );
   }
 
-  export function createDatabaseObjectMenu(data) {
+  export function createDatabaseObjectMenu(data, connection = null) {
     const { objectTypeField } = data;
     return menus[objectTypeField]
       .filter(x => x)
@@ -669,6 +669,9 @@
           );
         }
 
+        if (connection?.isReadOnly && menu.requiresWriteAccess) {
+          return null;
+        }
         return {
           text: menu.label,
           onClick: () => {
@@ -712,7 +715,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import createQuickExportMenu from '../utility/createQuickExportMenu';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { alterDatabaseDialog, renameDatabaseObjectDialog } from '../utility/alterDatabaseTools';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
@@ -729,7 +732,7 @@
   }
 
   function createMenu() {
-    return createDatabaseObjectMenu(data);
+    return createDatabaseObjectMenu(data, passProps?.connection);
   }
 
   $: isPinned = !!$pinnedTables.find(x => testEqual(data, x));

@@ -1,3 +1,21 @@
+<script context="module">
+  export async function saveScriptToDatabase({ conid, database }, sql, syncModel = true) {
+    const resp = await apiCall('database-connections/run-script', {
+      conid,
+      database,
+      sql,
+    });
+
+    const { errorMessage } = resp || {};
+    if (errorMessage) {
+      showModal(ErrorMessageModal, { title: 'Error when executing script', message: errorMessage });
+    } else {
+      showSnackbarSuccess('Saved to database');
+      if (syncModel) apiCall('database-connections/sync-model', { conid, database });
+    }
+  }
+</script>
+
 <script>
   import _, { startsWith } from 'lodash';
   import { writable } from 'svelte/store';
@@ -8,9 +26,12 @@
   import FontIcon from '../icons/FontIcon.svelte';
   import newQuery from '../query/newQuery';
   import SqlEditor from '../query/SqlEditor.svelte';
+  import { apiCall } from '../utility/api';
+  import { showSnackbarSuccess } from '../utility/snackbar';
+  import ErrorMessageModal from './ErrorMessageModal.svelte';
 
   import ModalBase from './ModalBase.svelte';
-  import { closeCurrentModal } from './modalTools';
+  import { closeCurrentModal, showModal } from './modalTools';
 
   export let sql;
   export let onConfirm;

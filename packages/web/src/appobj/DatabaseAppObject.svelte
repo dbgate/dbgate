@@ -83,12 +83,7 @@
         label: 'New collection name',
         header: 'Create collection',
         onConfirm: async newCollection => {
-          const dbid = { conid: connection._id, database: name };
-          await apiCall('database-connections/run-script', {
-            ...dbid,
-            sql: `db.createCollection('${newCollection}')`,
-          });
-          await apiCall('database-connections/sync-model', dbid);
+          saveScriptToDatabase({ conid: connection._id, database: name }, `db.createCollection('${newCollection}')`);
         },
       });
     };
@@ -224,13 +219,7 @@
     };
 
     async function handleConfirmSql(sql) {
-      const resp = await apiCall('database-connections/run-script', { conid: connection._id, database: name, sql });
-      const { errorMessage } = resp || {};
-      if (errorMessage) {
-        showModal(ErrorMessageModal, { title: 'Error when executing script', message: errorMessage });
-      } else {
-        showSnackbarSuccess('Saved to database');
-      }
+      saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
 
     const driver = findEngineDriver(connection, getExtensions());
@@ -317,14 +306,14 @@
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import { apiCall } from '../utility/api';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import ConfirmSqlModal from '../modals/ConfirmSqlModal.svelte';
+  import ConfirmSqlModal, { saveScriptToDatabase } from '../modals/ConfirmSqlModal.svelte';
   import { filterAppsForDatabase } from '../utility/appTools';
   import newQuery from '../query/newQuery';
   import { exportSqlDump } from '../utility/exportFileTools';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
 
   export let data;
   export let passProps;
