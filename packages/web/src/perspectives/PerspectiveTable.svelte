@@ -6,7 +6,7 @@
     PerspectiveDisplay,
     PerspectiveTreeNode,
   } from 'dbgate-datalib';
-  import _ from 'lodash';
+  import _, { range } from 'lodash';
   import { onMount } from 'svelte';
   import { prop_dev } from 'svelte/internal';
 
@@ -60,7 +60,8 @@
     const rows = [];
     await loadLevelData(node, rows);
     dataRows = rows;
-    // console.log('RESULT', rows);
+
+    console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
     //   const loadProps = [];
@@ -78,17 +79,18 @@
   {#if display}
     <table>
       <thead>
-        <!-- {#each display.columnLevels as columnLevel}
-        <tr>
-
-        </tr>
-        {/each} -->
-
-        <tr>
-          {#each display.columns as column}
-            <th>{column.title}</th>
-          {/each}
-        </tr>
+        {#each _.range(display.columnLevelCount) as columnLevel}
+          <tr>
+            {#each display.columns as column}
+              {#if column.isVisible(columnLevel)}
+                <th rowspan={column.rowSpan}>{column.title}</th>
+              {/if}
+              {#if column.showParent(columnLevel)}
+                <th colspan={column.getColSpan(columnLevel)}>{column.parentColumns[columnLevel]}</th>
+              {/if}
+            {/each}
+          </tr>
+        {/each}
       </thead>
       <tbody>
         {#each display.rows as row}
