@@ -96,7 +96,10 @@
         {#each display.rows as row}
           <tr>
             {#each display.columns as column}
-              <td>{row.rowData[column.columnIndex]}</td>
+              <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
+              {#if row.rowData[column.columnIndex] !== undefined}
+                <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
+              {/if}
             {/each}
           </tr>
         {/each}

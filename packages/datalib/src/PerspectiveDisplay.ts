@@ -58,6 +58,7 @@ interface CollectedPerspectiveDisplayRow {
 export class PerspectiveDisplayRow {
   constructor(public display: PerspectiveDisplay) {
     this.rowData = _fill(Array(display.columns.length), undefined);
+    this.rowSpans = _fill(Array(display.columns.length), 1);
   }
 
   getRow(rowIndex): PerspectiveDisplayRow {
@@ -68,7 +69,7 @@ export class PerspectiveDisplayRow {
     return this.subrows[rowIndex - 1];
   }
 
-  subrows: PerspectiveDisplayRow[] = [];
+  subrows?: PerspectiveDisplayRow[] = [];
 
   rowData: any[] = [];
   rowSpans: number[] = null;
@@ -180,6 +181,22 @@ export class PerspectiveDisplay {
     }
   }
 
+  fillRowSpans() {
+    const lastFilledColumns = _fill(Array(this.columns.length), 0);
+    let rowIndex = 0;
+    for (const row of this.rows) {
+      for (let i = 0; i < this.columns.length; i++) {
+        if (row.rowData[i] !== undefined) {
+          if (rowIndex - lastFilledColumns[i] > 1) {
+            this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
+          }
+          lastFilledColumns[i] = rowIndex;
+        }
+      }
+      rowIndex++;
+    }
+  }
+
   mergeRows(collectedRows: CollectedPerspectiveDisplayRow[]) {
     const rows = [];
     for (const collectedRow of collectedRows) {
@@ -190,6 +207,10 @@ export class PerspectiveDisplay {
     for (const row of rows) {
       this.flushFlatRows(row);
     }
+    for (const row of this.rows) {
+      delete row.subrows;
+    }
+    this.fillRowSpans();
   }
 
   mergeRow(collectedRow: CollectedPerspectiveDisplayRow, resultRow: PerspectiveDisplayRow) {
