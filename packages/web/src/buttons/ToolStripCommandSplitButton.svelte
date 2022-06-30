@@ -5,7 +5,16 @@
   import ToolStripSplitDropDownButton from './ToolStripSplitDropDownButton.svelte';
 
   export let commands;
-  $: menu = _.compact(commands).map(command => ({ command }));
+  export let hideDisabled = false;
+  export let buttonLabel = null;
+
+  $: menu = _.compact(commands).map(command => (_.isString(command) ? { command } : command));
 </script>
 
-<ToolStripCommandButton command={commands[0]} component={ToolStripSplitDropDownButton} {menu} />
+<ToolStripCommandButton
+  command={commands[0]}
+  component={ToolStripSplitDropDownButton}
+  {menu}
+  {hideDisabled}
+  {buttonLabel}
+/>

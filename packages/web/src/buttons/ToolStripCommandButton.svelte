@@ -16,6 +16,7 @@
   export let command;
   export let component = ToolStripButton;
   export let hideDisabled = false;
+  export let buttonLabel = null;
 
   $: cmd = Object.values($commandsCustomized).find((x: any) => x.id == command) as any;
 </script>
@@ -29,6 +30,6 @@
     disabled={!cmd.enabled}
     {...$$restProps}
   >
-    {cmd.toolbarName || cmd.name}
+    {buttonLabel || cmd.toolbarName || cmd.name}
   </svelte:component>
 {/if}
