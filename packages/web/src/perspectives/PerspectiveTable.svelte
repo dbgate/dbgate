@@ -12,6 +12,7 @@
 
   export let root: PerspectiveTreeNode;
   let dataRows;
+  let domWrapper;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[]) {
     // const loadProps: PerspectiveDataLoadPropsWithNode[] = [];
@@ -71,11 +72,16 @@
     // }
   }
 
+  function handleScroll() {
+    const translate = 'translate(0,' + domWrapper.scrollTop + 'px)';
+    domWrapper.querySelector('thead').style.transform = translate;
+  }
+
   $: loadData(root);
   $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
 </script>
 
-<div class="wrapper">
+<div class="wrapper" on:scroll={handleScroll} bind:this={domWrapper}>
   {#if display}
     <table>
       <thead>
@@ -111,13 +117,16 @@
 <style>
   .wrapper {
     overflow: scroll;
+    flex: 1;
+    display: flex;
   }
 
   table {
     /* position: absolute;
     left: 0;
     top: 0;
-    bottom: 20px; */
+    bottom: 0;
+    right: 0; */
     overflow: scroll;
     border-collapse: collapse;
     outline: none;
@@ -137,13 +146,12 @@
     border: 1px solid var(--theme-border);
     background-color: var(--theme-bg-0);
     padding: 2px;
-    white-space: nowrap;
     position: relative;
     overflow: hidden;
     vertical-align: top;
   }
 
-/* 
+  /* 
   table {
     border: 1px solid;
     border-collapse: collapse;
