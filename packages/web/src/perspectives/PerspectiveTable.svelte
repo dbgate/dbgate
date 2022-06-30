@@ -33,7 +33,7 @@
 
     for (const child of node.childNodes) {
       if (child.isExpandable && child.isChecked) {
-        loadLevelData(child, rows);
+        await loadLevelData(child, rows);
         // loadProps.push(child.getNodeLoadProps());
       }
     }
@@ -86,7 +86,7 @@
                 <th rowspan={column.rowSpan}>{column.title}</th>
               {/if}
               {#if column.showParent(columnLevel)}
-                <th colspan={column.getColSpan(columnLevel)}>{column.parentColumns[columnLevel]}</th>
+                <th colspan={column.getColSpan(columnLevel)}>{column.getParentName(columnLevel)}</th>
               {/if}
             {/each}
           </tr>
