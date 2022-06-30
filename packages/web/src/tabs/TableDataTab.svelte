@@ -98,6 +98,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
+  import { getIntSettingsValue } from '../settings/settingsTools';
 
   export let tabid;
   export let conid;
@@ -111,7 +112,7 @@
   const cache = writable(createGridCache());
   const dbinfo = useDatabaseInfo({ conid, database });
 
-  let autoRefreshInterval = 10;
+  let autoRefreshInterval = getIntSettingsValue('dataGrid.defaultAutoRefreshInterval', 10, 1, 3600);
   let autoRefreshStarted = false;
   let autoRefreshTimer = null;
 
