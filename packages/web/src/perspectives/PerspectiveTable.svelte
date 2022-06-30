@@ -96,7 +96,7 @@
         {#each display.rows as row}
           <tr>
             {#each display.columns as column}
-              <td>{row[column.dataField]}</td>
+              <td>{row.rowData[column.columnIndex]}</td>
             {/each}
           </tr>
         {/each}

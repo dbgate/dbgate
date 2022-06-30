@@ -1,4 +1,4 @@
-import { PerspectiveTableNode, PerspectiveTreeNode } from './PerspectiveTreeNode';
+import { getTableChildPerspectiveNodes, PerspectiveTableNode, PerspectiveTreeNode } from './PerspectiveTreeNode';
 import _max from 'lodash/max';
 import _range from 'lodash/max';
 import _fill from 'lodash/fill';
@@ -43,21 +43,32 @@ export class PerspectiveDisplayColumn {
   // }
 }
 
-class PerspectiveSubRowCollection {
-  rows: CollectedPerspectiveDisplayRow[] = [];
-  // startIndex = 0;
+interface PerspectiveSubRowCollection {
+  rows: CollectedPerspectiveDisplayRow[];
 }
 
-export class CollectedPerspectiveDisplayRow {
+interface CollectedPerspectiveDisplayRow {
   // startIndex = 0;
-  columnIndexes: number[] = [];
-  rowData: any[] = [];
+  columnIndexes: number[];
+  rowData: any[];
   // rowSpans: number[] = null;
-  subRowCollections: PerspectiveSubRowCollection[] = [];
+  subRowCollections: PerspectiveSubRowCollection[];
 }
 
 export class PerspectiveDisplayRow {
-  constructor(public display: PerspectiveDisplay) {}
+  constructor(public display: PerspectiveDisplay) {
+    this.rowData = _fill(Array(display.columns.length), undefined);
+  }
+
+  getRow(rowIndex): PerspectiveDisplayRow {
+    if (rowIndex == 0) return this;
+    while (this.subrows.length < rowIndex) {
+      this.subrows.push(new PerspectiveDisplayRow(this.display));
+    }
+    return this.subrows[rowIndex - 1];
+  }
+
+  subrows: PerspectiveDisplayRow[] = [];
 
   rowData: any[] = [];
   rowSpans: number[] = null;
@@ -74,6 +85,8 @@ export class PerspectiveDisplay {
     const collectedRows = this.collectRows(rows, root.childNodes);
     console.log('COLLECTED', collectedRows);
     // this.mergeRows(collectedRows);
+    this.mergeRows(collectedRows);
+    console.log('MERGED', this.rows);
   }
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
@@ -128,10 +141,9 @@ export class PerspectiveDisplay {
     const res: CollectedPerspectiveDisplayRow[] = [];
     for (const sourceRow of sourceRows) {
       // console.log('PROCESS SOURCE', sourceRow);
-      const row = new CollectedPerspectiveDisplayRow();
       // row.startIndex = startIndex;
-      row.rowData = columnNodes.map(node => sourceRow[node.codeName]);
-      row.columnIndexes = columnIndexes;
+      const rowData = columnNodes.map(node => sourceRow[node.codeName]);
+      const subRowCollections = [];
 
       for (const node of treeNodes) {
         // if (sourceRow.AlbumId == 1) {
@@ -144,42 +156,95 @@ export class PerspectiveDisplay {
         // }
         // console.log('sourceRow[node.fieldName]', sourceRow[node.fieldName]);
         if (sourceRow[node.fieldName]) {
-          const subrows = new PerspectiveSubRowCollection();
-          // subrows.startIndex = nodeStartIndexes.get(node);
-          subrows.rows = this.collectRows(sourceRow[node.fieldName], node.childNodes);
-          row.subRowCollections.push(subrows);
+          const subrows = {
+            rows: this.collectRows(sourceRow[node.fieldName], node.childNodes),
+          };
+          subRowCollections.push(subrows);
         }
       }
 
-      res.push(row);
+      res.push({
+        rowData,
+        columnIndexes,
+        subRowCollections,
+      });
     }
 
     return res;
   }
 
-  // mergeRows(rows: PerspectiveDisplayRow[]) {}
+  flushFlatRows(row: PerspectiveDisplayRow) {
+    this.rows.push(row);
+    for (const child of row.subrows) {
+      this.flushFlatRows(child);
+    }
+  }
 
-  // flattenRows(sourceRow: CollectedPerspectiveDisplayRow) {
-  //   let rowIndex = 0;
+  mergeRows(collectedRows: CollectedPerspectiveDisplayRow[]) {
+    const rows = [];
+    for (const collectedRow of collectedRows) {
+      const resultRow = new PerspectiveDisplayRow(this);
+      this.mergeRow(collectedRow, resultRow);
+      rows.push(resultRow);
+    }
+    for (const row of rows) {
+      this.flushFlatRows(row);
+    }
+  }
+
+  mergeRow(collectedRow: CollectedPerspectiveDisplayRow, resultRow: PerspectiveDisplayRow) {
+    for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
+      resultRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
+    }
+
+    for (const subrows of collectedRow.subRowCollections) {
+      let rowIndex = 0;
+      for (const subrow of subrows.rows) {
+        const targetRow = resultRow.getRow(rowIndex);
+        this.mergeRow(subrow, targetRow);
+        rowIndex++;
+      }
+    }
+  }
+
+  // rowToFlatRows(sourceRow: CollectedPerspectiveDisplayRow) {
   //   const res = [];
-  //   while (true) {
-  //     const row = new PerspectiveDisplayRow(this);
-  //     row.rowData = _fill(Array(this.columns.length), undefined);
-  //     row.rowSpans = _fill(Array(this.columns.length), 0);
-  //     for (let colIndex = 0; colIndex < this.columns.length; colIndex++) {
-  //       if (colIndex < sourceRow.startIndex) {
-  //         continue;
-  //       }
-  //       if (colIndex < sourceRow.startIndex + sourceRow.rowData.length) {
-  //         if (rowIndex == 0) {
-  //           row.rowData[colIndex] = sourceRow.rowData[sourceRow.startIndex + colIndex];
-  //           row.rowSpans[colIndex] = 1;
-  //         } else {
-  //           row.rowSpans[colIndex] += 1;
-  //         }
-  //       }
-  //       const subrows = sourceRow.subRowCollections.find(x=>x.);
+
+  //   const row = new PerspectiveDisplayRow(this);
+  //   row.rowData = _fill(Array(this.columns.length), undefined);
+  //   row.rowSpans = _fill(Array(this.columns.length), 1);
+  //   res.push(row)
+
+  //   for (let i = 0; i < sourceRow.columnIndexes.length; i++) {
+  //     row.rowData[sourceRow.columnIndexes[i]] = sourceRow.rowData[i];
+  //   }
+
+  //   for(const subrows of sourceRow.subRowCollections) {
+  //     let rowIndex=0;
+  //     for(const subrow of subrows.rows) {
+  //       if ()
+  //       rowIndex++;
+
   //     }
   //   }
+
+  //   return res;
+
+  //   // while (true) {
+  //   //   for (let colIndex = 0; colIndex < this.columns.length; colIndex++) {
+  //   //     if (colIndex < sourceRow.startIndex) {
+  //   //       continue;
+  //   //     }
+  //   //     if (colIndex < sourceRow.startIndex + sourceRow.rowData.length) {
+  //   //       if (rowIndex == 0) {
+  //   //         row.rowData[colIndex] = sourceRow.rowData[sourceRow.startIndex + colIndex];
+  //   //         row.rowSpans[colIndex] = 1;
+  //   //       } else {
+  //   //         row.rowSpans[colIndex] += 1;
+  //   //       }
+  //   //     }
+  //   //     const subrows = sourceRow.subRowCollections.find(x=>x.);
+  //   //   }
+  //   // }
   // }
 }
