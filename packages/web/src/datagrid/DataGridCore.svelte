@@ -5,7 +5,7 @@
     id: 'dataGrid.refresh',
     category: 'Data grid',
     name: 'Refresh',
-    keyText: 'F5',
+    keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
@@ -17,7 +17,7 @@
     id: 'dataGrid.revertRowChanges',
     category: 'Data grid',
     name: 'Revert row changes',
-    keyText: 'CtrlOrCommand+R',
+    keyText: 'CtrlOrCommand+U',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertRowChanges(),
   });
