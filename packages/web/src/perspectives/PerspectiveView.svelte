@@ -18,6 +18,7 @@
   import PerspectiveTable from './PerspectiveTable.svelte';
   import { apiCall } from '../utility/api';
   import { Select } from 'dbgate-sqltree';
+import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
 
   export let conid;
   export let database;
@@ -108,9 +109,11 @@
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height="45%">
-        {#if root}
-          <PerspectiveTree {root} />
-        {/if}
+        <ManagerInnerContainer width={managerSize}>
+          {#if root}
+            <PerspectiveTree {root} />
+          {/if}
+        </ManagerInnerContainer>
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>

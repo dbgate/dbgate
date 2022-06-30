@@ -114,6 +114,37 @@
   }
 
   table {
+    /* position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 20px; */
+    overflow: scroll;
+    border-collapse: collapse;
+    outline: none;
+  }
+  th {
+    border: 1px solid var(--theme-border);
+    text-align: left;
+    padding: 0;
+    margin: 0;
+    background-color: var(--theme-bg-1);
+    overflow: hidden;
+    vertical-align: center;
+  }
+
+  td {
+    font-weight: normal;
+    border: 1px solid var(--theme-border);
+    background-color: var(--theme-bg-0);
+    padding: 2px;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+/* 
+  table {
     border: 1px solid;
     border-collapse: collapse;
   }
@@ -121,5 +152,5 @@
   td,
   th {
     border: 1px solid;
-  }
+  } */
 </style>
