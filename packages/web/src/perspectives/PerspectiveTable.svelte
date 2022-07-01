@@ -9,7 +9,8 @@
   import _, { range } from 'lodash';
   import { onMount } from 'svelte';
   import { prop_dev, tick } from 'svelte/internal';
-import resizeObserver from '../utility/resizeObserver';
+import { sleep } from '../utility/common';
+  import resizeObserver from '../utility/resizeObserver';
 
   export let root: PerspectiveTreeNode;
   let dataRows;
@@ -148,14 +149,14 @@ import resizeObserver from '../utility/resizeObserver';
   .wrapper {
     overflow: scroll;
     flex: 1;
-    display: flex;
   }
 
   .headerWrap {
     position: absolute;
     left: 0;
     top: 0;
-    right: 16px;
+    right: 14px;
+    overflow: hidden;
     z-index: 100;
   }
 
