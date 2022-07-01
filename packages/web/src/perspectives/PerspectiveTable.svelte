@@ -66,7 +66,7 @@ import resizeObserver from '../utility/resizeObserver';
     await loadLevelData(node, rows);
     dataRows = rows;
 
-    console.log('DISPLAY ROWS', rows);
+    // console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
     //   const loadProps = [];
@@ -172,7 +172,7 @@ import resizeObserver from '../utility/resizeObserver';
   th {
     border: 1px solid var(--theme-border);
     text-align: left;
-    padding: 0;
+    padding: 2px;
     margin: 0;
     background-color: var(--theme-bg-1);
     overflow: hidden;

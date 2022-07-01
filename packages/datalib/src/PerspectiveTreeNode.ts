@@ -3,6 +3,9 @@ import { clearConfigCache } from 'prettier';
 import { ChangePerspectiveConfigFunc, PerspectiveConfig } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
+import _compact from 'lodash/compact';
+import _uniq from 'lodash/uniq';
+import _flatten from 'lodash/flatten';
 
 export interface PerspectiveDataLoadProps {
   schemaName: string;
@@ -82,6 +85,21 @@ export abstract class PerspectiveTreeNode {
     return this.title;
   }
 
+  getChildMatchColumns() {
+    return [];
+  }
+
+  getParentMatchColumns() {
+    return [];
+  }
+
+  get childDataColumn() {
+    if (!this.isExpandable && this.isChecked) {
+      return this.codeName;
+    }
+    return null;
+  }
+
   toggleExpanded(value?: boolean) {
     this.includeInColumnSet('expandedColumns', this.uniqueName, value == null ? !this.isExpanded : value);
   }
@@ -102,6 +120,16 @@ export abstract class PerspectiveTreeNode {
         [field]: (cfg[field] || []).filter(x => x != uniqueName),
       }));
     }
+  }
+
+  getDataLoadColumns() {
+    return _compact(
+      _uniq([
+        ...this.childNodes.map(x => x.childDataColumn),
+        ..._flatten(this.childNodes.filter(x => x.isExpandable && x.isChecked).map(x => x.getChildMatchColumns())),
+        ...this.getParentMatchColumns(),
+      ])
+    );
   }
 }
 
@@ -128,6 +156,16 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
   }
 
+  getChildMatchColumns() {
+    if (!this.foreignKey) return [];
+    return [this.foreignKey.columns[0].columnName];
+  }
+
+  getParentMatchColumns() {
+    if (!this.foreignKey) return [];
+    return [this.foreignKey.columns[0].refColumnName];
+  }
+
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
     if (!this.foreignKey) return null;
     return {
@@ -135,7 +173,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       pureName: this.foreignKey.refTableName,
       bindingColumns: [this.foreignKey.columns[0].refColumnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].columnName]),
-      dataColumns: null,
+      dataColumns: this.getDataLoadColumns(),
     };
   }
 
@@ -186,7 +224,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
-      dataColumns: null,
+      dataColumns: this.getDataLoadColumns(),
     };
   }
 
@@ -229,6 +267,16 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     return parentRow[this.foreignKey.columns[0].refColumnName] == childRow[this.foreignKey.columns[0].columnName];
   }
 
+  getChildMatchColumns() {
+    if (!this.foreignKey) return [];
+    return [this.foreignKey.columns[0].refColumnName];
+  }
+
+  getParentMatchColumns() {
+    if (!this.foreignKey) return [];
+    return [this.foreignKey.columns[0].columnName];
+  }
+
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
     if (!this.foreignKey) return null;
     return {
@@ -236,7 +284,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       pureName: this.table.pureName,
       bindingColumns: [this.foreignKey.columns[0].columnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
-      dataColumns: null,
+      dataColumns: this.getDataLoadColumns(),
     };
   }
 

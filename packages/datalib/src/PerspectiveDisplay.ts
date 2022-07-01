@@ -84,10 +84,10 @@ export class PerspectiveDisplay {
     this.fillColumns(root.childNodes, []);
     this.columnLevelCount = _max(this.columns.map(x => x.parentNodes.length)) + 1;
     const collectedRows = this.collectRows(rows, root.childNodes);
-    console.log('COLLECTED', collectedRows);
+    // console.log('COLLECTED', collectedRows);
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
-    console.log('MERGED', this.rows);
+    // console.log('MERGED', this.rows);
   }
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
@@ -125,11 +125,6 @@ export class PerspectiveDisplay {
   collectRows(sourceRows: any[], nodes: PerspectiveTreeNode[]): CollectedPerspectiveDisplayRow[] {
     const columnNodes = nodes.filter(x => x.isChecked && !x.isExpandable);
     const treeNodes = nodes.filter(x => x.isChecked && x.isExpandable);
-
-    console.log(
-      'columnNodes',
-      columnNodes.map(x => x.fieldName)
-    );
 
     const columnIndexes = columnNodes.map(node => this.findColumnIndexFromNode(node));
 
