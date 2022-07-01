@@ -9,6 +9,7 @@
   import _, { range } from 'lodash';
   import { onMount } from 'svelte';
   import { prop_dev, tick } from 'svelte/internal';
+import resizeObserver from '../utility/resizeObserver';
 
   export let root: PerspectiveTreeNode;
   let dataRows;
@@ -87,9 +88,11 @@
     const sourceCells = domTableHead.querySelectorAll('th');
     const targetCells = theadClone.querySelectorAll('th');
     domHeaderWrap.appendChild(theadClone);
-    for (const [src, dst] of _.zip(sourceCells, targetCells)) {
-      // @ts-ignore
-      dst.style.width = `${src.getBoundingClientRect().width}px`;
+    for (const pair of _.zip(sourceCells, targetCells)) {
+      const [src, dst]: [any, any] = pair;
+      dst.style.width = `${src.getBoundingClientRect().width - 1}px`;
+      dst.style.minWidth = `${src.getBoundingClientRect().width - 1}px`;
+      dst.style.maxWidth = `${src.getBoundingClientRect().width - 1}px`;
     }
   }
 
@@ -104,9 +107,11 @@
   }
 </script>
 
-<div class="headerWrap" bind:this={domHeaderWrap} />
+<div class="headerWrap">
+  <table bind:this={domHeaderWrap} />
+</div>
 
-<div class="wrapper" bind:this={domWrapper}>
+<div class="wrapper" bind:this={domWrapper} use:resizeObserver={true} on:resize={createHeaderClone}>
   {#if display}
     <table>
       <thead bind:this={domTableHead}>
