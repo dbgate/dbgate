@@ -8,11 +8,14 @@
   } from 'dbgate-datalib';
   import _, { range } from 'lodash';
   import { onMount } from 'svelte';
-  import { prop_dev } from 'svelte/internal';
+  import { prop_dev, tick } from 'svelte/internal';
 
   export let root: PerspectiveTreeNode;
   let dataRows;
   let domWrapper;
+  let domTableHead;
+  let domHeaderWrap;
+  let theadClone;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[]) {
     // const loadProps: PerspectiveDataLoadPropsWithNode[] = [];
@@ -72,19 +75,41 @@
     // }
   }
 
-  function handleScroll() {
-    const translate = 'translate(0,' + domWrapper.scrollTop + 'px)';
-    domWrapper.querySelector('thead').style.transform = translate;
+  async function createHeaderClone() {
+    if (!domTableHead || !domHeaderWrap) return;
+    await tick();
+
+    if (theadClone) {
+      theadClone.remove();
+      theadClone = null;
+    }
+    theadClone = domTableHead.cloneNode(true);
+    const sourceCells = domTableHead.querySelectorAll('th');
+    const targetCells = theadClone.querySelectorAll('th');
+    domHeaderWrap.appendChild(theadClone);
+    for (const [src, dst] of _.zip(sourceCells, targetCells)) {
+      // @ts-ignore
+      dst.style.width = `${src.getBoundingClientRect().width}px`;
+    }
   }
 
   $: loadData(root);
   $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
+
+  $: {
+    display;
+    domTableHead;
+    domHeaderWrap;
+    createHeaderClone();
+  }
 </script>
 
-<div class="wrapper" on:scroll={handleScroll} bind:this={domWrapper}>
+<div class="headerWrap" bind:this={domHeaderWrap} />
+
+<div class="wrapper" bind:this={domWrapper}>
   {#if display}
     <table>
-      <thead>
+      <thead bind:this={domTableHead}>
         {#each _.range(display.columnLevelCount) as columnLevel}
           <tr>
             {#each display.columns as column}
@@ -119,6 +144,14 @@
     overflow: scroll;
     flex: 1;
     display: flex;
+  }
+
+  .headerWrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 16px;
+    z-index: 100;
   }
 
   table {
