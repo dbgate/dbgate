@@ -168,6 +168,10 @@
   <FormCheckboxField label="Is read only" name="isReadOnly" disabled={isConnected} />
 {/if}
 
+{#if driver?.showConnectionField('trustServerCertificate', $values)}
+  <FormCheckboxField label="Trust server certificate" name="trustServerCertificate" disabled={isConnected} />
+{/if}
+
 {#if driver?.showConnectionField('defaultDatabase', $values)}
   <FormTextField label="Default database" name="defaultDatabase" disabled={isConnected} />
 {/if}
