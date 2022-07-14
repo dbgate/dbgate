@@ -5,7 +5,7 @@
     id: 'dataGrid.refresh',
     category: 'Data grid',
     name: 'Refresh',
-    keyText: 'F5',
+    keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
@@ -17,7 +17,7 @@
     id: 'dataGrid.revertRowChanges',
     category: 'Data grid',
     name: 'Revert row changes',
-    keyText: 'CtrlOrCommand+R',
+    keyText: 'CtrlOrCommand+U',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertRowChanges(),
   });
@@ -50,6 +50,16 @@
     keyText: isMac() ? 'Command+I' : 'Insert',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().insertNewRow(),
+  });
+
+  registerCommand({
+    id: 'dataGrid.cloneRows',
+    category: 'Data grid',
+    name: 'Clone rows',
+    toolbarName: 'Clone',
+    keyText: 'CtrlOrCommand+Shift+C',
+    testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
+    onClick: () => getCurrentDataGrid().cloneRows(),
   });
 
   registerCommand({
@@ -418,16 +428,44 @@
   }
 
   export async function insertNewRow() {
-    if (grider.canInsert) {
-      const rowIndex = grider.insertRow();
-      const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
-      // @ts-ignore
-      currentCell = cell;
-      // @ts-ignore
-      selectedCells = [cell];
-      await tick();
-      scrollIntoView(cell);
+    if (!grider.canInsert) return;
+    const rowIndex = grider.insertRow();
+    const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
+    // @ts-ignore
+    currentCell = cell;
+    // @ts-ignore
+    selectedCells = [cell];
+    await tick();
+    scrollIntoView(cell);
+  }
+
+  export async function cloneRows() {
+    if (!grider.canInsert) return;
+
+    let rowIndex = null;
+    grider.beginUpdate();
+    for (const index of _.sortBy(getSelectedRowIndexes(), x => x)) {
+      if (_.isNumber(index)) {
+        rowIndex = grider.insertRow();
+
+        for (const column of display.columns) {
+          if (column.uniquePath.length > 1) continue;
+          if (column.autoIncrement) continue;
+
+          grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
+        }
+      }
     }
+    grider.endUpdate();
+
+    if (rowIndex == null) return;
+    const cell = [rowIndex, (currentCell && currentCell[1]) || 0];
+    // @ts-ignore
+    currentCell = cell;
+    // @ts-ignore
+    selectedCells = [cell];
+    await tick();
+    scrollIntoView(cell);
   }
 
   export function setFixedValue(value) {
@@ -1171,7 +1209,20 @@
 
     handleCursorMove(event);
 
-    if (event.shiftKey && event.keyCode != keycodes.shift && event.keyCode != keycodes.tab) {
+    if (
+      event.shiftKey &&
+      event.keyCode != keycodes.shift &&
+      event.keyCode != keycodes.tab &&
+      event.keyCode != keycodes.ctrl &&
+      event.keyCode != keycodes.leftWindowKey &&
+      event.keyCode != keycodes.rightWindowKey &&
+      !(
+        (event.keyCode >= keycodes.a && event.keyCode <= keycodes.z) ||
+        (event.keyCode >= keycodes.n0 && event.keyCode <= keycodes.n9) ||
+        (event.keyCode >= keycodes.numPad0 && event.keyCode <= keycodes.numPad9) ||
+        event.keyCode == keycodes.dash
+      )
+    ) {
       selectedCells = getCellRange(shiftDragStartCell || currentCell, currentCell);
     }
   }
@@ -1432,6 +1483,7 @@
     { command: 'dataGrid.revertAllChanges', hideDisabled: true },
     { command: 'dataGrid.deleteSelectedRows' },
     { command: 'dataGrid.insertNewRow' },
+    { command: 'dataGrid.cloneRows' },
     { command: 'dataGrid.setNull' },
     { placeTag: 'edit' },
     { divider: true },
@@ -1498,12 +1550,16 @@
   <div>
     <ErrorInfo
       alignTop
-      message="No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command."
+      message={grider.editable
+        ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
+        : 'No rows loaded'}
     />
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}
-    <FormStyledButton value="Add document" on:click={addJsonDocument} />
+    {#if grider.editable}
+      <FormStyledButton value="Add document" on:click={addJsonDocument} />
+    {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>

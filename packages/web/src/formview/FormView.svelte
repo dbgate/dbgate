@@ -16,7 +16,7 @@
     id: 'dataForm.refresh',
     category: 'Data form',
     name: 'Refresh',
-    keyText: 'F5',
+    keyText: 'F5 | CtrlOrCommand+R',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon reload',
@@ -38,7 +38,7 @@
     id: 'dataForm.revertRowChanges',
     category: 'Data form',
     name: 'Revert row changes',
-    keyText: 'CtrlOrCommand+R',
+    keyText: 'CtrlOrCommand+U',
     testEnabled: () => getCurrentDataForm()?.getFormer()?.containsChanges,
     onClick: () => getCurrentDataForm().getFormer().revertRowChanges(),
   });

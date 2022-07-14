@@ -126,7 +126,8 @@ const driver = {
   showConnectionField: (field, values) =>
     ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(
       field
-    ),
+    ) ||
+    (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi'),
   getQuerySplitterOptions: () => mssqlSplitterOptions,
 
   engine: 'mssql@dbgate-plugin-mssql',

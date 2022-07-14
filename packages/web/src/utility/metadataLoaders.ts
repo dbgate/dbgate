@@ -189,24 +189,28 @@ async function getCore(loader, args) {
 function useCore(loader, args) {
   const { url, params, reloadTrigger, transform, onLoaded } = loader(args);
   const cacheKey = stableStringify({ url, ...params });
-  let closed = false;
+  let openedCount = 0;
 
   return {
     subscribe: onChange => {
       async function handleReload() {
         const res = await getCore(loader, args);
-        if (!closed) {
+        if (openedCount > 0) {
           onChange(res);
         }
       }
-
+      openedCount += 1;
       handleReload();
 
       if (reloadTrigger) {
         subscribeCacheChange(reloadTrigger, cacheKey, handleReload);
         return () => {
-          closed = true;
+          openedCount -= 1;
           unsubscribeCacheChange(reloadTrigger, cacheKey, handleReload);
+        };
+      } else {
+        return () => {
+          openedCount -= 1;
         };
       }
     },

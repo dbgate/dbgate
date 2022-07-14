@@ -59,13 +59,10 @@ module.exports = {
 
   getSettings_meta: true,
   async getSettings() {
-    try {
-      return this.fillMissingSettings(
-        JSON.parse(await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' }))
-      );
-    } catch (err) {
-      return this.fillMissingSettings({});
-    }
+    const res = await lock.acquire('settings', async () => {
+      return await this.loadSettings();
+    });
+    return res;
   },
 
   fillMissingSettings(value) {
@@ -79,12 +76,21 @@ module.exports = {
     return res;
   },
 
+  async loadSettings() {
+    try {
+      const settingsText = await fs.readFile(path.join(datadir(), 'settings.json'), { encoding: 'utf-8' });
+      return this.fillMissingSettings(JSON.parse(settingsText));
+    } catch (err) {
+      return this.fillMissingSettings({});
+    }
+  },
+
   updateSettings_meta: true,
   async updateSettings(values, req) {
     if (!hasPermission(`settings/change`, req)) return false;
 
-    const res = await lock.acquire('update', async () => {
-      const currentValue = await this.getSettings();
+    const res = await lock.acquire('settings', async () => {
+      const currentValue = await this.loadSettings();
       try {
         const updated = {
           ...currentValue,

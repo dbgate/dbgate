@@ -29,7 +29,11 @@ export function writableWithStorage<T>(defaultValue: T, storageName) {
 }
 
 export function writableSettingsValue<T>(defaultValue: T, storageName) {
-  const res = derived(useSettings(), $settings => ($settings || {})[storageName] ?? defaultValue);
+  const res = derived(useSettings(), $settings => {
+    const obj = $settings || {};
+    // console.log('GET SETTINGS', $settings, storageName, obj[storageName]);
+    return obj[storageName] ?? defaultValue;
+  });
   return {
     ...res,
     set: value => apiCall('config/update-settings', { [storageName]: value }),

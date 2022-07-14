@@ -1,8 +1,8 @@
 const fs = require('fs-extra');
 const platformInfo = require('../utility/platformInfo');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { SSHConnection } = require('node-ssh-forward');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { SSHConnection } = require('../utility/SSHConnection');
 
 async function getSshConnection(connection) {
   const sshConfig = {
@@ -35,6 +35,8 @@ async function handleStart({ connection, tunnelConfig }) {
       tunnelConfig,
     });
   } catch (err) {
+    console.log('Error creating SSH tunnel connection:', err.message);
+    
     process.send({
       msgtype: 'error',
       connection,

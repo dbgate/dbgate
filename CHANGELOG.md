@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.6
+- ADDED: Search in columns
+- CHANGED: Upgraded mongodb driver
+- ADDED: Ability to reset view, when data load fails
+- FIXED: Filtering works for complex types (geography, xml under MSSQL)
+- FIXED: Fixed some NPM package problems
+
 ### 5.0.5
 - ADDED: Visualisation geographics objects on map #288
 - ADDED: Support for native SQL as default value inside yaml files #296

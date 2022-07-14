@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.0.6-beta.6",
+  "version": "5.0.7-beta.4",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -10,6 +10,10 @@
   "scripts": {
     "start:api": "yarn workspace dbgate-api start",
     "start:app": "cd app && yarn start",
+    "start:api:debug": "cross-env DEBUG=* yarn workspace dbgate-api start",
+    "start:app:debug": "cd app && cross-env DEBUG=* yarn start",
+    "start:api:debug:ssh": "cross-env DEBUG=ssh yarn workspace dbgate-api start",
+    "start:app:debug:ssh": "cd app && cross-env DEBUG=ssh yarn start",
     "start:api:portal": "yarn workspace dbgate-api start:portal",
     "start:api:singledb": "yarn workspace dbgate-api start:singledb",
     "start:web": "yarn workspace dbgate-web dev",

@@ -5,19 +5,17 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectId;
-const Cursor = require('mongodb').Cursor;
+const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
 
 function transformMongoData(row) {
   return _.mapValues(row, (v) => (v && v.constructor == ObjectId ? { $oid: v.toString() } : v));
 }
 
-function readCursor(cursor, options) {
-  return new Promise((resolve) => {
-    options.recordset({ __isDynamicStructure: true });
-
-    cursor.on('data', (data) => options.row(transformMongoData(data)));
-    cursor.on('end', () => resolve());
+async function readCursor(cursor, options) {
+  options.recordset({ __isDynamicStructure: true });
+  await cursor.forEach((row) => {
+    options.row(transformMongoData(row));
   });
 }
 
@@ -118,7 +116,7 @@ const driver = {
       return;
     }
 
-    if (exprValue instanceof Cursor) {
+    if (exprValue instanceof AbstractCursor) {
       await readCursor(exprValue, options);
     } else if (isPromise(exprValue)) {
       try {

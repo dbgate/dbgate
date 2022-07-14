@@ -1,8 +1,5 @@
-const { SSHConnection } = require('node-ssh-forward');
-const portfinder = require('portfinder');
 const fs = require('fs-extra');
 const { decryptConnection } = require('./crypting');
-const { getSshTunnel } = require('./sshTunnel');
 const { getSshTunnelProxy } = require('./sshTunnelProxy');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');

@@ -167,7 +167,7 @@
 
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 
-  $: console.log('CONN VALUES', $values);
+  // $: console.log('CONN VALUES', $values);
 </script>
 
 <FormProviderCore template={FormFieldTemplateLarge} {values}>

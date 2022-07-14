@@ -5,6 +5,7 @@ import { Condition } from 'dbgate-sqltree';
 import { TransformType } from 'dbgate-types';
 import { interpretEscapes, token, word, whitespace } from './common';
 import { mongoParser } from './mongoParser';
+import { datetimeParser } from './datetimeParser';
 
 const binaryCondition = operator => value => ({
   conditionType: 'binary',
@@ -67,116 +68,6 @@ const negateCondition = condition => {
   };
 };
 
-function getTransformCondition(transform: TransformType, value) {
-  return {
-    conditionType: 'binary',
-    operator: '=',
-    left: {
-      exprType: 'transform',
-      transform,
-      expr: {
-        exprType: 'placeholder',
-      },
-    },
-    right: {
-      exprType: 'value',
-      value,
-    },
-  };
-}
-
-const yearCondition = () => value => {
-  return getTransformCondition('YEAR', value);
-};
-
-const yearMonthCondition = () => value => {
-  const m = value.match(/(\d\d\d\d)-(\d\d?)/);
-
-  return {
-    conditionType: 'and',
-    conditions: [getTransformCondition('YEAR', m[1]), getTransformCondition('MONTH', m[2])],
-  };
-};
-
-const yearMonthDayCondition = () => value => {
-  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)/);
-
-  return {
-    conditionType: 'and',
-    conditions: [
-      getTransformCondition('YEAR', m[1]),
-      getTransformCondition('MONTH', m[2]),
-      getTransformCondition('DAY', m[3]),
-    ],
-  };
-};
-
-const createIntervalCondition = (start, end) => {
-  return {
-    conditionType: 'and',
-    conditions: [
-      {
-        conditionType: 'binary',
-        operator: '>=',
-        left: {
-          exprType: 'placeholder',
-        },
-        right: {
-          exprType: 'value',
-          value: start,
-        },
-      },
-      {
-        conditionType: 'binary',
-        operator: '<=',
-        left: {
-          exprType: 'placeholder',
-        },
-        right: {
-          exprType: 'value',
-          value: end,
-        },
-      },
-    ],
-  };
-};
-
-const createDateIntervalCondition = (start, end) => {
-  return createIntervalCondition(start.format('YYYY-MM-DDTHH:mm:ss.SSS'), end.format('YYYY-MM-DDTHH:mm:ss.SSS'));
-};
-
-const fixedMomentIntervalCondition = (intervalType, diff) => () => {
-  return createDateIntervalCondition(
-    moment().add(intervalType, diff).startOf(intervalType),
-    moment().add(intervalType, diff).endOf(intervalType)
-  );
-};
-
-const yearMonthDayMinuteCondition = () => value => {
-  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)\s+(\d\d?):(\d\d?)/);
-  const year = m[1];
-  const month = m[2];
-  const day = m[3];
-  const hour = m[4];
-  const minute = m[5];
-  const dateObject = new Date(year, month - 1, day, hour, minute);
-
-  return createDateIntervalCondition(moment(dateObject).startOf('minute'), moment(dateObject).endOf('minute'));
-};
-
-const yearMonthDaySecondCondition = () => value => {
-  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)(T|\s+)(\d\d?):(\d\d?):(\d\d?)/);
-  const year = m[1];
-  const month = m[2];
-  const day = m[3];
-  const hour = m[5];
-  const minute = m[6];
-  const second = m[7];
-  const dateObject = new Date(year, month - 1, day, hour, minute, second);
-
-  return createDateIntervalCondition(moment(dateObject).startOf('second'), moment(dateObject).endOf('second'));
-};
-
 const createParser = (filterType: FilterType) => {
   const langDef = {
     string1: () =>
@@ -206,13 +97,6 @@ const createParser = (filterType: FilterType) => {
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
 
-    yearNum: () => P.regexp(/\d\d\d\d/).map(yearCondition()),
-    yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
-    yearMonthDayNum: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayCondition()),
-    yearMonthDayMinute: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteCondition()),
-    yearMonthDaySecond: () =>
-      P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDaySecondCondition()),
-
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
     valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
@@ -227,29 +111,6 @@ const createParser = (filterType: FilterType) => {
     false: () => P.regexp(/false/i).map(binaryFixedValueCondition('0')),
     trueNum: () => word('1').map(binaryFixedValueCondition('1')),
     falseNum: () => word('0').map(binaryFixedValueCondition('0')),
-
-    this: () => word('THIS'),
-    last: () => word('LAST'),
-    next: () => word('NEXT'),
-    week: () => word('WEEK'),
-    month: () => word('MONTH'),
-    year: () => word('YEAR'),
-
-    yesterday: () => word('YESTERDAY').map(fixedMomentIntervalCondition('day', -1)),
-    today: () => word('TODAY').map(fixedMomentIntervalCondition('day', 0)),
-    tomorrow: () => word('TOMORROW').map(fixedMomentIntervalCondition('day', 1)),
-
-    lastWeek: r => r.last.then(r.week).map(fixedMomentIntervalCondition('week', -1)),
-    thisWeek: r => r.this.then(r.week).map(fixedMomentIntervalCondition('week', 0)),
-    nextWeek: r => r.next.then(r.week).map(fixedMomentIntervalCondition('week', 1)),
-
-    lastMonth: r => r.last.then(r.month).map(fixedMomentIntervalCondition('month', -1)),
-    thisMonth: r => r.this.then(r.month).map(fixedMomentIntervalCondition('month', 0)),
-    nextMonth: r => r.next.then(r.month).map(fixedMomentIntervalCondition('month', 1)),
-
-    lastYear: r => r.last.then(r.year).map(fixedMomentIntervalCondition('year', -1)),
-    thisYear: r => r.this.then(r.year).map(fixedMomentIntervalCondition('year', 0)),
-    nextYear: r => r.next.then(r.year).map(fixedMomentIntervalCondition('year', 1)),
 
     eq: r => word('=').then(r.value).map(binaryCondition('=')),
     ne: r => word('!=').then(r.value).map(binaryCondition('<>')),
@@ -294,27 +155,7 @@ const createParser = (filterType: FilterType) => {
   if (filterType == 'eval') {
     allowedElements.push('true', 'false');
   }
-  if (filterType == 'datetime') {
-    allowedElements.push(
-      'yearMonthDaySecond',
-      'yearMonthDayMinute',
-      'yearMonthDayNum',
-      'yearMonthNum',
-      'yearNum',
-      'yesterday',
-      'today',
-      'tomorrow',
-      'lastWeek',
-      'thisWeek',
-      'nextWeek',
-      'lastMonth',
-      'thisMonth',
-      'nextMonth',
-      'lastYear',
-      'thisYear',
-      'nextYear'
-    );
-  }
+
   // must be last
   if (filterType == 'string' || filterType == 'eval') {
     allowedElements.push('valueTestStr');
@@ -328,10 +169,10 @@ const createParser = (filterType: FilterType) => {
 const parsers = {
   number: createParser('number'),
   string: createParser('string'),
-  datetime: createParser('datetime'),
   logical: createParser('logical'),
   eval: createParser('eval'),
   mongo: mongoParser,
+  datetime: datetimeParser,
 };
 
 export function parseFilter(value: string, filterType: FilterType): Condition {

@@ -91,6 +91,12 @@ ORDER BY
 
           <FormCheckboxField name="dataGrid.thousandsSeparator" label="Use thousands separator for numbers" />
 
+          <FormTextField
+            name="dataGrid.defaultAutoRefreshInterval"
+            label="Default grid auto refresh interval in seconds"
+            defaultValue="10"
+          />
+
           <div class="heading">Connection</div>
           <FormCheckboxField
             name="connection.autoRefresh"
@@ -99,7 +105,7 @@ ORDER BY
           />
           <FormTextField
             name="connection.autoRefreshInterval"
-            label="Interval between automatic refreshes in seconds"
+            label="Interval between automatic DB structure reloads in seconds"
             defaultValue="30"
             disabled={values['connection.autoRefresh'] === false}
           />
