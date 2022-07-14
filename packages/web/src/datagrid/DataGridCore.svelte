@@ -1498,12 +1498,16 @@
   <div>
     <ErrorInfo
       alignTop
-      message="No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command."
+      message={grider.editable
+        ? 'No rows loaded, check filter or add new documents. You could copy documents from ohter collections/tables with Copy advanved/Copy as JSON command.'
+        : 'No rows loaded'}
     />
     {#if display.filterCount > 0}
       <FormStyledButton value="Reset filter" on:click={() => display.clearFilters()} />
     {/if}
-    <FormStyledButton value="Add document" on:click={addJsonDocument} />
+    {#if grider.editable}
+      <FormStyledButton value="Add document" on:click={addJsonDocument} />
+    {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>
