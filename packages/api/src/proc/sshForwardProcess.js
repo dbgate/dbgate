@@ -35,6 +35,8 @@ async function handleStart({ connection, tunnelConfig }) {
       tunnelConfig,
     });
   } catch (err) {
+    console.log('Error creating SSH tunnel connection:', err.message);
+    
     process.send({
       msgtype: 'error',
       connection,
