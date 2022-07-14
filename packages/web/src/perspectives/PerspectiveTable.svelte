@@ -9,7 +9,7 @@
   import _, { range } from 'lodash';
   import { onMount } from 'svelte';
   import { prop_dev, tick } from 'svelte/internal';
-import { sleep } from '../utility/common';
+  import { sleep } from '../utility/common';
   import resizeObserver from '../utility/resizeObserver';
 
   export let root: PerspectiveTreeNode;
