@@ -28,6 +28,7 @@
     "dbgate-query-splitter": "^4.9.0",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "dbgate-tools": "^5.0.0-alpha.1",
+    "debug": "^4.3.4",
     "diff": "^5.0.0",
     "diff2html": "^3.4.13",
     "eslint": "^6.8.0",
@@ -45,9 +46,9 @@
     "lodash": "^4.17.21",
     "ncp": "^2.0.0",
     "node-cron": "^2.0.3",
-    "node-ssh-forward": "^0.7.2",
     "portfinder": "^1.0.28",
     "simple-encryptor": "^4.0.0",
+    "ssh2": "^1.11.0",
     "tar": "^6.0.5",
     "uuid": "^3.4.0"
   },

@@ -1,8 +1,8 @@
 const fs = require('fs-extra');
 const platformInfo = require('../utility/platformInfo');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { SSHConnection } = require('node-ssh-forward');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { SSHConnection } = require('../utility/SSHConnection');
 
 async function getSshConnection(connection) {
   const sshConfig = {
