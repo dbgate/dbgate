@@ -56,6 +56,53 @@ const yearMonthDayCondition = () => value => {
   };
 };
 
+const yearEdge = edgeFunction => value => {
+  return moment(new Date(parseInt(value), 0, 1))
+    [edgeFunction]('year')
+    .format('YYYY-MM-DDTHH:mm:ss.SSS');
+};
+
+const yearMonthEdge = edgeFunction => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)/);
+
+  return moment(new Date(parseInt(m[1]), parseInt(m[2]) - 1, 1))
+    [edgeFunction]('month')
+    .format('YYYY-MM-DDTHH:mm:ss.SSS');
+};
+
+const yearMonthDayEdge = edgeFunction => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)/);
+
+  return moment(new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3])))
+    [edgeFunction]('day')
+    .format('YYYY-MM-DDTHH:mm:ss.SSS');
+};
+
+const yearMonthDayMinuteEdge = edgeFunction => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)\s+(\d\d?):(\d\d?)/);
+  const year = m[1];
+  const month = m[2];
+  const day = m[3];
+  const hour = m[4];
+  const minute = m[5];
+  const dateObject = new Date(year, month - 1, day, hour, minute);
+
+  return moment(dateObject)[edgeFunction]('minute').format('YYYY-MM-DDTHH:mm:ss.SSS');
+};
+
+const yearMonthDayMinuteSecondEdge = edgeFunction => value => {
+  const m = value.match(/(\d\d\d\d)-(\d\d?)-(\d\d?)(T|\s+)(\d\d?):(\d\d?):(\d\d?)/);
+  const year = m[1];
+  const month = m[2];
+  const day = m[3];
+  const hour = m[5];
+  const minute = m[6];
+  const second = m[7];
+  const dateObject = new Date(year, month - 1, day, hour, minute, second);
+
+  return moment(dateObject)[edgeFunction]('second').format('YYYY-MM-DDTHH:mm:ss.SSS');
+};
+
 const createIntervalCondition = (start, end) => {
   return {
     conditionType: 'and',
@@ -122,6 +169,18 @@ const yearMonthDaySecondCondition = () => value => {
   return createDateIntervalCondition(moment(dateObject).startOf('second'), moment(dateObject).endOf('second'));
 };
 
+const binaryCondition = operator => value => ({
+  conditionType: 'binary',
+  operator,
+  left: {
+    exprType: 'placeholder',
+  },
+  right: {
+    exprType: 'value',
+    value,
+  },
+});
+
 const createParser = () => {
   const langDef = {
     comma: () => word(','),
@@ -132,6 +191,20 @@ const createParser = () => {
     yearMonthDayMinute: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteCondition()),
     yearMonthDaySecond: () =>
       P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDaySecondCondition()),
+
+    yearNumStart: () => P.regexp(/\d\d\d\d/).map(yearEdge('startOf')),
+    yearNumEnd: () => P.regexp(/\d\d\d\d/).map(yearEdge('endOf')),
+    yearMonthStart: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthEdge('startOf')),
+    yearMonthEnd: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthEdge('endOf')),
+    yearMonthDayStart: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayEdge('startOf')),
+    yearMonthDayEnd: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?/).map(yearMonthDayEdge('endOf')),
+    yearMonthDayMinuteStart: () =>
+      P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteEdge('startOf')),
+    yearMonthDayMinuteEnd: () => P.regexp(/\d\d\d\d-\d\d?-\d\d?\s+\d\d?:\d\d?/).map(yearMonthDayMinuteEdge('endOf')),
+    yearMonthDayMinuteSecondStart: () =>
+      P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDayMinuteSecondEdge('startOf')),
+    yearMonthDayMinuteSecondEnd: () =>
+      P.regexp(/\d\d\d\d-\d\d?-\d\d?(\s+|T)\d\d?:\d\d?:\d\d?/).map(yearMonthDayMinuteSecondEdge('endOf')),
 
     this: () => word('THIS'),
     last: () => word('LAST'),
@@ -156,6 +229,22 @@ const createParser = () => {
     thisYear: r => r.this.then(r.year).map(fixedMomentIntervalCondition('year', 0)),
     nextYear: r => r.next.then(r.year).map(fixedMomentIntervalCondition('year', 1)),
 
+    valueStart: r =>
+      P.alt(
+        r.yearMonthDayMinuteSecondStart,
+        r.yearMonthDayMinuteStart,
+        r.yearMonthDayStart,
+        r.yearMonthStart,
+        r.yearNumStart
+      ),
+    valueEnd: r =>
+      P.alt(r.yearMonthDayMinuteSecondEnd, r.yearMonthDayMinuteEnd, r.yearMonthDayEnd, r.yearMonthEnd, r.yearNumEnd),
+
+    le: r => word('<=').then(r.valueEnd).map(binaryCondition('<=')),
+    ge: r => word('>=').then(r.valueStart).map(binaryCondition('>=')),
+    lt: r => word('<').then(r.valueStart).map(binaryCondition('<')),
+    gt: r => word('>').then(r.valueEnd).map(binaryCondition('>')),
+
     element: r =>
       P.alt(
         r.yearMonthDaySecond,
@@ -174,7 +263,11 @@ const createParser = () => {
         r.nextMonth,
         r.lastYear,
         r.thisYear,
-        r.nextYear
+        r.nextYear,
+        r.le,
+        r.lt,
+        r.ge,
+        r.gt
       ).trim(whitespace),
     factor: r => r.element.sepBy(whitespace).map(compoudCondition('$and')),
     list: r => r.factor.sepBy(r.comma).map(compoudCondition('$or')),
