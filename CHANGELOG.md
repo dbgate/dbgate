@@ -8,6 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.7
+- FIXED: Fixed some problems with SSH tunnel (upgraded SSH client) #315
+- FIXED: Fixed MognoDB executing find query #312
+- ADDED: Interval filters for date/time columns #311
+- ADDED: Ability to clone rows #309
+- ADDED: connecting option Trust server certificate for SQL Server #305
+- ADDED: Autorefresh, reload table every x second #303
+- FIXED(app): Changing editor theme and font size in Editor Themes #300
+ 
 ### 5.0.6
 - ADDED: Search in columns
 - CHANGED: Upgraded mongodb driver
