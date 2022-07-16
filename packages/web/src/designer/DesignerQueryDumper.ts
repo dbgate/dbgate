@@ -8,6 +8,7 @@ import {
   mergeConditions,
   Source,
   ResultField,
+  Expression,
 } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
@@ -120,7 +121,7 @@ export class DesignerQueryDumper {
           select.having,
           _.cloneDeepWith(condition, expr => {
             if (expr.exprType == 'placeholder') {
-              return this.getColumnOutputExpression(column, selectIsGrouped);
+              return this.getColumnResultField(column, selectIsGrouped);
             }
           })
         );
@@ -128,10 +129,29 @@ export class DesignerQueryDumper {
     }
   }
 
-  getColumnOutputExpression(col, selectIsGrouped): ResultField {
+  getColumnExpression(col): Expression {
     const source = findQuerySource(this.designer, col.designerId);
+    const { columnName, isCustomExpression, customExpression } = col;
+
+    const res: Expression = isCustomExpression
+      ? {
+          exprType: 'raw',
+          sql: customExpression,
+        }
+      : {
+          exprType: 'column',
+          columnName,
+          source,
+        };
+    return res;
+  }
+
+  getColumnResultField(col, selectIsGrouped): ResultField {
     const { columnName } = col;
     let { alias } = col;
+
+    const exprCore = this.getColumnExpression(col);
+
     if (selectIsGrouped && !col.isGrouped) {
       // use aggregate
       const aggregate = col.aggregate == null || col.aggregate == '---' ? 'MAX' : col.aggregate;
@@ -142,20 +162,12 @@ export class DesignerQueryDumper {
         func: aggregate == 'COUNT DISTINCT' ? 'COUNT' : aggregate,
         argsPrefix: aggregate == 'COUNT DISTINCT' ? 'DISTINCT' : null,
         alias,
-        args: [
-          {
-            exprType: 'column',
-            columnName,
-            source,
-          },
-        ],
+        args: [exprCore],
       };
     } else {
       return {
-        exprType: 'column',
-        columnName,
+        ...exprCore,
         alias,
-        source,
       };
     }
   }
@@ -179,24 +191,21 @@ export class DesignerQueryDumper {
       }
     }
 
-    const topLevelColumns = (this.designer.columns || []).filter(col =>
-      topLevelTables.find(tbl => tbl.designerId == col.designerId)
+    const topLevelColumns = (this.designer.columns || []).filter(
+      col =>
+        topLevelTables.find(tbl => tbl.designerId == col.designerId) || (col.isCustomExpression && col.customExpression)
     );
     const selectIsGrouped = !!topLevelColumns.find(x => x.isGrouped || (x.aggregate && x.aggregate != '---'));
     const outputColumns = topLevelColumns.filter(x => x.isOutput);
     if (outputColumns.length == 0) {
       res.selectAll = true;
     } else {
-      res.columns = outputColumns.map(col => this.getColumnOutputExpression(col, selectIsGrouped));
+      res.columns = outputColumns.map(col => this.getColumnResultField(col, selectIsGrouped));
     }
 
     const groupedColumns = topLevelColumns.filter(x => x.isGrouped);
     if (groupedColumns.length > 0) {
-      res.groupBy = groupedColumns.map(col => ({
-        exprType: 'column',
-        columnName: col.columnName,
-        source: findQuerySource(this.designer, col.designerId),
-      }));
+      res.groupBy = groupedColumns.map(col => this.getColumnExpression(col));
     }
 
     const orderColumns = _.sortBy(
@@ -205,10 +214,8 @@ export class DesignerQueryDumper {
     );
     if (orderColumns.length > 0) {
       res.orderBy = orderColumns.map(col => ({
-        exprType: 'column',
+        ...this.getColumnExpression(col),
         direction: col.sortOrder < 0 ? 'DESC' : 'ASC',
-        columnName: col.columnName,
-        source: findQuerySource(this.designer, col.designerId),
       }));
     }
 

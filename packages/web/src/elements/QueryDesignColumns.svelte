@@ -13,8 +13,10 @@
   import SelectField from '../forms/SelectField.svelte';
   import TextField from '../forms/TextField.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
+  import uuidv1 from 'uuid/v1';
 
   import TableControl from './TableControl.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   export let value;
   export let onChange;
@@ -35,6 +37,13 @@
     }));
   };
 
+  const addExpressionColumn = () => {
+    onChange(current => ({
+      ...current,
+      columns: [...(current.columns || []), { isCustomExpression: true, isOutput: true, designerId: uuidv1() }],
+    }));
+  };
+
   $: columns = value?.columns;
   $: tables = value?.tables;
   $: hasGroupedColumn = !!(columns || []).find(x => x.isGrouped);
@@ -44,7 +53,7 @@
   <TableControl
     rows={columns || []}
     columns={[
-      { fieldName: 'columnName', header: 'Column/Expression' },
+      { fieldName: 'columnName', slot: 8, header: 'Column/Expression' },
       { fieldName: 'tableDisplayName', header: 'Table', formatter: row => getTableDisplayName(row, tables) },
       { fieldName: 'isOutput', header: 'Output', slot: 0 },
       { fieldName: 'alias', header: 'Alias', slot: 1 },
@@ -56,6 +65,19 @@
       { fieldName: 'actions', header: '', slot: 7 },
     ]}
   >
+    <svelte:fragment slot="8" let:row>
+      {#if row.isCustomExpression}
+        <TextField
+          value={row.customExpression}
+          on:input={e => {
+            changeColumn({ ...row, customExpression: e.target.value });
+          }}
+        />
+      {:else}
+        {row.columnName}
+      {/if}
+    </svelte:fragment>
+
     <svelte:fragment slot="0" let:row>
       <CheckboxField
         checked={row.isOutput}
@@ -134,6 +156,7 @@
       <InlineButton on:click={() => removeColumn(row)}>Remove</InlineButton>
     </svelte:fragment>
   </TableControl>
+  <FormStyledButton value="Add custom" on:click={addExpressionColumn} />
 </div>
 
 <style>

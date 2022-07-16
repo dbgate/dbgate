@@ -92,6 +92,8 @@
               {:else if col.slot == 5}<slot name="5" {row} {index} />
               {:else if col.slot == 6}<slot name="6" {row} {index} />
               {:else if col.slot == 7}<slot name="7" {row} {index} />
+              {:else if col.slot == 8}<slot name="8" {row} {index} />
+              {:else if col.slot == 9}<slot name="9" {row} {index} />
               {/if}
             {:else}
               {row[col.fieldName] || ''}

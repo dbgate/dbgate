@@ -31,6 +31,8 @@ export type DesignerColumnInfo = {
   sortOrder?: number;
   filter?: string;
   groupFilter?: string;
+  isCustomExpression?: boolean;
+  customExpression?: string;
 };
 
 export type DesignerSettings = {
