@@ -68,6 +68,7 @@
     <svelte:fragment slot="8" let:row>
       {#if row.isCustomExpression}
         <TextField
+          style="min-width:calc(100% - 9px)"
           value={row.customExpression}
           on:input={e => {
             changeColumn({ ...row, customExpression: e.target.value });
@@ -89,6 +90,7 @@
     </svelte:fragment>
     <svelte:fragment slot="1" let:row>
       <TextField
+        style="min-width:calc(100% - 9px)"
         value={row.alias}
         on:input={e => {
           changeColumn({ ...row, alias: e.target.value });
@@ -108,6 +110,7 @@
       {#if !row.isGrouped}
         <SelectField
           isNative
+          style="min-width:calc(100% - 9px)"
           value={row.aggregate}
           on:change={e => {
             changeColumn({ ...row, aggregate: e.detail });
@@ -119,6 +122,7 @@
     <svelte:fragment slot="4" let:row>
       <SelectField
         isNative
+        style="min-width:calc(100% - 9px)"
         value={row.sortOrder}
         on:change={e => {
           changeColumn({ ...row, sortOrder: parseInt(e.detail) });
@@ -156,7 +160,7 @@
       <InlineButton on:click={() => removeColumn(row)}>Remove</InlineButton>
     </svelte:fragment>
   </TableControl>
-  <FormStyledButton value="Add custom" on:click={addExpressionColumn} />
+  <FormStyledButton value="Add custom expression" on:click={addExpressionColumn} style="width:200px" />
 </div>
 
 <style>
