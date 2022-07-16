@@ -164,6 +164,10 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('windowsDomain', $values)}
+  <FormTextField label="Domain (specify to use NTLM authentication)" name="windowsDomain" disabled={isConnected} />
+{/if}
+
 {#if driver?.showConnectionField('isReadOnly', $values)}
   <FormCheckboxField label="Is read only" name="isReadOnly" disabled={isConnected} />
 {/if}
