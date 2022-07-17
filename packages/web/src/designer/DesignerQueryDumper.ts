@@ -79,26 +79,27 @@ export class DesignerQueryDumper {
     return select;
   }
 
-  buildConditionFromFilterField(tables: DesignerTableInfo[], filterField: string): Condition {
+  buildConditionFromFilterField(tables: DesignerTableInfo[], filterField: string, getExpression?: Function): Condition {
     const conditions = [];
 
     for (const column of this.designer.columns || []) {
       if (!column[filterField]) continue;
-      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
-      if (!table) continue;
-      if (!tables.find(x => x.designerId == table.designerId)) continue;
+
+      if (!column.isCustomExpression) {
+        const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
+        if (!table) continue;
+        if (!tables.find(x => x.designerId == table.designerId)) continue;
+      }
 
       try {
         const condition = parseFilter(column[filterField], findDesignerFilterType(column, this.designer));
         if (condition) {
           conditions.push(
             _.cloneDeepWith(condition, expr => {
-              if (expr.exprType == 'placeholder')
-                return {
-                  exprType: 'column',
-                  columnName: column.columnName,
-                  source: findQuerySource(this.designer, column.designerId),
-                };
+              if (expr.exprType == 'placeholder') {
+                if (getExpression) return getExpression(column);
+                return this.getColumnExpression(column);
+              }
             })
           );
         }
@@ -122,45 +123,39 @@ export class DesignerQueryDumper {
     };
   }
 
-  addConditions(select: Select, tables: DesignerTableInfo[]) {
-    const additionalFilterCount = this.designer.settings?.additionalFilterCount || 0;
-
-    const filterFields = ['filter', ..._.range(additionalFilterCount).map(index => `additionalFilter${index + 1}`)];
-
-    const conditions = _.compact(filterFields.map(field => this.buildConditionFromFilterField(tables, field)));
+  addConditionsCore(select: Select, tables: DesignerTableInfo[], filterFields, selectField, getExpression?) {
+    const conditions: Condition[] = _.compact(
+      filterFields.map(field => this.buildConditionFromFilterField(tables, field, getExpression))
+    );
 
     if (conditions.length == 0) {
       return;
     }
     if (conditions.length == 0) {
-      select.where = mergeConditions(select.where, conditions[0]);
+      select[selectField] = mergeConditions(select[selectField], conditions[0]);
       return;
     }
-    select.where = mergeConditions(select.where, {
+    select[selectField] = mergeConditions(select[selectField], {
       conditionType: 'or',
       conditions,
     });
   }
 
-  addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {
-    for (const column of this.designer.columns || []) {
-      if (!column.groupFilter) continue;
-      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
-      if (!table) continue;
-      if (!tables.find(x => x.designerId == table.designerId)) continue;
+  addConditions(select: Select, tables: DesignerTableInfo[]) {
+    const additionalFilterCount = this.designer.settings?.additionalFilterCount || 0;
+    const filterFields = ['filter', ..._.range(additionalFilterCount).map(index => `additionalFilter${index + 1}`)];
+    this.addConditionsCore(select, tables, filterFields, 'where');
+  }
 
-      const condition = parseFilter(column.groupFilter, findDesignerFilterType(column, this.designer));
-      if (condition) {
-        select.having = mergeConditions(
-          select.having,
-          _.cloneDeepWith(condition, expr => {
-            if (expr.exprType == 'placeholder') {
-              return this.getColumnResultField(column, selectIsGrouped);
-            }
-          })
-        );
-      }
-    }
+  addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {
+    const additionalGroupFilterCount = this.designer.settings?.additionalGroupFilterCount || 0;
+    const filterFields = [
+      'groupFilter',
+      ..._.range(additionalGroupFilterCount).map(index => `additionalGroupFilter${index + 1}`),
+    ];
+    this.addConditionsCore(select, tables, filterFields, 'having', column =>
+      this.getColumnResultField(column, selectIsGrouped)
+    );
   }
 
   getColumnExpression(col): Expression {

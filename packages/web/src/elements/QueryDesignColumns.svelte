@@ -65,6 +65,26 @@
     }));
   };
 
+  const addGroupOrCondition = () => {
+    onChange(current => ({
+      ...current,
+      settings: {
+        ...current?.settings,
+        additionalGroupFilterCount: (current?.settings?.additionalGroupFilterCount ?? 0) + 1,
+      },
+    }));
+  };
+
+  const removeGroupOrCondition = () => {
+    onChange(current => ({
+      ...current,
+      settings: {
+        ...current?.settings,
+        additionalGroupFilterCount: (current?.settings?.additionalGroupFilterCount ?? 1) - 1,
+      },
+    }));
+  };
+
   $: columns = value?.columns;
   $: tables = value?.tables;
   $: settings = value?.settings;
@@ -89,7 +109,18 @@
         slot: 5,
         props: { filterField: `additionalFilter${index + 1}` },
       })),
-      hasGroupedColumn && { fieldName: 'groupFilter', header: 'Group filter', slot: 6 },
+      hasGroupedColumn && {
+        fieldName: 'groupFilter',
+        header: 'Group filter',
+        slot: 5,
+        props: { filterField: 'groupFilter' },
+      },
+      ..._.range(hasGroupedColumn ? settings?.additionalGroupFilterCount || 0 : 0).map(index => ({
+        fieldName: `additionalGroupFilter${index + 1}`,
+        header: `OR group filter ${index + 2}`,
+        slot: 5,
+        props: { filterField: `additionalGroupFilter${index + 1}` },
+      })),
       { fieldName: 'actions', header: '', slot: 7 },
     ]}
   >
@@ -175,15 +206,6 @@
         }}
       />
     </svelte:fragment>
-    <svelte:fragment slot="6" let:row>
-      <DataFilterControl
-        filterType={findDesignerFilterType(row, value)}
-        filter={row.groupFilter}
-        setFilter={groupFilter => {
-          changeColumn({ ...row, groupFilter });
-        }}
-      />
-    </svelte:fragment>
     <svelte:fragment slot="7" let:row>
       <InlineButton on:click={() => removeColumn(row)}>Remove</InlineButton>
     </svelte:fragment>
@@ -192,6 +214,12 @@
   <FormStyledButton value="Add OR condition" on:click={addOrCondition} style="width:200px" />
   {#if settings?.additionalFilterCount > 0}
     <FormStyledButton value="Remove OR condition" on:click={removeOrCondition} style="width:200px" />
+  {/if}
+  {#if hasGroupedColumn}
+    <FormStyledButton value="Add group OR condition" on:click={addGroupOrCondition} style="width:200px" />
+  {/if}
+  {#if hasGroupedColumn && settings?.additionalGroupFilterCount > 0}
+    <FormStyledButton value="Remove group OR condition" on:click={removeGroupOrCondition} style="width:200px" />
   {/if}
 </div>
 

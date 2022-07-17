@@ -38,6 +38,7 @@ export type DesignerColumnInfo = {
 export type DesignerSettings = {
   isDistinct?: boolean;
   additionalFilterCount?: number;
+  additionalGroupFilterCount?: number;
 };
 
 export type DesignerInfo = {
