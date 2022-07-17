@@ -25,6 +25,7 @@
   export let clickable = false;
   export let disableFocusOutline = false;
   export let emptyMessage = null;
+  export let noCellPadding = false;
 
   export let domTable = undefined;
 
@@ -77,7 +78,7 @@
         }}
       >
         {#each columnList as col}
-          <td class:isHighlighted={col.isHighlighted && col.isHighlighted(row)}>
+          <td class:isHighlighted={col.isHighlighted && col.isHighlighted(row)} class:noCellPadding>
             {#if col.component}
               <svelte:component this={col.component} {...col.getProps(row)} />
             {:else if col.formatter}
@@ -138,6 +139,9 @@
   }
   tbody td {
     border: 1px solid var(--theme-border);
+  }
+
+  tbody td:not(.noCellPadding) {
     padding: 5px;
   }
 
