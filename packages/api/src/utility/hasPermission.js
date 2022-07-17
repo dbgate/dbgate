@@ -4,12 +4,21 @@ const _ = require('lodash');
 const userPermissions = {};
 
 function hasPermission(tested, req) {
+  if (!req) {
+    // request object not available, allow all
+    return true;
+  }
   const { user } = (req && req.auth) || {};
   const key = user || '';
   const logins = getLogins();
-  if (!userPermissions[key] && logins) {
-    const login = logins.find(x => x.login == user);
-    userPermissions[key] = compilePermissions(login ? login.permissions : null);
+
+  if (!userPermissions[key]) {
+    if (logins) {
+      const login = logins.find(x => x.login == user);
+      userPermissions[key] = compilePermissions(login ? login.permissions : null);
+    } else {
+      userPermissions[key] = compilePermissions(process.env.PERMISSIONS);
+    }
   }
   return testPermission(tested, userPermissions[key]);
 }
@@ -50,7 +59,26 @@ function getLogins() {
   return loginsCache;
 }
 
+function connectionHasPermission(connection, req) {
+  if (!connection) {
+    return true;
+  }
+  if (_.isString(connection)) {
+    return hasPermission(`connections/${connection}`, req);
+  } else {
+    return hasPermission(`connections/${connection._id}`, req);
+  }
+}
+
+function testConnectionPermission(connection, req) {
+  if (!connectionHasPermission(connection, req)) {
+    throw new Error('Connection permission not granted');
+  }
+}
+
 module.exports = {
   hasPermission,
   getLogins,
+  connectionHasPermission,
+  testConnectionPermission,
 };

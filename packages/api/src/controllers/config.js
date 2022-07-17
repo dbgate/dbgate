@@ -29,7 +29,7 @@ module.exports = {
   async get(_params, req) {
     const logins = getLogins();
     const login = logins ? logins.find(x => x.login == (req.auth && req.auth.user)) : null;
-    const permissions = login ? login.permissions : null;
+    const permissions = login ? login.permissions : process.env.PERMISSIONS;
 
     return {
       runAsPortal: !!connections.portalConnections,

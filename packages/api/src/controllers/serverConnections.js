@@ -7,6 +7,7 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const lock = new AsyncLock();
 const config = require('./config');
 const processArgs = require('../utility/processArgs');
+const { testConnectionPermission } = require('../utility/hasPermission');
 
 module.exports = {
   opened: [],
@@ -90,19 +91,22 @@ module.exports = {
   },
 
   disconnect_meta: true,
-  async disconnect({ conid }) {
+  async disconnect({ conid }, req) {
+    testConnectionPermission(conid, req);
     await this.close(conid, true);
     return { status: 'ok' };
   },
 
   listDatabases_meta: true,
-  async listDatabases({ conid }) {
+  async listDatabases({ conid }, req) {
+    testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     return opened.databases;
   },
 
   version_meta: true,
-  async version({ conid }) {
+  async version({ conid }, req) {
+    testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     return opened.version;
   },
@@ -132,7 +136,8 @@ module.exports = {
   },
 
   refresh_meta: true,
-  async refresh({ conid, keepOpen }) {
+  async refresh({ conid, keepOpen }, req) {
+    testConnectionPermission(conid, req);
     if (!keepOpen) this.close(conid);
 
     await this.ensureOpened(conid);
@@ -140,7 +145,8 @@ module.exports = {
   },
 
   createDatabase_meta: true,
-  async createDatabase({ conid, name }) {
+  async createDatabase({ conid, name }, req) {
+    testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     if (opened.connection.isReadOnly) return false;
     opened.subprocess.send({ msgtype: 'createDatabase', name });

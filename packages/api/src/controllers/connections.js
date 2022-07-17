@@ -13,6 +13,7 @@ const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 const processArgs = require('../utility/processArgs');
 const { safeJsonParse } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
+const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 
 function getNamedArgs() {
   const res = {};
@@ -165,12 +166,12 @@ module.exports = {
   },
 
   list_meta: true,
-  async list() {
+  async list(_params, req) {
     if (portalConnections) {
       if (platformInfo.allowShellConnection) return portalConnections;
-      return portalConnections.map(maskConnection);
+      return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, req));
     }
-    return this.datastore.find();
+    return (await this.datastore.find()).filter(x => connectionHasPermission(x, req));
   },
 
   test_meta: true,
@@ -217,16 +218,18 @@ module.exports = {
   },
 
   update_meta: true,
-  async update({ _id, values }) {
+  async update({ _id, values }, req) {
     if (portalConnections) return;
+    testConnectionPermission(_id, req);
     const res = await this.datastore.patch(_id, values);
     socket.emitChanged('connection-list-changed');
     return res;
   },
 
   updateDatabase_meta: true,
-  async updateDatabase({ conid, database, values }) {
+  async updateDatabase({ conid, database, values }, req) {
     if (portalConnections) return;
+    testConnectionPermission(conid, req);
     const conn = await this.datastore.get(conid);
     let databases = (conn && conn.databases) || [];
     if (databases.find(x => x.name == database)) {
@@ -242,8 +245,9 @@ module.exports = {
   },
 
   delete_meta: true,
-  async delete(connection) {
+  async delete(connection, req) {
     if (portalConnections) return;
+    testConnectionPermission(connection, req);
     const res = await this.datastore.remove(connection._id);
     socket.emitChanged('connection-list-changed');
     return res;
@@ -260,7 +264,8 @@ module.exports = {
   },
 
   get_meta: true,
-  async get({ conid }) {
+  async get({ conid }, req) {
+    testConnectionPermission(conid, req);
     return this.getCore({ conid, mask: true });
   },
 
