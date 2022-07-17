@@ -79,18 +79,19 @@ export class DesignerQueryDumper {
     return select;
   }
 
-  addConditions(select: Select, tables: DesignerTableInfo[]) {
+  buildConditionFromFilterField(tables: DesignerTableInfo[], filterField: string): Condition {
+    const conditions = [];
+
     for (const column of this.designer.columns || []) {
-      if (!column.filter) continue;
+      if (!column[filterField]) continue;
       const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
       if (!table) continue;
       if (!tables.find(x => x.designerId == table.designerId)) continue;
 
       try {
-        const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
+        const condition = parseFilter(column[filterField], findDesignerFilterType(column, this.designer));
         if (condition) {
-          select.where = mergeConditions(
-            select.where,
+          conditions.push(
             _.cloneDeepWith(condition, expr => {
               if (expr.exprType == 'placeholder')
                 return {
@@ -106,6 +107,39 @@ export class DesignerQueryDumper {
         continue;
       }
     }
+
+    if (conditions.length == 0) {
+      return null;
+    }
+
+    if (conditions.length == 1) {
+      return conditions[0];
+    }
+
+    return {
+      conditionType: 'and',
+      conditions,
+    };
+  }
+
+  addConditions(select: Select, tables: DesignerTableInfo[]) {
+    const additionalFilterCount = this.designer.settings?.additionalFilterCount || 0;
+
+    const filterFields = ['filter', ..._.range(additionalFilterCount).map(index => `additionalFilter${index + 1}`)];
+
+    const conditions = _.compact(filterFields.map(field => this.buildConditionFromFilterField(tables, field)));
+
+    if (conditions.length == 0) {
+      return;
+    }
+    if (conditions.length == 0) {
+      select.where = mergeConditions(select.where, conditions[0]);
+      return;
+    }
+    select.where = mergeConditions(select.where, {
+      conditionType: 'or',
+      conditions,
+    });
   }
 
   addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {

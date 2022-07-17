@@ -17,6 +17,7 @@
 
   import TableControl from './TableControl.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import _ from 'lodash';
 
   export let value;
   export let onChange;
@@ -44,8 +45,29 @@
     }));
   };
 
+  const addOrCondition = () => {
+    onChange(current => ({
+      ...current,
+      settings: {
+        ...current?.settings,
+        additionalFilterCount: (current?.settings?.additionalFilterCount ?? 0) + 1,
+      },
+    }));
+  };
+
+  const removeOrCondition = () => {
+    onChange(current => ({
+      ...current,
+      settings: {
+        ...current?.settings,
+        additionalFilterCount: (current?.settings?.additionalFilterCount ?? 1) - 1,
+      },
+    }));
+  };
+
   $: columns = value?.columns;
   $: tables = value?.tables;
+  $: settings = value?.settings;
   $: hasGroupedColumn = !!(columns || []).find(x => x.isGrouped);
 </script>
 
@@ -60,7 +82,13 @@
       { fieldName: 'isGrouped', header: 'Group by', slot: 2 },
       { fieldName: 'aggregate', header: 'Aggregate', slot: 3 },
       { fieldName: 'sortOrder', header: 'Sort order', slot: 4 },
-      { fieldName: 'filter', header: 'Filter', slot: 5 },
+      { fieldName: 'filter', header: 'Filter', slot: 5, props: { filterField: 'filter' } },
+      ..._.range(settings?.additionalFilterCount || 0).map(index => ({
+        fieldName: `additionalFilter${index + 1}`,
+        header: `OR Filter ${index + 2}`,
+        slot: 5,
+        props: { filterField: `additionalFilter${index + 1}` },
+      })),
       hasGroupedColumn && { fieldName: 'groupFilter', header: 'Group filter', slot: 6 },
       { fieldName: 'actions', header: '', slot: 7 },
     ]}
@@ -138,12 +166,12 @@
         ]}
       />
     </svelte:fragment>
-    <svelte:fragment slot="5" let:row>
+    <svelte:fragment slot="5" let:row let:filterField>
       <DataFilterControl
         filterType={findDesignerFilterType(row, value)}
-        filter={row.filter}
+        filter={row[filterField]}
         setFilter={filter => {
-          changeColumn({ ...row, filter });
+          changeColumn({ ...row, [filterField]: filter });
         }}
       />
     </svelte:fragment>
@@ -161,6 +189,10 @@
     </svelte:fragment>
   </TableControl>
   <FormStyledButton value="Add custom expression" on:click={addExpressionColumn} style="width:200px" />
+  <FormStyledButton value="Add OR condition" on:click={addOrCondition} style="width:200px" />
+  {#if settings?.additionalFilterCount > 0}
+    <FormStyledButton value="Remove OR condition" on:click={removeOrCondition} style="width:200px" />
+  {/if}
 </div>
 
 <style>

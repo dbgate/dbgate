@@ -4,6 +4,7 @@
     header: string;
     component?: any;
     getProps?: any;
+    props?: any;
     formatter?: any;
     slot?: number;
     isHighlighted?: Function;
@@ -78,23 +79,24 @@
         }}
       >
         {#each columnList as col}
+          {@const rowProps = { ...col.props, ...(col.getProps ? col.getProps(row) : null) }}
           <td class:isHighlighted={col.isHighlighted && col.isHighlighted(row)} class:noCellPadding>
             {#if col.component}
-              <svelte:component this={col.component} {...col.getProps(row)} />
+              <svelte:component this={col.component} {...rowProps} />
             {:else if col.formatter}
               {col.formatter(row)}
             {:else if col.slot != null}
               {#if col.slot == -1}<slot name="-1" {row} {index} />
-              {:else if col.slot == 0}<slot name="0" {row} {index} />
-              {:else if col.slot == 1}<slot name="1" {row} {index} />
-              {:else if col.slot == 2}<slot name="2" {row} {index} />
-              {:else if col.slot == 3}<slot name="3" {row} {index} />
-              {:else if col.slot == 4}<slot name="4" {row} {index} />
-              {:else if col.slot == 5}<slot name="5" {row} {index} />
-              {:else if col.slot == 6}<slot name="6" {row} {index} />
-              {:else if col.slot == 7}<slot name="7" {row} {index} />
-              {:else if col.slot == 8}<slot name="8" {row} {index} />
-              {:else if col.slot == 9}<slot name="9" {row} {index} />
+              {:else if col.slot == 0}<slot name="0" {row} {index} {...rowProps} />
+              {:else if col.slot == 1}<slot name="1" {row} {index} {...rowProps} />
+              {:else if col.slot == 2}<slot name="2" {row} {index} {...rowProps} />
+              {:else if col.slot == 3}<slot name="3" {row} {index} {...rowProps} />
+              {:else if col.slot == 4}<slot name="4" {row} {index} {...rowProps} />
+              {:else if col.slot == 5}<slot name="5" {row} {index} {...rowProps} />
+              {:else if col.slot == 6}<slot name="6" {row} {index} {...rowProps} />
+              {:else if col.slot == 7}<slot name="7" {row} {index} {...rowProps} />
+              {:else if col.slot == 8}<slot name="8" {row} {index} {...rowProps} />
+              {:else if col.slot == 9}<slot name="9" {row} {index} {...rowProps} />
               {/if}
             {:else}
               {row[col.fieldName] || ''}
