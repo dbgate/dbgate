@@ -73,6 +73,14 @@ module.exports = {
       // res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
       res['app.useNativeMenu'] = false;
     }
+    for (const envVar in process.env) {
+      if (envVar.startsWith('SETTINGS_')) {
+        const key = envVar.substring('SETTINGS_'.length);
+        if (!res[key]) {
+          res[key] = process.env[envVar];
+        }
+      }
+    }
     return res;
   },
 
