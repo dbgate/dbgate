@@ -127,7 +127,7 @@ ORDER BY
           <div class="heading">Editor theme</div>
 
           <div class="flex">
-            <div class="col-6">
+            <div class="col-4">
               <FormFieldTemplateLarge label="Theme" type="combo">
                 <SelectField
                   isNative
@@ -139,7 +139,7 @@ ORDER BY
               </FormFieldTemplateLarge>
             </div>
 
-            <div class="col-6">
+            <div class="col-4">
               <FormFieldTemplateLarge label="Font size " type="combo">
                 <SelectField
                   isNative
@@ -149,6 +149,10 @@ ORDER BY
                   on:change={e => ($currentEditorFontSize = e.detail)}
                 />
               </FormFieldTemplateLarge>
+            </div>
+
+            <div class="col-4">
+              <FormTextField name="editor.fontFamily" label="Editor font family" />
             </div>
           </div>
 

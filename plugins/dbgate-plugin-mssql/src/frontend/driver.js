@@ -127,13 +127,16 @@ const driver = {
     ['authType', 'server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(
       field
     ) ||
-    (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi'),
+    (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi') ||
+    (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi'),
+  // (field == 'useDatabaseUrl' && values.authType != 'sql' && values.authType != 'sspi')
   getQuerySplitterOptions: () => mssqlSplitterOptions,
 
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',
   defaultPort: 1433,
   defaultAuthTypeName: 'tedious',
+  // databaseUrlPlaceholder: 'e.g. server=localhost&authentication.type=default&authentication.type.user=myuser&authentication.type.password=pwd&options.database=mydb',
 
   getNewObjectTemplates() {
     return [

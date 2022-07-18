@@ -114,7 +114,13 @@
   import 'ace-builds/src-noconflict/theme-tomorrow_night';
   import 'ace-builds/src-noconflict/theme-twilight';
 
-  import { currentDropDownMenu, currentEditorFontSize, currentEditorTheme, currentThemeDefinition } from '../stores';
+  import {
+    currentDropDownMenu,
+    currentEditorFontSize,
+    currentEditorFont,
+    currentEditorTheme,
+    currentThemeDefinition,
+  } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
@@ -223,12 +229,15 @@
     }
   }
 
-  $: watchOptions(options);
-  function watchOptions(newOption: any) {
+  $: watchOptions(options, $currentEditorFont);
+  function watchOptions(newOption: any, fontFamily) {
     if (editor) {
       editor.setOptions({
         ...stdOptions,
         ...newOption,
+        fontFamily: fontFamily || 'Menlo, Monaco, Ubuntu Mono, Consolas, source-code-pro, monospace',
+        // fontFamily: 'tahoma,Menlo',
+        // fontSize: '10pt',
       });
     }
   }

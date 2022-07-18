@@ -8,6 +8,7 @@ import {
   mergeConditions,
   Source,
   ResultField,
+  Expression,
 } from 'dbgate-sqltree';
 import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
@@ -78,25 +79,27 @@ export class DesignerQueryDumper {
     return select;
   }
 
-  addConditions(select: Select, tables: DesignerTableInfo[]) {
+  buildConditionFromFilterField(tables: DesignerTableInfo[], filterField: string, getExpression?: Function): Condition {
+    const conditions = [];
+
     for (const column of this.designer.columns || []) {
-      if (!column.filter) continue;
-      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
-      if (!table) continue;
-      if (!tables.find(x => x.designerId == table.designerId)) continue;
+      if (!column[filterField]) continue;
+
+      if (!column.isCustomExpression) {
+        const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
+        if (!table) continue;
+        if (!tables.find(x => x.designerId == table.designerId)) continue;
+      }
 
       try {
-        const condition = parseFilter(column.filter, findDesignerFilterType(column, this.designer));
+        const condition = parseFilter(column[filterField], findDesignerFilterType(column, this.designer));
         if (condition) {
-          select.where = mergeConditions(
-            select.where,
+          conditions.push(
             _.cloneDeepWith(condition, expr => {
-              if (expr.exprType == 'placeholder')
-                return {
-                  exprType: 'column',
-                  columnName: column.columnName,
-                  source: findQuerySource(this.designer, column.designerId),
-                };
+              if (expr.exprType == 'placeholder') {
+                if (getExpression) return getExpression(column);
+                return this.getColumnExpression(column);
+              }
             })
           );
         }
@@ -105,33 +108,79 @@ export class DesignerQueryDumper {
         continue;
       }
     }
+
+    if (conditions.length == 0) {
+      return null;
+    }
+
+    if (conditions.length == 1) {
+      return conditions[0];
+    }
+
+    return {
+      conditionType: 'and',
+      conditions,
+    };
+  }
+
+  addConditionsCore(select: Select, tables: DesignerTableInfo[], filterFields, selectField, getExpression?) {
+    const conditions: Condition[] = _.compact(
+      filterFields.map(field => this.buildConditionFromFilterField(tables, field, getExpression))
+    );
+
+    if (conditions.length == 0) {
+      return;
+    }
+    if (conditions.length == 0) {
+      select[selectField] = mergeConditions(select[selectField], conditions[0]);
+      return;
+    }
+    select[selectField] = mergeConditions(select[selectField], {
+      conditionType: 'or',
+      conditions,
+    });
+  }
+
+  addConditions(select: Select, tables: DesignerTableInfo[]) {
+    const additionalFilterCount = this.designer.settings?.additionalFilterCount || 0;
+    const filterFields = ['filter', ..._.range(additionalFilterCount).map(index => `additionalFilter${index + 1}`)];
+    this.addConditionsCore(select, tables, filterFields, 'where');
   }
 
   addGroupConditions(select: Select, tables: DesignerTableInfo[], selectIsGrouped: boolean) {
-    for (const column of this.designer.columns || []) {
-      if (!column.groupFilter) continue;
-      const table = (this.designer.tables || []).find(x => x.designerId == column.designerId);
-      if (!table) continue;
-      if (!tables.find(x => x.designerId == table.designerId)) continue;
-
-      const condition = parseFilter(column.groupFilter, findDesignerFilterType(column, this.designer));
-      if (condition) {
-        select.having = mergeConditions(
-          select.having,
-          _.cloneDeepWith(condition, expr => {
-            if (expr.exprType == 'placeholder') {
-              return this.getColumnOutputExpression(column, selectIsGrouped);
-            }
-          })
-        );
-      }
-    }
+    const additionalGroupFilterCount = this.designer.settings?.additionalGroupFilterCount || 0;
+    const filterFields = [
+      'groupFilter',
+      ..._.range(additionalGroupFilterCount).map(index => `additionalGroupFilter${index + 1}`),
+    ];
+    this.addConditionsCore(select, tables, filterFields, 'having', column =>
+      this.getColumnResultField(column, selectIsGrouped)
+    );
   }
 
-  getColumnOutputExpression(col, selectIsGrouped): ResultField {
+  getColumnExpression(col): Expression {
     const source = findQuerySource(this.designer, col.designerId);
+    const { columnName, isCustomExpression, customExpression } = col;
+
+    const res: Expression = isCustomExpression
+      ? {
+          exprType: 'raw',
+          sql: customExpression,
+        }
+      : {
+          exprType: 'column',
+          columnName,
+          source,
+        };
+    return res;
+  }
+
+  getColumnResultField(col, selectIsGrouped): ResultField {
     const { columnName } = col;
     let { alias } = col;
+
+    const exprCore = this.getColumnExpression(col);
+
     if (selectIsGrouped && !col.isGrouped) {
       // use aggregate
       const aggregate = col.aggregate == null || col.aggregate == '---' ? 'MAX' : col.aggregate;
@@ -142,20 +191,12 @@ export class DesignerQueryDumper {
         func: aggregate == 'COUNT DISTINCT' ? 'COUNT' : aggregate,
         argsPrefix: aggregate == 'COUNT DISTINCT' ? 'DISTINCT' : null,
         alias,
-        args: [
-          {
-            exprType: 'column',
-            columnName,
-            source,
-          },
-        ],
+        args: [exprCore],
       };
     } else {
       return {
-        exprType: 'column',
-        columnName,
+        ...exprCore,
         alias,
-        source,
       };
     }
   }
@@ -179,24 +220,21 @@ export class DesignerQueryDumper {
       }
     }
 
-    const topLevelColumns = (this.designer.columns || []).filter(col =>
-      topLevelTables.find(tbl => tbl.designerId == col.designerId)
+    const topLevelColumns = (this.designer.columns || []).filter(
+      col =>
+        topLevelTables.find(tbl => tbl.designerId == col.designerId) || (col.isCustomExpression && col.customExpression)
     );
     const selectIsGrouped = !!topLevelColumns.find(x => x.isGrouped || (x.aggregate && x.aggregate != '---'));
     const outputColumns = topLevelColumns.filter(x => x.isOutput);
     if (outputColumns.length == 0) {
       res.selectAll = true;
     } else {
-      res.columns = outputColumns.map(col => this.getColumnOutputExpression(col, selectIsGrouped));
+      res.columns = outputColumns.map(col => this.getColumnResultField(col, selectIsGrouped));
     }
 
     const groupedColumns = topLevelColumns.filter(x => x.isGrouped);
     if (groupedColumns.length > 0) {
-      res.groupBy = groupedColumns.map(col => ({
-        exprType: 'column',
-        columnName: col.columnName,
-        source: findQuerySource(this.designer, col.designerId),
-      }));
+      res.groupBy = groupedColumns.map(col => this.getColumnExpression(col));
     }
 
     const orderColumns = _.sortBy(
@@ -205,10 +243,8 @@ export class DesignerQueryDumper {
     );
     if (orderColumns.length > 0) {
       res.orderBy = orderColumns.map(col => ({
-        exprType: 'column',
+        ...this.getColumnExpression(col),
         direction: col.sortOrder < 0 ? 'DESC' : 'ASC',
-        columnName: col.columnName,
-        source: findQuerySource(this.designer, col.designerId),
       }));
     }
 

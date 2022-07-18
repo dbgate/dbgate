@@ -56,7 +56,7 @@
     id: 'dataGrid.cloneRows',
     category: 'Data grid',
     name: 'Clone rows',
-    toolbarName: 'Clone',
+    toolbarName: 'Clone row(s)',
     keyText: 'CtrlOrCommand+Shift+C',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.editable,
     onClick: () => getCurrentDataGrid().cloneRows(),

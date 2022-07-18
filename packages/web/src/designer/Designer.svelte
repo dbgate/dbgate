@@ -167,8 +167,8 @@
   async function detectSize(tables, domTables) {
     await tick();
     const rects = _.values(domTables).map(x => x.getRect());
-    const maxX = _.max(rects.map(x => x.right));
-    const maxY = _.max(rects.map(x => x.bottom));
+    const maxX = rects.length > 0 ? _.max(rects.map(x => x.right)) : 0;
+    const maxY = rects.length > 0 ? _.max(rects.map(x => x.bottom)) : 0;
 
     canvasWidth = Math.max(3000, maxX + 50);
     canvasHeight = Math.max(3000, maxY + 50);

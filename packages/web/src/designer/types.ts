@@ -31,10 +31,14 @@ export type DesignerColumnInfo = {
   sortOrder?: number;
   filter?: string;
   groupFilter?: string;
+  isCustomExpression?: boolean;
+  customExpression?: string;
 };
 
 export type DesignerSettings = {
   isDistinct?: boolean;
+  additionalFilterCount?: number;
+  additionalGroupFilterCount?: number;
 };
 
 export type DesignerInfo = {

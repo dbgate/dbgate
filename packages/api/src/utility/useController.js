@@ -47,7 +47,6 @@ module.exports = function useController(app, electron, route, controller) {
 
     let method = 'post';
     let raw = false;
-    let rawParams = false;
 
     // if (_.isString(meta)) {
     //   method = meta;
@@ -55,7 +54,6 @@ module.exports = function useController(app, electron, route, controller) {
     if (_.isPlainObject(meta)) {
       method = meta.method;
       raw = meta.raw;
-      rawParams = meta.rawParams;
     }
 
     if (raw) {
@@ -67,9 +65,7 @@ module.exports = function useController(app, electron, route, controller) {
         //   controller._init_called = true;
         // }
         try {
-          let params = [{ ...req.body, ...req.query }, req];
-          if (rawParams) params = [req, res];
-          const data = await controller[key](...params);
+          const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);
         } catch (e) {
           console.log(e);

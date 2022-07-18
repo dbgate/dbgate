@@ -29,7 +29,7 @@ module.exports = {
   async get(_params, req) {
     const logins = getLogins();
     const login = logins ? logins.find(x => x.login == (req.auth && req.auth.user)) : null;
-    const permissions = login ? login.permissions : null;
+    const permissions = login ? login.permissions : process.env.PERMISSIONS;
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -72,6 +72,14 @@ module.exports = {
     if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
       // res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
       res['app.useNativeMenu'] = false;
+    }
+    for (const envVar in process.env) {
+      if (envVar.startsWith('SETTINGS_')) {
+        const key = envVar.substring('SETTINGS_'.length);
+        if (!res[key]) {
+          res[key] = process.env[envVar];
+        }
+      }
     }
     return res;
   },

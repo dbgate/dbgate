@@ -22,7 +22,7 @@ function extractTediousColumns(columns, addDriverNativeColumn = false) {
   return res;
 }
 
-async function tediousConnect({ server, port, user, password, database, ssl, trustServerCertificate }) {
+async function tediousConnect({ server, port, user, password, database, ssl, trustServerCertificate, windowsDomnain }) {
   return new Promise((resolve, reject) => {
     const connectionOptions = {
       encrypt: !!ssl,
@@ -43,10 +43,11 @@ async function tediousConnect({ server, port, user, password, database, ssl, tru
       server,
 
       authentication: {
-        type: 'default',
+        type: windowsDomnain ? 'ntlm' : 'default',
         options: {
           userName: user,
           password: password,
+          ...(windowsDomnain ? { domain: windowsDomnain } : {}),
         },
       },
 
