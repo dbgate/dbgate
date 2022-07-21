@@ -1,36 +1,33 @@
-let sseResponse = null;
+const _ = require('lodash');
+
+const sseResponses = [];
 let electronSender = null;
-let init = [];
+let pingConfigured = false;
 
 module.exports = {
-  setSseResponse(value) {
-    sseResponse = value;
-    setInterval(() => this.emit('ping'), 29 * 1000);
+  ensurePing() {
+    if (!pingConfigured) {
+      setInterval(() => this.emit('ping'), 29 * 1000);
+      pingConfigured = true;
+    }
+  },
+  addSseResponse(value) {
+    sseResponses.push(value);
+    this.ensurePing();
+  },
+  removeSseResponse(value) {
+    _.remove(sseResponses, x => x == value);
   },
   setElectronSender(value) {
     electronSender = value;
+    this.ensurePing();
   },
   emit(message, data) {
     if (electronSender) {
-      if (init.length > 0) {
-        for (const item of init) {
-          electronSender.send(item.message, item.data == null ? null : item.data);
-        }
-        init = [];
-      }
       electronSender.send(message, data == null ? null : data);
-    } else if (sseResponse) {
-      if (init.length > 0) {
-        for (const item of init) {
-          sseResponse.write(
-            `event: ${item.message}\ndata: ${JSON.stringify(item.data == null ? null : item.data)}\n\n`
-          );
-        }
-        init = [];
-      }
-      sseResponse.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
-    } else {
-      init.push([{ message, data }]);
+    }
+    for (const res of sseResponses) {
+      res.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
     }
   },
   emitChanged(key) {
