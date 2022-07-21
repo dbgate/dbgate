@@ -46,6 +46,7 @@
     "lodash": "^4.17.21",
     "ncp": "^2.0.0",
     "node-cron": "^2.0.3",
+    "on-finished": "^2.4.1",
     "portfinder": "^1.0.28",
     "simple-encryptor": "^4.0.0",
     "ssh2": "^1.11.0",

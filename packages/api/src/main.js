@@ -25,6 +25,7 @@ const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
 const scheduler = require('./controllers/scheduler');
 const queryHistory = require('./controllers/queryHistory');
+const onFinished = require('on-finished');
 
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
@@ -63,7 +64,10 @@ function start() {
 
     // Tell the client to retry every 10 seconds if connectivity is lost
     res.write('retry: 10000\n\n');
-    socket.setSseResponse(res);
+    socket.addSseResponse(res);
+    onFinished(req, () => {
+      socket.removeSseResponse(res);
+    });
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
