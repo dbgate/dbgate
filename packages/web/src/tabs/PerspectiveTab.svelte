@@ -4,6 +4,7 @@
   import PerspectiveView from '../perspectives/PerspectiveView.svelte';
   import usePerspectiveConfig from '../utility/usePerspectiveConfig';
   import stableStringify from 'json-stable-stringify';
+  import { writable } from 'svelte/store';
 
   export let tabid;
   export let conid;
@@ -13,6 +14,16 @@
 
   const config = usePerspectiveConfig(tabid);
   const cache = new PerspectiveCache(stableStringify);
+  const loadedCounts = writable({});
 </script>
 
-<PerspectiveView {conid} {database} {schemaName} {pureName} config={$config} setConfig={config.update} {cache} />
+<PerspectiveView
+  {conid}
+  {database}
+  {schemaName}
+  {pureName}
+  config={$config}
+  setConfig={config.update}
+  {cache}
+  {loadedCounts}
+/>

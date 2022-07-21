@@ -25,10 +25,3 @@ export default function usePerspectiveConfig(tabid) {
   onDestroy(unsubscribe);
   return config;
 }
-
-// export function usePerspectiveCache() {
-//   const cache = writable({
-//     tables: {},
-//   });
-//   return cache;
-// }

@@ -35,6 +35,7 @@
 
   export let config;
   export let setConfig;
+  export let loadedCounts;
 
   export let cache;
 
@@ -58,7 +59,15 @@
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
   $: root = $tableInfo
-    ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
+    ? new PerspectiveTableNode(
+        $tableInfo,
+        $dbInfo,
+        config,
+        setConfig,
+        dataProvider,
+        { conid, database },
+        null
+      )
     : null;
 </script>
 
@@ -76,7 +85,7 @@
   </div>
 
   <svelte:fragment slot="2">
-    <PerspectiveTable {root} />
+    <PerspectiveTable {root} {loadedCounts} />
   </svelte:fragment>
 </HorizontalSplitter>
 

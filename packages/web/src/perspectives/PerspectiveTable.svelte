@@ -11,23 +11,37 @@
   import { prop_dev, tick } from 'svelte/internal';
   import { sleep } from '../utility/common';
   import resizeObserver from '../utility/resizeObserver';
+  import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
+  import debug from 'debug';
+
+  const dbg = debug('dbgate:PerspectivaTable');
 
   export let root: PerspectiveTreeNode;
+  export let loadedCounts;
   let dataRows;
   let domWrapper;
   let domTableHead;
   let domHeaderWrap;
   let theadClone;
 
-  async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[]) {
+  async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
+    dbg('load level data', counts);
     // const loadProps: PerspectiveDataLoadPropsWithNode[] = [];
     const loadChildNodes = [];
     const loadChildRows = [];
     const loadProps = node.getNodeLoadProps(parentRows);
-    const { rows, incomplete } = await node.dataProvider.loadData({
+    let { rows, incomplete } = await node.dataProvider.loadData({
       ...loadProps,
-      topCount: 100,
+      topCount: counts[node.uniqueName] || 100,
     });
+    if (incomplete) {
+      rows = [
+        ...rows,
+        {
+          incompleteRowsIndicator: [node.uniqueName],
+        },
+      ];
+    }
     // console.log('ROWS', rows, node.isRoot);
 
     if (node.isRoot) {
@@ -42,7 +56,7 @@
 
     for (const child of node.childNodes) {
       if (child.isExpandable && child.isChecked) {
-        await loadLevelData(child, rows);
+        await loadLevelData(child, rows, counts);
         // loadProps.push(child.getNodeLoadProps());
       }
     }
@@ -63,11 +77,11 @@
     // }
   }
 
-  async function loadData(node: PerspectiveTreeNode) {
+  async function loadData(node: PerspectiveTreeNode, counts) {
     // console.log('LOADING', node);
     if (!node) return;
     const rows = [];
-    await loadLevelData(node, rows);
+    await loadLevelData(node, rows, counts);
     dataRows = rows;
 
     // console.log('DISPLAY ROWS', rows);
@@ -102,7 +116,7 @@
 
   onMount(() => {});
 
-  $: loadData(root);
+  $: loadData(root, $loadedCounts);
   $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
 
   $: {
@@ -137,12 +151,30 @@
       <tbody>
         {#each display.rows as row}
           <tr>
-            {#each display.columns as column}
-              <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
-              {#if row.rowData[column.columnIndex] !== undefined}
-                <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
-              {/if}
-            {/each}
+            {#if row.incompleteRowsIndicator}
+              <td colspan={display.columns.length}
+                ><PerspectiveIntersectionObserver
+                  rootNode={domWrapper}
+                  onLoadNext={() => {
+                    dbg('load next', row.incompleteRowsIndicator);
+                    loadedCounts.update(counts => {
+                      const res = { ...counts };
+                      for (const id of row.incompleteRowsIndicator) {
+                        res[id] = (res[id] || 100) + 100;
+                      }
+                      return res;
+                    });
+                  }}
+                /></td
+              >
+            {:else}
+              {#each display.columns as column}
+                <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
+                {#if row.rowData[column.columnIndex] !== undefined}
+                  <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
+                {/if}
+              {/each}
+            {/if}
           </tr>
         {/each}
       </tbody>

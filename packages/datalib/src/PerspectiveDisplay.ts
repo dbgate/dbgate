@@ -3,6 +3,9 @@ import _max from 'lodash/max';
 import _range from 'lodash/max';
 import _fill from 'lodash/fill';
 import _findIndex from 'lodash/findIndex';
+import debug from 'debug';
+
+const dbg = debug('dbgate:PerspectiveDisplay');
 
 export class PerspectiveDisplayColumn {
   title: string;
@@ -53,6 +56,7 @@ interface CollectedPerspectiveDisplayRow {
   rowData: any[];
   // rowSpans: number[] = null;
   subRowCollections: PerspectiveSubRowCollection[];
+  incompleteRowsIndicator?: string[];
 }
 
 export class PerspectiveDisplayRow {
@@ -73,6 +77,7 @@ export class PerspectiveDisplayRow {
 
   rowData: any[] = [];
   rowSpans: number[] = null;
+  incompleteRowsIndicator: string[] = null;
 }
 
 export class PerspectiveDisplay {
@@ -81,12 +86,15 @@ export class PerspectiveDisplay {
   readonly columnLevelCount: number;
 
   constructor(public root: PerspectiveTreeNode, rows: any[]) {
+    // dbg('source rows', rows);
     this.fillColumns(root.childNodes, []);
     this.columnLevelCount = _max(this.columns.map(x => x.parentNodes.length)) + 1;
     const collectedRows = this.collectRows(rows, root.childNodes);
+    // dbg('collected rows', collectedRows);
     // console.log('COLLECTED', collectedRows);
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
+    // dbg('merged rows', this.rows);
     // console.log('MERGED', this.rows);
   }
 
@@ -163,6 +171,7 @@ export class PerspectiveDisplay {
         rowData,
         columnIndexes,
         subRowCollections,
+        incompleteRowsIndicator: sourceRow.incompleteRowsIndicator,
       });
     }
 
@@ -212,6 +221,7 @@ export class PerspectiveDisplay {
     for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
       resultRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
     }
+    resultRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
 
     for (const subrows of collectedRow.subRowCollections) {
       let rowIndex = 0;
