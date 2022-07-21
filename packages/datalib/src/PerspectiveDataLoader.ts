@@ -81,7 +81,7 @@ export class PerspectiveDataLoader {
         },
       })),
       selectAll: !dataColumns,
-      orderBy: dataColumns?.map(columnName => ({
+      orderBy: orderBy?.map(columnName => ({
         exprType: 'column',
         columnName,
         direction: 'ASC',
@@ -106,7 +106,7 @@ export class PerspectiveDataLoader {
     }
 
     if (dbg?.enabled) {
-      dbg(`LOAD DATA, table=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${props.range}}`);
+      dbg(`LOAD DATA, table=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${props.range?.offset},${props.range?.limit}`);
     }
 
     const response = await this.apiCall('database-connections/sql-select', {

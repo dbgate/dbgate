@@ -40,7 +40,9 @@ export class PerspectiveCache {
   tables: { [tableKey: string]: PerspectiveCacheTable } = {};
 
   getTableCache(props: PerspectiveDataLoadProps) {
-    const tableKey = this.stableStringify(_omit(props, ['range', 'bindingValues', 'dataColumns']));
+    const tableKey = this.stableStringify(
+      _pick(props, ['schemaName', 'pureName', 'bindingColumns', 'databaseConfig', 'orderBy'])
+    );
     let res = this.tables[tableKey];
 
     if (res && _difference(props.dataColumns, res.dataColumns).length > 0) {
