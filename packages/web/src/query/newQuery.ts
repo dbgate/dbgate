@@ -36,3 +36,7 @@ export default function newQuery({
 export function newQueryDesign() {
   return newQuery({ tabComponent: 'QueryDesignTab', icon: 'img query-design' });
 }
+
+export function newDiagram() {
+  return newQuery({ tabComponent: 'DiagramTab', icon: 'img diagram', title: 'Diagram #' });
+}

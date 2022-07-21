@@ -6,7 +6,7 @@ import SettingsModal from '../settings/SettingsModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
-import newQuery from '../query/newQuery';
+import newQuery, { newDiagram, newQueryDesign } from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
 import openNewTab from '../utility/openNewTab';
 import getElectron from '../utility/getElectron';
@@ -118,6 +118,24 @@ registerCommand({
       tabComponent: 'ShellTab',
     });
   },
+});
+
+registerCommand({
+  id: 'new.queryDesign',
+  category: 'New',
+  icon: 'img query-design',
+  name: 'Query design',
+  menuName: 'New query design',
+  onClick: () => newQueryDesign(),
+});
+
+registerCommand({
+  id: 'new.diagram',
+  category: 'New',
+  icon: 'img diagram',
+  name: 'ER Diagram',
+  menuName: 'New ER diagram',
+  onClick: () => newDiagram(),
 });
 
 registerCommand({
