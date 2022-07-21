@@ -19,7 +19,14 @@ function doLoadPerspectiveConfigFunc(tabid) {
 
 export default function usePerspectiveConfig(tabid) {
   const config = writable(doLoadPerspectiveConfigFunc(tabid));
-  const unsubscribe = config.subscribe(value => localStorage.setItem(`tabdata_perspective_${tabid}`, JSON.stringify(value)));
+  const unsubscribe = config.subscribe(value =>
+    localStorage.setItem(`tabdata_perspective_${tabid}`, JSON.stringify(value))
+  );
   onDestroy(unsubscribe);
   return config;
+}
+
+export function usePerspectiveCache() {
+  const cache = writable({});
+  return cache;
 }

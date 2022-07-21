@@ -6,6 +6,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
+import { PerspectiveDataProvider } from './PerspectiveDataProvider';
 
 export interface PerspectiveDataLoadProps {
   schemaName: string;
@@ -46,7 +47,7 @@ export abstract class PerspectiveTreeNode {
     public config: PerspectiveConfig,
     public setConfig: ChangePerspectiveConfigFunc,
     public parentNode: PerspectiveTreeNode,
-    public loader: (props: PerspectiveDataLoadProps) => Promise<any[]>
+    public dataProvider: PerspectiveDataProvider
   ) {}
   abstract get title();
   abstract get codeName();
@@ -141,10 +142,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    public dataProvider: PerspectiveDataProvider,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, loader);
+    super(config, setConfig, parentNode, dataProvider);
 
     this.foreignKey =
       table.foreignKeys &&
@@ -204,7 +205,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
-    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this.loader, this);
+    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this.dataProvider, this);
   }
 }
 
@@ -214,10 +215,10 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    public dataProvider: PerspectiveDataProvider,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, loader);
+    super(config, setConfig, parentNode, dataProvider);
   }
 
   getNodeLoadProps(parentRows: any[]) {
@@ -241,7 +242,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 
   get childNodes(): PerspectiveTreeNode[] {
-    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this.loader, this);
+    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this.dataProvider, this);
   }
 
   get icon() {
@@ -256,10 +257,10 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+    public dataProvider: PerspectiveDataProvider,
     parentNode: PerspectiveTreeNode
   ) {
-    super(table, db, config, setConfig, loader, parentNode);
+    super(table, db, config, setConfig, dataProvider, parentNode);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -298,18 +299,20 @@ export function getTableChildPerspectiveNodes(
   db: DatabaseInfo,
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
-  loader: (props: PerspectiveDataLoadProps) => Promise<any[]>,
+  dataProvider: PerspectiveDataProvider,
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
   const res = [];
   res.push(
-    ...table.columns.map(col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, loader, parentColumn))
+    ...table.columns.map(
+      col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, dataProvider, parentColumn)
+    )
   );
   if (db && table.dependencies) {
     for (const fk of table.dependencies) {
       const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, loader, parentColumn));
+      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, dataProvider, parentColumn));
     }
   }
   return res;

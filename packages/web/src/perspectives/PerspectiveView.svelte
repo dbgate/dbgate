@@ -2,6 +2,7 @@
   import {
     getTableChildPerspectiveNodes,
     PerspectiveDataLoadProps,
+    PerspectiveDataProvider,
     PerspectiveTableColumnNode,
     PerspectiveTableNode,
   } from 'dbgate-datalib';
@@ -18,7 +19,7 @@
   import PerspectiveTable from './PerspectiveTable.svelte';
   import { apiCall } from '../utility/api';
   import { Select } from 'dbgate-sqltree';
-import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
+  import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
 
   export let conid;
   export let database;
@@ -27,6 +28,9 @@ import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
 
   export let config;
   export let setConfig;
+
+  export let cache;
+  export let setCache;
 
   let managerSize;
 
@@ -78,6 +82,22 @@ import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
         },
       })),
       selectAll: !dataColumns,
+      orderBy: dataColumns
+        ? [
+            {
+              exprType: 'column',
+              direction: 'ASC',
+              columnName: dataColumns[0],
+              source: {
+                name: { schemaName, pureName },
+              },
+            },
+          ]
+        : null,
+      range: {
+        offset: 0,
+        limit: 100,
+      },
     };
     if (bindingColumns?.length == 1) {
       select.where = {
@@ -102,7 +122,8 @@ import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
     return response.rows;
   }
 
-  $: root = $tableInfo ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, loader as any, null) : null;
+  $: dataProvider = new PerspectiveDataProvider(cache, setCache, loader);
+  $: root = $tableInfo ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, null) : null;
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
