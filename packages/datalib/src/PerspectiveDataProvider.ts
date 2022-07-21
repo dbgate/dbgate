@@ -24,6 +24,18 @@ export class PerspectiveDataProvider {
   async loadData(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
     const tableCache = this.cache.getTableCache(props);
 
+    if (props.bindingColumns) {
+      const { cached, uncached } = tableCache.getBindingGroups(props);
+      const counts = await this.loader.loadGrouping({
+        ...props,
+        bindingValues: uncached,
+      });
+      for (const countItem of counts) {
+        const { _perspective_group_size_, ...fields } = countItem;
+        tableCache.storeGroupSize(props, fields, _perspective_group_size_);
+      }
+    }
+
     if (props.topCount <= tableCache.loadedCount) {
       return tableCache.getRowsResult(props);
     }
