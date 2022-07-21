@@ -24,7 +24,7 @@
     const loadChildNodes = [];
     const loadChildRows = [];
     const loadProps = node.getNodeLoadProps(parentRows);
-    const rows = await node.dataProvider.loadData(loadProps);
+    const { rows, incomplete } = await node.dataProvider.loadData(loadProps);
     // console.log('ROWS', rows, node.isRoot);
 
     if (node.isRoot) {
@@ -67,7 +67,7 @@
     await loadLevelData(node, rows);
     dataRows = rows;
 
-    console.log('DISPLAY ROWS', rows);
+    // console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
     //   const loadProps = [];

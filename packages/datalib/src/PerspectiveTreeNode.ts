@@ -1,4 +1,4 @@
-import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, TableInfo } from 'dbgate-types';
+import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo } from 'dbgate-types';
 import { clearConfigCache } from 'prettier';
 import { ChangePerspectiveConfigFunc, PerspectiveConfig } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
@@ -7,13 +7,17 @@ import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
 import { PerspectiveDataProvider } from './PerspectiveDataProvider';
+import { PerspectiveDatabaseConfig } from './PerspectiveDataLoader';
 
 export interface PerspectiveDataLoadProps {
+  databaseConfig: PerspectiveDatabaseConfig;
   schemaName: string;
   pureName: string;
   dataColumns: string[];
   bindingColumns?: string[];
   bindingValues?: any[][];
+  range?: RangeDefinition;
+  loadMore?: boolean;
 }
 
 export interface PerspectiveDataLoadPropsWithNode {
@@ -47,7 +51,8 @@ export abstract class PerspectiveTreeNode {
     public config: PerspectiveConfig,
     public setConfig: ChangePerspectiveConfigFunc,
     public parentNode: PerspectiveTreeNode,
-    public dataProvider: PerspectiveDataProvider
+    public dataProvider: PerspectiveDataProvider,
+    public databaseConfig: PerspectiveDatabaseConfig
   ) {}
   abstract get title();
   abstract get codeName();
@@ -142,10 +147,11 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
-    public dataProvider: PerspectiveDataProvider,
+    dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, dataProvider);
+    super(config, setConfig, parentNode, dataProvider, databaseConfig);
 
     this.foreignKey =
       table.foreignKeys &&
@@ -175,6 +181,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       bindingColumns: [this.foreignKey.columns[0].refColumnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].columnName]),
       dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
     };
   }
 
@@ -205,7 +212,15 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
-    return getTableChildPerspectiveNodes(tbl, this.db, this.config, this.setConfig, this.dataProvider, this);
+    return getTableChildPerspectiveNodes(
+      tbl,
+      this.db,
+      this.config,
+      this.setConfig,
+      this.dataProvider,
+      this.databaseConfig,
+      this
+    );
   }
 }
 
@@ -216,9 +231,10 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, dataProvider);
+    super(config, setConfig, parentNode, dataProvider, databaseConfig);
   }
 
   getNodeLoadProps(parentRows: any[]) {
@@ -226,6 +242,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
     };
   }
 
@@ -242,7 +259,15 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 
   get childNodes(): PerspectiveTreeNode[] {
-    return getTableChildPerspectiveNodes(this.table, this.db, this.config, this.setConfig, this.dataProvider, this);
+    return getTableChildPerspectiveNodes(
+      this.table,
+      this.db,
+      this.config,
+      this.setConfig,
+      this.dataProvider,
+      this.databaseConfig,
+      this
+    );
   }
 
   get icon() {
@@ -258,9 +283,10 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(table, db, config, setConfig, dataProvider, parentNode);
+    super(table, db, config, setConfig, dataProvider, databaseConfig, parentNode);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -286,6 +312,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       bindingColumns: [this.foreignKey.columns[0].columnName],
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
       dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
     };
   }
 
@@ -300,19 +327,24 @@ export function getTableChildPerspectiveNodes(
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
   dataProvider: PerspectiveDataProvider,
+  databaseConfig: PerspectiveDatabaseConfig,
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
   const res = [];
   res.push(
     ...table.columns.map(
-      col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, dataProvider, parentColumn)
+      col =>
+        new PerspectiveTableColumnNode(col, table, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
     )
   );
   if (db && table.dependencies) {
     for (const fk of table.dependencies) {
       const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-      if (tbl) res.push(new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, dataProvider, parentColumn));
+      if (tbl)
+        res.push(
+          new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
+        );
     }
   }
   return res;

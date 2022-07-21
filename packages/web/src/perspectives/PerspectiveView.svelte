@@ -11,6 +11,7 @@
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import { useDatabaseInfo, useTableInfo, useViewInfo } from '../utility/metadataLoaders';
+  import debug from 'debug';
 
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
@@ -20,6 +21,9 @@
   import { apiCall } from '../utility/api';
   import { Select } from 'dbgate-sqltree';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
+  import { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
+
+  const dbg = debug('dbgate:PerspectiveView');
 
   export let conid;
   export let database;
@@ -67,63 +71,66 @@
   //   ? getViewNodes($viewInfo, $dbInfo, config, setConfig)
   //   : null;
 
-  async function loader(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
-    const select: Select = {
-      commandType: 'select',
-      from: {
-        name: { schemaName, pureName },
-      },
-      columns: dataColumns?.map(columnName => ({
-        exprType: 'column',
-        columnName,
-        source: {
-          name: { schemaName, pureName },
-        },
-      })),
-      selectAll: !dataColumns,
-      orderBy: dataColumns
-        ? [
-            {
-              exprType: 'column',
-              direction: 'ASC',
-              columnName: dataColumns[0],
-              source: {
-                name: { schemaName, pureName },
-              },
-            },
-          ]
-        : null,
-      range: {
-        offset: 0,
-        limit: 100,
-      },
-    };
-    if (bindingColumns?.length == 1) {
-      select.where = {
-        conditionType: 'in',
-        expr: {
-          exprType: 'column',
-          columnName: bindingColumns[0],
-          source: {
-            name: { schemaName, pureName },
-          },
-        },
-        values: bindingValues,
-      };
-    }
-    const response = await apiCall('database-connections/sql-select', {
-      conid,
-      database,
-      select,
-    });
+  // async function loader(props: PerspectiveDataLoadProps) {
+  //   const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
+  //   const select: Select = {
+  //     commandType: 'select',
+  //     from: {
+  //       name: { schemaName, pureName },
+  //     },
+  //     columns: dataColumns?.map(columnName => ({
+  //       exprType: 'column',
+  //       columnName,
+  //       source: {
+  //         name: { schemaName, pureName },
+  //       },
+  //     })),
+  //     selectAll: !dataColumns,
+  //     orderBy: dataColumns
+  //       ? [
+  //           {
+  //             exprType: 'column',
+  //             direction: 'ASC',
+  //             columnName: dataColumns[0],
+  //             source: {
+  //               name: { schemaName, pureName },
+  //             },
+  //           },
+  //         ]
+  //       : null,
+  //     range: props.range,
+  //   };
+  //   if (bindingColumns?.length == 1) {
+  //     select.where = {
+  //       conditionType: 'in',
+  //       expr: {
+  //         exprType: 'column',
+  //         columnName: bindingColumns[0],
+  //         source: {
+  //           name: { schemaName, pureName },
+  //         },
+  //       },
+  //       values: bindingValues,
+  //     };
+  //   }
 
-    if (response.errorMessage) return response;
-    return response.rows;
-  }
+  //   dbg(`LOAD DATA, table=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${props.range}}`);
 
+  //   const response = await apiCall('database-connections/sql-select', {
+  //     conid,
+  //     database,
+  //     select,
+  //   });
+
+  //   if (response.errorMessage) return response;
+  //   return response.rows;
+  // }
+
+  $: loader = new PerspectiveDataLoader(apiCall, dbg);
   $: dataProvider = new PerspectiveDataProvider(cache, setCache, loader);
-  $: root = $tableInfo ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, null) : null;
+  $: root = $tableInfo
+    ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
+    : null;
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
