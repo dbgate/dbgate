@@ -26,7 +26,9 @@ export default function usePerspectiveConfig(tabid) {
   return config;
 }
 
-export function usePerspectiveCache() {
-  const cache = writable({});
-  return cache;
-}
+// export function usePerspectiveCache() {
+//   const cache = writable({
+//     tables: {},
+//   });
+//   return cache;
+// }

@@ -16,3 +16,4 @@ export * from './CollectionGridDisplay';
 export * from './deleteCascade';
 export * from './PerspectiveDisplay';
 export * from './PerspectiveDataProvider';
+export * from './PerspectiveCache';

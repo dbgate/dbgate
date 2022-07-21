@@ -24,7 +24,10 @@
     const loadChildNodes = [];
     const loadChildRows = [];
     const loadProps = node.getNodeLoadProps(parentRows);
-    const { rows, incomplete } = await node.dataProvider.loadData(loadProps);
+    const { rows, incomplete } = await node.dataProvider.loadData({
+      ...loadProps,
+      topCount: 100,
+    });
     // console.log('ROWS', rows, node.isRoot);
 
     if (node.isRoot) {

@@ -6,19 +6,11 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
-import { PerspectiveDataProvider } from './PerspectiveDataProvider';
-import { PerspectiveDatabaseConfig } from './PerspectiveDataLoader';
-
-export interface PerspectiveDataLoadProps {
-  databaseConfig: PerspectiveDatabaseConfig;
-  schemaName: string;
-  pureName: string;
-  dataColumns: string[];
-  bindingColumns?: string[];
-  bindingValues?: any[][];
-  range?: RangeDefinition;
-  loadMore?: boolean;
-}
+import {
+  PerspectiveDatabaseConfig,
+  PerspectiveDataLoadProps,
+  PerspectiveDataProvider,
+} from './PerspectiveDataProvider';
 
 export interface PerspectiveDataLoadPropsWithNode {
   props: PerspectiveDataLoadProps;
@@ -182,6 +174,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].columnName]),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
+      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
     };
   }
 
@@ -243,6 +236,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
+      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
     };
   }
 
@@ -313,6 +307,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       bindingValues: parentRows.map(row => row[this.foreignKey.columns[0].refColumnName]),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
+      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
     };
   }
 

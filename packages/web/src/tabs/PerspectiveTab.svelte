@@ -1,6 +1,9 @@
 <script lang="ts">
+  import { PerspectiveCache } from 'dbgate-datalib';
+
   import PerspectiveView from '../perspectives/PerspectiveView.svelte';
-  import usePerspectiveConfig, { usePerspectiveCache } from '../utility/usePerspectiveConfig';
+  import usePerspectiveConfig from '../utility/usePerspectiveConfig';
+  import stableStringify from 'json-stable-stringify';
 
   export let tabid;
   export let conid;
@@ -9,16 +12,7 @@
   export let pureName;
 
   const config = usePerspectiveConfig(tabid);
-  const cache = usePerspectiveCache();
+  const cache = new PerspectiveCache(stableStringify);
 </script>
 
-<PerspectiveView
-  {conid}
-  {database}
-  {schemaName}
-  {pureName}
-  config={$config}
-  setConfig={config.update}
-  {cache}
-  setCache={cache.update}
-/>
+<PerspectiveView {conid} {database} {schemaName} {pureName} config={$config} setConfig={config.update} {cache} />

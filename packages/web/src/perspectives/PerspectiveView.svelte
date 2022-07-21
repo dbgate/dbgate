@@ -22,6 +22,9 @@
   import { Select } from 'dbgate-sqltree';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
+  import stableStringify from 'json-stable-stringify';
+  import createRef from '../utility/createRef';
+  import { tick } from 'svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -34,9 +37,9 @@
   export let setConfig;
 
   export let cache;
-  export let setCache;
 
   let managerSize;
+  let nextCacheRef = createRef(null);
 
   $: if (managerSize) setLocalStorage('perspectiveManagerWidth', managerSize);
 
@@ -52,8 +55,8 @@
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
 
-  $: loader = new PerspectiveDataLoader(apiCall, dbg);
-  $: dataProvider = new PerspectiveDataProvider(cache, setCache, loader);
+  $: dataProvider = new PerspectiveDataProvider(cache, loader);
+  $: loader = new PerspectiveDataLoader(apiCall);
   $: root = $tableInfo
     ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
     : null;
