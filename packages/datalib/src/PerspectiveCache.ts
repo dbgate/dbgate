@@ -4,6 +4,7 @@ import _pick from 'lodash/pick';
 import _zip from 'lodash/zip';
 import _difference from 'lodash/difference';
 import debug from 'debug';
+import stableStringify from 'json-stable-stringify';
 
 const dbg = debug('dbgate:PerspectiveCache');
 
@@ -49,14 +50,14 @@ export class PerspectiveCacheTable {
   }
 
   getBindingGroup(groupValues: any[]) {
-    const key = this.cache.stableStringify(groupValues);
+    const key = stableStringify(groupValues);
     return this.bindingGroups[key];
   }
 
   getUncachedBindingGroups(props: PerspectiveDataLoadProps): any[][] {
     const uncached = [];
     for (const group of props.bindingValues) {
-      const key = this.cache.stableStringify(group);
+      const key = stableStringify(group);
       const item = this.bindingGroups[key];
       if (!item) {
         uncached.push(group);
@@ -68,7 +69,7 @@ export class PerspectiveCacheTable {
   storeGroupSize(props: PerspectiveDataLoadProps, bindingValues: any[], count: number) {
     const originalBindingValue = props.bindingValues.find(v => _zip(v, bindingValues).every(([x, y]) => x == y));
     if (originalBindingValue) {
-      const key = this.cache.stableStringify(originalBindingValue);
+      const key = stableStringify(originalBindingValue);
       // console.log('SET SIZE', originalBindingValue, bindingValues, key, count);
       const group = new PerspectiveBindingGroup(this);
       group.bindingValues = bindingValues;
@@ -81,12 +82,12 @@ export class PerspectiveCacheTable {
 }
 
 export class PerspectiveCache {
-  constructor(public stableStringify) {}
+  constructor() {}
 
   tables: { [tableKey: string]: PerspectiveCacheTable } = {};
 
   getTableCache(props: PerspectiveDataLoadProps) {
-    const tableKey = this.stableStringify(
+    const tableKey = stableStringify(
       _pick(props, ['schemaName', 'pureName', 'bindingColumns', 'databaseConfig', 'orderBy'])
     );
     let res = this.tables[tableKey];

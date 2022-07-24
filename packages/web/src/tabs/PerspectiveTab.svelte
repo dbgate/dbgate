@@ -13,7 +13,7 @@
   export let pureName;
 
   const config = usePerspectiveConfig(tabid);
-  const cache = new PerspectiveCache(stableStringify);
+  const cache = new PerspectiveCache();
   const loadedCounts = writable({});
 </script>
 

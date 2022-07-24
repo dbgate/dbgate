@@ -6,11 +6,13 @@ import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
+import _uniqBy from 'lodash/uniqBy';
 import {
   PerspectiveDatabaseConfig,
   PerspectiveDataLoadProps,
   PerspectiveDataProvider,
 } from './PerspectiveDataProvider';
+import stableStringify from 'json-stable-stringify';
 
 export interface PerspectiveDataLoadPropsWithNode {
   props: PerspectiveDataLoadProps;
@@ -171,7 +173,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       schemaName: this.foreignKey.refSchemaName,
       pureName: this.foreignKey.refTableName,
       bindingColumns: [this.foreignKey.columns[0].refColumnName],
-      bindingValues: parentRows.map(row => [row[this.foreignKey.columns[0].columnName]]),
+      bindingValues: _uniqBy(
+        parentRows.map(row => [row[this.foreignKey.columns[0].columnName]]),
+        stableStringify
+      ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
@@ -304,7 +309,10 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       bindingColumns: [this.foreignKey.columns[0].columnName],
-      bindingValues: parentRows.map(row => [row[this.foreignKey.columns[0].refColumnName]]),
+      bindingValues: _uniqBy(
+        parentRows.map(row => [row[this.foreignKey.columns[0].refColumnName]]),
+        stableStringify
+      ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
