@@ -8,6 +8,11 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.0.9
+- FIXED: Fixed problem with SSE events on web version
+- ADDED: Added menu command "New query designer"
+- ADDED: Added menu command "New ER diagram"
+
 ### 5.0.8
 - ADDED: SQL Server - support using domain logins under Linux and Mac #305
 - ADDED: Permissions for connections #318
