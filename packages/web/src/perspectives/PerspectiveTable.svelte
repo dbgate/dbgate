@@ -14,6 +14,7 @@
   import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
   import debug from 'debug';
   import contextMenu from '../utility/contextMenu';
+  import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
 
@@ -170,6 +171,13 @@
             {/each}
           </tr>
         {/each}
+        <!-- <tr>
+          {#each display.columns as column}
+            <th>
+              <DataFilterControl filter="" setFilter={null} columnName={column.dataNode.codeName} filterType="string" />
+            </th>
+          {/each}
+        </tr> -->
       </thead>
       <tbody>
         {#each display.rows as row}

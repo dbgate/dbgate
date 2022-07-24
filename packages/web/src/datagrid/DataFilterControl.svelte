@@ -23,8 +23,8 @@
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
-  export let onFocusGrid;
-  export let onGetReference;
+  export let onFocusGrid = null;
+  export let onGetReference = null;
   export let foreignKey = null;
   export let conid = null;
   export let database = null;
