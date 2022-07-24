@@ -14,6 +14,10 @@ export class PerspectiveBindingGroup {
   loadedAll: boolean;
   loadedRows: any[] = [];
   bindingValues: any[];
+
+  matchRow(row) {
+    return this.table.bindingColumns.every((column, index) => row[column] == this.bindingValues[index]);
+  }
 }
 
 export class PerspectiveCacheTable {
@@ -44,28 +48,34 @@ export class PerspectiveCacheTable {
     };
   }
 
-  getBindingGroups(props: PerspectiveDataLoadProps): { cached: PerspectiveBindingGroup[]; uncached: any[][] } {
-    const cached: PerspectiveBindingGroup[] = [];
+  getBindingGroup(groupValues: any[]) {
+    const key = this.cache.stableStringify(groupValues);
+    return this.bindingGroups[key];
+  }
+
+  getUncachedBindingGroups(props: PerspectiveDataLoadProps): any[][] {
     const uncached = [];
-    for (const group in props.bindingValues) {
+    for (const group of props.bindingValues) {
       const key = this.cache.stableStringify(group);
       const item = this.bindingGroups[key];
-      if (item) {
-        cached.push(item);
-      } else {
+      if (!item) {
         uncached.push(group);
       }
     }
-    return { cached, uncached };
+    return uncached;
   }
 
   storeGroupSize(props: PerspectiveDataLoadProps, bindingValues: any[], count: number) {
     const originalBindingValue = props.bindingValues.find(v => _zip(v, bindingValues).every(([x, y]) => x == y));
     if (originalBindingValue) {
       const key = this.cache.stableStringify(originalBindingValue);
+      // console.log('SET SIZE', originalBindingValue, bindingValues, key, count);
       const group = new PerspectiveBindingGroup(this);
+      group.bindingValues = bindingValues;
       group.groupSize = count;
       this.bindingGroups[key] = group;
+    } else {
+      dbg('Group not found', bindingValues);
     }
   }
 }

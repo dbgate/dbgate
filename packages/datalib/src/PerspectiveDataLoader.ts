@@ -9,6 +9,18 @@ export class PerspectiveDataLoader {
 
   async loadGrouping(props: PerspectiveDataLoadProps) {
     const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
+
+    const bindingColumnExpressions = bindingColumns.map(
+      columnName =>
+        ({
+          exprType: 'column',
+          columnName,
+          source: {
+            name: { schemaName, pureName },
+          },
+        } as Expression)
+    );
+
     const select: Select = {
       commandType: 'select',
       from: {
@@ -26,16 +38,7 @@ export class PerspectiveDataLoader {
           ],
           alias: '_perspective_group_size_',
         },
-        ...bindingColumns.map(
-          columnName =>
-            ({
-              exprType: 'column',
-              columnName,
-              source: {
-                name: { schemaName, pureName },
-              },
-            } as Expression)
-        ),
+        ...bindingColumnExpressions,
       ],
     };
     if (bindingColumns?.length == 1) {
@@ -48,9 +51,11 @@ export class PerspectiveDataLoader {
             name: { schemaName, pureName },
           },
         },
-        values: bindingValues,
+        values: bindingValues.map(x => x[0]),
       };
     }
+
+    select.groupBy = bindingColumnExpressions;
 
     if (dbg?.enabled) {
       dbg(`LOAD COUNTS, table=${props.pureName}, columns=${props.dataColumns?.join(',')}`);
@@ -63,7 +68,10 @@ export class PerspectiveDataLoader {
     });
 
     if (response.errorMessage) return response;
-    return response.rows;
+    return response.rows.map(row => ({
+      ...row,
+      _perspective_group_size_: parseInt(row._perspective_group_size_),
+    }));
   }
 
   async loadData(props: PerspectiveDataLoadProps) {
@@ -101,12 +109,16 @@ export class PerspectiveDataLoader {
             name: { schemaName, pureName },
           },
         },
-        values: bindingValues,
+        values: bindingValues.map(x => x[0]),
       };
     }
 
     if (dbg?.enabled) {
-      dbg(`LOAD DATA, table=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${props.range?.offset},${props.range?.limit}`);
+      dbg(
+        `LOAD DATA, table=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${props.range?.offset},${
+          props.range?.limit
+        }`
+      );
     }
 
     const response = await this.apiCall('database-connections/sql-select', {

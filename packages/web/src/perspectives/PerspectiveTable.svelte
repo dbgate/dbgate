@@ -84,6 +84,7 @@
     await loadLevelData(node, rows, counts);
     dataRows = rows;
 
+    dbg('display rows', rows);
     // console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
