@@ -109,4 +109,8 @@ export class PerspectiveCache {
     // cache could be used
     return res;
   }
+
+  clear() {
+    this.tables = {};
+  }
 }

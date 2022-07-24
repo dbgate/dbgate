@@ -13,6 +13,7 @@
   import resizeObserver from '../utility/resizeObserver';
   import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
   import debug from 'debug';
+  import contextMenu from '../utility/contextMenu';
 
   const dbg = debug('dbgate:PerspectivaTable');
 
@@ -133,13 +134,27 @@
     domHeaderWrap;
     createHeaderClone();
   }
+
+  function buildMenu() {
+    return [
+      {
+        command: 'perspective.refresh',
+      },
+    ];
+  }
 </script>
 
 <div class="headerWrap">
   <table bind:this={domHeaderWrap} />
 </div>
 
-<div class="wrapper" bind:this={domWrapper} use:resizeObserver={true} on:resize={createHeaderClone}>
+<div
+  class="wrapper"
+  bind:this={domWrapper}
+  use:resizeObserver={true}
+  on:resize={createHeaderClone}
+  use:contextMenu={buildMenu}
+>
   {#if display}
     <table>
       <thead bind:this={domTableHead}>
