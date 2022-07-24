@@ -34,23 +34,30 @@
       ...loadProps,
       topCount: counts[node.uniqueName] || 100,
     });
-    if (incomplete) {
-      rows = [
-        ...rows,
-        {
-          incompleteRowsIndicator: [node.uniqueName],
-        },
-      ];
-    }
     // console.log('ROWS', rows, node.isRoot);
 
     if (node.isRoot) {
       parentRows.push(...rows);
       // console.log('PUSH PARENTROWS', parentRows);
+
+      if (incomplete) {
+        parentRows.push({
+          incompleteRowsIndicator: [node.uniqueName],
+        });
+      }
     } else {
+      let lastRowWithChildren = null;
       for (const parentRow of parentRows) {
         const childRows = rows.filter(row => node.matchChildRow(parentRow, row));
         parentRow[node.fieldName] = childRows;
+        if (childRows.length > 0) {
+          lastRowWithChildren = parentRow;
+        }
+      }
+      if (incomplete && lastRowWithChildren) {
+        lastRowWithChildren[node.fieldName].push({
+          incompleteRowsIndicator: [node.uniqueName],
+        });
       }
     }
 

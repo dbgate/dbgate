@@ -95,7 +95,12 @@ export class PerspectiveDisplay {
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
     // dbg('merged rows', this.rows);
-    // console.log('MERGED', this.rows);
+    // console.log(
+    //   'MERGED',
+    //   this.rows.map(r =>
+    //     r.incompleteRowsIndicator ? `************************************ ${r.incompleteRowsIndicator.join('|')}` : r.rowData.join('|')
+    //   )
+    // );
   }
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
