@@ -137,7 +137,7 @@ export class PerspectiveDataProvider {
           },
           bindingValues: [group.bindingValues],
         });
-        group.loadedRows = [...group.loadedRows, nextRows];
+        group.loadedRows = [...group.loadedRows, ...nextRows];
         group.loadedAll = nextRows.length < PERSPECTIVE_PAGE_SIZE;
         return;
       } else {
