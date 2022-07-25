@@ -22,9 +22,6 @@
   export let loadedCounts;
   let dataRows;
   let domWrapper;
-  let domTableHead;
-  let domHeaderWrap;
-  let theadClone;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
     dbg('load level data', counts);
@@ -104,37 +101,10 @@
     // }
   }
 
-  async function createHeaderClone() {
-    if (!domTableHead || !domHeaderWrap) return;
-    await tick();
-
-    if (theadClone) {
-      theadClone.remove();
-      theadClone = null;
-    }
-    theadClone = domTableHead.cloneNode(true);
-    const sourceCells = domTableHead.querySelectorAll('th');
-    const targetCells = theadClone.querySelectorAll('th');
-    domHeaderWrap.appendChild(theadClone);
-    for (const pair of _.zip(sourceCells, targetCells)) {
-      const [src, dst]: [any, any] = pair;
-      dst.style.width = `${src.getBoundingClientRect().width - 1}px`;
-      dst.style.minWidth = `${src.getBoundingClientRect().width - 1}px`;
-      dst.style.maxWidth = `${src.getBoundingClientRect().width - 1}px`;
-    }
-  }
-
   onMount(() => {});
 
   $: loadData(root, $loadedCounts);
   $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
-
-  $: {
-    display;
-    domTableHead;
-    domHeaderWrap;
-    createHeaderClone();
-  }
 
   function buildMenu() {
     return [
@@ -145,20 +115,15 @@
   }
 </script>
 
-<div class="headerWrap">
-  <table bind:this={domHeaderWrap} />
-</div>
-
 <div
   class="wrapper"
   bind:this={domWrapper}
   use:resizeObserver={true}
-  on:resize={createHeaderClone}
   use:contextMenu={buildMenu}
 >
   {#if display}
     <table>
-      <thead bind:this={domTableHead}>
+      <thead >
         {#each _.range(display.columnLevelCount) as columnLevel}
           <tr>
             {#each display.columns as column}
@@ -219,15 +184,6 @@
     flex: 1;
   }
 
-  .headerWrap {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 14px;
-    overflow: hidden;
-    z-index: 100;
-  }
-
   table {
     /* position: absolute;
     left: 0;
@@ -235,27 +191,47 @@
     bottom: 0;
     right: 0; */
     overflow: scroll;
-    border-collapse: collapse;
+    /* border-collapse: collapse; */
     outline: none;
+
+    border-collapse: separate; /* Don't collapse */
+    border-spacing: 0;
   }
+
+  table thead {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
   th {
-    border: 1px solid var(--theme-border);
+    /* border: 1px solid var(--theme-border); */
     text-align: left;
     padding: 2px;
     margin: 0;
     background-color: var(--theme-bg-1);
     overflow: hidden;
     vertical-align: center;
+    z-index: 100;
+
+    border-bottom: 1px solid var(--theme-border);
+    border-right: 1px solid var(--theme-border);
+  }
+
+  thead tr:first-child th {
+    border-top: 1px solid var(--theme-border);
   }
 
   td {
     font-weight: normal;
-    border: 1px solid var(--theme-border);
+    /* border: 1px solid var(--theme-border); */
     background-color: var(--theme-bg-0);
     padding: 2px;
     position: relative;
     overflow: hidden;
     vertical-align: top;
+    border-bottom: 1px solid var(--theme-border);
+    border-right: 1px solid var(--theme-border);
   }
 
   /* 
