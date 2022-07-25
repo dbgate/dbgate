@@ -1,18 +1,22 @@
 import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo } from 'dbgate-types';
 import { clearConfigCache } from 'prettier';
-import { ChangePerspectiveConfigFunc, PerspectiveConfig } from './PerspectiveConfig';
+import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveConfigColumns } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
 import _uniqBy from 'lodash/uniqBy';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
 import {
   PerspectiveDatabaseConfig,
   PerspectiveDataLoadProps,
   PerspectiveDataProvider,
 } from './PerspectiveDataProvider';
 import stableStringify from 'json-stable-stringify';
+import { getFilterType, parseFilter } from 'dbgate-filterparser';
+import { FilterType } from 'dbgate-filterparser/lib/types';
+import { Condition, Expression } from 'dbgate-sqltree';
 
 export interface PerspectiveDataLoadPropsWithNode {
   props: PerspectiveDataLoadProps;
@@ -84,6 +88,9 @@ export abstract class PerspectiveTreeNode {
   get columnTitle() {
     return this.title;
   }
+  get filterType(): FilterType {
+    return 'string';
+  }
 
   getChildMatchColumns() {
     return [];
@@ -91,6 +98,10 @@ export abstract class PerspectiveTreeNode {
 
   getParentMatchColumns() {
     return [];
+  }
+
+  parseFilterCondition() {
+    return null;
   }
 
   get childDataColumn() {
@@ -108,7 +119,7 @@ export abstract class PerspectiveTreeNode {
     this.includeInColumnSet('checkedColumns', this.uniqueName, value == null ? !this.isChecked : value);
   }
 
-  includeInColumnSet(field: keyof PerspectiveConfig, uniqueName: string, isIncluded: boolean) {
+  includeInColumnSet(field: keyof PerspectiveConfigColumns, uniqueName: string, isIncluded: boolean) {
     if (isIncluded) {
       this.setConfig(cfg => ({
         ...cfg,
@@ -122,6 +133,23 @@ export abstract class PerspectiveTreeNode {
     }
   }
 
+  setFilter(value) {
+    this.setConfig(
+      cfg => ({
+        ...cfg,
+        filters: {
+          ...cfg.filters,
+          [this.uniqueName]: value,
+        },
+      }),
+      true
+    );
+  }
+
+  getFilter() {
+    return this.config.filters[this.uniqueName];
+  }
+
   getDataLoadColumns() {
     return _compact(
       _uniq([
@@ -130,6 +158,20 @@ export abstract class PerspectiveTreeNode {
         ...this.getParentMatchColumns(),
       ])
     );
+  }
+
+  getChildrenCondition(): Condition {
+    const conditions = _compact(this.childNodes.map(x => x.parseFilterCondition()));
+    if (conditions.length == 0) {
+      return null;
+    }
+    if (conditions.length == 1) {
+      return conditions[0];
+    }
+    return {
+      conditionType: 'and',
+      conditions,
+    };
   }
 }
 
@@ -205,6 +247,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return !!this.foreignKey;
   }
 
+  get filterType(): FilterType {
+    return getFilterType(this.column.dataType);
+  }
+
   get childNodes(): PerspectiveTreeNode[] {
     if (!this.foreignKey) return [];
     const tbl = this?.db?.tables?.find(
@@ -219,6 +265,23 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       this.databaseConfig,
       this
     );
+  }
+
+  parseFilterCondition() {
+    const filter = this.getFilter();
+    if (!filter) return null;
+    const condition = parseFilter(filter, this.filterType);
+    if (!condition) return null;
+    return _cloneDeepWith(condition, (expr: Expression) => {
+      if (expr.exprType == 'placeholder') {
+        return {
+          exprType: 'column',
+          columnName: this.column.columnName,
+        };
+      }
+    });
+
+    return condition;
   }
 }
 
@@ -235,13 +298,14 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     super(config, setConfig, parentNode, dataProvider, databaseConfig);
   }
 
-  getNodeLoadProps(parentRows: any[]) {
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
+      condition: this.getChildrenCondition(),
     };
   }
 

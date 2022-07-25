@@ -1,4 +1,4 @@
-import { Expression, Select } from 'dbgate-sqltree';
+import { Condition, Expression, Select } from 'dbgate-sqltree';
 import { PerspectiveDataLoadProps } from './PerspectiveDataProvider';
 import debug from 'debug';
 
@@ -6,6 +6,37 @@ const dbg = debug('dbgate:PerspectiveDataLoader');
 
 export class PerspectiveDataLoader {
   constructor(public apiCall) {}
+
+  buildCondition(props: PerspectiveDataLoadProps): Condition {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+
+    const conditions = [];
+
+    if (condition) {
+      conditions.push(condition);
+    }
+
+    if (bindingColumns?.length == 1) {
+      conditions.push({
+        conditionType: 'in',
+        expr: {
+          exprType: 'column',
+          columnName: bindingColumns[0],
+          source: {
+            name: { schemaName, pureName },
+          },
+        },
+        values: bindingValues.map(x => x[0]),
+      });
+    }
+
+    return conditions.length > 0
+      ? {
+          conditionType: 'and',
+          conditions,
+        }
+      : null;
+  }
 
   async loadGrouping(props: PerspectiveDataLoadProps) {
     const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
@@ -40,20 +71,8 @@ export class PerspectiveDataLoader {
         },
         ...bindingColumnExpressions,
       ],
+      where: this.buildCondition(props),
     };
-    if (bindingColumns?.length == 1) {
-      select.where = {
-        conditionType: 'in',
-        expr: {
-          exprType: 'column',
-          columnName: bindingColumns[0],
-          source: {
-            name: { schemaName, pureName },
-          },
-        },
-        values: bindingValues.map(x => x[0]),
-      };
-    }
 
     select.groupBy = bindingColumnExpressions;
 
@@ -75,7 +94,8 @@ export class PerspectiveDataLoader {
   }
 
   async loadData(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy } = props;
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+
     const select: Select = {
       commandType: 'select',
       from: {
@@ -98,20 +118,8 @@ export class PerspectiveDataLoader {
         },
       })),
       range: props.range,
+      where: this.buildCondition(props),
     };
-    if (bindingColumns?.length == 1) {
-      select.where = {
-        conditionType: 'in',
-        expr: {
-          exprType: 'column',
-          columnName: bindingColumns[0],
-          source: {
-            name: { schemaName, pureName },
-          },
-        },
-        values: bindingValues.map(x => x[0]),
-      };
-    }
 
     if (dbg?.enabled) {
       dbg(

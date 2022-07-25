@@ -1,7 +1,11 @@
-export interface PerspectiveConfig {
+export interface PerspectiveConfigColumns {
   expandedColumns: string[];
   checkedColumns: string[];
   uncheckedColumns: string[];
+}
+
+export interface PerspectiveConfig extends PerspectiveConfigColumns {
+  filters: { [uniqueName: string]: string };
 }
 
 export function createPerspectiveConfig(): PerspectiveConfig {
@@ -9,7 +13,11 @@ export function createPerspectiveConfig(): PerspectiveConfig {
     expandedColumns: [],
     checkedColumns: [],
     uncheckedColumns: [],
+    filters: {},
   };
 }
 
-export type ChangePerspectiveConfigFunc = (changeFunc: (config: PerspectiveConfig) => PerspectiveConfig) => void;
+export type ChangePerspectiveConfigFunc = (
+  changeFunc: (config: PerspectiveConfig) => PerspectiveConfig,
+  reload?: boolean
+) => void;

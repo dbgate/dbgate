@@ -320,6 +320,7 @@
   input {
     flex: 1;
     min-width: 10px;
+    width: 1px;
   }
 
   input.isError {

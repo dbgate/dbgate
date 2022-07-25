@@ -1,3 +1,4 @@
+import { Condition } from 'dbgate-sqltree';
 import { RangeDefinition } from 'dbgate-types';
 import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
@@ -20,6 +21,7 @@ export interface PerspectiveDataLoadProps {
   bindingValues?: any[][];
   range?: RangeDefinition;
   topCount?: number;
+  condition?: Condition;
 }
 
 export class PerspectiveDataProvider {

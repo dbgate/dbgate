@@ -50,7 +50,15 @@
     {schemaName}
     {pureName}
     config={$config}
-    setConfig={config.update}
+    setConfig={(value, reload) => {
+      if (reload) {
+        cache.clear();
+      }
+      config.update(value);
+      if (reload) {
+        loadedCounts.set({});
+      }
+    }}
     {cache}
     {loadedCounts}
   />

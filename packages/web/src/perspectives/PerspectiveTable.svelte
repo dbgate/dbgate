@@ -15,6 +15,7 @@
   import debug from 'debug';
   import contextMenu from '../utility/contextMenu';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
+import { countVisibleRealColumns } from '../datagrid/gridutil';
 
   const dbg = debug('dbgate:PerspectivaTable');
 
@@ -115,15 +116,10 @@
   }
 </script>
 
-<div
-  class="wrapper"
-  bind:this={domWrapper}
-  use:resizeObserver={true}
-  use:contextMenu={buildMenu}
->
+<div class="wrapper" bind:this={domWrapper} use:resizeObserver={true} use:contextMenu={buildMenu}>
   {#if display}
     <table>
-      <thead >
+      <thead>
         {#each _.range(display.columnLevelCount) as columnLevel}
           <tr>
             {#each display.columns as column}
@@ -136,13 +132,18 @@
             {/each}
           </tr>
         {/each}
-        <!-- <tr>
+        <tr>
           {#each display.columns as column}
-            <th>
-              <DataFilterControl filter="" setFilter={null} columnName={column.dataNode.codeName} filterType="string" />
+            <th class="filter">
+              <DataFilterControl
+                filter={column.dataNode.getFilter()}
+                setFilter={value => column.dataNode.setFilter(value)}
+                columnName={column.dataNode.uniqueName}
+                filterType={column.dataNode.filterType}
+              />
             </th>
           {/each}
-        </tr> -->
+        </tr>
       </thead>
       <tbody>
         {#each display.rows as row}
@@ -216,6 +217,10 @@
 
     border-bottom: 1px solid var(--theme-border);
     border-right: 1px solid var(--theme-border);
+  }
+
+  th.filter {
+    padding: 0;
   }
 
   thead tr:first-child th {
