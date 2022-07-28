@@ -177,6 +177,7 @@ export abstract class PerspectiveTreeNode {
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   foreignKey: ForeignKeyInfo;
+  refTable: TableInfo;
   constructor(
     public column: ColumnInfo,
     public table: TableInfo,
@@ -192,6 +193,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     this.foreignKey =
       table.foreignKeys &&
       table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName);
+
+    this.refTable = db.tables.find(
+      x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
+    );
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -221,7 +226,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
-      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
+      orderBy: this.refTable?.primaryKey?.columns.map(x => x.columnName) || [this.refTable.columns[0].columnName],
     };
   }
 

@@ -90,6 +90,7 @@
       dbg('display rows', rows);
       errorMessage = null;
     } catch (err) {
+      console.error(err);
       errorMessage = err.message;
       dataRows = null;
     }
