@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import _cloneDeep from 'lodash/cloneDeep';
+import _isString from 'lodash/isString';
 import { ColumnInfo, ColumnReference, DatabaseInfo, DatabaseInfoObjects, SqlDialect, TableInfo } from 'dbgate-types';
 
 export function fullNameFromString(name) {
@@ -54,7 +55,10 @@ export function findObjectLike(
   return dbinfo[objectTypeField]?.find(x => equalStringLike(x.pureName, pureName));
 }
 
-export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo) {
+export function findForeignKeyForColumn(table: TableInfo, column: ColumnInfo | string) {
+  if (_isString(column)) {
+    return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column));
+  }
   return (table.foreignKeys || []).find(fk => fk.columns.find(col => col.columnName == column.columnName));
 }
 
@@ -76,7 +80,7 @@ function columnsConstraintName(prefix: string, table: TableInfo, columns: Column
 
 export function fillConstraintNames(table: TableInfo, dialect: SqlDialect) {
   if (!table) return table;
-  const res = _.cloneDeep(table);
+  const res = _cloneDeep(table);
   if (res.primaryKey && !res.primaryKey.constraintName && !dialect.anonymousPrimaryKey) {
     res.primaryKey.constraintName = `PK_${res.pureName}`;
   }

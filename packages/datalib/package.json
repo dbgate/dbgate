@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "dbgate-sqltree": "^5.0.0-alpha.1",
+    "dbgate-tools": "^5.0.0-alpha.1",
     "dbgate-filterparser": "^5.0.0-alpha.1"
   },
   "devDependencies": {
