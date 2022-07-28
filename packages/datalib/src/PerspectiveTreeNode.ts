@@ -17,6 +17,7 @@ import stableStringify from 'json-stable-stringify';
 import { getFilterType, parseFilter } from 'dbgate-filterparser';
 import { FilterType } from 'dbgate-filterparser/lib/types';
 import { Condition, Expression } from 'dbgate-sqltree';
+import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 
 export interface PerspectiveDataLoadPropsWithNode {
   props: PerspectiveDataLoadProps;
@@ -52,6 +53,7 @@ export abstract class PerspectiveTreeNode {
     public dataProvider: PerspectiveDataProvider,
     public databaseConfig: PerspectiveDatabaseConfig
   ) {}
+  defaultChecked: boolean;
   abstract get title();
   abstract get codeName();
   abstract get isExpandable();
@@ -83,7 +85,9 @@ export abstract class PerspectiveTreeNode {
     return this.config.expandedColumns.includes(this.uniqueName);
   }
   get isChecked() {
-    return this.config.checkedColumns.includes(this.uniqueName);
+    if (this.config.checkedColumns.includes(this.uniqueName)) return true;
+    if (this.config.uncheckedColumns.includes(this.uniqueName)) return false;
+    return this.defaultChecked;
   }
   get columnTitle() {
     return this.title;
@@ -116,7 +120,11 @@ export abstract class PerspectiveTreeNode {
   }
 
   toggleChecked(value?: boolean) {
-    this.includeInColumnSet('checkedColumns', this.uniqueName, value == null ? !this.isChecked : value);
+    if (this.defaultChecked) {
+      this.includeInColumnSet('uncheckedColumns', this.uniqueName, value == null ? this.isChecked : value);
+    } else {
+      this.includeInColumnSet('checkedColumns', this.uniqueName, value == null ? !this.isChecked : value);
+    }
   }
 
   includeInColumnSet(field: keyof PerspectiveConfigColumns, uniqueName: string, isIncluded: boolean) {
@@ -186,9 +194,12 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     setConfig: ChangePerspectiveConfigFunc,
     dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
-    parentNode: PerspectiveTreeNode
+    parentNode: PerspectiveTreeNode,
+    defaultChecked: boolean
   ) {
     super(config, setConfig, parentNode, dataProvider, databaseConfig);
+
+    this.defaultChecked = defaultChecked;
 
     this.foreignKey =
       table.foreignKeys &&
@@ -261,6 +272,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
+
     return getTableChildPerspectiveNodes(
       tbl,
       this.db,
@@ -403,11 +415,24 @@ export function getTableChildPerspectiveNodes(
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
+
+  const defaultColumns = getPerspectiveDefaultColumns(table, db);
+
   const res = [];
   res.push(
     ...table.columns.map(
       col =>
-        new PerspectiveTableColumnNode(col, table, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
+        new PerspectiveTableColumnNode(
+          col,
+          table,
+          db,
+          config,
+          setConfig,
+          dataProvider,
+          databaseConfig,
+          parentColumn,
+          defaultColumns.includes(col.columnName)
+        )
     )
   );
   if (db && table.dependencies) {
