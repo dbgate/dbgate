@@ -1,21 +1,12 @@
 <script lang="ts">
-  import {
-    // groupPerspectiveLoadProps,
-    PerspectiveDataLoadProps,
-    PerspectiveDataLoadPropsWithNode,
-    PerspectiveDisplay,
-    PerspectiveTreeNode,
-  } from 'dbgate-datalib';
-  import _, { range } from 'lodash';
+  import { PerspectiveDisplay, PerspectiveTreeNode } from 'dbgate-datalib';
+  import _ from 'lodash';
   import { onMount } from 'svelte';
-  import { prop_dev, tick } from 'svelte/internal';
-  import { sleep } from '../utility/common';
   import resizeObserver from '../utility/resizeObserver';
   import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
   import debug from 'debug';
   import contextMenu from '../utility/contextMenu';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
-import { countVisibleRealColumns } from '../datagrid/gridutil';
 
   const dbg = debug('dbgate:PerspectivaTable');
 

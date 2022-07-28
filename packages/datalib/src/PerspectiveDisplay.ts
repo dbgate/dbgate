@@ -95,10 +95,13 @@ export class PerspectiveDisplay {
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
     // dbg('merged rows', this.rows);
+
     // console.log(
     //   'MERGED',
     //   this.rows.map(r =>
-    //     r.incompleteRowsIndicator ? `************************************ ${r.incompleteRowsIndicator.join('|')}` : r.rowData.join('|')
+    //     r.incompleteRowsIndicator
+    //       ? `************************************ ${r.incompleteRowsIndicator.join('|')}`
+    //       : r.rowData.join('|')
     //   )
     // );
   }
@@ -203,6 +206,14 @@ export class PerspectiveDisplay {
         }
       }
       rowIndex++;
+    }
+
+    // simulate row after last row
+    for (let i = 0; i < this.columns.length; i++) {
+      if (rowIndex - lastFilledColumns[i] > 1) {
+        this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
+      }
+      lastFilledColumns[i] = rowIndex;
     }
   }
 
