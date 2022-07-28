@@ -238,6 +238,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.refTable?.primaryKey?.columns.map(x => x.columnName) || [this.refTable.columns[0].columnName],
+      condition: this.getChildrenCondition(),
     };
   }
 
@@ -397,6 +398,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
+      condition: this.getChildrenCondition(),
     };
   }
 
