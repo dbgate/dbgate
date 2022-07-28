@@ -7,13 +7,18 @@
   import debug from 'debug';
   import contextMenu from '../utility/contextMenu';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import FormStyledButton from '../buttons/FormStyledButton.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
 
   export let root: PerspectiveTreeNode;
   export let loadedCounts;
+  export let setConfig;
+
   let dataRows;
   let domWrapper;
+  let errorMessage;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
     dbg('load level data', counts);
@@ -79,10 +84,15 @@
     // console.log('LOADING', node);
     if (!node) return;
     const rows = [];
-    await loadLevelData(node, rows, counts);
-    dataRows = rows;
-
-    dbg('display rows', rows);
+    try {
+      await loadLevelData(node, rows, counts);
+      dataRows = rows;
+      dbg('display rows', rows);
+      errorMessage = null;
+    } catch (err) {
+      errorMessage = err.message;
+      dataRows = null;
+    }
     // console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
@@ -167,6 +177,22 @@
         {/each}
       </tbody>
     </table>
+  {/if}
+
+  {#if errorMessage}
+    <ErrorInfo message={errorMessage} />
+
+    <FormStyledButton
+      value="Reset filter"
+      on:click={() =>
+        setConfig(
+          cfg => ({
+            ...cfg,
+            filters: {},
+          }),
+          true
+        )}
+    />
   {/if}
 </div>
 

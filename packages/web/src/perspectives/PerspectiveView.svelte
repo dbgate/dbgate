@@ -85,7 +85,7 @@
   </div>
 
   <svelte:fragment slot="2">
-    <PerspectiveTable {root} {loadedCounts} />
+    <PerspectiveTable {root} {loadedCounts} {setConfig} />
   </svelte:fragment>
 </HorizontalSplitter>
 
