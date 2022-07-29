@@ -84,6 +84,13 @@ export class PerspectiveDisplayRow {
     return this.subrows[rowIndex - 1];
   }
 
+  setRowJoinId(col: number, joinId: number) {
+    this.rowJoinIds[col] = joinId;
+    for (const subrow of this.subrows) {
+      subrow.setRowJoinId(col, joinId);
+    }
+  }
+
   subrows?: PerspectiveDisplayRow[] = [];
 
   rowData: any[] = [];
@@ -248,11 +255,15 @@ export class PerspectiveDisplay {
     }
 
     const joinId = getJoinId();
-    for (let ri = 0; ri < subRowCount; ri++) {
-      const targetRow = resultRow.getRow(ri);
-      for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
-        targetRow.rowJoinIds[collectedRow.columnIndexes[i]] = joinId;
-      }
+    for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
+      resultRow.setRowJoinId(collectedRow.columnIndexes[i], joinId);
     }
+
+    // for (let ri = 0; ri < subRowCount; ri++) {
+    //   const targetRow = resultRow.getRow(ri);
+    //   for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
+    //     targetRow.rowJoinIds[collectedRow.columnIndexes[i]] = joinId;
+    //   }
+    // }
   }
 }
