@@ -156,12 +156,6 @@ export class PerspectiveDisplay {
 
     const columnIndexes = columnNodes.map(node => this.findColumnIndexFromNode(node));
 
-    // const nodeStartIndexes = new WeakMap();
-    // for (const node of treeNodes) {
-    //   const column = this.columns.find(x => x.hasParentNode(node));
-    //   if (column) nodeStartIndexes.set(node, column.columnIndex);
-    // }
-
     const res: CollectedPerspectiveDisplayRow[] = [];
     for (const sourceRow of sourceRows) {
       // console.log('PROCESS SOURCE', sourceRow);
@@ -170,15 +164,6 @@ export class PerspectiveDisplay {
       const subRowCollections = [];
 
       for (const node of treeNodes) {
-        // if (sourceRow.AlbumId == 1) {
-        //   if (node.fieldName == 'ArtistIdRef') {
-        //     console.log('XXX', sourceRow['ArtistIdRef']);
-        //     console.log(require('lodash').keys(sourceRow))
-        //     console.dir(sourceRow);
-        //   }
-        //   console.log(node.fieldName, sourceRow[node.fieldName], sourceRow);
-        // }
-        // console.log('sourceRow[node.fieldName]', sourceRow[node.fieldName]);
         if (sourceRow[node.fieldName]) {
           const subrows = {
             rows: this.collectRows(sourceRow[node.fieldName], node.childNodes),
@@ -223,56 +208,9 @@ export class PerspectiveDisplay {
           lastFilledRow = rowIndex;
         }
         rowIndex++;
-
-        //   ?.__perspective_joinId__ ||
-        //   row.rowData[col]?.__perspective_joinId__ != lastFilledJoinId?.__perspective_joinId__
-        // ) {
-        //   console.log(row.rowData[col]);
-        //   if (rowIndex - lastFilledRow > 1) {
-        //     this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow;
-        //   }
-        //   lastFilledRow = rowIndex;
-        //   lastFilledJoinId = row.rowData[col];
-        //   // row.rowData[i] = undefined;
       }
     }
   }
-
-  // simulate row after last row
-  // if (rowIndex - lastFilledRow > 1) {
-  //   console.log('S');
-  //   this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow;
-  // }
-  // lastFilledRow = rowIndex;
-
-  // const lastFilledColumns = _fill(Array(this.columns.length), 0);
-  // const lastFilledColumnsJoinId = _fill(Array(this.columns.length), null);
-  // let rowIndex = 0;
-  // for (const row of this.rows) {
-  //   for (let i = 0; i < this.columns.length; i++) {
-  //     if (
-  //       !row.rowData[i]?.__perspective_joinId__ ||
-  //       row.rowData[i]?.__perspective_joinId__ != lastFilledColumnsJoinId[i]?.__perspective_joinId__
-  //     ) {
-  //       if (rowIndex - lastFilledColumns[i] > 1) {
-  //         this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
-  //       }
-  //       lastFilledColumns[i] = rowIndex;
-  //       lastFilledColumnsJoinId[i] = row.rowData[i];
-  //       // row.rowData[i] = undefined;
-  //     }
-  //   }
-  //   rowIndex++;
-  // }
-
-  // // simulate row after last row
-  // for (let i = 0; i < this.columns.length; i++) {
-  //   if (rowIndex - lastFilledColumns[i] > 1) {
-  //     this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
-  //   }
-  //   lastFilledColumns[i] = rowIndex;
-  // }
-  // }
 
   mergeRows(collectedRows: CollectedPerspectiveDisplayRow[]) {
     const rows = [];
@@ -317,45 +255,4 @@ export class PerspectiveDisplay {
       }
     }
   }
-
-  // rowToFlatRows(sourceRow: CollectedPerspectiveDisplayRow) {
-  //   const res = [];
-
-  //   const row = new PerspectiveDisplayRow(this);
-  //   row.rowData = _fill(Array(this.columns.length), undefined);
-  //   row.rowSpans = _fill(Array(this.columns.length), 1);
-  //   res.push(row)
-
-  //   for (let i = 0; i < sourceRow.columnIndexes.length; i++) {
-  //     row.rowData[sourceRow.columnIndexes[i]] = sourceRow.rowData[i];
-  //   }
-
-  //   for(const subrows of sourceRow.subRowCollections) {
-  //     let rowIndex=0;
-  //     for(const subrow of subrows.rows) {
-  //       if ()
-  //       rowIndex++;
-
-  //     }
-  //   }
-
-  //   return res;
-
-  //   // while (true) {
-  //   //   for (let colIndex = 0; colIndex < this.columns.length; colIndex++) {
-  //   //     if (colIndex < sourceRow.startIndex) {
-  //   //       continue;
-  //   //     }
-  //   //     if (colIndex < sourceRow.startIndex + sourceRow.rowData.length) {
-  //   //       if (rowIndex == 0) {
-  //   //         row.rowData[colIndex] = sourceRow.rowData[sourceRow.startIndex + colIndex];
-  //   //         row.rowSpans[colIndex] = 1;
-  //   //       } else {
-  //   //         row.rowSpans[colIndex] += 1;
-  //   //       }
-  //   //     }
-  //   //     const subrows = sourceRow.subRowCollections.find(x=>x.);
-  //   //   }
-  //   // }
-  // }
 }
