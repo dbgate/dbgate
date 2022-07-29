@@ -7,6 +7,16 @@ import debug from 'debug';
 
 const dbg = debug('dbgate:PerspectiveDisplay');
 
+const SKIP_CELL = {
+  __perspective_skip_cell__: true,
+};
+
+let lastJoinId = 0;
+function getJoinId(): number {
+  lastJoinId += 1;
+  return lastJoinId;
+}
+
 export class PerspectiveDisplayColumn {
   title: string;
   dataField: string;
@@ -63,6 +73,7 @@ export class PerspectiveDisplayRow {
   constructor(public display: PerspectiveDisplay) {
     this.rowData = _fill(Array(display.columns.length), undefined);
     this.rowSpans = _fill(Array(display.columns.length), 1);
+    this.rowJoinIds = _fill(Array(display.columns.length), 0);
   }
 
   getRow(rowIndex): PerspectiveDisplayRow {
@@ -77,6 +88,7 @@ export class PerspectiveDisplayRow {
 
   rowData: any[] = [];
   rowSpans: number[] = null;
+  rowJoinIds: number[] = [];
   incompleteRowsIndicator: string[] = null;
 }
 
@@ -194,28 +206,73 @@ export class PerspectiveDisplay {
   }
 
   fillRowSpans() {
-    const lastFilledColumns = _fill(Array(this.columns.length), 0);
-    let rowIndex = 0;
-    for (const row of this.rows) {
-      for (let i = 0; i < this.columns.length; i++) {
-        if (row.rowData[i] !== undefined) {
-          if (rowIndex - lastFilledColumns[i] > 1) {
-            this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
-          }
-          lastFilledColumns[i] = rowIndex;
-        }
-      }
-      rowIndex++;
-    }
+    for (let col = 0; col < this.columns.length; col++) {
+      // let lastFilledJoinId = null;
+      let lastFilledRow = 0;
+      let rowIndex = 0;
 
-    // simulate row after last row
-    for (let i = 0; i < this.columns.length; i++) {
-      if (rowIndex - lastFilledColumns[i] > 1) {
-        this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
+      for (const row of this.rows) {
+        if (
+          row.rowData[col] === undefined &&
+          row.rowJoinIds[col] == this.rows[lastFilledRow].rowJoinIds[col] &&
+          row.rowJoinIds[col]
+        ) {
+          row.rowData[col] = SKIP_CELL;
+          this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow + 1;
+        } else {
+          lastFilledRow = rowIndex;
+        }
+        rowIndex++;
+
+        //   ?.__perspective_joinId__ ||
+        //   row.rowData[col]?.__perspective_joinId__ != lastFilledJoinId?.__perspective_joinId__
+        // ) {
+        //   console.log(row.rowData[col]);
+        //   if (rowIndex - lastFilledRow > 1) {
+        //     this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow;
+        //   }
+        //   lastFilledRow = rowIndex;
+        //   lastFilledJoinId = row.rowData[col];
+        //   // row.rowData[i] = undefined;
       }
-      lastFilledColumns[i] = rowIndex;
     }
   }
+
+  // simulate row after last row
+  // if (rowIndex - lastFilledRow > 1) {
+  //   console.log('S');
+  //   this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow;
+  // }
+  // lastFilledRow = rowIndex;
+
+  // const lastFilledColumns = _fill(Array(this.columns.length), 0);
+  // const lastFilledColumnsJoinId = _fill(Array(this.columns.length), null);
+  // let rowIndex = 0;
+  // for (const row of this.rows) {
+  //   for (let i = 0; i < this.columns.length; i++) {
+  //     if (
+  //       !row.rowData[i]?.__perspective_joinId__ ||
+  //       row.rowData[i]?.__perspective_joinId__ != lastFilledColumnsJoinId[i]?.__perspective_joinId__
+  //     ) {
+  //       if (rowIndex - lastFilledColumns[i] > 1) {
+  //         this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
+  //       }
+  //       lastFilledColumns[i] = rowIndex;
+  //       lastFilledColumnsJoinId[i] = row.rowData[i];
+  //       // row.rowData[i] = undefined;
+  //     }
+  //   }
+  //   rowIndex++;
+  // }
+
+  // // simulate row after last row
+  // for (let i = 0; i < this.columns.length; i++) {
+  //   if (rowIndex - lastFilledColumns[i] > 1) {
+  //     this.rows[lastFilledColumns[i]].rowSpans[i] = rowIndex - lastFilledColumns[i];
+  //   }
+  //   lastFilledColumns[i] = rowIndex;
+  // }
+  // }
 
   mergeRows(collectedRows: CollectedPerspectiveDisplayRow[]) {
     const rows = [];
@@ -239,12 +296,24 @@ export class PerspectiveDisplay {
     }
     resultRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
 
+    let subRowCount = 0;
     for (const subrows of collectedRow.subRowCollections) {
       let rowIndex = 0;
       for (const subrow of subrows.rows) {
         const targetRow = resultRow.getRow(rowIndex);
         this.mergeRow(subrow, targetRow);
         rowIndex++;
+      }
+      if (rowIndex > subRowCount) {
+        subRowCount = rowIndex;
+      }
+    }
+
+    const joinId = getJoinId();
+    for (let ri = 0; ri < subRowCount; ri++) {
+      const targetRow = resultRow.getRow(ri);
+      for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
+        targetRow.rowJoinIds[collectedRow.columnIndexes[i]] = joinId;
       }
     }
   }

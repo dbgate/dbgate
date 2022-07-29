@@ -169,7 +169,9 @@
             {:else}
               {#each display.columns as column}
                 <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
-                {#if row.rowData[column.columnIndex] !== undefined}
+                {#if row.rowData[column.columnIndex] === undefined}
+                  <td />
+                {:else if !row.rowData[column.columnIndex]?.__perspective_skip_cell__}
                   <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
                 {/if}
               {/each}
