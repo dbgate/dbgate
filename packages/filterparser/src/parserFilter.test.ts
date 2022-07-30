@@ -1,4 +1,4 @@
-import { parseFilter } from './parseFilter';
+const { parseFilter } = require('./parseFilter');
 
 test('parse string', () => {
   const ast = parseFilter('"123"', 'string');
