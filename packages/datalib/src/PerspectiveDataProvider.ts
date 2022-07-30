@@ -177,6 +177,10 @@ export class PerspectiveDataProvider {
       },
     });
 
+    if (nextRows.errorMessage) {
+      throw new Error(nextRows.errorMessage);
+    }
+
     tableCache.loadedRows = [...tableCache.loadedRows, ...nextRows];
     tableCache.loadedAll = nextRows.length < props.topCount - tableCache.loadedCount;
 
