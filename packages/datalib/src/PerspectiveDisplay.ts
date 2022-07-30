@@ -106,7 +106,10 @@ export class PerspectiveDisplay {
 
   constructor(public root: PerspectiveTreeNode, rows: any[]) {
     // dbg('source rows', rows);
-    this.fillColumns(root.childNodes, []);
+    this.fillColumns(root.childNodes, [root]);
+    if (this.columns.length > 0) {
+      this.columns[0].colSpanAtLevel[0] = this.columns.length;
+    }
     this.columnLevelCount = _max(this.columns.map(x => x.parentNodes.length)) + 1;
     const collectedRows = this.collectRows(rows, root.childNodes);
     // dbg('collected rows', collectedRows);

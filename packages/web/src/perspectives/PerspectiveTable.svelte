@@ -129,7 +129,7 @@
                 <th rowspan={column.rowSpan}>{column.title}</th>
               {/if}
               {#if column.showParent(columnLevel)}
-                <th colspan={column.getColSpan(columnLevel)}>{column.getParentName(columnLevel)}</th>
+                <th colspan={column.getColSpan(columnLevel)} class='tableName'>{column.getParentName(columnLevel)}</th>
               {/if}
             {/each}
           </tr>
@@ -234,9 +234,14 @@
     overflow: hidden;
     vertical-align: center;
     z-index: 100;
+    font-weight: normal;
 
     border-bottom: 1px solid var(--theme-border);
     border-right: 1px solid var(--theme-border);
+  }
+
+  th.tableName {
+    font-weight: bold;
   }
 
   th.filter {
