@@ -551,18 +551,20 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   }
 
   getChildMatchColumns() {
-    return this.customJoin.columns.map(x => x.refColumnName);
-  }
-
-  getParentMatchColumns() {
     return this.customJoin.columns.map(x => x.baseColumnName);
   }
 
+  getParentMatchColumns() {
+    return this.customJoin.columns.map(x => x.refColumnName);
+  }
+
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    // console.log('CUSTOM JOIN', this.customJoin);
+    // console.log('this.getDataLoadColumns()', this.getDataLoadColumns());
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
-      bindingColumns: this.getChildMatchColumns(),
+      bindingColumns: this.getParentMatchColumns(),
       bindingValues: _uniqBy(
         parentRows.map(row => this.customJoin.columns.map(x => row[x.baseColumnName])),
         stableStringify
