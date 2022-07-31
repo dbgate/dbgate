@@ -155,6 +155,9 @@
       {
         command: 'perspective.openJson',
       },
+      {
+        command: 'perspective.customJoin',
+      },
     ];
   }
 

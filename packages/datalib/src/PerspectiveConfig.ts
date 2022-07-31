@@ -4,6 +4,19 @@ export interface PerspectiveConfigColumns {
   uncheckedColumns: string[];
 }
 
+export interface PerspectiveCustomJoinConfig {
+  joinid: string;
+  joinName: string;
+  baseUniqueName: string;
+  conid?: string;
+  database?: string;
+  refSchemaName?: string;
+  refTableName: string;
+  columns: {
+    baseColumnName: string;
+    refColumnName: string;
+  }[];
+}
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   filters: { [uniqueName: string]: string };
   sort: {
@@ -12,6 +25,7 @@ export interface PerspectiveConfig extends PerspectiveConfigColumns {
       order: 'ASC' | 'DESC';
     }[];
   };
+  customJoins: PerspectiveCustomJoinConfig[];
 }
 
 export function createPerspectiveConfig(): PerspectiveConfig {
@@ -19,6 +33,7 @@ export function createPerspectiveConfig(): PerspectiveConfig {
     expandedColumns: [],
     checkedColumns: [],
     uncheckedColumns: [],
+    customJoins: [],
     filters: {},
     sort: {},
   };

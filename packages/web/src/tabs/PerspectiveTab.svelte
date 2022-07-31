@@ -65,5 +65,6 @@
 
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="perspective.refresh" />
+    <ToolStripCommandButton command="perspective.customJoin" />
   </svelte:fragment>
 </ToolStripContainer>

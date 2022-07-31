@@ -94,6 +94,7 @@
     'icon add': 'mdi mdi-plus-circle',
     'icon json': 'mdi mdi-code-json',
     'icon lock': 'mdi mdi-lock',
+    'icon custom-join': 'mdi mdi-arrow-left-right-bold',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',

@@ -1,3 +1,18 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('PerspectiveView');
+
+  registerCommand({
+    id: 'perspective.customJoin',
+    category: 'Perspective',
+    name: 'Custom join',
+    keyText: 'CtrlOrCommand+J',
+    isRelatedToTab: true,
+    icon: 'icon custom-join',
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().defineCustomJoin(),
+  });
+</script>
+
 <script lang="ts">
   import {
     getTableChildPerspectiveNodes,
@@ -26,6 +41,10 @@
   import stableStringify from 'json-stable-stringify';
   import createRef from '../utility/createRef';
   import { tick } from 'svelte';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import registerCommand from '../commands/registerCommand';
+  import { showModal } from '../modals/modalTools';
+  import CustomJoinModal from './CustomJoinModal.svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -43,6 +62,8 @@
   let managerSize;
   let nextCacheRef = createRef(null);
 
+  export const activator = createActivator('PerspectiveView', true);
+
   $: if (managerSize) setLocalStorage('perspectiveManagerWidth', managerSize);
 
   function getInitialManagerSize() {
@@ -51,6 +72,17 @@
       return `${width}px`;
     }
     return '300px';
+  }
+
+  export function defineCustomJoin() {
+    if (!root) return;
+    showModal(CustomJoinModal, {
+      config,
+      setConfig,
+      conid,
+      database,
+      root,
+    });
   }
 
   const dbInfo = useDatabaseInfo({ conid, database });

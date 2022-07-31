@@ -203,6 +203,20 @@ export abstract class PerspectiveTreeNode {
           { columnName: table?.columns[0].columnName, order: 'ASC' },
         ];
   }
+
+  getBaseTables() {
+    const res = [];
+    const table = this.getBaseTableFromThis();
+    if (table) res.push({ table, node: this });
+    for (const child of this.childNodes) {
+      if (!child.isChecked) continue;
+      res.push(...child.getBaseTables());
+    }
+    return res;
+  }
+  getBaseTableFromThis() {
+    return null;
+  }
 }
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
@@ -311,6 +325,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     );
   }
 
+  getBaseTableFromThis() {
+    return this.refTable;
+  }
+
   parseFilterCondition() {
     const filter = this.getFilter();
     if (!filter) return null;
@@ -380,6 +398,10 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   get icon() {
     return 'img table';
   }
+
+  getBaseTableFromThis() {
+    return this.table;
+  }
 }
 
 export class PerspectiveViewNode extends PerspectiveTreeNode {
@@ -432,6 +454,10 @@ export class PerspectiveViewNode extends PerspectiveTreeNode {
 
   get icon() {
     return 'img table';
+  }
+
+  getBaseTableFromThis() {
+    return this.view;
   }
 }
 
