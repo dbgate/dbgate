@@ -1,10 +1,7 @@
 <script lang="ts">
-  import _, { isPlainObject, join } from 'lodash';
+  import _ from 'lodash';
   import ShowFormButton from '../formview/ShowFormButton.svelte';
-  import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { arrayToHexString, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
-  import { showModal } from '../modals/modalTools';
-  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import { isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import openNewTab from '../utility/openNewTab';
   import CellValue from './CellValue.svelte';

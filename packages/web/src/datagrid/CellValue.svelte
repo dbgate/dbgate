@@ -35,14 +35,9 @@
 </script>
 
 <script lang="ts">
-  import _, { isPlainObject, join } from 'lodash';
-  import ShowFormButton from '../formview/ShowFormButton.svelte';
+  import _ from 'lodash';
   import { getBoolSettingsValue } from '../settings/settingsTools';
-  import { arrayToHexString, isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
-  import { showModal } from '../modals/modalTools';
-  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
-  import { openJsonDocument } from '../tabs/JsonTab.svelte';
-  import openNewTab from '../utility/openNewTab';
+  import { arrayToHexString } from 'dbgate-tools';
 
   export let rowData;
   export let value;

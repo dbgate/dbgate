@@ -45,6 +45,15 @@
         icon: 'img table-structure',
       },
       {
+        label: 'Open perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
+      {
+        divider: true,
+      },
+      {
         label: 'Drop table',
         isDrop: true,
         requiresWriteAccess: true,
@@ -120,12 +129,6 @@
         sqlGeneratorProps: {
           insert: true,
         },
-      },
-      {
-        label: 'Create perspective',
-        tab: 'PerspectiveTab',
-        forceNewTab: true,
-        icon: 'img perspective',
       },
     ],
     views: [

@@ -27,6 +27,7 @@
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import PerspectiveCell from './PerspectiveCell.svelte';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
+  import PerspectiveLoadingIndicator from './PerspectiveLoadingIndicator.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
@@ -38,6 +39,7 @@
   let dataRows;
   let domWrapper;
   let errorMessage;
+  let isLoading = false;
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
     dbg('load level data', counts);
@@ -103,6 +105,7 @@
     // console.log('LOADING', node);
     if (!node) return;
     const rows = [];
+    isLoading = true;
     try {
       await loadLevelData(node, rows, counts);
       dataRows = rows;
@@ -113,6 +116,7 @@
       errorMessage = err.message;
       dataRows = null;
     }
+    isLoading = false;
     // console.log('DISPLAY ROWS', rows);
     // const rows = await node.loadLevelData();
     // for (const child of node.childNodes) {
@@ -228,6 +232,12 @@
         )}
     />
   {/if}
+
+  {#if isLoading}
+    <div class="loader">
+      <PerspectiveLoadingIndicator />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -293,4 +303,10 @@
   th {
     border: 1px solid;
   } */
+
+  .loader {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
 </style>
