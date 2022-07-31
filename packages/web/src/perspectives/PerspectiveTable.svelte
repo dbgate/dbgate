@@ -16,7 +16,6 @@
   import _, { values } from 'lodash';
   import { onMount, tick } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
-  import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
   import debug from 'debug';
   import contextMenu from '../utility/contextMenu';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
@@ -257,34 +256,15 @@
       <tbody>
         {#each display.rows as row}
           <tr>
-            {#if row.incompleteRowsIndicator}
-              <td colspan={display.columns.length}
-                ><PerspectiveIntersectionObserver
-                  rootNode={domWrapper}
-                  incompleteRowsIndicator={row.incompleteRowsIndicator}
-                  onLoadNext={() => {
-                    dbg('load next', row.incompleteRowsIndicator);
-                    loadedCounts.update(counts => {
-                      const res = { ...counts };
-                      for (const id of row.incompleteRowsIndicator) {
-                        res[id] = (res[id] || PERSPECTIVE_PAGE_SIZE) + PERSPECTIVE_PAGE_SIZE;
-                      }
-                      return res;
-                    });
-                  }}
-                /></td
-              >
-            {:else}
-              {#each display.columns as column}
-                {#if !row.rowCellSkips[column.columnIndex]}
-                  <PerspectiveCell
-                    value={row.rowData[column.columnIndex]}
-                    rowSpan={row.rowSpans[column.columnIndex]}
-                    rowData={row.rowData}
-                  />
-                {/if}
-              {/each}
-            {/if}
+            {#each display.columns as column}
+              {#if !row.rowCellSkips[column.columnIndex]}
+                <PerspectiveCell
+                  value={row.rowData[column.columnIndex]}
+                  rowSpan={row.rowSpans[column.columnIndex]}
+                  rowData={row.rowData}
+                />
+              {/if}
+            {/each}
           </tr>
         {/each}
       </tbody>

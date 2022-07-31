@@ -76,7 +76,6 @@ export class PerspectiveDisplayRow {
   rowCellSkips: boolean[] = null;
 
   rowJoinIds: number[] = [];
-  // incompleteRowsIndicator: string[] = null;
 }
 
 export class PerspectiveDisplay {
