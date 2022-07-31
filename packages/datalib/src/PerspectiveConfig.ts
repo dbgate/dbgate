@@ -7,9 +7,11 @@ export interface PerspectiveConfigColumns {
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   filters: { [uniqueName: string]: string };
   sort: {
-    uniqueName: string;
-    order: 'ASC' | 'DESC';
-  }[];
+    [parentUniqueName: string]: {
+      uniqueName: string;
+      order: 'ASC' | 'DESC';
+    }[];
+  };
 }
 
 export function createPerspectiveConfig(): PerspectiveConfig {
@@ -18,7 +20,7 @@ export function createPerspectiveConfig(): PerspectiveConfig {
     checkedColumns: [],
     uncheckedColumns: [],
     filters: {},
-    sort: [],
+    sort: {},
   };
 }
 

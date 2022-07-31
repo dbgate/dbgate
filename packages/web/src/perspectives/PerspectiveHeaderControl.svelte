@@ -4,32 +4,30 @@
 
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  export let label;
   export let column: PerspectiveDisplayColumn;
   export let columnLevel;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  //   export let setSort = undefined;
-  //   export let addToSort = undefined;
-  //   export let clearSort = undefined;
-  //   export let grouping = undefined;
-  //   export let order = undefined;
-  //   export let orderIndex = undefined;
-  //   export let isSortDefined = false;
   let mouseIn;
 
+  $: parentUniqueName = column.dataNode?.parentNode?.uniqueName || '';
   $: uniqueName = column.dataNode.uniqueName;
-  // $: console.log('CFG', config);
-  $: order = config.sort?.find(x => x.uniqueName == uniqueName)?.order;
-  $: orderIndex = config.sort?.length > 1 ? _.findIndex(config.sort, x => x.uniqueName == uniqueName) : -1;
-  $: isSortDefined = config.sort?.length > 0;
+  $: order = config.sort?.[parentUniqueName]?.find(x => x.uniqueName == uniqueName)?.order;
+  $: orderIndex =
+    config.sort?.[parentUniqueName]?.length > 1
+      ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
+      : -1;
+  $: isSortDefined = config.sort?.[parentUniqueName]?.length > 0;
 
   const setSort = order => {
     setConfig(
       cfg => ({
         ...cfg,
-        sort: [{ uniqueName, order }],
+        sort: {
+          ...cfg.sort,
+          [parentUniqueName]: [{ uniqueName, order }],
+        },
       }),
       true
     );
@@ -39,7 +37,10 @@
     setConfig(
       cfg => ({
         ...cfg,
-        sort: [...(cfg.sort || []), { uniqueName, order }],
+        sort: {
+          ...cfg.sort,
+          [parentUniqueName]: [...(cfg.sort?.[parentUniqueName] || []), { uniqueName, order }],
+        },
       }),
       true
     );
@@ -49,18 +50,11 @@
     setConfig(
       cfg => ({
         ...cfg,
-        sort: [],
+        [parentUniqueName]: [],
       }),
       true
     );
   };
-
-  //   display.setSort(col.uniqueName, order)
-  //                 addToSort={display.sortable ? order => display.addToSort(col.uniqueName, order) : null}
-  //                 order={display.sortable ? display.getSortOrder(col.uniqueName) : null}
-  //                 orderIndex={display.sortable ? display.getSortOrderIndex(col.uniqueName) : -1}
-  //                 isSortDefined={display.sortable ? display.isSortDefined() : false}
-  //                 clearSort={display.sortable ? () => display.clearSort() : null}
 
   function getMenu() {
     return [

@@ -188,7 +188,7 @@ export abstract class PerspectiveTreeNode {
   getOrderBy(table: TableInfo): PerspectiveDataLoadProps['orderBy'] {
     const res = _compact(
       this.childNodes.map(node => {
-        const sort = this.config?.sort?.find(x => x.uniqueName == node.uniqueName);
+        const sort = this.config?.sort?.[node?.parentNode?.uniqueName]?.find(x => x.uniqueName == node.uniqueName);
         if (sort) {
           return {
             columnName: node.columnName,
