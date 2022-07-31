@@ -109,10 +109,10 @@ export class PerspectiveDataLoader {
         },
       })),
       selectAll: !dataColumns,
-      orderBy: orderBy?.map(columnName => ({
+      orderBy: orderBy?.map(({ columnName, order }) => ({
         exprType: 'column',
         columnName,
-        direction: 'ASC',
+        direction: order,
         source: {
           name: { schemaName, pureName },
         },

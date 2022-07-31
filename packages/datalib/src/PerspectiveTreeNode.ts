@@ -95,6 +95,9 @@ export abstract class PerspectiveTreeNode {
   get filterType(): FilterType {
     return 'string';
   }
+  get columnName() {
+    return null;
+  }
 
   getChildMatchColumns() {
     return [];
@@ -181,6 +184,25 @@ export abstract class PerspectiveTreeNode {
       conditions,
     };
   }
+
+  getOrderBy(table: TableInfo): PerspectiveDataLoadProps['orderBy'] {
+    const res = _compact(
+      this.childNodes.map(node => {
+        const sort = this.config?.sort?.find(x => x.uniqueName == node.uniqueName);
+        if (sort) {
+          return {
+            columnName: node.columnName,
+            order: sort.order,
+          };
+        }
+      })
+    );
+    return res.length > 0
+      ? res
+      : table?.primaryKey?.columns.map(x => ({ columnName: x.columnName, order: 'ASC' })) || [
+          { columnName: table?.columns[0].columnName, order: 'ASC' },
+        ];
+  }
 }
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
@@ -237,7 +259,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
-      orderBy: this.refTable?.primaryKey?.columns.map(x => x.columnName) || [this.refTable.columns[0].columnName],
+      orderBy: this.getOrderBy(this.refTable),
       condition: this.getChildrenCondition(),
     };
   }
@@ -249,6 +271,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   }
 
   get codeName() {
+    return this.column.columnName;
+  }
+
+  get columnName() {
     return this.column.columnName;
   }
 
@@ -322,7 +348,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
-      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
+      orderBy: this.getOrderBy(this.table),
       condition: this.getChildrenCondition(),
     };
   }
@@ -397,7 +423,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       ),
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
-      orderBy: this.table.primaryKey?.columns.map(x => x.columnName) || [this.table.columns[0].columnName],
+      orderBy: this.getOrderBy(this.table),
       condition: this.getChildrenCondition(),
     };
   }

@@ -28,12 +28,14 @@
   import PerspectiveCell from './PerspectiveCell.svelte';
   import DataGridCell from '../datagrid/DataGridCell.svelte';
   import PerspectiveLoadingIndicator from './PerspectiveLoadingIndicator.svelte';
+  import PerspectiveHeaderControl from './PerspectiveHeaderControl.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
 
   export let root: PerspectiveTreeNode;
   export let loadedCounts;
+  export let config;
   export let setConfig;
 
   let dataRows;
@@ -159,12 +161,7 @@
         {#each _.range(display.columnLevelCount) as columnLevel}
           <tr>
             {#each display.columns as column}
-              {#if column.isVisible(columnLevel)}
-                <th rowspan={column.rowSpan}>{column.title}</th>
-              {/if}
-              {#if column.showParent(columnLevel)}
-                <th colspan={column.getColSpan(columnLevel)} class="tableName">{column.getParentName(columnLevel)}</th>
-              {/if}
+              <PerspectiveHeaderControl label={column.title} {column} {columnLevel} {setConfig} {config} />
             {/each}
           </tr>
         {/each}
@@ -264,25 +261,6 @@
     position: sticky;
     top: 0;
     z-index: 100;
-  }
-
-  th {
-    /* border: 1px solid var(--theme-border); */
-    text-align: left;
-    padding: 2px;
-    margin: 0;
-    background-color: var(--theme-bg-1);
-    overflow: hidden;
-    vertical-align: center;
-    z-index: 100;
-    font-weight: normal;
-
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
-  }
-
-  th.tableName {
-    font-weight: bold;
   }
 
   th.filter {

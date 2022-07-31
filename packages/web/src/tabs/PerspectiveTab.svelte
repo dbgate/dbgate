@@ -12,6 +12,8 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().refresh(),
   });
+
+  export const allowAddToFavorites = props => true;
 </script>
 
 <script lang="ts">

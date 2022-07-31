@@ -16,7 +16,10 @@ export interface PerspectiveDataLoadProps {
   schemaName: string;
   pureName: string;
   dataColumns: string[];
-  orderBy: string[];
+  orderBy: {
+    columnName: string;
+    order: 'ASC' | 'DESC';
+  }[];
   bindingColumns?: string[];
   bindingValues?: any[][];
   range?: RangeDefinition;
