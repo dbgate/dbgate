@@ -1,10 +1,13 @@
+import debug from 'debug';
 import { Condition } from 'dbgate-sqltree';
 import { RangeDefinition } from 'dbgate-types';
 import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
 
-export const PERSPECTIVE_PAGE_SIZE = 10;
+export const PERSPECTIVE_PAGE_SIZE = 100;
+
+const dbg = debug('dbgate:PerspectiveDataProvider');
 
 export interface PerspectiveDatabaseConfig {
   conid: string;
@@ -30,6 +33,7 @@ export interface PerspectiveDataLoadProps {
 export class PerspectiveDataProvider {
   constructor(public cache: PerspectiveCache, public loader: PerspectiveDataLoader) {}
   async loadData(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
+    dbg('load data', props);
     // console.log('LOAD DATA', props);
     if (props.bindingColumns) {
       return this.loadDataNested(props);
@@ -69,15 +73,17 @@ export class PerspectiveDataProvider {
     for (; groupIndex < props.bindingValues.length; groupIndex++) {
       const groupValues = props.bindingValues[groupIndex];
       const group = tableCache.getBindingGroup(groupValues);
+      let loadCalled = false;
 
       if (!group.loadedAll) {
         // wee need to load next data
         await this.loadNextGroup(props, groupIndex);
+        loadCalled = true;
       }
 
       // console.log('GRP', groupValues, group);
       rows.push(...group.loadedRows);
-      if (rows.length >= props.topCount) {
+      if (rows.length >= props.topCount || loadCalled) {
         return {
           rows: rows.slice(0, props.topCount),
           incomplete: props.topCount < rows.length || !group.loadedAll || groupIndex < props.bindingValues.length - 1,

@@ -57,6 +57,7 @@
         cache.clear();
       }
       config.update(value);
+      // loadedCounts.set({});
     }}
     {cache}
     {loadedCounts}
