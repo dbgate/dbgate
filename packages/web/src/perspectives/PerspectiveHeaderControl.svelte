@@ -50,7 +50,10 @@
     setConfig(
       cfg => ({
         ...cfg,
-        [parentUniqueName]: [],
+        sort: {
+          ...cfg.sort,
+          [parentUniqueName]: [],
+        },
       }),
       true
     );
