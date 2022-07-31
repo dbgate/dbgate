@@ -50,6 +50,13 @@ test('test one level nesting', () => {
       rowCellSkips: [true, false],
     })
   );
+  expect(display.rows[2]).toEqual(
+    expect.objectContaining({
+      rowData: ['Accept', 'Balls to the Wall'],
+      rowSpans: [2, 1],
+      rowCellSkips: [false, false],
+    })
+  );
   expect(display.rows[5]).toEqual(
     expect.objectContaining({
       rowData: ['Alanis Morissette', 'Jagged Little Pill'],
@@ -73,16 +80,25 @@ test('test two level nesting', () => {
 
   console.log(display.rows);
   expect(display.rows.length).toEqual(9);
-  // expect(display.rows[0]).toEqual(
-  //   expect.objectContaining({
-  //     rowData: ['AC/DC', 'For Those About To Rock We Salute You'],
-  //     rowSpans: [2, 1],
-  //   })
-  // );
-  // expect(display.rows[5]).toEqual(
-  //   expect.objectContaining({
-  //     rowData: ['Alanis Morissette', 'Jagged Little Pill'],
-  //     rowSpans: [1, 1],
-  //   })
-  // );
+  expect(display.rows[0]).toEqual(
+    expect.objectContaining({
+      rowData: ['AC/DC', 'For Those About To Rock We Salute You', 'For Those About To Rock (We Salute You)'],
+      rowSpans: [4, 2, 1],
+      rowCellSkips: [false, false, false],
+    })
+  );
+  expect(display.rows[1]).toEqual(
+    expect.objectContaining({
+      rowData: [undefined, undefined, 'Put The Finger On You'],
+      rowSpans: [1, 1, 1],
+      rowCellSkips: [true, true, false],
+    })
+  );
+  expect(display.rows[2]).toEqual(
+    expect.objectContaining({
+      rowData: [undefined, 'Let There Be Rock', 'Go Down'],
+      rowSpans: [1, 2, 1],
+      rowCellSkips: [true, false, false],
+    })
+  );
 });

@@ -77,22 +77,22 @@ export class PerspectiveDisplayRow {
     this.rowCellSkips = _fill(Array(display.columns.length), false);
   }
 
-  getRow(rowIndex): PerspectiveDisplayRow {
-    if (rowIndex == 0) return this;
-    while (this.subrows.length < rowIndex) {
-      this.subrows.push(new PerspectiveDisplayRow(this.display));
-    }
-    return this.subrows[rowIndex - 1];
-  }
+  // getRow(rowIndex): PerspectiveDisplayRow {
+  //   if (rowIndex == 0) return this;
+  //   while (this.subrows.length < rowIndex) {
+  //     this.subrows.push(new PerspectiveDisplayRow(this.display));
+  //   }
+  //   return this.subrows[rowIndex - 1];
+  // }
 
-  setRowJoinId(col: number, joinId: number) {
-    this.rowJoinIds[col] = joinId;
-    for (const subrow of this.subrows) {
-      subrow.setRowJoinId(col, joinId);
-    }
-  }
+  // setRowJoinId(col: number, joinId: number) {
+  //   this.rowJoinIds[col] = joinId;
+  //   for (const subrow of this.subrows) {
+  //     subrow.setRowJoinId(col, joinId);
+  //   }
+  // }
 
-  subrows?: PerspectiveDisplayRow[] = [];
+  // subrows?: PerspectiveDisplayRow[] = [];
 
   rowData: any[] = [];
   rowSpans: number[] = null;
@@ -121,14 +121,21 @@ export class PerspectiveDisplay {
     this.mergeRows(collectedRows);
     // dbg('merged rows', this.rows);
 
-    console.log(
-      'MERGED',
-      this.rows.map(r =>
-        r.incompleteRowsIndicator
-          ? `************************************ ${r.incompleteRowsIndicator.join('|')}`
-          : r.rowData.join('|')
-      )
-    );
+    // console.log(
+    //   'MERGED',
+    //   this.rows.map(r =>
+    //     r.incompleteRowsIndicator
+    //       ? `************************************ ${r.incompleteRowsIndicator.join('|')}`
+    //       : r.rowData.join('|')
+    //   )
+    // );
+  }
+
+  private getRowAt(rowIndex) {
+    while (this.rows.length <= rowIndex) {
+      this.rows.push(new PerspectiveDisplayRow(this));
+    }
+    return this.rows[rowIndex];
   }
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
@@ -196,12 +203,12 @@ export class PerspectiveDisplay {
     return res;
   }
 
-  flushFlatRows(row: PerspectiveDisplayRow) {
-    this.rows.push(row);
-    for (const child of row.subrows) {
-      this.flushFlatRows(child);
-    }
-  }
+  // flushFlatRows(row: PerspectiveDisplayRow) {
+  //   this.rows.push(row);
+  //   for (const child of row.subrows) {
+  //     this.flushFlatRows(child);
+  //   }
+  // }
 
   fillRowSpans() {
     for (let col = 0; col < this.columns.length; col++) {
@@ -226,46 +233,54 @@ export class PerspectiveDisplay {
   }
 
   mergeRows(collectedRows: CollectedPerspectiveDisplayRow[]) {
-    const rows = [];
+    // const rows = [];
+    let rowIndex = 0;
     for (const collectedRow of collectedRows) {
-      const resultRow = new PerspectiveDisplayRow(this);
-      this.mergeRow(collectedRow, resultRow);
-      rows.push(resultRow);
+      // const resultRow = new PerspectiveDisplayRow(this);
+      const count = this.mergeRow(collectedRow, rowIndex);
+      rowIndex += count;
     }
     // console.log('MERGED NOT FLAT', rows);
-    console.log('MERGED NOT FLAT SUBROWS 0', rows[0].subrows[0]);
-    for (const row of rows) {
-      this.flushFlatRows(row);
-    }
-    for (const row of this.rows) {
-      delete row.subrows;
-    }
+    // console.log('MERGED NOT FLAT SUBROWS 0', rows[0].subrows[0]);
+    // for (const row of rows) {
+    //   this.flushFlatRows(row);
+    // }
+    // for (const row of this.rows) {
+    //   delete row.subrows;
+    // }
     this.fillRowSpans();
   }
 
-  mergeRow(collectedRow: CollectedPerspectiveDisplayRow, resultRow: PerspectiveDisplayRow) {
+  mergeRow(collectedRow: CollectedPerspectiveDisplayRow, rowIndex: number): number {
+    const mainRow = this.getRowAt(rowIndex);
     for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
-      resultRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
+      mainRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
     }
-    resultRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
+    mainRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
 
-    // let subRowCount = 0;
+    let rowCount = 1;
     for (const subrows of collectedRow.subRowCollections) {
-      let rowIndex = 0;
+      let additionalRowCount = 0;
+      let currentRowIndex = rowIndex;
       for (const subrow of subrows.rows) {
-        const targetRow = resultRow.getRow(rowIndex);
-        this.mergeRow(subrow, targetRow);
-        rowIndex++;
+        const count = this.mergeRow(subrow, currentRowIndex);
+        additionalRowCount += count;
+        currentRowIndex += count;
       }
-      // if (rowIndex > subRowCount) {
-      //   subRowCount = rowIndex;
-      // }
+      if (additionalRowCount > rowCount) {
+        rowCount = additionalRowCount;
+      }
     }
 
     const joinId = getJoinId();
-    for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
-      resultRow.setRowJoinId(collectedRow.columnIndexes[i], joinId);
+    for (let radd = 0; radd < rowCount; radd++) {
+      const row = this.getRowAt(rowIndex + radd);
+      for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
+        row.rowJoinIds[collectedRow.columnIndexes[i]] = joinId;
+      }
     }
+
+    return rowCount;
 
     // for (let ri = 0; ri < subRowCount; ri++) {
     //   const targetRow = resultRow.getRow(ri);
