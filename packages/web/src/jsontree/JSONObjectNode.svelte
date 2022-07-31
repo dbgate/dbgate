@@ -23,4 +23,5 @@
   label={labelOverride || `${nodeType} `}
   bracketOpen={'{'}
   bracketClose={'}'}
+  elementValue={value}
 />
