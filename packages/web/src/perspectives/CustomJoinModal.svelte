@@ -10,12 +10,12 @@
   import _ from 'lodash';
   import { useConnectionList, useDatabaseInfo, useDatabaseList, useTableInfo } from '../utility/metadataLoaders';
   import { onMount, tick } from 'svelte';
-  import TargetApplicationSelect from '../forms/TargetApplicationSelect.svelte';
-  import { apiCall } from '../utility/api';
-  import { saveDbToApp } from '../utility/appTools';
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
-  import FormConnectionSelect from '../impexp/FormConnectionSelect.svelte';
-  import FormDatabaseSelect from '../impexp/FormDatabaseSelect.svelte';
+  import {
+    ChangePerspectiveConfigFunc,
+    PerspectiveConfig,
+    PerspectiveCustomJoinConfig,
+    PerspectiveTreeNode,
+  } from 'dbgate-datalib';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import uuidv1 from 'uuid/v1';
   import TextField from '../forms/TextField.svelte';
@@ -25,15 +25,16 @@
   export let root: PerspectiveTreeNode;
   export let setConfig: ChangePerspectiveConfigFunc;
   export let config: PerspectiveConfig;
+  export let editValue: PerspectiveCustomJoinConfig = null;
 
-  let conidOverride = null;
-  let databaseOverride = null;
-  let joinid = uuidv1();
+  let conidOverride = editValue?.conid || null;
+  let databaseOverride = editValue?.database || null;
+  let joinid = editValue?.joinid || uuidv1();
 
-  $: fromDbInfo = useDatabaseInfo({
-    conid,
-    database,
-  });
+  // $: fromDbInfo = useDatabaseInfo({
+  //   conid,
+  //   database,
+  // });
   //   $: fromTableInfo = useTableInfo({
   //     conid: conidOverride || conid,
   //     database: databaseOverride || database,
@@ -52,15 +53,16 @@
     pureName: refTableName,
   });
 
-  let columns = [];
+  let columns = editValue?.columns || [];
   //   let fromTableName = pureName;
   //   let fromSchemaName = schemaName;
-  let fromUniuqeName = root.uniqueName;
-  let refTableName = null;
-  let refSchemaName = null;
-  let joinName;
+  let fromUniuqeName = editValue?.baseUniqueName || root.uniqueName;
+  let refTableName = editValue?.refTableName || null;
+  let refSchemaName = editValue?.refSchemaName || null;
+  let joinName = editValue?.joinName || '';
 
   onMount(() => {
+    if (editValue) return;
     let index = 1;
     while (config.customJoins?.find(x => x.joinName == `Custom join ${index}`)) {
       index += 1;
@@ -240,9 +242,9 @@
       {#each columns as column, index}
         <div class="row">
           <div class="col-5 mr-1">
-            {#key column.columnName}
+            {#key column.baseColumnName}
               <SelectField
-                value={column.columnName}
+                value={column.baseColumnName}
                 isNative
                 notSelected
                 options={(fromTableInfo?.columns || []).map(col => ({
@@ -251,7 +253,7 @@
                 }))}
                 on:change={e => {
                   if (e.detail) {
-                    columns = columns.map((col, i) => (i == index ? { ...col, columnName: e.detail } : col));
+                    columns = columns.map((col, i) => (i == index ? { ...col, baseColumnName: e.detail } : col));
                   }
                 }}
               />
@@ -292,7 +294,13 @@
         type="button"
         value="Add column"
         on:click={() => {
-          columns = [...columns, {}];
+          columns = [
+            ...columns,
+            {
+              baseColumnName: '',
+              refColumnName: '',
+            },
+          ];
         }}
       />
     </div>
@@ -301,20 +309,19 @@
       <FormSubmit
         value={'Save'}
         on:click={async () => {
+          const newJoin = {
+            joinid,
+            joinName,
+            baseUniqueName: fromUniuqeName,
+            refTableName,
+            refSchemaName,
+            columns,
+          };
           setConfig(cfg => ({
             ...cfg,
-            customJoins: [
-              ...(cfg.customJoins || []),
-              {
-                baseUniqueName: fromUniuqeName,
-                refTableName,
-                refSchemaName,
-                columns: columns.map(col => ({
-                  baseColumnName: col.columnName,
-                  refColumnName: col.refColumnName,
-                })),
-              },
-            ],
+            customJoins: editValue
+              ? cfg.customJoins.map(x => (x.joinid == editValue.joinid ? newJoin : x))
+              : [...(cfg.customJoins || []), newJoin],
           }));
           closeCurrentModal();
         }}

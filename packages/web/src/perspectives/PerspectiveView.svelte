@@ -15,7 +15,11 @@
 
 <script lang="ts">
   import {
+    ChangeConfigFunc,
+    ChangePerspectiveConfigFunc,
     getTableChildPerspectiveNodes,
+    GridConfig,
+    PerspectiveConfig,
     PerspectiveDataLoadProps,
     PerspectiveDataProvider,
     PerspectiveTableColumnNode,
@@ -53,8 +57,8 @@
   export let schemaName;
   export let pureName;
 
-  export let config;
-  export let setConfig;
+  export let config: PerspectiveConfig;
+  export let setConfig: ChangePerspectiveConfigFunc;
   export let loadedCounts;
 
   export let cache;
@@ -106,7 +110,7 @@
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height="45%">
         <ManagerInnerContainer width={managerSize}>
           {#if root}
-            <PerspectiveTree {root} />
+            <PerspectiveTree {root} {config} {setConfig} {conid} {database} />
           {/if}
         </ManagerInnerContainer>
       </WidgetColumnBarItem>

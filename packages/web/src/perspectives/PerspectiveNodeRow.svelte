@@ -1,14 +1,48 @@
 <script lang="ts">
-  import { PerspectiveTreeNode } from 'dbgate-datalib';
+  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
+  import { showModal } from '../modals/modalTools';
+  import contextMenu from '../utility/contextMenu';
+  import CustomJoinModal from './CustomJoinModal.svelte';
 
+  export let conid;
+  export let database;
   export let node: PerspectiveTreeNode;
+  export let root: PerspectiveTreeNode;
+  export let config: PerspectiveConfig;
+  export let setConfig: ChangePerspectiveConfigFunc;
+
+  function createMenu() {
+    const customJoin = node.customJoinConfig;
+    return [
+      customJoin && {
+        text: 'Remove custom join',
+        onClick: () =>
+          setConfig(cfg => ({
+            ...cfg,
+            customJoins: (cfg.customJoins || []).filter(x => x.joinid != customJoin.joinid),
+          })),
+      },
+      customJoin && {
+        text: 'Edit custom join',
+        onClick: () =>
+          showModal(CustomJoinModal, {
+            config,
+            setConfig,
+            conid,
+            database,
+            root,
+            editValue: customJoin,
+          }),
+      },
+    ];
+  }
 </script>
 
-<div class="row">
+<div class="row" use:contextMenu={createMenu}>
   <span class="expandColumnIcon" style={`margin-right: ${5 + node.level * 10}px`}>
     <FontIcon
       icon={node.isExpandable ? plusExpandIcon(node.isExpanded) : 'icon invisible-box'}

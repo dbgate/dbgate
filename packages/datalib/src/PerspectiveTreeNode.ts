@@ -1,6 +1,11 @@
 import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo, ViewInfo } from 'dbgate-types';
 import { clearConfigCache } from 'prettier';
-import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveConfigColumns } from './PerspectiveConfig';
+import {
+  ChangePerspectiveConfigFunc,
+  PerspectiveConfig,
+  PerspectiveConfigColumns,
+  PerspectiveCustomJoinConfig,
+} from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
@@ -96,6 +101,9 @@ export abstract class PerspectiveTreeNode {
     return 'string';
   }
   get columnName() {
+    return null;
+  }
+  get customJoinConfig(): PerspectiveCustomJoinConfig {
     return null;
   }
 
@@ -512,6 +520,77 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
   }
 }
 
+export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
+  constructor(
+    public customJoin: PerspectiveCustomJoinConfig,
+    db: DatabaseInfo,
+    config: PerspectiveConfig,
+    setConfig: ChangePerspectiveConfigFunc,
+    public dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
+    parentNode: PerspectiveTreeNode
+  ) {
+    super(
+      db.tables.find(x => x.pureName == customJoin.refTableName && x.schemaName == customJoin.refSchemaName),
+      db,
+      config,
+      setConfig,
+      dataProvider,
+      databaseConfig,
+      parentNode
+    );
+  }
+
+  matchChildRow(parentRow: any, childRow: any): boolean {
+    for (const column of this.customJoin.columns) {
+      if (parentRow[column.baseColumnName] != childRow[column.refColumnName]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  getChildMatchColumns() {
+    return this.customJoin.columns.map(x => x.refColumnName);
+  }
+
+  getParentMatchColumns() {
+    return this.customJoin.columns.map(x => x.baseColumnName);
+  }
+
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    return {
+      schemaName: this.table.schemaName,
+      pureName: this.table.pureName,
+      bindingColumns: this.getChildMatchColumns(),
+      bindingValues: _uniqBy(
+        parentRows.map(row => this.customJoin.columns.map(x => row[x.baseColumnName])),
+        stableStringify
+      ),
+      dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
+      orderBy: this.getOrderBy(this.table),
+      condition: this.getChildrenCondition(),
+    };
+  }
+
+  get title() {
+    return this.customJoin.joinName;
+  }
+
+  get icon() {
+    return 'icon custom-join';
+  }
+
+  get codeName() {
+    return this.customJoin.joinid;
+  }
+
+  get customJoinConfig(): PerspectiveCustomJoinConfig {
+    return this.customJoin;
+  }
+}
+
 export function getTableChildPerspectiveNodes(
   table: TableInfo | ViewInfo,
   db: DatabaseInfo,
@@ -551,5 +630,14 @@ export function getTableChildPerspectiveNodes(
         );
     }
   }
+
+  for (const join of config.customJoins || []) {
+    if (join.baseUniqueName == parentColumn.uniqueName) {
+      res.push(
+        new PerspectiveCustomJoinTreeNode(join, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
+      );
+    }
+  }
+
   return res;
 }
