@@ -13,7 +13,7 @@
 
 <script lang="ts">
   import { PerspectiveDisplay, PerspectiveTreeNode } from 'dbgate-datalib';
-  import _ from 'lodash';
+  import _, { values } from 'lodash';
   import { onMount } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
   import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
@@ -25,6 +25,8 @@
   import registerCommand from '../commands/registerCommand';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
+  import PerspectiveCell from './PerspectiveCell.svelte';
+  import DataGridCell from '../datagrid/DataGridCell.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
@@ -196,13 +198,12 @@
               >
             {:else}
               {#each display.columns as column}
-                <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
                 {#if !row.rowCellSkips[column.columnIndex]}
-                  {#if row.rowData[column.columnIndex] === undefined}
-                    <td />
-                  {:else}
-                    <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
-                  {/if}
+                  <PerspectiveCell
+                    value={row.rowData[column.columnIndex]}
+                    rowSpan={row.rowSpans[column.columnIndex]}
+                    rowData={row.rowData}
+                  />
                 {/if}
               {/each}
             {/if}
@@ -280,18 +281,6 @@
 
   thead tr:first-child th {
     border-top: 1px solid var(--theme-border);
-  }
-
-  td {
-    font-weight: normal;
-    /* border: 1px solid var(--theme-border); */
-    background-color: var(--theme-bg-0);
-    padding: 2px;
-    position: relative;
-    overflow: hidden;
-    vertical-align: top;
-    border-bottom: 1px solid var(--theme-border);
-    border-right: 1px solid var(--theme-border);
   }
 
   /* 

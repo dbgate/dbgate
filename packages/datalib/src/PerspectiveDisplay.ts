@@ -216,7 +216,12 @@ export class PerspectiveDisplay {
     for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
       mainRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
     }
-    mainRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
+    if (collectedRow.incompleteRowsIndicator) {
+      mainRow.incompleteRowsIndicator = [
+        ...(mainRow.incompleteRowsIndicator || []),
+        ...collectedRow.incompleteRowsIndicator,
+      ];
+    }
 
     let rowCount = 1;
     for (const subrows of collectedRow.subRowCollections) {
