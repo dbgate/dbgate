@@ -1,3 +1,16 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('PerspectiveTable');
+
+  registerCommand({
+    id: 'perspective.openJson',
+    category: 'Perspective',
+    name: 'Open JSON',
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.openJsonEnabled(),
+    onClick: () => getCurrentEditor().openJson(),
+  });
+</script>
+
 <script lang="ts">
   import { PerspectiveDisplay, PerspectiveTreeNode } from 'dbgate-datalib';
   import _ from 'lodash';
@@ -9,8 +22,12 @@
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
+  import registerCommand from '../commands/registerCommand';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { openJsonDocument } from '../tabs/JsonTab.svelte';
 
   const dbg = debug('dbgate:PerspectivaTable');
+  export const activator = createActivator('PerspectiveTable', true);
 
   export let root: PerspectiveTreeNode;
   export let loadedCounts;
@@ -104,6 +121,14 @@
     // }
   }
 
+  export function openJson() {
+    openJsonDocument(dataRows);
+  }
+
+  export function openJsonEnabled() {
+    return dataRows != null;
+  }
+
   onMount(() => {});
 
   $: loadData(root, $loadedCounts);
@@ -113,6 +138,9 @@
     return [
       {
         command: 'perspective.refresh',
+      },
+      {
+        command: 'perspective.openJson',
       },
     ];
   }
@@ -129,7 +157,7 @@
                 <th rowspan={column.rowSpan}>{column.title}</th>
               {/if}
               {#if column.showParent(columnLevel)}
-                <th colspan={column.getColSpan(columnLevel)} class='tableName'>{column.getParentName(columnLevel)}</th>
+                <th colspan={column.getColSpan(columnLevel)} class="tableName">{column.getParentName(columnLevel)}</th>
               {/if}
             {/each}
           </tr>
@@ -169,10 +197,12 @@
             {:else}
               {#each display.columns as column}
                 <!-- <td>{row.rowSpans[column.columnIndex]} {row.rowData[column.columnIndex]}</td> -->
-                {#if row.rowData[column.columnIndex] === undefined}
-                  <td />
-                {:else if !row.rowData[column.columnIndex]?.__perspective_skip_cell__}
-                  <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
+                {#if !row.rowCellSkips[column.columnIndex]}
+                  {#if row.rowData[column.columnIndex] === undefined}
+                    <td />
+                  {:else}
+                    <td rowspan={row.rowSpans[column.columnIndex]}>{row.rowData[column.columnIndex]}</td>
+                  {/if}
                 {/if}
               {/each}
             {/if}

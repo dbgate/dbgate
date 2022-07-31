@@ -59,16 +59,10 @@
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
   $: root = $tableInfo
-    ? new PerspectiveTableNode(
-        $tableInfo,
-        $dbInfo,
-        config,
-        setConfig,
-        dataProvider,
-        { conid, database },
-        null
-      )
+    ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
     : null;
+
+  // $: console.log('CONFIG', config);
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>

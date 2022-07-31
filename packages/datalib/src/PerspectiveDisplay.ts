@@ -7,9 +7,9 @@ import debug from 'debug';
 
 const dbg = debug('dbgate:PerspectiveDisplay');
 
-const SKIP_CELL = {
-  __perspective_skip_cell__: true,
-};
+// const SKIP_CELL = {
+//   __perspective_skip_cell__: true,
+// };
 
 let lastJoinId = 0;
 function getJoinId(): number {
@@ -74,6 +74,7 @@ export class PerspectiveDisplayRow {
     this.rowData = _fill(Array(display.columns.length), undefined);
     this.rowSpans = _fill(Array(display.columns.length), 1);
     this.rowJoinIds = _fill(Array(display.columns.length), 0);
+    this.rowCellSkips = _fill(Array(display.columns.length), false);
   }
 
   getRow(rowIndex): PerspectiveDisplayRow {
@@ -95,6 +96,8 @@ export class PerspectiveDisplayRow {
 
   rowData: any[] = [];
   rowSpans: number[] = null;
+  rowCellSkips: boolean[] = null;
+
   rowJoinIds: number[] = [];
   incompleteRowsIndicator: string[] = null;
 }
@@ -113,19 +116,19 @@ export class PerspectiveDisplay {
     this.columnLevelCount = _max(this.columns.map(x => x.parentNodes.length)) + 1;
     const collectedRows = this.collectRows(rows, root.childNodes);
     // dbg('collected rows', collectedRows);
-    // console.log('COLLECTED', collectedRows);
+    // console.log('COLLECTED', JSON.stringify(collectedRows, null, 2));
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
     // dbg('merged rows', this.rows);
 
-    // console.log(
-    //   'MERGED',
-    //   this.rows.map(r =>
-    //     r.incompleteRowsIndicator
-    //       ? `************************************ ${r.incompleteRowsIndicator.join('|')}`
-    //       : r.rowData.join('|')
-    //   )
-    // );
+    console.log(
+      'MERGED',
+      this.rows.map(r =>
+        r.incompleteRowsIndicator
+          ? `************************************ ${r.incompleteRowsIndicator.join('|')}`
+          : r.rowData.join('|')
+      )
+    );
   }
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
@@ -212,7 +215,7 @@ export class PerspectiveDisplay {
           row.rowJoinIds[col] == this.rows[lastFilledRow].rowJoinIds[col] &&
           row.rowJoinIds[col]
         ) {
-          row.rowData[col] = SKIP_CELL;
+          row.rowCellSkips[col] = true;
           this.rows[lastFilledRow].rowSpans[col] = rowIndex - lastFilledRow + 1;
         } else {
           lastFilledRow = rowIndex;
@@ -229,6 +232,8 @@ export class PerspectiveDisplay {
       this.mergeRow(collectedRow, resultRow);
       rows.push(resultRow);
     }
+    // console.log('MERGED NOT FLAT', rows);
+    console.log('MERGED NOT FLAT SUBROWS 0', rows[0].subrows[0]);
     for (const row of rows) {
       this.flushFlatRows(row);
     }
@@ -244,7 +249,7 @@ export class PerspectiveDisplay {
     }
     resultRow.incompleteRowsIndicator = collectedRow.incompleteRowsIndicator;
 
-    let subRowCount = 0;
+    // let subRowCount = 0;
     for (const subrows of collectedRow.subRowCollections) {
       let rowIndex = 0;
       for (const subrow of subrows.rows) {
@@ -252,9 +257,9 @@ export class PerspectiveDisplay {
         this.mergeRow(subrow, targetRow);
         rowIndex++;
       }
-      if (rowIndex > subRowCount) {
-        subRowCount = rowIndex;
-      }
+      // if (rowIndex > subRowCount) {
+      //   subRowCount = rowIndex;
+      // }
     }
 
     const joinId = getJoinId();

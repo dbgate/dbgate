@@ -1,6 +1,8 @@
 export interface NamedObjectInfo {
   pureName: string;
   schemaName?: string;
+  contentHash?: string;
+  engine?: string;
 }
 
 export interface ColumnReference {
@@ -31,7 +33,8 @@ export interface ForeignKeyInfo extends ColumnsConstraintInfo {
 
 export interface IndexInfo extends ColumnsConstraintInfo {
   isUnique: boolean;
-  indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
+  // indexType: 'normal' | 'clustered' | 'xml' | 'spatial' | 'fulltext';
+  indexType: string;
 }
 
 export interface UniqueInfo extends ColumnsConstraintInfo {}
@@ -43,8 +46,8 @@ export interface CheckInfo extends ConstraintInfo {
 export interface ColumnInfo extends NamedObjectInfo {
   pairingId?: string;
   columnName: string;
-  notNull: boolean;
-  autoIncrement: boolean;
+  notNull?: boolean;
+  autoIncrement?: boolean;
   dataType: string;
   precision?: number;
   scale?: number;
@@ -119,7 +122,7 @@ export interface DatabaseInfoObjects {
 }
 
 export interface DatabaseInfo extends DatabaseInfoObjects {
-  schemas: SchemaInfo[];
+  schemas?: SchemaInfo[];
   engine?: string;
   defaultSchema?: string;
 }
