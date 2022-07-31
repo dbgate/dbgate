@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults",
     "start": "tsc --watch"
   },
   "files": [

@@ -31,6 +31,11 @@ jobs:
         run: |
           cd packages/filterparser
           yarn test:ci
+      - name: Datalib (perspective) tests
+        if: always()
+        run: |
+          cd packages/datalib
+          yarn test:ci
       - uses: tanmen/jest-reporter@v1
         if: always()
         with:
@@ -43,6 +48,12 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           result-file: packages/filterparser/result.json
           action-name: Filter parser test results
+      - uses: tanmen/jest-reporter@v1
+        if: always()
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          result-file: packages/datalib/result.json
+          action-name: Datalib (perspectives) test results
 
     services:
       postgres:
