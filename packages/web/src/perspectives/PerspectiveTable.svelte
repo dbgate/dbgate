@@ -267,7 +267,7 @@
     padding: 0;
   }
 
-  thead tr:first-child th {
+  thead :global(tr:first-child) :global(th) {
     border-top: 1px solid var(--theme-border);
   }
 
