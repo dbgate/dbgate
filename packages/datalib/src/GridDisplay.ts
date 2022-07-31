@@ -24,7 +24,7 @@ export interface DisplayColumn {
   headerText: string;
   uniqueName: string;
   uniquePath: string[];
-  notNull: boolean;
+  notNull?: boolean;
   autoIncrement?: boolean;
   isPrimaryKey?: boolean;
   foreignKey?: ForeignKeyInfo;
