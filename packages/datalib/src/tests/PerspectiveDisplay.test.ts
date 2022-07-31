@@ -12,13 +12,17 @@ test('test flat view', () => {
   const root = new PerspectiveTableNode(artistTable, chinookDbInfo, createPerspectiveConfig(), null, null, null, null);
   const display = new PerspectiveDisplay(root, artistDataFlat);
 
-  console.log(display.rows);
-  expect(display.rows.length).toEqual(5);
+  // console.log(display.loadIndicatorsCounts);
+  // console.log(display.rows);
+  expect(display.rows.length).toEqual(4);
   expect(display.rows[0]).toEqual(
     expect.objectContaining({
       rowData: ['AC/DC'],
     })
   );
+  expect(display.loadIndicatorsCounts).toEqual({
+    Artist: 4,
+  });
 });
 
 test('test one level nesting', () => {
@@ -34,8 +38,9 @@ test('test one level nesting', () => {
   );
   const display = new PerspectiveDisplay(root, artistDataAlbum);
 
-  console.log(display.rows);
-  expect(display.rows.length).toEqual(7);
+  console.log(display.loadIndicatorsCounts);
+  // console.log(display.rows);
+  expect(display.rows.length).toEqual(6);
   expect(display.rows[0]).toEqual(
     expect.objectContaining({
       rowData: ['AC/DC', 'For Those About To Rock We Salute You'],
@@ -63,6 +68,11 @@ test('test one level nesting', () => {
       rowSpans: [1, 1],
     })
   );
+
+  expect(display.loadIndicatorsCounts).toEqual({
+    Artist: 6,
+    'Artist.Album': 6,
+  });
 });
 
 test('test two level nesting', () => {
@@ -79,7 +89,7 @@ test('test two level nesting', () => {
   const display = new PerspectiveDisplay(root, artistDataAlbumTrack);
 
   console.log(display.rows);
-  expect(display.rows.length).toEqual(9);
+  expect(display.rows.length).toEqual(8);
   expect(display.rows[0]).toEqual(
     expect.objectContaining({
       rowData: ['AC/DC', 'For Those About To Rock We Salute You', 'For Those About To Rock (We Salute You)'],

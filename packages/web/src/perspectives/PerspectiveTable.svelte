@@ -12,9 +12,9 @@
 </script>
 
 <script lang="ts">
-  import { PerspectiveDisplay, PerspectiveTreeNode } from 'dbgate-datalib';
+  import { PerspectiveDisplay, PerspectiveTreeNode, PERSPECTIVE_PAGE_SIZE } from 'dbgate-datalib';
   import _, { values } from 'lodash';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
   import PerspectiveIntersectionObserver from './PerspectiveIntersectionObserver.svelte';
   import debug from 'debug';
@@ -40,6 +40,7 @@
 
   let dataRows;
   let domWrapper;
+  let domTable;
   let errorMessage;
   let isLoading = false;
 
@@ -51,7 +52,7 @@
     const loadProps = node.getNodeLoadProps(parentRows);
     let { rows, incomplete } = await node.dataProvider.loadData({
       ...loadProps,
-      topCount: counts[node.uniqueName] || 100,
+      topCount: counts[node.uniqueName] || PERSPECTIVE_PAGE_SIZE,
     });
     // console.log('ROWS', rows, node.isRoot);
 
@@ -111,7 +112,7 @@
     try {
       await loadLevelData(node, rows, counts);
       dataRows = rows;
-      dbg('display rows', rows);
+      dbg('data rows', rows);
       errorMessage = null;
     } catch (err) {
       console.error(err);
@@ -142,6 +143,11 @@
   $: loadData(root, $loadedCounts);
   $: display = root && dataRows ? new PerspectiveDisplay(root, dataRows) : null;
 
+  $: {
+    display;
+    checkLoadAdditionalData();
+  }
+
   function buildMenu() {
     return [
       {
@@ -152,16 +158,86 @@
       },
     ];
   }
+
+  function getLastVisibleRowIndex() {
+    var rows = domTable.querySelectorAll('tbody>tr');
+    const wrapBox = domWrapper.getBoundingClientRect();
+
+    let rowIndex = 0;
+    // let lastTr = null;
+    for (const row of rows) {
+      const box = row.getBoundingClientRect();
+      // console.log('BOX', box);
+      if (box.y > wrapBox.bottom) {
+        break;
+      }
+      // if (box.y > domWrapper.scrollTop + wrapBox.height) {
+      //   break;
+      // }
+      // lastTr = row;
+      rowIndex += 1;
+    }
+    return rowIndex;
+  }
+
+  async function checkLoadAdditionalData() {
+    if (!display) return;
+    await tick();
+    if (!domTable) return;
+
+    const rowIndex = getLastVisibleRowIndex();
+
+    const growIndicators = _.keys(display.loadIndicatorsCounts).filter(
+      indicator => rowIndex >= display.loadIndicatorsCounts[indicator]
+    );
+
+    // console.log('growIndicators', growIndicators);
+    // console.log('display.loadIndicatorsCounts IN', display.loadIndicatorsCounts);
+    // console.log('rowIndex', rowIndex);
+
+    if (growIndicators.length > 0) {
+      dbg('load next', growIndicators);
+      loadedCounts.update(counts => {
+        const res = { ...counts };
+        for (const id of growIndicators) {
+          res[id] = (res[id] || PERSPECTIVE_PAGE_SIZE) + PERSPECTIVE_PAGE_SIZE;
+        }
+        return res;
+      });
+    }
+
+    // console.log('LAST VISIBLE ROW', rowIndex, wrapBox.height, lastTr, lastTr.getBoundingClientRect());
+
+    // var start = 0;
+    // var end = rows.length;
+    // var count = 0;
+
+    // while (start != end) {
+    //   var mid = start + Math.floor((end - start) / 2);
+    //   if ($(rows[mid]).offset().top < document.documentElement.scrollTop) start = mid + 1;
+    //   else end = mid;
+    // }
+
+    // console.log('SCROLL', domTable.querySelector('tr:visible:last'));
+  }
+
+  // $: console.log('display.loadIndicatorsCounts', display?.loadIndicatorsCounts);
 </script>
 
-<div class="wrapper" bind:this={domWrapper} use:resizeObserver={true} use:contextMenu={buildMenu}>
+<div
+  class="wrapper"
+  bind:this={domWrapper}
+  use:resizeObserver={true}
+  use:contextMenu={buildMenu}
+  on:scroll={checkLoadAdditionalData}
+>
   {#if display}
-    <table>
+    <table bind:this={domTable}>
       <thead>
         {#each _.range(display.columnLevelCount) as columnLevel}
           <tr>
             {#each display.columns as column}
-              <PerspectiveHeaderControl label={column.title} {column} {columnLevel} {setConfig} {config} />
+              <PerspectiveHeaderControl {column} {columnLevel} {setConfig} {config} />
             {/each}
           </tr>
         {/each}
@@ -185,12 +261,13 @@
               <td colspan={display.columns.length}
                 ><PerspectiveIntersectionObserver
                   rootNode={domWrapper}
+                  incompleteRowsIndicator={row.incompleteRowsIndicator}
                   onLoadNext={() => {
                     dbg('load next', row.incompleteRowsIndicator);
                     loadedCounts.update(counts => {
                       const res = { ...counts };
                       for (const id of row.incompleteRowsIndicator) {
-                        res[id] = (res[id] || 100) + 100;
+                        res[id] = (res[id] || PERSPECTIVE_PAGE_SIZE) + PERSPECTIVE_PAGE_SIZE;
                       }
                       return res;
                     });

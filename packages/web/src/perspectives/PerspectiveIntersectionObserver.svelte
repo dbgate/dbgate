@@ -3,6 +3,7 @@
 
   export let rootNode;
   export let onLoadNext;
+  export let incompleteRowsIndicator;
 
   let domObserved;
 
@@ -30,4 +31,4 @@
   });
 </script>
 
-<div bind:this={domObserved}>... data to be loaded</div>
+<div bind:this={domObserved} on:click={onLoadNext}>... data to be loaded {incompleteRowsIndicator.join(',')}</div>

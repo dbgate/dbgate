@@ -76,13 +76,14 @@ export class PerspectiveDisplayRow {
   rowCellSkips: boolean[] = null;
 
   rowJoinIds: number[] = [];
-  incompleteRowsIndicator: string[] = null;
+  // incompleteRowsIndicator: string[] = null;
 }
 
 export class PerspectiveDisplay {
   columns: PerspectiveDisplayColumn[] = [];
   rows: PerspectiveDisplayRow[] = [];
   readonly columnLevelCount: number;
+  loadIndicatorsCounts: { [uniqueName: string]: number } = {};
 
   constructor(public root: PerspectiveTreeNode, rows: any[]) {
     // dbg('source rows', rows);
@@ -92,7 +93,7 @@ export class PerspectiveDisplay {
     }
     this.columnLevelCount = _max(this.columns.map(x => x.parentNodes.length)) + 1;
     const collectedRows = this.collectRows(rows, root.childNodes);
-    // dbg('collected rows', collectedRows);
+    dbg('collected rows', collectedRows);
     // console.log('COLLECTED', JSON.stringify(collectedRows, null, 2));
     // this.mergeRows(collectedRows);
     this.mergeRows(collectedRows);
@@ -212,15 +213,21 @@ export class PerspectiveDisplay {
   }
 
   mergeRow(collectedRow: CollectedPerspectiveDisplayRow, rowIndex: number): number {
+    if (collectedRow.incompleteRowsIndicator?.length > 0) {
+      for (const indicator of collectedRow.incompleteRowsIndicator) {
+        if (!this.loadIndicatorsCounts[indicator]) {
+          this.loadIndicatorsCounts[indicator] = rowIndex;
+        }
+        if (rowIndex < this.loadIndicatorsCounts[indicator]) {
+          this.loadIndicatorsCounts[indicator] = rowIndex;
+        }
+      }
+      return 0;
+    }
+
     const mainRow = this.getRowAt(rowIndex);
     for (let i = 0; i < collectedRow.columnIndexes.length; i++) {
       mainRow.rowData[collectedRow.columnIndexes[i]] = collectedRow.rowData[i];
-    }
-    if (collectedRow.incompleteRowsIndicator) {
-      mainRow.incompleteRowsIndicator = [
-        ...(mainRow.incompleteRowsIndicator || []),
-        ...collectedRow.incompleteRowsIndicator,
-      ];
     }
 
     let rowCount = 1;

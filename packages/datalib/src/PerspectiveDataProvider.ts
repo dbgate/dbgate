@@ -4,7 +4,7 @@ import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
 
-const PERSPECTIVE_PAGE_SIZE = 100;
+export const PERSPECTIVE_PAGE_SIZE = 10;
 
 export interface PerspectiveDatabaseConfig {
   conid: string;
