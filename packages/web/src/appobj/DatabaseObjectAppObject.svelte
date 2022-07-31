@@ -143,6 +143,12 @@
         icon: 'img view-structure',
       },
       {
+        label: 'Open perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
+      {
         label: 'Drop view',
         isDrop: true,
       },
@@ -192,12 +198,6 @@
         sqlGeneratorProps: {
           dropViews: true,
         },
-      },
-      {
-        label: 'Create perspective',
-        tab: 'PerspectiveTab',
-        forceNewTab: true,
-        icon: 'img perspective',
       },
     ],
     matviews: [

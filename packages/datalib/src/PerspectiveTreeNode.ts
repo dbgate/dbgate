@@ -1,4 +1,4 @@
-import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo } from 'dbgate-types';
+import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo, ViewInfo } from 'dbgate-types';
 import { clearConfigCache } from 'prettier';
 import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveConfigColumns } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
@@ -185,7 +185,7 @@ export abstract class PerspectiveTreeNode {
     };
   }
 
-  getOrderBy(table: TableInfo): PerspectiveDataLoadProps['orderBy'] {
+  getOrderBy(table: TableInfo | ViewInfo): PerspectiveDataLoadProps['orderBy'] {
     const res = _compact(
       this.childNodes.map(node => {
         const sort = this.config?.sort?.[node?.parentNode?.uniqueName]?.find(x => x.uniqueName == node.uniqueName);
@@ -199,7 +199,7 @@ export abstract class PerspectiveTreeNode {
     );
     return res.length > 0
       ? res
-      : table?.primaryKey?.columns.map(x => ({ columnName: x.columnName, order: 'ASC' })) || [
+      : (table as TableInfo)?.primaryKey?.columns.map(x => ({ columnName: x.columnName, order: 'ASC' })) || [
           { columnName: table?.columns[0].columnName, order: 'ASC' },
         ];
   }
@@ -210,7 +210,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   refTable: TableInfo;
   constructor(
     public column: ColumnInfo,
-    public table: TableInfo,
+    public table: TableInfo | ViewInfo,
     public db: DatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
@@ -223,9 +223,9 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
     this.defaultChecked = defaultChecked;
 
-    this.foreignKey =
-      table.foreignKeys &&
-      table.foreignKeys.find(fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName);
+    this.foreignKey = (table as TableInfo)?.foreignKeys?.find(
+      fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName
+    );
 
     this.refTable = db.tables.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
@@ -382,6 +382,59 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 }
 
+export class PerspectiveViewNode extends PerspectiveTreeNode {
+  constructor(
+    public view: ViewInfo,
+    public db: DatabaseInfo,
+    config: PerspectiveConfig,
+    setConfig: ChangePerspectiveConfigFunc,
+    public dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
+    parentNode: PerspectiveTreeNode
+  ) {
+    super(config, setConfig, parentNode, dataProvider, databaseConfig);
+  }
+
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    return {
+      schemaName: this.view.schemaName,
+      pureName: this.view.pureName,
+      dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
+      orderBy: this.getOrderBy(this.view),
+      condition: this.getChildrenCondition(),
+    };
+  }
+
+  get codeName() {
+    return this.view.schemaName ? `${this.view.schemaName}:${this.view.pureName}` : this.view.pureName;
+  }
+
+  get title() {
+    return this.view.pureName;
+  }
+
+  get isExpandable() {
+    return true;
+  }
+
+  get childNodes(): PerspectiveTreeNode[] {
+    return getTableChildPerspectiveNodes(
+      this.view,
+      this.db,
+      this.config,
+      this.setConfig,
+      this.dataProvider,
+      this.databaseConfig,
+      this
+    );
+  }
+
+  get icon() {
+    return 'img table';
+  }
+}
+
 export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
   constructor(
     public foreignKey: ForeignKeyInfo,
@@ -434,7 +487,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
 }
 
 export function getTableChildPerspectiveNodes(
-  table: TableInfo,
+  table: TableInfo | ViewInfo,
   db: DatabaseInfo,
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
@@ -463,8 +516,8 @@ export function getTableChildPerspectiveNodes(
         )
     )
   );
-  if (db && table.dependencies) {
-    for (const fk of table.dependencies) {
+  if (db && (table as TableInfo)?.dependencies) {
+    for (const fk of (table as TableInfo)?.dependencies) {
       const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
       if (tbl)
         res.push(

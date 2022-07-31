@@ -1,7 +1,7 @@
 import { findForeignKeyForColumn } from 'dbgate-tools';
-import { DatabaseInfo, TableInfo } from 'dbgate-types';
+import { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
 
-export function getPerspectiveDefaultColumns(table: TableInfo, db: DatabaseInfo): string[] {
+export function getPerspectiveDefaultColumns(table: TableInfo | ViewInfo, db: DatabaseInfo): string[] {
   const columns = table.columns.map(x => x.columnName);
   const predicates = [
     x => x.toLowerCase() == 'name',
@@ -9,7 +9,7 @@ export function getPerspectiveDefaultColumns(table: TableInfo, db: DatabaseInfo)
     x => x.toLowerCase().includes('name'),
     x => x.toLowerCase().includes('title'),
     x => x.dataType?.toLowerCase()?.includes('char'),
-    x => findForeignKeyForColumn(table, x)?.columns?.length == 1,
+    x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1,
   ];
 
   for (const predicate of predicates) {
