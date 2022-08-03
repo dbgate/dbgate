@@ -28,6 +28,7 @@
   import DataGridCell from '../datagrid/DataGridCell.svelte';
   import PerspectiveLoadingIndicator from './PerspectiveLoadingIndicator.svelte';
   import PerspectiveHeaderControl from './PerspectiveHeaderControl.svelte';
+  import createRef from '../utility/createRef';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
@@ -42,6 +43,7 @@
   let domTable;
   let errorMessage;
   let isLoading = false;
+  const lastVisibleRowIndexRef = createRef(0);
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
     dbg('load level data', counts);
@@ -165,21 +167,52 @@
     var rows = domTable.querySelectorAll('tbody>tr');
     const wrapBox = domWrapper.getBoundingClientRect();
 
-    let rowIndex = 0;
-    // let lastTr = null;
-    for (const row of rows) {
-      const box = row.getBoundingClientRect();
-      // console.log('BOX', box);
-      if (box.y > wrapBox.bottom) {
-        break;
+    function indexIsLastVisible(index) {
+      if (index < 0 || index >= rows.length) {
+        return false;
       }
-      // if (box.y > domWrapper.scrollTop + wrapBox.height) {
-      //   break;
-      // }
-      // lastTr = row;
-      rowIndex += 1;
+
+      const box = rows[index].getBoundingClientRect();
+
+      if (index == rows.length - 1) {
+        return wrapBox.bottom >= box.top;
+      }
+
+      return box.top <= wrapBox.bottom && box.bottom >= wrapBox.bottom;
     }
-    return rowIndex;
+
+    const lastValue = lastVisibleRowIndexRef.get();
+
+    let d = 0;
+    while (lastValue - d >= 0 || lastValue + d < rows.length) {
+      if (indexIsLastVisible(lastValue - d)) {
+        lastVisibleRowIndexRef.set(lastValue - d);
+        return lastValue - d;
+      }
+      if (indexIsLastVisible(lastValue + d)) {
+        lastVisibleRowIndexRef.set(lastValue + d);
+        return lastValue + d;
+      }
+      d += 1;
+    }
+
+    return 0;
+
+    // let rowIndex = 0;
+    // // let lastTr = null;
+    // for (const row of rows) {
+    //   const box = row.getBoundingClientRect();
+    //   // console.log('BOX', box);
+    //   if (box.y > wrapBox.bottom) {
+    //     break;
+    //   }
+    //   // if (box.y > domWrapper.scrollTop + wrapBox.height) {
+    //   //   break;
+    //   // }
+    //   // lastTr = row;
+    //   rowIndex += 1;
+    // }
+    // return rowIndex;
   }
 
   async function checkLoadAdditionalData() {
@@ -189,8 +222,10 @@
 
     const rowIndex = getLastVisibleRowIndex();
 
+    console.log('LAST VISIBLE', rowIndex);
+
     const growIndicators = _.keys(display.loadIndicatorsCounts).filter(
-      indicator => rowIndex >= display.loadIndicatorsCounts[indicator]
+      indicator => rowIndex + 1 >= display.loadIndicatorsCounts[indicator]
     );
 
     // console.log('growIndicators', growIndicators);
