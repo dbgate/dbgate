@@ -44,6 +44,7 @@
   let errorMessage;
   let isLoading = false;
   const lastVisibleRowIndexRef = createRef(0);
+  const disableLoadNextRef = createRef(false);
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
     dbg('load level data', counts);
@@ -146,6 +147,7 @@
 
   $: {
     display;
+    disableLoadNextRef.set(false);
     checkLoadAdditionalData();
   }
 
@@ -219,10 +221,11 @@
     if (!display) return;
     await tick();
     if (!domTable) return;
+    if (disableLoadNextRef.get()) return;
 
     const rowIndex = getLastVisibleRowIndex();
 
-    console.log('LAST VISIBLE', rowIndex);
+    // console.log('LAST VISIBLE', rowIndex);
 
     const growIndicators = _.keys(display.loadIndicatorsCounts).filter(
       indicator => rowIndex + 1 >= display.loadIndicatorsCounts[indicator]
@@ -233,6 +236,7 @@
     // console.log('rowIndex', rowIndex);
 
     if (growIndicators.length > 0) {
+      disableLoadNextRef.set(true);
       dbg('load next', growIndicators);
       loadedCounts.update(counts => {
         const res = { ...counts };
