@@ -16,10 +16,9 @@
 <ManagerInnerContainer width={managerSize}>
   {#each allFilterNames as uniqueName}
     <PerspectiveFiltersColumn
-      columnName={config.filterInfos[uniqueName].columnName}
+      filterInfo={config.filterInfos[uniqueName]}
       {uniqueName}
       filter={config.filters[uniqueName]}
-      filterType={config.filterInfos[uniqueName].filterType}
       onSetFilter={value =>
         setConfig(cfg => ({
           ...cfg,

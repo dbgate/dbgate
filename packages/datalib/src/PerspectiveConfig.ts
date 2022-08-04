@@ -21,6 +21,7 @@ export interface PerspectiveCustomJoinConfig {
 export interface PerspectiveFilterColumnInfo {
   columnName: string;
   filterType: string;
+  tableName: string;
 }
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   filters: { [uniqueName: string]: string };

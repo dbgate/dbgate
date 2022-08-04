@@ -5,20 +5,21 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { getFilterType } from 'dbgate-filterparser';
+  import { PerspectiveFilterColumnInfo } from 'dbgate-datalib';
+
+  export let filterInfo: PerspectiveFilterColumnInfo;
 
   export let filter;
   export let onSetFilter;
   export let onRemoveFilter;
-  export let filterType;
-  export let columnName;
 </script>
 
 <div class="m-1">
   <div class="space-between">
-    {columnName}
+    {filterInfo.columnName} ({filterInfo.tableName})
     <InlineButton square narrow on:click={onRemoveFilter}>
       <FontIcon icon="icon close" />
     </InlineButton>
   </div>
-  <DataFilterControl {filterType} {filter} setFilter={onSetFilter} />
+  <DataFilterControl filterType={filterInfo.filterType} {filter} setFilter={onSetFilter} />
 </div>

@@ -5,6 +5,7 @@ import {
   PerspectiveConfig,
   PerspectiveConfigColumns,
   PerspectiveCustomJoinConfig,
+  PerspectiveFilterColumnInfo,
 } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
@@ -152,25 +153,25 @@ export abstract class PerspectiveTreeNode {
     }
   }
 
-  setFilter(value) {
-    this.setConfig(
-      cfg => ({
-        ...cfg,
-        filters: {
-          ...cfg.filters,
-          [this.uniqueName]: value,
-        },
-        filterInfos: {
-          ...cfg.filterInfos,
-          [this.uniqueName]: {
-            columnName: this.columnName,
-            filterType: this.filterType,
-          },
-        },
-      }),
-      true
-    );
-  }
+  // setFilter(value) {
+  //   this.setConfig(
+  //     cfg => ({
+  //       ...cfg,
+  //       filters: {
+  //         ...cfg.filters,
+  //         [this.uniqueName]: value,
+  //       },
+  //       filterInfos: {
+  //         ...cfg.filterInfos,
+  //         [this.uniqueName]: {
+  //           columnName: this.columnName,
+  //           filterType: this.filterType,
+  //         },
+  //       },
+  //     }),
+  //     true
+  //   );
+  // }
 
   getFilter() {
     return this.config.filters[this.uniqueName];
@@ -230,6 +231,10 @@ export abstract class PerspectiveTreeNode {
     return res;
   }
   getBaseTableFromThis() {
+    return null;
+  }
+
+  get filterInfo(): PerspectiveFilterColumnInfo {
     return null;
   }
 }
@@ -342,6 +347,14 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
   getBaseTableFromThis() {
     return this.refTable;
+  }
+
+  get filterInfo(): PerspectiveFilterColumnInfo {
+    return {
+      columnName: this.columnName,
+      filterType: this.filterType,
+      tableName: this.column.pureName,
+    };
   }
 
   parseFilterCondition() {

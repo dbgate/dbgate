@@ -282,7 +282,7 @@
             {/each}
           </tr>
         {/each}
-        <tr>
+        <!-- <tr>
           {#each display.columns as column}
             <th class="filter">
               <DataFilterControl
@@ -293,7 +293,7 @@
               />
             </th>
           {/each}
-        </tr>
+        </tr> -->
       </thead>
       <tbody>
         {#each display.rows as row}

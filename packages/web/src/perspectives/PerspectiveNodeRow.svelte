@@ -17,7 +17,19 @@
 
   function createMenu() {
     const customJoin = node.customJoinConfig;
+    const filterInfo = node.filterInfo;
     return [
+      filterInfo && {
+        text: 'Add to filter',
+        onClick: () =>
+          setConfig(cfg => ({
+            ...cfg,
+            filterInfos: {
+              ...cfg.filterInfos,
+              [node.uniqueName]: filterInfo,
+            },
+          })),
+      },
       customJoin && {
         text: 'Remove custom join',
         onClick: () =>
