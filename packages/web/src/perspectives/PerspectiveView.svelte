@@ -109,7 +109,7 @@
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height="45%">
+      <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height={'70%'}>
         <ManagerInnerContainer width={managerSize}>
           {#if root}
             <PerspectiveTree {root} {config} {setConfig} {conid} {database} />
@@ -117,7 +117,7 @@
         </ManagerInnerContainer>
       </WidgetColumnBarItem>
 
-      <WidgetColumnBarItem title="Filters" name="tableFilters" height={'15%'}>
+      <WidgetColumnBarItem title="Filters" name="tableFilters">
         <PerspectiveFilters {managerSize} {config} {setConfig} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
