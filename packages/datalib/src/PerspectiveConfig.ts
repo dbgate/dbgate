@@ -17,8 +17,14 @@ export interface PerspectiveCustomJoinConfig {
     refColumnName: string;
   }[];
 }
+
+export interface PerspectiveFilterColumnInfo {
+  columnName: string;
+  filterType: string;
+}
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   filters: { [uniqueName: string]: string };
+  filterInfos: { [uniqueName: string]: PerspectiveFilterColumnInfo };
   sort: {
     [parentUniqueName: string]: {
       uniqueName: string;
@@ -35,6 +41,7 @@ export function createPerspectiveConfig(): PerspectiveConfig {
     uncheckedColumns: [],
     customJoins: [],
     filters: {},
+    filterInfos: {},
     sort: {},
   };
 }

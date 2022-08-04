@@ -49,6 +49,8 @@
   import registerCommand from '../commands/registerCommand';
   import { showModal } from '../modals/modalTools';
   import CustomJoinModal from './CustomJoinModal.svelte';
+  import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
+  import PerspectiveFilters from './PerspectiveFilters.svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -113,6 +115,10 @@
             <PerspectiveTree {root} {config} {setConfig} {conid} {database} />
           {/if}
         </ManagerInnerContainer>
+      </WidgetColumnBarItem>
+
+      <WidgetColumnBarItem title="Filters" name="tableFilters" height={'15%'}>
+        <PerspectiveFilters {managerSize} {config} {setConfig} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>

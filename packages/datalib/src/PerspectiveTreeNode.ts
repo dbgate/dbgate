@@ -160,6 +160,13 @@ export abstract class PerspectiveTreeNode {
           ...cfg.filters,
           [this.uniqueName]: value,
         },
+        filterInfos: {
+          ...cfg.filterInfos,
+          [this.uniqueName]: {
+            columnName: this.columnName,
+            filterType: this.filterType,
+          },
+        },
       }),
       true
     );
