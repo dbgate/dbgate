@@ -179,4 +179,9 @@
   th.columnHeader {
     position: relative;
   }
+
+  th:global(.highlight) {
+    border: 3px solid var(--theme-icon-blue);
+    padding: 0px;
+  }
 </style>

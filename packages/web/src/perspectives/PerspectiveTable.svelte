@@ -154,7 +154,7 @@
     checkLoadAdditionalData();
   }
 
-  function buildMenu({ targetElement }) {
+  function buildMenu({ targetElement, registerCloseHandler }) {
     const res = [];
     const td = targetElement.closest('td') || targetElement.closest('th');
 
@@ -172,6 +172,10 @@
             setConfig,
           })
         );
+      td.classList.add('highlight');
+      registerCloseHandler(() => {
+        td.classList.remove('highlight');
+      });
     }
 
     res.push([

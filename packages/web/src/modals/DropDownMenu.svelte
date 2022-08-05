@@ -59,6 +59,19 @@
   let submenuOffset;
 
   const dispatch = createEventDispatcher();
+  let closeHandlers = [];
+
+  function dispatchClose() {
+    dispatch('close');
+    for (const handler of closeHandlers) {
+      handler();
+    }
+    closeHandlers = [];
+  }
+
+  function registerCloseHandler(handler) {
+    closeHandlers.push(handler);
+  }
 
   function handleClick(e, item) {
     if (item.disabled) return;
@@ -70,7 +83,7 @@
       submenuOffset = hoverOffset;
       return;
     }
-    dispatch('close');
+    dispatchClose();
     if (onCloseParent) onCloseParent();
     if (item.onClick) item.onClick();
   }
@@ -84,13 +97,13 @@
     submenuOffset = hoverOffset;
   }, 500);
 
-  $: preparedItems = prepareMenuItems(items, { targetElement }, $commandsCustomized);
+  $: preparedItems = prepareMenuItems(items, { targetElement, registerCloseHandler }, $commandsCustomized);
 
   const handleClickOutside = event => {
     // if (element && !element.contains(event.target) && !event.defaultPrevented) {
     if (event.target.closest('ul.dropDownMenuMarker')) return;
 
-    dispatch('close');
+    dispatchClose();
   };
 
   onMount(() => {
@@ -134,7 +147,7 @@
     {...submenuOffset}
     onCloseParent={() => {
       if (onCloseParent) onCloseParent();
-      dispatch('close');
+      dispatchClose();
     }}
   />
 {/if}

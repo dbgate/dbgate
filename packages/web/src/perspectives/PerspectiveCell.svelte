@@ -25,4 +25,8 @@
     border-bottom: 1px solid var(--theme-border);
     border-right: 1px solid var(--theme-border);
   }
+  td:global(.highlight) {
+    border: 3px solid var(--theme-icon-blue);
+    padding: 0px;
+  }
 </style>
