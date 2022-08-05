@@ -29,6 +29,7 @@
   import PerspectiveLoadingIndicator from './PerspectiveLoadingIndicator.svelte';
   import PerspectiveHeaderControl from './PerspectiveHeaderControl.svelte';
   import createRef from '../utility/createRef';
+  import { getPerspectiveNodeMenu } from './perspectiveMenu';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
@@ -37,6 +38,8 @@
   export let loadedCounts;
   export let config;
   export let setConfig;
+  export let conid;
+  export let database;
 
   let dataRows;
   let domWrapper;
@@ -151,18 +154,34 @@
     checkLoadAdditionalData();
   }
 
-  function buildMenu() {
-    return [
-      {
-        command: 'perspective.refresh',
-      },
-      {
-        command: 'perspective.openJson',
-      },
-      {
-        command: 'perspective.customJoin',
-      },
-    ];
+  function buildMenu({ targetElement }) {
+    const res = [];
+    const td = targetElement.closest('td') || targetElement.closest('th');
+
+    if (td) {
+      const columnIndex = td.getAttribute('data-column');
+      const column = display?.columns?.[columnIndex];
+      if (column)
+        res.push(
+          getPerspectiveNodeMenu({
+            config,
+            conid,
+            database,
+            node: column.dataNode,
+            root,
+            setConfig,
+          })
+        );
+    }
+
+    res.push([
+      { divider: true },
+      { command: 'perspective.refresh' },
+      { command: 'perspective.openJson' },
+      { command: 'perspective.customJoin' },
+    ]);
+
+    return res;
   }
 
   function getLastVisibleRowIndex() {
@@ -301,6 +320,7 @@
             {#each display.columns as column}
               {#if !row.rowCellSkips[column.columnIndex]}
                 <PerspectiveCell
+                  columnIndex={column.columnIndex}
                   value={row.rowData[column.columnIndex]}
                   rowSpan={row.rowSpans[column.columnIndex]}
                   rowData={row.rowData}

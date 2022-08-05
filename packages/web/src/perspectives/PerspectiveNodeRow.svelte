@@ -7,6 +7,7 @@
   import { showModal } from '../modals/modalTools';
   import contextMenu from '../utility/contextMenu';
   import CustomJoinModal from './CustomJoinModal.svelte';
+  import { getPerspectiveNodeMenu } from './perspectiveMenu';
 
   export let conid;
   export let database;
@@ -16,41 +17,14 @@
   export let setConfig: ChangePerspectiveConfigFunc;
 
   function createMenu() {
-    const customJoin = node.customJoinConfig;
-    const filterInfo = node.filterInfo;
-    return [
-      filterInfo && {
-        text: 'Add to filter',
-        onClick: () =>
-          setConfig(cfg => ({
-            ...cfg,
-            filterInfos: {
-              ...cfg.filterInfos,
-              [node.uniqueName]: filterInfo,
-            },
-          })),
-      },
-      customJoin && {
-        text: 'Remove custom join',
-        onClick: () =>
-          setConfig(cfg => ({
-            ...cfg,
-            customJoins: (cfg.customJoins || []).filter(x => x.joinid != customJoin.joinid),
-          })),
-      },
-      customJoin && {
-        text: 'Edit custom join',
-        onClick: () =>
-          showModal(CustomJoinModal, {
-            config,
-            setConfig,
-            conid,
-            database,
-            root,
-            editValue: customJoin,
-          }),
-      },
-    ];
+    return getPerspectiveNodeMenu({
+      conid,
+      database,
+      node,
+      root,
+      config,
+      setConfig,
+    });
   }
 </script>
 

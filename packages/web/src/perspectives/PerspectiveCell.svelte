@@ -4,9 +4,10 @@
   export let value;
   export let rowSpan;
   export let rowData;
+  export let columnIndex;
 </script>
 
-<td rowspan={rowSpan}>
+<td rowspan={rowSpan} data-column={columnIndex}>
   {#if value !== undefined}
     <CellValue {rowData} {value} />
   {/if}

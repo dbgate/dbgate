@@ -74,6 +74,7 @@
   <th
     rowspan={column.rowSpan}
     class="columnHeader"
+    data-column={column.columnIndex}
     on:mouseenter={() => (mouseIn = true)}
     on:mouseleave={() => (mouseIn = false)}
   >
