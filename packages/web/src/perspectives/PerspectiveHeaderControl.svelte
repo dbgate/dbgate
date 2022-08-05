@@ -9,8 +9,6 @@
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  let mouseIn;
-
   $: parentUniqueName = column.dataNode?.parentNode?.uniqueName || '';
   $: uniqueName = column.dataNode.uniqueName;
   $: order = config.sort?.[parentUniqueName]?.find(x => x.uniqueName == uniqueName)?.order;
@@ -20,54 +18,6 @@
       : -1;
   $: isSortDefined = config.sort?.[parentUniqueName]?.length > 0;
 
-  const setSort = order => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [{ uniqueName, order }],
-        },
-      }),
-      true
-    );
-  };
-
-  const addToSort = order => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [...(cfg.sort?.[parentUniqueName] || []), { uniqueName, order }],
-        },
-      }),
-      true
-    );
-  };
-
-  const clearSort = () => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [],
-        },
-      }),
-      true
-    );
-  };
-
-  function getMenu() {
-    return [
-      { onClick: () => setSort('ASC'), text: 'Sort ascending' },
-      { onClick: () => setSort('DESC'), text: 'Sort descending' },
-      isSortDefined && !order && { onClick: () => addToSort('ASC'), text: 'Add to sort - ascending' },
-      isSortDefined && !order && { onClick: () => addToSort('DESC'), text: 'Add to sort - descending' },
-      order && { onClick: () => clearSort(), text: 'Clear sort criteria' },
-    ];
-  }
 </script>
 
 {#if column.isVisible(columnLevel)}
@@ -75,8 +25,6 @@
     rowspan={column.rowSpan}
     class="columnHeader"
     data-column={column.columnIndex}
-    on:mouseenter={() => (mouseIn = true)}
-    on:mouseleave={() => (mouseIn = false)}
   >
     <div class="wrap">
       <div class="label">
@@ -100,12 +48,6 @@
         </span>
       {/if}
     </div>
-
-    {#if mouseIn}
-      <div class="menuButton">
-        <DropDownButton menu={getMenu} narrow />
-      </div>
-    {/if}
   </th>
 {/if}
 {#if column.showParent(columnLevel)}
@@ -115,11 +57,6 @@
 <style>
   .wrap {
     display: flex;
-  }
-  .menuButton {
-    position: absolute;
-    right: 0;
-    bottom: 0;
   }
   .label {
     flex-wrap: nowrap;
@@ -143,12 +80,6 @@
     align-self: center;
     font-size: 18px;
   }
-  /* .resizer {
-      background-color: var(--theme-border);
-      width: 2px;
-      cursor: col-resize;
-      z-index: 1;
-    } */
   .grouping {
     color: var(--theme-font-alt);
     white-space: nowrap;
