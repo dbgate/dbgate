@@ -415,7 +415,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
 export class PerspectiveTableNode extends PerspectiveTreeNode {
   constructor(
-    public table: TableInfo,
+    public table: TableInfo | ViewInfo,
     dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
@@ -483,62 +483,62 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 }
 
-export class PerspectiveViewNode extends PerspectiveTreeNode {
-  constructor(
-    public view: ViewInfo,
-    dbs: MultipleDatabaseInfo,
-    config: PerspectiveConfig,
-    setConfig: ChangePerspectiveConfigFunc,
-    public dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
-    parentNode: PerspectiveTreeNode
-  ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
-  }
+// export class PerspectiveViewNode extends PerspectiveTreeNode {
+//   constructor(
+//     public view: ViewInfo,
+//     dbs: MultipleDatabaseInfo,
+//     config: PerspectiveConfig,
+//     setConfig: ChangePerspectiveConfigFunc,
+//     public dataProvider: PerspectiveDataProvider,
+//     databaseConfig: PerspectiveDatabaseConfig,
+//     parentNode: PerspectiveTreeNode
+//   ) {
+//     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
+//   }
 
-  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
-    return {
-      schemaName: this.view.schemaName,
-      pureName: this.view.pureName,
-      dataColumns: this.getDataLoadColumns(),
-      databaseConfig: this.databaseConfig,
-      orderBy: this.getOrderBy(this.view),
-      condition: this.getChildrenCondition(),
-    };
-  }
+//   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+//     return {
+//       schemaName: this.view.schemaName,
+//       pureName: this.view.pureName,
+//       dataColumns: this.getDataLoadColumns(),
+//       databaseConfig: this.databaseConfig,
+//       orderBy: this.getOrderBy(this.view),
+//       condition: this.getChildrenCondition(),
+//     };
+//   }
 
-  get codeName() {
-    return this.view.schemaName ? `${this.view.schemaName}:${this.view.pureName}` : this.view.pureName;
-  }
+//   get codeName() {
+//     return this.view.schemaName ? `${this.view.schemaName}:${this.view.pureName}` : this.view.pureName;
+//   }
 
-  get title() {
-    return this.view.pureName;
-  }
+//   get title() {
+//     return this.view.pureName;
+//   }
 
-  get isExpandable() {
-    return true;
-  }
+//   get isExpandable() {
+//     return true;
+//   }
 
-  get childNodes(): PerspectiveTreeNode[] {
-    return getTableChildPerspectiveNodes(
-      this.view,
-      this.dbs,
-      this.config,
-      this.setConfig,
-      this.dataProvider,
-      this.databaseConfig,
-      this
-    );
-  }
+//   get childNodes(): PerspectiveTreeNode[] {
+//     return getTableChildPerspectiveNodes(
+//       this.view,
+//       this.dbs,
+//       this.config,
+//       this.setConfig,
+//       this.dataProvider,
+//       this.databaseConfig,
+//       this
+//     );
+//   }
 
-  get icon() {
-    return 'img table';
-  }
+//   get icon() {
+//     return 'img table';
+//   }
 
-  getBaseTableFromThis() {
-    return this.view;
-  }
-}
+//   getBaseTableFromThis() {
+//     return this.view;
+//   }
+// }
 
 export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
   constructor(
@@ -609,7 +609,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
 export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   constructor(
     public customJoin: PerspectiveCustomJoinConfig,
-    table: TableInfo,
+    table: TableInfo | ViewInfo,
     dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
@@ -730,10 +730,20 @@ export function getTableChildPerspectiveNodes(
       if (join.database) newConfig.database = join.database;
       const db = dbs?.[newConfig.conid]?.[newConfig.database];
       const table = db?.tables?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
+      const view = db?.views?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
 
-      if (table) {
+      if (table || view) {
         customs.push(
-          new PerspectiveCustomJoinTreeNode(join, table, dbs, config, setConfig, dataProvider, newConfig, parentColumn)
+          new PerspectiveCustomJoinTreeNode(
+            join,
+            table || view,
+            dbs,
+            config,
+            setConfig,
+            dataProvider,
+            newConfig,
+            parentColumn
+          )
         );
       }
     }

@@ -25,7 +25,6 @@
     PerspectiveDataProvider,
     PerspectiveTableColumnNode,
     PerspectiveTableNode,
-    PerspectiveViewNode,
   } from 'dbgate-datalib';
 
   import _ from 'lodash';
@@ -103,11 +102,18 @@
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
-  $: root = $tableInfo
-    ? new PerspectiveTableNode($tableInfo, $dbInfos, config, setConfig, dataProvider, { conid, database }, null)
-    : $viewInfo
-    ? new PerspectiveViewNode($viewInfo, $dbInfos, config, setConfig, dataProvider, { conid, database }, null)
-    : null;
+  $: root =
+    $tableInfo || $viewInfo
+      ? new PerspectiveTableNode(
+          $tableInfo || $viewInfo,
+          $dbInfos,
+          config,
+          setConfig,
+          dataProvider,
+          { conid, database },
+          null
+        )
+      : null;
 
   // $: console.log('CONFIG', config);
 </script>

@@ -8,7 +8,13 @@
   import { fullNameFromString, fullNameToLabel, fullNameToString } from 'dbgate-tools';
   import SelectField from '../forms/SelectField.svelte';
   import _ from 'lodash';
-  import { useConnectionList, useDatabaseInfo, useDatabaseList, useTableInfo } from '../utility/metadataLoaders';
+  import {
+    useConnectionList,
+    useDatabaseInfo,
+    useDatabaseList,
+    useTableInfo,
+    useViewInfo,
+  } from '../utility/metadataLoaders';
   import { onMount, tick } from 'svelte';
   import {
     ChangePerspectiveConfigFunc,
@@ -52,6 +58,12 @@
     schemaName: refSchemaName,
     pureName: refTableName,
   });
+  $: refViewInfo = useViewInfo({
+    conid: conidOverride || conid,
+    database: databaseOverride || database,
+    schemaName: refSchemaName,
+    pureName: refTableName,
+  });
 
   let columns = editValue?.columns || [];
   //   let fromTableName = pureName;
@@ -76,7 +88,7 @@
   //   ];
   $: refTableList = [
     ..._.sortBy($refDbInfo?.tables || [], ['schemaName', 'pureName']),
-    // ..._.sortBy($dbInfo?.views || [], ['schemaName', 'pureName']),
+    ..._.sortBy($refDbInfo?.views || [], ['schemaName', 'pureName']),
   ];
 
   let refTableOptions = [];
@@ -221,9 +233,10 @@
                 const refTable = $refDbInfo?.tables?.find(
                   x => x.pureName == refTableName && x.schemaName == refSchemaName
                 );
-                columns = refTable?.primaryKey?.columns?.map(col => ({
-                  refColumnName: col.columnName,
-                }));
+                columns =
+                  refTable?.primaryKey?.columns?.map(col => ({
+                    refColumnName: col.columnName,
+                  })) || [];
               }
             }}
           />
@@ -265,7 +278,7 @@
                 value={column.refColumnName}
                 isNative
                 notSelected
-                options={($refTableInfo?.columns || []).map(col => ({
+                options={($refTableInfo?.columns || $refViewInfo?.columns || []).map(col => ({
                   label: col.columnName,
                   value: col.columnName,
                 }))}
