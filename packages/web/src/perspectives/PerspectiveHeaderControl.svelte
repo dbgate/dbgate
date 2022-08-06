@@ -1,6 +1,6 @@
 <script lang="ts">
   import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveDisplayColumn } from 'dbgate-datalib';
-  import _ from 'lodash';
+  import _, { mapKeys } from 'lodash';
 
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -17,15 +17,10 @@
       ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
       : -1;
   $: isSortDefined = config.sort?.[parentUniqueName]?.length > 0;
-
 </script>
 
 {#if column.isVisible(columnLevel)}
-  <th
-    rowspan={column.rowSpan}
-    class="columnHeader"
-    data-column={column.columnIndex}
-  >
+  <th rowspan={column.rowSpan} class="columnHeader" data-column={column.columnIndex}>
     <div class="wrap">
       <div class="label">
         {column.title}
@@ -51,7 +46,12 @@
   </th>
 {/if}
 {#if column.showParent(columnLevel)}
-  <th colspan={column.getColSpan(columnLevel)} class="tableHeader">{column.getParentName(columnLevel)}</th>
+  <th
+    colspan={column.getColSpan(columnLevel)}
+    class="tableHeader"
+    {..._.mapKeys(column.getParentDataAttributes(columnLevel), (v, k) => `data-${k}`)}
+    >{column.getParentName(columnLevel)}</th
+  >
 {/if}
 
 <style>

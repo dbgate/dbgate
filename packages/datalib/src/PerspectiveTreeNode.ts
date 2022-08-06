@@ -68,6 +68,9 @@ export abstract class PerspectiveTreeNode {
   get fieldName() {
     return this.codeName;
   }
+  get headerDataAttributes() {
+    return {};
+  }
   get dataField() {
     return this.codeName;
   }
@@ -375,6 +378,18 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
     return condition;
   }
+
+  get headerDataAttributes() {
+    if (this.foreignKey) {
+      return {
+        schemaName: this.foreignKey.refSchemaName,
+        pureName: this.foreignKey.refTableName,
+        conid: this.databaseConfig.conid,
+        database: this.databaseConfig.database,
+      };
+    }
+    return null;
+  }
 }
 
 export class PerspectiveTableNode extends PerspectiveTreeNode {
@@ -431,6 +446,15 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
 
   getBaseTableFromThis() {
     return this.table;
+  }
+
+  get headerDataAttributes() {
+    return {
+      schemaName: this.table.schemaName,
+      pureName: this.table.pureName,
+      conid: this.databaseConfig.conid,
+      database: this.databaseConfig.database,
+    };
   }
 }
 

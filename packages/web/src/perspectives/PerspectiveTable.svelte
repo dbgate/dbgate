@@ -30,6 +30,7 @@
   import PerspectiveHeaderControl from './PerspectiveHeaderControl.svelte';
   import createRef from '../utility/createRef';
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
+  import openNewTab from '../utility/openNewTab';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
@@ -176,6 +177,28 @@
       registerCloseHandler(() => {
         td.classList.remove('highlight');
       });
+
+      const pureName = td.getAttribute('data-pureName');
+      const schemaName = td.getAttribute('data-schemaName');
+      if (pureName) {
+        res.push({
+          text: `Open table ${pureName}`,
+          onClick: () => {
+            openNewTab({
+              title: pureName,
+              icon: 'img table',
+              tabComponent: 'TableDataTab',
+              props: {
+                schemaName,
+                pureName,
+                conid,
+                database,
+                objectTypeField: 'tables',
+              },
+            });
+          },
+        });
+      }
     }
 
     res.push([
