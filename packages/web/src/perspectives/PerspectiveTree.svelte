@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { ChangeConfigFunc, ChangePerspectiveConfigFunc, GridConfig, PerspectiveConfig } from 'dbgate-datalib';
+  import {
+    ChangeConfigFunc,
+    ChangePerspectiveConfigFunc,
+    GridConfig,
+    PerspectiveConfig,
+    PerspectiveTreeNode,
+  } from 'dbgate-datalib';
+  import { filterName } from 'dbgate-tools';
 
   import PerspectiveNodeRow from './PerspectiveNodeRow.svelte';
 
@@ -8,23 +15,28 @@
   export let setConfig: ChangePerspectiveConfigFunc;
   export let conid;
   export let database;
+  export let filter;
 
-  function processFlatColumns(res, columns) {
-    for (const col of columns) {
-      res.push(col);
-      if (col.isExpanded) {
-        processFlatColumns(res, col.childNodes);
+  function getFlatColumns(node: PerspectiveTreeNode, filter: string) {
+    const res = [];
+    for (const col of node?.childNodes) {
+      if (filterName(filter, col.title)) {
+        res.push(col);
+        if (col.isExpanded) {
+          res.push(...getFlatColumns(col, filter));
+        }
+      } else if (col.isExpanded) {
+        const children = getFlatColumns(col, filter);
+        if (children.length > 0) {
+          res.push(col);
+          res.push(...children);
+        }
       }
     }
-  }
-
-  function getFlatColumns(root) {
-    const res = [];
-    processFlatColumns(res, root?.childNodes || []);
     return res;
   }
 </script>
 
-{#each getFlatColumns(root) as node}
+{#each getFlatColumns(root, filter) as node}
   <PerspectiveNodeRow {node} {config} {setConfig} {root} {conid} {database} />
 {/each}

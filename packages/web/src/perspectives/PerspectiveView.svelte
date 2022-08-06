@@ -51,6 +51,9 @@
   import CustomJoinModal from './CustomJoinModal.svelte';
   import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
   import PerspectiveFilters from './PerspectiveFilters.svelte';
+  import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
+  import SearchInput from '../elements/SearchInput.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -67,7 +70,7 @@
   export let cache;
 
   let managerSize;
-  let nextCacheRef = createRef(null);
+  let filter;
 
   export const activator = createActivator('PerspectiveView', true);
 
@@ -111,9 +114,14 @@
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height={'70%'}>
+        <SearchBoxWrapper>
+          <SearchInput placeholder="Search column or table" bind:value={filter} />
+          <CloseSearchButton bind:filter />
+        </SearchBoxWrapper>
+
         <ManagerInnerContainer width={managerSize}>
           {#if root}
-            <PerspectiveTree {root} {config} {setConfig} {conid} {database} />
+            <PerspectiveTree {root} {config} {setConfig} {conid} {database} {filter} />
           {/if}
         </ManagerInnerContainer>
       </WidgetColumnBarItem>

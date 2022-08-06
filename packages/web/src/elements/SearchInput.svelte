@@ -36,6 +36,7 @@
   input {
     flex: 1;
     min-width: 10px;
+    min-height: 22px;
     width: 10px;
     border: none;
   }
