@@ -60,8 +60,6 @@
 
   export let conid;
   export let database;
-  export let schemaName;
-  export let pureName;
   export let driver;
 
   export let config: PerspectiveConfig;
@@ -96,9 +94,9 @@
     });
   }
 
-  const dbInfos = useMultipleDatabaseInfo(extractPerspectiveDatabases({ conid, database }, config));
-  const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
-  const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
+  $: dbInfos = useMultipleDatabaseInfo(extractPerspectiveDatabases({ conid, database }, config));
+  $: tableInfo = useTableInfo({ conid, database, ...config?.rootObject });
+  $: viewInfo = useViewInfo({ conid, database, ...config?.rootObject });
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
@@ -114,8 +112,6 @@
           null
         )
       : null;
-
-  // $: console.log('CONFIG', config);
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>

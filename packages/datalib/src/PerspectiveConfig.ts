@@ -1,4 +1,4 @@
-import { DatabaseInfo, ForeignKeyInfo } from 'dbgate-types';
+import { DatabaseInfo, ForeignKeyInfo, NamedObjectInfo } from 'dbgate-types';
 
 export interface PerspectiveConfigColumns {
   expandedColumns: string[];
@@ -28,6 +28,7 @@ export interface PerspectiveFilterColumnInfo {
   foreignKey: ForeignKeyInfo;
 }
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
+  rootObject: { schemaName?: string; pureName: string };
   filters: { [uniqueName: string]: string };
   filterInfos: { [uniqueName: string]: PerspectiveFilterColumnInfo };
   sort: {
@@ -39,7 +40,7 @@ export interface PerspectiveConfig extends PerspectiveConfigColumns {
   customJoins: PerspectiveCustomJoinConfig[];
 }
 
-export function createPerspectiveConfig(): PerspectiveConfig {
+export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
   return {
     expandedColumns: [],
     checkedColumns: [],
@@ -48,6 +49,7 @@ export function createPerspectiveConfig(): PerspectiveConfig {
     filters: {},
     filterInfos: {},
     sort: {},
+    rootObject,
   };
 }
 

@@ -12,7 +12,7 @@ test('test flat view', () => {
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
-    createPerspectiveConfig(),
+    createPerspectiveConfig({ pureName: 'Artist' }),
     null,
     null,
     { conid: 'conid', database: 'db' },
@@ -38,7 +38,7 @@ test('test one level nesting', () => {
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
-    { ...createPerspectiveConfig(), checkedColumns: ['Artist.Album'] },
+    { ...createPerspectiveConfig({ pureName: 'Artist' }), checkedColumns: ['Artist.Album'] },
     null,
     null,
     { conid: 'conid', database: 'db' },
@@ -88,7 +88,7 @@ test('test two level nesting', () => {
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
-    { ...createPerspectiveConfig(), checkedColumns: ['Artist.Album', 'Artist.Album.Track'] },
+    { ...createPerspectiveConfig({ pureName: 'Artist' }), checkedColumns: ['Artist.Album', 'Artist.Album.Track'] },
     null,
     null,
     { conid: 'conid', database: 'db' },

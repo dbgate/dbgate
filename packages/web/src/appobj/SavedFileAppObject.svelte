@@ -65,6 +65,14 @@
     currentConnection: true,
   };
 
+  const perspectives: FileTypeHandler = {
+    icon: 'img perspective',
+    format: 'json',
+    tabComponent: 'PerspectiveTab',
+    folder: 'pesrpectives',
+    currentConnection: true,
+  };
+
   export const SAVED_FILE_HANDLERS = {
     sql,
     shell,
@@ -73,10 +81,14 @@
     query,
     sqlite,
     diagrams,
+    perspectives,
   };
 
   export const extractKey = data => data.file;
-  export const createMatcher = ({ file }) => filter => filterName(filter, file);
+  export const createMatcher =
+    ({ file }) =>
+    filter =>
+      filterName(filter, file);
 </script>
 
 <script lang="ts">
