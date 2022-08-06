@@ -70,20 +70,25 @@ export class PerspectiveDataProvider {
     // console.log('CACHE', tableCache.bindingGroups);
 
     let groupIndex = 0;
+    let loadCalled = false;
+    let shouldReturn = false;
     for (; groupIndex < props.bindingValues.length; groupIndex++) {
       const groupValues = props.bindingValues[groupIndex];
       const group = tableCache.getBindingGroup(groupValues);
-      let loadCalled = false;
 
       if (!group.loadedAll) {
-        // wee need to load next data
-        await this.loadNextGroup(props, groupIndex);
-        loadCalled = true;
+        if (loadCalled) {
+          shouldReturn = true;
+        } else {
+          // we need to load next data
+          await this.loadNextGroup(props, groupIndex);
+          loadCalled = true;
+        }
       }
 
       // console.log('GRP', groupValues, group);
       rows.push(...group.loadedRows);
-      if (rows.length >= props.topCount || loadCalled) {
+      if (rows.length >= props.topCount || shouldReturn) {
         return {
           rows: rows.slice(0, props.topCount),
           incomplete: props.topCount < rows.length || !group.loadedAll || groupIndex < props.bindingValues.length - 1,
