@@ -58,6 +58,7 @@
   export let database;
   export let schemaName;
   export let pureName;
+  export let driver;
 
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
@@ -118,7 +119,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="tableFilters">
-        <PerspectiveFilters {managerSize} {config} {setConfig} />
+        <PerspectiveFilters {managerSize} {config} {setConfig} {conid} {database} {driver} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>

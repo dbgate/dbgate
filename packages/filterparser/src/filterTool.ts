@@ -3,7 +3,7 @@ import moment from 'moment';
 
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
 
-export function getFilterValueExpression(value, dataType) {
+export function getFilterValueExpression(value, dataType?) {
   if (value == null) return 'NULL';
   if (isTypeDateTime(dataType)) return moment(value).format('YYYY-MM-DD HH:mm:ss');
   if (value === true) return 'TRUE';

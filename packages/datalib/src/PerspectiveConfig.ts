@@ -1,3 +1,5 @@
+import { ForeignKeyInfo } from "dbgate-types";
+
 export interface PerspectiveConfigColumns {
   expandedColumns: string[];
   checkedColumns: string[];
@@ -21,7 +23,9 @@ export interface PerspectiveCustomJoinConfig {
 export interface PerspectiveFilterColumnInfo {
   columnName: string;
   filterType: string;
-  tableName: string;
+  pureName: string;
+  schemaName: string;
+  foreignKey: ForeignKeyInfo;
 }
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   filters: { [uniqueName: string]: string };

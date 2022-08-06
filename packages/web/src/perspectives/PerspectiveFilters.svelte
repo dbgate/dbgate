@@ -4,12 +4,16 @@
   import _ from 'lodash';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
-import FontIcon from '../icons/FontIcon.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import PerspectiveFiltersColumn from './PerspectiveFiltersColumn.svelte';
 
   export let managerSize;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
+
+  export let conid;
+  export let database;
+  export let driver;
 
   $: allFilterNames = _.keys(config.filterInfos || {});
 </script>
@@ -25,6 +29,9 @@ import FontIcon from '../icons/FontIcon.svelte';
       <PerspectiveFiltersColumn
         filterInfo={config.filterInfos[uniqueName]}
         {uniqueName}
+        {conid}
+        {database}
+        {driver}
         filter={config.filters[uniqueName]}
         onSetFilter={value =>
           setConfig(cfg => ({

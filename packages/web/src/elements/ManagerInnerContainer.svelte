@@ -1,6 +1,6 @@
 <script lang="ts">
   export let width;
-  export let isFlex;
+  export let isFlex = false;
 </script>
 
 <div style={`max-width: ${width}px`} class:isFlex>

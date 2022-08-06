@@ -4,22 +4,39 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { getFilterType } from 'dbgate-filterparser';
+  import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
   import { PerspectiveFilterColumnInfo } from 'dbgate-datalib';
+  import { showModal } from '../modals/modalTools';
+  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import ValueLookupModal from '../modals/ValueLookupModal.svelte';
 
   export let filterInfo: PerspectiveFilterColumnInfo;
 
   export let filter;
   export let onSetFilter;
   export let onRemoveFilter;
+
+  export let conid;
+  export let database;
+  export let driver;
 </script>
 
 <div class="m-1">
   <div class="space-between">
-    {filterInfo.columnName} ({filterInfo.tableName})
+    {filterInfo.columnName} ({filterInfo.pureName})
     <InlineButton square narrow on:click={onRemoveFilter}>
       <FontIcon icon="icon close" />
     </InlineButton>
   </div>
-  <DataFilterControl filterType={filterInfo.filterType} {filter} setFilter={onSetFilter} />
+  <DataFilterControl
+    filterType={filterInfo.filterType}
+    {filter}
+    setFilter={onSetFilter}
+    {conid}
+    {database}
+    {driver}
+    columnName={filterInfo.columnName}
+    pureName={filterInfo.pureName}
+    foreignKey={filterInfo.foreignKey}
+  />
 </div>

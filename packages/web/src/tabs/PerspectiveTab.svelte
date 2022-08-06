@@ -26,6 +26,9 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import { findEngineDriver } from 'dbgate-tools';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { extensions } from '../stores';
 
   export let tabid;
   export let conid;
@@ -34,6 +37,9 @@
   export let pureName;
 
   export const activator = createActivator('PerspectiveTab', true);
+
+  $: connection = useConnectionInfo({ conid });
+  $: driver = findEngineDriver($connection, $extensions);
 
   const config = usePerspectiveConfig(tabid);
   const cache = new PerspectiveCache();
@@ -51,6 +57,7 @@
     {database}
     {schemaName}
     {pureName}
+    {driver}
     config={$config}
     setConfig={(value, reload) => {
       if (reload) {

@@ -353,7 +353,9 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return {
       columnName: this.columnName,
       filterType: this.filterType,
-      tableName: this.column.pureName,
+      pureName: this.column.pureName,
+      schemaName: this.column.schemaName,
+      foreignKey: this.foreignKey,
     };
   }
 
