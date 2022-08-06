@@ -13,6 +13,7 @@ import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
 import _flatten from 'lodash/flatten';
 import _uniqBy from 'lodash/uniqBy';
+import _sortBy from 'lodash/sortBy';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import {
   PerspectiveDatabaseConfig,
@@ -524,6 +525,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
+    public isMultiple: boolean,
     parentNode: PerspectiveTreeNode
   ) {
     super(table, db, config, setConfig, dataProvider, databaseConfig, parentNode);
@@ -564,6 +566,21 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
   get columnTitle() {
     return this.table.pureName;
   }
+
+  get title() {
+    if (this.isMultiple) {
+      return `${super.title} (${this.foreignKey.columns.map(x => x.columnName).join(', ')})`;
+    }
+    return super.title;
+  }
+
+  get codeName() {
+    if (this.isMultiple) {
+      return `${super.codeName}-${this.foreignKey.columns.map(x => x.columnName).join('_')}`;
+    }
+    return super.codeName;
+  }
+
 }
 
 export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
@@ -669,23 +686,41 @@ export function getTableChildPerspectiveNodes(
         )
     )
   );
+  const dependencies = [];
   if (db && (table as TableInfo)?.dependencies) {
     for (const fk of (table as TableInfo)?.dependencies) {
       const tbl = db.tables.find(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName);
-      if (tbl)
-        res.push(
-          new PerspectiveTableReferenceNode(fk, tbl, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
+      if (tbl) {
+        const isMultiple =
+          (table as TableInfo)?.dependencies.filter(x => x.pureName == fk.pureName && x.schemaName == fk.schemaName)
+            .length >= 2;
+        dependencies.push(
+          new PerspectiveTableReferenceNode(
+            fk,
+            tbl,
+            db,
+            config,
+            setConfig,
+            dataProvider,
+            databaseConfig,
+            isMultiple,
+            parentColumn
+          )
         );
+      }
     }
   }
+  res.push(..._sortBy(dependencies, 'title'));
 
+  const customs = [];
   for (const join of config.customJoins || []) {
     if (join.baseUniqueName == parentColumn.uniqueName) {
-      res.push(
+      customs.push(
         new PerspectiveCustomJoinTreeNode(join, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
       );
     }
   }
+  res.push(..._sortBy(customs, 'title'));
 
   return res;
 }
