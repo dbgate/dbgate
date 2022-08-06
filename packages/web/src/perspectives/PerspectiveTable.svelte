@@ -180,6 +180,8 @@
 
       const pureName = td.getAttribute('data-pureName');
       const schemaName = td.getAttribute('data-schemaName');
+      const dataConid = td.getAttribute('data-conid');
+      const dataDatabase = td.getAttribute('data-database');
       if (pureName) {
         res.push({
           text: `Open table ${pureName}`,
@@ -191,8 +193,8 @@
               props: {
                 schemaName,
                 pureName,
-                conid,
-                database,
+                conid: dataConid || conid,
+                database: dataDatabase || database,
                 objectTypeField: 'tables',
               },
             });

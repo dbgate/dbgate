@@ -17,6 +17,7 @@
   import {
     ChangeConfigFunc,
     ChangePerspectiveConfigFunc,
+    extractPerspectiveDatabases,
     getTableChildPerspectiveNodes,
     GridConfig,
     PerspectiveConfig,
@@ -54,6 +55,7 @@
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+  import { useMultipleDatabaseInfo } from '../utility/useMultipleDatabaseInfo';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -95,16 +97,16 @@
     });
   }
 
-  const dbInfo = useDatabaseInfo({ conid, database });
+  const dbInfos = useMultipleDatabaseInfo(extractPerspectiveDatabases({ conid, database }, config));
   const tableInfo = useTableInfo({ conid, database, schemaName, pureName });
   const viewInfo = useViewInfo({ conid, database, schemaName, pureName });
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
   $: root = $tableInfo
-    ? new PerspectiveTableNode($tableInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
+    ? new PerspectiveTableNode($tableInfo, $dbInfos, config, setConfig, dataProvider, { conid, database }, null)
     : $viewInfo
-    ? new PerspectiveViewNode($viewInfo, $dbInfo, config, setConfig, dataProvider, { conid, database }, null)
+    ? new PerspectiveViewNode($viewInfo, $dbInfos, config, setConfig, dataProvider, { conid, database }, null)
     : null;
 
   // $: console.log('CONFIG', config);

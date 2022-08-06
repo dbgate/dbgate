@@ -316,6 +316,8 @@
             refTableName,
             refSchemaName,
             columns,
+            conid: conidOverride,
+            database: databaseOverride,
           };
           setConfig(cfg => ({
             ...cfg,

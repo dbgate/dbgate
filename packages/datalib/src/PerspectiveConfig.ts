@@ -1,4 +1,4 @@
-import { ForeignKeyInfo } from "dbgate-types";
+import { DatabaseInfo, ForeignKeyInfo } from 'dbgate-types';
 
 export interface PerspectiveConfigColumns {
   expandedColumns: string[];
@@ -55,3 +55,27 @@ export type ChangePerspectiveConfigFunc = (
   changeFunc: (config: PerspectiveConfig) => PerspectiveConfig,
   reload?: boolean
 ) => void;
+
+export function extractPerspectiveDatabases(
+  { conid, database },
+  cfg: PerspectiveConfig
+): { conid: string; database: string }[] {
+  const res: { conid: string; database: string }[] = [];
+  res.push({ conid, database });
+
+  function add(conid, database) {
+    if (res.find(x => x.conid == conid && x.database == database)) return;
+    res.push({ conid, database });
+  }
+
+  for (const custom of cfg.customJoins) {
+    add(custom.conid || conid, custom.database || database);
+  }
+  return res;
+}
+
+export interface MultipleDatabaseInfo {
+  [conid: string]: {
+    [database: string]: DatabaseInfo;
+  };
+}

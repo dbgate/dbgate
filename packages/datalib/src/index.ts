@@ -17,3 +17,4 @@ export * from './deleteCascade';
 export * from './PerspectiveDisplay';
 export * from './PerspectiveDataProvider';
 export * from './PerspectiveCache';
+export * from './PerspectiveConfig';

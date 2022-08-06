@@ -1,7 +1,7 @@
 import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo, ViewInfo } from 'dbgate-types';
-import { clearConfigCache } from 'prettier';
 import {
   ChangePerspectiveConfigFunc,
+  MultipleDatabaseInfo,
   PerspectiveConfig,
   PerspectiveConfigColumns,
   PerspectiveCustomJoinConfig,
@@ -54,6 +54,7 @@ export interface PerspectiveDataLoadPropsWithNode {
 
 export abstract class PerspectiveTreeNode {
   constructor(
+    public dbs: MultipleDatabaseInfo,
     public config: PerspectiveConfig,
     public setConfig: ChangePerspectiveConfigFunc,
     public parentNode: PerspectiveTreeNode,
@@ -117,6 +118,9 @@ export abstract class PerspectiveTreeNode {
   }
   get customJoinConfig(): PerspectiveCustomJoinConfig {
     return null;
+  }
+  get db(): DatabaseInfo {
+    return this.dbs?.[this.databaseConfig.conid]?.[this.databaseConfig.database];
   }
 
   getChildMatchColumns() {
@@ -256,20 +260,20 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   constructor(
     public column: ColumnInfo,
     public table: TableInfo | ViewInfo,
-    public db: DatabaseInfo,
+    dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, dataProvider, databaseConfig);
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
 
     this.foreignKey = (table as TableInfo)?.foreignKeys?.find(
       fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName
     );
 
-    this.refTable = db.tables.find(
+    this.refTable = this.db.tables.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
   }
@@ -349,7 +353,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
     return getTableChildPerspectiveNodes(
       tbl,
-      this.db,
+      this.dbs,
       this.config,
       this.setConfig,
       this.dataProvider,
@@ -412,14 +416,14 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 export class PerspectiveTableNode extends PerspectiveTreeNode {
   constructor(
     public table: TableInfo,
-    public db: DatabaseInfo,
+    dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, dataProvider, databaseConfig);
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
@@ -448,7 +452,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   get childNodes(): PerspectiveTreeNode[] {
     return getTableChildPerspectiveNodes(
       this.table,
-      this.db,
+      this.dbs,
       this.config,
       this.setConfig,
       this.dataProvider,
@@ -482,14 +486,14 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
 export class PerspectiveViewNode extends PerspectiveTreeNode {
   constructor(
     public view: ViewInfo,
-    public db: DatabaseInfo,
+    dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(config, setConfig, parentNode, dataProvider, databaseConfig);
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
@@ -518,7 +522,7 @@ export class PerspectiveViewNode extends PerspectiveTreeNode {
   get childNodes(): PerspectiveTreeNode[] {
     return getTableChildPerspectiveNodes(
       this.view,
-      this.db,
+      this.dbs,
       this.config,
       this.setConfig,
       this.dataProvider,
@@ -540,7 +544,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
   constructor(
     public foreignKey: ForeignKeyInfo,
     table: TableInfo,
-    db: DatabaseInfo,
+    dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
@@ -548,7 +552,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     public isMultiple: boolean,
     parentNode: PerspectiveTreeNode
   ) {
-    super(table, db, config, setConfig, dataProvider, databaseConfig, parentNode);
+    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -605,22 +609,15 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
 export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   constructor(
     public customJoin: PerspectiveCustomJoinConfig,
-    db: DatabaseInfo,
+    table: TableInfo,
+    dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode
   ) {
-    super(
-      db.tables.find(x => x.pureName == customJoin.refTableName && x.schemaName == customJoin.refSchemaName),
-      db,
-      config,
-      setConfig,
-      dataProvider,
-      databaseConfig,
-      parentNode
-    );
+    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -677,7 +674,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
 
 export function getTableChildPerspectiveNodes(
   table: TableInfo | ViewInfo,
-  db: DatabaseInfo,
+  dbs: MultipleDatabaseInfo,
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
   dataProvider: PerspectiveDataProvider,
@@ -685,9 +682,11 @@ export function getTableChildPerspectiveNodes(
   parentColumn: PerspectiveTreeNode
 ) {
   if (!table) return [];
+  const db = parentColumn.db;
 
   const columnNodes = table.columns.map(
-    col => new PerspectiveTableColumnNode(col, table, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
+    col =>
+      new PerspectiveTableColumnNode(col, table, dbs, config, setConfig, dataProvider, databaseConfig, parentColumn)
   );
   const circularColumns = columnNodes.filter(x => x.isCircular).map(x => x.columnName);
   const defaultColumns = getPerspectiveDefaultColumns(table, db, circularColumns);
@@ -709,7 +708,7 @@ export function getTableChildPerspectiveNodes(
           new PerspectiveTableReferenceNode(
             fk,
             tbl,
-            db,
+            dbs,
             config,
             setConfig,
             dataProvider,
@@ -726,9 +725,17 @@ export function getTableChildPerspectiveNodes(
   const customs = [];
   for (const join of config.customJoins || []) {
     if (join.baseUniqueName == parentColumn.uniqueName) {
-      customs.push(
-        new PerspectiveCustomJoinTreeNode(join, db, config, setConfig, dataProvider, databaseConfig, parentColumn)
-      );
+      const newConfig = { ...databaseConfig };
+      if (join.conid) newConfig.conid = join.conid;
+      if (join.database) newConfig.database = join.database;
+      const db = dbs?.[newConfig.conid]?.[newConfig.database];
+      const table = db?.tables?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
+
+      if (table) {
+        customs.push(
+          new PerspectiveCustomJoinTreeNode(join, table, dbs, config, setConfig, dataProvider, newConfig, parentColumn)
+        );
+      }
     }
   }
   res.push(..._sortBy(customs, 'title'));

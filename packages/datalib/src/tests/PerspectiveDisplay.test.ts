@@ -9,7 +9,15 @@ import artistDataAlbumTrack from './artistDataAlbumTrack';
 
 test('test flat view', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
-  const root = new PerspectiveTableNode(artistTable, chinookDbInfo, createPerspectiveConfig(), null, null, null, null);
+  const root = new PerspectiveTableNode(
+    artistTable,
+    { conid: { db: chinookDbInfo } },
+    createPerspectiveConfig(),
+    null,
+    null,
+    { conid: 'conid', database: 'db' },
+    null
+  );
   const display = new PerspectiveDisplay(root, artistDataFlat);
 
   // console.log(display.loadIndicatorsCounts);
@@ -29,11 +37,11 @@ test('test one level nesting', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
   const root = new PerspectiveTableNode(
     artistTable,
-    chinookDbInfo,
+    { conid: { db: chinookDbInfo } },
     { ...createPerspectiveConfig(), checkedColumns: ['Artist.Album'] },
     null,
     null,
-    null,
+    { conid: 'conid', database: 'db' },
     null
   );
   const display = new PerspectiveDisplay(root, artistDataAlbum);
@@ -79,11 +87,11 @@ test('test two level nesting', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
   const root = new PerspectiveTableNode(
     artistTable,
-    chinookDbInfo,
+    { conid: { db: chinookDbInfo } },
     { ...createPerspectiveConfig(), checkedColumns: ['Artist.Album', 'Artist.Album.Track'] },
     null,
     null,
-    null,
+    { conid: 'conid', database: 'db' },
     null
   );
   const display = new PerspectiveDisplay(root, artistDataAlbumTrack);
