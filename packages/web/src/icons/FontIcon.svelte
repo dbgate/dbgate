@@ -121,6 +121,7 @@
     'img warn': 'mdi mdi-alert color-icon-gold',
     'img info': 'mdi mdi-information color-icon-blue',
     // 'img statusbar-ok': 'mdi mdi-check-circle color-on-statusbar-green',
+    'img circular': 'mdi mdi-circular-saw color-icon-red',
 
     'img archive': 'mdi mdi-table color-icon-gold',
     'img archive-folder': 'mdi mdi-database-outline color-icon-green',
