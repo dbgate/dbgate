@@ -1194,7 +1194,7 @@
       // console.log('event', event.nativeEvent);
     }
 
-    if (event.keyCode == keycodes.f2) {
+    if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
       // @ts-ignore
       dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
     }
@@ -1257,8 +1257,10 @@
           if (currentCell[0] == 0) return focusFilterEditor(currentCell[1]);
           return moveCurrentCell(currentCell[0] - 1, currentCell[1], event);
         case keycodes.downArrow:
-        case keycodes.enter:
           return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+        case keycodes.enter:
+          if (!grider.editable) return moveCurrentCell(currentCell[0] + 1, currentCell[1], event);
+          break;
         case keycodes.leftArrow:
           return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
         case keycodes.rightArrow:
@@ -1272,23 +1274,29 @@
         case keycodes.pageDown:
           return moveCurrentCell(currentCell[0] + visibleRowCountLowerBound, currentCell[1], event);
         case keycodes.tab: {
-          if (event.shiftKey) {
-            if (currentCell[1] > 0) {
-              return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
-            } else {
-              return moveCurrentCell(currentCell[0] - 1, columnSizes.realCount - 1, event);
-            }
-          } else {
-            if (currentCell[1] < columnSizes.realCount - 1) {
-              return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
-            } else {
-              return moveCurrentCell(currentCell[0] + 1, 0, event);
-            }
-          }
+          return moveCurrentCellWithTabKey(event.shiftKey);
         }
       }
     }
     return null;
+  }
+
+  function moveCurrentCellWithTabKey(isShift) {
+    if (!isRegularCell(currentCell)) return null;
+
+    if (isShift) {
+      if (currentCell[1] > 0) {
+        return moveCurrentCell(currentCell[0], currentCell[1] - 1, event);
+      } else {
+        return moveCurrentCell(currentCell[0] - 1, columnSizes.realCount - 1, event);
+      }
+    } else {
+      if (currentCell[1] < columnSizes.realCount - 1) {
+        return moveCurrentCell(currentCell[0], currentCell[1] + 1, event);
+      } else {
+        return moveCurrentCell(currentCell[0] + 1, 0, event);
+      }
+    }
   }
 
   function setCellValue(cell, value) {
@@ -1431,10 +1439,24 @@
           selectAll: action.selectAll,
         };
       case 'close': {
-        const [row, col] = currentCell || [];
         if (domFocusField) domFocusField.focus();
-        // @ts-ignore
-        if (action.mode == 'enter' && row) setTimeout(() => moveCurrentCell(row + 1, col), 0);
+        if (action.mode == 'enter' || action.mode == 'tab' || action.mode == 'shiftTab') {
+          setTimeout(() => {
+            if (isRegularCell(currentCell)) {
+              switch (action.mode) {
+                case 'enter':
+                  moveCurrentCell(currentCell[0] + 1, currentCell[1]);
+                  break;
+                case 'tab':
+                  moveCurrentCellWithTabKey(false);
+                  break;
+                case 'shiftTab':
+                  moveCurrentCellWithTabKey(true);
+                  break;
+              }
+            }
+          }, 0);
+        }
         // if (action.mode == 'save') setTimeout(handleSave, 0);
         return {};
       }
