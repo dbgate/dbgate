@@ -8,5 +8,5 @@ function adjustFile(file) {
   fs.writeFileSync(file, JSON.stringify(json, null, 2), 'utf-8');
 }
 
-adjustFile('package.json');
+adjustFile('packages/api/package.json');
 adjustFile('app/package.json');
