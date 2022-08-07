@@ -298,7 +298,7 @@ export abstract class PerspectiveTreeNode {
         let node = leafNode;
         let index = 1;
         let lastAlias = 'pert_0';
-        while (node?.parentNode && node?.parentNode != this) {
+        while (node?.parentNode && node?.parentNode?.uniqueName != this?.uniqueName) {
           node = node.parentNode;
           let alias = `pert_${index}`;
           select.from.relations.push({
@@ -310,7 +310,7 @@ export abstract class PerspectiveTreeNode {
           lastAlias = alias;
           lastNode = node;
         }
-        if (node?.parentNode != this) return null;
+        if (node?.parentNode?.uniqueName != this?.uniqueName) return null;
         select.where = {
           conditionType: 'and',
           conditions: _compact([
