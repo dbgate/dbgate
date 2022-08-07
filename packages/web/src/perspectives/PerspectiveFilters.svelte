@@ -36,6 +36,9 @@
           {conid}
           {database}
           {driver}
+          {node}
+          {config}
+          {setConfig}
           filter={config.filters[uniqueName]}
           onSetFilter={value =>
             setConfig(cfg => ({

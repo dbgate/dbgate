@@ -212,7 +212,6 @@
         });
       }
 
-      console.log('tableNode?.supportsParentFilter', tableNode?.supportsParentFilter);
       if (tableNode?.supportsParentFilter) {
         const isParentFilter = (config.parentFilters || []).find(x => x.uniqueName == tableNode.uniqueName);
         if (isParentFilter) {

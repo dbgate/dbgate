@@ -30,6 +30,8 @@
   export let database = null;
   export let driver = null;
   export let jslid = null;
+  export let customCommandIcon = null;
+  export let onCustomCommand = null;
 
   export let pureName = null;
   export let schemaName = null;
@@ -295,6 +297,11 @@
     class:isOk
     placeholder="Filter"
   />
+  {#if customCommandIcon && onCustomCommand}
+    <InlineButton on:click={onCustomCommand} narrow square>
+      <FontIcon icon={customCommandIcon} />
+    </InlineButton>
+  {/if}
   {#if conid && database && driver}
     {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
       <InlineButton on:click={handleShowDictionary} narrow square>
