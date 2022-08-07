@@ -1,4 +1,12 @@
-import { ColumnInfo, DatabaseInfo, ForeignKeyInfo, RangeDefinition, TableInfo, ViewInfo } from 'dbgate-types';
+import {
+  ColumnInfo,
+  DatabaseInfo,
+  ForeignKeyInfo,
+  NamedObjectInfo,
+  RangeDefinition,
+  TableInfo,
+  ViewInfo,
+} from 'dbgate-types';
 import {
   ChangePerspectiveConfigFunc,
   MultipleDatabaseInfo,
@@ -23,7 +31,7 @@ import {
 import stableStringify from 'json-stable-stringify';
 import { getFilterType, parseFilter } from 'dbgate-filterparser';
 import { FilterType } from 'dbgate-filterparser/lib/types';
-import { Condition, Expression } from 'dbgate-sqltree';
+import { Condition, Expression, Select } from 'dbgate-sqltree';
 import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 
 export interface PerspectiveDataLoadPropsWithNode {
@@ -79,9 +87,16 @@ export abstract class PerspectiveTreeNode {
   get tableCode() {
     return null;
   }
+  get namedObject(): NamedObjectInfo {
+    return null;
+  }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
     return this.parentNode == null;
+  }
+  get rootNode(): PerspectiveTreeNode {
+    if (this.isRoot) return this;
+    return this.parentNode?.rootNode;
   }
   matchChildRow(parentRow: any, childRow: any): boolean {
     return true;
@@ -131,7 +146,7 @@ export abstract class PerspectiveTreeNode {
     return [];
   }
 
-  parseFilterCondition() {
+  parseFilterCondition(source = null) {
     return null;
   }
 
@@ -182,8 +197,11 @@ export abstract class PerspectiveTreeNode {
     );
   }
 
-  getChildrenCondition(): Condition {
-    const conditions = _compact(this.childNodes.map(x => x.parseFilterCondition()));
+  getChildrenCondition(source = null): Condition {
+    const conditions = _compact([
+      ...this.childNodes.map(x => x.parseFilterCondition(source)),
+      ...this.buildParentFilterConditions(),
+    ]);
     if (conditions.length == 0) {
       return null;
     }
@@ -259,6 +277,60 @@ export abstract class PerspectiveTreeNode {
   get isParentFilter() {
     return !!(this.config.parentFilters || []).find(x => x.uniqueName == this.uniqueName);
   }
+
+  buildParentFilterConditions(): Condition[] {
+    const leafNodes = _compact(
+      (this.config?.parentFilters || []).map(x => this.rootNode.findNodeByUniqueName(x.uniqueName))
+    );
+    const conditions: Condition[] = _compact(
+      leafNodes.map(leafNode => {
+        if (leafNode == this) return null;
+        const select: Select = {
+          commandType: 'select',
+          from: {
+            name: leafNode.namedObject,
+            alias: 'pert_0',
+            relations: [],
+          },
+          selectAll: true,
+        };
+        let lastNode = leafNode;
+        let node = leafNode;
+        let index = 1;
+        let lastAlias = 'pert_0';
+        while (node?.parentNode && node?.parentNode != this) {
+          node = node.parentNode;
+          let alias = `pert_${index}`;
+          select.from.relations.push({
+            joinType: 'INNER JOIN',
+            alias,
+            name: node.namedObject,
+            conditions: lastNode.getParentJoinCondition(lastAlias, alias),
+          });
+          lastAlias = alias;
+          lastNode = node;
+        }
+        if (node?.parentNode != this) return null;
+        select.where = {
+          conditionType: 'and',
+          conditions: _compact([
+            ...lastNode.getParentJoinCondition(lastAlias, this.namedObject.pureName),
+            leafNode.getChildrenCondition({ alias: 'pert_0' }),
+          ]),
+        };
+
+        return {
+          conditionType: 'exists',
+          subQuery: select,
+        };
+      })
+    );
+    return conditions;
+  }
+
+  getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
+    return [];
+  }
 }
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
@@ -303,6 +375,27 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   getParentMatchColumns() {
     if (!this.foreignKey) return [];
     return [this.foreignKey.columns[0].refColumnName];
+  }
+
+  getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
+    if (!this.foreignKey) return [];
+    return this.foreignKey.columns.map(column => {
+      const res: Condition = {
+        conditionType: 'binary',
+        operator: '=',
+        left: {
+          exprType: 'column',
+          columnName: column.columnName,
+          source: { alias: parentAlias },
+        },
+        right: {
+          exprType: 'column',
+          columnName: column.refColumnName,
+          source: { alias },
+        },
+      };
+      return res;
+    });
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
@@ -388,7 +481,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     };
   }
 
-  parseFilterCondition() {
+  parseFilterCondition(source = null): Condition {
     const filter = this.getFilter();
     if (!filter) return null;
     const condition = parseFilter(filter, this.filterType);
@@ -398,11 +491,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
         return {
           exprType: 'column',
           columnName: this.column.columnName,
+          source,
         };
       }
     });
-
-    return condition;
   }
 
   get headerTableAttributes() {
@@ -422,6 +514,16 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       return `${this.foreignKey.refSchemaName}|${this.foreignKey.refTableName}`;
     }
     return `${this.table.schemaName}|${this.table.pureName}`;
+  }
+
+  get namedObject(): NamedObjectInfo {
+    if (this.foreignKey) {
+      return {
+        schemaName: this.foreignKey.refSchemaName,
+        pureName: this.foreignKey.refTableName,
+      };
+    }
+    return null;
   }
 }
 
@@ -492,6 +594,13 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
 
   get tableCode() {
     return `${this.table.schemaName}|${this.table.pureName}`;
+  }
+
+  get namedObject(): NamedObjectInfo {
+    return {
+      schemaName: this.table.schemaName,
+      pureName: this.table.pureName,
+    };
   }
 }
 
@@ -616,6 +725,27 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     }
     return super.codeName;
   }
+
+  getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
+    if (!this.foreignKey) return [];
+    return this.foreignKey.columns.map(column => {
+      const res: Condition = {
+        conditionType: 'binary',
+        operator: '=',
+        left: {
+          exprType: 'column',
+          columnName: column.refColumnName,
+          source: { alias: parentAlias },
+        },
+        right: {
+          exprType: 'column',
+          columnName: column.columnName,
+          source: { alias },
+        },
+      };
+      return res;
+    });
+  }
 }
 
 export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
@@ -681,6 +811,26 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
 
   get customJoinConfig(): PerspectiveCustomJoinConfig {
     return this.customJoin;
+  }
+
+  getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
+    return this.customJoin.columns.map(column => {
+      const res: Condition = {
+        conditionType: 'binary',
+        operator: '=',
+        left: {
+          exprType: 'column',
+          columnName: column.baseColumnName,
+          source: { alias: parentAlias },
+        },
+        right: {
+          exprType: 'column',
+          columnName: column.refColumnName,
+          source: { alias },
+        },
+      };
+      return res;
+    });
   }
 }
 

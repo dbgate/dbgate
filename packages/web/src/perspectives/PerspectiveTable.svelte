@@ -219,20 +219,26 @@
           res.push({
             text: 'Cancel filter parent rows',
             onClick: () => {
-              setConfig(cfg => ({
-                ...cfg,
-                parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
-              }));
+              setConfig(
+                cfg => ({
+                  ...cfg,
+                  parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
+                }),
+                true
+              );
             },
           });
         } else {
           res.push({
             text: 'Filter parent rows',
             onClick: () => {
-              setConfig(cfg => ({
-                ...cfg,
-                parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
-              }));
+              setConfig(
+                cfg => ({
+                  ...cfg,
+                  parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
+                }),
+                true
+              );
             },
           });
         }
@@ -476,6 +482,7 @@
           cfg => ({
             ...cfg,
             filters: {},
+            parentFilters: [],
           }),
           true
         )}
