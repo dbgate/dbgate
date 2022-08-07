@@ -2,15 +2,19 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormProvider from '../forms/FormProvider.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
-  import JSONTree from '../jsontree/JSONTree.svelte';
+  import TemplatedCheckboxField from '../forms/TemplatedCheckboxField.svelte';
   import AceEditor from '../query/AceEditor.svelte';
-import newQuery from '../query/newQuery';
+  import newQuery from '../query/newQuery';
+  import { apiCall } from '../utility/api';
 
   import ModalBase from './ModalBase.svelte';
   import { closeCurrentModal } from './modalTools';
 
   export let script;
   export let onConfirm;
+  export let skipConfirmSettingKey = null;
+
+  let dontAskAgain;
 </script>
 
 <FormProvider>
@@ -20,6 +24,20 @@ import newQuery from '../query/newQuery';
     <div class="editor">
       <AceEditor mode="javascript" readOnly value={script} />
     </div>
+
+    {#if skipConfirmSettingKey}
+      <div class="mt-2">
+        <TemplatedCheckboxField
+          label="Don't ask again"
+          templateProps={{ noMargin: true }}
+          checked={dontAskAgain}
+          on:change={e => {
+            dontAskAgain = e.detail;
+            apiCall('config/update-settings', { [skipConfirmSettingKey]: e.detail });
+          }}
+        />
+      </div>
+    {/if}
 
     <div slot="footer">
       <FormSubmit

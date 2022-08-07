@@ -17,12 +17,13 @@
 </script>
 
 <script>
-  import _, { startsWith } from 'lodash';
+  import _ from 'lodash';
   import { writable } from 'svelte/store';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormProviderCore from '../forms/FormProviderCore.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
+  import TemplatedCheckboxField from '../forms/TemplatedCheckboxField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import newQuery from '../query/newQuery';
   import SqlEditor from '../query/SqlEditor.svelte';
@@ -38,6 +39,9 @@
   export let engine;
   export let recreates;
   export let deleteCascadesScripts;
+  export let skipConfirmSettingKey = null;
+
+  let dontAskAgain;
 
   $: isRecreated = _.sum(_.values(recreates || {})) > 0;
   const values = writable({});
@@ -118,6 +122,20 @@
           templateProps={{ noMargin: true }}
           label="Allow recreate (don't use on production databases)"
           name="allowRecreate"
+        />
+      </div>
+    {/if}
+
+    {#if skipConfirmSettingKey}
+      <div class="mt-2">
+        <TemplatedCheckboxField
+          label="Don't ask again"
+          templateProps={{ noMargin: true }}
+          checked={dontAskAgain}
+          on:change={e => {
+            dontAskAgain = e.detail;
+            apiCall('config/update-settings', { [skipConfirmSettingKey]: e.detail });
+          }}
         />
       </div>
     {/if}
