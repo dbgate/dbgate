@@ -257,6 +257,8 @@ export abstract class PerspectiveTreeNode {
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   foreignKey: ForeignKeyInfo;
   refTable: TableInfo;
+  isView: boolean;
+  isTable: boolean;
   constructor(
     public column: ColumnInfo,
     public table: TableInfo | ViewInfo,
@@ -268,6 +270,9 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     parentNode: PerspectiveTreeNode
   ) {
     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
+
+    this.isTable = !!this.db?.tables?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
+    this.isView = !!this.db?.views?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
 
     this.foreignKey = (table as TableInfo)?.foreignKeys?.find(
       fk => fk.columns.length == 1 && fk.columns[0].columnName == column.columnName

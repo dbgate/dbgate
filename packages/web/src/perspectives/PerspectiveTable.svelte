@@ -12,7 +12,14 @@
 </script>
 
 <script lang="ts">
-  import { PerspectiveDisplay, PerspectiveTreeNode, PERSPECTIVE_PAGE_SIZE } from 'dbgate-datalib';
+  import {
+    ChangePerspectiveConfigFunc,
+    PerspectiveConfig,
+    PerspectiveDisplay,
+    PerspectiveTableColumnNode,
+    PerspectiveTreeNode,
+    PERSPECTIVE_PAGE_SIZE,
+  } from 'dbgate-datalib';
   import _, { values } from 'lodash';
   import { onMount, tick } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
@@ -31,14 +38,15 @@
   import createRef from '../utility/createRef';
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
   import openNewTab from '../utility/openNewTab';
+  import { getFilterValueExpression } from 'dbgate-filterparser';
 
   const dbg = debug('dbgate:PerspectivaTable');
   export const activator = createActivator('PerspectiveTable', true);
 
   export let root: PerspectiveTreeNode;
   export let loadedCounts;
-  export let config;
-  export let setConfig;
+  export let config: PerspectiveConfig;
+  export let setConfig: ChangePerspectiveConfigFunc;
   export let conid;
   export let database;
 
@@ -160,6 +168,8 @@
     const td = targetElement.closest('td') || targetElement.closest('th');
 
     if (td) {
+      const tr = td.closest('tr');
+
       const columnIndex = td.getAttribute('data-column');
       const column = display?.columns?.[columnIndex];
       if (column)
@@ -200,6 +210,78 @@
             });
           },
         });
+      }
+
+      const rowIndex = tr?.getAttribute('data-rowIndex');
+      if (rowIndex != null) {
+        const value = display.rows[rowIndex].rowData[columnIndex];
+        const { dataNode } = column;
+
+        if (dataNode instanceof PerspectiveTableColumnNode) {
+          const { table } = dataNode;
+          let tabComponent = null;
+          let icon = null;
+          let objectTypeField = null;
+          if (dataNode.isTable) {
+            tabComponent = 'TableDataTab';
+            icon = 'img table';
+            objectTypeField = 'tables';
+          }
+          if (dataNode.isView) {
+            tabComponent = 'ViewDataTab';
+            icon = 'img view';
+            objectTypeField = 'views';
+          }
+          if (tabComponent) {
+            res.push({
+              text: 'Open filtered table',
+              onClick: () => {
+                openNewTab(
+                  {
+                    title: table.pureName,
+                    icon,
+                    tabComponent,
+                    props: {
+                      schemaName: table.schemaName,
+                      pureName: table.pureName,
+                      conid,
+                      database,
+                      objectTypeField,
+                    },
+                  },
+                  {
+                    grid: {
+                      filters: {
+                        [dataNode.columnName]: getFilterValueExpression(value, dataNode.column.dataType),
+                      },
+                      isFormView: true,
+                    },
+                  },
+                  {
+                    forceNewTab: true,
+                  }
+                );
+              },
+            });
+          }
+
+          res.push({
+            text: 'Filter this value',
+            onClick: () => {
+              setConfig(cfg => ({
+                ...cfg,
+                filters: {
+                  ...cfg.filters,
+                  [dataNode.uniqueName]: getFilterValueExpression(value, dataNode.column.dataType),
+                },
+                filterInfos: {
+                  ...cfg.filterInfos,
+                  [dataNode.uniqueName]: dataNode.filterInfo,
+                },
+              }));
+            },
+          });
+        }
       }
     }
 
@@ -344,8 +426,8 @@
         </tr> -->
       </thead>
       <tbody>
-        {#each display.rows as row}
-          <tr>
+        {#each display.rows as row, rowIndex}
+          <tr data-rowIndex={rowIndex}>
             {#each display.columns as column}
               {#if !row.rowCellSkips[column.columnIndex]}
                 <PerspectiveCell
