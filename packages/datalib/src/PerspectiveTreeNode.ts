@@ -168,26 +168,6 @@ export abstract class PerspectiveTreeNode {
     }
   }
 
-  // setFilter(value) {
-  //   this.setConfig(
-  //     cfg => ({
-  //       ...cfg,
-  //       filters: {
-  //         ...cfg.filters,
-  //         [this.uniqueName]: value,
-  //       },
-  //       filterInfos: {
-  //         ...cfg.filterInfos,
-  //         [this.uniqueName]: {
-  //           columnName: this.columnName,
-  //           filterType: this.filterType,
-  //         },
-  //       },
-  //     }),
-  //     true
-  //   );
-  // }
-
   getFilter() {
     return this.config.filters[this.uniqueName];
   }

@@ -49,7 +49,6 @@
             setConfig(cfg => ({
               ...cfg,
               filters: _.omit(cfg.filters, [uniqueName]),
-              // filterInfos: _.omit(cfg.filterInfos, [uniqueName]),
             }))}
         />
       {/if}
