@@ -166,7 +166,7 @@ ORDER BY
             label="Connection click"
             name="defaultAction.connectionClick"
             isNative
-            defaultValue="openDetails"
+            defaultValue="connect"
             options={[
               { value: 'openDetails', label: 'Edit / open details' },
               { value: 'connect', label: 'Connect' },
