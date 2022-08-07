@@ -49,8 +49,17 @@
   <th
     colspan={column.getColSpan(columnLevel)}
     class="tableHeader"
-    data-tableNodeUniqueName={column.getParentTableUniqueName(columnLevel)}>{column.getParentName(columnLevel)}</th
+    data-tableNodeUniqueName={column.getParentTableUniqueName(columnLevel)}
   >
+    <div class="wrap">
+      {column.getParentName(columnLevel)}
+      {#if column.getParentNode(columnLevel)?.isParentFilter}
+        <span class="icon">
+          <FontIcon icon="img parent-filter" />
+        </span>
+      {/if}
+    </div>
+  </th>
 {/if}
 
 <style>

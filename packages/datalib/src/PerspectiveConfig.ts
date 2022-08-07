@@ -27,6 +27,10 @@ export interface PerspectiveFilterColumnInfo {
   schemaName: string;
   foreignKey: ForeignKeyInfo;
 }
+
+export interface PerspectiveParentFilterConfig {
+  uniqueName: string;
+}
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   rootObject: { schemaName?: string; pureName: string };
   filters: { [uniqueName: string]: string };
@@ -37,6 +41,7 @@ export interface PerspectiveConfig extends PerspectiveConfigColumns {
     }[];
   };
   customJoins: PerspectiveCustomJoinConfig[];
+  parentFilters: PerspectiveParentFilterConfig[];
 }
 
 export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
@@ -48,6 +53,7 @@ export function createPerspectiveConfig(rootObject: { schemaName?: string; pureN
     filters: {},
     sort: {},
     rootObject,
+    parentFilters: [],
   };
 }
 

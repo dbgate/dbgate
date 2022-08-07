@@ -247,6 +247,18 @@ export abstract class PerspectiveTreeNode {
     if (uniquePath[0] != this.codeName) return null;
     return this.findChildNodeByUniquePath(uniquePath.slice(1));
   }
+
+  get supportsParentFilter() {
+    return (
+      (this.parentNode?.isRoot || this.parentNode?.supportsParentFilter) &&
+      this.parentNode?.databaseConfig?.conid == this.databaseConfig?.conid &&
+      this.parentNode?.databaseConfig?.database == this.databaseConfig?.database
+    );
+  }
+
+  get isParentFilter() {
+    return !!(this.config.parentFilters || []).find(x => x.uniqueName == this.uniqueName);
+  }
 }
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {

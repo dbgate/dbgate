@@ -95,6 +95,8 @@
     'icon json': 'mdi mdi-code-json',
     'icon lock': 'mdi mdi-lock',
     'icon custom-join': 'mdi mdi-arrow-left-right-bold',
+    'icon parent-filter': 'mdi mdi-home-alert',
+    'icon parent-filter-outline': 'mdi mdi-home-alert-outline',
 
     'icon run': 'mdi mdi-play',
     'icon chevron-down': 'mdi mdi-chevron-down',
@@ -174,6 +176,7 @@
     'img filter': 'mdi mdi-filter',
     'img group': 'mdi mdi-group',
     'img perspective': 'mdi mdi-eye color-icon-yellow',
+    'img parent-filter': 'mdi mdi-home-alert color-icon-yellow',
 
     'img folder': 'mdi mdi-folder color-icon-yellow',
     'img type-string': 'mdi mdi-alphabetical color-icon-blue',

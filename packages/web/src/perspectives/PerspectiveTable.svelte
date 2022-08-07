@@ -212,6 +212,32 @@
         });
       }
 
+      console.log('tableNode?.supportsParentFilter', tableNode?.supportsParentFilter);
+      if (tableNode?.supportsParentFilter) {
+        const isParentFilter = (config.parentFilters || []).find(x => x.uniqueName == tableNode.uniqueName);
+        if (isParentFilter) {
+          res.push({
+            text: 'Cancel filter parent rows',
+            onClick: () => {
+              setConfig(cfg => ({
+                ...cfg,
+                parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
+              }));
+            },
+          });
+        } else {
+          res.push({
+            text: 'Filter parent rows',
+            onClick: () => {
+              setConfig(cfg => ({
+                ...cfg,
+                parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
+              }));
+            },
+          });
+        }
+      }
+
       const rowIndex = tr?.getAttribute('data-rowIndex');
       if (rowIndex != null) {
         const value = display.rows[rowIndex].rowData[columnIndex];
