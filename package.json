@@ -36,6 +36,7 @@
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",
     "generatePadFile": "node generatePadFile",
+    "adjustPackageJson": "node adjustPackageJson",
     "fillNativeModules": "node fillNativeModules",
     "fillNativeModulesElectron": "node fillNativeModules --electron",
     "fillPackagedPlugins": "node fillPackagedPlugins",
