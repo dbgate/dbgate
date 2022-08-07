@@ -78,9 +78,9 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
       onClick: () =>
         setConfig(cfg => ({
           ...cfg,
-          filterInfos: {
-            ...cfg.filterInfos,
-            [node.uniqueName]: filterInfo,
+          filters: {
+            ...cfg.filters,
+            [node.uniqueName]: '',
           },
         })),
     },

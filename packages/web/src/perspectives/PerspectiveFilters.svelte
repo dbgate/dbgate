@@ -16,7 +16,7 @@
   export let database;
   export let driver;
 
-  $: allFilterNames = _.keys(config.filterInfos || {});
+  $: allFilterNames = _.keys(config.filters || {});
 </script>
 
 <ManagerInnerContainer width={managerSize} isFlex={allFilterNames.length == 0}>
@@ -27,28 +27,32 @@
     </div>
   {:else}
     {#each allFilterNames as uniqueName}
-      <PerspectiveFiltersColumn
-        filterInfo={config.filterInfos[uniqueName]}
-        {uniqueName}
-        {conid}
-        {database}
-        {driver}
-        filter={config.filters[uniqueName]}
-        onSetFilter={value =>
-          setConfig(cfg => ({
-            ...cfg,
-            filters: {
-              ...cfg.filters,
-              [uniqueName]: value,
-            },
-          }))}
-        onRemoveFilter={value =>
-          setConfig(cfg => ({
-            ...cfg,
-            filters: _.omit(cfg.filters, [uniqueName]),
-            filterInfos: _.omit(cfg.filterInfos, [uniqueName]),
-          }))}
-      />
+      {@const node = root?.findNodeByUniqueName(uniqueName)}
+      {@const filterInfo = node?.filterInfo}
+      {#if filterInfo}
+        <PerspectiveFiltersColumn
+          {filterInfo}
+          {uniqueName}
+          {conid}
+          {database}
+          {driver}
+          filter={config.filters[uniqueName]}
+          onSetFilter={value =>
+            setConfig(cfg => ({
+              ...cfg,
+              filters: {
+                ...cfg.filters,
+                [uniqueName]: value,
+              },
+            }))}
+          onRemoveFilter={value =>
+            setConfig(cfg => ({
+              ...cfg,
+              filters: _.omit(cfg.filters, [uniqueName]),
+              // filterInfos: _.omit(cfg.filterInfos, [uniqueName]),
+            }))}
+        />
+      {/if}
     {/each}
   {/if}
 </ManagerInnerContainer>

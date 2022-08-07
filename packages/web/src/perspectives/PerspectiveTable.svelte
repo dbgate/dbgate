@@ -274,10 +274,10 @@
                   ...cfg.filters,
                   [dataNode.uniqueName]: getFilterValueExpression(value, dataNode.column.dataType),
                 },
-                filterInfos: {
-                  ...cfg.filterInfos,
-                  [dataNode.uniqueName]: dataNode.filterInfo,
-                },
+                // filterInfos: {
+                //   ...cfg.filterInfos,
+                //   [dataNode.uniqueName]: dataNode.filterInfo,
+                // },
               }));
             },
           });

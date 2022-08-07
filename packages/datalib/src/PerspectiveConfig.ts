@@ -30,7 +30,7 @@ export interface PerspectiveFilterColumnInfo {
 export interface PerspectiveConfig extends PerspectiveConfigColumns {
   rootObject: { schemaName?: string; pureName: string };
   filters: { [uniqueName: string]: string };
-  filterInfos: { [uniqueName: string]: PerspectiveFilterColumnInfo };
+  // filterInfos: { [uniqueName: string]: PerspectiveFilterColumnInfo };
   sort: {
     [parentUniqueName: string]: {
       uniqueName: string;
@@ -47,7 +47,7 @@ export function createPerspectiveConfig(rootObject: { schemaName?: string; pureN
     uncheckedColumns: [],
     customJoins: [],
     filters: {},
-    filterInfos: {},
+    // filterInfos: {},
     sort: {},
     rootObject,
   };
