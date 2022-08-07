@@ -34,8 +34,7 @@
           "universal",
           "x64"
         ]
-      },
-      "singleArchFiles": "msnodesqlv8"
+      }
     },
     "linux": {
       "target": [
