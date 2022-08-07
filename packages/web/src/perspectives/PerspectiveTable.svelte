@@ -188,11 +188,11 @@
         td.classList.remove('highlight');
       });
 
-      const pureName = td.getAttribute('data-pureName');
-      const schemaName = td.getAttribute('data-schemaName');
-      const dataConid = td.getAttribute('data-conid');
-      const dataDatabase = td.getAttribute('data-database');
-      if (pureName) {
+      const tableNodeUniqueName = td.getAttribute('data-tableNodeUniqueName');
+      const tableNode = root?.findNodeByUniqueName(tableNodeUniqueName);
+
+      if (tableNode?.headerTableAttributes) {
+        const { pureName, schemaName, conid, database } = tableNode?.headerTableAttributes;
         res.push({
           text: `Open table ${pureName}`,
           onClick: () => {
@@ -203,8 +203,8 @@
               props: {
                 schemaName,
                 pureName,
-                conid: dataConid || conid,
-                database: dataDatabase || database,
+                conid: conid,
+                database: database,
                 objectTypeField: 'tables',
               },
             });

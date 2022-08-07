@@ -49,8 +49,7 @@
   <th
     colspan={column.getColSpan(columnLevel)}
     class="tableHeader"
-    {..._.mapKeys(column.getParentDataAttributes(columnLevel), (v, k) => `data-${k}`)}
-    >{column.getParentName(columnLevel)}</th
+    data-tableNodeUniqueName={column.getParentTableUniqueName(columnLevel)}>{column.getParentName(columnLevel)}</th
   >
 {/if}
 

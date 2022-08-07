@@ -47,8 +47,8 @@ export class PerspectiveDisplayColumn {
     return this.parentNodes[level]?.title;
   }
 
-  getParentDataAttributes(level) {
-    return this.parentNodes[level]?.headerDataAttributes;
+  getParentTableUniqueName(level) {
+    return this.parentNodes[level]?.headerTableAttributes ? this.parentNodes[level]?.uniqueName : '';
   }
 
   // hasParentNode(node: PerspectiveTreeNode) {

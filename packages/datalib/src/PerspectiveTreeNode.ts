@@ -70,8 +70,8 @@ export abstract class PerspectiveTreeNode {
   get fieldName() {
     return this.codeName;
   }
-  get headerDataAttributes() {
-    return {};
+  get headerTableAttributes() {
+    return null;
   }
   get dataField() {
     return this.codeName;
@@ -92,7 +92,7 @@ export abstract class PerspectiveTreeNode {
   }
 
   get uniqueName() {
-    if (this.parentNode) return `${this.parentNode.uniqueName}.${this.codeName}`;
+    if (this.parentNode) return `${this.parentNode.uniqueName}::${this.codeName}`;
     return this.codeName;
   }
   get level() {
@@ -252,6 +252,21 @@ export abstract class PerspectiveTreeNode {
   get filterInfo(): PerspectiveFilterColumnInfo {
     return null;
   }
+
+  findChildNodeByUniquePath(uniquePath: string[]) {
+    if (uniquePath.length == 0) {
+      return this;
+    }
+    const child = this.childNodes.find(x => x.codeName == uniquePath[0]);
+    return child?.findChildNodeByUniquePath(uniquePath.slice(1));
+  }
+
+  findNodeByUniqueName(uniqueName: string): PerspectiveTreeNode {
+    if (!uniqueName) return null;
+    const uniquePath = uniqueName.split('::');
+    if (uniquePath[0] != this.codeName) return null;
+    return this.findChildNodeByUniquePath(uniquePath.slice(1));
+  }
 }
 
 export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
@@ -398,7 +413,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return condition;
   }
 
-  get headerDataAttributes() {
+  get headerTableAttributes() {
     if (this.foreignKey) {
       return {
         schemaName: this.foreignKey.refSchemaName,
@@ -474,7 +489,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     return this.table;
   }
 
-  get headerDataAttributes() {
+  get headerTableAttributes() {
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,

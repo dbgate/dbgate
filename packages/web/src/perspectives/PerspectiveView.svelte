@@ -131,7 +131,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="tableFilters">
-        <PerspectiveFilters {managerSize} {config} {setConfig} {conid} {database} {driver} />
+        <PerspectiveFilters {managerSize} {config} {setConfig} {conid} {database} {driver} {root} />
       </WidgetColumnBarItem>
     </WidgetColumnBar>
   </div>

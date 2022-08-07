@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
+  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
 
   import _ from 'lodash';
 
@@ -10,6 +10,7 @@
   export let managerSize;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
+  export let root: PerspectiveTreeNode;
 
   export let conid;
   export let database;
