@@ -32,6 +32,7 @@
   export let jslid = null;
   export let customCommandIcon = null;
   export let onCustomCommand = null;
+  export let customCommandTooltip = null;
 
   export let pureName = null;
   export let schemaName = null;
@@ -298,7 +299,7 @@
     placeholder="Filter"
   />
   {#if customCommandIcon && onCustomCommand}
-    <InlineButton on:click={onCustomCommand} narrow square>
+    <InlineButton on:click={onCustomCommand} title={customCommandTooltip} narrow square>
       <FontIcon icon={customCommandIcon} />
     </InlineButton>
   {/if}

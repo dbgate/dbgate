@@ -285,7 +285,7 @@
                       filters: {
                         [dataNode.columnName]: getFilterValueExpression(value, dataNode.column.dataType),
                       },
-                      isFormView: true,
+                      // isFormView: true,
                     },
                   },
                   {

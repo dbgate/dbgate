@@ -78,5 +78,6 @@
     foreignKey={filterInfo.foreignKey}
     {customCommandIcon}
     onCustomCommand={customCommandIcon ? changeParentFilter : null}
+    customCommandTooltip='Filter parent rows'
   />
 </div>
