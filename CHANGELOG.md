@@ -17,7 +17,7 @@ Builds:
 - CHANGED: Improved keyboard navigation, when editing table data #331
 - ADDED:  Option to skip Save changes dialog #329
 - FIXED: Unsigned column doesn't work correctly. #324
-- FIXED: Connect to MS SQL with doamin user now works also under Linux and Mac #305
+- FIXED: Connect to MS SQL with domain user now works also under Linux and Mac #305
 
 ### 5.0.9
 - FIXED: Fixed problem with SSE events on web version
