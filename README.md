@@ -72,6 +72,7 @@ DbGate is licensed under MIT license and is completely free.
 * Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
+* Perspectives - nested table view over complex relational data
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
