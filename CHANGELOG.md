@@ -9,7 +9,7 @@ Builds:
  - win - application for Windows
 
 ### 5.1.0
-- ADDED: Perspectives
+- ADDED: Perspectives (docs: https://dbgate.org/docs/perspectives.html )
 - CHANGED: Upgraded SQLite engine version (driver better-sqlite3: 7.6.2)
 - CHANGED: Upgraded ElectronJS version (from version 13 to version 17)
 - CHANGED: Upgraded all dependencies with current available minor version updates
