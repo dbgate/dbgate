@@ -605,11 +605,6 @@ builtins@^1.0.3:
   resolved "https://registry.yarnpkg.com/builtins/-/builtins-1.0.3.tgz#cb94faeb61c8696451db36534e1422f94f0aee88"
   integrity sha1-y5T662HIaWRR2zZTThQi+U8K7og=
 
-byline@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/byline/-/byline-5.0.0.tgz#741c5216468eadc457b03410118ad77de8c1ddb1"
-  integrity sha1-dBxSFkaOrcRXsDQQEYrXfejB3bE=
-
 cacache@^12.0.2:
   version "12.0.4"
   resolved "https://registry.yarnpkg.com/cacache/-/cacache-12.0.4.tgz#668bcbd105aeb5f1d92fe25570ec9525c8faa40c"
@@ -945,21 +940,14 @@ dashdash@^1.12.0:
   dependencies:
     assert-plus "^1.0.0"
 
-dbgate-plugin-tools@^1.0.4:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.7.tgz#b03d456dd0bfee77281189898e51e15b9593a35c"
-  integrity sha512-KI5MfU+gqD067SXBo+5PPSj0415znfKczKCjRbFNCWbFnvDp5aV0816Lk6ZNTHAAMXuZe6gGHey92Ky+BLEsXQ==
+dbgate-plugin-tools@^1.0.7:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.8.tgz#bb16f38ff7161d9b57c08f0918e152593e7ac695"
+  integrity sha512-EjKYBLTEFEUW/JTnersCkltR4LtCx/AnLrMaXYM3SY8GQMYZ6nRkcpswqdwIQ7z/7vFxeNReg28bnbwC4Z5/kg==
   dependencies:
     ncp "^2.0.0"
     pacote "^11.1.13"
     rimraf "^3.0.2"
-
-dbgate-tools@^1.0.4:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/dbgate-tools/-/dbgate-tools-1.0.8.tgz#a28edd6defac272bb96954e031d590920e88852c"
-  integrity sha512-G0rVIiI1dJEdYvk7jOaPRO8VwfnfUCw2Oa7v28Gx5G1bDk/mCNfP4S6ymQyyGU2jOej89hhUeH7c0J4YcQIV2g==
-  dependencies:
-    lodash "^4.17.15"
 
 debug@4, debug@^4.1.0, debug@^4.3.1:
   version "4.3.3"
@@ -1980,11 +1968,6 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
-lodash@^4.17.15:
-  version "4.17.21"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
-  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
-
 lru-cache@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/lru-cache/-/lru-cache-5.1.1.tgz#1da27e6710271947695daf6848e847f01d84b920"
@@ -2123,9 +2106,9 @@ minimatch@^3.0.4:
     brace-expansion "^1.1.7"
 
 minimist@^1.2.0, minimist@^1.2.5:
-  version "1.2.5"
-  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
-  integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
+  version "1.2.6"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.6.tgz#8637a5b759ea0d6e98702cfb3a9283323c93af44"
+  integrity sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
 
 minipass-collect@^1.0.2:
   version "1.0.2"
@@ -2339,10 +2322,10 @@ node-libs-browser@^2.2.1:
     util "^0.11.0"
     vm-browserify "^1.0.1"
 
-node-xml-stream@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/node-xml-stream/-/node-xml-stream-1.0.2.tgz#7aa510f39ab125cc420e60a302f49147e80b000f"
-  integrity sha512-W4LzsKQ1x3TldQQmXZfM/JO+3SPp+zzvA2Nf82chE7vXnZy7LqHjIqQe9yDUw58g2fTOaJo+DlPnIDfmozgsuw==
+node-xml-stream-parser@^1.0.12:
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/node-xml-stream-parser/-/node-xml-stream-parser-1.0.12.tgz#2d97cc91147bbcdffa0a89cf7dfcc129db2aa789"
+  integrity sha512-qfUiDv1F6OMSltv2/ay32q7fp995OrA3TmEdlwFcxEjAQPiEAH+qi3jAh0QjOTXNbdLa5hoYhuBPCiylllGfjg==
 
 nopt@^5.0.0:
   version "5.0.0"
