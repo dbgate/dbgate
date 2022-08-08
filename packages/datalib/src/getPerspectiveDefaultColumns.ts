@@ -12,7 +12,14 @@ export function getPerspectiveDefaultColumns(
     x => x.toLowerCase() == 'title',
     x => x.toLowerCase().includes('name'),
     x => x.toLowerCase().includes('title'),
-    x => x.dataType?.toLowerCase()?.includes('char'),
+    x => x.toLowerCase().includes('subject'),
+    // x => x.toLowerCase().includes('text'),
+    // x => x.toLowerCase().includes('desc'),
+    x =>
+      table.columns
+        .find(y => y.columnName == x)
+        ?.dataType?.toLowerCase()
+        ?.includes('char'),
     x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1 && !circularColumns.includes(x),
     x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1,
   ];
