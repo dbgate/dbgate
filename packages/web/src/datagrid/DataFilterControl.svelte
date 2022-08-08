@@ -23,13 +23,16 @@
   export let filter;
   export let setFilter;
   export let showResizeSplitter = false;
-  export let onFocusGrid;
-  export let onGetReference;
+  export let onFocusGrid = null;
+  export let onGetReference = null;
   export let foreignKey = null;
   export let conid = null;
   export let database = null;
   export let driver = null;
   export let jslid = null;
+  export let customCommandIcon = null;
+  export let onCustomCommand = null;
+  export let customCommandTooltip = null;
 
   export let pureName = null;
   export let schemaName = null;
@@ -295,6 +298,11 @@
     class:isOk
     placeholder="Filter"
   />
+  {#if customCommandIcon && onCustomCommand}
+    <InlineButton on:click={onCustomCommand} title={customCommandTooltip} narrow square>
+      <FontIcon icon={customCommandIcon} />
+    </InlineButton>
+  {/if}
   {#if conid && database && driver}
     {#if driver?.databaseEngineTypes?.includes('sql') && foreignKey}
       <InlineButton on:click={handleShowDictionary} narrow square>
@@ -320,6 +328,7 @@
   input {
     flex: 1;
     min-width: 10px;
+    width: 1px;
   }
 
   input.isError {

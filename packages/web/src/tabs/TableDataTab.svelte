@@ -98,7 +98,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
-  import { getIntSettingsValue } from '../settings/settingsTools';
+  import { getBoolSettingsValue, getIntSettingsValue } from '../settings/settingsTools';
 
   export let tabid;
   export let conid;
@@ -142,12 +142,17 @@
       script: scriptToSql(driver, commands),
     }));
     // console.log('deleteCascadesScripts', deleteCascadesScripts);
-    showModal(ConfirmSqlModal, {
-      sql,
-      onConfirm: sqlOverride => handleConfirmSql(sqlOverride || sql),
-      engine: driver.engine,
-      deleteCascadesScripts,
-    });
+    if (getBoolSettingsValue('skipConfirm.tableDataSave', false) && !deleteCascadesScripts?.length) {
+      handleConfirmSql(sql);
+    } else {
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: sqlOverride => handleConfirmSql(sqlOverride || sql),
+        engine: driver.engine,
+        deleteCascadesScripts,
+        skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
+      });
+    }
   }
 
   export function canSave() {

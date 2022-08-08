@@ -4,6 +4,7 @@
   import contextMenu, { getContextMenu } from '../utility/contextMenu';
   import openNewTab from '../utility/openNewTab';
   import _ from 'lodash';
+  import { copyTextToClipboard } from '../utility/clipboard';
 
   setContext('json-tree-context-key', {});
 
@@ -34,8 +35,17 @@
     if (!closest) return;
     const value = elementData.get(closest);
 
+    const res = [];
+
+    res.push({
+      text: 'Copy JSON',
+      onClick: () => {
+        copyTextToClipboard(JSON.stringify(value, null, 2));
+      },
+    });
+
     if (value && _.isArray(value)) {
-      return {
+      res.push({
         text: 'Open as data sheet',
         onClick: () => {
           openNewTab(
@@ -53,8 +63,9 @@
             }
           );
         },
-      };
+      });
     }
+    return res;
   }
 </script>
 

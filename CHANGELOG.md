@@ -8,6 +8,17 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.0
+- ADDED: Perspectives
+- CHANGED: Upgraded SQLite engine version (driver better-sqlite3: 7.6.2)
+- CHANGED: Upgraded ElectronJS version (from version 13 to version 17)
+- CHANGED: Upgraded all dependencies with current available minor version updates
+- CHANGED: By deffault, connect on click #332˝
+- CHANGED: Improved keyboard navigation, when editing table data #331
+- ADDED:  Option to skip Save changes dialog #329
+- FIXED: Unsigned column doesn't work correctly. #324
+- FIXED: Connect to MS SQL with doamin user now works also under Linux and Mac #305
+
 ### 5.0.9
 - FIXED: Fixed problem with SSE events on web version
 - ADDED: Added menu command "New query designer"

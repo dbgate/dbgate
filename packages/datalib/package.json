@@ -5,6 +5,8 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "test": "jest",
+    "test:ci": "jest --json --outputFile=result.json --testLocationInResults",
     "start": "tsc --watch"
   },
   "files": [
@@ -12,11 +14,14 @@
   ],
   "dependencies": {
     "dbgate-sqltree": "^5.0.0-alpha.1",
+    "dbgate-tools": "^5.0.0-alpha.1",
     "dbgate-filterparser": "^5.0.0-alpha.1"
   },
   "devDependencies": {
     "dbgate-types": "^5.0.0-alpha.1",
     "@types/node": "^13.7.0",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.7",
     "typescript": "^4.4.3"
   }
 }

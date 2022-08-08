@@ -38,12 +38,17 @@ class Dumper extends SqlDumper {
     this.endCommand();
   }
 
+  autoIncrement() {}
+
   specialColumnOptions(column) {
     if (column.isUnsigned) {
       this.put('^unsigned ');
     }
     if (column.isZerofill) {
       this.put('^zerofill ');
+    }
+    if (column.autoIncrement) {
+      this.put('^auto_increment ');
     }
   }
 

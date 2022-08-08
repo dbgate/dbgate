@@ -147,11 +147,11 @@ import { tick } from 'svelte';
       return;
     }
 
-    if (getCurrentSettings()['defaultAction.connectionClick'] == 'connect') {
+    if (getCurrentSettings()['defaultAction.connectionClick'] == 'openDetails') {
+      handleOpenConnectionTab();
+    } else {
       await tick();
       handleConnect();
-    } else {
-      handleOpenConnectionTab();
     }
   };
 

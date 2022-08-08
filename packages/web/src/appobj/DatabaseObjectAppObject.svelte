@@ -45,6 +45,15 @@
         icon: 'img table-structure',
       },
       {
+        label: 'Open perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
+      {
+        divider: true,
+      },
+      {
         label: 'Drop table',
         isDrop: true,
         requiresWriteAccess: true,
@@ -132,6 +141,12 @@
         label: 'Open structure',
         tab: 'TableStructureTab',
         icon: 'img view-structure',
+      },
+      {
+        label: 'Open perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
       },
       {
         label: 'Drop view',

@@ -105,19 +105,13 @@
 </script>
 
 <script lang="ts">
-  import { changeSetToSql, createChangeSet } from 'dbgate-datalib';
   import { parseFilter } from 'dbgate-filterparser';
-  import { scriptToSql } from 'dbgate-sqltree';
   import _ from 'lodash';
   import { registerQuickExportHandler } from '../buttons/ToolStripExportButton.svelte';
   import registerCommand from '../commands/registerCommand';
-  import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
-  import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
-  import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
-  import { extensions } from '../stores';
   import { apiCall } from '../utility/api';
 
   import { registerMenu } from '../utility/contextMenu';

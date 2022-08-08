@@ -25,8 +25,6 @@
   import {
     createChangeSet,
     createGridCache,
-    createGridConfig,
-    TableFormViewDisplay,
     CollectionGridDisplay,
     changeSetContainsChanges,
     runMacroOnChangeSet,
@@ -45,8 +43,6 @@
   import ConfirmNoSqlModal from '../modals/ConfirmNoSqlModal.svelte';
   import registerCommand from '../commands/registerCommand';
   import { registerMenu } from '../utility/contextMenu';
-  import EditJsonModal from '../modals/EditJsonModal.svelte';
-  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
   import { setContext } from 'svelte';
   import _ from 'lodash';
   import { apiCall } from '../utility/api';
@@ -54,6 +50,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
+  import { getBoolSettingsValue } from '../settings/settingsTools';
 
   export let tabid;
   export let conid;
@@ -119,11 +116,16 @@
     const driver = findEngineDriver($connection, $extensions);
     const script = driver.getCollectionUpdateScript ? driver.getCollectionUpdateScript(json) : null;
     if (script) {
-      showModal(ConfirmNoSqlModal, {
-        script,
-        onConfirm: () => handleConfirmChange(json),
-        engine: display.engine,
-      });
+      if (getBoolSettingsValue('skipConfirm.collectionDataSave', false)) {
+        handleConfirmChange(json);
+      } else {
+        showModal(ConfirmNoSqlModal, {
+          script,
+          onConfirm: () => handleConfirmChange(json),
+          engine: display.engine,
+          skipConfirmSettingKey: 'skipConfirm.collectionDataSave',
+        });
+      }
     } else {
       handleConfirmChange(json);
     }

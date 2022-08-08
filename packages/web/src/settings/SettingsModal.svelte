@@ -60,7 +60,8 @@ ORDER BY
         tabs={[
           { label: 'General', slot: 1 },
           { label: 'Themes', slot: 2 },
-          { label: 'Actions', slot: 3 },
+          { label: 'Default Actions', slot: 3 },
+          { label: 'Confirmations', slot: 4 },
         ]}
       >
         <svelte:fragment slot="1">
@@ -166,7 +167,7 @@ ORDER BY
             label="Connection click"
             name="defaultAction.connectionClick"
             isNative
-            defaultValue="openDetails"
+            defaultValue="connect"
             options={[
               { value: 'openDetails', label: 'Edit / open details' },
               { value: 'connect', label: 'Connect' },
@@ -222,6 +223,15 @@ ORDER BY
               { value: 'SQL: EXECUTE', label: 'SQL: EXECUTE' },
               // { value: 'SQL: CREATE PROCEDURE', label: 'SQL: CREATE' },
             ]}
+          />
+        </svelte:fragment>
+        <svelte:fragment slot="4">
+          <div class="heading">Confirmations</div>
+
+          <FormCheckboxField name="skipConfirm.tableDataSave" label="Skip confirmation when saving table data (SQL)" />
+          <FormCheckboxField
+            name="skipConfirm.collectionDataSave"
+            label="Skip confirmation when saving collection data (NoSQL)"
           />
         </svelte:fragment>
       </TabControl>

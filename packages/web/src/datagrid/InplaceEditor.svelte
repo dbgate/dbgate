@@ -36,18 +36,26 @@
         break;
       case keycodes.enter:
         if (isChangedRef.get()) {
-          // grider.setCellValue(rowIndex, uniqueName, editor.value);
           onSetValue(parseCellValue(domEditor.value));
           isChangedRef.set(false);
         }
         domEditor.blur();
+        event.preventDefault();
         dispatchInsplaceEditor({ type: 'close', mode: 'enter' });
+        break;
+      case keycodes.tab:
+        if (isChangedRef.get()) {
+          onSetValue(parseCellValue(domEditor.value));
+          isChangedRef.set(false);
+        }
+        domEditor.blur();
+        event.preventDefault();
+        dispatchInsplaceEditor({ type: 'close', mode: event.shiftKey ? 'shiftTab' : 'tab' });
         break;
       case keycodes.s:
         if (isCtrlOrCommandKey(event)) {
           if (isChangedRef.get()) {
             onSetValue(parseCellValue(domEditor.value));
-            // grider.setCellValue(rowIndex, uniqueName, editor.value);
             isChangedRef.set(false);
           }
           event.preventDefault();

@@ -1,5 +1,7 @@
 export * from './GridDisplay';
 export * from './GridConfig';
+export * from './PerspectiveConfig';
+export * from './PerspectiveTreeNode';
 export * from './TableGridDisplay';
 export * from './ViewGridDisplay';
 export * from './JslGridDisplay';
@@ -12,3 +14,7 @@ export * from './FormViewDisplay';
 export * from './TableFormViewDisplay';
 export * from './CollectionGridDisplay';
 export * from './deleteCascade';
+export * from './PerspectiveDisplay';
+export * from './PerspectiveDataProvider';
+export * from './PerspectiveCache';
+export * from './PerspectiveConfig';

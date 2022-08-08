@@ -107,12 +107,12 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "13.6.3",
-    "electron-builder": "22.14.5",
-    "electron-builder-notarize": "^1.4.0"
+    "electron": "17.4.10",
+    "electron-builder": "23.1.0",
+    "electron-builder-notarize": "^1.5.0"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.5.0",
-    "msnodesqlv8": "^2.4.4"
+    "better-sqlite3": "7.6.2",
+    "msnodesqlv8": "^2.6.0"
   }
 }

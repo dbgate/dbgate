@@ -99,6 +99,12 @@ export interface BetweenCondition {
   right: Expression;
 }
 
+export interface InCondition {
+  conditionType: 'in';
+  expr: Expression;
+  values: any[];
+}
+
 export type Condition =
   | BinaryCondition
   | NotCondition
@@ -107,7 +113,8 @@ export type Condition =
   | LikeCondition
   | ExistsCondition
   | NotExistsCondition
-  | BetweenCondition;
+  | BetweenCondition
+  | InCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

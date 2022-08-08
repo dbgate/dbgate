@@ -68,5 +68,9 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       dmp.put(' ^and ');
       dumpSqlExpression(dmp, condition.right);
       break;
+    case 'in':
+      dumpSqlExpression(dmp, condition.expr);
+      dmp.put(' ^in (%,v)', condition.values);
+      break;
   }
 }
