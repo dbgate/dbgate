@@ -1,0 +1,20 @@
+{
+  "terminals": [
+    {
+      "splitTerminals": [
+        {
+          "name": "lib",
+          "commands": ["yarn lib"]
+        },
+        {
+          "name": "web",
+          "commands": ["yarn start:web"]
+        },
+        {
+          "name": "api",
+          "commands": ["yarn start:api"]
+        }
+      ]
+    }
+  ]
+}
