@@ -11,6 +11,7 @@
   import FormValues from '../forms/FormValues.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import SettingsFormProvider from '../forms/SettingsFormProvider.svelte';
+  import TextField from '../forms/TextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
   import ModalBase from '../modals/ModalBase.svelte';
@@ -128,7 +129,7 @@ ORDER BY
           <div class="heading">Editor theme</div>
 
           <div class="flex">
-            <div class="col-4">
+            <div class="col-3">
               <FormFieldTemplateLarge label="Theme" type="combo">
                 <SelectField
                   isNative
@@ -140,19 +141,30 @@ ORDER BY
               </FormFieldTemplateLarge>
             </div>
 
-            <div class="col-4">
+            <div class="col-3">
               <FormFieldTemplateLarge label="Font size " type="combo">
                 <SelectField
                   isNative
                   notSelected="(default)"
                   options={FONT_SIZES}
-                  value={$currentEditorFontSize}
+                  value={FONT_SIZES.find(x => x.value == $currentEditorFontSize) ? $currentEditorFontSize : 'custom'}
                   on:change={e => ($currentEditorFontSize = e.detail)}
                 />
               </FormFieldTemplateLarge>
             </div>
 
-            <div class="col-4">
+            <div class="col-3">
+              <FormFieldTemplateLarge label="Custom size " type="text">
+                <TextField
+                  value={$currentEditorFontSize == 'custom' ? '' : $currentEditorFontSize}
+                  on:change={e => ($currentEditorFontSize = e.target['value'])}
+                  disabled={!!FONT_SIZES.find(x => x.value == $currentEditorFontSize) &&
+                    $currentEditorFontSize != 'custom'}
+                />
+              </FormFieldTemplateLarge>
+            </div>
+
+            <div class="col-3">
               <FormTextField name="editor.fontFamily" label="Editor font family" />
             </div>
           </div>

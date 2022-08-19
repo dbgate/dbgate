@@ -49,6 +49,7 @@
     { label: '15', value: '15' },
     { label: '16', value: '16' },
     { label: '17', value: '17' },
+    { label: 'Custom', value: 'custom' },
   ];
 </script>
 
@@ -433,7 +434,7 @@
     });
     defaultFontSize = editor.getFontSize();
     if ($currentEditorFontSize) {
-      editor.setFontSize($currentEditorFontSize);
+      editor.setFontSize(parseInt($currentEditorFontSize) || 12);
     }
 
     editor.on('changeSelection', () => {

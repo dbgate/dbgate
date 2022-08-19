@@ -14,6 +14,7 @@
   bind:value
   on:change
   on:input
+  on:click
   bind:this={domEditor}
   on:keydown
   autocomplete="new-password"
