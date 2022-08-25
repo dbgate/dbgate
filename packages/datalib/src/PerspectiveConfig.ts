@@ -88,9 +88,9 @@ export interface PerspectiveConfig {
   references: PerspectiveReferenceConfig[];
 }
 
-export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
-  const rootNode: PerspectiveNodeConfig = {
-    ...rootObject,
+export function createPerspectiveNodeConfig(name: { schemaName?: string; pureName: string }) {
+  const node: PerspectiveNodeConfig = {
+    ...name,
     designerId: uuidv1(),
 
     expandedNodes: [],
@@ -100,6 +100,12 @@ export function createPerspectiveConfig(rootObject: { schemaName?: string; pureN
     sort: [],
     filters: {},
   };
+
+  return node;
+}
+
+export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
+  const rootNode = createPerspectiveNodeConfig(rootObject);
   return {
     nodes: [rootNode],
     references: [],
