@@ -90,7 +90,7 @@ export class PerspectiveDisplay {
   columns: PerspectiveDisplayColumn[] = [];
   rows: PerspectiveDisplayRow[] = [];
   readonly columnLevelCount: number;
-  loadIndicatorsCounts: { [uniqueName: string]: number } = {};
+  loadIndicatorsCounts: { [designerId: string]: number } = {};
 
   constructor(public root: PerspectiveTreeNode, rows: any[]) {
     // dbg('source rows', rows);
@@ -152,12 +152,24 @@ export class PerspectiveDisplay {
   }
 
   findColumnIndexFromNode(node: PerspectiveTreeNode) {
-    return _findIndex(this.columns, x => x.dataNode.designerId == node.designerId);
+    return _findIndex(
+      this.columns,
+      x =>
+        x.dataNode.columnName == node.columnName && x.dataNode?.parentNode?.designerId == node?.parentNode?.designerId
+    );
   }
 
+  // findColumnIndexFromNode(node: PerspectiveTreeNode) {
+  //   return _findIndex(this.columns, x => x.dataNode.designerId == node.designerId);
+  // }
+
   collectRows(sourceRows: any[], nodes: PerspectiveTreeNode[]): CollectedPerspectiveDisplayRow[] {
+    // console.log('********** COLLECT ROWS', sourceRows);
     const columnNodes = nodes.filter(x => x.isChecked && !x.isExpandable);
     const treeNodes = nodes.filter(x => x.isChecked && x.isExpandable);
+
+    // console.log('columnNodes', columnNodes);
+    // console.log('treeNodes', treeNodes);
 
     const columnIndexes = columnNodes.map(node => this.findColumnIndexFromNode(node));
 

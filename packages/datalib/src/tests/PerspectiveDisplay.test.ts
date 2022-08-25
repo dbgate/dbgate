@@ -2,7 +2,7 @@ import { TableInfo } from 'dbgate-types';
 import { PerspectiveDisplay } from '../PerspectiveDisplay';
 import { PerspectiveTableNode } from '../PerspectiveTreeNode';
 import { chinookDbInfo } from './chinookDbInfo';
-import { createPerspectiveConfig } from '../PerspectiveConfig';
+import { createPerspectiveConfig, createPerspectiveNodeConfig } from '../PerspectiveConfig';
 import artistDataFlat from './artistDataFlat';
 import artistDataAlbum from './artistDataAlbum';
 import artistDataAlbumTrack from './artistDataAlbumTrack';
@@ -16,7 +16,8 @@ test('test flat view', () => {
     null,
     null,
     { conid: 'conid', database: 'db' },
-    null
+    null,
+    '1'
   );
   const display = new PerspectiveDisplay(root, artistDataFlat);
 
@@ -35,19 +36,23 @@ test('test flat view', () => {
 
 test('test one level nesting', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
+  const config = createPerspectiveConfig({ pureName: 'Artist' });
+  config.nodes[0].checkedNodes = ['Album'];
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
-    { ...createPerspectiveConfig({ pureName: 'Artist' }), checkedColumns: ['Artist::Album'] },
+    config,
     null,
     null,
     { conid: 'conid', database: 'db' },
-    null
+    null,
+    config.nodes[0].designerId
   );
   const display = new PerspectiveDisplay(root, artistDataAlbum);
 
   console.log(display.loadIndicatorsCounts);
   // console.log(display.rows);
+
   expect(display.rows.length).toEqual(6);
   expect(display.rows[0]).toEqual(
     expect.objectContaining({
@@ -85,14 +90,26 @@ test('test one level nesting', () => {
 
 test('test two level nesting', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
+  const config = createPerspectiveConfig({ pureName: 'Artist' });
+  config.nodes.push(createPerspectiveNodeConfig({ pureName: 'Album' }));
+  config.references.push({
+    sourceId: config.nodes[0].designerId,
+    targetId: config.nodes[1].designerId,
+    designerId: '1',
+    columns: [{ source: 'ArtistId', target: 'ArtistId' }],
+  });
+  config.nodes[0].checkedNodes = ['Album'];
+  config.nodes[1].checkedNodes = ['Track'];
+
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
-    { ...createPerspectiveConfig({ pureName: 'Artist' }), checkedColumns: ['Artist::Album', 'Artist::Album::Track'] },
+    config,
     null,
     null,
     { conid: 'conid', database: 'db' },
-    null
+    null,
+    config.nodes[0].designerId
   );
   const display = new PerspectiveDisplay(root, artistDataAlbumTrack);
 
