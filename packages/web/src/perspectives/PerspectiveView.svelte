@@ -55,6 +55,8 @@
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { useMultipleDatabaseInfo } from '../utility/useMultipleDatabaseInfo';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import PerspectiveDesigner from './PerspectiveDesigner.svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -94,7 +96,14 @@
     });
   }
 
-  $: dbInfos = useMultipleDatabaseInfo(extractPerspectiveDatabases({ conid, database }, config));
+  let perspectiveDatabases = extractPerspectiveDatabases({ conid, database }, config);
+  $: {
+    const newDatabases = extractPerspectiveDatabases({ conid, database }, config);
+    if (stableStringify(newDatabases) != stableStringify(newDatabases)) {
+      perspectiveDatabases = newDatabases;
+    }
+  }
+  $: dbInfos = useMultipleDatabaseInfo(perspectiveDatabases);
   $: rootObject = config?.nodes?.find(x => x.designerId == config?.rootDesignerId);
   $: tableInfo = useTableInfo({ conid, database, ...rootObject });
   $: viewInfo = useViewInfo({ conid, database, ...rootObject });
@@ -139,7 +148,14 @@
   </div>
 
   <svelte:fragment slot="2">
-    <PerspectiveTable {root} {loadedCounts} {config} {setConfig} {conid} {database} />
+    <VerticalSplitter>
+      <svelte:fragment slot="1">
+        <PerspectiveDesigner {config} {conid} {database} onChange={setConfig} dbInfos={$dbInfos} />
+      </svelte:fragment>
+      <svelte:fragment slot="2">
+        <PerspectiveTable {root} {loadedCounts} {config} {setConfig} {conid} {database} />
+      </svelte:fragment>
+    </VerticalSplitter>
   </svelte:fragment>
 </HorizontalSplitter>
 
