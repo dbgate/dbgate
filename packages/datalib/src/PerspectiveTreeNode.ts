@@ -154,6 +154,11 @@ export abstract class PerspectiveTreeNode {
     return this.dbs?.[this.databaseConfig.conid]?.[this.databaseConfig.database];
   }
 
+  hasDesignerIdInIncestors(designerId: string): boolean {
+    if (designerId == this.designerId) return true;
+    return this.parentNode?.hasDesignerIdInIncestors(designerId) || false;
+  }
+
   getChildMatchColumns() {
     return [];
   }
@@ -940,7 +945,9 @@ function findDesignerIdForNode<T extends PerspectiveTreeNode>(
         x.columns.map(x => x.target)
       )
   );
-  if (ref1) return nodeCreateFunc(ref1.targetId);
+  if (ref1 && !parentNode.hasDesignerIdInIncestors(ref1.targetId)) {
+    return nodeCreateFunc(ref1.targetId);
+  }
 
   const ref2 = config.references.find(
     x =>
@@ -954,7 +961,9 @@ function findDesignerIdForNode<T extends PerspectiveTreeNode>(
         x.columns.map(x => x.target)
       )
   );
-  if (ref2) return nodeCreateFunc(ref2.sourceId);
+  if (ref2 && !parentNode.hasDesignerIdInIncestors(ref2.sourceId)) {
+    return nodeCreateFunc(ref2.sourceId);
+  }
 
   return node;
 }
