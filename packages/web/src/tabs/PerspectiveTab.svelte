@@ -107,6 +107,8 @@
     cache.clear();
     loadedCounts.set({});
   }
+
+  $: console.log('PERSPECTIVE', $modelState.value);
 </script>
 
 <ToolStripContainer>

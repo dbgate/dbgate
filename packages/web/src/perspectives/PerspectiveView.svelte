@@ -95,8 +95,9 @@
   }
 
   $: dbInfos = useMultipleDatabaseInfo(extractPerspectiveDatabases({ conid, database }, config));
-  $: tableInfo = useTableInfo({ conid, database, ...config?.rootObject });
-  $: viewInfo = useViewInfo({ conid, database, ...config?.rootObject });
+  $: rootObject = config?.nodes?.find(x => x.designerId == config?.rootDesignerId);
+  $: tableInfo = useTableInfo({ conid, database, ...rootObject });
+  $: viewInfo = useViewInfo({ conid, database, ...rootObject });
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
@@ -109,7 +110,8 @@
           setConfig,
           dataProvider,
           { conid, database },
-          null
+          null,
+          config.rootDesignerId
         )
       : null;
 </script>

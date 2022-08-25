@@ -11,9 +11,9 @@ import {
   ChangePerspectiveConfigFunc,
   MultipleDatabaseInfo,
   PerspectiveConfig,
-  PerspectiveConfigColumns,
   PerspectiveCustomJoinConfig,
   PerspectiveFilterColumnInfo,
+  PerspectiveNodeConfig,
 } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
 import _cloneDeep from 'lodash/cloneDeep';
@@ -67,13 +67,26 @@ export abstract class PerspectiveTreeNode {
     public setConfig: ChangePerspectiveConfigFunc,
     public parentNode: PerspectiveTreeNode,
     public dataProvider: PerspectiveDataProvider,
-    public databaseConfig: PerspectiveDatabaseConfig
-  ) {}
+    public databaseConfig: PerspectiveDatabaseConfig,
+    public designerId: string
+  ) {
+    this.nodeConfig = config.nodes.find(x => x.designerId == designerId);
+    this.parentNodeConfig = parentNode?.nodeConfig;
+  }
+  readonly nodeConfig: PerspectiveNodeConfig;
+  readonly parentNodeConfig: PerspectiveNodeConfig;
   defaultChecked: boolean;
   abstract get title();
   abstract get codeName();
   abstract get isExpandable();
-  abstract get childNodes(): PerspectiveTreeNode[];
+  childNodesCache: PerspectiveTreeNode[] = null;
+  get childNodes(): PerspectiveTreeNode[] {
+    if (!this.childNodesCache) {
+      this.childNodesCache = this.generateChildNodes();
+    }
+    return this.childNodesCache;
+  }
+  abstract generateChildNodes(): PerspectiveTreeNode[];
   abstract get icon(): string;
   get fieldName() {
     return this.codeName;
@@ -106,20 +119,20 @@ export abstract class PerspectiveTreeNode {
     return code == this.tableCode || this.parentNode?.hasTableCode(code);
   }
 
-  get uniqueName() {
-    if (this.parentNode) return `${this.parentNode.uniqueName}::${this.codeName}`;
-    return this.codeName;
-  }
+  // get uniqueName() {
+  //   if (this.parentNode) return `${this.parentNode.uniqueName}::${this.codeName}`;
+  //   return this.codeName;
+  // }
   get level() {
     if (this.parentNode) return this.parentNode.level + 1;
     return 0;
   }
   get isExpanded() {
-    return this.config.expandedColumns.includes(this.uniqueName);
+    return this.parentNodeConfig?.expandedNodes?.includes(this.codeName);
   }
   get isChecked() {
-    if (this.config.checkedColumns.includes(this.uniqueName)) return true;
-    if (this.config.uncheckedColumns.includes(this.uniqueName)) return false;
+    if (this.parentNodeConfig?.checkedNodes?.includes(this.codeName)) return true;
+    if (this.parentNodeConfig?.uncheckedNodes?.includes(this.codeName)) return false;
     return this.defaultChecked;
   }
   get columnTitle() {
@@ -158,33 +171,66 @@ export abstract class PerspectiveTreeNode {
   }
 
   toggleExpanded(value?: boolean) {
-    this.includeInColumnSet('expandedColumns', this.uniqueName, value == null ? !this.isExpanded : value);
+    this.includeInNodeSet('expandedNodes', value == null ? !this.isExpanded : value);
   }
 
   toggleChecked(value?: boolean) {
     if (this.defaultChecked) {
-      this.includeInColumnSet('uncheckedColumns', this.uniqueName, value == null ? this.isChecked : value);
+      this.includeInNodeSet('uncheckedNodes', value == null ? this.isChecked : value);
     } else {
-      this.includeInColumnSet('checkedColumns', this.uniqueName, value == null ? !this.isChecked : value);
+      this.includeInNodeSet('checkedNodes', value == null ? !this.isChecked : value);
     }
   }
 
-  includeInColumnSet(field: keyof PerspectiveConfigColumns, uniqueName: string, isIncluded: boolean) {
+  includeInNodeSet(field: 'expandedNodes' | 'uncheckedNodes' | 'checkedNodes', isIncluded: boolean) {
+    // this.setConfig(cfg => {
+    //   const node = cfg.nodes.find(x=>x.designerId==this.designerId);
+    //   if (!node) {
+
+    //   }
+
+    //   return {
+    //     ...cfg,
+    //     nodes: cfg.nodes.map(node =>
+    //       node.designerId == this.parentNode?.designerId
+    //         ? {
+    //             ...node,
+    //             [field]: [...(node[field] || []), this.codeName],
+    //           }
+    //         : node
+    //     ),
+    //   };
+    // });
+
     if (isIncluded) {
       this.setConfig(cfg => ({
         ...cfg,
-        [field]: [...(cfg[field] || []), uniqueName],
+        nodes: cfg.nodes.map(node =>
+          node.designerId == this.parentNode?.designerId
+            ? {
+                ...node,
+                [field]: [...(node[field] || []), this.codeName],
+              }
+            : node
+        ),
       }));
     } else {
       this.setConfig(cfg => ({
         ...cfg,
-        [field]: (cfg[field] || []).filter(x => x != uniqueName),
+        nodes: cfg.nodes.map(node =>
+          node.designerId == this.parentNode?.designerId
+            ? {
+                ...node,
+                [field]: (node[field] || []).filter(x => x != this.codeName),
+              }
+            : node
+        ),
       }));
     }
   }
 
   getFilter() {
-    return this.config.filters[this.uniqueName];
+    return this.parentNodeConfig?.filters?.[this.codeName];
   }
 
   getDataLoadColumns() {
@@ -217,7 +263,7 @@ export abstract class PerspectiveTreeNode {
   getOrderBy(table: TableInfo | ViewInfo): PerspectiveDataLoadProps['orderBy'] {
     const res = _compact(
       this.childNodes.map(node => {
-        const sort = this.config?.sort?.[node?.parentNode?.uniqueName]?.find(x => x.uniqueName == node.uniqueName);
+        const sort = this.parentNodeConfig?.sort?.find(x => x.columnName == node.columnName);
         if (sort) {
           return {
             columnName: node.columnName,
@@ -259,11 +305,27 @@ export abstract class PerspectiveTreeNode {
     return child?.findChildNodeByUniquePath(uniquePath.slice(1));
   }
 
-  findNodeByUniqueName(uniqueName: string): PerspectiveTreeNode {
-    if (!uniqueName) return null;
-    const uniquePath = uniqueName.split('::');
-    if (uniquePath[0] != this.codeName) return null;
-    return this.findChildNodeByUniquePath(uniquePath.slice(1));
+  // findNodeByUniqueName(uniqueName: string): PerspectiveTreeNode {
+  //   if (!uniqueName) return null;
+  //   const uniquePath = uniqueName.split('::');
+  //   if (uniquePath[0] != this.codeName) return null;
+  //   return this.findChildNodeByUniquePath(uniquePath.slice(1));
+  // }
+
+  findNodeByDesignerId(designerId: string): PerspectiveTreeNode {
+    if (!designerId) return null;
+    if (designerId == this.designerId) {
+      return this;
+    }
+
+    for (const child of this.childNodes) {
+      const res = child.findNodeByDesignerId(designerId);
+      if (res) {
+        return res;
+      }
+    }
+
+    return null;
   }
 
   get supportsParentFilter() {
@@ -275,12 +337,14 @@ export abstract class PerspectiveTreeNode {
   }
 
   get isParentFilter() {
-    return !!(this.config.parentFilters || []).find(x => x.uniqueName == this.uniqueName);
+    return !!this.nodeConfig?.isParentFilter;
   }
 
   buildParentFilterConditions(): Condition[] {
     const leafNodes = _compact(
-      (this.config?.parentFilters || []).map(x => this.rootNode.findNodeByUniqueName(x.uniqueName))
+      (this.config?.nodes || [])
+        .filter(x => x.isParentFilter)
+        .map(x => this.rootNode.findNodeByDesignerId(x.designerId))
     );
     const conditions: Condition[] = _compact(
       leafNodes.map(leafNode => {
@@ -298,7 +362,7 @@ export abstract class PerspectiveTreeNode {
         let node = leafNode;
         let index = 1;
         let lastAlias = 'pert_0';
-        while (node?.parentNode && node?.parentNode?.uniqueName != this?.uniqueName) {
+        while (node?.parentNode && node?.parentNode?.designerId != this?.designerId) {
           node = node.parentNode;
           let alias = `pert_${index}`;
           select.from.relations.push({
@@ -310,7 +374,7 @@ export abstract class PerspectiveTreeNode {
           lastAlias = alias;
           lastNode = node;
         }
-        if (node?.parentNode?.uniqueName != this?.uniqueName) return null;
+        if (node?.parentNode?.designerId != this?.designerId) return null;
         select.where = {
           conditionType: 'and',
           conditions: _compact([
@@ -346,9 +410,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     setConfig: ChangePerspectiveConfigFunc,
     dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
-    parentNode: PerspectiveTreeNode
+    parentNode: PerspectiveTreeNode,
+    designerId: string
   ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
 
     this.isTable = !!this.db?.tables?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
     this.isView = !!this.db?.views?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
@@ -450,7 +515,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return !!this.parentNode?.parentNode?.hasTableCode(this.tableCode);
   }
 
-  get childNodes(): PerspectiveTreeNode[] {
+  generateChildNodes(): PerspectiveTreeNode[] {
     if (!this.foreignKey) return [];
     const tbl = this?.db?.tables?.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
@@ -535,9 +600,10 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
-    parentNode: PerspectiveTreeNode
+    parentNode: PerspectiveTreeNode,
+    designerId: string
   ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig);
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
@@ -563,7 +629,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     return true;
   }
 
-  get childNodes(): PerspectiveTreeNode[] {
+  generateChildNodes(): PerspectiveTreeNode[] {
     return getTableChildPerspectiveNodes(
       this.table,
       this.dbs,
@@ -671,9 +737,10 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
     public isMultiple: boolean,
-    parentNode: PerspectiveTreeNode
+    parentNode: PerspectiveTreeNode,
+    designerId: string
   ) {
-    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode);
+    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode, designerId);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -757,9 +824,10 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
     databaseConfig: PerspectiveDatabaseConfig,
-    parentNode: PerspectiveTreeNode
+    parentNode: PerspectiveTreeNode,
+    designerId: string
   ) {
-    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode);
+    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode, designerId);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -848,7 +916,17 @@ export function getTableChildPerspectiveNodes(
 
   const columnNodes = table.columns.map(
     col =>
-      new PerspectiveTableColumnNode(col, table, dbs, config, setConfig, dataProvider, databaseConfig, parentColumn)
+      new PerspectiveTableColumnNode(
+        col,
+        table,
+        dbs,
+        config,
+        setConfig,
+        dataProvider,
+        databaseConfig,
+        parentColumn,
+        null
+      )
   );
   const circularColumns = columnNodes.filter(x => x.isCircular).map(x => x.columnName);
   const defaultColumns = getPerspectiveDefaultColumns(table, db, circularColumns);
@@ -876,7 +954,8 @@ export function getTableChildPerspectiveNodes(
             dataProvider,
             databaseConfig,
             isMultiple,
-            parentColumn
+            parentColumn,
+            null
           )
         );
       }
@@ -884,33 +963,34 @@ export function getTableChildPerspectiveNodes(
   }
   res.push(..._sortBy(dependencies, 'title'));
 
-  const customs = [];
-  for (const join of config.customJoins || []) {
-    if (join.baseUniqueName == parentColumn.uniqueName) {
-      const newConfig = { ...databaseConfig };
-      if (join.conid) newConfig.conid = join.conid;
-      if (join.database) newConfig.database = join.database;
-      const db = dbs?.[newConfig.conid]?.[newConfig.database];
-      const table = db?.tables?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
-      const view = db?.views?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
+  // const customs = [];
+  // for (const join of config.customJoins || []) {
+  //   if (join.baseUniqueName == parentColumn.uniqueName) {
+  //     const newConfig = { ...databaseConfig };
+  //     if (join.conid) newConfig.conid = join.conid;
+  //     if (join.database) newConfig.database = join.database;
+  //     const db = dbs?.[newConfig.conid]?.[newConfig.database];
+  //     const table = db?.tables?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
+  //     const view = db?.views?.find(x => x.pureName == join.refTableName && x.schemaName == join.refSchemaName);
 
-      if (table || view) {
-        customs.push(
-          new PerspectiveCustomJoinTreeNode(
-            join,
-            table || view,
-            dbs,
-            config,
-            setConfig,
-            dataProvider,
-            newConfig,
-            parentColumn
-          )
-        );
-      }
-    }
-  }
-  res.push(..._sortBy(customs, 'title'));
+  //     if (table || view) {
+  //       customs.push(
+  //         new PerspectiveCustomJoinTreeNode(
+  //           join,
+  //           table || view,
+  //           dbs,
+  //           config,
+  //           setConfig,
+  //           dataProvider,
+  //           newConfig,
+  //           parentColumn,
+  //           null
+  //         )
+  //       );
+  //     }
+  //   }
+  // }
+  // res.push(..._sortBy(customs, 'title'));
 
   return res;
 }

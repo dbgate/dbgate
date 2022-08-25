@@ -51,8 +51,8 @@ export class PerspectiveDisplayColumn {
     return this.parentNodes[level];
   }
 
-  getParentTableUniqueName(level) {
-    return this.parentNodes[level]?.headerTableAttributes ? this.parentNodes[level]?.uniqueName : '';
+  getParentTableDesignerId(level) {
+    return this.parentNodes[level]?.headerTableAttributes ? this.parentNodes[level]?.designerId : '';
   }
 
   // hasParentNode(node: PerspectiveTreeNode) {
@@ -152,7 +152,7 @@ export class PerspectiveDisplay {
   }
 
   findColumnIndexFromNode(node: PerspectiveTreeNode) {
-    return _findIndex(this.columns, x => x.dataNode.uniqueName == node.uniqueName);
+    return _findIndex(this.columns, x => x.dataNode.designerId == node.designerId);
   }
 
   collectRows(sourceRows: any[], nodes: PerspectiveTreeNode[]): CollectedPerspectiveDisplayRow[] {

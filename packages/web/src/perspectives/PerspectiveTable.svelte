@@ -66,7 +66,7 @@
     const loadProps = node.getNodeLoadProps(parentRows);
     let { rows, incomplete } = await node.dataProvider.loadData({
       ...loadProps,
-      topCount: counts[node.uniqueName] || PERSPECTIVE_PAGE_SIZE,
+      topCount: counts[node.designerId] || PERSPECTIVE_PAGE_SIZE,
     });
     // console.log('ROWS', rows, node.isRoot);
 
@@ -76,7 +76,7 @@
 
       if (incomplete) {
         parentRows.push({
-          incompleteRowsIndicator: [node.uniqueName],
+          incompleteRowsIndicator: [node.designerId],
         });
       }
     } else {
@@ -90,7 +90,7 @@
       }
       if (incomplete && lastRowWithChildren) {
         lastRowWithChildren[node.fieldName].push({
-          incompleteRowsIndicator: [node.uniqueName],
+          incompleteRowsIndicator: [node.designerId],
         });
       }
     }
@@ -188,8 +188,8 @@
         td.classList.remove('highlight');
       });
 
-      const tableNodeUniqueName = td.getAttribute('data-tableNodeUniqueName');
-      const tableNode = root?.findNodeByUniqueName(tableNodeUniqueName);
+      const tableNodeDesignerId = td.getAttribute('data-tableNodeDesignerId');
+      const tableNode = root?.findNodeByDesignerId(tableNodeDesignerId);
 
       if (tableNode?.headerTableAttributes) {
         const { pureName, schemaName, conid, database } = tableNode?.headerTableAttributes;
@@ -212,36 +212,36 @@
         });
       }
 
-      if (tableNode?.supportsParentFilter) {
-        const isParentFilter = (config.parentFilters || []).find(x => x.uniqueName == tableNode.uniqueName);
-        if (isParentFilter) {
-          res.push({
-            text: 'Cancel filter parent rows',
-            onClick: () => {
-              setConfig(
-                cfg => ({
-                  ...cfg,
-                  parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
-                }),
-                true
-              );
-            },
-          });
-        } else {
-          res.push({
-            text: 'Filter parent rows',
-            onClick: () => {
-              setConfig(
-                cfg => ({
-                  ...cfg,
-                  parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
-                }),
-                true
-              );
-            },
-          });
-        }
-      }
+      // if (tableNode?.supportsParentFilter) {
+      //   const isParentFilter = (config.parentFilters || []).find(x => x.uniqueName == tableNode.uniqueName);
+      //   if (isParentFilter) {
+      //     res.push({
+      //       text: 'Cancel filter parent rows',
+      //       onClick: () => {
+      //         setConfig(
+      //           cfg => ({
+      //             ...cfg,
+      //             parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
+      //           }),
+      //           true
+      //         );
+      //       },
+      //     });
+      //   } else {
+      //     res.push({
+      //       text: 'Filter parent rows',
+      //       onClick: () => {
+      //         setConfig(
+      //           cfg => ({
+      //             ...cfg,
+      //             parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
+      //           }),
+      //           true
+      //         );
+      //       },
+      //     });
+      //   }
+      // }
 
       const rowIndex = tr?.getAttribute('data-rowIndex');
       if (rowIndex != null) {
@@ -296,18 +296,18 @@
             });
           }
 
-          res.push({
-            text: 'Filter this value',
-            onClick: () => {
-              setConfig(cfg => ({
-                ...cfg,
-                filters: {
-                  ...cfg.filters,
-                  [dataNode.uniqueName]: getFilterValueExpression(value, dataNode.column.dataType),
-                },
-              }));
-            },
-          });
+          // res.push({
+          //   text: 'Filter this value',
+          //   onClick: () => {
+          //     setConfig(cfg => ({
+          //       ...cfg,
+          //       filters: {
+          //         ...cfg.filters,
+          //         [dataNode.uniqueName]: getFilterValueExpression(value, dataNode.column.dataType),
+          //       },
+          //     }));
+          //   },
+          // });
         }
       }
     }

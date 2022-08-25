@@ -9,14 +9,16 @@
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  $: parentUniqueName = column.dataNode?.parentNode?.uniqueName || '';
-  $: uniqueName = column.dataNode.uniqueName;
-  $: order = config.sort?.[parentUniqueName]?.find(x => x.uniqueName == uniqueName)?.order;
-  $: orderIndex =
-    config.sort?.[parentUniqueName]?.length > 1
-      ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
-      : -1;
-  $: isSortDefined = config.sort?.[parentUniqueName]?.length > 0;
+  $: parentDesignerId = column.dataNode?.parentNode?.designerId || '';
+  $: nodeDesignerId = column.dataNode.designerId;
+  $: nodeConfig = column.dataNode.nodeConfig;
+  $: order = nodeConfig?.sort?.find(x => x.columnName == column.dataNode.columnName)?.order;
+  $: orderIndex = -1;
+  // $: orderIndex =
+  //   config.sort?.[parentUniqueName]?.length > 1
+  //     ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
+  //     : -1;
+  $: isSortDefined = nodeConfig?.sort?.length > 0;
 </script>
 
 {#if column.isVisible(columnLevel)}
@@ -49,7 +51,7 @@
   <th
     colspan={column.getColSpan(columnLevel)}
     class="tableHeader"
-    data-tableNodeUniqueName={column.getParentTableUniqueName(columnLevel)}
+    data-tableNodeDesignerId={column.getParentTableDesignerId(columnLevel)}
   >
     <div class="wrap">
       {column.getParentName(columnLevel)}
