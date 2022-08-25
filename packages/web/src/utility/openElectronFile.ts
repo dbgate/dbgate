@@ -18,6 +18,8 @@ export function canOpenByElectron(file, extensions) {
   const nameLower = file.toLowerCase();
   if (nameLower.endsWith('.sql')) return true;
   if (nameLower.endsWith('.diagram')) return true;
+  if (nameLower.endsWith('.qdesign')) return true;
+  if (nameLower.endsWith('.perspective')) return true;
   if (nameLower.endsWith('.json')) return true;
   if (nameLower.endsWith('.db') || nameLower.endsWith('.sqlite') || nameLower.endsWith('.sqlite3')) return true;
   for (const format of extensions.fileFormats) {
@@ -151,6 +153,14 @@ export function openElectronFileCore(filePath, extensions) {
     openSavedElectronFile(filePath, parsed, 'diagrams');
     return;
   }
+  if (nameLower.endsWith('.qdesign')) {
+    openSavedElectronFile(filePath, parsed, 'query');
+    return;
+  }
+  if (nameLower.endsWith('.perspective')) {
+    openSavedElectronFile(filePath, parsed, 'perspectives');
+    return;
+  }
   for (const format of extensions.fileFormats) {
     if (nameLower.endsWith(`.${format.extension}`)) {
       if (uploadListener) {
@@ -194,11 +204,23 @@ export async function openElectronFile() {
     filters: [
       {
         name: `All supported files`,
-        extensions: ['sql', 'sqlite', 'db', 'sqlite3', 'diagram', 'json', ...getFileFormatExtensions(ext)],
+        extensions: [
+          'sql',
+          'sqlite',
+          'db',
+          'sqlite3',
+          'diagram',
+          'qdesign',
+          'perspective',
+          'json',
+          ...getFileFormatExtensions(ext),
+        ],
       },
       { name: `SQL files`, extensions: ['sql'] },
       { name: `JSON files`, extensions: ['json'] },
       { name: `Diagram files`, extensions: ['diagram'] },
+      { name: `Query designer files`, extensions: ['qdesign'] },
+      { name: `Perspective files`, extensions: ['perspective'] },
       { name: `SQLite database`, extensions: ['sqlite', 'db', 'sqlite3'] },
       ...getFileFormatFilters(ext),
     ],
