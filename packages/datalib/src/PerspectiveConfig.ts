@@ -55,9 +55,9 @@ export interface PerspectiveNodeConfig {
 
   isParentFilter?: true | undefined;
 
-  expandedNodes: string[];
-  checkedNodes: string[];
-  uncheckedNodes: string[];
+  expandedColumns: string[];
+  checkedColumns: string[];
+  uncheckedColumns: string[];
 
   sort: {
     columnName: string;
@@ -98,9 +98,9 @@ export function createPerspectiveNodeConfig(name: { schemaName?: string; pureNam
     ...name,
     designerId: uuidv1(),
 
-    expandedNodes: [],
-    checkedNodes: [],
-    uncheckedNodes: [],
+    expandedColumns: [],
+    checkedColumns: [],
+    uncheckedColumns: [],
 
     sort: [],
     filters: {},

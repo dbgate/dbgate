@@ -37,7 +37,7 @@ test('test flat view', () => {
 test('test one level nesting', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
   const config = createPerspectiveConfig({ pureName: 'Artist' });
-  config.nodes[0].checkedNodes = ['Album'];
+  config.nodes[0].checkedColumns = ['Album'];
   const root = new PerspectiveTableNode(
     artistTable,
     { conid: { db: chinookDbInfo } },
@@ -98,8 +98,8 @@ test('test two level nesting', () => {
     designerId: '1',
     columns: [{ source: 'ArtistId', target: 'ArtistId' }],
   });
-  config.nodes[0].checkedNodes = ['Album'];
-  config.nodes[1].checkedNodes = ['Track'];
+  config.nodes[0].checkedColumns = ['Album'];
+  config.nodes[1].checkedColumns = ['Track'];
 
   const root = new PerspectiveTableNode(
     artistTable,

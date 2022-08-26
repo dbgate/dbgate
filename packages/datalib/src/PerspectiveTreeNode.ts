@@ -131,11 +131,11 @@ export abstract class PerspectiveTreeNode {
     return 0;
   }
   get isExpanded() {
-    return this.parentNodeConfig?.expandedNodes?.includes(this.codeName);
+    return this.parentNodeConfig?.expandedColumns?.includes(this.codeName);
   }
   get isChecked() {
-    if (this.parentNodeConfig?.checkedNodes?.includes(this.codeName)) return true;
-    if (this.parentNodeConfig?.uncheckedNodes?.includes(this.codeName)) return false;
+    if (this.parentNodeConfig?.checkedColumns?.includes(this.codeName)) return true;
+    if (this.parentNodeConfig?.uncheckedColumns?.includes(this.codeName)) return false;
     return this.defaultChecked;
   }
   get columnTitle() {
@@ -179,14 +179,14 @@ export abstract class PerspectiveTreeNode {
   }
 
   toggleExpanded(value?: boolean) {
-    this.includeInNodeSet('expandedNodes', value == null ? !this.isExpanded : value);
+    this.includeInNodeSet('expandedColumns', value == null ? !this.isExpanded : value);
   }
 
   toggleChecked(value?: boolean) {
     if (this.defaultChecked) {
-      this.includeInNodeSet('uncheckedNodes', value == null ? this.isChecked : value);
+      this.includeInNodeSet('uncheckedColumns', value == null ? this.isChecked : value);
     } else {
-      this.includeInNodeSet('checkedNodes', value == null ? !this.isChecked : value);
+      this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
     }
   }
 
@@ -217,7 +217,7 @@ export abstract class PerspectiveTreeNode {
     return cfg;
   }
 
-  includeInNodeSet(field: 'expandedNodes' | 'uncheckedNodes' | 'checkedNodes', isIncluded: boolean) {
+  includeInNodeSet(field: 'expandedColumns' | 'uncheckedColumns' | 'checkedColumns', isIncluded: boolean) {
     this.setConfig(cfg => {
       const changedFields = n => ({
         ...n,
@@ -225,7 +225,7 @@ export abstract class PerspectiveTreeNode {
       });
 
       cfg = this.parentNode?.ensureNodeConfig(cfg);
-      if (isIncluded && field == 'expandedNodes') {
+      if (isIncluded && field == 'expandedColumns') {
         cfg = this.ensureNodeConfig(cfg);
       }
 
