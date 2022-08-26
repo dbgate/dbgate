@@ -4,6 +4,7 @@
 
   import { tick } from 'svelte';
   import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
   import InputTextModal from '../modals/InputTextModal.svelte';
@@ -233,7 +234,13 @@
     use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
     style={getTableColorStyle($currentThemeDefinition, table)}
   >
-    <div>{alias || pureName}</div>
+    <div>
+      {#if settings?.canCheckTables}
+        <CheckboxField checked={false} />
+      {/if}
+
+      {alias || pureName}
+    </div>
     {#if settings?.showTableCloseButton}
       <div class="close" on:click={() => onRemoveTable(table)}>
         <FontIcon icon="icon close" />

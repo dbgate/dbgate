@@ -22,6 +22,7 @@
     appendTableSystemMenu: false,
     customizeStyle: false,
     allowDefineVirtualReferences: false,
+    canCheckTables: true,
   }}
   referenceComponent={QueryDesignerReference}
 />

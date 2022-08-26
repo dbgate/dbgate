@@ -22,6 +22,7 @@
     appendTableSystemMenu: true,
     customizeStyle: true,
     allowDefineVirtualReferences: true,
+    canCheckTables: true,
   }}
   referenceComponent={DiagramDesignerReference}
 />

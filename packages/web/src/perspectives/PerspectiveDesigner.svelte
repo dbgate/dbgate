@@ -75,6 +75,7 @@
     appendTableSystemMenu: false,
     customizeStyle: false,
     allowDefineVirtualReferences: false,
+    canCheckTables: true,
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}
