@@ -134,6 +134,7 @@
   />
 
   <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="designer.arrange" />
     <ToolStripCommandButton command="perspective.refresh" />
     <ToolStripCommandButton command="perspective.customJoin" />
     <ToolStripSaveButton idPrefix="perspective" />

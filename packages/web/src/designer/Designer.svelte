@@ -9,6 +9,7 @@
     toolbar: true,
     isRelatedToTab: true,
     testEnabled: () => getCurrentEditor()?.canArrange(),
+    // testEnabled: () => !!getCurrentEditor(),
     onClick: () => getCurrentEditor().arrange(),
   });
 

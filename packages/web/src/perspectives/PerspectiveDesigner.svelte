@@ -67,7 +67,7 @@
     useDatabaseReferences: false,
     allowScrollColumns: true,
     allowAddAllReferences: false,
-    canArrange: false,
+    canArrange: true,
     canExport: false,
     canSelectColumns: true,
     canSelectTables: false,

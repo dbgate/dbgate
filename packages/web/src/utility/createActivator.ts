@@ -12,7 +12,11 @@ function isParent(parent, child) {
   return false;
 }
 
-export default function createActivator(name: string, activateOnTabVisible: boolean) {
+export default function createActivator(
+  name: string,
+  activateOnTabVisible: boolean = false,
+  friendActivators: string[] = []
+) {
   const instance = get_current_component();
   const tabVisible: any = getContext('tabVisible');
   const tabid = getContext('tabid');
@@ -38,11 +42,19 @@ export default function createActivator(name: string, activateOnTabVisible: bool
 
   const activate = () => {
     const toDelete = [];
+
+    // console.log('ACTIVATE', instance);
+
     for (const key in lastActiveDictionary) {
       if (isParent(lastActiveDictionary[key], instance)) continue;
       if (isParent(instance, lastActiveDictionary[key])) continue;
+      if (friendActivators.includes(key)) continue;
+
       toDelete.push(key);
     }
+
+    // console.log('toDelete', toDelete);
+    
     for (const del of toDelete) {
       delete lastActiveDictionary[del];
     }

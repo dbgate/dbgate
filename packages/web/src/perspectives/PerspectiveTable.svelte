@@ -40,8 +40,8 @@
   import openNewTab from '../utility/openNewTab';
   import { getFilterValueExpression } from 'dbgate-filterparser';
 
-  const dbg = debug('dbgate:PerspectivaTable');
-  export const activator = createActivator('PerspectiveTable', true);
+  const dbg = debug('dbgate:PerspectiveTable');
+  export const activator = createActivator('PerspectiveTable', true, ['Designer']);
 
   export let root: PerspectiveTreeNode;
   export let loadedCounts;
