@@ -83,13 +83,16 @@
       }
 
       res.isArranged = isArranged;
+      if (!res.nodes.find(x => x.designerId == res.rootDesignerId)) {
+        res.rootDesignerId = res.nodes[0]?.designerId;
+      }
 
       return res;
     });
   }
 
   async function detectAutoArrange(config: PerspectiveConfig, dbInfos) {
-    if (config.isArranged && config.nodes.find(x => !x.position)) {
+    if (config.nodes.find(x => !x.position)) {
       await tick();
       runCommand('designer.arrange');
     }

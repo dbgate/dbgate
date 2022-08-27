@@ -116,6 +116,7 @@ export function createPerspectiveNodeConfig(name: { schemaName?: string; pureNam
 
 export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
   const rootNode = createPerspectiveNodeConfig(rootObject);
+  rootNode.isNodeChecked = true;
   return {
     nodes: [rootNode],
     references: [],
