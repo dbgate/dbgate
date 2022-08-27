@@ -95,6 +95,7 @@
     customizeStyle: false,
     allowDefineVirtualReferences: false,
     canCheckTables: true,
+    arrangeAlg: 'tree',
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}

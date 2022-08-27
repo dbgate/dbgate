@@ -23,6 +23,7 @@
     customizeStyle: true,
     allowDefineVirtualReferences: true,
     canCheckTables: true,
+    arrangeAlg: 'springy',
   }}
   referenceComponent={DiagramDesignerReference}
 />

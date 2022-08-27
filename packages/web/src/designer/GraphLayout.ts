@@ -18,6 +18,7 @@ const GRAVITY_Y = 0.01;
 const REPULSION = 1000;
 const MAX_FORCE_SIZE = 100;
 const NODE_MARGIN = 30;
+const NODE_SPACE_TREE = 60;
 const GRAVITY_EXPONENT = 1.05;
 
 // const MOVE_STEP = 20;
@@ -297,6 +298,43 @@ export class GraphLayout {
     res.fillEdges();
 
     return res;
+  }
+
+  static createTree(graph: GraphDefinition, rootId: string): GraphLayout {
+    const res = new GraphLayout(graph);
+    const root = graph.nodes[rootId];
+    if (!root) return res;
+
+    const rootLayout = new LayoutNode(root, root.width / 2 + NODE_MARGIN, root.height / 2 + NODE_MARGIN);
+    res.nodes[rootId] = rootLayout;
+
+    res.createTreeLevel([root], rootLayout.right + NODE_SPACE_TREE);
+
+    return res;
+  }
+
+  createTreeLevel(parentNodes: GraphNode[], left: number) {
+    let currentY = NODE_MARGIN;
+    let maxRight = 0;
+    const nextLevel: GraphNode[] = [];
+    for (const parent of parentNodes) {
+      for (const child of parent.neightboors) {
+        if (child.designerId in this.nodes) {
+          continue;
+        }
+        nextLevel.push(child);
+        const layoutNode = new LayoutNode(child, left + child.width / 2, currentY + child.height / 2);
+        this.nodes[child.designerId] = layoutNode;
+        currentY += child.height + NODE_MARGIN;
+        if (layoutNode.right > maxRight) {
+          maxRight = layoutNode.right;
+        }
+      }
+    }
+
+    if (nextLevel.length > 0) {
+      this.createTreeLevel(nextLevel, maxRight + NODE_SPACE_TREE);
+    }
   }
 
   fillEdges() {

@@ -23,6 +23,7 @@
     customizeStyle: false,
     allowDefineVirtualReferences: false,
     canCheckTables: true,
+    arrangeAlg: null,
   }}
   referenceComponent={QueryDesignerReference}
 />

@@ -633,6 +633,17 @@
     return settings?.canExport;
   }
 
+  // export function arrange(skipUndoChain = false) {
+  //   switch (settings?.arrangeAlg) {
+  //     case 'springy':
+  //       arrange_springy(skipUndoChain);
+  //       break;
+  //     case 'tree':
+  //       arrange_tree(skipUndoChain);
+  //       break;
+  //   }
+  // }
+
   export function arrange(skipUndoChain = false, arrangeAll = true, circleMiddle = { x: 0, y: 0 }) {
     const graph = new GraphDefinition();
     for (const table of value?.tables || []) {
@@ -653,15 +664,27 @@
 
     graph.initialize();
 
-    const layout = GraphLayout
-      // initial circle layout
-      .createCircle(graph, circleMiddle)
-      // simulation with Hook's, Coulomb's and gravity law
-      .springyAlg()
-      // move nodes to avoid overlaps
-      .solveOverlaps()
-      // view box starts with [0,0]
-      .fixViewBox();
+    let layout: GraphLayout;
+    switch (settings?.arrangeAlg) {
+      case 'springy':
+        layout = GraphLayout
+          // initial circle layout
+          .createCircle(graph, circleMiddle)
+          // simulation with Hook's, Coulomb's and gravity law
+          .springyAlg()
+          // move nodes to avoid overlaps
+          .solveOverlaps()
+          // view box starts with [0,0]
+          .fixViewBox();
+        break;
+      case 'tree':
+        layout = GraphLayout.createTree(graph, value?.rootDesignerId);
+        break;
+    }
+
+    if (!layout) {
+      return;
+    }
 
     // layout.print();
 
