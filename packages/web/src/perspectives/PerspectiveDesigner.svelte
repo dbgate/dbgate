@@ -30,6 +30,7 @@
             ...table,
             left: node?.position?.x || 0,
             top: node?.position?.y || 0,
+            alias: node.alias,
             designerId,
           };
         })
