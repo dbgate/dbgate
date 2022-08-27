@@ -100,26 +100,32 @@
 >
   {#if settings?.allowColumnOperations}
     <CheckboxField
-      checked={!!(designer.columns || []).find(
-        x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
-      )}
+      checked={settings?.isColumnChecked
+        ? settings?.isColumnChecked(designerId, column.columnName)
+        : !!(designer.columns || []).find(
+            x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
+          )}
       on:change={e => {
-        if (e.target.checked) {
-          onChangeColumn(
-            {
-              ...column,
-              designerId,
-            },
-            col => ({ ...col, isOutput: true })
-          );
+        if (settings?.setColumnChecked) {
+          settings?.setColumnChecked(designerId, column.columnName, e.target.checked);
         } else {
-          onChangeColumn(
-            {
-              ...column,
-              designerId,
-            },
-            col => ({ ...col, isOutput: false })
-          );
+          if (e.target.checked) {
+            onChangeColumn(
+              {
+                ...column,
+                designerId,
+              },
+              col => ({ ...col, isOutput: true })
+            );
+          } else {
+            onChangeColumn(
+              {
+                ...column,
+                designerId,
+              },
+              col => ({ ...col, isOutput: false })
+            );
+          }
         }
       }}
     />
