@@ -96,7 +96,7 @@
     }
 
     for (const child of node.childNodes) {
-      if (child.isExpandable && child.isChecked) {
+      if (child.isExpandable && child.isCheckedNode) {
         await loadLevelData(child, rows, counts);
         // loadProps.push(child.getNodeLoadProps());
       }

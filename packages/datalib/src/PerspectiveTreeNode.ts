@@ -183,7 +183,7 @@ export abstract class PerspectiveTreeNode {
   }
 
   get childDataColumn() {
-    if (!this.isExpandable && this.isChecked) {
+    if (this.isCheckedColumn) {
       return this.codeName;
     }
     return null;
