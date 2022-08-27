@@ -63,32 +63,14 @@
   }
 
   function createMenu() {
-    const isConnected = isConnectedByReference(
-      designer,
-      { designerId: reference?.sourceId },
-      { designerId: reference?.targetId },
-      reference
-    );
-    const setJoinType = joinType => {
-      onChangeReference({
-        ...reference,
-        joinType,
+    if (settings?.referenceMenu) {
+      return settings?.referenceMenu({
+        designer,
+        reference,
+        onChangeReference,
+        onRemoveReference,
       });
-    };
-
-    return [
-      { text: 'Remove', onClick: () => onRemoveReference(reference) },
-      !isConnected && [
-        { divider: true },
-        { onClick: () => setJoinType('INNER JOIN'), text: 'Set INNER JOIN' },
-        { onClick: () => setJoinType('LEFT JOIN'), text: 'Set LEFT JOIN' },
-        { onClick: () => setJoinType('RIGHT JOIN'), text: 'Set RIGHT JOIN' },
-        { onClick: () => setJoinType('FULL OUTER JOIN'), text: 'Set FULL OUTER JOIN' },
-        { onClick: () => setJoinType('CROSS JOIN'), text: 'Set CROSS JOIN' },
-        { onClick: () => setJoinType('WHERE EXISTS'), text: 'Set WHERE EXISTS' },
-        { onClick: () => setJoinType('WHERE NOT EXISTS'), text: 'Set WHERE NOT EXISTS' },
-      ],
-    ];
+    }
   }
 </script>
 
@@ -127,9 +109,7 @@
             top: ${(src.y + dst.y) / 2 - 16}px`}
   >
     <div class="text">
-      {_.snakeCase(reference?.joinType || 'CROSS JOIN')
-        .replace('_', '\xa0')
-        .replace('_', '\xa0')}
+      {settings?.createReferenceText ? settings?.createReferenceText(reference) : ''}
     </div>
   </div>
 {/if}
