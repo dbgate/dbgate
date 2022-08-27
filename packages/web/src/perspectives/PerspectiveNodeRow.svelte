@@ -52,6 +52,22 @@
     }}
   />
 
+  {#if node.secondaryCheckable}
+    <input
+      type="checkbox"
+      checked={node.isSecondaryChecked}
+      on:click={e => {
+        e.stopPropagation();
+      }}
+      on:mousedown={e => {
+        e.stopPropagation();
+      }}
+      on:change={() => {
+        node.toggleSecondaryChecked();
+      }}
+    />
+  {/if}
+
   <FontIcon icon={node.icon} />
 
   <span>{node.title}</span>

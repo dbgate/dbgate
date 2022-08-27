@@ -139,6 +139,12 @@ export abstract class PerspectiveTreeNode {
     // return this.defaultChecked;
     return false;
   }
+  get isSecondaryChecked() {
+    return false;
+  }
+  get secondaryCheckable() {
+    return false;
+  }
   get columnTitle() {
     return this.title;
   }
@@ -191,6 +197,8 @@ export abstract class PerspectiveTreeNode {
     //   this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
     // }
   }
+
+  toggleSecondaryChecked(value?: boolean) {}
 
   createReferenceConfigColumns(): PerspectiveReferenceConfig['columns'] {
     return null;
@@ -529,6 +537,37 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
   get isCircular() {
     return !!this.parentNode?.parentNode?.hasTableCode(this.tableCode);
+  }
+
+  get isSecondaryChecked() {
+    return super.isChecked;
+  }
+  get isChecked() {
+    if (this.foreignKey) return !!this.config.nodes?.find(x => x.designerId == this.designerId)?.isNodeChecked;
+    return super.isChecked;
+  }
+  get secondaryCheckable() {
+    return !!this.foreignKey;
+  }
+  toggleChecked(value?: boolean) {
+    if (this.foreignKey) {
+      this.setConfig(cfg => ({
+        ...cfg,
+        nodes: cfg.nodes.map(node =>
+          node.designerId == this.designerId
+            ? {
+                ...node,
+                isNodeChecked: value == null ? !node.isNodeChecked : value,
+              }
+            : node
+        ),
+      }));
+    } else {
+      super.toggleChecked(value);
+    }
+  }
+  toggleSecondaryChecked(value?: boolean) {
+    super.toggleChecked(value == null ? !this.isSecondaryChecked : value);
   }
 
   generateChildNodes(): PerspectiveTreeNode[] {

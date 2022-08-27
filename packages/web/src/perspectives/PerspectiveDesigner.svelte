@@ -108,6 +108,20 @@
         ),
       }));
     },
+    isTableChecked: designerId => config.nodes?.find(x => x.designerId == designerId)?.isNodeChecked,
+    setTableChecked: (designerId, value) => {
+      onChange(cfg => ({
+        ...cfg,
+        nodes: cfg.nodes.map(node =>
+          node.designerId == designerId
+            ? {
+                ...node,
+                isNodeChecked: value,
+              }
+            : node
+        ),
+      }));
+    },
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}

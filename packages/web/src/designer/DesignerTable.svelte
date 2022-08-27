@@ -236,7 +236,14 @@
   >
     <div>
       {#if settings?.canCheckTables}
-        <CheckboxField checked={false} />
+        <CheckboxField
+          checked={settings?.isTableChecked ? settings?.isTableChecked(designerId) : false}
+          on:change={e => {
+            if (settings?.setTableChecked) {
+              settings?.setTableChecked(designerId, e.target.checked);
+            }
+          }}
+        />
       {/if}
 
       {alias || pureName}
