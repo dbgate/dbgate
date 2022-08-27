@@ -89,7 +89,8 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
       onClick: () =>
         setConfig(cfg => ({
           ...cfg,
-          customJoins: (cfg.customJoins || []).filter(x => x.joinid != customJoin.joinid),
+          nodes: (cfg.nodes || []).filter(x => x.designerId != customJoin.refNodeDesignerId),
+          references: (cfg.references || []).filter(x => x.designerId != customJoin.referenceDesignerId),
         })),
     },
     customJoin && {

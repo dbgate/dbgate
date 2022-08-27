@@ -8,9 +8,10 @@ import uuidv1 from 'uuid/v1';
 // }
 
 export interface PerspectiveCustomJoinConfig {
-  joinid: string;
+  refNodeDesignerId: string;
+  referenceDesignerId: string;
   joinName: string;
-  baseUniqueName: string;
+  baseDesignerId: string;
   conid?: string;
   database?: string;
   refSchemaName?: string;
@@ -49,6 +50,8 @@ export interface PerspectiveNodeConfig {
   designerId: string;
   schemaName?: string;
   pureName: string;
+
+  alias?: string;
 
   conid?: string;
   database?: string;

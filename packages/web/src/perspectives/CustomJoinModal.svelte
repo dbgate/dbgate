@@ -18,6 +18,7 @@
   import { onMount, tick } from 'svelte';
   import {
     ChangePerspectiveConfigFunc,
+    createPerspectiveNodeConfig,
     PerspectiveConfig,
     PerspectiveCustomJoinConfig,
     PerspectiveTreeNode,
@@ -35,7 +36,6 @@
 
   let conidOverride = editValue?.conid || null;
   let databaseOverride = editValue?.database || null;
-  let joinid = editValue?.joinid || uuidv1();
 
   // $: fromDbInfo = useDatabaseInfo({
   //   conid,
@@ -68,19 +68,19 @@
   let columns = editValue?.columns || [];
   //   let fromTableName = pureName;
   //   let fromSchemaName = schemaName;
-  let fromUniuqeName = editValue?.baseUniqueName || root.uniqueName;
+  let fromDesignerId = editValue?.baseDesignerId || root.designerId;
   let refTableName = editValue?.refTableName || null;
   let refSchemaName = editValue?.refSchemaName || null;
   let joinName = editValue?.joinName || '';
 
-  onMount(() => {
-    if (editValue) return;
-    let index = 1;
-    while (config.customJoins?.find(x => x.joinName == `Custom join ${index}`)) {
-      index += 1;
-    }
-    joinName = `Custom join ${index}`;
-  });
+  // onMount(() => {
+  //   if (editValue) return;
+  //   let index = 1;
+  //   while (config.customJoins?.find(x => x.joinName == `Custom join ${index}`)) {
+  //     index += 1;
+  //   }
+  //   joinName = `Custom join ${index}`;
+  // });
 
   //   $: fromTableList = [
   //     ..._.sortBy($fromDbInfo?.tables || [], ['schemaName', 'pureName']),
@@ -124,7 +124,7 @@
   ];
 
   $: fromTableList = root.getBaseTables();
-  $: fromTableInfo = fromTableList?.find(x => x.node.uniqueName == fromUniuqeName)?.table;
+  $: fromTableInfo = fromTableList?.find(x => x.node.designerId == fromDesignerId)?.table;
 
   $: (async () => {
     // without this has svelte problem, doesn't invalidate SelectField options
@@ -134,7 +134,7 @@
 
     fromTableOptions = fromTableList.map(tbl => ({
       label: fullNameToLabel(tbl.table),
-      value: tbl.node.uniqueName,
+      value: tbl.node.designerId,
     }));
 
     refTableOptions = refTableList.map(tbl => ({
@@ -173,13 +173,13 @@
         <div class="label col-3">Base table</div>
         <div class="col-9">
           <SelectField
-            value={fromUniuqeName}
+            value={fromDesignerId}
             isNative
             notSelected
             options={fromTableOptions}
             on:change={e => {
               if (e.detail) {
-                fromUniuqeName = e.detail;
+                fromDesignerId = e.detail;
               }
             }}
           />
@@ -321,23 +321,48 @@
     <svelte:fragment slot="footer">
       <FormSubmit
         value={'Save'}
-        on:click={async () => {
-          const newJoin = {
-            joinid,
-            joinName,
-            baseUniqueName: fromUniuqeName,
-            refTableName,
-            refSchemaName,
-            columns,
-            conid: conidOverride,
-            database: databaseOverride,
-          };
-          setConfig(cfg => ({
-            ...cfg,
-            customJoins: editValue
-              ? cfg.customJoins.map(x => (x.joinid == editValue.joinid ? newJoin : x))
-              : [...(cfg.customJoins || []), newJoin],
-          }));
+        on:click={() => {
+          setConfig(cfg => {
+            const newNode = createPerspectiveNodeConfig({ pureName: refTableName, schemaName: refSchemaName });
+            newNode.designerId = editValue?.refNodeDesignerId || uuidv1();
+            newNode.conid = conidOverride;
+            newNode.database = databaseOverride;
+            newNode.position = cfg.nodes.find(x => x.designerId == editValue?.refNodeDesignerId)?.position;
+            newNode.alias = joinName || refTableName;
+
+            const newRef = {
+              designerId: editValue?.referenceDesignerId || uuidv1(),
+              sourceId: fromDesignerId,
+              targetId: newNode.designerId,
+              columns: columns.map(col => ({
+                source: col.baseColumnName,
+                target: col.refColumnName,
+              })),
+            };
+
+            return {
+              ...cfg,
+              nodes: [...cfg.nodes.filter(x => x.designerId != editValue?.refNodeDesignerId), newNode],
+              references: [...cfg.references.filter(x => x.designerId != editValue?.referenceDesignerId), newRef],
+            };
+          });
+
+          // const newJoin = {
+          //   joinid,
+          //   joinName,
+          //   baseDesignerId: fromDesignerId,
+          //   refTableName,
+          //   refSchemaName,
+          //   columns,
+          //   conid: conidOverride,
+          //   database: databaseOverride,
+          // };
+          // setConfig(cfg => ({
+          //   ...cfg,
+          //   customJoins: editValue
+          //     ? cfg.customJoins.map(x => (x.joinid == editValue.joinid ? newJoin : x))
+          //     : [...(cfg.customJoins || []), newJoin],
+          // }));
           closeCurrentModal();
         }}
       />

@@ -952,11 +952,19 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   }
 
   get codeName() {
-    return this.customJoin.joinid;
+    return this.customJoin.refNodeDesignerId;
   }
 
   get customJoinConfig(): PerspectiveCustomJoinConfig {
     return this.customJoin;
+  }
+
+  get isChecked() {
+    return this.isCheckedNode;
+  }
+
+  toggleChecked(value?: boolean) {
+    this.toggleCheckedNode(value);
   }
 
   getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
@@ -1032,15 +1040,15 @@ export function getTableChildPerspectiveNodes(
   setConfig: ChangePerspectiveConfigFunc,
   dataProvider: PerspectiveDataProvider,
   databaseConfig: PerspectiveDatabaseConfig,
-  parentColumn: PerspectiveTreeNode
+  parentNode: PerspectiveTreeNode
 ) {
   if (!table) return [];
-  const db = parentColumn.db;
+  const db = parentNode.db;
 
   const columnNodes = table.columns.map(col =>
     findDesignerIdForNode(
       config,
-      parentColumn,
+      parentNode,
       designerId =>
         new PerspectiveTableColumnNode(
           col,
@@ -1050,7 +1058,7 @@ export function getTableChildPerspectiveNodes(
           setConfig,
           dataProvider,
           databaseConfig,
-          parentColumn,
+          parentNode,
           designerId
         )
     )
@@ -1074,7 +1082,7 @@ export function getTableChildPerspectiveNodes(
         dependencies.push(
           findDesignerIdForNode(
             config,
-            parentColumn,
+            parentNode,
             designerId =>
               new PerspectiveTableReferenceNode(
                 fk,
@@ -1085,7 +1093,7 @@ export function getTableChildPerspectiveNodes(
                 dataProvider,
                 databaseConfig,
                 isMultiple,
-                parentColumn,
+                parentNode,
                 designerId
               )
           )
@@ -1094,6 +1102,60 @@ export function getTableChildPerspectiveNodes(
     }
   }
   res.push(..._sortBy(dependencies, 'title'));
+
+  const customs = [];
+  for (const node of config.nodes) {
+    if (node.designerId == parentNode.parentNode?.designerId || res.find(x => x.designerId == node.designerId)) {
+      // already used as FK
+      continue;
+    }
+    for (const ref of config.references) {
+      if (
+        (ref.sourceId == parentNode.designerId && ref.targetId == node.designerId) ||
+        (ref.targetId == parentNode.designerId && ref.sourceId == node.designerId)
+      ) {
+        const newConfig = { ...databaseConfig };
+        if (node.conid) newConfig.conid = node.conid;
+        if (node.database) newConfig.database = node.database;
+        const db = dbs?.[newConfig.conid]?.[newConfig.database];
+        const table = db?.tables?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+        const view = db?.views?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+
+        const join: PerspectiveCustomJoinConfig = {
+          refNodeDesignerId: node.designerId,
+          referenceDesignerId: ref.designerId,
+          baseDesignerId: parentNode.designerId,
+          joinName: node.alias || node.pureName,
+          refTableName: node.pureName,
+          refSchemaName: node.schemaName,
+          conid: node.conid,
+          database: node.database,
+          columns:
+            ref.sourceId == parentNode.designerId
+              ? ref.columns.map(col => ({ baseColumnName: col.source, refColumnName: col.target }))
+              : ref.columns.map(col => ({ baseColumnName: col.target, refColumnName: col.source })),
+        };
+
+        if (table || view) {
+          customs.push(
+            new PerspectiveCustomJoinTreeNode(
+              join,
+              table || view,
+              dbs,
+              config,
+              setConfig,
+              dataProvider,
+              newConfig,
+              parentNode,
+              node.designerId
+            )
+          );
+        }
+      }
+    }
+  }
+
+  res.push(..._sortBy(customs, 'title'));
 
   // const customs = [];
   // for (const join of config.customJoins || []) {

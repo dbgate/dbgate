@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { MultipleDatabaseInfo, PerspectiveConfig } from 'dbgate-datalib';
+  import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from 'dbgate-datalib';
   import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';
@@ -46,21 +46,43 @@
       }
       const res = {
         ...oldValue,
-        nodes: oldValue.nodes.map(node => {
-          const table = newValue.tables?.find(x => x.designerId == node.designerId);
-          if (table && (table.left != node.position?.x || table.top != node.position?.y)) {
-            if (!settings?.isCalledFromArrange) {
-              isArranged = false;
+        references: newValue.references,
+        nodes: _.compact(
+          oldValue.nodes.map(node => {
+            const table = newValue.tables?.find(x => x.designerId == node.designerId);
+
+            if (!table && settings?.removeTables) {
+              return null;
             }
-            return {
+
+            const nodeChanged = {
               ...node,
-              position: { x: table.left, y: table.top },
+              alias: table?.alias,
             };
-          }
-          return node;
-        }),
+            if (table && (table.left != node.position?.x || table.top != node.position?.y)) {
+              if (!settings?.isCalledFromArrange) {
+                isArranged = false;
+              }
+              nodeChanged.position = { x: table.left, y: table.top };
+            }
+            return nodeChanged;
+          })
+        ),
       };
+
+      for (const table of newValue.tables) {
+        if (res.nodes.find(x => x.designerId == table.designerId)) {
+          continue;
+        }
+        const newNode = createPerspectiveNodeConfig(table);
+        newNode.designerId = table.designerId;
+        newNode.position = { x: table.left, y: table.top };
+        isArranged = false;
+        res.nodes.push(newNode);
+      }
+
       res.isArranged = isArranged;
+
       return res;
     });
   }
@@ -81,10 +103,10 @@
     showTableCloseButton: true,
     allowColumnOperations: true,
     allowCreateRefByDrag: true,
-    allowTableAlias: true,
     allowScrollColumns: true,
     canSelectColumns: true,
     canCheckTables: true,
+    allowTableAlias: true,
     arrangeAlg: 'tree',
     referenceMenu: ({ designer, reference, onChangeReference, onRemoveReference }) => {
       return [{ text: 'Remove', onClick: () => onRemoveReference(reference) }];

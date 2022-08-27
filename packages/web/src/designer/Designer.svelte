@@ -219,14 +219,18 @@
       }));
       updateFromDbInfo();
     } else {
-      callChange(current => ({
-        ...current,
-        tables: (current.tables || []).filter(x => x.designerId != table.designerId),
-        references: (current.references || []).filter(
-          x => x.sourceId != table.designerId && x.targetId != table.designerId
-        ),
-        columns: (current.columns || []).filter(x => x.designerId != table.designerId),
-      }));
+      callChange(
+        current => ({
+          ...current,
+          tables: (current.tables || []).filter(x => x.designerId != table.designerId),
+          references: (current.references || []).filter(
+            x => x.sourceId != table.designerId && x.targetId != table.designerId
+          ),
+          columns: (current.columns || []).filter(x => x.designerId != table.designerId),
+        }),
+        undefined,
+        { removeTables: true }
+      );
     }
   };
 
