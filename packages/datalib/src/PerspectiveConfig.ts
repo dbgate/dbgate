@@ -50,6 +50,7 @@ export interface PerspectiveNodeConfig {
   designerId: string;
   schemaName?: string;
   pureName: string;
+  defaultColumnsProcessed?: boolean;
 
   alias?: string;
 

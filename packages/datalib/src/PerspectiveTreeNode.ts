@@ -34,7 +34,7 @@ import stableStringify from 'json-stable-stringify';
 import { getFilterType, parseFilter } from 'dbgate-filterparser';
 import { FilterType } from 'dbgate-filterparser/lib/types';
 import { Condition, Expression, Select } from 'dbgate-sqltree';
-import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
+// import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 import uuidv1 from 'uuid/v1';
 
 export interface PerspectiveDataLoadPropsWithNode {

@@ -36,6 +36,7 @@
     PerspectiveDataProvider,
     PerspectiveTableColumnNode,
     PerspectiveTableNode,
+    processPerspectiveDefaultColunns,
   } from 'dbgate-datalib';
 
   import _ from 'lodash';
@@ -147,6 +148,13 @@
           config.rootDesignerId
         )
       : null;
+
+  $: {
+    const newConfig = processPerspectiveDefaultColunns(config, $dbInfos, conid, database);
+    if (newConfig) {
+      setConfig(() => newConfig);
+    }
+  }
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
