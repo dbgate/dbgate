@@ -626,7 +626,7 @@
   }
 
   export function canArrange() {
-    return settings?.canArrange;
+    return !!settings?.arrangeAlg;
   }
 
   export function canExport() {

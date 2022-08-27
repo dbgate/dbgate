@@ -10,20 +10,8 @@
     allowColumnOperations: true,
     allowCreateRefByDrag: true,
     allowTableAlias: true,
-    updateFromDbInfo: false,
-    useDatabaseReferences: false,
     allowScrollColumns: true,
-    allowAddAllReferences: false,
-    canArrange: false,
-    canExport: false,
     canSelectColumns: true,
-    canSelectTables: false,
-    allowChangeColor: false,
-    appendTableSystemMenu: false,
-    customizeStyle: false,
-    allowDefineVirtualReferences: false,
-    canCheckTables: true,
-    arrangeAlg: null,
   }}
   referenceComponent={QueryDesignerReference}
 />
