@@ -78,7 +78,7 @@ export abstract class PerspectiveTreeNode {
   }
   readonly nodeConfig: PerspectiveNodeConfig;
   readonly parentNodeConfig: PerspectiveNodeConfig;
-  defaultChecked: boolean;
+  // defaultChecked: boolean;
   abstract get title();
   abstract get codeName();
   abstract get isExpandable();
@@ -135,8 +135,9 @@ export abstract class PerspectiveTreeNode {
   }
   get isChecked() {
     if (this.parentNodeConfig?.checkedColumns?.includes(this.codeName)) return true;
-    if (this.parentNodeConfig?.uncheckedColumns?.includes(this.codeName)) return false;
-    return this.defaultChecked;
+    // if (this.parentNodeConfig?.uncheckedColumns?.includes(this.codeName)) return false;
+    // return this.defaultChecked;
+    return false;
   }
   get columnTitle() {
     return this.title;
@@ -183,11 +184,12 @@ export abstract class PerspectiveTreeNode {
   }
 
   toggleChecked(value?: boolean) {
-    if (this.defaultChecked) {
-      this.includeInNodeSet('uncheckedColumns', value == null ? this.isChecked : value);
-    } else {
-      this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
-    }
+    this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
+    // if (this.defaultChecked) {
+    //   this.includeInNodeSet('uncheckedColumns', value == null ? this.isChecked : value);
+    // } else {
+    //   this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
+    // }
   }
 
   createReferenceConfigColumns(): PerspectiveReferenceConfig['columns'] {
@@ -998,11 +1000,11 @@ export function getTableChildPerspectiveNodes(
         )
     )
   );
-  const circularColumns = columnNodes.filter(x => x.isCircular).map(x => x.columnName);
-  const defaultColumns = getPerspectiveDefaultColumns(table, db, circularColumns);
-  for (const node of columnNodes) {
-    node.defaultChecked = defaultColumns.includes(node.columnName);
-  }
+  // const circularColumns = columnNodes.filter(x => x.isCircular).map(x => x.columnName);
+  // const defaultColumns = getPerspectiveDefaultColumns(table, db, circularColumns);
+  // for (const node of columnNodes) {
+  //   node.defaultChecked = defaultColumns.includes(node.columnName);
+  // }
 
   const res = [];
   res.push(...columnNodes);
