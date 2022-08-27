@@ -89,6 +89,7 @@ export interface PerspectiveReferenceConfig {
 
 export interface PerspectiveConfig {
   rootDesignerId: string;
+  isArranged: boolean;
   nodes: PerspectiveNodeConfig[];
   references: PerspectiveReferenceConfig[];
 }
@@ -115,6 +116,7 @@ export function createPerspectiveConfig(rootObject: { schemaName?: string; pureN
     nodes: [rootNode],
     references: [],
     rootDesignerId: rootNode.designerId,
+    isArranged: true,
   };
 }
 

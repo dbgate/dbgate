@@ -11,6 +11,17 @@
     testEnabled: () => getCurrentEditor() != null,
     onClick: () => getCurrentEditor().defineCustomJoin(),
   });
+
+  registerCommand({
+    id: 'perspective.arrange',
+    category: 'Perspective',
+    icon: 'icon arrange',
+    name: 'Arrange',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.canArrange(),
+    onClick: () => getCurrentEditor().arrange(),
+  });
 </script>
 
 <script lang="ts">
@@ -57,6 +68,7 @@
   import { useMultipleDatabaseInfo } from '../utility/useMultipleDatabaseInfo';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import PerspectiveDesigner from './PerspectiveDesigner.svelte';
+  import runCommand from '../commands/runCommand';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -94,6 +106,18 @@
       database,
       root,
     });
+  }
+
+  export function canArrange() {
+    return !config.isArranged;
+  }
+
+  export function arrange() {
+    // setConfig(cfg => ({
+    //   ...cfg,
+    //   isArranged: true,
+    // }));
+    runCommand('designer.arrange');
   }
 
   let perspectiveDatabases = extractPerspectiveDatabases({ conid, database }, config);

@@ -175,8 +175,8 @@
     canvasHeight = Math.max(3000, maxY + 50);
   }
 
-  function callChange(changeFunc, skipUndoChain = undefined) {
-    onChange(changeFunc, skipUndoChain);
+  function callChange(changeFunc, skipUndoChain = undefined, settings = undefined) {
+    onChange(changeFunc, skipUndoChain, settings);
     tick().then(recomputeReferencePositions);
   }
 
@@ -665,26 +665,30 @@
 
     // layout.print();
 
-    callChange(current => {
-      return {
-        ...current,
-        tables: (current?.tables || []).map(table => {
-          const node = layout.nodes[table.designerId];
-          // console.log('POSITION', position);
-          return node
-            ? {
-                ...table,
-                needsArrange: false,
-                left: node.left,
-                top: node.top,
-              }
-            : {
-                ...table,
-                needsArrange: false,
-              };
-        }),
-      };
-    }, skipUndoChain);
+    callChange(
+      current => {
+        return {
+          ...current,
+          tables: (current?.tables || []).map(table => {
+            const node = layout.nodes[table.designerId];
+            // console.log('POSITION', position);
+            return node
+              ? {
+                  ...table,
+                  needsArrange: false,
+                  left: node.left,
+                  top: node.top,
+                }
+              : {
+                  ...table,
+                  needsArrange: false,
+                };
+          }),
+        };
+      },
+      skipUndoChain,
+      { isCalledFromArrange: true }
+    );
   }
 
   export async function exportDiagram() {
