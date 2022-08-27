@@ -125,21 +125,14 @@ export class PerspectiveDisplay {
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
     for (const child of children) {
-      if (child.isChecked) {
+      if (child.isCheckedColumn || child.isCheckedNode) {
         this.processColumn(child, parentNodes);
       }
     }
   }
 
   processColumn(node: PerspectiveTreeNode, parentNodes: PerspectiveTreeNode[]) {
-    if (node.isExpandable) {
-      const countBefore = this.columns.length;
-      this.fillColumns(node.childNodes, [...parentNodes, node]);
-
-      if (this.columns.length > countBefore) {
-        this.columns[countBefore].colSpanAtLevel[parentNodes.length] = this.columns.length - countBefore;
-      }
-    } else {
+    if (node.isCheckedColumn) {
       const column = new PerspectiveDisplayColumn(this);
       column.title = node.columnTitle;
       column.dataField = node.dataField;
@@ -148,6 +141,15 @@ export class PerspectiveDisplay {
       column.columnIndex = this.columns.length;
       column.dataNode = node;
       this.columns.push(column);
+    }
+
+    if (node.isExpandable && node.isCheckedNode) {
+      const countBefore = this.columns.length;
+      this.fillColumns(node.childNodes, [...parentNodes, node]);
+
+      if (this.columns.length > countBefore) {
+        this.columns[countBefore].colSpanAtLevel[parentNodes.length] = this.columns.length - countBefore;
+      }
     }
   }
 
@@ -165,8 +167,8 @@ export class PerspectiveDisplay {
 
   collectRows(sourceRows: any[], nodes: PerspectiveTreeNode[]): CollectedPerspectiveDisplayRow[] {
     // console.log('********** COLLECT ROWS', sourceRows);
-    const columnNodes = nodes.filter(x => x.isChecked && !x.isExpandable);
-    const treeNodes = nodes.filter(x => x.isChecked && x.isExpandable);
+    const columnNodes = nodes.filter(x => x.isCheckedColumn);
+    const treeNodes = nodes.filter(x => x.isCheckedNode);
 
     // console.log('columnNodes', columnNodes);
     // console.log('treeNodes', treeNodes);

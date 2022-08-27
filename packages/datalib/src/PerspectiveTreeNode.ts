@@ -133,11 +133,15 @@ export abstract class PerspectiveTreeNode {
   get isExpanded() {
     return this.parentNodeConfig?.expandedColumns?.includes(this.codeName);
   }
-  get isChecked() {
+  get isCheckedColumn() {
     if (this.parentNodeConfig?.checkedColumns?.includes(this.codeName)) return true;
-    // if (this.parentNodeConfig?.uncheckedColumns?.includes(this.codeName)) return false;
-    // return this.defaultChecked;
     return false;
+  }
+  get isChecked() {
+    return this.isCheckedColumn;
+  }
+  get isCheckedNode() {
+    return !!this.config.nodes?.find(x => x.designerId == this.designerId)?.isNodeChecked;
   }
   get isSecondaryChecked() {
     return false;
@@ -196,6 +200,20 @@ export abstract class PerspectiveTreeNode {
     // } else {
     //   this.includeInNodeSet('checkedColumns', value == null ? !this.isChecked : value);
     // }
+  }
+
+  toggleCheckedNode(value?: boolean) {
+    this.setConfig(cfg => ({
+      ...cfg,
+      nodes: cfg.nodes.map(node =>
+        node.designerId == this.designerId
+          ? {
+              ...node,
+              isNodeChecked: value == null ? !node.isNodeChecked : value,
+            }
+          : node
+      ),
+    }));
   }
 
   toggleSecondaryChecked(value?: boolean) {}
@@ -540,28 +558,18 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
   }
 
   get isSecondaryChecked() {
-    return super.isChecked;
+    return super.isCheckedColumn;
   }
   get isChecked() {
-    if (this.foreignKey) return !!this.config.nodes?.find(x => x.designerId == this.designerId)?.isNodeChecked;
-    return super.isChecked;
+    if (this.foreignKey) return this.isCheckedNode;
+    return super.isCheckedColumn;
   }
   get secondaryCheckable() {
     return !!this.foreignKey;
   }
   toggleChecked(value?: boolean) {
     if (this.foreignKey) {
-      this.setConfig(cfg => ({
-        ...cfg,
-        nodes: cfg.nodes.map(node =>
-          node.designerId == this.designerId
-            ? {
-                ...node,
-                isNodeChecked: value == null ? !node.isNodeChecked : value,
-              }
-            : node
-        ),
-      }));
+      this.toggleCheckedNode(value);
     } else {
       super.toggleChecked(value);
     }
@@ -853,6 +861,14 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       return `${super.codeName}-${this.foreignKey.columns.map(x => x.columnName).join('_')}`;
     }
     return super.codeName;
+  }
+
+  get isChecked() {
+    return this.isCheckedNode;
+  }
+
+  toggleChecked(value?: boolean) {
+    this.toggleCheckedNode(value);
   }
 
   getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
