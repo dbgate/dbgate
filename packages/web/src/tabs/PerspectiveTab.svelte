@@ -134,7 +134,10 @@
   />
 
   <svelte:fragment slot="toolstrip">
-    <ToolStripCommandButton command="perspective.arrange" />
+    <ToolStripCommandButton
+      command="designer.arrange"
+      buttonLabel={$modelState.value?.isArranged ? '(Arranged)' : 'Arrange'}
+    />
     <ToolStripCommandButton command="perspective.refresh" />
     <ToolStripCommandButton command="perspective.customJoin" />
     <ToolStripSaveButton idPrefix="perspective" />

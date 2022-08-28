@@ -73,7 +73,7 @@
               if (!settings?.isCalledFromArrange) {
                 isArranged = false;
               }
-              // nodeChanged.position = { x: table.left, y: table.top };
+              nodeChanged.position = { x: table.left, y: table.top };
             }
 
             return nodeChanged;
