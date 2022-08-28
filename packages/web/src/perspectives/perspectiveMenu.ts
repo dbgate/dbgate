@@ -17,23 +17,25 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   const customJoin = node.customJoinConfig;
   const filterInfo = node.filterInfo;
 
-  const parentUniqueName = node?.parentNode?.uniqueName || '';
-  const uniqueName = node.uniqueName;
-  const order = config.sort?.[parentUniqueName]?.find(x => x.uniqueName == uniqueName)?.order;
-  const orderIndex =
-    config.sort?.[parentUniqueName]?.length > 1
-      ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
-      : -1;
-  const isSortDefined = config.sort?.[parentUniqueName]?.length > 0;
+  const parentDesignerId = node?.parentNode?.designerId || '';
+  const columnName = node.columnName;
+  const sort = config.nodes?.find(x => x.designerId == parentDesignerId)?.sort;
+  const order = sort?.find(x => x.columnName == columnName)?.order;
+  const orderIndex = sort?.length > 1 ? _.findIndex(sort, x => x.columnName == columnName) : -1;
+  const isSortDefined = sort?.length > 0;
 
   const setSort = order => {
     setConfig(
       cfg => ({
         ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [{ uniqueName, order }],
-        },
+        nodes: cfg.nodes.map(n =>
+          n.designerId == parentDesignerId
+            ? {
+                ...n,
+                sort: [{ columnName, order }],
+              }
+            : n
+        ),
       }),
       true
     );
@@ -43,26 +45,56 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
     setConfig(
       cfg => ({
         ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [...(cfg.sort?.[parentUniqueName] || []), { uniqueName, order }],
-        },
+        nodes: cfg.nodes.map(n =>
+          n.designerId == parentDesignerId
+            ? {
+                ...n,
+                sort: [...(n.sort || []), { columnName, order }],
+              }
+            : n
+        ),
       }),
       true
     );
+
+    // setConfig(
+    //   cfg => ({
+    //     ...cfg,
+    //     sort: {
+    //       ...cfg.sort,
+    //       [parentUniqueName]: [...(cfg.sort?.[parentUniqueName] || []), { uniqueName, order }],
+    //     },
+    //   }),
+    //   true
+    // );
   };
 
   const clearSort = () => {
     setConfig(
       cfg => ({
         ...cfg,
-        sort: {
-          ...cfg.sort,
-          [parentUniqueName]: [],
-        },
+        nodes: cfg.nodes.map(n =>
+          n.designerId == parentDesignerId
+            ? {
+                ...n,
+                sort: [],
+              }
+            : n
+        ),
       }),
       true
     );
+
+    // setConfig(
+    //   cfg => ({
+    //     ...cfg,
+    //     sort: {
+    //       ...cfg.sort,
+    //       [parentUniqueName]: [],
+    //     },
+    //   }),
+    //   true
+    // );
   };
 
   return [
@@ -78,11 +110,27 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
       onClick: () =>
         setConfig(cfg => ({
           ...cfg,
-          filters: {
-            ...cfg.filters,
-            [node.uniqueName]: '',
-          },
+          nodes: cfg.nodes.map(n =>
+            n.designerId == parentDesignerId
+              ? {
+                  ...n,
+                  filters: {
+                    ...n.filters,
+                    [columnName]: '',
+                  },
+                }
+              : n
+          ),
         })),
+
+      // setConfig(cfg => ({
+      //   ...cfg,
+
+      //   filters: {
+      //     ...cfg.filters,
+      //     [node.uniqueName]: '',
+      //   },
+      // })),
     },
     customJoin && {
       text: 'Remove custom join',

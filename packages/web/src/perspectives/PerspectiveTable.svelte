@@ -212,36 +212,23 @@
         });
       }
 
-      // if (tableNode?.supportsParentFilter) {
-      //   const isParentFilter = (config.parentFilters || []).find(x => x.uniqueName == tableNode.uniqueName);
-      //   if (isParentFilter) {
-      //     res.push({
-      //       text: 'Cancel filter parent rows',
-      //       onClick: () => {
-      //         setConfig(
-      //           cfg => ({
-      //             ...cfg,
-      //             parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
-      //           }),
-      //           true
-      //         );
-      //       },
-      //     });
-      //   } else {
-      //     res.push({
-      //       text: 'Filter parent rows',
-      //       onClick: () => {
-      //         setConfig(
-      //           cfg => ({
-      //             ...cfg,
-      //             parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
-      //           }),
-      //           true
-      //         );
-      //       },
-      //     });
-      //   }
-      // }
+      if (tableNode?.supportsParentFilter) {
+        const isParentFilter = tableNode?.isParentFilter;
+        res.push({
+          text: isParentFilter ? 'Cancel filter parent rows' : 'Filter parent rows',
+          onClick: () => {
+            setConfig(
+              cfg => ({
+                ...cfg,
+                nodes: cfg.nodes.map(n =>
+                  n.designerId == tableNode?.designerId ? { ...n, isParentFilter: !isParentFilter } : n
+                ),
+              }),
+              true
+            );
+          },
+        });
+      }
 
       const rowIndex = tr?.getAttribute('data-rowIndex');
       if (rowIndex != null) {
@@ -296,18 +283,25 @@
             });
           }
 
-          // res.push({
-          //   text: 'Filter this value',
-          //   onClick: () => {
-          //     setConfig(cfg => ({
-          //       ...cfg,
-          //       filters: {
-          //         ...cfg.filters,
-          //         [dataNode.uniqueName]: getFilterValueExpression(value, dataNode.column.dataType),
-          //       },
-          //     }));
-          //   },
-          // });
+          res.push({
+            text: 'Filter this value',
+            onClick: () => {
+              setConfig(cfg => ({
+                ...cfg,
+                nodes: cfg.nodes.map(n =>
+                  n.designerId == dataNode?.parentNode?.designerId
+                    ? {
+                        ...n,
+                        filters: {
+                          ...n.filters,
+                          [dataNode.columnName]: getFilterValueExpression(value, dataNode.column.dataType),
+                        },
+                      }
+                    : n
+                ),
+              }));
+            },
+          });
         }
       }
     }

@@ -156,7 +156,7 @@
     }
   }
 
-  // $: console.log('PERSPECTIVE', config);
+  $: console.log('PERSPECTIVE', config);
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>

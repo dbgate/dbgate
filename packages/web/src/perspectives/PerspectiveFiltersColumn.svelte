@@ -28,34 +28,33 @@
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  export let node: PerspectiveTreeNode;
+  export let tableNode: PerspectiveTreeNode;
 
-  $: customCommandIcon = node?.parentNode?.supportsParentFilter
-    ? node?.parentNode?.isParentFilter
+  // $: console.log('node', node);
+  // $: console.log('node?.parentNode?.supportsParentFilter', node?.parentNode?.supportsParentFilter);
+  // $: console.log('node?.parentNode', node?.parentNode);
+
+  $: customCommandIcon = tableNode?.supportsParentFilter
+    ? tableNode?.isParentFilter
       ? 'icon parent-filter'
       : 'icon parent-filter-outline'
     : null;
 
   function changeParentFilter() {
-    const tableNode = node?.parentNode;
-    if (!tableNode) return;
-    if (tableNode.isParentFilter) {
-      setConfig(
-        cfg => ({
-          ...cfg,
-          parentFilters: cfg.parentFilters.filter(x => x.uniqueName != tableNode.uniqueName),
-        }),
-        true
-      );
-    } else {
-      setConfig(
-        cfg => ({
-          ...cfg,
-          parentFilters: [...(cfg.parentFilters || []), { uniqueName: tableNode.uniqueName }],
-        }),
-        true
-      );
-    }
+    setConfig(
+      cfg => ({
+        ...cfg,
+        nodes: cfg.nodes.map(n =>
+          n.designerId == tableNode?.designerId
+            ? {
+                ...n,
+                isParentFilter: !n.isParentFilter,
+              }
+            : n
+        ),
+      }),
+      true
+    );
   }
 </script>
 
@@ -78,6 +77,6 @@
     foreignKey={filterInfo.foreignKey}
     {customCommandIcon}
     onCustomCommand={customCommandIcon ? changeParentFilter : null}
-    customCommandTooltip='Filter parent rows'
+    customCommandTooltip="Filter parent rows"
   />
 </div>

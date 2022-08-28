@@ -1,7 +1,9 @@
 <script lang="ts">
   import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
+  import { keys } from 'localforage';
 
-  import _ from 'lodash';
+  import _, { map } from 'lodash';
+  import { each } from 'svelte/internal';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
@@ -16,45 +18,60 @@
   export let database;
   export let driver;
 
-  $: allFilterNames = _.keys(config.filters || {});
+  $: filterCount = _.sum(config.nodes.map(x => _.keys(x.filters).length));
 </script>
 
-<ManagerInnerContainer width={managerSize} isFlex={allFilterNames.length == 0}>
-  {#if allFilterNames.length == 0}
+<ManagerInnerContainer width={managerSize} isFlex={filterCount == 0}>
+  {#if filterCount == 0}
     <div class="msg">
       <div class="mb-3 bold">No Filters defined</div>
       <div><FontIcon icon="img info" /> Use context menu, command "Add to filter" in table or in tree</div>
     </div>
   {:else}
-    {#each allFilterNames as uniqueName}
-      {@const node = root?.findNodeByUniqueName(uniqueName)}
-      {@const filterInfo = node?.filterInfo}
-      {#if filterInfo}
-        <PerspectiveFiltersColumn
-          {filterInfo}
-          {uniqueName}
-          {conid}
-          {database}
-          {driver}
-          {node}
-          {config}
-          {setConfig}
-          filter={config.filters[uniqueName]}
-          onSetFilter={value =>
-            setConfig(cfg => ({
-              ...cfg,
-              filters: {
-                ...cfg.filters,
-                [uniqueName]: value,
-              },
-            }))}
-          onRemoveFilter={value =>
-            setConfig(cfg => ({
-              ...cfg,
-              filters: _.omit(cfg.filters, [uniqueName]),
-            }))}
-        />
-      {/if}
+    {#each config.nodes as nodeConfig}
+      {#each _.keys(nodeConfig.filters) as filterKey}
+        {@const tableNode = root?.findNodeByDesignerId(nodeConfig.designerId)}
+        {@const filterInfo = tableNode?.childNodes?.find(x => x.columnName == filterKey)?.filterInfo}
+        {#if filterInfo}
+          <PerspectiveFiltersColumn
+            {filterInfo}
+            {conid}
+            {database}
+            {driver}
+            {tableNode}
+            {config}
+            {setConfig}
+            filter={nodeConfig.filters[filterKey]}
+            onSetFilter={value =>
+              setConfig(cfg => ({
+                ...cfg,
+                nodes: cfg.nodes.map(n =>
+                  n.designerId == tableNode.designerId
+                    ? {
+                        ...n,
+                        filters: {
+                          ...n.filters,
+                          [filterKey]: value,
+                        },
+                      }
+                    : n
+                ),
+              }))}
+            onRemoveFilter={value =>
+              setConfig(cfg => ({
+                ...cfg,
+                nodes: cfg.nodes.map(n =>
+                  n.designerId == tableNode.designerId
+                    ? {
+                        ...n,
+                        filters: _.omit(n.filters, [filterKey]),
+                      }
+                    : n
+                ),
+              }))}
+          />
+        {/if}
+      {/each}
     {/each}
   {/if}
 </ManagerInnerContainer>

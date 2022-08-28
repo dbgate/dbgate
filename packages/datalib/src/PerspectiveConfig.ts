@@ -57,7 +57,7 @@ export interface PerspectiveNodeConfig {
   conid?: string;
   database?: string;
 
-  isParentFilter?: true | undefined;
+  isParentFilter?: boolean;
 
   expandedColumns: string[];
   checkedColumns: string[];

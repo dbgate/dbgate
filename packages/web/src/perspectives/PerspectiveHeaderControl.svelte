@@ -9,16 +9,16 @@
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  $: parentDesignerId = column.dataNode?.parentNode?.designerId || '';
-  $: nodeDesignerId = column.dataNode.designerId;
-  $: nodeConfig = column.dataNode.nodeConfig;
-  $: order = nodeConfig?.sort?.find(x => x.columnName == column.dataNode.columnName)?.order;
-  $: orderIndex = -1;
-  // $: orderIndex =
-  //   config.sort?.[parentUniqueName]?.length > 1
-  //     ? _.findIndex(config.sort?.[parentUniqueName], x => x.uniqueName == uniqueName)
-  //     : -1;
-  $: isSortDefined = nodeConfig?.sort?.length > 0;
+  // $: parentDesignerId = column.dataNode?.parentNode?.designerId || '';
+  // $: nodeDesignerId = column.dataNode.designerId;
+  $: tableNodeConfig = column.dataNode.parentNode?.nodeConfig;
+  $: order = tableNodeConfig?.sort?.find(x => x.columnName == column.dataNode.columnName)?.order;
+  // $: orderIndex = -1;
+  $: orderIndex =
+    tableNodeConfig?.sort?.length > 1
+      ? _.findIndex(tableNodeConfig?.sort, x => x.columnName == column.dataNode.columnName)
+      : -1;
+  // $: isSortDefined = tableNodeConfig?.sort?.length > 0;
 </script>
 
 {#if column.isVisible(columnLevel)}
