@@ -52,20 +52,30 @@
           oldValue.nodes.map(node => {
             const table = newValue.tables?.find(x => x.designerId == node.designerId);
 
+            const nodeChanged = {
+              ...node,
+            };
+
+            if (table) {
+              nodeChanged.alias = table?.alias;
+            }
+
+            if (settings?.isCalledFromArrange) {
+              // when called from arrange, position must be set to prevent cycle
+              nodeChanged.position = { x: table?.left || 0, y: table?.top || 0 };
+            }
+
             if (!table && settings?.removeTables) {
               return null;
             }
 
-            const nodeChanged = {
-              ...node,
-              alias: table?.alias,
-            };
             if (table && (table.left != node.position?.x || table.top != node.position?.y)) {
               if (!settings?.isCalledFromArrange) {
                 isArranged = false;
               }
-              nodeChanged.position = { x: table.left, y: table.top };
+              // nodeChanged.position = { x: table.left, y: table.top };
             }
+
             return nodeChanged;
           })
         ),
@@ -94,7 +104,6 @@
   async function detectAutoArrange(config: PerspectiveConfig, dbInfos) {
     if (config.nodes.find(x => !x.position)) {
       await tick();
-      console.log('ARRANGE', config.nodes.length);
       runCommand('designer.arrange');
     }
   }

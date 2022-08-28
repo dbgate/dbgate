@@ -42,21 +42,40 @@ function getPerspectiveDefaultColumns(
   return [[columns[0]], null];
 }
 
-export function processPerspectiveDefaultColunns(
+export function shouldProcessPerspectiveDefaultColunns(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
   conid: string,
   database: string
 ) {
-  console.log('processPerspectiveDefaultColunns');
+  const nodesNotProcessed = config.nodes.filter(x => !x.defaultColumnsProcessed);
+  if (nodesNotProcessed.length == 0) return false;
+
+  for (const node of nodesNotProcessed) {
+    const db = dbInfos?.[node.conid || conid]?.[node.database || database];
+    if (!db) return false;
+
+    const table = db.tables.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+    const view = db.views.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+
+    if (!table && !view) return false;
+  }
+
+  return true;
+}
+
+function processPerspectiveDefaultColunnsStep(
+  config: PerspectiveConfig,
+  dbInfos: MultipleDatabaseInfo,
+  conid: string,
+  database: string
+) {
   const rootNode = config.nodes.find(x => x.designerId == config.rootDesignerId);
   if (!rootNode) return null;
   const rootDb = dbInfos?.[rootNode.conid || conid]?.[rootNode.database || database];
   if (!rootDb) return null;
   const rootTable = rootDb.tables.find(x => x.pureName == rootNode.pureName && x.schemaName == rootNode.schemaName);
   const rootView = rootDb.views.find(x => x.pureName == rootNode.pureName && x.schemaName == rootNode.schemaName);
-
-  console.log('CREATE ROOT');
 
   const root = new PerspectiveTableNode(
     rootTable || rootView,
@@ -69,8 +88,6 @@ export function processPerspectiveDefaultColunns(
     config.rootDesignerId
   );
 
-  console.log('ROOT', root);
-
   for (const node of config.nodes) {
     if (node.defaultColumnsProcessed) continue;
 
@@ -81,7 +98,6 @@ export function processPerspectiveDefaultColunns(
     const view = db.views.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
 
     if (table || view) {
-      console.log('FINDING', node.pureName);
       const treeNode = root.findNodeByDesignerId(node.designerId);
       if (!treeNode) continue;
       const circularColumns = treeNode.childNodes.filter(x => x.isCircular).map(x => x.columnName);
@@ -140,4 +156,36 @@ export function processPerspectiveDefaultColunns(
   }
 
   return null;
+}
+
+function markAllProcessed(config: PerspectiveConfig): PerspectiveConfig {
+  return {
+    ...config,
+    nodes: config.nodes.map(x => ({
+      ...x,
+      defaultColumnsProcessed: true,
+    })),
+  };
+}
+
+export function processPerspectiveDefaultColunns(
+  config: PerspectiveConfig,
+  dbInfos: MultipleDatabaseInfo,
+  conid: string,
+  database: string
+) {
+  while (config.nodes.filter(x => !x.defaultColumnsProcessed).length > 0) {
+    const newConfig = processPerspectiveDefaultColunnsStep(config, dbInfos, conid, database);
+    if (!newConfig) {
+      return markAllProcessed(config);
+    }
+    if (
+      newConfig.nodes.filter(x => x.defaultColumnsProcessed).length <=
+      config.nodes.filter(x => x.defaultColumnsProcessed).length
+    ) {
+      return markAllProcessed(config);
+    }
+    config = newConfig;
+  }
+  return markAllProcessed(config);
 }

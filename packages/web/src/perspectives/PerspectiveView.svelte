@@ -37,6 +37,7 @@
     PerspectiveTableColumnNode,
     PerspectiveTableNode,
     processPerspectiveDefaultColunns,
+    shouldProcessPerspectiveDefaultColunns,
   } from 'dbgate-datalib';
 
   import _ from 'lodash';
@@ -150,20 +151,23 @@
       : null;
 
   $: {
-    tick().then(() => {
-      const newConfig = processPerspectiveDefaultColunns(config, $dbInfos, conid, database);
-      if (newConfig) {
-        if (
-          newConfig.nodes.filter(x => x.defaultColumnsProcessed).length >
-          config.nodes.filter(x => x.defaultColumnsProcessed).length
-        ) {
-          console.log('CONFIG CHANGED');
-          setConfig(() => newConfig);
-        } else {
-          console.warn('No new default columns', newConfig);
-        }
-      }
-    });
+    if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, conid, database)) {
+      setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, conid, database));
+    }
+    // tick().then(() => {
+    //   const newConfig = processPerspectiveDefaultColunns(config, $dbInfos, conid, database);
+    //   if (newConfig) {
+    //     if (
+    //       newConfig.nodes.filter(x => x.defaultColumnsProcessed).length >
+    //       config.nodes.filter(x => x.defaultColumnsProcessed).length
+    //     ) {
+    //       console.log('CONFIG CHANGED');
+    //       setConfig(() => newConfig);
+    //     } else {
+    //       console.warn('No new default columns', newConfig);
+    //     }
+    //   }
+    // });
   }
 </script>
 

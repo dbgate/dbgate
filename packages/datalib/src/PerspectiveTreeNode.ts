@@ -352,8 +352,6 @@ export abstract class PerspectiveTreeNode {
   // }
 
   findNodeByDesignerId(designerId: string): PerspectiveTreeNode {
-    console.log('findNodeByDesignerId', designerId, this.level, this.designerId);
-
     if (!this.designerId) {
       return null;
     }
