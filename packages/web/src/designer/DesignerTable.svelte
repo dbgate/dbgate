@@ -64,7 +64,7 @@
   $: objectTypeField = table?.objectTypeField;
   $: left = table?.left;
   $: top = table?.top;
-
+  $: mainIcon = settings?.getMainTableIcon ? settings?.getMainTableIcon(designerId) : null;
   export function isSelected() {
     return table?.isSelectedTable;
   }
@@ -247,6 +247,10 @@
             }
           }}
         />
+      {/if}
+
+      {#if mainIcon}
+        <FontIcon icon={mainIcon} />
       {/if}
 
       {alias || pureName}

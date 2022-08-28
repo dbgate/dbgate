@@ -202,6 +202,14 @@
     isColumnFiltered: (designerId, columnName) => {
       return !!config.nodes.find(x => x.designerId == designerId)?.filters?.[columnName];
     },
+    getMainTableIcon: designerId => {
+      const node = root?.findNodeByDesignerId(designerId);
+      if (!node) return null;
+      const level = node?.level + 1;
+      if (level == 1) return `icon num-${level}`;
+      if (level <= 9) return `icon num-${level}-outline`;
+      return 'icon num-9-plus';
+    },
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}
