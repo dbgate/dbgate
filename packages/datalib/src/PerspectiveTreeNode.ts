@@ -116,6 +116,9 @@ export abstract class PerspectiveTreeNode {
     if (this.isRoot) return this;
     return this.parentNode?.rootNode;
   }
+  get isSortable() {
+    return false;
+  }
   matchChildRow(parentRow: any, childRow: any): boolean {
     return true;
   }
@@ -570,6 +573,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     return !!this.foreignKey;
   }
 
+  get isSortable() {
+    return true;
+  }
+
   get filterType(): FilterType {
     return getFilterType(this.column.dataType);
   }
@@ -706,7 +713,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
   }
 
   get title() {
-    return this.table.pureName;
+    return this.nodeConfig?.alias || this.table.pureName;
   }
 
   get isExpandable() {
@@ -964,9 +971,9 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
     };
   }
 
-  get title() {
-    return this.customJoin.joinName;
-  }
+  // get title() {
+  //   return this.customJoin.joinName || this.customJoin.refTableName;
+  // }
 
   get icon() {
     return 'icon custom-join';
@@ -1161,7 +1168,7 @@ export function getTableChildPerspectiveNodes(
           refNodeDesignerId: node.designerId,
           referenceDesignerId: ref.designerId,
           baseDesignerId: parentNode.designerId,
-          joinName: node.alias || node.pureName,
+          joinName: node.alias,
           refTableName: node.pureName,
           refSchemaName: node.schemaName,
           conid: node.conid,

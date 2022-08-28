@@ -2,6 +2,7 @@ import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } f
 import _ from 'lodash';
 import { showModal } from '../modals/modalTools';
 import CustomJoinModal from './CustomJoinModal.svelte';
+import InputTextModal from '../modals/InputTextModal.svelte';
 
 interface PerspectiveNodeMenuProps {
   node: PerspectiveTreeNode;
@@ -86,6 +87,20 @@ export function addToPerspectiveFilter(
   };
 }
 
+export function setPerspectiveTableAlias(cfg: PerspectiveConfig, designerId: string, alias: string) {
+  return {
+    ...cfg,
+    nodes: cfg.nodes.map(n =>
+      n.designerId == designerId
+        ? {
+            ...n,
+            alias,
+          }
+        : n
+    ),
+  };
+}
+
 export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   const { node, conid, database, root, config, setConfig } = props;
   const customJoin = node.customJoinConfig;
@@ -104,40 +119,20 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
 
   const addToSort = order => {
     setConfig(cfg => addToPerspectiveSort(cfg, parentDesignerId, columnName, order), true);
-
-    // setConfig(
-    //   cfg => ({
-    //     ...cfg,
-    //     sort: {
-    //       ...cfg.sort,
-    //       [parentUniqueName]: [...(cfg.sort?.[parentUniqueName] || []), { uniqueName, order }],
-    //     },
-    //   }),
-    //   true
-    // );
   };
 
   const clearSort = () => {
     setConfig(cfg => clearPerspectiveSort(cfg, parentDesignerId), true);
-
-    // setConfig(
-    //   cfg => ({
-    //     ...cfg,
-    //     sort: {
-    //       ...cfg.sort,
-    //       [parentUniqueName]: [],
-    //     },
-    //   }),
-    //   true
-    // );
   };
 
   return [
-    { onClick: () => setSort('ASC'), text: 'Sort ascending' },
-    { onClick: () => setSort('DESC'), text: 'Sort descending' },
-    isSortDefined && !order && { onClick: () => addToSort('ASC'), text: 'Add to sort - ascending' },
-    isSortDefined && !order && { onClick: () => addToSort('DESC'), text: 'Add to sort - descending' },
-    order && { onClick: () => clearSort(), text: 'Clear sort criteria' },
+    node.isSortable && { onClick: () => setSort('ASC'), text: 'Sort ascending' },
+    node.isSortable && { onClick: () => setSort('DESC'), text: 'Sort descending' },
+    node.isSortable && isSortDefined && !order && { onClick: () => addToSort('ASC'), text: 'Add to sort - ascending' },
+    node.isSortable &&
+      isSortDefined &&
+      !order && { onClick: () => addToSort('DESC'), text: 'Add to sort - descending' },
+    node.isSortable && order && { onClick: () => clearSort(), text: 'Clear sort criteria' },
     { divider: true },
 
     filterInfo && {
@@ -174,5 +169,39 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
           editValue: customJoin,
         }),
     },
+    node?.supportsParentFilter && {
+      text: node.isParentFilter ? 'Cancel filter parent rows' : 'Filter parent rows',
+      onClick: () => {
+        setConfig(
+          cfg => ({
+            ...cfg,
+            nodes: cfg.nodes.map(n =>
+              n.designerId == node?.designerId ? { ...n, isParentFilter: !node.isParentFilter } : n
+            ),
+          }),
+          true
+        );
+      },
+    },
+
+    node?.nodeConfig && [
+      {
+        text: 'Set alias',
+        onClick: () => {
+          showModal(InputTextModal, {
+            value: node?.nodeConfig?.alias || '',
+            label: 'New alias',
+            header: 'Set  alias',
+            onConfirm: newAlias => {
+              setConfig(cfg => setPerspectiveTableAlias(cfg, node?.designerId, newAlias));
+            },
+          });
+        },
+      },
+      node?.nodeConfig?.alias && {
+        text: 'Remove alias',
+        onClick: () => setConfig(cfg => setPerspectiveTableAlias(cfg, node?.designerId, null)),
+      },
+    ],
   ];
 }

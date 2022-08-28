@@ -328,7 +328,7 @@
             newNode.conid = conidOverride;
             newNode.database = databaseOverride;
             newNode.position = cfg.nodes.find(x => x.designerId == editValue?.refNodeDesignerId)?.position;
-            newNode.alias = joinName || refTableName;
+            newNode.alias = joinName;
 
             const newRef = {
               designerId: editValue?.referenceDesignerId || uuidv1(),

@@ -184,7 +184,7 @@
   <svelte:fragment slot="2">
     <VerticalSplitter>
       <svelte:fragment slot="1">
-        <PerspectiveDesigner {config} {conid} {database} onChange={setConfig} dbInfos={$dbInfos} />
+        <PerspectiveDesigner {config} {conid} {database} {setConfig} dbInfos={$dbInfos} {root} />
       </svelte:fragment>
       <svelte:fragment slot="2">
         <PerspectiveTable {root} {loadedCounts} {config} {setConfig} {conid} {database} />

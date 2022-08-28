@@ -179,6 +179,9 @@
   };
 
   function createMenu() {
+    if (settings?.tableMenu) {
+      return settings?.tableMenu({ designer, designerId, onRemoveTable });
+    }
     return [
       { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
       { divider: true },
