@@ -12,6 +12,58 @@ interface PerspectiveNodeMenuProps {
   setConfig: ChangePerspectiveConfigFunc;
 }
 
+export function setPerspectiveSort(
+  cfg: PerspectiveConfig,
+  designerId: string,
+  columnName: string,
+  order: 'ASC' | 'DESC'
+): PerspectiveConfig {
+  return {
+    ...cfg,
+    nodes: cfg.nodes.map(n =>
+      n.designerId == designerId
+        ? {
+            ...n,
+            sort: [{ columnName, order }],
+          }
+        : n
+    ),
+  };
+}
+
+export function addToPerspectiveSort(
+  cfg: PerspectiveConfig,
+  designerId: string,
+  columnName: string,
+  order: 'ASC' | 'DESC'
+): PerspectiveConfig {
+  return {
+    ...cfg,
+    nodes: cfg.nodes.map(n =>
+      n.designerId == designerId
+        ? {
+            ...n,
+            sort: [...(n.sort || []).filter(x => x.columnName != columnName), { columnName, order }],
+          }
+        : n
+    ),
+  };
+}
+
+export function clearPerspectiveSort(cfg: PerspectiveConfig, designerId: string) {
+  return {
+    ...cfg,
+    nodes: cfg.nodes.map(n =>
+      n.designerId == designerId
+        ? {
+            ...n,
+            sort: [],
+          }
+        : n
+    ),
+  };
+}
+
 export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   const { node, conid, database, root, config, setConfig } = props;
   const customJoin = node.customJoinConfig;
@@ -25,37 +77,11 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   const isSortDefined = sort?.length > 0;
 
   const setSort = order => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        nodes: cfg.nodes.map(n =>
-          n.designerId == parentDesignerId
-            ? {
-                ...n,
-                sort: [{ columnName, order }],
-              }
-            : n
-        ),
-      }),
-      true
-    );
+    setConfig(cfg => setPerspectiveSort(cfg, parentDesignerId, columnName, order), true);
   };
 
   const addToSort = order => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        nodes: cfg.nodes.map(n =>
-          n.designerId == parentDesignerId
-            ? {
-                ...n,
-                sort: [...(n.sort || []), { columnName, order }],
-              }
-            : n
-        ),
-      }),
-      true
-    );
+    setConfig(cfg => addToPerspectiveSort(cfg, parentDesignerId, columnName, order), true);
 
     // setConfig(
     //   cfg => ({
@@ -70,20 +96,7 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   };
 
   const clearSort = () => {
-    setConfig(
-      cfg => ({
-        ...cfg,
-        nodes: cfg.nodes.map(n =>
-          n.designerId == parentDesignerId
-            ? {
-                ...n,
-                sort: [],
-              }
-            : n
-        ),
-      }),
-      true
-    );
+    setConfig(cfg => clearPerspectiveSort(cfg, parentDesignerId), true);
 
     // setConfig(
     //   cfg => ({

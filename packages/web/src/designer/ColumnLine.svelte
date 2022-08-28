@@ -6,6 +6,7 @@
   import CheckboxField from '../forms/CheckboxField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import contextMenu from '../utility/contextMenu';
+  import SortOrderIcon from './SortOrderIcon.svelte';
   export let column;
   export let table;
   export let designer;
@@ -25,6 +26,16 @@
 
   function createMenu() {
     const foreignKey = findForeignKeyForColumn(table, column);
+
+    if (settings?.columnMenu) {
+      return settings?.columnMenu({
+        designer,
+        designerId,
+        column,
+        foreignKey,
+      });
+    }
+
     const setSortOrder = sortOrder => {
       onChangeColumn(
         {
@@ -47,6 +58,8 @@
       foreignKey && { text: 'Add reference', onClick: addReference },
     ];
   }
+
+  $: sortOrderProps = settings?.getSortOrderProps ? settings?.getSortOrderProps(designerId, column.columnName) : null;
 </script>
 
 <div
@@ -142,6 +155,10 @@
   {/if}
   {#if designerColumn?.isGrouped}
     <FontIcon icon="img group" />
+  {/if}
+
+  {#if sortOrderProps}
+    <SortOrderIcon {...sortOrderProps} />
   {/if}
 
   {#if designer?.style?.showNullability || designer?.style?.showDataType}

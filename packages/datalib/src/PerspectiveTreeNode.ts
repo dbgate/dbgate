@@ -26,6 +26,7 @@ import _flatten from 'lodash/flatten';
 import _uniqBy from 'lodash/uniqBy';
 import _sortBy from 'lodash/sortBy';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
+import _findIndex from 'lodash/findIndex';
 import {
   PerspectiveDatabaseConfig,
   PerspectiveDataLoadProps,
@@ -439,6 +440,16 @@ export abstract class PerspectiveTreeNode {
 
   getParentJoinCondition(alias: string, parentAlias: string): Condition[] {
     return [];
+  }
+
+  get sortOrder() {
+    return this.parentNodeConfig?.sort?.find(x => x.columnName == this.columnName)?.order;
+  }
+
+  get sortOrderIndex() {
+    return this.parentNodeConfig?.sort?.length > 1
+      ? _findIndex(this.parentNodeConfig?.sort, x => x.columnName == this.columnName)
+      : -1;
   }
 }
 

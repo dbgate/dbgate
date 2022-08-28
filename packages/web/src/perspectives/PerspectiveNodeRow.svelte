@@ -8,6 +8,7 @@
   import contextMenu from '../utility/contextMenu';
   import CustomJoinModal from './CustomJoinModal.svelte';
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
+  import SortOrderIcon from '../designer/SortOrderIcon.svelte';
 
   export let conid;
   export let database;
@@ -71,6 +72,8 @@
   <FontIcon icon={node.icon} />
 
   <span>{node.title}</span>
+
+  <SortOrderIcon order={node.sortOrder} orderIndex={node.sortOrderIndex} />
 </div>
 
 <style>

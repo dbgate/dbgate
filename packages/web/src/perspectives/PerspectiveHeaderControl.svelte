@@ -4,21 +4,14 @@
 
   import DropDownButton from '../buttons/DropDownButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
+  import SortOrderIcon from '../designer/SortOrderIcon.svelte';
   export let column: PerspectiveDisplayColumn;
   export let columnLevel;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
-  // $: parentDesignerId = column.dataNode?.parentNode?.designerId || '';
-  // $: nodeDesignerId = column.dataNode.designerId;
-  $: tableNodeConfig = column.dataNode.parentNode?.nodeConfig;
-  $: order = tableNodeConfig?.sort?.find(x => x.columnName == column.dataNode.columnName)?.order;
-  // $: orderIndex = -1;
-  $: orderIndex =
-    tableNodeConfig?.sort?.length > 1
-      ? _.findIndex(tableNodeConfig?.sort, x => x.columnName == column.dataNode.columnName)
-      : -1;
-  // $: isSortDefined = tableNodeConfig?.sort?.length > 0;
+  $: order = column.dataNode?.sortOrder;
+  $: orderIndex = column.dataNode?.sortOrderIndex;
 </script>
 
 {#if column.isVisible(columnLevel)}
@@ -28,22 +21,7 @@
         {column.title}
       </div>
 
-      {#if order == 'ASC'}
-        <span class="icon">
-          <FontIcon icon="img sort-asc" />
-          {#if orderIndex >= 0}
-            <span class="color-icon-green order-index">{orderIndex + 1}</span>
-          {/if}
-        </span>
-      {/if}
-      {#if order == 'DESC'}
-        <span class="icon">
-          <FontIcon icon="img sort-desc" />
-          {#if orderIndex >= 0}
-            <span class="color-icon-green order-index">{orderIndex + 1}</span>
-          {/if}
-        </span>
-      {/if}
+      <SortOrderIcon {order} {orderIndex} />
     </div>
   </th>
 {/if}
