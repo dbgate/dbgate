@@ -3,6 +3,8 @@ import _ from 'lodash';
 import { showModal } from '../modals/modalTools';
 import CustomJoinModal from './CustomJoinModal.svelte';
 import InputTextModal from '../modals/InputTextModal.svelte';
+import runCommand from '../commands/runCommand';
+import { tick } from 'svelte';
 
 interface PerspectiveNodeMenuProps {
   node: PerspectiveTreeNode;
@@ -138,15 +140,6 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
     filterInfo && {
       text: 'Add to filter',
       onClick: () => setConfig(cfg => addToPerspectiveFilter(cfg, parentDesignerId, columnName)),
-
-      // setConfig(cfg => ({
-      //   ...cfg,
-
-      //   filters: {
-      //     ...cfg.filters,
-      //     [node.uniqueName]: '',
-      //   },
-      // })),
     },
     customJoin && {
       text: 'Remove custom join',
@@ -203,5 +196,23 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
         onClick: () => setConfig(cfg => setPerspectiveTableAlias(cfg, node?.designerId, null)),
       },
     ],
+
+    node?.nodeConfig &&
+      config.rootDesignerId != node?.designerId && [
+        { divider: true },
+        {
+          text: 'Set root',
+          onClick: async () => {
+            setConfig(cfg => ({
+              ...cfg,
+              rootDesignerId: node?.designerId,
+            }));
+            await tick();
+            if (config.isArranged) {
+              runCommand('designer.arrange');
+            }
+          },
+        },
+      ],
   ];
 }
