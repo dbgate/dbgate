@@ -5,8 +5,9 @@
     PerspectiveConfig,
     perspectiveNodesHaveStructure,
     PerspectiveTreeNode,
+    switchPerspectiveReferenceDirection,
   } from 'dbgate-datalib';
-  import _, { findIndex } from 'lodash';
+  import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';
 
@@ -109,14 +110,21 @@
     });
   }
 
-  async function detectAutoArrange(config: PerspectiveConfig, dbInfos) {
-    if (config.nodes.find(x => !x.position) && perspectiveNodesHaveStructure(config, dbInfos, conid, database)) {
+  async function detectAutoArrange(config: PerspectiveConfig, dbInfos, root) {
+    if (
+      root &&
+      config.nodes.find(x => !x.position) &&
+      perspectiveNodesHaveStructure(config, dbInfos, conid, database) &&
+      config.nodes.every(x => root.findNodeByDesignerId(x.designerId))
+    ) {
       await tick();
       runCommand('designer.arrange');
     }
   }
 
-  $: detectAutoArrange(config, dbInfos);
+  $: detectAutoArrange(config, dbInfos, root);
+
+  // $: console.log('DESIGNER ROOT', root);
 </script>
 
 <Designer
@@ -209,6 +217,21 @@
       if (level == 1) return `icon num-${level}`;
       if (level <= 9) return `icon num-${level}-outline`;
       return 'icon num-9-plus';
+    },
+    sortAutoLayoutReferences: references => {
+      // console.log('sortAutoLayoutReferences', root, references.length);
+      return _.sortBy(references, reference => {
+        const node1 = root?.findNodeByDesignerId(reference.sourceId);
+        const node2 = root?.findNodeByDesignerId(reference.targetId);
+        if (!node1 || !node2) return 10000;
+        if (node1.level > node2.level) reference = switchPerspectiveReferenceDirection(reference);
+        const index = _.findIndex(node1.childNodes, x => x.columnName == reference.columns[0].source);
+        return index;
+      });
+    },
+    referencePaintSettings: {
+      buswi: 10,
+      extwi: 10,
     },
   }}
   referenceComponent={QueryDesignerReference}

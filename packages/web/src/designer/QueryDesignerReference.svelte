@@ -16,8 +16,11 @@
   let minpos;
   let columnsY = [];
 
-  const buswi = 10;
-  const extwi = 25;
+  const BUSWI = 10;
+  const EXTWI = 25;
+
+  $: buswi = settings?.referencePaintSettings?.buswi || BUSWI;
+  $: extwi = settings?.referencePaintSettings?.extwi || EXTWI;
 
   export function recomputePosition() {
     const { designerId, sourceId, targetId, columns, joinType } = reference;

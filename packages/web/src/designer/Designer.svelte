@@ -662,7 +662,9 @@
       );
     }
 
-    for (const reference of value?.references) {
+    for (const reference of settings?.sortAutoLayoutReferences
+      ? settings?.sortAutoLayoutReferences(value?.references)
+      : value?.references) {
       graph.addEdge(reference.sourceId, reference.targetId);
     }
 
