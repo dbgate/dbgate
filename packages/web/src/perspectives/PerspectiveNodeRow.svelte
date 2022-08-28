@@ -74,6 +74,10 @@
   <span>{node.title}</span>
 
   <SortOrderIcon order={node.sortOrder} orderIndex={node.sortOrderIndex} />
+  
+  {#if node.getFilter()}
+    <FontIcon icon="img filter" />
+  {/if}
 </div>
 
 <style>

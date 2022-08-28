@@ -64,6 +64,28 @@ export function clearPerspectiveSort(cfg: PerspectiveConfig, designerId: string)
   };
 }
 
+export function addToPerspectiveFilter(
+  cfg: PerspectiveConfig,
+  designerId: string,
+  columnName: string,
+  filterValue: string = ''
+) {
+  return {
+    ...cfg,
+    nodes: cfg.nodes.map(n =>
+      n.designerId == designerId
+        ? {
+            ...n,
+            filters: {
+              ...n.filters,
+              [columnName]: filterValue,
+            },
+          }
+        : n
+    ),
+  };
+}
+
 export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   const { node, conid, database, root, config, setConfig } = props;
   const customJoin = node.customJoinConfig;
@@ -120,21 +142,7 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
 
     filterInfo && {
       text: 'Add to filter',
-      onClick: () =>
-        setConfig(cfg => ({
-          ...cfg,
-          nodes: cfg.nodes.map(n =>
-            n.designerId == parentDesignerId
-              ? {
-                  ...n,
-                  filters: {
-                    ...n.filters,
-                    [columnName]: '',
-                  },
-                }
-              : n
-          ),
-        })),
+      onClick: () => setConfig(cfg => addToPerspectiveFilter(cfg, parentDesignerId, columnName)),
 
       // setConfig(cfg => ({
       //   ...cfg,

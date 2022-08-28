@@ -161,6 +161,10 @@
     <SortOrderIcon {...sortOrderProps} />
   {/if}
 
+  {#if settings?.isColumnFiltered && settings?.isColumnFiltered(designerId, column.columnName)}
+    <FontIcon icon="img filter" />
+  {/if}
+
   {#if designer?.style?.showNullability || designer?.style?.showDataType}
     <div class="space" />
     {#if designer?.style?.showDataType && column?.dataType}
