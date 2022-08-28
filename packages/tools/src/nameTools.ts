@@ -1,6 +1,14 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import _isString from 'lodash/isString';
-import { ColumnInfo, ColumnReference, DatabaseInfo, DatabaseInfoObjects, SqlDialect, TableInfo } from 'dbgate-types';
+import {
+  ColumnInfo,
+  ColumnReference,
+  DatabaseInfo,
+  DatabaseInfoObjects,
+  NamedObjectInfo,
+  SqlDialect,
+  TableInfo,
+} from 'dbgate-types';
 
 export function fullNameFromString(name) {
   const m = name.match(/\[([^\]]+)\]\.\[([^\]]+)\]/);
@@ -37,6 +45,11 @@ export function quoteFullName(dialect, { schemaName, pureName }) {
 
 export function equalStringLike(s1, s2) {
   return (s1 || '').toLowerCase().trim() == (s2 || '').toLowerCase().trim();
+}
+
+export function equalFullName(name1: NamedObjectInfo, name2: NamedObjectInfo) {
+  if (!name1 || !name2) return name1 == name2;
+  return name1.pureName == name2.pureName && name1.schemaName == name2.schemaName;
 }
 
 export function findObjectLike(

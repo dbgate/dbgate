@@ -42,16 +42,13 @@ function getPerspectiveDefaultColumns(
   return [[columns[0]], null];
 }
 
-export function shouldProcessPerspectiveDefaultColunns(
+export function perspectiveNodesHaveStructure(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
   conid: string,
   database: string
 ) {
-  const nodesNotProcessed = config.nodes.filter(x => !x.defaultColumnsProcessed);
-  if (nodesNotProcessed.length == 0) return false;
-
-  for (const node of nodesNotProcessed) {
+  for (const node of config.nodes) {
     const db = dbInfos?.[node.conid || conid]?.[node.database || database];
     if (!db) return false;
 
@@ -62,6 +59,18 @@ export function shouldProcessPerspectiveDefaultColunns(
   }
 
   return true;
+}
+
+export function shouldProcessPerspectiveDefaultColunns(
+  config: PerspectiveConfig,
+  dbInfos: MultipleDatabaseInfo,
+  conid: string,
+  database: string
+) {
+  const nodesNotProcessed = config.nodes.filter(x => !x.defaultColumnsProcessed);
+  if (nodesNotProcessed.length == 0) return false;
+
+  return perspectiveNodesHaveStructure(config, dbInfos, conid, database);
 }
 
 function processPerspectiveDefaultColunnsStep(

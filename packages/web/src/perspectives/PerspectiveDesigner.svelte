@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from 'dbgate-datalib';
+  import {
+    createPerspectiveNodeConfig,
+    MultipleDatabaseInfo,
+    PerspectiveConfig,
+    perspectiveNodesHaveStructure,
+  } from 'dbgate-datalib';
   import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';
@@ -102,7 +107,7 @@
   }
 
   async function detectAutoArrange(config: PerspectiveConfig, dbInfos) {
-    if (config.nodes.find(x => !x.position)) {
+    if (config.nodes.find(x => !x.position) && perspectiveNodesHaveStructure(config, dbInfos, conid, database)) {
       await tick();
       runCommand('designer.arrange');
     }

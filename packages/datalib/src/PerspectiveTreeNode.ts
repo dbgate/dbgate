@@ -7,6 +7,7 @@ import {
   TableInfo,
   ViewInfo,
 } from 'dbgate-types';
+import { equalFullName } from 'dbgate-tools';
 import {
   ChangePerspectiveConfigFunc,
   createPerspectiveNodeConfig,
@@ -141,7 +142,7 @@ export abstract class PerspectiveTreeNode {
     return this.isCheckedColumn;
   }
   get isCheckedNode() {
-    return !!this.config.nodes?.find(x => x.designerId == this.designerId)?.isNodeChecked;
+    return !!this.designerId && !!this.config.nodes?.find(x => x.designerId == this.designerId)?.isNodeChecked;
   }
   get isSecondaryChecked() {
     return false;
@@ -1017,9 +1018,14 @@ function findDesignerIdForNode<T extends PerspectiveTreeNode>(
       _isEqual(
         refColumns.map(x => x.target),
         x.columns.map(x => x.target)
+      ) &&
+      equalFullName(
+        config.nodes.find(n => n.designerId == x.targetId),
+        node.namedObject
       )
   );
   if (ref1 && !parentNode.hasDesignerIdInIncestors(ref1.targetId)) {
+    // console.log('FOUND1', node.title, ref1.targetId, refColumns);
     return nodeCreateFunc(ref1.targetId);
   }
 
@@ -1033,9 +1039,14 @@ function findDesignerIdForNode<T extends PerspectiveTreeNode>(
       _isEqual(
         refColumns.map(x => x.source),
         x.columns.map(x => x.target)
+      ) &&
+      equalFullName(
+        config.nodes.find(n => n.designerId == x.sourceId),
+        node.namedObject
       )
   );
   if (ref2 && !parentNode.hasDesignerIdInIncestors(ref2.sourceId)) {
+    // console.log('FOUND2', node.title, ref2.sourceId, refColumns);
     return nodeCreateFunc(ref2.sourceId);
   }
 
