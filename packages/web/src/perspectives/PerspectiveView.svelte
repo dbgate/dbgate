@@ -150,10 +150,20 @@
       : null;
 
   $: {
-    const newConfig = processPerspectiveDefaultColunns(config, $dbInfos, conid, database);
-    if (newConfig) {
-      setConfig(() => newConfig);
-    }
+    tick().then(() => {
+      const newConfig = processPerspectiveDefaultColunns(config, $dbInfos, conid, database);
+      if (newConfig) {
+        if (
+          newConfig.nodes.filter(x => x.defaultColumnsProcessed).length >
+          config.nodes.filter(x => x.defaultColumnsProcessed).length
+        ) {
+          console.log('CONFIG CHANGED');
+          setConfig(() => newConfig);
+        } else {
+          console.warn('No new default columns', newConfig);
+        }
+      }
+    });
   }
 </script>
 

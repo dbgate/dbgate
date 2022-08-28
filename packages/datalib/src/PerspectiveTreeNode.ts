@@ -164,6 +164,9 @@ export abstract class PerspectiveTreeNode {
   get db(): DatabaseInfo {
     return this.dbs?.[this.databaseConfig.conid]?.[this.databaseConfig.database];
   }
+  get isCircular() {
+    return false;
+  }
 
   hasDesignerIdInIncestors(designerId: string): boolean {
     if (designerId == this.designerId) return true;
@@ -349,7 +352,14 @@ export abstract class PerspectiveTreeNode {
   // }
 
   findNodeByDesignerId(designerId: string): PerspectiveTreeNode {
-    if (!designerId) return null;
+    console.log('findNodeByDesignerId', designerId, this.level, this.designerId);
+
+    if (!this.designerId) {
+      return null;
+    }
+    if (!designerId) {
+      return null;
+    }
     if (designerId == this.designerId) {
       return this;
     }

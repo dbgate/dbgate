@@ -94,6 +94,7 @@
   async function detectAutoArrange(config: PerspectiveConfig, dbInfos) {
     if (config.nodes.find(x => !x.position)) {
       await tick();
+      console.log('ARRANGE', config.nodes.length);
       runCommand('designer.arrange');
     }
   }
