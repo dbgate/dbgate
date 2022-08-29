@@ -6,7 +6,7 @@ import { PerspectiveTableNode } from './PerspectiveTreeNode';
 function getPerspectiveDefaultColumns(
   table: TableInfo | ViewInfo,
   db: DatabaseInfo,
-  circularColumns: string[]
+  circularColumns?: string[]
 ): [string[], string[]] {
   const columns = table.columns.map(x => x.columnName);
   const predicates = [
@@ -29,14 +29,16 @@ function getPerspectiveDefaultColumns(
     if (col) return [[col], null];
   }
 
-  const keyPredicates = [
-    x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1 && !circularColumns.includes(x),
-    x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1,
-  ];
+  if (circularColumns) {
+    const keyPredicates = [
+      x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1 && !circularColumns.includes(x),
+      x => findForeignKeyForColumn(table as TableInfo, x)?.columns?.length == 1,
+    ];
 
-  for (const predicate of keyPredicates) {
-    const col = columns.find(predicate);
-    if (col) return [null, [col]];
+    for (const predicate of keyPredicates) {
+      const col = columns.find(predicate);
+      if (col) return [null, [col]];
+    }
   }
 
   return [[columns[0]], null];
@@ -108,7 +110,24 @@ function processPerspectiveDefaultColunnsStep(
 
     if (table || view) {
       const treeNode = root.findNodeByDesignerId(node.designerId);
-      if (!treeNode) continue;
+
+      if (!treeNode) {
+        const [defaultColumns] = getPerspectiveDefaultColumns(table || view, db, null);
+
+        return {
+          ...config,
+          nodes: config.nodes.map(n =>
+            n.designerId == node.designerId
+              ? {
+                  ...n,
+                  defaultColumnsProcessed: true,
+                  checkedColumns: defaultColumns,
+                }
+              : n
+          ),
+        };
+      }
+
       const circularColumns = treeNode.childNodes.filter(x => x.isCircular).map(x => x.columnName);
       const [defaultColumns, defaultRefs] = getPerspectiveDefaultColumns(table || view, db, circularColumns);
 

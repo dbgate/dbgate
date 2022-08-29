@@ -32,11 +32,14 @@
           const table = dbInfos?.[node.conid || conid]?.[node.database || database]?.tables?.find(
             x => x.pureName == node.pureName && x.schemaName == node.schemaName
           );
-          if (!table) return null;
+          const view = dbInfos?.[node.conid || conid]?.[node.database || database]?.views?.find(
+            x => x.pureName == node.pureName && x.schemaName == node.schemaName
+          );
+          if (!table && !view) return null;
 
           const { designerId } = node;
           return {
-            ...table,
+            ...(table || view),
             left: node?.position?.x || 0,
             top: node?.position?.y || 0,
             alias: node.alias,
