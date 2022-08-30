@@ -13,6 +13,7 @@ interface PerspectiveNodeMenuProps {
   root: PerspectiveTreeNode;
   config: PerspectiveConfig;
   setConfig: ChangePerspectiveConfigFunc;
+  designerId: string;
 }
 
 export function setPerspectiveSort(
@@ -104,16 +105,19 @@ export function setPerspectiveTableAlias(cfg: PerspectiveConfig, designerId: str
 }
 
 export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
-  const { node, conid, database, root, config, setConfig } = props;
-  const customJoin = node.customJoinConfig;
-  const filterInfo = node.filterInfo;
+  const { node, conid, database, root, config, setConfig, designerId } = props;
+
+  const customJoin = node?.customJoinConfig;
+  const filterInfo = node?.filterInfo;
 
   const parentDesignerId = node?.parentNode?.designerId || '';
-  const columnName = node.columnName;
+  const columnName = node?.columnName;
   const sort = config.nodes?.find(x => x.designerId == parentDesignerId)?.sort;
   const order = sort?.find(x => x.columnName == columnName)?.order;
   const orderIndex = sort?.length > 1 ? _.findIndex(sort, x => x.columnName == columnName) : -1;
   const isSortDefined = sort?.length > 0;
+
+  const nodeConfig = config.nodes.find(x => x.designerId == designerId);
 
   const setSort = order => {
     setConfig(cfg => setPerspectiveSort(cfg, parentDesignerId, columnName, order), true);
@@ -128,13 +132,13 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
   };
 
   return [
-    node.isSortable && { onClick: () => setSort('ASC'), text: 'Sort ascending' },
-    node.isSortable && { onClick: () => setSort('DESC'), text: 'Sort descending' },
-    node.isSortable && isSortDefined && !order && { onClick: () => addToSort('ASC'), text: 'Add to sort - ascending' },
-    node.isSortable &&
+    node?.isSortable && { onClick: () => setSort('ASC'), text: 'Sort ascending' },
+    node?.isSortable && { onClick: () => setSort('DESC'), text: 'Sort descending' },
+    node?.isSortable && isSortDefined && !order && { onClick: () => addToSort('ASC'), text: 'Add to sort - ascending' },
+    node?.isSortable &&
       isSortDefined &&
       !order && { onClick: () => addToSort('DESC'), text: 'Add to sort - descending' },
-    node.isSortable && order && { onClick: () => clearSort(), text: 'Clear sort criteria' },
+    node?.isSortable && order && { onClick: () => clearSort(), text: 'Clear sort criteria' },
     { divider: true },
 
     filterInfo && {
@@ -177,7 +181,7 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
       },
     },
 
-    node?.nodeConfig && [
+    nodeConfig && [
       {
         text: 'Set alias',
         onClick: () => {
@@ -186,26 +190,26 @@ export function getPerspectiveNodeMenu(props: PerspectiveNodeMenuProps) {
             label: 'New alias',
             header: 'Set  alias',
             onConfirm: newAlias => {
-              setConfig(cfg => setPerspectiveTableAlias(cfg, node?.designerId, newAlias));
+              setConfig(cfg => setPerspectiveTableAlias(cfg, designerId, newAlias));
             },
           });
         },
       },
-      node?.nodeConfig?.alias && {
+      nodeConfig?.alias && {
         text: 'Remove alias',
-        onClick: () => setConfig(cfg => setPerspectiveTableAlias(cfg, node?.designerId, null)),
+        onClick: () => setConfig(cfg => setPerspectiveTableAlias(cfg, designerId, null)),
       },
     ],
 
-    node?.nodeConfig &&
-      config.rootDesignerId != node?.designerId && [
+    nodeConfig &&
+      config.rootDesignerId != designerId && [
         { divider: true },
         {
           text: 'Set root',
           onClick: async () => {
             setConfig(cfg => ({
               ...cfg,
-              rootDesignerId: node?.designerId,
+              rootDesignerId: designerId,
             }));
             await tick();
             if (config.isArranged) {
