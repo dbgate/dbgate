@@ -310,6 +310,18 @@ export class GraphLayout {
 
     res.createTreeLevel([root], rootLayout.right + NODE_SPACE_TREE);
 
+    let maxRight = _.max(_.values(res.nodes).map(x => x.right));
+
+    const notPlacedNodes = _.values(graph.nodes).filter(x => !res.nodes[x.designerId]);
+    for (const node of notPlacedNodes) {
+      maxRight += NODE_SPACE_TREE;
+
+      const layoutNode = new LayoutNode(node, maxRight + node.width / 2, NODE_MARGIN + node.height / 2);
+      res.nodes[node.designerId] = layoutNode;
+
+      maxRight += node.width;
+    }
+
     return res;
   }
 
