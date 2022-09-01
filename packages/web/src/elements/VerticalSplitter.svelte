@@ -41,7 +41,7 @@
     {/if}
   {/if}
 
-  {#if allowCollapseChild1 && !collapsed2}
+  {#if allowCollapseChild1 && !collapsed2 && isSplitter}
     {#if collapsed1}
       <div
         class="collapse"
@@ -65,7 +65,7 @@
     {/if}
   {/if}
 
-  {#if allowCollapseChild2 && !collapsed1}
+  {#if allowCollapseChild2 && !collapsed1 && isSplitter}
     {#if collapsed2}
       <div
         class="collapse"

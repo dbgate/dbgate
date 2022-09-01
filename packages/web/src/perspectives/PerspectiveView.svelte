@@ -160,7 +160,7 @@
   // $: console.log('VIEW ROOT', root);
 </script>
 
-<HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize}>
+<HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize} allowCollapseChild1>
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height={'70%'}>
