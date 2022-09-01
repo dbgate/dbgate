@@ -241,6 +241,7 @@
     use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
     use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
     style={getTableColorStyle($currentThemeDefinition, table)}
+    on:click={settings?.onClickTableHeader ? () => settings?.onClickTableHeader(designerId) : null}
   >
     <div>
       {#if settings?.canCheckTables}

@@ -31,6 +31,7 @@
     PerspectiveConfig,
     PerspectiveDataProvider,
     PerspectiveTableNode,
+    PerspectiveTreeNode,
     processPerspectiveDefaultColunns,
     shouldProcessPerspectiveDefaultColunns,
   } from 'dbgate-datalib';
@@ -60,6 +61,10 @@
   import { useMultipleDatabaseInfo } from '../utility/useMultipleDatabaseInfo';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import PerspectiveDesigner from './PerspectiveDesigner.svelte';
+  import { tick } from 'svelte';
+  import { sleep } from '../utility/common';
+  import FontIcon from '../icons/FontIcon.svelte';
+  import InlineButton from '../buttons/InlineButton.svelte';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -69,6 +74,9 @@
 
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
+
+  let tempRootDesignerId: string = null;
+
   export let loadedCounts;
 
   export let cache;
@@ -140,6 +148,7 @@
           config.rootDesignerId
         )
       : null;
+  $: tempRoot = root?.findNodeByDesignerId(tempRootDesignerId);
 
   $: {
     if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, conid, database)) {
@@ -155,6 +164,20 @@
   <div class="left" slot="1">
     <WidgetColumnBar>
       <WidgetColumnBarItem title="Choose data" name="perspectiveTree" height={'70%'}>
+        {#if tempRoot && tempRoot != root}
+          <div class="temp-root">
+            <div>
+              <FontIcon icon="img table" />
+              {tempRoot.title}
+            </div>
+            <InlineButton
+              on:click={() => {
+                tempRootDesignerId = tempRoot?.parentNode?.designerId;
+              }}>Go up</InlineButton
+            >
+          </div>
+        {/if}
+
         <SearchBoxWrapper>
           <SearchInput placeholder="Search column or table" bind:value={filter} />
           <CloseSearchButton bind:filter />
@@ -162,7 +185,7 @@
 
         <ManagerInnerContainer width={managerSize}>
           {#if root}
-            <PerspectiveTree {root} {config} {setConfig} {conid} {database} {filter} />
+            <PerspectiveTree {root} {tempRoot} {config} {setConfig} {conid} {database} {filter} />
           {/if}
         </ManagerInnerContainer>
       </WidgetColumnBarItem>
@@ -176,7 +199,19 @@
   <svelte:fragment slot="2">
     <VerticalSplitter allowCollapseChild1 allowCollapseChild2>
       <svelte:fragment slot="1">
-        <PerspectiveDesigner {config} {conid} {database} {setConfig} dbInfos={$dbInfos} {root} />
+        <PerspectiveDesigner
+          {config}
+          {conid}
+          {database}
+          {setConfig}
+          dbInfos={$dbInfos}
+          {root}
+          onClickTableHeader={designerId => {
+            sleep(100).then(() => {
+              tempRootDesignerId = designerId;
+            });
+          }}
+        />
       </svelte:fragment>
       <svelte:fragment slot="2">
         <PerspectiveTable {root} {loadedCounts} {config} {setConfig} {conid} {database} />
@@ -190,5 +225,14 @@
     display: flex;
     flex: 1;
     background-color: var(--theme-bg-0);
+  }
+
+  .temp-root {
+    border: 1px solid var(--theme-border);
+    background-color: var(--theme-bg-1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2px;
   }
 </style>

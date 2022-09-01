@@ -14,6 +14,7 @@
   export let database;
   export let node: PerspectiveTreeNode;
   export let root: PerspectiveTreeNode;
+  export let tempRoot: PerspectiveTreeNode;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
 
@@ -25,12 +26,13 @@
       root,
       config,
       setConfig,
+      designerId: node?.designerId,
     });
   }
 </script>
 
 <div class="row" use:contextMenu={createMenu}>
-  <span class="expandColumnIcon" style={`margin-right: ${5 + node.level * 10}px`}>
+  <span class="expandColumnIcon" style={`margin-right: ${5 + (node.level - (tempRoot?.level ?? 0)) * 10}px`}>
     <FontIcon
       icon={node.isExpandable ? plusExpandIcon(node.isExpanded) : 'icon invisible-box'}
       on:click={() => {
@@ -74,7 +76,7 @@
   <span>{node.title}</span>
 
   <SortOrderIcon order={node.sortOrder} orderIndex={node.sortOrderIndex} />
-  
+
   {#if node.getFilter()}
     <FontIcon icon="img filter" />
   {/if}

@@ -25,6 +25,8 @@
 
   export let setConfig;
 
+  export let onClickTableHeader = null;
+
   function createDesignerModel(config: PerspectiveConfig, dbInfos: MultipleDatabaseInfo) {
     return {
       ...config,
@@ -272,6 +274,7 @@
 
       return false;
     },
+    onClickTableHeader,
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}

@@ -134,6 +134,7 @@ export class PerspectiveDataProvider {
     for (; groupIndex < props.bindingValues.length; groupIndex++) {
       const groupValues = props.bindingValues[groupIndex];
       const group = tableCache.getBindingGroup(groupValues);
+      if (!group) continue;
       if (group.loadedAll) continue;
       if (group.groupSize == 0) {
         group.loadedAll = true;

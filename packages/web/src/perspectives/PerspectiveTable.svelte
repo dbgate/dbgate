@@ -181,6 +181,7 @@
             node: column.dataNode,
             root,
             setConfig,
+            designerId: null,
           })
         );
       td.classList.add('highlight');

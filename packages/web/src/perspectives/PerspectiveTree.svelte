@@ -10,7 +10,8 @@
 
   import PerspectiveNodeRow from './PerspectiveNodeRow.svelte';
 
-  export let root;
+  export let root: PerspectiveTreeNode;
+  export let tempRoot: PerspectiveTreeNode;
   export let config: PerspectiveConfig;
   export let setConfig: ChangePerspectiveConfigFunc;
   export let conid;
@@ -37,6 +38,6 @@
   }
 </script>
 
-{#each getFlatColumns(root, filter) as node}
-  <PerspectiveNodeRow {node} {config} {setConfig} {root} {conid} {database} />
+{#each getFlatColumns(tempRoot ?? root, filter) as node}
+  <PerspectiveNodeRow {node} {config} {setConfig} {root} {tempRoot} {conid} {database} />
 {/each}
