@@ -96,6 +96,10 @@ export class PerspectiveDataLoader {
   async loadData(props: PerspectiveDataLoadProps) {
     const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
 
+    if (dataColumns?.length == 0) {
+      return [];
+    }
+
     const select: Select = {
       commandType: 'select',
       from: {
