@@ -190,6 +190,12 @@ export abstract class PerspectiveTreeNode {
     return null;
   }
 
+  get hasUncheckedNodeInPath() {
+    if (!this.parentNode) return false;
+    if (!this.isCheckedNode) return true;
+    return this.parentNode.hasUncheckedNodeInPath;
+  }
+
   get childDataColumn() {
     if (this.isCheckedColumn) {
       return this.codeName;

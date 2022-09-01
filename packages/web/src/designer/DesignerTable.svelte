@@ -66,7 +66,8 @@
   $: top = table?.top;
   $: mainIcon = settings?.getMainTableIcon ? settings?.getMainTableIcon(designerId) : null;
   $: specificDb = settings?.tableSpecificDb ? settings?.tableSpecificDb(designerId) : null;
-  $: filterParentRows = settings?.hasFilterParentRowsFlag ? settings?.hasFilterParentRowsFlag(designerId) : null;
+  $: filterParentRows = settings?.hasFilterParentRowsFlag ? settings?.hasFilterParentRowsFlag(designerId) : false;
+  $: isGrayed = settings?.isGrayedTable ? settings?.isGrayedTable(designerId) : false;
 
   export function isSelected() {
     return table?.isSelectedTable;
@@ -234,6 +235,7 @@
 >
   <div
     class="header"
+    class:isGrayed
     class:isTable={objectTypeField == 'tables'}
     class:isView={objectTypeField == 'views'}
     use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
@@ -354,6 +356,9 @@
   }
   .header.isView {
     background: var(--theme-bg-magenta);
+  }
+  .header.isGrayed {
+    background: var(--theme-bg-2);
   }
   .close {
     background: var(--theme-bg-1);

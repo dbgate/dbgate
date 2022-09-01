@@ -125,7 +125,7 @@
       root &&
       config.nodes.find(x => !x.position) &&
       perspectiveNodesHaveStructure(config, dbInfos, conid, database) &&
-      config.nodes.every(x => root.findNodeByDesignerId(x.designerId))
+      config.nodes.every(x => root?.findNodeByDesignerId(x.designerId))
     ) {
       await tick();
       runCommand('designer.arrange');
@@ -152,8 +152,8 @@
       return [{ text: 'Remove', onClick: () => onRemoveReference(reference) }];
     },
     columnMenu: ({ designer, designerId, column, foreignKey }) => {
-      const node = root.findNodeByDesignerId(designerId);
-      const child = node.childNodes.find(x => x.columnName == column.columnName);
+      const node = root?.findNodeByDesignerId(designerId);
+      const child = node?.childNodes?.find(x => x.columnName == column.columnName);
       return getPerspectiveNodeMenu({
         config,
         setConfig,
@@ -165,7 +165,7 @@
       });
     },
     tableMenu: ({ designer, designerId, onRemoveTable }) => {
-      const node = root.findNodeByDesignerId(designerId);
+      const node = root?.findNodeByDesignerId(designerId);
       return [
         { text: 'Remove', onClick: () => onRemoveTable({ designerId }) },
         getPerspectiveNodeMenu({
@@ -265,6 +265,13 @@
       }
     },
     hasFilterParentRowsFlag: designerId => !!config.nodes.find(x => x.designerId == designerId)?.isParentFilter,
+    isGrayedTable: designerId => {
+      const node = root?.findNodeByDesignerId(designerId);
+      if (!node) return true;
+      if (node?.hasUncheckedNodeInPath) return true;
+
+      return false;
+    },
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}
