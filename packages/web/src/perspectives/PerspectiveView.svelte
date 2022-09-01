@@ -183,7 +183,7 @@
   </div>
 
   <svelte:fragment slot="2">
-    <VerticalSplitter>
+    <VerticalSplitter allowCollapseChild1 allowCollapseChild2>
       <svelte:fragment slot="1">
         <PerspectiveDesigner {config} {conid} {database} {setConfig} dbInfos={$dbInfos} {root} />
       </svelte:fragment>

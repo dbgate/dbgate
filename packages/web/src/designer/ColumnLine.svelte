@@ -210,6 +210,6 @@
   }
   .icon-button:hover {
     background: var(--theme-bg-2);
-    color: var(--theme-icon-blue);
+    color: var(--theme-font-hover);
   }
 </style>
