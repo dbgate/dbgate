@@ -201,7 +201,7 @@ export function processPerspectiveDefaultColunns(
   dbInfos: MultipleDatabaseInfo,
   conid: string,
   database: string
-) {
+): PerspectiveConfig {
   while (config.nodes.filter(x => !x.defaultColumnsProcessed).length > 0) {
     const newConfig = processPerspectiveDefaultColunnsStep(config, dbInfos, conid, database);
     if (!newConfig) {
