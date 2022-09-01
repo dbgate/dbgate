@@ -26,15 +26,10 @@
 
 <script lang="ts">
   import {
-    ChangeConfigFunc,
     ChangePerspectiveConfigFunc,
     extractPerspectiveDatabases,
-    getTableChildPerspectiveNodes,
-    GridConfig,
     PerspectiveConfig,
-    PerspectiveDataLoadProps,
     PerspectiveDataProvider,
-    PerspectiveTableColumnNode,
     PerspectiveTableNode,
     processPerspectiveDefaultColunns,
     shouldProcessPerspectiveDefaultColunns,
@@ -43,7 +38,6 @@
   import _ from 'lodash';
 
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import { useDatabaseInfo, useTableInfo, useViewInfo } from '../utility/metadataLoaders';
   import debug from 'debug';
 
   import { getLocalStorage, setLocalStorage } from '../utility/storageCache';
@@ -52,17 +46,13 @@
   import PerspectiveTree from './PerspectiveTree.svelte';
   import PerspectiveTable from './PerspectiveTable.svelte';
   import { apiCall } from '../utility/api';
-  import { Select } from 'dbgate-sqltree';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
   import stableStringify from 'json-stable-stringify';
-  import createRef from '../utility/createRef';
-  import { tick } from 'svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';
   import { showModal } from '../modals/modalTools';
   import CustomJoinModal from './CustomJoinModal.svelte';
-  import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
   import PerspectiveFilters from './PerspectiveFilters.svelte';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -70,7 +60,6 @@
   import { useMultipleDatabaseInfo } from '../utility/useMultipleDatabaseInfo';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import PerspectiveDesigner from './PerspectiveDesigner.svelte';
-  import runCommand from '../commands/runCommand';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -132,15 +121,16 @@
 
   $: dbInfos = useMultipleDatabaseInfo(perspectiveDatabases);
   $: rootObject = config?.nodes?.find(x => x.designerId == config?.rootDesignerId);
-  $: tableInfo = useTableInfo({ conid, database, ...rootObject });
-  $: viewInfo = useViewInfo({ conid, database, ...rootObject });
+  $: rootDb = rootObject ? $dbInfos?.[rootObject.conid || conid]?.[rootObject.database || database] : null;
+  $: tableInfo = rootDb?.tables.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
+  $: viewInfo = rootDb?.views.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
   $: root =
-    $tableInfo || $viewInfo
+    tableInfo || viewInfo
       ? new PerspectiveTableNode(
-          $tableInfo || $viewInfo,
+          tableInfo || viewInfo,
           $dbInfos,
           config,
           setConfig,
