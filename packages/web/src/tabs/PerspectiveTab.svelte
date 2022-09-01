@@ -45,12 +45,15 @@
   import { registerFileCommands } from '../commands/stdCommands';
   import _ from 'lodash';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let tabid;
   export let conid;
   export let database;
   export let schemaName;
   export let pureName;
+
+  let isFormatError;
 
   export const activator = createActivator('PerspectiveTab', true);
 
@@ -88,7 +91,11 @@
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     onInitialData: value => {
-      dispatchModel({ type: 'reset', value });
+      if (!value.nodes) {
+        isFormatError = true;
+      } else {
+        dispatchModel({ type: 'reset', value });
+      }
       invalidateCommands();
     },
   });
@@ -110,28 +117,32 @@
 </script>
 
 <ToolStripContainer>
-  <PerspectiveView
-    {conid}
-    {database}
-    {driver}
-    config={$modelState.value}
-    setConfig={(value, reload) => {
-      if (reload) {
-        cache.clear();
-      }
-      dispatchModel({
-        type: 'compute',
-        // useMerge: skipUndoChain,
-        compute: v => (_.isFunction(value) ? value(v) : value),
-      });
-      invalidateCommands();
+  {#if isFormatError}
+    <ErrorInfo message="Invalid perspective format, please create new perspective" alignTop />
+  {:else}
+    <PerspectiveView
+      {conid}
+      {database}
+      {driver}
+      config={$modelState.value}
+      setConfig={(value, reload) => {
+        if (reload) {
+          cache.clear();
+        }
+        dispatchModel({
+          type: 'compute',
+          // useMerge: skipUndoChain,
+          compute: v => (_.isFunction(value) ? value(v) : value),
+        });
+        invalidateCommands();
 
-      // config.update(value);
-      // loadedCounts.set({});
-    }}
-    {cache}
-    {loadedCounts}
-  />
+        // config.update(value);
+        // loadedCounts.set({});
+      }}
+      {cache}
+      {loadedCounts}
+    />
+  {/if}
 
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton
