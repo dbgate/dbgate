@@ -207,6 +207,7 @@ export abstract class PerspectiveTreeNode {
 
   toggleCheckedNode(value?: boolean) {
     this.setConfig(cfg => {
+      const oldCheckedValue = cfg.nodes.find(x => x.designerId == this.designerId)?.isNodeChecked;
       const [cfgChanged, nodeCfg] = this.ensureNodeConfig(cfg);
       const res = {
         ...cfgChanged,
@@ -214,7 +215,7 @@ export abstract class PerspectiveTreeNode {
           node.designerId == (this.designerId || nodeCfg.designerId)
             ? {
                 ...node,
-                isNodeChecked: value == null ? !node.isNodeChecked : value,
+                isNodeChecked: value == null ? !oldCheckedValue : value,
               }
             : node
         ),
@@ -252,7 +253,7 @@ export abstract class PerspectiveTreeNode {
         nodeConfig,
       ];
     }
-    return [cfg, null];
+    return [cfg, node];
   }
 
   includeInNodeSet(field: 'expandedColumns' | 'uncheckedColumns' | 'checkedColumns', isIncluded: boolean) {
