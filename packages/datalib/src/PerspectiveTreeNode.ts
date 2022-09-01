@@ -422,6 +422,7 @@ export abstract class PerspectiveTreeNode {
           });
           lastAlias = alias;
           lastNode = node;
+          index += 1;
         }
         if (node?.parentNode?.designerId != this?.designerId) return null;
         select.where = {
