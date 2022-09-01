@@ -372,6 +372,7 @@
     if (!display) return;
     await tick();
     if (!domTable) return;
+    if (!display) return;
     if (disableLoadNextRef.get()) return;
 
     const rowIndex = getLastVisibleRowIndex();
