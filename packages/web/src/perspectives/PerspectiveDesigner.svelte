@@ -264,6 +264,7 @@
         };
       }
     },
+    hasFilterParentRowsFlag: designerId => !!config.nodes.find(x => x.designerId == designerId)?.isParentFilter,
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos)}

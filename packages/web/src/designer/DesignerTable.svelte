@@ -66,6 +66,7 @@
   $: top = table?.top;
   $: mainIcon = settings?.getMainTableIcon ? settings?.getMainTableIcon(designerId) : null;
   $: specificDb = settings?.tableSpecificDb ? settings?.tableSpecificDb(designerId) : null;
+  $: filterParentRows = settings?.hasFilterParentRowsFlag ? settings?.hasFilterParentRowsFlag(designerId) : null;
 
   export function isSelected() {
     return table?.isSelectedTable;
@@ -259,6 +260,10 @@
 
       {#if specificDb}
         <FontIcon icon="icon database" title={specificDb.database} />
+      {/if}
+
+      {#if filterParentRows}
+        <FontIcon icon="icon parent-filter" title="Filter parent rows" />
       {/if}
     </div>
     {#if settings?.showTableCloseButton}
