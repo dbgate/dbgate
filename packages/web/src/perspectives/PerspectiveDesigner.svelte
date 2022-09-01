@@ -154,6 +154,7 @@
         database,
         root,
         node: child,
+        designerId,
       });
     },
     tableMenu: ({ designer, designerId, onRemoveTable }) => {
@@ -236,6 +237,16 @@
     referencePaintSettings: {
       buswi: 10,
       extwi: 10,
+    },
+    canAddDesignerForeignKey: (designerId, columnName) => {
+      const node = root?.findNodeByDesignerId(designerId);
+      const child = node?.childNodes?.find(x => x.columnName == columnName);
+      return child?.isExpandable && !child?.designerId && !child?.isCircular;
+    },
+    addDesignerForeignKey: (designerId, columnName) => {
+      const node = root?.findNodeByDesignerId(designerId);
+      const child = node?.childNodes?.find(x => x.columnName == columnName);
+      child?.toggleCheckedNode(true);
     },
   }}
   referenceComponent={QueryDesignerReference}

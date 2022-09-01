@@ -1,5 +1,7 @@
 <script lang="ts">
   import { findForeignKeyForColumn } from 'dbgate-tools';
+  import InlineButton from '../buttons/InlineButton.svelte';
+  import ToolbarButton from '../buttons/ToolbarButton.svelte';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
 
@@ -23,10 +25,9 @@
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
   );
+  $: foreignKey = findForeignKeyForColumn(table, column);
 
   function createMenu() {
-    const foreignKey = findForeignKeyForColumn(table, column);
-
     if (settings?.columnMenu) {
       return settings?.columnMenu({
         designer,
@@ -143,7 +144,7 @@
       }}
     />
   {/if}
-  <ColumnLabel {...column} foreignKey={findForeignKeyForColumn(table, column)} forceIcon />
+  <ColumnLabel {...column} {foreignKey} forceIcon />
   {#if designerColumn?.filter}
     <FontIcon icon="img filter" />
   {/if}
@@ -178,6 +179,12 @@
       </div>
     {/if}
   {/if}
+
+  {#if foreignKey && settings?.addDesignerForeignKey && settings?.canAddDesignerForeignKey && settings?.canAddDesignerForeignKey(designerId, column.columnName)}
+    <span class="icon-button" on:mousedown={() => settings?.addDesignerForeignKey(designerId, column.columnName)}>
+      <FontIcon icon="icon arrow-right" />
+    </span>
+  {/if}
 </div>
 
 <style>
@@ -195,5 +202,14 @@
   }
   .space {
     flex-grow: 1;
+  }
+
+  .icon-button {
+    margin-left: 4px;
+    cursor: pointer;
+  }
+  .icon-button:hover {
+    background: var(--theme-bg-2);
+    color: var(--theme-icon-blue);
   }
 </style>
