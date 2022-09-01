@@ -21,24 +21,31 @@
 </script>
 
 <div class="container" bind:clientHeight>
-  {#if collapsed1}
-    <div class="child1" style={`flex:1`}>
+  <div
+    class="child1"
+    style={isSplitter
+      ? collapsed1
+        ? 'display:none'
+        : collapsed2
+        ? 'flex:1'
+        : `height:${size}px; min-height:${size}px; max-height:${size}px}`
+      : `flex:1`}
+  >
+    <slot name="1" />
+  </div>
+  {#if isSplitter}
+    <div
+      class={'vertical-split-handle'}
+      style={collapsed1 || collapsed2 ? 'display:none' : ''}
+      use:splitterDrag={'clientY'}
+      on:resizeSplitter={e => (size += e.detail)}
+    />
+    <div
+      class={collapsed1 ? 'child1' : 'child2'}
+      style={collapsed2 ? 'display:none' : collapsed1 ? 'flex:1' : 'child2'}
+    >
       <slot name="2" />
     </div>
-  {:else if collapsed2}
-    <div class="child1" style={`flex:1`}>
-      <slot name="1" />
-    </div>
-  {:else}
-    <div class="child1" style={isSplitter ? `height:${size}px; min-height:${size}px; max-height:${size}px}` : `flex:1`}>
-      <slot name="1" />
-    </div>
-    {#if isSplitter}
-      <div class="vertical-split-handle" use:splitterDrag={'clientY'} on:resizeSplitter={e => (size += e.detail)} />
-      <div class="child2">
-        <slot name="2" />
-      </div>
-    {/if}
   {/if}
 
   {#if allowCollapseChild1 && !collapsed2 && isSplitter}
@@ -123,6 +130,7 @@
     background: var(--theme-bg-2);
     display: flex;
     justify-content: center;
+    z-index: 100;
   }
 
   .collapse:hover {
