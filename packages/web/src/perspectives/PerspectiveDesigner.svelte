@@ -13,6 +13,7 @@
 
   import Designer from '../designer/Designer.svelte';
   import QueryDesignerReference from '../designer/QueryDesignerReference.svelte';
+  import { currentDatabase } from '../stores';
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
 
   export let config: PerspectiveConfig;
@@ -100,6 +101,12 @@
         const newNode = createPerspectiveNodeConfig(table);
         newNode.designerId = table.designerId;
         newNode.position = { x: table.left, y: table.top };
+        if ($currentDatabase?.name != database) {
+          newNode.database = $currentDatabase?.name;
+        }
+        if ($currentDatabase?.connection?._id != conid) {
+          newNode.conid = $currentDatabase?.connection?._id;
+        }
         isArranged = false;
         res.nodes.push(newNode);
       }
@@ -247,6 +254,15 @@
       const node = root?.findNodeByDesignerId(designerId);
       const child = node?.childNodes?.find(x => x.columnName == columnName);
       child?.toggleCheckedNode(true);
+    },
+    tableSpecificDb: designerId => {
+      const node = config.nodes.find(x => x.designerId == designerId);
+      if (node?.conid || node?.database) {
+        return {
+          conid: node.conid,
+          database: node.database,
+        };
+      }
     },
   }}
   referenceComponent={QueryDesignerReference}

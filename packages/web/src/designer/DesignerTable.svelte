@@ -65,6 +65,8 @@
   $: left = table?.left;
   $: top = table?.top;
   $: mainIcon = settings?.getMainTableIcon ? settings?.getMainTableIcon(designerId) : null;
+  $: specificDb = settings?.tableSpecificDb ? settings?.tableSpecificDb(designerId) : null;
+
   export function isSelected() {
     return table?.isSelectedTable;
   }
@@ -254,6 +256,10 @@
       {/if}
 
       {alias || pureName}
+
+      {#if specificDb}
+        <FontIcon icon="icon database" title={specificDb.database} />
+      {/if}
     </div>
     {#if settings?.showTableCloseButton}
       <div class="close" on:click={() => onRemoveTable(table)}>

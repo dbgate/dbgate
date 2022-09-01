@@ -125,10 +125,11 @@
   let perspectiveDatabases = extractPerspectiveDatabases({ conid, database }, config);
   $: {
     const newDatabases = extractPerspectiveDatabases({ conid, database }, config);
-    if (stableStringify(newDatabases) != stableStringify(newDatabases)) {
+    if (stableStringify(newDatabases) != stableStringify(perspectiveDatabases)) {
       perspectiveDatabases = newDatabases;
     }
   }
+
   $: dbInfos = useMultipleDatabaseInfo(perspectiveDatabases);
   $: rootObject = config?.nodes?.find(x => x.designerId == config?.rootDesignerId);
   $: tableInfo = useTableInfo({ conid, database, ...rootObject });
