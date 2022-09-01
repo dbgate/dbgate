@@ -6,7 +6,7 @@ import SettingsModal from '../settings/SettingsModal.svelte';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
 import SqlGeneratorModal from '../modals/SqlGeneratorModal.svelte';
 import { showModal } from '../modals/modalTools';
-import newQuery, { newDiagram, newQueryDesign } from '../query/newQuery';
+import newQuery, { newDiagram, newPerspective, newQueryDesign } from '../query/newQuery';
 import saveTabFile from '../utility/saveTabFile';
 import openNewTab from '../utility/openNewTab';
 import getElectron from '../utility/getElectron';
@@ -127,6 +127,15 @@ registerCommand({
   name: 'Query design',
   menuName: 'New query design',
   onClick: () => newQueryDesign(),
+});
+
+registerCommand({
+  id: 'new.perspective',
+  category: 'New',
+  icon: 'img perspective',
+  name: 'Perspective',
+  menuName: 'New perspective',
+  onClick: () => newPerspective(),
 });
 
 registerCommand({

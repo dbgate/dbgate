@@ -40,3 +40,7 @@ export function newQueryDesign() {
 export function newDiagram() {
   return newQuery({ tabComponent: 'DiagramTab', icon: 'img diagram', title: 'Diagram #' });
 }
+
+export function newPerspective() {
+  return newQuery({ tabComponent: 'PerspectiveTab', icon: 'img perspective', title: 'Perspective #' });
+}

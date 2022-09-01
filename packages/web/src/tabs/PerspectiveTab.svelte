@@ -101,10 +101,14 @@
   });
 
   const [modelState, dispatchModel] = createUndoReducer(
-    createPerspectiveConfig({
-      schemaName,
-      pureName,
-    })
+    createPerspectiveConfig(
+      pureName
+        ? {
+            schemaName,
+            pureName,
+          }
+        : null
+    )
   );
 
   const cache = new PerspectiveCache();

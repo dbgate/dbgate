@@ -116,7 +116,16 @@ export function createPerspectiveNodeConfig(name: { schemaName?: string; pureNam
   return node;
 }
 
-export function createPerspectiveConfig(rootObject: { schemaName?: string; pureName: string }): PerspectiveConfig {
+export function createPerspectiveConfig(rootObject?: { schemaName?: string; pureName: string }): PerspectiveConfig {
+  if (!rootObject) {
+    return {
+      nodes: [],
+      references: [],
+      isArranged: true,
+      rootDesignerId: null,
+    };
+  }
+
   const rootNode = createPerspectiveNodeConfig(rootObject);
   return {
     nodes: [rootNode],

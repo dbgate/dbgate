@@ -8,6 +8,7 @@ module.exports = ({ editMenu }) => [
       { command: 'new.query', hideDisabled: true },
       { command: 'new.queryDesign', hideDisabled: true },
       { command: 'new.diagram', hideDisabled: true },
+      { command: 'new.perspective', hideDisabled: true },
       { command: 'new.freetable', hideDisabled: true },
       { command: 'new.shell', hideDisabled: true },
       { command: 'new.jsonl', hideDisabled: true },
