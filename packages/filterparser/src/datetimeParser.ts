@@ -181,9 +181,22 @@ const binaryCondition = operator => value => ({
   },
 });
 
+const unaryCondition = conditionType => () => {
+  return {
+    conditionType,
+    expr: {
+      exprType: 'placeholder',
+    },
+  };
+};
+
 const createParser = () => {
   const langDef = {
     comma: () => word(','),
+
+    not: () => word('NOT'),
+    notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
+    null: () => word('NULL').map(unaryCondition('isNull')),
 
     yearNum: () => P.regexp(/\d\d\d\d/).map(yearCondition()),
     yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
@@ -264,6 +277,8 @@ const createParser = () => {
         r.lastYear,
         r.thisYear,
         r.nextYear,
+        r.null,
+        r.notNull,
         r.le,
         r.lt,
         r.ge,
