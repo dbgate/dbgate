@@ -24,6 +24,15 @@ function objectTypeToField(type) {
   }
 }
 
+function simplifyComutedExpression(expr) {
+  if (expr) {
+    while (expr.startsWith('(') && expr.endsWith(')')) {
+      expr = expr.slice(1, -1);
+    }
+  }
+  return expr;
+}
+
 function getColumnInfo({
   isNullable,
   isIdentity,
@@ -34,6 +43,7 @@ function getColumnInfo({
   numericScale,
   defaultValue,
   defaultConstraint,
+  computedExpression,
 }) {
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) {
@@ -49,6 +59,7 @@ function getColumnInfo({
     autoIncrement: !!isIdentity,
     defaultValue,
     defaultConstraint,
+    computedExpression: simplifyComutedExpression(computedExpression),
   };
 }
 
