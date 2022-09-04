@@ -209,6 +209,7 @@
     id: 'dataGrid.clearFilter',
     category: 'Data grid',
     name: 'Clear filter',
+    keyText: 'CtrlOrCommand+Shift+E',
     testEnabled: () => getCurrentDataGrid()?.clearFilterEnabled(),
     onClick: () => getCurrentDataGrid().clearFilter(),
   });
