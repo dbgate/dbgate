@@ -8,6 +8,17 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.1
+- ADDED: Perspective designer
+- FIXED: NULL,NOT NULL filter datatime columns #356
+- FIXED: Recognize computed columns on SQL server #354
+- ADDED: Hotkey for clear filter #352
+- FIXED: Change column type on Postgres #350
+- ADDED: Ability to open qdesign file #349
+- ADDED: Custom editor font size #345
+- ADDED: Ability to open perspective files
+
+
 ### 5.1.0
 - ADDED: Perspectives (docs: https://dbgate.org/docs/perspectives.html )
 - CHANGED: Upgraded SQLite engine version (driver better-sqlite3: 7.6.2)
