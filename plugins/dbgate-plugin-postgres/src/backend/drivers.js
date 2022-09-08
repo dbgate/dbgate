@@ -109,6 +109,16 @@ const drivers = driverBases.map(driverBase => ({
     });
 
     query.on('end', () => {
+      const { command, rowCount } = query._result || {};
+
+      if (command != 'SELECT' && _.isNumber(rowCount)) {
+        options.info({
+          message: `${rowCount} rows affected`,
+          time: new Date(),
+          severity: 'info',
+        });
+      }
+
       if (!wasHeader) {
         columns = extractPostgresColumns(query._result);
         if (columns && columns.length > 0) {
