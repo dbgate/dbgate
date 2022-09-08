@@ -77,7 +77,7 @@
 
 {#if $authTypes && driver?.showConnectionField('authType', $values)}
   <FormSelectField
-    label="Authentication"
+    label={driver?.authTypeLabel ?? 'Authentication'}
     name="authType"
     isNative
     disabled={isConnected}
@@ -106,7 +106,7 @@
           name="port"
           disabled={isConnected || disabledFields.includes('port')}
           templateProps={{ noMargin: true }}
-          placeholder={driver && driver.defaultPort}
+          placeholder={driver?.defaultPort}
         />
       </div>
     {/if}
@@ -117,6 +117,15 @@
       Under docker, localhost and 127.0.0.1 will not work, use dockerhost instead
     </div>
   {/if}
+{/if}
+
+{#if driver?.showConnectionField('socketPath', $values)}
+  <FormTextField
+    label="Socket path"
+    name="socketPath"
+    disabled={isConnected || disabledFields.includes('socketPath')}
+    placeholder={driver?.defaultSocketPath}
+  />
 {/if}
 
 {#if showUser && showPassword}

@@ -81,6 +81,7 @@
       'password',
       'defaultDatabase',
       'singleDatabase',
+      'socketPath',
     ];
     const visibleProps = allProps.filter(x => driver?.showConnectionField(x, $values));
     const omitProps = _.difference(allProps, visibleProps);

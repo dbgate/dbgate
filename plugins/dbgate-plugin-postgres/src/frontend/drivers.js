@@ -115,7 +115,12 @@ const postgresDriverBase = {
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'isReadOnly'].includes(field);
     }
-    return ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field);
+
+    return (
+      ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
+      (values.authType == 'socket' && ['socketPath'].includes(field)) ||
+      (values.authType != 'socket' && ['server', 'port'].includes(field))
+    );
   },
 
   beforeConnectionSave: connection => {
@@ -159,6 +164,10 @@ $$ LANGUAGE plpgsql;`,
       },
     ];
   },
+
+  authTypeLabel: 'Connection mode',
+  defaultAuthTypeName: 'hostPort',
+  defaultSocketPath: '/var/run/postgresql',
 };
 
 /** @type {import('dbgate-types').EngineDriver} */

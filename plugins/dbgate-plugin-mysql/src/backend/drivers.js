@@ -29,10 +29,11 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects }) {
-    const connection = mysql2.createConnection({
-      host: server,
-      port,
+  async connect({ server, port, user, password, database, ssl, isReadOnly, forceRowsAsObjects, socketPath, authType }) {
+    const options = {
+      host: authType == 'socket' ? null : server,
+      port: authType == 'socket' ? null : port,
+      socketPath: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : null,
       user,
       password,
       database,
@@ -43,7 +44,9 @@ const drivers = driverBases.map(driverBase => ({
       dateStrings: true,
       // TODO: test following options
       // multipleStatements: true,
-    });
+    };
+
+    const connection = mysql2.createConnection(options);
     connection._database_name = database;
     if (isReadOnly) {
       await this.query(connection, 'SET SESSION TRANSACTION READ ONLY');
@@ -181,6 +184,20 @@ const drivers = driverBases.map(driverBase => ({
       outputFile,
     });
     return res;
+  },
+  getAuthTypes() {
+    return [
+      {
+        title: 'Host and port',
+        name: 'hostPort',
+        disabledFields: ['socketPath'],
+      },
+      {
+        title: 'Socket',
+        name: 'socket',
+        disabledFields: ['server', 'port'],
+      },
+    ];
   },
 }));
 

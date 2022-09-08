@@ -102,21 +102,25 @@ const dialect = {
 const mysqlDriverBase = {
   ...driverBase,
   showConnectionField: (field, values) =>
-    ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field),
+    ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
+    (values.authType == 'socket' && ['socketPath'].includes(field)) ||
+    (values.authType != 'socket' && ['server', 'port'].includes(field)),
   dumperClass: Dumper,
   dialect,
   defaultPort: 3306,
   getQuerySplitterOptions: () => mysqlSplitterOptions,
   readOnlySessions: true,
   supportsDatabaseDump: true,
+  authTypeLabel: 'Connection mode',
+  defaultAuthTypeName: 'hostPort',
+  defaultSocketPath: '/var/run/mysqld/mysqld.sock',
 
   getNewObjectTemplates() {
     return [
       { label: 'New view', sql: 'CREATE VIEW myview\nAS\nSELECT * FROM table1' },
       {
         label: 'New procedure',
-        sql:
-          'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
+        sql: 'DELIMITER //\n\nCREATE PROCEDURE myproc (IN arg1 INT)\nBEGIN\n  SELECT * FROM table1;\nEND\n\nDELIMITER ;',
       },
       { label: 'New function', sql: 'CREATE FUNCTION myfunc (arg1 INT)\nRETURNS INT DETERMINISTIC\nRETURN 1' },
     ];

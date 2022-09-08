@@ -31,7 +31,20 @@ const drivers = driverBases.map(driverBase => ({
   ...driverBase,
   analyserClass: Analyser,
 
-  async connect({ engine, server, port, user, password, database, databaseUrl, useDatabaseUrl, ssl, isReadOnly }) {
+  async connect({
+    engine,
+    server,
+    port,
+    user,
+    password,
+    database,
+    databaseUrl,
+    useDatabaseUrl,
+    ssl,
+    isReadOnly,
+    authType,
+    socketPath,
+  }) {
     let options = null;
 
     if (engine == 'redshift@dbgate-plugin-postgres') {
@@ -56,14 +69,16 @@ const drivers = driverBases.map(driverBase => ({
             connectionString: databaseUrl,
           }
         : {
-            host: server,
-            port,
+            host: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : server,
+            port: authType == 'socket' ? null : port,
             user,
             password,
             database: database || 'postgres',
             ssl,
           };
     }
+
+    console.log('OPTIONS', options);
 
     const client = new pg.Client(options);
     await client.connect();
@@ -232,6 +247,19 @@ const drivers = driverBases.map(driverBase => ({
   async listDatabases(client) {
     const { rows } = await this.query(client, 'SELECT datname AS name FROM pg_database WHERE datistemplate = false');
     return rows;
+  },
+
+  getAuthTypes() {
+    return [
+      {
+        title: 'Host and port',
+        name: 'hostPort',
+      },
+      {
+        title: 'Socket',
+        name: 'socket',
+      },
+    ];
   },
 }));
 
