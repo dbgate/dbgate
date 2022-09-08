@@ -89,7 +89,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const handleRow = row => {
-      if (row && row.constructor && row.constructor.name == 'OkPacket') {
+      if (row && row.constructor && (row.constructor.name == 'OkPacket' || row.constructor.name == 'ResultSetHeader')) {
         options.info({
           message: `${row.affectedRows} rows affected`,
           time: new Date(),
