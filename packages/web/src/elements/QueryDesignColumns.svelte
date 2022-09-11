@@ -182,7 +182,7 @@
       <SelectField
         isNative
         style="min-width:calc(100% - 9px)"
-        value={row.sortOrder}
+        value={row.sortOrder?.toString()}
         on:change={e => {
           changeColumn({ ...row, sortOrder: parseInt(e.detail) });
         }}
