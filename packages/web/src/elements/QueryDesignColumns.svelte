@@ -18,6 +18,7 @@
   import TableControl from './TableControl.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import _ from 'lodash';
+  import FontIcon from '../icons/FontIcon.svelte';
 
   export let value;
   export let onChange;
@@ -36,6 +37,28 @@
       ...current,
       columns: (current.columns || []).filter(x => x.designerId != col.designerId || x.columnName != col.columnName),
     }));
+  };
+
+  const moveColumn = (col, d) => {
+    onChange(current => {
+      const index = _.findIndex(
+        current.columns || [],
+        x => col.designerId == x.designerId && col.columnName == x.columnName
+      );
+
+      if (index >= 0 && index + d >= 0 && index + d < current.columns?.length) {
+        const columns = [...current.columns];
+
+        [columns[index], columns[index + d]] = [columns[index + d], columns[index]];
+
+        return {
+          ...current,
+          columns,
+        };
+      }
+
+      return current;
+    });
   };
 
   const addExpressionColumn = () => {
@@ -207,7 +230,11 @@
       />
     </svelte:fragment>
     <svelte:fragment slot="7" let:row>
-      <InlineButton on:click={() => removeColumn(row)}>Remove</InlineButton>
+      <div class="flex">
+        <InlineButton on:click={() => removeColumn(row)} square><FontIcon icon="icon delete" /></InlineButton>
+        <InlineButton on:click={() => moveColumn(row, -1)} square><FontIcon icon="icon arrow-up" /></InlineButton>
+        <InlineButton on:click={() => moveColumn(row, 1)} square><FontIcon icon="icon arrow-down" /></InlineButton>
+      </div>
     </svelte:fragment>
   </TableControl>
   <FormStyledButton value="Add custom expression" on:click={addExpressionColumn} style="width:200px" />
