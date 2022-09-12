@@ -101,7 +101,8 @@ export interface PerspectiveConfig {
 
 export function createPerspectiveNodeConfig(name: { schemaName?: string; pureName: string }) {
   const node: PerspectiveNodeConfig = {
-    ...name,
+    pureName: name.pureName,
+    schemaName: name.schemaName,
     designerId: uuidv1(),
 
     expandedColumns: [],
