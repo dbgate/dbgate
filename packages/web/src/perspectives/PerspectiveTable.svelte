@@ -166,6 +166,7 @@
   function buildMenu({ targetElement, registerCloseHandler }) {
     const res = [];
     const td = targetElement.closest('td') || targetElement.closest('th');
+    const isHeader = !!targetElement.closest('th');
 
     if (td) {
       const tr = td.closest('tr');
@@ -210,6 +211,40 @@
               },
             });
           },
+        });
+      }
+
+      const setColumnDisplay = type => {
+        setConfig(cfg => ({
+          ...cfg,
+          nodes: cfg.nodes.map(n =>
+            n.designerId == column?.dataNode?.parentNode?.designerId
+              ? {
+                  ...n,
+                  columnDisplays: { ...n.columnDisplays, [column.dataNode.columnName]: type },
+                }
+              : n
+          ),
+        }));
+      };
+
+      if (isHeader && !tableNode?.headerTableAttributes) {
+        res.push({
+          text: `Change display (${
+            config.nodes.find(x => x.designerId == column?.dataNode?.parentNode?.designerId)?.columnDisplays?.[
+              column.dataNode.columnName
+            ] || 'default'
+          })`,
+          submenu: [
+            {
+              text: 'JSON',
+              onClick: () => setColumnDisplay('json'),
+            },
+            {
+              text: 'Default',
+              onClick: () => setColumnDisplay('default'),
+            },
+          ],
         });
       }
 
@@ -458,6 +493,7 @@
                   value={row.rowData[column.columnIndex]}
                   rowSpan={row.rowSpans[column.columnIndex]}
                   rowData={row.rowData}
+                  displayType={column.displayType}
                 />
               {/if}
             {/each}

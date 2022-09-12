@@ -15,9 +15,9 @@
   export let expanded = expandAll;
   export let labelOverride = null;
 
-  export let isDeleted;
-  export let isInserted;
-  export let isModified;
+  export let isDeleted = false;
+  export let isInserted = false;
+  export let isModified = false;
 
   setContext('json-tree-default-expanded', expandAll);
 

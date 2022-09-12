@@ -61,6 +61,7 @@ export interface PerspectiveNodeConfig {
 
   expandedColumns: string[];
   checkedColumns: string[];
+  columnDisplays: {};
   // uncheckedColumns: string[];
 
   sort: {
@@ -107,6 +108,7 @@ export function createPerspectiveNodeConfig(name: { schemaName?: string; pureNam
 
     expandedColumns: [],
     checkedColumns: [],
+    columnDisplays: {},
 
     sort: [],
     filters: {},

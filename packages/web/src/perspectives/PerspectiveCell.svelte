@@ -1,15 +1,23 @@
 <script lang="ts">
+  import { safeJsonParse } from 'dbgate-tools';
+
   import CellValue from '../datagrid/CellValue.svelte';
+  import JSONTree from '../jsontree/JSONTree.svelte';
 
   export let value;
   export let rowSpan;
   export let rowData;
   export let columnIndex;
+  export let displayType;
 </script>
 
 <td rowspan={rowSpan} data-column={columnIndex}>
   {#if value !== undefined}
-    <CellValue {rowData} {value} />
+    {#if displayType == 'json'}
+      <JSONTree value={safeJsonParse(value)} />
+    {:else}
+      <CellValue {rowData} {value} />
+    {/if}
   {/if}
 </td>
 

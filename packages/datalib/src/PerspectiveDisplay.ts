@@ -16,6 +16,7 @@ function getJoinId(): number {
 export class PerspectiveDisplayColumn {
   title: string;
   dataField: string;
+  displayType: string;
   parentNodes: PerspectiveTreeNode[] = [];
   colSpanAtLevel = {};
   columnIndex = 0;
@@ -140,6 +141,7 @@ export class PerspectiveDisplay {
       column.display = this;
       column.columnIndex = this.columns.length;
       column.dataNode = node;
+      column.displayType = node.parentNodeConfig?.columnDisplays?.[node.columnName];
       this.columns.push(column);
     }
 
