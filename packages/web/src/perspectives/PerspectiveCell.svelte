@@ -14,7 +14,7 @@
 <td rowspan={rowSpan} data-column={columnIndex}>
   {#if value !== undefined}
     {#if displayType == 'json'}
-      <JSONTree value={safeJsonParse(value)} />
+      <JSONTree value={safeJsonParse(value)} slicedKeyCount={1} disableContextMenu />
     {:else}
       <CellValue {rowData} {value} />
     {/if}

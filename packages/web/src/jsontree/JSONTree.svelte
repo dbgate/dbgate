@@ -14,12 +14,15 @@
   export let expandAll = false;
   export let expanded = expandAll;
   export let labelOverride = null;
+  export let slicedKeyCount = null;
+  export let disableContextMenu = null;
 
   export let isDeleted = false;
   export let isInserted = false;
   export let isModified = false;
 
   setContext('json-tree-default-expanded', expandAll);
+  if (slicedKeyCount) setContext('json-tree-sliced-key-count', slicedKeyCount);
 
   const elementData = new WeakMap();
 
@@ -69,7 +72,12 @@
   }
 </script>
 
-<ul use:contextMenu={[parentMenu, menu, getElementMenu]} class:isDeleted class:isInserted class:isModified>
+<ul
+  use:contextMenu={disableContextMenu ? '__no_menu' : [parentMenu, menu, getElementMenu]}
+  class:isDeleted
+  class:isInserted
+  class:isModified
+>
   <JSONNode {key} {value} isParentExpanded={true} isParentArray={false} {expanded} {labelOverride} />
 </ul>
 
@@ -101,7 +109,8 @@
     --li-line-height: var(--json-tree-li-line-height, 1.3);
     --li-colon-space: 0.3em;
     font-size: var(--json-tree-font-size, 12px);
-    font-family: var(--json-tree-font-family, 'Courier New', Courier, monospace);
+    /* font-family: var(--json-tree-font-family, 'Courier New', Courier, monospace); */
+    font-family: var(--json-tree-font-family, monospace);
   }
   ul :global(li) {
     line-height: var(--li-line-height);

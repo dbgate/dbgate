@@ -15,8 +15,9 @@
   const context = getContext('json-tree-context-key');
   setContext('json-tree-context-key', { ...context, colon })
   const elementData=getContext('json-tree-element-data');
+  const slicedKeyCount = getContext('json-tree-sliced-key-count');
 
-  $: slicedKeys = expanded ? keys: previewKeys.slice(0, 5);
+  $: slicedKeys = expanded ? keys: previewKeys.slice(0, slicedKeyCount || 5);
 
   $: if (!isParentExpanded) {
     expanded = false;
