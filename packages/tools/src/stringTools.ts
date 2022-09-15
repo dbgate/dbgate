@@ -46,6 +46,9 @@ export function stringifyCellValue(value) {
 }
 
 export function safeJsonParse(json, defaultValue?, logError = false) {
+  if (_isArray(json) || _isPlainObject(json)) {
+    return json;
+  }
   try {
     return JSON.parse(json);
   } catch (err) {
@@ -92,4 +95,23 @@ export function isWktGeometry(s) {
   return !!s.match(
     /^POINT\s*\(|^LINESTRING\s*\(|^POLYGON\s*\(|^MULTIPOINT\s*\(|^MULTILINESTRING\s*\(|^MULTIPOLYGON\s*\(|^GEOMCOLLECTION\s*\(|^GEOMETRYCOLLECTION\s*\(/
   );
+}
+
+export function arrayBufferToBase64(buffer) {
+  var binary = '';
+  var bytes = [].slice.call(new Uint8Array(buffer));
+  bytes.forEach(b => (binary += String.fromCharCode(b)));
+  return btoa(binary);
+}
+
+export function getAsImageSrc(obj) {
+  if (obj?.type == 'Buffer' && _isArray(obj?.data)) {
+    return `data:image/png;base64, ${arrayBufferToBase64(obj?.data)}`;
+  }
+
+  if (_isString(obj) && (obj.startsWith('http://') || obj.startsWith('https://'))) {
+    return obj;
+  }
+
+  return null;
 }

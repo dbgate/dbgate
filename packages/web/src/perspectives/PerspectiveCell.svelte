@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { safeJsonParse } from 'dbgate-tools';
+  import { getAsImageSrc, safeJsonParse } from 'dbgate-tools';
+  import { isArray } from 'lodash';
 
   import CellValue from '../datagrid/CellValue.svelte';
   import JSONTree from '../jsontree/JSONTree.svelte';
@@ -14,7 +15,14 @@
 <td rowspan={rowSpan} data-column={columnIndex}>
   {#if value !== undefined}
     {#if displayType == 'json'}
-      <JSONTree value={safeJsonParse(value)} slicedKeyCount={1} disableContextMenu />
+      <JSONTree value={safeJsonParse(value, value?.toString())} slicedKeyCount={1} disableContextMenu />
+    {:else if displayType == 'image'}
+      {@const src = getAsImageSrc(value)}
+      {#if src}
+        <img {src} />
+      {:else}
+        <span class="null"> (no image)</span>
+      {/if}
     {:else}
       <CellValue {rowData} {value} />
     {/if}
@@ -36,5 +44,9 @@
   td:global(.highlight) {
     border: 3px solid var(--theme-icon-blue);
     padding: 0px;
+  }
+  .null {
+    color: var(--theme-font-3);
+    font-style: italic;
   }
 </style>

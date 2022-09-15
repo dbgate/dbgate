@@ -237,12 +237,16 @@
           })`,
           submenu: [
             {
+              text: 'Default',
+              onClick: () => setColumnDisplay('default'),
+            },
+            {
               text: 'JSON',
               onClick: () => setColumnDisplay('json'),
             },
             {
-              text: 'Default',
-              onClick: () => setColumnDisplay('default'),
+              text: 'Image',
+              onClick: () => setColumnDisplay('image'),
             },
           ],
         });
