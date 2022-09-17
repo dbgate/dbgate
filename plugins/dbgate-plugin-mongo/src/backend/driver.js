@@ -179,7 +179,7 @@ const driver = {
     exprValue = func(db, ObjectId);
 
     // return directly stream without header row
-    return exprValue;
+    return exprValue.stream();
 
     // pass.write(structure || { __isDynamicStructure: true });
     // exprValue.on('data', (row) => pass.write(row));
@@ -331,7 +331,8 @@ const driver = {
     const res = db
       .collection(collection)
       .find(condition || {})
-      .sort(sort || {});
+      .sort(sort || {})
+      .stream();
 
     return res;
   },

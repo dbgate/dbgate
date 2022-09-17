@@ -20,7 +20,9 @@ async function queryReader({
   const driver = requireEngineDriver(connection);
   const pool = await connectUtility(driver, connection, queryType == 'json' ? 'read' : 'script');
   console.log(`Connected.`);
-  return queryType == 'json' ? await driver.readJsonQuery(pool, query) : await driver.readQuery(pool, query || sql);
+  const reader =
+    queryType == 'json' ? await driver.readJsonQuery(pool, query) : await driver.readQuery(pool, query || sql);
+  return reader;
 }
 
 module.exports = queryReader;
