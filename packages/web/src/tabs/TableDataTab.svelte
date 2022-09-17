@@ -246,6 +246,12 @@
 
     <!-- <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
     <ToolStripCommandButton command="dataForm.refresh" hideDisabled /> -->
+
+    <ToolStripCommandButton command="dataForm.goToFirst" hideDisabled />
+    <ToolStripCommandButton command="dataForm.goToPrevious" hideDisabled />
+    <ToolStripCommandButton command="dataForm.goToNext" hideDisabled />
+    <ToolStripCommandButton command="dataForm.goToLast" hideDisabled />
+
     <ToolStripCommandButton command="tableData.save" />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
