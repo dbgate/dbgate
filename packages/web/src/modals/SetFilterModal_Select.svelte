@@ -14,6 +14,8 @@
           { value: '>', label: 'is greater' },
           { value: '<=', label: 'is smaller or equal' },
           { value: '>=', label: 'is greater or equal' },
+          { value: 'NULL', label: 'is NULL' },
+          { value: 'NOT NULL', label: 'is not NULL' },
         ];
       case 'string':
         return [
@@ -29,6 +31,8 @@
           { value: '>', label: 'is greater' },
           { value: '<=', label: 'is smaller or equal' },
           { value: '>=', label: 'is greater or equal' },
+          { value: 'NULL', label: 'is NULL' },
+          { value: 'NOT NULL', label: 'is not NULL' },
         ];
       case 'datetime':
         return [
@@ -38,6 +42,8 @@
           { value: '>', label: 'is after' },
           { value: '<=', label: 'is before or equal' },
           { value: '>=', label: 'is after or equal' },
+          { value: 'NULL', label: 'is NULL' },
+          { value: 'NOT NULL', label: 'is not NULL' },
         ];
       case 'mongo':
         return [
@@ -53,6 +59,8 @@
           { value: '!^', label: 'does not begin with' },
           { value: '$', label: 'ends with' },
           { value: '!$', label: 'does not end with' },
+          { value: 'EXISTS', label: 'field exists' },
+          { value: 'NOT EXISTS', label: 'field does not exist' },
         ];
       case 'eval':
         return [
@@ -68,6 +76,8 @@
           { value: '!^', label: 'does not begin with' },
           { value: '$', label: 'ends with' },
           { value: '!$', label: 'does not end with' },
+          { value: 'NULL', label: 'is NULL' },
+          { value: 'NOT NULL', label: 'is not NULL' },
         ];
     }
   }
