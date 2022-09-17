@@ -190,6 +190,16 @@ const unaryCondition = conditionType => () => {
   };
 };
 
+const sqlTemplate = templateSql => {
+  return {
+    conditionType: 'rawTemplate',
+    templateSql,
+    expr: {
+      exprType: 'placeholder',
+    },
+  };
+};
+
 const createParser = () => {
   const langDef = {
     comma: () => word(','),
@@ -197,6 +207,11 @@ const createParser = () => {
     not: () => word('NOT'),
     notNull: r => r.not.then(r.null).map(unaryCondition('isNotNull')),
     null: () => word('NULL').map(unaryCondition('isNull')),
+
+    sql: () =>
+      token(P.regexp(/\{(.*?)\}/, 1))
+        .map(sqlTemplate)
+        .desc('sql literal'),
 
     yearNum: () => P.regexp(/\d\d\d\d/).map(yearCondition()),
     yearMonthNum: () => P.regexp(/\d\d\d\d-\d\d?/).map(yearMonthCondition()),
@@ -282,7 +297,8 @@ const createParser = () => {
         r.le,
         r.lt,
         r.ge,
-        r.gt
+        r.gt,
+        r.sql
       ).trim(whitespace),
     factor: r => r.element.sepBy(whitespace).map(compoudCondition('$and')),
     list: r => r.factor.sepBy(r.comma).map(compoudCondition('$or')),

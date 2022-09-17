@@ -72,5 +72,15 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       dumpSqlExpression(dmp, condition.expr);
       dmp.put(' ^in (%,v)', condition.values);
       break;
+    case 'rawTemplate':
+      let was = false;
+      for (const item of condition.templateSql.split('$$')) {
+        if (was) {
+          dumpSqlExpression(dmp, condition.expr);
+        }
+        dmp.putRaw(item);
+        was = true;
+      }
+      break;
   }
 }

@@ -105,6 +105,12 @@ export interface InCondition {
   values: any[];
 }
 
+export interface RawTemplateCondition {
+  conditionType: 'rawTemplate';
+  templateSql: string;
+  expr: Expression;
+}
+
 export type Condition =
   | BinaryCondition
   | NotCondition
@@ -114,7 +120,8 @@ export type Condition =
   | ExistsCondition
   | NotExistsCondition
   | BetweenCondition
-  | InCondition;
+  | InCondition
+  | RawTemplateCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

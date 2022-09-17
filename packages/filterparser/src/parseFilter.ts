@@ -68,6 +68,16 @@ const negateCondition = condition => {
   };
 };
 
+const sqlTemplate = templateSql => {
+  return {
+    conditionType: 'rawTemplate',
+    templateSql,
+    expr: {
+      exprType: 'placeholder',
+    },
+  };
+};
+
 const createParser = (filterType: FilterType) => {
   const langDef = {
     string1: () =>
@@ -96,6 +106,11 @@ const createParser = (filterType: FilterType) => {
         .desc('number'),
 
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
+
+    sql: () =>
+      token(P.regexp(/\{(.*?)\}/, 1))
+        .map(sqlTemplate)
+        .desc('sql literal'),
 
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
@@ -139,7 +154,7 @@ const createParser = (filterType: FilterType) => {
     allowedValues.push('string1Num', 'string2Num', 'number');
   }
 
-  const allowedElements = ['null', 'notNull', 'eq', 'ne', 'ne2'];
+  const allowedElements = ['null', 'notNull', 'eq', 'ne', 'ne2', 'sql'];
   if (filterType == 'number' || filterType == 'datetime' || filterType == 'eval') {
     allowedElements.push('le', 'ge', 'lt', 'gt');
   }
