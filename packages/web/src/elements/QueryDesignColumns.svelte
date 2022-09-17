@@ -217,6 +217,20 @@
           { label: '2nd, descending', value: '-2' },
           { label: '3rd, ascending', value: '3' },
           { label: '3rd, descending', value: '-3' },
+          { label: '4th, ascending', value: '4' },
+          { label: '4th, descending', value: '-4' },
+          { label: '5th, ascending', value: '5' },
+          { label: '5th, descending', value: '-5' },
+          { label: '6th, ascending', value: '6' },
+          { label: '6th, descending', value: '-6' },
+          { label: '7th, ascending', value: '7' },
+          { label: '7th, descending', value: '-7' },
+          { label: '8th, ascending', value: '8' },
+          { label: '8th, descending', value: '-8' },
+          { label: '9th, ascending', value: '9' },
+          { label: '9th, descending', value: '-9' },
+          { label: '10th, ascending', value: '10' },
+          { label: '10th, descending', value: '-10' },
         ]}
       />
     </svelte:fragment>
