@@ -12,7 +12,7 @@
   export let displayType;
 </script>
 
-<td rowspan={rowSpan} data-column={columnIndex}>
+<td rowspan={rowSpan} data-column={columnIndex} class:isEmpty={value===undefined}>
   {#if value !== undefined}
     {#if displayType == 'json'}
       <JSONTree value={safeJsonParse(value, value?.toString())} slicedKeyCount={1} disableContextMenu />
@@ -41,6 +41,11 @@
     border-bottom: 1px solid var(--theme-border);
     border-right: 1px solid var(--theme-border);
   }
+
+  td.isEmpty {
+    background-color: var(--theme-bg-1);
+  }
+
   td:global(.highlight) {
     border: 3px solid var(--theme-icon-blue);
     padding: 0px;
