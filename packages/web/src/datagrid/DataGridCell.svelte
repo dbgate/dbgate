@@ -48,6 +48,15 @@
 
   $: isJson = _.isPlainObject(value) && !(value?.type == 'Buffer' && _.isArray(value.data)) && !value.$oid;
   $: jsonParsedValue = isJsonLikeLongString(value) ? safeJsonParse(value) : null;
+
+  function shouldShowTextModalButton(col) {
+    const m = col?.dataType?.match(/.*char.*\(([^\)]+)\)/);
+    if (m && m[1]) {
+      return parseInt(m[1]) >= 30 || m[1]?.toUpperCase() == 'MAX';
+    }
+    return false;
+  }
+
 </script>
 
 <td
@@ -113,6 +122,10 @@
       }}
     />
   {/if}
+
+  <!-- {#if shouldShowTextModalButton(col)}
+    <ShowFormButton icon="icon edit" on:click={() => openJsonDocument(value, undefined, true)} />
+  {/if} -->
 
   {#if isAutoFillMarker}
     <div class="autoFillMarker autofillHandleMarker" />
