@@ -22,6 +22,8 @@
   const createTerm = (condition, value) => {
     if (!hasOperand(condition)) return condition;
     if (!value) return null;
+    if (condition == 'sql') return `{${value}}`;
+    if (condition == 'sqlRight') return `{$$ ${value}}`;
     if (filterType == 'string') return `${condition}"${value}"`;
     return `${condition}${value}`;
   };

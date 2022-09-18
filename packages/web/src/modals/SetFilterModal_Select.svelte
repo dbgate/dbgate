@@ -16,6 +16,8 @@
           { value: '>=', label: 'is greater or equal' },
           { value: 'NULL', label: 'is NULL' },
           { value: 'NOT NULL', label: 'is not NULL' },
+          { value: 'sql', label: 'SQL condition' },
+          { value: 'sqlRight', label: 'SQL condition - right side only' },
         ];
       case 'string':
         return [
@@ -33,6 +35,8 @@
           { value: '>=', label: 'is greater or equal' },
           { value: 'NULL', label: 'is NULL' },
           { value: 'NOT NULL', label: 'is not NULL' },
+          { value: 'sql', label: 'SQL condition' },
+          { value: 'sqlRight', label: 'SQL condition - right side only' },
         ];
       case 'datetime':
         return [
@@ -44,6 +48,8 @@
           { value: '>=', label: 'is after or equal' },
           { value: 'NULL', label: 'is NULL' },
           { value: 'NOT NULL', label: 'is not NULL' },
+          { value: 'sql', label: 'SQL condition' },
+          { value: 'sqlRight', label: 'SQL condition - right side only' },
         ];
       case 'mongo':
         return [

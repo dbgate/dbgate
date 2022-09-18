@@ -70,6 +70,11 @@
           { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
           { onClick: () => openFilterWindow('<'), text: 'Less Than...' },
           { onClick: () => openFilterWindow('<='), text: 'Less Than Or Equal To...' },
+
+          { divider: true },
+
+          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
         ];
       case 'logical':
         return [
@@ -81,6 +86,11 @@
           { onClick: () => setFilter('FALSE'), text: 'Is False' },
           { onClick: () => setFilter('TRUE, NULL'), text: 'Is True or NULL' },
           { onClick: () => setFilter('FALSE, NULL'), text: 'Is False or NULL' },
+
+          { divider: true },
+
+          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
         ];
       case 'datetime':
         return [
@@ -120,6 +130,9 @@
           { onClick: () => setFilter('LAST YEAR'), text: 'Last Year' },
 
           { divider: true },
+
+          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
         ];
       case 'string':
         return [
@@ -141,6 +154,11 @@
           { onClick: () => openFilterWindow('!^'), text: 'Does Not Begin With...' },
           { onClick: () => openFilterWindow('$'), text: 'Ends With...' },
           { onClick: () => openFilterWindow('!$'), text: 'Does Not End With...' },
+
+          { divider: true },
+
+          { onClick: () => openFilterWindow('sql'), text: 'SQL condition ...' },
+          { onClick: () => openFilterWindow('sqlRight'), text: 'SQL condition - right side ...' },
         ];
       case 'mongo':
         return [
