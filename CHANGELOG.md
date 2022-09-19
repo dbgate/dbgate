@@ -8,6 +8,19 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.2
+- FIXED: MongoDb any export function does not work. #373
+- ADDED: Query Designer short order more flexibility #372
+- ADDED: Form View move between records #370
+- ADDED: Custom SQL conditions in query designer and table filtering #369
+- ADDED: Query Designer filter eq to X or IS NULL #368
+- FIXED: Query designer, open a saved query lost sort order #363
+- ADDED: Query designer reorder columns #362
+- ADDED: connect via socket #358
+- FIXED: Show affected rows after UPDATE/DELETE/INSERT #361
+- ADDED: Perspective cell formatters - JSON, image
+- ADDED: Perspectives - undefined cells are gray
+
 ### 5.1.1
 - ADDED: Perspective designer
 - FIXED: NULL,NOT NULL filter datatime columns #356
