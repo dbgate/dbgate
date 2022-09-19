@@ -19,7 +19,7 @@ Builds:
 - ADDED: connect via socket #358
 - FIXED: Show affected rows after UPDATE/DELETE/INSERT #361
 - ADDED: Perspective cell formatters - JSON, image
-- ADDED: Perspectives - undefined cells are gray
+- ADDED: Perspectives - cells without joined data are gray
 
 ### 5.1.1
 - ADDED: Perspective designer
