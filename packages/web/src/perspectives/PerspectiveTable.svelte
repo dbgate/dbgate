@@ -537,7 +537,7 @@
 </div>
 
 {#if rowCount != null}
-  <StatusBarTabItem text={`Rows: ${rowCount.toLocaleString()}`} />
+  <StatusBarTabItem text={`${root?.namedObject?.pureName} rows: ${rowCount.toLocaleString()}`} />
 {/if}
 
 <style>
