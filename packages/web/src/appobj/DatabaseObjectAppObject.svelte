@@ -1,7 +1,14 @@
 <script lang="ts" context="module">
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
-  export const createMatcher = ({ schemaName, pureName, columns }) => filter =>
-    filterName(filter, pureName, schemaName, ...(columns?.map(({ columnName }) => ({ childName: columnName })) || []));
+  export const createMatcher =
+    ({ schemaName, pureName, columns }) =>
+    filter =>
+      filterName(
+        filter,
+        pureName,
+        schemaName,
+        ...(columns?.map(({ columnName }) => ({ childName: columnName })) || [])
+      );
   export const createTitle = ({ pureName }) => pureName;
 
   export const databaseObjectIcons = {
@@ -61,6 +68,11 @@
       {
         label: 'Rename table',
         isRename: true,
+        requiresWriteAccess: true,
+      },
+      {
+        label: 'Truncate table',
+        isTruncate: true,
         requiresWriteAccess: true,
       },
       {
@@ -472,6 +484,21 @@
           db[data.objectTypeField] as any[],
           x => x.schemaName == data.schemaName && x.pureName == data.pureName
         );
+      });
+    } else if (menu.isTruncate) {
+      const { conid, database } = data;
+      const driver = await getDriver();
+      const dmp = driver.createDumper();
+      dmp.truncateTable(data);
+
+      const sql = dmp.s;
+
+      showModal(ConfirmSqlModal, {
+        sql,
+        onConfirm: async () => {
+          saveScriptToDatabase({ conid, database }, sql);
+        },
+        engine: driver.engine,
       });
     } else if (menu.isRename) {
       const { conid, database } = data;

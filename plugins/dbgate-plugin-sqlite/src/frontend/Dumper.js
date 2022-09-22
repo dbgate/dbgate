@@ -12,6 +12,10 @@ class Dumper extends SqlDumper {
   putByteArrayValue(value) {
     this.putRaw(`x'${arrayToHexString(value)}'`);
   }
+
+  truncateTable(name) {
+    this.putCmd('^delete ^from %f', name);
+  }
 }
 
 module.exports = Dumper;

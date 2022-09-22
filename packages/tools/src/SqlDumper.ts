@@ -527,7 +527,7 @@ export class SqlDumper implements AlterProcessor {
   }
 
   truncateTable(name: NamedObjectInfo) {
-    this.putCmd('^delete ^from %f', name);
+    this.putCmd('^truncate ^table %f', name);
   }
 
   dropConstraints(table: TableInfo, dropReferences = false) {
