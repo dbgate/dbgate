@@ -5,6 +5,8 @@
   import { openJsonDocument } from '../tabs/JsonTab.svelte';
   import openNewTab from '../utility/openNewTab';
   import CellValue from './CellValue.svelte';
+  import { showModal } from '../modals/modalTools';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
 
   export let rowIndex;
   export let col;
@@ -29,6 +31,7 @@
   export let isAutoFillMarker = false;
   export let isCurrentCell = false;
   export let onDictionaryLookup = null;
+  export let onSetValue;
 
   $: value = col.isStructured ? _.get(rowData || {}, col.uniquePath) : (rowData || {})[col.uniqueName];
 
@@ -52,11 +55,10 @@
   function shouldShowTextModalButton(col) {
     const m = col?.dataType?.match(/.*char.*\(([^\)]+)\)/);
     if (m && m[1]) {
-      return parseInt(m[1]) >= 30 || m[1]?.toUpperCase() == 'MAX';
+      return parseInt(m[1]) >= 200 || m[1]?.toUpperCase() == 'MAX';
     }
     return false;
   }
-
 </script>
 
 <td
@@ -123,9 +125,17 @@
     />
   {/if}
 
-  <!-- {#if shouldShowTextModalButton(col)}
-    <ShowFormButton icon="icon edit" on:click={() => openJsonDocument(value, undefined, true)} />
-  {/if} -->
+  {#if shouldShowTextModalButton(col)}
+    <ShowFormButton
+      icon="icon edit"
+      on:click={() => {
+        showModal(EditCellDataModal, {
+          value,
+          onSave: onSetValue,
+        });
+      }}
+    />
+  {/if}
 
   {#if isAutoFillMarker}
     <div class="autoFillMarker autofillHandleMarker" />

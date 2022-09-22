@@ -89,6 +89,7 @@
           autofillMarkerCell[0] == rowIndex &&
           grider.editable}
         onDictionaryLookup={() => handleLookup(col)}
+        onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
       />
     {/if}
   {/each}

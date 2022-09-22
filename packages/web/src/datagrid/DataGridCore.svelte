@@ -247,6 +247,14 @@
     onClick: () => getCurrentDataGrid().addJsonDocument(),
   });
 
+  registerCommand({
+    id: 'dataGrid.editCellValue',
+    category: 'Data grid',
+    name: 'Edit cell value',
+    testEnabled: () => getCurrentDataGrid()?.editCellValueEnabled(),
+    onClick: () => getCurrentDataGrid().editCellValue(),
+  });
+
   function getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -327,6 +335,7 @@
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
   import { selectionCouldBeShownOnMap } from '../elements/MapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -706,6 +715,22 @@
     editJsonRowDocument(grider, rowIndex);
   }
 
+  export function editCellValueEnabled() {
+    return grider.editable && selectedCells.length == 1;
+  }
+
+  export function editCellValue() {
+    if (!currentCell) return false;
+    const rowData = grider.getRowData(currentCell[0]);
+    if (!rowData) return null;
+    const cellData = rowData[realColumnUniqueNames[currentCell[1]]];
+
+    showModal(EditCellDataModal, {
+      value: cellData?.toString() || '',
+      onSave: value => grider.setCellValue(currentCell[0], realColumnUniqueNames[currentCell[1]], value),
+    });
+  }
+
   export function addJsonDocumentEnabled() {
     return grider.editable;
   }
@@ -1058,7 +1083,9 @@
         dragStartCell = cell;
 
         if (isRegularCell(cell) && !_.isEqual(cell, $inplaceEditorState.cell) && _.isEqual(cell, oldCurrentCell)) {
-          dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+          if (!showMultilineCellEditorConditional(cell)) {
+            dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+          }
         } else if (!_.isEqual(cell, $inplaceEditorState.cell)) {
           dispatchInsplaceEditor({ type: 'close' });
         }
@@ -1066,6 +1093,21 @@
     }
 
     if (display.focusedColumns) display.focusColumns(null);
+  }
+
+  function showMultilineCellEditorConditional(cell) {
+    if (!cell) return false;
+    const rowData = grider.getRowData(cell[0]);
+    if (!rowData) return null;
+    const cellData = rowData[realColumnUniqueNames[cell[1]]];
+    if (_.isString(cellData) && cellData.includes('\n')) {
+      showModal(EditCellDataModal, {
+        value: cellData,
+        onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),
+      });
+      return true;
+    }
+    return false;
   }
 
   function handleGridMouseMove(event) {
@@ -1197,7 +1239,9 @@
 
     if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
       // @ts-ignore
-      dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+      if (!showMultilineCellEditorConditional(currentCell)) {
+        dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+      }
     }
 
     if (event.shiftKey) {
@@ -1516,6 +1560,8 @@
     { command: 'dataGrid.clearFilter' },
     { command: 'dataGrid.undo', hideDisabled: true },
     { command: 'dataGrid.redo', hideDisabled: true },
+    { divider: true },
+    { command: 'dataGrid.editCellValue', hideDisabled: true },
     { command: 'dataGrid.newJson', hideDisabled: true },
     { command: 'dataGrid.editJsonDocument', hideDisabled: true },
     { command: 'dataGrid.viewJsonDocument', hideDisabled: true },
