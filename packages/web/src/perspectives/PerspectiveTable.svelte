@@ -39,6 +39,7 @@
   import { getPerspectiveNodeMenu } from './perspectiveMenu';
   import openNewTab from '../utility/openNewTab';
   import { getFilterValueExpression } from 'dbgate-filterparser';
+  import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
 
   const dbg = debug('dbgate:PerspectiveTable');
   export const activator = createActivator('PerspectiveTable', true, ['Designer']);
@@ -54,6 +55,7 @@
   let domWrapper;
   let domTable;
   let errorMessage;
+  let rowCount;
   let isLoading = false;
   const lastVisibleRowIndexRef = createRef(0);
   const disableLoadNextRef = createRef(false);
@@ -128,10 +130,13 @@
       dataRows = rows;
       dbg('data rows', rows);
       errorMessage = null;
+
+      rowCount = await node.dataProvider.loadRowCount(root.getNodeLoadProps([]));
     } catch (err) {
       console.error(err);
       errorMessage = err.message;
       dataRows = null;
+      rowCount = null;
     }
     isLoading = false;
     // console.log('DISPLAY ROWS', rows);
@@ -530,6 +535,10 @@
     </div>
   {/if}
 </div>
+
+{#if rowCount != null}
+  <StatusBarTabItem text={`Rows: ${rowCount.toLocaleString()}`} />
+{/if}
 
 <style>
   .wrapper {

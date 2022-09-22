@@ -133,8 +133,8 @@
   $: tableInfo = rootDb?.tables.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
   $: viewInfo = rootDb?.views.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
 
-  $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: loader = new PerspectiveDataLoader(apiCall);
+  $: dataProvider = new PerspectiveDataProvider(cache, loader);
   $: root =
     tableInfo || viewInfo
       ? new PerspectiveTableNode(

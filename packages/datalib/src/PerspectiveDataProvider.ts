@@ -203,4 +203,23 @@ export class PerspectiveDataProvider {
 
     return tableCache.getRowsResult(props);
   }
+
+  async loadRowCount(props: PerspectiveDataLoadProps): Promise<number> {
+    const tableCache = this.cache.getTableCache(props);
+
+    if (tableCache.allRowCount != null) {
+      return tableCache.allRowCount;
+    }
+
+    const result = await this.loader.loadRowCount({
+      ...props,
+    });
+
+    if (result.errorMessage) {
+      throw new Error(result.errorMessage);
+    }
+
+    tableCache.allRowCount = parseInt(result.count);
+    return tableCache.allRowCount;
+  }
 }

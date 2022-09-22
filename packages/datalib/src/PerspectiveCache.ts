@@ -37,6 +37,7 @@ export class PerspectiveCacheTable {
   loadedAll: boolean;
   loadedRows: any[] = [];
   bindingGroups: { [bindingKey: string]: PerspectiveBindingGroup } = {};
+  allRowCount: number = null;
 
   get loadedCount() {
     return this.loadedRows.length;

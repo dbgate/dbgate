@@ -142,4 +142,32 @@ export class PerspectiveDataLoader {
     if (response.errorMessage) return response;
     return response.rows;
   }
+
+  async loadRowCount(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+
+    const select: Select = {
+      commandType: 'select',
+      from: {
+        name: { schemaName, pureName },
+      },
+      columns: [
+        {
+          exprType: 'raw',
+          sql: 'COUNT(*)',
+          alias: 'count',
+        },
+      ],
+      where: this.buildCondition(props),
+    };
+
+    const response = await this.apiCall('database-connections/sql-select', {
+      conid: props.databaseConfig.conid,
+      database: props.databaseConfig.database,
+      select,
+    });
+
+    if (response.errorMessage) return response;
+    return response.rows[0];
+  }
 }
