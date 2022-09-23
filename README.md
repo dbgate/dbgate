@@ -80,7 +80,7 @@ Any contributions are welcome. If you want to contribute without coding, conside
 * Tell your friends about DbGate or share on social networks - when more people will use DbGate, it will grow to be better
 * Write review on [Slant.co](https://www.slant.co/improve/options/41086/~dbgate-review) or [G2](https://www.g2.com/products/dbgate/reviews) 
 * Create issue, if you find problem in app, or you have idea to new feature. If issue already exists, you could leave comment on it, to prioritise most wanted issues.
-* Become a backer on [Open collective](https://opencollective.com/dbgate)
+* Become a backer on [GitHub sponsors](https://github.com/sponsors/dbgate) or [Open collective](https://opencollective.com/dbgate)
 * Where a small coding is acceptable for you, you could [create plugin](https://dbgate.org/docs/plugin-development.html). Plugins for new themes can be created actually without JS coding.
 
 Thank you!
