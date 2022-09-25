@@ -335,7 +335,7 @@
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
   import { selectionCouldBeShownOnMap } from '../elements/MapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
-  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1105,7 +1105,7 @@
     const rowData = grider.getRowData(cell[0]);
     if (!rowData) return null;
     const cellData = rowData[realColumnUniqueNames[cell[1]]];
-    if (_.isString(cellData) && cellData.includes('\n')) {
+    if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
         value: cellData,
         onSave: value => grider.setCellValue(cell[0], realColumnUniqueNames[cell[1]], value),

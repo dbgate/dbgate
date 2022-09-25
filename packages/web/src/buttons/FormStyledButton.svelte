@@ -6,6 +6,7 @@
   export let type = 'button';
   export let disabled = false;
   export let value;
+  export let title = null;
 
   function handleClick() {
     if (!disabled) dispatch('click');
@@ -18,7 +19,7 @@
   }
 </script>
 
-<input {type} {value} class:disabled {...$$restProps} on:click={handleClick} bind:this={domButton} />
+<input {type} {value} {title} class:disabled {...$$restProps} on:click={handleClick} bind:this={domButton} />
 
 <style>
   input {

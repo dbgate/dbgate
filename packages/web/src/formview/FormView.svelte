@@ -173,7 +173,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
-  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
+  import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
@@ -445,7 +445,7 @@
     if (!cell) return false;
     const column = getCellColumn(cell);
     const cellData = rowData[column.uniqueName];
-    if (_.isString(cellData) && cellData.includes('\n')) {
+    if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
         value: cellData,
         onSave: value => former.setCellValue(column.uniqueName, value),
