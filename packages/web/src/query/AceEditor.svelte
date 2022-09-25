@@ -155,6 +155,7 @@
   export let readOnly = false;
   export let splitterOptions = null;
   export let onKeyDown = null;
+  export let onExecuteFragment = null;
 
   const tabVisible: any = getContext('tabVisible');
 
@@ -287,6 +288,17 @@
     queryParts = data;
     editor.setHighlightActiveLine(queryParts.length <= 1);
     changedCurrentQueryPart();
+    updateAnnotations();
+  }
+
+  function updateAnnotations() {
+    editor.session.setAnnotations(
+      (queryParts || []).map(part => ({
+        row: part.trimStart.line,
+        text: part.text,
+        className: 'ace-gutter-sql-run',
+      }))
+    );
   }
 
   const handleContextMenu = e => {
@@ -304,8 +316,6 @@
   function changedQueryParts() {
     const editor = getEditor();
     if (splitterOptions && editor && queryParserWorker) {
-      const editor = getEditor();
-
       const message = {
         text: editor.getValue(),
         options: {
@@ -392,6 +402,77 @@
     editor.container.addEventListener('contextmenu', handleContextMenu);
     editor.keyBinding.addKeyboardHandler(handleKeyDown);
     changedQueryParts();
+
+    // editor.session.addGutterDecoration(0, 'ace-gutter-sql-run');
+
+    // editor.session.setAnnotations([
+    //   {
+    //     row: 1,
+    //     text: 'SQL SCRIPT 0',
+    //     type: 'gutter',
+    //   },
+    // ]);
+
+    // editor.getSession().setAnnotations([
+    //   {
+    //     row: 0,
+    //     // column: 0,
+    //     text: 'Error Message', // Or the Json reply from the parser
+    //     type: 'error', // also "warning" and "information"
+    //   },
+    //   {
+    //     row: 1,
+    //     // column: 0,
+    //     text: 'SELECT * FROM \n22222', // Or the Json reply from the parser
+    //     // type: 'info', // also "warning" and "information"
+    //     className: 'ace-gutter-sql-run',
+    //   },
+    // ]);
+
+    // editor.on('guttermousemove', e => console.log('MOVE', e.target), true);
+    // editor.on('guttermouseout', e => console.log('OUT', e.target), true);
+    // editor.on('guttermouseleave', e => console.log('LEAVE', e.target), true);
+    // editor.session.setBreakpoint(0);
+
+    // editor.on(
+    //   'gutterclick',
+    //   e => {
+    //     const row = e.getDocumentPosition().row;
+
+    //     const part = (queryParts || []).find(part => part.trimStart.line == row);
+    //     if (part && onExecuteFragment) {
+    //       onExecuteFragment(part.text);
+    //       e.stop();
+    //     }
+    //   },
+    //   true
+    // );
+
+    editor.on(
+      'guttermousedown',
+      e => {
+        const row = e.getDocumentPosition().row;
+
+        const part = (queryParts || []).find(part => part.trimStart.line == row);
+        if (part && onExecuteFragment) {
+          onExecuteFragment(part.text);
+          e.stop();
+          editor.moveCursorTo(part.trimStart.line, 0);
+          editor.selection.clearSelection()
+        }
+      },
+      true
+    );
+
+    // editor.session.gutterRenderer = {
+    //   getWidth: function (session, lastLineNumber, config) {
+    //     return lastLineNumber.toString().length * config.characterWidth;
+    //   },
+    //   getText: function (session, row) {
+    //     return (row + 1).toString();
+    //     // return String.fromCharCode(row + 65);
+    //   },
+    // };
   });
 
   onDestroy(() => {

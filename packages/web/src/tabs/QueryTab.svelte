@@ -295,6 +295,7 @@
             invalidateCommands();
           }}
           bind:this={domEditor}
+          onExecuteFragment={sql => executeCore(sql)}
         />
       {:else}
         <AceEditor

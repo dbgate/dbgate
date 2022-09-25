@@ -167,3 +167,27 @@ textarea {
   color: var(--theme-font-1);
   border: 1px solid var(--theme-border);
 }
+
+.ace_gutter-cell.ace-gutter-sql-run {
+  background-repeat: no-repeat;
+  background-position: 2px center;
+
+  /* content: '▶';
+  margin-right: 3px; */
+
+  /* border-radius: 20px 0px 0px 20px; */
+  /* Change the color of the breakpoint if you want 
+  box-shadow: 0px 0px 1px 1px #248c46 inset;  */
+}
+
+.theme-type-light .ace_gutter-cell.ace-gutter-sql-run {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB2aWV3Qm94PSIwIDAgMTcuODA0IDE3LjgwNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTcuODA0IDE3LjgwNDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnIGlkPSJjOThfcGxheSI+CgkJPHBhdGggZmlsbD0nIzQ0NCcgZD0iTTIuMDY3LDAuMDQzQzIuMjEtMC4wMjgsMi4zNzItMC4wMDgsMi40OTMsMC4wODVsMTMuMzEyLDguNTAzYzAuMDk0LDAuMDc4LDAuMTU0LDAuMTkxLDAuMTU0LDAuMzEzCgkJCWMwLDAuMTItMC4wNjEsMC4yMzctMC4xNTQsMC4zMTRMMi40OTIsMTcuNzE3Yy0wLjA3LDAuMDU3LTAuMTYyLDAuMDg3LTAuMjUsMC4wODdsLTAuMTc2LTAuMDQKCQkJYy0wLjEzNi0wLjA2NS0wLjIyMi0wLjIwNy0wLjIyMi0wLjM2MVYwLjQwMkMxLjg0NCwwLjI1LDEuOTMsMC4xMDcsMi4wNjcsMC4wNDN6Ii8+Cgk8L2c+Cgk8ZyBpZD0iQ2FwYV8xXzc4XyI+Cgk8L2c+CjwvZz4KPC9zdmc+Cg==);
+}
+
+.theme-type-dark .ace_gutter-cell.ace-gutter-sql-run {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB2aWV3Qm94PSIwIDAgMTcuODA0IDE3LjgwNCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMTcuODA0IDE3LjgwNDsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnIGlkPSJjOThfcGxheSI+CgkJPHBhdGggZmlsbD0nI2RkZCcgZD0iTTIuMDY3LDAuMDQzQzIuMjEtMC4wMjgsMi4zNzItMC4wMDgsMi40OTMsMC4wODVsMTMuMzEyLDguNTAzYzAuMDk0LDAuMDc4LDAuMTU0LDAuMTkxLDAuMTU0LDAuMzEzCgkJCWMwLDAuMTItMC4wNjEsMC4yMzctMC4xNTQsMC4zMTRMMi40OTIsMTcuNzE3Yy0wLjA3LDAuMDU3LTAuMTYyLDAuMDg3LTAuMjUsMC4wODdsLTAuMTc2LTAuMDQKCQkJYy0wLjEzNi0wLjA2NS0wLjIyMi0wLjIwNy0wLjIyMi0wLjM2MVYwLjQwMkMxLjg0NCwwLjI1LDEuOTMsMC4xMDcsMi4wNjcsMC4wNDN6Ii8+Cgk8L2c+Cgk8ZyBpZD0iQ2FwYV8xXzc4XyI+Cgk8L2c+CjwvZz4KPC9zdmc+Cg==);
+}
+
+.ace_gutter-cell.ace-gutter-sql-run:hover {
+   background-color: var(--theme-bg-2);
+}
