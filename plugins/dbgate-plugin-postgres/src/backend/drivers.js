@@ -147,10 +147,14 @@ const drivers = driverBases.map(driverBase => ({
 
     query.on('error', error => {
       console.log('ERROR', error);
-      const { message, lineNumber, procName } = error;
+      const { message, position, procName } = error;
+      let line = null;
+      if (position) {
+        line = sql.substring(0, parseInt(position)).replace(/[^\n]/g, '').length;
+      }
       options.info({
         message,
-        line: lineNumber,
+        line,
         procedure: procName,
         time: new Date(),
         severity: 'error',
