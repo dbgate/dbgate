@@ -154,6 +154,7 @@
   export let menu = null;
   export let readOnly = false;
   export let splitterOptions = null;
+  export let onKeyDown = null;
 
   const tabVisible: any = getContext('tabVisible');
 
@@ -297,6 +298,7 @@
 
   const handleKeyDown = (data, hash, keyString, keyCode, event) => {
     if (event) handleCommandKeyDown(event);
+    if (onKeyDown && event) onKeyDown(event);
   };
 
   function changedQueryParts() {

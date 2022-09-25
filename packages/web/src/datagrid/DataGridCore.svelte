@@ -1095,6 +1095,11 @@
     if (display.focusedColumns) display.focusColumns(null);
   }
 
+  function handleBlur() {
+    shiftDragStartCell = null;
+    dragStartCell = null;
+  }
+
   function showMultilineCellEditorConditional(cell) {
     if (!cell) return false;
     const rowData = grider.getRowData(cell[0]);
@@ -1655,6 +1660,7 @@
       }}
       on:paste={handlePaste}
       on:copy={copyToClipboard}
+      on:blur={handleBlur}
     />
     <table
       class="table"

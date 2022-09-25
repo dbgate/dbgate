@@ -54,7 +54,7 @@
   <RowHeaderCell {rowIndex} onShowForm={onSetFormView ? () => onSetFormView(rowData, null) : null} />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
-      <td>
+      <td class='editor'>
         <InplaceEditor
           width={col.width}
           {inplaceEditorState}
@@ -99,6 +99,11 @@
   tr {
     background-color: var(--theme-bg-0);
   }
+
+  td.editor {
+    position: relative;
+  }
+
   tr:nth-child(6n + 3) {
     background-color: var(--theme-bg-1);
   }

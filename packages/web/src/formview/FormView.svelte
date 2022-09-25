@@ -173,6 +173,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
+  import EditCellDataModal from '../modals/EditCellDataModal.svelte';
   import { showModal } from '../modals/modalTools';
   import { apiCall } from '../utility/api';
 
@@ -295,7 +296,9 @@
     if (isDataCell(cell) && !_.isEqual(cell, $inplaceEditorState.cell) && _.isEqual(cell, currentCell)) {
       // @ts-ignore
       if (rowData) {
-        dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+        if (!showMultilineCellEditorConditional(cell)) {
+          dispatchInsplaceEditor({ type: 'show', cell, selectAll: true });
+        }
       }
     } else if (!_.isEqual(cell, $inplaceEditorState.cell)) {
       // @ts-ignore
@@ -426,14 +429,30 @@
       }
     }
 
-    if (event.keyCode == keycodes.f2) {
+    if (event.keyCode == keycodes.f2 || event.keyCode == keycodes.enter) {
       // @ts-ignore
       if (rowData) {
-        dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+        if (!showMultilineCellEditorConditional(currentCell)) {
+          dispatchInsplaceEditor({ type: 'show', cell: currentCell, selectAll: true });
+        }
       }
     }
 
     handleCursorMove(event);
+  }
+
+  function showMultilineCellEditorConditional(cell) {
+    if (!cell) return false;
+    const column = getCellColumn(cell);
+    const cellData = rowData[column.uniqueName];
+    if (_.isString(cellData) && cellData.includes('\n')) {
+      showModal(EditCellDataModal, {
+        value: cellData,
+        onSave: value => former.setCellValue(column.uniqueName, value),
+      });
+      return true;
+    }
+    return false;
   }
 
   const scrollIntoView = cell => {

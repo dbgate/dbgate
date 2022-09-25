@@ -4,7 +4,12 @@
   export let icon = 'icon form';
 </script>
 
-<div on:click|stopPropagation class='showFormButtonMarker'>
+<div
+  on:click|stopPropagation|preventDefault
+  on:mousedown|stopPropagation|preventDefault
+  on:mouseup|stopPropagation|preventDefault
+  class="showFormButtonMarker"
+>
   <FontIcon {icon} />
 </div>
 
