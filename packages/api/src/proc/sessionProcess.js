@@ -156,7 +156,7 @@ class StreamHandler {
     this.resolve();
   }
   info(info) {
-    if (info.line != null) {
+    if (info && info.line != null) {
       info = {
         ...info,
         line: this.startLine + info.line,
@@ -168,7 +168,8 @@ class StreamHandler {
 
 function handleStream(driver, resultIndexHolder, sqlItem) {
   return new Promise((resolve, reject) => {
-    const handler = new StreamHandler(resultIndexHolder, resolve, sqlItem.trimStart.line);
+    const start = sqlItem.trimStart || sqlItem.start;
+    const handler = new StreamHandler(resultIndexHolder, resolve, start && start.line);
     driver.stream(systemConnection, sqlItem.text, handler);
   });
 }

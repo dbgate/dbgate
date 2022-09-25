@@ -49,7 +49,7 @@
 
   $: {
     if (onChangeErrors) {
-      const errors = displayedMessages.filter(x => x.severity == 'error');
+      const errors = displayedMessages.filter(x => x.severity == 'error' && x.line != null);
       if (lastErrorMessageCountRef.get() != errors.length) {
         onChangeErrors(
           errors.map(err => ({
