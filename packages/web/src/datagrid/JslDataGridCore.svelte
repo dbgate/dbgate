@@ -65,7 +65,7 @@
   let changeIndex = 0;
   let rowCountLoaded = null;
 
-  const throttleLoadNext = _.throttle(() => domGrid.resetLoadedAll(), 500);
+  const throttleLoadNext = _.throttle(() => domGrid?.resetLoadedAll(), 500);
 
   const handleJslDataStats = stats => {
     if (stats.changeIndex < changeIndex) return;

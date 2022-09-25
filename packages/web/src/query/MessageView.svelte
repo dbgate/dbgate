@@ -18,6 +18,7 @@
   export let items: any[];
   export let showProcedure = false;
   export let showLine = false;
+  export let startLine = 0;
 
   $: time0 = items[0] && new Date(items[0].time).getTime();
 
@@ -58,7 +59,7 @@
           <td>{row.procedure || ''}</td>
         {/if}
         {#if showLine}
-          <td>{row.line || ''}</td>
+          <td>{row.line == null ? '' : row.line + 1 + startLine}</td>
         {/if}
       </tr>
     {/each}

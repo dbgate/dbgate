@@ -101,8 +101,9 @@ class TableWriter {
 }
 
 class StreamHandler {
-  constructor(resultIndexHolder, resolve) {
+  constructor(resultIndexHolder, resolve, startLine) {
     this.recordset = this.recordset.bind(this);
+    this.startLine = startLine;
     this.row = this.row.bind(this);
     // this.error = this.error.bind(this);
     this.done = this.done.bind(this);
@@ -155,14 +156,20 @@ class StreamHandler {
     this.resolve();
   }
   info(info) {
+    if (info.line != null) {
+      info = {
+        ...info,
+        line: this.startLine + info.line,
+      };
+    }
     process.send({ msgtype: 'info', info });
   }
 }
 
-function handleStream(driver, resultIndexHolder, sql) {
+function handleStream(driver, resultIndexHolder, sqlItem) {
   return new Promise((resolve, reject) => {
-    const handler = new StreamHandler(resultIndexHolder, resolve);
-    driver.stream(systemConnection, sql, handler);
+    const handler = new StreamHandler(resultIndexHolder, resolve, sqlItem.trimStart.line);
+    driver.stream(systemConnection, sqlItem.text, handler);
   });
 }
 
@@ -221,7 +228,10 @@ async function handleExecuteQuery({ sql }) {
   const resultIndexHolder = {
     value: 0,
   };
-  for (const sqlItem of splitQuery(sql, driver.getQuerySplitterOptions('stream'))) {
+  for (const sqlItem of splitQuery(sql, {
+    ...driver.getQuerySplitterOptions('stream'),
+    returnRichInfo: true,
+  })) {
     await handleStream(driver, resultIndexHolder, sqlItem);
     // const handler = new StreamHandler(resultIndex);
     // const stream = await driver.stream(systemConnection, sqlItem, handler);

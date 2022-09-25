@@ -156,6 +156,7 @@
   export let splitterOptions = null;
   export let onKeyDown = null;
   export let onExecuteFragment = null;
+  export let errorMessages = null;
 
   const tabVisible: any = getContext('tabVisible');
 
@@ -184,16 +185,28 @@
     return editor;
   }
 
-  export function getCurrentCommandText(): string {
-    if (currentPart != null) return currentPart.text;
-    if (!editor) return '';
+  export function getCurrentCommandText(): { text: string; line?: number } {
+    if (currentPart != null) {
+      return {
+        text: currentPart.text,
+        line: currentPart.trimStart.line,
+      };
+    }
+    if (!editor) return { text: '' };
     const selectedText = editor.getSelectedText();
-    if (selectedText) return selectedText;
+    if (selectedText)
+      return {
+        text: selectedText,
+        line: editor.getSelectionRange().start.row,
+      };
     if (editor.getHighlightActiveLine()) {
       const line = editor.getSelectionRange().start.row;
-      return editor.session.getLine(line);
+      return {
+        text: editor.session.getLine(line),
+        line,
+      };
     }
-    return '';
+    return { text: '' };
   }
 
   export function getCodeCompletionCommandText() {
@@ -292,13 +305,25 @@
   }
 
   function updateAnnotations() {
-    editor.session.setAnnotations(
-      (queryParts || []).map(part => ({
-        row: part.trimStart.line,
-        text: part.text,
-        className: 'ace-gutter-sql-run',
-      }))
-    );
+    editor?.session?.setAnnotations([
+      ...(queryParts || [])
+        .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart.line))
+        .map(part => ({
+          row: part.trimStart.line,
+          text: part.text,
+          className: 'ace-gutter-sql-run',
+        })),
+      ...(errorMessages || []).map(error => ({
+        row: error.line,
+        text: error.message,
+        type: 'error',
+      })),
+    ]);
+  }
+
+  $: {
+    errorMessages;
+    updateAnnotations();
   }
 
   const handleContextMenu = e => {
@@ -455,10 +480,10 @@
 
         const part = (queryParts || []).find(part => part.trimStart.line == row);
         if (part && onExecuteFragment) {
-          onExecuteFragment(part.text);
+          onExecuteFragment(part.text, part.trimStart.line);
           e.stop();
           editor.moveCursorTo(part.trimStart.line, 0);
-          editor.selection.clearSelection()
+          editor.selection.clearSelection();
         }
       },
       true

@@ -134,7 +134,7 @@ async function tediousStream(pool, sql, options) {
     const { message, lineNumber, procName } = info;
     options.info({
       message,
-      line: lineNumber,
+      line: lineNumber != null && lineNumber > 0 ? lineNumber - 1 : lineNumber,
       procedure: procName,
       time: new Date(),
       severity: 'info',
@@ -144,7 +144,7 @@ async function tediousStream(pool, sql, options) {
     const { message, lineNumber, procName } = error;
     options.info({
       message,
-      line: lineNumber,
+      line: lineNumber != null && lineNumber > 0 ? lineNumber - 1 : lineNumber,
       procedure: procName,
       time: new Date(),
       severity: 'error',
