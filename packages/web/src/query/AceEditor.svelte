@@ -305,6 +305,8 @@
   }
 
   function updateAnnotations() {
+    if (!mode?.includes('sql')) return;
+    
     editor?.session?.setAnnotations([
       ...(queryParts || [])
         .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart.line))
