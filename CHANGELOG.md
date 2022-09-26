@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.3
+- ADDED: Editing multiline cell values #378 #371 #359
+- ADDED: Truncate table #333
+- ADDED: Perspectives - show row count
+- ADDED: Query - error markers in gutter area
+- ADDED: Query - ability to execute query elements from gutter
+- FIXED: Coorect error line numbers returned from queries
+
 ### 5.1.2
 - FIXED: MongoDb any export function does not work. #373
 - ADDED: Query Designer short order more flexibility #372
