@@ -9,6 +9,7 @@ export interface SqlDialect {
   fallbackDataType?: string;
   explicitDropConstraint?: boolean;
   anonymousPrimaryKey?: boolean;
+  defaultSchemaName?: string;
   enableConstraintsPerTable?: boolean;
 
   dropColumnDependencies?: string[];

@@ -9,7 +9,7 @@
         schemaName,
         ...(columns?.map(({ columnName }) => ({ childName: columnName })) || [])
       );
-  export const createTitle = ({ pureName }) => pureName;
+  export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
     tables: 'img table',
@@ -586,6 +586,16 @@
     }
   }
 
+  function getObjectTitle(connection, schemaName, pureName) {
+    const driver = findEngineDriver(connection, getExtensions());
+
+    const defaultSchema = driver?.dialect?.defaultSchemaName;
+    if (schemaName && defaultSchema && schemaName != defaultSchema) {
+      return `${schemaName}.${pureName}`;
+    }
+    return pureName;
+  }
+
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
@@ -603,7 +613,7 @@
 
     openNewTab(
       {
-        title: scriptTemplate ? 'Query #' : pureName,
+        title: scriptTemplate ? 'Query #' : getObjectTitle(connection, schemaName, pureName),
         tooltip,
         icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,

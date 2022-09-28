@@ -8,6 +8,7 @@ const spatialTypes = ['GEOGRAPHY'];
 const dialect = {
   rangeSelect: true,
   ilike: true,
+  defaultSchemaName: 'public',
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
   fallbackDataType: 'varchar',
