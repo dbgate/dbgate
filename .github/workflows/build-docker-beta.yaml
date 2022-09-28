@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 1
-          
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
@@ -80,6 +80,7 @@ jobs:
           push: true
           context: ./docker
           tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       - name: Build and push alpine
         uses: docker/build-push-action@v3
@@ -88,6 +89,7 @@ jobs:
           context: ./docker
           file: ./docker/Dockerfile-alpine
           tags: ${{ steps.meta.outputs.tags }}
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       # - name: Build docker image
       #   run: |
