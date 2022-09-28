@@ -35,8 +35,11 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta
-            type=raw,value=beta
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+            type=raw,value=beta,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+
+            type=match,pattern=\d+.\d+.\d+,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
+            type=raw,value=latest,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
 
       - name: Docker alpine meta
         id: alpmeta
@@ -47,8 +50,11 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine
-            type=raw,value=beta-alpine
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+            type=raw,value=beta-alpine,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+
+            type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
+            type=raw,value=alpine,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
 
       - name: Use Node.js 14.x
         uses: actions/setup-node@v1
@@ -88,7 +94,7 @@ jobs:
           push: true
           context: ./docker
           file: ./docker/Dockerfile-alpine
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: ${{ steps.alpmeta.outputs.tags }}
           platforms: linux/amd64,linux/arm64,linux/arm/v7
 
       # - name: Build docker image
