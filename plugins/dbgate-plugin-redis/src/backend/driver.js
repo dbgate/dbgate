@@ -147,7 +147,7 @@ const driver = {
       info
         .split('\n')
         .filter((x) => x.trim() && !x.trim().startsWith('#'))
-        .map((x) => x.split(pool.__treeKeySeparator))
+        .map((x) => x.split(':'))
     );
   },
   async getVersion(pool) {
@@ -167,7 +167,7 @@ const driver = {
   async loadKeys(pool, root = '', filter = null) {
     const keys = await this.getKeys(pool, root ? `${root}${pool.__treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(root, keysFiltered);
+    const res = this.extractKeysFromLevel(pool, root, keysFiltered);
     await this.enrichKeyInfo(pool, res);
     return res;
   },
@@ -197,7 +197,7 @@ const driver = {
     return res;
   },
 
-  extractKeysFromLevel(root, keys) {
+  extractKeysFromLevel(pool, root, keys) {
     const prefix = root ? `${root}${pool.__treeKeySeparator}` : '';
     const rootSplit = _.compact(root.split(pool.__treeKeySeparator));
     const res = {};
