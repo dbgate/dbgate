@@ -48,8 +48,7 @@ jobs:
           images: |
             dbgate/dbgate
           tags: |
-            type=semver,pattern={{version}},suffix=-beta
-#            type=semver,pattern={{major}}.{{minor}},suffix=-beta
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta
 
       - name: Docker alpine meta
         id: alpmeta
@@ -58,8 +57,7 @@ jobs:
           images: |
             dbgate/dbgate
           tags: |
-            type=semver,pattern={{version}},suffix=-beta-alpine
-#            type=semver,pattern={{major}}.{{minor}},suffix=-beta-alpine
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine
 
       - name: Build docker image
         run: |
