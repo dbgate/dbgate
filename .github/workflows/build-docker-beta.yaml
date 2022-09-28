@@ -40,19 +40,61 @@ jobs:
       - name: Prepare docker image
         run: |
           yarn run prepare:docker
-      - name: Build docker image
-        run: |
-          docker build ./docker -t dbgate
-      - name: Push docker image
-        run: |
-          docker tag dbgate dbgate/dbgate:beta
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker push dbgate/dbgate:beta
-      - name: Build alpine docker image
-        run: |
-          docker build ./docker -t dbgate -f docker/Dockerfile-alpine
-      - name: Push alpine docker image
-        run: |
-          docker tag dbgate dbgate/dbgate:beta-alpine
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker push dbgate/dbgate:beta-alpine
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            dbgate/dbgate
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Build docker
+        uses: mr-smithers-excellent/docker-build-push@v3
+        with:
+          image: dbgate/dbgate
+          registry: docker.io
+          dockerfile: docker/Dockerfile
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: ${{ steps.meta.outputs.tags }},beta
+
+      - name: Docker alpine meta
+        id: alpmeta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            dbgate/dbgate
+          tags: |
+            type=semver,pattern={{version}},suffix=-alpine
+            type=semver,pattern={{major}}.{{minor}},suffix=-alpine
+
+      # - name: Build docker image
+      #   run: |
+      #     docker build ./docker -t dbgate
+      # - name: Push docker image
+      #   run: |
+      #     docker tag dbgate dbgate/dbgate:beta
+      #     docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      #     docker push dbgate/dbgate:beta
+
+      # - name: Build alpine docker image
+      #   run: |
+      #     docker build ./docker -t dbgate -f docker/Dockerfile-alpine
+      # - name: Push alpine docker image
+      #   run: |
+      #     docker tag dbgate dbgate/dbgate:beta-alpine
+      #     docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+      #     docker push dbgate/dbgate:beta-alpine
+
+      - name: Build docker
+        uses: mr-smithers-excellent/docker-build-push@v3
+        with:
+          image: dbgate/dbgate
+          registry: docker.io
+          dockerfile: docker/Dockerfile-alpine
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: ${{ steps.alpmeta.outputs.tags }},beta
