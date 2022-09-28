@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.1.4-docker.6",
+  "version": "5.1.4-docker.7",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
