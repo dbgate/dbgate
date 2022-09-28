@@ -307,18 +307,14 @@
     if (!mode?.includes('sql')) return;
 
     editor?.session?.setAnnotations([
-      ...currentPartLines.map(row => ({
-        row,
-        className: 'ace-gutter-current-part',
-      })),
       ...(queryParts || [])
-        .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart?.line))
+        .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart.line))
         .map(part => ({
           row: part.trimStart.line,
           text: part.text,
           className: currentPartLines.includes(part.trimStart.line)
             ? 'ace-gutter-sql-run ace-gutter-current-part'
-            : 'ace-gutter-sql-run',
+            : 'ace-gutter-sql-run', // className: 'ace-gutter-sql-run',
         })),
       ...(errorMessages || []).map(error => ({
         row: error.line,
@@ -369,10 +365,10 @@
   }
 
   function changedCurrentQueryPart() {
-    // if (queryParts.length <= 1) {
-    //   removeCurrentPartMarker();
-    //   return;
-    // }
+    if (queryParts.length <= 1) {
+      removeCurrentPartMarker();
+      return;
+    }
 
     const selectionRange = editor.getSelectionRange();
 
@@ -393,15 +389,20 @@
     );
 
     if (part?.text != currentPart?.text || part?.start?.position != currentPart?.start?.position) {
-      // removeCurrentPartMarker();
+      removeCurrentPartMarker();
 
       currentPart = part;
-      currentPartLines = [];
       if (currentPart) {
         const start = currentPart.trimStart || currentPart.start;
         const end = currentPart.trimEnd || currentPart.end;
         if (start && end) {
           currentPartLines = _.range(start.line, end.line + 1);
+          for (const row of currentPartLines) {
+            if ((queryParts || []).find(part => part.trimStart.line == row)) {
+              continue;
+            }
+            editor.getSession().addGutterDecoration(row, 'ace-gutter-current-part');
+          }
         }
         // currentPartMarker = editor
         //   .getSession()
@@ -411,12 +412,12 @@
     }
   }
 
-  // function removeCurrentPartMarker() {
-  //   if (currentPartMarker != null) {
-  //     editor.getSession().removeMarker(currentPartMarker);
-  //     currentPartMarker = null;
-  //   }
-  // }
+  function removeCurrentPartMarker() {
+    for (const row of currentPartLines) {
+      editor.getSession().removeGutterDecoration(row, 'ace-gutter-current-part');
+    }
+    currentPartLines = [];
+  }
 
   onMount(() => {
     editor = ace.edit(EDITOR_ID);
