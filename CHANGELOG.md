@@ -14,7 +14,7 @@ Builds:
 - ADDED: Perspectives - show row count
 - ADDED: Query - error markers in gutter area
 - ADDED: Query - ability to execute query elements from gutter
-- FIXED: Coorect error line numbers returned from queries
+- FIXED: Correct error line numbers returned from queries
 
 ### 5.1.2
 - FIXED: MongoDb any export function does not work. #373
