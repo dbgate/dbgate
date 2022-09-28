@@ -191,3 +191,9 @@ textarea {
 .ace_gutter-cell.ace-gutter-sql-run:hover {
    background-color: var(--theme-bg-2);
 }
+
+.ace_gutter-cell.ace-gutter-current-part {
+   /* background-color: var(--theme-bg-2); */
+   font-weight: bold;
+   color: var(--theme-font-hover);
+}

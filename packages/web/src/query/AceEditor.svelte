@@ -168,7 +168,8 @@
 
   let queryParts = [];
   let currentPart = null;
-  let currentPartMarker = null;
+  let currentPartLines = [];
+  // let currentPartMarker = null;
 
   let queryParserWorker;
 
@@ -194,19 +195,17 @@
     }
     if (!editor) return { text: '' };
     const selectedText = editor.getSelectedText();
-    if (selectedText)
+    if (selectedText) {
       return {
         text: selectedText,
         line: editor.getSelectionRange().start.row,
       };
-    if (editor.getHighlightActiveLine()) {
-      const line = editor.getSelectionRange().start.row;
-      return {
-        text: editor.session.getLine(line),
-        line,
-      };
     }
-    return { text: '' };
+    const line = editor.getSelectionRange().start.row;
+    return {
+      text: editor.session.getLine(line),
+      line,
+    };
   }
 
   export function getCodeCompletionCommandText() {
@@ -299,21 +298,27 @@
 
   function processParserResult(data) {
     queryParts = data;
-    editor.setHighlightActiveLine(queryParts.length <= 1);
+    // editor.setHighlightActiveLine(queryParts.length <= 1);
     changedCurrentQueryPart();
     updateAnnotations();
   }
 
   function updateAnnotations() {
     if (!mode?.includes('sql')) return;
-    
+
     editor?.session?.setAnnotations([
+      ...currentPartLines.map(row => ({
+        row,
+        className: 'ace-gutter-current-part',
+      })),
       ...(queryParts || [])
-        .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart.line))
+        .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart?.line))
         .map(part => ({
           row: part.trimStart.line,
           text: part.text,
-          className: 'ace-gutter-sql-run',
+          className: currentPartLines.includes(part.trimStart.line)
+            ? 'ace-gutter-sql-run ace-gutter-current-part'
+            : 'ace-gutter-sql-run',
         })),
       ...(errorMessages || []).map(error => ({
         row: error.line,
@@ -364,21 +369,21 @@
   }
 
   function changedCurrentQueryPart() {
-    if (queryParts.length <= 1) {
-      removeCurrentPartMarker();
-      return;
-    }
+    // if (queryParts.length <= 1) {
+    //   removeCurrentPartMarker();
+    //   return;
+    // }
 
     const selectionRange = editor.getSelectionRange();
 
-    if (
-      selectionRange.start.row != selectionRange.end.row ||
-      selectionRange.start.column != selectionRange.end.column
-    ) {
-      removeCurrentPartMarker();
-      currentPart = null;
-      return;
-    }
+    // if (
+    //   selectionRange.start.row != selectionRange.end.row ||
+    //   selectionRange.start.column != selectionRange.end.column
+    // ) {
+    //   removeCurrentPartMarker();
+    //   currentPart = null;
+    //   return;
+    // }
 
     const cursor = selectionRange.start;
     const part = queryParts.find(
@@ -388,25 +393,30 @@
     );
 
     if (part?.text != currentPart?.text || part?.start?.position != currentPart?.start?.position) {
-      removeCurrentPartMarker();
+      // removeCurrentPartMarker();
 
       currentPart = part;
+      currentPartLines = [];
       if (currentPart) {
         const start = currentPart.trimStart || currentPart.start;
         const end = currentPart.trimEnd || currentPart.end;
-        currentPartMarker = editor
-          .getSession()
-          .addMarker(new ace.Range(start.line, start.column, end.line, end.column), 'ace_active-line', 'text');
+        if (start && end) {
+          currentPartLines = _.range(start.line, end.line + 1);
+        }
+        // currentPartMarker = editor
+        //   .getSession()
+        //   .addMarker(new ace.Range(start.line, start.column, end.line, end.column), 'ace_active-line', 'text');
       }
+      updateAnnotations();
     }
   }
 
-  function removeCurrentPartMarker() {
-    if (currentPartMarker != null) {
-      editor.getSession().removeMarker(currentPartMarker);
-      currentPartMarker = null;
-    }
-  }
+  // function removeCurrentPartMarker() {
+  //   if (currentPartMarker != null) {
+  //     editor.getSession().removeMarker(currentPartMarker);
+  //     currentPartMarker = null;
+  //   }
+  // }
 
   onMount(() => {
     editor = ace.edit(EDITOR_ID);
@@ -417,6 +427,7 @@
     editor.getSession().setMode('ace/mode/' + mode);
     editor.setTheme('ace/theme/' + theme);
     editor.setValue(value, 1);
+    editor.setHighlightActiveLine(false);
     contentBackup = value;
     setEventCallBacks();
     if (options) {
