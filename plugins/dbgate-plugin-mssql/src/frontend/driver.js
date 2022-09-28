@@ -130,7 +130,10 @@ const driver = {
     (field == 'trustServerCertificate' && values.authType != 'sql' && values.authType != 'sspi') ||
     (field == 'windowsDomain' && values.authType != 'sql' && values.authType != 'sspi'),
   // (field == 'useDatabaseUrl' && values.authType != 'sql' && values.authType != 'sspi')
-  getQuerySplitterOptions: () => mssqlSplitterOptions,
+  getQuerySplitterOptions: usage =>
+    usage == 'editor'
+      ? { ...mssqlSplitterOptions, adaptiveGoSplit: true, ignoreComments: true, preventSingleLineSplit: true }
+      : mssqlSplitterOptions,
 
   engine: 'mssql@dbgate-plugin-mssql',
   title: 'Microsoft SQL Server',

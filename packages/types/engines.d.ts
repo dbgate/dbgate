@@ -89,9 +89,7 @@ export interface EngineDriver {
   ): Promise<TableInfo | ViewInfo | ProcedureInfo | FunctionInfo | TriggerInfo>;
   analyseSingleTable(pool: any, name: NamedObjectInfo): Promise<TableInfo>;
   getVersion(pool: any): Promise<{ version: string }>;
-  listDatabases(
-    pool: any
-  ): Promise<
+  listDatabases(pool: any): Promise<
     {
       name: string;
     }[]
@@ -112,7 +110,7 @@ export interface EngineDriver {
   updateCollection(pool: any, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any): string;
   createDatabase(pool: any, name: string): Promise;
-  getQuerySplitterOptions(usage: 'stream' | 'script'): any;
+  getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
   script(pool: any, sql: string): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers

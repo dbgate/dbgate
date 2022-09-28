@@ -25,7 +25,7 @@
     "compare-versions": "^3.6.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
-    "dbgate-query-splitter": "^4.9.0",
+    "dbgate-query-splitter": "^4.9.2",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "dbgate-tools": "^5.0.0-alpha.1",
     "debug": "^4.3.4",

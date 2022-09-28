@@ -105,7 +105,10 @@ const postgresDriverBase = {
   dialect,
   // showConnectionField: (field, values) =>
   //   ['server', 'port', 'user', 'password', 'defaultDatabase', 'singleDatabase'].includes(field),
-  getQuerySplitterOptions: () => postgreSplitterOptions,
+  getQuerySplitterOptions: usage =>
+    usage == 'editor'
+      ? { ...postgreSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : postgreSplitterOptions,
   readOnlySessions: true,
 
   databaseUrlPlaceholder: 'e.g. postgresql://user:password@localhost:5432/default_database',

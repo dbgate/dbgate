@@ -293,7 +293,7 @@
           engine={$connection && $connection.engine}
           {conid}
           {database}
-          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          splitterOptions={driver?.getQuerySplitterOptions('editor')}
           value={$editorState.value || ''}
           menu={createMenu()}
           on:input={e => {
@@ -312,7 +312,7 @@
         <AceEditor
           mode={driver?.editorMode || 'text'}
           value={$editorState.value || ''}
-          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          splitterOptions={driver?.getQuerySplitterOptions('editor')}
           menu={createMenu()}
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {

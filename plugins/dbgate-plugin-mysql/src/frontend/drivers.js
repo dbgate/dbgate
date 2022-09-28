@@ -108,7 +108,11 @@ const mysqlDriverBase = {
   dumperClass: Dumper,
   dialect,
   defaultPort: 3306,
-  getQuerySplitterOptions: () => mysqlSplitterOptions,
+  getQuerySplitterOptions: usage =>
+    usage == 'editor'
+      ? { ...mysqlSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : mysqlSplitterOptions,
+
   readOnlySessions: true,
   supportsDatabaseDump: true,
   authTypeLabel: 'Connection mode',
