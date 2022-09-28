@@ -35,11 +35,11 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
-            type=raw,value=beta,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
+            type=raw,value=beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
 
-            type=match,pattern=\d+.\d+.\d+,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
-            type=raw,value=latest,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
+            type=match,pattern=\d+.\d+.\d+,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
 
       - name: Docker alpine meta
         id: alpmeta
@@ -50,11 +50,11 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
-            type=raw,value=beta-alpine,enable=${{ includes(tag, '-docker.') || includes(tag, '-beta.') }}
+            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
+            type=raw,value=beta-alpine,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
 
-            type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
-            type=raw,value=alpine,enable=${{ !includes(tag, '-docker.') && !includes(tag, '-beta.') }}
+            type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
+            type=raw,value=alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
 
       - name: Use Node.js 14.x
         uses: actions/setup-node@v1
