@@ -48,8 +48,8 @@ jobs:
           images: |
             dbgate/dbgate
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},suffix=-beta
+            type=semver,pattern={{major}}.{{minor}},suffix=-beta
 
       - name: Build docker
         uses: mr-smithers-excellent/docker-build-push@v3
@@ -68,8 +68,8 @@ jobs:
           images: |
             dbgate/dbgate
           tags: |
-            type=semver,pattern={{version}},suffix=-alpine
-            type=semver,pattern={{major}}.{{minor}},suffix=-alpine
+            type=semver,pattern={{version}},suffix=-beta-alpine
+            type=semver,pattern={{major}}.{{minor}},suffix=-beta-alpine
 
       # - name: Build docker image
       #   run: |
@@ -97,4 +97,4 @@ jobs:
           dockerfile: docker/Dockerfile-alpine
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          tags: ${{ steps.alpmeta.outputs.tags }},beta
+          tags: ${{ steps.alpmeta.outputs.tags }},beta-alpine
