@@ -49,6 +49,7 @@ jobs:
             dbgate/dbgate
           tags: |
             type=match,pattern=\d+.\d+.\d+,suffix=-beta
+            type=raw,value=latest,enable=false
 
       - name: Docker alpine meta
         id: alpmeta
@@ -58,10 +59,11 @@ jobs:
             dbgate/dbgate
           tags: |
             type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine
+            type=raw,value=latest,enable=false
 
       - name: Build docker image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 ./docker -t dbgate
+          docker build ./docker -t dbgate
       - name: Push docker image
         run: |
           docker tag dbgate dbgate/dbgate:beta
@@ -72,7 +74,7 @@ jobs:
 
       - name: Build alpine docker image
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 ./docker -t dbgate -f docker/Dockerfile-alpine
+          docker build ./docker -t dbgate -f docker/Dockerfile-alpine
       - name: Push alpine docker image
         run: |
           docker tag dbgate dbgate/dbgate:beta-alpine
