@@ -306,6 +306,8 @@
   function updateAnnotations() {
     if (!mode?.includes('sql')) return;
 
+    // console.log('UPDATING ANNOTATIONS');
+
     editor?.session?.setAnnotations([
       ...(queryParts || [])
         .filter(part => !(errorMessages || []).find(err => err.line == part.trimStart.line))
@@ -367,6 +369,7 @@
   function changedCurrentQueryPart() {
     if (queryParts.length <= 1) {
       removeCurrentPartMarker();
+      updateAnnotations();
       return;
     }
 
@@ -388,7 +391,11 @@
         ((cursor.row == x.end.line && cursor.column <= x.end.column) || cursor.row < x.end.line)
     );
 
-    if (part?.text != currentPart?.text || part?.start?.position != currentPart?.start?.position) {
+    if (
+      part?.text != currentPart?.text ||
+      part?.start?.position != currentPart?.start?.position ||
+      part?.end?.position != currentPart?.end?.position
+    ) {
       removeCurrentPartMarker();
 
       currentPart = part;
