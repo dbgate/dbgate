@@ -1,4 +1,4 @@
-import { openedTabs } from '../stores';
+import { getOpenedTabs, openedTabs } from '../stores';
 import _ from 'lodash';
 import getElectron from './getElectron';
 
@@ -16,6 +16,16 @@ export function sleep(milliseconds) {
 
 export function changeTab(tabid, changeFunc) {
   openedTabs.update(files => files.map(tab => (tab.tabid == tabid ? changeFunc(tab) : tab)));
+}
+
+export function markTabUnsaved(tabid) {
+  const tab = getOpenedTabs().find(x => x.tabid == tabid);
+  if (tab.unsaved) return;
+  openedTabs.update(files => files.map(tab => (tab.tabid == tabid ? { ...tab, unsaved: true } : tab)));
+}
+
+export function markTabSaved(tabid) {
+  openedTabs.update(files => files.map(tab => (tab.tabid == tabid ? { ...tab, unsaved: false } : tab)));
 }
 
 export function setSelectedTabFunc(files, tabid) {

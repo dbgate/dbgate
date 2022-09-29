@@ -554,6 +554,7 @@
     editor.on('focus', () => dispatch('focus'));
 
     editor.setReadOnly(readOnly);
+
     editor.on('change', () => {
       const content = editor.getValue();
       value = content;

@@ -212,6 +212,7 @@
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
+  import TabCloseButton from '../elements/TabCloseButton.svelte';
 
   $: connectionList = useConnectionList();
 
@@ -434,7 +435,7 @@
               <FontIcon icon="icon lock" />
             {/if}
           </div>
-
+          22
           <div
             class="close-button-right tabCloseButton"
             on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
@@ -479,9 +480,7 @@
               <span class="file-name">
                 {tab.title}
               </span>
-              <span class="close-button tabCloseButton" on:click={e => closeTab(tab.tabid)}>
-                <FontIcon icon="icon close" />
-              </span>
+              <TabCloseButton unsaved={tab.unsaved} on:click={e => closeTab(tab.tabid)} />
             </div>
           {/each}
         </div>
@@ -582,19 +581,12 @@
     white-space: nowrap;
     flex-grow: 1;
   }
-  .close-button {
-    margin-left: 5px;
-    color: var(--theme-font-3);
-  }
   .close-button-right {
     margin-left: 5px;
     margin-right: 5px;
     color: var(--theme-font-3);
   }
 
-  .close-button:hover {
-    color: var(--theme-font-1);
-  }
   .close-button-right:hover {
     color: var(--theme-font-1);
   }

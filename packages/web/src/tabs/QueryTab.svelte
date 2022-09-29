@@ -52,7 +52,7 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import { changeTab } from '../utility/common';
+  import { changeTab, markTabUnsaved } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
@@ -283,6 +283,8 @@
   }
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
+
+  let isInitialized = false;
 </script>
 
 <ToolStripContainer>
@@ -298,11 +300,17 @@
           menu={createMenu()}
           on:input={e => {
             setEditorData(e.detail);
+            if (isInitialized) {
+              markTabUnsaved(tabid);
+            }
             errorMessages = [];
           }}
           on:focus={() => {
             activator.activate();
             invalidateCommands();
+            setTimeout(() => {
+              isInitialized = true;
+            }, 100);
           }}
           bind:this={domEditor}
           onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
