@@ -464,7 +464,6 @@
               <FontIcon icon="icon lock" />
             {/if}
           </div>
-          22
           <div
             class="close-button-right tabCloseButton"
             on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
