@@ -77,6 +77,17 @@
       );
     };
 
+    const handleDropDatabase = () => {
+      showModal(ConfirmModal, {
+        message: `Really drop database ${name}? All opened sessions with this database will be forcefully closed.`,
+        onConfirm: () =>
+          apiCall('server-connections/drop-database', {
+            conid: connection._id,
+            name,
+          }),
+      });
+    };
+
     const handleNewCollection = () => {
       showModal(InputTextModal, {
         value: '',
@@ -233,6 +244,9 @@
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
       driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
+      isSqlOrDoc &&
+        !connection.isReadOnly &&
+        !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },

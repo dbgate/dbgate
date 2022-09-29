@@ -110,6 +110,7 @@ export interface EngineDriver {
   updateCollection(pool: any, changeSet: any): Promise<any>;
   getCollectionUpdateScript(changeSet: any): string;
   createDatabase(pool: any, name: string): Promise;
+  dropDatabase(pool: any, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
   script(pool: any, sql: string): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];

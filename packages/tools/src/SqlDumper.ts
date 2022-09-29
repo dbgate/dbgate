@@ -181,6 +181,14 @@ export class SqlDumper implements AlterProcessor {
     this.put(' ^auto_increment');
   }
 
+  createDatabase(name: string) {
+    this.putCmd('^create ^database %i', name);
+  }
+
+  dropDatabase(name: string) {
+    this.putCmd('^drop ^database %i', name);
+  }
+
   specialColumnOptions(column) {}
 
   columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {

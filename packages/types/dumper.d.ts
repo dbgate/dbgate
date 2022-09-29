@@ -14,6 +14,8 @@ export interface SqlDumper extends AlterProcessor {
   putValue(value: string | number | Date);
   putCollection<T>(delimiter: string, collection: T[], lambda: (item: T) => void);
   transform(type: TransformType, dumpExpr: () => void);
+  createDatabase(name: string);
+  dropDatabase(name: string);
 
   endCommand();
   allowIdentityInsert(table: NamedObjectInfo, allow: boolean);

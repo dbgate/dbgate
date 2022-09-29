@@ -26,6 +26,10 @@ class Dumper extends SqlDumper {
     }
   }
 
+  dropDatabase(name) {
+    this.putCmd('^drop ^database %i ^with(^force)', name);
+  }
+
   dropRecreatedTempTable(tmptable) {
     this.putCmd('^drop ^table %i ^cascade', tmptable);
   }

@@ -276,6 +276,11 @@ const driver = {
     await db.createCollection('collection1');
   },
 
+  async dropDatabase(pool, name) {
+    const db = pool.db(name);
+    await db.dropDatabase();
+  },
+
   async loadFieldValues(pool, name, field, search) {
     try {
       const collection = pool.__getDatabase().collection(name.pureName);
