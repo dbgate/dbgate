@@ -1,4 +1,5 @@
 import {
+  CollectionInfo,
   ColumnInfo,
   DatabaseInfo,
   ForeignKeyInfo,
@@ -313,7 +314,7 @@ export abstract class PerspectiveTreeNode {
     };
   }
 
-  getOrderBy(table: TableInfo | ViewInfo): PerspectiveDataLoadProps['orderBy'] {
+  getOrderBy(table: TableInfo | ViewInfo | CollectionInfo): PerspectiveDataLoadProps['orderBy'] {
     const res = _compact(
       this.childNodes.map(node => {
         const sort = this.nodeConfig?.sort?.find(x => x.columnName == node.columnName);
@@ -325,11 +326,15 @@ export abstract class PerspectiveTreeNode {
         }
       })
     );
-    return res.length > 0
-      ? res
-      : (table as TableInfo)?.primaryKey?.columns.map(x => ({ columnName: x.columnName, order: 'ASC' })) || [
-          { columnName: table?.columns[0].columnName, order: 'ASC' },
-        ];
+    if (res.length > 0) return res;
+    const pkColumns = (table as TableInfo)?.primaryKey?.columns.map(x => ({
+      columnName: x.columnName,
+      order: 'ASC' as 'ASC',
+    }));
+    if (pkColumns) return pkColumns;
+    const columns = (table as TableInfo | ViewInfo)?.columns;
+    if (columns) return [{ columnName: columns[0].columnName, order: 'ASC' }];
+    return [{ columnName: '_id', order: 'ASC' }];
   }
 
   getBaseTables() {
@@ -553,6 +558,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.refTable),
       condition: this.getChildrenCondition(),
+      engineType: 'sqldb',
     };
   }
 
@@ -715,6 +721,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
       condition: this.getChildrenCondition(),
+      engineType: 'sqldb',
     };
   }
 
@@ -767,6 +774,88 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
+    };
+  }
+}
+
+export class PerspectiveCollectionNode extends PerspectiveTreeNode {
+  constructor(
+    public collection: CollectionInfo,
+    dbs: MultipleDatabaseInfo,
+    config: PerspectiveConfig,
+    setConfig: ChangePerspectiveConfigFunc,
+    public dataProvider: PerspectiveDataProvider,
+    databaseConfig: PerspectiveDatabaseConfig,
+    parentNode: PerspectiveTreeNode,
+    designerId: string
+  ) {
+    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+  }
+
+  getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
+    return {
+      schemaName: this.collection.schemaName,
+      pureName: this.collection.pureName,
+      dataColumns: this.getDataLoadColumns(),
+      databaseConfig: this.databaseConfig,
+      orderBy: this.getOrderBy(this.collection),
+      condition: this.getChildrenCondition(),
+      engineType: 'docdb',
+    };
+  }
+
+  get codeName() {
+    return this.collection.schemaName
+      ? `${this.collection.schemaName}:${this.collection.pureName}`
+      : this.collection.pureName;
+  }
+
+  get title() {
+    return this.nodeConfig?.alias || this.collection.pureName;
+  }
+
+  get isExpandable() {
+    return true;
+  }
+
+  generateChildNodes(): PerspectiveTreeNode[] {
+    return [];
+    // return getTableChildPerspectiveNodes(
+    //   this.table,
+    //   this.dbs,
+    //   this.config,
+    //   this.setConfig,
+    //   this.dataProvider,
+    //   this.databaseConfig,
+    //   this
+    // );
+  }
+
+  get icon() {
+    return 'img collection';
+  }
+
+  getBaseTableFromThis() {
+    return this.collection;
+  }
+
+  get headerTableAttributes() {
+    return {
+      schemaName: this.collection.schemaName,
+      pureName: this.collection.pureName,
+      conid: this.databaseConfig.conid,
+      database: this.databaseConfig.database,
+    };
+  }
+
+  get tableCode() {
+    return `${this.collection.schemaName}|${this.collection.pureName}`;
+  }
+
+  get namedObject(): NamedObjectInfo {
+    return {
+      schemaName: this.collection.schemaName,
+      pureName: this.collection.pureName,
     };
   }
 }
@@ -873,6 +962,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
       condition: this.getChildrenCondition(),
+      engineType: 'sqldb',
     };
   }
 
@@ -978,6 +1068,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
       condition: this.getChildrenCondition(),
+      engineType: 'sqldb',
     };
   }
 

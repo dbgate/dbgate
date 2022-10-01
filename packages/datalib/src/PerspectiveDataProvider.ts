@@ -4,6 +4,7 @@ import { RangeDefinition } from 'dbgate-types';
 import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
+import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
 
 export const PERSPECTIVE_PAGE_SIZE = 100;
 
@@ -28,10 +29,15 @@ export interface PerspectiveDataLoadProps {
   range?: RangeDefinition;
   topCount?: number;
   condition?: Condition;
+  engineType: 'sqldb' | 'docdb';
 }
 
 export class PerspectiveDataProvider {
-  constructor(public cache: PerspectiveCache, public loader: PerspectiveDataLoader) {}
+  constructor(
+    public cache: PerspectiveCache,
+    public loader: PerspectiveDataLoader,
+    public dataPatterns: PerspectiveDataPatternDict
+  ) {}
   async loadData(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
     dbg('load data', props);
     // console.log('LOAD DATA', props);

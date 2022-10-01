@@ -5,6 +5,7 @@ import _zip from 'lodash/zip';
 import _difference from 'lodash/difference';
 import debug from 'debug';
 import stableStringify from 'json-stable-stringify';
+import { PerspectiveDataPattern } from './PerspectiveDataPattern';
 
 const dbg = debug('dbgate:PerspectiveCache');
 
@@ -86,6 +87,7 @@ export class PerspectiveCache {
   constructor() {}
 
   tables: { [tableKey: string]: PerspectiveCacheTable } = {};
+  dataPatterns: PerspectiveDataPattern[] = [];
 
   getTableCache(props: PerspectiveDataLoadProps) {
     const tableKey = stableStringify(
@@ -113,5 +115,6 @@ export class PerspectiveCache {
 
   clear() {
     this.tables = {};
+    this.dataPatterns = [];
   }
 }

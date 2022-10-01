@@ -3,10 +3,12 @@
     createPerspectiveNodeConfig,
     MultipleDatabaseInfo,
     PerspectiveConfig,
+    PerspectiveDataPatternDict,
     perspectiveNodesHaveStructure,
     PerspectiveTreeNode,
     switchPerspectiveReferenceDirection,
   } from 'dbgate-datalib';
+  import { CollectionInfo } from 'dbgate-types';
   import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';
@@ -18,6 +20,7 @@
 
   export let config: PerspectiveConfig;
   export let dbInfos: MultipleDatabaseInfo;
+  export let dataPatterns: PerspectiveDataPatternDict;
   export let root: PerspectiveTreeNode;
 
   export let conid;
@@ -27,7 +30,11 @@
 
   export let onClickTableHeader = null;
 
-  function createDesignerModel(config: PerspectiveConfig, dbInfos: MultipleDatabaseInfo) {
+  function createDesignerModel(
+    config: PerspectiveConfig,
+    dbInfos: MultipleDatabaseInfo,
+    dataPatterns: PerspectiveDataPatternDict
+  ) {
     return {
       ...config,
       tables: _.compact(
@@ -38,11 +45,26 @@
           const view = dbInfos?.[node.conid || conid]?.[node.database || database]?.views?.find(
             x => x.pureName == node.pureName && x.schemaName == node.schemaName
           );
-          if (!table && !view) return null;
+          let collection: CollectionInfo & { columns?: any[] } = dbInfos?.[node.conid || conid]?.[
+            node.database || database
+          ]?.collections?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+
+          if (collection) {
+            const pattern = dataPatterns?.[node.designerId];
+            if (!pattern) return null;
+            collection = {
+              ...collection,
+              columns: pattern.columns.map(x => ({
+                columnName: x.name,
+              })),
+            };
+          }
+
+          if (!table && !view && !collection) return null;
 
           const { designerId } = node;
           return {
-            ...(table || view),
+            ...(table || view || collection),
             left: node?.position?.x || 0,
             top: node?.position?.y || 0,
             alias: node.alias,
@@ -55,7 +77,7 @@
 
   function handleChange(value, skipUndoChain, settings) {
     setConfig(oldValue => {
-      const newValue = _.isFunction(value) ? value(createDesignerModel(oldValue, dbInfos)) : value;
+      const newValue = _.isFunction(value) ? value(createDesignerModel(oldValue, dbInfos, dataPatterns)) : value;
       let isArranged = oldValue.isArranged;
       if (settings?.isCalledFromArrange) {
         isArranged = true;
@@ -277,6 +299,6 @@
     onClickTableHeader,
   }}
   referenceComponent={QueryDesignerReference}
-  value={createDesignerModel(config, dbInfos)}
+  value={createDesignerModel(config, dbInfos, dataPatterns)}
   onChange={handleChange}
 />

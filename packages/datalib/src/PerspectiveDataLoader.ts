@@ -93,8 +93,8 @@ export class PerspectiveDataLoader {
     }));
   }
 
-  async loadData(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+  async loadDataSqlDb(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition, engineType } = props;
 
     if (dataColumns?.length == 0) {
       return [];
@@ -143,7 +143,53 @@ export class PerspectiveDataLoader {
     return response.rows;
   }
 
-  async loadRowCount(props: PerspectiveDataLoadProps) {
+  getDocDbLoadOptions(props: PerspectiveDataLoadProps) {
+    const { pureName } = props;
+    return {
+      pureName,
+      skip: props.range?.offset,
+      limit: props.range?.limit,
+    };
+  }
+
+  async loadDataDocDb(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition, engineType } = props;
+
+    if (dataColumns?.length == 0) {
+      return [];
+    }
+
+    if (dbg?.enabled) {
+      dbg(
+        `LOAD DATA, collection=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${
+          props.range?.offset
+        },${props.range?.limit}`
+      );
+    }
+
+    const options = this.getDocDbLoadOptions(props);
+
+    const response = await this.apiCall('database-connections/collection-data', {
+      conid: props.databaseConfig.conid,
+      database: props.databaseConfig.database,
+      options,
+    });
+
+    if (response.errorMessage) return response;
+    return response.rows;
+  }
+
+  async loadData(props: PerspectiveDataLoadProps) {
+    const { engineType } = props;
+    switch (engineType) {
+      case 'sqldb':
+        return this.loadDataSqlDb(props);
+      case 'docdb':
+        return this.loadDataDocDb(props);
+    }
+  }
+
+  async loadRowCountSqlDb(props: PerspectiveDataLoadProps) {
     const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
 
     const select: Select = {
@@ -169,5 +215,32 @@ export class PerspectiveDataLoader {
 
     if (response.errorMessage) return response;
     return response.rows[0];
+  }
+
+  async loadRowCountDocDb(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+
+    const options = {
+      ...this.getDocDbLoadOptions(props),
+      countDocuments: true,
+    };
+
+    const response = await this.apiCall('database-connections/collection-data', {
+      conid: props.databaseConfig.conid,
+      database: props.databaseConfig.database,
+      options,
+    });
+
+    return response;
+  }
+
+  async loadRowCount(props: PerspectiveDataLoadProps) {
+    const { engineType } = props;
+    switch (engineType) {
+      case 'sqldb':
+        return this.loadRowCountSqlDb(props);
+      case 'docdb':
+        return this.loadRowCountDocDb(props);
+    }
   }
 }

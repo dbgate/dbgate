@@ -346,6 +346,12 @@
         },
       },
       {
+        label: 'Open perspective',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
+      {
         label: 'Export',
         isExport: true,
         functionName: 'tableReader',
