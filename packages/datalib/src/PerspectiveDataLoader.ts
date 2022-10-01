@@ -8,7 +8,15 @@ export class PerspectiveDataLoader {
   constructor(public apiCall) {}
 
   buildCondition(props: PerspectiveDataLoadProps): Condition {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+    const {
+      schemaName,
+      pureName,
+      bindingColumns,
+      bindingValues,
+      dataColumns,
+      orderBy,
+      sqlCondition: condition,
+    } = props;
 
     const conditions = [];
 
@@ -94,7 +102,16 @@ export class PerspectiveDataLoader {
   }
 
   async loadDataSqlDb(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition, engineType } = props;
+    const {
+      schemaName,
+      pureName,
+      bindingColumns,
+      bindingValues,
+      dataColumns,
+      orderBy,
+      sqlCondition: condition,
+      engineType,
+    } = props;
 
     if (dataColumns?.length == 0) {
       return [];
@@ -147,13 +164,23 @@ export class PerspectiveDataLoader {
     const { pureName } = props;
     return {
       pureName,
+      condition: props.mongoCondition,
       skip: props.range?.offset,
       limit: props.range?.limit,
     };
   }
 
   async loadDataDocDb(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition, engineType } = props;
+    const {
+      schemaName,
+      pureName,
+      bindingColumns,
+      bindingValues,
+      dataColumns,
+      orderBy,
+      sqlCondition: condition,
+      engineType,
+    } = props;
 
     if (dataColumns?.length == 0) {
       return [];
@@ -190,7 +217,15 @@ export class PerspectiveDataLoader {
   }
 
   async loadRowCountSqlDb(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+    const {
+      schemaName,
+      pureName,
+      bindingColumns,
+      bindingValues,
+      dataColumns,
+      orderBy,
+      sqlCondition: condition,
+    } = props;
 
     const select: Select = {
       commandType: 'select',
@@ -218,7 +253,15 @@ export class PerspectiveDataLoader {
   }
 
   async loadRowCountDocDb(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, condition } = props;
+    const {
+      schemaName,
+      pureName,
+      bindingColumns,
+      bindingValues,
+      dataColumns,
+      orderBy,
+      sqlCondition: condition,
+    } = props;
 
     const options = {
       ...this.getDocDbLoadOptions(props),

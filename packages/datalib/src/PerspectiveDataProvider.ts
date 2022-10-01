@@ -28,7 +28,8 @@ export interface PerspectiveDataLoadProps {
   bindingValues?: any[][];
   range?: RangeDefinition;
   topCount?: number;
-  condition?: Condition;
+  sqlCondition?: Condition;
+  mongoCondition?: any;
   engineType: 'sqldb' | 'docdb';
 }
 

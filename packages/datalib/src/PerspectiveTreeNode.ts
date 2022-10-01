@@ -298,7 +298,7 @@ export abstract class PerspectiveTreeNode {
     );
   }
 
-  getChildrenCondition(source = null): Condition {
+  getChildrenSqlCondition(source = null): Condition {
     const conditions = _compact([
       ...this.childNodes.map(x => x.parseFilterCondition(source)),
       ...this.buildParentFilterConditions(),
@@ -313,6 +313,17 @@ export abstract class PerspectiveTreeNode {
       conditionType: 'and',
       conditions,
     };
+  }
+
+  getChildrenMongoCondition(source = null): {} {
+    const conditions = _compact([...this.childNodes.map(x => x.parseFilterCondition(source))]);
+    if (conditions.length == 0) {
+      return null;
+    }
+    if (conditions.length == 1) {
+      return conditions[0];
+    }
+    return { $and: conditions };
   }
 
   getOrderBy(table: TableInfo | ViewInfo | CollectionInfo): PerspectiveDataLoadProps['orderBy'] {
@@ -444,7 +455,7 @@ export abstract class PerspectiveTreeNode {
           conditionType: 'and',
           conditions: _compact([
             ...lastNode.getParentJoinCondition(lastAlias, this.namedObject.pureName),
-            leafNode.getChildrenCondition({ alias: 'pert_0' }),
+            leafNode.getChildrenSqlCondition({ alias: 'pert_0' }),
           ]),
         };
 
@@ -558,7 +569,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.refTable),
-      condition: this.getChildrenCondition(),
+      sqlCondition: this.getChildrenSqlCondition(),
       engineType: 'sqldb',
     };
   }
@@ -705,6 +716,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   refTable: TableInfo;
 
   constructor(
+    public owner: NamedObjectInfo,
     public column: PerspectiveDataPatternColumn,
     dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
@@ -814,31 +826,29 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     // );
   }
 
-  // get filterInfo(): PerspectiveFilterColumnInfo {
-  //   return {
-  //     columnName: this.columnName,
-  //     filterType: this.filterType,
-  //     pureName: this.column.pureName,
-  //     schemaName: this.column.schemaName,
-  //     foreignKey: this.foreignKey,
-  //   };
-  // }
+  get filterInfo(): PerspectiveFilterColumnInfo {
+    return {
+      columnName: this.columnName,
+      filterType: this.filterType,
+      pureName: this.owner.pureName,
+      schemaName: this.owner.schemaName,
+      foreignKey: this.foreignKey,
+    };
+  }
 
-  // parseFilterCondition(source = null): Condition {
-  //   const filter = this.getFilter();
-  //   if (!filter) return null;
-  //   const condition = parseFilter(filter, this.filterType);
-  //   if (!condition) return null;
-  //   return _cloneDeepWith(condition, (expr: Expression) => {
-  //     if (expr.exprType == 'placeholder') {
-  //       return {
-  //         exprType: 'column',
-  //         columnName: this.column.columnName,
-  //         source,
-  //       };
-  //     }
-  //   });
-  // }
+  parseFilterCondition(source = null): {} {
+    const filter = this.getFilter();
+    if (!filter) return null;
+    const condition = parseFilter(filter, 'mongo');
+    if (!condition) return null;
+    return _cloneDeepWith(condition, expr => {
+      if (expr.__placeholder__) {
+        return {
+          [this.columnName]: expr.__placeholder__,
+        };
+      }
+    });
+  }
 
   // get headerTableAttributes() {
   //   if (this.foreignKey) {
@@ -888,7 +898,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
-      condition: this.getChildrenCondition(),
+      sqlCondition: this.getChildrenSqlCondition(),
       engineType: 'sqldb',
     };
   }
@@ -967,7 +977,7 @@ export class PerspectiveCollectionNode extends PerspectiveTreeNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.collection),
-      condition: this.getChildrenCondition(),
+      mongoCondition: this.getChildrenMongoCondition(),
       engineType: 'docdb',
     };
   }
@@ -1129,7 +1139,7 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
-      condition: this.getChildrenCondition(),
+      sqlCondition: this.getChildrenSqlCondition(),
       engineType: 'sqldb',
     };
   }
@@ -1235,7 +1245,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
       dataColumns: this.getDataLoadColumns(),
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
-      condition: this.getChildrenCondition(),
+      sqlCondition: this.getChildrenSqlCondition(),
       engineType: 'sqldb',
     };
   }
@@ -1362,6 +1372,7 @@ export function getCollectionChildPerspectiveNodes(
       parentNode,
       designerId =>
         new PerspectivePatternColumnNode(
+          collection,
           col,
           dbs,
           config,

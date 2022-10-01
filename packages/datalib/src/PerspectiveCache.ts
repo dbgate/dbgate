@@ -91,7 +91,15 @@ export class PerspectiveCache {
 
   getTableCache(props: PerspectiveDataLoadProps) {
     const tableKey = stableStringify(
-      _pick(props, ['schemaName', 'pureName', 'bindingColumns', 'databaseConfig', 'orderBy', 'condition'])
+      _pick(props, [
+        'schemaName',
+        'pureName',
+        'bindingColumns',
+        'databaseConfig',
+        'orderBy',
+        'sqlCondition',
+        'mongoCondition',
+      ])
     );
     let res = this.tables[tableKey];
 
