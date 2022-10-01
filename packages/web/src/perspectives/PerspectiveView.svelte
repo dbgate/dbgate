@@ -169,7 +169,7 @@
 
   $: {
     if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, $dataPatterns, conid, database)) {
-      setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, conid, database));
+      setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, $dataPatterns, conid, database));
     }
   }
 
