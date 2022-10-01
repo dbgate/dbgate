@@ -1,27 +1,20 @@
 import { Condition, Expression, Select } from 'dbgate-sqltree';
 import { PerspectiveDataLoadProps } from './PerspectiveDataProvider';
 import debug from 'debug';
+import _zipObject from 'lodash/zipObject';
 
 const dbg = debug('dbgate:PerspectiveDataLoader');
 
 export class PerspectiveDataLoader {
   constructor(public apiCall) {}
 
-  buildCondition(props: PerspectiveDataLoadProps): Condition {
-    const {
-      schemaName,
-      pureName,
-      bindingColumns,
-      bindingValues,
-      dataColumns,
-      orderBy,
-      sqlCondition: condition,
-    } = props;
+  buildSqlCondition(props: PerspectiveDataLoadProps): Condition {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, sqlCondition } = props;
 
     const conditions = [];
 
-    if (condition) {
-      conditions.push(condition);
+    if (sqlCondition) {
+      conditions.push(sqlCondition);
     }
 
     if (bindingColumns?.length == 1) {
@@ -44,6 +37,24 @@ export class PerspectiveDataLoader {
           conditions,
         }
       : null;
+  }
+
+  buildMongoCondition(props: PerspectiveDataLoadProps): {} {
+    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns, orderBy, mongoCondition } = props;
+
+    const conditions = [];
+
+    if (mongoCondition) {
+      conditions.push(mongoCondition);
+    }
+
+    if (bindingColumns?.length == 1) {
+      conditions.push({
+        [bindingColumns[0]]: { $in: bindingValues.map(x => x[0]) },
+      });
+    }
+
+    return conditions.length == 1 ? conditions[0] : conditions.length > 0 ? { $and: conditions } : null;
   }
 
   async loadGrouping(props: PerspectiveDataLoadProps) {
@@ -79,7 +90,7 @@ export class PerspectiveDataLoader {
         },
         ...bindingColumnExpressions,
       ],
-      where: this.buildCondition(props),
+      where: this.buildSqlCondition(props),
     };
 
     select.groupBy = bindingColumnExpressions;
@@ -139,7 +150,7 @@ export class PerspectiveDataLoader {
         },
       })),
       range: props.range,
-      where: this.buildCondition(props),
+      where: this.buildSqlCondition(props),
     };
 
     if (dbg?.enabled) {
@@ -160,14 +171,22 @@ export class PerspectiveDataLoader {
     return response.rows;
   }
 
-  getDocDbLoadOptions(props: PerspectiveDataLoadProps) {
+  getDocDbLoadOptions(props: PerspectiveDataLoadProps, useSort: boolean) {
     const { pureName } = props;
-    return {
+    const res: any = {
       pureName,
-      condition: props.mongoCondition,
+      condition: this.buildMongoCondition(props),
       skip: props.range?.offset,
       limit: props.range?.limit,
     };
+    if (useSort && props.orderBy?.length > 0) {
+      res.sort = _zipObject(
+        props.orderBy.map(col => col.columnName),
+        props.orderBy.map(col => (col.order == 'DESC' ? -1 : 1))
+      );
+    }
+
+    return res;
   }
 
   async loadDataDocDb(props: PerspectiveDataLoadProps) {
@@ -194,7 +213,7 @@ export class PerspectiveDataLoader {
       );
     }
 
-    const options = this.getDocDbLoadOptions(props);
+    const options = this.getDocDbLoadOptions(props, true);
 
     const response = await this.apiCall('database-connections/collection-data', {
       conid: props.databaseConfig.conid,
@@ -239,7 +258,7 @@ export class PerspectiveDataLoader {
           alias: 'count',
         },
       ],
-      where: this.buildCondition(props),
+      where: this.buildSqlCondition(props),
     };
 
     const response = await this.apiCall('database-connections/sql-select', {
@@ -264,7 +283,7 @@ export class PerspectiveDataLoader {
     } = props;
 
     const options = {
-      ...this.getDocDbLoadOptions(props),
+      ...this.getDocDbLoadOptions(props, false),
       countDocuments: true,
     };
 
