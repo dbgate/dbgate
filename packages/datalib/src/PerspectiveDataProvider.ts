@@ -17,9 +17,9 @@ export interface PerspectiveDatabaseConfig {
 
 export interface PerspectiveDataLoadProps {
   databaseConfig: PerspectiveDatabaseConfig;
-  schemaName: string;
+  schemaName?: string;
   pureName: string;
-  dataColumns: string[];
+  dataColumns?: string[];
   orderBy: {
     columnName: string;
     order: 'ASC' | 'DESC';

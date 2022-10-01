@@ -39,24 +39,22 @@
       ...config,
       tables: _.compact(
         config.nodes.map(node => {
-          const table = dbInfos?.[node.conid || conid]?.[node.database || database]?.tables?.find(
+          const db = dbInfos?.[node.conid || conid]?.[node.database || database];
+          const table = db?.tables?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+          const view = db?.views?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+          let collection: CollectionInfo & { columns?: any[] } = db?.collections?.find(
             x => x.pureName == node.pureName && x.schemaName == node.schemaName
           );
-          const view = dbInfos?.[node.conid || conid]?.[node.database || database]?.views?.find(
-            x => x.pureName == node.pureName && x.schemaName == node.schemaName
-          );
-          let collection: CollectionInfo & { columns?: any[] } = dbInfos?.[node.conid || conid]?.[
-            node.database || database
-          ]?.collections?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
 
           if (collection) {
             const pattern = dataPatterns?.[node.designerId];
             if (!pattern) return null;
             collection = {
               ...collection,
-              columns: pattern.columns.map(x => ({
-                columnName: x.name,
-              })),
+              columns:
+                pattern?.columns.map(x => ({
+                  columnName: x.name,
+                })) || [],
             };
           }
 
@@ -144,11 +142,11 @@
     });
   }
 
-  async function detectAutoArrange(config: PerspectiveConfig, dbInfos, root) {
+  async function detectAutoArrange(config: PerspectiveConfig, dbInfos, dataPatterns, root) {
     if (
       root &&
       config.nodes.find(x => !x.position) &&
-      perspectiveNodesHaveStructure(config, dbInfos, conid, database) &&
+      perspectiveNodesHaveStructure(config, dbInfos, dataPatterns, conid, database) &&
       config.nodes.every(x => root?.findNodeByDesignerId(x.designerId))
     ) {
       await tick();
@@ -156,7 +154,7 @@
     }
   }
 
-  $: detectAutoArrange(config, dbInfos, root);
+  $: detectAutoArrange(config, dbInfos, dataPatterns, root);
 
   // $: console.log('DESIGNER ROOT', root);
 </script>

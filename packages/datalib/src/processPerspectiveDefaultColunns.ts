@@ -1,6 +1,7 @@
 import { findForeignKeyForColumn } from 'dbgate-tools';
 import { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
 import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from './PerspectiveConfig';
+import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
 import { PerspectiveTableNode } from './PerspectiveTreeNode';
 
 function getPerspectiveDefaultColumns(
@@ -47,6 +48,7 @@ function getPerspectiveDefaultColumns(
 export function perspectiveNodesHaveStructure(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ) {
@@ -56,8 +58,10 @@ export function perspectiveNodesHaveStructure(
 
     const table = db.tables.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
     const view = db.views.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+    const collection = db.collections.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
 
-    if (!table && !view) return false;
+    if (!table && !view && !collection) return false;
+    if (collection && !dataPatterns?.[node.designerId]) return false;
   }
 
   return true;
@@ -66,13 +70,14 @@ export function perspectiveNodesHaveStructure(
 export function shouldProcessPerspectiveDefaultColunns(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ) {
   const nodesNotProcessed = config.nodes.filter(x => !x.defaultColumnsProcessed);
   if (nodesNotProcessed.length == 0) return false;
 
-  return perspectiveNodesHaveStructure(config, dbInfos, conid, database);
+  return perspectiveNodesHaveStructure(config, dbInfos, dataPatterns, conid, database);
 }
 
 function processPerspectiveDefaultColunnsStep(

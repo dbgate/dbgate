@@ -213,6 +213,8 @@
         !isMultipleTableSelection && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
     ];
   }
+
+  // $: console.log('COLUMNS', columns);
 </script>
 
 <div

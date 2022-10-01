@@ -479,7 +479,7 @@
     const rect = e.target.getBoundingClientRect();
     var json = JSON.parse(data);
     const { objectTypeField } = json;
-    if (objectTypeField != 'tables' && objectTypeField != 'views') return;
+    if (objectTypeField != 'tables' && objectTypeField != 'views' && objectTypeField != 'collections') return;
     json.designerId = `${json.pureName}-${uuidv1()}`;
     json.left = e.clientX - rect.left;
     json.top = e.clientY - rect.top;
@@ -941,6 +941,7 @@
   .empty {
     margin: 50px;
     font-size: 20px;
+    position: absolute;
   }
   .canvas {
     position: relative;

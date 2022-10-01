@@ -168,7 +168,7 @@
   $: tempRoot = root?.findNodeByDesignerId(tempRootDesignerId);
 
   $: {
-    if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, conid, database)) {
+    if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, $dataPatterns, conid, database)) {
       setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, conid, database));
     }
   }
