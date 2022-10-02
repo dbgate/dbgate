@@ -200,7 +200,7 @@ export class PerspectiveDisplay {
     for (const sourceRow of sourceRows) {
       // console.log('PROCESS SOURCE', sourceRow);
       // row.startIndex = startIndex;
-      const rowData = columnNodes.map(node => sourceRow[node.fieldName]);
+      const rowData = columnNodes.map(node => sourceRow[node.columnName]);
       const subRowCollections = [];
 
       for (const node of treeNodes) {

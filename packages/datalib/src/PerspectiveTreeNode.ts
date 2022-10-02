@@ -606,6 +606,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
 
   get fieldName() {
     return this.codeName + 'Ref';
+    // return this.codeName ;
   }
 
   get title() {
