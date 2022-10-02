@@ -797,6 +797,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get generatesHiearchicGridColumn() {
+    // console.log('generatesHiearchicGridColumn', this.parentTableNode?.nodeConfig?.checkedColumns, this.codeName + '::');
     return !!this.parentTableNode?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'));
   }
 
