@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.4
+- ADDED: Drop database commands #384
+- ADDED: Customizable Redis key separator #379
+- ADDED: ARM support for docker images
+- ADDED: Version tags for docker images
+- ADDED: Better SQL command splitting and highlighting
+- ADDED: Unsaved marker for SQL files
+
 ### 5.1.3
 - ADDED: Editing multiline cell values #378 #371 #359
 - ADDED: Truncate table #333
