@@ -28,7 +28,6 @@
   import {
     ChangePerspectiveConfigFunc,
     extractPerspectiveDatabases,
-    PerspectiveCollectionNode,
     PerspectiveConfig,
     PerspectiveDataProvider,
     PerspectiveTableNode,
@@ -142,20 +141,9 @@
 
   $: dataProvider = new PerspectiveDataProvider(cache, loader, $dataPatterns);
   $: root =
-    tableInfo || viewInfo
+    tableInfo || viewInfo || collectionInfo
       ? new PerspectiveTableNode(
-          tableInfo || viewInfo,
-          $dbInfos,
-          config,
-          setConfig,
-          dataProvider,
-          { conid, database },
-          null,
-          config.rootDesignerId
-        )
-      : collectionInfo
-      ? new PerspectiveCollectionNode(
-          collectionInfo,
+          tableInfo || viewInfo || collectionInfo,
           $dbInfos,
           config,
           setConfig,

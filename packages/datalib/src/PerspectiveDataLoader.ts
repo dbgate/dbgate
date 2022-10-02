@@ -57,8 +57,8 @@ export class PerspectiveDataLoader {
     return conditions.length == 1 ? conditions[0] : conditions.length > 0 ? { $and: conditions } : null;
   }
 
-  async loadGrouping(props: PerspectiveDataLoadProps) {
-    const { schemaName, pureName, bindingColumns, bindingValues, dataColumns } = props;
+  async loadGroupingSqlDb(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns } = props;
 
     const bindingColumnExpressions = bindingColumns.map(
       columnName =>
@@ -96,7 +96,7 @@ export class PerspectiveDataLoader {
     select.groupBy = bindingColumnExpressions;
 
     if (dbg?.enabled) {
-      dbg(`LOAD COUNTS, table=${props.pureName}, columns=${props.dataColumns?.join(',')}`);
+      dbg(`LOAD COUNTS, table=${props.pureName}, columns=${bindingColumns?.join(',')}`);
     }
 
     const response = await this.apiCall('database-connections/sql-select', {
@@ -110,6 +110,52 @@ export class PerspectiveDataLoader {
       ...row,
       _perspective_group_size_: parseInt(row._perspective_group_size_),
     }));
+  }
+
+  async loadGroupingDocDb(props: PerspectiveDataLoadProps) {
+    const { schemaName, pureName, bindingColumns } = props;
+
+    const aggregate = [
+      { $match: this.buildMongoCondition(props) },
+      {
+        $group: {
+          _id: _zipObject(
+            bindingColumns,
+            bindingColumns.map(col => '$' + col)
+          ),
+          count: { $sum: 1 },
+        },
+      },
+    ];
+
+    if (dbg?.enabled) {
+      dbg(`LOAD COUNTS, table=${props.pureName}, columns=${bindingColumns?.join(',')}`);
+    }
+
+    const response = await this.apiCall('database-connections/collection-data', {
+      conid: props.databaseConfig.conid,
+      database: props.databaseConfig.database,
+      options: {
+        pureName,
+        aggregate,
+      },
+    });
+
+    if (response.errorMessage) return response;
+    return response.rows.map(row => ({
+      ...row._id,
+      _perspective_group_size_: parseInt(row.count),
+    }));
+  }
+
+  async loadGrouping(props: PerspectiveDataLoadProps) {
+    const { engineType } = props;
+    switch (engineType) {
+      case 'sqldb':
+        return this.loadGroupingSqlDb(props);
+      case 'docdb':
+        return this.loadGroupingDocDb(props);
+    }
   }
 
   async loadDataSqlDb(props: PerspectiveDataLoadProps) {
