@@ -34,7 +34,7 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
+#            type=match,pattern=\d+.\d+.\d+,suffix=-beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
             type=raw,value=beta,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
 
             type=match,pattern=\d+.\d+.\d+,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
@@ -49,7 +49,7 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
+#            type=match,pattern=\d+.\d+.\d+,suffix=-beta-alpine,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
             type=raw,value=beta-alpine,enable=${{ contains(github.ref_name, '-docker.') || contains(github.ref_name, '-beta.') }}
 
             type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
