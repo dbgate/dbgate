@@ -7,6 +7,9 @@ import artistDataFlat from './artistDataFlat';
 import artistDataAlbum from './artistDataAlbum';
 import artistDataAlbumTrack from './artistDataAlbumTrack';
 import { processPerspectiveDefaultColunns } from '../processPerspectiveDefaultColunns';
+import { DatabaseAnalyser, isCollectionInfo } from 'dbgate-tools';
+import { analyseDataPattern } from '../PerspectiveDataPattern';
+import { PerspectiveDataProvider } from '../PerspectiveDataProvider';
 
 test('test flat view', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');
@@ -140,4 +143,53 @@ test('test two level nesting', () => {
   expect(display.rows[2].rowData).toEqual([undefined, 'Let There Be Rock', 'Go Down']);
   expect(display.rows[2].rowSpans).toEqual([1, 2, 1]);
   expect(display.rows[2].rowCellSkips).toEqual([true, false, false]);
+});
+
+test('test nosql display', () => {
+  const collectionInfo = {
+    objectTypeField: 'collections',
+    pureName: 'Account',
+  };
+  const dbInfo = {
+    ...DatabaseAnalyser.createEmptyStructure(),
+    collections: [collectionInfo],
+  };
+  const accountData = [
+    { name: 'jan', email: 'jan@foo.co', follows: [{ name: 'lucie' }, { name: 'petr' }] },
+    { name: 'romeo', email: 'romeo@foo.co', follows: [{ name: 'julie' }, { name: 'wiliam' }] },
+  ];
+  const config = createPerspectiveConfig({ pureName: 'Account' });
+  const dataPatterns = {
+    [config.rootDesignerId]: analyseDataPattern(
+      {
+        conid: 'conid',
+        database: 'db',
+        pureName: 'Account',
+      },
+      accountData
+    ),
+  };
+
+  const configColumns = processPerspectiveDefaultColunns(
+    config,
+    { conid: { db: dbInfo } },
+    dataPatterns,
+    'conid',
+    'db'
+  );
+  const root = new PerspectiveTableNode(
+    collectionInfo,
+    { conid: { db: dbInfo } },
+    configColumns,
+    null,
+    new PerspectiveDataProvider(null, null, dataPatterns),
+    { conid: 'conid', database: 'db' },
+    null,
+    configColumns.rootDesignerId
+  );
+  const display = new PerspectiveDisplay(root, accountData);
+
+  expect(display.rows.length).toEqual(2);
+  expect(display.rows[0].rowData).toEqual(['jan']);
+  expect(display.rows[1].rowData).toEqual(['romeo']);
 });

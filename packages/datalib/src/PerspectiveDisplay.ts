@@ -126,14 +126,14 @@ export class PerspectiveDisplay {
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
     for (const child of children) {
-      if (child.isCheckedColumn || child.isCheckedNode) {
+      if (child.generatesHiearchicGridColumn || child.generatesDataGridColumn) {
         this.processColumn(child, parentNodes);
       }
     }
   }
 
   processColumn(node: PerspectiveTreeNode, parentNodes: PerspectiveTreeNode[]) {
-    if (node.isCheckedColumn) {
+    if (node.generatesDataGridColumn) {
       const column = new PerspectiveDisplayColumn(this);
       column.title = node.columnTitle;
       column.dataField = node.dataField;
@@ -145,7 +145,7 @@ export class PerspectiveDisplay {
       this.columns.push(column);
     }
 
-    if (node.isExpandable && node.isCheckedNode) {
+    if (node.generatesHiearchicGridColumn) {
       const countBefore = this.columns.length;
       this.fillColumns(node.childNodes, [...parentNodes, node]);
 
@@ -185,6 +185,7 @@ export class PerspectiveDisplay {
       const subRowCollections = [];
 
       for (const node of treeNodes) {
+        // console.log('sourceRow[node.fieldName]', node.fieldName, sourceRow[node.fieldName]);
         if (sourceRow[node.fieldName]) {
           const subrows = {
             rows: this.collectRows(sourceRow[node.fieldName], node.childNodes),

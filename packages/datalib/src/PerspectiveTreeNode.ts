@@ -81,7 +81,7 @@ export abstract class PerspectiveTreeNode {
     this.parentNodeConfig = parentNode?.nodeConfig;
   }
   readonly nodeConfig: PerspectiveNodeConfig;
-  readonly parentNodeConfig: PerspectiveNodeConfig;
+  parentNodeConfig: PerspectiveNodeConfig;
   // defaultChecked: boolean;
   abstract get title();
   abstract get codeName();
@@ -110,6 +110,15 @@ export abstract class PerspectiveTreeNode {
   get namedObject(): NamedObjectInfo {
     return null;
   }
+  get parentTableNode(): PerspectiveTableNode {
+    if (this instanceof PerspectiveTableNode) {
+      return this;
+    }
+    if (this.parentNode == null) {
+      return null;
+    }
+    return this.parentNode.parentTableNode;
+  }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
     return this.parentNode == null;
@@ -120,6 +129,12 @@ export abstract class PerspectiveTreeNode {
   }
   get isSortable() {
     return false;
+  }
+  get generatesHiearchicGridColumn() {
+    return this.isExpandable && this.isCheckedNode;
+  }
+  get generatesDataGridColumn() {
+    return this.isCheckedColumn;
   }
   matchChildRow(parentRow: any, childRow: any): boolean {
     return true;
@@ -273,12 +288,12 @@ export abstract class PerspectiveTreeNode {
         [field]: isIncluded ? [...(n[field] || []), this.codeName] : (n[field] || []).filter(x => x != this.codeName),
       });
 
-      const [cfgChanged, nodeCfg] = this.parentNode?.ensureNodeConfig(cfg);
+      const [cfgChanged, nodeCfg] = this.parentTableNode?.ensureNodeConfig(cfg);
 
       return {
         ...cfgChanged,
         nodes: cfgChanged.nodes.map(n =>
-          n.designerId == (this.parentNode?.designerId || nodeCfg?.designerId) ? changedFields(n) : n
+          n.designerId == (this.parentTableNode?.designerId || nodeCfg?.designerId) ? changedFields(n) : n
         ),
       };
     });
@@ -727,6 +742,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     designerId: string
   ) {
     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+    this.parentNodeConfig = this.parentTableNode?.nodeConfig;
   }
 
   get isChildColumn() {
@@ -780,11 +796,22 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return null;
   }
 
+  get generatesHiearchicGridColumn() {
+    return !!this.parentTableNode?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'));
+  }
+
+  // get generatesHiearchicGridColumn() {
+  //   // return this.config &&;
+  // }
+
   get icon() {
     return 'img column';
   }
 
   get codeName() {
+    if (this.parentNode instanceof PerspectivePatternColumnNode) {
+      return `${this.parentNode.codeName}::${this.column.name}`;
+    }
     return this.column.name;
   }
 
@@ -793,7 +820,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get fieldName() {
-    return this.codeName + 'Ref';
+    return this.column.name;
   }
 
   get title() {

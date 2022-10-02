@@ -17,7 +17,7 @@ export interface PerspectiveDataPatternColumn {
 export interface PerspectiveDataPattern {
   conid: string;
   database: string;
-  schemaName: string;
+  schemaName?: string;
   pureName: string;
   columns: PerspectiveDataPatternColumn[];
 }
