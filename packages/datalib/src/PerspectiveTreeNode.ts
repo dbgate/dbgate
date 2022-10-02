@@ -944,6 +944,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       dataColumns: this.getDataLoadColumns(),
+      allColumns: isMongo,
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
       sqlCondition: isMongo ? null : this.getChildrenSqlCondition(),
@@ -1154,6 +1155,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
         stableStringify
       ),
       dataColumns: this.getDataLoadColumns(),
+      allColumns: isMongo,
       databaseConfig: this.databaseConfig,
       orderBy: this.getOrderBy(this.table),
       sqlCondition: isMongo ? null : this.getChildrenSqlCondition(),

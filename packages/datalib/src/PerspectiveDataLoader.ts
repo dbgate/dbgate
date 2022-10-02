@@ -247,10 +247,6 @@ export class PerspectiveDataLoader {
       engineType,
     } = props;
 
-    if (dataColumns?.length == 0) {
-      return [];
-    }
-
     if (dbg?.enabled) {
       dbg(
         `LOAD DATA, collection=${props.pureName}, columns=${props.dataColumns?.join(',')}, range=${

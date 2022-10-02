@@ -20,6 +20,7 @@ export interface PerspectiveDataLoadProps {
   schemaName?: string;
   pureName: string;
   dataColumns?: string[];
+  allColumns?: boolean;
   orderBy: {
     columnName: string;
     order: 'ASC' | 'DESC';
@@ -189,6 +190,7 @@ export class PerspectiveDataProvider {
 
     // load missing rows
     tableCache.dataColumns = props.dataColumns;
+    tableCache.allColumns = props.allColumns;
 
     const nextRows = await this.loader.loadData({
       ...props,

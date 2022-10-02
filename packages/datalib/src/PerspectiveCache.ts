@@ -35,6 +35,7 @@ export class PerspectiveCacheTable {
   pureName: string;
   bindingColumns?: string[];
   dataColumns: string[];
+  allColumns?: boolean;
   loadedAll: boolean;
   loadedRows: any[] = [];
   bindingGroups: { [bindingKey: string]: PerspectiveBindingGroup } = {};
@@ -103,7 +104,7 @@ export class PerspectiveCache {
     );
     let res = this.tables[tableKey];
 
-    if (res && _difference(props.dataColumns, res.dataColumns).length > 0) {
+    if (res && _difference(props.dataColumns, res.dataColumns).length > 0 && !res.allColumns) {
       dbg('Delete cache because incomplete columns', props.pureName, res.dataColumns);
 
       // we have incomplete cache
