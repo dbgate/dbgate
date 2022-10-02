@@ -4,8 +4,9 @@ import _isString from 'lodash/isString';
 import _isPlainObject from 'lodash/isPlainObject';
 import _isNumber from 'lodash/isNumber';
 import _isBoolean from 'lodash/isBoolean';
+import _isArray from 'lodash/isArray';
 
-export type PerspectiveDataPatternColumnType = 'null' | 'string' | 'number' | 'boolean' | 'object';
+export type PerspectiveDataPatternColumnType = 'null' | 'string' | 'number' | 'boolean' | 'json';
 
 export interface PerspectiveDataPatternColumn {
   name: string;
@@ -27,6 +28,7 @@ function detectValueType(value): PerspectiveDataPatternColumnType {
   if (_isString(value)) return 'string';
   if (_isNumber(value)) return 'number';
   if (_isBoolean(value)) return 'boolean';
+  if (_isPlainObject(value) || _isArray(value)) return 'json';
   if (value == null) return 'null';
 }
 
@@ -42,9 +44,18 @@ function addObjectToColumns(columns: PerspectiveDataPatternColumn[], row) {
         };
         columns.push(column);
       }
-      const type = detectValueType(row[key]);
+      const value = row[key];
+      const type = detectValueType(value);
       if (!column.types.includes(type)) {
         column.types.push(type);
+      }
+      if (_isPlainObject(value)) {
+        addObjectToColumns(column.columns, value);
+      }
+      if (_isArray(value)) {
+        for (const item of value) {
+          addObjectToColumns(column.columns, item);
+        }
       }
     }
   }

@@ -729,6 +729,10 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
   }
 
+  get isChildColumn() {
+    return this.parentNode instanceof PerspectivePatternColumnNode;
+  }
+
   // matchChildRow(parentRow: any, childRow: any): boolean {
   //   if (!this.foreignKey) return false;
   //   return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
@@ -797,7 +801,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get isExpandable() {
-    return !!this.foreignKey;
+    return this.column.columns.length > 0;
   }
 
   get isSortable() {
@@ -809,6 +813,20 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   generateChildNodes(): PerspectiveTreeNode[] {
+    return this.column.columns.map(
+      column =>
+        new PerspectivePatternColumnNode(
+          this.owner,
+          column,
+          this.dbs,
+          this.config,
+          this.setConfig,
+          this.dataProvider,
+          this.databaseConfig,
+          this,
+          null
+        )
+    );
     return [];
     // if (!this.foreignKey) return [];
     // const tbl = this?.db?.tables?.find(
@@ -1237,7 +1255,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
     // console.log('CUSTOM JOIN', this.customJoin);
     // console.log('this.getDataLoadColumns()', this.getDataLoadColumns());
     const isMongo = isCollectionInfo(this.table);
-    
+
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
@@ -1355,44 +1373,6 @@ function findDesignerIdForNode<T extends PerspectiveTreeNode>(
   return node;
 }
 
-export function getCollectionChildPerspectiveNodes(
-  designerId: string,
-  collection: CollectionInfo,
-  dbs: MultipleDatabaseInfo,
-  config: PerspectiveConfig,
-  setConfig: ChangePerspectiveConfigFunc,
-  dataProvider: PerspectiveDataProvider,
-  databaseConfig: PerspectiveDatabaseConfig,
-  parentNode: PerspectiveTreeNode
-) {
-  if (!collection) return [];
-  const db = parentNode.db;
-
-  const pattern = dataProvider.dataPatterns[designerId];
-  if (!pattern) return [];
-
-  const columnNodes = pattern.columns.map(col =>
-    findDesignerIdForNode(
-      config,
-      parentNode,
-      designerId =>
-        new PerspectivePatternColumnNode(
-          collection,
-          col,
-          dbs,
-          config,
-          setConfig,
-          dataProvider,
-          databaseConfig,
-          parentNode,
-          designerId
-        )
-    )
-  );
-
-  return columnNodes;
-}
-
 export function getTableChildPerspectiveNodes(
   table: TableInfo | ViewInfo | CollectionInfo,
   dbs: MultipleDatabaseInfo,
@@ -1405,7 +1385,7 @@ export function getTableChildPerspectiveNodes(
   if (!table) return [];
   const db = parentNode.db;
 
-  const pattern = dataProvider.dataPatterns[parentNode.designerId];
+  const pattern = dataProvider?.dataPatterns?.[parentNode.designerId];
 
   const tableOrView = isTableInfo(table) || isViewInfo(table) ? table : null;
 
