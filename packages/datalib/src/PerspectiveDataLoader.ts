@@ -2,6 +2,26 @@ import { Condition, Expression, Select } from 'dbgate-sqltree';
 import { PerspectiveDataLoadProps } from './PerspectiveDataProvider';
 import debug from 'debug';
 import _zipObject from 'lodash/zipObject';
+import _mapValues from 'lodash/mapValues';
+import _isArray from 'lodash/isArray';
+import { safeJsonParse } from 'dbgate-tools';
+
+function normalizeLoadedRow(row) {
+  return _mapValues(row, v => safeJsonParse(v) || v);
+}
+
+function normalizeResult(result) {
+  if (_isArray(result)) {
+    return result.map(normalizeLoadedRow);
+  }
+  if (result.errorMessage) {
+    return result;
+  }
+  return {
+    ...result,
+    errorMessage: 'Unspecified error',
+  };
+}
 
 const dbg = debug('dbgate:PerspectiveDataLoader');
 
@@ -187,14 +207,17 @@ export class PerspectiveDataLoader {
         },
       })),
       selectAll: !dataColumns,
-      orderBy: orderBy?.map(({ columnName, order }) => ({
-        exprType: 'column',
-        columnName,
-        direction: order,
-        source: {
-          name: { schemaName, pureName },
-        },
-      })),
+      orderBy:
+        orderBy?.length > 0
+          ? orderBy?.map(({ columnName, order }) => ({
+              exprType: 'column',
+              columnName,
+              direction: order,
+              source: {
+                name: { schemaName, pureName },
+              },
+            }))
+          : null,
       range: props.range,
       where: this.buildSqlCondition(props),
     };
@@ -271,9 +294,9 @@ export class PerspectiveDataLoader {
     const { engineType } = props;
     switch (engineType) {
       case 'sqldb':
-        return this.loadDataSqlDb(props);
+        return normalizeResult(await this.loadDataSqlDb(props));
       case 'docdb':
-        return this.loadDataDocDb(props);
+        return normalizeResult(await this.loadDataDocDb(props));
     }
   }
 

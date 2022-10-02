@@ -5,6 +5,7 @@ import _isPlainObject from 'lodash/isPlainObject';
 import _isNumber from 'lodash/isNumber';
 import _isBoolean from 'lodash/isBoolean';
 import _isArray from 'lodash/isArray';
+import { safeJsonParse } from 'dbgate-tools';
 
 export type PerspectiveDataPatternColumnType = 'null' | 'string' | 'number' | 'boolean' | 'json';
 
@@ -57,6 +58,22 @@ function addObjectToColumns(columns: PerspectiveDataPatternColumn[], row) {
           addObjectToColumns(column.columns, item);
         }
       }
+      if (_isString(value)) {
+        const json = safeJsonParse(value);
+        if (json && (_isPlainObject(json) || _isArray(json))) {
+          if (!column.types.includes('json')) {
+            column.types.push('json');
+          }
+          if (_isPlainObject(json)) {
+            addObjectToColumns(column.columns, json);
+          }
+          if (_isArray(json)) {
+            for (const item of json) {
+              addObjectToColumns(column.columns, item);
+            }
+          }
+        }
+      }
     }
   }
 }
@@ -69,6 +86,7 @@ export function analyseDataPattern(
     ...patternBase,
     columns: [],
   };
+  // console.log('ROWS', rows);
   for (const row of rows) {
     addObjectToColumns(res.columns, row);
   }

@@ -1,7 +1,6 @@
 import debug from 'debug';
 import { Condition } from 'dbgate-sqltree';
 import { RangeDefinition } from 'dbgate-types';
-import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
 import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
@@ -9,6 +8,7 @@ import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
 export const PERSPECTIVE_PAGE_SIZE = 100;
 
 const dbg = debug('dbgate:PerspectiveDataProvider');
+
 
 export interface PerspectiveDatabaseConfig {
   conid: string;

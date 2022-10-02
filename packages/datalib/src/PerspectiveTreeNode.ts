@@ -309,6 +309,10 @@ export abstract class PerspectiveTreeNode {
         ...this.childNodes.map(x => x.childDataColumn),
         ..._flatten(this.childNodes.filter(x => x.isExpandable && x.isChecked).map(x => x.getChildMatchColumns())),
         ...this.getParentMatchColumns(),
+        ...this.childNodes
+          .filter(x => x instanceof PerspectivePatternColumnNode)
+          .filter(x => this.nodeConfig?.checkedColumns?.find(y => y.startsWith(x.codeName + '::')))
+          .map(x => x.columnName),
       ])
     );
   }
@@ -1282,21 +1286,30 @@ export function getTableChildPerspectiveNodes(
 
   const columnNodes =
     tableOrView?.columns?.map(col =>
-      findDesignerIdForNode(
-        config,
-        parentNode,
-        designerId =>
-          new PerspectiveTableColumnNode(
-            col,
-            tableOrView,
-            dbs,
-            config,
-            setConfig,
-            dataProvider,
-            databaseConfig,
-            parentNode,
-            designerId
-          )
+      findDesignerIdForNode(config, parentNode, designerId =>
+        pattern?.columns?.find(x => x.name == col.columnName)?.types.includes('json')
+          ? new PerspectivePatternColumnNode(
+              table,
+              pattern?.columns?.find(x => x.name == col.columnName),
+              dbs,
+              config,
+              setConfig,
+              dataProvider,
+              databaseConfig,
+              parentNode,
+              designerId
+            )
+          : new PerspectiveTableColumnNode(
+              col,
+              tableOrView,
+              dbs,
+              config,
+              setConfig,
+              dataProvider,
+              databaseConfig,
+              parentNode,
+              designerId
+            )
       )
     ) ||
     pattern?.columns?.map(col =>

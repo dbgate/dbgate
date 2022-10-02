@@ -29,15 +29,7 @@ export function getPerspectiveDataPatternsFromCache(
     );
     if (cached) {
       res[node.designerId] = cached;
-      continue;
     }
-
-    const db = dbInfos?.[conid]?.[database];
-
-    if (!db) continue;
-
-    const collection = db.collections?.find(x => x.pureName == pureName && x.schemaName == schemaName);
-    if (!collection) continue;
   }
 
   return res;
@@ -69,20 +61,38 @@ export async function getPerspectiveDataPatterns(
 
     if (!db) continue;
 
+    const table = db.tables?.find(x => x.pureName == pureName && x.schemaName == schemaName);
+    const view = db.views?.find(x => x.pureName == pureName && x.schemaName == schemaName);
     const collection = db.collections?.find(x => x.pureName == pureName && x.schemaName == schemaName);
-    if (!collection) continue;
+    if (!table && !view && !collection) continue;
+
+    // console.log('LOAD PATTERN FOR', pureName);
 
     const props: PerspectiveDataLoadProps = {
       databaseConfig: { conid, database },
-      engineType: 'docdb',
+      engineType: collection ? 'docdb' : 'sqldb',
+      schemaName,
       pureName,
-      orderBy: [],
+      orderBy: table?.primaryKey
+        ? table?.primaryKey.columns.map(x => ({ columnName: x.columnName, order: 'ASC' }))
+        : table || view
+        ? [{ columnName: (table || view).columns[0].columnName, order: 'ASC' }]
+        : null,
       range: {
         offset: 0,
         limit: 10,
       },
     };
+    // console.log('LOAD PROPS', props);
     const rows = await dataLoader.loadData(props);
+
+    if (rows.errorMessage) {
+      console.error('Error loading pattern for', pureName, ':', rows.errorMessage);
+      continue;
+    }
+
+    // console.log('PATTERN ROWS', rows);
+
     const pattern = analyseDataPattern(
       {
         conid,

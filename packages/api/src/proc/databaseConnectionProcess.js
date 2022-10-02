@@ -177,7 +177,7 @@ async function handleQueryData({ msgid, sql }, skipReadonlyCheck = false) {
     const res = await driver.query(systemConnection, sql);
     process.send({ msgtype: 'response', msgid, ...res });
   } catch (err) {
-    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message || 'Error executing SQL script' });
   }
 }
 
