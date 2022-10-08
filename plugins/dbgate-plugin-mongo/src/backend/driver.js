@@ -9,7 +9,9 @@ const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
 
 function transformMongoData(row) {
-  return _.mapValues(row, (v) => (v && v.constructor == ObjectId ? { $oid: v.toString() } : v));
+  return _.cloneDeepWith(row, (x) => {
+    if (x && x.constructor == ObjectId) return { $oid: x.toString() };
+  });
 }
 
 async function readCursor(cursor, options) {
