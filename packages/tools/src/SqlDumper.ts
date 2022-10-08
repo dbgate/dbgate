@@ -32,6 +32,12 @@ export class SqlDumper implements AlterProcessor {
   dialect: SqlDialect;
   indentLevel = 0;
 
+  static keywordsCase = 'upperCase';
+  static convertKeywordCase(keyword: any): string {
+    if (this.keywordsCase == 'lowerCase') return keyword?.toString()?.toLowerCase();
+    return keyword?.toString()?.toUpperCase();
+  }
+
   constructor(driver: EngineDriver) {
     this.driver = driver;
     this.dialect = driver.dialect;
@@ -60,10 +66,10 @@ export class SqlDumper implements AlterProcessor {
     this.putRaw("'");
   }
   putByteArrayValue(value) {
-    this.putRaw('NULL');
+    this.put('^null');
   }
   putValue(value) {
-    if (value === null) this.putRaw('NULL');
+    if (value === null) this.put('^null');
     else if (value === true) this.putRaw('1');
     else if (value === false) this.putRaw('0');
     else if (_isString(value)) this.putStringValue(value);
@@ -71,7 +77,7 @@ export class SqlDumper implements AlterProcessor {
     else if (_isDate(value)) this.putStringValue(new Date(value).toISOString());
     else if (value?.type == 'Buffer' && _isArray(value?.data)) this.putByteArrayValue(value?.data);
     else if (_isPlainObject(value) || _isArray(value)) this.putStringValue(JSON.stringify(value));
-    else this.putRaw('NULL');
+    else this.put('^null');
   }
   putCmd(format, ...args) {
     this.put(format, ...args);
@@ -92,7 +98,7 @@ export class SqlDumper implements AlterProcessor {
       case 'k':
         {
           if (value) {
-            this.putRaw(value.toUpperCase());
+            this.putRaw(SqlDumper.convertKeywordCase(value));
           }
         }
         break;
@@ -128,7 +134,7 @@ export class SqlDumper implements AlterProcessor {
       switch (c) {
         case '^':
           while (i < length && format[i].match(/[a-z0-9_]/i)) {
-            this.putRaw(format[i].toUpperCase());
+            this.putRaw(SqlDumper.convertKeywordCase(format[i]));
             i++;
           }
           break;
