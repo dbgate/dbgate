@@ -52,7 +52,12 @@
         icon: 'img table-structure',
       },
       {
-        label: 'Open perspective',
+        label: 'Design query',
+        isQueryDesigner: true,
+        requiresWriteAccess: true,
+      },
+      {
+        label: 'Design perspective query',
         tab: 'PerspectiveTab',
         forceNewTab: true,
         icon: 'img perspective',
@@ -78,11 +83,6 @@
       {
         label: 'Create table backup',
         isDuplicateTable: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Query designer',
-        isQueryDesigner: true,
         requiresWriteAccess: true,
       },
       {
@@ -155,7 +155,11 @@
         icon: 'img view-structure',
       },
       {
-        label: 'Open perspective',
+        label: 'Design query',
+        isQueryDesigner: true,
+      },
+      {
+        label: 'Design perspective query',
         tab: 'PerspectiveTab',
         forceNewTab: true,
         icon: 'img perspective',
@@ -163,10 +167,6 @@
       {
         label: 'Drop view',
         isDrop: true,
-      },
-      {
-        label: 'Query designer',
-        isQueryDesigner: true,
       },
       {
         divider: true,

@@ -229,6 +229,30 @@
       });
     };
 
+    const handleQueryDesigner = () => {
+      openNewTab({
+        title: 'Query #',
+        icon: 'img query-design',
+        tabComponent: 'QueryDesignTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
+    const handleNewPerspective = () => {
+      openNewTab({
+        title: 'Perspective #',
+        icon: 'img perspective',
+        tabComponent: 'PerspectiveTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
     async function handleConfirmSql(sql) {
       saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
@@ -244,16 +268,21 @@
       { onClick: handleNewQuery, text: 'New query', isNewQuery: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleNewTable, text: 'New table' },
       driver?.databaseEngineTypes?.includes('document') && { onClick: handleNewCollection, text: 'New collection' },
-      isSqlOrDoc &&
-        !connection.isReadOnly &&
-        !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleQueryDesigner, text: 'Design query' },
+      driver?.databaseEngineTypes?.includes('sql') && {
+        onClick: handleNewPerspective,
+        text: 'Design perspective query',
+      },
       { divider: true },
       isSqlOrDoc && !connection.isReadOnly && { onClick: handleImport, text: 'Import wizard' },
       isSqlOrDoc && { onClick: handleExport, text: 'Export wizard' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlRestore, text: 'Restore/import SQL dump' },
       driver?.supportsDatabaseDump && { onClick: handleSqlDump, text: 'Backup/export SQL dump' },
+      isSqlOrDoc &&
+        !connection.isReadOnly &&
+        !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
-      isSqlOrDoc && { onClick: handleShowDiagram, text: 'Show diagram' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
       isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       isSqlOrDoc && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc && { onClick: handleExportModel, text: 'Export DB model - experimental' },
