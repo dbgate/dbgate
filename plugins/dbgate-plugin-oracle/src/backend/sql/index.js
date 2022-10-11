@@ -2,23 +2,23 @@ const columns = require('./columns');
 const tableModifications = require('./tableList');
 const tableList = require('./tableList');
 const viewModifications = require('./views');
-const matviewModifications = require('./matviewModifications');
+const matviewModifications = require('./matviews');
 const primaryKeys = require('./primaryKeys');
 const foreignKeys = require('./foreignKeys');
 const views = require('./views');
 const matviews = require('./matviews');
 const routines = require('./routines');
-const routineModifications = require('./routineModifications');
+const routineModifications = require('./routines');
 const matviewColumns = require('./matviewColumns');
-const indexes = require('./indexes');
-const indexcols = require('./indexcols');
+const indexes = require('./indexes'); // use mysql
+//const indexcols = require('./indexcols');
 const uniqueNames = require('./uniqueNames');
-const geometryColumns = require('./geometryColumns');
-const geographyColumns = require('./geographyColumns');
+//const geometryColumns = require('./geometryColumns');
+//const geographyColumns = require('./geographyColumns');
 
-const fk_keyColumnUsage = require('./fk_key_column_usage');
-const fk_referentialConstraints = require('./fk_referential_constraints');
-const fk_tableConstraints = require('./fk_table_constraints');
+//const fk_keyColumnUsage = require('./fk_key_column_usage');
+//const fk_referentialConstraints = require('./fk_referential_constraints');
+//const fk_tableConstraints = require('./fk_table_constraints');
 
 module.exports = {
   columns,
@@ -27,9 +27,6 @@ module.exports = {
   viewModifications,
   primaryKeys,
   foreignKeys,
-  fk_keyColumnUsage,
-  fk_referentialConstraints,
-  fk_tableConstraints,
   views,
   routines,
   routineModifications,
@@ -37,8 +34,8 @@ module.exports = {
   matviewModifications,
   matviewColumns,
   indexes,
-  indexcols,
+//  indexcols,
   uniqueNames,
-  geometryColumns,
-  geographyColumns,
+  //geometryColumns,
+  //geographyColumns,
 };

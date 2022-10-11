@@ -1,25 +1,18 @@
 module.exports = `
-    select
-        t.relname as "table_name",
-        c.nspname as "schema_name",
-        i.relname as "index_name",
-        ix.indisprimary as "is_primary",
-        ix.indisunique as "is_unique",
-        ix.indkey as "indkey",
-        t.oid as "oid"
-    from
-        pg_class t,
-        pg_class i,
-        pg_index ix,
-        pg_namespace c
-    where
-        t.oid = ix.indrelid
-        and i.oid = ix.indexrelid
-        and t.relkind = 'r'
-        and ix.indisprimary = false
-        and t.relnamespace = c.oid
-        and c.nspname != 'pg_catalog'
-        and ('tables:' || c.nspname || '.' ||  t.relname) =OBJECT_ID_CONDITION
-    order by
-        t.relname
+select  i.table_name as "tableName",
+        i.table_owner as "schemaName",
+        i.index_name as "constraintName",
+        i.index_type as "indexType",
+        i.uniqueness as "Unique",
+        ic.column_name as "columnName",
+        ic.column_position as "postion",
+        ic.descend as "descending"
+from all_ind_columns ic, all_indexes i
+where ic.index_owner = i.owner
+and ic.index_name = i.index_name
+and i.index_name =OBJECT_ID_CONDITION
+order by i.table_owner,
+         i.table_name,
+         i.index_name,
+         ic.column_position
 `;

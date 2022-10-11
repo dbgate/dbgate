@@ -1,3 +1,6 @@
 module.exports = `
-    select conname as "constraint_name" from pg_constraint where contype = 'u'
+select constraint_name
+from all_constraints
+where constraint_type = 'U'
+  and constraint_name =OBJECT_ID_CONDITION
 `;

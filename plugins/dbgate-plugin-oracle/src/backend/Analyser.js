@@ -57,8 +57,8 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields) {
     const query = super.createQuery(sql[resFileName], typeFields);
-    if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
-    return null;
+    //if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
+    return query;
   }
 
   async _computeSingleObjectId() {
@@ -70,76 +70,22 @@ class Analyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading tables' });
     const tables = await this.driver.query(
       this.pool,
-      this.createQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', ['tables'])
+      this.createQuery(this.driver.dialect.stringAgg ? 'tableList' : 'tableList', ['tables'])
     );
     this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
     this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
 
-    let fkColumns = null;
+    //let fkColumns = null;
 
-    // if (true) {
-    if (this.containsObjectIdCondition(['tables']) || this.driver.__analyserInternals.refTableCond) {
       this.feedback({ analysingMessage: 'Loading foreign keys' });
-      fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
-    } else {
-      this.feedback({ analysingMessage: 'Loading foreign key constraints' });
-      const fk_tableConstraints = await this.driver.query(
-        this.pool,
-        this.createQuery('fk_tableConstraints', ['tables'])
-      );
-
-      this.feedback({ analysingMessage: 'Loading foreign key refs' });
-      const fk_referentialConstraints = await this.driver.query(
-        this.pool,
-        this.createQuery('fk_referentialConstraints', ['tables'])
-      );
-
-      this.feedback({ analysingMessage: 'Loading foreign key columns' });
-      const fk_keyColumnUsage = await this.driver.query(this.pool, this.createQuery('fk_keyColumnUsage', ['tables']));
-
-      const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
-      const rows = [];
-      const constraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
-      for (const fkRef of fk_referentialConstraints.rows) {
-        const cntBase = constraintDct[cntKey(fkRef)];
-        const cntRef = constraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
-        if (!cntBase || !cntRef) continue;
-        const baseCols = _.sortBy(
-          fk_keyColumnUsage.rows.filter(
-            x => x.table_name == cntBase.table_name && x.constraint_name == cntBase.constraint_name
-          ),
-          'ordinal_position'
-        );
-        const refCols = _.sortBy(
-          fk_keyColumnUsage.rows.filter(
-            x => x.table_name == cntRef.table_name && x.constraint_name == cntRef.constraint_name
-          ),
-          'ordinal_position'
-        );
-        if (baseCols.length != refCols.length) continue;
-
-        for (let i = 0; i < baseCols.length; i++) {
-          const baseCol = baseCols[i];
-          const refCol = refCols[i];
-
-          rows.push({
-            ...fkRef,
-            pure_name: cntBase.table_name,
-            schema_name: cntBase.table_schema,
-            ref_table_name: cntRef.table_name,
-            ref_schema_name: cntRef.table_schema,
-            column_name: baseCol.column_name,
-            ref_column_name: refCol.column_name,
-          });
-        }
-      }
-      fkColumns = { rows };
-    }
-
+    const  fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
     this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    let geometryColumns = { rows: [] };
+    let geographyColumns = { rows: [] };
+
     this.feedback({ analysingMessage: 'Loading materialized views' });
     const matviews = this.driver.dialect.materializedViews
       ? await this.driver.query(this.pool, this.createQuery('matviews', ['matviews']))
@@ -155,23 +101,11 @@ class Analyser extends DatabaseAnalyser {
       ? { rows: [] }
       : await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
     this.feedback({ analysingMessage: 'Loading index columns' });
-    const indexcols = this.driver.__analyserInternals.skipIndexes
-      ? { rows: [] }
-      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+//    const indexcols = this.driver.__analyserInternals.skipIndexes
+//      ? { rows: [] }
+//      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     this.feedback({ analysingMessage: 'Loading unique names' });
     const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
-
-    let geometryColumns = { rows: [] };
-    if (views.rows.find(x => x.pure_name == 'geometry_columns' && x.schema_name == 'public')) {
-      this.feedback({ analysingMessage: 'Loading geometry columns' });
-      geometryColumns = await this.safeQuery(this.createQuery('geometryColumns', ['tables']));
-    }
-    let geographyColumns = { rows: [] };
-    if (views.rows.find(x => x.pure_name == 'geography_columns' && x.schema_name == 'public')) {
-      this.feedback({ analysingMessage: 'Loading geography columns' });
-      geographyColumns = await this.safeQuery(this.createQuery('geographyColumns', ['tables']));
-    }
-
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const columnColumnsMapped = fkColumns.rows.map(x => ({
@@ -209,45 +143,34 @@ class Analyser extends DatabaseAnalyser {
             .map(col => getColumnInfo(col, newTable, geometryColumns, geographyColumns)),
           primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
           foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, columnColumnsMapped),
-          indexes: indexes.rows
-            .filter(
-              x =>
-                x.table_name == table.pure_name &&
-                x.schema_name == table.schema_name &&
-                !uniqueNames.rows.find(y => y.constraint_name == x.index_name)
-            )
-            .map(idx => ({
-              constraintName: idx.index_name,
-              isUnique: idx.is_unique,
-              columns: _.compact(
-                idx.indkey
-                  .split(' ')
-                  .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
-                  .filter(col => col != null)
-                  .map(col => ({
-                    columnName: col.column_name,
-                  }))
-              ),
+        indexes: _.uniqBy(
+          indexes.rows.filter(
+            idx =>
+              idx.tableName == table.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+          ),
+          'constraintName'
+        ).map(idx => ({
+          ..._.pick(idx, ['constraintName', 'indexType']),
+          isUnique: idx.Unique === 'UNIQUE',
+          columns: indexes.rows
+            .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
+            .map(col => ({
+              ..._.pick(col, ['columnName']),
             })),
-          uniques: indexes.rows
-            .filter(
-              x =>
-                x.table_name == table.pure_name &&
-                x.schema_name == table.schema_name &&
-                uniqueNames.rows.find(y => y.constraint_name == x.index_name)
-            )
-            .map(idx => ({
-              constraintName: idx.index_name,
-              columns: _.compact(
-                idx.indkey
-                  .split(' ')
-                  .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
-                  .filter(col => col != null)
-                  .map(col => ({
-                    columnName: col.column_name,
-                  }))
-              ),
+        })),
+        uniques: _.uniqBy(
+          indexes.rows.filter(
+            idx => idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+          ),
+          'constraintName'
+        ).map(idx => ({
+          ..._.pick(idx, ['constraintName']),
+          columns: indexes.rows
+            .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
+            .map(col => ({
+              ..._.pick(col, ['columnName']),
             })),
+        })),
         };
       }),
       views: views.rows.map(view => ({

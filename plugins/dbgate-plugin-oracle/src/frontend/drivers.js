@@ -6,7 +6,8 @@ const spatialTypes = ['GEOGRAPHY'];
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
-  rangeSelect: true,
+  rangeSelect: false,
+  limitSelect: false,
   ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",
