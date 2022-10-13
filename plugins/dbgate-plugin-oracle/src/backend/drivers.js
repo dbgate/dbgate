@@ -14,11 +14,6 @@ pg.types.setTypeParser(1184, 'text', val => val); // timestamp
 */
 
 function extractOracleColumns(result) {
-      console.log('result', result);
-      //console.log('result.name', result[0].name);
-      console.log('result.map', result.map(fld => ({
-    columnName: fld.name.toLowerCase(),
-  })));
   if (!result /*|| !result.fields */) return [];
   const res = result.map(fld => ({
     columnName: fld.name.toLowerCase(),
@@ -113,18 +108,18 @@ const drivers = driverBases.map(driverBase => ({
       };
     }
 try {
-      console.log('sql', sql);
+      //console.log('sql', sql);
     const res = await client.execute(sql);
-      console.log('res', res);
+      //console.log('res', res);
     const columns = extractOracleColumns(res.metaData);
-      console.log('columns', columns);
+      //console.log('columns', columns);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
 }
 catch(err) {
-  console.log('Error query', err);
+  console.log('Error query', err, sql);
 }
 finally {
-  console.log('finally', sql);
+  //console.log('finally', sql);
 }
 
   },
@@ -135,14 +130,14 @@ finally {
       rowMode: 'array',
     });
 */
-      console.log('queryStream', sql);
+      //console.log('queryStream', sql);
     const query = client.queryStream(sql);
    // const consumeStream = new Promise((resolve, reject) => {
       let rowcount = 0;
     let wasHeader = false;
 
     query.on('metadata', row => {
-      console.log('metadata', row);
+      //console.log('metadata', row);
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
@@ -155,7 +150,7 @@ finally {
     });
 
     query.on('data', row => {
-      console.log('DATA', row);
+      //console.log('DATA', row);
       options.row(zipDataRow(row, columns));
     });
 
@@ -194,16 +189,17 @@ finally {
       options.done();
     });
      query.on('close', function() {
-        // console.log("stream 'close' event");
+        //console.log("stream 'close' event");
         // The underlying ResultSet has been closed, so the connection can now
         // be closed, if desired.  Note: do not close connections on 'end'.
-        resolve(rowcount);
+        //resolve(rowcount);
+        ;
       });
     //});
 
     //const numrows = await consumeStream;
     //console.log('Rows selected: ' + numrows);
-    client.query(query);
+    //client.query(query);
   },
   async getVersion(client) {
     //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
@@ -243,7 +239,7 @@ finally {
       rowMode: 'array',
     });
 */
-    console.log('readQuery', sql, structure);
+    //console.log('readQuery', sql, structure);
     const query = await client.queryStream(sql);
 
     let wasHeader = false;

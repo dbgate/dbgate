@@ -221,6 +221,8 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _getFastSnapshot() {
+    return null;
+
     const tableModificationsQueryData = this.driver.dialect.stringAgg
       ? await this.driver.query(this.pool, this.createQuery('tableModifications'))
       : null;
@@ -239,12 +241,14 @@ class Analyser extends DatabaseAnalyser {
             contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
           }))
         : null,
-      views: viewModificationsQueryData.rows.map(x => ({
+      views: viewModificationsQueryData
+      ? viewModificationsQueryData.rows.map(x => ({
         objectId: `views:${x.schema_name}.${x.pure_name}`,
         pureName: x.pure_name,
         schemaName: x.schema_name,
         contentHash: x.hash_code,
-      })),
+      }))
+      : undefined,
       matviews: matviewModificationsQueryData
         ? matviewModificationsQueryData.rows.map(x => ({
             objectId: `matviews:${x.schema_name}.${x.pure_name}`,
