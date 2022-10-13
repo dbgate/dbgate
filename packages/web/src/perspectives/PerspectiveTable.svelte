@@ -57,6 +57,7 @@
   let errorMessage;
   let rowCount;
   let isLoading = false;
+  let isLoadQueued = false;
   const lastVisibleRowIndexRef = createRef(0);
   const disableLoadNextRef = createRef(false);
 
@@ -121,6 +122,12 @@
   }
 
   async function loadData(node: PerspectiveTreeNode, counts) {
+    if (isLoading) {
+      isLoadQueued = true;
+      return;
+    } else {
+      isLoadQueued = false;
+    }
     // console.log('LOADING', node);
     if (!node) return;
     const rows = [];
@@ -147,6 +154,10 @@
     //     loadProps.push(child.getNodeLoadProps());
     //   }
     // }
+
+    if (isLoadQueued) {
+      loadData(root, $loadedCounts);
+    }
   }
 
   export function openJson() {
