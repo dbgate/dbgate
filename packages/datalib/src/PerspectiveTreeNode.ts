@@ -715,6 +715,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
         pureName: this.foreignKey.refTableName,
         conid: this.databaseConfig.conid,
         database: this.databaseConfig.database,
+        objectTypeField: this.table.objectTypeField,
       };
     }
     return null;
@@ -743,8 +744,9 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   refTable: TableInfo;
 
   constructor(
-    public owner: NamedObjectInfo,
+    public table: TableInfo | ViewInfo | CollectionInfo,
     public column: PerspectiveDataPatternColumn,
+    public tableColumn: ColumnInfo,
     dbs: MultipleDatabaseInfo,
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
@@ -848,10 +850,11 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get isSortable() {
-    return true;
+    return !this.isChildColumn;
   }
 
   get filterType(): FilterType {
+    if (this.tableColumn) return getFilterType(this.tableColumn.dataType);
     return 'mongo';
   }
 
@@ -859,8 +862,9 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return this.column.columns.map(
       column =>
         new PerspectivePatternColumnNode(
-          this.owner,
+          this.table,
           column,
+          this.tableColumn,
           this.dbs,
           this.config,
           this.setConfig,
@@ -895,8 +899,8 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return {
       columnName: this.columnName,
       filterType: this.filterType,
-      pureName: this.owner.pureName,
-      schemaName: this.owner.schemaName,
+      pureName: this.table.pureName,
+      schemaName: this.table.schemaName,
       foreignKey: this.foreignKey,
     };
   }
@@ -1013,6 +1017,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       pureName: this.table.pureName,
       conid: this.databaseConfig.conid,
       database: this.databaseConfig.database,
+      objectTypeField: this.table.objectTypeField,
     };
   }
 
@@ -1309,6 +1314,7 @@ export function getTableChildPerspectiveNodes(
           ? new PerspectivePatternColumnNode(
               table,
               pattern?.columns?.find(x => x.name == col.columnName),
+              col,
               dbs,
               config,
               setConfig,
@@ -1338,6 +1344,7 @@ export function getTableChildPerspectiveNodes(
           new PerspectivePatternColumnNode(
             table,
             col,
+            null,
             dbs,
             config,
             setConfig,

@@ -16,6 +16,7 @@
     ChangePerspectiveConfigFunc,
     PerspectiveConfig,
     PerspectiveDisplay,
+    PerspectivePatternColumnNode,
     PerspectiveTableColumnNode,
     PerspectiveTreeNode,
     PERSPECTIVE_PAGE_SIZE,
@@ -40,6 +41,24 @@
   import openNewTab from '../utility/openNewTab';
   import { getFilterValueExpression } from 'dbgate-filterparser';
   import StatusBarTabItem from '../widgets/StatusBarTabItem.svelte';
+
+  const TABS_BY_FIELD = {
+    tables: {
+      text: 'table',
+      tabComponent: 'TableDataTab',
+      icon: 'img table',
+    },
+    views: {
+      text: 'view',
+      tabComponent: 'ViewDataTab',
+      icon: 'img view',
+    },
+    collections: {
+      text: 'collection',
+      tabComponent: 'CollectionDataTab',
+      icon: 'img collection',
+    },
+  };
 
   const dbg = debug('dbgate:PerspectiveTable');
   export const activator = createActivator('PerspectiveTable', true, ['Designer']);
@@ -210,24 +229,28 @@
       const tableNode = root?.findNodeByDesignerId(tableNodeDesignerId);
 
       if (tableNode?.headerTableAttributes) {
-        const { pureName, schemaName, conid, database } = tableNode?.headerTableAttributes;
-        res.push({
-          text: `Open table ${pureName}`,
-          onClick: () => {
-            openNewTab({
-              title: pureName,
-              icon: 'img table',
-              tabComponent: 'TableDataTab',
-              props: {
-                schemaName,
-                pureName,
-                conid: conid,
-                database: database,
-                objectTypeField: 'tables',
-              },
-            });
-          },
-        });
+        const { pureName, schemaName, conid, database, objectTypeField } = tableNode?.headerTableAttributes;
+        console.log('objectTypeField', objectTypeField);
+        const tab = TABS_BY_FIELD[objectTypeField];
+        if (tab) {
+          res.push({
+            text: `Open ${tab.text} ${pureName}`,
+            onClick: () => {
+              openNewTab({
+                title: pureName,
+                icon: tab.icon,
+                tabComponent: tab.tabComponent,
+                props: {
+                  schemaName,
+                  pureName,
+                  conid: conid,
+                  database: database,
+                  objectTypeField,
+                },
+              });
+            },
+          });
+        }
       }
 
       const setColumnDisplay = type => {
@@ -291,42 +314,39 @@
         const value = display.rows[rowIndex].rowData[columnIndex];
         const { dataNode } = column;
 
-        if (dataNode instanceof PerspectiveTableColumnNode) {
+        if (
+          dataNode.filterInfo &&
+          (dataNode instanceof PerspectiveTableColumnNode || dataNode instanceof PerspectivePatternColumnNode)
+        ) {
           const { table } = dataNode;
-          let tabComponent = null;
-          let icon = null;
-          let objectTypeField = null;
-          if (dataNode.isTable) {
-            tabComponent = 'TableDataTab';
-            icon = 'img table';
-            objectTypeField = 'tables';
-          }
-          if (dataNode.isView) {
-            tabComponent = 'ViewDataTab';
-            icon = 'img view';
-            objectTypeField = 'views';
-          }
-          if (tabComponent) {
+
+          const tab = TABS_BY_FIELD[table.objectTypeField];
+          const filterExpression = getFilterValueExpression(
+            value,
+            dataNode instanceof PerspectiveTableColumnNode ? dataNode.column.dataType : null
+          );
+
+          if (tab) {
             res.push({
-              text: 'Open filtered table',
+              text: 'Open filtered grid',
               onClick: () => {
                 openNewTab(
                   {
                     title: table.pureName,
-                    icon,
-                    tabComponent,
+                    icon: tab.icon,
+                    tabComponent: tab.tabComponent,
                     props: {
                       schemaName: table.schemaName,
                       pureName: table.pureName,
                       conid,
                       database,
-                      objectTypeField,
+                      objectTypeField: table.objectTypeField,
                     },
                   },
                   {
                     grid: {
                       filters: {
-                        [dataNode.columnName]: getFilterValueExpression(value, dataNode.column.dataType),
+                        [dataNode.columnName]: filterExpression,
                       },
                       // isFormView: true,
                     },
@@ -350,7 +370,7 @@
                         ...n,
                         filters: {
                           ...n.filters,
-                          [dataNode.columnName]: getFilterValueExpression(value, dataNode.column.dataType),
+                          [dataNode.columnName]: filterExpression,
                         },
                       }
                     : n
