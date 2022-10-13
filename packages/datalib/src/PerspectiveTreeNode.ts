@@ -108,14 +108,14 @@ export abstract class PerspectiveTreeNode {
   get namedObject(): NamedObjectInfo {
     return null;
   }
-  get parentTableNode(): PerspectiveTableNode {
+  get tableNodeOrParent(): PerspectiveTableNode {
     if (this instanceof PerspectiveTableNode) {
       return this;
     }
     if (this.parentNode == null) {
       return null;
     }
-    return this.parentNode.parentTableNode;
+    return this.parentNode.tableNodeOrParent;
   }
   get engineType(): PerspectiveDatabaseEngineType {
     return null;
@@ -289,14 +289,15 @@ export abstract class PerspectiveTreeNode {
         [field]: isIncluded ? [...(n[field] || []), this.codeName] : (n[field] || []).filter(x => x != this.codeName),
       });
 
-      const [cfgChanged, nodeCfg] = this.parentTableNode?.ensureNodeConfig(cfg);
+      const [cfgChanged, nodeCfg] = this.parentNode?.tableNodeOrParent?.ensureNodeConfig(cfg);
 
-      return {
+      const res = {
         ...cfgChanged,
         nodes: cfgChanged.nodes.map(n =>
-          n.designerId == (this.parentTableNode?.designerId || nodeCfg?.designerId) ? changedFields(n) : n
+          n.designerId == (this.parentNode?.tableNodeOrParent?.designerId || nodeCfg?.designerId) ? changedFields(n) : n
         ),
       };
+      return res;
     });
   }
 
@@ -756,7 +757,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     designerId: string
   ) {
     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
-    this.parentNodeConfig = this.parentTableNode?.nodeConfig;
+    this.parentNodeConfig = this.tableNodeOrParent?.nodeConfig;
   }
 
   get isChildColumn() {
@@ -812,7 +813,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
 
   get generatesHiearchicGridColumn() {
     // console.log('generatesHiearchicGridColumn', this.parentTableNode?.nodeConfig?.checkedColumns, this.codeName + '::');
-    return !!this.parentTableNode?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'));
+    return !!this.tableNodeOrParent?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'));
   }
 
   // get generatesHiearchicGridColumn() {
