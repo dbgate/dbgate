@@ -346,7 +346,7 @@
         },
       },
       {
-        label: 'Open perspective',
+        label: 'Design perspective query',
         tab: 'PerspectiveTab',
         forceNewTab: true,
         icon: 'img perspective',
