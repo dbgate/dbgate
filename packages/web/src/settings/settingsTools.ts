@@ -21,3 +21,10 @@ export function getBoolSettingsValue(name, defaultValue) {
   if (res == null) return defaultValue;
   return !!res;
 }
+
+export function getStringSettingsValue(name, defaultValue) {
+  const settings = getCurrentSettings();
+  const res = settings[name];
+  if (res == null) return defaultValue;
+  return res;
+}

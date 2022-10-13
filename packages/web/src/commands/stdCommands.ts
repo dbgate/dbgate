@@ -127,6 +127,9 @@ registerCommand({
   name: 'Query design',
   menuName: 'New query design',
   onClick: () => newQueryDesign(),
+  testEnabled: () =>
+    getCurrentDatabase() &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
 });
 
 registerCommand({
@@ -144,6 +147,9 @@ registerCommand({
   icon: 'img diagram',
   name: 'ER Diagram',
   menuName: 'New ER diagram',
+  testEnabled: () =>
+    getCurrentDatabase() &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
   onClick: () => newDiagram(),
 });
 
