@@ -7,6 +7,13 @@ import uuidv1 from 'uuid/v1';
 //   uncheckedColumns: string[];
 // }
 
+export type PerspectiveDatabaseEngineType = 'sqldb' | 'docdb';
+
+export interface PerspectiveDatabaseConfig {
+  conid: string;
+  database: string;
+}
+
 export interface PerspectiveCustomJoinConfig {
   refNodeDesignerId: string;
   referenceDesignerId: string;

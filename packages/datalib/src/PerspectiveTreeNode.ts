@@ -15,6 +15,8 @@ import {
   MultipleDatabaseInfo,
   PerspectiveConfig,
   PerspectiveCustomJoinConfig,
+  PerspectiveDatabaseConfig,
+  PerspectiveDatabaseEngineType,
   PerspectiveFilterColumnInfo,
   PerspectiveNodeConfig,
   PerspectiveReferenceConfig,
@@ -28,11 +30,7 @@ import _uniqBy from 'lodash/uniqBy';
 import _sortBy from 'lodash/sortBy';
 import _cloneDeepWith from 'lodash/cloneDeepWith';
 import _findIndex from 'lodash/findIndex';
-import {
-  PerspectiveDatabaseConfig,
-  PerspectiveDataLoadProps,
-  PerspectiveDataProvider,
-} from './PerspectiveDataProvider';
+import { PerspectiveDataLoadProps, PerspectiveDataProvider } from './PerspectiveDataProvider';
 import stableStringify from 'json-stable-stringify';
 import { getFilterType, parseFilter } from 'dbgate-filterparser';
 import { FilterType } from 'dbgate-filterparser/lib/types';
@@ -118,6 +116,9 @@ export abstract class PerspectiveTreeNode {
       return null;
     }
     return this.parentNode.parentTableNode;
+  }
+  get engineType(): PerspectiveDatabaseEngineType {
+    return null;
   }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
@@ -426,7 +427,9 @@ export abstract class PerspectiveTreeNode {
     return (
       (this.parentNode?.isRoot || this.parentNode?.supportsParentFilter) &&
       this.parentNode?.databaseConfig?.conid == this.databaseConfig?.conid &&
-      this.parentNode?.databaseConfig?.database == this.databaseConfig?.database
+      this.parentNode?.databaseConfig?.database == this.databaseConfig?.database &&
+      this.engineType == 'sqldb' &&
+      this.parentNode?.engineType == 'sqldb'
     );
   }
 
@@ -530,6 +533,10 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     this.refTable = this.db.tables.find(
       x => x.pureName == this.foreignKey?.refTableName && x.schemaName == this.foreignKey?.refSchemaName
     );
+  }
+
+  get engineType() {
+    return this.parentNode.engineType;
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -940,6 +947,10 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     designerId: string
   ) {
     super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+  }
+
+  get engineType(): PerspectiveDatabaseEngineType {
+    return isCollectionInfo(this.table) ? 'docdb' : 'sqldb';
   }
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {

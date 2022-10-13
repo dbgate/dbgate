@@ -4,16 +4,11 @@ import { RangeDefinition } from 'dbgate-types';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
 import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
+import { PerspectiveDatabaseConfig, PerspectiveDatabaseEngineType } from './PerspectiveConfig';
 
 export const PERSPECTIVE_PAGE_SIZE = 100;
 
 const dbg = debug('dbgate:PerspectiveDataProvider');
-
-
-export interface PerspectiveDatabaseConfig {
-  conid: string;
-  database: string;
-}
 
 export interface PerspectiveDataLoadProps {
   databaseConfig: PerspectiveDatabaseConfig;
@@ -31,7 +26,7 @@ export interface PerspectiveDataLoadProps {
   topCount?: number;
   sqlCondition?: Condition;
   mongoCondition?: any;
-  engineType: 'sqldb' | 'docdb';
+  engineType: PerspectiveDatabaseEngineType;
 }
 
 export class PerspectiveDataProvider {
