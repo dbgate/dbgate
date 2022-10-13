@@ -241,6 +241,14 @@
       const orderIndex = sort.length > 1 ? _.findIndex(sort, x => x.columnName == columnName) : -1;
       return { order, orderIndex };
     },
+    getColumnIconOverride: (designerId, columnName) => {
+      const pattern = dataPatterns?.[designerId];
+      const column = pattern?.columns.find(x => x.name == columnName);
+      if (column?.types?.includes('json')) {
+        return 'img json';
+      }
+      return null;
+    },
     isColumnFiltered: (designerId, columnName) => {
       return !!config.nodes.find(x => x.designerId == designerId)?.filters?.[columnName];
     },

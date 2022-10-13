@@ -818,6 +818,9 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   // }
 
   get icon() {
+    if (this.column.types.includes('json')) {
+      return 'img json';
+    }
     return 'img column';
   }
 
@@ -885,6 +888,10 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get filterInfo(): PerspectiveFilterColumnInfo {
+    if (this.isChildColumn) {
+      return null;
+    }
+
     return {
       columnName: this.columnName,
       filterType: this.filterType,

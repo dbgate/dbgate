@@ -61,6 +61,9 @@
   }
 
   $: sortOrderProps = settings?.getSortOrderProps ? settings?.getSortOrderProps(designerId, column.columnName) : null;
+  $: iconOverride = settings?.getColumnIconOverride
+    ? settings?.getColumnIconOverride(designerId, column.columnName)
+    : null;
 </script>
 
 <div
@@ -144,7 +147,7 @@
       }}
     />
   {/if}
-  <ColumnLabel {...column} {foreignKey} forceIcon />
+  <ColumnLabel {...column} {foreignKey} forceIcon {iconOverride} />
   {#if designerColumn?.filter}
     <FontIcon icon="img filter" />
   {/if}

@@ -7,7 +7,7 @@ import _isBoolean from 'lodash/isBoolean';
 import _isArray from 'lodash/isArray';
 import { safeJsonParse } from 'dbgate-tools';
 
-export type PerspectiveDataPatternColumnType = 'null' | 'string' | 'number' | 'boolean' | 'json';
+export type PerspectiveDataPatternColumnType = 'null' | 'oid' | 'string' | 'number' | 'boolean' | 'json';
 
 export interface PerspectiveDataPatternColumn {
   name: string;
@@ -29,6 +29,7 @@ function detectValueType(value): PerspectiveDataPatternColumnType {
   if (_isString(value)) return 'string';
   if (_isNumber(value)) return 'number';
   if (_isBoolean(value)) return 'boolean';
+  if (value?.$oid) return 'oid';
   if (_isPlainObject(value) || _isArray(value)) return 'json';
   if (value == null) return 'null';
 }
