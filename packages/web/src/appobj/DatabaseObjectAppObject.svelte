@@ -346,6 +346,12 @@
         },
       },
       {
+        label: 'Design perspective query',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
+      },
+      {
         label: 'Export',
         isExport: true,
         functionName: 'tableReader',

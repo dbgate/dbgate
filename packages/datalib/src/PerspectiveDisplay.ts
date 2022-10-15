@@ -3,6 +3,8 @@ import _max from 'lodash/max';
 import _range from 'lodash/max';
 import _fill from 'lodash/fill';
 import _findIndex from 'lodash/findIndex';
+import _isPlainObject from 'lodash/isPlainObject';
+import _isArray from 'lodash/isArray';
 import debug from 'debug';
 
 const dbg = debug('dbgate:PerspectiveDisplay');
@@ -126,14 +128,14 @@ export class PerspectiveDisplay {
 
   fillColumns(children: PerspectiveTreeNode[], parentNodes: PerspectiveTreeNode[]) {
     for (const child of children) {
-      if (child.isCheckedColumn || child.isCheckedNode) {
+      if (child.generatesHiearchicGridColumn || child.generatesDataGridColumn) {
         this.processColumn(child, parentNodes);
       }
     }
   }
 
   processColumn(node: PerspectiveTreeNode, parentNodes: PerspectiveTreeNode[]) {
-    if (node.isCheckedColumn) {
+    if (node.generatesDataGridColumn) {
       const column = new PerspectiveDisplayColumn(this);
       column.title = node.columnTitle;
       column.dataField = node.dataField;
@@ -145,7 +147,7 @@ export class PerspectiveDisplay {
       this.columns.push(column);
     }
 
-    if (node.isExpandable && node.isCheckedNode) {
+    if (node.generatesHiearchicGridColumn) {
       const countBefore = this.columns.length;
       this.fillColumns(node.childNodes, [...parentNodes, node]);
 
@@ -167,13 +169,30 @@ export class PerspectiveDisplay {
   //   return _findIndex(this.columns, x => x.dataNode.designerId == node.designerId);
   // }
 
+  extractArray(value) {
+    if (_isArray(value)) return value;
+    if (_isPlainObject(value)) return [value];
+    return [];
+  }
+
   collectRows(sourceRows: any[], nodes: PerspectiveTreeNode[]): CollectedPerspectiveDisplayRow[] {
     // console.log('********** COLLECT ROWS', sourceRows);
-    const columnNodes = nodes.filter(x => x.isCheckedColumn);
-    const treeNodes = nodes.filter(x => x.isCheckedNode);
+    const columnNodes = nodes.filter(x => x.generatesDataGridColumn);
+    const treeNodes = nodes.filter(x => x.generatesHiearchicGridColumn);
 
-    // console.log('columnNodes', columnNodes);
-    // console.log('treeNodes', treeNodes);
+    // console.log(
+    //   'columnNodes',
+    //   columnNodes.map(x => x.title)
+    // );
+    // console.log(
+    //   'treeNodes',
+    //   treeNodes.map(x => x.title)
+    // );
+
+    // console.log(
+    //   'nodes',
+    //   nodes.map(x => x.title)
+    // );
 
     const columnIndexes = columnNodes.map(node => this.findColumnIndexFromNode(node));
 
@@ -181,13 +200,14 @@ export class PerspectiveDisplay {
     for (const sourceRow of sourceRows) {
       // console.log('PROCESS SOURCE', sourceRow);
       // row.startIndex = startIndex;
-      const rowData = columnNodes.map(node => sourceRow[node.codeName]);
+      const rowData = columnNodes.map(node => sourceRow[node.columnName]);
       const subRowCollections = [];
 
       for (const node of treeNodes) {
+        // console.log('sourceRow[node.fieldName]', node.fieldName, sourceRow[node.fieldName]);
         if (sourceRow[node.fieldName]) {
           const subrows = {
-            rows: this.collectRows(sourceRow[node.fieldName], node.childNodes),
+            rows: this.collectRows(this.extractArray(sourceRow[node.fieldName]), node.childNodes),
           };
           subRowCollections.push(subrows);
         }

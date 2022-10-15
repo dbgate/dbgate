@@ -209,6 +209,10 @@ const driver = {
       if (options.countDocuments) {
         const count = await collection.countDocuments(convertObjectId(options.condition) || {});
         return { count };
+      } else if (options.aggregate) {
+        let cursor = await collection.aggregate(options.aggregate);
+        const rows = await cursor.toArray();
+        return { rows: rows.map(transformMongoData) };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
         let cursor = await collection.find(convertObjectId(options.condition) || {});

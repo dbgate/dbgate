@@ -605,7 +605,7 @@ export function registerFileCommands({
     registerCommand({
       id: idPrefix + '.replace',
       category,
-      keyText: 'CtrlOrCommand+H',
+      keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
       name: 'Replace',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().replace(),

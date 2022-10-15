@@ -1,24 +1,21 @@
 import debug from 'debug';
 import { Condition } from 'dbgate-sqltree';
 import { RangeDefinition } from 'dbgate-types';
-import { format } from 'path';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
+import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';
+import { PerspectiveDatabaseConfig, PerspectiveDatabaseEngineType } from './PerspectiveConfig';
 
 export const PERSPECTIVE_PAGE_SIZE = 100;
 
 const dbg = debug('dbgate:PerspectiveDataProvider');
 
-export interface PerspectiveDatabaseConfig {
-  conid: string;
-  database: string;
-}
-
 export interface PerspectiveDataLoadProps {
   databaseConfig: PerspectiveDatabaseConfig;
-  schemaName: string;
+  schemaName?: string;
   pureName: string;
-  dataColumns: string[];
+  dataColumns?: string[];
+  allColumns?: boolean;
   orderBy: {
     columnName: string;
     order: 'ASC' | 'DESC';
@@ -27,11 +24,17 @@ export interface PerspectiveDataLoadProps {
   bindingValues?: any[][];
   range?: RangeDefinition;
   topCount?: number;
-  condition?: Condition;
+  sqlCondition?: Condition;
+  mongoCondition?: any;
+  engineType: PerspectiveDatabaseEngineType;
 }
 
 export class PerspectiveDataProvider {
-  constructor(public cache: PerspectiveCache, public loader: PerspectiveDataLoader) {}
+  constructor(
+    public cache: PerspectiveCache,
+    public loader: PerspectiveDataLoader,
+    public dataPatterns: PerspectiveDataPatternDict
+  ) {}
   async loadData(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
     dbg('load data', props);
     // console.log('LOAD DATA', props);
@@ -182,6 +185,7 @@ export class PerspectiveDataProvider {
 
     // load missing rows
     tableCache.dataColumns = props.dataColumns;
+    tableCache.allColumns = props.allColumns;
 
     const nextRows = await this.loader.loadData({
       ...props,

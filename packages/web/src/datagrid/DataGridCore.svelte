@@ -200,7 +200,7 @@
     id: 'dataGrid.hideColumn',
     category: 'Data grid',
     name: 'Hide column',
-    keyText: 'CtrlOrCommand+H',
+    keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().hideColumn(),
   });
