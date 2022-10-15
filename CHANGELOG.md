@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.5
+- ADDED: Support perspectives for MongoDB - MongoDB query designer
+- ADDED: Show JSON content directly in the overview #395
+- CHANGED: OSX Command H shortcut for hiding window #390
+- ADDED: Uppercase Autocomplete Suggestions #389
+- FIXED: Record view left/right arrows cause start record number to be treated as string #388
+- FIXED: MongoDb ObjectId behaviour not consistent in nested objects #387
+- FIXED: demo.dbgate.org - beta version crash 5.1.5-beta.3 #386
+- ADDED: connect via socket - configurable via environment variables #358
+
 ### 5.1.4
 - ADDED: Drop database commands #384
 - ADDED: Customizable Redis key separator #379
