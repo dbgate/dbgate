@@ -8,6 +8,7 @@ const spatialTypes = ['GEOGRAPHY'];
 const dialect = {
   rangeSelect: false,
   limitSelect: false,
+  offsetFetchRangeSyntax: true,
   ilike: true,
   // stringEscapeChar: '\\',
   stringEscapeChar: "'",

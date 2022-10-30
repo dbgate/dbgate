@@ -108,7 +108,7 @@ const drivers = driverBases.map(driverBase => ({
       };
     }
 try {
-      //console.log('sql', sql);
+      console.log('sql', sql);
     const res = await client.execute(sql);
       //console.log('res', res);
     const columns = extractOracleColumns(res.metaData);
@@ -239,7 +239,7 @@ finally {
       rowMode: 'array',
     });
 */
-    //console.log('readQuery', sql, structure);
+    console.log('readQuery', sql, structure);
     const query = await client.queryStream(sql);
 
     let wasHeader = false;
@@ -250,29 +250,28 @@ finally {
       highWaterMark: 100,
     });
 
-    query.on('data', row => {
+    query.on('metadata', row => {
+      console.log('readQuery metadata', row);
       if (!wasHeader) {
-        columns = extractOracleColumns(query._result);
+        columns = extractOracleColumns(row);
+        if (columns && columns.length > 0) {
         pass.write({
           __isStreamHeader: true,
           ...(structure || { columns }),
         });
+        }
         wasHeader = true;
       }
 
       pass.write(zipDataRow(row, columns));
     });
 
-    query.on('end', () => {
-      if (!wasHeader) {
-        columns = extractOracleColumns(query._result);
-        pass.write({
-          __isStreamHeader: true,
-          ...(structure || { columns }),
-        });
-        wasHeader = true;
-      }
+    query.on('data', row => {
+      console.log('readQuery data', row);
+      pass.write(zipDataRow(row, columns));
+    });
 
+    query.on('end', () => {
       pass.end();
     });
 
