@@ -19,6 +19,7 @@
   import AppTitleProvider from './utility/AppTitleProvider.svelte';
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
+  import SettingsListener from './utility/SettingsListener.svelte';
 
   let loadedApi = false;
   let loadedPlugins = false;
@@ -79,6 +80,7 @@
   <AppTitleProvider />
   {#if loadedPlugins}
     <OpenTabsOnStartup />
+    <SettingsListener />
     <Screen />
   {:else}
     <AppStartInfo

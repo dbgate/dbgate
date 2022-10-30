@@ -152,4 +152,13 @@ module.exports = {
     opened.subprocess.send({ msgtype: 'createDatabase', name });
     return { status: 'ok' };
   },
+
+  dropDatabase_meta: true,
+  async dropDatabase({ conid, name }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid);
+    if (opened.connection.isReadOnly) return false;
+    opened.subprocess.send({ msgtype: 'dropDatabase', name });
+    return { status: 'ok' };
+  },
 };

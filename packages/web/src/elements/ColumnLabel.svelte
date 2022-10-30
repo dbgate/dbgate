@@ -23,8 +23,9 @@
   export let foreignKey;
   export let conid = undefined;
   export let database = undefined;
+  export let iconOverride = undefined;
 
-  $: icon = getColumnIcon($$props, forceIcon);
+  $: icon = iconOverride || getColumnIcon($$props, forceIcon);
 </script>
 
 <span class="label" class:notNull>

@@ -47,7 +47,7 @@ async function importDatabase({ connection = undefined, systemConnection = undef
   const downloadedFile = await download(inputFile);
 
   const fileStream = fs.createReadStream(downloadedFile, 'utf-8');
-  const splittedStream = splitQueryStream(fileStream, driver.getQuerySplitterOptions());
+  const splittedStream = splitQueryStream(fileStream, driver.getQuerySplitterOptions('script'));
   const importStream = new ImportStream(pool, driver);
   // @ts-ignore
   splittedStream.pipe(importStream);

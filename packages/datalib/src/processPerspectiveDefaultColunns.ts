@@ -1,7 +1,16 @@
 import { findForeignKeyForColumn } from 'dbgate-tools';
 import { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
 import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from './PerspectiveConfig';
+import { PerspectiveDataPattern, PerspectiveDataPatternDict } from './PerspectiveDataPattern';
 import { PerspectiveTableNode } from './PerspectiveTreeNode';
+
+const namePredicates = [
+  x => x.toLowerCase() == 'name',
+  x => x.toLowerCase() == 'title',
+  x => x.toLowerCase().includes('name'),
+  x => x.toLowerCase().includes('title'),
+  x => x.toLowerCase().includes('subject'),
+];
 
 function getPerspectiveDefaultColumns(
   table: TableInfo | ViewInfo,
@@ -10,13 +19,7 @@ function getPerspectiveDefaultColumns(
 ): [string[], string[]] {
   const columns = table.columns.map(x => x.columnName);
   const predicates = [
-    x => x.toLowerCase() == 'name',
-    x => x.toLowerCase() == 'title',
-    x => x.toLowerCase().includes('name'),
-    x => x.toLowerCase().includes('title'),
-    x => x.toLowerCase().includes('subject'),
-    // x => x.toLowerCase().includes('text'),
-    // x => x.toLowerCase().includes('desc'),
+    ...namePredicates,
     x =>
       table.columns
         .find(y => y.columnName == x)
@@ -44,9 +47,20 @@ function getPerspectiveDefaultColumns(
   return [[columns[0]], null];
 }
 
+function getPerspectiveDefaultCollectionColumns(pattern: PerspectiveDataPattern): string[] {
+  const columns = pattern.columns.map(x => x.name);
+  const predicates = [...namePredicates, x => pattern.columns.find(y => y.name == x)?.types?.includes('string')];
+
+  for (const predicate of predicates) {
+    const col = columns.find(predicate);
+    if (col) return [col];
+  }
+}
+
 export function perspectiveNodesHaveStructure(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ) {
@@ -56,8 +70,10 @@ export function perspectiveNodesHaveStructure(
 
     const table = db.tables.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
     const view = db.views.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+    const collection = db.collections.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
 
-    if (!table && !view) return false;
+    if (!table && !view && !collection) return false;
+    if (collection && !dataPatterns?.[node.designerId]) return false;
   }
 
   return true;
@@ -66,18 +82,20 @@ export function perspectiveNodesHaveStructure(
 export function shouldProcessPerspectiveDefaultColunns(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ) {
   const nodesNotProcessed = config.nodes.filter(x => !x.defaultColumnsProcessed);
   if (nodesNotProcessed.length == 0) return false;
 
-  return perspectiveNodesHaveStructure(config, dbInfos, conid, database);
+  return perspectiveNodesHaveStructure(config, dbInfos, dataPatterns, conid, database);
 }
 
 function processPerspectiveDefaultColunnsStep(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ) {
@@ -107,6 +125,7 @@ function processPerspectiveDefaultColunnsStep(
 
     const table = db.tables.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
     const view = db.views.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+    const collection = db.collections.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
 
     if (table || view) {
       const treeNode = root.findNodeByDesignerId(node.designerId);
@@ -181,6 +200,22 @@ function processPerspectiveDefaultColunnsStep(
         };
       }
     }
+
+    if (collection) {
+      const defaultColumns = getPerspectiveDefaultCollectionColumns(dataPatterns?.[node.designerId]);
+      return {
+        ...config,
+        nodes: config.nodes.map(n =>
+          n.designerId == node.designerId
+            ? {
+                ...n,
+                defaultColumnsProcessed: true,
+                checkedColumns: defaultColumns,
+              }
+            : n
+        ),
+      };
+    }
   }
 
   return null;
@@ -199,11 +234,12 @@ function markAllProcessed(config: PerspectiveConfig): PerspectiveConfig {
 export function processPerspectiveDefaultColunns(
   config: PerspectiveConfig,
   dbInfos: MultipleDatabaseInfo,
+  dataPatterns: PerspectiveDataPatternDict,
   conid: string,
   database: string
 ): PerspectiveConfig {
   while (config.nodes.filter(x => !x.defaultColumnsProcessed).length > 0) {
-    const newConfig = processPerspectiveDefaultColunnsStep(config, dbInfos, conid, database);
+    const newConfig = processPerspectiveDefaultColunnsStep(config, dbInfos, dataPatterns, conid, database);
     if (!newConfig) {
       return markAllProcessed(config);
     }

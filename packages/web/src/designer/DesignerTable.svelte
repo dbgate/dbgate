@@ -213,6 +213,8 @@
         !isMultipleTableSelection && [{ divider: true }, createDatabaseObjectMenu({ ...table, conid, database })],
     ];
   }
+
+  // $: console.log('COLUMNS', columns);
 </script>
 
 <div
@@ -238,6 +240,7 @@
     class:isGrayed
     class:isTable={objectTypeField == 'tables'}
     class:isView={objectTypeField == 'views'}
+    class:isCollection={objectTypeField == 'collections'}
     use:moveDrag={settings?.canSelectColumns ? [handleMoveStart, handleMove, handleMoveEnd] : null}
     use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
     style={getTableColorStyle($currentThemeDefinition, table)}
@@ -358,6 +361,10 @@
   .header.isView {
     background: var(--theme-bg-magenta);
   }
+  .header.isCollection {
+    background: var(--theme-bg-red);
+  }
+
   .header.isGrayed {
     background: var(--theme-bg-2);
   }

@@ -50,7 +50,14 @@ const driver = {
     singleDatabase: true,
     defaultDatabase: getDatabaseFileLabel(connection.databaseFile),
   }),
-  getQuerySplitterOptions: (usage) => (usage == 'stream' ? noSplitSplitterOptions : sqliteSplitterOptions),
+
+  getQuerySplitterOptions: (usage) =>
+    usage == 'editor'
+      ? { ...sqliteSplitterOptions, ignoreComments: true, preventSingleLineSplit: true }
+      : usage == 'stream'
+      ? noSplitSplitterOptions
+      : sqliteSplitterOptions,
+
   // isFileDatabase: true,
   isElectronOnly: true,
 

@@ -52,7 +52,7 @@
   import useEditorData from '../query/useEditorData';
   import { extensions } from '../stores';
   import applyScriptTemplate from '../utility/applyScriptTemplate';
-  import { changeTab } from '../utility/common';
+  import { changeTab, markTabUnsaved } from '../utility/common';
   import { getDatabaseInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEffect from '../utility/useEffect';
@@ -86,10 +86,11 @@
 
   let busy = false;
   let executeNumber = 0;
+  let executeStartLine = 0;
   let visibleResultTabs = false;
   let sessionId = null;
   let resultCount;
-
+  let errorMessages;
   let domEditor;
 
   $: connection = useConnectionInfo({ conid });
@@ -143,13 +144,14 @@
     return !!conid && (!$connection?.isReadOnly || driver?.readOnlySessions);
   }
 
-  async function executeCore(sql) {
+  async function executeCore(sql, startLine = 0) {
     if (busy) return;
     if (!sql || !sql.trim()) {
       showSnackbarError('Skipped executing empty query');
       return;
     }
 
+    executeStartLine = startLine;
     executeNumber++;
     visibleResultTabs = true;
 
@@ -179,13 +181,14 @@
   }
 
   export async function executeCurrent() {
-    const sql = domEditor.getCurrentCommandText();
-    await executeCore(sql);
+    const cmd = domEditor.getCurrentCommandText();
+    await executeCore(cmd.text, cmd.line);
   }
 
   export async function execute() {
     const selectedText = domEditor.getEditor().getSelectedText();
-    await executeCore(selectedText || $editorValue);
+    const startLine = domEditor.getEditor().getSelectionRange().start.row;
+    await executeCore(selectedText || $editorValue, selectedText ? startLine : 0);
   }
 
   export async function kill() {
@@ -257,6 +260,10 @@
         : null,
   });
 
+  function handleChangeErrors(errors) {
+    errorMessages = errors;
+  }
+
   function createMenu() {
     return [
       { command: 'query.execute' },
@@ -276,6 +283,8 @@
   }
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
+
+  let isInitialized = false;
 </script>
 
 <ToolStripContainer>
@@ -286,21 +295,32 @@
           engine={$connection && $connection.engine}
           {conid}
           {database}
-          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          splitterOptions={driver?.getQuerySplitterOptions('editor')}
           value={$editorState.value || ''}
           menu={createMenu()}
-          on:input={e => setEditorData(e.detail)}
+          on:input={e => {
+            setEditorData(e.detail);
+            if (isInitialized) {
+              markTabUnsaved(tabid);
+            }
+            errorMessages = [];
+          }}
           on:focus={() => {
             activator.activate();
             invalidateCommands();
+            setTimeout(() => {
+              isInitialized = true;
+            }, 100);
           }}
           bind:this={domEditor}
+          onExecuteFragment={(sql, startLine) => executeCore(sql, startLine)}
+          {errorMessages}
         />
       {:else}
         <AceEditor
           mode={driver?.editorMode || 'text'}
           value={$editorState.value || ''}
-          splitterOptions={driver?.getQuerySplitterOptions('script')}
+          splitterOptions={driver?.getQuerySplitterOptions('editor')}
           menu={createMenu()}
           on:input={e => setEditorData(e.detail)}
           on:focus={() => {
@@ -318,8 +338,10 @@
             eventName={sessionId ? `session-info-${sessionId}` : null}
             on:messageClick={handleMesageClick}
             {executeNumber}
+            startLine={executeStartLine}
             showProcedure
             showLine
+            onChangeErrors={handleChangeErrors}
           />
         </svelte:fragment>
       </ResultTabs>

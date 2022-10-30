@@ -3,10 +3,12 @@
     createPerspectiveNodeConfig,
     MultipleDatabaseInfo,
     PerspectiveConfig,
+    PerspectiveDataPatternDict,
     perspectiveNodesHaveStructure,
     PerspectiveTreeNode,
     switchPerspectiveReferenceDirection,
   } from 'dbgate-datalib';
+  import { CollectionInfo } from 'dbgate-types';
   import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';
@@ -18,6 +20,7 @@
 
   export let config: PerspectiveConfig;
   export let dbInfos: MultipleDatabaseInfo;
+  export let dataPatterns: PerspectiveDataPatternDict;
   export let root: PerspectiveTreeNode;
 
   export let conid;
@@ -27,22 +30,39 @@
 
   export let onClickTableHeader = null;
 
-  function createDesignerModel(config: PerspectiveConfig, dbInfos: MultipleDatabaseInfo) {
+  function createDesignerModel(
+    config: PerspectiveConfig,
+    dbInfos: MultipleDatabaseInfo,
+    dataPatterns: PerspectiveDataPatternDict
+  ) {
     return {
       ...config,
       tables: _.compact(
         config.nodes.map(node => {
-          const table = dbInfos?.[node.conid || conid]?.[node.database || database]?.tables?.find(
+          const db = dbInfos?.[node.conid || conid]?.[node.database || database];
+          const table = db?.tables?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+          const view = db?.views?.find(x => x.pureName == node.pureName && x.schemaName == node.schemaName);
+          let collection: CollectionInfo & { columns?: any[] } = db?.collections?.find(
             x => x.pureName == node.pureName && x.schemaName == node.schemaName
           );
-          const view = dbInfos?.[node.conid || conid]?.[node.database || database]?.views?.find(
-            x => x.pureName == node.pureName && x.schemaName == node.schemaName
-          );
-          if (!table && !view) return null;
+
+          if (collection) {
+            const pattern = dataPatterns?.[node.designerId];
+            if (!pattern) return null;
+            collection = {
+              ...collection,
+              columns:
+                pattern?.columns.map(x => ({
+                  columnName: x.name,
+                })) || [],
+            };
+          }
+
+          if (!table && !view && !collection) return null;
 
           const { designerId } = node;
           return {
-            ...(table || view),
+            ...(table || view || collection),
             left: node?.position?.x || 0,
             top: node?.position?.y || 0,
             alias: node.alias,
@@ -55,7 +75,7 @@
 
   function handleChange(value, skipUndoChain, settings) {
     setConfig(oldValue => {
-      const newValue = _.isFunction(value) ? value(createDesignerModel(oldValue, dbInfos)) : value;
+      const newValue = _.isFunction(value) ? value(createDesignerModel(oldValue, dbInfos, dataPatterns)) : value;
       let isArranged = oldValue.isArranged;
       if (settings?.isCalledFromArrange) {
         isArranged = true;
@@ -122,11 +142,11 @@
     });
   }
 
-  async function detectAutoArrange(config: PerspectiveConfig, dbInfos, root) {
+  async function detectAutoArrange(config: PerspectiveConfig, dbInfos, dataPatterns, root) {
     if (
       root &&
       config.nodes.find(x => !x.position) &&
-      perspectiveNodesHaveStructure(config, dbInfos, conid, database) &&
+      perspectiveNodesHaveStructure(config, dbInfos, dataPatterns, conid, database) &&
       config.nodes.every(x => root?.findNodeByDesignerId(x.designerId))
     ) {
       await tick();
@@ -134,7 +154,7 @@
     }
   }
 
-  $: detectAutoArrange(config, dbInfos, root);
+  $: detectAutoArrange(config, dbInfos, dataPatterns, root);
 
   // $: console.log('DESIGNER ROOT', root);
 </script>
@@ -221,6 +241,14 @@
       const orderIndex = sort.length > 1 ? _.findIndex(sort, x => x.columnName == columnName) : -1;
       return { order, orderIndex };
     },
+    getColumnIconOverride: (designerId, columnName) => {
+      const pattern = dataPatterns?.[designerId];
+      const column = pattern?.columns.find(x => x.name == columnName);
+      if (column?.types?.includes('json')) {
+        return 'img json';
+      }
+      return null;
+    },
     isColumnFiltered: (designerId, columnName) => {
       return !!config.nodes.find(x => x.designerId == designerId)?.filters?.[columnName];
     },
@@ -277,6 +305,6 @@
     onClickTableHeader,
   }}
   referenceComponent={QueryDesignerReference}
-  value={createDesignerModel(config, dbInfos)}
+  value={createDesignerModel(config, dbInfos, dataPatterns)}
   onChange={handleChange}
 />

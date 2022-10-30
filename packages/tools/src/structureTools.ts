@@ -1,4 +1,4 @@
-import { DatabaseInfo, TableInfo, ApplicationDefinition } from 'dbgate-types';
+import { DatabaseInfo, TableInfo, ApplicationDefinition, ViewInfo, CollectionInfo } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
@@ -117,4 +117,16 @@ export function isTableColumnUnique(table: TableInfo, column: string) {
     return true;
   }
   return false;
+}
+
+export function isTableInfo(obj: { objectTypeField?: string }): obj is TableInfo {
+  return obj.objectTypeField == 'tables';
+}
+
+export function isViewInfo(obj: { objectTypeField?: string }): obj is ViewInfo {
+  return obj.objectTypeField == 'views';
+}
+
+export function isCollectionInfo(obj: { objectTypeField?: string }): obj is CollectionInfo {
+  return obj.objectTypeField == 'collections';
 }

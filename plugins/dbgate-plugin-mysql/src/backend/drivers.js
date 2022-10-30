@@ -112,11 +112,10 @@ const drivers = driverBases.map(driverBase => ({
 
     const handleError = error => {
       console.log('ERROR', error);
-      const { message, lineNumber, procName } = error;
+      const { message } = error;
       options.info({
         message,
-        line: lineNumber,
-        procedure: procName,
+        line: 0,
         time: new Date(),
         severity: 'error',
       });

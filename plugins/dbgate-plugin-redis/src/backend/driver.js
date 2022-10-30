@@ -81,7 +81,7 @@ function splitCommandLine(str) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, password, database, useDatabaseUrl, databaseUrl }) {
+  async connect({ server, port, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
     let db = 0;
     let pool;
     if (useDatabaseUrl) {
@@ -95,6 +95,7 @@ const driver = {
         password,
         db,
       });
+      pool.__treeKeySeparator = treeKeySeparator || ':';
     }
 
     return pool;
@@ -164,9 +165,9 @@ const driver = {
   },
 
   async loadKeys(pool, root = '', filter = null) {
-    const keys = await this.getKeys(pool, root ? `${root}:*` : '*');
+    const keys = await this.getKeys(pool, root ? `${root}${pool.__treeKeySeparator}*` : '*');
     const keysFiltered = keys.filter((x) => filterName(filter, x));
-    const res = this.extractKeysFromLevel(root, keysFiltered);
+    const res = this.extractKeysFromLevel(pool, root, keysFiltered);
     await this.enrichKeyInfo(pool, res);
     return res;
   },
@@ -196,13 +197,13 @@ const driver = {
     return res;
   },
 
-  extractKeysFromLevel(root, keys) {
-    const prefix = root ? `${root}:` : '';
-    const rootSplit = _.compact(root.split(':'));
+  extractKeysFromLevel(pool, root, keys) {
+    const prefix = root ? `${root}${pool.__treeKeySeparator}` : '';
+    const rootSplit = _.compact(root.split(pool.__treeKeySeparator));
     const res = {};
     for (const key of keys) {
       if (!key.startsWith(prefix)) continue;
-      const keySplit = key.split(':');
+      const keySplit = key.split(pool.__treeKeySeparator);
       if (keySplit.length > rootSplit.length) {
         const text = keySplit[rootSplit.length];
         if (keySplit.length == rootSplit.length + 1) {
@@ -216,9 +217,9 @@ const driver = {
             res[dctKey].count++;
           } else {
             res[dctKey] = {
-              text: text + ':*',
+              text: text + pool.__treeKeySeparator + '*',
               type: 'dir',
-              root: keySplit.slice(0, rootSplit.length + 1).join(':'),
+              root: keySplit.slice(0, rootSplit.length + 1).join(pool.__treeKeySeparator),
               count: 1,
             };
           }

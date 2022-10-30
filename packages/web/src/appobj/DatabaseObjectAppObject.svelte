@@ -9,7 +9,7 @@
         schemaName,
         ...(columns?.map(({ columnName }) => ({ childName: columnName })) || [])
       );
-  export const createTitle = ({ pureName }) => pureName;
+  export const createTitle = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
 
   export const databaseObjectIcons = {
     tables: 'img table',
@@ -52,7 +52,12 @@
         icon: 'img table-structure',
       },
       {
-        label: 'Open perspective',
+        label: 'Design query',
+        isQueryDesigner: true,
+        requiresWriteAccess: true,
+      },
+      {
+        label: 'Design perspective query',
         tab: 'PerspectiveTab',
         forceNewTab: true,
         icon: 'img perspective',
@@ -78,11 +83,6 @@
       {
         label: 'Create table backup',
         isDuplicateTable: true,
-        requiresWriteAccess: true,
-      },
-      {
-        label: 'Query designer',
-        isQueryDesigner: true,
         requiresWriteAccess: true,
       },
       {
@@ -155,7 +155,11 @@
         icon: 'img view-structure',
       },
       {
-        label: 'Open perspective',
+        label: 'Design query',
+        isQueryDesigner: true,
+      },
+      {
+        label: 'Design perspective query',
         tab: 'PerspectiveTab',
         forceNewTab: true,
         icon: 'img perspective',
@@ -163,10 +167,6 @@
       {
         label: 'Drop view',
         isDrop: true,
-      },
-      {
-        label: 'Query designer',
-        isQueryDesigner: true,
       },
       {
         divider: true,
@@ -344,6 +344,12 @@
             isJsonView: true,
           },
         },
+      },
+      {
+        label: 'Design perspective query',
+        tab: 'PerspectiveTab',
+        forceNewTab: true,
+        icon: 'img perspective',
       },
       {
         label: 'Export',
@@ -586,6 +592,16 @@
     }
   }
 
+  function getObjectTitle(connection, schemaName, pureName) {
+    const driver = findEngineDriver(connection, getExtensions());
+
+    const defaultSchema = driver?.dialect?.defaultSchemaName;
+    if (schemaName && defaultSchema && schemaName != defaultSchema) {
+      return `${schemaName}.${pureName}`;
+    }
+    return pureName;
+  }
+
   export async function openDatabaseObjectDetail(
     tabComponent,
     scriptTemplate,
@@ -603,7 +619,7 @@
 
     openNewTab(
       {
-        title: scriptTemplate ? 'Query #' : pureName,
+        title: scriptTemplate ? 'Query #' : getObjectTitle(connection, schemaName, pureName),
         tooltip,
         icon: icon || (scriptTemplate ? 'img sql-file' : databaseObjectIcons[objectTypeField]),
         tabComponent: scriptTemplate ? 'QueryTab' : tabComponent,

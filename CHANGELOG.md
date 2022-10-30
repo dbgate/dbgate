@@ -8,6 +8,32 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.5
+- ADDED: Support perspectives for MongoDB - MongoDB query designer
+- ADDED: Show JSON content directly in the overview #395
+- CHANGED: OSX Command H shortcut for hiding window #390
+- ADDED: Uppercase Autocomplete Suggestions #389
+- FIXED: Record view left/right arrows cause start record number to be treated as string #388
+- FIXED: MongoDb ObjectId behaviour not consistent in nested objects #387
+- FIXED: demo.dbgate.org - beta version crash 5.1.5-beta.3 #386
+- ADDED: connect via socket - configurable via environment variables #358
+
+### 5.1.4
+- ADDED: Drop database commands #384
+- ADDED: Customizable Redis key separator #379
+- ADDED: ARM support for docker images
+- ADDED: Version tags for docker images
+- ADDED: Better SQL command splitting and highlighting
+- ADDED: Unsaved marker for SQL files
+
+### 5.1.3
+- ADDED: Editing multiline cell values #378 #371 #359
+- ADDED: Truncate table #333
+- ADDED: Perspectives - show row count
+- ADDED: Query - error markers in gutter area
+- ADDED: Query - ability to execute query elements from gutter
+- FIXED: Correct error line numbers returned from queries
+
 ### 5.1.2
 - FIXED: MongoDb any export function does not work. #373
 - ADDED: Query Designer short order more flexibility #372

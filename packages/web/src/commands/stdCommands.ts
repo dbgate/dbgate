@@ -127,6 +127,9 @@ registerCommand({
   name: 'Query design',
   menuName: 'New query design',
   onClick: () => newQueryDesign(),
+  testEnabled: () =>
+    getCurrentDatabase() &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
 });
 
 registerCommand({
@@ -144,6 +147,9 @@ registerCommand({
   icon: 'img diagram',
   name: 'ER Diagram',
   menuName: 'New ER diagram',
+  testEnabled: () =>
+    getCurrentDatabase() &&
+    findEngineDriver(getCurrentDatabase()?.connection, getExtensions())?.databaseEngineTypes?.includes('sql'),
   onClick: () => newDiagram(),
 });
 
@@ -599,7 +605,7 @@ export function registerFileCommands({
     registerCommand({
       id: idPrefix + '.replace',
       category,
-      keyText: 'CtrlOrCommand+H',
+      keyText: isMac() ? 'Alt+Command+F' : 'CtrlOrCommand+H',
       name: 'Replace',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().replace(),

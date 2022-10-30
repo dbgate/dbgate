@@ -2,7 +2,6 @@ const stableStringify = require('json-stable-stringify');
 const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const { decryptConnection } = require('../utility/crypting');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 
@@ -81,14 +80,16 @@ function handlePing() {
   lastPing = new Date().getTime();
 }
 
-async function handleCreateDatabase({ name }) {
+async function handleDatabaseOp(op, { name }) {
   const driver = requireEngineDriver(storedConnection);
   systemConnection = await connectUtility(driver, storedConnection, 'app');
-  console.log(`RUNNING SCRIPT: CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
-  if (driver.createDatabase) {
-    await driver.createDatabase(systemConnection, name);
+  if (driver[op]) {
+    await driver[op](systemConnection, name);
   } else {
-    await driver.query(systemConnection, `CREATE DATABASE ${driver.dialect.quoteIdentifier(name)}`);
+    const dmp = driver.createDumper();
+    dmp[op](name);
+    console.log(`RUNNING SCRIPT: ${dmp.s}`);
+    await driver.query(systemConnection, dmp.s);
   }
   await handleRefresh();
 }
@@ -96,7 +97,8 @@ async function handleCreateDatabase({ name }) {
 const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
-  createDatabase: handleCreateDatabase,
+  createDatabase: props => handleDatabaseOp('createDatabase', props),
+  dropDatabase: props => handleDatabaseOp('dropDatabase', props),
 };
 
 async function handleMessage({ msgtype, ...other }) {

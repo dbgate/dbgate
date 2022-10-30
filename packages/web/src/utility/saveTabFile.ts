@@ -1,7 +1,7 @@
 import { derived, get } from 'svelte/store';
 import { showModal } from '../modals/modalTools';
 import { openedTabs } from '../stores';
-import { changeTab } from './common';
+import { changeTab, markTabSaved } from './common';
 import SaveFileModal from '../modals/SaveFileModal.svelte';
 import registerCommand from '../commands/registerCommand';
 import { apiCall } from './api';
@@ -24,12 +24,14 @@ export default async function saveTabFile(editor, saveMode, folder, format, file
     if (savedFilePath) {
       await apiCall('files/save-as', { filePath: savedFilePath, data, format });
     }
+    markTabSaved(tabid);
   };
 
   const onSave = (title, newProps) => {
     changeTab(tabid, tab => ({
       ...tab,
       title,
+      unsaved: false,
       props: {
         ...tab.props,
         savedFormat: format,

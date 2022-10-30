@@ -9,7 +9,9 @@ const AbstractCursor = require('mongodb').AbstractCursor;
 const createBulkInsertStream = require('./createBulkInsertStream');
 
 function transformMongoData(row) {
-  return _.mapValues(row, (v) => (v && v.constructor == ObjectId ? { $oid: v.toString() } : v));
+  return _.cloneDeepWith(row, (x) => {
+    if (x && x.constructor == ObjectId) return { $oid: x.toString() };
+  });
 }
 
 async function readCursor(cursor, options) {
@@ -207,6 +209,10 @@ const driver = {
       if (options.countDocuments) {
         const count = await collection.countDocuments(convertObjectId(options.condition) || {});
         return { count };
+      } else if (options.aggregate) {
+        let cursor = await collection.aggregate(options.aggregate);
+        const rows = await cursor.toArray();
+        return { rows: rows.map(transformMongoData) };
       } else {
         // console.log('options.condition', JSON.stringify(options.condition, undefined, 2));
         let cursor = await collection.find(convertObjectId(options.condition) || {});
@@ -274,6 +280,11 @@ const driver = {
   async createDatabase(pool, name) {
     const db = pool.db(name);
     await db.createCollection('collection1');
+  },
+
+  async dropDatabase(pool, name) {
+    const db = pool.db(name);
+    await db.dropDatabase();
   },
 
   async loadFieldValues(pool, name, field, search) {

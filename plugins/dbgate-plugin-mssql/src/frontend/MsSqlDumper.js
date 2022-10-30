@@ -16,6 +16,16 @@ class MsSqlDumper extends SqlDumper {
     }
   }
 
+  dropDatabase(name) {
+    this.putCmd(
+      `USE master;
+      ALTER DATABASE %i SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+      DROP DATABASE %i`,
+      name,
+      name
+    );
+  }
+
   autoIncrement() {
     this.put(' ^identity');
   }

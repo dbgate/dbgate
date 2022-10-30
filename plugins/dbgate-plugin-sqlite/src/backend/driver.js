@@ -104,10 +104,10 @@ const driver = {
       inTransaction();
     } catch (error) {
       console.log('ERROR', error);
-      const { message, lineNumber, procName } = error;
+      const { message, procName } = error;
       options.info({
         message,
-        line: lineNumber,
+        line: 0,
         procedure: procName,
         time: new Date(),
         severity: 'error',

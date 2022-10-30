@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { addCompleter, setCompleters } from 'ace-builds/src-noconflict/ext-language_tools';
 import { getDatabaseInfo } from '../utility/metadataLoaders';
 import analyseQuerySources from './analyseQuerySources';
+import { getStringSettingsValue } from '../settings/settingsTools';
 
 const COMMON_KEYWORDS = [
   'select',
@@ -78,13 +79,21 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
       const line = session.getLine(cursor.row).slice(0, cursor.column);
       const dbinfo = await getDatabaseInfo({ conid, database });
 
-      let list = COMMON_KEYWORDS.map(word => ({
-        name: word,
-        value: word,
-        caption: word,
-        meta: 'keyword',
-        score: 800,
-      }));
+      const convertUpper = getStringSettingsValue('sqlEditor.sqlCommandsCase', 'upperCase') == 'upperCase';
+
+      let list = COMMON_KEYWORDS.map(word => {
+        if (convertUpper) {
+          word = word.toUpperCase();
+        }
+
+        return {
+          name: word,
+          value: word,
+          caption: word,
+          meta: 'keyword',
+          score: 800,
+        };
+      });
 
       if (dbinfo) {
         const colMatch = line.match(/([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]*)?$/);

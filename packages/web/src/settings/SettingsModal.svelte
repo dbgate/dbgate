@@ -111,6 +111,19 @@ ORDER BY
             defaultValue="30"
             disabled={values['connection.autoRefresh'] === false}
           />
+
+          <div class="heading">SQL editor</div>
+          <FormSelectField
+            label="SQL commands case"
+            name="sqlEditor.sqlCommandsCase"
+            isNative
+            defaultValue="upperCase"
+            options={[
+              { value: 'upperCase', label: 'UPPER CASE' },
+              { value: 'lowerCase', label: 'lower case' },
+            ]}
+          />
+
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Application theme</div>

@@ -32,7 +32,7 @@
     return domEditor.getEditor();
   }
 
-  export function getCurrentCommandText(): string {
+  export function getCurrentCommandText(): { text: string; line?: number } {
     return domEditor.getCurrentCommandText();
   }
 

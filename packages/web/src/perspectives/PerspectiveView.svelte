@@ -65,6 +65,7 @@
   import { sleep } from '../utility/common';
   import FontIcon from '../icons/FontIcon.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
+  import { usePerspectiveDataPatterns } from '../utility/usePerspectiveDataPatterns';
 
   const dbg = debug('dbgate:PerspectiveView');
 
@@ -128,17 +129,21 @@
   }
 
   $: dbInfos = useMultipleDatabaseInfo(perspectiveDatabases);
+  $: loader = new PerspectiveDataLoader(apiCall);
+  $: dataPatterns = usePerspectiveDataPatterns({ conid, database }, config, cache, $dbInfos, loader);
   $: rootObject = config?.nodes?.find(x => x.designerId == config?.rootDesignerId);
   $: rootDb = rootObject ? $dbInfos?.[rootObject.conid || conid]?.[rootObject.database || database] : null;
   $: tableInfo = rootDb?.tables.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
   $: viewInfo = rootDb?.views.find(x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName);
+  $: collectionInfo = rootDb?.collections.find(
+    x => x.pureName == rootObject?.pureName && x.schemaName == rootObject?.schemaName
+  );
 
-  $: loader = new PerspectiveDataLoader(apiCall);
-  $: dataProvider = new PerspectiveDataProvider(cache, loader);
+  $: dataProvider = new PerspectiveDataProvider(cache, loader, $dataPatterns);
   $: root =
-    tableInfo || viewInfo
+    tableInfo || viewInfo || collectionInfo
       ? new PerspectiveTableNode(
-          tableInfo || viewInfo,
+          tableInfo || viewInfo || collectionInfo,
           $dbInfos,
           config,
           setConfig,
@@ -151,13 +156,14 @@
   $: tempRoot = root?.findNodeByDesignerId(tempRootDesignerId);
 
   $: {
-    if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, conid, database)) {
-      setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, conid, database));
+    if (shouldProcessPerspectiveDefaultColunns(config, $dbInfos, $dataPatterns, conid, database)) {
+      setConfig(cfg => processPerspectiveDefaultColunns(cfg, $dbInfos, $dataPatterns, conid, database));
     }
   }
 
   // $: console.log('PERSPECTIVE', config);
   // $: console.log('VIEW ROOT', root);
+  // $: console.log('dataPatterns', $dataPatterns);
 </script>
 
 <HorizontalSplitter initialValue={getInitialManagerSize()} bind:size={managerSize} allowCollapseChild1>
@@ -205,6 +211,7 @@
           {database}
           {setConfig}
           dbInfos={$dbInfos}
+          dataPatterns={$dataPatterns}
           {root}
           onClickTableHeader={designerId => {
             sleep(100).then(() => {

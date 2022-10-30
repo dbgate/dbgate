@@ -16,6 +16,7 @@ const dialect = {
     isSparse: false,
     isPersisted: false,
   },
+  defaultSchemaName: null,
 };
 
 export const driverBase = {

@@ -173,6 +173,10 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('treeKeySeparator', $values)}
+  <FormTextField label="Key separator" name="treeKeySeparator" disabled={isConnected} placeholder=":" />
+{/if}
+
 {#if driver?.showConnectionField('windowsDomain', $values)}
   <FormTextField label="Domain (specify to use NTLM authentication)" name="windowsDomain" disabled={isConnected} />
 {/if}

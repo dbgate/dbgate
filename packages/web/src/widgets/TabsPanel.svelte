@@ -1,5 +1,23 @@
 <script lang="ts" context="module">
-  const closeTabFunc = closeCondition => tabid => {
+  function allowCloseTabs(tabs) {
+    if (tabs.length == 0) return Promise.resolve(true);
+    return new Promise(resolve => {
+      showModal(CloseTabModal, {
+        onCancel: () => resolve(false),
+        onConfirm: () => resolve(true),
+        tabs,
+      });
+    });
+  }
+
+  const closeTabFunc = closeCondition => async tabid => {
+    const activeCandidate = getOpenedTabs().find(x => x.tabid == tabid);
+    const closeCandidates = getOpenedTabs()
+      .filter(x => closeCondition(x, activeCandidate))
+      .filter(x => x.unsaved && x.closedTime == null);
+
+    if (!(await allowCloseTabs(closeCandidates))) return;
+
     openedTabs.update(files => {
       const active = files.find(x => x.tabid == tabid);
       if (!active) return files;
@@ -22,7 +40,13 @@
     });
   };
 
-  export const closeMultipleTabs = (closeCondition, deleteFromHistory = false) => {
+  export const closeMultipleTabs = async (closeCondition, deleteFromHistory = false) => {
+    const closeCandidates = getOpenedTabs()
+      .filter(x => closeCondition(x))
+      .filter(x => x.unsaved && x.closedTime == null);
+
+    if (!(await allowCloseTabs(closeCandidates))) return;
+
     openedTabs.update(files => {
       const newFiles = deleteFromHistory
         ? files.filter(x => !closeCondition(x))
@@ -45,7 +69,11 @@
   };
 
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
-  const closeAll = () => {
+  const closeAll = async () => {
+    const closeCandidates = getOpenedTabs().filter(x => x.unsaved && x.closedTime == null);
+
+    if (!(await allowCloseTabs(closeCandidates))) return;
+
     const closedTime = new Date().getTime();
     openedTabs.update(tabs =>
       tabs.map(tab => ({
@@ -212,6 +240,8 @@
   import { getConnectionInfo, useConnectionList } from '../utility/metadataLoaders';
   import { duplicateTab, getTabDbKey, sortTabs, groupTabs } from '../utility/openNewTab';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
+  import TabCloseButton from '../elements/TabCloseButton.svelte';
+  import CloseTabModal from '../modals/CloseTabModal.svelte';
 
   $: connectionList = useConnectionList();
 
@@ -434,7 +464,6 @@
               <FontIcon icon="icon lock" />
             {/if}
           </div>
-
           <div
             class="close-button-right tabCloseButton"
             on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
@@ -479,9 +508,7 @@
               <span class="file-name">
                 {tab.title}
               </span>
-              <span class="close-button tabCloseButton" on:click={e => closeTab(tab.tabid)}>
-                <FontIcon icon="icon close" />
-              </span>
+              <TabCloseButton unsaved={tab.unsaved} on:click={e => closeTab(tab.tabid)} />
             </div>
           {/each}
         </div>
@@ -582,19 +609,12 @@
     white-space: nowrap;
     flex-grow: 1;
   }
-  .close-button {
-    margin-left: 5px;
-    color: var(--theme-font-3);
-  }
   .close-button-right {
     margin-left: 5px;
     margin-right: 5px;
     color: var(--theme-font-3);
   }
 
-  .close-button:hover {
-    color: var(--theme-font-1);
-  }
   .close-button-right:hover {
     color: var(--theme-font-1);
   }
