@@ -29,7 +29,7 @@
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
-  $: themeStyle = `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`;
+  $: themeStyle = `<st` + `yle id="themePlugin">${$currentThemeDefinition?.themeCss}</st` + `yle>`;
 
   const isElectron = !!getElectron();
 </script>
