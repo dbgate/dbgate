@@ -62,6 +62,9 @@ const driver = {
     const options = {
       useUnifiedTopology: true,
     };
+    if (database) {
+      options.authSource = database;
+    }
     if (ssl) {
       options.tls = true;
       options.tlsCAFile = ssl.ca;
