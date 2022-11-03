@@ -2,7 +2,7 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { FilterType } from './types';
 import { Condition } from 'dbgate-sqltree';
-import { TransformType } from 'dbgate-types';
+import type { TransformType } from 'dbgate-types';
 import { interpretEscapes, token, word, whitespace } from './common';
 
 const compoudCondition = conditionType => conditions => {

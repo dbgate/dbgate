@@ -9,7 +9,7 @@ import {
   AllowIdentityInsert,
   Expression,
 } from 'dbgate-sqltree';
-import { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import type { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
 
 export interface ChangeSetItem {
   pureName: string;

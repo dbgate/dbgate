@@ -1,6 +1,3 @@
-import { DisplayColumn } from './GridDisplay';
-import { TableInfo } from 'dbgate-types';
-
 export interface GridConfigColumns {
   hiddenColumns: string[];
   expandedColumns: string[];

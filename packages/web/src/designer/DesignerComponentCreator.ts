@@ -1,7 +1,5 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions, Source } from 'dbgate-sqltree';
-import { EngineDriver } from 'dbgate-types';
-import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
+import type { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { findPrimaryTable, findConnectingReference, referenceIsJoin, referenceIsExists } from './designerTools';
 
 export class DesignerComponent {

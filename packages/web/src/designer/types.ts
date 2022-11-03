@@ -1,5 +1,5 @@
-import { JoinType } from 'dbgate-sqltree';
-import { TableInfo } from 'dbgate-types';
+import type { JoinType } from 'dbgate-sqltree';
+import type { TableInfo } from 'dbgate-types';
 
 export type DesignerTableInfo = TableInfo & {
   designerId: string;

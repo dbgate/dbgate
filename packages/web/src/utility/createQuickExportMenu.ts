@@ -1,4 +1,4 @@
-import { QuickExportDefinition } from 'dbgate-types';
+import type { QuickExportDefinition } from 'dbgate-types';
 import { getExtensions } from '../stores';
 
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {

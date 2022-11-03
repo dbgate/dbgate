@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
-import { QueryResultColumn } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
 import { analyseCollectionDisplayColumns } from './CollectionGridDisplay';
 

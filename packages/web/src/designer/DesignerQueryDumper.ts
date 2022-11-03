@@ -10,7 +10,6 @@ import {
   ResultField,
   Expression,
 } from 'dbgate-sqltree';
-import { EngineDriver } from 'dbgate-types';
 import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { DesignerComponent } from './DesignerComponentCreator';
 import {
