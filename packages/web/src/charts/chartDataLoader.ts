@@ -1,5 +1,5 @@
-import { dumpSqlSelect, Select } from 'dbgate-sqltree';
-import { EngineDriver } from 'dbgate-types';
+import type { Select } from 'dbgate-sqltree';
+import type { EngineDriver } from 'dbgate-types';
 import _ from 'lodash';
 import { apiCall } from '../utility/api';
 

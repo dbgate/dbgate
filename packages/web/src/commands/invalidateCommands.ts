@@ -1,6 +1,6 @@
 import { tick } from 'svelte';
 import { commands } from '../stores';
-import { GlobalCommand } from './registerCommand';
+import type { GlobalCommand } from './registerCommand';
 
 let isInvalidated = false;
 

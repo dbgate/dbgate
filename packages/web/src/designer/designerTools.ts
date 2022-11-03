@@ -1,7 +1,8 @@
 import _ from 'lodash';
-import { dumpSqlSelect, Select, JoinType, Condition, Relation, mergeConditions, Source } from 'dbgate-sqltree';
-import { EngineDriver } from 'dbgate-types';
-import { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
+import type { Select, Condition, Source } from 'dbgate-sqltree';
+import { dumpSqlSelect, mergeConditions } from 'dbgate-sqltree';
+import type { EngineDriver } from 'dbgate-types';
+import type { DesignerInfo, DesignerTableInfo, DesignerReferenceInfo, DesignerJoinType } from './types';
 import { DesignerComponentCreator } from './DesignerComponentCreator';
 import { DesignerQueryDumper } from './DesignerQueryDumper';
 import { getFilterType } from 'dbgate-filterparser';

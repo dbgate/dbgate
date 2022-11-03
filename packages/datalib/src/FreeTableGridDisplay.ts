@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { EngineDriver, ViewInfo, ColumnInfo } from 'dbgate-types';
+import type { EngineDriver, ViewInfo, ColumnInfo } from 'dbgate-types';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc } from './GridDisplay';
 import { GridConfig, GridCache } from './GridConfig';
 import { FreeTableModel } from './FreeTableModel';

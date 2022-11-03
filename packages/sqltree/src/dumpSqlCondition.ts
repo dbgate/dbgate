@@ -1,4 +1,4 @@
-import { SqlDumper } from 'dbgate-types';
+import type { SqlDumper } from 'dbgate-types';
 import { Condition, BinaryCondition } from './types';
 import { dumpSqlExpression } from './dumpSqlExpression';
 import { dumpSqlSelect } from './dumpSqlCommand';

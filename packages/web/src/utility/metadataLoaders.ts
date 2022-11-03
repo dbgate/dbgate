@@ -1,8 +1,6 @@
 import _ from 'lodash';
 import { loadCachedValue, subscribeCacheChange, unsubscribeCacheChange } from './cache';
 import stableStringify from 'json-stable-stringify';
-import getAsArray from './getAsArray';
-import { DatabaseInfo } from 'dbgate-types';
 import { derived } from 'svelte/store';
 import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';

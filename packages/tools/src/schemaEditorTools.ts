@@ -1,6 +1,6 @@
 import uuidv1 from 'uuid/v1';
 import _omit from 'lodash/omit';
-import {
+import type {
   ColumnInfo,
   ConstraintInfo,
   ForeignKeyInfo,

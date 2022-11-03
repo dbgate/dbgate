@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc, createGridConfig } from './GridConfig';
-import {
+import type {
   ForeignKeyInfo,
   TableInfo,
   ColumnInfo,

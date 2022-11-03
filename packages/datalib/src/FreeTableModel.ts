@@ -1,4 +1,4 @@
-import { TableInfo } from 'dbgate-types';
+import type { TableInfo } from 'dbgate-types';
 
 export interface FreeTableModel {
   structure: TableInfo;

@@ -1,4 +1,4 @@
-import { ApplicationDefinition, StoredConnection } from 'dbgate-types';
+import type { ApplicationDefinition, StoredConnection } from 'dbgate-types';
 import { apiCall } from '../utility/api';
 
 export async function saveDbToApp(conid: string, database: string, app: string) {

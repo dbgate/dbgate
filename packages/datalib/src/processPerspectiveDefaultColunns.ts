@@ -1,5 +1,5 @@
 import { findForeignKeyForColumn } from 'dbgate-tools';
-import { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
+import type { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
 import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from './PerspectiveConfig';
 import { PerspectiveDataPattern, PerspectiveDataPatternDict } from './PerspectiveDataPattern';
 import { PerspectiveTableNode } from './PerspectiveTreeNode';

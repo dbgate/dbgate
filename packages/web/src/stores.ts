@@ -1,5 +1,5 @@
 import { writable, derived, readable } from 'svelte/store';
-import { ExtensionsDirectory } from 'dbgate-types';
+import type { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
 import { getSettings, useConfig, useSettings } from './utility/metadataLoaders';
