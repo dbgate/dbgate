@@ -1,4 +1,4 @@
-import { ColumnInfo, TableInfo, ForeignKeyInfo, DatabaseInfo } from 'dbgate-types';
+import type { ColumnInfo, TableInfo, ForeignKeyInfo, DatabaseInfo } from 'dbgate-types';
 import { StringNullableChain } from 'lodash';
 import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
