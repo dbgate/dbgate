@@ -25,6 +25,7 @@
   import { apiCall } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
   import { matchingProps } from '../tabs/TableDataTab.svelte';
+  import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -39,6 +40,9 @@
   $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(
     x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
   );
+
+  $: connectionsWithParent = connectionsWithStatusFiltered ? connectionsWithStatusFiltered?.filter((x) => x.parent !== undefined && x.parent !== null && x.parent.length !== 0) : [];
+  $: connectionsWithoutParent = connectionsWithStatusFiltered ? connectionsWithStatusFiltered?.filter((x) => x.parent === undefined || x.parent === null || x.parent.length === 0) : [];
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
@@ -63,7 +67,26 @@
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
   <AppObjectList
-    list={_.sortBy(connectionsWithStatusFiltered, connection => (getConnectionLabel(connection) || '').toUpperCase())}
+    list={_.sortBy(connectionsWithParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
+    module={connectionAppObject}
+    subItemsComponent={SubDatabaseList}
+    expandOnClick
+    isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+    {filter}
+    passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+    getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+    setIsExpanded={(data, value) => {
+      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+    }}
+    groupIconFunc={chevronExpandIcon}
+    groupFunc={data => data.parent}
+    expandIconFunc={plusExpandIcon}
+  />
+  {#if connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0}
+    <div class="br"/>
+  {/if}
+  <AppObjectList
+    list={_.sortBy(connectionsWithoutParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
     module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick
@@ -84,3 +107,13 @@
     </ToolbarButton> -->
   {/if}
 </WidgetsInnerContainer>
+
+
+
+<style>
+  .br {
+    background: var(--theme-bg-2);
+    height: 1px;
+    margin: 5px 10px;
+  }
+</style>

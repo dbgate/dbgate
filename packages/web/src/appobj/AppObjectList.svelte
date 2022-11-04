@@ -2,6 +2,7 @@
   import _ from 'lodash';
   import { asyncFilter } from '../utility/common';
   import AppObjectGroup from './AppObjectGroup.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
 
   import AppObjectListItem from './AppObjectListItem.svelte';
 
@@ -18,6 +19,7 @@
   export let getIsExpanded = null;
   export let setIsExpanded = null;
 
+  export let groupIconFunc = plusExpandIcon;
   export let groupFunc = undefined;
 
   $: filtered = !groupFunc
@@ -71,6 +73,7 @@
       {module}
       items={groups[group]}
       {expandIconFunc}
+      {groupIconFunc}
       {isExpandable}
       {subItemsComponent}
       {checkedObjectsStore}

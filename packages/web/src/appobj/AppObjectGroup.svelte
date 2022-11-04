@@ -10,6 +10,7 @@
   export let group;
   export let groupFunc;
   export let items;
+  export let groupIconFunc = plusExpandIcon;
   export let module;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
@@ -37,7 +38,7 @@
 
 <div class="group" on:click={() => (isExpanded = !isExpanded)}>
   <span class="expand-icon">
-    <FontIcon icon={plusExpandIcon(isExpanded)} />
+    <FontIcon icon={groupIconFunc(isExpanded)} />
   </span>
 
   {group}
