@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridDisplay, ChangeCacheFunc, ChangeConfigFunc, DisplayColumn } from './GridDisplay';
-import { EngineDriver, ViewInfo, ColumnInfo, CollectionInfo } from 'dbgate-types';
+import type { EngineDriver, ViewInfo, ColumnInfo, CollectionInfo } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
 
 function getObjectKeys(obj) {

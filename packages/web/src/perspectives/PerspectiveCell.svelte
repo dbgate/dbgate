@@ -23,7 +23,7 @@
       {:else}
         <span class="null"> (no image)</span>
       {/if}
-    {:else if !value.$oid && (_.isArray(value) || _.isPlainObject(value))}
+    {:else if !value?.$oid && (_.isArray(value) || _.isPlainObject(value))}
       <JSONTree {value} slicedKeyCount={1} disableContextMenu />
     {:else}
       <CellValue {rowData} {value} />

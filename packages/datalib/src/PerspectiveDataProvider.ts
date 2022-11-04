@@ -1,6 +1,6 @@
 import debug from 'debug';
 import { Condition } from 'dbgate-sqltree';
-import { RangeDefinition } from 'dbgate-types';
+import type { RangeDefinition } from 'dbgate-types';
 import { PerspectiveBindingGroup, PerspectiveCache } from './PerspectiveCache';
 import { PerspectiveDataLoader } from './PerspectiveDataLoader';
 import { PerspectiveDataPatternDict } from './PerspectiveDataPattern';

@@ -8,7 +8,7 @@
     PerspectiveTreeNode,
     switchPerspectiveReferenceDirection,
   } from 'dbgate-datalib';
-  import { CollectionInfo } from 'dbgate-types';
+  import type { CollectionInfo } from 'dbgate-types';
   import _ from 'lodash';
   import { tick } from 'svelte';
   import runCommand from '../commands/runCommand';

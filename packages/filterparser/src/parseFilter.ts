@@ -2,7 +2,6 @@ import P from 'parsimmon';
 import moment from 'moment';
 import { FilterType } from './types';
 import { Condition } from 'dbgate-sqltree';
-import { TransformType } from 'dbgate-types';
 import { interpretEscapes, token, word, whitespace } from './common';
 import { mongoParser } from './mongoParser';
 import { datetimeParser } from './datetimeParser';

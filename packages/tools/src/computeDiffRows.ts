@@ -1,5 +1,5 @@
 import { DbDiffOptions, testEqualColumns, testEqualTables, testEqualSqlObjects } from './diffTools';
-import { DatabaseInfo, EngineDriver, SqlObjectInfo, TableInfo } from 'dbgate-types';
+import type { DatabaseInfo, EngineDriver, SqlObjectInfo, TableInfo } from 'dbgate-types';
 import _ from 'lodash';
 
 export function computeDiffRowsCore(sourceList, targetList, testEqual) {

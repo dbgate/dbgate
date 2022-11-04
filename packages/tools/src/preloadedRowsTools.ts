@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { DatabaseInfo, EngineDriver } from 'dbgate-types';
+import type { DatabaseInfo, EngineDriver } from 'dbgate-types';
 
 export async function enrichWithPreloadedRows(
   dbModel: DatabaseInfo,

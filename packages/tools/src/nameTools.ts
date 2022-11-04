@@ -1,6 +1,6 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import _isString from 'lodash/isString';
-import {
+import type {
   ColumnInfo,
   ColumnReference,
   DatabaseInfo,

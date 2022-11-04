@@ -1,4 +1,4 @@
-import { DatabaseInfo } from 'dbgate-types';
+import type { DatabaseInfo } from 'dbgate-types';
 
 export const chinookDbInfo: DatabaseInfo = {
   tables: [

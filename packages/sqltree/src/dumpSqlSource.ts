@@ -1,5 +1,5 @@
 import { Source, FromDefinition, Relation } from './types';
-import { SqlDumper } from 'dbgate-types';
+import type { SqlDumper } from 'dbgate-types';
 import { dumpSqlSelect } from './dumpSqlCommand';
 import { dumpSqlCondition } from './dumpSqlCondition';
 
