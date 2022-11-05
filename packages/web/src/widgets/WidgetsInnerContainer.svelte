@@ -1,4 +1,4 @@
-<div><slot /></div>
+<div on:drop><slot /></div>
 
 <style>
   div {

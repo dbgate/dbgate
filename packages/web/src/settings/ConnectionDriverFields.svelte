@@ -217,6 +217,19 @@
         disabled={isConnected}
       />
     </div>
+    </div>
+  {/if}
+
+{#if driver}
+  <div>
+    <div class="is-full select-row">
+      <!-- TODO: Able to use with svelte-select the possibility to use isCreatable & isClearable -->
+      <FormTextField
+        label="Parent Folder"
+        name="parent"
+        disabled={isConnected}
+      />
+    </div>
   </div>
 {/if}
 
