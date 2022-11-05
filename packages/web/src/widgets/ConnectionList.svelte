@@ -26,6 +26,7 @@
   import LargeButton from '../buttons/LargeButton.svelte';
   import { matchingProps } from '../tabs/TableDataTab.svelte';
   import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
+  import { safeJsonParse } from 'dbgate-tools';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -41,12 +42,26 @@
     x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
   );
 
-  $: connectionsWithParent = connectionsWithStatusFiltered ? connectionsWithStatusFiltered?.filter((x) => x.parent !== undefined && x.parent !== null && x.parent.length !== 0) : [];
-  $: connectionsWithoutParent = connectionsWithStatusFiltered ? connectionsWithStatusFiltered?.filter((x) => x.parent === undefined || x.parent === null || x.parent.length === 0) : [];
+  $: connectionsWithParent = connectionsWithStatusFiltered
+    ? connectionsWithStatusFiltered?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
+    : [];
+  $: connectionsWithoutParent = connectionsWithStatusFiltered
+    ? connectionsWithStatusFiltered?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
+    : [];
 
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
       apiCall('server-connections/refresh', { conid });
+    }
+  };
+
+  const handleDropOnGroup = (data, group) => {
+    const json = safeJsonParse(data);
+    if (json?._id) {
+      apiCall('connections/update', {
+        _id: json?._id,
+        values: { parent: group },
+      });
     }
   };
 
@@ -65,7 +80,14 @@
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
-<WidgetsInnerContainer>
+<WidgetsInnerContainer
+  on:drop={e => {
+    var data = e.dataTransfer.getData('app_object_drag_data');
+    if (data) {
+      handleDropOnGroup(data, '');
+    }
+  }}
+>
   <AppObjectList
     list={_.sortBy(connectionsWithParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
     module={connectionAppObject}
@@ -81,9 +103,10 @@
     groupIconFunc={chevronExpandIcon}
     groupFunc={data => data.parent}
     expandIconFunc={plusExpandIcon}
+    onDropOnGroup={handleDropOnGroup}
   />
   {#if connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0}
-    <div class="br"/>
+    <div class="br" />
   {/if}
   <AppObjectList
     list={_.sortBy(connectionsWithoutParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
@@ -107,8 +130,6 @@
     </ToolbarButton> -->
   {/if}
 </WidgetsInnerContainer>
-
-
 
 <style>
   .br {

@@ -21,6 +21,7 @@
 
   export let groupIconFunc = plusExpandIcon;
   export let groupFunc = undefined;
+  export let onDropOnGroup = undefined;
 
   $: filtered = !groupFunc
     ? list.filter(data => {
@@ -83,6 +84,7 @@
       {passProps}
       {getIsExpanded}
       {setIsExpanded}
+      {onDropOnGroup}
     />
   {/each}
 {:else}
