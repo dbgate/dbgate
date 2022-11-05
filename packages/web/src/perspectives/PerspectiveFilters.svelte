@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
+  import { PerspectiveTreeNode } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
   import { keys } from 'localforage';
 
   import _, { map } from 'lodash';

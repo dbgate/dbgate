@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveDisplayColumn } from 'dbgate-datalib';
+  import { PerspectiveDisplayColumn } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
   import _, { mapKeys } from 'lodash';
 
   import DropDownButton from '../buttons/DropDownButton.svelte';

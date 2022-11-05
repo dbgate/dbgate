@@ -59,7 +59,7 @@
   import { useInstalledPlugins } from '../utility/metadataLoaders';
   import { buildFileFormats, buildQuickExports } from './fileformats';
   import { buildThemes } from './themes';
-  import dbgateTools from 'dbgate-tools';
+  import * as dbgateTools from 'dbgate-tools';
   import { apiCall } from '../utility/api';
 
   let pluginsDict = {};

@@ -16,13 +16,8 @@
     useViewInfo,
   } from '../utility/metadataLoaders';
   import { onMount, tick } from 'svelte';
-  import {
-    ChangePerspectiveConfigFunc,
-    createPerspectiveNodeConfig,
-    PerspectiveConfig,
-    PerspectiveCustomJoinConfig,
-    PerspectiveTreeNode,
-  } from 'dbgate-datalib';
+  import { createPerspectiveNodeConfig, PerspectiveTreeNode } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveCustomJoinConfig } from 'dbgate-datalib';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import uuidv1 from 'uuid/v1';
   import TextField from '../forms/TextField.svelte';

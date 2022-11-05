@@ -1,19 +1,10 @@
 <script lang="ts">
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
-  import ColumnLabel from '../elements/ColumnLabel.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
-  import { getFilterType, getFilterValueExpression } from 'dbgate-filterparser';
-  import {
-    ChangePerspectiveConfigFunc,
-    PerspectiveConfig,
-    PerspectiveFilterColumnInfo,
-    PerspectiveTreeNode,
-  } from 'dbgate-datalib';
-  import { showModal } from '../modals/modalTools';
-  import DictionaryLookupModal from '../modals/DictionaryLookupModal.svelte';
-  import ValueLookupModal from '../modals/ValueLookupModal.svelte';
+  import { PerspectiveTreeNode } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveFilterColumnInfo } from 'dbgate-datalib';
 
   export let filterInfo: PerspectiveFilterColumnInfo;
 

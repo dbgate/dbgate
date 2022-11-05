@@ -1,4 +1,4 @@
-import Grider, { GriderRowStatus } from './Grider';
+import Grider from './Grider';
 
 export default class RowsArrayGrider extends Grider {
   constructor(private rows: any[]) {
