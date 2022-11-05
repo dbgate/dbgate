@@ -2,6 +2,7 @@
   "version": "5.0.0-alpha.1",
   "name": "dbgate-sqltree",
   "main": "lib/index.js",
+  "module": "src/index.ts",
   "typings": "lib/index.d.ts",
   "homepage": "https://dbgate.org/",
   "repository": {
