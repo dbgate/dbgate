@@ -1,13 +1,11 @@
 <script lang="ts">
   import {
     createPerspectiveNodeConfig,
-    MultipleDatabaseInfo,
-    PerspectiveConfig,
-    PerspectiveDataPatternDict,
     perspectiveNodesHaveStructure,
     PerspectiveTreeNode,
     switchPerspectiveReferenceDirection,
   } from 'dbgate-datalib';
+  import type { MultipleDatabaseInfo, PerspectiveConfig, PerspectiveDataPatternDict } from 'dbgate-datalib';
   import type { CollectionInfo } from 'dbgate-types';
   import _ from 'lodash';
   import { tick } from 'svelte';

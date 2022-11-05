@@ -1,5 +1,7 @@
-import { FreeTableModel, MacroDefinition, MacroSelectedCell, runMacro } from 'dbgate-datalib';
-import Grider, { GriderRowStatus } from '../datagrid/Grider';
+import type { FreeTableModel, MacroDefinition, MacroSelectedCell } from 'dbgate-datalib';
+import { runMacro } from 'dbgate-datalib';
+import Grider from '../datagrid/Grider';
+import type { GriderRowStatus } from '../datagrid/Grider';
 import _ from 'lodash';
 
 function convertToSet(row, field) {

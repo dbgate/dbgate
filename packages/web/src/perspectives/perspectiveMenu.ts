@@ -1,4 +1,4 @@
-import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
+import type { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
 import _ from 'lodash';
 import { showModal } from '../modals/modalTools';
 import CustomJoinModal from './CustomJoinModal.svelte';

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
 import { get } from 'svelte/store';
-import { getOpenedTabs, openedTabs, TabDefinition } from '../stores';
+import { getOpenedTabs, openedTabs } from '../stores';
 import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 import localforage from 'localforage';
