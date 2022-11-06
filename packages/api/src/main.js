@@ -95,7 +95,7 @@ function start() {
     console.log('DbGate API listening on port (docker build)', port);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/dist')));
     getPort({
       port: parseInt(
         // @ts-ignore
@@ -107,9 +107,7 @@ function start() {
       });
     });
   } else if (process.env.DEVWEB) {
-    console.log('__dirname', __dirname);
-    console.log(path.join(__dirname, '../../web/public/build'));
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/dist')));
 
     const port = process.env.PORT || 3000;
     console.log('DbGate API & web listening on port (dev web build)', port);

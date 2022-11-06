@@ -42,7 +42,7 @@
     "fillPackagedPlugins": "node fillPackagedPlugins",
     "resetPackagedPlugins": "node resetPackagedPlugins",
     "prettier": "prettier --write packages/api/src && prettier --write packages/datalib/src && prettier --write packages/filterparser/src && prettier --write packages/sqltree/src && prettier --write packages/tools/src && prettier --write packages/types && prettier --write packages/web/src && prettier --write app/src",
-    "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/public/* docker -u 2 && copyfiles \"packages/web/public/**/*\" docker -u 2 && copyfiles \"plugins/dist/**/*\" docker/plugins -u 2",
+    "copy:docker:build": "copyfiles packages/api/dist/* docker -f && copyfiles packages/web/dist/* docker -u 2 && copyfiles \"packages/web/dist/**/*\" docker -u 2 && copyfiles \"plugins/dist/**/*\" docker/plugins -u 2",
     "install:sqlite:docker": "cd docker && yarn init --yes && yarn add better-sqlite3 && cd ..",
     "prepare:docker": "yarn plugins:copydist && yarn build:web:docker && yarn build:api && yarn copy:docker:build && yarn install:sqlite:docker",
     "start": "concurrently --kill-others-on-fail \"yarn start:api\" \"yarn start:web\"",

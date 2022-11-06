@@ -101,7 +101,7 @@
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
     "rebuild": "electron-builder install-app-deps",
-    "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/public/*\" packages && copyfiles \"../packages/web/public/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
+    "predist": "copyfiles ../packages/api/dist/* packages && copyfiles \"../packages/web/dist/*\" packages && copyfiles \"../packages/web/dist/**/*\" packages && copyfiles --up 3 \"../plugins/dist/**/*\" packages/plugins"
   },
   "main": "src/electron.js",
   "devDependencies": {
