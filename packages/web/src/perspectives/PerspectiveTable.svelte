@@ -596,9 +596,9 @@
     z-index: 100;
   }
 
-  th.filter {
+  /* th.filter {
     padding: 0;
-  }
+  } */
 
   thead :global(tr:first-child) :global(th) {
     border-top: 1px solid var(--theme-border);
