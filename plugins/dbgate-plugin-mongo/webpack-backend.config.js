@@ -14,6 +14,15 @@ var config = {
     libraryTarget: 'commonjs2',
   },
 
+  // module: {
+  //   rules: [
+  //     {
+  //       test: /\.(js)$/,
+  //       exclude: /node_modules/,
+  //       use: ['babel-loader'],
+  //     },
+  //   ],
+  // },
   // uncomment for disable minimalization
   //   optimization: {
   //     minimize: false,
