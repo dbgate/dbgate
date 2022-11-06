@@ -126,7 +126,8 @@
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
-
+  import QueryParseWorker from './QueryParserWorker.js?worker'
+  
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
     init: ace.Editor;
@@ -262,7 +263,8 @@
     if (enabled) {
       if (!queryParserWorker) {
         try {
-          queryParserWorker = new Worker('build/query-parser-worker.js');
+          // queryParserWorker = new Worker('build/query-parser-worker.js');
+          queryParserWorker = new QueryParseWorker();
           // console.log('WORKER', queryParserWorker);
           queryParserWorker.onmessage = e => {
             processParserResult(e.data);
