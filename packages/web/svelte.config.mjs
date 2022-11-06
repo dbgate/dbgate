@@ -6,6 +6,7 @@ const ignoreWarnings = [
   'a11y-invalid-attribute',
   'a11y-no-noninteractive-tabindex',
   'a11y-label-has-associated-control',
+  'vite-plugin-svelte-css-no-scopable-elements',
   'unused-export-let',
 ];
 
