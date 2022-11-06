@@ -27,11 +27,22 @@ export interface GlobalCommand {
   menuName?: string;
   toolbarOrder?: number;
   disableHandleKeyText?: string;
-  isRelatedToTab?: boolean,
+  isRelatedToTab?: boolean;
   systemCommand?: boolean;
 }
 
+let disableRegisterCommands = false;
+if (import.meta.hot) {
+  import.meta.hot.on('vite:beforeUpdate', () => {
+    disableRegisterCommands = true;
+  });
+}
+
 export default function registerCommand(command: GlobalCommand) {
+  if (disableRegisterCommands) {
+    return;
+  }
+  
   const { testEnabled } = command;
   commands.update(x => {
     if (x[command.id]) {
