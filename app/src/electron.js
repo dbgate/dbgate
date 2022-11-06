@@ -234,7 +234,7 @@ function fillMissingSettings(value) {
     ...value,
   };
   if (value['app.useNativeMenu'] !== true && value['app.useNativeMenu'] !== false) {
-    res['app.useNativeMenu'] = false;
+    res['app.useNativeMenu'] = true;
     // res['app.useNativeMenu'] = os.platform() == 'darwin' ? true : false;
   }
   return res;
@@ -307,7 +307,7 @@ function createWindow() {
     if (os.platform() == 'linux') {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
-    // mainWindow.webContents.toggleDevTools();
+    mainWindow.webContents.openDevTools();
   }
 
   if (!apiLoaded) {
