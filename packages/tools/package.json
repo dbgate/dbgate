@@ -2,7 +2,7 @@
   "version": "5.0.0-alpha.1",
   "name": "dbgate-tools",
   "main": "lib/index.js",
-  "module": "src/index.ts",
+  "module": "esm/index.js",
   "typings": "lib/index.d.ts",
   "homepage": "https://dbgate.org/",
   "repository": {
@@ -16,13 +16,14 @@
     "dbgate"
   ],
   "scripts": {
-    "build": "tsc",
-    "start": "tsc --watch",
+    "build": "tsc && tsc --module es2015 --target es5 --outDir esm",
+    "start": "tsc --watch && tsc --watch --module es2015 --target es5 --outDir esm",
     "test": "jest",
     "prepublishOnly": "yarn build"
   },
   "files": [
-    "lib"
+    "lib",
+    "esm"
   ],
   "devDependencies": {
     "@types/node": "^13.7.0",
