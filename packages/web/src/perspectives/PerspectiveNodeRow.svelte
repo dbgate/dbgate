@@ -94,7 +94,7 @@
     background: var(--theme-bg-hover);
   }
 
-  .row.isSelected {
+  /* .row.isSelected {
     background: var(--theme-bg-selected);
-  }
+  } */
 </style>
