@@ -3,7 +3,7 @@
   "version": "5.0.0-alpha.1",
   "scripts": {
     "build": "vite build",
-    "dev": "cross-env API_URL=http://localhost:3000 vite",
+    "dev": "cross-env VITE_API_URL=http://localhost:3000 vite",
     "start": "sirv public --port 5001",
     "prepublishOnly": "yarn build"
   },
@@ -47,6 +47,7 @@
   },
   "dependencies": {
     "@originjs/vite-plugin-commonjs": "^1.0.3",
+    "@rollup/plugin-commonjs": "^23.0.2",
     "chartjs-plugin-zoom": "^1.2.0",
     "date-fns": "^2.28.0",
     "debug": "^4.3.4",

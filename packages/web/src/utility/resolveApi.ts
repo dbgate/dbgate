@@ -2,7 +2,7 @@ import getElectron from './getElectron';
 
 let apiUrl = null;
 try {
-  apiUrl = process.env.API_URL;
+  apiUrl = import.meta.env.VITE_API_URL;
 } catch {}
 
 export default function resolveApi() {
