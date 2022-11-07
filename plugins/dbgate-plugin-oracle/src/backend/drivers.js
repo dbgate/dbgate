@@ -16,17 +16,20 @@ pg.types.setTypeParser(1184, 'text', val => val); // timestamp
 function extractOracleColumns(result) {
   if (!result /*|| !result.fields */) return [];
   const res = result.map(fld => ({
-    columnName: fld.name.toLowerCase(),
+    columnName: fld.name, //columnName: fld.name.toLowerCase(),
   }));
   makeUniqueColumnNames(res);
   return res;
 }
 
 function zipDataRow(rowArray, columns) {
-  return _.zipObject(
+  let obj = _.zipObject(
     columns.map(x => x.columnName),
     rowArray
   );
+  //console.log('zipDataRow columns', columns);
+  //console.log('zipDataRow', obj);
+  return obj;
 }
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -101,6 +104,7 @@ const drivers = driverBases.map(driverBase => ({
     return pool.end();
   },
   async query(client, sql) {
+      //console.log('query sql', sql);
     if (sql == null) {
       return {
         rows: [],
@@ -108,11 +112,11 @@ const drivers = driverBases.map(driverBase => ({
       };
     }
 try {
-      console.log('sql', sql);
+      //console.log('sql3', sql);
     const res = await client.execute(sql);
-      //console.log('res', res);
+    //console.log('res', res);
     const columns = extractOracleColumns(res.metaData);
-      //console.log('columns', columns);
+     //console.log('columns', columns);
     return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
 }
 catch(err) {
@@ -130,14 +134,14 @@ finally {
       rowMode: 'array',
     });
 */
-      //console.log('queryStream', sql);
+    console.log('queryStream', sql);
     const query = client.queryStream(sql);
    // const consumeStream = new Promise((resolve, reject) => {
       let rowcount = 0;
     let wasHeader = false;
 
     query.on('metadata', row => {
-      //console.log('metadata', row);
+      console.log('metadata', row);
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
@@ -150,7 +154,14 @@ finally {
     });
 
     query.on('data', row => {
-      //console.log('DATA', row);
+      console.log('stream DATA');
+      if (!wasHeader) {
+        columns = extractOracleColumns(row);
+        if (columns && columns.length > 0) {
+          options.recordset(columns);
+        }
+        wasHeader = true;
+      }
       options.row(zipDataRow(row, columns));
     });
 
@@ -203,7 +214,7 @@ finally {
   },
   async getVersion(client) {
     //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
-    const { rows } = await this.query(client, "SELECT version FROM v$instance");
+    const { rows } = await this.query(client, "SELECT version as \"version\" FROM v$instance");
     const { version } = rows[0];
 
     const isCockroach = false; //version.toLowerCase().includes('cockroachdb');
@@ -289,7 +300,7 @@ finally {
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
   async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT instance_name AS name FROM v$instance');
+    const { rows } = await this.query(client, 'SELECT instance_name AS \"name\" FROM v$instance');
     return rows;
   },
 

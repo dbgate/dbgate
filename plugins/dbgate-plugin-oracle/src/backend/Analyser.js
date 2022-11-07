@@ -74,6 +74,7 @@ class Analyser extends DatabaseAnalyser {
     );
     this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+
     this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
 
