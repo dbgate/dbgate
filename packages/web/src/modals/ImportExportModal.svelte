@@ -16,7 +16,7 @@
   import { getDefaultFileFormat } from '../plugins/fileformats';
   import RunnerOutputFiles from '../query/RunnerOutputFiles.svelte';
   import SocketMessageView from '../query/SocketMessageView.svelte';
-  import { currentArchive, currentDatabase, extensions, getCurrentConfig, selectedWidget } from '../stores';
+  import { currentArchive, currentDatabase, extensions, visibleWidgetSideBar, selectedWidget } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import createRef from '../utility/createRef';
   import openNewTab from '../utility/openNewTab';
@@ -85,6 +85,7 @@
       apiCall('archive/refresh-files', { folder: refreshArchiveFolderRef.get() });
       $currentArchive = refreshArchiveFolderRef.get();
       $selectedWidget = 'archive';
+      $visibleWidgetSideBar = true;
     }
   };
 

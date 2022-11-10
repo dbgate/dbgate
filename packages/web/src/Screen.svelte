@@ -8,6 +8,7 @@
     leftPanelWidth,
     openedSnackbars,
     selectedWidget,
+    visibleWidgetSideBar,
     visibleCommandPalette,
     visibleTitleBar,
     visibleToolbar,
@@ -63,7 +64,7 @@
   <div class="statusbar">
     <StatusBar />
   </div>
-  {#if $selectedWidget}
+  {#if $selectedWidget && $visibleWidgetSideBar}
     <div class="leftpanel">
       <WidgetContainer />
     </div>
@@ -74,7 +75,7 @@
   <div class="content">
     <TabRegister />
   </div>
-  {#if $selectedWidget}
+  {#if $selectedWidget && $visibleWidgetSideBar}
     <div
       class="horizontal-split-handle splitter"
       use:splitterDrag={'clientX'}

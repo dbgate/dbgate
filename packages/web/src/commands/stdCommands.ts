@@ -6,6 +6,7 @@ import {
   getExtensions,
   getVisibleToolbar,
   visibleToolbar,
+  visibleWidgetSideBar,
 } from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
@@ -81,6 +82,15 @@ registerCommand({
   name: 'Show',
   toolbarName: 'About',
   onClick: () => showModal(AboutModal),
+});
+
+registerCommand({
+  id: 'toggle.sidebar',
+  category: 'Sidebar',
+  name: 'Show',
+  toolbarName: 'Toggle sidebar',
+  keyText: 'CtrlOrCommand+B',
+  onClick: () => visibleWidgetSideBar.update(x => !x),
 });
 
 registerCommand({

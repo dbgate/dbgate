@@ -18,7 +18,13 @@
   import { closeCurrentModal } from '../modals/modalTools';
   import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
-  import { currentEditorFontSize, currentEditorTheme, extensions, selectedWidget } from '../stores';
+  import {
+    currentEditorFontSize,
+    currentEditorTheme,
+    extensions,
+    selectedWidget,
+    visibleWidgetSideBar,
+  } from '../stores';
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
   import ThemeSkeleton from './ThemeSkeleton.svelte';
@@ -47,6 +53,7 @@ ORDER BY
   function openThemePlugins() {
     closeCurrentModal();
     $selectedWidget = 'plugins';
+    $visibleWidgetSideBar = true;
   }
 </script>
 
@@ -123,7 +130,6 @@ ORDER BY
               { value: 'lowerCase', label: 'lower case' },
             ]}
           />
-
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Application theme</div>

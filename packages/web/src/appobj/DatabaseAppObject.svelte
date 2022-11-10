@@ -180,6 +180,7 @@
       });
       currentArchive.set(resp.archiveFolder);
       selectedWidget.set('archive');
+      visibleWidgetSideBar.set(true);
       showSnackbarSuccess(`Saved to archive ${resp.archiveFolder}`);
     };
 
@@ -338,6 +339,7 @@
     openedSingleDatabaseConnections,
     pinnedDatabases,
     selectedWidget,
+    visibleWidgetSideBar,
   } from '../stores';
   import getElectron from '../utility/getElectron';
   import openNewTab from '../utility/openNewTab';
