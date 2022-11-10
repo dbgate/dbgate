@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
@@ -21,5 +22,9 @@
   <SearchInput placeholder="Search extensions on web" {filter} bind:value={filter} />
 </SearchBoxWrapper>
 <WidgetsInnerContainer>
-  <PluginsList plugins={$plugins} />
+  {#if $plugins?.errorMessage}
+    <ErrorInfo message={$plugins?.errorMessage} />
+  {:else}
+    <PluginsList plugins={$plugins} />
+  {/if}
 </WidgetsInnerContainer>
