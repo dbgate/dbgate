@@ -17,6 +17,14 @@
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
+  registerCommand({
+    id: 'query.toggleVisibleResultTabs',
+    category: 'Query',
+    name: 'Toggle visible result tabs',
+    keyText: 'CtrlOrCommand+Shift+R',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().toggleVisibleResultTabs(),
+  });
   registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
@@ -142,6 +150,10 @@
 
   export function hasConnection() {
     return !!conid && (!$connection?.isReadOnly || driver?.readOnlySessions);
+  }
+
+  export function toggleVisibleResultTabs() {
+    visibleResultTabs = !visibleResultTabs;
   }
 
   async function executeCore(sql, startLine = 0) {
@@ -279,6 +291,8 @@
       { divider: true },
       { command: 'query.find' },
       { command: 'query.replace' },
+      { divider: true },
+      { command: 'query.toggleVisibleResultTabs' },
     ];
   }
 
