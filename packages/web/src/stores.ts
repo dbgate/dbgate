@@ -50,6 +50,7 @@ function subscribeCssVariable(store, transform, cssVariable) {
 }
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
+export const emptyConnectionGroupNames = writableWithStorage([], 'emptyConnectionGroupNames');
 export const openedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);

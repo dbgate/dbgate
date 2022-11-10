@@ -29,6 +29,7 @@
     'icon arrange': 'mdi mdi-arrange-send-to-back',
     'icon app': 'mdi mdi-layers-triple',
     'icon open-in-new': 'mdi mdi-open-in-new',
+    'icon add-folder': 'mdi mdi-folder-plus-outline',
 
     'icon window-restore': 'mdi mdi-window-restore',
     'icon window-close': 'mdi mdi-window-close',

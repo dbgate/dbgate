@@ -9,14 +9,13 @@
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import {
-    commands,
     commandsCustomized,
     expandedConnections,
     openedConnections,
     openedSingleDatabaseConnections,
     openedTabs,
+    emptyConnectionGroupNames,
   } from '../stores';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
@@ -24,7 +23,6 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
-  import { matchingProps } from '../tabs/TableDataTab.svelte';
   import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
   import { safeJsonParse } from 'dbgate-tools';
 
@@ -58,6 +56,9 @@
   const handleDropOnGroup = (data, group) => {
     const json = safeJsonParse(data);
     if (json?._id) {
+      if (json.parent) {
+        emptyConnectionGroupNames.update(x => x.filter(y => y != json.parent));
+      }
       apiCall('connections/update', {
         _id: json?._id,
         values: { parent: group },
@@ -74,6 +75,9 @@
   {#if $commandsCustomized['new.connection']?.enabled}
     <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
       <FontIcon icon="icon plus-thick" />
+    </InlineButton>
+    <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">
+      <FontIcon icon="icon add-folder" />
     </InlineButton>
   {/if}
   <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
@@ -104,8 +108,10 @@
     groupFunc={data => data.parent}
     expandIconFunc={plusExpandIcon}
     onDropOnGroup={handleDropOnGroup}
+    emptyGroupNames={$emptyConnectionGroupNames}
+    sortGroups
   />
-  {#if connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0}
+  {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
     <div class="br" />
   {/if}
   <AppObjectList
