@@ -84,7 +84,6 @@
       "publish": [
         "github"
       ],
-      "publisherName": "Jan Prochazka",
       "rfc3161TimeStampServer": "http://sha256timestamp.ws.symantec.com/sha256/timestamp"
     },
     "files": [
