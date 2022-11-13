@@ -292,13 +292,15 @@ async function handleMessage({ msgtype, ...other }) {
 function start() {
   childProcessChecker();
 
+  lastPing = new Date().getTime();
+
   setInterval(() => {
     const time = new Date().getTime();
-    if (time - lastPing > 30_000) {
+    if (time - lastPing > 25_000) {
       console.log('Session not alive, exiting');
       process.exit(0);
     }
-  }, 30_000);
+  }, 10_000);
 
   process.on('message', async message => {
     if (handleProcessCommunication(message)) return;
