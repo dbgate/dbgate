@@ -335,11 +335,11 @@ function start() {
 
   setInterval(() => {
     const time = new Date().getTime();
-    if (time - lastPing > 40_000) {
+    if (time - lastPing > 40 * 1000) {
       console.log('Database connection not alive, exiting');
       process.exit(0);
     }
-  }, 10_000);
+  }, 10 * 1000);
 
   process.on('message', async message => {
     if (handleProcessCommunication(message)) return;

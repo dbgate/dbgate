@@ -296,11 +296,11 @@ function start() {
 
   setInterval(() => {
     const time = new Date().getTime();
-    if (time - lastPing > 25_000) {
+    if (time - lastPing > 25 * 1000) {
       console.log('Session not alive, exiting');
       process.exit(0);
     }
-  }, 10_000);
+  }, 10 * 1000);
 
   process.on('message', async message => {
     if (handleProcessCommunication(message)) return;
