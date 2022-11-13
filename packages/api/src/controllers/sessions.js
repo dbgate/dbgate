@@ -105,6 +105,8 @@ module.exports = {
     });
     subprocess.on('exit', () => {
       this.opened = this.opened.filter(x => x.sesid != sesid);
+      this.dispatchMessage(sesid, 'Query session closed');
+      socket.emit(`session-closed-${sesid}`);
     });
 
     subprocess.send({ msgtype: 'connect', ...connection, database });

@@ -80,8 +80,10 @@
   function onSession(sid) {
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-closed-${sid}`, handleSessionClosed);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-closed-${sid}`, handleSessionClosed);
       };
     }
     return () => {};
@@ -195,6 +197,11 @@
   const handleSessionDone = () => {
     busy = false;
     timerLabel.stop();
+  };
+
+  const handleSessionClosed = () => {
+    sessionId = null;
+    handleSessionDone();
   };
 
   const handleChange = (value, skipUndoChain) =>
