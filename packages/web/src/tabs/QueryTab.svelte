@@ -50,7 +50,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, onDestroy, onMount } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
   import registerCommand from '../commands/registerCommand';
@@ -100,6 +100,21 @@
   let resultCount;
   let errorMessages;
   let domEditor;
+  let intervalId;
+
+  onMount(() => {
+    intervalId = setInterval(() => {
+      if (sessionId) {
+        apiCall('sessions/ping', {
+          sesid: sessionId,
+        });
+      }
+    }, 15_000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);

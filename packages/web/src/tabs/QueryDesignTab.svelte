@@ -54,6 +54,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   export let tabid;
   export let conid;
@@ -101,6 +102,22 @@
   $: setEditorData($modelState.value);
 
   $: generatePreview($modelState.value, engine);
+
+  let intervalId;
+
+  onMount(() => {
+    intervalId = setInterval(() => {
+      if (sessionId) {
+        apiCall('sessions/ping', {
+          sesid: sessionId,
+        });
+      }
+    }, 15_000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   export function canKill() {
     return !!sessionId;

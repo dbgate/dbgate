@@ -15,6 +15,7 @@ let systemConnection;
 let storedConnection;
 let afterConnectCallbacks = [];
 // let currentHandlers = [];
+let lastPing = null;
 
 class TableWriter {
   constructor() {
@@ -271,10 +272,15 @@ async function handleExecuteReader({ jslid, sql, fileName }) {
   });
 }
 
+function handlePing() {
+  lastPing = new Date().getTime();
+}
+
 const messageHandlers = {
   connect: handleConnect,
   executeQuery: handleExecuteQuery,
   executeReader: handleExecuteReader,
+  ping: handlePing,
   // cancel: handleCancel,
 };
 
@@ -285,6 +291,15 @@ async function handleMessage({ msgtype, ...other }) {
 
 function start() {
   childProcessChecker();
+
+  setInterval(() => {
+    const time = new Date().getTime();
+    if (time - lastPing > 30_000) {
+      console.log('Session not alive, exiting');
+      process.exit(0);
+    }
+  }, 30_000);
+
   process.on('message', async message => {
     if (handleProcessCommunication(message)) return;
     try {
