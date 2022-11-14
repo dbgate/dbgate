@@ -40,6 +40,7 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       permissions,
       login,
+      oauth: process.env.OAUTH,
       ...currentVersion,
     };
   },

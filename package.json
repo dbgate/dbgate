@@ -16,6 +16,7 @@
     "start:app:debug:ssh": "cd app && cross-env DEBUG=ssh yarn start",
     "start:api:portal": "yarn workspace dbgate-api start:portal",
     "start:api:singledb": "yarn workspace dbgate-api start:singledb",
+    "start:api:auth": "yarn workspace dbgate-api start:auth",
     "start:web": "yarn workspace dbgate-web dev",
     "start:sqltree": "yarn workspace dbgate-sqltree start",
     "start:tools": "yarn workspace dbgate-tools start",

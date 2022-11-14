@@ -24,6 +24,34 @@
   let loadedApi = false;
   let loadedPlugins = false;
 
+  async function handleAuth(config) {
+    if (config.oauth) {
+      const params = new URLSearchParams(location.search);
+      const sentCode = params.get('code');
+      const sentState = params.get('state');
+      if (
+        sentCode &&
+        sentState &&
+        sentState.startsWith('dbg-oauth:') &&
+        sentState == sessionStorage.getItem('oauthState')
+      ) {
+        const accessToken = await apiCall('auth/oauth-token', {
+          code: sentCode,
+          redirectUri: location.origin,
+        });
+        console.log('TOKEN', accessToken);
+      } else {
+        const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
+        sessionStorage.setItem('oauthState', state);
+        location.replace(
+          `${config.oauth}/auth?client_id=dbgate&response_type=code&redirect_uri=${encodeURIComponent(
+            location.origin
+          )}&state=${encodeURIComponent(state)}`
+        );
+      }
+    }
+  }
+
   async function loadApi() {
     // if (shouldWaitForElectronInitialize()) {
     //   setTimeout(loadApi, 100);
@@ -36,6 +64,7 @@
       const connections = await apiCall('connections/list');
       const settings = await getSettings();
       const config = await getConfig();
+      handleAuth(config);
       const apps = await getUsedApps();
       loadedApi = settings && connections && config && apps;
 
