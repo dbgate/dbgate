@@ -8,6 +8,17 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.1.6
+- ADDED: Connection folders support #274
+- ADDED: Keyboard shortcut to hide result window and show/hide the side toolbar #406
+- ADDED: Ability to show/hide query results #406
+- FIXED: Double click does not maximize window on MacOS #416
+- FIXED: Some perspective rendering errors
+- FIXED: Connection to MongoDB via database URL info SSH tunnel is used
+- CHANGED: Updated windows code signing certificate
+- ADDED: Query session cleanup (kill query sessions, if browser tab is closed)
+- CHANGED: More strict timeouts to kill database and server connections (reduces resource consumption)
+
 ### 5.1.5
 - ADDED: Support perspectives for MongoDB - MongoDB query designer
 - ADDED: Show JSON content directly in the overview #395
