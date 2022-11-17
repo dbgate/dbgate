@@ -20,12 +20,16 @@
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
   import SettingsListener from './utility/SettingsListener.svelte';
-  import { handleAuthOnStartup } from './clientAuth';
+  import { handleAuthOnStartup, handleOauthCallback } from './clientAuth';
 
   let loadedApi = false;
   let loadedPlugins = false;
+  const isOauthCallback = handleOauthCallback();
 
   async function loadApi() {
+    if (isOauthCallback) {
+      return;
+    }
     // if (shouldWaitForElectronInitialize()) {
     //   setTimeout(loadApi, 100);
     //   return;
@@ -76,7 +80,7 @@
 
 <ErrorHandler />
 
-{#if loadedApi}
+{#if loadedApi && !isOauthCallback}
   <DataGridRowHeightMeter />
   <CommandListener />
   <PluginsProvider />

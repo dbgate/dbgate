@@ -9,6 +9,16 @@ function shouldAuthorizeApi() {
   return !!process.env.OAUTH_AUTH;
 }
 
+function unauthorizedResponse(req, res, text) {
+  // if (req.path == getExpressPath('/config/get-settings')) {
+  //   return res.json({});
+  // }
+  // if (req.path == getExpressPath('/connections/list')) {
+  //   return res.json([]);
+  // }
+  return res.sendStatus(401).send(text);
+}
+
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/stream'];
 
@@ -20,7 +30,7 @@ function authMiddleware(req, res, next) {
   }
   const authHeader = req.headers.authorization;
   if (!authHeader) {
-    return res.send(401, 'missing authorization header');
+    return unauthorizedResponse(req, res, 'missing authorization header');
   }
   const token = authHeader.split(' ')[1];
   try {
@@ -28,10 +38,7 @@ function authMiddleware(req, res, next) {
     req.user = decoded;
     return next();
   } catch (err) {
-    console.log('&&&&&&&&&&&&&&&&&&&&&& IUNVALID TOKEN');
-    console.log(token);
-    console.log(err);
-    return res.sendStatus(401).send('Invalid Token');
+    return unauthorizedResponse(req, res, 'invalid token');
   }
 }
 

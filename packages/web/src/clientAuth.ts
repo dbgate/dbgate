@@ -1,34 +1,44 @@
 import { apiCall } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 
-export async function handleAuthOnStartup(config) {
-  console.log('********************* handleAuthOnStartup');
-  if (config.oauth) {
-    const params = new URLSearchParams(location.search);
-    const sentCode = params.get('code');
-    const sentState = params.get('state');
+export function handleOauthCallback() {
+  const params = new URLSearchParams(location.search);
+  const sentCode = params.get('code');
+  const sentState = params.get('state');
 
-    if (
-      sentCode &&
-      sentState &&
-      sentState.startsWith('dbg-oauth:') &&
-      sentState == sessionStorage.getItem('oauthState')
-    ) {
-      const authResp = await apiCall('auth/oauth-token', {
-        code: sentCode,
-        redirectUri: location.origin,
-      });
+  if (
+    sentCode &&
+    sentState &&
+    sentState.startsWith('dbg-oauth:') &&
+    sentState == sessionStorage.getItem('oauthState')
+  ) {
+    sessionStorage.removeItem('oauthState');
+    apiCall('auth/oauth-token', {
+      code: sentCode,
+      redirectUri: location.origin,
+    }).then(authResp => {
       const { accessToken } = authResp;
       console.log('Got new access token:', accessToken);
       localStorage.setItem('accessToken', accessToken);
       location.replace('/');
-    } else {
-      if (localStorage.getItem('accessToken')) {
-        return;
-      }
+    });
 
-      redirectToLogin(config);
+    console.log('handleOauthCallback TRUE');
+    return true;
+  }
+
+  console.log('handleOauthCallback FALSE');
+  return false;
+}
+
+export async function handleAuthOnStartup(config) {
+  console.log('********************* handleAuthOnStartup');
+  if (config.oauth) {
+    if (localStorage.getItem('accessToken')) {
+      return;
     }
+
+    redirectToLogin(config);
   }
 }
 

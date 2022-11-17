@@ -9,7 +9,7 @@ import { redirectToLogin } from '../clientAuth';
 let eventSource;
 let apiLogging = false;
 // let cacheCleanerRegistered;
-// let apiDisabled = false;
+let apiDisabled = false;
 
 // export function disableApi() {
 //   apiDisabled = true;
@@ -41,6 +41,10 @@ export async function apiCall(route: string, args: {} = undefined) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
   }
+  if (apiDisabled) {
+    console.log('API disabled!!', route);
+    return;
+  }
 
   const electron = getElectron();
   if (electron) {
@@ -57,7 +61,9 @@ export async function apiCall(route: string, args: {} = undefined) {
       body: JSON.stringify(args),
     });
 
-    if (resp.status == 401) {
+    if (resp.status == 401 && !apiDisabled) {
+      apiDisabled = true;
+      console.log('Disabling API', route);
       // unauthorized
       redirectToLogin();
     }

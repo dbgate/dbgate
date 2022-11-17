@@ -3,6 +3,7 @@ import './utility/connectionsPinger';
 import './utility/changeCurrentDbByTab';
 import './commands/stdCommands';
 import localStorageGarbageCollector from './utility/localStorageGarbageCollector';
+import { handleOauthCallback } from './clientAuth';
 
 localStorageGarbageCollector();
 
