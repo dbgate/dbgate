@@ -4,16 +4,17 @@ import { writable } from 'svelte/store';
 import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
-import { redirectToLogin } from '../clientAuth';
+import { isOauthCallback, redirectToLogin } from '../clientAuth';
 
 let eventSource;
 let apiLogging = false;
 // let cacheCleanerRegistered;
 let apiDisabled = false;
+const disabledOnOauth = isOauthCallback();
 
-// export function disableApi() {
-//   apiDisabled = true;
-// }
+export function disableApi() {
+  apiDisabled = true;
+}
 
 function wantEventSource() {
   if (!eventSource) {
@@ -45,6 +46,10 @@ export async function apiCall(route: string, args: {} = undefined) {
     console.log('API disabled!!', route);
     return;
   }
+  if (disabledOnOauth && route != 'auth/oauth-token') {
+    console.log('API disabled because oauth callback!!', route);
+    return;
+  }
 
   const electron = getElectron();
   if (electron) {
@@ -62,7 +67,7 @@ export async function apiCall(route: string, args: {} = undefined) {
     });
 
     if (resp.status == 401 && !apiDisabled) {
-      apiDisabled = true;
+      disableApi();
       console.log('Disabling API', route);
       // unauthorized
       redirectToLogin();

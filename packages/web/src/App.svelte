@@ -24,12 +24,8 @@
 
   let loadedApi = false;
   let loadedPlugins = false;
-  const isOauthCallback = handleOauthCallback();
 
   async function loadApi() {
-    if (isOauthCallback) {
-      return;
-    }
     // if (shouldWaitForElectronInitialize()) {
     //   setTimeout(loadApi, 100);
     //   return;
@@ -80,7 +76,7 @@
 
 <ErrorHandler />
 
-{#if loadedApi && !isOauthCallback}
+{#if loadedApi}
   <DataGridRowHeightMeter />
   <CommandListener />
   <PluginsProvider />
