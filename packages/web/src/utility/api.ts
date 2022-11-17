@@ -4,10 +4,16 @@ import { writable } from 'svelte/store';
 import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
+import { redirectToLogin } from '../clientAuth';
 
 let eventSource;
 let apiLogging = false;
 // let cacheCleanerRegistered;
+// let apiDisabled = false;
+
+// export function disableApi() {
+//   apiDisabled = true;
+// }
 
 function wantEventSource() {
   if (!eventSource) {
@@ -17,9 +23,9 @@ function wantEventSource() {
 }
 
 function processApiResponse(route, args, resp) {
-  if (apiLogging) {
-    console.log('<<< API RESPONSE', route, args, resp);
-  }
+  // if (apiLogging) {
+  //   console.log('<<< API RESPONSE', route, args, resp);
+  // }
 
   if (resp?.apiErrorMessage) {
     showSnackbarError('API error:' + resp?.apiErrorMessage);
@@ -34,6 +40,10 @@ function processApiResponse(route, args, resp) {
 export async function apiCall(route: string, args: {} = undefined) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
+  }
+  if (apiDisabled) {
+    console.log('Error, API disabled!!');
+    return null;
   }
 
   const electron = getElectron();
@@ -50,6 +60,11 @@ export async function apiCall(route: string, args: {} = undefined) {
       },
       body: JSON.stringify(args),
     });
+
+    if (resp.status == 401) {
+      // unauthorized
+      redirectToLogin();
+    }
 
     const json = await resp.json();
     return processApiResponse(route, args, json);

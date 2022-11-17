@@ -54,6 +54,10 @@ function start() {
 
   app.use(cors());
 
+  if (auth.shouldAuthorizeApi()) {
+    app.use(auth.authMiddleware);
+  }
+
   app.get(getExpressPath('/stream'), async function (req, res) {
     res.set({
       'Cache-Control': 'no-cache',
