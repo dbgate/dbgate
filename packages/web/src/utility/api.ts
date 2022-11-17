@@ -41,10 +41,6 @@ export async function apiCall(route: string, args: {} = undefined) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
   }
-  if (apiDisabled) {
-    console.log('Error, API disabled!!');
-    return null;
-  }
 
   const electron = getElectron();
   if (electron) {
