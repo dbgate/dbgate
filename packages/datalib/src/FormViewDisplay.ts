@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { GridConfig, GridCache, GridConfigColumns, createGridCache, GroupFunc } from './GridConfig';
-import { TableInfo, EngineDriver, DatabaseInfo, SqlDialect } from 'dbgate-types';
+import type { TableInfo, EngineDriver, DatabaseInfo, SqlDialect } from 'dbgate-types';
 import { getFilterValueExpression } from 'dbgate-filterparser';
 import { ChangeCacheFunc, ChangeConfigFunc, DisplayColumn } from './GridDisplay';
 

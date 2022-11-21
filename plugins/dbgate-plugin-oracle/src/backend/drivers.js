@@ -4,7 +4,8 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 //--const pg = require('pg');
-const oracledb = require('oracledb');
+//const oracledb = require('oracledb');
+let oracledb; // native module
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
 /*
@@ -317,5 +318,11 @@ finally {
     ];
   },
 }));
+
+drivers.initialize = (dbgateEnv) => {
+  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.oracledb) {
+    oracledb = dbgateEnv.nativeModules.oracledb();
+  }
+};
 
 module.exports = drivers;

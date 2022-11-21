@@ -103,6 +103,12 @@ module.exports = {
       if (handleProcessCommunication(message, subprocess)) return;
       this[`handle_${msgtype}`](sesid, message);
     });
+    subprocess.on('exit', () => {
+      this.opened = this.opened.filter(x => x.sesid != sesid);
+      this.dispatchMessage(sesid, 'Query session closed');
+      socket.emit(`session-closed-${sesid}`);
+    });
+
     subprocess.send({ msgtype: 'connect', ...connection, database });
     return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
@@ -162,6 +168,17 @@ module.exports = {
     }
     session.subprocess.kill();
     this.dispatchMessage(sesid, 'Connection closed');
+    return { state: 'ok' };
+  },
+
+  ping_meta: true,
+  async ping({ sesid }) {
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    session.subprocess.send({ msgtype: 'ping' });
+
     return { state: 'ok' };
   },
 

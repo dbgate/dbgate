@@ -48,16 +48,17 @@ const driver = {
   ...driverBase,
   analyserClass: Analyser,
   async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl }) {
-    // let mongoUrl = databaseUrl;
-    // if (!useDatabaseUrl) {
-    //   mongoUrl = user ? `mongodb://${user}:${password}@${server}:${port}` : `mongodb://${server}:${port}`;
-    //   if (database) mongoUrl += '/' + database;
-    // }
-    const mongoUrl = useDatabaseUrl
-      ? databaseUrl
-      : user
+    let mongoUrl;
+    if (useDatabaseUrl) {
+      // change port to ssh tunnel port
+      const url = new URL(databaseUrl);
+      url.port = port;
+      mongoUrl = url.href;
+    } else {
+      mongoUrl = user
       ? `mongodb://${user}:${password}@${server}:${port}`
       : `mongodb://${server}:${port}`;
+    }
 
     const options = {
       useUnifiedTopology: true,

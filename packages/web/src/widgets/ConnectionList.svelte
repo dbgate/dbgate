@@ -9,14 +9,13 @@
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
   import SubDatabaseList from '../appobj/SubDatabaseList.svelte';
   import {
-    commands,
     commandsCustomized,
     expandedConnections,
     openedConnections,
     openedSingleDatabaseConnections,
     openedTabs,
+    emptyConnectionGroupNames,
   } from '../stores';
-  import ToolbarButton from '../buttons/ToolbarButton.svelte';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
@@ -24,7 +23,8 @@
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
   import { apiCall } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
-  import { matchingProps } from '../tabs/TableDataTab.svelte';
+  import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
+  import { safeJsonParse } from 'dbgate-tools';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -40,9 +40,29 @@
     x => !x.unsaved || $openedConnections.includes(x._id) || $openedSingleDatabaseConnections.includes(x._id)
   );
 
+  $: connectionsWithParent = connectionsWithStatusFiltered
+    ? connectionsWithStatusFiltered?.filter(x => x.parent !== undefined && x.parent !== null && x.parent.length !== 0)
+    : [];
+  $: connectionsWithoutParent = connectionsWithStatusFiltered
+    ? connectionsWithStatusFiltered?.filter(x => x.parent === undefined || x.parent === null || x.parent.length === 0)
+    : [];
+
   const handleRefreshConnections = () => {
     for (const conid of $openedConnections) {
       apiCall('server-connections/refresh', { conid });
+    }
+  };
+
+  const handleDropOnGroup = (data, group) => {
+    const json = safeJsonParse(data);
+    if (json?._id) {
+      if (json.parent) {
+        emptyConnectionGroupNames.update(x => x.filter(y => y != json.parent));
+      }
+      apiCall('connections/update', {
+        _id: json?._id,
+        values: { parent: group },
+      });
     }
   };
 
@@ -56,14 +76,46 @@
     <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
+    <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">
+      <FontIcon icon="icon add-folder" />
+    </InlineButton>
   {/if}
   <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
     <FontIcon icon="icon refresh" />
   </InlineButton>
 </SearchBoxWrapper>
-<WidgetsInnerContainer>
+<WidgetsInnerContainer
+  on:drop={e => {
+    var data = e.dataTransfer.getData('app_object_drag_data');
+    if (data) {
+      handleDropOnGroup(data, '');
+    }
+  }}
+>
   <AppObjectList
-    list={_.sortBy(connectionsWithStatusFiltered, connection => (getConnectionLabel(connection) || '').toUpperCase())}
+    list={_.sortBy(connectionsWithParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
+    module={connectionAppObject}
+    subItemsComponent={SubDatabaseList}
+    expandOnClick
+    isExpandable={data => $openedConnections.includes(data._id) && !data.singleDatabase}
+    {filter}
+    passProps={{ connectionColorFactory: $connectionColorFactory, showPinnedInsteadOfUnpin: true }}
+    getIsExpanded={data => $expandedConnections.includes(data._id) && !data.singleDatabase}
+    setIsExpanded={(data, value) => {
+      expandedConnections.update(old => (value ? [...old, data._id] : old.filter(x => x != data._id)));
+    }}
+    groupIconFunc={chevronExpandIcon}
+    groupFunc={data => data.parent}
+    expandIconFunc={plusExpandIcon}
+    onDropOnGroup={handleDropOnGroup}
+    emptyGroupNames={$emptyConnectionGroupNames}
+    sortGroups
+  />
+  {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
+    <div class="br" />
+  {/if}
+  <AppObjectList
+    list={_.sortBy(connectionsWithoutParent, connection => (getConnectionLabel(connection) || '').toUpperCase())}
     module={connectionAppObject}
     subItemsComponent={SubDatabaseList}
     expandOnClick
@@ -84,3 +136,11 @@
     </ToolbarButton> -->
   {/if}
 </WidgetsInnerContainer>
+
+<style>
+  .br {
+    background: var(--theme-bg-2);
+    height: 1px;
+    margin: 5px 10px;
+  }
+</style>

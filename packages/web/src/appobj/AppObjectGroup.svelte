@@ -10,10 +10,12 @@
   export let group;
   export let groupFunc;
   export let items;
+  export let groupIconFunc = plusExpandIcon;
   export let module;
   export let checkedObjectsStore = null;
   export let disableContextMenu = false;
   export let passProps;
+  export let onDropOnGroup = undefined;
 
   let isExpanded = true;
 
@@ -33,11 +35,19 @@
       return res;
     });
   }
+
+  function handleDrop(e) {
+    var data = e.dataTransfer.getData('app_object_drag_data');
+    if (data && onDropOnGroup) {
+      e.stopPropagation();
+      onDropOnGroup(data, group);
+    }
+  }
 </script>
 
-<div class="group" on:click={() => (isExpanded = !isExpanded)}>
+<div class="group" on:click={() => (isExpanded = !isExpanded)} on:drop={handleDrop}>
   <span class="expand-icon">
-    <FontIcon icon={plusExpandIcon(isExpanded)} />
+    <FontIcon icon={groupIconFunc(isExpanded)} />
   </span>
 
   {group}
@@ -53,18 +63,20 @@
     </div>
   {/if}
 
-  {#each items as item}
-    <AppObjectListItem
-      isHidden={!item.isMatched}
-      {...$$restProps}
-      {module}
-      data={item.data}
-      {checkedObjectsStore}
-      on:objectClick
-      {disableContextMenu}
-      {passProps}
-    />
-  {/each}
+  <div on:drop={handleDrop}>
+    {#each items as item}
+      <AppObjectListItem
+        isHidden={!item.isMatched}
+        {...$$restProps}
+        {module}
+        data={item.data}
+        {checkedObjectsStore}
+        on:objectClick
+        {disableContextMenu}
+        {passProps}
+      />
+    {/each}
+  </div>
 {/if}
 
 <style>

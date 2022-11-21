@@ -16,7 +16,7 @@
         tabComponent,
         tooltip,
         props: {
-          savedFile:fileName + '.' + fileType,
+          savedFile: fileName + '.' + fileType,
           savedFolder: 'app:' + folderName,
           savedFormat: 'text',
           appFolder: folderName,
@@ -28,7 +28,10 @@
   }
 
   export const extractKey = data => data.fileName;
-  export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
+  export const createMatcher =
+    ({ fileName }) =>
+    filter =>
+      filterName(filter, fileName);
   const APP_ICONS = {
     'config.json': 'img json',
     'command.sql': 'img app-command',
@@ -50,7 +53,6 @@
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
   import { apiCall } from '../utility/api';
-  import { currentDatabase, currentDatabase } from '../stores';
 
   export let data;
 

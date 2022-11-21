@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveDisplayColumn } from 'dbgate-datalib';
+  import { PerspectiveDisplayColumn } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
   import _, { mapKeys } from 'lodash';
 
   import DropDownButton from '../buttons/DropDownButton.svelte';
@@ -49,13 +50,13 @@
   .label {
     flex-wrap: nowrap;
   }
-  .order-index {
+  /* .order-index {
     font-size: 10pt;
     margin-left: -3px;
     margin-right: 2px;
     top: -1px;
     position: relative;
-  }
+  } */
   .label {
     flex: 1;
     min-width: 10px;
@@ -68,13 +69,13 @@
     align-self: center;
     font-size: 18px;
   }
-  .grouping {
+  /* .grouping {
     color: var(--theme-font-alt);
     white-space: nowrap;
   }
   .data-type {
     color: var(--theme-font-3);
-  }
+  } */
 
   th {
     /* border: 1px solid var(--theme-border); */

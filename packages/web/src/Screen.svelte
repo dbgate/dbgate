@@ -8,6 +8,7 @@
     leftPanelWidth,
     openedSnackbars,
     selectedWidget,
+    visibleWidgetSideBar,
     visibleCommandPalette,
     visibleTitleBar,
     visibleToolbar,
@@ -29,7 +30,7 @@
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
-  $: themeStyle = `<style id="themePlugin">${$currentThemeDefinition?.themeCss}</style>`;
+  $: themeStyle = `<st` + `yle id="themePlugin">${$currentThemeDefinition?.themeCss}</st` + `yle>`;
 
   const isElectron = !!getElectron();
 </script>
@@ -63,7 +64,7 @@
   <div class="statusbar">
     <StatusBar />
   </div>
-  {#if $selectedWidget}
+  {#if $selectedWidget && $visibleWidgetSideBar}
     <div class="leftpanel">
       <WidgetContainer />
     </div>
@@ -74,7 +75,7 @@
   <div class="content">
     <TabRegister />
   </div>
-  {#if $selectedWidget}
+  {#if $selectedWidget && $visibleWidgetSideBar}
     <div
       class="horizontal-split-handle splitter"
       use:splitterDrag={'clientX'}

@@ -1,5 +1,5 @@
 import { writable, derived, readable } from 'svelte/store';
-import { ExtensionsDirectory } from 'dbgate-types';
+import type { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
 import { getSettings, useConfig, useSettings } from './utility/metadataLoaders';
@@ -50,6 +50,12 @@ function subscribeCssVariable(store, transform, cssVariable) {
 }
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
+export const visibleWidgetSideBar = writableWithStorage(true, 'visibleWidgetSideBar');
+export const visibleSelectedWidget = derived(
+  [selectedWidget, visibleWidgetSideBar],
+  ([$selectedWidget, $visibleWidgetSideBar]) => ($visibleWidgetSideBar ? $selectedWidget : null)
+);
+export const emptyConnectionGroupNames = writableWithStorage([], 'emptyConnectionGroupNames');
 export const openedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
@@ -127,7 +133,7 @@ export const visibleHamburgerMenuWidget = derived(useSettings(), $settings => {
   return !!$settings['app.fullscreen'];
 });
 
-subscribeCssVariable(selectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
+subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-left-panel');
 // subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');

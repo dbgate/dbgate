@@ -1,5 +1,5 @@
-import { FreeTableModel } from 'dbgate-datalib';
-import Grider, { GriderRowStatus } from '../datagrid/Grider';
+import type { FreeTableModel } from 'dbgate-datalib';
+import Grider from '../datagrid/Grider';
 
 export default class FreeTableGrider extends Grider {
   public model: FreeTableModel;

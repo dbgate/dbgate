@@ -69,6 +69,7 @@ module.exports = ({ editMenu }) => [
       { command: 'app.toggleDevTools', hideDisabled: true },
       { command: 'app.toggleFullScreen', hideDisabled: true },
       { command: 'app.minimize', hideDisabled: true },
+      { command: 'toggle.sidebar' },
       { divider: true },
       { command: 'theme.changeTheme', hideDisabled: true },
       { command: 'settings.show' },

@@ -1,4 +1,4 @@
-import { EngineDriver, ExtensionsDirectory } from 'dbgate-types';
+import type { EngineDriver, ExtensionsDirectory } from 'dbgate-types';
 import _camelCase from 'lodash/camelCase';
 import _isString from 'lodash/isString';
 import _isPlainObject from 'lodash/isPlainObject';

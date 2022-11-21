@@ -1,7 +1,7 @@
 import { FormViewDisplay } from './FormViewDisplay';
 import _ from 'lodash';
 import { ChangeCacheFunc, DisplayColumn, ChangeConfigFunc } from './GridDisplay';
-import { EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import type { EngineDriver, NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
 import { GridConfig, GridCache } from './GridConfig';
 import { mergeConditions, Condition, OrderByExpression } from 'dbgate-sqltree';
 import { TableGridDisplay } from './TableGridDisplay';

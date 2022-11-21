@@ -1,5 +1,5 @@
-import { DictionaryDescription } from 'dbgate-datalib';
-import { ApplicationDefinition, TableInfo } from 'dbgate-types';
+import type { DictionaryDescription } from 'dbgate-datalib';
+import type { ApplicationDefinition, TableInfo } from 'dbgate-types';
 import _ from 'lodash';
 import { apiCall } from './api';
 import { filterAppsForDatabase, saveDbToApp } from './appTools';

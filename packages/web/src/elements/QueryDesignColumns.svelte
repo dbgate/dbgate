@@ -47,7 +47,7 @@
       );
 
       if (index >= 0 && index + d >= 0 && index + d < current.columns?.length) {
-        const columns = [...current.columns];
+        let columns = [...current.columns];
 
         [columns[index], columns[index + d]] = [columns[index + d], columns[index]];
 

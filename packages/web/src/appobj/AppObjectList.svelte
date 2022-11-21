@@ -1,7 +1,8 @@
 <script>
-  import _ from 'lodash';
+  import _, { sortBy } from 'lodash';
   import { asyncFilter } from '../utility/common';
   import AppObjectGroup from './AppObjectGroup.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
 
   import AppObjectListItem from './AppObjectListItem.svelte';
 
@@ -17,8 +18,12 @@
   export let passProps;
   export let getIsExpanded = null;
   export let setIsExpanded = null;
+  export let sortGroups = false;
 
+  export let groupIconFunc = plusExpandIcon;
   export let groupFunc = undefined;
+  export let onDropOnGroup = undefined;
+  export let emptyGroupNames = [];
 
   $: filtered = !groupFunc
     ? list.filter(data => {
@@ -61,16 +66,28 @@
       )
     : null;
 
-  $: groups = groupFunc ? _.groupBy(listGrouped, 'group') : null;
+  function extendGroups(base, emptyList) {
+    const res = {
+      ...base,
+    };
+    for (const item of emptyList) {
+      if (res[item]) continue;
+      res[item] = [];
+    }
+    return res;
+  }
+
+  $: groups = groupFunc ? extendGroups(_.groupBy(listGrouped, 'group'), emptyGroupNames) : null;
 </script>
 
 {#if groupFunc}
-  {#each _.keys(groups) as group}
+  {#each sortGroups ? _.sortBy(_.keys(groups)) : _.keys(groups) as group}
     <AppObjectGroup
       {group}
       {module}
       items={groups[group]}
       {expandIconFunc}
+      {groupIconFunc}
       {isExpandable}
       {subItemsComponent}
       {checkedObjectsStore}
@@ -80,6 +97,7 @@
       {passProps}
       {getIsExpanded}
       {setIsExpanded}
+      {onDropOnGroup}
     />
   {/each}
 {:else}

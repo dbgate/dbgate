@@ -1,5 +1,6 @@
+import type { ChangeSet, MacroDefinition, MacroSelectedCell } from 'dbgate-datalib';
+
 import {
-  ChangeSet,
   changeSetContainsChanges,
   changeSetInsertNewRow,
   createChangeSet,
@@ -7,8 +8,6 @@ import {
   findExistingChangeSetItem,
   getChangeSetInsertedRows,
   GridDisplay,
-  MacroDefinition,
-  MacroSelectedCell,
   revertChangeSetRowChanges,
   setChangeSetValue,
   setChangeSetRowData,
@@ -16,7 +15,8 @@ import {
   runMacroOnValue,
   changeSetInsertDocuments,
 } from 'dbgate-datalib';
-import Grider, { GriderRowStatus } from './Grider';
+import Grider from './Grider';
+import type { GriderRowStatus } from './Grider';
 
 function getRowFromItem(row, matchedChangeSetItem) {
   return matchedChangeSetItem.document

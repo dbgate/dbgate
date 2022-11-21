@@ -1,5 +1,5 @@
+import type { ChangeSet, ChangeSetRowDefinition } from 'dbgate-datalib';
 import {
-  ChangeSet,
   changeSetContainsChanges,
   changeSetInsertNewRow,
   createChangeSet,
@@ -9,7 +9,6 @@ import {
   TableFormViewDisplay,
   revertChangeSetRowChanges,
   setChangeSetValue,
-  ChangeSetRowDefinition,
 } from 'dbgate-datalib';
 import Former from './Former';
 

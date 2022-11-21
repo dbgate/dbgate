@@ -1,4 +1,4 @@
-import { TableInfo } from 'dbgate-types';
+import type { TableInfo } from 'dbgate-types';
 import _cloneDeep from 'lodash/cloneDeep';
 import _fromPairs from 'lodash/fromPairs';
 import _get from 'lodash/get';

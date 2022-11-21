@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ThemeDefinition } from 'dbgate-types';
+  import type { ThemeDefinition } from 'dbgate-types';
   import FontIcon from '../icons/FontIcon.svelte';
   import { currentTheme } from '../stores';
   import _ from 'lodash';

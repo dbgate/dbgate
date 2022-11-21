@@ -1,10 +1,6 @@
-import { SqlDumper } from 'dbgate-types';
 import _ from 'lodash';
 import { Condition, BinaryCondition } from './types';
-import { dumpSqlExpression } from './dumpSqlExpression';
-import { link } from 'fs';
 import { evaluateExpression } from './evaluateExpression';
-import { cond } from 'lodash';
 
 function isEmpty(value) {
   if (value == null) return true;

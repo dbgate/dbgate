@@ -17,6 +17,14 @@
     testEnabled: () => getCurrentEditor()?.isSqlEditor(),
     onClick: () => getCurrentEditor().insertSqlJoin(),
   });
+  registerCommand({
+    id: 'query.toggleVisibleResultTabs',
+    category: 'Query',
+    name: 'Toggle visible result tabs',
+    keyText: 'CtrlOrCommand+Shift+R',
+    testEnabled: () => !!getCurrentEditor(),
+    onClick: () => getCurrentEditor().toggleVisibleResultTabs(),
+  });
   registerFileCommands({
     idPrefix: 'query',
     category: 'Query',
@@ -42,7 +50,7 @@
 </script>
 
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { getContext, onDestroy, onMount } from 'svelte';
   import sqlFormatter from 'sql-formatter';
 
   import registerCommand from '../commands/registerCommand';
@@ -92,6 +100,21 @@
   let resultCount;
   let errorMessages;
   let domEditor;
+  let intervalId;
+
+  onMount(() => {
+    intervalId = setInterval(() => {
+      if (sessionId) {
+        apiCall('sessions/ping', {
+          sesid: sessionId,
+        });
+      }
+    }, 15 * 1000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   $: connection = useConnectionInfo({ conid });
   $: driver = findEngineDriver($connection, $extensions);
@@ -102,8 +125,10 @@
   function onSession(sid) {
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-closed-${sid}`, handleSessionClosed);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-closed-${sid}`, handleSessionClosed);
       };
     }
     return () => {};
@@ -142,6 +167,10 @@
 
   export function hasConnection() {
     return !!conid && (!$connection?.isReadOnly || driver?.readOnlySessions);
+  }
+
+  export function toggleVisibleResultTabs() {
+    visibleResultTabs = !visibleResultTabs;
   }
 
   async function executeCore(sql, startLine = 0) {
@@ -252,6 +281,11 @@
     timerLabel.stop();
   };
 
+  const handleSessionClosed = () => {
+    sessionId = null;
+    handleSessionDone();
+  };
+
   const { editorState, editorValue, setEditorData } = useEditorData({
     tabid,
     loadFromArgs:
@@ -279,6 +313,8 @@
       { divider: true },
       { command: 'query.find' },
       { command: 'query.replace' },
+      { divider: true },
+      { command: 'query.toggleVisibleResultTabs' },
     ];
   }
 

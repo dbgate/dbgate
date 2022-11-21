@@ -1,4 +1,3 @@
-import { RangeDefinition } from 'dbgate-types';
 import { PerspectiveDataLoadProps } from './PerspectiveDataProvider';
 import _pick from 'lodash/pick';
 import _zip from 'lodash/zip';

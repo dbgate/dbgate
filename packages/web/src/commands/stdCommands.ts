@@ -1,4 +1,13 @@
-import { currentDatabase, currentTheme, extensions, getExtensions, getVisibleToolbar, visibleToolbar } from '../stores';
+import {
+  currentDatabase,
+  currentTheme,
+  emptyConnectionGroupNames,
+  extensions,
+  getExtensions,
+  getVisibleToolbar,
+  visibleToolbar,
+  visibleWidgetSideBar,
+} from '../stores';
 import registerCommand from './registerCommand';
 import { get } from 'svelte/store';
 import AboutModal from '../modals/AboutModal.svelte';
@@ -76,6 +85,15 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'toggle.sidebar',
+  category: 'Sidebar',
+  name: 'Show',
+  toolbarName: 'Toggle sidebar',
+  keyText: 'CtrlOrCommand+B',
+  onClick: () => visibleWidgetSideBar.update(x => !x),
+});
+
+registerCommand({
   id: 'new.connection',
   toolbar: true,
   icon: 'icon new-connection',
@@ -89,6 +107,31 @@ registerCommand({
       title: 'New Connection',
       icon: 'img connection',
       tabComponent: 'ConnectionTab',
+    });
+  },
+});
+
+registerCommand({
+  id: 'new.connection.folder',
+  toolbar: true,
+  icon: 'icon add-folder',
+  toolbarName: 'Add connection folder',
+  category: 'New',
+  toolbarOrder: 1,
+  name: 'Connection',
+  testEnabled: () => !getCurrentConfig()?.runAsPortal,
+  onClick: () => {
+    showModal(InputTextModal, {
+      value: '',
+      label: 'New connection folder name',
+      header: 'Create connection folder',
+      onConfirm: async folder => {
+        emptyConnectionGroupNames.update(names => {
+          if (!folder) return names;
+          if (names.includes(folder)) return names;
+          return [...names, folder];
+        });
+      },
     });
   },
 });

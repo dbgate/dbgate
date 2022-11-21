@@ -13,15 +13,14 @@
 
 <script lang="ts">
   import {
-    ChangePerspectiveConfigFunc,
-    PerspectiveConfig,
     PerspectiveDisplay,
     PerspectivePatternColumnNode,
     PerspectiveTableColumnNode,
     PerspectiveTreeNode,
     PERSPECTIVE_PAGE_SIZE,
   } from 'dbgate-datalib';
-  import _, { values } from 'lodash';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
+  import _ from 'lodash';
   import { onMount, tick } from 'svelte';
   import resizeObserver from '../utility/resizeObserver';
   import debug from 'debug';
@@ -597,9 +596,9 @@
     z-index: 100;
   }
 
-  th.filter {
+  /* th.filter {
     padding: 0;
-  }
+  } */
 
   thead :global(tr:first-child) :global(th) {
     border-top: 1px solid var(--theme-border);

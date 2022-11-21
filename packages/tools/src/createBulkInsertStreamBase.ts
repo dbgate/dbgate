@@ -1,4 +1,3 @@
-import { EngineDriver } from 'dbgate-types';
 import _intersection from 'lodash/intersection';
 import { prepareTableForImport } from './tableTransforms';
 

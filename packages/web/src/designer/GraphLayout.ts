@@ -1,12 +1,6 @@
 import _ from 'lodash';
-import {
-  IBoxBounds,
-  IPoint,
-  rectangleDistance,
-  rectangleIntersectArea,
-  solveOverlapsInIntervalArray,
-  Vector2D,
-} from './designerMath';
+import type { IBoxBounds, IPoint } from './designerMath';
+import { rectangleDistance, rectangleIntersectArea, solveOverlapsInIntervalArray, Vector2D } from './designerMath';
 import { union, intersection } from 'interval-operations';
 
 const MIN_NODE_DISTANCE = 50;

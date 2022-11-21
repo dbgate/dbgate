@@ -54,6 +54,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import { onDestroy, onMount } from 'svelte';
 
   export let tabid;
   export let conid;
@@ -79,8 +80,10 @@
   function onSession(sid) {
     if (sid) {
       apiOn(`session-done-${sid}`, handleSessionDone);
+      apiOn(`session-closed-${sid}`, handleSessionClosed);
       return () => {
         apiOff(`session-done-${sid}`, handleSessionDone);
+        apiOff(`session-closed-${sid}`, handleSessionClosed);
       };
     }
     return () => {};
@@ -101,6 +104,22 @@
   $: setEditorData($modelState.value);
 
   $: generatePreview($modelState.value, engine);
+
+  let intervalId;
+
+  onMount(() => {
+    intervalId = setInterval(() => {
+      if (sessionId) {
+        apiCall('sessions/ping', {
+          sesid: sessionId,
+        });
+      }
+    }, 15 * 1000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
 
   export function canKill() {
     return !!sessionId;
@@ -178,6 +197,11 @@
   const handleSessionDone = () => {
     busy = false;
     timerLabel.stop();
+  };
+
+  const handleSessionClosed = () => {
+    sessionId = null;
+    handleSessionDone();
   };
 
   const handleChange = (value, skipUndoChain) =>

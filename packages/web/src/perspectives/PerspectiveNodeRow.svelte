@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { ChangePerspectiveConfigFunc, PerspectiveConfig, PerspectiveTreeNode } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
+  import { PerspectiveTreeNode } from 'dbgate-datalib';
 
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import { plusExpandIcon } from '../icons/expandIcons';
@@ -93,7 +94,7 @@
     background: var(--theme-bg-hover);
   }
 
-  .row.isSelected {
+  /* .row.isSelected {
     background: var(--theme-bg-selected);
-  }
+  } */
 </style>

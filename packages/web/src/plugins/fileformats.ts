@@ -1,4 +1,4 @@
-import { FileFormatDefinition, QuickExportDefinition } from 'dbgate-types';
+import type { FileFormatDefinition, QuickExportDefinition } from 'dbgate-types';
 
 const jsonlFormat = {
   storageType: 'jsonl',

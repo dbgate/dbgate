@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import getElectron from './getElectron';
-import { currentArchive, extensions, selectedWidget } from '../stores';
+import { currentArchive, extensions, selectedWidget, visibleWidgetSideBar } from '../stores';
 import { showSnackbarSuccess } from './snackbar';
 import { apiCall } from './api';
 
@@ -16,5 +16,6 @@ export async function openArchiveFolder() {
 
   currentArchive.set(resp);
   selectedWidget.set('archive');
+  visibleWidgetSideBar.set(true);
   showSnackbarSuccess(`Created link ${resp}`);
 }

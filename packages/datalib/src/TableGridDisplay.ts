@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { filterName, isTableColumnUnique } from 'dbgate-tools';
 import { GridDisplay, ChangeCacheFunc, DisplayColumn, DisplayedColumnInfo, ChangeConfigFunc } from './GridDisplay';
-import {
+import type {
   TableInfo,
   EngineDriver,
   ViewInfo,

@@ -1,15 +1,14 @@
-import {
-  analyseDataPattern,
+import { analyseDataPattern, PerspectiveCache } from 'dbgate-datalib';
+import type {
   MultipleDatabaseInfo,
-  PerspectiveCache,
   PerspectiveConfig,
   PerspectiveDatabaseConfig,
   PerspectiveDataLoadProps,
-  PerspectiveDataPattern,
   PerspectiveDataPatternDict,
 } from 'dbgate-datalib';
-import { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
-import { writable, Readable } from 'svelte/store';
+import type { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
+import { writable } from 'svelte/store';
+import type { Readable } from 'svelte/store';
 
 export function getPerspectiveDataPatternsFromCache(
   databaseConfig: PerspectiveDatabaseConfig,

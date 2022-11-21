@@ -1,5 +1,5 @@
 import { getCommands, visibleCommandPalette } from '../stores';
-import { GlobalCommand } from './registerCommand';
+import type { GlobalCommand } from './registerCommand';
 
 export default function runCommand(id) {
   const commandsValue = getCommands();

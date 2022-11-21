@@ -26,15 +26,14 @@
 
 <script lang="ts">
   import {
-    ChangePerspectiveConfigFunc,
     extractPerspectiveDatabases,
-    PerspectiveConfig,
     PerspectiveDataProvider,
     PerspectiveTableNode,
     PerspectiveTreeNode,
     processPerspectiveDefaultColunns,
     shouldProcessPerspectiveDefaultColunns,
   } from 'dbgate-datalib';
+  import type { ChangePerspectiveConfigFunc, PerspectiveConfig } from 'dbgate-datalib';
 
   import _ from 'lodash';
 
@@ -48,7 +47,7 @@
   import PerspectiveTable from './PerspectiveTable.svelte';
   import { apiCall } from '../utility/api';
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
-  import { PerspectiveDataLoader } from 'dbgate-datalib/lib/PerspectiveDataLoader';
+  import { PerspectiveDataLoader } from 'dbgate-datalib';
   import stableStringify from 'json-stable-stringify';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import registerCommand from '../commands/registerCommand';

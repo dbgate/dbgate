@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Command, Insert, Update, Delete, UpdateField, Condition, AllowIdentityInsert } from 'dbgate-sqltree';
-import { NamedObjectInfo, DatabaseInfo, ForeignKeyInfo, TableInfo } from 'dbgate-types';
+import type { NamedObjectInfo, DatabaseInfo, ForeignKeyInfo, TableInfo } from 'dbgate-types';
 import { ChangeSet, ChangeSetItem, extractChangeSetCondition } from './ChangeSet';
 
 export interface ChangeSetDeleteCascade {

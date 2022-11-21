@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { SeriesSizes } from './SeriesSizes';
-import { CellAddress } from './selection';
-import { GridDisplay } from 'dbgate-datalib';
-import Grider from './Grider';
+import type { CellAddress } from './selection';
+import type { GridDisplay } from 'dbgate-datalib';
+import type Grider from './Grider';
 import { isJsonLikeLongString, safeJsonParse } from 'dbgate-tools';
 
 export function countColumnSizes(grider: Grider, columns, containerWidth, display: GridDisplay) {

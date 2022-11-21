@@ -1,4 +1,4 @@
-import { NamedObjectInfo, RangeDefinition, TransformType } from 'dbgate-types';
+import type { NamedObjectInfo, RangeDefinition, TransformType } from 'dbgate-types';
 
 // export interface Command {
 // }
