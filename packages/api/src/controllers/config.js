@@ -41,6 +41,7 @@ module.exports = {
       permissions,
       login,
       oauth: process.env.OAUTH_AUTH,
+      isLoginForm: !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH),
       ...currentVersion,
     };
   },

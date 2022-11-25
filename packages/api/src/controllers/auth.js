@@ -74,7 +74,7 @@ module.exports = {
   async login(params) {
     const { login, password } = params;
 
-    if (process.env.AD_URL && process.env.AD_BASEDN) {
+    if (process.env.AD_URL) {
       const adConfig = {
         url: process.env.AD_URL,
         baseDN: process.env.AD_BASEDN,

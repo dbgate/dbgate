@@ -33,7 +33,7 @@ export function handleOauthCallback() {
 }
 
 export async function handleAuthOnStartup(config) {
-  if (config.oauth) {
+  if (config.oauth || config.isLoginForm) {
     if (localStorage.getItem('accessToken')) {
       return;
     }
@@ -45,12 +45,20 @@ export async function handleAuthOnStartup(config) {
 export async function redirectToLogin(config = null) {
   if (!config) config = await getConfig();
 
-  const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
-  sessionStorage.setItem('oauthState', state);
-  console.log('Redirecting to OAUTH provider');
-  location.replace(
-    `${config.oauth}?client_id=dbgate&response_type=code&redirect_uri=${encodeURIComponent(
-      location.origin + location.pathname
-    )}&state=${encodeURIComponent(state)}`
-  );
+  if (config.isLoginForm) {
+    const index = location.pathname.lastIndexOf('/');
+    const loginPath = index >= 0 ? location.pathname.substring(0, index) + '/?page=login' : '/?page=login';
+    location.replace(loginPath);
+  }
+
+  if (config.oauth) {
+    const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
+    sessionStorage.setItem('oauthState', state);
+    console.log('Redirecting to OAUTH provider');
+    location.replace(
+      `${config.oauth}?client_id=dbgate&response_type=code&redirect_uri=${encodeURIComponent(
+        location.origin + location.pathname
+      )}&state=${encodeURIComponent(state)}`
+    );
+  }
 }
