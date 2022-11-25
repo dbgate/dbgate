@@ -58,6 +58,10 @@ module.exports = {
 
     const payload = jwt.decode(access_token);
 
+    const login = process.env.OAUTH_LOGIN_FIELD ? payload[process.env.OAUTH_LOGIN_FIELD] : 'oauth';
+
+    console.log(payload);
+
     if (access_token) {
       return {
         accessToken: jwt.sign({ user: 'oauth' }, tokenSecret, { expiresIn: '1m' }),

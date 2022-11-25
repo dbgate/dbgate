@@ -19,7 +19,7 @@ export function handleOauthCallback() {
     sessionStorage.removeItem('oauthState');
     apiCall('auth/oauth-token', {
       code: sentCode,
-      redirectUri: location.origin,
+      redirectUri: location.origin + location.pathname,
     }).then(authResp => {
       const { accessToken } = authResp;
       localStorage.setItem('accessToken', accessToken);
@@ -50,7 +50,7 @@ export async function redirectToLogin(config = null) {
   console.log('Redirecting to OAUTH provider');
   location.replace(
     `${config.oauth}?client_id=dbgate&response_type=code&redirect_uri=${encodeURIComponent(
-      location.origin
+      location.origin + location.pathname
     )}&state=${encodeURIComponent(state)}`
   );
 }
