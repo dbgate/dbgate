@@ -16,6 +16,10 @@ export function disableApi() {
   apiDisabled = true;
 }
 
+export function enableApi() {
+  apiDisabled = false;
+}
+
 function wantEventSource() {
   if (!eventSource) {
     eventSource = new EventSource(`${resolveApi()}/stream`);

@@ -5,6 +5,7 @@
   import FormProvider from './forms/FormProvider.svelte';
   import FormSubmit from './forms/FormSubmit.svelte';
   import FormTextField from './forms/FormTextField.svelte';
+  import { apiCall, enableApi } from './utility/api';
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -28,7 +29,8 @@
           <FormSubmit
             value="Log In"
             on:click={e => {
-              console.log('log in', e);
+              enableApi();
+              apiCall('auth/login', e.detail);
             }}
           />
         </div>
@@ -51,8 +53,10 @@
     position: fixed;
     top: 1rem;
     left: 1rem;
-    font-size: 40pt;
+    font-size: 30pt;
+    font-family: monospace;
     color: var(--theme-bg-2);
+    text-transform: uppercase;
   }
   .submit {
     margin: var(--dim-large-form-margin);
@@ -78,8 +82,10 @@
   }
 
   .box {
-    max-width: 600px;
-    width: 40vw;
+    width: 600px;
+    max-width: 80vw;
+    /* max-width: 600px;
+    width: 40vw; */
     border: 1px solid var(--theme-border);
     border-radius: 4px;
     background-color: var(--theme-bg-0);

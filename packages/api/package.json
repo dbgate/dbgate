@@ -17,6 +17,7 @@
     "dbgate"
   ],
   "dependencies": {
+    "activedirectory2": "^2.1.0",
     "async-lock": "^1.2.4",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",

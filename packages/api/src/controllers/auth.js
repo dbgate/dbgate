@@ -2,6 +2,8 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const getExpressPath = require('../utility/getExpressPath');
 const uuidv1 = require('uuid/v1');
+const { getLogins } = require('../utility/hasPermission');
+const AD = require('activedirectory2').promiseWrapper;
 
 const tokenSecret = uuidv1();
 
@@ -20,7 +22,7 @@ function unauthorizedResponse(req, res, text) {
 }
 
 function authMiddleware(req, res, next) {
-  const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/stream'];
+  const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', 'auth/login', '/stream'];
 
   if (!shouldAuthorizeApi()) {
     return next();
@@ -60,15 +62,50 @@ module.exports = {
 
     const login = process.env.OAUTH_LOGIN_FIELD ? payload[process.env.OAUTH_LOGIN_FIELD] : 'oauth';
 
-    console.log(payload);
-
     if (access_token) {
       return {
-        accessToken: jwt.sign({ user: 'oauth' }, tokenSecret, { expiresIn: '1m' }),
+        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
       };
     }
 
     return { error: 'Token not found' };
+  },
+  login_meta: true,
+  async login(params) {
+    const { login, password } = params;
+
+    if (process.env.AD_URL && process.env.AD_BASEDN) {
+      const adConfig = {
+        url: process.env.AD_URL,
+        baseDN: process.env.AD_BASEDN,
+        username: process.env.AD_USERNAME,
+        password: process.env.AD_PASSOWRD,
+      };
+      const ad = new AD(adConfig);
+      try {
+        const res = await ad.authenticate(login, password);
+        if (!res) {
+          return { error: 'login failed' };
+        }
+        return {
+          accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
+        };
+      } catch (err) {
+        console.log('Failed active directory authentization', err.message);
+        return { error: err.message };
+      }
+    }
+
+    const logins = getLogins();
+    if (!logins) {
+      return { error: 'Logins not configured' };
+    }
+    if (logins[login] == password) {
+      return {
+        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
+      };
+    }
+    return { error: 'Invalid credentials' };
   },
 
   authMiddleware,
