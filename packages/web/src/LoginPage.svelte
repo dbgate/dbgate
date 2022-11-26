@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { internalRedirectTo } from './clientAuth';
   import FormButton from './forms/FormButton.svelte';
   import FormPasswordField from './forms/FormPasswordField.svelte';
   import FormProvider from './forms/FormProvider.svelte';
@@ -22,15 +23,26 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProvider>
-        <FormTextField label="Username" name="login" />
-        <FormPasswordField label="Password" name="password" />
+        <FormTextField label="Username" name="login" autocomplete="username" />
+        <FormPasswordField label="Password" name="password" autocomplete="current-password" />
 
         <div class="submit">
           <FormSubmit
             value="Log In"
-            on:click={e => {
+            on:click={async e => {
               enableApi();
-              apiCall('auth/login', e.detail);
+              const resp = await apiCall('auth/login', e.detail);
+              if (resp.error) {
+                internalRedirectTo(`/?page=not-logged&error=${encodeURIComponent(resp.error)}`);
+                return;
+              }
+              const { accessToken } = resp;
+              if (accessToken) {
+                localStorage.setItem('accessToken', accessToken);
+                internalRedirectTo('/');
+                return;
+              }
+              internalRedirectTo(`/?page=not-logged`);
             }}
           />
         </div>

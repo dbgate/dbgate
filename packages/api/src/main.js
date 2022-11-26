@@ -42,7 +42,7 @@ function start() {
   const server = http.createServer(app);
 
   const logins = getLogins();
-  if (logins) {
+  if (logins && process.env.BASIC_AUTH) {
     app.use(
       basicAuth({
         users: _.fromPairs(logins.map(x => [x.login, x.password])),

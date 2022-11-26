@@ -8,7 +8,8 @@ const AD = require('activedirectory2').promiseWrapper;
 const tokenSecret = uuidv1();
 
 function shouldAuthorizeApi() {
-  return !!process.env.OAUTH_AUTH;
+  const logins = getLogins();
+  return !!process.env.OAUTH_AUTH || !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH);
 }
 
 function unauthorizedResponse(req, res, text) {
@@ -22,7 +23,7 @@ function unauthorizedResponse(req, res, text) {
 }
 
 function authMiddleware(req, res, next) {
-  const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', 'auth/login', '/stream'];
+  const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/auth/login', '/stream'];
 
   if (!shouldAuthorizeApi()) {
     return next();
@@ -85,14 +86,16 @@ module.exports = {
       try {
         const res = await ad.authenticate(login, password);
         if (!res) {
-          return { error: 'login failed' };
+          return { error: 'Login failed' };
         }
         return {
           accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
         };
       } catch (err) {
         console.log('Failed active directory authentization', err.message);
-        return { error: err.message };
+        return {
+          error: err.message,
+        };
       }
     }
 
@@ -100,7 +103,7 @@ module.exports = {
     if (!logins) {
       return { error: 'Logins not configured' };
     }
-    if (logins[login] == password) {
+    if (logins.find(x => x.login == login)?.password == password) {
       return {
         accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
       };

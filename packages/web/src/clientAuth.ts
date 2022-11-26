@@ -1,4 +1,4 @@
-import { apiCall, disableApi } from './utility/api';
+import { apiCall, disableApi, enableApi } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 
 export function isOauthCallback() {
@@ -23,7 +23,7 @@ export function handleOauthCallback() {
     }).then(authResp => {
       const { accessToken } = authResp;
       localStorage.setItem('accessToken', accessToken);
-      location.replace('/');
+      internalRedirectTo('/');
     });
 
     return true;
@@ -42,13 +42,21 @@ export async function handleAuthOnStartup(config) {
   }
 }
 
-export async function redirectToLogin(config = null) {
-  if (!config) config = await getConfig();
+export async function redirectToLogin(config = null, force = false) {
+  if (!config) {
+    enableApi();
+    config = await getConfig();
+  }
 
   if (config.isLoginForm) {
-    const index = location.pathname.lastIndexOf('/');
-    const loginPath = index >= 0 ? location.pathname.substring(0, index) + '/?page=login' : '/?page=login';
-    location.replace(loginPath);
+    if (!force) {
+      const params = new URLSearchParams(location.search);
+      if (params.get('page') == 'login' || params.get('page') == 'not-logged') {
+        return;
+      }
+    }
+    internalRedirectTo('/?page=login');
+    return;
   }
 
   if (config.oauth) {
@@ -60,5 +68,12 @@ export async function redirectToLogin(config = null) {
         location.origin + location.pathname
       )}&state=${encodeURIComponent(state)}`
     );
+    return;
   }
+}
+
+export function internalRedirectTo(path) {
+  const index = location.pathname.lastIndexOf('/');
+  const newPath = index >= 0 ? location.pathname.substring(0, index) + path : path;
+  location.replace(newPath);
 }
