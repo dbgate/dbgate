@@ -71,10 +71,15 @@ export async function apiCall(route: string, args: {} = undefined) {
     });
 
     if (resp.status == 401 && !apiDisabled) {
+      const params = new URLSearchParams(location.search);
+
       disableApi();
       console.log('Disabling API', route);
-      // unauthorized
-      redirectToLogin();
+      if (params.get('page') != 'login' && params.get('page') != 'not-logged') {
+        // unauthorized
+        redirectToLogin();
+      }
+      return;
     }
 
     const json = await resp.json();

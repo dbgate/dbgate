@@ -21,9 +21,16 @@ export function handleOauthCallback() {
       code: sentCode,
       redirectUri: location.origin + location.pathname,
     }).then(authResp => {
-      const { accessToken } = authResp;
-      localStorage.setItem('accessToken', accessToken);
-      internalRedirectTo('/');
+      const { accessToken, error, errorMessage } = authResp;
+
+      if (accessToken) {
+        console.log('Settings access token from OAUTH');
+        localStorage.setItem('accessToken', accessToken);
+        internalRedirectTo('/');
+      } else {
+        console.log('Error when processing OAUTH callback', error || errorMessage);
+        internalRedirectTo(`/?page=not-logged&error=${error || errorMessage}`);
+      }
     });
 
     return true;

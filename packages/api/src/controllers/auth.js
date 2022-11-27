@@ -28,11 +28,13 @@ function authMiddleware(req, res, next) {
   if (!shouldAuthorizeApi()) {
     return next();
   }
-  if (SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x))) {
-    return next();
-  }
+  let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
+
   const authHeader = req.headers.authorization;
   if (!authHeader) {
+    if (skipAuth) {
+      return next();
+    }
     return unauthorizedResponse(req, res, 'missing authorization header');
   }
   const token = authHeader.split(' ')[1];
@@ -41,6 +43,12 @@ function authMiddleware(req, res, next) {
     req.user = decoded;
     return next();
   } catch (err) {
+    if (skipAuth) {
+      return next();
+    }
+
+    console.log('Sending invalid token error', err.message);
+
     return unauthorizedResponse(req, res, 'invalid token');
   }
 }
@@ -63,6 +71,12 @@ module.exports = {
 
     const login = process.env.OAUTH_LOGIN_FIELD ? payload[process.env.OAUTH_LOGIN_FIELD] : 'oauth';
 
+    if (
+      process.env.OAUTH_ALLOWED_LOGINS &&
+      !process.env.OAUTH_ALLOWED_LOGINS.split(',').find(x => x.toLowerCase().trim() != login.toLowerCase().trim())
+    ) {
+      return { error: `Username ${login} not allowed to log in` };
+    }
     if (access_token) {
       return {
         accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
