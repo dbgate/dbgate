@@ -108,6 +108,12 @@ module.exports = {
         if (!res) {
           return { error: 'Login failed' };
         }
+        if (
+          process.env.AD_ALLOWED_LOGINS &&
+          !process.env.AD_ALLOWED_LOGINS.split(',').find(x => x.toLowerCase().trim() == login.toLowerCase().trim())
+        ) {
+          return { error: `Username ${login} not allowed to log in` };
+        }        
         return {
           accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
         };
