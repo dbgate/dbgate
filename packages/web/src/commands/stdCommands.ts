@@ -36,6 +36,7 @@ import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 import { isMac } from '../utility/common';
+import { doLogout, internalRedirectTo } from '../clientAuth';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -548,9 +549,7 @@ registerCommand({
   category: 'App',
   name: 'Logout',
   testEnabled: () => getCurrentConfig()?.login != null,
-  onClick: () => {
-    window.location.href = 'config/logout';
-  },
+  onClick: doLogout,
 });
 
 export function registerFileCommands({

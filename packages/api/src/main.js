@@ -20,6 +20,7 @@ const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
 const archive = require('./controllers/archive');
 const apps = require('./controllers/apps');
+const auth = require('./controllers/auth');
 const uploads = require('./controllers/uploads');
 const plugins = require('./controllers/plugins');
 const files = require('./controllers/files');
@@ -41,7 +42,7 @@ function start() {
   const server = http.createServer(app);
 
   const logins = getLogins();
-  if (logins) {
+  if (logins && process.env.BASIC_AUTH) {
     app.use(
       basicAuth({
         users: _.fromPairs(logins.map(x => [x.login, x.password])),
@@ -52,6 +53,10 @@ function start() {
   }
 
   app.use(cors());
+
+  if (auth.shouldAuthorizeApi()) {
+    app.use(auth.authMiddleware);
+  }
 
   app.get(getExpressPath('/stream'), async function (req, res) {
     res.set({
@@ -157,6 +162,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/scheduler', scheduler);
   useController(app, electron, '/query-history', queryHistory);
   useController(app, electron, '/apps', apps);
+  useController(app, electron, '/auth', auth);
 }
 
 function setElectronSender(electronSender) {

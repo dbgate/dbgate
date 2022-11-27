@@ -17,6 +17,7 @@
     "dbgate"
   ],
   "dependencies": {
+    "activedirectory2": "^2.1.0",
     "async-lock": "^1.2.4",
     "axios": "^0.21.1",
     "body-parser": "^1.19.0",
@@ -42,6 +43,7 @@
     "is-electron": "^2.2.1",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
+    "jsonwebtoken": "^8.5.1",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.21",
     "ncp": "^2.0.0",
@@ -57,6 +59,7 @@
     "start": "env-cmd node src/index.js --listen-api",
     "start:portal": "env-cmd -f env/portal/.env node src/index.js --listen-api",
     "start:singledb": "env-cmd -f env/singledb/.env node src/index.js --listen-api",
+    "start:auth": "env-cmd -f env/auth/.env node src/index.js --listen-api",
     "start:filedb": "env-cmd node src/index.js /home/jena/test/chinook/Chinook.db --listen-api",
     "start:singleconn": "env-cmd node src/index.js --server localhost --user root --port 3307 --engine mysql@dbgate-plugin-mysql --password test --listen-api",
     "ts": "tsc",

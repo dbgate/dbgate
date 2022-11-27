@@ -20,6 +20,7 @@
   import getElectron from './utility/getElectron';
   import AppStartInfo from './widgets/AppStartInfo.svelte';
   import SettingsListener from './utility/SettingsListener.svelte';
+  import { handleAuthOnStartup, handleOauthCallback } from './clientAuth';
 
   let loadedApi = false;
   let loadedPlugins = false;
@@ -33,9 +34,11 @@
     try {
       // console.log('************** LOADING API');
 
+      const config = await getConfig();
+      await handleAuthOnStartup(config);
+
       const connections = await apiCall('connections/list');
       const settings = await getSettings();
-      const config = await getConfig();
       const apps = await getUsedApps();
       loadedApi = settings && connections && config && apps;
 

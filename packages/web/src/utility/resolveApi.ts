@@ -15,5 +15,10 @@ export default function resolveApi() {
 export function resolveApiHeaders() {
   const electron = getElectron();
 
-  return {};
+  const res = {};
+  const accessToken = localStorage.getItem('accessToken');
+  if (accessToken) {
+    res['Authorization'] = `Bearer ${accessToken}`;
+  }
+  return res;
 }

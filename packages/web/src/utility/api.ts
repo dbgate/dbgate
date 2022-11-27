@@ -4,10 +4,21 @@ import { writable } from 'svelte/store';
 import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
+import { isOauthCallback, redirectToLogin } from '../clientAuth';
 
 let eventSource;
 let apiLogging = false;
 // let cacheCleanerRegistered;
+let apiDisabled = false;
+const disabledOnOauth = isOauthCallback();
+
+export function disableApi() {
+  apiDisabled = true;
+}
+
+export function enableApi() {
+  apiDisabled = false;
+}
 
 function wantEventSource() {
   if (!eventSource) {
@@ -17,9 +28,9 @@ function wantEventSource() {
 }
 
 function processApiResponse(route, args, resp) {
-  if (apiLogging) {
-    console.log('<<< API RESPONSE', route, args, resp);
-  }
+  // if (apiLogging) {
+  //   console.log('<<< API RESPONSE', route, args, resp);
+  // }
 
   if (resp?.apiErrorMessage) {
     showSnackbarError('API error:' + resp?.apiErrorMessage);
@@ -34,6 +45,14 @@ function processApiResponse(route, args, resp) {
 export async function apiCall(route: string, args: {} = undefined) {
   if (apiLogging) {
     console.log('>>> API CALL', route, args);
+  }
+  if (apiDisabled) {
+    console.log('API disabled!!', route);
+    return;
+  }
+  if (disabledOnOauth && route != 'auth/oauth-token') {
+    console.log('API disabled because oauth callback!!', route);
+    return;
   }
 
   const electron = getElectron();
@@ -50,6 +69,18 @@ export async function apiCall(route: string, args: {} = undefined) {
       },
       body: JSON.stringify(args),
     });
+
+    if (resp.status == 401 && !apiDisabled) {
+      const params = new URLSearchParams(location.search);
+
+      disableApi();
+      console.log('Disabling API', route);
+      if (params.get('page') != 'login' && params.get('page') != 'not-logged') {
+        // unauthorized
+        redirectToLogin();
+      }
+      return;
+    }
 
     const json = await resp.json();
     return processApiResponse(route, args, json);
