@@ -12,6 +12,10 @@ function shouldAuthorizeApi() {
   return !!process.env.OAUTH_AUTH || !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH);
 }
 
+function getTokenLifetime() {
+  return process.env.TOKEN_LIFETIME || '1d';
+}
+
 function unauthorizedResponse(req, res, text) {
   // if (req.path == getExpressPath('/config/get-settings')) {
   //   return res.json({});
@@ -81,7 +85,7 @@ module.exports = {
     }
     if (access_token) {
       return {
-        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
+        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
       };
     }
 
@@ -105,7 +109,7 @@ module.exports = {
           return { error: 'Login failed' };
         }
         return {
-          accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
+          accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
         };
       } catch (err) {
         console.log('Failed active directory authentization', err.message);
@@ -121,7 +125,7 @@ module.exports = {
     }
     if (logins.find(x => x.login == login)?.password == password) {
       return {
-        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: '1m' }),
+        accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
       };
     }
     return { error: 'Invalid credentials' };
