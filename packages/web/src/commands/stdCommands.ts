@@ -36,7 +36,7 @@ import runCommand from './runCommand';
 import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 import { isMac } from '../utility/common';
-import { internalRedirectTo } from '../clientAuth';
+import { doLogout, internalRedirectTo } from '../clientAuth';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -549,22 +549,7 @@ registerCommand({
   category: 'App',
   name: 'Logout',
   testEnabled: () => getCurrentConfig()?.login != null,
-  onClick: () => {
-    const config = getCurrentConfig();
-    if (config.oauth) {
-      localStorage.removeItem('accessToken');
-      if (config.oauthLogout) {
-        window.location.href = config.oauthLogout;
-      } else {
-        internalRedirectTo('/?page=not-logged');
-      }
-    } else if (config.isLoginForm) {
-      localStorage.removeItem('accessToken');
-      internalRedirectTo('/?page=not-logged');
-    } else {
-      window.location.href = 'config/logout';
-    }
-  },
+  onClick: doLogout,
 });
 
 export function registerFileCommands({

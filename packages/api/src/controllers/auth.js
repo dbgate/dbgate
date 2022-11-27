@@ -69,11 +69,13 @@ module.exports = {
 
     const payload = jwt.decode(access_token);
 
+    console.log('User payload returned from OAUTH:', payload);
+
     const login = process.env.OAUTH_LOGIN_FIELD ? payload[process.env.OAUTH_LOGIN_FIELD] : 'oauth';
 
     if (
       process.env.OAUTH_ALLOWED_LOGINS &&
-      !process.env.OAUTH_ALLOWED_LOGINS.split(',').find(x => x.toLowerCase().trim() != login.toLowerCase().trim())
+      !process.env.OAUTH_ALLOWED_LOGINS.split(',').find(x => x.toLowerCase().trim() == login.toLowerCase().trim())
     ) {
       return { error: `Username ${login} not allowed to log in` };
     }

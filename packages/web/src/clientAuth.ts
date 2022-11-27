@@ -1,4 +1,4 @@
-import { apiCall, disableApi, enableApi } from './utility/api';
+import { apiCall, enableApi } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
 
 export function isOauthCallback() {
@@ -40,6 +40,9 @@ export function handleOauthCallback() {
 }
 
 export async function handleAuthOnStartup(config) {
+  if (config.oauth) {
+    console.log('OAUTH callback URL:', location.origin + location.pathname);
+  }
   if (config.oauth || config.isLoginForm) {
     if (localStorage.getItem('accessToken')) {
       return;
@@ -83,4 +86,22 @@ export function internalRedirectTo(path) {
   const index = location.pathname.lastIndexOf('/');
   const newPath = index >= 0 ? location.pathname.substring(0, index) + path : path;
   location.replace(newPath);
+}
+
+export async function doLogout() {
+  enableApi();
+  const config = await getConfig();
+  if (config.oauth) {
+    localStorage.removeItem('accessToken');
+    if (config.oauthLogout) {
+      window.location.href = config.oauthLogout;
+    } else {
+      internalRedirectTo('/?page=not-logged');
+    }
+  } else if (config.isLoginForm) {
+    localStorage.removeItem('accessToken');
+    internalRedirectTo('/?page=not-logged');
+  } else {
+    window.location.href = 'config/logout';
+  }
 }

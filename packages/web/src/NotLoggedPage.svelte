@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import FormStyledButton from './buttons/FormStyledButton.svelte';
-  import { redirectToLogin } from './clientAuth';
+  import { doLogout, redirectToLogin } from './clientAuth';
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -24,6 +24,7 @@
 
   <div class="button">
     <FormStyledButton value="Log In" on:click={handleLogin} />
+    <FormStyledButton value="Log Out" on:click={doLogout} />
   </div>
 </div>
 
