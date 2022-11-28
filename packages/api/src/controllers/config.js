@@ -28,7 +28,12 @@ module.exports = {
   get_meta: true,
   async get(_params, req) {
     const logins = getLogins();
-    const login = req.user ? req.user.login : logins ? logins.find(x => x.login == (req.auth && req.auth.user)) : null;
+    const login =
+      req && req.user
+        ? req.user.login
+        : logins
+        ? logins.find(x => x.login == (req && req.auth && req.auth.user))
+        : null;
     const permissions = login ? login.permissions : process.env.PERMISSIONS;
 
     return {
