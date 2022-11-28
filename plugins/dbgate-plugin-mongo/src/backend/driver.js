@@ -47,17 +47,20 @@ async function getScriptableDb(pool) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl }) {
+  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, ssl, useSshTunnel }) {
     let mongoUrl;
+
     if (useDatabaseUrl) {
-      // change port to ssh tunnel port
-      const url = new URL(databaseUrl);
-      url.port = port;
-      mongoUrl = url.href;
+      if (useSshTunnel) {
+        // change port to ssh tunnel port
+        const url = new URL(databaseUrl);
+        url.port = port;
+        mongoUrl = url.href;
+      } else {
+        mongoUrl = databaseUrl;
+      }
     } else {
-      mongoUrl = user
-      ? `mongodb://${user}:${password}@${server}:${port}`
-      : `mongodb://${server}:${port}`;
+      mongoUrl = user ? `mongodb://${user}:${password}@${server}:${port}` : `mongodb://${server}:${port}`;
     }
 
     const options = {
