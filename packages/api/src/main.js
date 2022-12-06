@@ -54,6 +54,21 @@ function start() {
 
   app.use(cors());
 
+  if (platformInfo.isDocker) {
+    // server static files inside docker container
+    app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
+  } else if (platformInfo.isNpmDist) {
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
+  } else if (process.env.DEVWEB) {
+    console.log('__dirname', __dirname);
+    console.log(path.join(__dirname, '../../web/public/build'));
+    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
+  } else {
+    app.get(getExpressPath('/'), (req, res) => {
+      res.send('DbGate API');
+    });
+  }
+
   if (auth.shouldAuthorizeApi()) {
     app.use(auth.authMiddleware);
   }
@@ -93,14 +108,10 @@ function start() {
   app.use(getExpressPath('/runners/data'), express.static(rundir()));
 
   if (platformInfo.isDocker) {
-    // server static files inside docker container
-    app.use(getExpressPath('/'), express.static('/home/dbgate-docker/public'));
-
     const port = process.env.PORT || 3000;
     console.log('DbGate API listening on port (docker build)', port);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
     getPort({
       port: parseInt(
         // @ts-ignore
@@ -112,18 +123,10 @@ function start() {
       });
     });
   } else if (process.env.DEVWEB) {
-    console.log('__dirname', __dirname);
-    console.log(path.join(__dirname, '../../web/public/build'));
-    app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
-
     const port = process.env.PORT || 3000;
     console.log('DbGate API & web listening on port (dev web build)', port);
     server.listen(port);
   } else {
-    app.get(getExpressPath('/'), (req, res) => {
-      res.send('DbGate API');
-    });
-
     const port = process.env.PORT || 3000;
     console.log('DbGate API listening on port (dev API build)', port);
     server.listen(port);
