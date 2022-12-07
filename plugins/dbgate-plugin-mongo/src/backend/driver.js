@@ -351,6 +351,25 @@ const driver = {
 
     return res;
   },
+
+  async serverSummary(pool) {
+    const res = await pool.__getDatabase().admin().listDatabases();
+    return {
+      columns: [
+        {
+          fieldName: 'name',
+          dataType: 'string',
+          header: 'Name',
+        },
+        {
+          fieldName: 'sizeOnDisk',
+          dataType: 'bytes',
+          header: 'Size',
+        },
+      ],
+      databases: res.databases,
+    };
+  },
 };
 
 module.exports = driver;

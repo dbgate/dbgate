@@ -32,6 +32,7 @@ const driver = {
   editorMode: 'javascript',
   defaultPort: 27017,
   supportsDatabaseUrl: true,
+  supportsServerSummary: true,
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
   getQuerySplitterOptions: () => mongoSplitterOptions,

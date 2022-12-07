@@ -55,6 +55,17 @@ export interface SqlBackupDumper {
   run();
 }
 
+export interface SummaryColumn {
+  fieldName: string;
+  header: string;
+  dataType: 'string' | 'number' | 'bytes';
+}
+export interface ServerSummaryDatabase {}
+export interface ServerSummary {
+  columns: SummaryColumn[];
+  databases: ServerSummaryDatabase[];
+}
+
 export interface EngineDriver {
   engine: string;
   title: string;
@@ -65,6 +76,7 @@ export interface EngineDriver {
   supportedKeyTypes: SupportedDbKeyType[];
   supportsDatabaseUrl?: boolean;
   supportsDatabaseDump?: boolean;
+  supportsServerSummary?: boolean;
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
@@ -81,7 +93,7 @@ export interface EngineDriver {
   stream(pool: any, sql: string, options: StreamOptions);
   readQuery(pool: any, sql: string, structure?: TableInfo): Promise<stream.Readable>;
   readJsonQuery(pool: any, query: any, structure?: TableInfo): Promise<stream.Readable>;
-  writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writeable>;
+  writeTable(pool: any, name: NamedObjectInfo, options: WriteTableOptions): Promise<stream.Writable>;
   analyseSingleObject(
     pool: any,
     name: NamedObjectInfo,
@@ -116,6 +128,7 @@ export interface EngineDriver {
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers
   callMethod(pool, method, args);
+  loadSummary(pool): Promise<ServerSummary>;
 
   analyserClass?: any;
   dumperClass?: any;

@@ -10,6 +10,7 @@ let storedConnection;
 let lastDatabases = null;
 let lastStatus = null;
 let lastPing = null;
+let afterConnectCallbacks = [];
 
 async function handleRefresh() {
   const driver = requireEngineDriver(storedConnection);
@@ -74,6 +75,18 @@ async function handleConnect(connection) {
     // console.error(err);
     setTimeout(() => process.exit(1), 1000);
   }
+
+  for (const [resolve] of afterConnectCallbacks) {
+    resolve();
+  }
+  afterConnectCallbacks = [];
+}
+
+function waitConnected() {
+  if (systemConnection) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    afterConnectCallbacks.push([resolve, reject]);
+  });
 }
 
 function handlePing() {
@@ -94,9 +107,25 @@ async function handleDatabaseOp(op, { name }) {
   await handleRefresh();
 }
 
+async function handleDriverDataCore(msgid, callMethod) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+  try {
+    const result = await callMethod(driver);
+    process.send({ msgtype: 'response', msgid, result });
+  } catch (err) {
+    process.send({ msgtype: 'response', msgid, errorMessage: err.message });
+  }
+}
+
+async function handleServerSummary({ msgid, options }) {
+  return handleDriverDataCore(msgid, driver => driver.serverSummary(systemConnection));
+}
+
 const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
+  serverSummary: handleServerSummary,
   createDatabase: props => handleDatabaseOp('createDatabase', props),
   dropDatabase: props => handleDatabaseOp('dropDatabase', props),
 };

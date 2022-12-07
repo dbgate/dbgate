@@ -1,8 +1,7 @@
 <script lang="ts">
+  import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
-
   import Link from './Link.svelte';
-
   import TableControl from './TableControl.svelte';
 
   export let title;
@@ -10,6 +9,7 @@
   export let columns;
   export let showIfEmpty = false;
   export let emptyMessage = null;
+  export let hideDisplayName = false;
   export let clickable;
   export let onAddNew;
 </script>
@@ -31,14 +31,14 @@
       <div class="body">
         <TableControl
           rows={collection || []}
-          columns={[
-            {
+          columns={_.compact([
+            !hideDisplayName && {
               fieldName: 'displayName',
               header: 'Name',
               slot: -1,
             },
             ...columns,
-          ]}
+          ])}
           {clickable}
           on:clickrow
         >
