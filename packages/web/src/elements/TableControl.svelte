@@ -86,17 +86,17 @@
             {:else if col.formatter}
               {col.formatter(row)}
             {:else if col.slot != null}
-              {#if col.slot == -1}<slot name="-1" {row} {index} />
-              {:else if col.slot == 0}<slot name="0" {row} {index} {...rowProps} />
-              {:else if col.slot == 1}<slot name="1" {row} {index} {...rowProps} />
-              {:else if col.slot == 2}<slot name="2" {row} {index} {...rowProps} />
-              {:else if col.slot == 3}<slot name="3" {row} {index} {...rowProps} />
-              {:else if col.slot == 4}<slot name="4" {row} {index} {...rowProps} />
-              {:else if col.slot == 5}<slot name="5" {row} {index} {...rowProps} />
-              {:else if col.slot == 6}<slot name="6" {row} {index} {...rowProps} />
-              {:else if col.slot == 7}<slot name="7" {row} {index} {...rowProps} />
-              {:else if col.slot == 8}<slot name="8" {row} {index} {...rowProps} />
-              {:else if col.slot == 9}<slot name="9" {row} {index} {...rowProps} />
+              {#if col.slot == -1}<slot name="-1" {row} {col} {index} />
+              {:else if col.slot == 0}<slot name="0" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 1}<slot name="1" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 2}<slot name="2" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 3}<slot name="3" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 4}<slot name="4" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 5}<slot name="5" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 6}<slot name="6" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 7}<slot name="7" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 8}<slot name="8" {row} {col} {index} {...rowProps} />
+              {:else if col.slot == 9}<slot name="9" {row} {col} {index} {...rowProps} />
               {/if}
             {:else}
               {row[col.fieldName] || ''}

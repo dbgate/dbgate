@@ -354,6 +354,21 @@ const driver = {
 
   async serverSummary(pool) {
     const res = await pool.__getDatabase().admin().listDatabases();
+    const profiling = await Promise.all(res.databases.map((x) => pool.db(x.name).command({ profile: -1 })));
+
+    function formatProfiling(info) {
+      switch (info.was) {
+        case 0:
+          return 'No profiling';
+        case 1:
+          return `Filtered (>${info.slowms} ms)`;
+        case 2:
+          'Profile all';
+        default:
+          return '???';
+      }
+    }
+
     return {
       columns: [
         {
@@ -366,8 +381,16 @@ const driver = {
           dataType: 'bytes',
           header: 'Size',
         },
+        {
+          fieldName: 'profiling',
+          dataType: 'string',
+          header: 'Profiling',
+        },
       ],
-      databases: res.databases,
+      databases: res.databases.map((db, i) => ({
+        ...db,
+        profiling: formatProfiling(profiling[i]),
+      })),
     };
   },
 };
