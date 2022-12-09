@@ -1,8 +1,7 @@
 <script lang="ts">
+  import _ from 'lodash';
   import FontIcon from '../icons/FontIcon.svelte';
-
   import Link from './Link.svelte';
-
   import TableControl from './TableControl.svelte';
 
   export let title;
@@ -10,6 +9,7 @@
   export let columns;
   export let showIfEmpty = false;
   export let emptyMessage = null;
+  export let hideDisplayName = false;
   export let clickable;
   export let onAddNew;
 </script>
@@ -31,43 +31,43 @@
       <div class="body">
         <TableControl
           rows={collection || []}
-          columns={[
-            {
+          columns={_.compact([
+            !hideDisplayName && {
               fieldName: 'displayName',
               header: 'Name',
               slot: -1,
             },
             ...columns,
-          ]}
+          ])}
           {clickable}
           on:clickrow
         >
-          <svelte:fragment slot="-1" let:row>
-            <slot name="name" {row} />
+          <svelte:fragment slot="-1" let:row let:col>
+            <slot name="name" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="0" let:row>
-            <slot name="0" {row} />
+          <svelte:fragment slot="0" let:row let:col>
+            <slot name="0" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="1" let:row>
-            <slot name="1" {row} />
+          <svelte:fragment slot="1" let:row let:col>
+            <slot name="1" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="2" let:row>
-            <slot name="2" {row} />
+          <svelte:fragment slot="2" let:row let:col>
+            <slot name="2" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="3" let:row>
-            <slot name="3" {row} />
+          <svelte:fragment slot="3" let:row let:col>
+            <slot name="3" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="4" let:row>
-            <slot name="4" {row} />
+          <svelte:fragment slot="4" let:row let:col>
+            <slot name="4" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="5" let:row>
-            <slot name="5" {row} />
+          <svelte:fragment slot="5" let:row let:col>
+            <slot name="5" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="6" let:row>
-            <slot name="6" {row} />
+          <svelte:fragment slot="6" let:row let:col>
+            <slot name="6" {row} {col} />
           </svelte:fragment>
-          <svelte:fragment slot="7" let:row>
-            <slot name="7" {row} />
+          <svelte:fragment slot="7" let:row let:col>
+            <slot name="7" {row} {col} />
           </svelte:fragment>
         </TableControl>
       </div>

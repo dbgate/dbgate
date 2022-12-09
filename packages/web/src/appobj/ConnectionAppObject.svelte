@@ -104,7 +104,7 @@
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';
-import { tick } from 'svelte';
+  import { tick } from 'svelte';
 
   export let data;
   export let passProps;
@@ -195,6 +195,16 @@ import { tick } from 'svelte';
           }),
       });
     };
+    const handleServerSummary = () => {
+      openNewTab({
+        title: getConnectionLabel(data),
+        icon: 'img server',
+        tabComponent: 'ServerSummaryTab',
+        props: {
+          conid: data._id,
+        },
+      });
+    };
     const handleNewQuery = () => {
       const tooltip = `${getConnectionLabel(data)}`;
       openNewTab({
@@ -243,6 +253,11 @@ import { tick } from 'svelte';
           !data.isReadOnly && {
             text: 'Create database',
             onClick: handleCreateDatabase,
+          },
+        $openedConnections.includes(data._id) &&
+          driver?.supportsServerSummary && {
+            text: 'Server summary',
+            onClick: handleServerSummary,
           },
       ],
       data.singleDatabase && [

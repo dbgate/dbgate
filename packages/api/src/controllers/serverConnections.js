@@ -1,6 +1,7 @@
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
+const uuidv1 = require('uuid/v1');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -13,6 +14,7 @@ module.exports = {
   opened: [],
   closed: {},
   lastPinged: {},
+  requests: {},
 
   handle_databases(conid, { databases }) {
     const existing = this.opened.find(x => x.conid == conid);
@@ -33,6 +35,11 @@ module.exports = {
     socket.emitChanged(`server-status-changed`);
   },
   handle_ping() {},
+  handle_response(conid, { msgid, ...response }) {
+    const [resolve, reject] = this.requests[msgid];
+    resolve(response);
+    delete this.requests[msgid];
+  },
 
   async ensureOpened(conid) {
     const res = await lock.acquire(conid, async () => {
@@ -160,5 +167,42 @@ module.exports = {
     if (opened.connection.isReadOnly) return false;
     opened.subprocess.send({ msgtype: 'dropDatabase', name });
     return { status: 'ok' };
+  },
+
+  sendRequest(conn, message) {
+    const msgid = uuidv1();
+    const promise = new Promise((resolve, reject) => {
+      this.requests[msgid] = [resolve, reject];
+      conn.subprocess.send({ msgid, ...message });
+    });
+    return promise;
+  },
+
+  async loadDataCore(msgtype, { conid, ...args }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid);
+    const res = await this.sendRequest(opened, { msgtype, ...args });
+    if (res.errorMessage) {
+      console.error(res.errorMessage);
+
+      return {
+        errorMessage: res.errorMessage,
+      };
+    }
+    return res.result || null;
+  },
+
+  serverSummary_meta: true,
+  async serverSummary({ conid }, req) {
+    testConnectionPermission(conid, req);
+    return this.loadDataCore('serverSummary', { conid });
+  },
+
+  summaryCommand_meta: true,
+  async summaryCommand({ conid, command, row }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid);
+    if (opened.connection.isReadOnly) return false;
+    return this.loadDataCore('summaryCommand', { conid, command, row });
   },
 };

@@ -351,6 +351,86 @@ const driver = {
 
     return res;
   },
+
+  async summaryCommand(pool, command, row) {
+    switch (command) {
+      case 'profileOff':
+        await pool.db(row.name).command({ profile: 0 });
+        return;
+      case 'profileFiltered':
+        await pool.db(row.name).command({ profile: 1, slowms: 100 });
+        return;
+      case 'profileAll':
+        await pool.db(row.name).command({ profile: 2 });
+        return;
+    }
+  },
+
+  async serverSummary(pool) {
+    const res = await pool.__getDatabase().admin().listDatabases();
+    const profiling = await Promise.all(res.databases.map((x) => pool.db(x.name).command({ profile: -1 })));
+
+    function formatProfiling(info) {
+      switch (info.was) {
+        case 0:
+          return 'No profiling';
+        case 1:
+          return `Filtered (>${info.slowms} ms)`;
+        case 2:
+          return 'Profile all';
+        default:
+          return '???';
+      }
+    }
+
+    return {
+      columns: [
+        {
+          fieldName: 'name',
+          columnType: 'string',
+          header: 'Name',
+        },
+        {
+          fieldName: 'sizeOnDisk',
+          columnType: 'bytes',
+          header: 'Size',
+        },
+        {
+          fieldName: 'profiling',
+          columnType: 'string',
+          header: 'Profiling',
+        },
+        {
+          fieldName: 'setProfile',
+          columnType: 'actions',
+          header: 'Profiling actions',
+          actions: [
+            {
+              header: 'Off',
+              command: 'profileOff',
+            },
+            {
+              header: 'Filtered',
+              command: 'profileFiltered',
+            },
+            {
+              header: 'All',
+              command: 'profileAll',
+            },
+            {
+              header: 'View',
+              openQuery: "db['system.profile'].find()",
+              tabTitle: 'Profile data',
+            },
+          ],
+        },
+      ],
+      databases: res.databases.map((db, i) => ({
+        ...db,
+        profiling: formatProfiling(profiling[i]),
+      })),
+    };
+  },
 };
 
 module.exports = driver;
