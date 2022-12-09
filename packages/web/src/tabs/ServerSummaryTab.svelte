@@ -1,9 +1,28 @@
+<script lang="ts" context="module">
+  const getCurrentEditor = () => getActiveComponent('ServerSummaryTab');
+
+  registerCommand({
+    id: 'serverSummary.refresh',
+    category: 'Server sumnmary',
+    name: 'Refresh',
+    keyText: 'F5 | CtrlOrCommand+R',
+    toolbar: true,
+    isRelatedToTab: true,
+    icon: 'icon reload',
+    onClick: () => getCurrentEditor().refresh(),
+  });
+</script>
+
 <script>
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import registerCommand from '../commands/registerCommand';
   import Link from '../elements/Link.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
 
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { apiCall } from '../utility/api';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
   import formatFileSize from '../utility/formatFileSize';
   import openNewTab from '../utility/openNewTab';
 
@@ -11,11 +30,17 @@
 
   let refreshToken = 0;
 
+  export const activator = createActivator('ServerSummaryTab', true);
+
+  export function refresh() {
+    refreshToken += 1;
+  }
+
   async function runAction(action, row) {
     const { command, openQuery } = action;
     if (command) {
       await apiCall('server-connections/summary-command', { conid, refreshToken, command, row });
-      refreshToken += 1;
+      refresh();
     }
     if (openQuery) {
       openNewTab({
@@ -32,32 +57,38 @@
   }
 </script>
 
-{#await apiCall('server-connections/server-summary', { conid, refreshToken })}
-  <LoadingInfo message="Loading server details" wrapper />
-{:then summary}
-  <div class="wrapper">
-    <ObjectListControl
-      collection={summary.databases}
-      hideDisplayName
-      title={`Databases (${summary.databases.length})`}
-      emptyMessage={'No databases'}
-      columns={summary.columns.map(col => ({
-        ...col,
-        slot: col.columnType == 'bytes' ? 1 : col.columnType == 'actions' ? 2 : null,
-      }))}
-    >
-      <svelte:fragment slot="1" let:row let:col>{formatFileSize(row?.[col.fieldName])}</svelte:fragment>
-      <svelte:fragment slot="2" let:row let:col>
-        {#each col.actions as action, index}
-          {#if index > 0}
-            <span> | </span>
-          {/if}
-          <Link onClick={() => runAction(action, row)}>{action.header}</Link>
-        {/each}
-      </svelte:fragment>
-    </ObjectListControl>
-  </div>
-{/await}
+<ToolStripContainer>
+  {#await apiCall('server-connections/server-summary', { conid, refreshToken })}
+    <LoadingInfo message="Loading server details" wrapper />
+  {:then summary}
+    <div class="wrapper">
+      <ObjectListControl
+        collection={summary.databases}
+        hideDisplayName
+        title={`Databases (${summary.databases.length})`}
+        emptyMessage={'No databases'}
+        columns={summary.columns.map(col => ({
+          ...col,
+          slot: col.columnType == 'bytes' ? 1 : col.columnType == 'actions' ? 2 : null,
+        }))}
+      >
+        <svelte:fragment slot="1" let:row let:col>{formatFileSize(row?.[col.fieldName])}</svelte:fragment>
+        <svelte:fragment slot="2" let:row let:col>
+          {#each col.actions as action, index}
+            {#if index > 0}
+              <span> | </span>
+            {/if}
+            <Link onClick={() => runAction(action, row)}>{action.header}</Link>
+          {/each}
+        </svelte:fragment>
+      </ObjectListControl>
+    </div>
+  {/await}
+
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="serverSummary.refresh" />
+  </svelte:fragment>
+</ToolStripContainer>
 
 <style>
   .wrapper {
