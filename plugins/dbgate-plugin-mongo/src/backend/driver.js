@@ -403,6 +403,7 @@ const driver = {
         {
           fieldName: 'setProfile',
           columnType: 'actions',
+          header: 'Profiling actions',
           actions: [
             {
               header: 'Off',
@@ -415,6 +416,11 @@ const driver = {
             {
               header: 'All',
               command: 'profileAll',
+            },
+            {
+              header: 'View',
+              openQuery: "db['system.profile'].find()",
+              tabTitle: 'Profile data',
             },
           ],
         },

@@ -5,14 +5,30 @@
   import ObjectListControl from '../elements/ObjectListControl.svelte';
   import { apiCall } from '../utility/api';
   import formatFileSize from '../utility/formatFileSize';
+  import openNewTab from '../utility/openNewTab';
 
   export let conid;
 
   let refreshToken = 0;
 
-  async function callAction(command, row) {
-    await apiCall('server-connections/summary-command', { conid, refreshToken, command, row });
-    refreshToken += 1;
+  async function runAction(action, row) {
+    const { command, openQuery } = action;
+    if (command) {
+      await apiCall('server-connections/summary-command', { conid, refreshToken, command, row });
+      refreshToken += 1;
+    }
+    if (openQuery) {
+      openNewTab({
+        title: action.tabTitle || row.name,
+        icon: 'img query-data',
+        tabComponent: 'QueryDataTab',
+        props: {
+          conid,
+          database: row.name,
+          sql: openQuery,
+        },
+      });
+    }
   }
 </script>
 
@@ -36,7 +52,7 @@
           {#if index > 0}
             <span> | </span>
           {/if}
-          <Link onClick={() => callAction(action.command, row)}>{action.header}</Link>
+          <Link onClick={() => runAction(action, row)}>{action.header}</Link>
         {/each}
       </svelte:fragment>
     </ObjectListControl>
