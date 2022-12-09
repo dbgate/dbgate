@@ -10,10 +10,10 @@ export default class FreeTableGrider extends Grider {
     this.model = modelState && modelState.value;
   }
   getRowData(index: any) {
-    return this.model.rows[index];
+    return this.model.rows?.[index];
   }
   get rowCount() {
-    return this.model.rows.length;
+    return this.model.rows?.length;
   }
   get currentModel(): FreeTableModel {
     return this.batchModel || this.model;
