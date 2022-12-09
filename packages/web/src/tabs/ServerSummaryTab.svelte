@@ -9,6 +9,11 @@
   export let conid;
 
   let refreshToken = 0;
+
+  async function callAction(command, row) {
+    await apiCall('server-connections/summary-command', { conid, refreshToken, command, row });
+    refreshToken += 1;
+  }
 </script>
 
 {#await apiCall('server-connections/server-summary', { conid, refreshToken })}
@@ -22,10 +27,18 @@
       emptyMessage={'No databases'}
       columns={summary.columns.map(col => ({
         ...col,
-        slot: col.dataType == 'bytes' ? 1 : null,
+        slot: col.columnType == 'bytes' ? 1 : col.columnType == 'actions' ? 2 : null,
       }))}
     >
       <svelte:fragment slot="1" let:row let:col>{formatFileSize(row?.[col.fieldName])}</svelte:fragment>
+      <svelte:fragment slot="2" let:row let:col>
+        {#each col.actions as action, index}
+          {#if index > 0}
+            <span> | </span>
+          {/if}
+          <Link onClick={() => callAction(action.command, row)}>{action.header}</Link>
+        {/each}
+      </svelte:fragment>
     </ObjectListControl>
   </div>
 {/await}

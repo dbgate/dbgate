@@ -118,14 +118,19 @@ async function handleDriverDataCore(msgid, callMethod) {
   }
 }
 
-async function handleServerSummary({ msgid, options }) {
+async function handleServerSummary({ msgid }) {
   return handleDriverDataCore(msgid, driver => driver.serverSummary(systemConnection));
+}
+
+async function handleSummaryCommand({ msgid, command, row }) {
+  return handleDriverDataCore(msgid, driver => driver.summaryCommand(systemConnection, command, row));
 }
 
 const messageHandlers = {
   connect: handleConnect,
   ping: handlePing,
   serverSummary: handleServerSummary,
+  summaryCommand: handleSummaryCommand,
   createDatabase: props => handleDatabaseOp('createDatabase', props),
   dropDatabase: props => handleDatabaseOp('dropDatabase', props),
 };

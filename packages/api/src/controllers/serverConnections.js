@@ -197,4 +197,12 @@ module.exports = {
     testConnectionPermission(conid, req);
     return this.loadDataCore('serverSummary', { conid });
   },
+
+  summaryCommand_meta: true,
+  async summaryCommand({ conid, command, row }, req) {
+    testConnectionPermission(conid, req);
+    const opened = await this.ensureOpened(conid);
+    if (opened.connection.isReadOnly) return false;
+    return this.loadDataCore('summaryCommand', { conid, command, row });
+  },
 };

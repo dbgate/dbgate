@@ -128,7 +128,8 @@ export interface EngineDriver {
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers
   callMethod(pool, method, args);
-  loadSummary(pool): Promise<ServerSummary>;
+  serverSummary(pool): Promise<ServerSummary>;
+  summaryCommand(pool, command, row): Promise<void>;
 
   analyserClass?: any;
   dumperClass?: any;

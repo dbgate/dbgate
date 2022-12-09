@@ -352,6 +352,20 @@ const driver = {
     return res;
   },
 
+  async summaryCommand(pool, command, row) {
+    switch (command) {
+      case 'profileOff':
+        await pool.db(row.name).command({ profile: 0 });
+        return;
+      case 'profileFiltered':
+        await pool.db(row.name).command({ profile: 1, slowms: 100 });
+        return;
+      case 'profileAll':
+        await pool.db(row.name).command({ profile: 2 });
+        return;
+    }
+  },
+
   async serverSummary(pool) {
     const res = await pool.__getDatabase().admin().listDatabases();
     const profiling = await Promise.all(res.databases.map((x) => pool.db(x.name).command({ profile: -1 })));
@@ -363,7 +377,7 @@ const driver = {
         case 1:
           return `Filtered (>${info.slowms} ms)`;
         case 2:
-          'Profile all';
+          return 'Profile all';
         default:
           return '???';
       }
@@ -373,18 +387,36 @@ const driver = {
       columns: [
         {
           fieldName: 'name',
-          dataType: 'string',
+          columnType: 'string',
           header: 'Name',
         },
         {
           fieldName: 'sizeOnDisk',
-          dataType: 'bytes',
+          columnType: 'bytes',
           header: 'Size',
         },
         {
           fieldName: 'profiling',
-          dataType: 'string',
+          columnType: 'string',
           header: 'Profiling',
+        },
+        {
+          fieldName: 'setProfile',
+          columnType: 'actions',
+          actions: [
+            {
+              header: 'Off',
+              command: 'profileOff',
+            },
+            {
+              header: 'Filtered',
+              command: 'profileFiltered',
+            },
+            {
+              header: 'All',
+              command: 'profileAll',
+            },
+          ],
         },
       ],
       databases: res.databases.map((db, i) => ({
