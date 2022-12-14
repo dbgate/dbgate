@@ -57,7 +57,7 @@ export default {
       }),
     },
     {
-      label: 'CSV file (semicolor separated)',
+      label: 'CSV file (semicolon separated)',
       extension: 'csv',
       createWriter: (fileName) => ({
         functionName: 'writer@dbgate-plugin-csv',
