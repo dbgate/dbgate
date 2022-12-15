@@ -447,6 +447,7 @@
 
     editor.container.addEventListener('contextmenu', handleContextMenu);
     editor.keyBinding.addKeyboardHandler(handleKeyDown);
+    editor.renderer.setScrollMargin(2, 0);
     changedQueryParts();
 
     // editor.session.addGutterDecoration(0, 'ace-gutter-sql-run');
