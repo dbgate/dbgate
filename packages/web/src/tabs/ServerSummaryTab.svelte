@@ -10,6 +10,7 @@
     isRelatedToTab: true,
     icon: 'icon reload',
     onClick: () => getCurrentEditor().refresh(),
+    testEnabled: () => getCurrentEditor() != null,
   });
 </script>
 
