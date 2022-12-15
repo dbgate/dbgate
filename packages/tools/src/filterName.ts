@@ -38,25 +38,45 @@ export interface FilterNameDefinition {
 //     return DoMatch(Filter, value) || camelMatch;
 // }
 
-function fuzzysearch(needle, haystack) {
-  var hlen = haystack.length;
-  var nlen = needle.length;
-  if (nlen > hlen) {
-    return false;
+// function fuzzysearch(needle, haystack) {
+//   var hlen = haystack.length;
+//   var nlen = needle.length;
+//   if (nlen > hlen) {
+//     return false;
+//   }
+//   if (nlen === hlen) {
+//     return needle === haystack;
+//   }
+//   outer: for (var i = 0, j = 0; i < nlen; i++) {
+//     var nch = needle.charCodeAt(i);
+//     while (j < hlen) {
+//       if (haystack.charCodeAt(j++) === nch) {
+//         continue outer;
+//       }
+//     }
+//     return false;
+//   }
+//   return true;
+// }
+
+function camelMatch(filter: string, text: string): boolean {
+  if (!text) return false;
+  if (!filter) return true;
+
+  if (filter.replace(/[A-Z]/g, '').length == 0) {
+    const camelVariants = [text.replace(/[^A-Z]/g, '')];
+    let s = text,
+      s0;
+    do {
+      s0 = s;
+      s = s.replace(/([A-Z])([A-Z])([A-Z])/, '$1$3');
+    } while (s0 != s);
+    camelVariants.push(s.replace(/[^A-Z]/g, ''));
+    const camelContains = !!camelVariants.find(x => x.includes(filter.toUpperCase()));
+    return camelContains;
+  } else {
+    return text.toUpperCase().includes(filter.toUpperCase());
   }
-  if (nlen === hlen) {
-    return needle === haystack;
-  }
-  outer: for (var i = 0, j = 0; i < nlen; i++) {
-    var nch = needle.charCodeAt(i);
-    while (j < hlen) {
-      if (haystack.charCodeAt(j++) === nch) {
-        continue outer;
-      }
-    }
-    return false;
-  }
-  return true;
 }
 
 export function filterName(filter: string, ...names: (string | FilterNameDefinition)[]) {
@@ -73,13 +93,13 @@ export function filterName(filter: string, ...names: (string | FilterNameDefinit
   const namesChild: string[] = namesCompacted.filter(x => x.childName).map(x => x.childName);
 
   for (const token of tokens) {
-    const tokenUpper = token.toUpperCase();
-    if (tokenUpper.startsWith('#')) {
-      const tokenUpperSub = tokenUpper.substring(1);
-      const found = namesChild.find(name => fuzzysearch(tokenUpperSub, name.toUpperCase()));
+    // const tokenUpper = token.toUpperCase();
+    if (token.startsWith('#')) {
+      // const tokenUpperSub = tokenUpper.substring(1);
+      const found = namesChild.find(name => camelMatch(token.substring(1), name));
       if (!found) return false;
     } else {
-      const found = namesOwn.find(name => fuzzysearch(tokenUpper, name.toUpperCase()));
+      const found = namesOwn.find(name => camelMatch(token, name));
       if (!found) return false;
     }
   }
