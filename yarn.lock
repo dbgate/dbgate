@@ -3331,10 +3331,10 @@ dbgate-plugin-xml@^5.0.0-alpha.1:
   resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-5.0.9.tgz#c3abf6ed8cd1450c45058d35c9326458833ed27e"
   integrity sha512-P8Em1A6HhF0BfxEDDEUyzdgFeJHEC5vbg12frANpWHjO3V1HGdygsT2z1ukLK8FS5BLW/vcCdOFldXZGh+wWvg==
 
-dbgate-query-splitter@^4.9.2:
-  version "4.9.2"
-  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.9.2.tgz#ab1a60e60887ca750dd263a59db66e82c6461a46"
-  integrity sha512-MwZzNNLILdUv8rg6mFysLizIEdZsLLHEOL4lAHrvLPtHaLOAb275ogtgieLqjcnsXkPlV03i2t1b697aQYdfLQ==
+dbgate-query-splitter@^4.9.3:
+  version "4.9.3"
+  resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.9.3.tgz#f66396da9ae3cc8f775a282143bfca3441248aa2"
+  integrity sha512-QMppAy3S6NGQMawNokmhbpZURvLCETyu/8yTfqWUHGdlK963fdSpmoX1A+9SjCDp62sX0vYntfD7uzd6jVSRcw==
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
