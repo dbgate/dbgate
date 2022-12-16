@@ -417,10 +417,22 @@ const driver = {
               header: 'All',
               command: 'profileAll',
             },
+            // {
+            //   header: 'View',
+            //   openQuery: "db['system.profile'].find()",
+            //   tabTitle: 'Profile data',
+            // },
             {
               header: 'View',
-              openQuery: "db['system.profile'].find()",
-              tabTitle: 'Profile data',
+              openTab: {
+                title: 'system.profile',
+                icon: 'img collection',
+                tabComponent: 'CollectionDataTab',
+                props: {
+                  pureName: 'system.profile',
+                },
+              },
+              addDbProps: true,
             },
           ],
         },

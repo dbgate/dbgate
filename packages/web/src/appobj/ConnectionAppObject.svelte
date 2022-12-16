@@ -254,11 +254,10 @@
             text: 'Create database',
             onClick: handleCreateDatabase,
           },
-        $openedConnections.includes(data._id) &&
-          driver?.supportsServerSummary && {
-            text: 'Server summary',
-            onClick: handleServerSummary,
-          },
+        driver?.supportsServerSummary && {
+          text: 'Server summary',
+          onClick: handleServerSummary,
+        },
       ],
       data.singleDatabase && [
         { divider: true },

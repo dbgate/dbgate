@@ -38,7 +38,7 @@
   }
 
   async function runAction(action, row) {
-    const { command, openQuery } = action;
+    const { command, openQuery, openTab, addDbProps } = action;
     if (command) {
       await apiCall('server-connections/summary-command', { conid, refreshToken, command, row });
       refresh();
@@ -52,6 +52,20 @@
           conid,
           database: row.name,
           sql: openQuery,
+        },
+      });
+    }
+    if (openTab) {
+      const props = {};
+      if (addDbProps) {
+        props['conid'] = conid;
+        props['database'] = row.name;
+      }
+      openNewTab({
+        ...openTab,
+        props: {
+          ...openTab.props,
+          ...props,
         },
       });
     }
@@ -77,7 +91,7 @@
         <svelte:fragment slot="2" let:row let:col>
           {#each col.actions as action, index}
             {#if index > 0}
-              <span> | </span>
+              <span class="action-separator">|</span>
             {/if}
             <Link onClick={() => runAction(action, row)}>{action.header}</Link>
           {/each}
@@ -100,5 +114,9 @@
     bottom: 0;
     background-color: var(--theme-bg-0);
     overflow: auto;
+  }
+
+  .action-separator {
+    margin: 0 5px;
   }
 </style>
