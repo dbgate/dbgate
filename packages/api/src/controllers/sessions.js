@@ -150,6 +150,31 @@ module.exports = {
     return true;
   },
 
+  startProfiler_meta: true,
+  async startProfiler({ sesid }) {
+    const jslid = uuidv1();
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+
+    console.log(`Starting profiler, sesid=${sesid}`);
+    session.loadingReader_jslid = jslid;
+    session.subprocess.send({ msgtype: 'startProfiler', jslid });
+
+    return { state: 'ok', jslid };
+  },
+
+  stopProfiler_meta: true,
+  async stopProfiler({ sesid }) {
+    const session = this.opened.find(x => x.sesid == sesid);
+    if (!session) {
+      throw new Error('Invalid session');
+    }
+    session.subprocess.send({ msgtype: 'stopProfiler' });
+    return { state: 'ok' };
+  },
+
   // cancel_meta: true,
   // async cancel({ sesid }) {
   //   const session = this.opened.find((x) => x.sesid == sesid);

@@ -1,0 +1,115 @@
+<script lang="ts" context="module">
+  export const matchingProps = ['conid', 'database', 'pureName', 'sql'];
+
+  const getCurrentEditor = () => getActiveComponent('ProfilerTab');
+
+  registerCommand({
+    id: 'profiler.start',
+    category: 'Profiler',
+    name: 'Start profiling',
+    icon: 'icon play',
+    testEnabled: () => getCurrentEditor() && !getCurrentEditor()?.isProfiling(),
+    onClick: () => getCurrentEditor().startProfiling(),
+  });
+
+  registerCommand({
+    id: 'profiler.stop',
+    category: 'Profiler',
+    name: 'Stop profiling',
+    icon: 'icon play-stop',
+    testEnabled: () => getCurrentEditor()?.isProfiling(),
+    onClick: () => getCurrentEditor().stopProfiling(),
+  });
+</script>
+
+<script>
+  import { onDestroy, onMount } from 'svelte';
+
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import invalidateCommands from '../commands/invalidateCommands';
+  import registerCommand from '../commands/registerCommand';
+  import JslDataGrid from '../datagrid/JslDataGrid.svelte';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import { apiCall } from '../utility/api';
+  import createActivator, { getActiveComponent } from '../utility/createActivator';
+
+  export const activator = createActivator('ProfilerTab', true);
+
+  export let conid;
+  export let database;
+
+  let profiling = false;
+  let jslid;
+  let sessionId;
+
+  let intervalId;
+
+  onMount(() => {
+    intervalId = setInterval(() => {
+      if (sessionId) {
+        apiCall('sessions/ping', {
+          sesid: sessionId,
+        });
+      }
+    }, 15 * 1000);
+  });
+
+  onDestroy(() => {
+    clearInterval(intervalId);
+  });
+
+  export function isProfiling() {
+    return profiling;
+  }
+
+  export async function startProfiling() {
+    profiling = true;
+
+    let sesid = sessionId;
+    if (!sesid) {
+      const resp = await apiCall('sessions/create', {
+        conid,
+        database,
+      });
+      sesid = resp.sesid;
+      sessionId = sesid;
+    }
+
+    const resp = await apiCall('sessions/start-profiler', {
+      sesid,
+    });
+    jslid = resp.jslid;
+
+    invalidateCommands();
+  }
+
+  export function stopProfiling() {
+    profiling = false;
+    apiCall('sessions/stop-profiler', { sesid: sessionId });
+
+    invalidateCommands();
+  }
+</script>
+
+<ToolStripContainer>
+  {#if jslid}
+    <JslDataGrid {jslid} listenInitializeFile />
+  {:else}
+    <ErrorInfo message="Profiler not yet started" alignTop />
+  {/if}
+
+  <!-- <VerticalSplitter>
+    <svelte:fragment slot="1">
+      {#if jslid}
+        <JslDataGrid {jslid} listenInitializeFile />
+      {/if}
+    </svelte:fragment>
+    <svelte:fragment slot="2">DETAIL</svelte:fragment>
+  </VerticalSplitter> -->
+  <svelte:fragment slot="toolstrip">
+    <ToolStripCommandButton command="profiler.start" />
+    <ToolStripCommandButton command="profiler.stop" />
+  </svelte:fragment>
+</ToolStripContainer>

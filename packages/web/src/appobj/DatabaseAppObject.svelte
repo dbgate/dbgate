@@ -254,6 +254,18 @@
       });
     };
 
+    const handleDatabaseProfiler = () => {
+      openNewTab({
+        title: 'Profiler',
+        icon: 'img profiler',
+        tabComponent: 'ProfilerTab',
+        props: {
+          conid: connection._id,
+          database: name,
+        },
+      });
+    };
+
     async function handleConfirmSql(sql) {
       saveScriptToDatabase({ conid: connection._id, database: name }, sql, false);
     }
@@ -284,7 +296,8 @@
         !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
-      isSqlOrDoc && { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlGenerator, text: 'SQL Generator' },
+      driver?.supportsDatabaseProfiler && { onClick: handleDatabaseProfiler, text: 'Database profiler' },
       isSqlOrDoc && { onClick: handleOpenJsonModel, text: 'Open model as JSON' },
       isSqlOrDoc && { onClick: handleExportModel, text: 'Export DB model - experimental' },
       isSqlOrDoc &&
