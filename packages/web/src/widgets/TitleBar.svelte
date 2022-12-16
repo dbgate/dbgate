@@ -7,9 +7,18 @@
   import { activeTab, currentDatabase } from '../stores';
   import { isMac } from '../utility/common';
   import getElectron from '../utility/getElectron';
+  import { apiOn } from '../utility/api';
 
   $: title = _.compact([$activeTab?.title, $currentDatabase?.name, 'DbGate']).join(' - ');
   const electron = getElectron();
+
+  let isMaximized = false;
+
+  if (electron) {
+    apiOn('maximize', (maximized: boolean) => {
+      isMaximized = maximized;
+    });
+  }
 </script>
 
 <div class="container" on:dblclick|stopPropagation|preventDefault={() => electron.send('window-action', 'maximize')}>
@@ -27,7 +36,7 @@
         <FontIcon icon="icon window-minimize" />
       </div>
       <div class="button">
-        <FontIcon icon="icon window-restore" on:click={() => electron.send('window-action', 'maximize')} />
+        <FontIcon icon={`icon ${isMaximized ? 'window-restore' : 'window-maximize'}`} on:click={() => electron.send('window-action', 'maximize')} />
       </div>
       <div class="button close-button" on:click={() => electron.send('window-action', 'close')}>
         <FontIcon icon="icon window-close" />
