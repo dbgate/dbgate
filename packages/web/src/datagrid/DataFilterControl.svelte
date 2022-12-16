@@ -168,6 +168,8 @@
           { onClick: () => openFilterWindow('<>'), text: 'Does Not Equal...' },
           { onClick: () => setFilter('EXISTS'), text: 'Field exists' },
           { onClick: () => setFilter('NOT EXISTS'), text: 'Field does not exist' },
+          { onClick: () => setFilter('NOT EMPTY ARRAY'), text: 'Array is not empty' },
+          { onClick: () => setFilter('EMPTY ARRAY'), text: 'Array is empty' },
           { onClick: () => openFilterWindow('>'), text: 'Greater Than...' },
           { onClick: () => openFilterWindow('>='), text: 'Greater Than Or Equal To...' },
           { onClick: () => openFilterWindow('<'), text: 'Less Than...' },

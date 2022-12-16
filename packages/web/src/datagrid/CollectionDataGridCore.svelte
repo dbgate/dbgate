@@ -235,5 +235,6 @@
   bind:loadedRows
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}
+  onOpenQuery={openQuery}
   {grider}
 />

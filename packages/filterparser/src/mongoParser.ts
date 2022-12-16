@@ -44,6 +44,10 @@ const testCondition = (operator, value) => () => ({
   },
 });
 
+const multiTestCondition = condition => () => ({
+  __placeholder__: condition,
+});
+
 const compoudCondition = conditionType => conditions => {
   if (conditions.length == 1) return conditions[0];
   return {
@@ -85,7 +89,15 @@ const createParser = () => {
 
     comma: () => word(','),
     not: () => word('NOT'),
+    empty: () => word('EMPTY'),
+    array: () => word('ARRAY'),
     notExists: r => r.not.then(r.exists).map(testCondition('$exists', false)),
+    notEmptyArray: r =>
+      r.not
+        .then(r.empty)
+        .then(r.array)
+        .map(multiTestCondition({ $exists: true, $type: 'array', $ne: [] })),
+    emptyArray: r => r.empty.then(r.array).map(multiTestCondition({ $exists: true, $eq: [] })),
     exists: () => word('EXISTS').map(testCondition('$exists', true)),
     true: () => word('TRUE').map(testCondition('$eq', true)),
     false: () => word('FALSE').map(testCondition('$eq', false)),
@@ -117,6 +129,8 @@ const createParser = () => {
         r.gt,
         r.le,
         r.ge,
+        r.notEmptyArray,
+        r.emptyArray,
         r.startsWith,
         r.endsWith,
         r.contains,

@@ -1634,6 +1634,9 @@
     {#if grider.editable}
       <FormStyledButton value="Add document" on:click={addJsonDocument} />
     {/if}
+    {#if onOpenQuery}
+      <FormStyledButton value="Open Query" on:click={onOpenQuery} />
+    {/if}
   </div>
 {:else if grider.errors && grider.errors.length > 0}
   <div>
