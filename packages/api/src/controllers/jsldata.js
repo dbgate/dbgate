@@ -7,6 +7,7 @@ const DatastoreProxy = require('../utility/DatastoreProxy');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const getJslFileName = require('../utility/getJslFileName');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
+const requirePluginFunction = require('../utility/requirePluginFunction');
 const socket = require('../utility/socket');
 
 function readFirstLine(file) {
@@ -99,10 +100,11 @@ module.exports = {
   //   return readerInfo;
   // },
 
-  async ensureDatastore(jslid) {
+  async ensureDatastore(jslid, formatterFunction) {
+    const rowFormatter = requirePluginFunction(formatterFunction);
     let datastore = this.datastores[jslid];
     if (!datastore) {
-      datastore = new JsonLinesDatastore(getJslFileName(jslid));
+      datastore = new JsonLinesDatastore(getJslFileName(jslid), rowFormatter);
       // datastore = new DatastoreProxy(getJslFileName(jslid));
       this.datastores[jslid] = datastore;
     }
@@ -131,8 +133,8 @@ module.exports = {
   },
 
   getRows_meta: true,
-  async getRows({ jslid, offset, limit, filters }) {
-    const datastore = await this.ensureDatastore(jslid);
+  async getRows({ jslid, offset, limit, filters, formatterFunction }) {
+    const datastore = await this.ensureDatastore(jslid, formatterFunction);
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters);
   },
 
@@ -150,8 +152,8 @@ module.exports = {
   },
 
   loadFieldValues_meta: true,
-  async loadFieldValues({ jslid, field, search }) {
-    const datastore = await this.ensureDatastore(jslid);
+  async loadFieldValues({ jslid, field, search, formatterFunction }) {
+    const datastore = await this.ensureDatastore(jslid, formatterFunction);
     const res = new Set();
     await datastore.enumRows(row => {
       if (!filterName(search, row[field])) return true;

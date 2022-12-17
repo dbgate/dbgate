@@ -34,6 +34,7 @@ const driver = {
   supportsDatabaseUrl: true,
   supportsServerSummary: true,
   supportsDatabaseProfiler: true,
+  profilerFormatterFunction: 'formatProfilerEntry@dbgate-plugin-mongo',
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
   getQuerySplitterOptions: () => mongoSplitterOptions,

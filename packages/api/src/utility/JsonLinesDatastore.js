@@ -22,8 +22,9 @@ function fetchNextLineFromReader(reader) {
 }
 
 class JsonLinesDatastore {
-  constructor(file) {
+  constructor(file, rowFormatter) {
     this.file = file;
+    this.rowFormatter = rowFormatter;
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
@@ -62,6 +63,11 @@ class JsonLinesDatastore {
     );
   }
 
+  parseLine(line) {
+    const res = JSON.parse(line);
+    return this.rowFormatter ? this.rowFormatter(res) : res;
+  }
+
   async _readLine(parse) {
     // if (this.firstRowToBeReturned) {
     //   const res = this.firstRowToBeReturned;
@@ -84,14 +90,14 @@ class JsonLinesDatastore {
         }
       }
       if (this.currentFilter) {
-        const parsedLine = JSON.parse(line);
+        const parsedLine = this.parseLine(line);
         if (evaluateCondition(this.currentFilter, parsedLine)) {
           this.readedDataRowCount += 1;
           return parse ? parsedLine : true;
         }
       } else {
         this.readedDataRowCount += 1;
-        return parse ? JSON.parse(line) : true;
+        return parse ? this.parseLine(line) : true;
       }
     }
 

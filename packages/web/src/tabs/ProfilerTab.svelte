@@ -32,6 +32,8 @@
 </script>
 
 <script>
+  import { findEngineDriver } from 'dbgate-tools';
+
   import { onDestroy, onMount } from 'svelte';
 
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
@@ -46,6 +48,8 @@
   import { currentArchive, selectedWidget } from '../stores';
   import { apiCall } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
+  import { useConnectionInfo } from '../utility/metadataLoaders';
+  import { extensions } from '../stores';
 
   export const activator = createActivator('ProfilerTab', true);
 
@@ -57,6 +61,9 @@
   let sessionId;
 
   let intervalId;
+
+  $: connection = useConnectionInfo({ conid });
+  $: engine = findEngineDriver($connection, $extensions);
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -125,7 +132,7 @@
 
 <ToolStripContainer>
   {#if jslid}
-    <JslDataGrid {jslid} listenInitializeFile />
+    <JslDataGrid {jslid} listenInitializeFile formatterFunction={engine?.profilerFormatterFunction} />
   {:else}
     <ErrorInfo message="Profiler not yet started" alignTop />
   {/if}

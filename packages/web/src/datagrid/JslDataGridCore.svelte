@@ -12,12 +12,13 @@
   });
 
   async function loadDataPage(props, offset, limit) {
-    const { jslid, display } = props;
+    const { jslid, display, formatterFunction } = props;
 
     const response = await apiCall('jsldata/get-rows', {
       jslid,
       offset,
       limit,
+      formatterFunction,
       filters: display ? display.compileFilters() : null,
     });
 
@@ -34,6 +35,9 @@
     const response = await apiCall('jsldata/get-stats', { jslid });
     return response.rowCount;
   }
+
+  export let formatterPlugin;
+  export let formatterFunction;
 </script>
 
 <script lang="ts">
@@ -56,6 +60,7 @@
 
   export let jslid;
   export let display;
+  export let formatterFunction;
 
   export const activator = createActivator('JslDataGridCore', false);
 

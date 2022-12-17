@@ -78,6 +78,7 @@ export interface EngineDriver {
   supportsDatabaseDump?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
+  profilerFormatterFunction?: string;
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
