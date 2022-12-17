@@ -8,7 +8,7 @@
     category: 'Profiler',
     name: 'Start profiling',
     icon: 'icon play',
-    testEnabled: () => getCurrentEditor() && !getCurrentEditor()?.isProfiling(),
+    testEnabled: () => getCurrentEditor()?.startProfilingEnabled(),
     onClick: () => getCurrentEditor().startProfiling(),
   });
 
@@ -17,7 +17,7 @@
     category: 'Profiler',
     name: 'Stop profiling',
     icon: 'icon play-stop',
-    testEnabled: () => getCurrentEditor()?.isProfiling(),
+    testEnabled: () => getCurrentEditor()?.stopProfilingEnabled(),
     onClick: () => getCurrentEditor().stopProfiling(),
   });
 
@@ -55,9 +55,10 @@
 
   export let conid;
   export let database;
+  export let jslid;
+  export let formatterFunction;
 
   let profiling = false;
-  let jslid;
   let sessionId;
 
   let intervalId;
@@ -104,11 +105,19 @@
     invalidateCommands();
   }
 
+  export function startProfilingEnabled() {
+    return conid && database && !isProfiling;
+  }
+
   export function stopProfiling() {
     profiling = false;
     apiCall('sessions/stop-profiler', { sesid: sessionId });
 
     invalidateCommands();
+  }
+
+  export function stopProfilingEnabled() {
+    return conid && database && isProfiling;
   }
 
   export function saveEnabled() {
@@ -132,7 +141,11 @@
 
 <ToolStripContainer>
   {#if jslid}
-    <JslDataGrid {jslid} listenInitializeFile formatterFunction={engine?.profilerFormatterFunction} />
+    <JslDataGrid
+      {jslid}
+      listenInitializeFile
+      formatterFunction={formatterFunction || engine?.profilerFormatterFunction}
+    />
   {:else}
     <ErrorInfo message="Profiler not yet started" alignTop />
   {/if}
