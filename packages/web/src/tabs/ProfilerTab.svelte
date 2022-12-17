@@ -20,6 +20,15 @@
     testEnabled: () => getCurrentEditor()?.isProfiling(),
     onClick: () => getCurrentEditor().stopProfiling(),
   });
+
+  registerCommand({
+    id: 'profiler.save',
+    category: 'Profiler',
+    name: 'Save',
+    icon: 'icon save',
+    testEnabled: () => getCurrentEditor()?.saveEnabled(),
+    onClick: () => getCurrentEditor().save(),
+  });
 </script>
 
 <script>
@@ -32,6 +41,9 @@
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
+  import { showModal } from '../modals/modalTools';
+  import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
+  import { currentArchive, selectedWidget } from '../stores';
   import { apiCall } from '../utility/api';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
 
@@ -91,6 +103,24 @@
 
     invalidateCommands();
   }
+
+  export function saveEnabled() {
+    return !!jslid;
+  }
+
+  async function doSave(folder, file) {
+    await apiCall('archive/save-jsl-data', { folder, file, jslid });
+    currentArchive.set(folder);
+    selectedWidget.set('archive');
+  }
+
+  export function save() {
+    showModal(SaveArchiveModal, {
+      //   folder: archiveFolder,
+      //   file: archiveFile,
+      onSave: doSave,
+    });
+  }
 </script>
 
 <ToolStripContainer>
@@ -111,5 +141,6 @@
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="profiler.start" />
     <ToolStripCommandButton command="profiler.stop" />
+    <ToolStripCommandButton command="profiler.save" />
   </svelte:fragment>
 </ToolStripContainer>
