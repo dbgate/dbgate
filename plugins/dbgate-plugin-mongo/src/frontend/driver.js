@@ -33,6 +33,15 @@ const driver = {
   defaultPort: 27017,
   supportsDatabaseUrl: true,
   supportsServerSummary: true,
+  supportsDatabaseProfiler: true,
+  profilerFormatterFunction: 'formatProfilerEntry@dbgate-plugin-mongo',
+  profilerTimestampFunction: 'extractProfileTimestamp@dbgate-plugin-mongo',
+  profilerChartAggregateFunction: 'aggregateProfileChartEntry@dbgate-plugin-mongo',
+  profilerChartMeasures: [
+    { label: 'Req count/s', field: 'countPerSec' },
+    { label: 'Avg duration', field: 'avgDuration' },
+    { label: 'Max duration', field: 'maxDuration' },
+  ],
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
   getQuerySplitterOptions: () => mongoSplitterOptions,

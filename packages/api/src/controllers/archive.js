@@ -5,6 +5,7 @@ const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('..
 const socket = require('../utility/socket');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
+const getJslFileName = require('../utility/getJslFileName');
 
 module.exports = {
   folders_meta: true,
@@ -146,6 +147,15 @@ module.exports = {
   saveText_meta: true,
   async saveText({ folder, file, text }) {
     await fs.writeFile(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), text);
+    socket.emitChanged(`archive-files-changed-${folder}`);
+    return true;
+  },
+
+  saveJslData_meta: true,
+  async saveJslData({ folder, file, jslid }) {
+    const source = getJslFileName(jslid);
+    const target = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
+    await fs.copyFile(source, target);
     socket.emitChanged(`archive-files-changed-${folder}`);
     return true;
   },

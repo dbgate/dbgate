@@ -16,6 +16,7 @@ let storedConnection;
 let afterConnectCallbacks = [];
 // let currentHandlers = [];
 let lastPing = null;
+let currentProfiler = null;
 
 class TableWriter {
   constructor() {
@@ -210,6 +211,31 @@ function waitConnected() {
   });
 }
 
+async function handleStartProfiler({ jslid }) {
+  await waitConnected();
+  const driver = requireEngineDriver(storedConnection);
+
+  if (!allowExecuteCustomScript(driver)) {
+    process.send({ msgtype: 'done' });
+    return;
+  }
+
+  const writer = new TableWriter();
+  writer.initializeFromReader(jslid);
+
+  currentProfiler = await driver.startProfiler(systemConnection, {
+    row: data => writer.rowFromReader(data),
+  });
+  currentProfiler.writer = writer;
+}
+
+async function handleStopProfiler({ jslid }) {
+  const driver = requireEngineDriver(storedConnection);
+  currentProfiler.writer.close();
+  driver.stopProfiler(systemConnection, currentProfiler);
+  currentProfiler = null;
+}
+
 async function handleExecuteQuery({ sql }) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
@@ -280,6 +306,8 @@ const messageHandlers = {
   connect: handleConnect,
   executeQuery: handleExecuteQuery,
   executeReader: handleExecuteReader,
+  startProfiler: handleStartProfiler,
+  stopProfiler: handleStopProfiler,
   ping: handlePing,
   // cancel: handleCancel,
 };

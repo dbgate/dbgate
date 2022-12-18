@@ -33,6 +33,7 @@
   export let customCommandIcon = null;
   export let onCustomCommand = null;
   export let customCommandTooltip = null;
+  export let formatterFunction = null;
 
   export let pureName = null;
   export let schemaName = null;
@@ -276,6 +277,7 @@
       schemaName,
       pureName,
       field: columnName || uniqueName,
+      formatterFunction,
       onConfirm: keys => setFilter(keys.map(x => getFilterValueExpression(x)).join(',')),
     });
   }

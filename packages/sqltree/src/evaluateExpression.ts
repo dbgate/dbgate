@@ -6,7 +6,7 @@ import { dumpSqlSourceRef } from './dumpSqlSource';
 export function evaluateExpression(expr: Expression, values) {
   switch (expr.exprType) {
     case 'column':
-      return values[expr.columnName];
+      return _.get(values, expr.columnName);
 
     case 'placeholder':
       return values.__placeholder;

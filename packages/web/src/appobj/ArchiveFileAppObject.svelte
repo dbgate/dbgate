@@ -41,7 +41,10 @@
   }
 
   export const extractKey = data => data.fileName;
-  export const createMatcher = ({ fileName }) => filter => filterName(filter, fileName);
+  export const createMatcher =
+    ({ fileName }) =>
+    filter =>
+      filterName(filter, fileName);
   const ARCHIVE_ICONS = {
     'table.yaml': 'img table',
     'view.sql': 'img view',
@@ -67,7 +70,7 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase } from '../stores';
+  import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase, getExtensions } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportQuickExportFile } from '../utility/exportFileTools';
@@ -198,6 +201,29 @@
         ),
       data.fileType.endsWith('.sql') && { text: 'Open SQL', onClick: handleOpenSqlFile },
       data.fileType.endsWith('.yaml') && { text: 'Open YAML', onClick: handleOpenYamlFile },
+      data.fileType == 'jsonl' && {
+        text: 'Open in profiler',
+        submenu: getExtensions()
+          .drivers.filter(eng => eng.profilerFormatterFunction)
+          .map(eng => ({
+            text: eng.title,
+            onClick: () => {
+              openNewTab({
+                title: 'Profiler',
+                icon: 'img profiler',
+                tabComponent: 'ProfilerTab',
+                props: {
+                  jslidLoad: `archive://${data.folderName}/${data.fileName}`,
+                  engine: eng.engine,
+                  // profilerFormatterFunction: eng.profilerFormatterFunction,
+                  // profilerTimestampFunction: eng.profilerTimestampFunction,
+                  // profilerChartAggregateFunction: eng.profilerChartAggregateFunction,
+                  // profilerChartMeasures: eng.profilerChartMeasures,
+                },
+              });
+            },
+          })),
+      },
     ];
   }
 </script>

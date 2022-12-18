@@ -3,6 +3,7 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
+const requirePluginFunction = require('./requirePluginFunction');
 
 function fetchNextLineFromReader(reader) {
   return new Promise((resolve, reject) => {
@@ -22,14 +23,16 @@ function fetchNextLineFromReader(reader) {
 }
 
 class JsonLinesDatastore {
-  constructor(file) {
+  constructor(file, formatterFunction) {
     this.file = file;
+    this.formatterFunction = formatterFunction;
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
     // this.firstRowToBeReturned = null;
     this.notifyChangedCallback = null;
     this.currentFilter = null;
+    this.rowFormatter = requirePluginFunction(formatterFunction);
   }
 
   _closeReader() {
@@ -62,6 +65,11 @@ class JsonLinesDatastore {
     );
   }
 
+  parseLine(line) {
+    const res = JSON.parse(line);
+    return this.rowFormatter ? this.rowFormatter(res) : res;
+  }
+
   async _readLine(parse) {
     // if (this.firstRowToBeReturned) {
     //   const res = this.firstRowToBeReturned;
@@ -84,14 +92,14 @@ class JsonLinesDatastore {
         }
       }
       if (this.currentFilter) {
-        const parsedLine = JSON.parse(line);
+        const parsedLine = this.parseLine(line);
         if (evaluateCondition(this.currentFilter, parsedLine)) {
           this.readedDataRowCount += 1;
           return parse ? parsedLine : true;
         }
       } else {
         this.readedDataRowCount += 1;
-        return parse ? JSON.parse(line) : true;
+        return parse ? this.parseLine(line) : true;
       }
     }
 
