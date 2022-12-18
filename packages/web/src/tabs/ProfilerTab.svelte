@@ -56,13 +56,12 @@
 
   export let conid;
   export let database;
-  export let jslid;
-  export let profilerFormatterFunction;
-  export let profilerTimestampFunction;
-  export let profilerChartAggregateFunction;
-  export let profilerChartMeasures;
+  export let engine;
+  export let jslidLoad;
 
-  let profiling = false;
+  let jslidSession;
+
+  let isProfiling = false;
   let sessionId;
   let isLoadingChart = false;
 
@@ -70,7 +69,8 @@
   let chartData;
 
   $: connection = useConnectionInfo({ conid });
-  $: driver = findEngineDriver($connection, $extensions);
+  $: driver = findEngineDriver(engine || $connection, $extensions);
+  $: jslid = jslidSession || jslidLoad;
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -80,22 +80,20 @@
         });
       }
     }, 15 * 1000);
+  });
 
-    if (jslid) {
+  $: {
+    if (jslidLoad && driver) {
       loadChart();
     }
-  });
+  }
 
   onDestroy(() => {
     clearInterval(intervalId);
   });
 
-  export function isProfiling() {
-    return profiling;
-  }
-
   export async function startProfiling() {
-    profiling = true;
+    isProfiling = true;
 
     let sesid = sessionId;
     if (!sesid) {
@@ -110,7 +108,7 @@
     const resp = await apiCall('sessions/start-profiler', {
       sesid,
     });
-    jslid = resp.jslid;
+    jslidSession = resp.jslid;
 
     invalidateCommands();
   }
@@ -123,15 +121,15 @@
     isLoadingChart = true;
 
     const colors = randomcolor({
-      count: (profilerChartMeasures || driver.profilerChartMeasures).length,
+      count: driver.profilerChartMeasures.length,
       seed: 5,
     });
 
     const data = await apiCall('jsldata/extract-timeline-chart', {
       jslid,
-      timestampFunction: profilerTimestampFunction || driver.profilerTimestampFunction,
-      aggregateFunction: profilerChartAggregateFunction || driver.profilerChartAggregateFunction,
-      measures: profilerChartMeasures || driver.profilerChartMeasures,
+      timestampFunction: driver.profilerTimestampFunction,
+      aggregateFunction: driver.profilerChartAggregateFunction,
+      measures: driver.profilerChartMeasures,
     });
     chartData = {
       ...data,
@@ -145,8 +143,10 @@
   }
 
   export async function stopProfiling() {
-    profiling = false;
-    apiCall('sessions/stop-profiler', { sesid: sessionId });
+    isProfiling = false;
+    await apiCall('sessions/stop-profiler', { sesid: sessionId });
+    await apiCall('sessions/kill', { sesid: sessionId });
+    sessionId = null;
 
     invalidateCommands();
 
@@ -158,7 +158,7 @@
   }
 
   export function saveEnabled() {
-    return !!jslid;
+    return !!jslidSession;
   }
 
   async function doSave(folder, file) {
@@ -199,11 +199,9 @@
   {#if jslid}
     <VerticalSplitter allowCollapseChild1 allowCollapseChild2>
       <svelte:fragment slot="1">
-        <JslDataGrid
-          {jslid}
-          listenInitializeFile
-          formatterFunction={profilerFormatterFunction || driver?.profilerFormatterFunction}
-        />
+        {#key jslid}
+          <JslDataGrid {jslid} listenInitializeFile formatterFunction={driver?.profilerFormatterFunction} />
+        {/key}
       </svelte:fragment>
       <svelte:fragment slot="2">
         {#if isLoadingChart}

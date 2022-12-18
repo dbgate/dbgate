@@ -3,6 +3,7 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
+const requirePluginFunction = require('./requirePluginFunction');
 
 function fetchNextLineFromReader(reader) {
   return new Promise((resolve, reject) => {
@@ -22,15 +23,16 @@ function fetchNextLineFromReader(reader) {
 }
 
 class JsonLinesDatastore {
-  constructor(file, rowFormatter) {
+  constructor(file, formatterFunction) {
     this.file = file;
-    this.rowFormatter = rowFormatter;
+    this.formatterFunction = formatterFunction;
     this.reader = null;
     this.readedDataRowCount = 0;
     this.readedSchemaRow = false;
     // this.firstRowToBeReturned = null;
     this.notifyChangedCallback = null;
     this.currentFilter = null;
+    this.rowFormatter = requirePluginFunction(formatterFunction);
   }
 
   _closeReader() {

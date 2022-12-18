@@ -101,13 +101,14 @@ module.exports = {
   // },
 
   async ensureDatastore(jslid, formatterFunction) {
-    const rowFormatter = requirePluginFunction(formatterFunction);
-    const dskey = `${jslid}||${formatterFunction}`;
-    let datastore = this.datastores[dskey];
-    if (!datastore) {
-      datastore = new JsonLinesDatastore(getJslFileName(jslid), rowFormatter);
+    let datastore = this.datastores[jslid];
+    if (!datastore || datastore.formatterFunction != formatterFunction) {
+      if (datastore) {
+        datastore._closeReader();
+      }
+      datastore = new JsonLinesDatastore(getJslFileName(jslid), formatterFunction);
       // datastore = new DatastoreProxy(getJslFileName(jslid));
-      this.datastores[dskey] = datastore;
+      this.datastores[jslid] = datastore;
     }
     return datastore;
   },
