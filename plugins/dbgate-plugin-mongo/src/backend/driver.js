@@ -38,7 +38,7 @@ async function getScriptableDb(pool) {
   const db = pool.__getDatabase();
   const collections = await db.listCollections().toArray();
   for (const collection of collections) {
-    db[collection.name] = db.collection(collection.name);
+    _.set(db, collection.name, db.collection(collection.name));
   }
   return db;
 }
@@ -164,6 +164,49 @@ const driver = {
     }
 
     options.done();
+  },
+  async startProfiler(pool, options) {
+    const db = await getScriptableDb(pool);
+    const old = await db.command({ profile: -1 });
+    await db.command({ profile: 2 });
+    const cursor = await db.collection('system.profile').find({
+      ns: /^((?!(admin\.\$cmd|\.system|\.tmp\.)).)*$/,
+      ts: { $gt: new Date() },
+      'command.profile': { $exists: false },
+      'command.collStats': { $exists: false },
+      'command.collstats': { $exists: false },
+      'command.createIndexes': { $exists: false },
+      'command.listIndexes': { $exists: false },
+      // "command.cursor": {"$exists": false},
+      'command.create': { $exists: false },
+      'command.dbstats': { $exists: false },
+      'command.scale': { $exists: false },
+      'command.explain': { $exists: false },
+      'command.killCursors': { $exists: false },
+      'command.count': { $ne: 'system.profile' },
+      op: /^((?!(getmore|killcursors)).)/i,
+    });
+
+    cursor.addCursorFlag('tailable', true);
+    cursor.addCursorFlag('awaitData', true);
+
+    cursor
+      .forEach((row) => {
+        // console.log('ROW', row);
+        options.row(row);
+      })
+      .catch((err) => {
+        console.error('Cursor stopped with error:', err.message);
+      });
+    return {
+      cursor,
+      old,
+    };
+  },
+  async stopProfiler(pool, { cursor, old }) {
+    cursor.close();
+    const db = await getScriptableDb(pool);
+    await db.command({ profile: old.was, slowms: old.slowms });
   },
   async readQuery(pool, sql, structure) {
     try {

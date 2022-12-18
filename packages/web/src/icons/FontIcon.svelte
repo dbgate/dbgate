@@ -50,6 +50,9 @@
     'icon close': 'mdi mdi-close',
     'icon unsaved': 'mdi mdi-record',
     'icon stop': 'mdi mdi-close-octagon',
+    'icon play': 'mdi mdi-play',
+    'icon play-stop': 'mdi mdi-stop',
+    'icon pause': 'mdi mdi-pause',
     'icon filter': 'mdi mdi-filter',
     'icon filter-off': 'mdi mdi-filter-off',
     'icon reload': 'mdi mdi-reload',
@@ -177,6 +180,7 @@
     'img app-command': 'mdi mdi-flash color-icon-green',
     'img app-query': 'mdi mdi-view-comfy color-icon-magenta',
     'img connection': 'mdi mdi-connection color-icon-blue',
+    'img profiler': 'mdi mdi-gauge color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

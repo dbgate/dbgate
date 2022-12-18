@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _get from 'lodash/get';
 import { SqlDumper } from 'dbgate-types';
 import { Expression, ColumnRefExpression } from './types';
 import { dumpSqlSourceRef } from './dumpSqlSource';
@@ -6,7 +6,7 @@ import { dumpSqlSourceRef } from './dumpSqlSource';
 export function evaluateExpression(expr: Expression, values) {
   switch (expr.exprType) {
     case 'column':
-      return values[expr.columnName];
+      return _get(values, expr.columnName);
 
     case 'placeholder':
       return values.__placeholder;

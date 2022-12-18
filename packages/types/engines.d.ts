@@ -77,6 +77,11 @@ export interface EngineDriver {
   supportsDatabaseUrl?: boolean;
   supportsDatabaseDump?: boolean;
   supportsServerSummary?: boolean;
+  supportsDatabaseProfiler?: boolean;
+  profilerFormatterFunction?: string;
+  profilerTimestampFunction?: string;
+  profilerChartAggregateFunction?: string;
+  profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;
   showConnectionField?: (field: string, values: any) => boolean;
@@ -130,6 +135,8 @@ export interface EngineDriver {
   callMethod(pool, method, args);
   serverSummary(pool): Promise<ServerSummary>;
   summaryCommand(pool, command, row): Promise<void>;
+  startProfiler(pool, options): Promise<any>;
+  stopProfiler(pool, profiler): Promise<void>;
 
   analyserClass?: any;
   dumperClass?: any;

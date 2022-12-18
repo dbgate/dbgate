@@ -27,6 +27,7 @@ import * as ConnectionTab from './ConnectionTab.svelte';
 import * as MapTab from './MapTab.svelte';
 import * as PerspectiveTab from './PerspectiveTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
+import * as ProfilerTab from './ProfilerTab.svelte';
 
 export default {
   TableDataTab,
@@ -58,4 +59,5 @@ export default {
   MapTab,
   PerspectiveTab,
   ServerSummaryTab,
+  ProfilerTab,
 };

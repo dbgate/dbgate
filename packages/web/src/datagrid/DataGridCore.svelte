@@ -355,6 +355,7 @@
   export let pureName = undefined;
   export let schemaName = undefined;
   export let allowDefineVirtualReferences = false;
+  export let formatterFunction;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -1743,6 +1744,7 @@
                   {conid}
                   {database}
                   {jslid}
+                  {formatterFunction}
                   driver={display?.driver}
                   filterType={useEvalFilters ? 'eval' : col.filterType || getFilterType(col.dataType)}
                   filter={display.getFilter(col.uniqueName)}

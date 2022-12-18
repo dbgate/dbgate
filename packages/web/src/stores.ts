@@ -216,7 +216,7 @@ export const getCurrentDatabase = () => currentDatabaseValue;
 let currentSettingsValue = null;
 export const getCurrentSettings = () => currentSettingsValue || {};
 
-let extensionsValue = null;
+let extensionsValue: ExtensionsDirectory = null;
 extensions.subscribe(value => {
   extensionsValue = value;
 });
