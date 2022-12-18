@@ -79,7 +79,8 @@ export interface EngineDriver {
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
   profilerFormatterFunction?: string;
-  profilerChartFormatterFunction?: string;
+  profilerTimestampFunction?: string;
+  profilerChartAggregateFunction?: string;
   profilerChartMeasures?: { label: string; field: string }[];
   isElectronOnly?: boolean;
   supportedCreateDatabase?: boolean;

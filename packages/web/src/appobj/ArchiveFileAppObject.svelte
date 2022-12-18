@@ -215,7 +215,8 @@
                 props: {
                   jslid: `archive://${data.folderName}/${data.fileName}`,
                   profilerFormatterFunction: eng.profilerFormatterFunction,
-                  profilerChartFormatterFunction: eng.profilerChartFormatterFunction,
+                  profilerTimestampFunction: eng.profilerTimestampFunction,
+                  profilerChartAggregateFunction: eng.profilerChartAggregateFunction,
                   profilerChartMeasures: eng.profilerChartMeasures,
                 },
               });

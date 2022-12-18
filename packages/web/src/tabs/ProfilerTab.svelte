@@ -58,7 +58,8 @@
   export let database;
   export let jslid;
   export let profilerFormatterFunction;
-  export let profilerChartFormatterFunction;
+  export let profilerTimestampFunction;
+  export let profilerChartAggregateFunction;
   export let profilerChartMeasures;
 
   let profiling = false;
@@ -128,7 +129,8 @@
 
     const data = await apiCall('jsldata/extract-timeline-chart', {
       jslid,
-      formatterFunction: profilerChartFormatterFunction || engine.profilerChartFormatterFunction,
+      timestampFunction: profilerTimestampFunction || engine.profilerTimestampFunction,
+      aggregateFunction: profilerChartAggregateFunction || engine.profilerChartAggregateFunction,
       measures: profilerChartMeasures || engine.profilerChartMeasures,
     });
     chartData = {

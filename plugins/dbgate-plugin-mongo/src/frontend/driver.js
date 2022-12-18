@@ -35,10 +35,15 @@ const driver = {
   supportsServerSummary: true,
   supportsDatabaseProfiler: true,
   profilerFormatterFunction: 'formatProfilerEntry@dbgate-plugin-mongo',
-  profilerChartFormatterFunction: 'formatProfilerChartEntry@dbgate-plugin-mongo',
+  profilerTimestampFunction: 'extractProfileTimestamp@dbgate-plugin-mongo',
+  profilerChartAggregateFunction: 'aggregateProfileChartEntry@dbgate-plugin-mongo',
   profilerChartMeasures: [
-    { label: 'Req count', field: 'count' },
-    { label: 'Duration', field: 'millis' },
+    { label: 'Req count/s', field: 'countPerSec' },
+    { label: 'Avg duration', field: 'avgDuration' },
+
+    // { label: 'Req count/s', field: 'countPerSec', perSecond: true },
+    // { field: 'countAll', hidden: true },
+    // { label: 'Avg duration', field: 'millis', perField: 'countAll' },
   ],
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 

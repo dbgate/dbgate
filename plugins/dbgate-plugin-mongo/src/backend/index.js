@@ -1,12 +1,16 @@
 const driver = require('./driver');
-const formatProfilerEntry = require('../frontend/formatProfilerEntry');
-const formatProfilerChartEntry = require('../frontend/formatProfilerChartEntry');
+const {
+  formatProfilerEntry,
+  extractProfileTimestamp,
+  aggregateProfileChartEntry,
+} = require('../frontend/profilerFunctions');
 
 module.exports = {
   packageName: 'dbgate-plugin-mongo',
   drivers: [driver],
   functions: {
     formatProfilerEntry,
-    formatProfilerChartEntry,
+    extractProfileTimestamp,
+    aggregateProfileChartEntry,
   },
 };

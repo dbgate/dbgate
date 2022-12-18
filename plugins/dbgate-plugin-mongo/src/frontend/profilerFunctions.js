@@ -69,4 +69,33 @@ function formatProfilerEntry(obj) {
   };
 }
 
-module.exports = formatProfilerEntry;
+function extractProfileTimestamp(obj) {
+  return obj.ts;
+}
+
+function aggregateProfileChartEntry(aggr, obj, stepDuration) {
+  // const fmt = formatProfilerEntry(obj);
+
+  const countAll = (aggr.countAll || 0) + 1;
+  const sumMillis = (aggr.sumMillis || 0) + obj.millis;
+
+  return {
+    countAll,
+    sumMillis,
+    countPerSec: (countAll / stepDuration) * 1000,
+    avgDuration: sumMillis / countAll,
+  };
+
+  //   return {
+  //     ts: fmt.ts,
+  //     millis: fmt.stats.millis,
+  //     countAll: 1,
+  //     countPerSec: 1,
+  //   };
+}
+
+module.exports = {
+  formatProfilerEntry,
+  extractProfileTimestamp,
+  aggregateProfileChartEntry,
+};
