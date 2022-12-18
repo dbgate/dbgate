@@ -214,6 +214,7 @@
                 tabComponent: 'ProfilerTab',
                 props: {
                   jslid: `archive://${data.folderName}/${data.fileName}`,
+                  // engine: eng.engine,
                   profilerFormatterFunction: eng.profilerFormatterFunction,
                   profilerTimestampFunction: eng.profilerTimestampFunction,
                   profilerChartAggregateFunction: eng.profilerChartAggregateFunction,

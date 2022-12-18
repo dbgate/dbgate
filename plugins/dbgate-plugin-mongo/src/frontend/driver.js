@@ -40,10 +40,7 @@ const driver = {
   profilerChartMeasures: [
     { label: 'Req count/s', field: 'countPerSec' },
     { label: 'Avg duration', field: 'avgDuration' },
-
-    // { label: 'Req count/s', field: 'countPerSec', perSecond: true },
-    // { field: 'countAll', hidden: true },
-    // { label: 'Avg duration', field: 'millis', perField: 'countAll' },
+    { label: 'Max duration', field: 'maxDuration' },
   ],
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 

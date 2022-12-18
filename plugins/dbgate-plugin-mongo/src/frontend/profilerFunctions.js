@@ -78,12 +78,14 @@ function aggregateProfileChartEntry(aggr, obj, stepDuration) {
 
   const countAll = (aggr.countAll || 0) + 1;
   const sumMillis = (aggr.sumMillis || 0) + obj.millis;
+  const maxDuration = obj.millis > (aggr.maxDuration || 0) ? obj.millis : aggr.maxDuration || 0;
 
   return {
     countAll,
     sumMillis,
     countPerSec: (countAll / stepDuration) * 1000,
     avgDuration: sumMillis / countAll,
+    maxDuration,
   };
 
   //   return {

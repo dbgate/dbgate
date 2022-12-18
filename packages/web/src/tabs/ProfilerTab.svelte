@@ -70,7 +70,7 @@
   let chartData;
 
   $: connection = useConnectionInfo({ conid });
-  $: engine = findEngineDriver($connection, $extensions);
+  $: driver = findEngineDriver($connection, $extensions);
 
   onMount(() => {
     intervalId = setInterval(() => {
@@ -123,15 +123,15 @@
     isLoadingChart = true;
 
     const colors = randomcolor({
-      count: (profilerChartMeasures || engine.profilerChartMeasures).length,
+      count: (profilerChartMeasures || driver.profilerChartMeasures).length,
       seed: 5,
     });
 
     const data = await apiCall('jsldata/extract-timeline-chart', {
       jslid,
-      timestampFunction: profilerTimestampFunction || engine.profilerTimestampFunction,
-      aggregateFunction: profilerChartAggregateFunction || engine.profilerChartAggregateFunction,
-      measures: profilerChartMeasures || engine.profilerChartMeasures,
+      timestampFunction: profilerTimestampFunction || driver.profilerTimestampFunction,
+      aggregateFunction: profilerChartAggregateFunction || driver.profilerChartAggregateFunction,
+      measures: profilerChartMeasures || driver.profilerChartMeasures,
     });
     chartData = {
       ...data,
@@ -202,7 +202,7 @@
         <JslDataGrid
           {jslid}
           listenInitializeFile
-          formatterFunction={profilerFormatterFunction || engine?.profilerFormatterFunction}
+          formatterFunction={profilerFormatterFunction || driver?.profilerFormatterFunction}
         />
       </svelte:fragment>
       <svelte:fragment slot="2">
