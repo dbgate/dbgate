@@ -214,7 +214,9 @@
                 tabComponent: 'ProfilerTab',
                 props: {
                   jslid: `archive://${data.folderName}/${data.fileName}`,
-                  formatterFunction: eng.profilerFormatterFunction,
+                  profilerFormatterFunction: eng.profilerFormatterFunction,
+                  profilerChartFormatterFunction: eng.profilerChartFormatterFunction,
+                  profilerChartMeasures: eng.profilerChartMeasures,
                 },
               });
             },

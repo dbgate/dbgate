@@ -1,6 +1,4 @@
 <script lang="ts" context="module">
-  export const matchingProps = ['conid', 'database', 'pureName', 'sql'];
-
   const getCurrentEditor = () => getActiveComponent('ProfilerTab');
 
   registerCommand({
@@ -50,18 +48,25 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useConnectionInfo } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
+  import ChartCore from '../charts/ChartCore.svelte';
+  import LoadingInfo from '../elements/LoadingInfo.svelte';
+  import randomcolor from 'randomcolor';
 
   export const activator = createActivator('ProfilerTab', true);
 
   export let conid;
   export let database;
   export let jslid;
-  export let formatterFunction;
+  export let profilerFormatterFunction;
+  export let profilerChartFormatterFunction;
+  export let profilerChartMeasures;
 
   let profiling = false;
   let sessionId;
+  let isLoadingChart = false;
 
   let intervalId;
+  let chartData;
 
   $: connection = useConnectionInfo({ conid });
   $: engine = findEngineDriver($connection, $extensions);
@@ -74,6 +79,10 @@
         });
       }
     }, 15 * 1000);
+
+    if (jslid) {
+      loadChart();
+    }
   });
 
   onDestroy(() => {
@@ -109,11 +118,37 @@
     return conid && database && !isProfiling;
   }
 
-  export function stopProfiling() {
+  async function loadChart() {
+    isLoadingChart = true;
+
+    const colors = randomcolor({
+      count: (profilerChartMeasures || engine.profilerChartMeasures).length,
+      seed: 5,
+    });
+
+    const data = await apiCall('jsldata/extract-timeline-chart', {
+      jslid,
+      formatterFunction: profilerChartFormatterFunction || engine.profilerChartFormatterFunction,
+      measures: profilerChartMeasures || engine.profilerChartMeasures,
+    });
+    chartData = {
+      ...data,
+      labels: data.labels.map(x => new Date(x)),
+      datasets: data.datasets.map((x, i) => ({
+        ...x,
+        borderColor: colors[i],
+      })),
+    };
+    isLoadingChart = false;
+  }
+
+  export async function stopProfiling() {
     profiling = false;
     apiCall('sessions/stop-profiler', { sesid: sessionId });
 
     invalidateCommands();
+
+    loadChart();
   }
 
   export function stopProfilingEnabled() {
@@ -137,27 +172,76 @@
       onSave: doSave,
     });
   }
+
+  // const data = [
+  //   { year: 2010, count: 10 },
+  //   { year: 2011, count: 20 },
+  //   { year: 2012, count: 15 },
+  //   { year: 2013, count: 25 },
+  //   { year: 2014, count: 22 },
+  //   { year: 2015, count: 30 },
+  //   { year: 2016, count: 28 },
+  // ];
+  // {
+  //   labels: data.map(row => row.year),
+  //   datasets: [
+  //     {
+  //       label: 'Acquisitions by year',
+  //       data: data.map(row => row.count),
+  //     },
+  //   ],
+  // }
 </script>
 
 <ToolStripContainer>
   {#if jslid}
-    <JslDataGrid
-      {jslid}
-      listenInitializeFile
-      formatterFunction={formatterFunction || engine?.profilerFormatterFunction}
-    />
+    <VerticalSplitter allowCollapseChild1 allowCollapseChild2>
+      <svelte:fragment slot="1">
+        <JslDataGrid
+          {jslid}
+          listenInitializeFile
+          formatterFunction={profilerFormatterFunction || engine?.profilerFormatterFunction}
+        />
+      </svelte:fragment>
+      <svelte:fragment slot="2">
+        {#if isLoadingChart}
+          <LoadingInfo wrapper message="Loading chart" />
+        {:else}
+          <ChartCore
+            title="Profile data"
+            data={chartData}
+            options={{
+              maintainAspectRatio: false,
+              scales: {
+                x: {
+                  type: 'time',
+                  distribution: 'linear',
+
+                  time: {
+                    tooltipFormat: 'D. M. YYYY HH:mm',
+                    displayFormats: {
+                      millisecond: 'HH:mm:ss.SSS',
+                      second: 'HH:mm:ss',
+                      minute: 'HH:mm',
+                      hour: 'D.M hA',
+                      day: 'D. M.',
+                      week: 'D. M. YYYY',
+                      month: 'MM-YYYY',
+                      quarter: '[Q]Q - YYYY',
+                      year: 'YYYY',
+                    },
+                  },
+                },
+              },
+            }}
+          />
+        {/if}
+      </svelte:fragment>
+    </VerticalSplitter>
   {:else}
     <ErrorInfo message="Profiler not yet started" alignTop />
   {/if}
 
-  <!-- <VerticalSplitter>
-    <svelte:fragment slot="1">
-      {#if jslid}
-        <JslDataGrid {jslid} listenInitializeFile />
-      {/if}
-    </svelte:fragment>
-    <svelte:fragment slot="2">DETAIL</svelte:fragment>
-  </VerticalSplitter> -->
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="profiler.start" />
     <ToolStripCommandButton command="profiler.stop" />

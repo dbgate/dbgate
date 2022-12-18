@@ -35,6 +35,11 @@ const driver = {
   supportsServerSummary: true,
   supportsDatabaseProfiler: true,
   profilerFormatterFunction: 'formatProfilerEntry@dbgate-plugin-mongo',
+  profilerChartFormatterFunction: 'formatProfilerChartEntry@dbgate-plugin-mongo',
+  profilerChartMeasures: [
+    { label: 'Req count', field: 'count' },
+    { label: 'Duration', field: 'millis' },
+  ],
   databaseUrlPlaceholder: 'e.g. mongodb://username:password@mongodb.mydomain.net/dbname',
 
   getQuerySplitterOptions: () => mongoSplitterOptions,

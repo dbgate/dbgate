@@ -102,11 +102,12 @@ module.exports = {
 
   async ensureDatastore(jslid, formatterFunction) {
     const rowFormatter = requirePluginFunction(formatterFunction);
-    let datastore = this.datastores[jslid];
+    const dskey = `${jslid}||${formatterFunction}`;
+    let datastore = this.datastores[dskey];
     if (!datastore) {
       datastore = new JsonLinesDatastore(getJslFileName(jslid), rowFormatter);
       // datastore = new DatastoreProxy(getJslFileName(jslid));
-      this.datastores[jslid] = datastore;
+      this.datastores[dskey] = datastore;
     }
     return datastore;
   },
@@ -189,5 +190,49 @@ module.exports = {
   async saveText({ jslid, text }) {
     await fs.promises.writeFile(getJslFileName(jslid), text);
     return true;
+  },
+
+  extractTimelineChart_meta: true,
+  async extractTimelineChart({ jslid, formatterFunction, measures }) {
+    const formater = requirePluginFunction(formatterFunction);
+    const datastore = new JsonLinesDatastore(getJslFileName(jslid), formater);
+    let mints = null;
+    let maxts = null;
+    // pass 1 - counts stats, time range
+    await datastore.enumRows(row => {
+      if (!mints || row.ts < mints) mints = row.ts;
+      if (!maxts || row.ts > maxts) maxts = row.ts;
+      return true;
+    });
+    const minTime = new Date(mints).getTime();
+    const maxTime = new Date(maxts).getTime();
+    const duration = maxTime - minTime;
+    const STEPS = 100;
+    const step = duration / STEPS;
+    const labels = _.range(STEPS).map(i => new Date(minTime + step / 2 + step * i));
+
+    const datasets = measures.map(m => ({
+      label: m.label,
+      data: Array(STEPS).fill(0),
+    }));
+
+    // pass 2 - count measures
+    await datastore.enumRows(row => {
+      if (!mints || row.ts < mints) mints = row.ts;
+      if (!maxts || row.ts > maxts) maxts = row.ts;
+
+      for (let i = 0; i < measures.length; i++) {
+        const part = Math.round((new Date(row.ts).getTime() - minTime) / step);
+        datasets[i].data[part] += row[measures[i].field];
+      }
+      return true;
+    });
+
+    datastore._closeReader();
+
+    return {
+      labels,
+      datasets,
+    };
   },
 };

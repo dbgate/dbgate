@@ -2,6 +2,7 @@ const _ = require('lodash');
 
 function formatProfilerEntry(obj) {
   const ts = obj.ts;
+  const stats = { millis: obj.millis };
   let op = obj.op;
   let doc;
   let query;
@@ -64,6 +65,7 @@ function formatProfilerEntry(obj) {
     doc,
     query,
     ext,
+    stats,
   };
 }
 
