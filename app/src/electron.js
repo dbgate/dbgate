@@ -154,6 +154,10 @@ ipcMain.on('app-started', async (event, arg) => {
     mainWindow.webContents.send('run-command', runCommandOnLoad);
     runCommandOnLoad = null;
   }
+
+  if (initialConfig['winIsMaximized']) {
+    mainWindow.webContents.send('setIsMaximized', true);
+  }
 });
 ipcMain.on('window-action', async (event, arg) => {
   if (!mainWindow) {
@@ -166,10 +170,10 @@ ipcMain.on('window-action', async (event, arg) => {
     case 'maximize':
       if (mainWindow.isMaximized()) {
         mainWindow.unmaximize();
-        mainWindow.webContents.send('maximize', false);
+        mainWindow.webContents.send('setIsMaximized', false);
       } else {
         mainWindow.maximize();
-        mainWindow.webContents.send('maximize', true);
+        mainWindow.webContents.send('setIsMaximized', true);
       }
       break;
     case 'close':

@@ -15,7 +15,7 @@
   let isMaximized = false;
 
   if (electron) {
-    apiOn('maximize', (maximized: boolean) => {
+    apiOn('setIsMaximized', (maximized: boolean) => {
       isMaximized = maximized;
     });
   }
