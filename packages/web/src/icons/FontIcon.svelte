@@ -32,6 +32,7 @@
     'icon add-folder': 'mdi mdi-folder-plus-outline',
 
     'icon window-restore': 'mdi mdi-window-restore',
+    'icon window-maximize': 'mdi mdi-window-maximize',
     'icon window-close': 'mdi mdi-window-close',
     'icon window-minimize': 'mdi mdi-window-minimize',
     'img dbgate': 'mdi mdi-database color-icon-gold',

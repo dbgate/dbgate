@@ -166,8 +166,10 @@ ipcMain.on('window-action', async (event, arg) => {
     case 'maximize':
       if (mainWindow.isMaximized()) {
         mainWindow.unmaximize();
+        mainWindow.webContents.send('maximize', false);
       } else {
         mainWindow.maximize();
+        mainWindow.webContents.send('maximize', true);
       }
       break;
     case 'close':
