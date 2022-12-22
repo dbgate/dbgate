@@ -81,6 +81,7 @@
   import { useConnectionList, useDatabaseInfo } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
   import registerCommand from './registerCommand';
+  import { formatKeyText } from '../utility/common';
 
   let domInput;
   let filter = '';
@@ -211,7 +212,7 @@
             {@html command.text}
           </div>
           {#if command.keyText}
-            <div class="shortcut">{command.keyText}</div>
+            <div class="shortcut">{formatKeyText(command.keyText)}</div>
           {/if}
         </div>
       {/each}
