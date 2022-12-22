@@ -1,5 +1,6 @@
 import _compact from 'lodash/compact';
 import _isString from 'lodash/isString';
+import _startCase from 'lodash/startCase';
 
 export interface FilterNameDefinition {
   childName: string;
@@ -64,16 +65,10 @@ function camelMatch(filter: string, text: string): boolean {
   if (!filter) return true;
 
   if (filter.replace(/[A-Z]/g, '').length == 0) {
-    const camelVariants = [text.replace(/[^A-Z]/g, '')];
-    let s = text,
-      s0;
-    do {
-      s0 = s;
-      s = s.replace(/([A-Z])([A-Z])([A-Z])/, '$1$3');
-    } while (s0 != s);
-    camelVariants.push(s.replace(/[^A-Z]/g, ''));
-    const camelContains = !!camelVariants.find(x => x.includes(filter.toUpperCase()));
-    return camelContains;
+    const textCapitals = _startCase(text).replace(/[^A-Z]/g, '');
+    const pattern = '.*' + filter.split('').join('.*') + '.*';
+    const re = new RegExp(pattern);
+    return re.test(textCapitals);
   } else {
     return text.toUpperCase().includes(filter.toUpperCase());
   }

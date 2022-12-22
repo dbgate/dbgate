@@ -64,6 +64,7 @@
 
   import _ from 'lodash';
   import { onMount } from 'svelte';
+  import fuzzy from 'fuzzy';
   import { databaseObjectIcons, handleDatabaseObjectClick } from '../appobj/DatabaseObjectAppObject.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import {
@@ -106,12 +107,25 @@
   $: databaseInfo = useDatabaseInfo({ conid, database });
   $: connectionList = useConnectionList();
 
-  $: filteredItems = ($visibleCommandPalette == 'database'
-    ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
-    : parentCommand
-    ? parentCommand.getSubCommands()
-    : sortedComands
-  ).filter(x => !x.isGroupCommand && filterName(filter, x.text));
+  $: filteredItems = fuzzy
+    .filter(
+      filter,
+      ($visibleCommandPalette == 'database'
+        ? extractDbItems($databaseInfo, { conid, database }, $connectionList)
+        : parentCommand
+        ? parentCommand.getSubCommands()
+        : sortedComands
+      ).filter(x => !x.isGroupCommand),
+      {
+        extract: x => x.text,
+        pre: '<b>',
+        post: '</b>',
+      }
+    )
+    .map(x => ({
+      ...x.original,
+      text: x.string,
+    }));
 
   function handleCommand(command) {
     if (command.getSubCommands) {
@@ -194,7 +208,7 @@
             {#if command.icon}
               <span class="mr-1"><FontIcon icon={command.icon} /></span>
             {/if}
-            {command.text}
+            {@html command.text}
           </div>
           {#if command.keyText}
             <div class="shortcut">{command.keyText}</div>
