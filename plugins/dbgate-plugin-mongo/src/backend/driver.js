@@ -90,9 +90,10 @@ const driver = {
   },
   async script(pool, sql) {
     let func;
-    func = eval(`(db,ObjectId) => { ${sql} }`);
+    func = eval(`(db,ObjectId) => ${sql}`);
     const db = await getScriptableDb(pool);
-    func(db, ObjectId);
+    const res = func(db, ObjectId);
+    if (isPromise(res)) await res;
   },
   async stream(pool, sql, options) {
     let func;

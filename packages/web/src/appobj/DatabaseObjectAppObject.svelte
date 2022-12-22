@@ -359,10 +359,17 @@
       {
         label: 'Drop collection',
         isDropCollection: true,
+        requiresWriteAccess: true,
       },
       {
         label: 'Rename collection',
         isRenameCollection: true,
+        requiresWriteAccess: true,
+      },
+      {
+        label: 'Create collection backup',
+        isDuplicateCollection: true,
+        requiresWriteAccess: true,
       },
       {
         divider: true,
@@ -516,8 +523,8 @@
       showModal(ConfirmModal, {
         message: `Really drop collection ${data.pureName}?`,
         onConfirm: async () => {
-          saveScriptToDatabase(_.pick(data, ['conid', 'database']), `db.dropCollection('${data.pureName}')`);
           const dbid = _.pick(data, ['conid', 'database']);
+          saveScriptToDatabase(dbid, `db.dropCollection('${data.pureName}')`);
         },
       });
     } else if (menu.isRenameCollection) {
@@ -532,6 +539,16 @@
             sql: `db.renameCollection('${data.pureName}', '${newName}')`,
           });
           apiCall('database-connections/sync-model', dbid);
+        },
+      });
+    } else if (menu.isDuplicateCollection) {
+      const newName = `_${data.pureName}_${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}`;
+
+      showModal(ConfirmModal, {
+        message: `Really create collection copy named ${newName}?`,
+        onConfirm: async () => {
+          const dbid = _.pick(data, ['conid', 'database']);
+          saveScriptToDatabase(dbid, `db.collection('${data.pureName}').aggregate([{$out: '${newName}'}]).toArray()`);
         },
       });
     } else if (menu.isDuplicateTable) {
