@@ -2,8 +2,8 @@
   --dim-widget-icon-size: 60px;
   --dim-statusbar-height: 22px;
   --dim-left-panel-width: 300px;
-  --dim-tabs-panel-height: 53px;
   --dim-tabs-height: 33px;
+  --dim-tabs-panel-height: calc( var(--dim-visible-tabs-databases) * 20px + var(--dim-tabs-height) );
   --dim-splitter-thickness: 3px;
 
   --dim-visible-left-panel: 1; /* set from JS */

@@ -1,4 +1,23 @@
 <script lang="ts" context="module">
+  const getCurrentValueMarker: any = {};
+
+  export function shouldShowTab(tab, singleDbMode = getCurrentValueMarker, currentDb = getCurrentValueMarker) {
+    if (singleDbMode == getCurrentValueMarker) {
+      singleDbMode = getSingleDatabaseMode();
+    }
+    if (singleDbMode) {
+      if (currentDb == getCurrentValueMarker) {
+        currentDb = getCurrentDatabase();
+      }
+      return (
+        tab.closedTime == null &&
+        (!tab.props?.conid || tab.props?.conid == currentDb?.connection?._id) &&
+        (!tab.props?.database || tab.props?.database == currentDb?.name)
+      );
+    }
+    return tab.closedTime == null;
+  }
+
   function allowCloseTabs(tabs) {
     if (tabs.length == 0) return Promise.resolve(true);
     return new Promise(resolve => {
@@ -14,7 +33,8 @@
     const activeCandidate = getOpenedTabs().find(x => x.tabid == tabid);
     const closeCandidates = getOpenedTabs()
       .filter(x => closeCondition(x, activeCandidate))
-      .filter(x => x.unsaved && x.closedTime == null);
+      .filter(x => x.unsaved)
+      .filter(shouldShowTab);
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -24,14 +44,14 @@
 
       const newFiles = files.map(x => ({
         ...x,
-        closedTime: x.closedTime || (closeCondition(x, active) ? new Date().getTime() : undefined),
+        closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
       }));
 
-      if (newFiles.find(x => x.selected && x.closedTime == null)) {
+      if (newFiles.find(x => x.selected && shouldShowTab(x))) {
         return newFiles;
       }
 
-      const selectedIndex = _.findLastIndex(newFiles, x => x.closedTime == null);
+      const selectedIndex = _.findLastIndex(newFiles, x => shouldShowTab(x));
 
       return newFiles.map((x, index) => ({
         ...x,
@@ -43,7 +63,8 @@
   export const closeMultipleTabs = async (closeCondition, deleteFromHistory = false) => {
     const closeCandidates = getOpenedTabs()
       .filter(x => closeCondition(x))
-      .filter(x => x.unsaved && x.closedTime == null);
+      .filter(x => x.unsaved)
+      .filter(shouldShowTab);
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -52,14 +73,14 @@
         ? files.filter(x => !closeCondition(x))
         : files.map(x => ({
             ...x,
-            closedTime: x.closedTime || (closeCondition(x) ? new Date().getTime() : undefined),
+            closedTime: shouldShowTab(x) && closeCondition(x) ? new Date().getTime() : x.closedTime,
           }));
 
-      if (newFiles.find(x => x.selected && x.closedTime == null)) {
+      if (newFiles.find(x => x.selected && shouldShowTab(x))) {
         return newFiles;
       }
 
-      const selectedIndex = _.findLastIndex(newFiles, x => x.closedTime == null);
+      const selectedIndex = _.findLastIndex(newFiles, x => shouldShowTab(x));
 
       return newFiles.map((x, index) => ({
         ...x,
@@ -70,7 +91,9 @@
 
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = async () => {
-    const closeCandidates = getOpenedTabs().filter(x => x.unsaved && x.closedTime == null);
+    const closeCandidates = getOpenedTabs()
+      .filter(x => x.unsaved)
+      .filter(shouldShowTab);
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -78,7 +101,7 @@
     openedTabs.update(tabs =>
       tabs.map(tab => ({
         ...tab,
-        closedTime: tab.closedTime || closedTime,
+        closedTime: shouldShowTab(tab) ? closedTime : tab.closedTime,
         selected: false,
       }))
     );
@@ -133,10 +156,7 @@
   }
 
   function switchTabByOrder(reverse) {
-    const tabs = _.sortBy(
-      get(openedTabs).filter(x => x.closedTime == null),
-      'tabOrder'
-    );
+    const tabs = _.sortBy(get(openedTabs).filter(shouldShowTab), 'tabOrder');
     if (reverse) tabs.reverse();
     const selectedTab = tabs.find(x => x.selected);
     if (!selectedTab) return;
@@ -212,8 +232,7 @@
 </script>
 
 <script lang="ts">
-  import { LogarithmicScale } from 'chart.js';
-  import _, { map, slice, sortBy } from 'lodash';
+  import _ from 'lodash';
   import { tick } from 'svelte';
   import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
@@ -231,6 +250,8 @@
     activeTabId,
     getActiveTabId,
     getCurrentDatabase,
+    singleDatabaseMode,
+    getSingleDatabaseMode,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
@@ -243,6 +264,7 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
 
+  $: showTabFilterFunc = tab => shouldShowTab(tab, $singleDatabaseMode, $currentDatabase);
   $: connectionList = useConnectionList();
 
   $: currentDbKey =
@@ -252,13 +274,11 @@
       ? `server://${$currentDatabase.connection._id}`
       : '_no';
 
-  $: tabsWithDb = $openedTabs
-    .filter(x => !x.closedTime)
-    .map(tab => ({
-      ...tab,
-      tabDbName: getTabDbName(tab, $connectionList),
-      tabDbKey: getTabDbKey(tab),
-    }));
+  $: tabsWithDb = $openedTabs.filter(showTabFilterFunc).map(tab => ({
+    ...tab,
+    tabDbName: getTabDbName(tab, $connectionList),
+    tabDbKey: getTabDbKey(tab),
+  }));
 
   $: groupedTabs = groupTabs(tabsWithDb);
 
@@ -423,54 +443,56 @@
   <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
-        <div
-          class="db-name"
-          class:selected={draggingDbGroup
-            ? tabGroup.grpid == draggingDbGroupTarget?.grpid
-            : tabGroup.tabDbKey == currentDbKey}
-          on:mouseup={e => {
-            if (e.button == 1) {
-              closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid));
-            } else {
-              handleSetDb(tabGroup.tabs[0].props);
-            }
-          }}
-          use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
-          style={$connectionColorFactory(
-            tabGroup.tabs[0].props,
-            (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
-              ? 2
-              : 3
-          )}
-          draggable={true}
-          on:dragstart={e => {
-            draggingDbGroup = tabGroup;
-          }}
-          on:dragenter={e => {
-            draggingDbGroupTarget = tabGroup;
-          }}
-          on:drop={e => {
-            dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
-          }}
-          on:dragend={e => {
-            draggingDbGroup = null;
-            draggingDbGroupTarget = null;
-          }}
-        >
-          <div class="db-name-inner">
-            <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
-            {tabGroup.tabDbName}
-            {#if $connectionList?.find(x => x._id == tabGroup.tabs[0]?.props?.conid)?.isReadOnly}
-              <FontIcon icon="icon lock" />
-            {/if}
-          </div>
+        {#if !$singleDatabaseMode}
           <div
-            class="close-button-right tabCloseButton"
-            on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+            class="db-name"
+            class:selected={draggingDbGroup
+              ? tabGroup.grpid == draggingDbGroupTarget?.grpid
+              : tabGroup.tabDbKey == currentDbKey}
+            on:mouseup={e => {
+              if (e.button == 1) {
+                closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid));
+              } else {
+                handleSetDb(tabGroup.tabs[0].props);
+              }
+            }}
+            use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
+            style={$connectionColorFactory(
+              tabGroup.tabs[0].props,
+              (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
+                ? 2
+                : 3
+            )}
+            draggable={true}
+            on:dragstart={e => {
+              draggingDbGroup = tabGroup;
+            }}
+            on:dragenter={e => {
+              draggingDbGroupTarget = tabGroup;
+            }}
+            on:drop={e => {
+              dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
+            }}
+            on:dragend={e => {
+              draggingDbGroup = null;
+              draggingDbGroupTarget = null;
+            }}
           >
-            <FontIcon icon="icon close" />
+            <div class="db-name-inner">
+              <FontIcon icon={getDbIcon(tabGroup.tabDbKey)} />
+              {tabGroup.tabDbName}
+              {#if $connectionList?.find(x => x._id == tabGroup.tabs[0]?.props?.conid)?.isReadOnly}
+                <FontIcon icon="icon lock" />
+              {/if}
+            </div>
+            <div
+              class="close-button-right tabCloseButton"
+              on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+            >
+              <FontIcon icon="icon close" />
+            </div>
           </div>
-        </div>
+        {/if}
         <div class="db-group">
           {#each tabGroup.tabs as tab}
             <div

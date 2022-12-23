@@ -50,6 +50,7 @@ function subscribeCssVariable(store, transform, cssVariable) {
 }
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
+export const singleDatabaseMode = writableWithStorage<boolean>(false, 'singleDatabaseMode');
 export const visibleWidgetSideBar = writableWithStorage(true, 'visibleWidgetSideBar');
 export const visibleSelectedWidget = derived(
   [selectedWidget, visibleWidgetSideBar],
@@ -137,6 +138,7 @@ subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-lef
 // subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
+subscribeCssVariable(singleDatabaseMode, x => (x ? 0 : 1), '--dim-visible-tabs-databases');
 
 let activeTabIdValue = null;
 activeTabId.subscribe(value => {
@@ -197,6 +199,12 @@ pinnedDatabases.subscribe(value => {
   pinnedDatabasesValue = value;
 });
 export const getPinnedDatabases = () => _.compact(pinnedDatabasesValue);
+
+let singleDatabaseModeValue = null;
+singleDatabaseMode.subscribe(value => {
+  singleDatabaseModeValue = value;
+});
+export const getSingleDatabaseMode = () => singleDatabaseModeValue;
 
 let currentDatabaseValue = null;
 currentDatabase.subscribe(value => {

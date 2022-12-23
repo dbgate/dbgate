@@ -3,6 +3,7 @@
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
   import Link from '../elements/Link.svelte';
   import TabControl from '../elements/TabControl.svelte';
+  import CheckboxField from '../forms/CheckboxField.svelte';
 
   import FormCheckboxField from '../forms/FormCheckboxField.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
@@ -23,6 +24,7 @@
     currentEditorTheme,
     extensions,
     selectedWidget,
+    singleDatabaseMode,
     visibleWidgetSideBar,
   } from '../stores';
   import { isMac } from '../utility/common';
@@ -107,6 +109,19 @@ ORDER BY
           />
 
           <div class="heading">Connection</div>
+
+          <FormFieldTemplateLarge
+            label="Show only tabs from selected database"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                $singleDatabaseMode = !$singleDatabaseMode;
+              },
+            }}
+          >
+            <CheckboxField checked={$singleDatabaseMode} on:change={e => ($singleDatabaseMode = e.target.checked)} />
+          </FormFieldTemplateLarge>
+
           <FormCheckboxField
             name="connection.autoRefresh"
             label="Automatic refresh of database model on background"

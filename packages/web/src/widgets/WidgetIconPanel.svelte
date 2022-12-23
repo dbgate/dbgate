@@ -7,9 +7,9 @@
     visibleSelectedWidget,
     visibleWidgetSideBar,
     visibleHamburgerMenuWidget,
+    singleDatabaseMode,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
-  import { useConfig } from '../utility/metadataLoaders';
   import hasPermission from '../utility/hasPermission';
 
   let domSettings;
@@ -90,8 +90,6 @@
     const items = mainMenuDefinition({ editMenu: false });
     currentDropDownMenu.set({ left, top, items });
   }
-
-  $: config = useConfig();
 </script>
 
 <div class="main">
@@ -112,6 +110,15 @@
 
   <div class="flex1">&nbsp;</div>
 
+  <div
+    class="wrapper"
+    title={`Toggle whether tabs from all databases are visible. Currently - ${$singleDatabaseMode ? 'NO' : 'YES'}`}
+    on:click={() => {
+      $singleDatabaseMode = !$singleDatabaseMode;
+    }}
+  >
+    <FontIcon icon={$singleDatabaseMode ? 'icon single-database-mode' : 'icon multi-database-mode'} />
+  </div>
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
     <FontIcon icon="icon settings" />
   </div>

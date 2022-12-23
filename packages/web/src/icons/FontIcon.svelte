@@ -40,6 +40,9 @@
     'icon columns': 'mdi mdi-view-column',
     'icon columns-outline': 'mdi mdi-view-column-outline',
 
+    'icon single-database-mode': 'mdi mdi-database-lock',
+    'icon multi-database-mode': 'mdi mdi-database-eye',
+
     'icon database': 'mdi mdi-database',
     'icon server': 'mdi mdi-server',
     'icon table': 'mdi mdi-table',

@@ -13,7 +13,7 @@
   ],
   "devDependencies": {
     "@ant-design/colors": "^5.0.0",
-    "@mdi/font": "^5.9.55",
+    "@mdi/font": "^7.1.96",
     "@rollup/plugin-commonjs": "^20.0.0",
     "@rollup/plugin-node-resolve": "^13.0.5",
     "@rollup/plugin-replace": "^3.0.0",
