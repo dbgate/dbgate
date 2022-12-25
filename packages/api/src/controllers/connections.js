@@ -133,7 +133,7 @@ function getPortalCollections() {
 
 const portalConnections = getPortalCollections();
 
-function getSingleDatabase() {
+function getSingleDbConnection() {
   if (process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE) {
     // @ts-ignore
     const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
@@ -158,7 +158,7 @@ function getSingleDatabase() {
 }
 
 function getSingleConnection() {
-  if (getSingleDatabase()) return null;
+  if (getSingleDbConnection()) return null;
   if (process.env.SINGLE_CONNECTION) {
     // @ts-ignore
     const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
@@ -174,13 +174,13 @@ function getSingleConnection() {
   return null;
 }
 
-const singleDatabase = getSingleDatabase();
+const singleDbConnection = getSingleDbConnection();
 const singleConnection = getSingleConnection();
 
 module.exports = {
   datastore: null,
   opened: [],
-  singleDatabase,
+  singleDbConnection,
   singleConnection,
   portalConnections,
 

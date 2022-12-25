@@ -246,8 +246,8 @@ export function subscribeApiDependendStores() {
   useConfig().subscribe(value => {
     currentConfigValue = value;
     invalidateCommands();
-    if (value.singleDatabase) {
-      currentDatabase.set(value.singleDatabase);
+    if (value.singleDbConnection) {
+      currentDatabase.set(value.singleDbConnection);
     }
   });
 }

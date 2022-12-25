@@ -40,7 +40,7 @@
     for (const connection of connectionList || []) {
       const conid = connection._id;
       if (connection.singleDatabase) continue;
-      if (getCurrentConfig()?.singleDatabase) continue;
+      if (getCurrentConfig()?.singleDbConnection) continue;
       const databases = getLocalStorage(`database_list_${conid}`) || [];
       for (const db of databases) {
         databaseList.push({

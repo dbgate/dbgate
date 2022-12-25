@@ -21,10 +21,12 @@
   $: config = useConfig();
   $: singleDatabase = $currentDatabase?.connection?.singleDatabase;
   $: database = $currentDatabase?.name;
+
+  $: console.log('CFG', $config);
 </script>
 
 <WidgetColumnBar {hidden}>
-  {#if !$config?.singleDatabase}
+  {#if !$config?.singleDbConnection}
     <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
       <ConnectionList />
     </WidgetColumnBarItem>
