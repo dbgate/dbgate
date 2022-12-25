@@ -75,7 +75,7 @@ module.exports = {
 
   refreshFiles_meta: true,
   async refreshFiles({ folder }) {
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged('archive-files-changed', { folder });
   },
 
   refreshFolders_meta: true,
@@ -86,7 +86,7 @@ module.exports = {
   deleteFile_meta: true,
   async deleteFile({ folder, file, fileType }) {
     await fs.unlink(path.join(resolveArchiveFolder(folder), `${file}.${fileType}`));
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged(`archive-files-changed`, { folder });
   },
 
   renameFile_meta: true,
@@ -95,7 +95,7 @@ module.exports = {
       path.join(resolveArchiveFolder(folder), `${file}.${fileType}`),
       path.join(resolveArchiveFolder(folder), `${newFile}.${fileType}`)
     );
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged(`archive-files-changed`, { folder });
   },
 
   renameFolder_meta: true,
@@ -119,7 +119,7 @@ module.exports = {
   saveFreeTable_meta: true,
   async saveFreeTable({ folder, file, data }) {
     await saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
 
@@ -147,7 +147,7 @@ module.exports = {
   saveText_meta: true,
   async saveText({ folder, file, text }) {
     await fs.writeFile(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), text);
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
 
@@ -156,7 +156,7 @@ module.exports = {
     const source = getJslFileName(jslid);
     const target = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
     await fs.copyFile(source, target);
-    socket.emitChanged(`archive-files-changed-${folder}`);
+    socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },
 

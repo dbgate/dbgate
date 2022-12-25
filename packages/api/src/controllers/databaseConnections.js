@@ -43,19 +43,19 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
-    socket.emitChanged(`database-structure-changed-${conid}-${database}`);
+    socket.emitChanged('database-structure-changed', { conid, database });
   },
   handle_structureTime(conid, database, { analysedTime }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.analysedTime = analysedTime;
-    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    socket.emitChanged(`database-status-changed`, { conid, database });
   },
   handle_version(conid, database, { version }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.serverVersion = version;
-    socket.emitChanged(`database-server-version-changed-${conid}-${database}`);
+    socket.emitChanged(`database-server-version-changed`, { conid, database });
   },
 
   handle_error(conid, database, props) {
@@ -73,7 +73,7 @@ module.exports = {
     if (!existing) return;
     if (existing.status && status && existing.status.counter > status.counter) return;
     existing.status = status;
-    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    socket.emitChanged(`database-status-changed`, { conid, database });
   },
 
   handle_ping() {},
@@ -317,7 +317,7 @@ module.exports = {
         },
         structure: existing.structure,
       };
-      socket.emitChanged(`database-status-changed-${conid}-${database}`);
+      socket.emitChanged(`database-status-changed`, { conid, database });
     }
   },
 
