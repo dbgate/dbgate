@@ -2,6 +2,7 @@ const path = require('path');
 const { fork } = require('child_process');
 const _ = require('lodash');
 const fs = require('fs-extra');
+const crypto = require('crypto');
 
 const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
@@ -14,6 +15,8 @@ const processArgs = require('../utility/processArgs');
 const { safeJsonParse } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
+
+let volatileConnections = {};
 
 function getNamedArgs() {
   const res = {};
@@ -126,6 +129,7 @@ function getPortalCollections() {
 
   return null;
 }
+
 const portalConnections = getPortalCollections();
 
 function getSingleDatabase() {
@@ -199,6 +203,24 @@ module.exports = {
     });
   },
 
+  saveVolatile_meta: true,
+  async saveVolatile({ conid, user, password }) {
+    const old = await this.getCore({ conid });
+    const res = {
+      ...old,
+      _id: crypto.randomUUID(),
+      password,
+      passwordMode: undefined,
+      unsaved: true,
+    };
+    if (old.passwordMode == 'askUser') {
+      res.user = user;
+    }
+
+    volatileConnections[res._id] = res;
+    return res;
+  },
+
   save_meta: true,
   async save(connection) {
     if (portalConnections) return;
@@ -258,6 +280,10 @@ module.exports = {
 
   async getCore({ conid, mask = false }) {
     if (!conid) return null;
+    const volatile = volatileConnections[conid];
+    if (volatile) {
+      return volatile;
+    }
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;

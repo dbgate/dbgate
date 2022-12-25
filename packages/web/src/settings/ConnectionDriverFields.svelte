@@ -28,8 +28,12 @@
   $: driver = $extensions.drivers.find(x => x.engine == engine);
   $: defaultDatabase = $values.defaultDatabase;
 
-  $: showUser = driver?.showConnectionField('user', $values);
-  $: showPassword = driver?.showConnectionField('password', $values);
+  $: showUser = driver?.showConnectionField('user', $values) && $values.passwordMode != 'askUser';
+  $: showPassword =
+    driver?.showConnectionField('password', $values) &&
+    $values.passwordMode != 'askPassword' &&
+    $values.passwordMode != 'askUser';
+  $: showPasswordMode = driver?.showConnectionField('password', $values);
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
 
@@ -159,7 +163,7 @@
   <FormPasswordField label="Password" name="password" disabled={isConnected || disabledFields.includes('password')} />
 {/if}
 
-{#if !disabledFields.includes('password') && showPassword}
+{#if !disabledFields.includes('password') && showPasswordMode}
   <FormSelectField
     label="Password mode"
     isNative
@@ -169,6 +173,8 @@
     options={[
       { value: 'saveEncrypted', label: 'Save and encrypt' },
       { value: 'saveRaw', label: 'Save raw (UNSAFE!!)' },
+      { value: 'askPassword', label: "Don't save, ask for password" },
+      { value: 'askUser', label: "Don't save, ask for login and password" },
     ]}
   />
 {/if}

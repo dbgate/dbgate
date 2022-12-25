@@ -9,6 +9,7 @@ const lock = new AsyncLock();
 const config = require('./config');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
+const { MissingCredentialsError } = require('../utility/exceptions');
 
 module.exports = {
   opened: [],
@@ -46,6 +47,9 @@ module.exports = {
       const existing = this.opened.find(x => x.conid == conid);
       if (existing) return existing;
       const connection = await connections.getCore({ conid });
+      if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
+        throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
+      }
       const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
         '--is-forked-api',
         '--start-process',

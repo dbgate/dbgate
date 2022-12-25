@@ -5,6 +5,9 @@ import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
 import { isOauthCallback, redirectToLogin } from '../clientAuth';
+import { showModal } from '../modals/modalTools';
+import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
+import _ from 'lodash';
 
 let eventSource;
 let apiLogging = false;
@@ -12,12 +15,18 @@ let apiLogging = false;
 let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
 
+const volatileConnectionMap = {};
+
 export function disableApi() {
   apiDisabled = true;
 }
 
 export function enableApi() {
   apiDisabled = false;
+}
+
+export function setVolatileConnectionRemapping(existingConnectionId, volatileConnectionId) {
+  volatileConnectionMap[existingConnectionId] = volatileConnectionId;
 }
 
 function wantEventSource() {
@@ -32,7 +41,16 @@ function processApiResponse(route, args, resp) {
   //   console.log('<<< API RESPONSE', route, args, resp);
   // }
 
-  if (resp?.apiErrorMessage) {
+  if (resp?.missingCredentials) {
+    if (!isDatabaseLoginVisible()) {
+      showModal(DatabaseLoginModal, resp.detail);
+    }
+    return null;
+    // return {
+    //   errorMessage: resp.apiErrorMessage,
+    //   missingCredentials: true,
+    // };
+  } else if (resp?.apiErrorMessage) {
     showSnackbarError('API error:' + resp?.apiErrorMessage);
     return {
       errorMessage: resp.apiErrorMessage,
@@ -40,6 +58,10 @@ function processApiResponse(route, args, resp) {
   }
 
   return resp;
+}
+
+function transformApiArgs(args) {
+  return _.mapValues(args, (v, k) => (k == 'conid' && v && volatileConnectionMap[v] ? volatileConnectionMap[v] : v));
 }
 
 export async function apiCall(route: string, args: {} = undefined) {
@@ -54,6 +76,8 @@ export async function apiCall(route: string, args: {} = undefined) {
     console.log('API disabled because oauth callback!!', route);
     return;
   }
+
+  args = transformApiArgs(args);
 
   const electron = getElectron();
   if (electron) {
