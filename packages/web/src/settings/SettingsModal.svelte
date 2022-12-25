@@ -24,7 +24,7 @@
     currentEditorTheme,
     extensions,
     selectedWidget,
-    singleDatabaseMode,
+    lockedDatabaseMode,
     visibleWidgetSideBar,
   } from '../stores';
   import { isMac } from '../utility/common';
@@ -115,11 +115,11 @@ ORDER BY
             type="checkbox"
             labelProps={{
               onClick: () => {
-                $singleDatabaseMode = !$singleDatabaseMode;
+                $lockedDatabaseMode = !$lockedDatabaseMode;
               },
             }}
           >
-            <CheckboxField checked={$singleDatabaseMode} on:change={e => ($singleDatabaseMode = e.target.checked)} />
+            <CheckboxField checked={$lockedDatabaseMode} on:change={e => ($lockedDatabaseMode = e.target.checked)} />
           </FormFieldTemplateLarge>
 
           <FormCheckboxField

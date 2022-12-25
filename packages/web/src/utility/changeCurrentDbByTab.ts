@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { currentDatabase, getCurrentDatabase, getSingleDatabaseMode, openedTabs } from '../stores';
+import { currentDatabase, getCurrentDatabase, getLockedDatabaseMode, openedTabs } from '../stores';
 import { shouldShowTab } from '../widgets/TabsPanel.svelte';
 import { callWhenAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
@@ -9,7 +9,7 @@ let lastCurrentTab = null;
 openedTabs.subscribe(value => {
   const newCurrentTab = (value || []).find(x => x.selected);
   if (newCurrentTab == lastCurrentTab) return;
-  if (getSingleDatabaseMode() && getCurrentDatabase()) return;
+  if (getLockedDatabaseMode() && getCurrentDatabase()) return;
 
   const lastTab = lastCurrentTab;
   lastCurrentTab = newCurrentTab;
@@ -31,7 +31,7 @@ openedTabs.subscribe(value => {
 });
 
 currentDatabase.subscribe(currentDb => {
-  if (!getSingleDatabaseMode()) return;
+  if (!getLockedDatabaseMode()) return;
   openedTabs.update(tabs => {
     const newTabs = tabs.map(tab => ({
       ...tab,
