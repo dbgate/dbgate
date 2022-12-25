@@ -29,12 +29,12 @@ export function subscribeConnectionPingers() {
   openedConnections.subscribe(value => {
     doServerPing(value);
     if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle);
-    openedConnectionsHandle = window.setInterval(() => doServerPing(value), 30 * 1000);
+    openedConnectionsHandle = window.setInterval(() => doServerPing(value), 20 * 1000);
   });
 
   currentDatabase.subscribe(value => {
     doDatabasePing(value);
     if (currentDatabaseHandle) window.clearInterval(currentDatabaseHandle);
-    currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 30 * 1000);
+    currentDatabaseHandle = window.setInterval(() => doDatabasePing(value), 20 * 1000);
   });
 }

@@ -1,4 +1,4 @@
-import { apiOn } from './api';
+import { apiOn, transformApiArgsInv } from './api';
 import getAsArray from './getAsArray';
 import stableStringify from 'json-stable-stringify';
 
@@ -34,7 +34,7 @@ function cacheSet(cacheKey, value, reloadTrigger, generation) {
 function cacheClean(reloadTrigger) {
   cacheGeneration += 1;
   for (const item of getAsArray(reloadTrigger)) {
-    const itemString = stableStringify(item);
+    const itemString = stableStringify(transformApiArgsInv(item));
     const keys = cachedKeysByReloadTrigger[itemString];
     if (keys) {
       for (const key of keys) {
@@ -80,7 +80,8 @@ export async function loadCachedValue(reloadTrigger, cacheKey, func) {
       }
     } catch (err) {
       console.error('Error when using cached promise', err);
-      cacheClean(cacheKey);
+      // cacheClean(cacheKey);
+      cacheClean(reloadTrigger);
       const res = await func();
       cacheSet(cacheKey, res, reloadTrigger, generation);
       return res;
@@ -113,15 +114,23 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
 }
 
 export function dispatchCacheChange(reloadTrigger) {
-  // console.log('CHANGE', reloadTrigger);
   cacheClean(reloadTrigger);
 
   for (const item of getAsArray(reloadTrigger)) {
-    const itemString = stableStringify(item);
+    const itemString = stableStringify(transformApiArgsInv(item));
     if (subscriptionsByReloadTrigger[itemString]) {
       for (const handler of subscriptionsByReloadTrigger[itemString]) {
         handler();
       }
+    }
+  }
+}
+
+export function batchDispatchCacheTriggers(predicate) {
+  for (const key in subscriptionsByReloadTrigger) {
+    const relaodTrigger = JSON.parse(key);
+    if (predicate(relaodTrigger)) {
+      dispatchCacheChange(relaodTrigger);
     }
   }
 }

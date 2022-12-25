@@ -16,6 +16,7 @@ let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
 
 const volatileConnectionMap = {};
+const volatileConnectionMapInv = {};
 
 export function disableApi() {
   apiDisabled = true;
@@ -27,10 +28,15 @@ export function enableApi() {
 
 export function setVolatileConnectionRemapping(existingConnectionId, volatileConnectionId) {
   volatileConnectionMap[existingConnectionId] = volatileConnectionId;
+  volatileConnectionMapInv[volatileConnectionId] = existingConnectionId;
 }
 
 export function getVolatileRemapping(conid) {
   return volatileConnectionMap[conid] || conid;
+}
+
+export function getVolatileRemappingInv(conid) {
+  return volatileConnectionMapInv[conid] || conid;
 }
 
 function wantEventSource() {
@@ -64,10 +70,18 @@ function processApiResponse(route, args, resp) {
   return resp;
 }
 
-function transformApiArgs(args) {
+export function transformApiArgs(args) {
   return _.mapValues(args, (v, k) => {
     if (k == 'conid' && v && volatileConnectionMap[v]) return volatileConnectionMap[v];
     if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMap[x] || x);
+    return v;
+  });
+}
+
+export function transformApiArgsInv(args) {
+  return _.mapValues(args, (v, k) => {
+    if (k == 'conid' && v && volatileConnectionMapInv[v]) return volatileConnectionMapInv[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMapInv[x] || x);
     return v;
   });
 }

@@ -18,7 +18,7 @@
   import FormTextField from '../forms/FormTextField.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
   import { apiCall, setVolatileConnectionRemapping } from '../utility/api';
-  import { dispatchCacheChange } from '../utility/cache';
+  import { batchDispatchCacheTriggers, dispatchCacheChange } from '../utility/cache';
   import createRef from '../utility/createRef';
 
   import { getConnectionInfo } from '../utility/metadataLoaders';
@@ -64,16 +64,16 @@
     const testid = testIdRef.get();
     const resp = await apiCall('connections/save-volatile', {
       conid,
-      user: ev.detail.user,
-      password: ev.detail.password,
+      user: $values['user'],
+      password: $values['password'],
       test: true,
     });
     if (testIdRef.get() != testid) return;
     isTesting = false;
     if (resp.msgtype == 'connected') {
       setVolatileConnectionRemapping(conid, resp._id);
-      dispatchCacheChange(`database-list-changed-${conid}`);
-      dispatchCacheChange(`server-status-changed`);
+      dispatchCacheChange({ key: `server-status-changed` });
+      batchDispatchCacheTriggers(x => x.conid == conid);
       closeCurrentModal();
     } else {
       sqlConnectResult = resp;
@@ -92,12 +92,14 @@
       autocomplete="username"
       disabled={passwordMode == 'askPassword'}
       focused={passwordMode == 'askUser'}
+      saveOnInput
     />
     <FormPasswordField
       label="Password"
       name="password"
       autocomplete="current-password"
       focused={passwordMode == 'askPassword'}
+      saveOnInput
     />
 
     {#if isTesting}
