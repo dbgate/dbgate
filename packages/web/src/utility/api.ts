@@ -29,6 +29,10 @@ export function setVolatileConnectionRemapping(existingConnectionId, volatileCon
   volatileConnectionMap[existingConnectionId] = volatileConnectionId;
 }
 
+export function getVolatileRemapping(conid) {
+  return volatileConnectionMap[conid] || conid;
+}
+
 function wantEventSource() {
   if (!eventSource) {
     eventSource = new EventSource(`${resolveApi()}/stream`);
@@ -61,7 +65,11 @@ function processApiResponse(route, args, resp) {
 }
 
 function transformApiArgs(args) {
-  return _.mapValues(args, (v, k) => (k == 'conid' && v && volatileConnectionMap[v] ? volatileConnectionMap[v] : v));
+  return _.mapValues(args, (v, k) => {
+    if (k == 'conid' && v && volatileConnectionMap[v]) return volatileConnectionMap[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMap[x] || x);
+    return v;
+  });
 }
 
 export async function apiCall(route: string, args: {} = undefined) {

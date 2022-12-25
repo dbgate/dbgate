@@ -52,6 +52,7 @@ function getPortalCollections() {
       server: process.env[`SERVER_${id}`],
       user: process.env[`USER_${id}`],
       password: process.env[`PASSWORD_${id}`],
+      passwordMode: process.env[`PASSWORD_MODE_${id}`],
       port: process.env[`PORT_${id}`],
       databaseUrl: process.env[`URL_${id}`],
       useDatabaseUrl: !!process.env[`URL_${id}`],
@@ -204,7 +205,7 @@ module.exports = {
   },
 
   saveVolatile_meta: true,
-  async saveVolatile({ conid, user, password }) {
+  async saveVolatile({ conid, user, password, test }) {
     const old = await this.getCore({ conid });
     const res = {
       ...old,
@@ -217,8 +218,20 @@ module.exports = {
       res.user = user;
     }
 
-    volatileConnections[res._id] = res;
-    return res;
+    if (test) {
+      const testRes = await this.test(res);
+      if (testRes.msgtype == 'connected') {
+        volatileConnections[res._id] = res;
+        return {
+          ...res,
+          msgtype: 'connected',
+        };
+      }
+      return testRes;
+    } else {
+      volatileConnections[res._id] = res;
+      return res;
+    }
   },
 
   save_meta: true,

@@ -131,9 +131,9 @@ module.exports = {
   },
 
   ping_meta: true,
-  async ping({ connections }) {
+  async ping({ conidArray }) {
     await Promise.all(
-      _.uniq(connections).map(async conid => {
+      _.uniq(conidArray).map(async conid => {
         const last = this.lastPinged[conid];
         if (last && new Date().getTime() - last < 30 * 1000) {
           return Promise.resolve();

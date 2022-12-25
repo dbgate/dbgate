@@ -105,7 +105,7 @@ export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHand
   }
 }
 
-function dispatchCacheChange(reloadTrigger) {
+export function dispatchCacheChange(reloadTrigger) {
   // console.log('CHANGE', reloadTrigger);
   cacheClean(reloadTrigger);
 

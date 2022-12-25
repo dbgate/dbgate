@@ -17,6 +17,7 @@
     "start:api:portal": "yarn workspace dbgate-api start:portal",
     "start:api:singledb": "yarn workspace dbgate-api start:singledb",
     "start:api:auth": "yarn workspace dbgate-api start:auth",
+    "start:api:dblogin": "yarn workspace dbgate-api start:dblogin",
     "start:web": "yarn workspace dbgate-web dev",
     "start:sqltree": "yarn workspace dbgate-sqltree start",
     "start:tools": "yarn workspace dbgate-tools start",
