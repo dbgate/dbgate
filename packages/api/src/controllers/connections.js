@@ -157,12 +157,31 @@ function getSingleDatabase() {
   return null;
 }
 
+function getSingleConnection() {
+  if (getSingleDatabase()) return null;
+  if (process.env.SINGLE_CONNECTION) {
+    // @ts-ignore
+    const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
+    if (connection) {
+      return connection;
+    }
+  }
+  // @ts-ignore
+  const arg0 = (portalConnections || []).find(x => x._id == 'argv');
+  if (arg0) {
+    return arg0;
+  }
+  return null;
+}
+
 const singleDatabase = getSingleDatabase();
+const singleConnection = getSingleConnection();
 
 module.exports = {
   datastore: null,
   opened: [],
   singleDatabase,
+  singleConnection,
   portalConnections,
 
   async _init() {
