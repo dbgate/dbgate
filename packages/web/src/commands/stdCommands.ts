@@ -37,6 +37,7 @@ import { openWebLink } from '../utility/exportFileTools';
 import { getSettings } from '../utility/metadataLoaders';
 import { isMac } from '../utility/common';
 import { doLogout, internalRedirectTo } from '../clientAuth';
+import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -550,6 +551,14 @@ registerCommand({
   name: 'Logout',
   testEnabled: () => getCurrentConfig()?.login != null,
   onClick: doLogout,
+});
+
+registerCommand({
+  id: 'app.disconnect',
+  category: 'App',
+  name: 'Disconnect',
+  testEnabled: () => getCurrentConfig()?.singleConnection != null,
+  onClick: () => disconnectServerConnection(getCurrentConfig()?.singleConnection?._id),
 });
 
 export function registerFileCommands({

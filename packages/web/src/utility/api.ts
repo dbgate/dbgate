@@ -39,6 +39,14 @@ export function getVolatileRemappingInv(conid) {
   return volatileConnectionMapInv[conid] || conid;
 }
 
+export function removeVolatileMapping(conid) {
+  const mapped = volatileConnectionMap[conid];
+  if (mapped) {
+    delete volatileConnectionMap[conid];
+    delete volatileConnectionMapInv[mapped];
+  }
+}
+
 function wantEventSource() {
   if (!eventSource) {
     eventSource = new EventSource(`${resolveApi()}/stream`);
