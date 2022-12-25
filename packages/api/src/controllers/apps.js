@@ -58,7 +58,7 @@ module.exports = {
 
   refreshFiles_meta: true,
   async refreshFiles({ folder }) {
-    socket.emitChanged(`app-files-changed-${folder}`);
+    socket.emitChanged('app-files-changed', { app: folder });
   },
 
   refreshFolders_meta: true,
@@ -69,7 +69,7 @@ module.exports = {
   deleteFile_meta: true,
   async deleteFile({ folder, file, fileType }) {
     await fs.unlink(path.join(appdir(), folder, `${file}.${fileType}`));
-    socket.emitChanged(`app-files-changed-${folder}`);
+    socket.emitChanged('app-files-changed', { app: folder });
     this.emitChangedDbApp(folder);
   },
 
@@ -79,7 +79,7 @@ module.exports = {
       path.join(path.join(appdir(), folder), `${file}.${fileType}`),
       path.join(path.join(appdir(), folder), `${newFile}.${fileType}`)
     );
-    socket.emitChanged(`app-files-changed-${folder}`);
+    socket.emitChanged('app-files-changed', { app: folder });
     this.emitChangedDbApp(folder);
   },
 
@@ -95,7 +95,7 @@ module.exports = {
     if (!folder) throw new Error('Missing folder parameter');
     await fs.rmdir(path.join(appdir(), folder), { recursive: true });
     socket.emitChanged(`app-folders-changed`);
-    socket.emitChanged(`app-files-changed-${folder}`);
+    socket.emitChanged('app-files-changed', { app: folder });
     socket.emitChanged('used-apps-changed');
   },
 
@@ -219,7 +219,7 @@ module.exports = {
 
     await fs.writeFile(file, JSON.stringify(json, undefined, 2));
 
-    socket.emitChanged(`app-files-changed-${appFolder}`);
+    socket.emitChanged('app-files-changed', { app: appFolder });
     socket.emitChanged('used-apps-changed');
   },
 
@@ -271,7 +271,7 @@ module.exports = {
     const file = path.join(appdir(), appFolder, fileName);
     if (!(await fs.exists(file))) {
       await fs.writeFile(file, JSON.stringify(content, undefined, 2));
-      socket.emitChanged(`app-files-changed-${appFolder}`);
+      socket.emitChanged('app-files-changed', { app: appFolder });
       socket.emitChanged('used-apps-changed');
       return true;
     }

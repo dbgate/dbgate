@@ -21,6 +21,7 @@ module.exports = ({ editMenu }) => [
       { divider: true },
       { command: 'file.exit', hideDisabled: true },
       { command: 'app.logout', hideDisabled: true, skipInApp: true },
+      { command: 'app.disconnect', hideDisabled: true, skipInApp: true },
     ],
   },
   {

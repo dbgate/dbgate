@@ -49,7 +49,7 @@ module.exports = {
   async delete({ folder, file }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
     await fs.unlink(path.join(filesdir(), folder, file));
-    socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
     return true;
   },
@@ -58,7 +58,7 @@ module.exports = {
   async rename({ folder, file, newFile }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
     await fs.rename(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
-    socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
     return true;
   },
@@ -66,7 +66,7 @@ module.exports = {
   refresh_meta: true,
   async refresh({ folders }, req) {
     for (const folder of folders) {
-      socket.emitChanged(`files-changed-${folder}`);
+      socket.emitChanged(`files-changed`, { folder });
       socket.emitChanged(`all-files-changed`);
     }
     return true;
@@ -76,7 +76,7 @@ module.exports = {
   async copy({ folder, file, newFile }, req) {
     if (!hasPermission(`files/${folder}/write`, req)) return false;
     await fs.copyFile(path.join(filesdir(), folder, file), path.join(filesdir(), folder, newFile));
-    socket.emitChanged(`files-changed-${folder}`);
+    socket.emitChanged(`files-changed`, { folder });
     socket.emitChanged(`all-files-changed`);
     return true;
   },
@@ -112,13 +112,13 @@ module.exports = {
       if (!hasPermission(`archive/write`, req)) return false;
       const dir = resolveArchiveFolder(folder.substring('archive:'.length));
       await fs.writeFile(path.join(dir, file), serialize(format, data));
-      socket.emitChanged(`archive-files-changed-${folder.substring('archive:'.length)}`);
+      socket.emitChanged(`archive-files-changed`, { folder: folder.substring('archive:'.length) });
       return true;
     } else if (folder.startsWith('app:')) {
       if (!hasPermission(`apps/write`, req)) return false;
       const app = folder.substring('app:'.length);
       await fs.writeFile(path.join(appdir(), app, file), serialize(format, data));
-      socket.emitChanged(`app-files-changed-${app}`);
+      socket.emitChanged(`app-files-changed`, { app });
       socket.emitChanged('used-apps-changed');
       apps.emitChangedDbApp(folder);
       return true;
@@ -129,7 +129,7 @@ module.exports = {
         await fs.mkdir(dir);
       }
       await fs.writeFile(path.join(dir, file), serialize(format, data));
-      socket.emitChanged(`files-changed-${folder}`);
+      socket.emitChanged(`files-changed`, { folder });
       socket.emitChanged(`all-files-changed`);
       if (folder == 'shell') {
         scheduler.reload();

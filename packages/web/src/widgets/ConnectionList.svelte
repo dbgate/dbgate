@@ -3,7 +3,7 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import SearchInput from '../elements/SearchInput.svelte';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
-  import { useConnectionList, useServerStatus } from '../utility/metadataLoaders';
+  import { useConfig, useConnectionList, useServerStatus } from '../utility/metadataLoaders';
   import SearchBoxWrapper from '../elements/SearchBoxWrapper.svelte';
   import AppObjectList from '../appobj/AppObjectList.svelte';
   import * as connectionAppObject from '../appobj/ConnectionAppObject.svelte';
@@ -21,7 +21,7 @@
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import FontIcon from '../icons/FontIcon.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
-  import { apiCall } from '../utility/api';
+  import { apiCall, getVolatileRemapping } from '../utility/api';
   import LargeButton from '../buttons/LargeButton.svelte';
   import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
   import { safeJsonParse } from 'dbgate-tools';
@@ -33,7 +33,7 @@
 
   $: connectionsWithStatus =
     $connections && $serverStatus
-      ? $connections.map(conn => ({ ...conn, status: $serverStatus[conn._id] }))
+      ? $connections.map(conn => ({ ...conn, status: $serverStatus[getVolatileRemapping(conn._id)] }))
       : $connections;
 
   $: connectionsWithStatusFiltered = connectionsWithStatus?.filter(

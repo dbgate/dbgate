@@ -9,6 +9,7 @@ const lock = new AsyncLock();
 const config = require('./config');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
+const { MissingCredentialsError } = require('../utility/exceptions');
 
 module.exports = {
   opened: [],
@@ -20,13 +21,13 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.databases = databases;
-    socket.emitChanged(`database-list-changed-${conid}`);
+    socket.emitChanged(`database-list-changed`, { conid });
   },
   handle_version(conid, { version }) {
     const existing = this.opened.find(x => x.conid == conid);
     if (!existing) return;
     existing.version = version;
-    socket.emitChanged(`server-version-changed-${conid}`);
+    socket.emitChanged(`server-version-changed`, { conid });
   },
   handle_status(conid, { status }) {
     const existing = this.opened.find(x => x.conid == conid);
@@ -46,6 +47,9 @@ module.exports = {
       const existing = this.opened.find(x => x.conid == conid);
       if (existing) return existing;
       const connection = await connections.getCore({ conid });
+      if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
+        throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
+      }
       const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
         '--is-forked-api',
         '--start-process',
@@ -127,9 +131,9 @@ module.exports = {
   },
 
   ping_meta: true,
-  async ping({ connections }) {
+  async ping({ conidArray }) {
     await Promise.all(
-      _.uniq(connections).map(async conid => {
+      _.uniq(conidArray).map(async conid => {
         const last = this.lastPinged[conid];
         if (last && new Date().getTime() - last < 30 * 1000) {
           return Promise.resolve();

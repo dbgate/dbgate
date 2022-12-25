@@ -2,6 +2,7 @@ const path = require('path');
 const { fork } = require('child_process');
 const _ = require('lodash');
 const fs = require('fs-extra');
+const crypto = require('crypto');
 
 const { datadir, filesdir } = require('../utility/directories');
 const socket = require('../utility/socket');
@@ -14,6 +15,8 @@ const processArgs = require('../utility/processArgs');
 const { safeJsonParse } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
+
+let volatileConnections = {};
 
 function getNamedArgs() {
   const res = {};
@@ -49,6 +52,7 @@ function getPortalCollections() {
       server: process.env[`SERVER_${id}`],
       user: process.env[`USER_${id}`],
       password: process.env[`PASSWORD_${id}`],
+      passwordMode: process.env[`PASSWORD_MODE_${id}`],
       port: process.env[`PORT_${id}`],
       databaseUrl: process.env[`URL_${id}`],
       useDatabaseUrl: !!process.env[`URL_${id}`],
@@ -126,9 +130,10 @@ function getPortalCollections() {
 
   return null;
 }
+
 const portalConnections = getPortalCollections();
 
-function getSingleDatabase() {
+function getSingleDbConnection() {
   if (process.env.SINGLE_CONNECTION && process.env.SINGLE_DATABASE) {
     // @ts-ignore
     const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
@@ -152,12 +157,31 @@ function getSingleDatabase() {
   return null;
 }
 
-const singleDatabase = getSingleDatabase();
+function getSingleConnection() {
+  if (getSingleDbConnection()) return null;
+  if (process.env.SINGLE_CONNECTION) {
+    // @ts-ignore
+    const connection = portalConnections.find(x => x._id == process.env.SINGLE_CONNECTION);
+    if (connection) {
+      return connection;
+    }
+  }
+  // @ts-ignore
+  const arg0 = (portalConnections || []).find(x => x._id == 'argv');
+  if (arg0) {
+    return arg0;
+  }
+  return null;
+}
+
+const singleDbConnection = getSingleDbConnection();
+const singleConnection = getSingleConnection();
 
 module.exports = {
   datastore: null,
   opened: [],
-  singleDatabase,
+  singleDbConnection,
+  singleConnection,
   portalConnections,
 
   async _init() {
@@ -197,6 +221,36 @@ module.exports = {
         }
       });
     });
+  },
+
+  saveVolatile_meta: true,
+  async saveVolatile({ conid, user, password, test }) {
+    const old = await this.getCore({ conid });
+    const res = {
+      ...old,
+      _id: crypto.randomUUID(),
+      password,
+      passwordMode: undefined,
+      unsaved: true,
+    };
+    if (old.passwordMode == 'askUser') {
+      res.user = user;
+    }
+
+    if (test) {
+      const testRes = await this.test(res);
+      if (testRes.msgtype == 'connected') {
+        volatileConnections[res._id] = res;
+        return {
+          ...res,
+          msgtype: 'connected',
+        };
+      }
+      return testRes;
+    } else {
+      volatileConnections[res._id] = res;
+      return res;
+    }
   },
 
   save_meta: true,
@@ -258,6 +312,10 @@ module.exports = {
 
   async getCore({ conid, mask = false }) {
     if (!conid) return null;
+    const volatile = volatileConnections[conid];
+    if (volatile) {
+      return volatile;
+    }
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;

@@ -8,6 +8,7 @@
 
   export let name;
   export let disabled = false;
+  export let saveOnInput = false;
 
   const { values, setFieldValue } = getFormContext();
 
@@ -23,6 +24,11 @@
     {disabled}
     value={isCrypted ? '' : value}
     on:change={e => setFieldValue(name, e.target['value'])}
+    on:input={e => {
+      if (saveOnInput) {
+        setFieldValue(name, e.target['value']);
+      }
+    }}
     placeholder={isCrypted ? '(Password is encrypted)' : undefined}
     type={isCrypted || showPassword ? 'text' : 'password'}
   />

@@ -1,11 +1,11 @@
 <script lang="ts" context="module">
   const getCurrentValueMarker: any = {};
 
-  export function shouldShowTab(tab, singleDbMode = getCurrentValueMarker, currentDb = getCurrentValueMarker) {
-    if (singleDbMode == getCurrentValueMarker) {
-      singleDbMode = getSingleDatabaseMode();
+  export function shouldShowTab(tab, lockedDbMode = getCurrentValueMarker, currentDb = getCurrentValueMarker) {
+    if (lockedDbMode == getCurrentValueMarker) {
+      lockedDbMode = getLockedDatabaseMode();
     }
-    if (singleDbMode) {
+    if (lockedDbMode) {
       if (currentDb == getCurrentValueMarker) {
         currentDb = getCurrentDatabase();
       }
@@ -250,8 +250,8 @@
     activeTabId,
     getActiveTabId,
     getCurrentDatabase,
-    singleDatabaseMode,
-    getSingleDatabaseMode,
+    lockedDatabaseMode,
+    getLockedDatabaseMode,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
@@ -264,7 +264,7 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
 
-  $: showTabFilterFunc = tab => shouldShowTab(tab, $singleDatabaseMode, $currentDatabase);
+  $: showTabFilterFunc = tab => shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase);
   $: connectionList = useConnectionList();
 
   $: currentDbKey =
@@ -443,7 +443,7 @@
   <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
-        {#if !$singleDatabaseMode}
+        {#if !$lockedDatabaseMode}
           <div
             class="db-name"
             class:selected={draggingDbGroup

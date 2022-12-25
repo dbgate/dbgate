@@ -52,6 +52,7 @@
     const electron = getElectron();
     const currentDb = getCurrentDatabase();
     openedConnections.update(list => list.filter(x => x != conid));
+    removeVolatileMapping(conid);
     if (electron) {
       apiCall('server-connections/disconnect', { conid });
     }
@@ -100,7 +101,7 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { getDatabaseList, useUsedApps } from '../utility/metadataLoaders';
   import { getLocalStorage } from '../utility/storageCache';
-  import { apiCall } from '../utility/api';
+  import { apiCall, removeVolatileMapping } from '../utility/api';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';

@@ -5,6 +5,9 @@ import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
 import { isOauthCallback, redirectToLogin } from '../clientAuth';
+import { showModal } from '../modals/modalTools';
+import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
+import _ from 'lodash';
 
 let eventSource;
 let apiLogging = false;
@@ -12,12 +15,36 @@ let apiLogging = false;
 let apiDisabled = false;
 const disabledOnOauth = isOauthCallback();
 
+const volatileConnectionMap = {};
+const volatileConnectionMapInv = {};
+
 export function disableApi() {
   apiDisabled = true;
 }
 
 export function enableApi() {
   apiDisabled = false;
+}
+
+export function setVolatileConnectionRemapping(existingConnectionId, volatileConnectionId) {
+  volatileConnectionMap[existingConnectionId] = volatileConnectionId;
+  volatileConnectionMapInv[volatileConnectionId] = existingConnectionId;
+}
+
+export function getVolatileRemapping(conid) {
+  return volatileConnectionMap[conid] || conid;
+}
+
+export function getVolatileRemappingInv(conid) {
+  return volatileConnectionMapInv[conid] || conid;
+}
+
+export function removeVolatileMapping(conid) {
+  const mapped = volatileConnectionMap[conid];
+  if (mapped) {
+    delete volatileConnectionMap[conid];
+    delete volatileConnectionMapInv[mapped];
+  }
 }
 
 function wantEventSource() {
@@ -32,7 +59,16 @@ function processApiResponse(route, args, resp) {
   //   console.log('<<< API RESPONSE', route, args, resp);
   // }
 
-  if (resp?.apiErrorMessage) {
+  if (resp?.missingCredentials) {
+    if (!isDatabaseLoginVisible()) {
+      showModal(DatabaseLoginModal, resp.detail);
+    }
+    return null;
+    // return {
+    //   errorMessage: resp.apiErrorMessage,
+    //   missingCredentials: true,
+    // };
+  } else if (resp?.apiErrorMessage) {
     showSnackbarError('API error:' + resp?.apiErrorMessage);
     return {
       errorMessage: resp.apiErrorMessage,
@@ -40,6 +76,22 @@ function processApiResponse(route, args, resp) {
   }
 
   return resp;
+}
+
+export function transformApiArgs(args) {
+  return _.mapValues(args, (v, k) => {
+    if (k == 'conid' && v && volatileConnectionMap[v]) return volatileConnectionMap[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMap[x] || x);
+    return v;
+  });
+}
+
+export function transformApiArgsInv(args) {
+  return _.mapValues(args, (v, k) => {
+    if (k == 'conid' && v && volatileConnectionMapInv[v]) return volatileConnectionMapInv[v];
+    if (k == 'conidArray' && _.isArray(v)) return v.map(x => volatileConnectionMapInv[x] || x);
+    return v;
+  });
 }
 
 export async function apiCall(route: string, args: {} = undefined) {
@@ -54,6 +106,8 @@ export async function apiCall(route: string, args: {} = undefined) {
     console.log('API disabled because oauth callback!!', route);
     return;
   }
+
+  args = transformApiArgs(args);
 
   const electron = getElectron();
   if (electron) {

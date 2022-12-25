@@ -1,5 +1,6 @@
-import { apiOn } from './api';
+import { apiOn, transformApiArgsInv } from './api';
 import getAsArray from './getAsArray';
+import stableStringify from 'json-stable-stringify';
 
 const cachedByKey = {};
 const cachedPromisesByKey = {};
@@ -15,10 +16,11 @@ function cacheGet(key) {
 
 function addCacheKeyToReloadTrigger(cacheKey, reloadTrigger) {
   for (const item of getAsArray(reloadTrigger)) {
-    if (!(item in cachedKeysByReloadTrigger)) {
-      cachedKeysByReloadTrigger[item] = [];
+    const itemString = stableStringify(item);
+    if (!(itemString in cachedKeysByReloadTrigger)) {
+      cachedKeysByReloadTrigger[itemString] = [];
     }
-    cachedKeysByReloadTrigger[item].push(cacheKey);
+    cachedKeysByReloadTrigger[itemString].push(cacheKey);
   }
 }
 
@@ -32,7 +34,8 @@ function cacheSet(cacheKey, value, reloadTrigger, generation) {
 function cacheClean(reloadTrigger) {
   cacheGeneration += 1;
   for (const item of getAsArray(reloadTrigger)) {
-    const keys = cachedKeysByReloadTrigger[item];
+    const itemString = stableStringify(transformApiArgsInv(item));
+    const keys = cachedKeysByReloadTrigger[itemString];
     if (keys) {
       for (const key of keys) {
         delete cachedByKey[key];
@@ -40,7 +43,7 @@ function cacheClean(reloadTrigger) {
         cacheGenerationByKey[key] = cacheGeneration;
       }
     }
-    delete cachedKeysByReloadTrigger[item];
+    delete cachedKeysByReloadTrigger[itemString];
   }
 }
 
@@ -77,7 +80,8 @@ export async function loadCachedValue(reloadTrigger, cacheKey, func) {
       }
     } catch (err) {
       console.error('Error when using cached promise', err);
-      cacheClean(cacheKey);
+      // cacheClean(cacheKey);
+      cacheClean(reloadTrigger);
       const res = await func();
       cacheSet(cacheKey, res, reloadTrigger, generation);
       return res;
@@ -87,33 +91,46 @@ export async function loadCachedValue(reloadTrigger, cacheKey, func) {
 
 export async function subscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
   for (const item of getAsArray(reloadTrigger)) {
-    if (!subscriptionsByReloadTrigger[item]) {
-      subscriptionsByReloadTrigger[item] = [];
+    const itemString = stableStringify(item);
+    if (!subscriptionsByReloadTrigger[itemString]) {
+      subscriptionsByReloadTrigger[itemString] = [];
     }
-    subscriptionsByReloadTrigger[item].push(reloadHandler);
+    subscriptionsByReloadTrigger[itemString].push(reloadHandler);
   }
 }
 
 export async function unsubscribeCacheChange(reloadTrigger, cacheKey, reloadHandler) {
   for (const item of getAsArray(reloadTrigger)) {
-    if (subscriptionsByReloadTrigger[item]) {
-      subscriptionsByReloadTrigger[item] = subscriptionsByReloadTrigger[item].filter(x => x != reloadHandler);
+    const itemString = stableStringify(item);
+    if (subscriptionsByReloadTrigger[itemString]) {
+      subscriptionsByReloadTrigger[itemString] = subscriptionsByReloadTrigger[itemString].filter(
+        x => x != reloadHandler
+      );
     }
-    if (subscriptionsByReloadTrigger[item].length == 0) {
-      delete subscriptionsByReloadTrigger[item];
+    if (subscriptionsByReloadTrigger[itemString].length == 0) {
+      delete subscriptionsByReloadTrigger[itemString];
     }
   }
 }
 
-function dispatchCacheChange(reloadTrigger) {
-  // console.log('CHANGE', reloadTrigger);
+export function dispatchCacheChange(reloadTrigger) {
   cacheClean(reloadTrigger);
 
   for (const item of getAsArray(reloadTrigger)) {
-    if (subscriptionsByReloadTrigger[item]) {
-      for (const handler of subscriptionsByReloadTrigger[item]) {
+    const itemString = stableStringify(transformApiArgsInv(item));
+    if (subscriptionsByReloadTrigger[itemString]) {
+      for (const handler of subscriptionsByReloadTrigger[itemString]) {
         handler();
       }
+    }
+  }
+}
+
+export function batchDispatchCacheTriggers(predicate) {
+  for (const key in subscriptionsByReloadTrigger) {
+    const relaodTrigger = JSON.parse(key);
+    if (predicate(relaodTrigger)) {
+      dispatchCacheChange(relaodTrigger);
     }
   }
 }

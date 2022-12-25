@@ -27,6 +27,7 @@ const { createTwoFilesPatch } = require('diff');
 const diff2htmlPage = require('../utility/diff2htmlPage');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
+const { MissingCredentialsError } = require('../utility/exceptions');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -42,19 +43,19 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.structure = structure;
-    socket.emitChanged(`database-structure-changed-${conid}-${database}`);
+    socket.emitChanged('database-structure-changed', { conid, database });
   },
   handle_structureTime(conid, database, { analysedTime }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.analysedTime = analysedTime;
-    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    socket.emitChanged(`database-status-changed`, { conid, database });
   },
   handle_version(conid, database, { version }) {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (!existing) return;
     existing.serverVersion = version;
-    socket.emitChanged(`database-server-version-changed-${conid}-${database}`);
+    socket.emitChanged(`database-server-version-changed`, { conid, database });
   },
 
   handle_error(conid, database, props) {
@@ -72,7 +73,7 @@ module.exports = {
     if (!existing) return;
     if (existing.status && status && existing.status.counter > status.counter) return;
     existing.status = status;
-    socket.emitChanged(`database-status-changed-${conid}-${database}`);
+    socket.emitChanged(`database-status-changed`, { conid, database });
   },
 
   handle_ping() {},
@@ -81,6 +82,9 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) return existing;
     const connection = await connections.getCore({ conid });
+    if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
+      throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
+    }
     const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
       '--is-forked-api',
       '--start-process',
@@ -313,7 +317,7 @@ module.exports = {
         },
         structure: existing.structure,
       };
-      socket.emitChanged(`database-status-changed-${conid}-${database}`);
+      socket.emitChanged(`database-status-changed`, { conid, database });
     }
   },
 

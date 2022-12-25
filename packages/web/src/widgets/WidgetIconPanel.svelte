@@ -7,7 +7,7 @@
     visibleSelectedWidget,
     visibleWidgetSideBar,
     visibleHamburgerMenuWidget,
-    singleDatabaseMode,
+    lockedDatabaseMode,
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
@@ -112,12 +112,12 @@
 
   <div
     class="wrapper"
-    title={`Toggle whether tabs from all databases are visible. Currently - ${$singleDatabaseMode ? 'NO' : 'YES'}`}
+    title={`Toggle whether tabs from all databases are visible. Currently - ${$lockedDatabaseMode ? 'NO' : 'YES'}`}
     on:click={() => {
-      $singleDatabaseMode = !$singleDatabaseMode;
+      $lockedDatabaseMode = !$lockedDatabaseMode;
     }}
   >
-    <FontIcon icon={$singleDatabaseMode ? 'icon single-database-mode' : 'icon multi-database-mode'} />
+    <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
   </div>
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
     <FontIcon icon="icon settings" />

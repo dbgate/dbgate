@@ -12,6 +12,7 @@
   import WidgetColumnBarItem from './WidgetColumnBarItem.svelte';
   import SqlObjectList from './SqlObjectList.svelte';
   import DbKeysTree from './DbKeysTree.svelte';
+  import SingleConnectionDatabaseList from './SingleConnectionDatabaseList.svelte';
 
   export let hidden = false;
 
@@ -24,7 +25,11 @@
 </script>
 
 <WidgetColumnBar {hidden}>
-  {#if !$config?.singleDatabase}
+  {#if $config?.singleConnection}
+    <WidgetColumnBarItem title="Databases" name="databases" height="35%" storageName="databasesWidget">
+      <SingleConnectionDatabaseList connection={$config?.singleConnection} />
+    </WidgetColumnBarItem>
+  {:else if !$config?.singleDbConnection}
     <WidgetColumnBarItem title="Connections" name="connections" height="35%" storageName="connectionsWidget">
       <ConnectionList />
     </WidgetColumnBarItem>

@@ -50,7 +50,7 @@ function subscribeCssVariable(store, transform, cssVariable) {
 }
 
 export const selectedWidget = writableWithStorage('database', 'selectedWidget');
-export const singleDatabaseMode = writableWithStorage<boolean>(false, 'singleDatabaseMode');
+export const lockedDatabaseMode = writableWithStorage<boolean>(false, 'lockedDatabaseMode');
 export const visibleWidgetSideBar = writableWithStorage(true, 'visibleWidgetSideBar');
 export const visibleSelectedWidget = derived(
   [selectedWidget, visibleWidgetSideBar],
@@ -138,7 +138,7 @@ subscribeCssVariable(visibleSelectedWidget, x => (x ? 1 : 0), '--dim-visible-lef
 // subscribeCssVariable(visibleToolbar, x => (x ? 1 : 0), '--dim-visible-toolbar');
 subscribeCssVariable(leftPanelWidth, x => `${x}px`, '--dim-left-panel-width');
 subscribeCssVariable(visibleTitleBar, x => (x ? 1 : 0), '--dim-visible-titlebar');
-subscribeCssVariable(singleDatabaseMode, x => (x ? 0 : 1), '--dim-visible-tabs-databases');
+subscribeCssVariable(lockedDatabaseMode, x => (x ? 0 : 1), '--dim-visible-tabs-databases');
 
 let activeTabIdValue = null;
 activeTabId.subscribe(value => {
@@ -200,11 +200,11 @@ pinnedDatabases.subscribe(value => {
 });
 export const getPinnedDatabases = () => _.compact(pinnedDatabasesValue);
 
-let singleDatabaseModeValue = null;
-singleDatabaseMode.subscribe(value => {
-  singleDatabaseModeValue = value;
+let lockedDatabaseModeValue = null;
+lockedDatabaseMode.subscribe(value => {
+  lockedDatabaseModeValue = value;
 });
-export const getSingleDatabaseMode = () => singleDatabaseModeValue;
+export const getLockedDatabaseMode = () => lockedDatabaseModeValue;
 
 let currentDatabaseValue = null;
 currentDatabase.subscribe(value => {
@@ -246,8 +246,8 @@ export function subscribeApiDependendStores() {
   useConfig().subscribe(value => {
     currentConfigValue = value;
     invalidateCommands();
-    if (value.singleDatabase) {
-      currentDatabase.set(value.singleDatabase);
+    if (value.singleDbConnection) {
+      currentDatabase.set(value.singleDbConnection);
     }
   });
 }

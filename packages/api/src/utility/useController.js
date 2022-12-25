@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const express = require('express');
 const getExpressPath = require('./getExpressPath');
+const { MissingCredentialsError } = require('./exceptions');
 
 /**
  * @param {string} route
@@ -37,6 +38,13 @@ module.exports = function useController(app, electron, route, controller) {
             if (data === undefined) return null;
             return data;
           } catch (err) {
+            if (err instanceof MissingCredentialsError) {
+              return {
+                missingCredentials: true,
+                apiErrorMessage: 'Missing credentials',
+                detail: err.detail,
+              };
+            }
             return { apiErrorMessage: err.message };
           }
         });
@@ -69,7 +77,15 @@ module.exports = function useController(app, electron, route, controller) {
           res.json(data);
         } catch (e) {
           console.log(e);
-          res.status(500).json({ apiErrorMessage: e.message });
+          if (e instanceof MissingCredentialsError) {
+            res.json({
+              missingCredentials: true,
+              apiErrorMessage: 'Missing credentials',
+              detail: e.detail,
+            });
+          } else {
+            res.status(500).json({ apiErrorMessage: e.message });
+          }
         }
       });
     }

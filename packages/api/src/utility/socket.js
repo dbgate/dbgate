@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const stableStringify = require('json-stable-stringify');
 
 const sseResponses = [];
 let electronSender = null;
@@ -27,12 +28,12 @@ module.exports = {
       electronSender.send(message, data == null ? null : data);
     }
     for (const res of sseResponses) {
-      res.write(`event: ${message}\ndata: ${JSON.stringify(data == null ? null : data)}\n\n`);
+      res.write(`event: ${message}\ndata: ${stableStringify(data == null ? null : data)}\n\n`);
     }
   },
-  emitChanged(key) {
+  emitChanged(key, params = undefined) {
     // console.log('EMIT CHANGED', key);
-    this.emit('changed-cache', key);
+    this.emit('changed-cache', { key, ...params });
     // this.emit(key);
   },
 };
