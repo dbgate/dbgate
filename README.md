@@ -22,6 +22,7 @@ DbGate is licensed under MIT license and is completely free.
 * MySQL
 * PostgreSQL
 * SQL Server
+* Oracle
 * MongoDB
 * Redis
 * SQLite
@@ -66,13 +67,13 @@ DbGate is licensed under MIT license and is completely free.
 * Mongo JavaScript editor, execute Mongo script (with NodeJs syntax)
 * Redis tree view, generate script from keys, run Redis script
 * Runs as application for Windows, Linux and Mac. Or in Docker container on server and in web Browser on client.
-* Import, export from/to CSV, Excel, JSON, XML
+* Import, export from/to CSV, Excel, JSON, NDJSON, XML
 * Free table editor - quick table data editing (cleanup data after import/before export, prototype tables etc.)
-* Archives - backup your data in JSON files on local filesystem (or on DbGate server, when using web application)
+* Archives - backup your data in NDJSON files on local filesystem (or on DbGate server, when using web application)
 * Charts, export chart to HTML page
 * For detailed info, how to run DbGate in docker container, visit [docker hub](https://hub.docker.com/r/dbgate/dbgate)
 * Extensible plugin architecture
-* Perspectives - nested table view over complex relational data
+* Perspectives - nested table view over complex relational data, query designer on MongoDB databases
 
 ## How to contribute
 Any contributions are welcome. If you want to contribute without coding, consider following:
