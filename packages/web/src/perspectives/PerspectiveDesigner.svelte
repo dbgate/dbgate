@@ -327,6 +327,10 @@
       return false;
     },
     onClickTableHeader,
+    isColumnExpandable: column => !!column.getChildColumns,
+    isColumnExpanded: column => column.isExpanded,
+    columnExpandLevel: column => column.expandLevel,
+    toggleExpandedColumn: (column, value) => column.toggleExpanded(value),
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos, dataPatterns)}

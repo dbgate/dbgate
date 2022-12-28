@@ -302,11 +302,11 @@
   <div class="columns" on:scroll={() => tick().then(onMoveReferences)} class:scroll={settings?.allowScrollColumns}>
     {#each flatColumns || [] as column}
       <ColumnLine
-        nestingSupported={!!columns.find(x => x.getChildColumns)}
-        isExpandable={!!column.getChildColumns}
-        isExpanded={column.isExpanded}
-        expandLevel={column.expandLevel}
-        toggleExpanded={column.toggleExpanded}
+        nestingSupported={!!settings?.isColumnExpandable && columns.find(x => settings?.isColumnExpandable(x))}
+        isExpandable={settings?.isColumnExpandable && settings?.isColumnExpandable(column)}
+        isExpanded={settings?.isColumnExpanded && settings?.isColumnExpanded(column)}
+        expandLevel={settings?.columnExpandLevel ? settings?.columnExpandLevel(column) : 0}
+        toggleExpanded={value => settings?.toggleExpandedColumn(column, value)}
         {column}
         {table}
         {designer}
