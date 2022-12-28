@@ -36,6 +36,8 @@
   let sqlConnectResult;
   const testIdRef = createRef(0);
 
+  let engineTitle;
+
   currentModalConid = conid;
 
   onMount(async () => {
@@ -47,6 +49,15 @@
         server: connection.server,
       };
     }
+    if (passwordMode == 'askUser') {
+      $values = {
+        ...$values,
+        server: connection.server,
+      };
+    }
+
+    const match = (connection.engine || '').match(/^([^@]*)@/);
+    engineTitle = match ? match[1] : connection.engine;
   });
 
   onDestroy(() => {
@@ -83,7 +94,7 @@
 
 <FormProviderCore {values}>
   <ModalBase {...$$restProps} simple>
-    <svelte:fragment slot="header">Database Log In</svelte:fragment>
+    <svelte:fragment slot="header">Database Log In ({engineTitle})</svelte:fragment>
 
     <FormTextField label="Server" name="server" disabled />
     <FormTextField
