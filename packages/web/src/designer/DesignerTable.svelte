@@ -1,6 +1,6 @@
 <script lang="ts">
   import { presetDarkPalettes, presetPalettes } from '@ant-design/colors';
-  import { computeDbDiffRows } from 'dbgate-tools';
+  import { filterName } from 'dbgate-tools';
 
   import { tick } from 'svelte';
   import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
@@ -68,6 +68,27 @@
   $: specificDb = settings?.tableSpecificDb ? settings?.tableSpecificDb(designerId) : null;
   $: filterParentRows = settings?.hasFilterParentRowsFlag ? settings?.hasFilterParentRowsFlag(designerId) : false;
   $: isGrayed = settings?.isGrayedTable ? settings?.isGrayedTable(designerId) : false;
+  $: flatColumns = getFlatColumns(columns, '', 0);
+
+  function getFlatColumns(columns, filter, level) {
+    if (!columns) return [];
+    const res = [];
+    for (const col of columns) {
+      if (filterName(filter, col.columnName)) {
+        res.push({ ...col, expandLevel: level });
+        if (col.isExpanded) {
+          res.push(...getFlatColumns(col.getChildColumns ? col.getChildColumns() : null, filter, level + 1));
+        }
+      } else if (col.isExpanded) {
+        const children = getFlatColumns(col.getChildColumns ? col.getChildColumns() : null, filter, level + 1);
+        if (children.length > 0) {
+          res.push({ ...col, expandLevel: level });
+          res.push(...children);
+        }
+      }
+    }
+    return res;
+  }
 
   export function isSelected() {
     return table?.isSelectedTable;
@@ -214,7 +235,7 @@
     ];
   }
 
-  // $: console.log('COLUMNS', columns);
+  // $: console.log('COLUMNS', flatColumns);
 </script>
 
 <div
@@ -279,8 +300,13 @@
     {/if}
   </div>
   <div class="columns" on:scroll={() => tick().then(onMoveReferences)} class:scroll={settings?.allowScrollColumns}>
-    {#each columns || [] as column}
+    {#each flatColumns || [] as column}
       <ColumnLine
+        nestingSupported={!!columns.find(x => x.getChildColumns)}
+        isExpandable={!!column.getChildColumns}
+        isExpanded={column.isExpanded}
+        expandLevel={column.expandLevel}
+        toggleExpanded={column.toggleExpanded}
         {column}
         {table}
         {designer}

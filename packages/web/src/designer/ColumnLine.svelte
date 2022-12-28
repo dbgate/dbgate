@@ -6,6 +6,7 @@
   import ColumnLabel from '../elements/ColumnLabel.svelte';
 
   import CheckboxField from '../forms/CheckboxField.svelte';
+  import { plusExpandIcon } from '../icons/expandIcons';
   import FontIcon from '../icons/FontIcon.svelte';
   import contextMenu from '../utility/contextMenu';
   import SortOrderIcon from './SortOrderIcon.svelte';
@@ -21,6 +22,11 @@
   export let onAddReferenceByColumn;
   export let onSelectColumn;
   export let settings;
+  export let nestingSupported = null;
+  export let isExpandable = false;
+  export let isExpanded = false;
+  export let expandLevel = 0;
+  export let toggleExpanded = null;
 
   $: designerColumn = (designer.columns || []).find(
     x => x.designerId == designerId && x.columnName == column.columnName
@@ -115,16 +121,27 @@
     })}
   use:contextMenu={settings?.canSelectColumns ? createMenu : '__no_menu'}
 >
+  {#if nestingSupported}
+    <span class="expandColumnIcon" style={`margin-right: ${5 + expandLevel * 10}px`}>
+      <FontIcon
+        icon={isExpandable ? plusExpandIcon(isExpanded) : 'icon invisible-box'}
+        on:click={() => {
+          toggleExpanded(!isExpanded);
+        }}
+      />
+    </span>
+  {/if}
+
   {#if settings?.allowColumnOperations}
     <CheckboxField
       checked={settings?.isColumnChecked
-        ? settings?.isColumnChecked(designerId, column.columnName)
+        ? settings?.isColumnChecked(designerId, column)
         : !!(designer.columns || []).find(
             x => x.designerId == designerId && x.columnName == column.columnName && x.isOutput
           )}
       on:change={e => {
         if (settings?.setColumnChecked) {
-          settings?.setColumnChecked(designerId, column.columnName, e.target.checked);
+          settings?.setColumnChecked(designerId, column, e.target.checked);
         } else {
           if (e.target.checked) {
             onChangeColumn(
