@@ -22,6 +22,7 @@ import {
   PerspectiveReferenceConfig,
 } from './PerspectiveConfig';
 import _isEqual from 'lodash/isEqual';
+import _isArray from 'lodash/isArray';
 import _cloneDeep from 'lodash/cloneDeep';
 import _compact from 'lodash/compact';
 import _uniq from 'lodash/uniq';
@@ -764,10 +765,12 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return this.parentNode instanceof PerspectivePatternColumnNode;
   }
 
-  // matchChildRow(parentRow: any, childRow: any): boolean {
-  //   if (!this.foreignKey) return false;
-  //   return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
-  // }
+  matchChildRow(parentRow: any, childRow: any): boolean {
+    console.log('MATCH PATTENR ROW', parentRow, childRow);
+    return false;
+    // if (!this.foreignKey) return false;
+    // return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
+  }
 
   // getChildMatchColumns() {
   //   if (!this.foreignKey) return [];
@@ -1153,6 +1156,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
+    // console.log('MATCH ROW', parentRow, childRow);
     for (const column of this.customJoin.columns) {
       if (parentRow[column.baseColumnName] != childRow[column.refColumnName]) {
         return false;
@@ -1171,17 +1175,65 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
 
   getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps {
     // console.log('CUSTOM JOIN', this.customJoin);
+
     // console.log('this.getDataLoadColumns()', this.getDataLoadColumns());
     const isMongo = isCollectionInfo(this.table);
+
+    const bindingValues = [];
+
+    for (const row of parentRows) {
+      const rowBindingValueArrays = [];
+      for (const col of this.customJoin.columns) {
+        const path = col.baseColumnName.split('::');
+        const values = [];
+
+        function processSubpath(parent, subpath) {
+          if (subpath.length == 0) {
+            values.push(parent);
+            return;
+          }
+          if (parent == null) {
+            return;
+          }
+
+          const obj = parent[subpath[0]];
+          if (_isArray(obj)) {
+            for (const elem of obj) {
+              processSubpath(elem, subpath.slice(1));
+            }
+          } else {
+            processSubpath(obj, subpath.slice(1));
+          }
+        }
+
+        processSubpath(row, path);
+
+        rowBindingValueArrays.push(values);
+      }
+
+      const valueCount = Math.max(...rowBindingValueArrays.map(x => x.length));
+
+      for (let i = 0; i < valueCount; i += 1) {
+        const value = Array(this.customJoin.columns.length);
+        for (let col = 0; col < this.customJoin.columns.length; col++) {
+          value[col] = rowBindingValueArrays[col][i % rowBindingValueArrays[col].length];
+        }
+        bindingValues.push(value);
+      }
+    }
+    // const bindingValues = parentRows.map(row => this.customJoin.columns.map(x => row[x.baseColumnName]));
+
+    // console.log('bindingValues', bindingValues);
+    // console.log(
+    //   'bindingValues UNIQ',
+    //   _uniqBy(bindingValues, x => JSON.stringify(x))
+    // );
 
     return {
       schemaName: this.table.schemaName,
       pureName: this.table.pureName,
       bindingColumns: this.getParentMatchColumns(),
-      bindingValues: _uniqBy(
-        parentRows.map(row => this.customJoin.columns.map(x => row[x.baseColumnName])),
-        stableStringify
-      ),
+      bindingValues: _uniqBy(bindingValues, x => JSON.stringify(x)),
       dataColumns: this.getDataLoadColumns(),
       allColumns: isMongo,
       databaseConfig: this.databaseConfig,

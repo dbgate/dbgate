@@ -177,7 +177,7 @@
   export function getDomTable() {
     const domRefs = { ...columnRefs };
     domRefs[''] = domWrapper;
-    return new DomTableRef(table, domRefs, domCanvas);
+    return new DomTableRef(table, domRefs, domCanvas, settings);
   }
 
   const handleSetTableAlias = () => {
@@ -300,7 +300,7 @@
     {/if}
   </div>
   <div class="columns" on:scroll={() => tick().then(onMoveReferences)} class:scroll={settings?.allowScrollColumns}>
-    {#each flatColumns || [] as column}
+    {#each flatColumns || [] as column (column.columnName)}
       <ColumnLine
         nestingSupported={!!settings?.isColumnExpandable && columns.find(x => settings?.isColumnExpandable(x))}
         isExpandable={settings?.isColumnExpandable && settings?.isColumnExpandable(column)}

@@ -164,7 +164,13 @@
       }}
     />
   {/if}
-  <ColumnLabel {...column} {foreignKey} forceIcon {iconOverride} />
+  <ColumnLabel
+    {...column}
+    columnName={settings?.getColumnDisplayName ? settings?.getColumnDisplayName(column) : column.columnName}
+    {foreignKey}
+    forceIcon
+    {iconOverride}
+  />
   {#if designerColumn?.filter}
     <FontIcon icon="img filter" />
   {/if}
