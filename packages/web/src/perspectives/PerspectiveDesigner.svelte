@@ -2,6 +2,7 @@
   import {
     ChangePerspectiveConfigFunc,
     createPerspectiveNodeConfig,
+    getPerspectiveParentColumnName,
     PerspectiveDataPatternColumn,
     PerspectiveNodeConfig,
     perspectiveNodesHaveStructure,
@@ -331,12 +332,8 @@
     isColumnExpanded: column => column.isExpanded,
     columnExpandLevel: column => column.expandLevel,
     toggleExpandedColumn: (column, value) => column.toggleExpanded(value),
-    getColumnDisplayName: column => column.shortName,
-    getParentColumnName: columnName => {
-      const path = columnName.split('::');
-      if (path.length >= 2) return path.slice(0, -1).join('::');
-      return null;
-    },
+    getColumnDisplayName: column => column.shortName || column.columnName,
+    getParentColumnName: getPerspectiveParentColumnName,
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos, dataPatterns)}

@@ -80,6 +80,7 @@
   const disableLoadNextRef = createRef(false);
 
   async function loadLevelData(node: PerspectiveTreeNode, parentRows: any[], counts) {
+    /// console.log('loadLevelData', node, parentRows, counts);
     dbg('load level data', counts);
     // const loadProps: PerspectiveDataLoadPropsWithNode[] = [];
     const loadChildNodes = [];
@@ -100,7 +101,7 @@
           incompleteRowsIndicator: [node.designerId],
         });
       }
-    } else {
+    } else if (!node.preloadedLevelData) {
       let lastRowWithChildren = null;
       for (const parentRow of parentRows) {
         const childRows = rows.filter(row => node.matchChildRow(parentRow, row));
@@ -116,9 +117,26 @@
       }
     }
 
+    // console.log('TESTING NODE', node);
+    // console.log('ROWS', rows);
     for (const child of node.childNodes) {
-      if (child.isExpandable && child.isCheckedNode) {
-        await loadLevelData(child, rows, counts);
+      // console.log('TEST CHILD FOR LOAD', child);
+      // console.log(child.isExpandable, child.isCheckedNode, child.preloadedLevelData);
+      if (child.isExpandable && (child.isCheckedNode || child.preloadedLevelData)) {
+        // console.log('TESTED OK');
+        // if (child.preloadedLevelData) console.log('LOADING CHILD DATA', rows);
+        // console.log(child.preloadedLevelData, child);
+        // console.log('LOADING FOR CHILD', child.codeName, child.columnName, child);
+        // console.log('ROWS', child.preloadedLevelData ? parentRows : rows);
+        await loadLevelData(
+          child,
+          child.preloadedLevelData
+            ? _.compact(_.flatten(parentRows.map(x => x[child.columnName])))
+            : node.preloadedLevelData
+            ? parentRows
+            : rows,
+          counts
+        );
         // loadProps.push(child.getNodeLoadProps());
       }
     }

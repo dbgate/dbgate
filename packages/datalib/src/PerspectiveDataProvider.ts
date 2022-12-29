@@ -196,6 +196,14 @@ export class PerspectiveDataProvider {
       },
     });
 
+    if (!nextRows) {
+      // return tableCache.getRowsResult(props);
+      return {
+        rows: [],
+        incomplete: false,
+      };
+    }
+
     if (nextRows.errorMessage) {
       throw new Error(nextRows.errorMessage);
     }
