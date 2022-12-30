@@ -836,8 +836,14 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
   }
 
   get generatesHiearchicGridColumn() {
+    // return true;
     // console.log('generatesHiearchicGridColumn', this.parentTableNode?.nodeConfig?.checkedColumns, this.codeName + '::');
-    return !!this.tableNodeOrParent?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'));
+    if (!!this.tableNodeOrParent?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'))) {
+      return true;
+    }
+    // return false;
+
+    return this.hasCheckedJoinChild();
   }
 
   // get generatesHiearchicGridColumn() {
@@ -887,8 +893,8 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return true;
   }
 
-  generateChildNodes(): PerspectiveTreeNode[] {
-    const patternChildren = this.column.columns.map(
+  generatePatternChildNodes(): PerspectivePatternColumnNode[] {
+    return this.column.columns.map(
       column =>
         new PerspectivePatternColumnNode(
           this.table,
@@ -903,6 +909,20 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
           null
         )
     );
+  }
+
+  hasCheckedJoinChild() {
+    for (const node of this.childNodes) {
+      if (node instanceof PerspectivePatternColumnNode) {
+        if (node.hasCheckedJoinChild()) return true;
+      }
+      if (node.isCheckedNode) return true;
+    }
+    return false;
+  }
+
+  generateChildNodes(): PerspectiveTreeNode[] {
+    const patternChildren = this.generatePatternChildNodes();
 
     const customs = [];
     // console.log('GETTING CHILDREN', this.config.nodes, this.config.references);
