@@ -47,6 +47,7 @@ export class PerspectiveDataProvider {
 
   async loadDataNested(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
     const tableCache = this.cache.getTableCache(props);
+    // console.log('loadDataNested', props);
 
     const uncached = tableCache.getUncachedBindingGroups(props);
     if (uncached.length > 0) {
@@ -54,7 +55,7 @@ export class PerspectiveDataProvider {
         ...props,
         bindingValues: uncached,
       });
-      // console.log('COUNTS', counts);
+      // console.log('loadDataNested COUNTS', counts);
       for (const resetItem of uncached) {
         tableCache.storeGroupSize(props, resetItem, 0);
       }
@@ -195,6 +196,14 @@ export class PerspectiveDataProvider {
         limit: props.topCount - tableCache.loadedCount,
       },
     });
+
+    if (!nextRows) {
+      // return tableCache.getRowsResult(props);
+      return {
+        rows: [],
+        incomplete: false,
+      };
+    }
 
     if (nextRows.errorMessage) {
       throw new Error(nextRows.errorMessage);

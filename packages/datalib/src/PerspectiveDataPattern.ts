@@ -51,7 +51,7 @@ function addObjectToColumns(columns: PerspectiveDataPatternColumn[], row) {
       if (!column.types.includes(type)) {
         column.types.push(type);
       }
-      if (_isPlainObject(value)) {
+      if (_isPlainObject(value) && type != 'oid') {
         addObjectToColumns(column.columns, value);
       }
       if (_isArray(value)) {

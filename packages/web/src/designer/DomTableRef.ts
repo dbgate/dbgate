@@ -6,13 +6,15 @@ export default class DomTableRef {
   table: DesignerTableInfo;
   designerId: string;
   domRefs: { [column: string]: Element };
+  settings: any;
 
-  constructor(table: DesignerTableInfo, domRefs, domWrapper: Element) {
+  constructor(table: DesignerTableInfo, domRefs, domWrapper: Element, settings) {
     this.domTable = domRefs[''];
     this.domWrapper = domWrapper;
     this.table = table;
     this.designerId = table.designerId;
     this.domRefs = domRefs;
+    this.settings = settings;
   }
 
   getRect() {
@@ -31,6 +33,10 @@ export default class DomTableRef {
 
   getColumnY(columnName: string) {
     let col = this.domRefs[columnName];
+    while (col == null && this.settings?.getParentColumnName && this.settings?.getParentColumnName(columnName)) {
+      columnName = this.settings?.getParentColumnName(columnName);
+      col = this.domRefs[columnName];
+    }
     if (!col) return null;
     const rect = col.getBoundingClientRect();
     const wrap = this.domWrapper.getBoundingClientRect();
