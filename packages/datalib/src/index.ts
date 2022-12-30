@@ -2,6 +2,7 @@ export * from './GridDisplay';
 export * from './GridConfig';
 export * from './PerspectiveConfig';
 export * from './PerspectiveTreeNode';
+export * from './PerspectiveTableNode';
 export * from './TableGridDisplay';
 export * from './ViewGridDisplay';
 export * from './JslGridDisplay';

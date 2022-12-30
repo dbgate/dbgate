@@ -1,4 +1,4 @@
-import { getTableChildPerspectiveNodes, PerspectiveTableNode, PerspectiveTreeNode } from './PerspectiveTreeNode';
+import { PerspectiveTreeNode } from './PerspectiveTreeNode';
 import _max from 'lodash/max';
 import _range from 'lodash/max';
 import _fill from 'lodash/fill';

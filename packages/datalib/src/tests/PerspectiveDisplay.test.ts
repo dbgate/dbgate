@@ -1,11 +1,11 @@
 import { PerspectiveDisplay } from '../PerspectiveDisplay';
-import { PerspectiveTableNode } from '../PerspectiveTreeNode';
 import { chinookDbInfo } from './chinookDbInfo';
 import { createPerspectiveConfig, createPerspectiveNodeConfig } from '../PerspectiveConfig';
 import artistDataFlat from './artistDataFlat';
 import artistDataAlbum from './artistDataAlbum';
 import artistDataAlbumTrack from './artistDataAlbumTrack';
 import { processPerspectiveDefaultColunns } from '../processPerspectiveDefaultColunns';
+import { PerspectiveTableNode } from '../PerspectiveTableNode';
 
 test('test flat view', () => {
   const artistTable = chinookDbInfo.tables.find(x => x.pureName == 'Artist');

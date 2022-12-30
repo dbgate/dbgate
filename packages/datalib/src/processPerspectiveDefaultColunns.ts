@@ -2,7 +2,7 @@ import { findForeignKeyForColumn } from 'dbgate-tools';
 import type { DatabaseInfo, TableInfo, ViewInfo } from 'dbgate-types';
 import { createPerspectiveNodeConfig, MultipleDatabaseInfo, PerspectiveConfig } from './PerspectiveConfig';
 import { PerspectiveDataPattern, PerspectiveDataPatternDict } from './PerspectiveDataPattern';
-import { PerspectiveTableNode } from './PerspectiveTreeNode';
+import { PerspectiveTableNode } from './PerspectiveTableNode';
 
 const namePredicates = [
   x => x.toLowerCase() == 'name',

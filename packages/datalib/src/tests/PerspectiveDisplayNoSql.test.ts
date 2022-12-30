@@ -1,10 +1,10 @@
 import { PerspectiveDisplay } from '../PerspectiveDisplay';
-import { PerspectiveTableNode } from '../PerspectiveTreeNode';
 import { createPerspectiveConfig, PerspectiveNodeConfig } from '../PerspectiveConfig';
 import { processPerspectiveDefaultColunns } from '../processPerspectiveDefaultColunns';
 import { DatabaseAnalyser } from 'dbgate-tools';
 import { analyseDataPattern } from '../PerspectiveDataPattern';
 import { PerspectiveDataProvider } from '../PerspectiveDataProvider';
+import { PerspectiveTableNode } from '../PerspectiveTableNode';
 
 const accountData = [
   {
