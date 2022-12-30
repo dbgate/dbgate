@@ -785,12 +785,12 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return this.isExpandable;
   }
 
-  matchChildRow(parentRow: any, childRow: any): boolean {
-    console.log('MATCH PATTENR ROW', parentRow, childRow);
-    return false;
-    // if (!this.foreignKey) return false;
-    // return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
-  }
+  // matchChildRow(parentRow: any, childRow: any): boolean {
+  //   console.log('MATCH PATTENR ROW', parentRow, childRow);
+  //   return false;
+  //   // if (!this.foreignKey) return false;
+  //   // return parentRow[this.foreignKey.columns[0].columnName] == childRow[this.foreignKey.columns[0].refColumnName];
+  // }
 
   // getChildMatchColumns() {
   //   if (!this.foreignKey) return [];
