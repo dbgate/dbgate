@@ -146,6 +146,9 @@ export abstract class PerspectiveTreeNode {
   get preloadedLevelData() {
     return false;
   }
+  get findByDesignerIdWithoutDesignerId() {
+    return false;
+  }
   matchChildRow(parentRow: any, childRow: any): boolean {
     return true;
   }
@@ -219,7 +222,7 @@ export abstract class PerspectiveTreeNode {
 
   get hasUncheckedNodeInPath() {
     if (!this.parentNode) return false;
-    if (!this.isCheckedNode) return true;
+    if (this.designerId && !this.isCheckedNode) return true;
     return this.parentNode.hasUncheckedNodeInPath;
   }
 
@@ -413,7 +416,7 @@ export abstract class PerspectiveTreeNode {
   // }
 
   findNodeByDesignerId(designerId: string): PerspectiveTreeNode {
-    if (!this.designerId) {
+    if (!this.designerId && !this.findByDesignerIdWithoutDesignerId) {
       return null;
     }
     if (!designerId) {
@@ -772,6 +775,10 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
 
   get isChildColumn() {
     return this.parentNode instanceof PerspectivePatternColumnNode;
+  }
+
+  get findByDesignerIdWithoutDesignerId() {
+    return this.isExpandable;
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
