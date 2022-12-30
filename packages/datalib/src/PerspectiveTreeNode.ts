@@ -835,10 +835,10 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     return null;
   }
 
-  get generatesHiearchicGridColumn() {
+  get generatesHiearchicGridColumn(): boolean {
     // return true;
     // console.log('generatesHiearchicGridColumn', this.parentTableNode?.nodeConfig?.checkedColumns, this.codeName + '::');
-    if (!!this.tableNodeOrParent?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'))) {
+    if (this.tableNodeOrParent?.nodeConfig?.checkedColumns?.find(x => x.startsWith(this.codeName + '::'))) {
       return true;
     }
     // return false;

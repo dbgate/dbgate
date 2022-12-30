@@ -5,7 +5,7 @@ import _difference from 'lodash/difference';
 import debug from 'debug';
 import stableStringify from 'json-stable-stringify';
 import { PerspectiveDataPattern } from './PerspectiveDataPattern';
-import { perspectiveValueMatcherSimple } from './perspectiveTools';
+import { perspectiveValueMatcher } from './perspectiveTools';
 
 const dbg = debug('dbgate:PerspectiveCache');
 
@@ -19,7 +19,7 @@ export class PerspectiveBindingGroup {
 
   matchRow(row) {
     return this.table.bindingColumns.every((column, index) =>
-      perspectiveValueMatcherSimple(row[column], this.bindingValues[index])
+    perspectiveValueMatcher(row[column], this.bindingValues[index])
     );
   }
 }
@@ -73,7 +73,7 @@ export class PerspectiveCacheTable {
 
   storeGroupSize(props: PerspectiveDataLoadProps, bindingValues: any[], count: number) {
     const originalBindingValue = props.bindingValues.find(v =>
-      _zip(v, bindingValues).every(([x, y]) => perspectiveValueMatcherSimple(x, y))
+      _zip(v, bindingValues).every(([x, y]) => perspectiveValueMatcher(x, y))
     );
     // console.log('storeGroupSize NEW', bindingValues);
     // console.log('storeGroupSize ORIGINAL', originalBindingValue);
