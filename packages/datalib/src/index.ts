@@ -21,3 +21,4 @@ export * from './PerspectiveConfig';
 export * from './processPerspectiveDefaultColunns';
 export * from './PerspectiveDataPattern';
 export * from './PerspectiveDataLoader';
+export * from './perspectiveTools';
