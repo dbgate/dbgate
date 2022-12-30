@@ -54,7 +54,7 @@ export class PerspectiveDataProvider {
         ...props,
         bindingValues: uncached,
       });
-      // console.log('COUNTS', counts);
+      // console.log('loadDataNested COUNTS', counts);
       for (const resetItem of uncached) {
         tableCache.storeGroupSize(props, resetItem, 0);
       }

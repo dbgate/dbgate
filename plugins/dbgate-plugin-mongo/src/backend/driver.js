@@ -258,7 +258,7 @@ const driver = {
         const count = await collection.countDocuments(convertObjectId(options.condition) || {});
         return { count };
       } else if (options.aggregate) {
-        let cursor = await collection.aggregate(options.aggregate);
+        let cursor = await collection.aggregate(convertObjectId(options.aggregate));
         const rows = await cursor.toArray();
         return { rows: rows.map(transformMongoData) };
       } else {

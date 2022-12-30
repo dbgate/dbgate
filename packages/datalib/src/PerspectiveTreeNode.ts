@@ -1248,7 +1248,7 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
-    // console.log('MATCH ROW', parentRow, childRow);
+    console.log('MATCH ROW', parentRow, childRow);
     for (const column of this.customJoin.columns) {
       if (parentRow[getPerspectiveMostNestedChildColumnName(column.baseColumnName)] != childRow[column.refColumnName]) {
         return false;
