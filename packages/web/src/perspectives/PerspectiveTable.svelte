@@ -106,6 +106,7 @@
         });
       }
     } else if (!node.preloadedLevelData) {
+      // console.log('LOADED ROWS', rows);
       let lastRowWithChildren = null;
       for (const parentRow of parentRows) {
         const childRows = rows.filter(row => node.matchChildRow(parentRow, row));

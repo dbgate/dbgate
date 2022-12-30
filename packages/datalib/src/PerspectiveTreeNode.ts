@@ -39,7 +39,11 @@ import { Condition, Expression, Select } from 'dbgate-sqltree';
 // import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 import uuidv1 from 'uuid/v1';
 import { PerspectiveDataPatternColumn } from './PerspectiveDataPattern';
-import { getPerspectiveMostNestedChildColumnName, getPerspectiveParentColumnName } from './perspectiveTools';
+import {
+  getPerspectiveMostNestedChildColumnName,
+  getPerspectiveParentColumnName,
+  perspectiveValueMatcher,
+} from './perspectiveTools';
 
 export interface PerspectiveDataLoadPropsWithNode {
   props: PerspectiveDataLoadProps;
@@ -1248,9 +1252,14 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
-    console.log('MATCH ROW', parentRow, childRow);
+    // console.log('MATCH ROW', parentRow, childRow);
     for (const column of this.customJoin.columns) {
-      if (parentRow[getPerspectiveMostNestedChildColumnName(column.baseColumnName)] != childRow[column.refColumnName]) {
+      if (
+        !perspectiveValueMatcher(
+          parentRow[getPerspectiveMostNestedChildColumnName(column.baseColumnName)],
+          childRow[column.refColumnName]
+        )
+      ) {
         return false;
       }
     }

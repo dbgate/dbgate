@@ -47,6 +47,7 @@ export class PerspectiveDataProvider {
 
   async loadDataNested(props: PerspectiveDataLoadProps): Promise<{ rows: any[]; incomplete: boolean }> {
     const tableCache = this.cache.getTableCache(props);
+    // console.log('loadDataNested', props);
 
     const uncached = tableCache.getUncachedBindingGroups(props);
     if (uncached.length > 0) {
