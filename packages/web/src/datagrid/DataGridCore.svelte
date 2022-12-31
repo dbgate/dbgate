@@ -462,6 +462,7 @@
         for (const column of display.columns) {
           if (column.uniquePath.length > 1) continue;
           if (column.autoIncrement) continue;
+          if (column.columnName == '_id' && isDynamicStructure) continue;
 
           grider.setCellValue(rowIndex, column.uniqueName, grider.getRowData(index)[column.uniqueName]);
         }
