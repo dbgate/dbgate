@@ -301,11 +301,11 @@
 
       if (isHeader && !tableNode?.headerTableAttributes) {
         res.push({
-          text: `Change display (${
+          text: `Change display (${_.startCase(
             config.nodes.find(x => x.designerId == column?.dataNode?.parentNode?.designerId)?.columnDisplays?.[
               column.dataNode.columnName
             ] || 'default'
-          })`,
+          )})`,
           submenu: [
             {
               text: 'Default',
@@ -324,7 +324,7 @@
               onClick: () => setColumnDisplay('text'),
             },
             {
-              text: 'Force text',
+              text: 'Force Text',
               onClick: () => setColumnDisplay('forceText'),
             },
           ],
