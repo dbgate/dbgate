@@ -66,7 +66,7 @@
     const files = await electron.showSaveDialog({
       properties: ['showOverwriteConfirmation'],
       filters: [
-        { name: 'SQL Files', extensions: ['*.sql'] },
+        { name: 'SQL Files', extensions: ['sql'] },
         { name: 'All Files', extensions: ['*'] },
       ],
     });

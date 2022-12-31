@@ -58,7 +58,7 @@
     const files = await electron.showOpenDialog({
       properties: ['openFile'],
       filters: [
-        { name: 'SQL Files', extensions: ['*.sql'] },
+        { name: 'SQL Files', extensions: ['sql'] },
         { name: 'All Files', extensions: ['*'] },
       ],
     });
