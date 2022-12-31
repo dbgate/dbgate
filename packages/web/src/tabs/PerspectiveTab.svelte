@@ -111,11 +111,12 @@
     )
   );
 
-  const cache = new PerspectiveCache();
+  let cache = new PerspectiveCache();
   const loadedCounts = writable({});
 
   export function refresh() {
-    cache.clear();
+    cache = new PerspectiveCache();
+    // cache.clear();
     loadedCounts.set({});
   }
 </script>
