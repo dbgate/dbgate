@@ -3,13 +3,10 @@
   import { onMount, tick } from 'svelte';
   import 'leaflet/dist/leaflet.css';
   import leaflet from 'leaflet';
-  import wellknown from 'wellknown';
-  import { isWktGeometry, ScriptWriter, ScriptWriterJson, stringifyCellValue } from 'dbgate-tools';
   import resizeObserver from '../utility/resizeObserver';
   import openNewTab from '../utility/openNewTab';
   import contextMenu from '../utility/contextMenu';
-  import { saveExportedFile, saveFileToDisk } from '../utility/exportFileTools';
-  import { getCurrentConfig } from '../stores';
+  import { saveFileToDisk } from '../utility/exportFileTools';
   import { apiCall } from '../utility/api';
 
   let refContainer;

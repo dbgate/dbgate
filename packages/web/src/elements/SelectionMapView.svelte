@@ -31,31 +31,15 @@
     ) {
       return true;
     }
-
-    // if (
-    //   selection.find(x => x.column.toLowerCase().includes('lat')) &&
-    //   (selection.find(x => x.column.toLowerCase().includes('lon')) ||
-    //     selection.find(x => x.column.toLowerCase().includes('lng')))
-    // ) {
-    //   return true;
-    // }
     return false;
   }
 </script>
 
 <script lang="ts">
   import _ from 'lodash';
-  import { onMount, tick } from 'svelte';
   import 'leaflet/dist/leaflet.css';
-  import leaflet from 'leaflet';
   import wellknown from 'wellknown';
-  import { isWktGeometry, ScriptWriter, ScriptWriterJson, stringifyCellValue } from 'dbgate-tools';
-  import resizeObserver from '../utility/resizeObserver';
-  import openNewTab from '../utility/openNewTab';
-  import contextMenu from '../utility/contextMenu';
-  import { saveExportedFile, saveFileToDisk } from '../utility/exportFileTools';
-  import { getCurrentConfig } from '../stores';
-  import { apiCall } from '../utility/api';
+  import { isWktGeometry, stringifyCellValue } from 'dbgate-tools';
   import MapView from './MapView.svelte';
 
   export let selection;
@@ -63,10 +47,6 @@
   export let latitudeField = '';
   export let longitudeField = '';
 
-  let refContainer;
-  let map;
-
-  let selectionLayers = [];
   let geoJson;
 
   function createColumnsTable(cells) {
@@ -83,8 +63,6 @@
 
     for (const rowKey of _.keys(selectedRows)) {
       const cells = selectedRows[rowKey];
-      // const lat = cells.find(x => x.column.toLowerCase().includes('lat'));
-      // const lon = cells.find(x => x.column.toLowerCase().includes('lon') || x.column.toLowerCase().includes('lng'));
 
       const geoValues = cells.map(x => x.value).filter(isWktGeometry);
 
