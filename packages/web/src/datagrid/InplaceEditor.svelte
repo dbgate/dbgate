@@ -1,12 +1,3 @@
-<script lang="ts" context="module">
-  function getEditedValue(value) {
-    if (value?.type == 'Buffer' && _.isArray(value.data)) return '0x' + arrayToHexString(value.data);
-    if (value?.$oid) return `ObjectId("${value?.$oid}")`;
-    if (_.isPlainObject(value) || _.isArray(value)) return JSON.stringify(value);
-    return value;
-  }
-</script>
-
 <script lang="ts">
   import keycodes from '../utility/keycodes';
   import { onMount, tick } from 'svelte';

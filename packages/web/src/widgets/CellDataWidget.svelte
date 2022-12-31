@@ -47,12 +47,12 @@
   ];
 
   function autodetect(selection) {
-    if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
-      return 'jsonRow';
-    }
-
     if (selectionCouldBeShownOnMap(selection)) {
       return 'map';
+    }
+
+    if (selection[0]?.engine?.databaseEngineTypes?.includes('document')) {
+      return 'jsonRow';
     }
 
     const value = selection.length == 1 ? selection[0].value : null;
