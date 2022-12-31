@@ -14,6 +14,18 @@
   });
 
   registerCommand({
+    id: 'dataGrid.deepRefresh',
+    category: 'Data grid',
+    name: 'Refresh with structure',
+    keyText: 'Ctrl+F5',
+    toolbar: true,
+    isRelatedToTab: true,
+    icon: 'icon reload',
+    testEnabled: () => getCurrentDataGrid()?.canDeepRefresh(),
+    onClick: () => getCurrentDataGrid().deepRefresh(),
+  });
+
+  registerCommand({
     id: 'dataGrid.revertRowChanges',
     category: 'Data grid',
     name: 'Revert row changes',
@@ -282,7 +294,7 @@
 <script lang="ts">
   import { GridDisplay } from 'dbgate-datalib';
   import { driverBase, parseCellValue } from 'dbgate-tools';
-  import { getContext } from 'svelte';
+  import { getContext, onDestroy } from 'svelte';
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
@@ -336,6 +348,7 @@
   import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
+  import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -396,6 +409,26 @@
 
   const tabid = getContext('tabid');
 
+  let unsubscribeDbRefresh;
+
+  onDestroy(callUnsubscribeDbRefresh);
+
+  function callUnsubscribeDbRefresh() {
+    if (unsubscribeDbRefresh) {
+      unsubscribeDbRefresh();
+      unsubscribeDbRefresh = null;
+    }
+  }
+
+  async function refreshAndUnsubscribe(status) {
+    if (status?.name != 'pending' && status?.name != 'checkStructure' && status?.name != 'loadStructure') {
+      callUnsubscribeDbRefresh();
+      // ensure new structure is loaded
+      await getDatabaseInfo({ conid, database });
+      refresh();
+    }
+  }
+
   export function refresh() {
     if (onCustomGridRefresh) onCustomGridRefresh();
     else display.reload();
@@ -404,6 +437,16 @@
   export function canRefresh() {
     if (onCustomGridRefresh) return true;
     return getDisplay()?.supportsReload;
+  }
+
+  export function canDeepRefresh() {
+    return canRefresh() && !!conid && !!database;
+  }
+
+  export async function deepRefresh() {
+    callUnsubscribeDbRefresh();
+    await apiCall('database-connections/sync-model', { conid, database });
+    unsubscribeDbRefresh = useDatabaseStatus({ conid, database }).subscribe(refreshAndUnsubscribe);
   }
 
   export function getGrider() {

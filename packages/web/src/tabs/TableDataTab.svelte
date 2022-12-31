@@ -211,6 +211,7 @@
   function createAutoRefreshMenu() {
     return [
       { divider: true },
+      { command: 'dataGrid.deepRefresh', hideDisabled: true },
       { command: 'tableData.stopAutoRefresh', hideDisabled: true },
       { command: 'tableData.startAutoRefresh', hideDisabled: true },
       'tableData.setAutoRefresh.1',
