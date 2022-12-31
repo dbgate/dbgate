@@ -51,6 +51,7 @@
   export let designer;
   export let onMoveReferences;
   export let settings;
+  export let columnFilter;
 
   let movingPosition = null;
   let domWrapper;
@@ -68,7 +69,7 @@
   $: specificDb = settings?.tableSpecificDb ? settings?.tableSpecificDb(designerId) : null;
   $: filterParentRows = settings?.hasFilterParentRowsFlag ? settings?.hasFilterParentRowsFlag(designerId) : false;
   $: isGrayed = settings?.isGrayedTable ? settings?.isGrayedTable(designerId) : false;
-  $: flatColumns = getFlatColumns(columns, '', 0);
+  $: flatColumns = getFlatColumns(columns, columnFilter, 0);
 
   function getFlatColumns(columns, filter, level) {
     if (!columns) return [];

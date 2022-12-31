@@ -37,10 +37,10 @@ export default class DomTableRef {
       columnName = this.settings?.getParentColumnName(columnName);
       col = this.domRefs[columnName];
     }
-    if (!col) return null;
+    const tableRect = this.getRect();
+    if (!col) return tableRect.top + 12;
     const rect = col.getBoundingClientRect();
     const wrap = this.domWrapper.getBoundingClientRect();
-    const tableRect = this.getRect();
     let res = (rect.top + rect.bottom) / 2 - wrap.top;
     if (res < tableRect.top) res = tableRect.top;
     if (res > tableRect.bottom) res = tableRect.bottom;

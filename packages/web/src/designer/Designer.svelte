@@ -48,6 +48,8 @@
   import ChooseColorModal from '../modals/ChooseColorModal.svelte';
   import { currentThemeDefinition } from '../stores';
   import { extendDatabaseInfoFromApps } from 'dbgate-tools';
+  import SearchInput from '../elements/SearchInput.svelte';
+  import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
   export let value;
   export let onChange;
@@ -64,6 +66,7 @@
   let canvasHeight = 3000;
   let dragStartPoint = null;
   let dragCurrentPoint = null;
+  let columnFilter;
 
   const sourceDragColumn$ = writable(null);
   const targetDragColumn$ = writable(null);
@@ -80,7 +83,15 @@
 
   const tableRefs = {};
   const referenceRefs = {};
-  $: domTables = _.pickBy(_.mapValues(tableRefs, (tbl: any) => tbl?.getDomTable()));
+  let domTables;
+  $: {
+    tableRefs;
+    recomputeDomTables();
+  }
+
+  function recomputeDomTables() {
+    domTables = _.pickBy(_.mapValues(tableRefs, (tbl: any) => tbl?.getDomTable()));
+  }
 
   function fixPositions(tables) {
     const minLeft = _.min(tables.map(x => x.left));
@@ -835,6 +846,14 @@
       ],
     ];
   }
+
+  $: {
+    columnFilter;
+    tick().then(() => {
+      recomputeReferencePositions();
+      recomputeDomTables();
+    });
+  }
 </script>
 
 <div class="wrapper noselect" use:contextMenu={createMenu}>
@@ -896,6 +915,7 @@
         onAddAllReferences={handleAddTableReferences}
         onChangeTableColor={handleChangeTableColor}
         onMoveReferences={recomputeReferencePositions}
+        {columnFilter}
         {table}
         {conid}
         {database}
@@ -930,6 +950,12 @@
       </svg>
     {/if}
   </div>
+  {#if tables?.length > 0}
+    <div class="searchbox">
+      <SearchInput bind:value={columnFilter} placeholder="Filter columns" />
+      <CloseSearchButton bind:filter={columnFilter} />
+    </div>
+  {/if}
 </div>
 
 <style>
@@ -945,6 +971,13 @@
   }
   .canvas {
     position: relative;
+  }
+  .searchbox {
+    position: absolute;
+    right: 16px;
+    top: 0;
+    width: 200px;
+    display: flex;
   }
 
   svg.drag-rect {
