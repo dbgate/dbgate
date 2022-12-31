@@ -333,7 +333,7 @@
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
-  import { selectionCouldBeShownOnMap } from '../elements/MapView.svelte';
+  import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
 

@@ -4,16 +4,16 @@
   import useEditorData from '../query/useEditorData';
 
   export let tabid;
-  let selection;
+  let geoJson;
 
   useEditorData({
     tabid,
     onInitialData: value => {
-      selection = value;
+      geoJson = value;
     },
   });
 </script>
 
-{#if selection}
-  <MapView {selection} />
+{#if geoJson}
+  <MapView {geoJson} />
 {/if}

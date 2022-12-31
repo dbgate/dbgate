@@ -1,6 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
-  import MapView, { findAllObjectPaths, findLatPaths, findLonPaths } from '../elements/MapView.svelte';
+  import SelectionMapView, { findAllObjectPaths, findLatPaths, findLonPaths } from '../elements/SelectionMapView.svelte';
   import SelectField from '../forms/SelectField.svelte';
 
   export let selection;
@@ -48,7 +48,7 @@
     </div>
   {/if}
 
-  <MapView {selection} {latitudeField} {longitudeField} />
+  <SelectionMapView {selection} {latitudeField} {longitudeField} />
 </div>
 
 <style>
