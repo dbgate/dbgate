@@ -50,6 +50,7 @@
   import { extendDatabaseInfoFromApps } from 'dbgate-tools';
   import SearchInput from '../elements/SearchInput.svelte';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
+  import DragColumnMemory from './DragColumnMemory.svelte';
 
   export let value;
   export let onChange;
@@ -951,9 +952,12 @@
     {/if}
   </div>
   {#if tables?.length > 0}
-    <div class="searchbox">
-      <SearchInput bind:value={columnFilter} placeholder="Filter columns" />
-      <CloseSearchButton bind:filter={columnFilter} />
+    <div class="panel">
+      <DragColumnMemory {settings} {sourceDragColumn$} {targetDragColumn$} />
+      <div class="searchbox">
+        <SearchInput bind:value={columnFilter} placeholder="Filter columns" />
+        <CloseSearchButton bind:filter={columnFilter} />
+      </div>
     </div>
   {/if}
 </div>
@@ -972,12 +976,16 @@
   .canvas {
     position: relative;
   }
-  .searchbox {
+  .panel {
     position: absolute;
     right: 16px;
     top: 0;
+    display: flex;
+  }
+  .searchbox {
     width: 200px;
     display: flex;
+    margin-left: 1px;
   }
 
   svg.drag-rect {
