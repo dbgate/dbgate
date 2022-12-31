@@ -192,6 +192,10 @@
         scriptTemplate: 'CREATE OBJECT',
       },
       {
+        label: 'SQL: ALTER VIEW',
+        scriptTemplate: 'ALTER OBJECT',
+      },
+      {
         label: 'SQL: CREATE TABLE',
         scriptTemplate: 'CREATE TABLE',
       },
@@ -254,6 +258,10 @@
         scriptTemplate: 'CREATE OBJECT',
       },
       {
+        label: 'SQL: ALTER MATERIALIZED VIEW',
+        scriptTemplate: 'ALTER OBJECT',
+      },
+      {
         label: 'SQL: CREATE TABLE',
         scriptTemplate: 'CREATE TABLE',
       },
@@ -291,6 +299,10 @@
         scriptTemplate: 'CREATE OBJECT',
       },
       {
+        label: 'SQL: ALTER PROCEDURE',
+        scriptTemplate: 'ALTER OBJECT',
+      },
+      {
         label: 'SQL: EXECUTE',
         scriptTemplate: 'EXECUTE PROCEDURE',
       },
@@ -315,6 +327,10 @@
       {
         label: 'SQL: CREATE FUNCTION',
         scriptTemplate: 'CREATE OBJECT',
+      },
+      {
+        label: 'SQL: ALTER FUNCTION',
+        scriptTemplate: 'ALTER OBJECT',
       },
       {
         label: 'SQL Generator: CREATE FUNCTION',

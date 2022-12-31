@@ -36,6 +36,17 @@ export default async function applyScriptTemplate(scriptTemplate, extensions, pr
       else return objectInfo.createSql;
     }
   }
+  if (scriptTemplate == 'ALTER OBJECT') {
+    const objectInfo = await getSqlObjectInfo(props);
+    if (objectInfo) {
+      const createSql =
+        objectInfo.requiresFormat && objectInfo.createSql
+          ? sqlFormatter.format(objectInfo.createSql)
+          : objectInfo.createSql || '';
+      const alterPrefix = createSql.trimStart().startsWith('CREATE ') ? 'ALTER ' : 'alter ';
+      return createSql.replace(/^\s*create\s+/i, alterPrefix);
+    }
+  }
   if (scriptTemplate == 'EXECUTE PROCEDURE') {
     const procedureInfo = await getSqlObjectInfo(props);
     const connection = await getConnectionInfo(props);
