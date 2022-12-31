@@ -319,6 +319,14 @@
               text: 'Image',
               onClick: () => setColumnDisplay('image'),
             },
+            {
+              text: 'Text',
+              onClick: () => setColumnDisplay('text'),
+            },
+            {
+              text: 'Force text',
+              onClick: () => setColumnDisplay('forceText'),
+            },
           ],
         });
       }

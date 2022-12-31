@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getAsImageSrc, safeJsonParse } from 'dbgate-tools';
+  import { getAsImageSrc, safeJsonParse, stringifyCellValue } from 'dbgate-tools';
   import _ from 'lodash';
 
   import CellValue from '../datagrid/CellValue.svelte';
@@ -10,6 +10,13 @@
   export let rowData;
   export let columnIndex;
   export let displayType;
+
+  function getValueAsText(value, force) {
+    if (force && value?.type == 'Buffer' && _.isArray(value.data)) {
+      return String.fromCharCode.apply(String, value.data);
+    }
+    return stringifyCellValue(value);
+  }
 </script>
 
 <td rowspan={rowSpan} data-column={columnIndex} class:isEmpty={value === undefined}>
@@ -23,6 +30,10 @@
       {:else}
         <span class="null"> (no image)</span>
       {/if}
+    {:else if displayType == 'text'}
+      {getValueAsText(value, false)}
+    {:else if displayType == 'forceText'}
+      {getValueAsText(value, true)}
     {:else if !value?.$oid && (_.isArray(value) || _.isPlainObject(value))}
       <JSONTree {value} slicedKeyCount={1} disableContextMenu />
     {:else}
