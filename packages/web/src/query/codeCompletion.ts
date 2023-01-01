@@ -173,7 +173,7 @@ export function mountCodeCompletion({ conid, database, editor, getText }) {
                 ? []
                 : _.flatten(
                     sourceObjects.map(obj =>
-                      obj.columns.map(col => ({
+                      (obj.columns || []).map(col => ({
                         name: col.columnName,
                         value: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
                         caption: obj.alias ? `${obj.alias}.${col.columnName}` : col.columnName,
