@@ -18,8 +18,9 @@
   export let passProps;
   export let onDropOnGroup = undefined;
   export let groupContextMenu = null;
+  export let collapsedGroupNames;
 
-  let isExpanded = true;
+  $: isExpanded = !$collapsedGroupNames.includes(group);
 
   $: filtered = items.filter(x => x.isMatched);
   $: countText = filtered.length < items.length ? `${filtered.length}/${items.length}` : `${items.length}`;
@@ -49,7 +50,11 @@
 
 <div
   class="group"
-  on:click={() => (isExpanded = !isExpanded)}
+  on:click={() =>
+    collapsedGroupNames.update(names => {
+      if (names.includes(group)) return names.filter(x => x != group);
+      return [...names, group];
+    })}
   on:drop={handleDrop}
   use:contextMenu={() => groupContextMenu(group)}
 >

@@ -15,6 +15,7 @@
     openedSingleDatabaseConnections,
     openedTabs,
     emptyConnectionGroupNames,
+    collapsedConnectionGroupNames,
   } from '../stores';
   import runCommand from '../commands/runCommand';
   import getConnectionLabel from '../utility/getConnectionLabel';
@@ -149,6 +150,7 @@
     emptyGroupNames={$emptyConnectionGroupNames}
     sortGroups
     groupContextMenu={createGroupContextMenu}
+    collapsedGroupNames={collapsedConnectionGroupNames}
   />
   {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
     <div class="br" />

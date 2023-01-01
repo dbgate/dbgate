@@ -5,6 +5,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
 
   import AppObjectListItem from './AppObjectListItem.svelte';
+  import { writable } from 'svelte/store';
 
   export let list;
   export let module;
@@ -25,6 +26,8 @@
   export let groupFunc = undefined;
   export let onDropOnGroup = undefined;
   export let emptyGroupNames = [];
+
+  export let collapsedGroupNames = writable([]);
 
   $: filtered = !groupFunc
     ? list.filter(data => {
@@ -100,6 +103,7 @@
       {setIsExpanded}
       {onDropOnGroup}
       {groupContextMenu}
+      {collapsedGroupNames}
     />
   {/each}
 {:else}

@@ -57,6 +57,7 @@ export const visibleSelectedWidget = derived(
   ([$selectedWidget, $visibleWidgetSideBar]) => ($visibleWidgetSideBar ? $selectedWidget : null)
 );
 export const emptyConnectionGroupNames = writableWithStorage([], 'emptyConnectionGroupNames');
+export const collapsedConnectionGroupNames = writableWithStorage([], 'collapsedConnectionGroupNames');
 export const openedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
