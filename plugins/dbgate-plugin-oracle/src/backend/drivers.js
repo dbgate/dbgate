@@ -85,7 +85,7 @@ const drivers = driverBases.map(driverBase => ({
           };
     }
 
-    console.log('OPTIONS', options);
+    // console.log('OPTIONS', options);
 /*
     const client = new pg.Client(options);
     await client.connect();
@@ -135,14 +135,14 @@ finally {
       rowMode: 'array',
     });
 */
-    console.log('queryStream', sql);
+    // console.log('queryStream', sql);
     const query = client.queryStream(sql);
    // const consumeStream = new Promise((resolve, reject) => {
       let rowcount = 0;
     let wasHeader = false;
 
     query.on('metadata', row => {
-      console.log('metadata', row);
+      // console.log('metadata', row);
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
@@ -155,7 +155,7 @@ finally {
     });
 
     query.on('data', row => {
-      console.log('stream DATA');
+      // console.log('stream DATA');
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
@@ -251,7 +251,7 @@ finally {
       rowMode: 'array',
     });
 */
-    console.log('readQuery', sql, structure);
+    // console.log('readQuery', sql, structure);
     const query = await client.queryStream(sql);
 
     let wasHeader = false;
@@ -263,7 +263,7 @@ finally {
     });
 
     query.on('metadata', row => {
-      console.log('readQuery metadata', row);
+      // console.log('readQuery metadata', row);
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
@@ -279,7 +279,7 @@ finally {
     });
 
     query.on('data', row => {
-      console.log('readQuery data', row);
+      // console.log('readQuery data', row);
       pass.write(zipDataRow(row, columns));
     });
 
