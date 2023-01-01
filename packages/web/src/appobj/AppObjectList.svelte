@@ -19,6 +19,7 @@
   export let getIsExpanded = null;
   export let setIsExpanded = null;
   export let sortGroups = false;
+  export let groupContextMenu = null;
 
   export let groupIconFunc = plusExpandIcon;
   export let groupFunc = undefined;
@@ -98,6 +99,7 @@
       {getIsExpanded}
       {setIsExpanded}
       {onDropOnGroup}
+      {groupContextMenu}
     />
   {/each}
 {:else}

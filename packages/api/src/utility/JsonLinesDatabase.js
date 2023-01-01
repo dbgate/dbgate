@@ -90,6 +90,12 @@ class JsonLinesDatabase {
     return obj;
   }
 
+  async updateAll(mapFunction) {
+    await this._ensureLoaded();
+    this.data = this.data.map(mapFunction);
+    await this._save();
+  }
+
   async patch(id, values) {
     await this._ensureLoaded();
     this.data = this.data.map(x => (x._id == id ? { ...x, ...values } : x));

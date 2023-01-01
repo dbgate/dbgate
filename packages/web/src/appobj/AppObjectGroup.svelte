@@ -4,6 +4,7 @@
   import { plusExpandIcon } from '../icons/expandIcons';
 
   import FontIcon from '../icons/FontIcon.svelte';
+  import contextMenu from '../utility/contextMenu';
 
   import AppObjectListItem from './AppObjectListItem.svelte';
 
@@ -16,6 +17,7 @@
   export let disableContextMenu = false;
   export let passProps;
   export let onDropOnGroup = undefined;
+  export let groupContextMenu = null;
 
   let isExpanded = true;
 
@@ -45,7 +47,12 @@
   }
 </script>
 
-<div class="group" on:click={() => (isExpanded = !isExpanded)} on:drop={handleDrop}>
+<div
+  class="group"
+  on:click={() => (isExpanded = !isExpanded)}
+  on:drop={handleDrop}
+  use:contextMenu={() => groupContextMenu(group)}
+>
   <span class="expand-icon">
     <FontIcon icon={groupIconFunc(isExpanded)} />
   </span>

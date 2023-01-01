@@ -25,6 +25,9 @@
   import LargeButton from '../buttons/LargeButton.svelte';
   import { plusExpandIcon, chevronExpandIcon } from '../icons/expandIcons';
   import { safeJsonParse } from 'dbgate-tools';
+  import { showModal } from '../modals/modalTools';
+  import InputTextModal from '../modals/InputTextModal.svelte';
+  import ConfirmModal from '../modals/ConfirmModal.svelte';
 
   const connections = useConnectionList();
   const serverStatus = useServerStatus();
@@ -56,9 +59,9 @@
   const handleDropOnGroup = (data, group) => {
     const json = safeJsonParse(data);
     if (json?._id) {
-      if (json.parent) {
-        emptyConnectionGroupNames.update(x => x.filter(y => y != json.parent));
-      }
+      // if (json.parent) {
+      //   emptyConnectionGroupNames.update(x => x.filter(y => y != json.parent));
+      // }
       apiCall('connections/update', {
         _id: json?._id,
         values: { parent: group },
@@ -67,6 +70,41 @@
   };
 
   const connectionColorFactory = useConnectionColorFactory(3);
+
+  function createGroupContextMenu(folder) {
+    const handleRename = () => {
+      showModal(InputTextModal, {
+        value: folder,
+        label: 'New folder name',
+        header: 'Rename folder',
+        onConfirm: async newFolder => {
+          emptyConnectionGroupNames.update(folders => _.uniq(folders.map(fld => (fld == folder ? newFolder : fld))));
+          apiCall('connections/batch-change-folder', {
+            folder,
+            newFolder,
+          });
+        },
+      });
+    };
+
+    const handleDelete = () => {
+      showModal(ConfirmModal, {
+        message: `Really delete folder ${folder}? Connections in folder will be moved into root folder.`,
+        onConfirm: () => {
+          emptyConnectionGroupNames.update(folders => folders.filter(fld => fld != folder));
+          apiCall('connections/batch-change-folder', {
+            folder,
+            newFolder: '',
+          });
+        },
+      });
+    };
+
+    return [
+      { text: 'Rename', onClick: handleRename },
+      { text: 'Delete', onClick: handleDelete },
+    ];
+  }
 </script>
 
 <SearchBoxWrapper>
@@ -110,6 +148,7 @@
     onDropOnGroup={handleDropOnGroup}
     emptyGroupNames={$emptyConnectionGroupNames}
     sortGroups
+    groupContextMenu={createGroupContextMenu}
   />
   {#if (connectionsWithParent?.length > 0 && connectionsWithoutParent?.length > 0) || ($emptyConnectionGroupNames.length > 0 && connectionsWithoutParent?.length > 0)}
     <div class="br" />

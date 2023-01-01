@@ -283,6 +283,14 @@ module.exports = {
     return res;
   },
 
+  batchChangeFolder_meta: true,
+  async batchChangeFolder({ folder, newFolder }, req) {
+    // const updated = await this.datastore.find(x => x.parent == folder);
+    const res = await this.datastore.updateAll(x => (x.parent == folder ? { ...x, parent: newFolder } : x));
+    socket.emitChanged('connection-list-changed');
+    return res;
+  },
+
   updateDatabase_meta: true,
   async updateDatabase({ conid, database, values }, req) {
     if (portalConnections) return;
