@@ -151,7 +151,7 @@ finally {
         wasHeader = true;
       }
 
-      options.row(zipDataRow(row, columns));
+      // options.row(zipDataRow(row, columns));
     });
 
     query.on('data', row => {
