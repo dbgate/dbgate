@@ -138,3 +138,8 @@ jobs:
         working-directory: plugins/dbgate-plugin-redis
         run: |
           npm publish
+
+      - name: Publish dbgate-plugin-oracle
+        working-directory: plugins/dbgate-plugin-oracle
+        run: |
+          npm publish
