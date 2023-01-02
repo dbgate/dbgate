@@ -8,6 +8,38 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.0 - not released
+- ADDED: Oracle database support
+- ADDED: OAuth authentification #407
+- ADDED: Active directory (Windows) authentification #261
+- ADDED: Ask database credentials when login to DB
+- ADDED: Login form instead of simple authorization (simple auth is possible with special configuration)
+- FIXED: MongoDB - connection uri regression
+- ADDED: MongoDB server summary tab
+- FIXED: Broken versioned tables in MariaDB #433
+- CHANGED: Improved editor margin #422
+- ADDED: Implemented camel case search in all search boxes
+- ADDED: MonhoDB filter empty array, not empty array
+- ADDED: Maximize button reflects window state
+- ADDED: MongoDB - database profiler
+- CHANGED: Short JSON values are shown directly in grid
+- FIXED: Fixed filtering nested fields in NDJSON viewer
+- CHANGED: Improved fuzzy search after Ctrl+P #246
+- ADDED: MongoDB: Create collection backup
+- ADDED: Single database mode
+- ADDED: Perspective designer supports joins from MongoDB nested documents and arrays
+- FIXED: Perspective designer joins on MongoDB ObjectId fields
+- ADDED: Filtering columns in designer (query designer, diagram designer, perspective designer)
+- FIXED: Clone MongoDB rows without _id attribute #404
+- CHANGED: Improved cell view with GPS latitude, longitude fields
+- ADDED: SQL: ALTER VIEW and SQL:ALTER PROCEDURE scripts
+- ADDED: Ctrl+F5 refreshes data grid also with database structure #428
+- ADDED: Perspective display modes: text, force text #439
+- FIXED: Fixed file filters #445
+- ADDED: Rename, remove connection folder, memoize opened state after app restart #425
+- FIXED: Show SQLServer alter store procedure #435
+
+
 ### 5.1.6
 - ADDED: Connection folders support #274
 - ADDED: Keyboard shortcut to hide result window and show/hide the side toolbar #406
