@@ -9,7 +9,7 @@ Builds:
  - win - application for Windows
 
 ### 5.2.0 - not released
-- ADDED: Oracle database support
+- ADDED: Oracle database support #380
 - ADDED: OAuth authentification #407
 - ADDED: Active directory (Windows) authentification #261
 - ADDED: Ask database credentials when login to DB
