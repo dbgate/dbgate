@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 5.2.0 - not released
+### 5.2.0
 - ADDED: Oracle database support #380
 - ADDED: OAuth authentification #407
 - ADDED: Active directory (Windows) authentification #261
