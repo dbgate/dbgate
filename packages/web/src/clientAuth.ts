@@ -71,19 +71,20 @@ export async function redirectToLogin(config = null, force = false) {
 
   if (config.oauth) {
     const state = `dbg-oauth:${Math.random().toString().substr(2)}`;
+    const scopeParam = config.oauthScope ? `&scope=${config.oauthScope}` : '';
     sessionStorage.setItem('oauthState', state);
     console.log('Redirecting to OAUTH provider');
     location.replace(
       `${config.oauth}?client_id=${config.oauthClient}&response_type=code&redirect_uri=${encodeURIComponent(
         location.origin + location.pathname
-      )}&state=${encodeURIComponent(state)}`
+      )}&state=${encodeURIComponent(state)}${scopeParam}`
     );
     return;
   }
 }
 
 export function internalRedirectTo(path) {
-const index = location.pathname.lastIndexOf('/');
+  const index = location.pathname.lastIndexOf('/');
   const newPath = index >= 0 ? location.pathname.substring(0, index) + path : path;
   location.replace(newPath);
 }

@@ -62,11 +62,12 @@ module.exports = {
   async oauthToken(params) {
     const { redirectUri, code } = params;
 
+    const scopeParam = process.env.OAUTH_SCOPE ? `&scope=${process.env.OAUTH_SCOPE}` : '';
     const resp = await axios.default.post(
       `${process.env.OAUTH_TOKEN}`,
       `grant_type=authorization_code&code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(
         redirectUri
-      )}&client_id=${process.env.OAUTH_CLIENT_ID}&client_secret=${process.env.OAUTH_CLIENT_SECRET}`
+      )}&client_id=${process.env.OAUTH_CLIENT_ID}&client_secret=${process.env.OAUTH_CLIENT_SECRET}${scopeParam}`
     );
 
     const { access_token, refresh_token } = resp.data;
@@ -75,7 +76,10 @@ module.exports = {
 
     console.log('User payload returned from OAUTH:', payload);
 
-    const login = process.env.OAUTH_LOGIN_FIELD ? payload[process.env.OAUTH_LOGIN_FIELD] : 'oauth';
+    const login =
+      process.env.OAUTH_LOGIN_FIELD && payload && payload[process.env.OAUTH_LOGIN_FIELD]
+        ? payload[process.env.OAUTH_LOGIN_FIELD]
+        : 'oauth';
 
     if (
       process.env.OAUTH_ALLOWED_LOGINS &&
@@ -113,7 +117,7 @@ module.exports = {
           !process.env.AD_ALLOWED_LOGINS.split(',').find(x => x.toLowerCase().trim() == login.toLowerCase().trim())
         ) {
           return { error: `Username ${login} not allowed to log in` };
-        }        
+        }
         return {
           accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
         };
@@ -129,7 +133,7 @@ module.exports = {
     if (!logins) {
       return { error: 'Logins not configured' };
     }
-    const foundLogin = logins.find(x => x.login == login)
+    const foundLogin = logins.find(x => x.login == login);
     if (foundLogin && foundLogin.password == password) {
       return {
         accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),

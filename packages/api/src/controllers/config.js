@@ -48,6 +48,7 @@ module.exports = {
       login,
       oauth: process.env.OAUTH_AUTH,
       oauthClient: process.env.OAUTH_CLIENT_ID,
+      oauthScope: process.env.OAUTH_SCOPE,
       oauthLogout: process.env.OAUTH_LOGOUT,
       isLoginForm: !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH),
       ...currentVersion,
