@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.1
+- FIXED: client_id param in OAuth
+- ADDED: OAuth scope parameter
+- FIXED: login page - password was not sent, when submitting by pressing ENTER
+- FIXED: Used permissions fix
+- FIXED: Export modal - fixed crash when selecting different database
+
 ### 5.2.0
 - ADDED: Oracle database support #380
 - ADDED: OAuth authentification #407
