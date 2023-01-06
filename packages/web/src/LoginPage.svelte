@@ -23,8 +23,8 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProvider>
-        <FormTextField label="Username" name="login" autocomplete="username" />
-        <FormPasswordField label="Password" name="password" autocomplete="current-password" />
+        <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
 
         <div class="submit">
           <FormSubmit
