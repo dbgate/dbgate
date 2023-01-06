@@ -21,7 +21,7 @@
   import FormSchemaSelect from './FormSchemaSelect.svelte';
   import FormTablesSelect from './FormTablesSelect.svelte';
   import { findEngineDriver } from 'dbgate-tools';
-import AceEditor from '../query/AceEditor.svelte';
+  import AceEditor from '../query/AceEditor.svelte';
 
   export let direction;
   export let storageTypeField;
@@ -139,17 +139,9 @@ import AceEditor from '../query/AceEditor.svelte';
     <div class="label">Query</div>
     <div class="sqlwrap">
       {#if $values.sourceQueryType == 'json'}
-        <AceEditor
-          value={$values.sourceQuery}
-          on:input={e => setFieldValue('sourceQuery', e.detail)}
-          mode="json"
-        />
+        <AceEditor value={$values.sourceQuery} on:input={e => setFieldValue('sourceQuery', e.detail)} mode="json" />
       {:else}
-        <SqlEditor
-          value={$values.sourceQuery}
-          on:input={e => setFieldValue('sourceQuery', e.detail)}
-          {engine}
-        />
+        <SqlEditor value={$values.sourceQuery} on:input={e => setFieldValue('sourceQuery', e.detail)} {engine} />
       {/if}
     </div>
   {/if}

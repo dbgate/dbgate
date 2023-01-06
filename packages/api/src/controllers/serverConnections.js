@@ -47,6 +47,9 @@ module.exports = {
       const existing = this.opened.find(x => x.conid == conid);
       if (existing) return existing;
       const connection = await connections.getCore({ conid });
+      if (!connection) {
+        throw new Error(`Connection with conid="${conid}" not fund`);
+      }
       if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
         throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
       }
@@ -110,6 +113,7 @@ module.exports = {
 
   listDatabases_meta: true,
   async listDatabases({ conid }, req) {
+    if (!conid) return [];
     testConnectionPermission(conid, req);
     const opened = await this.ensureOpened(conid);
     return opened.databases;
