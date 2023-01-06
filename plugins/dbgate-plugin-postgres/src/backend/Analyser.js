@@ -57,8 +57,8 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields) {
     const query = super.createQuery(sql[resFileName], typeFields);
-    if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
-    return null;
+    // if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
+    return query;
   }
 
   async _computeSingleObjectId() {
@@ -80,63 +80,60 @@ class Analyser extends DatabaseAnalyser {
     let fkColumns = null;
 
     // if (true) {
-    if (this.containsObjectIdCondition(['tables']) || this.driver.__analyserInternals.refTableCond) {
-      this.feedback({ analysingMessage: 'Loading foreign keys' });
-      fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
-    } else {
-      this.feedback({ analysingMessage: 'Loading foreign key constraints' });
-      const fk_tableConstraints = await this.driver.query(
-        this.pool,
-        this.createQuery('fk_tableConstraints', ['tables'])
+    // if (this.containsObjectIdCondition(['tables']) || this.driver.__analyserInternals.refTableCond) {
+    //   this.feedback({ analysingMessage: 'Loading foreign keys' });
+    //   fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    // } else {
+    this.feedback({ analysingMessage: 'Loading foreign key constraints' });
+    const fk_tableConstraints = await this.driver.query(this.pool, this.createQuery('fk_tableConstraints', ['tables']));
+
+    this.feedback({ analysingMessage: 'Loading foreign key refs' });
+    const fk_referentialConstraints = await this.driver.query(
+      this.pool,
+      this.createQuery('fk_referentialConstraints', ['tables'])
+    );
+
+    this.feedback({ analysingMessage: 'Loading foreign key columns' });
+    const fk_keyColumnUsage = await this.driver.query(this.pool, this.createQuery('fk_keyColumnUsage', ['tables']));
+
+    const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
+    const fkRows = [];
+    const fkConstraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
+    for (const fkRef of fk_referentialConstraints.rows) {
+      const cntBase = fkConstraintDct[cntKey(fkRef)];
+      const cntRef = fkConstraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
+      if (!cntBase || !cntRef) continue;
+      const baseCols = _.sortBy(
+        fk_keyColumnUsage.rows.filter(
+          x => x.table_name == cntBase.table_name && x.constraint_name == cntBase.constraint_name
+        ),
+        'ordinal_position'
       );
-
-      this.feedback({ analysingMessage: 'Loading foreign key refs' });
-      const fk_referentialConstraints = await this.driver.query(
-        this.pool,
-        this.createQuery('fk_referentialConstraints', ['tables'])
+      const refCols = _.sortBy(
+        fk_keyColumnUsage.rows.filter(
+          x => x.table_name == cntRef.table_name && x.constraint_name == cntRef.constraint_name
+        ),
+        'ordinal_position'
       );
+      if (baseCols.length != refCols.length) continue;
 
-      this.feedback({ analysingMessage: 'Loading foreign key columns' });
-      const fk_keyColumnUsage = await this.driver.query(this.pool, this.createQuery('fk_keyColumnUsage', ['tables']));
+      for (let i = 0; i < baseCols.length; i++) {
+        const baseCol = baseCols[i];
+        const refCol = refCols[i];
 
-      const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
-      const rows = [];
-      const constraintDct = _.keyBy(fk_tableConstraints.rows, cntKey);
-      for (const fkRef of fk_referentialConstraints.rows) {
-        const cntBase = constraintDct[cntKey(fkRef)];
-        const cntRef = constraintDct[`${fkRef.unique_constraint_name}|${fkRef.unique_constraint_schema}`];
-        if (!cntBase || !cntRef) continue;
-        const baseCols = _.sortBy(
-          fk_keyColumnUsage.rows.filter(
-            x => x.table_name == cntBase.table_name && x.constraint_name == cntBase.constraint_name
-          ),
-          'ordinal_position'
-        );
-        const refCols = _.sortBy(
-          fk_keyColumnUsage.rows.filter(
-            x => x.table_name == cntRef.table_name && x.constraint_name == cntRef.constraint_name
-          ),
-          'ordinal_position'
-        );
-        if (baseCols.length != refCols.length) continue;
-
-        for (let i = 0; i < baseCols.length; i++) {
-          const baseCol = baseCols[i];
-          const refCol = refCols[i];
-
-          rows.push({
-            ...fkRef,
-            pure_name: cntBase.table_name,
-            schema_name: cntBase.table_schema,
-            ref_table_name: cntRef.table_name,
-            ref_schema_name: cntRef.table_schema,
-            column_name: baseCol.column_name,
-            ref_column_name: refCol.column_name,
-          });
-        }
+        fkRows.push({
+          ...fkRef,
+          pure_name: cntBase.table_name,
+          schema_name: cntBase.table_schema,
+          ref_table_name: cntRef.table_name,
+          ref_schema_name: cntRef.table_schema,
+          column_name: baseCol.column_name,
+          ref_column_name: refCol.column_name,
+        });
       }
-      fkColumns = { rows };
     }
+    fkColumns = { rows: fkRows };
+    // }
 
     this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
