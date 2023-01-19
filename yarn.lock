@@ -9935,12 +9935,12 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
-sql-formatter@^2.3.3:
-  version "2.3.4"
-  resolved "https://registry.yarnpkg.com/sql-formatter/-/sql-formatter-2.3.4.tgz#85ff9a946d8157e3917c0b1db514ca8184a1b6f1"
-  integrity sha512-CajWtvzYoBJbD5PQeVe3E7AOHAIYvRQEPOKgF9kfKNeY8jtjBiiA6pDzkMuAID8jJMluoPvyKveLigSaA5tKQQ==
+sql-formatter@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/sql-formatter/-/sql-formatter-3.1.0.tgz#32035a65aa7f3e0466c0f9b30c306e2c701dc6cd"
+  integrity sha512-PseQ+fm9VcwXxAD71TiDs8x9Ww3IJbfhSR8Yvq//TwtqxqxVZ8Q9rAmsWiL4w/F0VxBZXCmKxxpw4Cyr0cZZ0w==
   dependencies:
-    lodash "^4.17.20"
+    argparse "^1.0.10"
 
 sqlstring@^2.3.2:
   version "2.3.3"
