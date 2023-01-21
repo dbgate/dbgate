@@ -16,7 +16,7 @@ module.exports = function useController(app, electron, route, controller) {
     try {
       controller._init();
     } catch (err) {
-      logger.error(`Error initializing controller, exiting application`, err);
+      logger.error({ err }, `Error initializing controller, exiting application`);
       process.exit(1);
     }
   }
@@ -77,16 +77,16 @@ module.exports = function useController(app, electron, route, controller) {
         try {
           const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);
-        } catch (e) {
-          logger.error(`Error when processing route ${route}/${key}`, e);
-          if (e instanceof MissingCredentialsError) {
+        } catch (err) {
+          logger.error({ err }, `Error when processing route ${route}/${key}`);
+          if (err instanceof MissingCredentialsError) {
             res.json({
               missingCredentials: true,
               apiErrorMessage: 'Missing credentials',
-              detail: e.detail,
+              detail: err.detail,
             });
           } else {
-            res.status(500).json({ apiErrorMessage: e.message });
+            res.status(500).json({ apiErrorMessage: err.message });
           }
         }
       });

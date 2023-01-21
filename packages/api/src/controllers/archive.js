@@ -71,7 +71,7 @@ module.exports = {
         ...fileType('.matview.sql', 'matview.sql'),
       ];
     } catch (err) {
-      logger.error('Error reading archive files', err.message);
+      logger.error({ err }, 'Error reading archive files');
       return [];
     }
   },

@@ -85,7 +85,7 @@ export class SqlGenerator {
   }
 
   private handleException = error => {
-    logger.error('Unhandled error', error);
+    logger.error({ error }, 'Unhandled error');
     this.isUnhandledException = true;
   };
 

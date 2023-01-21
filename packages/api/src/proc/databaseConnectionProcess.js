@@ -347,9 +347,9 @@ function start() {
     if (handleProcessCommunication(message)) return;
     try {
       await handleMessage(message);
-    } catch (e) {
-      logger.error('Error in DB connection', e);
-      process.send({ msgtype: 'error', error: e.message });
+    } catch (err) {
+      logger.error({ err }, 'Error in DB connection');
+      process.send({ msgtype: 'error', error: err.message });
     }
   });
 }

@@ -147,7 +147,7 @@ const drivers = driverBases.map(driverBase => ({
     });
 
     query.on('error', error => {
-      logger.error('Stream error', error);
+      logger.error({ error }, 'Stream error');
       const { message, position, procName } = error;
       let line = null;
       if (position) {

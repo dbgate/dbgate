@@ -54,7 +54,7 @@ function authMiddleware(req, res, next) {
       return next();
     }
 
-    logger.error('Sending invalid token error', err.message);
+    logger.error({ err }, 'Sending invalid token error');
 
     return unauthorizedResponse(req, res, 'invalid token');
   }
@@ -125,7 +125,7 @@ module.exports = {
           accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
         };
       } catch (err) {
-        logger.error('Failed active directory authentization', err);
+        logger.error({ err }, 'Failed active directory authentization');
         return {
           error: err.message,
         };

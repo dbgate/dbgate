@@ -307,7 +307,7 @@ export class DatabaseAnalyser {
     try {
       return await this.driver.query(this.pool, sql);
     } catch (err) {
-      logger.error('Error running analyser query', err);
+      logger.error({ err }, 'Error running analyser query');
       return {
         rows: [],
       };

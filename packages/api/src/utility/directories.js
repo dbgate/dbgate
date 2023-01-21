@@ -131,8 +131,8 @@ function migrateDataDir() {
     if (fs.existsSync(oldDir) && !fs.existsSync(newDir)) {
       fs.renameSync(oldDir, newDir);
     }
-  } catch (e) {
-    logger.error('Error migrating data dir:', e.message);
+  } catch (err) {
+    logger.error({ err }, 'Error migrating data dir');
   }
 }
 

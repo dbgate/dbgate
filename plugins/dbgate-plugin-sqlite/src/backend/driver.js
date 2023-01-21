@@ -106,7 +106,7 @@ const driver = {
     try {
       inTransaction();
     } catch (error) {
-      logger.error('Stream error', error);
+      logger.error({ error }, 'Stream error');
       const { message, procName } = error;
       options.info({
         message,

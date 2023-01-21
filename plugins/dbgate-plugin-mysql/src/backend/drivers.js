@@ -114,7 +114,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const handleError = error => {
-      logger.error('Stream error', error);
+      logger.error({ error }, 'Stream error');
       const { message } = error;
       options.info({
         message,
