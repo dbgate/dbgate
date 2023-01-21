@@ -67,28 +67,23 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
-    const tables = await this.driver.query(
-      this.pool,
-      this.createQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', ['tables'])
-    );
+    const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', [
+      'tables',
+    ]);
     this.feedback({ analysingMessage: 'Loading columns' });
-    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+    const columns = await this.analyserQuery('columns', ['tables', 'views']);
     this.feedback({ analysingMessage: 'Loading primary keys' });
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
 
     let fkColumns = null;
 
     this.feedback({ analysingMessage: 'Loading foreign key constraints' });
-    const fk_tableConstraints = await this.driver.query(this.pool, this.createQuery('fk_tableConstraints', ['tables']));
+    const fk_tableConstraints = await this.analyserQuery('fk_tableConstraints', ['tables']);
 
     this.feedback({ analysingMessage: 'Loading foreign key refs' });
-    const fk_referentialConstraints = await this.driver.query(
-      this.pool,
-      this.createQuery('fk_referentialConstraints', ['tables'])
-    );
-
+    const fk_referentialConstraints = await this.analyserQuery('fk_referentialConstraints', ['tables']);
     this.feedback({ analysingMessage: 'Loading foreign key columns' });
-    const fk_keyColumnUsage = await this.driver.query(this.pool, this.createQuery('fk_keyColumnUsage', ['tables']));
+    const fk_keyColumnUsage = await this.analyserQuery('fk_keyColumnUsage', ['tables']);
 
     const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
     const fkRows = [];
@@ -129,37 +124,35 @@ class Analyser extends DatabaseAnalyser {
     fkColumns = { rows: fkRows };
 
     this.feedback({ analysingMessage: 'Loading views' });
-    const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const views = await this.analyserQuery('views', ['views']);
     this.feedback({ analysingMessage: 'Loading materialized views' });
-    const matviews = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviews', ['matviews']))
-      : null;
+    const matviews = this.driver.dialect.materializedViews ? await this.analyserQuery('matviews', ['matviews']) : null;
     this.feedback({ analysingMessage: 'Loading materialized view columns' });
     const matviewColumns = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
+      ? await this.analyserQuery('matviewColumns', ['matviews'])
       : null;
     this.feedback({ analysingMessage: 'Loading routines' });
-    const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
+    const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
-      : await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+      : await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcols = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
-      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+      : await this.analyserQuery('indexcols', ['tables']);
     this.feedback({ analysingMessage: 'Loading unique names' });
-    const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
+    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
 
     let geometryColumns = { rows: [] };
     if (views.rows.find(x => x.pure_name == 'geometry_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geometry columns' });
-      geometryColumns = await this.safeQuery(this.createQuery('geometryColumns', ['tables']));
+      geometryColumns = await this.analyserQuery('geometryColumns', ['tables']);
     }
     let geographyColumns = { rows: [] };
     if (views.rows.find(x => x.pure_name == 'geography_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geography columns' });
-      geographyColumns = await this.safeQuery(this.createQuery('geographyColumns', ['tables']));
+      geographyColumns = await this.analyserQuery('geographyColumns', ['tables']);
     }
 
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
@@ -289,13 +282,13 @@ class Analyser extends DatabaseAnalyser {
 
   async _getFastSnapshot() {
     const tableModificationsQueryData = this.driver.dialect.stringAgg
-      ? await this.driver.query(this.pool, this.createQuery('tableModifications'))
+      ? await this.analyserQuery('tableModifications')
       : null;
-    const viewModificationsQueryData = await this.driver.query(this.pool, this.createQuery('viewModifications'));
+    const viewModificationsQueryData = await this.analyserQuery('viewModifications');
     const matviewModificationsQueryData = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviewModifications'))
+      ? await this.analyserQuery('matviewModifications')
       : null;
-    const routineModificationsQueryData = await this.driver.query(this.pool, this.createQuery('routineModifications'));
+    const routineModificationsQueryData = await this.analyserQuery('routineModifications');
 
     return {
       tables: tableModificationsQueryData

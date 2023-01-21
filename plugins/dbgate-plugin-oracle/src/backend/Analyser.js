@@ -68,45 +68,40 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
-    const tables = await this.driver.query(
-      this.pool,
-      this.createQuery(this.driver.dialect.stringAgg ? 'tableList' : 'tableList', ['tables'])
-    );
+    const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableList' : 'tableList', ['tables']);
     this.feedback({ analysingMessage: 'Loading columns' });
-    const columns = await this.driver.query(this.pool, this.createQuery('columns', ['tables', 'views']));
+    const columns = await this.analyserQuery('columns', ['tables', 'views']);
 
     this.feedback({ analysingMessage: 'Loading primary keys' });
-    const pkColumns = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
 
     //let fkColumns = null;
 
-      this.feedback({ analysingMessage: 'Loading foreign keys' });
-    const  fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    this.feedback({ analysingMessage: 'Loading foreign keys' });
+    const fkColumns = await this.analyserQuery('foreignKeys', ['tables']);
     this.feedback({ analysingMessage: 'Loading views' });
-    const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const views = await this.analyserQuery('views', ['views']);
     let geometryColumns = { rows: [] };
     let geographyColumns = { rows: [] };
 
     this.feedback({ analysingMessage: 'Loading materialized views' });
-    const matviews = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviews', ['matviews']))
-      : null;
+    const matviews = this.driver.dialect.materializedViews ? await this.analyserQuery('matviews', ['matviews']) : null;
     this.feedback({ analysingMessage: 'Loading materialized view columns' });
     const matviewColumns = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviewColumns', ['matviews']))
+      ? await this.analyserQuery('matviewColumns', ['matviews'])
       : null;
     this.feedback({ analysingMessage: 'Loading routines' });
-    const routines = await this.driver.query(this.pool, this.createQuery('routines', ['procedures', 'functions']));
+    const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
-      : await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+      : await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading index columns' });
-//    const indexcols = this.driver.__analyserInternals.skipIndexes
-//      ? { rows: [] }
-//      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    //    const indexcols = this.driver.__analyserInternals.skipIndexes
+    //      ? { rows: [] }
+    //      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     this.feedback({ analysingMessage: 'Loading unique names' });
-    const uniqueNames = await this.driver.query(this.pool, this.createQuery('uniqueNames', ['tables']));
+    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const columnColumnsMapped = fkColumns.rows.map(x => ({
@@ -144,34 +139,35 @@ class Analyser extends DatabaseAnalyser {
             .map(col => getColumnInfo(col, newTable, geometryColumns, geographyColumns)),
           primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
           foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, columnColumnsMapped),
-        indexes: _.uniqBy(
-          indexes.rows.filter(
-            idx =>
-              idx.tableName == table.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
-          ),
-          'constraintName'
-        ).map(idx => ({
-          ..._.pick(idx, ['constraintName', 'indexType']),
-          isUnique: idx.Unique === 'UNIQUE',
-          columns: indexes.rows
-            .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
-            .map(col => ({
-              ..._.pick(col, ['columnName']),
-            })),
-        })),
-        uniques: _.uniqBy(
-          indexes.rows.filter(
-            idx => idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
-          ),
-          'constraintName'
-        ).map(idx => ({
-          ..._.pick(idx, ['constraintName']),
-          columns: indexes.rows
-            .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
-            .map(col => ({
-              ..._.pick(col, ['columnName']),
-            })),
-        })),
+          indexes: _.uniqBy(
+            indexes.rows.filter(
+              idx =>
+                idx.tableName == table.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+            ),
+            'constraintName'
+          ).map(idx => ({
+            ..._.pick(idx, ['constraintName', 'indexType']),
+            isUnique: idx.Unique === 'UNIQUE',
+            columns: indexes.rows
+              .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
+              .map(col => ({
+                ..._.pick(col, ['columnName']),
+              })),
+          })),
+          uniques: _.uniqBy(
+            indexes.rows.filter(
+              idx =>
+                idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+            ),
+            'constraintName'
+          ).map(idx => ({
+            ..._.pick(idx, ['constraintName']),
+            columns: indexes.rows
+              .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
+              .map(col => ({
+                ..._.pick(col, ['columnName']),
+              })),
+          })),
         };
       }),
       views: views.rows.map(view => ({
@@ -225,13 +221,13 @@ class Analyser extends DatabaseAnalyser {
     return null;
 
     const tableModificationsQueryData = this.driver.dialect.stringAgg
-      ? await this.driver.query(this.pool, this.createQuery('tableModifications'))
+      ? await this.analyserQuery('tableModifications')
       : null;
-    const viewModificationsQueryData = await this.driver.query(this.pool, this.createQuery('viewModifications'));
+    const viewModificationsQueryData = await this.analyserQuery('viewModifications');
     const matviewModificationsQueryData = this.driver.dialect.materializedViews
-      ? await this.driver.query(this.pool, this.createQuery('matviewModifications'))
+      ? await this.analyserQuery('matviewModifications')
       : null;
-    const routineModificationsQueryData = await this.driver.query(this.pool, this.createQuery('routineModifications'));
+    const routineModificationsQueryData = await this.analyserQuery('routineModifications');
 
     return {
       tables: tableModificationsQueryData
@@ -243,13 +239,13 @@ class Analyser extends DatabaseAnalyser {
           }))
         : null,
       views: viewModificationsQueryData
-      ? viewModificationsQueryData.rows.map(x => ({
-        objectId: `views:${x.schema_name}.${x.pure_name}`,
-        pureName: x.pure_name,
-        schemaName: x.schema_name,
-        contentHash: x.hash_code,
-      }))
-      : undefined,
+        ? viewModificationsQueryData.rows.map(x => ({
+            objectId: `views:${x.schema_name}.${x.pure_name}`,
+            pureName: x.pure_name,
+            schemaName: x.schema_name,
+            contentHash: x.hash_code,
+          }))
+        : undefined,
       matviews: matviewModificationsQueryData
         ? matviewModificationsQueryData.rows.map(x => ({
             objectId: `matviews:${x.schema_name}.${x.pure_name}`,
