@@ -82,33 +82,35 @@ class MsSqlAnalyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
-    const tablesRows = await this.driver.query(this.pool, this.createQuery('tables', ['tables']));
+    const tablesRows = await this.analyserQuery('tables', ['tables']);
     this.feedback({ analysingMessage: 'Loading columns' });
-    const columnsRows = await this.driver.query(this.pool, this.createQuery('columns', ['tables']));
+    const columnsRows = await this.analyserQuery('columns', ['tables']);
     this.feedback({ analysingMessage: 'Loading primary keys' });
-    const pkColumnsRows = await this.driver.query(this.pool, this.createQuery('primaryKeys', ['tables']));
+    const pkColumnsRows = await this.analyserQuery('primaryKeys', ['tables']);
     this.feedback({ analysingMessage: 'Loading foreign keys' });
-    const fkColumnsRows = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
+    const fkColumnsRows = await this.analyserQuery('foreignKeys', ['tables']);
     this.feedback({ analysingMessage: 'Loading schemas' });
-    const schemaRows = await this.driver.query(this.pool, this.createQuery('getSchemas'));
+    const schemaRows = await this.analyserQuery('getSchemas');
     this.feedback({ analysingMessage: 'Loading indexes' });
-    const indexesRows = await this.driver.query(this.pool, this.createQuery('indexes', ['tables']));
+    const indexesRows = await this.analyserQuery('indexes', ['tables']);
     this.feedback({ analysingMessage: 'Loading index columns' });
-    const indexcolsRows = await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
+    const indexcolsRows = await this.analyserQuery('indexcols', ['tables']);
     this.feedback({ analysingMessage: 'Loading default schema' });
     const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
     this.feedback({ analysingMessage: 'Loading table sizes' });
-    const tableSizes = await this.driver.query(this.pool, this.createQuery('tableSizes'));
+    const tableSizes = await this.analyserQuery('tableSizes');
 
     const schemas = schemaRows.rows;
 
     const tableSizesDict = _.mapValues(_.keyBy(tableSizes.rows, 'objectId'), 'tableRowCount');
 
     this.feedback({ analysingMessage: 'Loading SQL code' });
-    const sqlCodeRows = await this.driver.query(
-      this.pool,
-      this.createQuery('loadSqlCode', ['views', 'procedures', 'functions', 'triggers'])
-    );
+    const sqlCodeRows = await this.analyserQuery('loadSqlCode', [
+      'views',
+      'procedures',
+      'functions',
+      'triggers',
+    ]);
     const getCreateSql = row =>
       sqlCodeRows.rows
         .filter(x => x.pureName == row.pureName && x.schemaName == row.schemaName)
@@ -116,14 +118,11 @@ class MsSqlAnalyser extends DatabaseAnalyser {
         .join('');
 
     this.feedback({ analysingMessage: 'Loading views' });
-    const viewsRows = await this.driver.query(this.pool, this.createQuery('views', ['views']));
+    const viewsRows = await this.analyserQuery('views', ['views']);
     this.feedback({ analysingMessage: 'Loading procedures & functions' });
-    const programmableRows = await this.driver.query(
-      this.pool,
-      this.createQuery('programmables', ['procedures', 'functions'])
-    );
+    const programmableRows = await this.analyserQuery('programmables', ['procedures', 'functions']);
     this.feedback({ analysingMessage: 'Loading view columns' });
-    const viewColumnRows = await this.driver.query(this.pool, this.createQuery('viewColumns', ['views']));
+    const viewColumnRows = await this.analyserQuery('viewColumns', ['views']);
 
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
     const tables = tablesRows.rows.map(row => ({
@@ -190,8 +189,8 @@ class MsSqlAnalyser extends DatabaseAnalyser {
   }
 
   async _getFastSnapshot() {
-    const modificationsQueryData = await this.driver.query(this.pool, this.createQuery('modifications'));
-    const tableSizes = await this.driver.query(this.pool, this.createQuery('tableSizes'));
+    const modificationsQueryData = await this.analyserQuery('modifications');
+    const tableSizes = await this.analyserQuery('tableSizes');
 
     const res = DatabaseAnalyser.createEmptyStructure();
     for (const item of modificationsQueryData.rows) {

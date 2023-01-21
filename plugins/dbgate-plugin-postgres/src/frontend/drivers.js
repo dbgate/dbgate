@@ -140,9 +140,7 @@ const postgresDriverBase = {
     return connection;
   },
 
-  __analyserInternals: {
-    refTableCond: '',
-  },
+  __analyserInternals: {},
 
   getNewObjectTemplates() {
     return [
@@ -212,9 +210,7 @@ const cockroachDriver = {
     dropColumnDependencies: ['primaryKey', 'dependencies'],
     dropPrimaryKey: false,
   },
-  __analyserInternals: {
-    refTableCond: 'and fk.referenced_table_name = ref.table_name',
-  },
+  __analyserInternals: {},
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -225,7 +221,6 @@ const redshiftDriver = {
     stringAgg: false,
   },
   __analyserInternals: {
-    refTableCond: '',
     skipIndexes: true,
   },
   engine: 'redshift@dbgate-plugin-postgres',

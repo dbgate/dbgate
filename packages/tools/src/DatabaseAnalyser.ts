@@ -170,9 +170,9 @@ export class DatabaseAnalyser {
   //   return this.structure.tables.find((x) => x.objectId == id);
   // }
 
-  containsObjectIdCondition(typeFields) {
-    return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
-  }
+  // containsObjectIdCondition(typeFields) {
+  //   return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
+  // }
 
   createQuery(template, typeFields) {
     return this.createQueryCore(template, typeFields);
@@ -197,7 +197,7 @@ export class DatabaseAnalyser {
       .filter(x => typeFields.includes(x.objectTypeField) && (x.action == 'add' || x.action == 'change'))
       .map(x => x.objectId);
     if (filterIds.length == 0) {
-      return template.replace(/=OBJECT_ID_CONDITION/g, " = '0'");
+      return null;
     }
     return template.replace(/=OBJECT_ID_CONDITION/g, ` in (${filterIds.map(x => `'${x}'`).join(',')})`);
   }
@@ -293,7 +293,14 @@ export class DatabaseAnalyser {
     return [..._compact(res), ...this.getDeletedObjects(snapshot)];
   }
 
-  async safeQuery(sql) {
+  async analyserQuery(template, typeFields) {
+    const sql = this.createQuery(template, typeFields);
+
+    if (!sql) {
+      return {
+        rows: [],
+      };
+    }
     try {
       return await this.driver.query(this.pool, sql);
     } catch (err) {

@@ -53,12 +53,9 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _runAnalysis() {
-    const objects = await this.driver.query(
-      this.pool,
-      super.createQuery(
-        "select * from sqlite_master where (type='table' or type='view') and name =OBJECT_ID_CONDITION",
-        ['tables', 'views']
-      )
+    const objects = await this.analyserQuery(
+      "select * from sqlite_master where (type='table' or type='view') and name =OBJECT_ID_CONDITION",
+      ['tables', 'views']
     );
     const tables = objects.rows.filter((x) => x.type == 'table');
     const views = objects.rows.filter((x) => x.type == 'view');
