@@ -33,6 +33,9 @@ const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
 const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
 
 function start() {
   // console.log('process.argv', process.argv);
@@ -60,8 +63,8 @@ function start() {
   } else if (platformInfo.isNpmDist) {
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../dbgate-web/public')));
   } else if (process.env.DEVWEB) {
-    console.log('__dirname', __dirname);
-    console.log(path.join(__dirname, '../../web/public/build'));
+    // console.log('__dirname', __dirname);
+    // console.log(path.join(__dirname, '../../web/public/build'));
     app.use(getExpressPath('/'), express.static(path.join(__dirname, '../../web/public')));
   } else {
     app.get(getExpressPath('/'), (req, res) => {
@@ -109,7 +112,7 @@ function start() {
 
   if (platformInfo.isDocker) {
     const port = process.env.PORT || 3000;
-    console.log('DbGate API listening on port (docker build)', port);
+    logger.info(`DbGate API listening on port ${port} (docker build)`);
     server.listen(port);
   } else if (platformInfo.isNpmDist) {
     getPort({
@@ -119,27 +122,27 @@ function start() {
       ),
     }).then(port => {
       server.listen(port, () => {
-        console.log(`DbGate API listening on port ${port} (NPM build)`);
+        logger.info(`DbGate API listening on port ${port} (NPM build)`);
       });
     });
   } else if (process.env.DEVWEB) {
     const port = process.env.PORT || 3000;
-    console.log('DbGate API & web listening on port (dev web build)', port);
+    logger.info(`DbGate API & web listening on port ${port} (dev web build)`);
     server.listen(port);
   } else {
     const port = process.env.PORT || 3000;
-    console.log('DbGate API listening on port (dev API build)', port);
+    logger.info(`DbGate API listening on port ${port} (dev API build)`);
     server.listen(port);
   }
 
   function shutdown() {
-    console.log('\nShutting down DbGate API server');
+    logger.info('\nShutting down DbGate API server');
     server.close(() => {
-      console.log('Server shut down, terminating');
+      logger.info('Server shut down, terminating');
       process.exit(0);
     });
     setTimeout(() => {
-      console.log('Server close timeout, terminating');
+      logger.info('Server close timeout, terminating');
       process.exit(0);
     }, 1000);
   }

@@ -5,6 +5,8 @@ const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const { fork } = require('child_process');
 const processArgs = require('../utility/processArgs');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger();
 
 const sshTunnelCache = {};
 
@@ -45,7 +47,7 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
       }
     });
     subprocess.on('exit', code => {
-      console.log('SSH forward process exited');
+      logger.info('SSH forward process exited');
       delete sshTunnelCache[tunnelCacheKey];
     });
   });
@@ -65,13 +67,13 @@ async function getSshTunnel(connection) {
       toHost: connection.server,
     };
     try {
-      console.log(
+      logger.info(
         `Creating SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 
       const subprocess = await callForwardProcess(connection, tunnelConfig, tunnelCacheKey);
 
-      console.log(
+      logger.info(
         `Created SSH tunnel to ${connection.sshHost}-${connection.server}:${connection.port}, using local port ${localPort}`
       );
 

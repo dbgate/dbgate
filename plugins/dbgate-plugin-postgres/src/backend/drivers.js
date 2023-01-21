@@ -5,6 +5,9 @@ const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 const pg = require('pg');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger();
 
 pg.types.setTypeParser(1082, 'text', val => val); // date
 pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
@@ -144,7 +147,7 @@ const drivers = driverBases.map(driverBase => ({
     });
 
     query.on('error', error => {
-      console.log('ERROR', error);
+      logger.error('Stream error', error);
       const { message, position, procName } = error;
       let line = null;
       if (position) {

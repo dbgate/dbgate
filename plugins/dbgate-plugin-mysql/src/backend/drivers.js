@@ -5,6 +5,9 @@ const Analyser = require('./Analyser');
 const mysql2 = require('mysql2');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 const { MySqlDumper } = require('antares-mysql-dumper');
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger();
 
 function extractColumns(fields) {
   if (fields) {
@@ -111,7 +114,7 @@ const drivers = driverBases.map(driverBase => ({
     };
 
     const handleError = error => {
-      console.log('ERROR', error);
+      logger.error('Stream error', error);
       const { message } = error;
       options.info({
         message,

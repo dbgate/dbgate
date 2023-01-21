@@ -12,6 +12,7 @@ const {
   matchPairedObjects,
   extendDatabaseInfo,
   modelCompareDbDiffOptions,
+  getLogger,
 } = require('dbgate-tools');
 const { html, parse } = require('diff2html');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -28,6 +29,8 @@ const diff2htmlPage = require('../utility/diff2htmlPage');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
+
+const logger = getLogger();
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */
@@ -60,7 +63,7 @@ module.exports = {
 
   handle_error(conid, database, props) {
     const { error } = props;
-    console.log(`Error in database connection ${conid}, database ${database}: ${error}`);
+    logger.error(`Error in database connection ${conid}, database ${database}: ${error}`);
   },
   handle_response(conid, database, { msgid, ...response }) {
     const [resolve, reject] = this.requests[msgid];
@@ -137,7 +140,7 @@ module.exports = {
   queryData_meta: true,
   async queryData({ conid, database, sql }, req) {
     testConnectionPermission(conid, req);
-    console.log(`Processing query, conid=${conid}, database=${database}, sql=${sql}`);
+    logger.info({ conid, database, sql }, 'Processing query');
     const opened = await this.ensureOpened(conid, database);
     // if (opened && opened.status && opened.status.name == 'error') {
     //   return opened.status;
@@ -157,7 +160,7 @@ module.exports = {
   runScript_meta: true,
   async runScript({ conid, database, sql }, req) {
     testConnectionPermission(conid, req);
-    console.log(`Processing script, conid=${conid}, database=${database}, sql=${sql}`);
+    logger.info({ conid, database, sql }, 'Processing script');
     const opened = await this.ensureOpened(conid, database);
     const res = await this.sendRequest(opened, { msgtype: 'runScript', sql });
     return res;

@@ -1,6 +1,8 @@
 const path = require('path');
 const { uploadsdir } = require('../utility/directories');
 const uuidv1 = require('uuid/v1');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger();
 
 module.exports = {
   upload_meta: {
@@ -15,7 +17,7 @@ module.exports = {
     }
     const uploadName = uuidv1();
     const filePath = path.join(uploadsdir(), uploadName);
-    console.log(`Uploading file ${data.name}, size=${data.size}`);
+    logger.info(`Uploading file ${data.name}, size=${data.size}`);
 
     data.mv(filePath, () => {
       res.json({

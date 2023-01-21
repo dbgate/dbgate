@@ -1,4 +1,8 @@
 const ObjectId = require('mongodb').ObjectId;
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger();
+
 
 function createBulkInsertStream(driver, stream, pool, name, options) {
   const collectionName = name.pureName;
@@ -27,11 +31,11 @@ function createBulkInsertStream(driver, stream, pool, name, options) {
 
   writable.checkStructure = async () => {
     if (options.dropIfExists) {
-      console.log(`Dropping collection ${collectionName}`);
+      logger.info(`Dropping collection ${collectionName}`);
       await db.collection(collectionName).drop();
     }
     if (options.truncate) {
-      console.log(`Truncating collection ${collectionName}`);
+      logger.info(`Truncating collection ${collectionName}`);
       await db.collection(collectionName).deleteMany({});
     }
   };

@@ -8,6 +8,9 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -120,7 +123,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    console.log(`Processing query, sesid=${sesid}, sql=${sql}`);
+    logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
     session.subprocess.send({ msgtype: 'executeQuery', sql });
 
@@ -158,7 +161,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    console.log(`Starting profiler, sesid=${sesid}`);
+    logger.info({ sesid }, 'Starting profiler');
     session.loadingReader_jslid = jslid;
     session.subprocess.send({ msgtype: 'startProfiler', jslid });
 

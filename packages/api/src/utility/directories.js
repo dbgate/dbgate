@@ -5,16 +5,18 @@ const cleanDirectory = require('./cleanDirectory');
 const platformInfo = require('./platformInfo');
 const processArgs = require('./processArgs');
 const consoleObjectWriter = require('../shell/consoleObjectWriter');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger();
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
     if (clean && fs.existsSync(dir) && !platformInfo.isForkedApi) {
-      console.log(`Cleaning directory ${dir}`);
+      logger.info(`Cleaning directory ${dir}`);
       cleanDirectory(dir);
     }
     if (!fs.existsSync(dir)) {
-      console.log(`Creating directory ${dir}`);
+      logger.info(`Creating directory ${dir}`);
       fs.mkdirSync(dir);
     }
     createDirectories[dir] = true;
@@ -38,12 +40,14 @@ function datadir() {
   return dir;
 }
 
-const dirFunc = (dirname, clean = false) => () => {
-  const dir = path.join(datadir(), dirname);
-  ensureDirectory(dir, clean);
+const dirFunc =
+  (dirname, clean = false) =>
+  () => {
+    const dir = path.join(datadir(), dirname);
+    ensureDirectory(dir, clean);
 
-  return dir;
-};
+    return dir;
+  };
 
 const jsldir = dirFunc('jsl', true);
 const rundir = dirFunc('run', true);
@@ -128,7 +132,7 @@ function migrateDataDir() {
       fs.renameSync(oldDir, newDir);
     }
   } catch (e) {
-    console.log('Error migrating data dir:', e.message);
+    logger.error('Error migrating data dir:', e.message);
   }
 }
 

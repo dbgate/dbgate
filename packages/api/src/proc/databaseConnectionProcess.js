@@ -1,13 +1,15 @@
 const stableStringify = require('json-stable-stringify');
 const { splitQuery } = require('dbgate-query-splitter');
 const childProcessChecker = require('../utility/childProcessChecker');
-const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
+const { extractBoolSettingsValue, extractIntSettingsValue, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { dumpSqlSelect } = require('dbgate-sqltree');
+
+const logger = getLogger();
 
 let systemConnection;
 let storedConnection;
@@ -269,7 +271,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
     process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
     if (generator.isUnhandledException) {
       setTimeout(() => {
-        console.log('Exiting because of unhandled exception');
+        getLogger.info('Exiting because of unhandled exception');
         process.exit(0);
       }, 500);
     }
@@ -336,7 +338,7 @@ function start() {
   setInterval(() => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
-      console.log('Database connection not alive, exiting');
+      logger.info('Database connection not alive, exiting');
       process.exit(0);
     }
   }, 10 * 1000);
@@ -346,7 +348,7 @@ function start() {
     try {
       await handleMessage(message);
     } catch (e) {
-      console.error('Error in DB connection', e);
+      logger.error('Error in DB connection', e);
       process.send({ msgtype: 'error', error: e.message });
     }
   });

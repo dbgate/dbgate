@@ -18,3 +18,4 @@ export * from './stringTools';
 export * from './computeDiffRows';
 export * from './preloadedRowsTools';
 export * from './ScriptWriter';
+export * from './getLogger';

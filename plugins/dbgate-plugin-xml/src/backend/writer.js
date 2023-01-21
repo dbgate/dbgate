@@ -1,5 +1,8 @@
 const fs = require('fs');
 const stream = require('stream');
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger();
 
 function escapeXml(value) {
   return value.replace(/[<>&'"]/g, function (c) {
@@ -67,7 +70,7 @@ class StringifyStream extends stream.Transform {
 }
 
 async function writer({ fileName, encoding = 'utf-8', itemElementName, rootElementName }) {
-  console.log(`Writing file ${fileName}`);
+  logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream({ itemElementName, rootElementName });
   const fileStream = fs.createWriteStream(fileName, encoding);
   stringify.pipe(fileStream);

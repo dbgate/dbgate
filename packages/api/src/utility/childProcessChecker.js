@@ -1,3 +1,7 @@
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
+
 let counter = 0;
 
 function childProcessChecker() {
@@ -8,7 +12,7 @@ function childProcessChecker() {
       // This will come once parent dies.
       // One way can be to check for error code ERR_IPC_CHANNEL_CLOSED
       //     and call process.exit()
-      console.log('parent died', ex.toString());
+      logger.error('parent died', ex);
       process.exit(1);
     }
   }, 1000);

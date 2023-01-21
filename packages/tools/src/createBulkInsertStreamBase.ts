@@ -1,5 +1,8 @@
 import _intersection from 'lodash/intersection';
+import { getLogger } from './getLogger';
 import { prepareTableForImport } from './tableTransforms';
+
+const logger = getLogger();
 
 export function createBulkInsertStreamBase(driver, stream, pool, name, options): any {
   const fullNameQuoted = name.schemaName
@@ -28,14 +31,13 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     let structure = await driver.analyseSingleTable(pool, name);
     // console.log('ANALYSING', name, structure);
     if (structure && options.dropIfExists) {
-      console.log(`Dropping table ${fullNameQuoted}`);
+      logger.info(`Dropping table ${fullNameQuoted}`);
       await driver.script(pool, `DROP TABLE ${fullNameQuoted}`);
     }
     if (options.createIfNotExists && (!structure || options.dropIfExists)) {
-      console.log(`Creating table ${fullNameQuoted}`);
       const dmp = driver.createDumper();
       dmp.createTable(prepareTableForImport({ ...writable.structure, ...name }));
-      console.log(dmp.s);
+      logger.info({ sql: dmp.s }, `Creating table ${fullNameQuoted}`);
       await driver.script(pool, dmp.s);
       structure = await driver.analyseSingleTable(pool, name);
     }

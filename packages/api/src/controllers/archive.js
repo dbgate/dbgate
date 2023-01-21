@@ -6,6 +6,9 @@ const socket = require('../utility/socket');
 const { saveFreeTableData } = require('../utility/freeTableStorage');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
 
 module.exports = {
   folders_meta: true,
@@ -68,7 +71,7 @@ module.exports = {
         ...fileType('.matview.sql', 'matview.sql'),
       ];
     } catch (err) {
-      console.log('Error reading archive files', err.message);
+      logger.error('Error reading archive files', err.message);
       return [];
     }
   },

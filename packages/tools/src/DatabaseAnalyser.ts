@@ -3,6 +3,9 @@ import _sortBy from 'lodash/sortBy';
 import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
+import { getLogger } from './getLogger';
+
+const logger = getLogger();
 
 const STRUCTURE_FIELDS = ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers'];
 
@@ -107,7 +110,7 @@ export class DatabaseAnalyser {
 
     this.modifications = structureModifications;
     if (structureWithRowCounts) this.structure = structureWithRowCounts;
-    console.log('DB modifications detected:', this.modifications);
+    logger.info({ modifications: this.modifications }, 'DB modifications detected:');
     return this.addEngineField(this.mergeAnalyseResult(await this._runAnalysis()));
   }
 
@@ -304,7 +307,7 @@ export class DatabaseAnalyser {
     try {
       return await this.driver.query(this.pool, sql);
     } catch (err) {
-      console.log('Error running analyser query', err.message);
+      logger.error('Error running analyser query', err);
       return {
         rows: [],
       };

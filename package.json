@@ -8,7 +8,7 @@
     "integration-tests"
   ],
   "scripts": {
-    "start:api": "yarn workspace dbgate-api start",
+    "start:api": "yarn workspace dbgate-api start | pino-pretty",
     "start:app": "cd app && yarn start",
     "start:api:debug": "cross-env DEBUG=* yarn workspace dbgate-api start",
     "start:app:debug": "cd app && cross-env DEBUG=* yarn start",
@@ -57,7 +57,8 @@
   },
   "dependencies": {
     "concurrently": "^5.1.0",
-    "patch-package": "^6.2.1"
+    "patch-package": "^6.2.1",
+    "pino-pretty": "^9.1.1"
   },
   "devDependencies": {
     "copyfiles": "^2.2.0",

@@ -3,7 +3,10 @@ const jwt = require('jsonwebtoken');
 const getExpressPath = require('../utility/getExpressPath');
 const uuidv1 = require('uuid/v1');
 const { getLogins } = require('../utility/hasPermission');
+const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
+
+const logger = getLogger();
 
 const tokenSecret = uuidv1();
 
@@ -51,7 +54,7 @@ function authMiddleware(req, res, next) {
       return next();
     }
 
-    console.log('Sending invalid token error', err.message);
+    logger.error('Sending invalid token error', err.message);
 
     return unauthorizedResponse(req, res, 'invalid token');
   }
@@ -74,7 +77,7 @@ module.exports = {
 
     const payload = jwt.decode(access_token);
 
-    console.log('User payload returned from OAUTH:', payload);
+    logger.info({ payload }, 'User payload returned from OAUTH');
 
     const login =
       process.env.OAUTH_LOGIN_FIELD && payload && payload[process.env.OAUTH_LOGIN_FIELD]
@@ -122,7 +125,7 @@ module.exports = {
           accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
         };
       } catch (err) {
-        console.log('Failed active directory authentization', err.message);
+        logger.error('Failed active directory authentization', err);
         return {
           error: err.message,
         };

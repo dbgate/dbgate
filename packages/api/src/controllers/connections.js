@@ -12,9 +12,11 @@ const { pickSafeConnectionInfo } = require('../utility/crypting');
 const JsonLinesDatabase = require('../utility/JsonLinesDatabase');
 
 const processArgs = require('../utility/processArgs');
-const { safeJsonParse } = require('dbgate-tools');
+const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
+
+const logger = getLogger();
 
 let volatileConnections = {};
 
@@ -86,13 +88,13 @@ function getPortalCollections() {
       sslKeyFile: process.env[`SSL_KEY_FILE_${id}`],
       sslRejectUnauthorized: process.env[`SSL_REJECT_UNAUTHORIZED_${id}`],
     }));
-    console.log('Using connections from ENV variables:');
-    console.log(JSON.stringify(connections.map(pickSafeConnectionInfo), undefined, 2));
+
+    logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'Using connections from ENV variables');
     const noengine = connections.filter(x => !x.engine);
     if (noengine.length > 0) {
-      console.log(
-        'Warning: Invalid CONNECTIONS configutation, missing ENGINE for connection ID:',
-        noengine.map(x => x._id)
+      logger.warn(
+        { connections: noengine.map(x => x._id) },
+        'Invalid CONNECTIONS configutation, missing ENGINE for connection ID'
       );
     }
     return connections;

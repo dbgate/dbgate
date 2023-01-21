@@ -10,6 +10,9 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
 
 let systemConnection;
 let storedConnection;
@@ -325,7 +328,7 @@ function start() {
   setInterval(() => {
     const time = new Date().getTime();
     if (time - lastPing > 25 * 1000) {
-      console.log('Session not alive, exiting');
+      logger.info('Session not alive, exiting');
       process.exit(0);
     }
   }, 10 * 1000);
