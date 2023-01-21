@@ -1,7 +1,7 @@
 const { quoteFullName, fullNameToString, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
-const logger = getLogger();
+const logger = getLogger('tableReader');
 
 async function tableReader({ connection, pureName, schemaName }) {
   const driver = requireEngineDriver(connection);

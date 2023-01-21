@@ -5,7 +5,7 @@ import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
 
-const logger = getLogger();
+const logger = getLogger('dbAnalyser');
 
 const STRUCTURE_FIELDS = ['tables', 'collections', 'views', 'matviews', 'functions', 'procedures', 'triggers'];
 

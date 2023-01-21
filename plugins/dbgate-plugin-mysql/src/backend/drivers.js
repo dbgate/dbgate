@@ -7,7 +7,7 @@ const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-to
 const { MySqlDumper } = require('antares-mysql-dumper');
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('mysqlDriver');
 
 function extractColumns(fields) {
   if (fields) {

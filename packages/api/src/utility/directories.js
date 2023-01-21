@@ -6,7 +6,7 @@ const platformInfo = require('./platformInfo');
 const processArgs = require('./processArgs');
 const consoleObjectWriter = require('../shell/consoleObjectWriter');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('directories');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {

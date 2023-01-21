@@ -7,6 +7,10 @@ export function setLogger(value: Logger) {
   _logger = value;
 }
 
-export function getLogger(): Logger {
-  return _logger || defaultLogger;
+export function getLogger(caller?: string): Logger {
+  let res = _logger || defaultLogger;
+  if (caller) {
+    res = res.child({ caller });
+  }
+  return res;
 }

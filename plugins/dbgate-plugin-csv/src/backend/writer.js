@@ -4,7 +4,7 @@ const stream = require('stream');
 
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('csvWriter');
 
 class CsvPrepareStream extends stream.Transform {
   constructor({ header }) {

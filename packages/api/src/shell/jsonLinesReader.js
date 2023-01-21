@@ -2,7 +2,7 @@ const fs = require('fs');
 const stream = require('stream');
 const byline = require('byline');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('jsonLinesReader');
 
 class ParseStream extends stream.Transform {
   constructor({ limitRows }) {

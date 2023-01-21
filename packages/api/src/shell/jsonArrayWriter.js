@@ -2,7 +2,7 @@ const { getLogger } = require('dbgate-tools');
 const fs = require('fs');
 const stream = require('stream');
 
-const logger = getLogger();
+const logger = getLogger('jsonArrayWriter');
 
 class StringifyStream extends stream.Transform {
   constructor() {

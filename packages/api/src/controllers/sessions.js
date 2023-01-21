@@ -10,7 +10,7 @@ const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('sessions');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */

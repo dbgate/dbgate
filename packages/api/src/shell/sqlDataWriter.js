@@ -3,7 +3,7 @@ const stream = require('stream');
 const path = require('path');
 const { driverBase, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
-const logger = getLogger();
+const logger = getLogger('sqlDataWriter');
 
 class SqlizeStream extends stream.Transform {
   constructor({ fileName, dataName }) {

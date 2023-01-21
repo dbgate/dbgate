@@ -2,7 +2,7 @@ import _intersection from 'lodash/intersection';
 import { getLogger } from './getLogger';
 import { prepareTableForImport } from './tableTransforms';
 
-const logger = getLogger();
+const logger = getLogger('bulkStreamBase');
 
 export function createBulkInsertStreamBase(driver, stream, pool, name, options): any {
   const fullNameQuoted = name.schemaName

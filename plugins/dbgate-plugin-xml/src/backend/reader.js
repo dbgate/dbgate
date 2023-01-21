@@ -3,7 +3,7 @@ const stream = require('stream');
 const NodeXmlStream = require('node-xml-stream-parser');
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('xmlReader');
 
 class ParseStream extends stream.Transform {
   constructor({ itemElementName }) {

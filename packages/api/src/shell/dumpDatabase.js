@@ -2,7 +2,7 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('dumpDb');
 
 function doDump(dumper) {
   return new Promise((resolve, reject) => {

@@ -6,7 +6,7 @@ const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('sqliteDriver');
 
 let Database;
 

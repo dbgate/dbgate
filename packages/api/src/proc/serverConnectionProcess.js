@@ -4,7 +4,7 @@ const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const logger = getLogger();
+const logger = getLogger('srvconnProcess');
 
 let systemConnection;
 let storedConnection;

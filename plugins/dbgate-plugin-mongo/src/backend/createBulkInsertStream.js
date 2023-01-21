@@ -1,7 +1,7 @@
 const ObjectId = require('mongodb').ObjectId;
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('mongoBulkInsert');
 
 
 function createBulkInsertStream(driver, stream, pool, name, options) {

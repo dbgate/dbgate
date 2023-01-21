@@ -1,6 +1,6 @@
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('childProcessChecked');
 
 let counter = 0;
 

@@ -6,7 +6,7 @@ const download = require('./download');
 const stream = require('stream');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('importDb');
 
 class ImportStream extends stream.Transform {
   constructor(pool, driver) {

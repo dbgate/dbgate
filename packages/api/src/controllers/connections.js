@@ -16,7 +16,7 @@ const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 
-const logger = getLogger();
+const logger = getLogger('connections');
 
 let volatileConnections = {};
 

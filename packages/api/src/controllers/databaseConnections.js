@@ -30,7 +30,7 @@ const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 
-const logger = getLogger();
+const logger = getLogger('databaseConnections');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedDatabaseConnection[]} */

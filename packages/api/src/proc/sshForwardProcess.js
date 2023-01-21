@@ -5,7 +5,7 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const { SSHConnection } = require('../utility/SSHConnection');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('sshProcess');
 
 async function getSshConnection(connection) {
   const sshConfig = {

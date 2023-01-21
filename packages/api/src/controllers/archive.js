@@ -8,7 +8,7 @@ const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('archive');
 
 module.exports = {
   folders_meta: true,

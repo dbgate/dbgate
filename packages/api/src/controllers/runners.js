@@ -16,7 +16,7 @@ const {
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
-const logger = getLogger();
+const logger = getLogger('runners');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -36,7 +36,7 @@ const requirePluginsTemplate = (plugins, isExport) =>
 
 const scriptTemplate = (script, isExport) => `
 const dbgateApi = require(${isExport ? `'dbgate-api'` : 'process.env.DBGATE_API'});
-const logger = dbgateApi.getLogger();
+const logger = dbgateApi.getLogger('script');
 dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractPlugins(script), isExport)}
 require=null;

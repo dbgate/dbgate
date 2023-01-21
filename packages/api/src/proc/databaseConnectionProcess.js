@@ -9,7 +9,7 @@ const { SqlGenerator } = require('dbgate-tools');
 const generateDeploySql = require('../shell/generateDeploySql');
 const { dumpSqlSelect } = require('dbgate-sqltree');
 
-const logger = getLogger();
+const logger = getLogger('dbconnProcess');
 
 let systemConnection;
 let storedConnection;

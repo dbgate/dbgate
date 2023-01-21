@@ -13,7 +13,7 @@ import { getLogger } from './getLogger';
 import { SqlDumper } from './SqlDumper';
 import { extendDatabaseInfo } from './structureTools';
 
-const logger = getLogger();
+const logger = getLogger('sqlGenerator');
 
 interface SqlGeneratorOptions {
   dropTables: boolean;

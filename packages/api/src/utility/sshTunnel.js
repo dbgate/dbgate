@@ -6,7 +6,7 @@ const lock = new AsyncLock();
 const { fork } = require('child_process');
 const processArgs = require('../utility/processArgs');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('sshTunnel');
 
 const sshTunnelCache = {};
 

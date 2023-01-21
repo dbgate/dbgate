@@ -4,7 +4,7 @@ const { pluginsdir, packagedPluginsDir, getPluginBackendPath } = require('../uti
 const nativeModules = require('../nativeModules');
 const platformInfo = require('../utility/platformInfo');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('requirePlugin');
 
 const loadedPlugins = {};
 

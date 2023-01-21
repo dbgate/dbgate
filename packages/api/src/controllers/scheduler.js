@@ -6,7 +6,7 @@ const runners = require('./runners');
 const { hasPermission } = require('../utility/hasPermission');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('scheduler');
 
 const scheduleRegex = /\s*\/\/\s*@schedule\s+([^\n]+)\n/;
 

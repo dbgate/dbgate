@@ -6,7 +6,7 @@ const { getLogins } = require('../utility/hasPermission');
 const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 
-const logger = getLogger();
+const logger = getLogger('auth');
 
 const tokenSecret = uuidv1();
 

@@ -35,7 +35,7 @@ const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('main');
 
 function start() {
   // console.log('process.argv', process.argv);

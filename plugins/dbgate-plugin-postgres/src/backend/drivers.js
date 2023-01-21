@@ -7,7 +7,7 @@ const pg = require('pg');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 const { getLogger } = global.DBGATE_TOOLS;
 
-const logger = getLogger();
+const logger = getLogger('postreDriver');
 
 pg.types.setTypeParser(1082, 'text', val => val); // date
 pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone

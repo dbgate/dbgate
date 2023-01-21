@@ -4,7 +4,7 @@ const getExpressPath = require('./getExpressPath');
 const { MissingCredentialsError } = require('./exceptions');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('useController');
 /**
  * @param {string} route
  */

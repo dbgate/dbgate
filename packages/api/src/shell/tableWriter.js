@@ -1,7 +1,7 @@
 const { fullNameToString, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
-const logger = getLogger();
+const logger = getLogger('tableWriter');
 
 async function tableWriter({ connection, schemaName, pureName, driver, systemConnection, ...options }) {
   logger.info(`Writing table ${fullNameToString({ schemaName, pureName })}`);

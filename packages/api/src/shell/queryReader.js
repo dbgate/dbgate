@@ -1,7 +1,7 @@
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('queryReader');
 
 async function queryReader({
   connection,

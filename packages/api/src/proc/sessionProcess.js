@@ -12,7 +12,7 @@ const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
 const { getLogger } = require('dbgate-tools');
 
-const logger = getLogger();
+const logger = getLogger('sessionProcess');
 
 let systemConnection;
 let storedConnection;

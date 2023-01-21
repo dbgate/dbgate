@@ -2,7 +2,7 @@ const path = require('path');
 const { uploadsdir } = require('../utility/directories');
 const uuidv1 = require('uuid/v1');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger();
+const logger = getLogger('uploads');
 
 module.exports = {
   upload_meta: {
