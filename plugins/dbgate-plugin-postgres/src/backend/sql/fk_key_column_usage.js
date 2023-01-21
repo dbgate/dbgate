@@ -7,4 +7,5 @@ select
 	basecol.table_name,
 	basecol.ordinal_position
 from  information_schema.key_column_usage basecol
+where ('tables:' || basecol.table_schema || '.' || basecol.table_name) =OBJECT_ID_CONDITION
 `;

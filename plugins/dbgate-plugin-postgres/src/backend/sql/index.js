@@ -4,7 +4,6 @@ const tableList = require('./tableList');
 const viewModifications = require('./viewModifications');
 const matviewModifications = require('./matviewModifications');
 const primaryKeys = require('./primaryKeys');
-const foreignKeys = require('./foreignKeys');
 const views = require('./views');
 const matviews = require('./matviews');
 const routines = require('./routines');
@@ -26,7 +25,6 @@ module.exports = {
   tableList,
   viewModifications,
   primaryKeys,
-  foreignKeys,
   fk_keyColumnUsage,
   fk_referentialConstraints,
   fk_tableConstraints,

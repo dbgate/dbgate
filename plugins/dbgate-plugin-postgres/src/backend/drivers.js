@@ -78,8 +78,6 @@ const drivers = driverBases.map(driverBase => ({
           };
     }
 
-    console.log('OPTIONS', options);
-
     const client = new pg.Client(options);
     await client.connect();
 

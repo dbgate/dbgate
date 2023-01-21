@@ -57,7 +57,6 @@ class Analyser extends DatabaseAnalyser {
 
   createQuery(resFileName, typeFields) {
     const query = super.createQuery(sql[resFileName], typeFields);
-    // if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
     return query;
   }
 
@@ -79,11 +78,6 @@ class Analyser extends DatabaseAnalyser {
 
     let fkColumns = null;
 
-    // if (true) {
-    // if (this.containsObjectIdCondition(['tables']) || this.driver.__analyserInternals.refTableCond) {
-    //   this.feedback({ analysingMessage: 'Loading foreign keys' });
-    //   fkColumns = await this.driver.query(this.pool, this.createQuery('foreignKeys', ['tables']));
-    // } else {
     this.feedback({ analysingMessage: 'Loading foreign key constraints' });
     const fk_tableConstraints = await this.driver.query(this.pool, this.createQuery('fk_tableConstraints', ['tables']));
 
@@ -133,7 +127,6 @@ class Analyser extends DatabaseAnalyser {
       }
     }
     fkColumns = { rows: fkRows };
-    // }
 
     this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.driver.query(this.pool, this.createQuery('views', ['views']));
