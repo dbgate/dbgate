@@ -1,14 +1,11 @@
 <script lang="ts" context="module">
   const getCurrentValueMarker: any = {};
 
-  export function shouldShowTab(tab, lockedDbMode = getCurrentValueMarker, currentDb = getCurrentValueMarker) {
-    if (lockedDbMode == getCurrentValueMarker) {
-      lockedDbMode = getLockedDatabaseMode();
-    }
+  export function shouldShowTab(tab, lockedDbModeArg = getCurrentValueMarker, currentDbArg = getCurrentValueMarker) {
+    const lockedDbMode = lockedDbModeArg == getCurrentValueMarker ? getLockedDatabaseMode() : lockedDbModeArg;
+
     if (lockedDbMode) {
-      if (currentDb == getCurrentValueMarker) {
-        currentDb = getCurrentDatabase();
-      }
+      const currentDb = currentDbArg == getCurrentValueMarker ? getCurrentDatabase() : currentDbArg;
       return (
         tab.closedTime == null &&
         (!tab.props?.conid || tab.props?.conid == currentDb?.connection?._id) &&
@@ -34,7 +31,7 @@
     const closeCandidates = getOpenedTabs()
       .filter(x => closeCondition(x, activeCandidate))
       .filter(x => x.unsaved)
-      .filter(shouldShowTab);
+      .filter(x => shouldShowTab(x));
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -64,7 +61,7 @@
     const closeCandidates = getOpenedTabs()
       .filter(x => closeCondition(x))
       .filter(x => x.unsaved)
-      .filter(shouldShowTab);
+      .filter(x => shouldShowTab(x));
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -93,7 +90,7 @@
   const closeAll = async () => {
     const closeCandidates = getOpenedTabs()
       .filter(x => x.unsaved)
-      .filter(shouldShowTab);
+      .filter(x => shouldShowTab(x));
 
     if (!(await allowCloseTabs(closeCandidates))) return;
 
@@ -156,7 +153,10 @@
   }
 
   function switchTabByOrder(reverse) {
-    const tabs = _.sortBy(get(openedTabs).filter(shouldShowTab), 'tabOrder');
+    const tabs = _.sortBy(
+      getOpenedTabs().filter(x => shouldShowTab(x)),
+      'tabOrder'
+    );
     if (reverse) tabs.reverse();
     const selectedTab = tabs.find(x => x.selected);
     if (!selectedTab) return;
@@ -234,7 +234,6 @@
 <script lang="ts">
   import _ from 'lodash';
   import { tick } from 'svelte';
-  import { derived, get } from 'svelte/store';
   import registerCommand from '../commands/registerCommand';
   import FontIcon from '../icons/FontIcon.svelte';
   import FavoriteModal from '../modals/FavoriteModal.svelte';
