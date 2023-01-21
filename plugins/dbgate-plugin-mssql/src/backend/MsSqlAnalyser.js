@@ -96,7 +96,7 @@ class MsSqlAnalyser extends DatabaseAnalyser {
     this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcolsRows = await this.analyserQuery('indexcols', ['tables']);
     this.feedback({ analysingMessage: 'Loading default schema' });
-    const defaultSchemaRows = await this.query(this.pool, 'SELECT SCHEMA_NAME() as name');
+    const defaultSchemaRows = await this.driver.query(this.pool, 'SELECT SCHEMA_NAME() as name');
     this.feedback({ analysingMessage: 'Loading table sizes' });
     const tableSizes = await this.analyserQuery('tableSizes');
 
