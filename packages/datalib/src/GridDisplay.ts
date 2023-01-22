@@ -722,22 +722,10 @@ export abstract class GridDisplay {
   }
 
   switchToFormView(rowIndex) {
-    // if (!this.baseTable) return;
-    // const { primaryKey } = this.baseTable;
-    // if (!primaryKey) return;
-    // const { columns } = primaryKey;
-
     this.setConfig(cfg => ({
       ...cfg,
       isFormView: true,
       formViewRecordNumber: rowIndex,
-      // formViewKey: rowData
-      //   ? _.pick(
-      //       rowData,
-      //       columns.map(x => x.columnName)
-      //     )
-      //   : null,
-      // formViewKeyRequested: null,
     }));
   }
 

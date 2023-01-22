@@ -36,13 +36,11 @@
   let isLoadedCount = false;
   let loadedTime = new Date().getTime();
   let allRowCount = null;
-  let rowCountBefore = null;
   let errorMessage = null;
 
   const handleLoadCurrentRow = async () => {
     if (isLoadingData) return;
     let newLoadedRow = false;
-    // if (_.isNumber(display.config.formViewRecordNumber)) {
     isLoadingData = true;
     const row = await loadRow($$props, display.getPageQuery(display.config.formViewRecordNumber || 0, 1));
     isLoadingData = false;
@@ -50,13 +48,6 @@
     rowData = row;
     loadedTime = new Date().getTime();
     newLoadedRow = row;
-    // }
-    // if (formDisplay.config.formViewKeyRequested && newLoadedRow) {
-    //   formDisplay.cancelRequestKey(newLoadedRow);
-    // }
-    // if (!newLoadedRow && !formDisplay.config.formViewKeyRequested) {
-    //   await handleNavigate('first');
-    // }
   };
 
   const handleLoadRowCount = async () => {
@@ -67,24 +58,10 @@
     isLoadedCount = true;
     isLoadingCount = false;
     allRowCount = countRow ? parseInt(countRow.count) : null;
-    // rowCountBefore = countBeforeRow ? parseInt(countBeforeRow.count) : null;
   };
 
   const handleNavigate = async command => {
     display.formViewNavigate(command, allRowCount);
-
-    // isLoadingData = true;
-    // const row = await loadRow($$props, formDisplay.navigateRowQuery(command));
-    // if (row) {
-    //   formDisplay.navigate(row);
-    // }
-    // isLoadingData = false;
-    // isLoadedData = true;
-    // isLoadedCount = false;
-    // allRowCount = null;
-    // rowCountBefore = null;
-    // rowData = row;
-    // loadedTime = new Date().getTime();
   };
 
   export function reload() {
@@ -95,7 +72,6 @@
     rowData = null;
     loadedTime = new Date().getTime();
     allRowCount = null;
-    rowCountBefore = null;
     errorMessage = null;
   }
 

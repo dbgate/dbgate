@@ -28,8 +28,6 @@ export interface GridConfig extends GridConfigColumns {
   reference?: GridReferenceDefinition;
   isFormView?: boolean;
   formViewRecordNumber?: number;
-  // formViewKey?: { [uniqueName: string]: string };
-  // formViewKeyRequested?: { [uniqueName: string]: string };
   formFilterColumns: string[];
   formColumnFilterText?: string;
 }
