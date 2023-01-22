@@ -20,9 +20,13 @@ function configureLogger() {
 
   let logger = pinoms({
     streams: [
-      { stream: process.stdout }, // an "info" level destination stream
+      {
+        stream: process.stdout,
+        level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+      },
       {
         stream: fs.createWriteStream(logsFilePath),
+        level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
       },
     ],
   });
