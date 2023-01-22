@@ -31,7 +31,7 @@
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
-    <FormTextField name="defaultValue" label="Default value" />
+    <FormTextField name="defaultValue" label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string" />
     <FormTextField name="computedExpression" label="Computed expression" />
     {#if driver?.dialect?.columnProperties?.isUnsigned}
       <FormCheckboxField name="isUnsigned" label="Unsigned" />
