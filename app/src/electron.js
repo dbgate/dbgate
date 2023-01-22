@@ -40,7 +40,7 @@ unhandled({
       }\n\`\`\`\n\n---\n\n${debugInfo()}\n\n\`\`\`\n${loadLogsContent ? loadLogsContent(50) : ''}\n\`\`\``,
     });
   },
-  logger: error => (getLogger ? getLogger().fatal(error) : console.error(error)),
+  logger: error => (getLogger ? getLogger('electron').fatal(error) : console.error(error)),
 });
 
 try {
