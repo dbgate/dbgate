@@ -29,6 +29,7 @@ const diff2htmlPage = require('../utility/diff2htmlPage');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
+const pipeForkLogs = require('../utility/pipeForkLogs');
 
 const logger = getLogger('databaseConnections');
 
@@ -88,13 +89,20 @@ module.exports = {
     if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
       throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
     }
-    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-      '--is-forked-api',
-      '--start-process',
-      'databaseConnectionProcess',
-      ...processArgs.getPassArgs(),
-      // ...process.argv.slice(3),
-    ]);
+    const subprocess = fork(
+      global['API_PACKAGE'] || process.argv[1],
+      [
+        '--is-forked-api',
+        '--start-process',
+        'databaseConnectionProcess',
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
+      ],
+      {
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      }
+    );
+    pipeForkLogs(subprocess);
     const lastClosed = this.closed[`${conid}/${database}`];
     const newOpened = {
       conid,

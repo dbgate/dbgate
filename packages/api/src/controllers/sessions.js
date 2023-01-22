@@ -9,6 +9,7 @@ const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
 const { getLogger } = require('dbgate-tools');
+const pipeForkLogs = require('../utility/pipeForkLogs');
 
 const logger = getLogger('sessions');
 
@@ -85,13 +86,20 @@ module.exports = {
   async create({ conid, database }) {
     const sesid = uuidv1();
     const connection = await connections.getCore({ conid });
-    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-      '--is-forked-api',
-      '--start-process',
-      'sessionProcess',
-      ...processArgs.getPassArgs(),
-      // ...process.argv.slice(3),
-    ]);
+    const subprocess = fork(
+      global['API_PACKAGE'] || process.argv[1],
+      [
+        '--is-forked-api',
+        '--start-process',
+        'sessionProcess',
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
+      ],
+      {
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      }
+    );
+    pipeForkLogs(subprocess);
     const newOpened = {
       conid,
       database,

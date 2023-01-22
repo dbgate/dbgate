@@ -6,6 +6,7 @@ const lock = new AsyncLock();
 const { fork } = require('child_process');
 const processArgs = require('../utility/processArgs');
 const { getLogger } = require('dbgate-tools');
+const pipeForkLogs = require('./pipeForkLogs');
 const logger = getLogger('sshTunnel');
 
 const sshTunnelCache = {};
@@ -23,12 +24,14 @@ const CONNECTION_FIELDS = [
 const TUNNEL_FIELDS = [...CONNECTION_FIELDS, 'server', 'port'];
 
 function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
-  let subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-    '--is-forked-api',
-    '--start-process',
-    'sshForwardProcess',
-    ...processArgs.getPassArgs(),
-  ]);
+  let subprocess = fork(
+    global['API_PACKAGE'] || process.argv[1],
+    ['--is-forked-api', '--start-process', 'sshForwardProcess', ...processArgs.getPassArgs()],
+    {
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+    }
+  );
+  pipeForkLogs(subprocess);
 
   subprocess.send({
     msgtype: 'connect',

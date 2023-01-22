@@ -15,6 +15,7 @@ const processArgs = require('../utility/processArgs');
 const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
+const pipeForkLogs = require('../utility/pipeForkLogs');
 
 const logger = getLogger('connections');
 
@@ -205,13 +206,20 @@ module.exports = {
 
   test_meta: true,
   test(connection) {
-    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-      '--is-forked-api',
-      '--start-process',
-      'connectProcess',
-      ...processArgs.getPassArgs(),
-      // ...process.argv.slice(3),
-    ]);
+    const subprocess = fork(
+      global['API_PACKAGE'] || process.argv[1],
+      [
+        '--is-forked-api',
+        '--start-process',
+        'connectProcess',
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
+      ],
+      {
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      }
+    );
+    pipeForkLogs(subprocess);
     subprocess.send(connection);
     return new Promise(resolve => {
       subprocess.on('message', resp => {
