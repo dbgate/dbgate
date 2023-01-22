@@ -2,7 +2,7 @@ import pino, { Logger } from 'pino';
 
 let _logger: Logger;
 let _name: string = null;
-const defaultLogger: Logger = pino();
+const defaultLogger: Logger = pino({ redact: { paths: ['hostname'], remove: true } });
 
 export function setLogger(value: Logger) {
   _logger = value;

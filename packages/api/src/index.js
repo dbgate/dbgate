@@ -32,6 +32,7 @@ function configureLogger() {
   setLoggerName('main');
 
   let logger = pinoms({
+    redact: { paths: ['hostname'], remove: true },
     streams: [
       {
         stream: process.stdout,
