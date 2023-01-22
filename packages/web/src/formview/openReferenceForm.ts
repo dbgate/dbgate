@@ -1,10 +1,8 @@
+import { getFilterValueExpression } from 'dbgate-filterparser';
 import _ from 'lodash';
 import openNewTab from '../utility/openNewTab';
 
 export default function openReferenceForm(rowData, column, conid, database) {
-  const formViewKey = _.fromPairs(
-    column.foreignKey.columns.map(({ refColumnName, columnName }) => [refColumnName, rowData[columnName]])
-  );
   openNewTab(
     {
       title: column.foreignKey.refTableName,
@@ -21,7 +19,12 @@ export default function openReferenceForm(rowData, column, conid, database) {
     {
       grid: {
         isFormView: true,
-        formViewKey,
+        filters: {
+          [column.foreignKey.columns[0].refColumnName]: getFilterValueExpression(
+            rowData[column.foreignKey.columns[0].columnName],
+            'string'
+          ),
+        },
       },
     },
     {
@@ -50,6 +53,13 @@ export function openPrimaryKeyForm(rowData, baseTable, conid, database) {
     {
       grid: {
         isFormView: true,
+        filters: {
+          [baseTable.primaryKey.columns[0].columnName]: getFilterValueExpression(
+            rowData[baseTable.primaryKey.columns[0].columnName],
+            'string'
+          ),
+        },
+
         formViewKey,
       },
     },

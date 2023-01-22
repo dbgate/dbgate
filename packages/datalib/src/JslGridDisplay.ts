@@ -48,5 +48,7 @@ export class JslGridDisplay extends GridDisplay {
     }
 
     if (!this.columns) this.columns = [];
+
+    this.formColumns = this.columns;
   }
 }

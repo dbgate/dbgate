@@ -15,6 +15,7 @@ export class ViewGridDisplay extends GridDisplay {
   ) {
     super(config, setConfig, cache, setCache, driver, serverVersion);
     this.columns = this.getDisplayColumns(view);
+    this.formColumns = this.columns;
     this.filterable = true;
     this.sortable = true;
     this.groupable = false;

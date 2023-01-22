@@ -70,6 +70,7 @@ export abstract class GridDisplay {
   }
   dialect: SqlDialect;
   columns: DisplayColumn[];
+  formColumns: DisplayColumn[] = [];
   baseTable?: TableInfo;
   baseView?: ViewInfo;
   baseCollection?: CollectionInfo;
@@ -329,6 +330,7 @@ export abstract class GridDisplay {
         ...cfg.filters,
         [uniqueName]: value,
       },
+      formViewRecordNumber: 0,
     }));
     this.reload();
   }
@@ -351,6 +353,7 @@ export abstract class GridDisplay {
     this.setConfig(cfg => ({
       ...cfg,
       filters: _.omit(cfg.filters, [uniqueName]),
+      formFilterColumns: (cfg.formFilterColumns || []).filter(x => x != uniqueName),
     }));
     this.reload();
   }
@@ -718,22 +721,11 @@ export abstract class GridDisplay {
     };
   }
 
-  switchToFormView(rowData) {
-    if (!this.baseTable) return;
-    const { primaryKey } = this.baseTable;
-    if (!primaryKey) return;
-    const { columns } = primaryKey;
-
+  switchToFormView(rowIndex) {
     this.setConfig(cfg => ({
       ...cfg,
       isFormView: true,
-      formViewKey: rowData
-        ? _.pick(
-            rowData,
-            columns.map(x => x.columnName)
-          )
-        : null,
-      formViewKeyRequested: null,
+      formViewRecordNumber: rowIndex,
     }));
   }
 
@@ -742,6 +734,36 @@ export abstract class GridDisplay {
       ...cfg,
       isJsonView: true,
     }));
+  }
+
+  formViewNavigate(command, allRowCount) {
+    switch (command) {
+      case 'begin':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: 0,
+        }));
+        break;
+      case 'previous':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max((cfg.formViewRecordNumber || 0) - 1, 0),
+        }));
+        break;
+      case 'next':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max((cfg.formViewRecordNumber || 0) + 1, 0),
+        }));
+        break;
+      case 'end':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max(allRowCount - 1, 0),
+        }));
+        break;
+    }
+    this.reload();
   }
 }
 

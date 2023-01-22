@@ -14,6 +14,7 @@ import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/T
 
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';
+  import SqlFormView from '../formview/SqlFormView.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
   import { extensions } from '../stores';
   import { useConnectionInfo, useDatabaseServerVersion, useViewInfo } from '../utility/metadataLoaders';
@@ -66,6 +67,7 @@ import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/T
       setCache={cache.update}
       focusOnVisible
       gridCoreComponent={SqlDataGridCore}
+      formViewComponent={SqlFormView}
     />
     <svelte:fragment slot="toolstrip">
       <ToolStripCommandButton command="dataGrid.refresh" />
