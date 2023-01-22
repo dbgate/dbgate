@@ -1,22 +1,22 @@
 const os = require('os');
 const path = require('path');
 const fs = require('fs');
+const _ = require('lodash');
 const cleanDirectory = require('./cleanDirectory');
 const platformInfo = require('./platformInfo');
 const processArgs = require('./processArgs');
 const consoleObjectWriter = require('../shell/consoleObjectWriter');
 const { getLogger } = require('dbgate-tools');
-const logger = getLogger('directories');
 
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
     if (clean && fs.existsSync(dir) && !platformInfo.isForkedApi) {
-      logger.info(`Cleaning directory ${dir}`);
-      cleanDirectory(dir);
+      getLogger('directories').info(`Cleaning directory ${dir}`);
+      cleanDirectory(dir, _.isNumber(clean) ? clean : null);
     }
     if (!fs.existsSync(dir)) {
-      logger.info(`Creating directory ${dir}`);
+      getLogger('directories').info(`Creating directory ${dir}`);
       fs.mkdirSync(dir);
     }
     createDirectories[dir] = true;
@@ -40,14 +40,12 @@ function datadir() {
   return dir;
 }
 
-const dirFunc =
-  (dirname, clean = false) =>
-  () => {
-    const dir = path.join(datadir(), dirname);
-    ensureDirectory(dir, clean);
+const dirFunc = (dirname, clean) => () => {
+  const dir = path.join(datadir(), dirname);
+  ensureDirectory(dir, clean);
 
-    return dir;
-  };
+  return dir;
+};
 
 const jsldir = dirFunc('jsl', true);
 const rundir = dirFunc('run', true);
@@ -56,6 +54,7 @@ const pluginsdir = dirFunc('plugins');
 const archivedir = dirFunc('archive');
 const appdir = dirFunc('apps');
 const filesdir = dirFunc('files');
+const logsdir = dirFunc('logs', 3600 * 24 * 7);
 
 function packagedPluginsDir() {
   // console.log('CALL DIR FROM', new Error('xxx').stack);
@@ -132,7 +131,7 @@ function migrateDataDir() {
       fs.renameSync(oldDir, newDir);
     }
   } catch (err) {
-    logger.error({ err }, 'Error migrating data dir');
+    getLogger('directories').error({ err }, 'Error migrating data dir');
   }
 }
 
@@ -148,6 +147,7 @@ module.exports = {
   ensureDirectory,
   pluginsdir,
   filesdir,
+  logsdir,
   packagedPluginsDir,
   packagedPluginList,
   getPluginBackendPath,
