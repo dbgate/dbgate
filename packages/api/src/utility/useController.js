@@ -2,7 +2,9 @@ const _ = require('lodash');
 const express = require('express');
 const getExpressPath = require('./getExpressPath');
 const { MissingCredentialsError } = require('./exceptions');
+const { getLogger } = require('dbgate-tools');
 
+const logger = getLogger('useController');
 /**
  * @param {string} route
  */
@@ -10,11 +12,11 @@ module.exports = function useController(app, electron, route, controller) {
   const router = express.Router();
 
   if (controller._init) {
-    console.log(`Calling init controller for controller ${route}`);
+    logger.info(`Calling init controller for controller ${route}`);
     try {
       controller._init();
     } catch (err) {
-      console.log(`Error initializing controller, exiting application`, err);
+      logger.error({ err }, `Error initializing controller, exiting application`);
       process.exit(1);
     }
   }
@@ -75,16 +77,16 @@ module.exports = function useController(app, electron, route, controller) {
         try {
           const data = await controller[key]({ ...req.body, ...req.query }, req);
           res.json(data);
-        } catch (e) {
-          console.log(e);
-          if (e instanceof MissingCredentialsError) {
+        } catch (err) {
+          logger.error({ err }, `Error when processing route ${route}/${key}`);
+          if (err instanceof MissingCredentialsError) {
             res.json({
               missingCredentials: true,
               apiErrorMessage: 'Missing credentials',
-              detail: e.detail,
+              detail: err.detail,
             });
           } else {
-            res.status(500).json({ apiErrorMessage: e.message });
+            res.status(500).json({ apiErrorMessage: err.message });
           }
         }
       });

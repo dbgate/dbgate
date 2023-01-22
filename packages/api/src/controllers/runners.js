@@ -6,10 +6,17 @@ const byline = require('byline');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
 const { rundir, uploadsdir, pluginsdir, getPluginBackendPath, packagedPluginList } = require('../utility/directories');
-const { extractShellApiPlugins, extractShellApiFunctionName, jsonScriptToJavascript } = require('dbgate-tools');
+const {
+  extractShellApiPlugins,
+  extractShellApiFunctionName,
+  jsonScriptToJavascript,
+  getLogger,
+  safeJsonParse,
+} = require('dbgate-tools');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const platformInfo = require('../utility/platformInfo');
+const logger = getLogger('runners');
 
 function extractPlugins(script) {
   const requireRegex = /\s*\/\/\s*@require\s+([^\s]+)\s*\n/g;
@@ -29,13 +36,14 @@ const requirePluginsTemplate = (plugins, isExport) =>
 
 const scriptTemplate = (script, isExport) => `
 const dbgateApi = require(${isExport ? `'dbgate-api'` : 'process.env.DBGATE_API'});
+const logger = dbgateApi.getLogger('script');
 dbgateApi.initializeApiEnvironment();
 ${requirePluginsTemplate(extractPlugins(script), isExport)}
 require=null;
 async function run() {
 ${script}
 await dbgateApi.finalizer.run();
-console.log('Finished job script');
+logger.info('Finished job script');
 }
 dbgateApi.runScript(run);
 `;
@@ -59,19 +67,17 @@ module.exports = {
   requests: {},
 
   dispatchMessage(runid, message) {
-    if (message) console.log('...', message.message);
-    if (_.isString(message)) {
-      socket.emit(`runner-info-${runid}`, {
-        message,
-        time: new Date(),
-        severity: 'info',
-      });
-    }
-    if (_.isPlainObject(message)) {
+    if (message) {
+      const json = safeJsonParse(message.message);
+
+      if (json) logger.info(json);
+      else logger.info(message.message);
+
       socket.emit(`runner-info-${runid}`, {
         time: new Date(),
         severity: 'info',
         ...message,
+        message: json ? json.msg : message.message,
       });
     }
   },
@@ -98,13 +104,15 @@ module.exports = {
     fs.writeFileSync(`${scriptFile}`, scriptText);
     fs.mkdirSync(directory);
     const pluginNames = _.union(fs.readdirSync(pluginsdir()), packagedPluginList);
-    console.log(`RUNNING SCRIPT ${scriptFile}`);
+    logger.info({ scriptFile }, 'Running script');
     // const subprocess = fork(scriptFile, ['--checkParent', '--max-old-space-size=8192'], {
     const subprocess = fork(
       scriptFile,
       [
         '--checkParent', // ...process.argv.slice(3)
         '--is-forked-api',
+        '--process-display-name',
+        'script',
         ...processArgs.getPassArgs(),
       ],
       {
@@ -124,7 +132,7 @@ module.exports = {
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
     subprocess.on('exit', code => {
       this.rejectRequest(runid, { message: 'No data retured, maybe input data source is too big' });
-      console.log('... EXIT process', code);
+      logger.info({ code, pid: subprocess.pid }, 'Exited process');
       socket.emit(`runner-done-${runid}`, code);
     });
     subprocess.on('error', error => {

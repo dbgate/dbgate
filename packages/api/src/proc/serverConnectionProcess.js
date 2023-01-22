@@ -1,9 +1,10 @@
 const stableStringify = require('json-stable-stringify');
-const { extractBoolSettingsValue, extractIntSettingsValue } = require('dbgate-tools');
+const { extractBoolSettingsValue, extractIntSettingsValue, getLogger } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
+const logger = getLogger('srvconnProcess');
 
 let systemConnection;
 let storedConnection;
@@ -101,7 +102,7 @@ async function handleDatabaseOp(op, { name }) {
   } else {
     const dmp = driver.createDumper();
     dmp[op](name);
-    console.log(`RUNNING SCRIPT: ${dmp.s}`);
+    logger.info({ sql: dmp.s }, 'Running script');
     await driver.query(systemConnection, dmp.s);
   }
   await handleRefresh();
@@ -146,7 +147,7 @@ function start() {
   setInterval(() => {
     const time = new Date().getTime();
     if (time - lastPing > 40 * 1000) {
-      console.log('Server connection not alive, exiting');
+      logger.info('Server connection not alive, exiting');
       process.exit(0);
     }
   }, 10 * 1000);

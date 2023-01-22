@@ -4,6 +4,9 @@ const connectUtility = require('../utility/connectUtility');
 const { splitQueryStream } = require('dbgate-query-splitter/lib/splitQueryStream');
 const download = require('./download');
 const stream = require('stream');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger('importDb');
 
 class ImportStream extends stream.Transform {
   constructor(pool, driver) {
@@ -38,11 +41,11 @@ function awaitStreamEnd(stream) {
 }
 
 async function importDatabase({ connection = undefined, systemConnection = undefined, driver = undefined, inputFile }) {
-  console.log(`Importing database`);
+  logger.info(`Importing database`);
 
   if (!driver) driver = requireEngineDriver(connection);
   const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
-  console.log(`Connected.`);
+  logger.info(`Connected.`);
 
   const downloadedFile = await download(inputFile);
 

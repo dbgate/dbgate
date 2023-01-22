@@ -2,7 +2,7 @@ const fs = require('fs-extra');
 const os = require('os');
 const path = require('path');
 const axios = require('axios');
-const { datadir } = require('../utility/directories');
+const { datadir, getLogsFilePath } = require('../utility/directories');
 const { hasPermission, getLogins } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
@@ -48,6 +48,8 @@ module.exports = {
       oauthScope: process.env.OAUTH_SCOPE,
       oauthLogout: process.env.OAUTH_LOGOUT,
       isLoginForm: !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH),
+      logsFilePath: getLogsFilePath(),
+      connectionsFilePath: path.join(datadir(), 'connections.jsonl'),
       ...currentVersion,
     };
   },

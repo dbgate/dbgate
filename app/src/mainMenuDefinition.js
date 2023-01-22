@@ -86,6 +86,9 @@ module.exports = ({ editMenu }) => [
       { command: 'sql.generator', hideDisabled: true },
       { command: 'file.import', hideDisabled: true },
       { command: 'new.modelCompare', hideDisabled: true },
+      { divider: true },
+      { command: 'folder.showLogs', hideDisabled: true },
+      { command: 'folder.showData', hideDisabled: true },
     ],
   },
   {

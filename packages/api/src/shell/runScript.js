@@ -1,5 +1,7 @@
+const { getLogger } = require('dbgate-tools');
 const childProcessChecker = require('../utility/childProcessChecker');
 const processArgs = require('../utility/processArgs');
+const logger = getLogger();
 
 async function runScript(func) {
   if (processArgs.checkParent) {
@@ -9,7 +11,7 @@ async function runScript(func) {
     await func();
     process.exit(0);
   } catch (err) {
-    console.log(err);
+    logger.error('Error running script', err);
     process.exit(1);
   }
 }

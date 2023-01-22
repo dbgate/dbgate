@@ -11,6 +11,7 @@ const startProcess = getNamedArg('--start-process');
 const isForkedApi = process.argv.includes('--is-forked-api');
 const pluginsDir = getNamedArg('--plugins-dir');
 const workspaceDir = getNamedArg('--workspace-dir');
+const processDisplayName = getNamedArg('--process-display-name');
 const listenApi = process.argv.includes('--listen-api');
 const listenApiChild = process.argv.includes('--listen-api-child') || listenApi;
 
@@ -37,4 +38,5 @@ module.exports = {
   workspaceDir,
   listenApi,
   listenApiChild,
+  processDisplayName,
 };

@@ -1,5 +1,8 @@
+const { getLogger } = require('dbgate-tools');
 const fs = require('fs');
 const stream = require('stream');
+
+const logger = getLogger('jsonArrayWriter');
 
 class StringifyStream extends stream.Transform {
   constructor() {
@@ -38,7 +41,7 @@ class StringifyStream extends stream.Transform {
 }
 
 async function jsonArrayWriter({ fileName, encoding = 'utf-8' }) {
-  console.log(`Writing file ${fileName}`);
+  logger.info(`Writing file ${fileName}`);
   const stringify = new StringifyStream();
   const fileStream = fs.createWriteStream(fileName, encoding);
   stringify.pipe(fileStream);

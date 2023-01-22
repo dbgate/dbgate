@@ -1,6 +1,9 @@
 const fs = require('fs');
 const stream = require('stream');
 const NodeXmlStream = require('node-xml-stream-parser');
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger('xmlReader');
 
 class ParseStream extends stream.Transform {
   constructor({ itemElementName }) {
@@ -56,7 +59,7 @@ class ParseStream extends stream.Transform {
 }
 
 async function reader({ fileName, encoding = 'utf-8', itemElementName }) {
-  console.log(`Reading file ${fileName}`);
+  logger.info(`Reading file ${fileName}`);
 
   const fileStream = fs.createReadStream(fileName, encoding);
   const parser = new ParseStream({ itemElementName });

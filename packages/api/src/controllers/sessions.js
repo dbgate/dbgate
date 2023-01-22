@@ -8,6 +8,10 @@ const path = require('path');
 const { handleProcessCommunication } = require('../utility/processComm');
 const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
+const { getLogger } = require('dbgate-tools');
+const pipeForkLogs = require('../utility/pipeForkLogs');
+
+const logger = getLogger('sessions');
 
 module.exports = {
   /** @type {import('dbgate-types').OpenedSession[]} */
@@ -82,13 +86,20 @@ module.exports = {
   async create({ conid, database }) {
     const sesid = uuidv1();
     const connection = await connections.getCore({ conid });
-    const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-      '--is-forked-api',
-      '--start-process',
-      'sessionProcess',
-      ...processArgs.getPassArgs(),
-      // ...process.argv.slice(3),
-    ]);
+    const subprocess = fork(
+      global['API_PACKAGE'] || process.argv[1],
+      [
+        '--is-forked-api',
+        '--start-process',
+        'sessionProcess',
+        ...processArgs.getPassArgs(),
+        // ...process.argv.slice(3),
+      ],
+      {
+        stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+      }
+    );
+    pipeForkLogs(subprocess);
     const newOpened = {
       conid,
       database,
@@ -120,7 +131,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    console.log(`Processing query, sesid=${sesid}, sql=${sql}`);
+    logger.info({ sesid, sql }, 'Processing query');
     this.dispatchMessage(sesid, 'Query execution started');
     session.subprocess.send({ msgtype: 'executeQuery', sql });
 
@@ -158,7 +169,7 @@ module.exports = {
       throw new Error('Invalid session');
     }
 
-    console.log(`Starting profiler, sesid=${sesid}`);
+    logger.info({ sesid }, 'Starting profiler');
     session.loadingReader_jslid = jslid;
     session.subprocess.send({ msgtype: 'startProfiler', jslid });
 

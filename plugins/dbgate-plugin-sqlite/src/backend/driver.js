@@ -4,6 +4,9 @@ const driverBase = require('../frontend/driver');
 const Analyser = require('./Analyser');
 const { splitQuery, sqliteSplitterOptions } = require('dbgate-query-splitter');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const { getLogger } = global.DBGATE_TOOLS;
+
+const logger = getLogger('sqliteDriver');
 
 let Database;
 
@@ -103,7 +106,7 @@ const driver = {
     try {
       inTransaction();
     } catch (error) {
-      console.log('ERROR', error);
+      logger.error({ error }, 'Stream error');
       const { message, procName } = error;
       options.info({
         message,

@@ -6,7 +6,9 @@
   "description": "Opensource database administration tool",
   "dependencies": {
     "electron-log": "^4.4.1",
+    "electron-unhandled": "^4.0.1",
     "electron-updater": "^4.6.1",
+    "electron-util": "^0.17.2",
     "lodash.clonedeepwith": "^4.5.0",
     "patch-package": "^6.4.7"
   },
@@ -113,7 +115,7 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "7.6.2",
-    "oracledb": "^5.5.0",
-    "msnodesqlv8": "^2.6.0"
+    "msnodesqlv8": "^2.6.0",
+    "oracledb": "^5.5.0"
   }
 }

@@ -3,11 +3,14 @@ const fs = require('fs');
 const { archivedir, resolveArchiveFolder } = require('../utility/directories');
 // const socket = require('../utility/socket');
 const jsonLinesWriter = require('./jsonLinesWriter');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger();
 
 function archiveWriter({ folderName, fileName }) {
   const dir = resolveArchiveFolder(folderName);
   if (!fs.existsSync(dir)) {
-    console.log(`Creating directory ${dir}`);
+    logger.info(`Creating directory ${dir}`);
     fs.mkdirSync(dir);
   }
   const jsonlFile = path.join(dir, `${fileName}.jsonl`);

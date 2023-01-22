@@ -1,5 +1,8 @@
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger('dumpDb');
 
 function doDump(dumper) {
   return new Promise((resolve, reject) => {
@@ -21,11 +24,11 @@ async function dumpDatabase({
   databaseName,
   schemaName,
 }) {
-  console.log(`Dumping database`);
+  logger.info(`Dumping database`);
 
   if (!driver) driver = requireEngineDriver(connection);
   const pool = systemConnection || (await connectUtility(driver, connection, 'read', { forceRowsAsObjects: true }));
-  console.log(`Connected.`);
+  logger.info(`Connected.`);
 
   const dumper = await driver.createBackupDumper(pool, {
     outputFile,

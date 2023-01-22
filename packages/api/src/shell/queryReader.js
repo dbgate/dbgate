@@ -1,5 +1,7 @@
 const requireEngineDriver = require('../utility/requireEngineDriver');
 const connectUtility = require('../utility/connectUtility');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger('queryReader');
 
 async function queryReader({
   connection,
@@ -14,12 +16,12 @@ async function queryReader({
   // if (!sql && !json) {
   //   throw new Error('One of sql or json must be set');
   // }
-  console.log(`Reading query ${query || sql}`);
+  logger.info({ sql: query || sql }, `Reading query`);
   // else console.log(`Reading query ${JSON.stringify(json)}`);
 
   const driver = requireEngineDriver(connection);
   const pool = await connectUtility(driver, connection, queryType == 'json' ? 'read' : 'script');
-  console.log(`Connected.`);
+  logger.info(`Connected.`);
   const reader =
     queryType == 'json' ? await driver.readJsonQuery(pool, query) : await driver.readQuery(pool, query || sql);
   return reader;

@@ -8,9 +8,12 @@ import type {
   ViewInfo,
 } from 'dbgate-types';
 import _flatten from 'lodash/flatten';
-import _uniqBy from 'lodash/uniqBy'
+import _uniqBy from 'lodash/uniqBy';
+import { getLogger } from './getLogger';
 import { SqlDumper } from './SqlDumper';
 import { extendDatabaseInfo } from './structureTools';
+
+const logger = getLogger('sqlGenerator');
 
 interface SqlGeneratorOptions {
   dropTables: boolean;
@@ -82,7 +85,7 @@ export class SqlGenerator {
   }
 
   private handleException = error => {
-    console.log('Unhandled error', error);
+    logger.error({ error }, 'Unhandled error');
     this.isUnhandledException = true;
   };
 

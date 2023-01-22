@@ -10,6 +10,7 @@ const config = require('./config');
 const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
+const pipeForkLogs = require('../utility/pipeForkLogs');
 
 module.exports = {
   opened: [],
@@ -53,13 +54,20 @@ module.exports = {
       if (connection.passwordMode == 'askPassword' || connection.passwordMode == 'askUser') {
         throw new MissingCredentialsError({ conid, passwordMode: connection.passwordMode });
       }
-      const subprocess = fork(global['API_PACKAGE'] || process.argv[1], [
-        '--is-forked-api',
-        '--start-process',
-        'serverConnectionProcess',
-        ...processArgs.getPassArgs(),
-        // ...process.argv.slice(3),
-      ]);
+      const subprocess = fork(
+        global['API_PACKAGE'] || process.argv[1],
+        [
+          '--is-forked-api',
+          '--start-process',
+          'serverConnectionProcess',
+          ...processArgs.getPassArgs(),
+          // ...process.argv.slice(3),
+        ],
+        {
+          stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+        }
+      );
+      pipeForkLogs(subprocess);
       const newOpened = {
         conid,
         subprocess,

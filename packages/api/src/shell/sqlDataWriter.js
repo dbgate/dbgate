@@ -1,8 +1,9 @@
 const fs = require('fs');
 const stream = require('stream');
 const path = require('path');
-const { driverBase } = require('dbgate-tools');
+const { driverBase, getLogger } = require('dbgate-tools');
 const requireEngineDriver = require('../utility/requireEngineDriver');
+const logger = getLogger('sqlDataWriter');
 
 class SqlizeStream extends stream.Transform {
   constructor({ fileName, dataName }) {
@@ -40,7 +41,7 @@ class SqlizeStream extends stream.Transform {
 }
 
 async function sqlDataWriter({ fileName, dataName, driver, encoding = 'utf-8' }) {
-  console.log(`Writing file ${fileName}`);
+  logger.info(`Writing file ${fileName}`);
   const stringify = new SqlizeStream({ fileName, dataName });
   const fileStream = fs.createWriteStream(fileName, encoding);
   stringify.pipe(fileStream);

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const stream = require('stream');
 const byline = require('byline');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger('jsonLinesReader');
 
 class ParseStream extends stream.Transform {
   constructor({ limitRows }) {
@@ -31,7 +33,7 @@ class ParseStream extends stream.Transform {
 }
 
 async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined }) {
-  console.log(`Reading file ${fileName}`);
+  logger.info(`Reading file ${fileName}`);
 
   const fileStream = fs.createReadStream(fileName, encoding);
   const liner = byline(fileStream);
