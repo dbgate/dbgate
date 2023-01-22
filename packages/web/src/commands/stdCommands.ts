@@ -452,6 +452,22 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'folder.showLogs',
+  category: 'Folder',
+  name: 'Open logs',
+  testEnabled: () => getElectron() != null,
+  onClick: () => electron.showItemInFolder(getCurrentConfig().logsFilePath),
+});
+
+registerCommand({
+  id: 'folder.showData',
+  category: 'Folder',
+  name: 'Open data folder',
+  testEnabled: () => getElectron() != null,
+  onClick: () => electron.showItemInFolder(getCurrentConfig().connectionsFilePath),
+});
+
+registerCommand({
   id: 'file.import',
   category: 'File',
   name: 'Import data',

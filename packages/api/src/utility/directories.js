@@ -8,6 +8,8 @@ const processArgs = require('./processArgs');
 const consoleObjectWriter = require('../shell/consoleObjectWriter');
 const { getLogger } = require('dbgate-tools');
 
+let logsFilePath;
+
 const createDirectories = {};
 const ensureDirectory = (dir, clean) => {
   if (!createDirectories[dir]) {
@@ -135,6 +137,14 @@ function migrateDataDir() {
   }
 }
 
+function setLogsFilePath(value) {
+  logsFilePath = value;
+}
+
+function getLogsFilePath() {
+  return logsFilePath;
+}
+
 migrateDataDir();
 
 module.exports = {
@@ -153,4 +163,6 @@ module.exports = {
   getPluginBackendPath,
   resolveArchiveFolder,
   clearArchiveLinksCache,
+  getLogsFilePath,
+  setLogsFilePath,
 };
