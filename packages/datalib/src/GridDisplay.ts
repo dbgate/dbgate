@@ -70,6 +70,7 @@ export abstract class GridDisplay {
   }
   dialect: SqlDialect;
   columns: DisplayColumn[];
+  formColumns: DisplayColumn[] = [];
   baseTable?: TableInfo;
   baseView?: ViewInfo;
   baseCollection?: CollectionInfo;

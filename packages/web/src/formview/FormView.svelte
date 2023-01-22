@@ -218,7 +218,7 @@
 
   $: rowCount = Math.floor((wrapperHeight - 22) / (rowHeight + 2));
 
-  $: columnChunks = _.chunk(display?.columns || [], rowCount) as any[][];
+  $: columnChunks = _.chunk(display?.formColumns || [], rowCount) as any[][];
 
   $: rowCountInfo = getRowCountInfo(allRowCount);
 
@@ -422,6 +422,7 @@
       const col = getCellColumn(currentCell);
       if (col.foreignKey) {
         display.toggleExpandedColumn(col.uniqueName, true);
+        display.reload();
       }
     }
 
@@ -429,6 +430,7 @@
       const col = getCellColumn(currentCell);
       if (col.foreignKey) {
         display.toggleExpandedColumn(col.uniqueName, false);
+        display.reload();
       }
     }
 
@@ -479,7 +481,7 @@
       columnIndex = incrementFunc(columnIndex);
       while (
         isInRange(columnIndex) &&
-        !filterName(display.config.formColumnFilterText, display.columns[columnIndex].columnName)
+        !filterName(display.config.formColumnFilterText, display.formColumns[columnIndex].columnName)
       ) {
         columnIndex = incrementFunc(columnIndex);
       }
@@ -487,13 +489,13 @@
         columnIndex = firstInRange;
         while (
           isInRange(columnIndex) &&
-          !filterName(display.config.formColumnFilterText, display.columns[columnIndex].columnName)
+          !filterName(display.config.formColumnFilterText, display.formColumns[columnIndex].columnName)
         ) {
           columnIndex = incrementFunc(columnIndex);
         }
       }
       if (!isInRange(columnIndex)) columnIndex = lastInRange;
-      return moveCurrentCell(columnIndex % display.columns.length, Math.floor(columnIndex / rowCount) * 2);
+      return moveCurrentCell(columnIndex % display.formColumns.length, Math.floor(columnIndex / rowCount) * 2);
     };
 
     if (isCtrlOrCommandKey(event)) {
@@ -514,7 +516,7 @@
           return findFilteredColumn(
             x => x - 1,
             x => x >= 0,
-            display.columns.length - 1,
+            display.formColumns.length - 1,
             0
           );
         }
@@ -524,9 +526,9 @@
         if (currentCell[1] % 2 == 0 && display.config.formColumnFilterText) {
           return findFilteredColumn(
             x => x + 1,
-            x => x < display.columns.length,
+            x => x < display.formColumns.length,
             0,
-            display.columns.length - 1
+            display.formColumns.length - 1
           );
         }
 
@@ -581,6 +583,7 @@
                     on:click={e => {
                       e.stopPropagation();
                       display.toggleExpandedColumn(col.uniqueName);
+                      display.reload();
                     }}
                   />
                 {:else}

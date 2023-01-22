@@ -51,6 +51,7 @@ export class TableGridDisplay extends GridDisplay {
     }
 
     this.columns = this.getDisplayColumns(this.table, []);
+    this.addFormDisplayColumns(this.getDisplayColumns(this.table, []));
     this.filterable = true;
     this.sortable = true;
     this.groupable = true;
@@ -61,6 +62,24 @@ export class TableGridDisplay extends GridDisplay {
       this.changeSetKeyFields = this.table.primaryKey
         ? this.table.primaryKey.columns.map(x => x.columnName)
         : this.table.columns.map(x => x.columnName);
+    }
+    
+    if (this.config.isFormView) {
+      this.addAllExpandedColumnsToSelected = true;
+      this.hintBaseColumns = this.formColumns;
+    }
+  }
+
+  addFormDisplayColumns(columns) {
+    for (const col of columns) {
+      this.formColumns.push(col);
+      if (this.isExpandedColumn(col.uniqueName)) {
+        const table = this.getFkTarget(col);
+        if (table) {
+          const subcolumns = this.getDisplayColumns(table, col.uniquePath);
+          this.addFormDisplayColumns(subcolumns);
+        }
+      }
     }
   }
 
