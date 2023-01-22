@@ -1,13 +1,13 @@
 <script lang="ts" context="module">
-  async function loadRow(props, select) {
-    const { conid, database } = props;
+  async function loadRow(props, index) {
+    const { jslid, formatterFunction, display } = props;
 
-    if (!select) return null;
-
-    const response = await apiCall('database-connections/sql-select', {
-      conid,
-      database,
-      select,
+    const response = await apiCall('jsldata/get-rows', {
+      jslid,
+      offset: index,
+      limit: 1,
+      formatterFunction,
+      filters: display ? display.compileFilters() : null,
     });
 
     if (response.errorMessage) return response;
@@ -23,12 +23,11 @@
   export let display;
 
   async function handleLoadRow() {
-    return await loadRow($$props, display.getPageQuery(display.config.formViewRecordNumber || 0, 1));
+    return await loadRow($$props, display.config.formViewRecordNumber || 0);
   }
 
   async function handleLoadRowCount() {
-    const countRow = await loadRow($$props, display.getCountQuery());
-    return countRow ? parseInt(countRow.count) : null;
+    return null;
   }
 </script>
 

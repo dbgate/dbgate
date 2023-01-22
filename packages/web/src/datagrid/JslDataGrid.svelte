@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
   import { writable } from 'svelte/store';
+  import JslFormView from '../formview/JslFormView.svelte';
   import { apiOff, apiOn, useApiCall } from '../utility/api';
   import useEffect from '../utility/useEffect';
 
@@ -56,6 +57,7 @@
     {display}
     {jslid}
     gridCoreComponent={JslDataGridCore}
+    formViewComponent={JslFormView}
     bind:loadedRows
     isDynamicStructure={$info?.__isDynamicStructure}
     useEvalFilters
