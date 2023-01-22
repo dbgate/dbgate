@@ -4,10 +4,10 @@
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import keycodes from '../utility/keycodes';
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
-  import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
+  // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
 
   export let managerSize;
-  export let formDisplay;
+  export let display;
   export let setConfig;
 
   export let driver;
@@ -16,9 +16,9 @@
   export let schemaName;
   export let pureName;
 
-  $: baseTable = formDisplay?.baseTable;
-  $: formFilterColumns = formDisplay?.config?.formFilterColumns;
-  $: filters = formDisplay?.config?.filters;
+  $: baseTable = display?.baseTable;
+  $: formFilterColumns = display?.config?.formFilterColumns;
+  $: filters = display?.config?.filters;
 
   $: allFilterNames = _.union(_.keys(filters || {}), formFilterColumns || []);
 </script>
@@ -28,7 +28,7 @@
   <div class="flex">
     <input
       type="text"
-      value={formDisplay?.config?.formColumnFilterText || ''}
+      value={display?.config?.formColumnFilterText || ''}
       on:keydown={e => {
         if (e.keyCode == keycodes.escape) {
           setConfig(x => ({
@@ -47,23 +47,17 @@
   </div>
 </div>
 
-{#if baseTable?.primaryKey}
-  <ManagerInnerContainer width={managerSize}>
-    {#each baseTable.primaryKey.columns as col}
-      <PrimaryKeyFilterEditor {baseTable} column={col} {formDisplay} />
-    {/each}
-
-    {#each allFilterNames as uniqueName}
-      <FormViewFilterColumn
-        column={formDisplay.columns.find(x => x.uniqueName == uniqueName)}
-        {formDisplay}
-        {filters}
-        {driver}
-        {conid}
-        {database}
-        {schemaName}
-        {pureName}
-      />
-    {/each}
-  </ManagerInnerContainer>
-{/if}
+<ManagerInnerContainer width={managerSize}>
+  {#each allFilterNames as uniqueName}
+    <FormViewFilterColumn
+      column={display.formColumns.find(x => x.uniqueName == uniqueName)}
+      {display}
+      {filters}
+      {driver}
+      {conid}
+      {database}
+      {schemaName}
+      {pureName}
+    />
+  {/each}
+</ManagerInnerContainer>

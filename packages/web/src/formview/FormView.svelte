@@ -155,6 +155,8 @@
 </script>
 
 <script lang="ts">
+  import { getFilterValueExpression } from 'dbgate-filterparser';
+
   import { filterName } from 'dbgate-tools';
 
   import _ from 'lodash';
@@ -223,7 +225,14 @@
   $: rowCountInfo = getRowCountInfo(allRowCount);
 
   function getRowCountInfo(allRowCount) {
-    if (rowData == null) return 'No data';
+    if (rowData == null) {
+      if (allRowCount != null) {
+        return `Out of bounds: ${(
+          (display.config.formViewRecordNumber || 0) + 1
+        ).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+      }
+      return 'No data';
+    }
     if (allRowCount == null || display == null) return 'Loading row count...';
     return `Row: ${(
       (display.config.formViewRecordNumber || 0) + 1
@@ -274,11 +283,33 @@
   }
 
   export function filterSelectedValue() {
-    // display.filterCellValue(getCellColumn(currentCell), rowData);
+    const column = getCellColumn(currentCell);
+    if (!column || !rowData) return;
+    const value = rowData[column.uniqueName];
+    const expr = getFilterValueExpression(value, column.dataType);
+    if (expr) {
+      setConfig(cfg => ({
+        ...cfg,
+        formViewRecordNumber: 0,
+        filters: {
+          ...cfg.filters,
+          [column.uniqueName]: expr,
+        },
+        addedColumns: cfg.addedColumns.includes(column.uniqueName)
+          ? cfg.addedColumns
+          : [...cfg.addedColumns, column.uniqueName],
+      }));
+      display.reload();
+    }
   }
 
   export function addToFilter() {
-    // display.addFilterColumn(getCellColumn(currentCell));
+    const column = getCellColumn(currentCell);
+    if (!column) return;
+    setConfig(cfg => ({
+      ...cfg,
+      formFilterColumns: [...(cfg.formFilterColumns || []), column.uniqueName],
+    }));
   }
 
   export const activator = createActivator('FormView', false);

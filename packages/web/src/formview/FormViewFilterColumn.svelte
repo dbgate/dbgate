@@ -8,7 +8,7 @@
   import FontIcon from '../icons/FontIcon.svelte';
 
   export let column;
-  export let formDisplay;
+  export let display;
   export let filters;
 
   export let driver;
@@ -26,7 +26,7 @@
         square
         narrow
         on:click={() => {
-          formDisplay.removeFilter(column.uniqueName);
+          display.removeFilter(column.uniqueName);
         }}
       >
         <FontIcon icon="icon close" />
@@ -35,7 +35,7 @@
     <DataFilterControl
       filterType={getFilterType(column.dataType)}
       filter={filters[column.uniqueName]}
-      setFilter={value => formDisplay.setFilter(column.uniqueName, value)}
+      setFilter={value => display.setFilter(column.uniqueName, value)}
       {driver}
       {conid}
       {database}

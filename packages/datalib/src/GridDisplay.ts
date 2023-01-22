@@ -330,6 +330,7 @@ export abstract class GridDisplay {
         ...cfg.filters,
         [uniqueName]: value,
       },
+      formViewRecordNumber: 0,
     }));
     this.reload();
   }
@@ -762,7 +763,7 @@ export abstract class GridDisplay {
       case 'next':
         this.setConfig(cfg => ({
           ...cfg,
-          formViewRecordNumber: Math.max(Math.min((cfg.formViewRecordNumber || 0) + 1, allRowCount - 1), 0),
+          formViewRecordNumber: Math.max((cfg.formViewRecordNumber || 0) + 1, 0),
         }));
         break;
       case 'end':

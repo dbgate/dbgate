@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import ColumnLabel from '../elements/ColumnLabel.svelte';
   import InlineButton from '../buttons/InlineButton.svelte';
 
@@ -48,4 +48,4 @@
   <div class="flex">
     <input bind:this={domEditor} type="text" on:blur={applyFilter} on:keydown={handleKeyDown} />
   </div>
-</div>
+</div> -->
