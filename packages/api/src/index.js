@@ -5,7 +5,7 @@ const pinoms = require('pino-multi-stream');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
-const { logsdir, setLogsFilePath } = require('./utility/directories');
+const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
 
 if (processArgs.startProcess) {
   setLoggerName(processArgs.startProcess.replace(/Process$/, ''));
@@ -14,9 +14,22 @@ if (processArgs.processDisplayName) {
   setLoggerName(processArgs.processDisplayName);
 }
 
+function loadLogsContent(maxLines) {
+  const text = fs.readFileSync(getLogsFilePath(), { encoding: 'utf8' });
+  if (maxLines) {
+    const lines = text
+      .split('\n')
+      .map(x => x.trim())
+      .filter(x => x);
+    return lines.slice(-maxLines).join('\n');
+  }
+  return text;
+}
+
 function configureLogger() {
   const logsFilePath = path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`);
   setLogsFilePath(logsFilePath);
+  setLoggerName('main');
 
   let logger = pinoms({
     streams: [
@@ -58,5 +71,6 @@ module.exports = {
   ...shell,
   getLogger,
   configureLogger,
+  loadLogsContent,
   getMainModule: () => require('./main'),
 };

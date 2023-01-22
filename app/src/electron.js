@@ -1,6 +1,8 @@
 const electron = require('electron');
 const os = require('os');
 const fs = require('fs');
+const unhandled = require('electron-unhandled');
+const { openNewGitHubIssue, debugInfo } = require('electron-util');
 const { Menu, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
@@ -22,8 +24,24 @@ const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
 let mainModule;
+let getLogger;
+let loadLogsContent;
 
 const isMac = () => os.platform() == 'darwin';
+
+unhandled({
+  showDialog: true,
+  reportButton: error => {
+    openNewGitHubIssue({
+      user: 'dbgate',
+      repo: 'dbgate',
+      body: `PLEASE DELETE SENSITIVE INFO BEFORE POSTING ISSUE!!!\n\n\`\`\`\n${
+        error.stack
+      }\n\`\`\`\n\n---\n\n${debugInfo()}\n\n\`\`\`\n${loadLogsContent ? loadLogsContent(50) : ''}\n\`\`\``,
+    });
+  },
+  logger: error => (getLogger ? getLogger().fatal(error) : console.error(error)),
+});
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
@@ -337,6 +355,8 @@ function createWindow() {
     const main = api.getMainModule();
     main.useAllControllers(null, electron);
     mainModule = main;
+    getLogger = api.getLogger;
+    loadLogsContent = api.loadLogsContent;
     apiLoaded = true;
   }
   mainModule.setElectronSender(mainWindow.webContents);
