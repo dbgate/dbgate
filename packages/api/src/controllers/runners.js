@@ -111,6 +111,8 @@ module.exports = {
       [
         '--checkParent', // ...process.argv.slice(3)
         '--is-forked-api',
+        '--process-display-name',
+        'script',
         ...processArgs.getPassArgs(),
       ],
       {

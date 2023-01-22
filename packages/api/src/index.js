@@ -1,4 +1,4 @@
-const { setLogger, getLogger } = require('dbgate-tools');
+const { setLogger, getLogger, setLoggerName } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const pino = require('pino');
 const pinoms = require('pino-multi-stream');
@@ -7,13 +7,24 @@ const moment = require('moment');
 const path = require('path');
 const { logsdir } = require('./utility/directories');
 
+if (processArgs.startProcess) {
+  setLoggerName(processArgs.startProcess.replace(/Process$/, ''));
+}
+if (processArgs.processDisplayName) {
+  setLoggerName(processArgs.processDisplayName);
+}
+
 if (processArgs.listenApi) {
   // configure logger
 
-  var logger = pinoms({
+  let logger = pinoms({
     streams: [
       { stream: process.stdout }, // an "info" level destination stream
-      { stream: fs.createWriteStream(path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`)) },
+      {
+        stream: fs.createWriteStream(
+          path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`)
+        ),
+      },
     ],
   });
 
