@@ -14,9 +14,7 @@ if (processArgs.processDisplayName) {
   setLoggerName(processArgs.processDisplayName);
 }
 
-if (processArgs.listenApi) {
-  // configure logger
-
+function configureLogger() {
   const logsFilePath = path.join(logsdir(), `${moment().format('YYYY-MM-DD-HH-mm')}-${process.pid}.ndjson`);
   setLogsFilePath(logsFilePath);
 
@@ -30,6 +28,10 @@ if (processArgs.listenApi) {
   });
 
   setLogger(logger);
+}
+
+if (processArgs.listenApi) {
+  configureLogger();
 }
 
 const shell = require('./shell');
@@ -51,5 +53,6 @@ if (processArgs.listenApi) {
 module.exports = {
   ...shell,
   getLogger,
+  configureLogger,
   getMainModule: () => require('./main'),
 };

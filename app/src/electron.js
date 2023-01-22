@@ -333,6 +333,7 @@ function createWindow() {
     //     path.join(__dirname, process.env.DEVMODE ? '../../packages/api/src/index' : '../packages/api/dist/bundle.js')
     //   )
     // );
+    api.configureLogger();
     const main = api.getMainModule();
     main.useAllControllers(null, electron);
     mainModule = main;
