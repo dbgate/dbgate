@@ -27,8 +27,9 @@ export interface GridConfig extends GridConfigColumns {
   childConfig?: GridConfig;
   reference?: GridReferenceDefinition;
   isFormView?: boolean;
-  formViewKey?: { [uniqueName: string]: string };
-  formViewKeyRequested?: { [uniqueName: string]: string };
+  formViewRecordNumber?: number;
+  // formViewKey?: { [uniqueName: string]: string };
+  // formViewKeyRequested?: { [uniqueName: string]: string };
   formFilterColumns: string[];
   formColumnFilterText?: string;
 }

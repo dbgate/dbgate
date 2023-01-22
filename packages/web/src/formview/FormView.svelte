@@ -39,8 +39,8 @@
     category: 'Data form',
     name: 'Revert row changes',
     keyText: 'CtrlOrCommand+U',
-    testEnabled: () => getCurrentDataForm()?.getFormer()?.containsChanges,
-    onClick: () => getCurrentDataForm().getFormer().revertRowChanges(),
+    testEnabled: () => getCurrentDataForm()?.getGrider()?.containsChanges,
+    onClick: () => getCurrentDataForm().getGrider().revertRowChanges(0),
   });
 
   registerCommand({
@@ -60,8 +60,8 @@
     icon: 'icon undo',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentDataForm()?.getFormer()?.canUndo,
-    onClick: () => getCurrentDataForm().getFormer().undo(),
+    testEnabled: () => getCurrentDataForm()?.getGrider()?.canUndo,
+    onClick: () => getCurrentDataForm().getGrider().undo(),
   });
 
   registerCommand({
@@ -72,8 +72,8 @@
     icon: 'icon redo',
     toolbar: true,
     isRelatedToTab: true,
-    testEnabled: () => getCurrentDataForm()?.getFormer()?.canRedo,
-    onClick: () => getCurrentDataForm().getFormer().redo(),
+    testEnabled: () => getCurrentDataForm()?.getGrider()?.canRedo,
+    onClick: () => getCurrentDataForm().getGrider().redo(),
   });
 
   registerCommand({
@@ -194,8 +194,9 @@
   export let allRowCount;
   export let rowCountBefore;
   export let isLoading;
-  export let former;
-  export let formDisplay;
+  export let grider;
+  export let display;
+  // export let formDisplay;
   export let onNavigate;
 
   let wrapperHeight = 1;
@@ -212,23 +213,25 @@
     domFocusField.focus();
   }
 
-  $: rowData = former?.rowData;
-  $: rowStatus = former?.rowStatus;
+  $: rowData = grider?.getRowData(0);
+  $: rowStatus = grider?.getRowStatus(0);
 
   $: rowCount = Math.floor((wrapperHeight - 22) / (rowHeight + 2));
 
-  $: columnChunks = _.chunk(formDisplay.columns, rowCount) as any[][];
+  $: columnChunks = _.chunk(display?.columns || [], rowCount) as any[][];
 
-  $: rowCountInfo = getRowCountInfo(rowCountBefore, allRowCount);
+  $: rowCountInfo = getRowCountInfo(allRowCount);
 
-  function getRowCountInfo(rowCountBefore, allRowCount) {
+  function getRowCountInfo(allRowCount) {
     if (rowData == null) return 'No data';
-    if (allRowCount == null || rowCountBefore == null) return 'Loading row count...';
-    return `Row: ${(rowCountBefore + 1).toLocaleString()} / ${allRowCount.toLocaleString()}`;
+    if (allRowCount == null || display == null) return 'Loading row count...';
+    return `Row: ${(
+      (display.config.formViewRecordNumber || 0) + 1
+    ).toLocaleString()} / ${allRowCount.toLocaleString()}`;
   }
 
-  export function getFormer() {
-    return former;
+  export function getGrider() {
+    return grider;
   }
 
   // export function getFormDisplay() {
@@ -263,19 +266,19 @@
 
   export async function reconnect() {
     await apiCall('database-connections/refresh', { conid, database });
-    formDisplay.reload();
+    display.reload();
   }
 
   export async function refresh() {
-    formDisplay.reload();
+    display.reload();
   }
 
   export function filterSelectedValue() {
-    formDisplay.filterCellValue(getCellColumn(currentCell), rowData);
+    // display.filterCellValue(getCellColumn(currentCell), rowData);
   }
 
   export function addToFilter() {
-    formDisplay.addFilterColumn(getCellColumn(currentCell));
+    // display.addFilterColumn(getCellColumn(currentCell));
   }
 
   export const activator = createActivator('FormView', false);
@@ -319,7 +322,7 @@
   function setCellValue(cell, value) {
     const column = getCellColumn(cell);
     if (!column) return;
-    former.setCellValue(column.uniqueName, value);
+    grider.setCellValue(0, column.uniqueName, value);
   }
 
   const getCellWidth = (row, col) => {
@@ -331,7 +334,7 @@
   const [inplaceEditorState, dispatchInsplaceEditor] = createReducer((state, action) => {
     switch (action.type) {
       case 'show': {
-        if (!former.editable) return {};
+        if (!grider.editable) return {};
         const column = getCellColumn(action.cell);
         if (!column) return state;
         if (column.uniquePath.length > 1) return state;
@@ -418,14 +421,14 @@
     if (event.keyCode == keycodes.numPadAdd) {
       const col = getCellColumn(currentCell);
       if (col.foreignKey) {
-        formDisplay.toggleExpandedColumn(col.uniqueName, true);
+        display.toggleExpandedColumn(col.uniqueName, true);
       }
     }
 
     if (event.keyCode == keycodes.numPadSub) {
       const col = getCellColumn(currentCell);
       if (col.foreignKey) {
-        formDisplay.toggleExpandedColumn(col.uniqueName, false);
+        display.toggleExpandedColumn(col.uniqueName, false);
       }
     }
 
@@ -448,7 +451,7 @@
     if (shouldOpenMultilineDialog(cellData)) {
       showModal(EditCellDataModal, {
         value: cellData,
-        onSave: value => former.setCellValue(column.uniqueName, value),
+        onSave: value => grider.setCellValue(0, column.uniqueName, value),
       });
       return true;
     }
@@ -476,7 +479,7 @@
       columnIndex = incrementFunc(columnIndex);
       while (
         isInRange(columnIndex) &&
-        !filterName(formDisplay.config.formColumnFilterText, formDisplay.columns[columnIndex].columnName)
+        !filterName(display.config.formColumnFilterText, display.columns[columnIndex].columnName)
       ) {
         columnIndex = incrementFunc(columnIndex);
       }
@@ -484,13 +487,13 @@
         columnIndex = firstInRange;
         while (
           isInRange(columnIndex) &&
-          !filterName(formDisplay.config.formColumnFilterText, formDisplay.columns[columnIndex].columnName)
+          !filterName(display.config.formColumnFilterText, display.columns[columnIndex].columnName)
         ) {
           columnIndex = incrementFunc(columnIndex);
         }
       }
       if (!isInRange(columnIndex)) columnIndex = lastInRange;
-      return moveCurrentCell(columnIndex % formDisplay.columns.length, Math.floor(columnIndex / rowCount) * 2);
+      return moveCurrentCell(columnIndex % display.columns.length, Math.floor(columnIndex / rowCount) * 2);
     };
 
     if (isCtrlOrCommandKey(event)) {
@@ -507,23 +510,23 @@
       case keycodes.rightArrow:
         return moveCurrentCell(currentCell[0], currentCell[1] + 1);
       case keycodes.upArrow:
-        if (currentCell[1] % 2 == 0 && formDisplay.config.formColumnFilterText) {
+        if (currentCell[1] % 2 == 0 && display.config.formColumnFilterText) {
           return findFilteredColumn(
             x => x - 1,
             x => x >= 0,
-            formDisplay.columns.length - 1,
+            display.columns.length - 1,
             0
           );
         }
 
         return moveCurrentCell(currentCell[0] - 1, currentCell[1]);
       case keycodes.downArrow:
-        if (currentCell[1] % 2 == 0 && formDisplay.config.formColumnFilterText) {
+        if (currentCell[1] % 2 == 0 && display.config.formColumnFilterText) {
           return findFilteredColumn(
             x => x + 1,
-            x => x < formDisplay.columns.length,
+            x => x < display.columns.length,
             0,
-            formDisplay.columns.length - 1
+            display.columns.length - 1
           );
         }
 
@@ -547,10 +550,10 @@
     showModal(DictionaryLookupModal, {
       conid,
       database,
-      driver: formDisplay?.driver,
+      driver: display?.driver,
       pureName: col.foreignKey.refTableName,
       schemaName: col.foreignKey.refSchemaName,
-      onConfirm: value => former.setCellValue(col.uniqueName, value),
+      onConfirm: value => grider.setCellValue(0, col.uniqueName, value),
     });
   }
 </script>
@@ -566,18 +569,18 @@
               data-row={rowIndex}
               data-col={chunkIndex * 2}
               style={rowHeight > 1 ? `height: ${rowHeight}px` : undefined}
-              class:columnFiltered={formDisplay.config.formColumnFilterText &&
-                filterName(formDisplay.config.formColumnFilterText, col.columnName)}
+              class:columnFiltered={display.config.formColumnFilterText &&
+                filterName(display.config.formColumnFilterText, col.columnName)}
               class:isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2}
               bind:this={domCells[`${rowIndex},${chunkIndex * 2}`]}
             >
               <div class="header-cell-inner">
                 {#if col.foreignKey}
                   <FontIcon
-                    icon={plusExpandIcon(formDisplay.isExpandedColumn(col.uniqueName))}
+                    icon={plusExpandIcon(display.isExpandedColumn(col.uniqueName))}
                     on:click={e => {
                       e.stopPropagation();
-                      formDisplay.toggleExpandedColumn(col.uniqueName);
+                      display.toggleExpandedColumn(col.uniqueName);
                     }}
                   />
                 {:else}
@@ -614,7 +617,7 @@
                   {dispatchInsplaceEditor}
                   cellValue={rowData[col.uniqueName]}
                   onSetValue={value => {
-                    former.setCellValue(col.uniqueName, value);
+                    grider.setCellValue(0, col.uniqueName, value);
                   }}
                 />
               {/if}

@@ -16,17 +16,18 @@
 </script>
 
 <script lang="ts">
-  import ChangeSetFormer from './ChangeSetFormer';
   import FormView from './FormView.svelte';
   import { apiCall } from '../utility/api';
+  import ChangeSetGrider from '../datagrid/ChangeSetGrider';
+  import _ from 'lodash';
 
-  export let formDisplay;
   export let changeSetState;
   export let dispatchChangeSet;
   export let masterLoadedTime;
   export let conid;
   export let database;
   export let onReferenceSourceChanged;
+  export let display;
 
   let isLoadingData = false;
   let isLoadedData = false;
@@ -41,47 +42,49 @@
   const handleLoadCurrentRow = async () => {
     if (isLoadingData) return;
     let newLoadedRow = false;
-    if (formDisplay.config.formViewKeyRequested || formDisplay.config.formViewKey) {
-      isLoadingData = true;
-      const row = await loadRow($$props, formDisplay.getCurrentRowQuery());
-      isLoadingData = false;
-      isLoadedData = true;
-      rowData = row;
-      loadedTime = new Date().getTime();
-      newLoadedRow = row;
-    }
-    if (formDisplay.config.formViewKeyRequested && newLoadedRow) {
-      formDisplay.cancelRequestKey(newLoadedRow);
-    }
-    if (!newLoadedRow && !formDisplay.config.formViewKeyRequested) {
-      await handleNavigate('first');
-    }
+    // if (_.isNumber(display.config.formViewRecordNumber)) {
+    isLoadingData = true;
+    const row = await loadRow($$props, display.getPageQuery(display.config.formViewRecordNumber || 0, 1));
+    isLoadingData = false;
+    isLoadedData = true;
+    rowData = row;
+    loadedTime = new Date().getTime();
+    newLoadedRow = row;
+    // }
+    // if (formDisplay.config.formViewKeyRequested && newLoadedRow) {
+    //   formDisplay.cancelRequestKey(newLoadedRow);
+    // }
+    // if (!newLoadedRow && !formDisplay.config.formViewKeyRequested) {
+    //   await handleNavigate('first');
+    // }
   };
 
   const handleLoadRowCount = async () => {
     isLoadingCount = true;
-    const countRow = await loadRow($$props, formDisplay.getCountQuery());
-    const countBeforeRow = await loadRow($$props, formDisplay.getBeforeCountQuery());
+    const countRow = await loadRow($$props, display.getCountQuery());
+    // const countBeforeRow = await loadRow($$props, formDisplay.getBeforeCountQuery());
 
     isLoadedCount = true;
     isLoadingCount = false;
     allRowCount = countRow ? parseInt(countRow.count) : null;
-    rowCountBefore = countBeforeRow ? parseInt(countBeforeRow.count) : null;
+    // rowCountBefore = countBeforeRow ? parseInt(countBeforeRow.count) : null;
   };
 
   const handleNavigate = async command => {
-    isLoadingData = true;
-    const row = await loadRow($$props, formDisplay.navigateRowQuery(command));
-    if (row) {
-      formDisplay.navigate(row);
-    }
-    isLoadingData = false;
-    isLoadedData = true;
-    isLoadedCount = false;
-    allRowCount = null;
-    rowCountBefore = null;
-    rowData = row;
-    loadedTime = new Date().getTime();
+    display.formViewNavigate(command, allRowCount);
+
+    // isLoadingData = true;
+    // const row = await loadRow($$props, formDisplay.navigateRowQuery(command));
+    // if (row) {
+    //   formDisplay.navigate(row);
+    // }
+    // isLoadingData = false;
+    // isLoadedData = true;
+    // isLoadedCount = false;
+    // allRowCount = null;
+    // rowCountBefore = null;
+    // rowData = row;
+    // loadedTime = new Date().getTime();
   };
 
   export function reload() {
@@ -98,26 +101,26 @@
 
   $: {
     if (masterLoadedTime && masterLoadedTime > loadedTime) {
-      formDisplay.reload();
+      display.reload();
     }
   }
 
   $: {
-    if (formDisplay.cache.refreshTime > loadedTime) {
+    if (display?.cache?.refreshTime > loadedTime) {
       reload();
     }
   }
 
   $: {
-    if (formDisplay.isLoadedCorrectly) {
+    if (display?.isLoadedCorrectly) {
       if (!isLoadedData && !isLoadingData) handleLoadCurrentRow();
       if (isLoadedData && !isLoadingCount && !isLoadedCount) handleLoadRowCount();
     }
   }
 
-  $: former = new ChangeSetFormer(rowData, changeSetState, dispatchChangeSet, formDisplay);
+  $: grider = new ChangeSetGrider(rowData ? [rowData] : [], changeSetState, dispatchChangeSet, display);
 
   $: if (onReferenceSourceChanged && rowData) onReferenceSourceChanged([rowData], loadedTime);
 </script>
 
-<FormView {...$$props} {former} isLoading={isLoadingData} {allRowCount} {rowCountBefore} onNavigate={handleNavigate} />
+<FormView {...$$props} {grider} isLoading={isLoadingData} {allRowCount} onNavigate={handleNavigate} />

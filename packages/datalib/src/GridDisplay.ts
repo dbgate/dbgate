@@ -743,6 +743,36 @@ export abstract class GridDisplay {
       isJsonView: true,
     }));
   }
+
+  formViewNavigate(command, allRowCount) {
+    switch (command) {
+      case 'begin':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: 0,
+        }));
+        break;
+      case 'previous':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max((cfg.formViewRecordNumber || 0) - 1, 0),
+        }));
+        break;
+      case 'next':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max(Math.min((cfg.formViewRecordNumber || 0) + 1, allRowCount - 1), 0),
+        }));
+        break;
+      case 'end':
+        this.setConfig(cfg => ({
+          ...cfg,
+          formViewRecordNumber: Math.max(allRowCount - 1, 0),
+        }));
+        break;
+    }
+    this.reload();
+  }
 }
 
 export function reloadDataCacheFunc(cache: GridCache): GridCache {

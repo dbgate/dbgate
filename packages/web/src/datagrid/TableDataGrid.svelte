@@ -3,7 +3,7 @@
     createGridCache,
     createGridConfig,
     runMacroOnChangeSet,
-    TableFormViewDisplay,
+    // TableFormViewDisplay,
     TableGridDisplay,
   } from 'dbgate-datalib';
   import { getFilterValueExpression } from 'dbgate-filterparser';
@@ -75,22 +75,22 @@
         )
       : null;
 
-  $: formDisplay =
-    connection && $serverVersion
-      ? new TableFormViewDisplay(
-          { schemaName, pureName },
-          findEngineDriver($connection, $extensions),
-          config,
-          setConfig,
-          cache,
-          setCache,
-          extendedDbInfo,
-          { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
-          $serverVersion,
-          table => getDictionaryDescription(table, conid, database, $apps, $connections),
-          $connection?.isReadOnly
-        )
-      : null;
+  // $: formDisplay =
+  //   connection && $serverVersion
+  //     ? new TableFormViewDisplay(
+  //         { schemaName, pureName },
+  //         findEngineDriver($connection, $extensions),
+  //         config,
+  //         setConfig,
+  //         cache,
+  //         setCache,
+  //         extendedDbInfo,
+  //         { showHintColumns: getBoolSettingsValue('dataGrid.showHintColumns', true) },
+  //         $serverVersion,
+  //         table => getDictionaryDescription(table, conid, database, $apps, $connections),
+  //         $connection?.isReadOnly
+  //       )
+  //     : null;
 
   const setChildConfig = (value, reference = undefined) => {
     if (_.isFunction(value)) {
@@ -157,7 +157,6 @@
       gridCoreComponent={SqlDataGridCore}
       formViewComponent={SqlFormView}
       {display}
-      {formDisplay}
       showReferences
       showMacros
       onRunMacro={handleRunMacro}

@@ -76,7 +76,7 @@
   export let gridCoreComponent;
   export let formViewComponent = null;
   export let jsonViewComponent = null;
-  export let formDisplay;
+  // export let formDisplay;
   export let display;
   export let changeSetState;
   export let dispatchChangeSet;
@@ -107,7 +107,7 @@
   const collapsedLeftColumnStore =
     getContext('collapsedLeftColumnStore') || writable(getLocalStorage('dataGrid_collapsedLeftColumn', false));
 
-  $: isFormView = !!(formDisplay && formDisplay.config && formDisplay.config.isFormView);
+  $: isFormView = !!config?.isFormView;
   $: isJsonView = !!config?.isJsonView;
 
   const handleExecuteMacro = () => {
@@ -116,7 +116,7 @@
   };
 
   export function switchViewEnabled(view) {
-    if (view == 'form') return !!formViewComponent && !!formDisplay && !isFormView && display?.baseTable?.primaryKey;
+    if (view == 'form') return !!formViewComponent && !isFormView;
     if (view == 'table') return !!(isFormView || isJsonView);
     if (view == 'json') return !!jsonViewComponent && !isJsonView;
   }
@@ -205,7 +205,7 @@
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="filters" height="30%" show={isFormView}>
-        <FormViewFilters {...$$props} {managerSize} driver={formDisplay?.driver} />
+        <FormViewFilters {...$$props} {managerSize} driver={display?.driver} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem
@@ -235,7 +235,7 @@
             this={gridCoreComponent}
             {...$$props}
             {collapsedLeftColumnStore}
-            formViewAvailable={!!formViewComponent && !!formDisplay}
+            formViewAvailable={!!formViewComponent}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
             bind:loadedRows
