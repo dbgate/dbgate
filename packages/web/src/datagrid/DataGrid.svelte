@@ -123,7 +123,7 @@
 
   export function switchToView(view) {
     if (view == 'form') {
-      display.switchToFormView(selectedCellsPublished()[0]?.rowData);
+      display.switchToFormView(selectedCellsPublished()[0]?.row);
     }
     if (view == 'table') {
       setConfig(cfg => ({

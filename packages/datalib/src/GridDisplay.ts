@@ -353,6 +353,7 @@ export abstract class GridDisplay {
     this.setConfig(cfg => ({
       ...cfg,
       filters: _.omit(cfg.filters, [uniqueName]),
+      formFilterColumns: (cfg.formFilterColumns || []).filter(x => x != uniqueName),
     }));
     this.reload();
   }
@@ -720,22 +721,23 @@ export abstract class GridDisplay {
     };
   }
 
-  switchToFormView(rowData) {
-    if (!this.baseTable) return;
-    const { primaryKey } = this.baseTable;
-    if (!primaryKey) return;
-    const { columns } = primaryKey;
+  switchToFormView(rowIndex) {
+    // if (!this.baseTable) return;
+    // const { primaryKey } = this.baseTable;
+    // if (!primaryKey) return;
+    // const { columns } = primaryKey;
 
     this.setConfig(cfg => ({
       ...cfg,
       isFormView: true,
-      formViewKey: rowData
-        ? _.pick(
-            rowData,
-            columns.map(x => x.columnName)
-          )
-        : null,
-      formViewKeyRequested: null,
+      formViewRecordNumber: rowIndex,
+      // formViewKey: rowData
+      //   ? _.pick(
+      //       rowData,
+      //       columns.map(x => x.columnName)
+      //     )
+      //   : null,
+      // formViewKeyRequested: null,
     }));
   }
 
