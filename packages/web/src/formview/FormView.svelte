@@ -198,6 +198,7 @@
   export let isLoading;
   export let grider;
   export let display;
+  export let rowCountNotAvailable;
   // export let formDisplay;
   export let onNavigate;
 
@@ -222,9 +223,12 @@
 
   $: columnChunks = _.chunk(display?.formColumns || [], rowCount) as any[][];
 
-  $: rowCountInfo = getRowCountInfo(allRowCount);
+  $: rowCountInfo = getRowCountInfo(allRowCount, display);
 
   function getRowCountInfo(allRowCount) {
+    if (rowCountNotAvailable) {
+      return `Row: ${((display.config.formViewRecordNumber || 0) + 1).toLocaleString()} / ???`;
+    }
     if (rowData == null) {
       if (allRowCount != null) {
         return `Out of bounds: ${(

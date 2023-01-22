@@ -11,7 +11,7 @@
     });
 
     if (response.errorMessage) return response;
-    return response.rows[0];
+    return response[0];
   }
 </script>
 
@@ -31,4 +31,4 @@
   }
 </script>
 
-<LoadingFormView {...$$props} loadRowFunc={handleLoadRow} loadRowCountFunc={handleLoadRowCount} />
+<LoadingFormView {...$$props} loadRowFunc={handleLoadRow} loadRowCountFunc={handleLoadRowCount} rowCountNotAvailable />

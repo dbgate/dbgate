@@ -56,6 +56,8 @@
     {...$$restProps}
     {display}
     {jslid}
+    config={$config}
+    setConfig={config.update}
     gridCoreComponent={JslDataGridCore}
     formViewComponent={JslFormView}
     bind:loadedRows
