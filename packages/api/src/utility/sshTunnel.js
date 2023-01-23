@@ -33,11 +33,15 @@ function callForwardProcess(connection, tunnelConfig, tunnelCacheKey) {
   );
   pipeForkLogs(subprocess);
 
-  subprocess.send({
-    msgtype: 'connect',
-    connection,
-    tunnelConfig,
-  });
+  try {
+    subprocess.send({
+      msgtype: 'connect',
+      connection,
+      tunnelConfig,
+    });
+  } catch (err) {
+    logger.error({ err }, 'Error connecting SSH');
+  }
   return new Promise((resolve, reject) => {
     subprocess.on('message', resp => {
       // @ts-ignore

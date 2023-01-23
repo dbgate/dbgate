@@ -11,6 +11,9 @@ const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const { getLogger } = require('dbgate-tools');
+
+const logger = getLogger('serverConnection');
 
 module.exports = {
   opened: [],
@@ -102,7 +105,13 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid);
     if (existing) {
       existing.disconnected = true;
-      if (kill) existing.subprocess.kill();
+      if (kill) {
+        try {
+          existing.subprocess.kill();
+        } catch (err) {
+          logger.error({ err }, 'Error killing subprocess');
+        }
+      }
       this.opened = this.opened.filter(x => x.conid != conid);
       this.closed[conid] = {
         ...existing.status,
@@ -152,7 +161,12 @@ module.exports = {
         }
         this.lastPinged[conid] = new Date().getTime();
         const opened = await this.ensureOpened(conid);
-        opened.subprocess.send({ msgtype: 'ping' });
+        try {
+          opened.subprocess.send({ msgtype: 'ping' });
+        } catch (err) {
+          logger.error({ err }, 'Error calling ping');
+          this.close(conid);
+        }
       })
     );
     return { status: 'ok' };
@@ -189,7 +203,12 @@ module.exports = {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
-      conn.subprocess.send({ msgid, ...message });
+      try {
+        conn.subprocess.send({ msgid, ...message });
+      } catch (err) {
+        logger.error({ err }, 'Error sending request');
+        this.close(conn.conid);
+      }
     });
     return promise;
   },

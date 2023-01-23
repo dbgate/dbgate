@@ -140,7 +140,12 @@ module.exports = {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
-      conn.subprocess.send({ msgid, ...message });
+      try {
+        conn.subprocess.send({ msgid, ...message });
+      } catch (err) {
+        logger.error({ err }, 'Error sending request do process');
+        this.close(conn.conid, conn.database);
+      }
     });
     return promise;
   },
@@ -289,6 +294,7 @@ module.exports = {
     if (existing) {
       existing.subprocess.send({ msgtype: 'ping' });
     } else {
+      // @ts-ignore
       existing = await this.ensureOpened(conid, database);
     }
 
@@ -319,7 +325,13 @@ module.exports = {
     const existing = this.opened.find(x => x.conid == conid && x.database == database);
     if (existing) {
       existing.disconnected = true;
-      if (kill) existing.subprocess.kill();
+      if (kill) {
+        try {
+          existing.subprocess.kill();
+        } catch (err) {
+          logger.error({ err }, 'Error killing subprocess');
+        }
+      }
       this.opened = this.opened.filter(x => x.conid != conid || x.database != database);
       this.closed[`${conid}/${database}`] = {
         status: {

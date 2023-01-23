@@ -1,11 +1,17 @@
+const { getLogger } = require('dbgate-tools');
 const uuidv1 = require('uuid/v1');
 const { getSshTunnel } = require('./sshTunnel');
+const logger = getLogger('sshTunnelProxy');
 
 const dispatchedMessages = {};
 
 async function handleGetSshTunnelRequest({ msgid, connection }, subprocess) {
   const response = await getSshTunnel(connection);
-  subprocess.send({ msgtype: 'getsshtunnel-response', msgid, response });
+  try {
+    subprocess.send({ msgtype: 'getsshtunnel-response', msgid, response });
+  } catch (err) {
+    logger.error({ err }, 'Error sending to SSH tunnel');
+  }
 }
 
 function handleGetSshTunnelResponse({ msgid, response }, subprocess) {

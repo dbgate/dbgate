@@ -3,6 +3,8 @@ const uuidv1 = require('uuid/v1');
 const { handleProcessCommunication } = require('./processComm');
 const processArgs = require('../utility/processArgs');
 const pipeForkLogs = require('./pipeForkLogs');
+const { getLogger } = require('dbgate-tools');
+const logger = getLogger('DatastoreProxy');
 
 class DatastoreProxy {
   constructor(file) {
@@ -68,7 +70,12 @@ class DatastoreProxy {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
-      this.subprocess.send({ msgtype: 'read', msgid, offset, limit });
+      try {
+        this.subprocess.send({ msgtype: 'read', msgid, offset, limit });
+      } catch (err) {
+        logger.error({ err }, 'Error getting rows');
+        this.subprocess = null;
+      }
     });
     return promise;
   }
@@ -77,7 +84,12 @@ class DatastoreProxy {
     const msgid = uuidv1();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
-      this.subprocess.send({ msgtype: 'notify', msgid });
+      try {
+        this.subprocess.send({ msgtype: 'notify', msgid });
+      } catch (err) {
+        logger.error({ err }, 'Error notifying subprocess');
+        this.subprocess = null;
+      }
     });
     return promise;
   }
