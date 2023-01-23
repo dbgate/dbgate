@@ -547,11 +547,6 @@ ci-info@^3.2.0:
   resolved "https://registry.yarnpkg.com/ci-info/-/ci-info-3.3.2.tgz#6d2967ffa407466481c6c90b6e16b3098f080128"
   integrity sha512-xmDt/QIAdeZ9+nfdPsaBCpMvHNLFiLdjj59qjqn+6iPe6YmHGQ35sBnQ8uslRBXFmXkiZQOJRjvQeoGppoTjjg==
 
-clean-stack@^2.1.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/clean-stack/-/clean-stack-2.2.0.tgz#ee8472dbb129e727b31e8a10a427dee9dfe4008b"
-  integrity sha512-4diC9HaTE+KRAMWhDhrGOECgWZxoevMc5TlkObMqNSsVU62PYzXZ/SMTjzyGAFF1YusgxGcSWTEXBhp0CPwQ1A==
-
 cli-boxes@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/cli-boxes/-/cli-boxes-2.2.1.tgz#ddd5035d25094fce220e9cab40a45840a440318f"
@@ -892,16 +887,6 @@ electron-builder@23.1.0:
     update-notifier "^5.1.0"
     yargs "^17.0.1"
 
-electron-is-dev@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/electron-is-dev/-/electron-is-dev-1.2.0.tgz#2e5cea0a1b3ccf1c86f577cee77363ef55deb05e"
-  integrity sha512-R1oD5gMBPS7PVU8gJwH6CtT0e6VSoD0+SzSnYpNm+dBkcijgA+K7VAMHDfnRq/lkKPZArpzplTW6jfiMYosdzw==
-
-electron-is-dev@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/electron-is-dev/-/electron-is-dev-2.0.0.tgz#833487a069b8dad21425c67a19847d9064ab19bd"
-  integrity sha512-3X99K852Yoqu9AcW50qz3ibYBWY79/pBhlMCab8ToEWS48R0T9tyxRiQhwylE7zQdXrMnx2JKqUJyMPmt5FBqA==
-
 electron-log@^4.4.1:
   version "4.4.8"
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.8.tgz#fcb9f714dbcaefb6ac7984c4683912c74730248a"
@@ -940,17 +925,6 @@ electron-publish@23.0.9:
     lazy-val "^1.0.5"
     mime "^2.5.2"
 
-electron-unhandled@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/electron-unhandled/-/electron-unhandled-4.0.1.tgz#82bbcb5ee5423f611f6122e006bf4842dfd7c908"
-  integrity sha512-6BsLnBg+i96eUnbaIFZyYdyfNX3f80/Nlfqy34YEMxXT9JP3ddNsNnUeiOF8ezN4+et4t4D37gjghKTP0V3jyw==
-  dependencies:
-    clean-stack "^2.1.0"
-    electron-is-dev "^2.0.0"
-    ensure-error "^2.0.0"
-    lodash.debounce "^4.0.8"
-    serialize-error "^8.1.0"
-
 electron-updater@^4.6.1:
   version "4.6.5"
   resolved "https://registry.yarnpkg.com/electron-updater/-/electron-updater-4.6.5.tgz#e9a75458bbfd6bb41a58a829839e150ad2eb2d3d"
@@ -964,14 +938,6 @@ electron-updater@^4.6.1:
     lodash.escaperegexp "^4.1.2"
     lodash.isequal "^4.5.0"
     semver "^7.3.5"
-
-electron-util@^0.17.2:
-  version "0.17.2"
-  resolved "https://registry.yarnpkg.com/electron-util/-/electron-util-0.17.2.tgz#6b0fe798ae0154585e7e0e96a707bfeae592be05"
-  integrity sha512-4Kg/aZxJ2BZklgyfH86px/D2GyROPyIcnAZar+7KiNmKI2I5l09pwQTP7V95zM3FVhgDQwV9iuJta5dyEvuWAw==
-  dependencies:
-    electron-is-dev "^1.1.0"
-    new-github-issue-url "^0.2.1"
 
 electron@17.4.10:
   version "17.4.10"
@@ -998,11 +964,6 @@ end-of-stream@^1.1.0, end-of-stream@^1.4.1:
   integrity sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   dependencies:
     once "^1.4.0"
-
-ensure-error@^2.0.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/ensure-error/-/ensure-error-2.1.0.tgz#f11fbe383c0cf4a54850ac77acceb7bc06e0f99d"
-  integrity sha512-+BMSJHw9gxiJAAp2ZR1E0TNcL09dD3lOvkl7WVm4+Y6xnes/pMetP/TzCHiDduh8ihNDjbGfuYxl7l4PA1xZ8A==
 
 env-paths@^2.2.0:
   version "2.2.1"
@@ -1636,11 +1597,6 @@ lodash.clonedeepwith@^4.5.0:
   resolved "https://registry.yarnpkg.com/lodash.clonedeepwith/-/lodash.clonedeepwith-4.5.0.tgz#6ee30573a03a1a60d670a62ef33c10cf1afdbdd4"
   integrity sha512-QRBRSxhbtsX1nc0baxSkkK5WlVTTm/s48DSukcGcWZwIyI8Zz+lB+kFiELJXtzfH4Aj6kMWQ1VWW4U5uUDgZMA==
 
-lodash.debounce@^4.0.8:
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
-  integrity sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==
-
 lodash.escaperegexp@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.escaperegexp/-/lodash.escaperegexp-4.1.2.tgz#64762c48618082518ac3df4ccf5d5886dae20347"
@@ -1808,11 +1764,6 @@ napi-build-utils@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/napi-build-utils/-/napi-build-utils-1.0.2.tgz#b1fddc0b2c46e380a0b7a76f984dd47c41a13806"
   integrity sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==
-
-new-github-issue-url@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/new-github-issue-url/-/new-github-issue-url-0.2.1.tgz#e17be1f665a92de465926603e44b9f8685630c1d"
-  integrity sha512-md4cGoxuT4T4d/HDOXbrUHkTKrp/vp+m3aOA7XXVYwNsUNMK49g3SQicTSeV5GIz/5QVGAeYRAOlyp9OvlgsYA==
 
 nice-try@^1.0.4:
   version "1.0.5"
@@ -2256,13 +2207,6 @@ serialize-error@^7.0.1:
   integrity sha512-8I8TjW5KMOKsZQTvoxjuSIa7foAwPWGOts+6o7sgjz41/qMD9VQHEDxi6PBvK2l0MXUmqZyNpUK+T2tQaaElvw==
   dependencies:
     type-fest "^0.13.1"
-
-serialize-error@^8.1.0:
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/serialize-error/-/serialize-error-8.1.0.tgz#3a069970c712f78634942ddd50fbbc0eaebe2f67"
-  integrity sha512-3NnuWfM6vBYoy5gZFvHiYsVbafvI9vZv/+jlIigFn4oP4zjNPK3LhcY0xSCgeb1a5L8jO71Mit9LlNoi2UfDDQ==
-  dependencies:
-    type-fest "^0.20.2"
 
 shebang-command@^1.2.0:
   version "1.2.0"

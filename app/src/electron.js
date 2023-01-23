@@ -1,8 +1,8 @@
 const electron = require('electron');
 const os = require('os');
 const fs = require('fs');
-const unhandled = require('electron-unhandled');
-const { openNewGitHubIssue, debugInfo } = require('electron-util');
+// const unhandled = require('electron-unhandled');
+// const { openNewGitHubIssue, debugInfo } = require('electron-util');
 const { Menu, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
@@ -29,19 +29,19 @@ let loadLogsContent;
 
 const isMac = () => os.platform() == 'darwin';
 
-unhandled({
-  showDialog: true,
-  reportButton: error => {
-    openNewGitHubIssue({
-      user: 'dbgate',
-      repo: 'dbgate',
-      body: `PLEASE DELETE SENSITIVE INFO BEFORE POSTING ISSUE!!!\n\n\`\`\`\n${
-        error.stack
-      }\n\`\`\`\n\n---\n\n${debugInfo()}\n\n\`\`\`\n${loadLogsContent ? loadLogsContent(50) : ''}\n\`\`\``,
-    });
-  },
-  logger: error => (getLogger ? getLogger('electron').fatal(error) : console.error(error)),
-});
+// unhandled({
+//   showDialog: true,
+//   reportButton: error => {
+//     openNewGitHubIssue({
+//       user: 'dbgate',
+//       repo: 'dbgate',
+//       body: `PLEASE DELETE SENSITIVE INFO BEFORE POSTING ISSUE!!!\n\n\`\`\`\n${
+//         error.stack
+//       }\n\`\`\`\n\n---\n\n${debugInfo()}\n\n\`\`\`\n${loadLogsContent ? loadLogsContent(50) : ''}\n\`\`\``,
+//     });
+//   },
+//   logger: error => (getLogger ? getLogger('electron').fatal(error) : console.error(error)),
+// });
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
