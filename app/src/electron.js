@@ -24,8 +24,8 @@ const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
 let mainModule;
-let getLogger;
-let loadLogsContent;
+// let getLogger;
+// let loadLogsContent;
 
 const isMac = () => os.platform() == 'darwin';
 
@@ -355,8 +355,8 @@ function createWindow() {
     const main = api.getMainModule();
     main.useAllControllers(null, electron);
     mainModule = main;
-    getLogger = api.getLogger;
-    loadLogsContent = api.loadLogsContent;
+    // getLogger = api.getLogger;
+    // loadLogsContent = api.loadLogsContent;
     apiLoaded = true;
   }
   mainModule.setElectronSender(mainWindow.webContents);
