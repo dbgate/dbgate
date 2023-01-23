@@ -1,10 +1,12 @@
 const { setLogger, getLogger, setLoggerName } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const pino = require('pino');
+const pinoms = require('pino-multi-stream');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
+const platformInfo = require('./utility/platformInfo');
 
 if (processArgs.startProcess) {
   setLoggerName(processArgs.startProcess.replace(/Process$/, ''));
@@ -30,37 +32,41 @@ function configureLogger() {
   setLogsFilePath(logsFilePath);
   setLoggerName('main');
 
-  // let logger = pinoms({
-  //   redact: { paths: ['hostname'], remove: true },
-  //   streams: [
-  //     {
-  //       stream: process.stdout,
-  //       level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
-  //     },
-  //     {
-  //       stream: fs.createWriteStream(logsFilePath),
-  //       level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
-  //     },
-  //   ],
-  // });
+  const streams = [];
+  if (!platformInfo.isElectron) {
+    streams.push({
+      stream: process.stdout,
+      level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+    });
+  }
 
-  // @ts-ignore
-  let logger = pino({
-    redact: { paths: ['hostname'], remove: true },
-    transport: {
-      targets: [
-        {
-          level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
-          target: 'pino/file',
-        },
-        {
-          level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
-          target: 'pino/file',
-          options: { destination: logsFilePath },
-        },
-      ],
-    },
+  streams.push({
+    stream: fs.createWriteStream(logsFilePath),
+    level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
   });
+
+  let logger = pinoms({
+    redact: { paths: ['hostname'], remove: true },
+    streams,
+  });
+
+  // // @ts-ignore
+  // let logger = pino({
+  //   redact: { paths: ['hostname'], remove: true },
+  //   transport: {
+  //     targets: [
+  //       {
+  //         level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+  //         target: 'pino/file',
+  //       },
+  //       {
+  //         level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+  //         target: 'pino/file',
+  //         options: { destination: logsFilePath },
+  //       },
+  //     ],
+  //   },
+  // });
 
   setLogger(logger);
 }
