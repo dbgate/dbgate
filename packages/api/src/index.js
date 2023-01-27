@@ -1,7 +1,5 @@
-const { setLogger, getLogger, setLoggerName } = require('dbgate-tools');
+const { setLogger, getLogger, setLoggerName, createPinoLikeLogger } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
-const pino = require('pino');
-const pinoms = require('pino-multi-stream');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
@@ -32,23 +30,40 @@ function configureLogger() {
   setLogsFilePath(logsFilePath);
   setLoggerName('main');
 
-  const streams = [];
-  if (!platformInfo.isElectron) {
-    streams.push({
-      stream: process.stdout,
-      level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
-    });
-  }
-
-  streams.push({
-    stream: fs.createWriteStream(logsFilePath),
-    level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+  const logger = createPinoLikeLogger({
+    pid: process.pid,
+    targets: [
+      {
+        type: 'console',
+        // @ts-ignore
+        level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+      },
+      {
+        type: 'stream',
+        // @ts-ignore
+        level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+        stream: fs.createWriteStream(logsFilePath, { flags: 'a' }),
+      },
+    ],
   });
 
-  let logger = pinoms({
-    redact: { paths: ['hostname'], remove: true },
-    streams,
-  });
+  // const streams = [];
+  // if (!platformInfo.isElectron) {
+  //   streams.push({
+  //     stream: process.stdout,
+  //     level: process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+  //   });
+  // }
+
+  // streams.push({
+  //   stream: fs.createWriteStream(logsFilePath),
+  //   level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+  // });
+
+  // let logger = pinoms({
+  //   redact: { paths: ['hostname'], remove: true },
+  //   streams,
+  // });
 
   // // @ts-ignore
   // let logger = pino({

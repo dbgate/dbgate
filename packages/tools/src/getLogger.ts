@@ -1,14 +1,20 @@
-import pino, { Logger } from 'pino';
+import { createPinoLikeLogger, ILogger } from './pinomin';
 
-let _logger: Logger;
+let _logger: ILogger;
 let _name: string = null;
-const defaultLogger: Logger = pino({ redact: { paths: ['hostname'], remove: true } });
+const defaultLogger: ILogger = createPinoLikeLogger({
+  pid: global?.process?.pid,
+  targets: [{ type: 'console', level: 'info' }],
+});
 
-export function setLogger(value: Logger) {
+export function setLogger(value: ILogger) {
   _logger = value;
 }
+export function setLoggerName(value) {
+  _name = value;
+}
 
-export function getLogger(caller?: string): Logger {
+export function getLogger(caller?: string): ILogger {
   let res = _logger || defaultLogger;
   if (caller) {
     const props = { caller };
@@ -18,8 +24,4 @@ export function getLogger(caller?: string): Logger {
     res = res.child(props);
   }
   return res;
-}
-
-export function setLoggerName(value) {
-  _name = value;
 }
