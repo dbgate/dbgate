@@ -33,6 +33,7 @@ async function tediousConnect({ server, port, user, password, database, ssl, tru
       requestTimeout: 1000 * 3600,
       port: port ? parseInt(port) : undefined,
       trustServerCertificate: !!trustServerCertificate,
+      appName: 'DbGate',
     };
 
     if (database) {
