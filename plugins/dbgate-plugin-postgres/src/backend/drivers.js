@@ -70,6 +70,7 @@ const drivers = driverBases.map(driverBase => ({
       options = useDatabaseUrl
         ? {
             connectionString: databaseUrl,
+            application_name: 'DbGate',
           }
         : {
             host: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : server,
@@ -78,6 +79,7 @@ const drivers = driverBases.map(driverBase => ({
             password,
             database: database || 'postgres',
             ssl,
+            application_name: 'DbGate',
           };
     }
 
