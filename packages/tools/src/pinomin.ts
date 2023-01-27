@@ -25,6 +25,7 @@ export interface ILogger {
     level: number;
     msg: string;
     pid: number;
+    time: number;
   }
   
   class PinoLikeLogger implements ILogger {
@@ -69,6 +70,7 @@ export interface ILogger {
           level,
           msg,
           pid: this.config.pid,
+          time: new Date().getTime(),
         };
       }
       return {
@@ -76,7 +78,8 @@ export interface ILogger {
         level,
         msg: data,
         pid: this.config.pid,
-      };
+        time: new Date().getTime(),
+    };
     }
   
     log(record: ILogRecord) {
