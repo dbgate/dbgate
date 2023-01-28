@@ -19,7 +19,9 @@
   ],
   "scripts": {
     "dbmodel": "node ./bin/dbmodel.js",
-    "dbmodel:load": "cross-env DEVMODE=1 node ./bin/dbmodel.js load testdata/db -e postgres@dbgate-plugin-postgres -s localhost -u postgres -p Pwd2020Db -d zradlo"
+    "dbmodel:load": "cross-env DEVMODE=1 node ./bin/dbmodel.js load testdata/db -e postgres@dbgate-plugin-postgres -s localhost -u postgres -p Pwd2020Db -d zradlo",
+    "dbmodel:deploy": "cross-env DEVMODE=1 node ./bin/dbmodel.js deploy testdata/db -e postgres@dbgate-plugin-postgres -s localhost -u postgres -p Pwd2020Db -d deployed",
+    "dbmodel:build": "cross-env DEVMODE=1 node ./bin/dbmodel.js build testdata/db testdata/db.sql -e postgres@dbgate-plugin-postgres "
   },
   "dependencies": {
     "commander": "^10.0.0",

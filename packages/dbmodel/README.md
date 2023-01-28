@@ -43,40 +43,14 @@ Model is stored as a collection of files:
 
 ```sh
 # load from existing database
-dbmodel load -s localhost -u USERNAME -p PASSWORD -d DATABASE -c mssql OUTPUT_FOLDER
+dbmodel load -s localhost -u USERNAME -p PASSWORD -d DATABASE -e mssql@dbgate-plugin-mssql OUTPUT_FOLDER
 
 # deploy project to database
-dbmodel deploy -s localhost -u USERNAME -p PASSWORD -d DATABASE -c mssql PROJECT_FOLDER
+dbmodel deploy -s localhost -u USERNAME -p PASSWORD -d DATABASE -e mssql@dbgate-plugin-mssql PROJECT_FOLDER
 
 # build SQL script from project
-dbmodel build -c mssql PROJECT_FOLDER OUTPUT_FILE.sql
+dbmodel build -e mssql@dbgate-plugin-mssql PROJECT_FOLDER OUTPUT_FILE.sql
 ```
-
-## JavaScript interface
-
-```javascript
-const dbmodel = require('dbmodel');
-
-await dbmodel.deploy({
-  client: 'mssql',
-  connection: {
-    server: '127.0.0.1',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: 'Chinook_Model',
-  },
-  hooks: [dbmodel.hooks.autoIndexForeignKeys], // this hook adds indexes to all foreign keys
-  projectDir: 'model',
-})
-```
-
-list of dbmodel exported functions:
-* build - builds SQL script
-* deploy - deploys model to database 
-* dump - dumps loaded model into directory
-* load - loads model from database
-* read - reads model from directory
-* connect - creates database connection defined in options
 
 ## Table yaml file documentation
 

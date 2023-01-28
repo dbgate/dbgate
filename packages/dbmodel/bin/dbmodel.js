@@ -10,8 +10,21 @@ global.PLUGINS_DIR = process.env.DEVMODE
 global.IS_NPM_DIST = true;
 
 const program = require('commander');
-const dbmodel = require('../lib');
 const dbgateApi = require('dbgate-api');
+const { createLogger } = require('pinomin');
+
+const logger = createLogger('dbmodel');
+
+async function runAndExit(promise) {
+  try {
+    await promise;
+    logger.info('Success');
+    process.exit();
+  } catch (err) {
+    logger.error({ err }, 'Processing failed');
+    process.exit(1);
+  }
+}
 
 program
   .option('-s, --server <server>', 'server host')
@@ -26,14 +39,15 @@ program
   .requiredOption('-e, --engine <engine>', 'engine name, eg. mysql@dbgate-plugin-mysql');
 
 program
-  .command('deploy <projectDir>')
+  .command('deploy <modelFolder>')
   .description('Deploys model to database')
-  .action(projectDir => {
-    const { engine, server, user, password, database } = program;
-    const hooks = [];
-    if (program.autoIndexForeignKeys) hooks.push(dbmodel.hooks.autoIndexForeignKeys);
-    dbmodel.runAndExit(
-      dbmodel.deploy({
+  .action(modelFolder => {
+    const { engine, server, user, password, database } = program.opts();
+    // const hooks = [];
+    // if (program.autoIndexForeignKeys) hooks.push(dbmodel.hooks.autoIndexForeignKeys);
+
+    runAndExit(
+      dbgateApi.deployDb({
         connection: {
           engine,
           server,
@@ -41,11 +55,24 @@ program
           password,
           database,
         },
-        hooks,
-        projectDir,
+        modelFolder,
       })
     );
   });
+
+//     runAndExit(
+//       dbmodel.deploy({
+//         connection: {
+//           engine,
+//           server,
+//           user,
+//           password,
+//           database,
+//         },
+//         hooks,
+//         projectDir,
+//       })
+//     );
 
 program
   .command('load <outputDir>')
@@ -57,7 +84,7 @@ program
     //   : null;
     // const hooks = [];
 
-    dbmodel.runAndExit(
+    runAndExit(
       dbgateApi.loadDatabase({
         connection: {
           engine,
@@ -72,17 +99,18 @@ program
   });
 
 program
-  .command('build <projectDir> <outputFile>')
+  .command('build <modelFolder> <outputFile>')
   .description('Builds single SQL script from project')
-  .action((projectDir, outputFile) => {
-    const { client } = program;
-    const hooks = [];
-    dbmodel.runAndExit(
-      dbmodel.build({
-        client,
-        hooks,
-        projectDir,
+  .action((modelFolder, outputFile) => {
+    const { engine } = program.opts();
+    // const hooks = [];
+    runAndExit(
+      dbgateApi.generateModelSql({
+        // client,
+        // hooks,
+        modelFolder,
         outputFile,
+        engine,
       })
     );
   });
