@@ -3,7 +3,7 @@ import { createPinoLikeLogger, ILogger } from './pinomin';
 let _logger: ILogger;
 let _name: string = null;
 const defaultLogger: ILogger = createPinoLikeLogger({
-  pid: global?.process?.pid,
+  base: { pid: global?.process?.pid },
   targets: [{ type: 'console', level: 'info' }],
 });
 

@@ -31,7 +31,7 @@ function configureLogger() {
   setLoggerName('main');
 
   const logger = createPinoLikeLogger({
-    pid: process.pid,
+    base: { pid: process.pid },
     targets: [
       {
         type: 'console',
