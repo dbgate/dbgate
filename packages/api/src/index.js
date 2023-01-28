@@ -1,10 +1,10 @@
-const { setLogger, getLogger, setLoggerName, createPinoLikeLogger } = require('dbgate-tools');
+const { setLogger, getLogger, setLoggerName } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const fs = require('fs');
 const moment = require('moment');
 const path = require('path');
 const { logsdir, setLogsFilePath, getLogsFilePath } = require('./utility/directories');
-const platformInfo = require('./utility/platformInfo');
+const { createLogger } = require('pinomin');
 
 if (processArgs.startProcess) {
   setLoggerName(processArgs.startProcess.replace(/Process$/, ''));
@@ -30,7 +30,7 @@ function configureLogger() {
   setLogsFilePath(logsFilePath);
   setLoggerName('main');
 
-  const logger = createPinoLikeLogger({
+  const logger = createLogger({
     base: { pid: process.pid },
     targets: [
       {

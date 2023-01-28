@@ -1,20 +1,20 @@
-import { createPinoLikeLogger, ILogger } from './pinomin';
+import pinomin, { Logger } from 'pinomin';
 
-let _logger: ILogger;
+let _logger: Logger;
 let _name: string = null;
-const defaultLogger: ILogger = createPinoLikeLogger({
+const defaultLogger: Logger = pinomin({
   base: { pid: global?.process?.pid },
   targets: [{ type: 'console', level: 'info' }],
 });
 
-export function setLogger(value: ILogger) {
+export function setLogger(value: Logger) {
   _logger = value;
 }
 export function setLoggerName(value) {
   _name = value;
 }
 
-export function getLogger(caller?: string): ILogger {
+export function getLogger(caller?: string): Logger {
   let res = _logger || defaultLogger;
   if (caller) {
     const props = { caller };

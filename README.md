@@ -178,5 +178,5 @@ yarn plugin # this compiles plugin and copies it into existing DbGate installati
 After restarting DbGate, you could use your new plugin from DbGate.
 
 ## Logging
-DbGate uses [pino logger](https://github.com/pinojs/pino). So by default, it produces JSON log messages into console and log files. If you want to see formatted logs, please use [pino-pretty](https://github.com/pinojs/pino-pretty) log formatter.
+DbGate uses [pinomin logger](https://github.com/dbgate/pinomin). So by default, it produces JSON log messages into console and log files. If you want to see formatted logs, please use [pino-pretty](https://github.com/pinojs/pino-pretty) log formatter.
 
