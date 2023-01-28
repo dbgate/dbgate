@@ -1,4 +1,4 @@
-import { isTypeDateTime } from 'dbgate-tools';
+import { arrayToHexString, isTypeDateTime } from 'dbgate-tools';
 import moment from 'moment';
 
 export type FilterMultipleValuesMode = 'is' | 'is_not' | 'contains' | 'begins' | 'ends';
@@ -9,6 +9,10 @@ export function getFilterValueExpression(value, dataType?) {
   if (value === true) return 'TRUE';
   if (value === false) return 'FALSE';
   if (value.$oid) return `ObjectId("${value.$oid}")`;
+  if (value.type == 'Buffer' && Array.isArray(value.data)) {
+    return '0x' + arrayToHexString(value.data);
+  }
+
   return `="${value}"`;
 }
 

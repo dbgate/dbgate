@@ -5,6 +5,7 @@ import { Condition } from 'dbgate-sqltree';
 import { interpretEscapes, token, word, whitespace } from './common';
 import { mongoParser } from './mongoParser';
 import { datetimeParser } from './datetimeParser';
+import { hexStringToArray } from 'dbgate-tools';
 
 const binaryCondition = operator => value => ({
   conditionType: 'binary',
@@ -104,6 +105,14 @@ const createParser = (filterType: FilterType) => {
         .map(Number)
         .desc('number'),
 
+    hexstring: () =>
+      token(P.regexp(/0x(([0-9a-fA-F][0-9a-fA-F])+)/, 1))
+        .map(x => ({
+          type: 'Buffer',
+          data: hexStringToArray(x),
+        }))
+        .desc('hex string'),
+
     noQuotedString: () => P.regexp(/[^\s^,^'^"]+/).desc('string unquoted'),
 
     sql: () =>
@@ -113,6 +122,7 @@ const createParser = (filterType: FilterType) => {
 
     value: r => P.alt(...allowedValues.map(x => r[x])),
     valueTestEq: r => r.value.map(binaryCondition('=')),
+    hexTestEq: r => r.hexstring.map(binaryCondition('=')),
     valueTestStr: r => r.value.map(likeCondition('like', '%#VALUE#%')),
 
     comma: () => word(','),
@@ -158,7 +168,7 @@ const createParser = (filterType: FilterType) => {
     allowedElements.push('le', 'ge', 'lt', 'gt');
   }
   if (filterType == 'string') {
-    allowedElements.push('empty', 'notEmpty');
+    allowedElements.push('empty', 'notEmpty', 'hexTestEq');
   }
   if (filterType == 'eval' || filterType == 'string') {
     allowedElements.push('startsWith', 'endsWith', 'contains', 'startsWithNot', 'endsWithNot', 'containsNot');
