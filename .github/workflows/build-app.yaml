@@ -75,7 +75,6 @@ jobs:
       - name: publishSnap
         if: matrix.os == 'ubuntu-18.04'
         run: |
-          snapcraft login
           snapcraft upload --release=stable app/dist/*.snap
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{secrets.SNAPCRAFT_LOGIN}}
