@@ -10,6 +10,7 @@ const processArgs = require('../utility/processArgs');
 const { appdir } = require('../utility/directories');
 const { getLogger } = require('dbgate-tools');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const config = require('./config');
 
 const logger = getLogger('sessions');
 
@@ -120,7 +121,12 @@ module.exports = {
       socket.emit(`session-closed-${sesid}`);
     });
 
-    subprocess.send({ msgtype: 'connect', ...connection, database });
+    subprocess.send({
+      msgtype: 'connect',
+      ...connection,
+      database,
+      globalSettings: await config.getSettings(),
+    });
     return _.pick(newOpened, ['conid', 'database', 'sesid']);
   },
 

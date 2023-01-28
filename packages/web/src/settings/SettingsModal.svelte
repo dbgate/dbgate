@@ -69,9 +69,10 @@ ORDER BY
         isInline
         tabs={[
           { label: 'General', slot: 1 },
-          { label: 'Themes', slot: 2 },
-          { label: 'Default Actions', slot: 3 },
-          { label: 'Confirmations', slot: 4 },
+          { label: 'Connection', slot: 2 },
+          { label: 'Themes', slot: 3 },
+          { label: 'Default Actions', slot: 4 },
+          { label: 'Confirmations', slot: 5 },
         ]}
       >
         <svelte:fragment slot="1">
@@ -108,6 +109,19 @@ ORDER BY
             defaultValue="10"
           />
 
+          <div class="heading">SQL editor</div>
+          <FormSelectField
+            label="SQL commands case"
+            name="sqlEditor.sqlCommandsCase"
+            isNative
+            defaultValue="upperCase"
+            options={[
+              { value: 'upperCase', label: 'UPPER CASE' },
+              { value: 'lowerCase', label: 'lower case' },
+            ]}
+          />
+        </svelte:fragment>
+        <svelte:fragment slot="2">
           <div class="heading">Connection</div>
 
           <FormFieldTemplateLarge
@@ -134,19 +148,21 @@ ORDER BY
             disabled={values['connection.autoRefresh'] === false}
           />
 
-          <div class="heading">SQL editor</div>
-          <FormSelectField
-            label="SQL commands case"
-            name="sqlEditor.sqlCommandsCase"
-            isNative
-            defaultValue="upperCase"
-            options={[
-              { value: 'upperCase', label: 'UPPER CASE' },
-              { value: 'lowerCase', label: 'lower case' },
-            ]}
+          <div class="heading">Query sessions</div>
+          <FormCheckboxField
+            name="session.autoClose"
+            label="Automatic close query sessions after period without any activity"
+            defaultValue={true}
+          />
+          <FormTextField
+            name="session.autoCloseTimeout"
+            label="Interval, after which query session without activity is closed (in minutes)"
+            defaultValue="15"
+            disabled={values['session.autoClose'] === false}
           />
         </svelte:fragment>
-        <svelte:fragment slot="2">
+
+        <svelte:fragment slot="3">
           <div class="heading">Application theme</div>
           <div class="themes">
             {#each $extensions.themes as theme}
@@ -207,7 +223,7 @@ ORDER BY
             <SqlEditor value={sqlPreview} readOnly />
           </div>
         </svelte:fragment>
-        <svelte:fragment slot="3">
+        <svelte:fragment slot="4">
           <div class="heading">Default actions</div>
           <FormSelectField
             label="Connection click"
@@ -271,7 +287,7 @@ ORDER BY
             ]}
           />
         </svelte:fragment>
-        <svelte:fragment slot="4">
+        <svelte:fragment slot="5">
           <div class="heading">Confirmations</div>
 
           <FormCheckboxField name="skipConfirm.tableDataSave" label="Skip confirmation when saving table data (SQL)" />

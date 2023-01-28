@@ -10,7 +10,7 @@ const requireEngineDriver = require('../utility/requireEngineDriver');
 const { decryptConnection } = require('../utility/crypting');
 const connectUtility = require('../utility/connectUtility');
 const { handleProcessCommunication } = require('../utility/processComm');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, extractIntSettingsValue, extractBoolSettingsValue } = require('dbgate-tools');
 
 const logger = getLogger('sessionProcess');
 
@@ -19,6 +19,7 @@ let storedConnection;
 let afterConnectCallbacks = [];
 // let currentHandlers = [];
 let lastPing = null;
+let lastActivity = null;
 let currentProfiler = null;
 
 class TableWriter {
@@ -215,6 +216,8 @@ function waitConnected() {
 }
 
 async function handleStartProfiler({ jslid }) {
+  lastActivity = new Date().getTime();
+
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
@@ -233,6 +236,8 @@ async function handleStartProfiler({ jslid }) {
 }
 
 async function handleStopProfiler({ jslid }) {
+  lastActivity = new Date().getTime();
+
   const driver = requireEngineDriver(storedConnection);
   currentProfiler.writer.close();
   driver.stopProfiler(systemConnection, currentProfiler);
@@ -240,6 +245,8 @@ async function handleStopProfiler({ jslid }) {
 }
 
 async function handleExecuteQuery({ sql }) {
+  lastActivity = new Date().getTime();
+
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
 
@@ -273,6 +280,8 @@ async function handleExecuteQuery({ sql }) {
 }
 
 async function handleExecuteReader({ jslid, sql, fileName }) {
+  lastActivity = new Date().getTime();
+
   await waitConnected();
 
   const driver = requireEngineDriver(storedConnection);
@@ -329,6 +338,19 @@ function start() {
     const time = new Date().getTime();
     if (time - lastPing > 25 * 1000) {
       logger.info('Session not alive, exiting');
+      process.exit(0);
+    }
+
+    const useSessionTimeout =
+      storedConnection && storedConnection.globalSettings
+        ? extractBoolSettingsValue(storedConnection.globalSettings, 'session.autoClose', true)
+        : false;
+    const sessionTimeout =
+      storedConnection && storedConnection.globalSettings
+        ? extractIntSettingsValue(storedConnection.globalSettings, 'session.autoCloseTimeout', 15, 1, 120)
+        : 15;
+    if (useSessionTimeout && time - lastActivity > sessionTimeout * 60 * 1000 && !currentProfiler) {
+      logger.info('Session not active, exiting');
       process.exit(0);
     }
   }, 10 * 1000);
