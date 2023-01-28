@@ -42,6 +42,7 @@ changePackageFile('packages/datalib', json.version);
 changePackageFile('packages/dbgate', json.version);
 changePackageFile('packages/serve', json.version);
 changePackageFile('packages/filterparser', json.version);
+changePackageFile('packages/dbmodel', json.version);
 
 changePackageFile('plugins/dbgate-plugin-csv', json.version);
 changePackageFile('plugins/dbgate-plugin-xml', json.version);

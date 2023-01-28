@@ -94,6 +94,11 @@ jobs:
         run: |
           npm publish
 
+      - name: Publish dbmodel
+        working-directory: packages/dbmodel
+        run: |
+          npm publish
+
       - name: Publish dbgate-plugin-csv
         working-directory: plugins/dbgate-plugin-csv
         run: |

@@ -23,6 +23,11 @@
     "dbmodel:deploy": "cross-env DEVMODE=1 node ./bin/dbmodel.js deploy testdata/db -e postgres@dbgate-plugin-postgres -s localhost -u postgres -p Pwd2020Db -d deployed",
     "dbmodel:build": "cross-env DEVMODE=1 node ./bin/dbmodel.js build testdata/db testdata/db.sql -e postgres@dbgate-plugin-postgres "
   },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "bin"
+  ],
   "dependencies": {
     "commander": "^10.0.0",
     "dbgate-api": "^5.0.0-alpha.1",
