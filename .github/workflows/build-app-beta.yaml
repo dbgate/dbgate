@@ -30,6 +30,9 @@ jobs:
       - name: yarn adjustPackageJson
         run: |
           yarn adjustPackageJson
+      - name: yarn set timeout
+        run: |
+          yarn config set network-timeout 100000
       - name: yarn install
         run: |
           yarn install
