@@ -43,7 +43,7 @@
     "is-electron": "^2.2.1",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.21",
     "moment": "^2.24.0",
