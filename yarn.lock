@@ -3351,6 +3351,11 @@ dateformat@^4.6.3:
   resolved "https://registry.yarnpkg.com/dateformat/-/dateformat-4.6.3.tgz#556fa6497e5217fedb78821424f8a1c22fa3f4b5"
   integrity sha512-2P0p0pFGzHS5EMnhdxQi7aJN+iMheud0UhG4dlE1DLAlvL8JHjJJTX/CSm4JXwV0Ka5nGk3zC5mcb5bUQUxxMA==
 
+dbgate-plugin-oracle@^5.0.0-alpha.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/dbgate-plugin-oracle/-/dbgate-plugin-oracle-5.2.1.tgz#0e70d2d01a9d1b52058617a26a085462d941e163"
+  integrity sha512-UMjUpIhPQ+3kO7C1dd/77O5gtZvqLksz1JWZHFe9ZTl4/Bf3LJaKrbcCgI1/c3vxEYkIwfe8cFIc9gl4Oie6yA==
+
 dbgate-plugin-tools@^1.0.4, dbgate-plugin-tools@^1.0.7, dbgate-plugin-tools@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/dbgate-plugin-tools/-/dbgate-plugin-tools-1.0.8.tgz#bb16f38ff7161d9b57c08f0918e152593e7ac695"

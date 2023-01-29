@@ -46,6 +46,7 @@
     "jsonwebtoken": "^8.5.1",
     "line-reader": "^0.4.0",
     "lodash": "^4.17.21",
+    "moment": "^2.24.0",
     "ncp": "^2.0.0",
     "node-cron": "^2.0.3",
     "on-finished": "^2.4.1",
