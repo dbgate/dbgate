@@ -38,6 +38,7 @@
     "dbgate-plugin-mysql": "^5.0.0-alpha.1",
     "dbgate-plugin-postgres": "^5.0.0-alpha.1",
     "dbgate-plugin-xml": "^5.0.0-alpha.1",
+    "dbgate-plugin-oracle": "^5.0.0-alpha.1",
     "dbgate-web": "^5.0.0-alpha.1",
     "dotenv": "^16.0.0",
     "pinomin": "^1.0.1"
