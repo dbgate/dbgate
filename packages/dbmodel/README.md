@@ -1,5 +1,7 @@
 # dbmodel
-Deploy, load or build script from model of SQL database. Can be used as command-line tool or as javascript functions
+Deploy, load or build script from model of SQL database. Can be used as command-line tool. Uses [DbGate](https://dbgate.org) tooling and plugins for connecting many different databases.
+
+If you want to use this tool from JavaScript interface, please use [dbgate-api](https://www.npmjs.com/package/dbgate-api) package.
 
 Model is stored as a collection of files:
 * tables - stored as YAML files
@@ -51,6 +53,18 @@ dbmodel deploy -s localhost -u USERNAME -p PASSWORD -d DATABASE -e mssql@dbgate-
 # build SQL script from project
 dbmodel build -e mssql@dbgate-plugin-mssql PROJECT_FOLDER OUTPUT_FILE.sql
 ```
+
+Parameter -e (or --engine) specifies database dialect and connection driver to be used
+Supported databases:
+- MySQL - `-e mysql@dbgate-plugin-mysql`
+- MS SQL Server - `-e mssql@dbgate-plugin-mssql`
+- PostgreSQL - `-e postgres@dbgate-plugin-postgres`
+- SQLite - `-e sqlite@dbgate-plugin-sqlite`
+- Oracle - `-e oracle@dbgate-plugin-oracle`
+- MariaDB - `-e mariadb@dbgate-plugin-mysql`
+- CockroachDB - `-e cockroach@dbgate-plugin-postgres`
+- Amazon Redshift - `-e redshift@dbgate-plugin-postgres`
+
 
 ## Table yaml file documentation
 
