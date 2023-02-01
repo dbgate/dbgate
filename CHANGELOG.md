@@ -8,6 +8,18 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.2
+- FIXED: Optimalized load DB structure for PostgreSQL #451
+- ADDED: Auto-closing query connections after configurable (15 minutes default) no-activity interval #468
+- ADDED: Set application-name connection parameter (for PostgreSQL and MS SQL) for easier identifying of DbGate connections
+- ADDED: Filters supports binary IDs #467
+- FIXED: Ctrl+Tab works (switching tabs) #457
+- FIXED: Format code supports non-standard letters #450
+- ADDED: New logging system, log to file, ability to reduce logging #360 (using https://www.npmjs.com/package/pinomin)
+- FIXED: crash on Windows and Mac after system goes in suspend mode #458
+- ADDED: dbmodel standalone NPM package (https://www.npmjs.com/package/dbmodel) - deploy database via commandline tool
+
+
 ### 5.2.1
 - FIXED: client_id param in OAuth
 - ADDED: OAuth scope parameter
