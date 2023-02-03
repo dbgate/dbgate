@@ -233,7 +233,7 @@
 
 <style>
   .padLeft {
-    margin-right: 0.25rem;
+    margin-left: 0.25rem;
   }
 
   .padRight {

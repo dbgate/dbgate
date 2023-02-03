@@ -8,8 +8,9 @@
       const currentDb = currentDbArg == getCurrentValueMarker ? getCurrentDatabase() : currentDbArg;
       return (
         tab.closedTime == null &&
-        (!tab.props?.conid || tab.props?.conid == currentDb?.connection?._id) &&
-        (!tab.props?.database || tab.props?.database == currentDb?.name)
+        (!tab.props?.conid ||
+          !tab.props?.database ||
+          (tab.props?.conid == currentDb?.connection?._id && tab.props?.database == currentDb?.name))
       );
     }
     return tab.closedTime == null;
@@ -529,6 +530,9 @@
               <span class="file-name">
                 {tab.title}
               </span>
+              {#if $lockedDatabaseMode && tab.props?.conid && tab.props?.conid != $currentDatabase?.connection?._id}
+                <FontIcon icon="img warn" padLeft title="This tab is bound to different server than actual DB" />
+              {/if}
               <TabCloseButton unsaved={tab.unsaved} on:click={e => closeTab(tab.tabid)} />
             </div>
           {/each}
