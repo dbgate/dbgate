@@ -5,18 +5,33 @@ const sql = require('./sql');
 const { DatabaseAnalyser } = require('dbgate-tools');
 const { isTypeString, isTypeNumeric } = require('dbgate-tools');
 
-function getColumnInfo({
-  isNullable,
-  extra,
-  columnName,
-  dataType,
-  charMaxLength,
-  numericPrecision,
-  numericScale,
-  defaultValue,
-  columnComment,
-  columnType,
-}) {
+function quoteDefaultValue(value) {
+  if (value == null) return value;
+  if (!isNaN(value) && !isNaN(parseFloat(value))) return value;
+  if (_.isString(value) && value.startsWith('CURRENT_')) return value;
+  if (_.isString(value)) {
+    return `'${value.replace("'", "\\'")}'`;
+  }
+  return value;
+}
+
+function getColumnInfo(
+  {
+    isNullable,
+    extra,
+    columnName,
+    dataType,
+    charMaxLength,
+    numericPrecision,
+    numericScale,
+    defaultValue,
+    columnComment,
+    columnType,
+  },
+  driver
+) {
+  const { quoteDefaultValues } = driver.__analyserInternals;
+
   const columnTypeTokens = _.isString(columnType) ? columnType.split(' ').map(x => x.trim().toLowerCase()) : [];
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
@@ -28,7 +43,7 @@ function getColumnInfo({
     columnName,
     columnComment,
     dataType: fullDataType,
-    defaultValue,
+    defaultValue: quoteDefaultValues ? quoteDefaultValue(defaultValue) : defaultValue,
     isUnsigned: columnTypeTokens.includes('unsigned'),
     isZerofill: columnTypeTokens.includes('zerofill'),
   };
@@ -101,7 +116,7 @@ class Analyser extends DatabaseAnalyser {
         ...table,
         objectId: table.pureName,
         contentHash: _.isDate(table.modifyDate) ? table.modifyDate.toISOString() : table.modifyDate,
-        columns: columns.rows.filter(col => col.pureName == table.pureName).map(getColumnInfo),
+        columns: columns.rows.filter(col => col.pureName == table.pureName).map(x => getColumnInfo(x, this.driver)),
         primaryKey: DatabaseAnalyser.extractPrimaryKeys(table, pkColumns.rows),
         foreignKeys: DatabaseAnalyser.extractForeignKeys(table, fkColumns.rows),
         tableRowCount: table.tableRowCount,
@@ -139,7 +154,7 @@ class Analyser extends DatabaseAnalyser {
         ...view,
         objectId: view.pureName,
         contentHash: _.isDate(view.modifyDate) ? view.modifyDate.toISOString() : view.modifyDate,
-        columns: columns.rows.filter(col => col.pureName == view.pureName).map(getColumnInfo),
+        columns: columns.rows.filter(col => col.pureName == view.pureName).map(x => getColumnInfo(x, this.driver)),
         createSql: viewTexts[view.pureName],
         requiresFormat: true,
       })),

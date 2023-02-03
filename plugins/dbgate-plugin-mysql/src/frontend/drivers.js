@@ -136,6 +136,9 @@ const mysqlDriver = {
   ...mysqlDriverBase,
   engine: 'mysql@dbgate-plugin-mysql',
   title: 'MySQL',
+  __analyserInternals: {
+    quoteDefaultValues: true,
+  },
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
@@ -143,6 +146,9 @@ const mariaDriver = {
   ...mysqlDriverBase,
   engine: 'mariadb@dbgate-plugin-mysql',
   title: 'MariaDB',
+  __analyserInternals: {
+    quoteDefaultValues: false,
+  },
 };
 
 module.exports = [mysqlDriver, mariaDriver];
