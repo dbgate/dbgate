@@ -56,7 +56,7 @@
       return [...names, group];
     })}
   on:drop={handleDrop}
-  use:contextMenu={() => groupContextMenu(group)}
+  use:contextMenu={groupContextMenu ? () => groupContextMenu(group) : null}
 >
   <span class="expand-icon">
     <FontIcon icon={groupIconFunc(isExpanded)} />
