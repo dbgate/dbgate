@@ -214,7 +214,7 @@
                   <FormCheckboxField label="Truncate tables (delete all rows)" name="truncate" />
 
                   {#each ['View', 'Matview', 'Procedure', 'Function', 'Trigger'] as objtype}
-                    <div class="obj-heading">{getObjectTypeFieldLabel(objtype.toLowerCase() + 's')}s</div>
+                    <div class="obj-heading">{getObjectTypeFieldLabel(objtype.toLowerCase() + 's')}</div>
                     <FormCheckboxField label="Create" name={`create${objtype}s`} />
                     <FormCheckboxField label="Drop" name={`drop${objtype}s`} />
                     {#if values[`drop${objtype}s`]}
