@@ -78,6 +78,7 @@ export interface EngineDriver {
   supportsDatabaseDump?: boolean;
   supportsServerSummary?: boolean;
   supportsDatabaseProfiler?: boolean;
+  requiresDefaultSortCriteria?: boolean;
   profilerFormatterFunction?: string;
   profilerTimestampFunction?: string;
   profilerChartAggregateFunction?: string;

@@ -114,6 +114,7 @@ const driver = {
   dumperClass: MsSqlDumper,
   dialect,
   readOnlySessions: false,
+  requiresDefaultSortCriteria: true,
   dialectByVersion(version) {
     if (version && version.productVersionNumber < 11) {
       return {

@@ -519,13 +519,15 @@ export abstract class GridDisplay {
         alias: 'basetbl',
       },
       columns: columns.map(col => this.createColumnExpression(col, { alias: 'basetbl' })),
-      orderBy: [
-        {
-          exprType: 'column',
-          columnName: orderColumnName,
-          direction: 'ASC',
-        },
-      ],
+      orderBy: this.driver?.requiresDefaultSortCriteria
+        ? [
+            {
+              exprType: 'column',
+              columnName: orderColumnName,
+              direction: 'ASC',
+            },
+          ]
+        : null,
     };
     const displayedColumnInfo = _.keyBy(
       this.columns.map(col => ({ ...col, sourceAlias: 'basetbl' })),
