@@ -20,6 +20,7 @@
       limit,
       formatterFunction,
       filters: display ? display.compileFilters() : null,
+      sort: display.config.sort,
     });
 
     return response;

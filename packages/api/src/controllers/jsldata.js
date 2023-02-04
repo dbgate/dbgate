@@ -135,9 +135,9 @@ module.exports = {
   },
 
   getRows_meta: true,
-  async getRows({ jslid, offset, limit, filters, formatterFunction }) {
+  async getRows({ jslid, offset, limit, filters, sort, formatterFunction }) {
     const datastore = await this.ensureDatastore(jslid, formatterFunction);
-    return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters);
+    return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
   },
 
   getStats_meta: true,
