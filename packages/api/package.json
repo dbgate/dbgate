@@ -53,7 +53,7 @@
     "on-finished": "^2.4.1",
     "pinomin": "^1.0.1",
     "portfinder": "^1.0.28",
-    "rimraf": "^4.1.2",
+    "rimraf": "^3.0.0",
     "simple-encryptor": "^4.0.0",
     "ssh2": "^1.11.0",
     "tar": "^6.0.5",
