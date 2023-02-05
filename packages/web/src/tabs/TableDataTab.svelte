@@ -99,6 +99,8 @@
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
   import { getBoolSettingsValue, getIntSettingsValue } from '../settings/settingsTools';
+  import useEditorData from '../query/useEditorData';
+  import { markTabSaved, markTabUnsaved } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -118,7 +120,27 @@
 
   $: connection = useConnectionInfo({ conid });
 
+  const { editorState, editorValue, setEditorData } = useEditorData({
+    tabid,
+    onInitialData: value => {
+      dispatchChangeSet({ type: 'reset', value });
+      invalidateCommands();
+      if (changeSetContainsChanges(value)) {
+        markTabUnsaved(tabid);
+      }
+    },
+  });
+
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
+
+  $: {
+    setEditorData($changeSetStore.value);
+    if (changeSetContainsChanges($changeSetStore?.value)) {
+      markTabUnsaved(tabid);
+    } else {
+      markTabSaved(tabid);
+    }
+  }
 
   async function handleConfirmSql(sql) {
     const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });

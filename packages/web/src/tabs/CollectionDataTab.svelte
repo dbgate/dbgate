@@ -51,6 +51,8 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import { getBoolSettingsValue } from '../settings/settingsTools';
+  import useEditorData from '../query/useEditorData';
+  import { markTabSaved, markTabUnsaved } from '../utility/common';
 
   export let tabid;
   export let conid;
@@ -65,7 +67,27 @@
   const config = useGridConfig(tabid);
   const cache = writable(createGridCache());
 
+  const { editorState, editorValue, setEditorData } = useEditorData({
+    tabid,
+    onInitialData: value => {
+      dispatchChangeSet({ type: 'reset', value });
+      invalidateCommands();
+      if (changeSetContainsChanges(value)) {
+        markTabUnsaved(tabid);
+      }
+    },
+  });
+
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
+
+  $: {
+    setEditorData($changeSetStore.value);
+    if (changeSetContainsChanges($changeSetStore?.value)) {
+      markTabUnsaved(tabid);
+    } else {
+      markTabSaved(tabid);
+    }
+  }
 
   $: {
     $changeSetStore;
