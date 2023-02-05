@@ -47,6 +47,15 @@
   const values = writable({});
 
   // $: console.log('recreates', recreates);
+
+  $: currentScript = $values.deleteReferencesCascade
+    ? [
+        ...deleteCascadesScripts
+          .filter(({ script, title }) => $values[`deleteReferencesFor_${title}`] !== false)
+          .map(({ script, title }) => script),
+        sql,
+      ].join('\n')
+    : sql;
 </script>
 
 <FormProviderCore {values}>
@@ -54,18 +63,7 @@
     <div slot="header">Save changes</div>
 
     <div class="editor">
-      <SqlEditor
-        {engine}
-        value={$values.deleteReferencesCascade
-          ? [
-              ...deleteCascadesScripts
-                .filter(({ script, title }) => $values[`deleteReferencesFor_${title}`] !== false)
-                .map(({ script, title }) => script),
-              sql,
-            ].join('\n')
-          : sql}
-        readOnly
-      />
+      <SqlEditor {engine} value={currentScript} readOnly />
     </div>
 
     {#if !_.isEmpty(deleteCascadesScripts)}
@@ -146,16 +144,7 @@
         disabled={isRecreated && !$values.allowRecreate}
         on:click={e => {
           closeCurrentModal();
-          onConfirm(
-            e.detail.deleteReferencesCascade
-              ? [
-                  ...deleteCascadesScripts
-                    .filter(({ script, title }) => e.detail[`deleteReferencesFor_${title}`] !== false)
-                    .map(({ script, title }) => script),
-                  sql,
-                ].join('\n')
-              : null
-          );
+          onConfirm(currentScript);
         }}
       />
       <FormStyledButton type="button" value="Close" on:click={closeCurrentModal} />
@@ -164,7 +153,7 @@
         value="Open script"
         on:click={() => {
           newQuery({
-            initialData: sql,
+            initialData: currentScript,
           });
 
           closeCurrentModal();

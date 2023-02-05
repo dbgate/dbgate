@@ -11,6 +11,7 @@
     "start:api": "yarn workspace dbgate-api start | pino-pretty",
     "start:api:json": "yarn workspace dbgate-api start",
     "start:app": "cd app && yarn start | pino-pretty",
+    "start:app:singledb": "CONNECTIONS=con1 SERVER_con1=localhost ENGINE_con1=mysql@dbgate-plugin-mysql USER_con1=root PASSWORD_con1=Pwd2020Db SINGLE_CONNECTION=con1 SINGLE_DATABASE=Chinook yarn start:app",
     "start:api:debug": "cross-env DEBUG=* yarn workspace dbgate-api start",
     "start:app:debug": "cd app && cross-env DEBUG=* yarn start",
     "start:api:debug:ssh": "cross-env DEBUG=ssh yarn workspace dbgate-api start",

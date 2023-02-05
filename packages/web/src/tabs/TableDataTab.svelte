@@ -147,7 +147,7 @@
     } else {
       showModal(ConfirmSqlModal, {
         sql,
-        onConfirm: sqlOverride => handleConfirmSql(sqlOverride || sql),
+        onConfirm: confirmedSql => handleConfirmSql(confirmedSql),
         engine: driver.engine,
         deleteCascadesScripts,
         skipConfirmSettingKey: deleteCascadesScripts?.length ? null : 'skipConfirm.tableDataSave',
