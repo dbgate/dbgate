@@ -507,9 +507,7 @@ export function getAlterTableScript(
 
   const plan = createAlterTablePlan(oldTable, newTable, opts, wholeOldDb, wholeNewDb, driver);
   const dmp = driver.createDumper({ useHardSeparator: true });
-  if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
-  if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
   return {
     sql: dmp.s,
     recreates: plan.recreates,
@@ -526,9 +524,7 @@ export function getAlterDatabaseScript(
 ) {
   const plan = createAlterDatabasePlan(oldDb, newDb, opts, wholeOldDb, wholeNewDb, driver);
   const dmp = driver.createDumper({ useHardSeparator: true });
-  if (!driver.dialect.disableExplicitTransaction) dmp.beginTransaction();
   plan.run(dmp);
-  if (!driver.dialect.disableExplicitTransaction) dmp.commitTransaction();
   return {
     sql: dmp.s,
     recreates: plan.recreates,

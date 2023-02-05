@@ -22,7 +22,6 @@ const dialect = {
     return `[${s}]`;
   },
   anonymousPrimaryKey: true,
-  disableExplicitTransaction: true,
 
   createColumn: true,
   dropColumn: true,
