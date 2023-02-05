@@ -158,12 +158,12 @@ function resolveAnalysedPromises() {
   afterAnalyseCallbacks = [];
 }
 
-async function handleRunScript({ msgid, sql }, skipReadonlyCheck = false) {
+async function handleRunScript({ msgid, sql, useTransaction }, skipReadonlyCheck = false) {
   await waitConnected();
   const driver = requireEngineDriver(storedConnection);
   try {
     if (!skipReadonlyCheck) ensureExecuteCustomScript(driver);
-    await driver.script(systemConnection, sql);
+    await driver.script(systemConnection, sql, { useTransaction });
     process.send({ msgtype: 'response', msgid });
   } catch (err) {
     process.send({ msgtype: 'response', msgid, errorMessage: err.message });

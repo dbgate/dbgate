@@ -12,6 +12,10 @@ export interface StreamOptions {
   info?: (info) => void;
 }
 
+export interface RunScriptOptions {
+  useTransaction: boolean;
+}
+
 export interface QueryOptions {
   discardResult?: boolean;
 }
@@ -130,7 +134,7 @@ export interface EngineDriver {
   createDatabase(pool: any, name: string): Promise;
   dropDatabase(pool: any, name: string): Promise;
   getQuerySplitterOptions(usage: 'stream' | 'script' | 'editor'): any;
-  script(pool: any, sql: string): Promise;
+  script(pool: any, sql: string, options?: RunScriptOptions): Promise;
   getNewObjectTemplates(): NewObjectTemplate[];
   // direct call of pool method, only some methods could be supported, on only some drivers
   callMethod(pool, method, args);

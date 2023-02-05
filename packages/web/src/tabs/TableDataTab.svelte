@@ -121,7 +121,7 @@
   const [changeSetStore, dispatchChangeSet] = createUndoReducer(createChangeSet());
 
   async function handleConfirmSql(sql) {
-    const resp = await apiCall('database-connections/run-script', { conid, database, sql });
+    const resp = await apiCall('database-connections/run-script', { conid, database, sql, useTransaction: true });
     const { errorMessage } = resp || {};
     if (errorMessage) {
       showModal(ErrorMessageModal, { title: 'Error when saving', message: errorMessage });

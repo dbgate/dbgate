@@ -533,6 +533,10 @@ export class SqlDumper implements AlterProcessor {
     this.putCmd('^commit');
   }
 
+  rollbackTransaction() {
+    this.putCmd('^rollback');
+  }
+
   alterProlog() {}
   alterEpilog() {}
 

@@ -2,6 +2,7 @@ import _compact from 'lodash/compact';
 import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
+import { EngineDriver, RunScriptOptions } from 'dbgate-types';
 
 const dialect = {
   limitSelect: true,
@@ -18,6 +19,12 @@ const dialect = {
   },
   defaultSchemaName: null,
 };
+
+export async function runCommandOnDriver(pool, driver: EngineDriver, cmd: (dmp: SqlDumper) => void) {
+  const dmp = driver.createDumper();
+  cmd(dmp as any);
+  await driver.query(pool, dmp.s, { discardResult: true });
+}
 
 export const driverBase = {
   analyserClass: null,
@@ -41,12 +48,25 @@ export const driverBase = {
     const analyser = new this.analyserClass(pool, this, version);
     return analyser.incrementalAnalysis(structure);
   },
-  createDumper(options = null) {
+  createDumper(options = null): SqlDumper {
     return new this.dumperClass(this, options);
   },
-  async script(pool, sql) {
+  async script(pool, sql, options: RunScriptOptions) {
+    if (options?.useTransaction) {
+      runCommandOnDriver(pool, this, dmp => dmp.beginTransaction());
+    }
     for (const sqlItem of splitQuery(sql, this.getQuerySplitterOptions('script'))) {
-      await this.query(pool, sqlItem, { discardResult: true });
+      try {
+        await this.query(pool, sqlItem, { discardResult: true });
+      } catch (err) {
+        if (options?.useTransaction) {
+          runCommandOnDriver(pool, this, dmp => dmp.rollbackTransaction());
+        }
+        throw err;
+      }
+    }
+    if (options?.useTransaction) {
+      runCommandOnDriver(pool, this, dmp => dmp.commitTransaction());
     }
   },
   getNewObjectTemplates() {
@@ -113,5 +133,5 @@ export const driverBase = {
     return this.readQuery(pool, dmp.s, structure);
   },
   showConnectionField: (field, values) => false,
-  showConnectionTab: (field) => true,
+  showConnectionTab: field => true,
 };

@@ -171,11 +171,11 @@ module.exports = {
   },
 
   runScript_meta: true,
-  async runScript({ conid, database, sql }, req) {
+  async runScript({ conid, database, sql, useTransaction }, req) {
     testConnectionPermission(conid, req);
     logger.info({ conid, database, sql }, 'Processing script');
     const opened = await this.ensureOpened(conid, database);
-    const res = await this.sendRequest(opened, { msgtype: 'runScript', sql });
+    const res = await this.sendRequest(opened, { msgtype: 'runScript', sql, useTransaction });
     return res;
   },
 
