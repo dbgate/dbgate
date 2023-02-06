@@ -71,7 +71,7 @@ class JsonLinesDatastore {
       })
       .asc();
 
-    await rimraf(tempDir);
+    await new Promise(resolve => rimraf(tempDir, resolve));
   }
 
   _closeReader() {
