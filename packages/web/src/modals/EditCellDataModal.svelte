@@ -91,6 +91,8 @@
           options={[
             { value: 'text', label: 'None (raw text)' },
             { value: 'json', label: 'JSON' },
+            { value: 'html', label: 'HTML' },
+            { value: 'xml', label: 'XML' },
           ]}
         />
       </div>
