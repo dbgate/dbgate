@@ -40,6 +40,14 @@
   onMount(() => {
     editor.getEditor().focus();
     if (safeJsonParse(textValue)) syntaxMode = 'json';
+    if (textValue.match(/<\/[a-zA-z0-9-]+\s*>/)) {
+      // end tag
+      if (textValue.match(/<\/(div|span|h[0-6]|p|input|a)\s*>/)) {
+        syntaxMode = 'html';
+      } else {
+        syntaxMode = 'xml';
+      }
+    }
   });
 
   function handleKeyDown(ev) {
