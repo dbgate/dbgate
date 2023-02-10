@@ -226,6 +226,8 @@
     'img type-binary': 'mdi mdi-file color-icon-blue',
     'img type-rejson': 'mdi mdi-color-json color-icon-blue',
     'img keydb': 'mdi mdi-key color-icon-blue',
+
+    'img duplicator': 'mdi mdi-content-duplicate color-icon-green',
   };
 </script>
 
