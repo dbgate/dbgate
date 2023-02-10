@@ -13,7 +13,8 @@ export class JslGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc,
     rows: any,
     isDynamicStructure: boolean,
-    supportsReload: boolean
+    supportsReload: boolean,
+    editable: boolean = false
   ) {
     super(config, setConfig, cache, setCache, null);
 
@@ -22,6 +23,7 @@ export class JslGridDisplay extends GridDisplay {
     this.supportsReload = supportsReload;
     this.isDynamicStructure = isDynamicStructure;
     this.filterTypeOverride = 'eval';
+    this.editable = editable;
 
     if (structure?.columns) {
       this.columns = _.uniqBy(

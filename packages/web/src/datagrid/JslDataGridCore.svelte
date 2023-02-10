@@ -55,6 +55,7 @@
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import useEffect from '../utility/useEffect';
+  import ChangeSetGrider from './ChangeSetGrider';
 
   import LoadingDataGridCore from './LoadingDataGridCore.svelte';
   import RowsArrayGrider from './RowsArrayGrider';
@@ -62,6 +63,9 @@
   export let jslid;
   export let display;
   export let formatterFunction;
+
+  export let changeSetState;
+  export let dispatchChangeSet;
 
   export const activator = createActivator('JslDataGridCore', false);
 
@@ -93,7 +97,18 @@
   }
   $: $effect;
 
-  $: grider = new RowsArrayGrider(loadedRows);
+  $: grider = new ChangeSetGrider(
+    loadedRows,
+    changeSetState,
+    dispatchChangeSet,
+    display,
+    undefined,
+    undefined,
+    undefined,
+    true
+  );
+
+  // $: grider = new RowsArrayGrider(loadedRows);
 
   export function exportGrid() {
     const initialValues = {} as any;

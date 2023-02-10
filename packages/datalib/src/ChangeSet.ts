@@ -15,6 +15,7 @@ export interface ChangeSetItem {
   pureName: string;
   schemaName?: string;
   insertedRowIndex?: number;
+  existingRowIndex?: number;
   document?: any;
   condition?: { [column: string]: string };
   fields?: { [column: string]: string };
@@ -38,6 +39,7 @@ export interface ChangeSetRowDefinition {
   pureName: string;
   schemaName: string;
   insertedRowIndex?: number;
+  existingRowIndex?: number;
   condition?: { [column: string]: string };
 }
 
@@ -66,7 +68,8 @@ export function findExistingChangeSetItem(
       x =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
-        _.isEqual(x.condition, definition.condition)
+        ((definition.existingRowIndex != null && x.existingRowIndex == definition.existingRowIndex) ||
+          (definition.existingRowIndex == null && _.isEqual(x.condition, definition.condition)))
     );
     if (inUpdates) return ['updates', inUpdates];
 
@@ -74,7 +77,8 @@ export function findExistingChangeSetItem(
       x =>
         x.pureName == definition.pureName &&
         x.schemaName == definition.schemaName &&
-        _.isEqual(x.condition, definition.condition)
+        ((definition.existingRowIndex != null && x.existingRowIndex == definition.existingRowIndex) ||
+          (definition.existingRowIndex == null && _.isEqual(x.condition, definition.condition)))
     );
     if (inDeletes) return ['deletes', inDeletes];
 
@@ -119,6 +123,7 @@ export function setChangeSetValue(
         schemaName: definition.schemaName,
         condition: definition.condition,
         insertedRowIndex: definition.insertedRowIndex,
+        existingRowIndex: definition.existingRowIndex,
         fields: {
           [definition.uniqueName]: value,
         },
@@ -162,6 +167,7 @@ export function setChangeSetRowData(
         schemaName: definition.schemaName,
         condition: definition.condition,
         insertedRowIndex: definition.insertedRowIndex,
+        existingRowIndex: definition.existingRowIndex,
         document,
       },
     ],
@@ -395,6 +401,7 @@ export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetR
           pureName: definition.pureName,
           schemaName: definition.schemaName,
           condition: definition.condition,
+          existingRowIndex: definition.existingRowIndex,
         },
       ],
     };
@@ -402,9 +409,11 @@ export function deleteChangeSetRows(changeSet: ChangeSet, definition: ChangeSetR
 }
 
 export function getChangeSetInsertedRows(changeSet: ChangeSet, name?: NamedObjectInfo) {
-  if (!name) return [];
+  // if (!name) return [];
   if (!changeSet) return [];
-  const rows = changeSet.inserts.filter(x => x.pureName == name.pureName && x.schemaName == name.schemaName);
+  const rows = changeSet.inserts.filter(
+    x => name == null || (x.pureName == name.pureName && x.schemaName == name.schemaName)
+  );
   const maxIndex = _.maxBy(rows, x => x.insertedRowIndex)?.insertedRowIndex;
   if (maxIndex == null) return [];
   const res = Array(maxIndex + 1).fill({});

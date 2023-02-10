@@ -12,6 +12,10 @@
   export let supportsReload = false;
   export let listenInitializeFile = false;
 
+  export let changeSetState = null;
+  export let changeSetStore = null;
+  export let dispatchChangeSet = null;
+
   let loadedRows;
   let infoCounter = 0;
 
@@ -47,7 +51,8 @@
     cache.update,
     loadedRows,
     $info?.__isDynamicStructure,
-    supportsReload
+    supportsReload,
+    !!changeSetState
   );
 </script>
 
@@ -63,5 +68,8 @@
     bind:loadedRows
     isDynamicStructure={$info?.__isDynamicStructure}
     useEvalFilters
+    {changeSetState}
+    {changeSetStore}
+    {dispatchChangeSet}
   />
 {/key}

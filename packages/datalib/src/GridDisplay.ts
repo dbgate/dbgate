@@ -460,30 +460,39 @@ export abstract class GridDisplay {
     return _.pick(row, this.changeSetKeyFields);
   }
 
-  getChangeSetField(row, uniqueName, insertedRowIndex): ChangeSetFieldDefinition {
+  getChangeSetField(
+    row,
+    uniqueName,
+    insertedRowIndex,
+    existingRowIndex = null,
+    baseNameOmitable = false
+  ): ChangeSetFieldDefinition {
     const col = this.columns.find(x => x.uniqueName == uniqueName);
     if (!col) return null;
     const baseObj = this.baseTableOrSimilar;
-    if (!baseObj) return null;
-    if (baseObj.pureName != col.pureName || baseObj.schemaName != col.schemaName) {
-      return null;
+    if (!baseNameOmitable) {
+      if (!baseObj) return null;
+      if (baseObj.pureName != col.pureName || baseObj.schemaName != col.schemaName) {
+        return null;
+      }
     }
 
     return {
-      ...this.getChangeSetRow(row, insertedRowIndex),
+      ...this.getChangeSetRow(row, insertedRowIndex, existingRowIndex, baseNameOmitable),
       uniqueName: uniqueName,
       columnName: col.columnName,
     };
   }
 
-  getChangeSetRow(row, insertedRowIndex): ChangeSetRowDefinition {
+  getChangeSetRow(row, insertedRowIndex, existingRowIndex, baseNameOmitable = false): ChangeSetRowDefinition {
     const baseObj = this.baseTableOrSimilar;
-    if (!baseObj) return null;
+    if (!baseNameOmitable && !baseObj) return null;
     return {
-      pureName: baseObj.pureName,
-      schemaName: baseObj.schemaName,
+      pureName: baseObj?.pureName,
+      schemaName: baseObj?.schemaName,
       insertedRowIndex,
-      condition: insertedRowIndex == null ? this.getChangeSetCondition(row) : null,
+      existingRowIndex,
+      condition: insertedRowIndex == null && existingRowIndex == null ? this.getChangeSetCondition(row) : null,
     };
   }
 

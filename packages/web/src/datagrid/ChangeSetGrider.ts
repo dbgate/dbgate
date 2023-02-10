@@ -48,7 +48,8 @@ export default class ChangeSetGrider extends Grider {
     public display: GridDisplay,
     public macro: MacroDefinition = null,
     public macroArgs: {} = {},
-    public selectedCells: MacroSelectedCell[] = []
+    public selectedCells: MacroSelectedCell[] = [],
+    public useRowIndexInsteaOfCondition: boolean = false
   ) {
     super();
     this.changeSet = changeSetState && changeSetState.value;
@@ -81,7 +82,12 @@ export default class ChangeSetGrider extends Grider {
     if (this.rowCacheIndexes.has(index)) return;
     const row = this.getRowSource(index);
     const insertedRowIndex = this.getInsertedRowIndex(index);
-    const rowDefinition = this.display?.getChangeSetRow(row, insertedRowIndex);
+    const rowDefinition = this.display?.getChangeSetRow(
+      row,
+      insertedRowIndex,
+      this.useRowIndexInsteaOfCondition && index < this.sourceRows.length ? index : null,
+      this.useRowIndexInsteaOfCondition
+    );
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
     const rowUpdated = matchedChangeSetItem
       ? getRowFromItem(row, matchedChangeSetItem)
@@ -125,7 +131,7 @@ export default class ChangeSetGrider extends Grider {
   }
 
   get canInsert() {
-    return !!this.display.baseTableOrCollection;
+    return this.useRowIndexInsteaOfCondition || !!this.display.baseTableOrCollection;
   }
 
   getRowData(index: number) {
@@ -152,13 +158,23 @@ export default class ChangeSetGrider extends Grider {
 
   setCellValue(index: number, uniqueName: string, value: any) {
     const row = this.getRowSource(index);
-    const definition = this.display.getChangeSetField(row, uniqueName, this.getInsertedRowIndex(index));
+    const definition = this.display.getChangeSetField(
+      row,
+      uniqueName,
+      this.getInsertedRowIndex(index),
+      this.useRowIndexInsteaOfCondition && index < this.sourceRows.length ? index : null,
+      this.useRowIndexInsteaOfCondition
+    );
     this.applyModification(chs => setChangeSetValue(chs, definition, value));
   }
 
   setRowData(index: number, document: any) {
     const row = this.getRowSource(index);
-    const definition = this.display.getChangeSetRow(row, this.getInsertedRowIndex(index));
+    const definition = this.display.getChangeSetRow(
+      row,
+      this.getInsertedRowIndex(index),
+      this.useRowIndexInsteaOfCondition && index < this.sourceRows.length ? index : null
+    );
     this.applyModification(chs => setChangeSetRowData(chs, definition, document));
   }
 
