@@ -108,12 +108,33 @@ module.exports = {
     return true;
   },
 
-  saveChangeSet_meta: true,
-  async saveChangeSet({ folder, file, changeSet }) {
+  modifyFile_meta: true,
+  async modifyFile({ folder, file, changeSet, mergedRows, mergeKey, mergeMode }) {
     await jsldata.closeDataStore(`archive://${folder}/${file}`);
     const changedFilePath = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
+
+    if (!fs.existsSync(changedFilePath)) {
+      if (!mergedRows) {
+        return false;
+      }
+      const fileStream = fs.createWriteStream(changedFilePath);
+      for (const row of mergedRows) {
+        await fileStream.write(JSON.stringify(row) + '\n');
+      }
+      await fileStream.close();
+
+      socket.emitChanged(`archive-files-changed`, { folder });
+      return true;
+    }
+
     const tmpchangedFilePath = path.join(resolveArchiveFolder(folder), `${file}-${uuidv1()}.jsonl`);
-    const reader = await dbgateApi.changeSetOverJsonLinesReader({ fileName: changedFilePath, changeSet });
+    const reader = await dbgateApi.modifyJsonLinesReader({
+      fileName: changedFilePath,
+      changeSet,
+      mergedRows,
+      mergeKey,
+      mergeMode,
+    });
     const writer = await dbgateApi.jsonLinesWriter({ fileName: tmpchangedFilePath });
     await dbgateApi.copyStream(reader, writer);
     await fs.unlink(changedFilePath);

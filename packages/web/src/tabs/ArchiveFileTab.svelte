@@ -68,7 +68,7 @@
   }
 
   export async function save() {
-    await apiCall('archive/save-change-set', {
+    await apiCall('archive/modify-file', {
       folder: archiveFolder,
       file: archiveFile,
       changeSet: $changeSetStore.value,
@@ -88,6 +88,7 @@
     jslid={jslid || `archive://${archiveFolder}/${archiveFile}`}
     supportsReload
     changeSetState={$changeSetStore}
+    focusOnVisible
     {changeSetStore}
     {dispatchChangeSet}
   />

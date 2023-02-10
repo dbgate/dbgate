@@ -267,6 +267,54 @@
     onClick: () => getCurrentDataGrid().editCellValue(),
   });
 
+  registerCommand({
+    id: 'dataGrid.mergeSelectedCellsIntoMirror',
+    category: 'Data grid',
+    name: 'Merge selected cells',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: false }),
+  });
+
+  registerCommand({
+    id: 'dataGrid.mergeSelectedRowsIntoMirror',
+    category: 'Data grid',
+    name: 'Merge selected rows',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'merge', fullRows: true }),
+  });
+
+  registerCommand({
+    id: 'dataGrid.appendSelectedCellsIntoMirror',
+    category: 'Data grid',
+    name: 'Append selected cells',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: false }),
+  });
+
+  registerCommand({
+    id: 'dataGrid.appendSelectedRowsIntoMirror',
+    category: 'Data grid',
+    name: 'Append selected rows',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'append', fullRows: true }),
+  });
+
+  registerCommand({
+    id: 'dataGrid.replaceSelectedCellsIntoMirror',
+    category: 'Data grid',
+    name: 'Replace with selected cells',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: false }),
+  });
+
+  registerCommand({
+    id: 'dataGrid.replaceSelectedRowsIntoMirror',
+    category: 'Data grid',
+    name: 'Replace with selected rows',
+    testEnabled: () => getCurrentDataGrid()?.mirrorWriteEnabled(true),
+    onClick: () => getCurrentDataGrid().mergeSelectionIntoMirror({ mergeMode: 'replace', fullRows: true }),
+  });
+
   function getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, selectedRowData) {
     if (selectedCells.length > 1 && selectedCells.every(x => _.isNumber(x[0]) && _.isNumber(x[1]))) {
       let sum = _.sumBy(selectedCells, cell => {
@@ -295,7 +343,7 @@
   import { GridDisplay } from 'dbgate-datalib';
   import { driverBase, parseCellValue } from 'dbgate-tools';
   import { getContext, onDestroy } from 'svelte';
-  import _ from 'lodash';
+  import _, { map } from 'lodash';
   import registerCommand from '../commands/registerCommand';
   import ColumnHeaderControl from './ColumnHeaderControl.svelte';
   import DataGridRow from './DataGridRow.svelte';
@@ -319,7 +367,7 @@
   import DataFilterControl from './DataFilterControl.svelte';
   import createReducer from '../utility/createReducer';
   import keycodes from '../utility/keycodes';
-  import { copyRowsFormat, selectedCellsCallback } from '../stores';
+  import { copyRowsFormat, currentArchive, selectedCellsCallback } from '../stores';
   import {
     copyRowsFormatDefs,
     copyRowsToClipboard,
@@ -349,6 +397,7 @@
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
+  import { showSnackbarSuccess } from '../utility/snackbar';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -911,6 +960,34 @@
       engineDriver: display?.driver,
       tableInfo: display.baseTable,
     });
+  }
+
+  export function mirrorWriteEnabled(requireKey) {
+    return requireKey ? !!display.baseTable?.primaryKey || !!display.baseCollection : !!display.baseTableOrSimilar;
+  }
+
+  export async function mergeSelectionIntoMirror({ fullRows, mergeMode = 'merge' }) {
+    const file = display.baseTableOrSimilar?.pureName;
+    const mergeKey = display.baseCollection ? ['_id'] : display.baseTable?.primaryKey.columns.map(x => x.columnName);
+
+    const cells = cellsToRegularCells(selectedCells);
+    const rowIndexes = _.sortBy(_.uniq(cells.map(x => x[0])));
+    const colIndexes = _.sortBy(_.uniq(cells.map(x => x[1])));
+    const rows = rowIndexes.map(rowIndex => grider.getRowData(rowIndex));
+    // @ts-ignore
+    const columns = colIndexes.map(col => realColumnUniqueNames[col]);
+    const mergedRows = fullRows ? rows : rows.map(x => _.pick(x, _.uniq([...columns, ...mergeKey])));
+
+    const res = await apiCall('archive/modify-file', {
+      folder: $currentArchive,
+      file,
+      mergedRows,
+      mergeKey,
+      mergeMode,
+    });
+    if (res) {
+      showSnackbarSuccess(`Merged ${mergedRows.length} rows into ${file} in archive ${$currentArchive}`);
+    }
   }
 
   $: autofillMarkerCell =
@@ -1622,6 +1699,17 @@
     // { command: 'dataGrid.copyJsonDocument', hideDisabled: true },
     { divider: true },
     { placeTag: 'export' },
+    {
+      label: 'Archive mirror',
+      submenu: [
+        { command: 'dataGrid.mergeSelectedCellsIntoMirror' },
+        { command: 'dataGrid.mergeSelectedRowsIntoMirror' },
+        { command: 'dataGrid.appendSelectedCellsIntoMirror' },
+        { command: 'dataGrid.appendSelectedRowsIntoMirror' },
+        { command: 'dataGrid.replaceSelectedCellsIntoMirror' },
+        { command: 'dataGrid.replaceSelectedRowsIntoMirror' },
+      ],
+    },
     { command: 'dataGrid.generateSqlFromData' },
     { command: 'dataGrid.openFreeTable' },
     { command: 'dataGrid.openChartFromSelection' },
