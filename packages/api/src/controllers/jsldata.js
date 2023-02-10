@@ -113,6 +113,14 @@ module.exports = {
     return datastore;
   },
 
+  async closeDataStore(jslid) {
+    const datastore = this.datastores[jslid];
+    if (datastore) {
+      await datastore._closeReader();
+      delete this.datastores[jslid];
+    }
+  },
+
   getInfo_meta: true,
   async getInfo({ jslid }) {
     const file = getJslFileName(jslid);

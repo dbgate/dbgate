@@ -75,6 +75,7 @@ class JsonLinesDatastore {
   }
 
   _closeReader() {
+    // console.log('CLOSING READER', this.reader);
     if (!this.reader) return;
     const reader = this.reader;
     this.reader = null;
@@ -83,7 +84,7 @@ class JsonLinesDatastore {
     // this.firstRowToBeReturned = null;
     this.currentFilter = null;
     this.currentSort = null;
-    reader.close(() => {});
+    return new Promise(resolve => reader.close(resolve));
   }
 
   async notifyChanged(callback) {
@@ -97,6 +98,8 @@ class JsonLinesDatastore {
   }
 
   async _openReader(fileName) {
+    // console.log('OPENING READER', fileName);
+    // console.log(fs.readFileSync(fileName, 'utf-8'));
     return new Promise((resolve, reject) =>
       lineReader.open(fileName, (err, reader) => {
         if (err) reject(err);

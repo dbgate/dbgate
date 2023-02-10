@@ -18,6 +18,7 @@
 
 <script lang="ts">
   import { changeSetContainsChanges, createChangeSet } from 'dbgate-datalib';
+  import { tick } from 'svelte';
 
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 
@@ -73,6 +74,7 @@
       changeSet: $changeSetStore.value,
     });
     dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+    await tick();
     runCommand('dataGrid.refresh');
   }
 

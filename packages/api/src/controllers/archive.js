@@ -9,6 +9,7 @@ const getJslFileName = require('../utility/getJslFileName');
 const { getLogger } = require('dbgate-tools');
 const uuidv1 = require('uuid/v1');
 const dbgateApi = require('../shell');
+const jsldata = require('./jsldata');
 
 const logger = getLogger('archive');
 
@@ -109,6 +110,7 @@ module.exports = {
 
   saveChangeSet_meta: true,
   async saveChangeSet({ folder, file, changeSet }) {
+    await jsldata.closeDataStore(`archive://${folder}/${file}`);
     const changedFilePath = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
     const tmpchangedFilePath = path.join(resolveArchiveFolder(folder), `${file}-${uuidv1()}.jsonl`);
     const reader = await dbgateApi.changeSetOverJsonLinesReader({ fileName: changedFilePath, changeSet });
