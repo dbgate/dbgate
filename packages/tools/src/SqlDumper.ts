@@ -197,6 +197,8 @@ export class SqlDumper implements AlterProcessor {
 
   specialColumnOptions(column) {}
 
+  selectScopeIdentity(table: TableInfo) {}
+
   columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
     if (column.computedExpression) {
       this.put('^as %s', column.computedExpression);

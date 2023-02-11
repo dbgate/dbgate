@@ -89,6 +89,10 @@ class Dumper extends SqlDumper {
   putByteArrayValue(value) {
     this.putRaw(`unhex('${arrayToHexString(value)}')`);
   }
+
+  selectScopeIdentity() {
+    this.put('^select ^last_insert_id()')
+  }
 }
 
 module.exports = Dumper;

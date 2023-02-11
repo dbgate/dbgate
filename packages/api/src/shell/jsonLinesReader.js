@@ -35,7 +35,11 @@ class ParseStream extends stream.Transform {
 async function jsonLinesReader({ fileName, encoding = 'utf-8', limitRows = undefined }) {
   logger.info(`Reading file ${fileName}`);
 
-  const fileStream = fs.createReadStream(fileName, encoding);
+  const fileStream = fs.createReadStream(
+    fileName,
+    // @ts-ignore
+    encoding
+  );
   const liner = byline(fileStream);
   const parser = new ParseStream({ limitRows });
   liner.pipe(parser);

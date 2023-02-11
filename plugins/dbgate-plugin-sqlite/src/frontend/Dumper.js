@@ -16,6 +16,10 @@ class Dumper extends SqlDumper {
   truncateTable(name) {
     this.putCmd('^delete ^from %f', name);
   }
+
+  selectScopeIdentity() {
+    this.put('^select last_insert_rowid()')
+  }
 }
 
 module.exports = Dumper;

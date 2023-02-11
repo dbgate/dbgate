@@ -107,7 +107,11 @@ async function modifyJsonLinesReader({
 }) {
   logger.info(`Reading file ${fileName} with change set`);
 
-  const fileStream = fs.createReadStream(fileName, encoding);
+  const fileStream = fs.createReadStream(
+    fileName,
+    // @ts-ignore
+    encoding
+  );
   const liner = byline(fileStream);
   const parser = new ParseStream({ limitRows, changeSet, mergedRows, mergeKey, mergeMode });
   liner.pipe(parser);

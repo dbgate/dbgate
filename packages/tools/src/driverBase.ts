@@ -2,7 +2,7 @@ import _compact from 'lodash/compact';
 import { SqlDumper } from './SqlDumper';
 import { splitQuery } from 'dbgate-query-splitter';
 import { dumpSqlSelect } from 'dbgate-sqltree';
-import { EngineDriver, RunScriptOptions } from 'dbgate-types';
+import { EngineDriver, QueryResult, RunScriptOptions } from 'dbgate-types';
 
 const dialect = {
   limitSelect: true,
@@ -20,10 +20,20 @@ const dialect = {
   defaultSchemaName: null,
 };
 
-export async function runCommandOnDriver(pool, driver: EngineDriver, cmd: (dmp: SqlDumper) => void) {
+export async function runCommandOnDriver(pool, driver: EngineDriver, cmd: (dmp: SqlDumper) => void): Promise<void> {
   const dmp = driver.createDumper();
   cmd(dmp as any);
   await driver.query(pool, dmp.s, { discardResult: true });
+}
+
+export async function runQueryOnDriver(
+  pool,
+  driver: EngineDriver,
+  cmd: (dmp: SqlDumper) => void
+): Promise<QueryResult> {
+  const dmp = driver.createDumper();
+  cmd(dmp as any);
+  return await driver.query(pool, dmp.s);
 }
 
 export const driverBase = {
