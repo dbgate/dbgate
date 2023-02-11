@@ -4,7 +4,7 @@
   registerCommand({
     id: 'dataDuplicator.run',
     category: 'Data duplicator',
-    name: 'Run',
+    name: 'Import into DB',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon run',
@@ -14,8 +14,6 @@
 </script>
 
 <script lang="ts">
-  import ro from 'date-fns/locale/ro';
-
   import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 
   import _ from 'lodash';
@@ -63,6 +61,7 @@
   $: {
     busy;
     runnerId;
+    tableRows;
     invalidateCommands();
   }
 
@@ -134,7 +133,7 @@
   };
 
   // $: console.log('$archiveFiles', $archiveFiles);
-  $: console.log('$editorState', $editorState.value);
+  // $: console.log('$editorState', $editorState.value);
 
   $: tableRows = pairedNames.map(name => {
     const item = $editorState?.value?.tables?.[name];
@@ -152,7 +151,7 @@
     };
   });
 
-  $: console.log('$archiveFolders', $archiveFolders);
+  // $: console.log('$archiveFolders', $archiveFolders);
 </script>
 
 <ToolStripContainer>
