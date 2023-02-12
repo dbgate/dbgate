@@ -207,11 +207,18 @@ export class DataDuplicator {
   async run() {
     this.createPlan();
 
-    for (const item of this.itemPlan) {
-      const stats = await item.runImport();
-      logger.info(
-        `Duplicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows`
-      );
+    await runCommandOnDriver(this.pool, this.driver, dmp => dmp.beginTransaction());
+    try {
+      for (const item of this.itemPlan) {
+        const stats = await item.runImport();
+        logger.info(
+          `Duplicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows`
+        );
+      }
+    } catch (err) {
+      logger.error({ err }, 'Failed duplicator job, rollbacking');
+      await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
     }
+    await runCommandOnDriver(this.pool, this.driver, dmp => dmp.commitTransaction());
   }
 }
