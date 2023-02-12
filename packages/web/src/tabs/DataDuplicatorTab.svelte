@@ -5,6 +5,7 @@
     id: 'dataDuplicator.run',
     category: 'Data duplicator',
     name: 'Import into DB',
+    keyText: 'F5 | CtrlOrCommand+Enter',
     toolbar: true,
     isRelatedToTab: true,
     icon: 'icon run',
