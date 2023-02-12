@@ -1,7 +1,9 @@
-import { createAsyncWriteStream, runCommandOnDriver, runQueryOnDriver } from 'dbgate-tools';
+import { createAsyncWriteStream, getLogger, runCommandOnDriver, runQueryOnDriver } from 'dbgate-tools';
 import { DatabaseInfo, EngineDriver, ForeignKeyInfo, TableInfo } from 'dbgate-types';
 import _pick from 'lodash/pick';
 import _omit from 'lodash/omit';
+
+const logger = getLogger('dataDuplicator');
 
 export interface DataDuplicatorItem {
   openStream: () => Promise<ReadableStream>;
@@ -86,6 +88,10 @@ class DuplicatorItemHolder {
     const readStream = await this.item.openStream();
     const driver = this.duplicator.driver;
     const pool = this.duplicator.pool;
+    let inserted = 0;
+    let mapped = 0;
+    let missing = 0;
+
     const writeStream = createAsyncWriteStream(this.duplicator.stream, {
       processItem: async chunk => {
         if (chunk.__isStreamHeader) {
@@ -102,6 +108,7 @@ class DuplicatorItemHolder {
               Object.values(insertedObj)
             )
           );
+          inserted += 1;
           if (this.autoColumn && this.isReferenced) {
             const res = await runQueryOnDriver(pool, driver, dmp => dmp.selectScopeIdentity(this.table));
             const resId = Object.entries(res?.rows?.[0])?.[0]?.[1];
@@ -129,9 +136,12 @@ class DuplicatorItemHolder {
             );
             const resId = Object.entries(res?.rows?.[0])?.[0]?.[1];
             if (resId != null) {
+              mapped += 1;
               this.idMap[chunk[this.autoColumn]] = resId;
             } else if (this.item.operation == 'insertMissing') {
               await doCopy();
+            } else {
+              missing += 1;
             }
             break;
           }
@@ -147,6 +157,8 @@ class DuplicatorItemHolder {
     //     this.idMap[oldId] = newId;
     //   },
     // });
+
+    return { inserted, mapped, missing };
   }
 }
 
@@ -196,7 +208,10 @@ export class DataDuplicator {
     this.createPlan();
 
     for (const item of this.itemPlan) {
-      await item.runImport();
+      const stats = await item.runImport();
+      logger.info(
+        `Duplicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows`
+      );
     }
   }
 }

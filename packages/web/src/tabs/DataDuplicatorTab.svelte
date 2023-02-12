@@ -23,11 +23,13 @@
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
   import TableControl from '../elements/TableControl.svelte';
+  import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
+  import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEditorData from '../query/useEditorData';
-  import { currentArchive, getCurrentConfig } from '../stores';
+  import { getCurrentConfig } from '../stores';
   import { apiCall, apiOff, apiOn } from '../utility/api';
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -40,6 +42,7 @@
 
   let busy = false;
   let runnerId = null;
+  let executeNumber = 0;
 
   export const activator = createActivator('DataDuplicatorTab', true);
 
@@ -106,6 +109,7 @@
 
   export async function run() {
     if (busy) return;
+    executeNumber += 1;
     busy = true;
     const script = await createScript();
     let runid = runnerId;
@@ -156,77 +160,85 @@
 </script>
 
 <ToolStripContainer>
-  <div>
-    <div class="bold m-2">Source archive</div>
-    <SelectField
-      isNative
-      value={$editorState.value?.archiveFolder}
-      on:change={e => {
-        setEditorData(old => ({
-          ...old,
-          archiveFolder: e.detail,
-        }));
-      }}
-      options={$archiveFolders?.map(x => ({
-        label: x.name,
-        value: x.name,
-      })) || []}
-    />
-
-    <div class="bold m-2">Imported files</div>
-
-    <TableControl
-      rows={tableRows}
-      columns={[
-        { header: '', fieldName: 'isChecked', slot: 1 },
-        { header: 'File=>Table', fieldName: 'name' },
-        { header: 'Operation', fieldName: 'operation', slot: 2 },
-        { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
-      ]}
-    >
-      <svelte:fragment slot="1" let:row>
-        <CheckboxField
-          checked={row.isChecked}
-          on:change={e => {
-            changeTable({ ...row, isChecked: e.target.checked });
-          }}
-        />
-      </svelte:fragment>
-      <svelte:fragment slot="2" let:row>
+  <VerticalSplitter>
+    <svelte:fragment slot="1">
+      <div>
+        <div class="bold m-2">Source archive</div>
         <SelectField
           isNative
-          value={row.operation}
+          value={$editorState.value?.archiveFolder}
           on:change={e => {
-            changeTable({ ...row, operation: e.detail });
+            setEditorData(old => ({
+              ...old,
+              archiveFolder: e.detail,
+            }));
           }}
-          disabled={!row.isChecked}
-          options={[
-            { label: 'Copy row', value: 'copy' },
-            { label: 'Lookup (find matching row)', value: 'lookup' },
-            { label: 'Insert if not exists', value: 'insertMissing' },
-          ]}
+          options={$archiveFolders?.map(x => ({
+            label: x.name,
+            value: x.name,
+          })) || []}
         />
-      </svelte:fragment>
-      <svelte:fragment slot="3" let:row>
-        {#if row.operation != 'copy'}
-          <SelectField
-            isNative
-            value={row.matchColumn1}
-            on:change={e => {
-              changeTable({ ...row, matchColumn1: e.detail });
-            }}
-            disabled={!row.isChecked}
-            options={$dbinfo?.tables
-              ?.find(x => x.pureName?.toUpperCase() == row.name.toUpperCase())
-              ?.columns?.map(col => ({
-                label: col.columnName,
-                value: col.columnName,
-              })) || []}
-          />
-        {/if}
-      </svelte:fragment>
-    </TableControl>
-  </div>
+
+        <div class="bold m-2">Imported files</div>
+
+        <TableControl
+          rows={tableRows}
+          columns={[
+            { header: '', fieldName: 'isChecked', slot: 1 },
+            { header: 'File=>Table', fieldName: 'name' },
+            { header: 'Operation', fieldName: 'operation', slot: 2 },
+            { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
+          ]}
+        >
+          <svelte:fragment slot="1" let:row>
+            <CheckboxField
+              checked={row.isChecked}
+              on:change={e => {
+                changeTable({ ...row, isChecked: e.target.checked });
+              }}
+            />
+          </svelte:fragment>
+          <svelte:fragment slot="2" let:row>
+            <SelectField
+              isNative
+              value={row.operation}
+              on:change={e => {
+                changeTable({ ...row, operation: e.detail });
+              }}
+              disabled={!row.isChecked}
+              options={[
+                { label: 'Copy row', value: 'copy' },
+                { label: 'Lookup (find matching row)', value: 'lookup' },
+                { label: 'Insert if not exists', value: 'insertMissing' },
+              ]}
+            />
+          </svelte:fragment>
+          <svelte:fragment slot="3" let:row>
+            {#if row.operation != 'copy'}
+              <SelectField
+                isNative
+                value={row.matchColumn1}
+                on:change={e => {
+                  changeTable({ ...row, matchColumn1: e.detail });
+                }}
+                disabled={!row.isChecked}
+                options={$dbinfo?.tables
+                  ?.find(x => x.pureName?.toUpperCase() == row.name.toUpperCase())
+                  ?.columns?.map(col => ({
+                    label: col.columnName,
+                    value: col.columnName,
+                  })) || []}
+              />
+            {/if}
+          </svelte:fragment>
+        </TableControl>
+      </div>
+    </svelte:fragment>
+    <svelte:fragment slot="2">
+      <SocketMessageView eventName={runnerId ? `runner-info-${runnerId}` : null} {executeNumber} showNoMessagesAlert />
+    </svelte:fragment>
+  </VerticalSplitter>
+
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataDuplicator.run" />
   </svelte:fragment>
