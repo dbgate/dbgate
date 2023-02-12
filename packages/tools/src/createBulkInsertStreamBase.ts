@@ -1,10 +1,11 @@
+import { EngineDriver, WriteTableOptions } from 'dbgate-types';
 import _intersection from 'lodash/intersection';
 import { getLogger } from './getLogger';
 import { prepareTableForImport } from './tableTransforms';
 
 const logger = getLogger('bulkStreamBase');
 
-export function createBulkInsertStreamBase(driver, stream, pool, name, options): any {
+export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, name, options: WriteTableOptions): any {
   const fullNameQuoted = name.schemaName
     ? `${driver.dialect.quoteIdentifier(name.schemaName)}.${driver.dialect.quoteIdentifier(name.pureName)}`
     : driver.dialect.quoteIdentifier(name.pureName);
@@ -58,21 +59,21 @@ export function createBulkInsertStreamBase(driver, stream, pool, name, options):
     const dmp = driver.createDumper();
 
     dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
-    dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col)));
+    dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col as string)));
     dmp.putRaw(')\n VALUES\n');
 
     let wasRow = false;
     for (const row of rows) {
       if (wasRow) dmp.putRaw(',\n');
       dmp.putRaw('(');
-      dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col]));
+      dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
       dmp.putRaw(')');
       wasRow = true;
     }
     dmp.putRaw(';');
     // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
     // console.log(dmp.s);
-    await driver.query(pool, dmp.s);
+    await driver.query(pool, dmp.s, { discardResult: true });
   };
 
   writable.sendIfFull = async () => {

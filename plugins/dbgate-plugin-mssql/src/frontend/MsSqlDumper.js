@@ -155,6 +155,10 @@ class MsSqlDumper extends SqlDumper {
         newname
       );
   }
+
+  selectScopeIdentity() {
+    this.put('^select ^scope_identity()');
+  }
 }
 
 MsSqlDumper.prototype.renameView = MsSqlDumper.prototype.renameObject;

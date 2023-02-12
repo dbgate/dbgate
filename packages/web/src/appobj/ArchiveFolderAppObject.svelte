@@ -102,8 +102,27 @@ await dbgateApi.deployDb(${JSON.stringify(
         editor: {
           sourceConid: '__model',
           sourceDatabase: `archive:${data.name}`,
-          targetConid: _.get($currentDatabase, 'connection._id'),
-          targetDatabase: _.get($currentDatabase, 'name'),
+          targetConid: $currentDatabase?.connection?._id,
+          targetDatabase: $currentDatabase?.name,
+        },
+      }
+    );
+  };
+
+  const handleOpenDuplicatorTab = () => {
+    openNewTab(
+      {
+        title: data.name,
+        icon: 'img duplicator',
+        tabComponent: 'DataDuplicatorTab',
+        props: {
+          conid: $currentDatabase?.connection?._id,
+          database: $currentDatabase?.name,
+        },
+      },
+      {
+        editor: {
+          archiveFolder: data.name,
         },
       }
     );
@@ -115,6 +134,7 @@ await dbgateApi.deployDb(${JSON.stringify(
       data.name != 'default' && { text: 'Rename', onClick: handleRename },
       data.name != 'default' &&
         $currentDatabase && [
+          { text: 'Data duplicator', onClick: handleOpenDuplicatorTab },
           { text: 'Generate deploy DB SQL - experimental', onClick: handleGenerateDeploySql },
           { text: 'Shell: Deploy DB - experimental', onClick: handleGenerateDeployScript },
         ],

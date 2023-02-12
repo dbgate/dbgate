@@ -99,6 +99,14 @@ class Dumper extends SqlDumper {
   putByteArrayValue(value) {
     this.putRaw(`e'\\\\x${arrayToHexString(value)}'`);
   }
+
+  selectScopeIdentity(table) {
+    this.put(
+      "^SELECT currval(pg_get_serial_sequence('%f','%s'))",
+      table,
+      table.columns?.find(x => x.autoIncrement)?.[0]?.columnName
+    );
+  }
 }
 
 module.exports = Dumper;

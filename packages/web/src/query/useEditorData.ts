@@ -72,7 +72,7 @@ export default function useEditorData({ tabid, reloadToken = 0, loadFromArgs = n
         if (onInitialData) onInitialData(initFallback);
         value = initFallback;
         // move to local forage
-        await localforage.setItem(localStorageKey, JSON.stringify(initFallback));
+        await localforage.setItem(localStorageKey, initFallback);
         localStorage.removeItem(localStorageKey);
       } else {
         const init = await localforage.getItem(localStorageKey);

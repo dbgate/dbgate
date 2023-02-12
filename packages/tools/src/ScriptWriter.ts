@@ -57,6 +57,10 @@ export class ScriptWriter {
     this._put(`await dbgateApi.importDatabase(${JSON.stringify(options)});`);
   }
 
+  dataDuplicator(options) {
+    this._put(`await dbgateApi.dataDuplicator(${JSON.stringify(options)});`);
+  }
+
   comment(s) {
     this._put(`// ${s}`);
   }
@@ -143,6 +147,13 @@ export class ScriptWriterJson {
     });
   }
 
+  dataDuplicator(options) {
+    this.commands.push({
+      type: 'dataDuplicator',
+      options,
+    });
+  }
+
   getScript(schedule = null) {
     return {
       type: 'json',
@@ -185,6 +196,9 @@ export function jsonScriptToJavascript(json) {
         break;
       case 'importDatabase':
         script.importDatabase(cmd.options);
+        break;
+      case 'dataDuplicator':
+        script.dataDuplicator(cmd.options);
         break;
     }
   }
