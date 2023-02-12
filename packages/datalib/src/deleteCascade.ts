@@ -55,7 +55,7 @@ function processDependencies(
               schemaName: fk.schemaName,
             },
             alias: 't0',
-            relations: subFkPath.map((fkItem, fkIndex) => ({
+            relations: [...subFkPath].reverse().map((fkItem, fkIndex) => ({
               joinType: 'INNER JOIN',
               alias: `t${fkIndex + 1}`,
               name: {
@@ -123,7 +123,16 @@ export function getDeleteCascades(changeSet: ChangeSet, dbinfo: DatabaseInfo): C
     const table = dbinfo.tables.find(x => x.pureName == baseCmd.pureName && x.schemaName == baseCmd.schemaName);
     if (!table.primaryKey) continue;
 
-    processDependencies(changeSet, result, allForeignKeys, [], table, baseCmd, dbinfo, [table.pureName]);
+    const itemResult: ChangeSetDeleteCascade[] = [];
+    processDependencies(changeSet, itemResult, allForeignKeys, [], table, baseCmd, dbinfo, [table.pureName]);
+    for (const item of itemResult) {
+      const existing = result.find(x => x.title == item.title);
+      if (existing) {
+        existing.commands.push(...item.commands);
+      } else {
+        result.push(item);
+      }
+    }
 
     // let resItem = result.find(x => x.title == baseCmd.pureName);
     // if (!resItem) {
