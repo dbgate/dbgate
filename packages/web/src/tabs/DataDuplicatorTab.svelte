@@ -22,6 +22,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
+  import ObjectConfigurationControl from '../elements/ObjectConfigurationControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
@@ -153,6 +154,8 @@
       isChecked,
       operation,
       matchColumn1,
+      file: `${name}.jsonl`,
+      table: tableInfo?.schemaName ? `${tableInfo?.schemaName}.${tableInfo?.pureName}` : tableInfo?.pureName,
     };
   });
 
@@ -162,76 +165,79 @@
 <ToolStripContainer>
   <VerticalSplitter>
     <svelte:fragment slot="1">
-      <div>
-        <div class="bold m-2">Source archive</div>
-        <SelectField
-          isNative
-          value={$editorState.value?.archiveFolder}
-          on:change={e => {
-            setEditorData(old => ({
-              ...old,
-              archiveFolder: e.detail,
-            }));
-          }}
-          options={$archiveFolders?.map(x => ({
-            label: x.name,
-            value: x.name,
-          })) || []}
-        />
+      <div class="wrapper">
+        <ObjectConfigurationControl title="Configuration">
+          <div class="bold m-2">Source archive</div>
+          <SelectField
+            isNative
+            value={$editorState.value?.archiveFolder}
+            on:change={e => {
+              setEditorData(old => ({
+                ...old,
+                archiveFolder: e.detail,
+              }));
+            }}
+            options={$archiveFolders?.map(x => ({
+              label: x.name,
+              value: x.name,
+            })) || []}
+          />
+        </ObjectConfigurationControl>
 
-        <div class="bold m-2">Imported files</div>
-
-        <TableControl
-          rows={tableRows}
-          columns={[
-            { header: '', fieldName: 'isChecked', slot: 1 },
-            { header: 'File=>Table', fieldName: 'name' },
-            { header: 'Operation', fieldName: 'operation', slot: 2 },
-            { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
-          ]}
-        >
-          <svelte:fragment slot="1" let:row>
-            <CheckboxField
-              checked={row.isChecked}
-              on:change={e => {
-                changeTable({ ...row, isChecked: e.target.checked });
-              }}
-            />
-          </svelte:fragment>
-          <svelte:fragment slot="2" let:row>
-            <SelectField
-              isNative
-              value={row.operation}
-              on:change={e => {
-                changeTable({ ...row, operation: e.detail });
-              }}
-              disabled={!row.isChecked}
-              options={[
-                { label: 'Copy row', value: 'copy' },
-                { label: 'Lookup (find matching row)', value: 'lookup' },
-                { label: 'Insert if not exists', value: 'insertMissing' },
-              ]}
-            />
-          </svelte:fragment>
-          <svelte:fragment slot="3" let:row>
-            {#if row.operation != 'copy'}
+        <ObjectConfigurationControl title="Imported files">
+          <TableControl
+            rows={tableRows}
+            columns={[
+              { header: '', fieldName: 'isChecked', slot: 1 },
+              { header: 'Source file', fieldName: 'file' },
+              { header: 'Target table', fieldName: 'table' },
+              { header: 'Operation', fieldName: 'operation', slot: 2 },
+              { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
+            ]}
+          >
+            <svelte:fragment slot="1" let:row>
+              <CheckboxField
+                checked={row.isChecked}
+                on:change={e => {
+                  changeTable({ ...row, isChecked: e.target.checked });
+                }}
+              />
+            </svelte:fragment>
+            <svelte:fragment slot="2" let:row>
               <SelectField
                 isNative
-                value={row.matchColumn1}
+                value={row.operation}
                 on:change={e => {
-                  changeTable({ ...row, matchColumn1: e.detail });
+                  changeTable({ ...row, operation: e.detail });
                 }}
                 disabled={!row.isChecked}
-                options={$dbinfo?.tables
-                  ?.find(x => x.pureName?.toUpperCase() == row.name.toUpperCase())
-                  ?.columns?.map(col => ({
-                    label: col.columnName,
-                    value: col.columnName,
-                  })) || []}
+                options={[
+                  { label: 'Copy row', value: 'copy' },
+                  { label: 'Lookup (find matching row)', value: 'lookup' },
+                  { label: 'Insert if not exists', value: 'insertMissing' },
+                ]}
               />
-            {/if}
-          </svelte:fragment>
-        </TableControl>
+            </svelte:fragment>
+            <svelte:fragment slot="3" let:row>
+              {#if row.operation != 'copy'}
+                <SelectField
+                  isNative
+                  value={row.matchColumn1}
+                  on:change={e => {
+                    changeTable({ ...row, matchColumn1: e.detail });
+                  }}
+                  disabled={!row.isChecked}
+                  options={$dbinfo?.tables
+                    ?.find(x => x.pureName?.toUpperCase() == row.name.toUpperCase())
+                    ?.columns?.map(col => ({
+                      label: col.columnName,
+                      value: col.columnName,
+                    })) || []}
+                />
+              {/if}
+            </svelte:fragment>
+          </TableControl>
+        </ObjectConfigurationControl>
       </div>
     </svelte:fragment>
     <svelte:fragment slot="2">
@@ -255,3 +261,12 @@
         font-weight: bold;
     }
 </style> -->
+<style>
+  .wrapper {
+    overflow-y: auto;
+    background-color: var(--theme-bg-0);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+</style>
