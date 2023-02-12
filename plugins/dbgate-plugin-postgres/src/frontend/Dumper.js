@@ -101,11 +101,8 @@ class Dumper extends SqlDumper {
   }
 
   selectScopeIdentity(table) {
-    this.put(
-      "^SELECT currval(pg_get_serial_sequence('%f','%s'))",
-      table,
-      table.columns?.find(x => x.autoIncrement)?.[0]?.columnName
-    );
+    const column = table.columns?.find(x => x.autoIncrement);
+    this.put("^SELECT currval(pg_get_serial_sequence('%f','%s'))", table, column ? column.columnName : null);
   }
 }
 
