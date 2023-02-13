@@ -78,7 +78,7 @@ export abstract class PerspectiveTreeNode {
     public setConfig: ChangePerspectiveConfigFunc,
     public parentNode: PerspectiveTreeNode,
     public dataProvider: PerspectiveDataProvider,
-    public databaseConfig: PerspectiveDatabaseConfig,
+    public defaultDatabaseConfig: PerspectiveDatabaseConfig,
     public designerId: string
   ) {
     this.nodeConfig = config.nodes.find(x => x.designerId == designerId);
@@ -125,6 +125,12 @@ export abstract class PerspectiveTreeNode {
   }
   get engineType(): PerspectiveDatabaseEngineType {
     return null;
+  }
+  get databaseConfig(): PerspectiveDatabaseConfig {
+    const res = { ...this.defaultDatabaseConfig };
+    if (this.nodeConfig?.conid) res.conid = this.nodeConfig?.conid;
+    if (this.nodeConfig?.database) res.database = this.nodeConfig?.database;
+    return res;
   }
   abstract getNodeLoadProps(parentRows: any[]): PerspectiveDataLoadProps;
   get isRoot() {
@@ -534,11 +540,11 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
+    defaultDatabaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode,
     designerId: string
   ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+    super(dbs, config, setConfig, parentNode, dataProvider, defaultDatabaseConfig, designerId);
 
     this.isTable = !!this.db?.tables?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
     this.isView = !!this.db?.views?.find(x => x.schemaName == table.schemaName && x.pureName == table.pureName);
@@ -690,7 +696,7 @@ export class PerspectiveTableColumnNode extends PerspectiveTreeNode {
       this.config,
       this.setConfig,
       this.dataProvider,
-      this.databaseConfig,
+      this.defaultDatabaseConfig,
       this
     );
   }
@@ -768,11 +774,11 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
+    defaultDatabaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode,
     designerId: string
   ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+    super(dbs, config, setConfig, parentNode, dataProvider, defaultDatabaseConfig, designerId);
     this.parentNodeConfig = this.tableNodeOrParent?.nodeConfig;
     // console.log('PATTERN COLUMN', column);
   }
@@ -904,7 +910,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
           this.config,
           this.setConfig,
           this.dataProvider,
-          this.databaseConfig,
+          this.defaultDatabaseConfig,
           this,
           null
         )
@@ -951,7 +957,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
           }
           // console.log('CP2');
 
-          const newConfig = { ...this.databaseConfig };
+          const newConfig: PerspectiveDatabaseConfig = { ...this.defaultDatabaseConfig };
           if (node.conid) newConfig.conid = node.conid;
           if (node.database) newConfig.database = node.database;
           const db = this.dbs?.[newConfig.conid]?.[newConfig.database];
@@ -983,7 +989,7 @@ export class PerspectivePatternColumnNode extends PerspectiveTreeNode {
                 this.config,
                 this.setConfig,
                 this.dataProvider,
-                newConfig,
+                this.defaultDatabaseConfig,
                 this,
                 node.designerId
               )
@@ -1073,11 +1079,11 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
+    defaultDatabaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode,
     designerId: string
   ) {
-    super(dbs, config, setConfig, parentNode, dataProvider, databaseConfig, designerId);
+    super(dbs, config, setConfig, parentNode, dataProvider, defaultDatabaseConfig, designerId);
   }
 
   get engineType(): PerspectiveDatabaseEngineType {
@@ -1118,7 +1124,7 @@ export class PerspectiveTableNode extends PerspectiveTreeNode {
       this.config,
       this.setConfig,
       this.dataProvider,
-      this.databaseConfig,
+      this.defaultDatabaseConfig,
       this
     );
   }
@@ -1160,12 +1166,12 @@ export class PerspectiveTableReferenceNode extends PerspectiveTableNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
+    defaultDatabaseConfig: PerspectiveDatabaseConfig,
     public isMultiple: boolean,
     parentNode: PerspectiveTreeNode,
     designerId: string
   ) {
-    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode, designerId);
+    super(table, dbs, config, setConfig, dataProvider, defaultDatabaseConfig, parentNode, designerId);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -1264,11 +1270,11 @@ export class PerspectiveCustomJoinTreeNode extends PerspectiveTableNode {
     config: PerspectiveConfig,
     setConfig: ChangePerspectiveConfigFunc,
     public dataProvider: PerspectiveDataProvider,
-    databaseConfig: PerspectiveDatabaseConfig,
+    defaultDatabaseConfig: PerspectiveDatabaseConfig,
     parentNode: PerspectiveTreeNode,
     designerId: string
   ) {
-    super(table, dbs, config, setConfig, dataProvider, databaseConfig, parentNode, designerId);
+    super(table, dbs, config, setConfig, dataProvider, defaultDatabaseConfig, parentNode, designerId);
   }
 
   matchChildRow(parentRow: any, childRow: any): boolean {
@@ -1474,7 +1480,7 @@ export function getTableChildPerspectiveNodes(
   config: PerspectiveConfig,
   setConfig: ChangePerspectiveConfigFunc,
   dataProvider: PerspectiveDataProvider,
-  databaseConfig: PerspectiveDatabaseConfig,
+  defaultDatabaseConfig: PerspectiveDatabaseConfig,
   parentNode: PerspectiveTreeNode
 ) {
   if (!table) return [];
@@ -1496,7 +1502,7 @@ export function getTableChildPerspectiveNodes(
               config,
               setConfig,
               dataProvider,
-              databaseConfig,
+              defaultDatabaseConfig,
               parentNode,
               designerId
             )
@@ -1507,7 +1513,7 @@ export function getTableChildPerspectiveNodes(
               config,
               setConfig,
               dataProvider,
-              databaseConfig,
+              defaultDatabaseConfig,
               parentNode,
               designerId
             )
@@ -1526,7 +1532,7 @@ export function getTableChildPerspectiveNodes(
             config,
             setConfig,
             dataProvider,
-            databaseConfig,
+            defaultDatabaseConfig,
             parentNode,
             designerId
           )
@@ -1565,7 +1571,7 @@ export function getTableChildPerspectiveNodes(
                 config,
                 setConfig,
                 dataProvider,
-                databaseConfig,
+                defaultDatabaseConfig,
                 isMultiple,
                 parentNode,
                 designerId
@@ -1591,7 +1597,7 @@ export function getTableChildPerspectiveNodes(
         if (ref.columns.find(x => x.source.includes('::') || x.target.includes('::'))) {
           continue;
         }
-        const newConfig = { ...databaseConfig };
+        const newConfig: PerspectiveDatabaseConfig = { ...defaultDatabaseConfig };
         if (node.conid) newConfig.conid = node.conid;
         if (node.database) newConfig.database = node.database;
         const db = dbs?.[newConfig.conid]?.[newConfig.database];
@@ -1623,7 +1629,7 @@ export function getTableChildPerspectiveNodes(
               config,
               setConfig,
               dataProvider,
-              newConfig,
+              defaultDatabaseConfig,
               parentNode,
               node.designerId
             )
