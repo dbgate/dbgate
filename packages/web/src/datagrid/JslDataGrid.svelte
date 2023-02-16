@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
-  import { generateTablePairingId } from 'dbgate-tools';
+  import { generateTablePairingId, processJsonDataUpdateCommands } from 'dbgate-tools';
   import { writable } from 'svelte/store';
   import JslFormView from '../formview/JslFormView.svelte';
   import { apiOff, apiOn, useApiCall } from '../utility/api';
@@ -45,9 +45,11 @@
   }
   $: $effect;
 
+  $: infoWithPairingId = generateTablePairingId($info);
+
   $: display = new JslGridDisplay(
     jslid,
-    (allowChangeChangeSetStructure && changeSetState?.value?.structure) || generateTablePairingId($info),
+    (allowChangeChangeSetStructure && changeSetState?.value?.structure) || infoWithPairingId,
     $config,
     config.update,
     $cache,
@@ -75,5 +77,8 @@
     {changeSetStore}
     {dispatchChangeSet}
     {allowChangeChangeSetStructure}
+    preprocessLoadedRow={changeSetState?.value?.dataUpdateCommands
+      ? row => processJsonDataUpdateCommands(row, changeSetState?.value?.dataUpdateCommands)
+      : null}
   />
 {/key}

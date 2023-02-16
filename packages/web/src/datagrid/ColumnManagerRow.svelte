@@ -6,6 +6,7 @@
   import { createEventDispatcher } from 'svelte';
   import { showModal } from '../modals/modalTools';
   import ColumnEditorModal from '../tableeditor/ColumnEditorModal.svelte';
+  import { editorDeleteColumn } from 'dbgate-tools';
 
   export let column;
   export let display;
@@ -21,9 +22,10 @@
   export let columnIndex = -1;
 
   export let allowChangeChangeSetStructure = false;
+  $: addDataCommand = allowChangeChangeSetStructure;
 
   function handleEditColumn() {
-    showModal(ColumnEditorModal, { columnInfo, tableInfo, setTableInfo });
+    showModal(ColumnEditorModal, { columnInfo, tableInfo, setTableInfo, addDataCommand });
   }
 
   function exchange(array, i1, i2) {
@@ -85,11 +87,7 @@
       <span class="icon" on:click={handleEditColumn}>
         <FontIcon icon="icon edit" />
       </span>
-      <span
-        class="icon"
-        on:click={() =>
-          setTableInfo(info => ({ ...info, columns: info.columns.filter(x => x.pairingId != columnInfo?.pairingId) }))}
-      >
+      <span class="icon" on:click={() => setTableInfo(info => editorDeleteColumn(info, columnInfo, addDataCommand))}>
         <FontIcon icon="icon delete" />
       </span>
       <span

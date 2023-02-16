@@ -17,6 +17,8 @@
   export let tableInfo = null;
   export let onAddNext;
   export let driver = null;
+
+  export let addDataCommand = false;
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
@@ -55,9 +57,9 @@
         on:click={e => {
           closeCurrentModal();
           if (columnInfo) {
-            setTableInfo(tbl => editorModifyColumn(tbl, e.detail));
+            setTableInfo(tbl => editorModifyColumn(tbl, e.detail, addDataCommand));
           } else {
-            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail, addDataCommand));
             if (onAddNext) onAddNext();
           }
         }}
@@ -68,7 +70,7 @@
           value="Save"
           on:click={e => {
             closeCurrentModal();
-            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail, addDataCommand));
           }}
         />
       {/if}
@@ -80,7 +82,7 @@
           value="Remove"
           on:click={() => {
             closeCurrentModal();
-            setTableInfo(tbl => editorDeleteColumn(tbl, columnInfo));
+            setTableInfo(tbl => editorDeleteColumn(tbl, columnInfo, addDataCommand));
           }}
         />
       {/if}

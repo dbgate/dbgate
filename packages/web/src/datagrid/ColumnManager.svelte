@@ -1,5 +1,5 @@
 <script lang="ts">
-  import _, { indexOf, range } from 'lodash';
+  import _, { add, indexOf, range } from 'lodash';
   import { ChangeSet, DisplayColumn, GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
@@ -113,19 +113,29 @@
   $: tableInfo = display?.editableStructure;
   $: setTableInfo = updFunc => {
     const structure = updFunc(display?.editableStructure);
+    let added = [];
+    if (structure['__addDataCommands']) {
+      added = structure['__addDataCommands'];
+      delete structure['__addDataCommands'];
+    }
     dispatchChangeSet({
       type: 'set',
       value: {
         ...changeSetState?.value,
+        dataUpdateCommands: [...(changeSetState?.value?.dataUpdateCommands || []), ...added],
         structure,
       },
     });
+    tick().then(() => display.reload());
   };
+
+  $: addDataCommand = allowChangeChangeSetStructure;
 
   function handleAddColumn() {
     showModal(ColumnEditorModal, {
       setTableInfo,
       tableInfo,
+      addDataCommand,
       onAddNext: async () => {
         await tick();
         handleAddColumn();

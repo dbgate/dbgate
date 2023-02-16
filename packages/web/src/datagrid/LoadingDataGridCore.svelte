@@ -15,6 +15,8 @@
   export let selectedCellsPublished;
   export let rowCountLoaded = null;
 
+  export let preprocessLoadedRow = null;
+
   // export let griderFactory;
 
   export let loadedRows = [];
@@ -65,7 +67,8 @@
       errorMessage = nextRows.errorMessage;
     } else {
       if (allRowCount == null) handleLoadRowCount();
-      loadedRows = [...loadedRows, ...nextRows];
+
+      loadedRows = [...loadedRows, ...(preprocessLoadedRow ? nextRows.map(preprocessLoadedRow) : nextRows)];
       isLoadedAll = nextRows.length === 0;
       //   const loadedInfo = {
       //     loadedRows: [...loadedRows, ...nextRows],

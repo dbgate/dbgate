@@ -10,6 +10,7 @@ import {
   Expression,
 } from 'dbgate-sqltree';
 import type { NamedObjectInfo, DatabaseInfo, TableInfo } from 'dbgate-types';
+import { JsonDataObjectUpdateCommand } from 'dbgate-tools';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -21,15 +22,9 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
-export interface ChangeSetDataUpdateCommand {
-  type: 'renameField' | 'deleteField' | 'setField';
-  field: string;
-  value?: any;
-}
-
 export interface ChangeSet {
   structure?: TableInfo;
-  dataUpdateCommands?: ChangeSetDataUpdateCommand[];
+  dataUpdateCommands?: JsonDataObjectUpdateCommand[];
   setColumnMode?: 'fixed' | 'variable';
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
