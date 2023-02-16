@@ -42,6 +42,7 @@
   export let jslid = undefined;
 
   export let tabid;
+  let infoLoadCounter = 0;
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
 
@@ -73,7 +74,11 @@
       file: archiveFile,
       changeSet: $changeSetStore.value,
     });
+    const structureChanged = !!$changeSetStore.value?.structure;
     dispatchChangeSet({ type: 'reset', value: createChangeSet() });
+    if (structureChanged) {
+      infoLoadCounter += 1;
+    }
     await tick();
     runCommand('dataGrid.refresh');
   }
@@ -92,6 +97,7 @@
     focusOnVisible
     {changeSetStore}
     {dispatchChangeSet}
+    {infoLoadCounter}
   />
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataGrid.refresh" />

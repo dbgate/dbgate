@@ -18,11 +18,12 @@
   export let dispatchChangeSet = null;
 
   export let allowChangeChangeSetStructure = false;
+  export let infoLoadCounter = 0;
 
   let loadedRows;
   let infoCounter = 0;
 
-  $: info = useApiCall('jsldata/get-info', { jslid, infoCounter }, {});
+  $: info = useApiCall('jsldata/get-info', { jslid, infoCounter, infoLoadCounter }, {});
 
   // $: columns = ($info && $info.columns) || [];
   const config = writable(createGridConfig());
