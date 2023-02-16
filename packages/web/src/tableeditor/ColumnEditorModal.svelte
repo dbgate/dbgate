@@ -13,10 +13,10 @@
   import { editorAddColumn, editorDeleteColumn, editorModifyColumn, fillEditorColumnInfo } from 'dbgate-tools';
 
   export let columnInfo;
-  export let setTableInfo;
-  export let tableInfo;
+  export let setTableInfo = null;
+  export let tableInfo = null;
   export let onAddNext;
-  export let driver;
+  export let driver = null;
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
@@ -31,7 +31,10 @@
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
-    <FormTextField name="defaultValue" label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string" />
+    <FormTextField
+      name="defaultValue"
+      label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string"
+    />
     <FormTextField name="computedExpression" label="Computed expression" />
     {#if driver?.dialect?.columnProperties?.isUnsigned}
       <FormCheckboxField name="isUnsigned" label="Unsigned" />

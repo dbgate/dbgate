@@ -87,6 +87,7 @@
   <JslDataGrid
     jslid={jslid || `archive://${archiveFolder}/${archiveFile}`}
     supportsReload
+    allowChangeChangeSetStructure
     changeSetState={$changeSetStore}
     focusOnVisible
     {changeSetStore}

@@ -9,7 +9,7 @@ import {
   AllowIdentityInsert,
   Expression,
 } from 'dbgate-sqltree';
-import type { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import type { NamedObjectInfo, DatabaseInfo, TableInfo } from 'dbgate-types';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -21,7 +21,16 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
+export interface ChangeSetDataUpdateCommand {
+  type: 'renameField' | 'deleteField' | 'setField';
+  field: string;
+  value?: any;
+}
+
 export interface ChangeSet {
+  structure?: TableInfo;
+  dataUpdateCommands?: ChangeSetDataUpdateCommand[];
+  setColumnMode?: 'fixed' | 'variable';
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
   deletes: ChangeSetItem[];
@@ -456,5 +465,12 @@ export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[],
 
 export function changeSetContainsChanges(changeSet: ChangeSet) {
   if (!changeSet) return false;
-  return changeSet.deletes.length > 0 || changeSet.updates.length > 0 || changeSet.inserts.length > 0;
+  return (
+    changeSet.deletes.length > 0 ||
+    changeSet.updates.length > 0 ||
+    changeSet.inserts.length > 0 ||
+    !!changeSet.structure ||
+    !!changeSet.setColumnMode ||
+    changeSet.dataUpdateCommands?.length > 0
+  );
 }

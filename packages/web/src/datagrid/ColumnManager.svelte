@@ -1,6 +1,6 @@
 <script lang="ts">
   import _, { indexOf, range } from 'lodash';
-  import { GridDisplay } from 'dbgate-datalib';
+  import { ChangeSet, DisplayColumn, GridDisplay } from 'dbgate-datalib';
   import { filterName } from 'dbgate-tools';
   import CloseSearchButton from '../buttons/CloseSearchButton.svelte';
 
@@ -14,6 +14,9 @@
   import keycodes from '../utility/keycodes';
   import ColumnManagerRow from './ColumnManagerRow.svelte';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import SelectField from '../forms/SelectField.svelte';
+  import ColumnEditorModal from '../tableeditor/ColumnEditorModal.svelte';
+  import { tick } from 'svelte';
 
   export let managerSize;
   export let display: GridDisplay;
@@ -21,6 +24,9 @@
   export let isDynamicStructure = false;
   export let conid;
   export let database;
+  export let allowChangeChangeSetStructure = false;
+  export let changeSetState: { value: ChangeSet } = null;
+  export let dispatchChangeSet = null;
 
   let filter;
   let domFocusField;
@@ -103,8 +109,44 @@
     selectedColumns = value;
     if (value.length > 0) currentColumnUniqueName = value[0];
   }
+
+  $: tableInfo = display?.editableStructure;
+  $: setTableInfo = updFunc => {
+    const structure = updFunc(display?.editableStructure);
+    dispatchChangeSet({
+      type: 'set',
+      value: {
+        ...changeSetState?.value,
+        structure,
+      },
+    });
+  };
+
+  function handleAddColumn() {
+    showModal(ColumnEditorModal, {
+      setTableInfo,
+      tableInfo,
+      onAddNext: async () => {
+        await tick();
+        handleAddColumn();
+      },
+    });
+  }
 </script>
 
+{#if allowChangeChangeSetStructure}
+  <div class="selectwrap">
+    <SelectField
+      isNative
+      class="colmode"
+      value="fixed"
+      options={[
+        { label: 'Fixed columns (like SQL)', value: 'fixed' },
+        { label: 'Variable columns (like MongoDB)', value: 'variable' },
+      ]}
+    />
+  </div>
+{/if}
 <SearchBoxWrapper>
   <SearchInput placeholder="Search columns" bind:value={filter} />
   <CloseSearchButton bind:filter />
@@ -121,6 +163,9 @@
         });
       }}>Add</InlineButton
     >
+  {/if}
+  {#if allowChangeChangeSetStructure}
+    <InlineButton on:click={handleAddColumn}>Add</InlineButton>
   {/if}
   <InlineButton on:click={() => display.hideAllColumns()}>Hide</InlineButton>
   <InlineButton on:click={() => display.showAllColumns()}>Show</InlineButton>
@@ -139,12 +184,18 @@
   />
 
   {#each items as column (column.uniqueName)}
+    {@const columnIndex = items.indexOf(column)}
     <ColumnManagerRow
       {display}
       {column}
       {isJsonView}
       {conid}
       {database}
+      {tableInfo}
+      {setTableInfo}
+      columnInfo={tableInfo?.columns?.[columnIndex]}
+      {columnIndex}
+      {allowChangeChangeSetStructure}
       isSelected={selectedColumns.includes(column.uniqueName) || currentColumnUniqueName == column.uniqueName}
       on:click={() => {
         if (domFocusField) domFocusField.focus();
@@ -197,5 +248,15 @@
     position: absolute;
     left: -1000px;
     top: -1000px;
+  }
+
+  .selectwrap :global(select) {
+    flex: 1;
+    padding: 3px 0px;
+    border: none;
+  }
+
+  .selectwrap {
+    border-bottom: 1px solid var(--theme-border);
   }
 </style>

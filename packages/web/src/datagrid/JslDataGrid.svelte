@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
+  import { generateTablePairingId } from 'dbgate-tools';
   import { writable } from 'svelte/store';
   import JslFormView from '../formview/JslFormView.svelte';
   import { apiOff, apiOn, useApiCall } from '../utility/api';
@@ -15,6 +16,8 @@
   export let changeSetState = null;
   export let changeSetStore = null;
   export let dispatchChangeSet = null;
+
+  export let allowChangeChangeSetStructure = false;
 
   let loadedRows;
   let infoCounter = 0;
@@ -44,7 +47,7 @@
 
   $: display = new JslGridDisplay(
     jslid,
-    $info,
+    (allowChangeChangeSetStructure && changeSetState?.value?.structure) || generateTablePairingId($info),
     $config,
     config.update,
     $cache,
@@ -71,5 +74,6 @@
     {changeSetState}
     {changeSetStore}
     {dispatchChangeSet}
+    {allowChangeChangeSetStructure}
   />
 {/key}
