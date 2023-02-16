@@ -91,6 +91,7 @@ class DuplicatorItemHolder {
     let inserted = 0;
     let mapped = 0;
     let missing = 0;
+    let lastLogged = new Date();
 
     const writeStream = createAsyncWriteStream(this.duplicator.stream, {
       processItem: async chunk => {
@@ -145,6 +146,13 @@ class DuplicatorItemHolder {
             }
             break;
           }
+        }
+
+        if (new Date().getTime() - lastLogged.getTime() > 5000) {
+          logger.info(
+            `Duplicating ${this.item.name} in progress, inserted ${inserted} rows, mapped ${mapped} rows, missing ${missing} rows`
+          );
+          lastLogged = new Date();
         }
         // this.idMap[oldId] = newId;
       },

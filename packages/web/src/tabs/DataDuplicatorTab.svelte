@@ -12,6 +12,16 @@
     testEnabled: () => getCurrentEditor()?.canRun(),
     onClick: () => getCurrentEditor().run(),
   });
+  registerCommand({
+    id: 'dataDuplicator.kill',
+    category: 'Data duplicator',
+    icon: 'icon close',
+    name: 'Kill',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.canKill(),
+    onClick: () => getCurrentEditor().kill(),
+  });
 </script>
 
 <script lang="ts">
@@ -22,6 +32,7 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
+  import Link from '../elements/Link.svelte';
   import ObjectConfigurationControl from '../elements/ObjectConfigurationControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
@@ -36,6 +47,7 @@
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useArchiveFiles, useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import useEffect from '../utility/useEffect';
+  import useTimerLabel from '../utility/useTimerLabel';
 
   export let conid;
   export let database;
@@ -47,16 +59,20 @@
 
   export const activator = createActivator('DataDuplicatorTab', true);
 
+  const timerLabel = useTimerLabel();
+
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
 
   $: archiveFolders = useArchiveFolders();
   $: archiveFiles = useArchiveFiles({ folder: $editorState?.value?.archiveFolder });
 
-  $: pairedNames = _.intersectionBy(
-    $dbinfo?.tables?.map(x => x.pureName),
-    $archiveFiles?.map(x => x.name),
-    (x: string) => _.toUpper(x)
+  $: pairedNames = _.sortBy(
+    _.intersectionBy(
+      $dbinfo?.tables?.map(x => x.pureName),
+      $archiveFiles?.map(x => x.name),
+      (x: string) => _.toUpper(x)
+    )
   );
 
   $: {
@@ -117,6 +133,7 @@
     const resp = await apiCall('runners/start', { script });
     runid = resp.runid;
     runnerId = runid;
+    timerLabel.start();
   }
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
@@ -137,6 +154,17 @@
   const handleRunnerDone = () => {
     busy = false;
   };
+
+  export function canKill() {
+    return busy;
+  }
+
+  export function kill() {
+    apiCall('runners/cancel', {
+      runid: runnerId,
+    });
+    timerLabel.stop();
+  }
 
   // $: console.log('$archiveFiles', $archiveFiles);
   // $: console.log('$editorState', $editorState.value);
@@ -160,10 +188,26 @@
   });
 
   // $: console.log('$archiveFolders', $archiveFolders);
+
+  const changeCheckStatus = isChecked => () => {
+    setEditorData(old => {
+      const tables = { ...old?.tables };
+      for (const table of pairedNames) {
+        tables[table] = {
+          ...old?.tables?.[table],
+          isChecked,
+        };
+      }
+      return {
+        ...old,
+        tables,
+      };
+    });
+  };
 </script>
 
 <ToolStripContainer>
-  <VerticalSplitter>
+  <VerticalSplitter initialValue="70%">
     <svelte:fragment slot="1">
       <div class="wrapper">
         <ObjectConfigurationControl title="Configuration">
@@ -185,6 +229,12 @@
         </ObjectConfigurationControl>
 
         <ObjectConfigurationControl title="Imported files">
+          <div class="mb-2">
+            <Link onClick={changeCheckStatus(true)}>Check all</Link>
+            |
+            <Link onClick={changeCheckStatus(false)}>Uncheck all</Link>
+          </div>
+
           <TableControl
             rows={tableRows}
             columns={[
@@ -247,6 +297,7 @@
 
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataDuplicator.run" />
+    <ToolStripCommandButton command="dataDuplicator.kill" />
   </svelte:fragment>
 </ToolStripContainer>
 

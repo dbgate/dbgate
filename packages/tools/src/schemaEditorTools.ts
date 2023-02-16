@@ -129,7 +129,7 @@ export function editorAddColumn(table: TableInfo, column: EditorColumnInfo, addD
   if (addDataCommand && column.defaultValue) {
     defineDataCommand(res, () => ({
       type: 'setField',
-      field: column.columnName,
+      newField: column.columnName,
       value: parseSqlDefaultValue(column.defaultValue),
     }));
   }
