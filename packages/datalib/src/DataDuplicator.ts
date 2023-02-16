@@ -12,6 +12,11 @@ export interface DataDuplicatorItem {
   matchColumns: string[];
 }
 
+export interface DataDuplicatorOptions {
+  rollbackAfterFinish: boolean;
+  skipRowsWithUnresolvedRefs: boolean;
+}
+
 class DuplicatorReference {
   constructor(
     public base: DuplicatorItemHolder,
@@ -78,6 +83,13 @@ class DuplicatorItemHolder {
       if (ref) {
         // remap id
         res[key] = ref.ref.idMap[res[key]];
+        if (ref.isMandatory && res[key] == null) {
+          // mandatory refertence not matched
+          if (this.duplicator.options.skipRowsWithUnresolvedRefs) {
+            return null;
+          }
+          throw new Error(`Unresolved reference, base=${ref.base.name}, ref=${ref.ref.name}, ${key}=${chunk[key]}`);
+        }
       }
     }
 
@@ -91,6 +103,7 @@ class DuplicatorItemHolder {
     let inserted = 0;
     let mapped = 0;
     let missing = 0;
+    let skipped = 0;
     let lastLogged = new Date();
 
     const writeStream = createAsyncWriteStream(this.duplicator.stream, {
@@ -101,6 +114,10 @@ class DuplicatorItemHolder {
 
         const doCopy = async () => {
           const insertedObj = this.createInsertObject(chunk);
+          if (insertedObj == null) {
+            skipped += 1;
+            return;
+          }
           await runCommandOnDriver(pool, driver, dmp =>
             dmp.putCmd(
               '^insert ^into %f (%,i) ^values (%,v)',
@@ -150,7 +167,7 @@ class DuplicatorItemHolder {
 
         if (new Date().getTime() - lastLogged.getTime() > 5000) {
           logger.info(
-            `Duplicating ${this.item.name} in progress, inserted ${inserted} rows, mapped ${mapped} rows, missing ${missing} rows`
+            `Duplicating ${this.item.name} in progress, inserted ${inserted} rows, mapped ${mapped} rows, missing ${missing} rows, skipped ${skipped} rows`
           );
           lastLogged = new Date();
         }
@@ -166,7 +183,7 @@ class DuplicatorItemHolder {
     //   },
     // });
 
-    return { inserted, mapped, missing };
+    return { inserted, mapped, missing, skipped };
   }
 }
 
@@ -180,7 +197,8 @@ export class DataDuplicator {
     public db: DatabaseInfo,
     public items: DataDuplicatorItem[],
     public stream,
-    public copyStream: (input, output) => Promise<void>
+    public copyStream: (input, output) => Promise<void>,
+    public options: DataDuplicatorOptions
   ) {
     this.itemHolders = items.map(x => new DuplicatorItemHolder(x, this));
     this.itemHolders.forEach(x => x.initializeReferences());
@@ -220,13 +238,19 @@ export class DataDuplicator {
       for (const item of this.itemPlan) {
         const stats = await item.runImport();
         logger.info(
-          `Duplicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows`
+          `Duplicated ${item.name}, inserted ${stats.inserted} rows, mapped ${stats.mapped} rows, missing ${stats.missing} rows, skipped ${stats.skipped} rows`
         );
       }
     } catch (err) {
       logger.error({ err }, 'Failed duplicator job, rollbacking');
       await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
     }
-    await runCommandOnDriver(this.pool, this.driver, dmp => dmp.commitTransaction());
+    if (this.options.rollbackAfterFinish) {
+      logger.info('Rollbacking transaction, nothing was changed');
+      await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
+    } else {
+      logger.info('Committing duplicator transaction');
+      await runCommandOnDriver(this.pool, this.driver, dmp => dmp.commitTransaction());
+    }
   }
 }

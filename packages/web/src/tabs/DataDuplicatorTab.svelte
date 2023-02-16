@@ -37,6 +37,7 @@
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import SelectField from '../forms/SelectField.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import SocketMessageView from '../query/SocketMessageView.svelte';
@@ -116,6 +117,10 @@
           operation: row.operation,
           matchColumns: _.compact([row.matchColumn1]),
         })),
+      options: {
+        rollbackAfterFinish: !!$editorState.value?.rollbackAfterFinish,
+        skipRowsWithUnresolvedRefs: !!$editorState.value?.skipRowsWithUnresolvedRefs,
+      },
     });
     return script.getScript();
   }
@@ -211,21 +216,68 @@
     <svelte:fragment slot="1">
       <div class="wrapper">
         <ObjectConfigurationControl title="Configuration">
-          <div class="bold m-2">Source archive</div>
-          <SelectField
-            isNative
-            value={$editorState.value?.archiveFolder}
-            on:change={e => {
-              setEditorData(old => ({
-                ...old,
-                archiveFolder: e.detail,
-              }));
+          <FormFieldTemplateLarge label="Source archive" type="combo">
+            <SelectField
+              isNative
+              value={$editorState.value?.archiveFolder}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  archiveFolder: e.detail,
+                }));
+              }}
+              options={$archiveFolders?.map(x => ({
+                label: x.name,
+                value: x.name,
+              })) || []}
+            />
+          </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Dry run - no changes (rollback when finished)"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  rollbackAfterFinish: !$editorState.value?.rollbackAfterFinish,
+                }));
+              },
             }}
-            options={$archiveFolders?.map(x => ({
-              label: x.name,
-              value: x.name,
-            })) || []}
-          />
+          >
+            <CheckboxField
+              checked={$editorState.value?.rollbackAfterFinish}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  rollbackAfterFinish: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Skip rows with unresolved mandatory references"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  skipRowsWithUnresolvedRefs: !$editorState.value?.skipRowsWithUnresolvedRefs,
+                }));
+              },
+            }}
+          >
+            <CheckboxField
+              checked={$editorState.value?.skipRowsWithUnresolvedRefs}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  skipRowsWithUnresolvedRefs: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
         </ObjectConfigurationControl>
 
         <ObjectConfigurationControl title="Imported files">
