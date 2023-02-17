@@ -9,9 +9,18 @@ const copyStream = require('./copyStream');
 const jsonLinesReader = require('./jsonLinesReader');
 const { resolveArchiveFolder } = require('../utility/directories');
 
-async function dataDuplicator({ connection, archive, items, options, analysedStructure = null }) {
-  const driver = requireEngineDriver(connection);
-  const pool = await connectUtility(driver, connection, 'write');
+async function dataDuplicator({
+  connection,
+  archive,
+  items,
+  options,
+  analysedStructure = null,
+  driver,
+  systemConnection,
+}) {
+  if (!driver) driver = requireEngineDriver(connection);
+  const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
+
   logger.info(`Connected.`);
 
   if (!analysedStructure) {

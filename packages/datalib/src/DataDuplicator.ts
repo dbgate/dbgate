@@ -13,8 +13,8 @@ export interface DataDuplicatorItem {
 }
 
 export interface DataDuplicatorOptions {
-  rollbackAfterFinish: boolean;
-  skipRowsWithUnresolvedRefs: boolean;
+  rollbackAfterFinish?: boolean;
+  skipRowsWithUnresolvedRefs?: boolean;
 }
 
 class DuplicatorReference {
@@ -198,7 +198,7 @@ export class DataDuplicator {
     public items: DataDuplicatorItem[],
     public stream,
     public copyStream: (input, output) => Promise<void>,
-    public options: DataDuplicatorOptions
+    public options: DataDuplicatorOptions = {}
   ) {
     this.itemHolders = items.map(x => new DuplicatorItemHolder(x, this));
     this.itemHolders.forEach(x => x.initializeReferences());
