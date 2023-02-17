@@ -51,6 +51,8 @@
   import openNewTab from '../utility/openNewTab';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
+  import appObjectTypes from '../appobj';
+  import RowHeaderCell from '../datagrid/RowHeaderCell.svelte';
 
   export let conid;
   export let database;
@@ -194,6 +196,7 @@
       table: tableInfo?.schemaName ? `${tableInfo?.schemaName}.${tableInfo?.pureName}` : tableInfo?.pureName,
       schemaName: tableInfo?.schemaName,
       pureName: tableInfo?.pureName,
+      tableInfo,
     };
   });
 
@@ -361,6 +364,7 @@
             </svelte:fragment>
             <svelte:fragment slot="5" let:row>
               <Link
+                menu={appObjectTypes.DatabaseObjectAppObject.createAppObjectMenu({ ...row.tableInfo, conid, database })}
                 onClick={() => {
                   openNewTab({
                     title: row.pureName,
