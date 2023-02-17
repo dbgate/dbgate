@@ -118,17 +118,28 @@ class DuplicatorItemHolder {
             skipped += 1;
             return;
           }
-          await runCommandOnDriver(pool, driver, dmp =>
-            dmp.putCmd(
+          let res = await runQueryOnDriver(pool, driver, dmp => {
+            dmp.put(
               '^insert ^into %f (%,i) ^values (%,v)',
               this.table,
               Object.keys(insertedObj),
               Object.values(insertedObj)
-            )
-          );
+            );
+
+            if (
+              this.autoColumn &&
+              this.isReferenced &&
+              !this.duplicator.driver.dialect.requireStandaloneSelectForScopeIdentity
+            ) {
+              dmp.selectScopeIdentity(this.table);
+            }
+          });
           inserted += 1;
           if (this.autoColumn && this.isReferenced) {
-            const res = await runQueryOnDriver(pool, driver, dmp => dmp.selectScopeIdentity(this.table));
+            if (this.duplicator.driver.dialect.requireStandaloneSelectForScopeIdentity) {
+              res = await runQueryOnDriver(pool, driver, dmp => dmp.selectScopeIdentity(this.table));
+            }
+            // console.log('IDRES', JSON.stringify(res));
             const resId = Object.entries(res?.rows?.[0])?.[0]?.[1];
             if (resId != null) {
               this.idMap[chunk[this.autoColumn]] = resId;

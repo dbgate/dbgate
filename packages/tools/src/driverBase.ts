@@ -23,6 +23,7 @@ const dialect = {
 export async function runCommandOnDriver(pool, driver: EngineDriver, cmd: (dmp: SqlDumper) => void): Promise<void> {
   const dmp = driver.createDumper();
   cmd(dmp as any);
+  // console.log('CMD:', dmp.s);
   await driver.query(pool, dmp.s, { discardResult: true });
 }
 
@@ -33,6 +34,7 @@ export async function runQueryOnDriver(
 ): Promise<QueryResult> {
   const dmp = driver.createDumper();
   cmd(dmp as any);
+  // console.log('QUERY:', dmp.s);
   return await driver.query(pool, dmp.s);
 }
 
