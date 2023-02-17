@@ -39,6 +39,7 @@
   import CheckboxField from '../forms/CheckboxField.svelte';
   import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEditorData from '../query/useEditorData';
@@ -47,6 +48,7 @@
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useArchiveFiles, useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import openNewTab from '../utility/openNewTab';
   import useEffect from '../utility/useEffect';
   import useTimerLabel from '../utility/useTimerLabel';
 
@@ -188,8 +190,10 @@
       isChecked,
       operation,
       matchColumn1,
-      file: `${name}.jsonl`,
+      file: name,
       table: tableInfo?.schemaName ? `${tableInfo?.schemaName}.${tableInfo?.pureName}` : tableInfo?.pureName,
+      schemaName: tableInfo?.schemaName,
+      pureName: tableInfo?.pureName,
     };
   });
 
@@ -292,8 +296,8 @@
             rows={tableRows}
             columns={[
               { header: '', fieldName: 'isChecked', slot: 1 },
-              { header: 'Source file', fieldName: 'file' },
-              { header: 'Target table', fieldName: 'table' },
+              { header: 'Source file', fieldName: 'file', slot: 4 },
+              { header: 'Target table', fieldName: 'table', slot: 5 },
               { header: 'Operation', fieldName: 'operation', slot: 2 },
               { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
             ]}
@@ -338,6 +342,40 @@
                     })) || []}
                 />
               {/if}
+            </svelte:fragment>
+            <svelte:fragment slot="4" let:row>
+              <Link
+                onClick={() => {
+                  openNewTab({
+                    title: row.file,
+                    icon: 'img archive',
+                    tooltip: `${$editorState.value?.archiveFolder}\n${row.file}`,
+                    tabComponent: 'ArchiveFileTab',
+                    props: {
+                      archiveFile: row.file,
+                      archiveFolder: $editorState.value?.archiveFolder,
+                    },
+                  });
+                }}><FontIcon icon="img archive" /> {row.file}</Link
+              >
+            </svelte:fragment>
+            <svelte:fragment slot="5" let:row>
+              <Link
+                onClick={() => {
+                  openNewTab({
+                    title: row.pureName,
+                    icon: 'img table',
+                    tabComponent: 'TableDataTab',
+                    props: {
+                      schemaName: row.schemaName,
+                      pureName: row.pureName,
+                      conid,
+                      database,
+                      objectTypeField: 'tables',
+                    },
+                  });
+                }}><FontIcon icon="img table" /> {row.table}</Link
+              >
             </svelte:fragment>
           </TableControl>
         </ObjectConfigurationControl>

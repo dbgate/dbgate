@@ -113,7 +113,9 @@ class DuplicatorItemHolder {
         }
 
         const doCopy = async () => {
+          // console.log('chunk', this.name, JSON.stringify(chunk));
           const insertedObj = this.createInsertObject(chunk);
+          // console.log('insertedObj', this.name, JSON.stringify(insertedObj));
           if (insertedObj == null) {
             skipped += 1;
             return;
