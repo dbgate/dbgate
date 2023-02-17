@@ -22,13 +22,16 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
-export interface ChangeSet {
-  structure?: TableInfo;
-  dataUpdateCommands?: JsonDataObjectUpdateCommand[];
-  setColumnMode?: 'fixed' | 'variable';
+export interface ChangeSetItemFields {
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
   deletes: ChangeSetItem[];
+}
+
+export interface ChangeSet extends ChangeSetItemFields {
+  structure?: TableInfo;
+  dataUpdateCommands?: JsonDataObjectUpdateCommand[];
+  setColumnMode?: 'fixed' | 'variable';
 }
 
 export function createChangeSet(): ChangeSet {
@@ -55,7 +58,7 @@ export interface ChangeSetFieldDefinition extends ChangeSetRowDefinition {
 export function findExistingChangeSetItem(
   changeSet: ChangeSet,
   definition: ChangeSetRowDefinition
-): [keyof ChangeSet, ChangeSetItem] {
+): [keyof ChangeSetItemFields, ChangeSetItem] {
   if (!changeSet || !definition) return ['updates', null];
   if (definition.insertedRowIndex != null) {
     return [
