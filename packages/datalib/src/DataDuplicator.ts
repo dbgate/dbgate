@@ -255,7 +255,7 @@ export class DataDuplicator {
     } catch (err) {
       logger.error({ err }, 'Failed duplicator job, rollbacking');
       await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
-      throw err;
+      return;
     }
     if (this.options.rollbackAfterFinish) {
       logger.info('Rollbacking transaction, nothing was changed');

@@ -158,6 +158,7 @@
 
   const handleRunnerDone = () => {
     busy = false;
+    timerLabel.stop();
   };
 
   export function canKill() {
