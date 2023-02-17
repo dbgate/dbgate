@@ -35,7 +35,9 @@ async function dataDuplicator({
       name: item.name,
       operation: item.operation,
       matchColumns: item.matchColumns,
-      openStream: () => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) }),
+      openStream:
+        item.openStream ||
+        (() => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) })),
     })),
     stream,
     copyStream,

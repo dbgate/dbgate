@@ -1,31 +1,69 @@
 const engines = require('../engines');
+const stream = require('stream');
 const { testWrapper } = require('../tools');
 const dataDuplicator = require('dbgate-api/src/shell/dataDuplicator');
-const fakeObjectReader = require('dbgate-api/src/shell/fakeObjectReader');
-
-const t1Sql = 'CREATE TABLE t1 (id int not null primary key, val varchar(50) null)';
-const t2Sql =
-  'CREATE TABLE t2 (id int not null primary key, val varchar(50) null, valfk int, foreign key (valfk) references t2(id))';
+const { runCommandOnDriver } = require('dbgate-tools');
 
 describe('Data duplicator', () => {
   test.each(engines.map(engine => [engine.label, engine]))(
     'Insert simple data - %s',
     testWrapper(async (conn, driver, engine) => {
-      await driver.query(conn, t1Sql);
-      await driver.query(conn, t2Sql);
+      runCommandOnDriver(conn, driver, dmp =>
+        dmp.createTable({
+          pureName: 't1',
+          columns: [
+            { columnName: 'id', dataType: 'int', autoIncrement: true, notNull: true },
+            { columnName: 'val', dataType: 'varchar(50)' },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+        })
+      );
+      runCommandOnDriver(conn, driver, dmp =>
+        dmp.createTable({
+          pureName: 't2',
+          columns: [
+            { columnName: 'id', dataType: 'int', autoIncrement: true, notNull: true },
+            { columnName: 'val', dataType: 'varchar(50)' },
+            { columnName: 'valfk', dataType: 'int', notNull: true },
+          ],
+          primaryKey: {
+            columns: [{ columnName: 'id' }],
+          },
+          foreignKeys: [{ refTableName: 't1', columns: [{ columnName: 'valfk', refColumnName: 'id' }] }],
+        })
+      );
 
-      const t1 = await fakeObjectReader({
-        dynamicData: [
+      const gett1 = () =>
+        stream.Readable.from([
+          { __isStreamHeader: true, __isDynamicStructure: true },
           { id: 1, val: 'v1' },
           { id: 2, val: 'v2' },
           { id: 3, val: 'v3' },
-        ],
-      });
-      const t2 = await fakeObjectReader({
-        dynamicData: [
+        ]);
+      const gett2 = () =>
+        stream.Readable.from([
+          { __isStreamHeader: true, __isDynamicStructure: true },
           { id: 1, val: 'v1', valfk: 1 },
           { id: 2, val: 'v2', valfk: 2 },
           { id: 3, val: 'v3', valfk: 3 },
+        ]);
+
+      await dataDuplicator({
+        systemConnection: conn,
+        driver,
+        items: [
+          {
+            name: 't1',
+            operation: 'copy',
+            openStream: gett1,
+          },
+          {
+            name: 't2',
+            operation: 'copy',
+            openStream: gett2,
+          },
         ],
       });
 
@@ -36,29 +74,12 @@ describe('Data duplicator', () => {
           {
             name: 't1',
             operation: 'copy',
-            openStream: () => t1,
+            openStream: gett1,
           },
           {
             name: 't2',
             operation: 'copy',
-            openStream: () => t2,
-          },
-        ],
-      });
-
-      await dataDuplicator({
-        systemConnection: conn,
-        driver,
-        items: [
-          {
-            name: 't1',
-            operation: 'copy',
-            openStream: () => t1,
-          },
-          {
-            name: 't2',
-            operation: 'copy',
-            openStream: () => t2,
+            openStream: gett2,
           },
         ],
       });
