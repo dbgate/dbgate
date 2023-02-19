@@ -14,6 +14,7 @@
   export let isSelected = false;
   export let conid;
   export let database;
+  export let isDynamicStructure;
 
   export let tableInfo;
   export let setTableInfo;
@@ -82,7 +83,7 @@
     <ColumnLabel {...column} showDataType {conid} {database} />
   </div>
 
-  {#if allowChangeChangeSetStructure}
+  {#if allowChangeChangeSetStructure && !isDynamicStructure}
     <div class="nowrap">
       <span class="icon" on:click={handleEditColumn}>
         <FontIcon icon="icon edit" />

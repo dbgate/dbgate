@@ -47,16 +47,19 @@
   $: $effect;
 
   $: infoWithPairingId = generateTablePairingId($info);
+  $: infoUsed = (allowChangeChangeSetStructure && changeSetState?.value?.structure) || infoWithPairingId;
+
+  // $: console.log('infoUsed', infoUsed);
 
   $: display = new JslGridDisplay(
     jslid,
-    (allowChangeChangeSetStructure && changeSetState?.value?.structure) || infoWithPairingId,
+    infoUsed,
     $config,
     config.update,
     $cache,
     cache.update,
     loadedRows,
-    $info?.__isDynamicStructure,
+    infoUsed?.__isDynamicStructure,
     supportsReload,
     !!changeSetState
   );
@@ -72,7 +75,7 @@
     gridCoreComponent={JslDataGridCore}
     formViewComponent={JslFormView}
     bind:loadedRows
-    isDynamicStructure={$info?.__isDynamicStructure}
+    isDynamicStructure={!!infoUsed?.__isDynamicStructure}
     useEvalFilters
     {changeSetState}
     {changeSetStore}

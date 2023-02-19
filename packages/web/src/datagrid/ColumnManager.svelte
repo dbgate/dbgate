@@ -149,11 +149,24 @@
     <SelectField
       isNative
       class="colmode"
-      value="fixed"
+      value={isDynamicStructure ? 'variable' : 'fixed'}
       options={[
         { label: 'Fixed columns (like SQL)', value: 'fixed' },
         { label: 'Variable columns (like MongoDB)', value: 'variable' },
       ]}
+      on:change={e => {
+        dispatchChangeSet({
+          type: 'set',
+          value: {
+            ...changeSetState?.value,
+            structure: {
+              ...display?.editableStructure,
+              __isDynamicStructure: e.detail == 'variable',
+              // __keepDynamicStreamHeader: true,
+            },
+          },
+        });
+      }}
     />
   </div>
 {/if}
@@ -174,7 +187,7 @@
       }}>Add</InlineButton
     >
   {/if}
-  {#if allowChangeChangeSetStructure}
+  {#if allowChangeChangeSetStructure && !isDynamicStructure}
     <InlineButton on:click={handleAddColumn}>Add</InlineButton>
   {/if}
   <InlineButton on:click={() => display.hideAllColumns()}>Hide</InlineButton>
@@ -199,6 +212,7 @@
       {display}
       {column}
       {isJsonView}
+      {isDynamicStructure}
       {conid}
       {database}
       {tableInfo}
