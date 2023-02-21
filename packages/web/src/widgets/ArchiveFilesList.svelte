@@ -29,7 +29,6 @@
   import { showModal } from '../modals/modalTools';
   import { currentArchive } from '../stores';
   import { apiCall } from '../utility/api';
-  import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
   import { useArchiveFiles, useArchiveFolders } from '../utility/metadataLoaders';
   import openNewTab from '../utility/openNewTab';
   import WidgetsInnerContainer from './WidgetsInnerContainer.svelte';
@@ -54,7 +53,6 @@
           file,
           data: createFreeTableModel(),
         });
-        markArchiveFileAsDataSheet($currentArchive, file);
 
         openNewTab({
           title: file,

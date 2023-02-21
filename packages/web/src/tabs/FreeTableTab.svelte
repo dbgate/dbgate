@@ -45,7 +45,6 @@
   import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
   import { apiCall } from '../utility/api';
-  import { markArchiveFileAsDataSheet } from '../utility/archiveTools';
   import { changeTab } from '../utility/common';
   import { registerMenu } from '../utility/contextMenu';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
@@ -95,7 +94,6 @@
     }));
     archiveFile = file;
     archiveFolder = folder;
-    markArchiveFileAsDataSheet(folder, file);
   };
 
   function handleRunMacro(macro, params, cells) {
