@@ -68,10 +68,11 @@ const driver = {
     };
     if (ssl) {
       options.tls = true;
-      options.tlsCAFile = ssl.ca;
-      options.tlsCertificateKeyFile = ssl.cert || ssl.key;
+      options.tlsCAFile = ssl.sslCaFile;
+      options.tlsCertificateKeyFile = ssl.sslCertFile || ssl.sslKeyFile;
       options.tlsCertificateKeyFilePassword = ssl.password;
       options.tlsAllowInvalidCertificates = !ssl.rejectUnauthorized;
+      options.tlsInsecure = !ssl.rejectUnauthorized;
     }
 
     const pool = new MongoClient(mongoUrl, options);

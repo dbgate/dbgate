@@ -62,14 +62,17 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
 
     if (connection.sslCaFile) {
       connection.ssl.ca = await fs.readFile(connection.sslCaFile);
+      connection.ssl.sslCaFile = connection.sslCaFile;
     }
 
     if (connection.sslCertFile) {
       connection.ssl.cert = await fs.readFile(connection.sslCertFile);
+      connection.ssl.sslCertFile = connection.sslCertFile;
     }
 
     if (connection.sslKeyFile) {
       connection.ssl.key = await fs.readFile(connection.sslKeyFile);
+      connection.ssl.sslKeyFile = connection.sslKeyFile;
     }
 
     if (connection.sslCertFilePassword) {
