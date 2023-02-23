@@ -21,6 +21,7 @@ const { settings } = require('cluster');
 // require('@electron/remote/main').initialize();
 
 const datadir = path.join(app.getPath('appData'), app.getName());
+const electrondir = path.join(datadir, 'electron');
 migrateDataDir();
 const configRootPath = path.join(datadir, 'config-root.json');
 let initialConfig = {};
@@ -30,7 +31,6 @@ let mainModule;
 // let loadLogsContent;
 
 // Put electron data in sub-folder
-const electrondir = path.join(datadir, 'electron');
 app.setPath('userData', path.join(datadir, 'electron'));
 
 function migrateDataDir() {
