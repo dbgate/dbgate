@@ -67,6 +67,9 @@
   export let changeSetState;
   export let dispatchChangeSet;
 
+  export let macroPreview;
+  export let macroValues;
+  export let selectedCellsPublished = () => [];
   export const activator = createActivator('JslDataGridCore', false);
 
   export let loadedRows = [];
@@ -97,16 +100,37 @@
   }
   $: $effect;
 
-  $: grider = new ChangeSetGrider(
-    loadedRows,
-    changeSetState,
-    dispatchChangeSet,
-    display,
-    undefined,
-    undefined,
-    undefined,
-    true
-  );
+  let grider;
+
+  $: {
+    if (macroPreview) {
+      grider = new ChangeSetGrider(
+        loadedRows,
+        changeSetState,
+        dispatchChangeSet,
+        display,
+        macroPreview,
+        macroValues,
+        selectedCellsPublished(),
+        true
+      );
+    }
+  }
+
+  $: {
+    if (!macroPreview) {
+      grider = new ChangeSetGrider(
+        loadedRows,
+        changeSetState,
+        dispatchChangeSet,
+        display,
+        undefined,
+        undefined,
+        undefined,
+        true
+      );
+    }
+  }
 
   // $: grider = new RowsArrayGrider(loadedRows);
 
@@ -168,6 +192,7 @@
   bind:this={domGrid}
   {...$$props}
   bind:loadedRows
+  bind:selectedCellsPublished
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}

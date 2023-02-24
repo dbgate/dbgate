@@ -155,7 +155,7 @@
           $selectedWidget = 'archive';
         }}
       >
-        <FontIcon icon="icon archive" />
+        <FontIcon icon="icon archive" padRight />
         {$currentArchive}
       </div>
     {/if}

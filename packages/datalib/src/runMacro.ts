@@ -214,7 +214,8 @@ export function runMacroOnChangeSet(
   macroArgs: {},
   selectedCells: MacroSelectedCell[],
   changeSet: ChangeSet,
-  display: GridDisplay
+  display: GridDisplay,
+  useRowIndexInsteaOfCondition: boolean
 ): ChangeSet {
   const errors = [];
   const compiledMacroFunc = compileMacroFunction(macro, errors);
@@ -222,7 +223,13 @@ export function runMacroOnChangeSet(
 
   let res = changeSet;
   for (const cell of selectedCells) {
-    const definition = display.getChangeSetField(cell.rowData, cell.column, undefined);
+    const definition = display.getChangeSetField(
+      cell.rowData,
+      cell.column,
+      undefined,
+      useRowIndexInsteaOfCondition ? cell.row : undefined,
+      useRowIndexInsteaOfCondition
+    );
     const macroResult = runMacroOnValue(
       compiledMacroFunc,
       macroArgs,

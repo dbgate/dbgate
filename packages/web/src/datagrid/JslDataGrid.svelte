@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createGridCache, createGridConfig, JslGridDisplay } from 'dbgate-datalib';
+  import { createGridCache, createGridConfig, JslGridDisplay, runMacro, runMacroOnChangeSet } from 'dbgate-datalib';
   import { generateTablePairingId, processJsonDataUpdateCommands } from 'dbgate-tools';
   import { writable } from 'svelte/store';
   import JslFormView from '../formview/JslFormView.svelte';
@@ -31,6 +31,13 @@
 
   function handleInitializeFile() {
     infoCounter += 1;
+  }
+
+  function handleRunMacro(macro, params, cells) {
+    const newChangeSet = runMacroOnChangeSet(macro, params, cells, changeSetState?.value, display, true);
+    if (newChangeSet) {
+      dispatchChangeSet({ type: 'set', value: newChangeSet });
+    }
   }
 
   $: effect = useEffect(() => onJslId(jslid));
@@ -77,6 +84,10 @@
     bind:loadedRows
     isDynamicStructure={!!infoUsed?.__isDynamicStructure}
     useEvalFilters
+    showMacros={!!dispatchChangeSet}
+    expandMacros={!!dispatchChangeSet}
+    onRunMacro={handleRunMacro}
+    macroCondition={infoUsed?.__isDynamicStructure ? null : macro => macro.type == 'transformValue'}
     {changeSetState}
     {changeSetStore}
     {dispatchChangeSet}
