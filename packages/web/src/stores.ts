@@ -251,3 +251,9 @@ export function subscribeApiDependendStores() {
     }
   });
 }
+
+let currentArchiveValue = null;
+currentArchive.subscribe(value => {
+  currentArchiveValue = value;
+});
+export const getCurrentArchive = () => currentArchiveValue;
