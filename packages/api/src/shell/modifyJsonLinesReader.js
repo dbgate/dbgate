@@ -58,10 +58,14 @@ class ParseStream extends stream.Transform {
 
         const update = this.changeSet.updates.find(x => x.existingRowIndex == this.currentRowIndex);
         if (update) {
-          obj = {
-            ...obj,
-            ...update.fields,
-          };
+          if (update.document) {
+            obj = update.document;
+          } else {
+            obj = {
+              ...obj,
+              ...update.fields,
+            };
+          }
         }
 
         if (obj) {

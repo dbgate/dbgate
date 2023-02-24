@@ -1,4 +1,4 @@
-import type { ChangeSet, MacroDefinition, MacroSelectedCell } from 'dbgate-datalib';
+import { ChangeSet, MacroDefinition, MacroSelectedCell, runMacroOnRow } from 'dbgate-datalib';
 
 import {
   changeSetContainsChanges,
@@ -17,6 +17,7 @@ import {
 } from 'dbgate-datalib';
 import Grider from './Grider';
 import type { GriderRowStatus } from './Grider';
+import _ from 'lodash';
 
 function getRowFromItem(row, matchedChangeSetItem) {
   return matchedChangeSetItem.document
@@ -38,7 +39,7 @@ export default class ChangeSetGrider extends Grider {
   private rowStatusCache;
   private rowDefinitionsCache;
   private batchChangeSet: ChangeSet;
-  private _errors = null;
+  private _errors = [];
   private compiledMacroFunc;
 
   constructor(
@@ -89,7 +90,7 @@ export default class ChangeSetGrider extends Grider {
       this.useRowIndexInsteaOfCondition
     );
     const [matchedField, matchedChangeSetItem] = findExistingChangeSetItem(this.changeSet, rowDefinition);
-    const rowUpdated = matchedChangeSetItem
+    let rowUpdated = matchedChangeSetItem
       ? getRowFromItem(row, matchedChangeSetItem)
       : this.compiledMacroFunc
       ? { ...row }
@@ -105,18 +106,32 @@ export default class ChangeSetGrider extends Grider {
     };
 
     if (this.compiledMacroFunc) {
-      for (const cell of this.selectedCells) {
-        if (cell.row != index) continue;
-        const newValue = runMacroOnValue(
-          this.compiledMacroFunc,
-          this.macroArgs,
-          rowUpdated[cell.column],
-          index,
-          rowUpdated,
-          cell.column,
-          this._errors
-        );
-        rowUpdated[cell.column] = newValue;
+      if (this.macro?.type == 'transformValue') {
+        for (const cell of this.selectedCells) {
+          if (cell.row != index) continue;
+          const newValue = runMacroOnValue(
+            this.compiledMacroFunc,
+            this.macroArgs,
+            rowUpdated[cell.column],
+            index,
+            rowUpdated,
+            cell.column,
+            this._errors
+          );
+          rowUpdated[cell.column] = newValue;
+        }
+      }
+      if (this.macro?.type == 'transformRow') {
+        if (this.selectedCells.find(x => x.row == index)) {
+          rowUpdated = runMacroOnRow(
+            this.compiledMacroFunc,
+            this.macroArgs,
+            index,
+            rowUpdated,
+            _.uniq(this.selectedCells.map(x => x.column)),
+            this._errors
+          );
+        }
       }
     }
 

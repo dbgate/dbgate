@@ -204,64 +204,16 @@ return !!value;
     code: `return modules.moment().format(args.format)`,
   },
   {
-    title: 'Duplicate rows',
-    name: 'duplicateRows',
-    group: 'Tools',
-    description: 'Duplicate selected rows',
-    type: 'transformRows',
-    code: `
-const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
-const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
-const maxIndex = modules.lodash.max(selectedRowIndexes);
-return [
-  ...rows.slice(0, maxIndex + 1),
-  ...selectedRowIndexes.map(index => ({
-    ...modules.lodash.pick(rows[index], selectedRows[index].map(x => x.column)),
-    __rowStatus: 'inserted',
-  })),
-  ...rows.slice(maxIndex + 1),
-]
-    `,
-  },
-  {
-    title: 'Delete empty rows',
-    name: 'deleteEmptyRows',
-    group: 'Tools',
-    description: 'Delete empty rows - rows with all values null or empty string',
-    type: 'transformRows',
-    code: `
-return rows.map(row => {
-  if (cols.find(col => row[col])) return row;
-  return {
-    ...row,
-    __rowStatus: 'deleted',
-  };
-})
-`,
-  },
-  {
     title: 'Duplicate columns',
     name: 'duplicateColumns',
     group: 'Tools',
     description: 'Duplicate selected columns',
-    type: 'transformData',
+    type: 'transformRow',
     code: `
-const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
-const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
-const addedColumnNames = selectedColumnNames.map(col => (args.prefix || '') + col + (args.postfix || ''));
-const resultRows = rows.map((row, rowIndex) => ({
-  ...row,
-  ...(selectedRowIndexes.includes(rowIndex) ? modules.lodash.fromPairs(selectedColumnNames.map(col => [(args.prefix || '') + col + (args.postfix || ''), row[col]])) : {}),
-  __insertedFields: addedColumnNames,
-}));
-const resultCols = [
-  ...cols,
-  ...addedColumnNames,
-];
-return {
-  rows: resultRows,
-  cols: resultCols,
-}
+      return {
+        ...row,
+        ...modules.lodash.fromPairs(columns.map(col=>[(args.prefix || '') + col + (args.postfix || ''), row[col]]))
+      }
     `,
     args: [
       {
@@ -282,42 +234,27 @@ return {
     name: 'splitColumns',
     group: 'Tools',
     description: 'Split selected columns',
-    type: 'transformData',
+    type: 'transformRow',
     code: `
-const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
-const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
-
-const addedColumnNames = new Set();
-
-const resultRows = modules.lodash.cloneDeep(rows);
-resultRows.forEach((row, rowIndex) => {
-  for(const cell of selectedCells) {
-    if (cell.row == rowIndex && modules.lodash.isString(cell.value)) {
-      const splitted = cell.value.split(args.delimiter);
-      splitted.forEach((value, valueIndex) => {
-        const name = cell.column + '_' + (valueIndex + 1).toString();
-        row[name] = value;
-        addedColumnNames.add(name);
-      });
-    }
-  }
-});
-
-const resultCols = [
-  ...cols,
-  ...addedColumnNames,
-];
-return {
-  rows: resultRows,
-  cols: resultCols,
-}
+       const res = {...row};
+       for(const col of columns) {
+          const value = row[col];
+          if (modules.lodash.isString(value)) {
+            const splitted = value.split(args.delimiter);      
+            splitted.forEach((splitValue, valueIndex) => {
+              const name = col + '_' + (valueIndex + 1).toString();
+              res[name] = splitValue;
+            });
+          }
+       }
+       return res;
     `,
     args: [
       {
         type: 'text',
         label: 'Delimiter',
         name: 'delimiter',
-        default: ','
+        default: ',',
       },
     ],
   },
@@ -342,53 +279,34 @@ return {
     name: 'extractDateFields',
     group: 'Tools',
     description: 'Extract yaear, month, day and other date/time fields from selection and adds it as new columns',
-    type: 'transformData',
+    type: 'transformRow',
     code: `
-const selectedColumnNames = modules.lodash.uniq(selectedCells.map(x => x.column));
-const selectedRowIndexes = modules.lodash.uniq(selectedCells.map(x => x.row));
-const addedColumnNames = modules.lodash.compact([args.year, args.month, args.day, args.hour, args.minute, args.second]);
-const selectedRows = modules.lodash.groupBy(selectedCells, 'row');
-const resultRows = rows.map((row, rowIndex) => {
-  if (!selectedRowIndexes.includes(rowIndex)) return {
-    ...row,
-    __insertedFields: addedColumnNames,
-  };
-  let mom = null;
-  for(const cell of selectedRows[rowIndex]) {
-    const m = modules.moment(row[cell.column]);
-    if (m.isValid()) {
-      mom = m;
-      break;
-    }
-  }
-  if (!mom) return {
-    ...row,
-    __insertedFields: addedColumnNames,
-  };
+      let mom = null;
+      for(const col of columns) {
+        const m = modules.moment(row[col]);
+        if (m.isValid()) {
+          mom = m;
+          break;
+        }
+      }
 
-  const fields = {
-    [args.year]: mom.year(),
-    [args.month]: mom.month() + 1,
-    [args.day]: mom.day(),
-    [args.hour]: mom.hour(),
-    [args.minute]: mom.minute(),
-    [args.second]: mom.second(),
-  };
+      if (!mom) return row;
 
-  return {
-    ...row,
-    ...modules.lodash.pick(fields, addedColumnNames),
-    __insertedFields: addedColumnNames,
-  }
-});
-const resultCols = [
-  ...cols,
-  ...addedColumnNames,
-];
-return {
-  rows: resultRows,
-  cols: resultCols,
-}
+      const addedColumnNames = modules.lodash.compact([args.year, args.month, args.day, args.hour, args.minute, args.second]);
+
+      const fields = {
+        [args.year]: mom.year(),
+        [args.month]: mom.month() + 1,
+        [args.day]: mom.day(),
+        [args.hour]: mom.hour(),
+        [args.minute]: mom.minute(),
+        [args.second]: mom.second(),
+      };
+    
+      return {
+        ...row,
+        ...modules.lodash.pick(fields, addedColumnNames),
+      };
     `,
     args: [
       {

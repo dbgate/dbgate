@@ -11,7 +11,7 @@ export interface MacroDefinition {
   name: string;
   group: string;
   description?: string;
-  type: 'transformValue';
+  type: 'transformValue' | 'transformRow';
   code: string;
   args?: MacroArgument[];
 }
