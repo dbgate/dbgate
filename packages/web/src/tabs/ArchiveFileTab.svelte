@@ -18,7 +18,8 @@
 
 <script lang="ts">
   import { changeSetContainsChanges, createChangeSet } from 'dbgate-datalib';
-  import { tick } from 'svelte';
+  import localforage from 'localforage';
+  import { onMount, tick } from 'svelte';
 
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
 
@@ -29,9 +30,11 @@
   import runCommand from '../commands/runCommand';
 
   import JslDataGrid from '../datagrid/JslDataGrid.svelte';
+  import { showModal } from '../modals/modalTools';
+  import SaveArchiveModal from '../modals/SaveArchiveModal.svelte';
   import useEditorData from '../query/useEditorData';
   import { apiCall } from '../utility/api';
-  import { markTabSaved, markTabUnsaved } from '../utility/common';
+  import { changeTab, markTabSaved, markTabUnsaved, sleep } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import createUndoReducer from '../utility/createUndoReducer';
 
@@ -43,6 +46,7 @@
 
   export let tabid;
   let infoLoadCounter = 0;
+  let jslidChecked = false;
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
 
@@ -68,12 +72,34 @@
     }
   }
 
-  export async function save() {
-    await apiCall('archive/modify-file', {
-      folder: archiveFolder,
-      file: archiveFile,
-      changeSet: $changeSetStore.value,
+  async function saveAs() {
+    showModal(SaveArchiveModal, {
+      onSave: doSaveAs,
     });
+  }
+
+  const doSaveAs = async (folder, file) => {
+    await apiCall('archive/save-jsl-data', {
+      folder,
+      file,
+      jslid,
+      changeSet: changeSetContainsChanges($changeSetStore?.value) ? $changeSetStore.value : null,
+    });
+    changeTab(tabid, tab => ({
+      ...tab,
+      title: file,
+      props: { archiveFile: file, archiveFolder: folder },
+      archiveFile: file,
+      archiveFolder: folder,
+    }));
+
+    if (changeSetContainsChanges($changeSetStore?.value)) {
+      await sleep(100);
+      afterSaveChangeSet();
+    }
+  };
+
+  async function afterSaveChangeSet() {
     const structureChanged = !!$changeSetStore.value?.structure;
     dispatchChangeSet({ type: 'reset', value: createChangeSet() });
     if (structureChanged) {
@@ -83,22 +109,53 @@
     runCommand('dataGrid.refresh');
   }
 
-  export function canSave() {
-    return changeSetContainsChanges($changeSetStore?.value);
+  export async function save() {
+    if (jslid) {
+      saveAs();
+    } else {
+      await apiCall('archive/modify-file', {
+        folder: archiveFolder,
+        file: archiveFile,
+        changeSet: $changeSetStore.value,
+      });
+      await afterSaveChangeSet();
+    }
   }
+
+  export function canSave() {
+    return jslid || changeSetContainsChanges($changeSetStore?.value);
+  }
+
+  async function checkJslid() {
+    if (jslid) {
+      if (!(await apiCall('jsldata/exists', { jslid }))) {
+        const rows = await localforage.getItem(`tabdata_rows_${tabid}`);
+        if (rows) {
+          await apiCall('jsldata/save-rows', { jslid, rows });
+        }
+      }
+    }
+    jslidChecked = true;
+  }
+
+  onMount(() => {
+    checkJslid();
+  });
 </script>
 
 <ToolStripContainer>
-  <JslDataGrid
-    jslid={jslid || `archive://${archiveFolder}/${archiveFile}`}
-    supportsReload
-    allowChangeChangeSetStructure
-    changeSetState={$changeSetStore}
-    focusOnVisible
-    {changeSetStore}
-    {dispatchChangeSet}
-    {infoLoadCounter}
-  />
+  {#if jslidChecked || !jslid}
+    <JslDataGrid
+      jslid={jslid || `archive://${archiveFolder}/${archiveFile}`}
+      supportsReload
+      allowChangeChangeSetStructure
+      changeSetState={$changeSetStore}
+      focusOnVisible
+      {changeSetStore}
+      {dispatchChangeSet}
+      {infoLoadCounter}
+    />
+  {/if}
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataGrid.refresh" />
     <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />

@@ -147,6 +147,12 @@ module.exports = {
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
   },
 
+  exists_meta: true,
+  async exists({ jslid }) {
+    const fileName = getJslFileName(jslid);
+    return fs.existsSync(fileName);
+  },
+
   getStats_meta: true,
   getStats({ jslid }) {
     const file = `${getJslFileName(jslid)}.stats`;

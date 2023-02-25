@@ -169,11 +169,20 @@ module.exports = {
   },
 
   saveJslData_meta: true,
-  async saveJslData({ folder, file, jslid }) {
+  async saveJslData({ folder, file, jslid, changeSet }) {
     const source = getJslFileName(jslid);
     const target = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
-    await fs.copyFile(source, target);
-    socket.emitChanged(`archive-files-changed`, { folder });
+    if (changeSet) {
+      const reader = await dbgateApi.modifyJsonLinesReader({
+        fileName: source,
+        changeSet,
+      });
+      const writer = await dbgateApi.jsonLinesWriter({ fileName: target });
+      await dbgateApi.copyStream(reader, writer);
+    } else {
+      await fs.copyFile(source, target);
+      socket.emitChanged(`archive-files-changed`, { folder });
+    }
     return true;
   },
 
