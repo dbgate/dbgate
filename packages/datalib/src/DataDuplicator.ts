@@ -255,7 +255,7 @@ export class DataDuplicator {
         );
       }
     } catch (err) {
-      logger.error({ err }, 'Failed duplicator job, rollbacking');
+      logger.error({ err }, `Failed duplicator job, rollbacking. ${err.message}`);
       await runCommandOnDriver(this.pool, this.driver, dmp => dmp.rollbackTransaction());
       return;
     }

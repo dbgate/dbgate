@@ -70,15 +70,20 @@ module.exports = {
     if (message) {
       const json = safeJsonParse(message.message);
 
-      if (json) logger.info(json);
+      if (json) logger.log(json);
       else logger.info(message.message);
 
-      socket.emit(`runner-info-${runid}`, {
+      const toEmit = {
         time: new Date(),
-        severity: 'info',
         ...message,
         message: json ? json.msg : message.message,
-      });
+      };
+
+      if (json && json.level >= 50) {
+        toEmit.severity = 'error';
+      }
+
+      socket.emit(`runner-info-${runid}`, toEmit);
     }
   },
 
@@ -125,8 +130,9 @@ module.exports = {
         },
       }
     );
-    const pipeDispatcher = severity => data =>
-      this.dispatchMessage(runid, { severity, message: data.toString().trim() });
+    const pipeDispatcher = severity => data => {
+      return this.dispatchMessage(runid, { severity, message: data.toString().trim() });
+    };
 
     byline(subprocess.stdout).on('data', pipeDispatcher('info'));
     byline(subprocess.stderr).on('data', pipeDispatcher('error'));
