@@ -4,7 +4,6 @@
     if (tabComponent) {
       return {
         tabComponent,
-        props: selectedTab && selectedTab.props,
       };
     }
     return null;
@@ -50,12 +49,14 @@
       }
     }
   }
+
+  $: openedTabsByTabId = _.keyBy($openedTabs, x => x.tabid);
 </script>
 
 {#each _.keys(mountedTabs) as tabid (tabid)}
   <TabContent
     tabComponent={mountedTabs[tabid].tabComponent}
-    {...mountedTabs[tabid].props}
+    {...openedTabsByTabId[tabid]?.props}
     {tabid}
     tabVisible={tabid == (selectedTab && selectedTab.tabid)}
   />
