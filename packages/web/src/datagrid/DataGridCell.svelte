@@ -7,6 +7,7 @@
   import CellValue from './CellValue.svelte';
   import { showModal } from '../modals/modalTools';
   import EditCellDataModal from '../modals/EditCellDataModal.svelte';
+  import { openJsonLinesData } from '../utility/openJsonLinesData';
 
   export let rowIndex;
   export let col;
@@ -96,20 +97,7 @@
       icon="icon open-in-new"
       on:click={() => {
         if (_.every(jsonParsedValue || value, x => _.isPlainObject(x))) {
-          openNewTab(
-            {
-              title: 'Data #',
-              icon: 'img free-table',
-              tabComponent: 'FreeTableTab',
-              props: {},
-            },
-            {
-              editor: {
-                rows: jsonParsedValue || value,
-                structure: { __isDynamicStructure: true, columns: [] },
-              },
-            }
-          );
+          openJsonLinesData(jsonParsedValue || value);
         } else {
           openJsonDocument(jsonParsedValue || value, undefined, true);
         }

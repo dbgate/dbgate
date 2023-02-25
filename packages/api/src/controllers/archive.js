@@ -3,7 +3,6 @@ const readline = require('readline');
 const path = require('path');
 const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
 const socket = require('../utility/socket');
-const { saveFreeTableData } = require('../utility/freeTableStorage');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
 const { getLogger } = require('dbgate-tools');
@@ -162,34 +161,6 @@ module.exports = {
     return true;
   },
 
-  saveFreeTable_meta: true,
-  async saveFreeTable({ folder, file, data }) {
-    await saveFreeTableData(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), data);
-    socket.emitChanged(`archive-files-changed`, { folder });
-    return true;
-  },
-
-  loadFreeTable_meta: true,
-  async loadFreeTable({ folder, file }) {
-    return new Promise((resolve, reject) => {
-      const fileStream = fs.createReadStream(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));
-      const liner = readline.createInterface({
-        input: fileStream,
-      });
-      let structure = null;
-      const rows = [];
-      liner.on('line', line => {
-        const data = JSON.parse(line);
-        if (structure) rows.push(data);
-        else structure = data;
-      });
-      liner.on('close', () => {
-        resolve({ structure, rows });
-        fileStream.close();
-      });
-    });
-  },
-
   saveText_meta: true,
   async saveText({ folder, file, text }) {
     await fs.writeFile(path.join(resolveArchiveFolder(folder), `${file}.jsonl`), text);
@@ -202,6 +173,17 @@ module.exports = {
     const source = getJslFileName(jslid);
     const target = path.join(resolveArchiveFolder(folder), `${file}.jsonl`);
     await fs.copyFile(source, target);
+    socket.emitChanged(`archive-files-changed`, { folder });
+    return true;
+  },
+
+  saveRows_meta: true,
+  async saveRows({ folder, file, rows }) {
+    const fileStream = fs.createWriteStream(path.join(resolveArchiveFolder(folder), `${file}.jsonl`));
+    for (const row of rows) {
+      await fileStream.write(JSON.stringify(row) + '\n');
+    }
+    await fileStream.close();
     socket.emitChanged(`archive-files-changed`, { folder });
     return true;
   },

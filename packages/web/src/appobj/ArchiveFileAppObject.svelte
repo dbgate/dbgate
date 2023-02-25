@@ -111,24 +111,6 @@
   const handleOpenArchive = () => {
     openArchive(data.fileName, data.folderName);
   };
-  const handleOpenDataSheet = () => {
-    openNewTab({
-      title: data.fileName,
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
-      props: {
-        initialArgs: {
-          functionName: 'archiveReader',
-          props: {
-            fileName: data.fileName,
-            folderName: data.folderName,
-          },
-        },
-        archiveFile: data.fileName,
-        archiveFolder: data.folderName,
-      },
-    });
-  };
   const handleClick = () => {
     if (data.fileType == 'jsonl') {
       handleOpenArchive();
@@ -153,7 +135,6 @@
   function createMenu() {
     return [
       data.fileType == 'jsonl' && { text: 'Open', onClick: handleOpenArchive },
-      data.fileType == 'jsonl' && { text: 'Open as data sheet', onClick: handleOpenDataSheet },
       data.fileType == 'jsonl' && { text: 'Open in text editor', onClick: handleOpenJsonLinesText },
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },

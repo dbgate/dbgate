@@ -42,30 +42,26 @@
     apiCall('archive/refresh-files', { folder });
   };
 
-  function handleNewDataSheet() {
+  function handleNewJsonLines() {
     showModal(InputTextModal, {
       value: '',
       label: 'New file name',
-      header: 'Create new data sheet',
+      header: 'Create new JSON lines',
       onConfirm: async file => {
-        await apiCall('archive/save-free-table', {
+        await apiCall('archive/save-rows', {
           folder: $currentArchive,
           file,
-          data: createFreeTableModel(),
+          rows: [
+            { id: 1, value: 'val1' },
+            { id: 1, value: 'val2' },
+          ],
         });
 
         openNewTab({
           title: file,
-          icon: 'img free-table',
-          tabComponent: 'FreeTableTab',
+          icon: 'img archive',
+          tabComponent: 'ArchiveFileTab',
           props: {
-            initialArgs: {
-              functionName: 'archiveReader',
-              props: {
-                fileName: file,
-                folderName: $currentArchive,
-              },
-            },
             archiveFile: file,
             archiveFolder: $currentArchive,
           },
@@ -75,7 +71,7 @@
   }
 
   function createAddMenu() {
-    return [{ text: 'New data sheet', onClick: handleNewDataSheet }];
+    return [{ text: 'New NDJSON file', onClick: handleNewJsonLines }];
   }
 </script>
 

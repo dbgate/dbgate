@@ -5,6 +5,7 @@
   import openNewTab from '../utility/openNewTab';
   import _ from 'lodash';
   import { copyTextToClipboard } from '../utility/clipboard';
+  import { openJsonLinesData } from '../utility/openJsonLinesData';
 
   setContext('json-tree-context-key', {});
 
@@ -49,22 +50,9 @@
 
     if (value && _.isArray(value)) {
       res.push({
-        text: 'Open as data sheet',
+        text: 'Open as table',
         onClick: () => {
-          openNewTab(
-            {
-              title: 'Data #',
-              icon: 'img free-table',
-              tabComponent: 'FreeTableTab',
-              props: {},
-            },
-            {
-              editor: {
-                rows: value,
-                structure: { __isDynamicStructure: true, columns: [] },
-              },
-            }
-          );
+          openJsonLinesData(value);
         },
       });
     }

@@ -330,21 +330,6 @@ registerCommand({
 });
 
 registerCommand({
-  id: 'new.freetable',
-  category: 'New',
-  icon: 'img markdown',
-  name: 'Data sheet',
-  menuName: 'New data sheet',
-  onClick: () => {
-    openNewTab({
-      title: 'Data #',
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
-    });
-  },
-});
-
-registerCommand({
   id: 'new.jsonl',
   category: 'New',
   icon: 'img archive',
