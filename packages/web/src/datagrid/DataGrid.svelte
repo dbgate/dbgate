@@ -57,8 +57,8 @@
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormViewFilters from '../formview/FormViewFilters.svelte';
-  import MacroDetail from '../freetable/MacroDetail.svelte';
-  import MacroManager from '../freetable/MacroManager.svelte';
+  import MacroDetail from '../macro/MacroDetail.svelte';
+  import MacroManager from '../macro/MacroManager.svelte';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ColumnManager from './ColumnManager.svelte';
