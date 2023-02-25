@@ -14,6 +14,16 @@
     testEnabled: () => getCurrentEditor()?.canSave(),
     onClick: () => getCurrentEditor().save(),
   });
+
+  registerCommand({
+    id: 'archiveFile.saveAs',
+    category: 'Archive file',
+    name: 'Save as',
+    icon: 'icon save',
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor() != null,
+    onClick: () => getCurrentEditor().saveAs(),
+  });
 </script>
 
 <script lang="ts">
@@ -22,6 +32,7 @@
   import { onMount, tick } from 'svelte';
 
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
 
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
@@ -72,8 +83,10 @@
     }
   }
 
-  async function saveAs() {
+  export function saveAs() {
     showModal(SaveArchiveModal, {
+      folder: archiveFolder,
+      file: archiveFile,
       onSave: doSaveAs,
     });
   }
@@ -82,7 +95,7 @@
     await apiCall('archive/save-jsl-data', {
       folder,
       file,
-      jslid,
+      jslid: jslid || `archive://${archiveFolder}/${archiveFile}`,
       changeSet: changeSetContainsChanges($changeSetStore?.value) ? $changeSetStore.value : null,
     });
     changeTab(tabid, tab => ({
@@ -160,5 +173,6 @@
     <ToolStripCommandButton command="dataGrid.refresh" />
     <ToolStripExportButton command="jslTableGrid.export" {quickExportHandlerRef} />
     <ToolStripCommandButton command="archiveFile.save" />
+    <ToolStripCommandButton command="archiveFile.saveAs" />
   </svelte:fragment>
 </ToolStripContainer>
