@@ -28,6 +28,7 @@ import * as PerspectiveTab from './PerspectiveTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ProfilerTab from './ProfilerTab.svelte';
 import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
+import * as ImportExportTab from './ImportExportTab.svelte';
 
 export default {
   TableDataTab,
@@ -60,4 +61,5 @@ export default {
   ServerSummaryTab,
   ProfilerTab,
   DataDuplicatorTab,
+  ImportExportTab,
 };

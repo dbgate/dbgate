@@ -702,6 +702,22 @@
             },
             {
               onClick: () => {
+                // openNewTab(
+                //   {
+                //     tabComponent: 'ImportExportTab',
+                //     title: 'Import/Export',
+                //     icon: 'img export',
+                //   },
+                //   {
+                //     editor: {
+                //       sourceStorageType: 'database',
+                //       sourceConnectionId: data.conid,
+                //       sourceDatabaseName: data.database,
+                //       sourceSchemaName: data.schemaName,
+                //       sourceList: [data.pureName],
+                //     },
+                //   }
+                // );
                 showModal(ImportExportModal, {
                   initialValues: {
                     sourceStorageType: 'database',
