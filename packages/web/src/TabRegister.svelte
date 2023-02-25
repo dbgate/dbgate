@@ -1,15 +1,3 @@
-<script context="module" lang="ts">
-  function createTabComponent(selectedTab) {
-    const tabComponent = tabs[selectedTab.tabComponent]?.default;
-    if (tabComponent) {
-      return {
-        tabComponent,
-      };
-    }
-    return null;
-  }
-</script>
-
 <script lang="ts">
   import _ from 'lodash';
   import { openedTabs } from './stores';
@@ -39,7 +27,7 @@
     if (selectedTab) {
       const { tabid } = selectedTab;
       if (tabid && !mountedTabs[tabid]) {
-        const newTab = createTabComponent(selectedTab);
+        const newTab = tabs[selectedTab.tabComponent]?.default;
         if (newTab) {
           mountedTabs = {
             ...mountedTabs,
@@ -55,7 +43,7 @@
 
 {#each _.keys(mountedTabs) as tabid (tabid)}
   <TabContent
-    tabComponent={mountedTabs[tabid].tabComponent}
+    tabComponent={mountedTabs[tabid]}
     {...openedTabsByTabId[tabid]?.props}
     {tabid}
     tabVisible={tabid == (selectedTab && selectedTab.tabid)}
