@@ -21,6 +21,7 @@ let afterConnectCallbacks = [];
 let lastPing = null;
 let lastActivity = null;
 let currentProfiler = null;
+let executingScripts = 0;
 
 class TableWriter {
   constructor() {
@@ -263,20 +264,25 @@ async function handleExecuteQuery({ sql }) {
     //process.send({ msgtype: 'error', error: e.message });
   }
 
-  const resultIndexHolder = {
-    value: 0,
-  };
-  for (const sqlItem of splitQuery(sql, {
-    ...driver.getQuerySplitterOptions('stream'),
-    returnRichInfo: true,
-  })) {
-    await handleStream(driver, resultIndexHolder, sqlItem);
-    // const handler = new StreamHandler(resultIndex);
-    // const stream = await driver.stream(systemConnection, sqlItem, handler);
-    // handler.stream = stream;
-    // resultIndex = handler.resultIndex;
+  executingScripts++;
+  try {
+    const resultIndexHolder = {
+      value: 0,
+    };
+    for (const sqlItem of splitQuery(sql, {
+      ...driver.getQuerySplitterOptions('stream'),
+      returnRichInfo: true,
+    })) {
+      await handleStream(driver, resultIndexHolder, sqlItem);
+      // const handler = new StreamHandler(resultIndex);
+      // const stream = await driver.stream(systemConnection, sqlItem, handler);
+      // handler.stream = stream;
+      // resultIndex = handler.resultIndex;
+    }
+    process.send({ msgtype: 'done' });
+  } finally {
+    executingScripts--;
   }
-  process.send({ msgtype: 'done' });
 }
 
 async function handleExecuteReader({ jslid, sql, fileName }) {
@@ -349,7 +355,12 @@ function start() {
       storedConnection && storedConnection.globalSettings
         ? extractIntSettingsValue(storedConnection.globalSettings, 'session.autoCloseTimeout', 15, 1, 120)
         : 15;
-    if (useSessionTimeout && time - lastActivity > sessionTimeout * 60 * 1000 && !currentProfiler) {
+    if (
+      useSessionTimeout &&
+      time - lastActivity > sessionTimeout * 60 * 1000 &&
+      !currentProfiler &&
+      executingScripts == 0
+    ) {
       logger.info('Session not active, exiting');
       process.exit(0);
     }
