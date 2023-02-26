@@ -4,6 +4,7 @@
 
   import { tick } from 'svelte';
   import { createDatabaseObjectMenu } from '../appobj/DatabaseObjectAppObject.svelte';
+  import DataFilterControl from '../datagrid/DataFilterControl.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
 
   import FontIcon from '../icons/FontIcon.svelte';
@@ -300,6 +301,15 @@
       </div>
     {/if}
   </div>
+  {#if settings?.getMutliColumnFilter && settings?.setMutliColumnFilter}
+    <DataFilterControl
+      filterType="string"
+      filter={settings?.getMutliColumnFilter(designerId)}
+      setFilter={value => settings?.setMutliColumnFilter(designerId, value)}
+      placeholder="Data filter"
+    />
+  {/if}
+
   <div class="columns" on:scroll={() => tick().then(onMoveReferences)} class:scroll={settings?.allowScrollColumns}>
     {#each flatColumns || [] as column (column.columnName)}
       <ColumnLine

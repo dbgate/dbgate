@@ -40,6 +40,8 @@
   export let columnName = null;
   export let uniqueName = null;
 
+  export let placeholder = 'Filter';
+
   let value;
   let isError;
   let isOk;
@@ -318,7 +320,7 @@
     on:paste={handlePaste}
     class:isError
     class:isOk
-    placeholder="Filter"
+    {placeholder}
   />
   {#if customCommandIcon && onCustomCommand}
     <InlineButton on:click={onCustomCommand} title={customCommandTooltip} narrow square>

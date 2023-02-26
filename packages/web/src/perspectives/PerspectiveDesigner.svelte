@@ -334,6 +334,20 @@
     toggleExpandedColumn: (column, value) => column.toggleExpanded(value),
     getColumnDisplayName: column => column.shortName || column.columnName,
     getParentColumnName: getPerspectiveParentColumnName,
+    getMutliColumnFilter: designerId => config.nodes.find(x => x.designerId == designerId).multiColumnFilter,
+    setMutliColumnFilter: (designerId, multiColumnFilter) => {
+      setConfig(cfg => ({
+        ...cfg,
+        nodes: cfg.nodes.map(node =>
+          node.designerId == designerId
+            ? {
+                ...node,
+                multiColumnFilter,
+              }
+            : node
+        ),
+      }));
+    },
   }}
   referenceComponent={QueryDesignerReference}
   value={createDesignerModel(config, dbInfos, dataPatterns)}

@@ -35,7 +35,7 @@ import { PerspectiveDataLoadProps, PerspectiveDataProvider } from './Perspective
 import stableStringify from 'json-stable-stringify';
 import { getFilterType, parseFilter } from 'dbgate-filterparser';
 import { FilterType } from 'dbgate-filterparser/lib/types';
-import { Condition, Expression, Select } from 'dbgate-sqltree';
+import { CompoudCondition, Condition, Expression, Select } from 'dbgate-sqltree';
 // import { getPerspectiveDefaultColumns } from './getPerspectiveDefaultColumns';
 import uuidv1 from 'uuid/v1';
 import { PerspectiveDataPatternColumn } from './PerspectiveDataPattern';
@@ -341,10 +341,66 @@ export abstract class PerspectiveTreeNode {
     );
   }
 
+  getMutliColumnSqlCondition(source): Condition {
+    if (!this.nodeConfig?.multiColumnFilter) return null;
+    const base = this.getBaseTableFromThis() as TableInfo | ViewInfo;
+    if (!base) return null;
+    try {
+      const condition = parseFilter(this.nodeConfig?.multiColumnFilter, 'string');
+      if (condition) {
+        const orCondition: CompoudCondition = {
+          conditionType: 'or',
+          conditions: [],
+        };
+        for (const column of base.columns || []) {
+          orCondition.conditions.push(
+            _cloneDeepWith(condition, (expr: Expression) => {
+              if (expr.exprType == 'placeholder') {
+                return {
+                  exprType: 'column',
+                  alias: source,
+                  columnName: column.columnName,
+                };
+              }
+            })
+          );
+        }
+        if (orCondition.conditions.length > 0) {
+          return orCondition;
+        }
+      }
+    } catch (err) {
+      console.warn(err.message);
+    }
+    return null;
+  }
+
+  getMutliColumnMongoCondition(): {} {
+    if (!this.nodeConfig?.multiColumnFilter) return null;
+    const pattern = this.dataProvider?.dataPatterns?.[this.designerId];
+    if (!pattern) return null;
+
+    const condition = parseFilter(this.nodeConfig?.multiColumnFilter, 'mongo');
+    if (!condition) return null;
+    const res = pattern.columns.map(col => {
+      return _cloneDeepWith(condition, expr => {
+        if (expr.__placeholder__) {
+          return {
+            [col.name]: expr.__placeholder__,
+          };
+        }
+      });
+    });
+    return {
+      $or: res,
+    };
+  }
+
   getChildrenSqlCondition(source = null): Condition {
     const conditions = _compact([
       ...this.childNodes.map(x => x.parseFilterCondition(source)),
       ...this.buildParentFilterConditions(),
+      this.getMutliColumnSqlCondition(source),
     ]);
     if (conditions.length == 0) {
       return null;
@@ -359,7 +415,10 @@ export abstract class PerspectiveTreeNode {
   }
 
   getChildrenMongoCondition(source = null): {} {
-    const conditions = _compact([...this.childNodes.map(x => x.parseFilterCondition(source))]);
+    const conditions = _compact([
+      ...this.childNodes.map(x => x.parseFilterCondition(source)),
+      this.getMutliColumnMongoCondition(),
+    ]);
     if (conditions.length == 0) {
       return null;
     }
@@ -402,7 +461,7 @@ export abstract class PerspectiveTreeNode {
     }
     return res;
   }
-  getBaseTableFromThis() {
+  getBaseTableFromThis(): TableInfo | ViewInfo | CollectionInfo {
     return null;
   }
 
