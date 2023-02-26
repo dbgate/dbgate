@@ -9,6 +9,7 @@ const { getLogger } = require('dbgate-tools');
 const uuidv1 = require('uuid/v1');
 const dbgateApi = require('../shell');
 const jsldata = require('./jsldata');
+const platformInfo = require('../utility/platformInfo');
 
 const logger = getLogger('archive');
 
@@ -136,8 +137,13 @@ module.exports = {
     });
     const writer = await dbgateApi.jsonLinesWriter({ fileName: tmpchangedFilePath });
     await dbgateApi.copyStream(reader, writer);
-    await fs.unlink(changedFilePath);
-    await fs.rename(path.join(tmpchangedFilePath), path.join(changedFilePath));
+    if (platformInfo.isWindows) {
+      await fs.copyFile(tmpchangedFilePath, changedFilePath);
+      await fs.unlink(tmpchangedFilePath);
+    } else {
+      await fs.unlink(changedFilePath);
+      await fs.rename(tmpchangedFilePath, changedFilePath);
+    }
     return true;
   },
 
