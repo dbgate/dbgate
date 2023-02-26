@@ -36,7 +36,7 @@
   import CollectionDataGridCore from '../datagrid/CollectionDataGridCore.svelte';
   import { useCollectionInfo, useConnectionInfo } from '../utility/metadataLoaders';
   import { extensions } from '../stores';
-  import CollectionJsonView from '../jsonview/CollectionJsonView.svelte';
+  import CollectionJsonView from '../formview/CollectionJsonView.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { showModal } from '../modals/modalTools';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';

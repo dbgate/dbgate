@@ -63,7 +63,6 @@
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ColumnManager from './ColumnManager.svelte';
   import ReferenceManager from './ReferenceManager.svelte';
-  import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import _ from 'lodash';
   import registerCommand from '../commands/registerCommand';
@@ -171,25 +170,19 @@
 
       <WidgetColumnBarItem
         title="Filters"
-        name="jsonFilters"
-        height={'30%'}
-        skip={!isDynamicStructure || !display?.filterable}
-      >
-        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} {useEvalFilters} />
-      </WidgetColumnBarItem>
-
-      <WidgetColumnBarItem
-        title="Filters"
-        name="tableFilters"
-        height={'15%'}
-        skip={!display?.filterable || isDynamicStructure || display.filterCount == 0 || isFormView}
+        name="filters"
+        height={showReferences && display?.hasReferences ? '15%' : '30%'}
+        show={display?.filterable}
         collapsed={isDetailView}
       >
-        <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} {useEvalFilters} />
-      </WidgetColumnBarItem>
-
-      <WidgetColumnBarItem title="Filters" name="filters" height="30%" show={isFormView}>
-        <FormViewFilters {...$$props} {managerSize} driver={display?.driver} />
+        <FormViewFilters
+          {...$$props}
+          {managerSize}
+          {isDynamicStructure}
+          {useEvalFilters}
+          {isFormView}
+          driver={display?.driver}
+        />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem

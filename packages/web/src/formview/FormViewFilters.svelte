@@ -16,6 +16,10 @@
   export let schemaName;
   export let pureName;
 
+  export let isDynamicStructure;
+  export let useEvalFilters;
+  export let isFormView;
+
   $: baseTable = display?.baseTable;
   $: formFilterColumns = display?.config?.formFilterColumns;
   $: filters = display?.config?.filters;
@@ -23,34 +27,39 @@
   $: allFilterNames = _.union(_.keys(filters || {}), formFilterColumns || []);
 </script>
 
-<div class="m-1">
-  <div>Column filter</div>
-  <div class="flex">
-    <input
-      type="text"
-      value={display?.config?.formColumnFilterText || ''}
-      on:keydown={e => {
-        if (e.keyCode == keycodes.escape) {
+{#if isFormView}
+  <div class="m-1">
+    <div>Column filter</div>
+    <div class="flex">
+      <input
+        type="text"
+        value={display?.config?.formColumnFilterText || ''}
+        on:keydown={e => {
+          if (e.keyCode == keycodes.escape) {
+            setConfig(x => ({
+              ...x,
+              formColumnFilterText: '',
+            }));
+          }
+        }}
+        on:input={e =>
           setConfig(x => ({
             ...x,
-            formColumnFilterText: '',
-          }));
-        }
-      }}
-      on:input={e =>
-        setConfig(x => ({
-          ...x,
-          // @ts-ignore
-          formColumnFilterText: e.target.value,
-        }))}
-    />
+            // @ts-ignore
+            formColumnFilterText: e.target.value,
+          }))}
+      />
+    </div>
   </div>
-</div>
+{/if}
 
 <ManagerInnerContainer width={managerSize}>
   {#each allFilterNames as uniqueName}
     <FormViewFilterColumn
-      column={display.formColumns.find(x => x.uniqueName == uniqueName)}
+      {isDynamicStructure}
+      {useEvalFilters}
+      {isFormView}
+      {uniqueName}
       {display}
       {filters}
       {driver}

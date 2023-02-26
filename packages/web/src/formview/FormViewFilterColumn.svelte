@@ -7,7 +7,7 @@
   import InlineButton from '../buttons/InlineButton.svelte';
   import FontIcon from '../icons/FontIcon.svelte';
 
-  export let column;
+  export let uniqueName;
   export let display;
   export let filters;
 
@@ -16,6 +16,24 @@
   export let database;
   export let schemaName;
   export let pureName;
+
+  export let useEvalFilters;
+  export let isDynamicStructure;
+  export let isFormView;
+
+  $: column = isFormView
+    ? display.display.formColumns.find(x => x.uniqueName == uniqueName)
+    : display.findColumn(uniqueName);
+
+  function computeFilterType(display, column, isFormView, isDynamicStructure, useEvalFilters) {
+    if (useEvalFilters) return 'eval';
+    if (isDynamicStructure) return 'mongo';
+
+    if (column) {
+      return column.filterType || getFilterType(column.dataType);
+    }
+    return 'string';
+  }
 </script>
 
 {#if column}
@@ -26,16 +44,16 @@
         square
         narrow
         on:click={() => {
-          display.removeFilter(column.uniqueName);
+          display.removeFilter(uniqueName);
         }}
       >
         <FontIcon icon="icon close" />
       </InlineButton>
     </div>
     <DataFilterControl
-      filterType={getFilterType(column.dataType)}
-      filter={filters[column.uniqueName]}
-      setFilter={value => display.setFilter(column.uniqueName, value)}
+      filterType={computeFilterType(display, uniqueName, isFormView, isDynamicStructure, useEvalFilters)}
+      filter={filters[uniqueName]}
+      setFilter={value => display.setFilter(uniqueName, value)}
       {driver}
       {conid}
       {database}

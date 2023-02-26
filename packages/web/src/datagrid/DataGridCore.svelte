@@ -381,7 +381,7 @@
   import ErrorInfo from '../elements/ErrorInfo.svelte';
   import { dataGridRowHeight } from './DataGridRowHeightMeter.svelte';
   import FormStyledButton from '../buttons/FormStyledButton.svelte';
-  import { editJsonRowDocument } from '../jsonview/CollectionJsonRow.svelte';
+  import { editJsonRowDocument } from '../formview/CollectionJsonRow.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import CollapseButton from './CollapseButton.svelte';
   import GenerateSqlFromDataModal from '../modals/GenerateSqlFromDataModal.svelte';
