@@ -188,6 +188,8 @@ const oracleDriver = {
     }
     return dialect;
   },
+
+  showConnectionTab: (field) => field == 'sshTunnel',
 };
 
 module.exports = [oracleDriver];
