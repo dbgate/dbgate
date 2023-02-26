@@ -11,7 +11,7 @@ async function runScript(func) {
     await func();
     process.exit(0);
   } catch (err) {
-    logger.error('Error running script', err);
+    logger.error({ err }, `Error running script: ${err.message}`);
     process.exit(1);
   }
 }

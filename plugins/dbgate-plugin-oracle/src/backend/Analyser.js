@@ -104,7 +104,7 @@ class Analyser extends DatabaseAnalyser {
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
-    const columnColumnsMapped = fkColumns.rows.map(x => ({
+    const fkColumnsMapped = fkColumns.rows.map(x => ({
       pureName: x.pure_name,
       schemaName: x.schema_name,
       constraintSchema: x.constraint_schema,
@@ -124,6 +124,9 @@ class Analyser extends DatabaseAnalyser {
       columnName: x.column_name,
     }));
 
+    const columnGroup = col => `${col.schema_name}||${col.pure_name}`;
+    const columnsGrouped = _.groupBy(columns.rows, columnGroup);
+
     const res = {
       tables: tables.rows.map(table => {
         const newTable = {
@@ -134,11 +137,11 @@ class Analyser extends DatabaseAnalyser {
         };
         return {
           ...newTable,
-          columns: columns.rows
-            .filter(col => col.pure_name == table.pure_name && col.schema_name == table.schema_name)
-            .map(col => getColumnInfo(col, newTable, geometryColumns, geographyColumns)),
+          columns: (columnsGrouped[columnGroup(table)] || []).map(col =>
+            getColumnInfo(col, newTable, geometryColumns, geographyColumns)
+          ),
           primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
-          foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, columnColumnsMapped),
+          foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, fkColumnsMapped),
           indexes: _.uniqBy(
             indexes.rows.filter(
               idx =>
@@ -176,9 +179,7 @@ class Analyser extends DatabaseAnalyser {
         schemaName: view.schema_name,
         contentHash: view.hash_code,
         createSql: `CREATE VIEW "${view.schema_name}"."${view.pure_name}"\nAS\n${view.create_sql}`,
-        columns: columns.rows
-          .filter(col => col.pure_name == view.pure_name && col.schema_name == view.schema_name)
-          .map(col => getColumnInfo(col)),
+        columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
       })),
       matviews: matviews
         ? matviews.rows.map(matview => ({
@@ -211,6 +212,9 @@ class Analyser extends DatabaseAnalyser {
           contentHash: func.hash_code,
         })),
     };
+
+    // this.feedback({ analysingMessage: 'Debug sleep' });
+    // await new Promise(resolve => setTimeout(resolve, 90 * 1000));
 
     this.feedback({ analysingMessage: null });
 

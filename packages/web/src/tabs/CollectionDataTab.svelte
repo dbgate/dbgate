@@ -154,7 +154,7 @@
   }
 
   function handleRunMacro(macro, params, cells) {
-    const newChangeSet = runMacroOnChangeSet(macro, params, cells, $changeSetStore?.value, display);
+    const newChangeSet = runMacroOnChangeSet(macro, params, cells, $changeSetStore?.value, display, false);
     if (newChangeSet) {
       dispatchChangeSet({ type: 'set', value: newChangeSet });
     }

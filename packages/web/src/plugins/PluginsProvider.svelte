@@ -1,8 +1,4 @@
 <script lang="ts" context="module">
-  const dbgateEnv = {
-    apiCall,
-  };
-
   async function loadPlugins(pluginsDict, installedPlugins) {
     window['DBGATE_TOOLS'] = dbgateTools;
 
@@ -20,7 +16,6 @@
         const module = eval(`${resp}; plugin`);
         console.log('Loaded plugin', module);
         const moduleContent = module.__esModule ? module.default : module;
-        if (moduleContent.initialize) moduleContent.initialize(dbgateEnv);
         newPlugins[installed.name] = moduleContent;
       }
     }

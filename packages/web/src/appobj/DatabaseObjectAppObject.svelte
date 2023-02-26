@@ -103,10 +103,6 @@
         requiresWriteAccess: true,
       },
       {
-        label: 'Open as data sheet',
-        isOpenFreeTable: true,
-      },
-      {
         label: 'Open active chart',
         isActiveChart: true,
       },
@@ -177,10 +173,6 @@
         functionName: 'tableReader',
       },
       {
-        label: 'Open as data sheet',
-        isOpenFreeTable: true,
-      },
-      {
         label: 'Open active chart',
         isActiveChart: true,
       },
@@ -241,10 +233,6 @@
         label: 'Export',
         isExport: true,
         functionName: 'tableReader',
-      },
-      {
-        label: 'Open as data sheet',
-        isOpenFreeTable: true,
       },
       {
         label: 'Open active chart',
@@ -409,27 +397,7 @@
       return driver;
     };
 
-    if (menu.isOpenFreeTable) {
-      const coninfo = await getConnectionInfo(data);
-      openNewTab({
-        title: data.pureName,
-        icon: 'img free-table',
-        tabComponent: 'FreeTableTab',
-        props: {
-          initialArgs: {
-            functionName: 'tableReader',
-            props: {
-              connection: {
-                ...coninfo,
-                database: data.database,
-              },
-              schemaName: data.schemaName,
-              pureName: data.pureName,
-            },
-          },
-        },
-      });
-    } else if (menu.isActiveChart) {
+    if (menu.isActiveChart) {
       const driver = await getDriver();
       const dmp = driver.createDumper();
       dmp.put('^select * from %f', data);
@@ -734,6 +702,22 @@
             },
             {
               onClick: () => {
+                // openNewTab(
+                //   {
+                //     tabComponent: 'ImportExportTab',
+                //     title: 'Import/Export',
+                //     icon: 'img export',
+                //   },
+                //   {
+                //     editor: {
+                //       sourceStorageType: 'database',
+                //       sourceConnectionId: data.conid,
+                //       sourceDatabaseName: data.database,
+                //       sourceSchemaName: data.schemaName,
+                //       sourceList: [data.pureName],
+                //     },
+                //   }
+                // );
                 showModal(ImportExportModal, {
                   initialValues: {
                     sourceStorageType: 'database',

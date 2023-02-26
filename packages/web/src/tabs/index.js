@@ -5,7 +5,6 @@ import * as TableStructureTab from './TableStructureTab.svelte';
 import * as QueryTab from './QueryTab.svelte';
 import * as ShellTab from './ShellTab.svelte';
 import * as ArchiveFileTab from './ArchiveFileTab.svelte';
-import * as FreeTableTab from './FreeTableTab.svelte';
 import * as PluginTab from './PluginTab.svelte';
 import * as ChartTab from './ChartTab.svelte';
 import * as MarkdownEditorTab from './MarkdownEditorTab.svelte';
@@ -29,6 +28,7 @@ import * as PerspectiveTab from './PerspectiveTab.svelte';
 import * as ServerSummaryTab from './ServerSummaryTab.svelte';
 import * as ProfilerTab from './ProfilerTab.svelte';
 import * as DataDuplicatorTab from './DataDuplicatorTab.svelte';
+import * as ImportExportTab from './ImportExportTab.svelte';
 
 export default {
   TableDataTab,
@@ -38,7 +38,6 @@ export default {
   QueryTab,
   ShellTab,
   ArchiveFileTab,
-  FreeTableTab,
   PluginTab,
   ChartTab,
   MarkdownEditorTab,
@@ -62,4 +61,5 @@ export default {
   ServerSummaryTab,
   ProfilerTab,
   DataDuplicatorTab,
+  ImportExportTab,
 };

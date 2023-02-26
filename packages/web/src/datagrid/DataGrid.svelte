@@ -57,13 +57,12 @@
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import FormViewFilters from '../formview/FormViewFilters.svelte';
-  import MacroDetail from '../freetable/MacroDetail.svelte';
-  import MacroManager from '../freetable/MacroManager.svelte';
+  import MacroDetail from '../macro/MacroDetail.svelte';
+  import MacroManager from '../macro/MacroManager.svelte';
   import WidgetColumnBar from '../widgets/WidgetColumnBar.svelte';
   import WidgetColumnBarItem from '../widgets/WidgetColumnBarItem.svelte';
   import ColumnManager from './ColumnManager.svelte';
   import ReferenceManager from './ReferenceManager.svelte';
-  import FreeTableColumnEditor from '../freetable/FreeTableColumnEditor.svelte';
   import JsonViewFilters from '../jsonview/JsonViewFilters.svelte';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import _ from 'lodash';
@@ -201,7 +200,6 @@
         height="40%"
         show={freeTableColumn && !isDynamicStructure}
       >
-        <FreeTableColumnEditor {...$$props} {managerSize} />
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="filters" height="30%" show={isFormView}>

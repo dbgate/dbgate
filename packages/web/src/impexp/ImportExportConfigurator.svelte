@@ -22,7 +22,7 @@
     for (const file of getAsArray(files)) {
       const format = findFileFormat(extensions, storage);
       if (format) {
-        await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues);
+        await (format.addFileToSourceList || addFileToSourceListDefault)(file, newSources, newValues, apiCall);
       }
     }
     newValues['sourceList'] = [...(values.sourceList || []).filter(x => !newSources.includes(x)), ...newSources];
@@ -58,6 +58,7 @@
   import { showModal } from '../modals/modalTools';
   import { findFileFormat } from '../plugins/fileformats';
   import { extensions } from '../stores';
+  import { apiCall } from '../utility/api';
   import getAsArray from '../utility/getAsArray';
   import { useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
   import { setUploadListener } from '../utility/uploadFiles';

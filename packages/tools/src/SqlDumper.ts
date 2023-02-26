@@ -244,16 +244,7 @@ export class SqlDumper implements AlterProcessor {
       this.put('%i ', col.columnName);
       this.columnDefinition(col);
     });
-    if (table.primaryKey) {
-      this.put(',&n');
-      if (table.primaryKey.constraintName) {
-        this.put('^constraint %i', table.primaryKey.constraintName);
-      }
-      this.put(
-        ' ^primary ^key (%,i)',
-        table.primaryKey.columns.map(x => x.columnName)
-      );
-    }
+    this.createTablePrimaryKeyCore(table);
 
     (table.foreignKeys || []).forEach(fk => {
       this.put(',&n');
@@ -273,6 +264,19 @@ export class SqlDumper implements AlterProcessor {
     (table.indexes || []).forEach(ix => {
       this.createIndex(ix);
     });
+  }
+
+  createTablePrimaryKeyCore(table: TableInfo) {
+    if (table.primaryKey) {
+      this.put(',&n');
+      if (table.primaryKey.constraintName) {
+        this.put('^constraint %i', table.primaryKey.constraintName);
+      }
+      this.put(
+        ' ^primary ^key (%,i)',
+        table.primaryKey.columns.map(x => x.columnName)
+      );
+    }
   }
 
   createForeignKeyFore(fk: ForeignKeyInfo) {

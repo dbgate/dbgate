@@ -235,7 +235,10 @@ export class DatabaseAnalyser {
     if (this.pool.feedback) {
       this.pool.feedback(obj);
     }
-  }
+    if (obj && obj.analysingMessage) {
+        logger.debug(obj.analysingMessage);
+    }
+  } 
 
   async getModifications() {
     const snapshot = await this._getFastSnapshot();

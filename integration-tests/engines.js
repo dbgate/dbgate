@@ -136,8 +136,8 @@ const filterLocal = [
   '-MySQL',
   '-MariaDB',
   '-PostgreSQL',
-  'SQL Server',
-  '-SQLite',
+  '-SQL Server',
+  'SQLite',
   '-CockroachDB',
 ];
 

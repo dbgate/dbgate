@@ -54,11 +54,9 @@
     'matview.sql': 'img view',
   };
 
-  function getArchiveIcon(archiveFilesAsDataSheets, data) {
+  function getArchiveIcon(data) {
     if (data.fileType == 'jsonl') {
-      return isArchiveFileMarkedAsDataSheet(archiveFilesAsDataSheets, data.folderName, data.fileName)
-        ? 'img free-table'
-        : 'img archive';
+      return 'img archive';
     }
     return ARCHIVE_ICONS[data.fileType];
   }
@@ -70,20 +68,14 @@
   import ImportExportModal from '../modals/ImportExportModal.svelte';
   import { showModal } from '../modals/modalTools';
 
-  import { archiveFilesAsDataSheets, currentArchive, extensions, getCurrentDatabase, getExtensions } from '../stores';
+  import { getExtensions } from '../stores';
 
   import createQuickExportMenu from '../utility/createQuickExportMenu';
   import { exportQuickExportFile } from '../utility/exportFileTools';
   import openNewTab from '../utility/openNewTab';
   import AppObjectCore from './AppObjectCore.svelte';
-  import getConnectionLabel from '../utility/getConnectionLabel';
   import InputTextModal from '../modals/InputTextModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import {
-    isArchiveFileMarkedAsDataSheet,
-    markArchiveFileAsDataSheet,
-    markArchiveFileAsReadonly,
-  } from '../utility/archiveTools';
   import { apiCall } from '../utility/api';
 
   export let data;
@@ -116,36 +108,12 @@
       },
     });
   };
-  const handleOpenRead = () => {
-    markArchiveFileAsReadonly(data.folderName, data.fileName);
+  const handleOpenArchive = () => {
     openArchive(data.fileName, data.folderName);
-  };
-  const handleOpenWrite = () => {
-    markArchiveFileAsDataSheet(data.folderName, data.fileName);
-    openNewTab({
-      title: data.fileName,
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
-      props: {
-        initialArgs: {
-          functionName: 'archiveReader',
-          props: {
-            fileName: data.fileName,
-            folderName: data.folderName,
-          },
-        },
-        archiveFile: data.fileName,
-        archiveFolder: data.folderName,
-      },
-    });
   };
   const handleClick = () => {
     if (data.fileType == 'jsonl') {
-      if (isArchiveFileMarkedAsDataSheet($archiveFilesAsDataSheets, data.folderName, data.fileName)) {
-        handleOpenWrite();
-      } else {
-        handleOpenRead();
-      }
+      handleOpenArchive();
     }
     if (data.fileType.endsWith('.sql')) {
       handleOpenSqlFile();
@@ -166,8 +134,7 @@
 
   function createMenu() {
     return [
-      data.fileType == 'jsonl' && { text: 'Open (readonly)', onClick: handleOpenRead },
-      data.fileType == 'jsonl' && { text: 'Open as data sheet', onClick: handleOpenWrite },
+      data.fileType == 'jsonl' && { text: 'Open', onClick: handleOpenArchive },
       data.fileType == 'jsonl' && { text: 'Open in text editor', onClick: handleOpenJsonLinesText },
       { text: 'Delete', onClick: handleDelete },
       { text: 'Rename', onClick: handleRename },
@@ -232,7 +199,7 @@
   {...$$restProps}
   {data}
   title={data.fileLabel}
-  icon={getArchiveIcon($archiveFilesAsDataSheets, data)}
+  icon={getArchiveIcon(data)}
   menu={createMenu}
   on:click={handleClick}
 />

@@ -13,10 +13,12 @@
   import { editorAddColumn, editorDeleteColumn, editorModifyColumn, fillEditorColumnInfo } from 'dbgate-tools';
 
   export let columnInfo;
-  export let setTableInfo;
-  export let tableInfo;
+  export let setTableInfo = null;
+  export let tableInfo = null;
   export let onAddNext;
-  export let driver;
+  export let driver = null;
+
+  export let addDataCommand = false;
 </script>
 
 <FormProvider initialValues={fillEditorColumnInfo(columnInfo || {}, tableInfo)}>
@@ -31,7 +33,10 @@
     <FormCheckboxField name="notNull" label="NOT NULL" />
     <FormCheckboxField name="isPrimaryKey" label="Is Primary Key" />
     <FormCheckboxField name="autoIncrement" label="Is Autoincrement" />
-    <FormTextField name="defaultValue" label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string" />
+    <FormTextField
+      name="defaultValue"
+      label="Default value. Please use valid SQL expression, eg. 'Hello World' for string value, '' for empty string"
+    />
     <FormTextField name="computedExpression" label="Computed expression" />
     {#if driver?.dialect?.columnProperties?.isUnsigned}
       <FormCheckboxField name="isUnsigned" label="Unsigned" />
@@ -52,9 +57,9 @@
         on:click={e => {
           closeCurrentModal();
           if (columnInfo) {
-            setTableInfo(tbl => editorModifyColumn(tbl, e.detail));
+            setTableInfo(tbl => editorModifyColumn(tbl, e.detail, addDataCommand));
           } else {
-            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail, addDataCommand));
             if (onAddNext) onAddNext();
           }
         }}
@@ -65,7 +70,7 @@
           value="Save"
           on:click={e => {
             closeCurrentModal();
-            setTableInfo(tbl => editorAddColumn(tbl, e.detail));
+            setTableInfo(tbl => editorAddColumn(tbl, e.detail, addDataCommand));
           }}
         />
       {/if}
@@ -77,7 +82,7 @@
           value="Remove"
           on:click={() => {
             closeCurrentModal();
-            setTableInfo(tbl => editorDeleteColumn(tbl, columnInfo));
+            setTableInfo(tbl => editorDeleteColumn(tbl, columnInfo, addDataCommand));
           }}
         />
       {/if}

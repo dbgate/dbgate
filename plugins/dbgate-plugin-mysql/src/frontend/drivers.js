@@ -42,6 +42,7 @@ const dialect = {
   dropCheck: true,
 
   dropReferencesWhenDropTable: false,
+  requireStandaloneSelectForScopeIdentity: true,
 
   columnProperties: {
     columnComment: true,

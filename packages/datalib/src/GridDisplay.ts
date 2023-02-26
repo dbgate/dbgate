@@ -84,6 +84,7 @@ export abstract class GridDisplay {
     return this.baseTable || this.baseView;
   }
   changeSetKeyFields: string[] = null;
+  editableStructure: TableInfo = null;
   sortable = false;
   groupable = false;
   filterable = false;

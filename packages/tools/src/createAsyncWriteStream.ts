@@ -14,23 +14,12 @@ export function createAsyncWriteStream(stream, options: AsyncWriteStreamOptions)
   });
 
   writable._write = async (chunk, encoding, callback) => {
-    await options.processItem(chunk);
-
-    // const { sql, id, newIdSql } = chunk;
-    // if (_isArray(sql)) {
-    //   for (const item of sql) await driver.query(pool, item, { discardResult: true });
-    // } else {
-    //   await driver.query(pool, sql, { discardResult: true });
-    // }
-    // if (newIdSql) {
-    //   const res = await driver.query(pool, newIdSql);
-    //   const resId = Object.entries(res?.rows?.[0])?.[0]?.[1];
-
-    //   if (options?.mapResultId) {
-    //     options?.mapResultId(id, resId as string);
-    //   }
-    // }
-    callback();
+    try {
+      await options.processItem(chunk);
+      callback(null);
+    } catch (err) {
+      callback(err);
+    }
   };
 
   // writable._final = async callback => {

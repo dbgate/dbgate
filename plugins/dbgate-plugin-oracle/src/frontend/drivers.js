@@ -118,11 +118,7 @@ const oracleDriverBase = {
       return ['databaseUrl', 'isReadOnly'].includes(field);
     }
 
-    return (
-      ['authType', 'user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly'].includes(field) ||
-      (values.authType == 'socket' && ['socketPath'].includes(field)) ||
-      (values.authType != 'socket' && ['server', 'port'].includes(field))
-    );
+    return ['user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'server', 'port'].includes(field);
   },
 
   beforeConnectionSave: connection => {
@@ -166,17 +162,13 @@ $$ LANGUAGE plpgsql;`,
       },
     ];
   },
-
-  authTypeLabel: 'Connection mode',
-  defaultAuthTypeName: 'hostPort',
-  defaultSocketPath: '/var/run/oracledb',
 };
 
 /** @type {import('dbgate-types').EngineDriver} */
 const oracleDriver = {
   ...oracleDriverBase,
   engine: 'oracle@dbgate-plugin-oracle',
-  title: 'OracleDB',
+  title: 'OracleDB (Experimental)',
   defaultPort: 1521,
   dialect: {
     ...dialect,
@@ -196,7 +188,8 @@ const oracleDriver = {
     }
     return dialect;
   },
-};
 
+  showConnectionTab: (field) => field == 'sshTunnel',
+};
 
 module.exports = [oracleDriver];

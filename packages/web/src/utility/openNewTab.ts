@@ -65,7 +65,7 @@ export default async function openNewTab(newTab, initialData = undefined, option
   const tabid = uuidv1();
   if (initialData) {
     for (const key of _.keys(initialData)) {
-      if (key == 'editor') {
+      if (key == 'editor' || key == 'rows') {
         await localforage.setItem(`tabdata_${key}_${tabid}`, initialData[key]);
       } else {
         localStorage.setItem(`tabdata_${key}_${tabid}`, JSON.stringify(initialData[key]));

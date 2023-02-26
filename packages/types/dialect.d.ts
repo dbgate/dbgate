@@ -11,6 +11,7 @@ export interface SqlDialect {
   anonymousPrimaryKey?: boolean;
   defaultSchemaName?: string;
   enableConstraintsPerTable?: boolean;
+  requireStandaloneSelectForScopeIdentity?: boolean;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];

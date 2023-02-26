@@ -161,7 +161,7 @@
   registerCommand({
     id: 'dataGrid.openJsonArrayInSheet',
     category: 'Data grid',
-    name: 'Open array as data sheet',
+    name: 'Open array as table',
     testEnabled: () => getCurrentDataGrid()?.openJsonArrayInSheetEnabled(),
     onClick: () => getCurrentDataGrid().openJsonArrayInSheet(),
   });
@@ -238,7 +238,7 @@
   registerCommand({
     id: 'dataGrid.openFreeTable',
     category: 'Data grid',
-    name: 'Edit selection as data sheet',
+    name: 'Edit selection as table',
     testEnabled: () => getCurrentDataGrid() != null,
     onClick: () => getCurrentDataGrid().openFreeTable(),
   });
@@ -398,6 +398,7 @@
   import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import { openJsonLinesData } from '../utility/openJsonLinesData';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -645,15 +646,7 @@
   }
 
   export function openFreeTable() {
-    openNewTab(
-      {
-        title: 'Data #',
-        icon: 'img free-table',
-        tabComponent: 'FreeTableTab',
-        props: {},
-      },
-      { editor: getSelectedFreeData() }
-    );
+    openJsonLinesData(getSelectedFreeDataRows());
   }
 
   export function openChartFromSelection() {
@@ -784,20 +777,7 @@
   }
 
   export function openJsonArrayInSheet() {
-    openNewTab(
-      {
-        title: 'Data #',
-        icon: 'img free-table',
-        tabComponent: 'FreeTableTab',
-        props: {},
-      },
-      {
-        editor: {
-          rows: getSelectedDataJson(true),
-          structure: { __isDynamicStructure: true, columns: [] },
-        },
-      }
-    );
+    openJsonLinesData(getSelectedDataJson(true));
   }
 
   export function editJsonEnabled() {
@@ -1107,6 +1087,12 @@
       },
       rows,
     };
+  };
+
+  const getSelectedFreeDataRows = () => {
+    const columns = getSelectedColumns();
+    const rows = getSelectedRowData().map(row => _.pickBy(row, (v, col) => columns.find(x => x.columnName == col)));
+    return rows;
   };
 
   function getCellsPublished(cells) {

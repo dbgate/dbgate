@@ -4,7 +4,6 @@ const lineReader = require('line-reader');
 const _ = require('lodash');
 const { __ } = require('lodash/fp');
 const DatastoreProxy = require('../utility/DatastoreProxy');
-const { saveFreeTableData } = require('../utility/freeTableStorage');
 const getJslFileName = require('../utility/getJslFileName');
 const JsonLinesDatastore = require('../utility/JsonLinesDatastore');
 const requirePluginFunction = require('../utility/requirePluginFunction');
@@ -148,6 +147,12 @@ module.exports = {
     return datastore.getRows(offset, limit, _.isEmpty(filters) ? null : filters, _.isEmpty(sort) ? null : sort);
   },
 
+  exists_meta: true,
+  async exists({ jslid }) {
+    const fileName = getJslFileName(jslid);
+    return fs.existsSync(fileName);
+  },
+
   getStats_meta: true,
   getStats({ jslid }) {
     const file = `${getJslFileName(jslid)}.stats`;
@@ -189,15 +194,19 @@ module.exports = {
     // }
   },
 
-  saveFreeTable_meta: true,
-  async saveFreeTable({ jslid, data }) {
-    saveFreeTableData(getJslFileName(jslid), data);
-    return true;
-  },
-
   saveText_meta: true,
   async saveText({ jslid, text }) {
     await fs.promises.writeFile(getJslFileName(jslid), text);
+    return true;
+  },
+
+  saveRows_meta: true,
+  async saveRows({ jslid, rows }) {
+    const fileStream = fs.createWriteStream(getJslFileName(jslid));
+    for (const row of rows) {
+      await fileStream.write(JSON.stringify(row) + '\n');
+    }
+    await fileStream.close();
     return true;
   },
 

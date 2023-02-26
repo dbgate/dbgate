@@ -1,5 +1,5 @@
 import type { QuickExportDefinition } from 'dbgate-types';
-import { getExtensions } from '../stores';
+import { currentArchive, getCurrentArchive, getExtensions } from '../stores';
 
 export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition) => Function, advancedExportMenuItem) {
   const extensions = getExtensions();
@@ -8,6 +8,22 @@ export function createQuickExportMenuItems(handler: (fmt: QuickExportDefinition)
       text: fmt.label,
       onClick: handler(fmt),
     })),
+    { divider: true },
+    {
+      text: 'Current archive',
+      onClick: handler({
+        extension: 'jsonl',
+        label: 'Current archive',
+        noFilenameDependency: true,
+        createWriter: (fileName, dataName) => ({
+          functionName: 'archiveWriter',
+          props: {
+            fileName: dataName,
+            folderName: getCurrentArchive(),
+          },
+        }),
+      }),
+    },
     { divider: true },
     {
       text: 'More...',

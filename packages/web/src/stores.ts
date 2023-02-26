@@ -84,7 +84,6 @@ export const pinnedDatabases = writableWithStorage([], 'pinnedDatabases');
 export const pinnedTables = writableWithStorage([], 'pinnedTables');
 export const commandsSettings = writable({});
 export const allResultsInOneTabDefault = writableWithStorage(false, 'allResultsInOneTabDefault');
-export const archiveFilesAsDataSheets = writableWithStorage([], 'archiveFilesAsDataSheets');
 export const commandsCustomized = derived([commands, commandsSettings], ([$commands, $commandsSettings]) =>
   _.mapValues($commands, (v, k) => ({
     // @ts-ignore
@@ -252,3 +251,9 @@ export function subscribeApiDependendStores() {
     }
   });
 }
+
+let currentArchiveValue = null;
+currentArchive.subscribe(value => {
+  currentArchiveValue = value;
+});
+export const getCurrentArchive = () => currentArchiveValue;

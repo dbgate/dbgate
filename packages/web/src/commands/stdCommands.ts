@@ -58,7 +58,7 @@ registerCommand({
   category: 'Theme',
   name: 'Change',
   toolbarName: 'Change theme',
-  onClick: () => showModal(SettingsModal, { selectedTab: 1 }),
+  onClick: () => showModal(SettingsModal, { selectedTab: 2 }),
   // getSubCommands: () => get(extensions).themes.map(themeCommand),
 });
 
@@ -325,21 +325,6 @@ registerCommand({
       title: 'Compare',
       icon: 'img compare',
       tabComponent: 'CompareModelTab',
-    });
-  },
-});
-
-registerCommand({
-  id: 'new.freetable',
-  category: 'New',
-  icon: 'img markdown',
-  name: 'Data sheet',
-  menuName: 'New data sheet',
-  onClick: () => {
-    openNewTab({
-      title: 'Data #',
-      icon: 'img free-table',
-      tabComponent: 'FreeTableTab',
     });
   },
 });

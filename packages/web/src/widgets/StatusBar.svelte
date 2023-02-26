@@ -6,7 +6,14 @@
 
   import FontIcon from '../icons/FontIcon.svelte';
 
-  import { activeTabId, currentDatabase, currentThemeDefinition, visibleCommandPalette } from '../stores';
+  import {
+    activeTabId,
+    currentArchive,
+    currentDatabase,
+    currentThemeDefinition,
+    selectedWidget,
+    visibleCommandPalette,
+  } from '../stores';
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { useConnectionList, useDatabaseServerVersion, useDatabaseStatus } from '../utility/metadataLoaders';
   import { findCommand } from '../commands/runCommand';
@@ -138,6 +145,18 @@
         <div class="version ml-1">
           {moment($status?.analysedTime).fromNow() + (timerValue ? '' : '')}
         </div>
+      </div>
+    {/if}
+    {#if $currentArchive}
+      <div
+        class="item flex clickable"
+        title="Current archive"
+        on:click={() => {
+          $selectedWidget = 'archive';
+        }}
+      >
+        <FontIcon icon="icon archive" padRight />
+        {$currentArchive}
       </div>
     {/if}
   </div>

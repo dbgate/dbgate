@@ -37,8 +37,9 @@ export interface PluginDefinition {
 
 export interface QuickExportDefinition {
   label: string;
-  createWriter: (fileName: string) => { functionName: string; props: any };
+  createWriter: (fileName: string, dataName?: string) => { functionName: string; props: any };
   extension: string;
+  noFilenameDependency?: boolean;
 }
 
 export interface ExtensionsDirectory {

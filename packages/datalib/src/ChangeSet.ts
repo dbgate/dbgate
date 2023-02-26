@@ -9,7 +9,8 @@ import {
   AllowIdentityInsert,
   Expression,
 } from 'dbgate-sqltree';
-import type { NamedObjectInfo, DatabaseInfo } from 'dbgate-types';
+import type { NamedObjectInfo, DatabaseInfo, TableInfo } from 'dbgate-types';
+import { JsonDataObjectUpdateCommand } from 'dbgate-tools';
 
 export interface ChangeSetItem {
   pureName: string;
@@ -21,10 +22,16 @@ export interface ChangeSetItem {
   fields?: { [column: string]: string };
 }
 
-export interface ChangeSet {
+export interface ChangeSetItemFields {
   inserts: ChangeSetItem[];
   updates: ChangeSetItem[];
   deletes: ChangeSetItem[];
+}
+
+export interface ChangeSet extends ChangeSetItemFields {
+  structure?: TableInfo;
+  dataUpdateCommands?: JsonDataObjectUpdateCommand[];
+  setColumnMode?: 'fixed' | 'variable';
 }
 
 export function createChangeSet(): ChangeSet {
@@ -51,7 +58,7 @@ export interface ChangeSetFieldDefinition extends ChangeSetRowDefinition {
 export function findExistingChangeSetItem(
   changeSet: ChangeSet,
   definition: ChangeSetRowDefinition
-): [keyof ChangeSet, ChangeSetItem] {
+): [keyof ChangeSetItemFields, ChangeSetItem] {
   if (!changeSet || !definition) return ['updates', null];
   if (definition.insertedRowIndex != null) {
     return [
@@ -456,5 +463,12 @@ export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[],
 
 export function changeSetContainsChanges(changeSet: ChangeSet) {
   if (!changeSet) return false;
-  return changeSet.deletes.length > 0 || changeSet.updates.length > 0 || changeSet.inserts.length > 0;
+  return (
+    changeSet.deletes.length > 0 ||
+    changeSet.updates.length > 0 ||
+    changeSet.inserts.length > 0 ||
+    !!changeSet.structure ||
+    !!changeSet.setColumnMode ||
+    changeSet.dataUpdateCommands?.length > 0
+  );
 }

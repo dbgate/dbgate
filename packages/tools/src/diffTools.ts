@@ -72,6 +72,34 @@ export function generateTablePairingId(table: TableInfo): TableInfo {
   return table;
 }
 
+export function removeTablePairingId(table: TableInfo): TableInfo {
+  if (!table) return table;
+  return {
+    ...table,
+    columns: table.columns?.map(col => ({
+      ...col,
+      pairingId: undefined,
+    })),
+    foreignKeys: table.foreignKeys?.map(cnt => ({
+      ...cnt,
+      pairingId: undefined,
+    })),
+    checks: table.checks?.map(cnt => ({
+      ...cnt,
+      pairingId: undefined,
+    })),
+    indexes: table.indexes?.map(cnt => ({
+      ...cnt,
+      pairingId: undefined,
+    })),
+    uniques: table.uniques?.map(cnt => ({
+      ...cnt,
+      pairingId: undefined,
+    })),
+    pairingId: undefined,
+  };
+}
+
 function generateObjectPairingId(obj) {
   if (obj.objectTypeField)
     return {
@@ -346,7 +374,13 @@ function createPairs(oldList, newList, additionalCondition = null) {
 function planTablePreload(plan: AlterPlan, oldTable: TableInfo, newTable: TableInfo) {
   const key = newTable.preloadedRowsKey || newTable.primaryKey?.columns?.map(x => x.columnName);
   if (newTable.preloadedRows?.length > 0 && key?.length > 0) {
-    plan.fillPreloadedRows(newTable, oldTable?.preloadedRows, newTable.preloadedRows, key, newTable.preloadedRowsInsertOnly);
+    plan.fillPreloadedRows(
+      newTable,
+      oldTable?.preloadedRows,
+      newTable.preloadedRows,
+      key,
+      newTable.preloadedRowsInsertOnly
+    );
   }
 }
 

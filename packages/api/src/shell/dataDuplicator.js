@@ -9,9 +9,18 @@ const copyStream = require('./copyStream');
 const jsonLinesReader = require('./jsonLinesReader');
 const { resolveArchiveFolder } = require('../utility/directories');
 
-async function dataDuplicator({ connection, archive, items, analysedStructure = null }) {
-  const driver = requireEngineDriver(connection);
-  const pool = await connectUtility(driver, connection, 'write');
+async function dataDuplicator({
+  connection,
+  archive,
+  items,
+  options,
+  analysedStructure = null,
+  driver,
+  systemConnection,
+}) {
+  if (!driver) driver = requireEngineDriver(connection);
+  const pool = systemConnection || (await connectUtility(driver, connection, 'write'));
+
   logger.info(`Connected.`);
 
   if (!analysedStructure) {
@@ -26,10 +35,13 @@ async function dataDuplicator({ connection, archive, items, analysedStructure = 
       name: item.name,
       operation: item.operation,
       matchColumns: item.matchColumns,
-      openStream: () => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) }),
+      openStream:
+        item.openStream ||
+        (() => jsonLinesReader({ fileName: path.join(resolveArchiveFolder(archive), `${item.name}.jsonl`) })),
     })),
     stream,
-    copyStream
+    copyStream,
+    options
   );
 
   await dupl.run();

@@ -12,6 +12,16 @@
     testEnabled: () => getCurrentEditor()?.canRun(),
     onClick: () => getCurrentEditor().run(),
   });
+  registerCommand({
+    id: 'dataDuplicator.kill',
+    category: 'Data duplicator',
+    icon: 'icon close',
+    name: 'Kill',
+    toolbar: true,
+    isRelatedToTab: true,
+    testEnabled: () => getCurrentEditor()?.canKill(),
+    onClick: () => getCurrentEditor().kill(),
+  });
 </script>
 
 <script lang="ts">
@@ -22,11 +32,14 @@
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import registerCommand from '../commands/registerCommand';
+  import Link from '../elements/Link.svelte';
   import ObjectConfigurationControl from '../elements/ObjectConfigurationControl.svelte';
   import TableControl from '../elements/TableControl.svelte';
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import CheckboxField from '../forms/CheckboxField.svelte';
+  import FormFieldTemplateLarge from '../forms/FormFieldTemplateLarge.svelte';
   import SelectField from '../forms/SelectField.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import { extractShellConnection } from '../impexp/createImpExpScript';
   import SocketMessageView from '../query/SocketMessageView.svelte';
   import useEditorData from '../query/useEditorData';
@@ -35,7 +48,11 @@
   import { changeTab } from '../utility/common';
   import createActivator, { getActiveComponent } from '../utility/createActivator';
   import { useArchiveFiles, useArchiveFolders, useConnectionInfo, useDatabaseInfo } from '../utility/metadataLoaders';
+  import openNewTab from '../utility/openNewTab';
   import useEffect from '../utility/useEffect';
+  import useTimerLabel from '../utility/useTimerLabel';
+  import appObjectTypes from '../appobj';
+  import RowHeaderCell from '../datagrid/RowHeaderCell.svelte';
 
   export let conid;
   export let database;
@@ -47,16 +64,20 @@
 
   export const activator = createActivator('DataDuplicatorTab', true);
 
+  const timerLabel = useTimerLabel();
+
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
 
   $: archiveFolders = useArchiveFolders();
   $: archiveFiles = useArchiveFiles({ folder: $editorState?.value?.archiveFolder });
 
-  $: pairedNames = _.intersectionBy(
-    $dbinfo?.tables?.map(x => x.pureName),
-    $archiveFiles?.map(x => x.name),
-    (x: string) => _.toUpper(x)
+  $: pairedNames = _.sortBy(
+    _.intersectionBy(
+      $dbinfo?.tables?.map(x => x.pureName),
+      $archiveFiles?.map(x => x.name),
+      (x: string) => _.toUpper(x)
+    )
   );
 
   $: {
@@ -100,6 +121,10 @@
           operation: row.operation,
           matchColumns: _.compact([row.matchColumn1]),
         })),
+      options: {
+        rollbackAfterFinish: !!$editorState.value?.rollbackAfterFinish,
+        skipRowsWithUnresolvedRefs: !!$editorState.value?.skipRowsWithUnresolvedRefs,
+      },
     });
     return script.getScript();
   }
@@ -117,6 +142,7 @@
     const resp = await apiCall('runners/start', { script });
     runid = resp.runid;
     runnerId = runid;
+    timerLabel.start();
   }
 
   $: effect = useEffect(() => registerRunnerDone(runnerId));
@@ -136,7 +162,19 @@
 
   const handleRunnerDone = () => {
     busy = false;
+    timerLabel.stop();
   };
+
+  export function canKill() {
+    return busy;
+  }
+
+  export function kill() {
+    apiCall('runners/cancel', {
+      runid: runnerId,
+    });
+    timerLabel.stop();
+  }
 
   // $: console.log('$archiveFiles', $archiveFiles);
   // $: console.log('$editorState', $editorState.value);
@@ -154,43 +192,115 @@
       isChecked,
       operation,
       matchColumn1,
-      file: `${name}.jsonl`,
+      file: name,
       table: tableInfo?.schemaName ? `${tableInfo?.schemaName}.${tableInfo?.pureName}` : tableInfo?.pureName,
+      schemaName: tableInfo?.schemaName,
+      pureName: tableInfo?.pureName,
+      tableInfo,
     };
   });
 
   // $: console.log('$archiveFolders', $archiveFolders);
+
+  const changeCheckStatus = isChecked => () => {
+    setEditorData(old => {
+      const tables = { ...old?.tables };
+      for (const table of pairedNames) {
+        tables[table] = {
+          ...old?.tables?.[table],
+          isChecked,
+        };
+      }
+      return {
+        ...old,
+        tables,
+      };
+    });
+  };
 </script>
 
 <ToolStripContainer>
-  <VerticalSplitter>
+  <VerticalSplitter initialValue="70%">
     <svelte:fragment slot="1">
       <div class="wrapper">
         <ObjectConfigurationControl title="Configuration">
-          <div class="bold m-2">Source archive</div>
-          <SelectField
-            isNative
-            value={$editorState.value?.archiveFolder}
-            on:change={e => {
-              setEditorData(old => ({
-                ...old,
-                archiveFolder: e.detail,
-              }));
+          <FormFieldTemplateLarge label="Source archive" type="combo">
+            <SelectField
+              isNative
+              value={$editorState.value?.archiveFolder}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  archiveFolder: e.detail,
+                }));
+              }}
+              options={$archiveFolders?.map(x => ({
+                label: x.name,
+                value: x.name,
+              })) || []}
+            />
+          </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Dry run - no changes (rollback when finished)"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  rollbackAfterFinish: !$editorState.value?.rollbackAfterFinish,
+                }));
+              },
             }}
-            options={$archiveFolders?.map(x => ({
-              label: x.name,
-              value: x.name,
-            })) || []}
-          />
+          >
+            <CheckboxField
+              checked={$editorState.value?.rollbackAfterFinish}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  rollbackAfterFinish: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
+
+          <FormFieldTemplateLarge
+            label="Skip rows with unresolved mandatory references"
+            type="checkbox"
+            labelProps={{
+              onClick: () => {
+                setEditorData(old => ({
+                  ...old,
+                  skipRowsWithUnresolvedRefs: !$editorState.value?.skipRowsWithUnresolvedRefs,
+                }));
+              },
+            }}
+          >
+            <CheckboxField
+              checked={$editorState.value?.skipRowsWithUnresolvedRefs}
+              on:change={e => {
+                setEditorData(old => ({
+                  ...old,
+                  skipRowsWithUnresolvedRefs: e.target.checked,
+                }));
+              }}
+            />
+          </FormFieldTemplateLarge>
         </ObjectConfigurationControl>
 
         <ObjectConfigurationControl title="Imported files">
+          <div class="mb-2">
+            <Link onClick={changeCheckStatus(true)}>Check all</Link>
+            |
+            <Link onClick={changeCheckStatus(false)}>Uncheck all</Link>
+          </div>
+
           <TableControl
             rows={tableRows}
             columns={[
               { header: '', fieldName: 'isChecked', slot: 1 },
-              { header: 'Source file', fieldName: 'file' },
-              { header: 'Target table', fieldName: 'table' },
+              { header: 'Source file', fieldName: 'file', slot: 4 },
+              { header: 'Target table', fieldName: 'table', slot: 5 },
               { header: 'Operation', fieldName: 'operation', slot: 2 },
               { header: 'Match column', fieldName: 'matchColumn1', slot: 3 },
             ]}
@@ -236,6 +346,41 @@
                 />
               {/if}
             </svelte:fragment>
+            <svelte:fragment slot="4" let:row>
+              <Link
+                onClick={() => {
+                  openNewTab({
+                    title: row.file,
+                    icon: 'img archive',
+                    tooltip: `${$editorState.value?.archiveFolder}\n${row.file}`,
+                    tabComponent: 'ArchiveFileTab',
+                    props: {
+                      archiveFile: row.file,
+                      archiveFolder: $editorState.value?.archiveFolder,
+                    },
+                  });
+                }}><FontIcon icon="img archive" /> {row.file}</Link
+              >
+            </svelte:fragment>
+            <svelte:fragment slot="5" let:row>
+              <Link
+                menu={appObjectTypes.DatabaseObjectAppObject.createAppObjectMenu({ ...row.tableInfo, conid, database })}
+                onClick={() => {
+                  openNewTab({
+                    title: row.pureName,
+                    icon: 'img table',
+                    tabComponent: 'TableDataTab',
+                    props: {
+                      schemaName: row.schemaName,
+                      pureName: row.pureName,
+                      conid,
+                      database,
+                      objectTypeField: 'tables',
+                    },
+                  });
+                }}><FontIcon icon="img table" /> {row.table}</Link
+              >
+            </svelte:fragment>
           </TableControl>
         </ObjectConfigurationControl>
       </div>
@@ -247,6 +392,7 @@
 
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="dataDuplicator.run" />
+    <ToolStripCommandButton command="dataDuplicator.kill" />
   </svelte:fragment>
 </ToolStripContainer>
 

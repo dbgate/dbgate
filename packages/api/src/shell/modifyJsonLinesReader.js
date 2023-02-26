@@ -2,7 +2,7 @@ const fs = require('fs');
 const _ = require('lodash');
 const stream = require('stream');
 const byline = require('byline');
-const { getLogger } = require('dbgate-tools');
+const { getLogger, processJsonDataUpdateCommands, removeTablePairingId } = require('dbgate-tools');
 const logger = getLogger('modifyJsonLinesReader');
 const stableStringify = require('json-stable-stringify');
 
@@ -11,6 +11,7 @@ class ParseStream extends stream.Transform {
     super({ objectMode: true });
     this.limitRows = limitRows;
     this.changeSet = changeSet;
+    this.wasHeader = false;
     this.currentRowIndex = 0;
     if (mergeMode == 'merge') {
       if (mergedRows && mergeKey) {
@@ -28,12 +29,28 @@ class ParseStream extends stream.Transform {
   _transform(chunk, encoding, done) {
     let obj = JSON.parse(chunk);
     if (obj.__isStreamHeader) {
-      this.push(obj);
+      if (this.changeSet && this.changeSet.structure) {
+        this.push({
+          ...removeTablePairingId(this.changeSet.structure),
+          __isStreamHeader: true,
+        });
+      } else {
+        this.push(obj);
+      }
+      this.wasHeader = true;
       done();
       return;
     }
 
     if (this.changeSet) {
+      if (!this.wasHeader && this.changeSet.structure) {
+        this.push({
+          ...removeTablePairingId(this.changeSet.structure),
+          __isStreamHeader: true,
+        });
+        this.wasHeader = true;
+      }
+
       if (!this.limitRows || this.currentRowIndex < this.limitRows) {
         if (this.changeSet.deletes.find(x => x.existingRowIndex == this.currentRowIndex)) {
           obj = null;
@@ -41,13 +58,20 @@ class ParseStream extends stream.Transform {
 
         const update = this.changeSet.updates.find(x => x.existingRowIndex == this.currentRowIndex);
         if (update) {
-          obj = {
-            ...obj,
-            ...update.fields,
-          };
+          if (update.document) {
+            obj = update.document;
+          } else {
+            obj = {
+              ...obj,
+              ...update.fields,
+            };
+          }
         }
 
         if (obj) {
+          if (this.changeSet.dataUpdateCommands) {
+            obj = processJsonDataUpdateCommands(obj, this.changeSet.dataUpdateCommands);
+          }
           this.push(obj);
         }
         this.currentRowIndex += 1;

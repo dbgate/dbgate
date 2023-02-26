@@ -2,7 +2,6 @@ const fs = require('fs');
 const os = require('os');
 const rimraf = require('rimraf');
 const path = require('path');
-const lineReader = require('line-reader');
 const AsyncLock = require('async-lock');
 const lock = new AsyncLock();
 const stableStringify = require('json-stable-stringify');
@@ -11,23 +10,7 @@ const requirePluginFunction = require('./requirePluginFunction');
 const esort = require('external-sorting');
 const uuidv1 = require('uuid/v1');
 const { jsldir } = require('./directories');
-
-function fetchNextLineFromReader(reader) {
-  return new Promise((resolve, reject) => {
-    if (!reader.hasNextLine()) {
-      resolve(null);
-      return;
-    }
-
-    reader.nextLine((err, line) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(line);
-      }
-    });
-  });
-}
+const LineReader = require('./LineReader');
 
 class JsonLinesDatastore {
   constructor(file, formatterFunction) {
@@ -74,7 +57,7 @@ class JsonLinesDatastore {
     await new Promise(resolve => rimraf(tempDir, resolve));
   }
 
-  _closeReader() {
+  async _closeReader() {
     // console.log('CLOSING READER', this.reader);
     if (!this.reader) return;
     const reader = this.reader;
@@ -84,7 +67,7 @@ class JsonLinesDatastore {
     // this.firstRowToBeReturned = null;
     this.currentFilter = null;
     this.currentSort = null;
-    return new Promise(resolve => reader.close(resolve));
+    await reader.close();
   }
 
   async notifyChanged(callback) {
@@ -100,12 +83,9 @@ class JsonLinesDatastore {
   async _openReader(fileName) {
     // console.log('OPENING READER', fileName);
     // console.log(fs.readFileSync(fileName, 'utf-8'));
-    return new Promise((resolve, reject) =>
-      lineReader.open(fileName, (err, reader) => {
-        if (err) reject(err);
-        resolve(reader);
-      })
-    );
+
+    const fileStream = fs.createReadStream(fileName);
+    return new LineReader(fileStream);
   }
 
   parseLine(line) {
@@ -120,7 +100,7 @@ class JsonLinesDatastore {
     //   return res;
     // }
     for (;;) {
-      const line = await fetchNextLineFromReader(this.reader);
+      const line = await this.reader.readLine();
       if (!line) {
         // EOF
         return null;
@@ -240,6 +220,7 @@ class JsonLinesDatastore {
       // console.log(JSON.stringify(this.currentFilter, undefined, 2));
       for (let i = 0; i < limit; i += 1) {
         const line = await this._readLine(true);
+        // console.log('READED LINE', i);
         if (line == null) break;
         res.push(line);
       }

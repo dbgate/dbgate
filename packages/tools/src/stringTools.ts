@@ -115,3 +115,15 @@ export function getAsImageSrc(obj) {
 
   return null;
 }
+
+export function parseSqlDefaultValue(value: string) {
+  if (!value) return undefined;
+  if (!_isString(value)) return undefined;
+  if (value.startsWith("'") && value.endsWith("'")) {
+    return value.slice(1, -1);
+  }
+  if (!isNaN(value as any) && !isNaN(parseFloat(value))) {
+    return parseFloat(value);
+  }
+  return undefined;
+}

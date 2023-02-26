@@ -7,6 +7,7 @@ import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { getCurrentConfig } from '../stores';
 import { showModal } from '../modals/modalTools';
 import RunScriptModal from '../modals/RunScriptModal.svelte';
+import { QuickExportDefinition } from 'dbgate-types';
 
 export async function importSqlDump(inputFile, connection) {
   const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
@@ -117,35 +118,53 @@ export async function saveExportedFile(filters, defaultPath, extension, dataName
   });
 }
 
-export async function exportQuickExportFile(dataName, reader, format, columnMap = null) {
-  await saveExportedFile(
-    [{ name: format.label, extensions: [format.extension] }],
-    `${dataName}.${format.extension}`,
-    format.extension,
-    dataName,
-    filePath => {
-      const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
+function generateQuickExportScript(
+  reader,
+  format: QuickExportDefinition,
+  filePath: string,
+  dataName: string,
+  columnMap
+) {
+  const script = getCurrentConfig().allowShellScripting ? new ScriptWriter() : new ScriptWriterJson();
 
-      const sourceVar = script.allocVariable();
-      script.assign(sourceVar, reader.functionName, reader.props);
+  const sourceVar = script.allocVariable();
+  script.assign(sourceVar, reader.functionName, reader.props);
 
-      const targetVar = script.allocVariable();
-      const writer = format.createWriter(filePath, dataName);
-      script.assign(targetVar, writer.functionName, writer.props);
+  const targetVar = script.allocVariable();
+  const writer = format.createWriter(filePath, dataName);
+  script.assign(targetVar, writer.functionName, writer.props);
 
-      const colmap = normalizeExportColumnMap(columnMap);
-      let colmapVar = null;
-      if (colmap) {
-        colmapVar = script.allocVariable();
-        script.assignValue(colmapVar, colmap);
-      }
+  const colmap = normalizeExportColumnMap(columnMap);
+  let colmapVar = null;
+  if (colmap) {
+    colmapVar = script.allocVariable();
+    script.assignValue(colmapVar, colmap);
+  }
 
-      script.copyStream(sourceVar, targetVar, colmapVar);
-      script.endLine();
+  script.copyStream(sourceVar, targetVar, colmapVar);
+  script.endLine();
 
-      return script.getScript();
-    }
-  );
+  return script.getScript();
+}
+
+export async function exportQuickExportFile(dataName, reader, format: QuickExportDefinition, columnMap = null) {
+  if (format.noFilenameDependency) {
+    const script = generateQuickExportScript(reader, format, null, dataName, columnMap);
+    runImportExportScript({
+      script,
+      runningMessage: `Exporting ${dataName}`,
+      canceledMessage: `Export ${dataName} canceled`,
+      finishedMessage: `Export ${dataName} finished`,
+    });
+  } else {
+    await saveExportedFile(
+      [{ name: format.label, extensions: [format.extension] }],
+      `${dataName}.${format.extension}`,
+      format.extension,
+      dataName,
+      filePath => generateQuickExportScript(reader, format, filePath, dataName, columnMap)
+    );
+  }
 }
 
 // export async function exportSqlDump(connection, databaseName) {

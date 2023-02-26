@@ -35,6 +35,7 @@ const dialect = {
   dropCheck: true,
 
   dropReferencesWhenDropTable: true,
+  requireStandaloneSelectForScopeIdentity: true,
 
   predefinedDataTypes: [
     'bigint',

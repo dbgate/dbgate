@@ -24,6 +24,7 @@ export class JslGridDisplay extends GridDisplay {
     this.isDynamicStructure = isDynamicStructure;
     this.filterTypeOverride = 'eval';
     this.editable = editable;
+    this.editableStructure = editable ? structure : null;
 
     if (structure?.columns) {
       this.columns = _.uniqBy(
