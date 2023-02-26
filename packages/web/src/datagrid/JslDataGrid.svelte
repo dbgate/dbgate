@@ -88,6 +88,7 @@
     expandMacros={!!dispatchChangeSet}
     onRunMacro={handleRunMacro}
     macroCondition={infoUsed?.__isDynamicStructure ? null : macro => macro.type == 'transformValue'}
+    hasMultiColumnFilter
     {changeSetState}
     {changeSetStore}
     {dispatchChangeSet}

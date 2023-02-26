@@ -7,7 +7,7 @@
       offset: index,
       limit: 1,
       formatterFunction,
-      filters: display ? display.compileFilters() : null,
+      filters: display ? display.compileJslFilters() : null,
     });
 
     if (response.errorMessage) return response;

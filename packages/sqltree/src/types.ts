@@ -111,6 +111,11 @@ export interface RawTemplateCondition {
   expr: Expression;
 }
 
+export interface AnyColumnPassEvalOnlyCondition {
+  conditionType: 'anyColumnPass';
+  placeholderCondition: Condition;
+}
+
 export type Condition =
   | BinaryCondition
   | NotCondition
@@ -121,7 +126,8 @@ export type Condition =
   | NotExistsCondition
   | BetweenCondition
   | InCondition
-  | RawTemplateCondition;
+  | RawTemplateCondition
+  | AnyColumnPassEvalOnlyCondition;
 
 export interface Source {
   name?: NamedObjectInfo;

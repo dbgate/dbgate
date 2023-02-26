@@ -19,7 +19,7 @@
       offset,
       limit,
       formatterFunction,
-      filters: display ? display.compileFilters() : null,
+      filters: display ? display.compileJslFilters() : null,
       sort: display.config.sort,
     });
 

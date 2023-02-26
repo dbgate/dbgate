@@ -1,5 +1,6 @@
-import _ from 'lodash';
-import { Condition, BinaryCondition } from './types';
+import _cloneDeepWith from 'lodash/cloneDeepWith';
+import _escapeRegExp from 'lodash/escapeRegExp';
+import { Condition, Expression } from './types';
 import { evaluateExpression } from './evaluateExpression';
 
 function isEmpty(value) {
@@ -10,7 +11,7 @@ function isEmpty(value) {
 function isLike(value, test) {
   if (!value) return false;
   if (!test) return false;
-  const regex = new RegExp(`^${_.escapeRegExp(test).replace(/%/g, '.*')}$`, 'i');
+  const regex = new RegExp(`^${_escapeRegExp(test).replace(/%/g, '.*')}$`, 'i');
   const res = !!value.toString().match(regex);
   return res;
 }
@@ -55,5 +56,16 @@ export function evaluateCondition(condition: Condition, values) {
       return !isLike(evaluateExpression(condition.left, values), evaluateExpression(condition.right, values));
     case 'not':
       return !evaluateCondition(condition.condition, values);
+    case 'anyColumnPass':
+      return Object.keys(values).some(columnName => {
+        const replaced = _cloneDeepWith(condition.placeholderCondition, (expr: Expression) => {
+          if (expr.exprType == 'placeholder')
+            return {
+              exprType: 'column',
+              columnName,
+            };
+        });
+        return evaluateCondition(replaced, values);
+      });
   }
 }

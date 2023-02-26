@@ -738,7 +738,7 @@ export abstract class GridDisplay {
     // return sql;
   }
 
-  compileFilters(): Condition {
+  compileJslFilters(): Condition {
     const filters = this.config && this.config.filters;
     if (!filters) return null;
     const conditions = [];
@@ -761,6 +761,17 @@ export abstract class GridDisplay {
         // filter parse error - ignore filter
       }
     }
+
+    if (this.config.multiColumnFilter) {
+      const placeholderCondition = parseFilter(this.config.multiColumnFilter, 'string');
+      if (placeholderCondition) {
+        conditions.push({
+          conditionType: 'anyColumnPass',
+          placeholderCondition,
+        });
+      }
+    }
+
     if (conditions.length == 0) return null;
     return {
       conditionType: 'and',
