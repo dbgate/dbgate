@@ -42,18 +42,23 @@ function datadir() {
   return dir;
 }
 
-const dirFunc = (dirname, clean) => () => {
-  const dir = path.join(datadir(), dirname);
-  ensureDirectory(dir, clean);
+const dirFunc =
+  (dirname, clean, subdirs = []) =>
+  () => {
+    const dir = path.join(datadir(), dirname);
+    ensureDirectory(dir, clean);
+    for (const subdir of subdirs) {
+      ensureDirectory(path.join(dir, subdir), false);
+    }
 
-  return dir;
-};
+    return dir;
+  };
 
 const jsldir = dirFunc('jsl', true);
 const rundir = dirFunc('run', true);
 const uploadsdir = dirFunc('uploads', true);
 const pluginsdir = dirFunc('plugins');
-const archivedir = dirFunc('archive');
+const archivedir = dirFunc('archive', false, ['default']);
 const appdir = dirFunc('apps');
 const filesdir = dirFunc('files');
 const logsdir = dirFunc('logs', 3600 * 24 * 7);
