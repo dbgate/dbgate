@@ -3349,29 +3349,10 @@ dbgate-plugin-xml@^5.0.0-alpha.1:
   resolved "https://registry.yarnpkg.com/dbgate-plugin-xml/-/dbgate-plugin-xml-5.0.9.tgz#c3abf6ed8cd1450c45058d35c9326458833ed27e"
   integrity sha512-P8Em1A6HhF0BfxEDDEUyzdgFeJHEC5vbg12frANpWHjO3V1HGdygsT2z1ukLK8FS5BLW/vcCdOFldXZGh+wWvg==
 
-dbgate-query-splitter@^4.9.0, dbgate-query-splitter@^4.9.2, dbgate-query-splitter@^4.9.3:
+dbgate-query-splitter@^4.9.0, dbgate-query-splitter@^4.9.3:
   version "4.9.3"
   resolved "https://registry.yarnpkg.com/dbgate-query-splitter/-/dbgate-query-splitter-4.9.3.tgz#f66396da9ae3cc8f775a282143bfca3441248aa2"
   integrity sha512-QMppAy3S6NGQMawNokmhbpZURvLCETyu/8yTfqWUHGdlK963fdSpmoX1A+9SjCDp62sX0vYntfD7uzd6jVSRcw==
-
-dbgate-sqltree@^5.1.6:
-  version "5.1.6"
-  resolved "https://registry.yarnpkg.com/dbgate-sqltree/-/dbgate-sqltree-5.1.6.tgz#469fe6e06b5146afb9104114564e64aa46c13e7c"
-  integrity sha512-D2ffjeT5HsHBOeW0ORYkCLbDhyIvH6hrE1A/IG3kRZD1iX8Dy6c0h/BWNa4xOjz3pbJYkaB0ju8rIKJqi0BYog==
-  dependencies:
-    lodash "^4.17.21"
-
-dbgate-tools@^5.1.6:
-  version "5.1.6"
-  resolved "https://registry.yarnpkg.com/dbgate-tools/-/dbgate-tools-5.1.6.tgz#43c1e0575db550da5ba38627eaa19839df05d7f1"
-  integrity sha512-KTEqSnNzIdGfYJaIvEusch3/KnO0p376VRykJcK1+/+UtXf9Dk+azaWFjEoACBK3DlK1hmL1pEGfMh5FHDm7Qw==
-  dependencies:
-    dbgate-query-splitter "^4.9.2"
-    dbgate-sqltree "^5.1.6"
-    debug "^4.3.4"
-    json-stable-stringify "^1.0.1"
-    lodash "^4.17.21"
-    uuid "^3.4.0"
 
 debug@2.6.9, debug@^2.2.0, debug@^2.3.3:
   version "2.6.9"
