@@ -1,5 +1,6 @@
 <script lang="ts">
   import _ from 'lodash';
+  import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
   import keycodes from '../utility/keycodes';
@@ -24,7 +25,7 @@
   $: formFilterColumns = display?.config?.formFilterColumns;
   $: filters = display?.config?.filters;
 
-  $: allFilterNames = _.union(_.keys(filters || {}), formFilterColumns || []);
+  $: allFilterNames = isFormView ? _.union(_.keys(filters || {}), formFilterColumns || []) : _.keys(filters);
 </script>
 
 {#if isFormView}
@@ -52,6 +53,19 @@
     </div>
   </div>
 {/if}
+
+<!-- <DataFilterControl
+  filterType='string'
+  filter={filters[uniqueName]}
+  setFilter={value => display.setFilter(uniqueName, value)}
+  {driver}
+  {conid}
+  {database}
+  {schemaName}
+  {pureName}
+  columnName={column.uniquePath.length == 1 ? column.uniquePath[0] : null}
+  foreignKey={column.foreignKey}
+/> -->
 
 <ManagerInnerContainer width={managerSize}>
   {#each allFilterNames as uniqueName}

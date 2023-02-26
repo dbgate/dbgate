@@ -171,7 +171,7 @@
       <WidgetColumnBarItem
         title="Filters"
         name="filters"
-        height={showReferences && display?.hasReferences ? '15%' : '30%'}
+        height={showReferences && display?.hasReferences && !isFormView ? '15%' : '30%'}
         show={display?.filterable}
         collapsed={isDetailView}
       >

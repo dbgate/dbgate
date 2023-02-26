@@ -22,10 +22,10 @@
   export let isFormView;
 
   $: column = isFormView
-    ? display.display.formColumns.find(x => x.uniqueName == uniqueName)
-    : display.findColumn(uniqueName);
+    ? display.formColumns?.find(x => x.uniqueName == uniqueName)
+    : display?.findColumn(uniqueName);
 
-  function computeFilterType(display, column, isFormView, isDynamicStructure, useEvalFilters) {
+  function computeFilterType(column, isDynamicStructure, useEvalFilters) {
     if (useEvalFilters) return 'eval';
     if (isDynamicStructure) return 'mongo';
 
@@ -51,7 +51,7 @@
       </InlineButton>
     </div>
     <DataFilterControl
-      filterType={computeFilterType(display, uniqueName, isFormView, isDynamicStructure, useEvalFilters)}
+      filterType={computeFilterType(column, isDynamicStructure, useEvalFilters)}
       filter={filters[uniqueName]}
       setFilter={value => display.setFilter(uniqueName, value)}
       {driver}
