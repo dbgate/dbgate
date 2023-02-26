@@ -52,52 +52,10 @@ const drivers = driverBases.map(driverBase => ({
     authType,
     socketPath,
   }) {
-    let options = null;
-
-    if (engine == 'redshift@dbgate-plugin-oracle') {
-      let url = databaseUrl;
-      if (url && url.startsWith('jdbc:redshift://')) {
-        url = url.substring('jdbc:redshift://'.length);
-      }
-      if (user && password) {
-        url = `oracle://${user}:${password}@${url}`;
-      } else if (user) {
-        url = `oracle://${user}@${url}`;
-      } else {
-        url = `oracle://${url}`;
-      }
-
-      options = {
-        connectionString: url,
-      };
-    } else {
-      options = useDatabaseUrl
-        ? {
-            connectionString: databaseUrl,
-          }
-        : {
-            host: authType == 'socket' ? socketPath || driverBase.defaultSocketPath : server,
-            port: authType == 'socket' ? null : port,
-            user,
-            password,
-            database: database || 'oracle',
-            ssl,
-          };
-    }
-
-    // console.log('OPTIONS', options);
-/*
-    const client = new pg.Client(options);
-    await client.connect();
-
-    if (isReadOnly) {
-      await this.query(client, 'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY');
-    }
-*/
-  client = await oracledb.getConnection( {
-      user          : options.user,
-      password      : options.password,
-      connectString : options.host
+    client = await oracledb.getConnection({
+      user,
+      password,
+      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}` : server,
     });
     return client;
   },
@@ -105,28 +63,25 @@ const drivers = driverBases.map(driverBase => ({
     return pool.end();
   },
   async query(client, sql) {
-      //console.log('query sql', sql);
+    //console.log('query sql', sql);
     if (sql == null) {
       return {
         rows: [],
         columns: [],
       };
     }
-try {
+    try {
       //console.log('sql3', sql);
-    const res = await client.execute(sql);
-    //console.log('res', res);
-    const columns = extractOracleColumns(res.metaData);
-     //console.log('columns', columns);
-    return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
-}
-catch(err) {
-  console.log('Error query', err, sql);
-}
-finally {
-  //console.log('finally', sql);
-}
-
+      const res = await client.execute(sql);
+      //console.log('res', res);
+      const columns = extractOracleColumns(res.metaData);
+      //console.log('columns', columns);
+      return { rows: (res.rows || []).map(row => zipDataRow(row, columns)), columns };
+    } catch (err) {
+      console.log('Error query', err, sql);
+    } finally {
+      //console.log('finally', sql);
+    }
   },
   stream(client, sql, options) {
     /*
@@ -137,8 +92,8 @@ finally {
 */
     // console.log('queryStream', sql);
     const query = client.queryStream(sql);
-   // const consumeStream = new Promise((resolve, reject) => {
-      let rowcount = 0;
+    // const consumeStream = new Promise((resolve, reject) => {
+    let rowcount = 0;
     let wasHeader = false;
 
     query.on('metadata', row => {
@@ -200,13 +155,12 @@ finally {
       });
       options.done();
     });
-     query.on('close', function() {
-        //console.log("stream 'close' event");
-        // The underlying ResultSet has been closed, so the connection can now
-        // be closed, if desired.  Note: do not close connections on 'end'.
-        //resolve(rowcount);
-        ;
-      });
+    query.on('close', function () {
+      //console.log("stream 'close' event");
+      // The underlying ResultSet has been closed, so the connection can now
+      // be closed, if desired.  Note: do not close connections on 'end'.
+      //resolve(rowcount);
+    });
     //});
 
     //const numrows = await consumeStream;
@@ -215,7 +169,7 @@ finally {
   },
   async getVersion(client) {
     //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
-    const { rows } = await this.query(client, "SELECT version as \"version\" FROM v$instance");
+    const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
     const { version } = rows[0];
 
     const isCockroach = false; //version.toLowerCase().includes('cockroachdb');
@@ -245,7 +199,7 @@ finally {
     };
   },
   async readQuery(client, sql, structure) {
-/*
+    /*
     const query = new pg.Query({
       text: sql,
       rowMode: 'array',
@@ -267,10 +221,10 @@ finally {
       if (!wasHeader) {
         columns = extractOracleColumns(row);
         if (columns && columns.length > 0) {
-        pass.write({
-          __isStreamHeader: true,
-          ...(structure || { columns }),
-        });
+          pass.write({
+            __isStreamHeader: true,
+            ...(structure || { columns }),
+          });
         }
         wasHeader = true;
       }
@@ -301,7 +255,7 @@ finally {
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
   async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT instance_name AS \"name\" FROM v$instance');
+    const { rows } = await this.query(client, 'SELECT instance_name AS "name" FROM v$instance');
     return rows;
   },
 
@@ -319,7 +273,7 @@ finally {
   },
 }));
 
-drivers.initialize = (dbgateEnv) => {
+drivers.initialize = dbgateEnv => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.oracledb) {
     oracledb = dbgateEnv.nativeModules.oracledb();
   }
