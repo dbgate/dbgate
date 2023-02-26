@@ -1686,7 +1686,7 @@
     { divider: true },
     { placeTag: 'export' },
     {
-      label: 'Archive mirror',
+      label: 'Save to current archive',
       submenu: [
         { command: 'dataGrid.mergeSelectedCellsIntoMirror' },
         { command: 'dataGrid.mergeSelectedRowsIntoMirror' },

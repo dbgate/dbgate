@@ -85,7 +85,6 @@
   export let showReferences = false;
   export let showMacros = false;
   export let expandMacros = false;
-  export let freeTableColumn = false;
   export let isDynamicStructure = false;
   export let macroCondition;
   export let onRunMacro;
@@ -166,12 +165,7 @@
 >
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem
-        title="Columns"
-        name="columns"
-        height="45%"
-        show={(!freeTableColumn || isDynamicStructure) && !isFormView}
-      >
+      <WidgetColumnBarItem title="Columns" name="columns" height="45%" show={isDynamicStructure && !isFormView}>
         <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
 
@@ -192,14 +186,6 @@
         collapsed={isDetailView}
       >
         <JsonViewFilters {...$$props} {managerSize} {isDynamicStructure} {useEvalFilters} />
-      </WidgetColumnBarItem>
-
-      <WidgetColumnBarItem
-        title="Columns"
-        name="freeColumns"
-        height="40%"
-        show={freeTableColumn && !isDynamicStructure}
-      >
       </WidgetColumnBarItem>
 
       <WidgetColumnBarItem title="Filters" name="filters" height="30%" show={isFormView}>
