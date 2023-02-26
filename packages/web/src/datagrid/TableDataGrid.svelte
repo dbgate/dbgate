@@ -159,6 +159,7 @@
       {display}
       showReferences
       showMacros
+      hasMultiColumnFilter
       onRunMacro={handleRunMacro}
       macroCondition={macro => macro.type == 'transformValue'}
       onReferenceSourceChanged={reference ? handleReferenceSourceChanged : null}

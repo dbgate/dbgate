@@ -87,6 +87,7 @@
   export let isDynamicStructure = false;
   export let macroCondition;
   export let onRunMacro;
+  export let hasMultiColumnFilter = false;
 
   export let loadedRows;
 
@@ -181,6 +182,7 @@
           {isDynamicStructure}
           {useEvalFilters}
           {isFormView}
+          {hasMultiColumnFilter}
           driver={display?.driver}
         />
       </WidgetColumnBarItem>

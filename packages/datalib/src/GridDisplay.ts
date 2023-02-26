@@ -14,7 +14,7 @@ import type {
 import { parseFilter, getFilterType } from 'dbgate-filterparser';
 import { filterName } from 'dbgate-tools';
 import { ChangeSetFieldDefinition, ChangeSetRowDefinition } from './ChangeSet';
-import { Expression, Select, treeToSql, dumpSqlSelect, Condition } from 'dbgate-sqltree';
+import { Expression, Select, treeToSql, dumpSqlSelect, Condition, CompoudCondition } from 'dbgate-sqltree';
 import { isTypeLogical } from 'dbgate-tools';
 
 export interface DisplayColumn {
@@ -213,6 +213,32 @@ export abstract class GridDisplay {
       }
     }
 
+    if (this.baseTableOrView && this.config.multiColumnFilter) {
+      try {
+        const condition = parseFilter(this.config.multiColumnFilter, 'string');
+        if (condition) {
+          const orCondition: CompoudCondition = {
+            conditionType: 'or',
+            conditions: [],
+          };
+          for (const column of this.baseTableOrView.columns) {
+            orCondition.conditions.push(
+              _.cloneDeepWith(condition, (expr: Expression) => {
+                if (expr.exprType == 'placeholder') {
+                  return this.createColumnExpression(column, { alias: 'basetbl' });
+                }
+              })
+            );
+          }
+          if (orCondition.conditions.length > 0) {
+            conditions.push(orCondition);
+          }
+        }
+      } catch (err) {
+        console.warn(err.message);
+      }
+    }
+
     if (conditions.length > 0) {
       select.where = {
         conditionType: 'and',
@@ -331,6 +357,15 @@ export abstract class GridDisplay {
         ...cfg.filters,
         [uniqueName]: value,
       },
+      formViewRecordNumber: 0,
+    }));
+    this.reload();
+  }
+
+  setMutliColumnFilter(value) {
+    this.setConfig(cfg => ({
+      ...cfg,
+      multiColumnFilter: value,
       formViewRecordNumber: 0,
     }));
     this.reload();

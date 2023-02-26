@@ -30,6 +30,7 @@ export interface GridConfig extends GridConfigColumns {
   formViewRecordNumber?: number;
   formFilterColumns: string[];
   formColumnFilterText?: string;
+  multiColumnFilter?: string;
 }
 
 export interface GridCache {

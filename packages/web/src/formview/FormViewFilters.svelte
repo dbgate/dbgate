@@ -1,8 +1,10 @@
 <script lang="ts">
   import _ from 'lodash';
+  import InlineButton from '../buttons/InlineButton.svelte';
   import DataFilterControl from '../datagrid/DataFilterControl.svelte';
 
   import ManagerInnerContainer from '../elements/ManagerInnerContainer.svelte';
+  import FontIcon from '../icons/FontIcon.svelte';
   import keycodes from '../utility/keycodes';
   import FormViewFilterColumn from './FormViewFilterColumn.svelte';
   // import PrimaryKeyFilterEditor from './PrimaryKeyFilterEditor.svelte';
@@ -21,16 +23,19 @@
   export let useEvalFilters;
   export let isFormView;
 
+  export let hasMultiColumnFilter;
+
   $: baseTable = display?.baseTable;
   $: formFilterColumns = display?.config?.formFilterColumns;
   $: filters = display?.config?.filters;
+  $: multiColumnFilter = display?.config?.multiColumnFilter;
 
   $: allFilterNames = isFormView ? _.union(_.keys(filters || {}), formFilterColumns || []) : _.keys(filters);
 </script>
 
 {#if isFormView}
   <div class="m-1">
-    <div>Column filter</div>
+    <div>Column name filter</div>
     <div class="flex">
       <input
         type="text"
@@ -54,18 +59,35 @@
   </div>
 {/if}
 
-<!-- <DataFilterControl
-  filterType='string'
-  filter={filters[uniqueName]}
-  setFilter={value => display.setFilter(uniqueName, value)}
-  {driver}
-  {conid}
-  {database}
-  {schemaName}
-  {pureName}
-  columnName={column.uniquePath.length == 1 ? column.uniquePath[0] : null}
-  foreignKey={column.foreignKey}
-/> -->
+{#if hasMultiColumnFilter}
+  <div class="m-1">
+    <div class="space-between">
+      <span>Multi column filter</span>
+      {#if multiColumnFilter}
+        <InlineButton
+          square
+          narrow
+          on:click={() => {
+            display.setMutliColumnFilter(null);
+          }}
+        >
+          <FontIcon icon="icon close" />
+        </InlineButton>
+      {/if}
+    </div>
+
+    <DataFilterControl
+      filterType="string"
+      filter={multiColumnFilter}
+      setFilter={value => display.setMutliColumnFilter(value)}
+      {driver}
+      {conid}
+      {database}
+      {schemaName}
+      {pureName}
+    />
+  </div>
+{/if}
 
 <ManagerInnerContainer width={managerSize}>
   {#each allFilterNames as uniqueName}

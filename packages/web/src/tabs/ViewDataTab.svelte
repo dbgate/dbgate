@@ -66,6 +66,7 @@ import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/T
       cache={$cache}
       setCache={cache.update}
       focusOnVisible
+      hasMultiColumnFilter
       gridCoreComponent={SqlDataGridCore}
       formViewComponent={SqlFormView}
     />
