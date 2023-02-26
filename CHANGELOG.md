@@ -8,6 +8,38 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.3
+- ADDED: Search entire table (multi column filter) #491
+- ADDED: OracleDB - connection to toher than default ports #496
+- CHANGED: OracleDB - status of support set to experimental
+- FIXED: OracleDB database URL - fixes: Connect to default Oracle database #489
+- ADDED: HTML, XML code highlighting for Edit cell value #485
+- FIXED: Intellisense - incorrect alias after ORDER BY clause #484
+- FIXED: Typo in SQL-Generator #481
+- ADDED: Data duplicator #480
+- FIXED: MongoDB - support for views #476
+- FIXED: "SQL:CREATE TABLE" generated SQL default value syntax errors #455
+- FIXED: Crash when right-clicking on tables #452
+- FIXED: View sort #436
+- ADDED: Arm64 version for Windows #473
+- ADDED: Sortable query results and data archive
+- CHANGED: Use transactions for saving table data
+- CHANGED: Save table structure uses transactions
+- ADDED: Table data editing - shows editing mark
+- ADDED: Editing data archive files
+- FIXED: Delete cascade options when using more than 2 tables
+- ADDED: Save to current archive commands
+- ADDED: Current archive mark is on status bar
+- FIXED: Changed package used for parsing JSONL files when browsing - fixes backend freezing
+- FIXED: SSL option for mongodb #504
+- REMOVED: Data sheet editor
+- FIXED: Creating SQLite autoincrement column
+- FIXED: Better error reporting from exports/import/dulicator
+- CHANGED: Optimalizede OracleDB analysing algorithm
+- ADDED: Mutli column filter for perspectives
+- FIXED: Fixed some scenarios using tables from different DBs
+
+
 ### 5.2.2
 - FIXED: Optimalized load DB structure for PostgreSQL #451
 - ADDED: Auto-closing query connections after configurable (15 minutes default) no-activity interval #468
