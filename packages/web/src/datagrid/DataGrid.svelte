@@ -165,7 +165,7 @@
 >
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height="45%" show={isDynamicStructure && !isFormView}>
+      <WidgetColumnBarItem title="Columns" name="columns" height="45%" show={!isFormView}>
         <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
 
