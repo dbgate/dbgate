@@ -271,7 +271,7 @@ async function handleSqlPreview({ msgid, objects, options }) {
     process.send({ msgtype: 'response', msgid, sql: dmp.s, isTruncated: generator.isTruncated });
     if (generator.isUnhandledException) {
       setTimeout(() => {
-        getLogger.info('Exiting because of unhandled exception');
+        logger.error('Exiting because of unhandled exception');
         process.exit(0);
       }, 500);
     }
