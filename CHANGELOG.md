@@ -38,6 +38,7 @@ Builds:
 - CHANGED: Optimalizede OracleDB analysing algorithm
 - ADDED: Mutli column filter for perspectives
 - FIXED: Fixed some scenarios using tables from different DBs
+- FIXED: Sessions with long-running queries are not killed
 
 
 ### 5.2.2
