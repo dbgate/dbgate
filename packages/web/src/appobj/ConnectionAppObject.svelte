@@ -103,7 +103,7 @@
   import { getLocalStorage } from '../utility/storageCache';
   import { apiCall, removeVolatileMapping } from '../utility/api';
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
-  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
   import AboutModal from '../modals/AboutModal.svelte';
   import { tick } from 'svelte';
 

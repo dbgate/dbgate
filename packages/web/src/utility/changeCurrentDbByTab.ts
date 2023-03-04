@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { currentDatabase, getCurrentDatabase, getLockedDatabaseMode, openedTabs } from '../stores';
-import { shouldShowTab } from '../widgets/TabsPanel.svelte';
+import { shouldShowTab } from '../tabpanel/TabsPanel.svelte';
 import { callWhenAppLoaded, getAppLoaded } from './appLoadManager';
 import { getConnectionInfo } from './metadataLoaders';
 

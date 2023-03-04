@@ -13,8 +13,8 @@
     visibleTitleBar,
     visibleToolbar,
   } from './stores';
-  import TabsPanel from './widgets/TabsPanel.svelte';
-  import TabRegister from './TabRegister.svelte';
+  import TabsPanel from './tabpanel/TabsPanel.svelte';
+  import TabRegister from './tabpanel/TabRegister.svelte';
   import CommandPalette from './commands/CommandPalette.svelte';
   import Toolbar from './widgets/Toolbar.svelte';
   import splitterDrag from './utility/splitterDrag';

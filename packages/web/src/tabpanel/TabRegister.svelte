@@ -1,8 +1,8 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { openedTabs } from './stores';
+  import { openedTabs } from '../stores';
   import TabContent from './TabContent.svelte';
-  import tabs from './tabs';
+  import tabs from '../tabs';
 
   let mountedTabs = {};
   $: selectedTab = $openedTabs.find(x => x.selected && x.closedTime == null);

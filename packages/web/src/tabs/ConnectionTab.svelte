@@ -31,7 +31,6 @@
   import getConnectionLabel from '../utility/getConnectionLabel';
   import { onMount } from 'svelte';
   import { disconnectServerConnection, openConnection } from '../appobj/ConnectionAppObject.svelte';
-  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
   import { disconnectDatabaseConnection } from '../appobj/DatabaseAppObject.svelte';
 
   export let connection;
