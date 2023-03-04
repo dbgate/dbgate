@@ -27,6 +27,7 @@
   import TitleBar from './widgets/TitleBar.svelte';
   import FontIcon from './icons/FontIcon.svelte';
   import getElectron from './utility/getElectron';
+  import TabsContainer from './tabpanel/TabsContainer.svelte';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
@@ -69,11 +70,8 @@
       <WidgetContainer />
     </div>
   {/if}
-  <div class="tabs">
-    <TabsPanel />
-  </div>
-  <div class="content">
-    <TabRegister />
+  <div class="tabs-container">
+    <TabsContainer />
   </div>
   {#if $selectedWidget && $visibleWidgetSideBar}
     <div
@@ -135,23 +133,6 @@
     background-color: var(--theme-bg-1);
     display: flex;
   }
-  .tabs {
-    position: fixed;
-    top: var(--dim-header-top);
-    left: var(--dim-content-left);
-    height: var(--dim-tabs-panel-height);
-    right: 0;
-    background-color: var(--theme-bg-1);
-    border-top: 1px solid var(--theme-border);
-  }
-  .content {
-    position: fixed;
-    top: var(--dim-content-top);
-    left: var(--dim-content-left);
-    bottom: var(--dim-statusbar-height);
-    right: 0;
-    background-color: var(--theme-bg-1);
-  }
   .commads {
     position: fixed;
     top: var(--dim-header-top);
@@ -206,5 +187,14 @@
   }
   .big-icon {
     font-size: 20pt;
+  }
+
+  .tabs-container {
+    position: fixed;
+    top: var(--dim-header-top);
+    left: var(--dim-content-left);
+    bottom: var(--dim-statusbar-height);
+    right: 0;
+    background-color: var(--theme-bg-1);
   }
 </style>

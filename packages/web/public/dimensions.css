@@ -22,7 +22,6 @@
   --dim-header-top: calc(
     var(--dim-titlebar-height) * var(--dim-visible-titlebar) + var(--dim-toolbar-height) * var(--dim-visible-toolbar)
   );
-  --dim-content-top: calc(var(--dim-header-top) + var(--dim-tabs-panel-height));
 
   --dim-large-form-margin: 20px;
 }
