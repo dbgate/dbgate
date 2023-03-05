@@ -91,9 +91,18 @@
 
   function splitTab(multiTabIndex) {
     openedTabs.update(tabs =>
-      tabs.map((x, i) => ({
+      tabs.map(x => ({
         ...x,
         multiTabIndex: x.selected ? 1 - multiTabIndex : x.multiTabIndex,
+      }))
+    );
+  }
+
+  function splitTabGroup(tabGroupTabs, multiTabIndex) {
+    openedTabs.update(tabs =>
+      tabs.map(x => ({
+        ...x,
+        multiTabIndex: tabGroupTabs.find(y => x.tabid == y.tabid) ? 1 - multiTabIndex : x.multiTabIndex,
       }))
     );
   }
@@ -510,11 +519,21 @@
                 <FontIcon icon="icon lock" />
               {/if}
             </div>
-            <div
-              class="close-button-right tabCloseButton"
-              on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
-            >
-              <FontIcon icon="icon close" />
+            <div class="tab-group-buttons">
+              {#if allowSplitTab}
+                <div
+                  class="tab-group-button tabCloseButton"
+                  on:click={e => splitTabGroup(tabGroup.tabs, multiTabIndex)}
+                >
+                  <FontIcon icon="icon split" />
+                </div>
+              {/if}
+              <div
+                class="tab-group-button tabCloseButton"
+                on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+              >
+                <FontIcon icon="icon close" />
+              </div>
             </div>
           </div>
         {/if}
@@ -673,13 +692,14 @@
     white-space: nowrap;
     flex-grow: 1;
   }
-  .close-button-right {
+  .tab-group-buttons {
     margin-left: 5px;
     margin-right: 5px;
     color: var(--theme-font-3);
+    display: flex;
   }
 
-  .close-button-right:hover {
+  .tab-group-button:hover {
     color: var(--theme-font-1);
   }
 </style>
