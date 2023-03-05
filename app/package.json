@@ -107,7 +107,7 @@
   "scripts": {
     "start": "cross-env ELECTRON_START_URL=http://localhost:5001 DEVMODE=1 electron .",
     "start:local": "cross-env electron .",
-    "dist": "electron-builder",
+    "dist": "cross-env DEBUG=@malept/flatpak-bundler electron-builder",
     "build": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn dist",
     "build:local": "cd ../packages/api && yarn build && cd ../web && yarn build && cd ../../app && yarn predist",
     "postinstall": "yarn rebuild && patch-package",
