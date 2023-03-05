@@ -93,6 +93,11 @@ export const commandsCustomized = derived([commands, commandsSettings], ([$comma
   }))
 );
 
+export const draggingTab = writable(null);
+export const draggingTabTarget = writable(null);
+export const draggingDbGroup = writable(null);
+export const draggingDbGroupTarget = writable(null);
+
 // export const visibleToolbar = writableWithStorage(true, 'visibleToolbar');
 export const visibleToolbar = writable(false);
 export const leftPanelWidth = writableWithStorage(300, 'leftPanelWidth');

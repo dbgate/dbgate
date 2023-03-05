@@ -264,6 +264,10 @@
     getCurrentDatabase,
     lockedDatabaseMode,
     getLockedDatabaseMode,
+    draggingDbGroup,
+    draggingDbGroupTarget,
+    draggingTab,
+    draggingTabTarget,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
@@ -305,11 +309,6 @@
   $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x, $lockedDatabaseMode, $currentDatabase));
   $: allowSplitTab =
     _.uniq(filteredTabsFromAllParts.map(x => x.multiTabIndex || 0)).length == 1 && filteredTabsFromAllParts.length >= 2;
-
-  let draggingTab = null;
-  let draggingTabTarget = null;
-  let draggingDbGroup = null;
-  let draggingDbGroupTarget = null;
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -409,7 +408,7 @@
     }
   }
 
-  function dragDropTabs(draggingTabs, targetTabs) {
+  function dragDropTabs(draggingTabs, targetTabs, multiTabIndex) {
     if (draggingTabs.find(x => targetTabs.find(y => x.tabid == y.tabid))) return;
 
     const items = sortTabs($openedTabs.filter(x => x.closedTime == null));
@@ -441,6 +440,7 @@
           return {
             ...x,
             tabOrder: index + 1,
+            multiTabIndex: draggingTabs.find(y => y.tabid == x.tabid) ? multiTabIndex : x.multiTabIndex,
           };
         }
         return x;
@@ -465,8 +465,8 @@
         {#if !$lockedDatabaseMode}
           <div
             class="db-name"
-            class:selected={draggingDbGroup
-              ? tabGroup.grpid == draggingDbGroupTarget?.grpid
+            class:selected={$draggingDbGroup
+              ? tabGroup.grpid == $draggingDbGroupTarget?.grpid
               : tabGroup.tabDbKey == currentDbKey}
             on:mouseup={e => {
               if (e.button == 1) {
@@ -478,23 +478,23 @@
             use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
             style={$connectionColorFactory(
               tabGroup.tabs[0].props,
-              (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
+              ($draggingDbGroup ? tabGroup.grpid == $draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
                 ? 2
                 : 3
             )}
             draggable={true}
             on:dragstart={e => {
-              draggingDbGroup = tabGroup;
+              $draggingDbGroup = tabGroup;
             }}
             on:dragenter={e => {
-              draggingDbGroupTarget = tabGroup;
+              $draggingDbGroupTarget = tabGroup;
             }}
             on:drop={e => {
-              dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
+              dragDropTabs($draggingDbGroup.tabs, tabGroup.tabs, multiTabIndex);
             }}
             on:dragend={e => {
-              draggingDbGroup = null;
-              draggingDbGroupTarget = null;
+              $draggingDbGroup = null;
+              $draggingDbGroupTarget = null;
             }}
           >
             <div class="db-name-inner">
@@ -517,32 +517,32 @@
             <div
               id={`file-tab-item-${tab.tabid}`}
               class="file-tab-item"
-              class:selected={draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
+              class:selected={$draggingTab || $draggingDbGroup ? tab.tabid == $draggingTabTarget?.tabid : tab.selected}
               on:click={e => handleTabClick(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}
               draggable={true}
               on:dragstart={async e => {
-                draggingTab = tab;
+                $draggingTab = tab;
                 await tick();
                 setSelectedTab(tab.tabid);
                 // console.log('START', tab.tabid);
                 // e.dataTransfer.setData('tab_drag_data', tab.tabid);
               }}
               on:dragenter={e => {
-                draggingTabTarget = tab;
+                $draggingTabTarget = tab;
               }}
               on:drop={e => {
-                if (draggingTab) {
-                  dragDropTabs([draggingTab], [tab]);
+                if ($draggingTab) {
+                  dragDropTabs([$draggingTab], [tab], multiTabIndex);
                 }
-                if (draggingDbGroup) {
-                  dragDropTabs(draggingDbGroup.tabs, [tab]);
+                if ($draggingDbGroup) {
+                  dragDropTabs($draggingDbGroup.tabs, [tab], multiTabIndex);
                 }
               }}
               on:dragend={e => {
-                draggingTab = null;
-                draggingTabTarget = null;
+                $draggingTab = null;
+                $draggingTabTarget = null;
               }}
             >
               <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
