@@ -1,15 +1,34 @@
-<script lang='ts'>
+<script lang="ts">
   import TabRegister from './TabRegister.svelte';
   import TabsPanel from './TabsPanel.svelte';
+  import _ from 'lodash';
+  import { currentDatabase, lockedDatabaseMode, openedTabs, TabDefinition } from '../stores';
+  import { shouldShowTab } from './TabsPanel.svelte';
 
   export let multiTabIndex;
+
+  function findShownTab(tabs: TabDefinition[], multiTabIndex, lockedDbMode, currentDb) {
+    const selectedTab = tabs.find(x => x.selected && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex);
+    if (selectedTab) {
+      return selectedTab;
+    }
+
+    const selectedIndex = _.findLastIndex(
+      tabs,
+      x => (x.multiTabIndex || 0) == multiTabIndex && shouldShowTab(x, lockedDbMode, currentDb)
+    );
+
+    return tabs[selectedIndex];
+  }
+
+  $: shownTab = findShownTab($openedTabs, multiTabIndex, $lockedDatabaseMode, $currentDatabase);
 </script>
 
 <div class="tabs">
-  <TabsPanel {multiTabIndex} />
+  <TabsPanel {multiTabIndex} {shownTab} />
 </div>
 <div class="content">
-  <TabRegister {multiTabIndex} />
+  <TabRegister {multiTabIndex} {shownTab} />
 </div>
 
 <style>

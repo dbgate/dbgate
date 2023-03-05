@@ -281,6 +281,7 @@
   import CloseTabModal from '../modals/CloseTabModal.svelte';
 
   export let multiTabIndex;
+  export let shownTab;
 
   $: showTabFilterFunc = tab =>
     shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase) && (tab.multiTabIndex || 0) == multiTabIndex;
@@ -517,7 +518,9 @@
             <div
               id={`file-tab-item-${tab.tabid}`}
               class="file-tab-item"
-              class:selected={$draggingTab || $draggingDbGroup ? tab.tabid == $draggingTabTarget?.tabid : tab.selected}
+              class:selected={$draggingTab || $draggingDbGroup
+                ? tab.tabid == $draggingTabTarget?.tabid
+                : tab.tabid == shownTab?.tabid}
               on:click={e => handleTabClick(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}

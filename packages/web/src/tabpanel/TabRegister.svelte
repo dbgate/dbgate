@@ -1,29 +1,13 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { currentDatabase, lockedDatabaseMode, openedTabs, TabDefinition } from '../stores';
+  import { openedTabs } from '../stores';
   import TabContent from './TabContent.svelte';
   import tabs from '../tabs';
-  import { shouldShowTab } from './TabsPanel.svelte';
 
   export let multiTabIndex;
+  export let shownTab;
 
   let mountedTabs = {};
-
-  function findShownTab(tabs: TabDefinition[], multiTabIndex, lockedDbMode, currentDb) {
-    const selectedTab = tabs.find(x => x.selected && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex);
-    if (selectedTab) {
-      return selectedTab;
-    }
-
-    const selectedIndex = _.findLastIndex(
-      tabs,
-      x => (x.multiTabIndex || 0) == multiTabIndex && shouldShowTab(x, lockedDbMode, currentDb)
-    );
-
-    return tabs[selectedIndex];
-  }
-
-  $: shownTab = findShownTab($openedTabs, multiTabIndex, $lockedDatabaseMode, $currentDatabase);
 
   // cleanup closed tabs
   $: {
@@ -31,12 +15,14 @@
       _.difference(
         _.keys(mountedTabs),
         _.map(
-          $openedTabs.filter(x => x.closedTime == null),
+          $openedTabs.filter(x => x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex),
           'tabid'
         )
       ).length > 0
     ) {
-      mountedTabs = _.pickBy(mountedTabs, (v, k) => $openedTabs.find(x => x.tabid == k && x.closedTime == null));
+      mountedTabs = _.pickBy(mountedTabs, (v, k) =>
+        $openedTabs.find(x => x.tabid == k && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex)
+      );
     }
   }
 
