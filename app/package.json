@@ -40,7 +40,6 @@
       "target": [
         "deb",
         "snap",
-        "flatpak",
         {
           "target": "AppImage",
           "arch": [
