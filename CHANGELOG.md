@@ -9,6 +9,9 @@ Builds:
  - win - application for Windows
 
 ### 5.2.3
+- FIXED: npm version crash (#508)
+
+### 5.2.3
 - ADDED: Search entire table (multi column filter) #491
 - ADDED: OracleDB - connection to toher than default ports #496
 - CHANGED: OracleDB - status of support set to experimental
