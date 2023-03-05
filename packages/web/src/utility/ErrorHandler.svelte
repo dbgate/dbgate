@@ -1,8 +1,8 @@
 <script lang="ts">
   import localforage from 'localforage';
   import _ from 'lodash';
+  import { TabDefinition } from '../stores';
   import getElectron from './getElectron';
-  import { getLocalStorage, setLocalStorage } from './storageCache';
 
   let counter = 0;
   $: counterCopy = counter;
@@ -26,15 +26,15 @@
             )
           ) {
             try {
-              let openedTabs = getLocalStorage('openedTabs') || [];
+              let openedTabs = (await localforage.getItem<TabDefinition[]>('openedTabs')) || [];
               if (!_.isArray(openedTabs)) openedTabs = [];
               openedTabs = openedTabs
                 .map(tab => (tab.closedTime ? tab : { ...tab, closedTime: new Date().getTime() }))
                 .map(tab => ({ ...tab, selected: false }));
-              setLocalStorage('openedTabs', openedTabs);
-              setLocalStorage('selectedWidget', 'history');
+              await localforage.setItem('openedTabs', openedTabs);
+              await localStorage.setItem('selectedWidget', 'history');
             } catch (err) {
-              localStorage.removeItem('openedTabs');
+              localforage.removeItem('openedTabs');
             }
             // try {
             //   await localforage.clear();

@@ -1,4 +1,5 @@
 import { writable, derived, readable } from 'svelte/store';
+import localforage from 'localforage';
 import type { ExtensionsDirectory } from 'dbgate-types';
 import invalidateCommands from './commands/invalidateCommands';
 import getElectron from './utility/getElectron';
@@ -25,6 +26,27 @@ export function writableWithStorage<T>(defaultValue: T, storageName) {
   const res = writable<T>(init ? safeJsonParse(init, defaultValue, true) : defaultValue);
   res.subscribe(value => {
     localStorage.setItem(storageName, JSON.stringify(value));
+  });
+  return res;
+}
+
+export function writableWithForage<T>(defaultValue: T, storageName) {
+  const res = writable<T>(defaultValue);
+  res.subscribe(value => {
+    localforage.setItem(storageName, value);
+  });
+  localforage.getItem(storageName).then(value => {
+    if (value == null) {
+      const migrated = localStorage.getItem(storageName);
+      if (migrated) {
+        localStorage.removeItem(storageName);
+        const parsed = safeJsonParse(migrated, defaultValue, true);
+        localforage.setItem(storageName, parsed);
+        res.set(parsed as T);
+      }
+    } else {
+      res.set(value as T);
+    }
   });
   return res;
 }
@@ -63,7 +85,7 @@ export const openedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
-export const openedTabs = writableWithStorage<TabDefinition[]>([], 'openedTabs');
+export const openedTabs = writableWithForage<TabDefinition[]>([], 'openedTabs');
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
