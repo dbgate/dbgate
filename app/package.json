@@ -72,8 +72,7 @@
       }
     },
     "flatpak": {
-      "license": "LICENSE",
-      "appId": "org.dbgate.DbGate"
+      "license": "LICENSE"
     },
     "win": {
       "target": [
