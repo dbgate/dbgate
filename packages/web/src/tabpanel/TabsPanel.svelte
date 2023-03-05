@@ -524,7 +524,7 @@
               {/if}
             </div>
             <div class="tab-group-buttons">
-              {#if allowSplitTab}
+              {#if allowSplitTab && groupedTabs.length > 1}
                 <div
                   class="tab-group-button tabCloseButton"
                   on:click={e => splitTabGroup(tabGroup.tabs, multiTabIndex)}
