@@ -52,10 +52,10 @@ jobs:
         if: matrix.os == 'ubuntu-18.04'
         run: |
           sudo apt install flatpak flatpak-builder --yes
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install --assumeyes --runtime flathub org.freedesktop.Platform/x86_64/20.08 
-          sudo flatpak install --assumeyes --runtime flathub org.freedesktop.Sdk/x86_64/20.08
-          sudo flatpak install --assumeyes --app flathub org.electronjs.Electron2.BaseApp/x86_64/20.08
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install --user --assumeyes --runtime flathub org.freedesktop.Platform/x86_64/20.08 
+          flatpak install --user --assumeyes --runtime flathub org.freedesktop.Sdk/x86_64/20.08
+          flatpak install --user --assumeyes --app flathub org.electronjs.Electron2.BaseApp/x86_64/20.08
       - name: Publish
         run: |
           yarn run build:app
