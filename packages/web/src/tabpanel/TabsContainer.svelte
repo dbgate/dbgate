@@ -1,14 +1,15 @@
-<script>
+<script lang='ts'>
   import TabRegister from './TabRegister.svelte';
-
   import TabsPanel from './TabsPanel.svelte';
+
+  export let multiTabIndex;
 </script>
 
 <div class="tabs">
-  <TabsPanel />
+  <TabsPanel {multiTabIndex} />
 </div>
 <div class="content">
-  <TabRegister />
+  <TabRegister {multiTabIndex} />
 </div>
 
 <style>

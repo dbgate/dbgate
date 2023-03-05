@@ -43,6 +43,8 @@
       const newFiles = files.map(x => ({
         ...x,
         closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
+        selected: false,
+        visibleSecondary: false,
       }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -72,6 +74,8 @@
         : files.map(x => ({
             ...x,
             closedTime: shouldShowTab(x) && closeCondition(x) ? new Date().getTime() : x.closedTime,
+            selected: false,
+            visibleSecondary: false,
           }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -87,6 +91,17 @@
     });
   };
 
+  function splitTab(multiTabIndex) {
+    openedTabs.update(tabs => {
+      const secondaryIndex = _.findLastIndex(tabs, x => shouldShowTab(x) && !x.selected);
+      return tabs.map((x, i) => ({
+        ...x,
+        multiTabIndex: x.selected ? 1 - multiTabIndex : x.multiTabIndex,
+        visibleSecondary: i == secondaryIndex,
+      }));
+    });
+  }
+
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
   const closeAll = async () => {
     const closeCandidates = getOpenedTabs()
@@ -101,6 +116,7 @@
         ...tab,
         closedTime: shouldShowTab(tab) ? closedTime : tab.closedTime,
         selected: false,
+        visibleSecondary: false,
       }))
     );
   };
@@ -264,7 +280,10 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
 
-  $: showTabFilterFunc = tab => shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase);
+  export let multiTabIndex;
+
+  $: showTabFilterFunc = tab =>
+    shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase) && (tab.multiTabIndex || 0) == multiTabIndex;
   $: connectionList = useConnectionList();
 
   $: currentDbKey =
@@ -286,6 +305,10 @@
   // $: dbKeys = _.sortBy(_.keys(tabsByDb), [x => $tabDatabaseGroupOrder[x] || 0, x => x]);
 
   $: scrollInViewTab($activeTabId);
+
+  $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x));
+  $: allowSplitTab =
+    _.uniq(filteredTabsFromAllParts.map(x => x.multiTabIndex || 0)).length == 1 && filteredTabsFromAllParts.length >= 2;
 
   let draggingTab = null;
   let draggingTabTarget = null;
@@ -540,7 +563,16 @@
       </div>
     {/each}
   </div>
-  <div class="add-icon" on:click={() => newQuery({})} title="New query"><FontIcon icon="icon add" /></div>
+  <div class="icons-wrapper">
+    {#if allowSplitTab}
+      <div class="icon-button" on:click={() => splitTab(multiTabIndex)} title="Split window">
+        <FontIcon icon="icon split" />
+      </div>
+    {/if}
+    <div class="icon-button" on:click={() => newQuery({})} title="New query">
+      <FontIcon icon="icon add" />
+    </div>
+  </div>
 </div>
 
 <style>
@@ -551,7 +583,7 @@
     right: 0;
     bottom: 0;
   }
-  .add-icon {
+  .icons-wrapper {
     position: absolute;
     right: 5px;
     font-size: 20pt;
@@ -559,10 +591,13 @@
     bottom: 0;
     display: flex;
     align-items: center;
+    display: flex;
+  }
+  .icon-button {
     color: var(--theme-font-2);
     cursor: pointer;
   }
-  .add-icon:hover {
+  .icon-button:hover {
     color: var(--theme-font-1);
   }
   .tabs {

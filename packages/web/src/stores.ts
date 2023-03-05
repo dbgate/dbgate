@@ -17,6 +17,8 @@ export interface TabDefinition {
   tabid: string;
   tabComponent: string;
   tabOrder?: number;
+  multiTabIndex?: number;
+  visibleSecondary?: boolean;
 }
 
 export function writableWithStorage<T>(defaultValue: T, storageName) {

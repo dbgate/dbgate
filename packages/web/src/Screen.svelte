@@ -28,6 +28,7 @@
   import FontIcon from './icons/FontIcon.svelte';
   import getElectron from './utility/getElectron';
   import TabsContainer from './tabpanel/TabsContainer.svelte';
+  import MultiTabsContainer from './tabpanel/MultiTabsContainer.svelte';
 
   $: currentThemeType = $currentThemeDefinition?.themeType == 'dark' ? 'theme-type-dark' : 'theme-type-light';
 
@@ -71,7 +72,7 @@
     </div>
   {/if}
   <div class="tabs-container">
-    <TabsContainer />
+    <MultiTabsContainer />
   </div>
   {#if $selectedWidget && $visibleWidgetSideBar}
     <div

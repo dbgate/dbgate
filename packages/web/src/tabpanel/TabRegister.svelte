@@ -4,8 +4,12 @@
   import TabContent from './TabContent.svelte';
   import tabs from '../tabs';
 
+  export let multiTabIndex;
+
   let mountedTabs = {};
-  $: selectedTab = $openedTabs.find(x => x.selected && x.closedTime == null);
+  $: selectedTab = $openedTabs.find(
+    x => (x.selected || x.visibleSecondary) && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex
+  );
 
   // cleanup closed tabs
   $: {

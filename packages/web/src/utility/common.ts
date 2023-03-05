@@ -29,9 +29,24 @@ export function markTabSaved(tabid) {
 }
 
 export function setSelectedTabFunc(files, tabid) {
+  const oldSelected = files.find(x => x.selected);
+  const newSelected = files.find(x => x.tabid == tabid);
+  const changeVisibleSecondary = (oldSelected.multiTabIndex || 0) != (newSelected.multiTabIndex || 0);
   return [
-    ...(files || []).filter(x => x.tabid != tabid).map(x => ({ ...x, selected: false })),
-    ...(files || []).filter(x => x.tabid == tabid).map(x => ({ ...x, selected: true })),
+    ...(files || [])
+      .filter(x => x.tabid != tabid)
+      .map(x => ({
+        ...x,
+        selected: false,
+        visibleSecondary: changeVisibleSecondary ? x.selected : x.visibleSecondary,
+      })),
+    ...(files || [])
+      .filter(x => x.tabid == tabid)
+      .map(x => ({
+        ...x,
+        selected: true,
+        visibleSecondary: false,
+      })),
   ];
 }
 
