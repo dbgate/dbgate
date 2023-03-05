@@ -96,6 +96,7 @@ jobs:
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.snap artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
+          mv app/dist/*.flatpak artifacts/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v1
