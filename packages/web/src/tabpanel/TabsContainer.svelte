@@ -8,7 +8,13 @@
   export let multiTabIndex;
 
   function findShownTab(tabs: TabDefinition[], multiTabIndex, lockedDbMode, currentDb) {
-    const selectedTab = tabs.find(x => x.selected && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex);
+    const selectedTab = tabs.find(
+      x =>
+        x.selected &&
+        x.closedTime == null &&
+        (x.multiTabIndex || 0) == multiTabIndex &&
+        shouldShowTab(x, lockedDbMode, currentDb)
+    );
     if (selectedTab) {
       return selectedTab;
     }

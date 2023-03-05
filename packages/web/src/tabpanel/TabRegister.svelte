@@ -50,6 +50,6 @@
     tabComponent={mountedTabs[tabid]}
     {...openedTabsByTabId[tabid]?.props}
     {tabid}
-    tabVisible={tabid == (shownTab && shownTab.tabid)}
+    tabVisible={tabid == shownTab?.tabid}
   />
 {/each}

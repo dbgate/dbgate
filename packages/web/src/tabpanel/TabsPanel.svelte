@@ -447,6 +447,11 @@
         return x;
       })
     );
+
+    draggingDbGroup.set(null);
+    draggingDbGroupTarget.set(null);
+    draggingTab.set(null);
+    draggingTabTarget.set(null);
   }
 
   let domTabs;
