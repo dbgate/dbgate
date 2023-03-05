@@ -1,10 +1,12 @@
 <script>
   import HorizontalSplitter from '../elements/HorizontalSplitter.svelte';
-  import { openedTabs } from '../stores';
+  import { currentDatabase, lockedDatabaseMode, openedTabs } from '../stores';
   import TabsContainer from './TabsContainer.svelte';
+  import { shouldShowTab } from './TabsPanel.svelte';
 
-  $: isLeft = !!$openedTabs.find(x => x.closedTime == null && !x.multiTabIndex);
-  $: isRight = !!$openedTabs.find(x => x.closedTime == null && x.multiTabIndex == 1);
+  $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x, $lockedDatabaseMode, $currentDatabase));
+  $: isLeft = !!filteredTabsFromAllParts.find(x => !x.multiTabIndex);
+  $: isRight = !!filteredTabsFromAllParts.find(x => x.multiTabIndex == 1);
 </script>
 
 <HorizontalSplitter hideFirst={!isLeft && isRight} isSplitter={isRight}>

@@ -1,15 +1,29 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { openedTabs } from '../stores';
+  import { currentDatabase, lockedDatabaseMode, openedTabs, TabDefinition } from '../stores';
   import TabContent from './TabContent.svelte';
   import tabs from '../tabs';
+  import { shouldShowTab } from './TabsPanel.svelte';
 
   export let multiTabIndex;
 
   let mountedTabs = {};
-  $: selectedTab = $openedTabs.find(
-    x => (x.selected || x.visibleSecondary) && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex
-  );
+
+  function findShownTab(tabs: TabDefinition[], multiTabIndex, lockedDbMode, currentDb) {
+    const selectedTab = tabs.find(x => x.selected && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex);
+    if (selectedTab) {
+      return selectedTab;
+    }
+
+    const selectedIndex = _.findLastIndex(
+      tabs,
+      x => (x.multiTabIndex || 0) == multiTabIndex && shouldShowTab(x, lockedDbMode, currentDb)
+    );
+
+    return tabs[selectedIndex];
+  }
+
+  $: shownTab = findShownTab($openedTabs, multiTabIndex, $lockedDatabaseMode, $currentDatabase);
 
   // cleanup closed tabs
   $: {
@@ -28,10 +42,10 @@
 
   // open missing tabs
   $: {
-    if (selectedTab) {
-      const { tabid } = selectedTab;
+    if (shownTab) {
+      const { tabid } = shownTab;
       if (tabid && !mountedTabs[tabid]) {
-        const newTab = tabs[selectedTab.tabComponent]?.default;
+        const newTab = tabs[shownTab.tabComponent]?.default;
         if (newTab) {
           mountedTabs = {
             ...mountedTabs,
@@ -50,6 +64,6 @@
     tabComponent={mountedTabs[tabid]}
     {...openedTabsByTabId[tabid]?.props}
     {tabid}
-    tabVisible={tabid == (selectedTab && selectedTab.tabid)}
+    tabVisible={tabid == (shownTab && shownTab.tabid)}
   />
 {/each}

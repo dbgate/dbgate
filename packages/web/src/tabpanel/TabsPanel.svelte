@@ -44,7 +44,6 @@
         ...x,
         closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
         selected: false,
-        visibleSecondary: false,
       }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -75,7 +74,6 @@
             ...x,
             closedTime: shouldShowTab(x) && closeCondition(x) ? new Date().getTime() : x.closedTime,
             selected: false,
-            visibleSecondary: false,
           }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -92,14 +90,12 @@
   };
 
   function splitTab(multiTabIndex) {
-    openedTabs.update(tabs => {
-      const secondaryIndex = _.findLastIndex(tabs, x => shouldShowTab(x) && !x.selected);
-      return tabs.map((x, i) => ({
+    openedTabs.update(tabs =>
+      tabs.map((x, i) => ({
         ...x,
         multiTabIndex: x.selected ? 1 - multiTabIndex : x.multiTabIndex,
-        visibleSecondary: i == secondaryIndex,
-      }));
-    });
+      }))
+    );
   }
 
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
@@ -306,7 +302,7 @@
 
   $: scrollInViewTab($activeTabId);
 
-  $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x));
+  $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x, $lockedDatabaseMode, $currentDatabase));
   $: allowSplitTab =
     _.uniq(filteredTabsFromAllParts.map(x => x.multiTabIndex || 0)).length == 1 && filteredTabsFromAllParts.length >= 2;
 
