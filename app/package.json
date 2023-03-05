@@ -40,6 +40,7 @@
       "target": [
         "deb",
         "snap",
+        "flatpak",
         {
           "target": "AppImage",
           "arch": [
@@ -68,6 +69,10 @@
       "environment": {
         "ELECTRON_SNAP": "true"
       }
+    },
+    "flatpak": {
+      "license": "LICENSE",
+      "appId": "org.dbgate.DbGate"
     },
     "win": {
       "target": [
