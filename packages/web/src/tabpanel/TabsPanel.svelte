@@ -108,7 +108,7 @@
   }
 
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
-  const closeAll = async () => {
+  const closeAll = async multiTabIndex => {
     const closeCandidates = getOpenedTabs()
       .filter(x => x.unsaved)
       .filter(x => shouldShowTab(x));
@@ -119,7 +119,10 @@
     openedTabs.update(tabs =>
       tabs.map(tab => ({
         ...tab,
-        closedTime: shouldShowTab(tab) ? closedTime : tab.closedTime,
+        closedTime:
+          shouldShowTab(tab) && (multiTabIndex == null || multiTabIndex == (tab.multiTabIndex || 0))
+            ? closedTime
+            : tab.closedTime,
         selected: false,
         visibleSecondary: false,
       }))
@@ -150,7 +153,8 @@
       _.get(x, 'props.conid') != _.get(active, 'props.conid') ||
       _.get(x, 'props.database') != _.get(active, 'props.database')
   );
-  const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
+  const closeOthersInMultiTab = multiTabIndex =>
+    closeTabFunc((x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex);
 
   function getTabDbName(tab, connectionList) {
     if (tab.tabComponent == 'ConnectionTab') return 'Connections';
@@ -348,11 +352,11 @@
       },
       {
         text: 'Close all',
-        onClick: closeAll,
+        onClick: () => closeAll(multiTabIndex),
       },
       {
         text: 'Close others',
-        onClick: () => closeOthers(tabid),
+        onClick: () => closeOthersInMultiTab(multiTabIndex)(tabid),
       },
       {
         text: 'Duplicate',
