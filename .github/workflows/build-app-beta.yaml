@@ -74,6 +74,11 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
+      - name: Install flatpak
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          yarn run build:app:flatpak
+
       - name: publishSnap
         if: matrix.os == 'ubuntu-22.04'
         run: |
