@@ -53,9 +53,9 @@ jobs:
         run: |
           sudo apt install flatpak flatpak-builder --yes
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          flatpak install runtime/org.freedesktop.Platform/x86_64/20.08 --assumeyes
-          flatpak install runtime/org.freedesktop.Sdk/x86_64/20.08 --assumeyes
-          flatpak install app/org.electronjs.Electron2.BaseApp/x86_64/20.08 --assumeyes
+          flatpak install --assumeyes --runtime flathub org.freedesktop.Platform/x86_64/20.08 
+          flatpak install --assumeyes --runtime flathub  org.freedesktop.Sdk/x86_64/20.08
+          flatpak install --assumeyes --app flathub  org.electronjs.Electron2.BaseApp/x86_64/20.08
       - name: Publish
         run: |
           yarn run build:app
