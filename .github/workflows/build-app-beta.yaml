@@ -48,6 +48,10 @@ jobs:
       - name: Install Snapcraft
         if: matrix.os == 'ubuntu-22.04'
         uses: samuelmeuli/action-snapcraft@v1
+      - name: Install flatpak
+        if: matrix.os == 'ubuntu-18.04'
+        run: |
+          apt install flatpak flatpak-builder --yes
       - name: Publish
         run: |
           yarn run build:app
