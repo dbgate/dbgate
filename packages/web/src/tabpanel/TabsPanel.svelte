@@ -565,7 +565,7 @@
         <FontIcon icon="icon split" />
       </div>
     {/if}
-    <div class="icon-button" on:click={() => newQuery({})} title="New query">
+    <div class="icon-button" on:click={() => newQuery({ multiTabIndex })} title="New query">
       <FontIcon icon="icon add" />
     </div>
   </div>

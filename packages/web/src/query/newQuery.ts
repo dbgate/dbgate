@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import { get } from 'svelte/store';
-import { currentDatabase } from '../stores';
+import { getCurrentDatabase } from '../stores';
 import getConnectionLabel from '../utility/getConnectionLabel';
 import openNewTab from '../utility/openNewTab';
 
@@ -9,11 +8,12 @@ export default function newQuery({
   icon = 'img sql-file',
   title = undefined,
   initialData = undefined,
+  multiTabIndex = undefined,
   ...props
 } = {}) {
-  const $currentDatabase = get(currentDatabase);
-  const connection = _.get($currentDatabase, 'connection') || {};
-  const database = _.get($currentDatabase, 'name');
+  const currentDb = getCurrentDatabase();
+  const connection = currentDb?.connection || {};
+  const database = currentDb?.name;
 
   const tooltip = `${getConnectionLabel(connection)}\n${database}`;
 
@@ -23,6 +23,7 @@ export default function newQuery({
       icon,
       tooltip,
       tabComponent,
+      multiTabIndex,
       props: {
         ...props,
         conid: connection._id,

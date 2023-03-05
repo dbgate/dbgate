@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import uuidv1 from 'uuid/v1';
-import { get } from 'svelte/store';
-import { getOpenedTabs, openedTabs } from '../stores';
+import { getActiveTab, getOpenedTabs, openedTabs } from '../stores';
 import tabs from '../tabs';
 import { setSelectedTabFunc } from './common';
 import localforage from 'localforage';
@@ -17,7 +16,8 @@ function findFreeNumber(numbers: number[]) {
 }
 
 export default async function openNewTab(newTab, initialData = undefined, options = undefined) {
-  const oldTabs = get(openedTabs);
+  const oldTabs = getOpenedTabs();
+  const activeTab = getActiveTab();
 
   let existing = null;
 
@@ -98,6 +98,7 @@ export default async function openNewTab(newTab, initialData = undefined, option
         ...newTab,
         tabid,
         selected: true,
+        multiTabIndex: newTab?.multiTabIndex ?? activeTab?.multiTabIndex ?? 0,
         tabOrder: _.findIndex(items, y => y.tabid == tabid),
       },
     ];
