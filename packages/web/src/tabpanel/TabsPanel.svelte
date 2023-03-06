@@ -478,7 +478,7 @@
 </script>
 
 <div class="root">
-  <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
+  <div class="tabs" class:can-split={allowSplitTab} on:wheel={handleTabsWheel} bind:this={domTabs}>
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
         {#if !$lockedDatabaseMode}
@@ -636,6 +636,9 @@
     top: 0;
     right: 35px;
     bottom: 0;
+  }
+  .tabs.can-split {
+    right: 60px;
   }
   .tabs::-webkit-scrollbar {
     height: 7px;
