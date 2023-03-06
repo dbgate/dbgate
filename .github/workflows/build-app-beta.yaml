@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [macOS-10.15, windows-2022, ubuntu-18.04]
-        os: [ubuntu-18.04]
+        # os: [macOS-10.15, windows-2022, ubuntu-22.04]
+        os: [ubuntu-22.04]
 
     steps:
       - name: Context
@@ -46,10 +46,10 @@ jobs:
         run: |
           yarn fillPackagedPlugins
       - name: Install Snapcraft
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         uses: samuelmeuli/action-snapcraft@v1
       - name: Install flatpak
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           sudo apt install flatpak flatpak-builder --yes
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
@@ -74,12 +74,12 @@ jobs:
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Build flatpak
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           yarn run build:app:flatpak
 
       - name: publishSnap
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           snapcraft upload --release=beta app/dist/*.snap
         env:
