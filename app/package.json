@@ -70,7 +70,9 @@
       }
     },
     "flatpak": {
-      "license": "LICENSE"
+      "license": "LICENSE",
+      "runtimeVersion": "22.08",
+      "baseVersion": "22.08"
     },
     "win": {
       "target": [
