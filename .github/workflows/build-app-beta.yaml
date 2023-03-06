@@ -77,6 +77,8 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: |
           yarn run build:app:flatpak
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # token for electron publish
 
       - name: publishSnap
         if: matrix.os == 'ubuntu-22.04'
