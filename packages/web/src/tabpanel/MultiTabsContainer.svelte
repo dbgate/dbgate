@@ -9,7 +9,7 @@
   $: isRight = !!filteredTabsFromAllParts.find(x => x.multiTabIndex == 1);
 </script>
 
-<HorizontalSplitter hideFirst={!isLeft && isRight} isSplitter={isRight}>
+<HorizontalSplitter hideFirst={!isLeft && isRight} isSplitter={isRight} allowCollapseChild1 allowCollapseChild2>
   <div class="container" slot="1">
     <TabsContainer multiTabIndex={0} />
   </div>
