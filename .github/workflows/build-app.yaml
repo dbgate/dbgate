@@ -16,8 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-18.04, windows-2016]
-        os: [macOS-10.15, windows-2022, ubuntu-18.04]
+        # os: [ubuntu-22.04, windows-2016]
+        os: [macOS-10.15, windows-2022, ubuntu-22.04]
 
     steps:
       - name: Context
@@ -52,7 +52,7 @@ jobs:
         run: |
           yarn fillPackagedPlugins
       - name: Install Snapcraft
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         uses: samuelmeuli/action-snapcraft@v1
       - name: Publish
         run: |
@@ -76,7 +76,7 @@ jobs:
           yarn generatePadFile
 
       - name: publishSnap
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           snapcraft upload --release=stable app/dist/*.snap
         env:
@@ -134,7 +134,7 @@ jobs:
           mv app/dist/dbgate-pad.xml artifacts/ || true
 
       - name: Copy latest-linux.yml
-        if: matrix.os == 'ubuntu-18.04'
+        if: matrix.os == 'ubuntu-22.04'
         run: |
           mv app/dist/latest-linux.yml artifacts/latest-linux.yml || true
 
