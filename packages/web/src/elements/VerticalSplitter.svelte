@@ -16,8 +16,9 @@
 
   let collapsed1 = false;
   let collapsed2 = false;
+  let customRatio = null;
 
-  $: size = computeSplitterSize(initialValue, clientHeight);
+  $: size = computeSplitterSize(initialValue, clientHeight, customRatio);
 </script>
 
 <div class="container" bind:clientHeight>
@@ -38,7 +39,10 @@
       class={'vertical-split-handle'}
       style={collapsed1 || collapsed2 ? 'display:none' : ''}
       use:splitterDrag={'clientY'}
-      on:resizeSplitter={e => (size += e.detail)}
+      on:resizeSplitter={e => {
+        size += e.detail;
+        if (clientHeight > 0) customRatio = size / clientHeight;
+      }}
     />
     <div
       class={collapsed1 ? 'child1' : 'child2'}

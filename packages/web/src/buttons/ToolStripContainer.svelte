@@ -1,29 +1,29 @@
-<div class="toolstrip">
-  <slot name="toolstrip" />
-</div>
+<div class="wrapper">
+  <div class="content">
+    <slot />
+  </div>
 
-<div class="content">
-  <slot />
+  <div class="toolstrip">
+    <slot name="toolstrip" />
+  </div>
 </div>
 
 <style>
-  .content {
-    position: absolute;
-    left: 0;
-    top: 0;
-    border-bottom: 1px solid var(--theme-border);
-    right: 0;
-    bottom: var(--dim-toolstrip-height);
+  .wrapper {
+    flex: 1;
     display: flex;
+    flex-direction: column;
+  }
+  .content {
+    border-bottom: 1px solid var(--theme-border);
+    display: flex;
+    flex: 1;
+    position: relative;
   }
 
   .toolstrip {
-    position: absolute;
-    left: 0;
-    height: var(--dim-toolstrip-height);
-    right: 0;
-    bottom: 0;
     display: flex;
+    flex-wrap: wrap;
     background: var(--theme-bg-1);
   }
 </style>

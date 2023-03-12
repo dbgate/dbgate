@@ -1,4 +1,8 @@
-<div on:click>
+<script lang="ts">
+  export let clickable = false;
+</script>
+
+<div on:click class:clickable>
   <slot />
 </div>
 
@@ -10,7 +14,7 @@
     background-color: var(--theme-bg-1);
     border: 2px solid var(--theme-border);
   }
-  div:hover {
+  div.clickable:hover {
     background-color: var(--theme-bg-2);
   }
 </style>

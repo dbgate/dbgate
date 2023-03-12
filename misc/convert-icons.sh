@@ -104,3 +104,6 @@ magick icon.png -resize 16x16! ../app/icons/16x16.png
 magick icon.png -resize 192x192! ../packages/web/public/logo192.png
 magick icon.png -resize 512x512! ../packages/web/public/logo512.png
 magick icon.png -define icon:auto-resize="256,128,96,64,48,32,16" ../packages/web/public/favicon.ico
+
+convert icon.png -resize 800x800 -background transparent -gravity center -extent 1000x1000 iconmac.png
+magick composite  iconmac.png macbg.png -resize 600x600! ../app/icon512-mac.png

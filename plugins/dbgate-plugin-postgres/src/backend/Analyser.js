@@ -199,19 +199,23 @@ class Analyser extends DatabaseAnalyser {
                 x.schema_name == table.schema_name &&
                 !uniqueNames.rows.find(y => y.constraint_name == x.index_name)
             )
-            .map(idx => ({
-              constraintName: idx.index_name,
-              isUnique: idx.is_unique,
-              columns: _.compact(
-                idx.indkey
-                  .split(' ')
-                  .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
-                  .filter(col => col != null)
-                  .map(col => ({
-                    columnName: col.column_name,
-                  }))
-              ),
-            })),
+            .map(idx => {
+              const indOptionSplit = idx.indoption.split(' ');
+              return {
+                constraintName: idx.index_name,
+                isUnique: idx.is_unique,
+                columns: _.compact(
+                  idx.indkey
+                    .split(' ')
+                    .map(colid => indexcols.rows.find(col => col.oid == idx.oid && col.attnum == colid))
+                    .filter(col => col != null)
+                    .map((col, colIndex) => ({
+                      columnName: col.column_name,
+                      isDescending: parseInt(indOptionSplit[colIndex]) > 0,
+                    }))
+                ),
+              };
+            }),
           uniques: indexes.rows
             .filter(
               x =>

@@ -43,6 +43,7 @@
       const newFiles = files.map(x => ({
         ...x,
         closedTime: shouldShowTab(x) && closeCondition(x, active) ? new Date().getTime() : x.closedTime,
+        selected: false,
       }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -72,6 +73,7 @@
         : files.map(x => ({
             ...x,
             closedTime: shouldShowTab(x) && closeCondition(x) ? new Date().getTime() : x.closedTime,
+            selected: false,
           }));
 
       if (newFiles.find(x => x.selected && shouldShowTab(x))) {
@@ -87,8 +89,26 @@
     });
   };
 
+  function splitTab(multiTabIndex) {
+    openedTabs.update(tabs =>
+      tabs.map(x => ({
+        ...x,
+        multiTabIndex: x.selected ? 1 - multiTabIndex : x.multiTabIndex,
+      }))
+    );
+  }
+
+  function splitTabGroup(tabGroupTabs, multiTabIndex) {
+    openedTabs.update(tabs =>
+      tabs.map(x => ({
+        ...x,
+        multiTabIndex: tabGroupTabs.find(y => x.tabid == y.tabid) ? 1 - multiTabIndex : x.multiTabIndex,
+      }))
+    );
+  }
+
   const closeTab = closeTabFunc((x, active) => x.tabid == active.tabid);
-  const closeAll = async () => {
+  const closeAll = async multiTabIndex => {
     const closeCandidates = getOpenedTabs()
       .filter(x => x.unsaved)
       .filter(x => shouldShowTab(x));
@@ -99,8 +119,12 @@
     openedTabs.update(tabs =>
       tabs.map(tab => ({
         ...tab,
-        closedTime: shouldShowTab(tab) ? closedTime : tab.closedTime,
+        closedTime:
+          shouldShowTab(tab) && (multiTabIndex == null || multiTabIndex == (tab.multiTabIndex || 0))
+            ? closedTime
+            : tab.closedTime,
         selected: false,
+        visibleSecondary: false,
       }))
     );
   };
@@ -129,7 +153,8 @@
       _.get(x, 'props.conid') != _.get(active, 'props.conid') ||
       _.get(x, 'props.database') != _.get(active, 'props.database')
   );
-  const closeOthers = closeTabFunc((x, active) => x.tabid != active.tabid);
+  const closeOthersInMultiTab = multiTabIndex =>
+    closeTabFunc((x, active) => x.tabid != active.tabid && (x.multiTabIndex || 0) == multiTabIndex);
 
   function getTabDbName(tab, connectionList) {
     if (tab.tabComponent == 'ConnectionTab') return 'Connections';
@@ -252,6 +277,10 @@
     getCurrentDatabase,
     lockedDatabaseMode,
     getLockedDatabaseMode,
+    draggingDbGroup,
+    draggingDbGroupTarget,
+    draggingTab,
+    draggingTabTarget,
   } from '../stores';
   import tabs from '../tabs';
   import { setSelectedTab } from '../utility/common';
@@ -264,7 +293,11 @@
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
 
-  $: showTabFilterFunc = tab => shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase);
+  export let multiTabIndex;
+  export let shownTab;
+
+  $: showTabFilterFunc = tab =>
+    shouldShowTab(tab, $lockedDatabaseMode, $currentDatabase) && (tab.multiTabIndex || 0) == multiTabIndex;
   $: connectionList = useConnectionList();
 
   $: currentDbKey =
@@ -287,10 +320,9 @@
 
   $: scrollInViewTab($activeTabId);
 
-  let draggingTab = null;
-  let draggingTabTarget = null;
-  let draggingDbGroup = null;
-  let draggingDbGroupTarget = null;
+  $: filteredTabsFromAllParts = $openedTabs.filter(x => shouldShowTab(x, $lockedDatabaseMode, $currentDatabase));
+  $: allowSplitTab =
+    _.uniq(filteredTabsFromAllParts.map(x => x.multiTabIndex || 0)).length == 1 && filteredTabsFromAllParts.length >= 2;
 
   const connectionColorFactory = useConnectionColorFactory(3, null, true);
 
@@ -320,11 +352,11 @@
       },
       {
         text: 'Close all',
-        onClick: closeAll,
+        onClick: () => closeAll(multiTabIndex),
       },
       {
         text: 'Close others',
-        onClick: () => closeOthers(tabid),
+        onClick: () => closeOthersInMultiTab(multiTabIndex)(tabid),
       },
       {
         text: 'Duplicate',
@@ -390,7 +422,7 @@
     }
   }
 
-  function dragDropTabs(draggingTabs, targetTabs) {
+  function dragDropTabs(draggingTabs, targetTabs, multiTabIndex) {
     if (draggingTabs.find(x => targetTabs.find(y => x.tabid == y.tabid))) return;
 
     const items = sortTabs($openedTabs.filter(x => x.closedTime == null));
@@ -422,11 +454,17 @@
           return {
             ...x,
             tabOrder: index + 1,
+            multiTabIndex: draggingTabs.find(y => y.tabid == x.tabid) ? multiTabIndex : x.multiTabIndex,
           };
         }
         return x;
       })
     );
+
+    draggingDbGroup.set(null);
+    draggingDbGroupTarget.set(null);
+    draggingTab.set(null);
+    draggingTabTarget.set(null);
   }
 
   let domTabs;
@@ -440,14 +478,14 @@
 </script>
 
 <div class="root">
-  <div class="tabs" on:wheel={handleTabsWheel} bind:this={domTabs}>
+  <div class="tabs" class:can-split={allowSplitTab} on:wheel={handleTabsWheel} bind:this={domTabs}>
     {#each groupedTabs as tabGroup}
       <div class="db-wrapper">
         {#if !$lockedDatabaseMode}
           <div
             class="db-name"
-            class:selected={draggingDbGroup
-              ? tabGroup.grpid == draggingDbGroupTarget?.grpid
+            class:selected={$draggingDbGroup
+              ? tabGroup.grpid == $draggingDbGroupTarget?.grpid
               : tabGroup.tabDbKey == currentDbKey}
             on:mouseup={e => {
               if (e.button == 1) {
@@ -459,23 +497,23 @@
             use:contextMenu={getDatabaseContextMenu(tabGroup.tabs)}
             style={$connectionColorFactory(
               tabGroup.tabs[0].props,
-              (draggingDbGroup ? tabGroup.grpid == draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
+              ($draggingDbGroup ? tabGroup.grpid == $draggingDbGroupTarget?.grpid : tabGroup.tabDbKey == currentDbKey)
                 ? 2
                 : 3
             )}
             draggable={true}
             on:dragstart={e => {
-              draggingDbGroup = tabGroup;
+              $draggingDbGroup = tabGroup;
             }}
             on:dragenter={e => {
-              draggingDbGroupTarget = tabGroup;
+              $draggingDbGroupTarget = tabGroup;
             }}
             on:drop={e => {
-              dragDropTabs(draggingDbGroup.tabs, tabGroup.tabs);
+              dragDropTabs($draggingDbGroup.tabs, tabGroup.tabs, multiTabIndex);
             }}
             on:dragend={e => {
-              draggingDbGroup = null;
-              draggingDbGroupTarget = null;
+              $draggingDbGroup = null;
+              $draggingDbGroupTarget = null;
             }}
           >
             <div class="db-name-inner">
@@ -485,11 +523,21 @@
                 <FontIcon icon="icon lock" />
               {/if}
             </div>
-            <div
-              class="close-button-right tabCloseButton"
-              on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
-            >
-              <FontIcon icon="icon close" />
+            <div class="tab-group-buttons">
+              {#if allowSplitTab && groupedTabs.length > 1}
+                <div
+                  class="tab-group-button tabCloseButton"
+                  on:click={e => splitTabGroup(tabGroup.tabs, multiTabIndex)}
+                >
+                  <FontIcon icon="icon split" />
+                </div>
+              {/if}
+              <div
+                class="tab-group-button tabCloseButton"
+                on:click={e => closeMultipleTabs(tab => tabGroup.tabs.find(x => x.tabid == tab.tabid))}
+              >
+                <FontIcon icon="icon close" />
+              </div>
             </div>
           </div>
         {/if}
@@ -498,32 +546,34 @@
             <div
               id={`file-tab-item-${tab.tabid}`}
               class="file-tab-item"
-              class:selected={draggingTab || draggingDbGroup ? tab.tabid == draggingTabTarget?.tabid : tab.selected}
+              class:selected={$draggingTab || $draggingDbGroup
+                ? tab.tabid == $draggingTabTarget?.tabid
+                : tab.tabid == shownTab?.tabid}
               on:click={e => handleTabClick(e, tab.tabid)}
               on:mouseup={e => handleMouseUp(e, tab.tabid)}
               use:contextMenu={getContextMenu(tab)}
               draggable={true}
               on:dragstart={async e => {
-                draggingTab = tab;
+                $draggingTab = tab;
                 await tick();
                 setSelectedTab(tab.tabid);
                 // console.log('START', tab.tabid);
                 // e.dataTransfer.setData('tab_drag_data', tab.tabid);
               }}
               on:dragenter={e => {
-                draggingTabTarget = tab;
+                $draggingTabTarget = tab;
               }}
               on:drop={e => {
-                if (draggingTab) {
-                  dragDropTabs([draggingTab], [tab]);
+                if ($draggingTab) {
+                  dragDropTabs([$draggingTab], [tab], multiTabIndex);
                 }
-                if (draggingDbGroup) {
-                  dragDropTabs(draggingDbGroup.tabs, [tab]);
+                if ($draggingDbGroup) {
+                  dragDropTabs($draggingDbGroup.tabs, [tab], multiTabIndex);
                 }
               }}
               on:dragend={e => {
-                draggingTab = null;
-                draggingTabTarget = null;
+                $draggingTab = null;
+                $draggingTabTarget = null;
               }}
             >
               <FontIcon icon={tab.busy ? 'icon loading' : tab.icon} />
@@ -540,7 +590,16 @@
       </div>
     {/each}
   </div>
-  <div class="add-icon" on:click={() => newQuery({})} title="New query"><FontIcon icon="icon add" /></div>
+  <div class="icons-wrapper">
+    {#if allowSplitTab}
+      <div class="icon-button" on:click={() => splitTab(multiTabIndex)} title="Split window">
+        <FontIcon icon="icon split" />
+      </div>
+    {/if}
+    <div class="icon-button" on:click={() => newQuery({ multiTabIndex })} title="New query">
+      <FontIcon icon="icon add" />
+    </div>
+  </div>
 </div>
 
 <style>
@@ -551,7 +610,7 @@
     right: 0;
     bottom: 0;
   }
-  .add-icon {
+  .icons-wrapper {
     position: absolute;
     right: 5px;
     font-size: 20pt;
@@ -559,10 +618,13 @@
     bottom: 0;
     display: flex;
     align-items: center;
+    display: flex;
+  }
+  .icon-button {
     color: var(--theme-font-2);
     cursor: pointer;
   }
-  .add-icon:hover {
+  .icon-button:hover {
     color: var(--theme-font-1);
   }
   .tabs {
@@ -574,6 +636,9 @@
     top: 0;
     right: 35px;
     bottom: 0;
+  }
+  .tabs.can-split {
+    right: 60px;
   }
   .tabs::-webkit-scrollbar {
     height: 7px;
@@ -634,13 +699,14 @@
     white-space: nowrap;
     flex-grow: 1;
   }
-  .close-button-right {
+  .tab-group-buttons {
     margin-left: 5px;
     margin-right: 5px;
     color: var(--theme-font-3);
+    display: flex;
   }
 
-  .close-button-right:hover {
+  .tab-group-button:hover {
     color: var(--theme-font-1);
   }
 </style>

@@ -1,11 +1,13 @@
 <script lang="ts">
   import _ from 'lodash';
-  import { openedTabs } from './stores';
+  import { openedTabs } from '../stores';
   import TabContent from './TabContent.svelte';
-  import tabs from './tabs';
+  import tabs from '../tabs';
+
+  export let multiTabIndex;
+  export let shownTab;
 
   let mountedTabs = {};
-  $: selectedTab = $openedTabs.find(x => x.selected && x.closedTime == null);
 
   // cleanup closed tabs
   $: {
@@ -13,21 +15,23 @@
       _.difference(
         _.keys(mountedTabs),
         _.map(
-          $openedTabs.filter(x => x.closedTime == null),
+          $openedTabs.filter(x => x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex),
           'tabid'
         )
       ).length > 0
     ) {
-      mountedTabs = _.pickBy(mountedTabs, (v, k) => $openedTabs.find(x => x.tabid == k && x.closedTime == null));
+      mountedTabs = _.pickBy(mountedTabs, (v, k) =>
+        $openedTabs.find(x => x.tabid == k && x.closedTime == null && (x.multiTabIndex || 0) == multiTabIndex)
+      );
     }
   }
 
   // open missing tabs
   $: {
-    if (selectedTab) {
-      const { tabid } = selectedTab;
+    if (shownTab) {
+      const { tabid } = shownTab;
       if (tabid && !mountedTabs[tabid]) {
-        const newTab = tabs[selectedTab.tabComponent]?.default;
+        const newTab = tabs[shownTab.tabComponent]?.default;
         if (newTab) {
           mountedTabs = {
             ...mountedTabs,
@@ -46,6 +50,6 @@
     tabComponent={mountedTabs[tabid]}
     {...openedTabsByTabId[tabid]?.props}
     {tabid}
-    tabVisible={tabid == (selectedTab && selectedTab.tabid)}
+    tabVisible={tabid == shownTab?.tabid}
   />
 {/each}

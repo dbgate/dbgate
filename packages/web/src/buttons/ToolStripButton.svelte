@@ -31,6 +31,7 @@
     align-self: stretch;
     display: flex;
     user-select: none;
+    margin: 2px 0px;
   }
   .button.disabled {
     color: var(--theme-font-3);

@@ -371,7 +371,7 @@
   import ImportDatabaseDumpModal from '../modals/ImportDatabaseDumpModal.svelte';
   import ExportDatabaseDumpModal from '../modals/ExportDatabaseDumpModal.svelte';
   import ConfirmModal from '../modals/ConfirmModal.svelte';
-  import { closeMultipleTabs } from '../widgets/TabsPanel.svelte';
+  import { closeMultipleTabs } from '../tabpanel/TabsPanel.svelte';
 
   export let data;
   export let passProps;

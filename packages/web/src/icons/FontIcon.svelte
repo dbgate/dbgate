@@ -127,6 +127,7 @@
     'icon compare': 'mdi mdi-compare',
     'icon no-color': 'mdi mdi-format-color-marker-cancel',
     'icon palette': 'mdi mdi-palette',
+    'icon split': 'mdi mdi-view-split-vertical',
 
     'icon num-0': 'mdi mdi-numeric-0-circle',
     'icon num-1': 'mdi mdi-numeric-1-circle',

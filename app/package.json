@@ -21,7 +21,7 @@
     "afterSign": "electron-builder-notarize",
     "mac": {
       "category": "database",
-      "icon": "icon512.png",
+      "icon": "icon512-mac.png",
       "hardenedRuntime": true,
       "entitlements": "entitlements.mac.plist",
       "entitlementsInherit": "entitlements.mac.plist",

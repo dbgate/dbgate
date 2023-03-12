@@ -6,6 +6,7 @@ module.exports = `
         ix.indisprimary as "is_primary",
         ix.indisunique as "is_unique",
         ix.indkey as "indkey",
+        ix.indoption as "indoption",
         t.oid as "oid"
     from
         pg_class t,
