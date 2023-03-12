@@ -1,5 +1,8 @@
 <script context="module">
-  export function computeSplitterSize(initialValue, clientSize) {
+  export function computeSplitterSize(initialValue, clientSize, customRatio) {
+    if (customRatio != null) {
+      return clientSize * customRatio;
+    }
     if (_.isString(initialValue) && initialValue.startsWith('~') && initialValue.endsWith('px'))
       return clientSize - parseInt(initialValue.slice(1, -2));
     if (_.isString(initialValue) && initialValue.endsWith('px')) return parseInt(initialValue.slice(0, -2));
@@ -27,8 +30,9 @@
 
   export let size = 0;
   let clientWidth;
+  let customRatio = null;
 
-  $: size = computeSplitterSize(initialValue, clientWidth);
+  $: size = computeSplitterSize(initialValue, clientWidth, customRatio);
 </script>
 
 <div class="container" bind:clientWidth>
@@ -52,7 +56,10 @@
         class="horizontal-split-handle"
         style={collapsed1 || collapsed2 ? 'display:none' : ''}
         use:splitterDrag={'clientX'}
-        on:resizeSplitter={e => (size += e.detail)}
+        on:resizeSplitter={e => {
+          size += e.detail;
+          if (clientWidth > 0) customRatio = size / clientWidth;
+        }}
       />
     {/if}
     <div
