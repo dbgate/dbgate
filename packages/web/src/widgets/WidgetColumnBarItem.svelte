@@ -22,6 +22,7 @@
 
   const dynamicProps = writable({
     splitterVisible: false,
+    visibleItemsCount: 0,
   });
 
   const pushWidgetItemDefinition = getContext('pushWidgetItemDefinition') as any;
@@ -62,10 +63,12 @@
     storageName && getLocalStorage(storageName) && getLocalStorage(storageName).visible != null
       ? getLocalStorage(storageName).visible
       : !collapsed;
+
+  $: collapsible = $dynamicProps.visibleItemsCount != 1 || !visible;
 </script>
 
 {#if !skip && show}
-  <WidgetTitle on:click={() => (visible = !visible)}>{title}</WidgetTitle>
+  <WidgetTitle clickable={collapsible} on:click={collapsible ? () => (visible = !visible) : null}>{title}</WidgetTitle>
 
   {#if visible}
     <div class="wrapper" style={$dynamicProps.splitterVisible ? `height:${size}px` : 'flex: 1 1 0'}>

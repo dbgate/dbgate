@@ -26,10 +26,11 @@
   $: computeDynamicProps(definitions);
 
   function computeDynamicProps(defs: any[]) {
+    const visibleItemsCount = defs.filter(x => !x.collapsed && !x.skip).length;
     for (let index = 0; index < defs.length; index++) {
       const definition = defs[index];
       const splitterVisible = !!defs.slice(index + 1).find(x => x && !x.collapsed && !x.skip);
-      dynamicPropsCollection[index].set({ splitterVisible });
+      dynamicPropsCollection[index].set({ splitterVisible, visibleItemsCount });
     }
   }
 </script>
