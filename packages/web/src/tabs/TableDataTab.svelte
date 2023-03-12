@@ -101,6 +101,7 @@
   import { getBoolSettingsValue, getIntSettingsValue } from '../settings/settingsTools';
   import useEditorData from '../query/useEditorData';
   import { markTabSaved, markTabUnsaved } from '../utility/common';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
 
   export let tabid;
   export let conid;
@@ -281,32 +282,28 @@
     <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToTable" hideDisabled />
     <ToolStripExportButton {quickExportHandlerRef} />
+
+    <ToolStripButton
+      icon="icon structure"
+      on:click={() => {
+        openNewTab({
+          title: pureName,
+          icon: 'img table-structure',
+          tabComponent: 'TableStructureTab',
+          props: {
+            schemaName,
+            pureName,
+            conid,
+            database,
+            objectTypeField: 'tables',
+          },
+        });
+      }}>Open structure</ToolStripButton
+    >
+
+    <ToolStripButton
+      icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
+      on:click={() => collapsedLeftColumnStore.update(x => !x)}>View columns</ToolStripButton
+    >
   </svelte:fragment>
 </ToolStripContainer>
-
-<StatusBarTabItem
-  text="Open structure"
-  icon="icon structure"
-  clickable
-  onClick={() => {
-    openNewTab({
-      title: pureName,
-      icon: 'img table-structure',
-      tabComponent: 'TableStructureTab',
-      props: {
-        schemaName,
-        pureName,
-        conid,
-        database,
-        objectTypeField: 'tables',
-      },
-    });
-  }}
-/>
-
-<StatusBarTabItem
-  text="View columns"
-  icon={$collapsedLeftColumnStore ? 'icon columns-outline' : 'icon columns'}
-  clickable
-  onClick={() => collapsedLeftColumnStore.update(x => !x)}
-/>

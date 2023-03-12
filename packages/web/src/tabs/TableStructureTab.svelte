@@ -60,6 +60,7 @@
   import { apiCall } from '../utility/api';
   import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripButton from '../buttons/ToolStripButton.svelte';
 
   export let tabid;
   export let conid;
@@ -190,27 +191,25 @@
     <ToolStripCommandButton command="tableStructure.reset" />
     <ToolStripCommandButton command="tableEditor.addColumn" />
     <ToolStripCommandButton command="tableEditor.addIndex" />
+
+    {#if objectTypeField == 'tables'}
+      <ToolStripButton
+        icon="icon table"
+        on:click={() => {
+          openNewTab({
+            title: pureName,
+            icon: 'img table',
+            tabComponent: 'TableDataTab',
+            props: {
+              schemaName,
+              pureName,
+              conid,
+              database,
+              objectTypeField: 'tables',
+            },
+          });
+        }}>Open data</ToolStripButton
+      >
+    {/if}
   </svelte:fragment>
 </ToolStripContainer>
-
-{#if objectTypeField == 'tables'}
-  <StatusBarTabItem
-    text="Open data"
-    icon="icon table"
-    clickable
-    onClick={() => {
-      openNewTab({
-        title: pureName,
-        icon: 'img table',
-        tabComponent: 'TableDataTab',
-        props: {
-          schemaName,
-          pureName,
-          conid,
-          database,
-          objectTypeField: 'tables',
-        },
-      });
-    }}
-  />
-{/if}
