@@ -30,7 +30,7 @@ export function writableWithStorage<T>(defaultValue: T, storageName) {
   return res;
 }
 
-export function writableWithForage<T>(defaultValue: T, storageName) {
+export function writableWithForage<T>(defaultValue: T, storageName, safeConvertor?) {
   const res = writable<T>(defaultValue);
   res.subscribe(value => {
     localforage.setItem(storageName, value);
@@ -45,7 +45,7 @@ export function writableWithForage<T>(defaultValue: T, storageName) {
         res.set(parsed as T);
       }
     } else {
-      res.set(value as T);
+      res.set(safeConvertor ? safeConvertor(value) : (value as T));
     }
   });
   return res;
@@ -85,7 +85,7 @@ export const openedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
-export const openedTabs = writableWithForage<TabDefinition[]>([], 'openedTabs');
+export const openedTabs = writableWithForage<TabDefinition[]>([], 'openedTabs', x => [...(x || [])]);
 export const copyRowsFormat = writableWithStorage('textWithoutHeaders', 'copyRowsFormat');
 export const extensions = writable<ExtensionsDirectory>(null);
 export const visibleCommandPalette = writable(null);
