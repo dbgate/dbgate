@@ -9,13 +9,13 @@
   const connectionColorFactory = useConnectionColorFactory(3);
 
   $: filteredTables = $pinnedTables.filter(
-    x => x.conid == $currentDatabase?.connection?._id && x.database == $currentDatabase?.name
+    x => x?.conid == $currentDatabase?.connection?._id && x?.database == $currentDatabase?.name
   );
 </script>
 
 <WidgetsInnerContainer>
   <AppObjectList
-    list={[...$pinnedDatabases, ...filteredTables]}
+    list={[..._.compact($pinnedDatabases), ..._.compact(filteredTables)]}
     module={pinnedAppObject}
     passProps={{ connectionColorFactory: $connectionColorFactory }}
   />

@@ -417,7 +417,7 @@
   onUnpin={isPinned
     ? () =>
         pinnedDatabases.update(list =>
-          list.filter(x => x.name != data.name || x.connection?._id != data.connection?._id)
+          list.filter(x => x?.name != data?.name || x?.connection?._id != data?.connection?._id)
         )
     : null}
 />

@@ -13,6 +13,7 @@
   import SqlObjectList from './SqlObjectList.svelte';
   import DbKeysTree from './DbKeysTree.svelte';
   import SingleConnectionDatabaseList from './SingleConnectionDatabaseList.svelte';
+  import _ from 'lodash';
 
   export let hidden = false;
 
@@ -39,8 +40,8 @@
     name="pinned"
     height="15%"
     storageName="pinnedItemsWidget"
-    skip={!$pinnedDatabases?.length &&
-      !$pinnedTables.some(x => x.conid == conid && x.database == $currentDatabase?.name)}
+    skip={!_.compact($pinnedDatabases).length &&
+      !$pinnedTables.some(x => x && x.conid == conid && x.database == $currentDatabase?.name)}
   >
     <PinnedObjectsList />
   </WidgetColumnBarItem>
