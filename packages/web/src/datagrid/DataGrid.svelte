@@ -165,7 +165,7 @@
 >
   <div class="left" slot="1">
     <WidgetColumnBar>
-      <WidgetColumnBarItem title="Columns" name="columns" height="45%" show={!isFormView}>
+      <WidgetColumnBarItem title="Columns" name="columns" height="45%" skip={isFormView}>
         <ColumnManager {...$$props} {managerSize} {isJsonView} {isDynamicStructure} bind:this={domColumnManager} />
       </WidgetColumnBarItem>
 
@@ -173,7 +173,7 @@
         title="Filters"
         name="filters"
         height={showReferences && display?.hasReferences && !isFormView ? '15%' : '30%'}
-        show={display?.filterable}
+        skip={!display?.filterable}
         collapsed={isDetailView}
       >
         <FormViewFilters
@@ -192,7 +192,7 @@
         name="references"
         height="30%"
         collapsed={isDetailView}
-        show={showReferences && display?.hasReferences}
+        skip={!(showReferences && display?.hasReferences)}
       >
         <ReferenceManager {...$$props} {managerSize} />
       </WidgetColumnBarItem>

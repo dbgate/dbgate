@@ -50,9 +50,11 @@
     title={driver?.databaseEngineTypes?.includes('document') ? 'Collections' : 'Tables, views, functions'}
     name="dbObjects"
     storageName="dbObjectsWidget"
-    show={conid &&
+    skip={!(
+      conid &&
       (database || singleDatabase) &&
-      (driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document'))}
+      (driver?.databaseEngineTypes?.includes('sql') || driver?.databaseEngineTypes?.includes('document'))
+    )}
   >
     <SqlObjectList {conid} {database} />
   </WidgetColumnBarItem>
@@ -61,7 +63,7 @@
     title={'Keys'}
     name="dbObjects"
     storageName="dbObjectsWidget"
-    show={conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue')}
+    skip={!(conid && (database || singleDatabase) && driver?.databaseEngineTypes?.includes('keyvalue'))}
   >
     <DbKeysTree {conid} {database} />
   </WidgetColumnBarItem>

@@ -12,7 +12,6 @@
   export let title;
   export let name;
   export let skip = false;
-  export let show = true;
   export let height = null;
   export let collapsed = null;
 
@@ -32,12 +31,12 @@
     {
       collapsed,
       height,
-      skip: skip || !show,
+      skip,
     },
     dynamicProps
   );
 
-  $: updateWidgetItemDefinition(widgetItemIndex, { collapsed: !visible, height, skip: skip || !show });
+  $: updateWidgetItemDefinition(widgetItemIndex, { collapsed: !visible, height, skip });
 
   $: setInitialSize(height, $widgetColumnBarHeight);
 
@@ -67,7 +66,7 @@
   $: collapsible = $dynamicProps.visibleItemsCount != 1 || !visible;
 </script>
 
-{#if !skip && show}
+{#if !skip}
   <WidgetTitle clickable={collapsible} on:click={collapsible ? () => (visible = !visible) : null}>{title}</WidgetTitle>
 
   {#if visible}
