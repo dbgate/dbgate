@@ -8,7 +8,15 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### 5.2.3
+### 5.2.5
+- ADDED: Split Windows #394
+- FIXED: Postgres index asc/desc #514
+- FIXED: Excel export not working since 5.2.3 #511
+- ADDED: Inlucde macOS specific app icon #494
+- FIXED: Resizing window resets window contents #479
+- FIXED: Solved some minor problems with widget collapsing
+
+### 5.2.4
 - FIXED: npm version crash (#508)
 
 ### 5.2.3
