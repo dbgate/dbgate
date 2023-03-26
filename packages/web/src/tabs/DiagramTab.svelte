@@ -27,6 +27,7 @@
   import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
   import invalidateCommands from '../commands/invalidateCommands';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
+  import VerticalSplitter from "../elements/VerticalSplitter.svelte";
 
   export let tabid;
   export let conid;
@@ -100,7 +101,12 @@
 </script>
 
 <ToolStripContainer>
-  <DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
+  <VerticalSplitter isSplitter={false}>
+    <svelte:fragment slot="1">
+      <DiagramDesigner value={$modelState.value || {}} {conid} {database} onChange={handleChange} menu={createMenu} />
+    </svelte:fragment>
+  </VerticalSplitter>
+  
   <svelte:fragment slot="toolstrip">
     <ToolStripCommandButton command="designer.arrange" />
     <ToolStripSaveButton idPrefix="diagram" />
