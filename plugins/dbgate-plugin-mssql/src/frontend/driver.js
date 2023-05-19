@@ -59,7 +59,7 @@ const dialect = {
     'date',
     'datetime2',
     'datetime',
-    'datetimeofffset',
+    'datetimeoffset',
     'smalldatetime',
     'time',
     'char(20)',
