@@ -24,7 +24,7 @@
   let pureFileName = null;
 
   function getDefaultFileName() {
-    return `${connection.database}-${dateFormat(new Date(), 'yyyy-MM-dd-hh-mm-ss')}.sql`;
+    return `${connection.database}-${dateFormat(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.sql`;
   }
 
   onMount(async () => {
