@@ -842,6 +842,26 @@
               text: `100 %`,
               onClick: changeStyleFunc('zoomKoef', 1),
             },
+            {
+              text: `120 %`,
+              onClick: changeStyleFunc('zoomKoef', 1.2),
+            },
+            {
+              text: `140 %`,
+              onClick: changeStyleFunc('zoomKoef', 1.4),
+            },
+            {
+              text: `160 %`,
+              onClick: changeStyleFunc('zoomKoef', 1.6),
+            },
+            {
+              text: `180 %`,
+              onClick: changeStyleFunc('zoomKoef', 1.8),
+            },
+            {
+              text: `200 %`,
+              onClick: changeStyleFunc('zoomKoef', 2),
+            },
           ],
         },
       ],
