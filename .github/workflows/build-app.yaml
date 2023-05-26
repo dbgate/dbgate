@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         # os: [ubuntu-22.04, windows-2016]
-        os: [macOS-10.15, windows-2022, ubuntu-22.04]
+        os: [macos-12, windows-2022, ubuntu-22.04]
 
     steps:
       - name: Context
@@ -139,7 +139,7 @@ jobs:
           mv app/dist/latest-linux.yml artifacts/latest-linux.yml || true
 
       - name: Copy latest-mac.yml
-        if: matrix.os == 'macOS-10.15'
+        if: matrix.os == 'macos-12'
         run: |
           mv app/dist/latest-mac.yml artifacts/latest-mac.yml || true
 
