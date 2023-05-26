@@ -9,7 +9,7 @@ const nativeDriver = require('./nativeDriver');
 const lock = new AsyncLock();
 const { tediousConnect, tediousQueryCore, tediousReadQuery, tediousStream } = require('./tediousDriver');
 const { nativeConnect, nativeQueryCore, nativeReadQuery, nativeStream } = nativeDriver;
-let msnodesqlv8;
+let requireMsnodesqlv8;
 
 const versionQuery = `
 SELECT 
@@ -52,12 +52,12 @@ const driver = {
   analyserClass: MsSqlAnalyser,
 
   getAuthTypes() {
-    return msnodesqlv8 ? windowsAuthTypes : null;
+    return requireMsnodesqlv8 ? windowsAuthTypes : null;
   },
 
   async connect(conn) {
     const { authType } = conn;
-    if (msnodesqlv8 && (authType == 'sspi' || authType == 'sql')) {
+    if (requireMsnodesqlv8 && (authType == 'sspi' || authType == 'sql')) {
       return nativeConnect(conn);
     }
 
@@ -119,7 +119,7 @@ const driver = {
 
 driver.initialize = dbgateEnv => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.msnodesqlv8) {
-    msnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8();
+    requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
   }
   nativeDriver.initialize(dbgateEnv);
 };

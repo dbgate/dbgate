@@ -8,7 +8,15 @@ const { getLogger } = global.DBGATE_TOOLS;
 
 const logger = getLogger('sqliteDriver');
 
-let Database;
+let requireBetterSqlite;
+
+let betterSqliteValue;
+function getBetterSqlite() {
+  if (!betterSqliteValue) {
+    betterSqliteValue = requireBetterSqlite();
+  }
+  return betterSqliteValue;
+}
 
 async function waitForDrain(stream) {
   return new Promise((resolve) => {
@@ -56,6 +64,7 @@ const driver = {
   ...driverBase,
   analyserClass: Analyser,
   async connect({ databaseFile, isReadOnly }) {
+    const Database = getBetterSqlite();
     const pool = new Database(databaseFile, { readonly: !!isReadOnly });
     return pool;
   },
@@ -179,7 +188,7 @@ const driver = {
 
 driver.initialize = (dbgateEnv) => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules['better-sqlite3']) {
-    Database = dbgateEnv.nativeModules['better-sqlite3']();
+    requireBetterSqlite = dbgateEnv.nativeModules['better-sqlite3'];
   }
 };
 

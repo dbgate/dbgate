@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const stream = require('stream');
 const makeUniqueColumnNames = require('./makeUniqueColumnNames');
-let msnodesqlv8;
+let requireMsnodesqlv8;
 
 // async function nativeQueryCore(pool, sql, options) {
 //   if (sql == null) {
@@ -19,6 +19,14 @@ let msnodesqlv8;
 //     });
 //   });
 // }
+
+let msnodesqlv8Value;
+function getMsnodesqlv8() {
+  if (!msnodesqlv8Value) {
+    msnodesqlv8Value = requireMsnodesqlv8();
+  }
+  return msnodesqlv8Value;
+}
 
 function extractNativeColumns(meta) {
   const res = meta.map(col => {
@@ -51,7 +59,7 @@ async function connectWithDriver({ server, port, user, password, database, authT
   else connectionString += `;UID=${user};PWD=${password}`;
   if (database) connectionString += `;Database=${database}`;
   return new Promise((resolve, reject) => {
-    msnodesqlv8.open(connectionString, (err, conn) => {
+    getMsnodesqlv8().open(connectionString, (err, conn) => {
       if (err) {
         reject(err);
       } else {
@@ -219,7 +227,7 @@ async function nativeStream(pool, sql, options) {
 
 const initialize = dbgateEnv => {
   if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.msnodesqlv8) {
-    msnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8();
+    requireMsnodesqlv8 = dbgateEnv.nativeModules.msnodesqlv8;
   }
 };
 
