@@ -19,6 +19,7 @@
     "appId": "org.dbgate",
     "productName": "DbGate",
     "afterSign": "electron-builder-notarize",
+    "asarUnpack": "**/*.node",
     "mac": {
       "category": "database",
       "icon": "icon512-mac.png",
