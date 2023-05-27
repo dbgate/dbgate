@@ -60,7 +60,7 @@ const driver = {
         mongoUrl = databaseUrl;
       }
     } else {
-      mongoUrl = user ? `mongodb://${user}:${password}@${server}:${port}` : `mongodb://${server}:${port}`;
+      mongoUrl = user ? `mongodb://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${server}:${port}` : `mongodb://${server}:${port}`;
     }
 
     const options = {
