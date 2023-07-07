@@ -30,7 +30,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            fshevchuk/dbgate
+            949033642296.dkr.ecr.eu-central-1.amazonaws.com/dbgate
           flavor: |
             latest=false
           tags: |
@@ -44,7 +44,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            fshevchuk/dbgate
+            949033642296.dkr.ecr.eu-central-1.amazonaws.com/dbgate
           flavor: |
             latest=false
           tags: |
