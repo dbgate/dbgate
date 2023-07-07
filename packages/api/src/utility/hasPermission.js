@@ -8,7 +8,7 @@ function hasPermission(tested, req) {
     // request object not available, allow all
     return true;
   }
-  const key = req.user?.login ?? req.auth?.user?.login ?? '';
+  const key = req.user ? req.user.login : req.auth && req.auth.login ? req.auth.user.login : '';
   const logins = getLogins();
 
   if (!userPermissions[key]) {
