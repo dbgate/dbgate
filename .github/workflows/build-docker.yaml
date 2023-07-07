@@ -30,7 +30,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            dbgate/dbgate
+            fshevchuk/dbgate
           flavor: |
             latest=false
           tags: |
@@ -44,7 +44,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            dbgate/dbgate
+            fshevchuk/dbgate
           flavor: |
             latest=false
           tags: |
