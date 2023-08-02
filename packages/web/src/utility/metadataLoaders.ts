@@ -6,6 +6,10 @@ import { extendDatabaseInfo } from 'dbgate-tools';
 import { setLocalStorage } from '../utility/storageCache';
 import { apiCall, apiOff, apiOn } from './api';
 
+const urlParams = new URLSearchParams(window.location.search);
+const accessToken = urlParams.get('access_token');
+const resourceId = urlParams.get('resource_id');
+
 const databaseInfoLoader = ({ conid, database }) => ({
   url: 'database-connections/structure',
   params: { conid, database },
@@ -124,8 +128,8 @@ const appFilesLoader = ({ folder }) => ({
 //   reloadTrigger: `db-apps-changed-${conid}-${database}`,
 // });
 
-const usedAppsLoader = ({ conid, database }) => ({
-  url: 'apps/get-used-apps',
+const usedAppsLoader = ({ conid, database, access_token ,resource_id}) => ({
+  url: 'apps/get-used-apps?access_token=' + access_token + '&resource_id=' + resource_id,
   params: {},
   reloadTrigger: { key: `used-apps-changed` },
 });
@@ -136,8 +140,8 @@ const serverStatusLoader = () => ({
   reloadTrigger: { key: `server-status-changed` },
 });
 
-const connectionListLoader = () => ({
-  url: 'connections/list',
+const connectionListLoader = ({access_token , resource_id}) => ({
+  url: 'connections/list?access_token=' + access_token + '&resource_id=' + resource_id,
   params: {},
   reloadTrigger: { key: `connection-list-changed` },
 });
@@ -338,11 +342,14 @@ export function useServerStatus() {
   return useCore(serverStatusLoader, {});
 }
 
-export function getConnectionList() {
-  return getCore(connectionListLoader, {});
+export function getConnectionList(args = { access_token: accessToken, resource_id: resourceId }) {
+  console.log('-----------！！！---------accessToken');
+
+  return getCore(connectionListLoader, args,);
 }
-export function useConnectionList() {
-  return useCore(connectionListLoader, {});
+export function useConnectionList(args = { access_token: accessToken, resource_id: resourceId }) {
+  console.log('-----------！！！---------accessToken', accessToken);
+  return useCore(connectionListLoader, args);
 }
 
 export function getConfig() {
@@ -394,10 +401,13 @@ export function useAppFolders(args = {}) {
   return useCore(appFoldersLoader, args);
 }
 
-export function getUsedApps(args = {}) {
+
+export function getUsedApps(args = { access_token: accessToken, resource_id: resourceId }) {
+  console.log('-----------getUsedApps  get---------accessToken', accessToken, resourceId);
   return getCore(usedAppsLoader, args);
 }
-export function useUsedApps(args = {}) {
+export function useUsedApps(args = { access_token: accessToken , resource_id: resourceId}) {
+  console.log('-----------getUsedApps use---------accessToken', accessToken, resourceId);
   return useCore(usedAppsLoader, args);
 }
 

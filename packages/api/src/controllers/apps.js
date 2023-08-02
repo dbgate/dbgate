@@ -29,6 +29,7 @@ module.exports = {
   async files({ folder }) {
     if (!folder) return [];
     const dir = path.join(appdir(), folder);
+    // @ts-ignore
     if (!(await fs.exists(dir))) return [];
     const files = await fs.readdir(dir);
 
@@ -100,8 +101,10 @@ module.exports = {
   },
 
   async getNewAppFolder({ name }) {
+    // @ts-ignore
     if (!(await fs.exists(path.join(appdir(), name)))) return name;
     let index = 2;
+    // @ts-ignore
     while (await fs.exists(path.join(appdir(), `${name}${index}`))) {
       index += 1;
     }
@@ -109,8 +112,8 @@ module.exports = {
   },
 
   getUsedAppFolders_meta: true,
-  async getUsedAppFolders() {
-    const list = await connections.list();
+  async getUsedAppFolders(_params,req) {
+    const list = await connections.list(_params,req);
     const apps = [];
 
     for (const connection of list) {
@@ -127,8 +130,8 @@ module.exports = {
   },
 
   getUsedApps_meta: true,
-  async getUsedApps() {
-    const apps = await this.getUsedAppFolders();
+  async getUsedApps(_params,req) {
+    const apps = await this.getUsedAppFolders(_params,req);
     const res = [];
 
     for (const folder of apps) {

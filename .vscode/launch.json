@@ -15,6 +15,13 @@
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
+        },
+        {
+            "type": "node-terminal",
+            "name": "运行脚本: start",
+            "request": "launch",
+            "command": "yarn start",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

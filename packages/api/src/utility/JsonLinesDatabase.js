@@ -27,6 +27,7 @@ class JsonLinesDatabase {
     if (!this.loadPerformed) {
       await lock.acquire('reader', async () => {
         if (!this.loadPerformed) {
+          // @ts-ignore
           if (!(await fs.exists(this.filename))) {
             this.loadedOk = true;
             this.loadPerformed = true;

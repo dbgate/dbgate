@@ -16,6 +16,7 @@ const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const axios = require('axios');
 
 const logger = getLogger('connections');
 
@@ -197,11 +198,22 @@ module.exports = {
 
   list_meta: true,
   async list(_params, req) {
-    if (portalConnections) {
-      if (platformInfo.allowShellConnection) return portalConnections;
-      return portalConnections.map(maskConnection).filter(x => connectionHasPermission(x, req));
+    if (_params && Object.keys(_params).length !== 0 && _params.access_token !== 'null' && _params.access_token !== undefined) {
+      try {
+        logger.info('Loading connections from collection api: access_token=' + _params.access_token + ' resource_id=' + _params.resource_id);
+
+        const resp = await axios.default.get(process.env.COLLECTION_API+"http://172.30.87.34:10000/starsysApi/devops-develop/ct/database/collections?access_token=" + _params.access_token + "&resource_id=" + _params.resource_id);
+        const json = JSON.parse(JSON.stringify(resp.data));
+        json.map((item) => {
+          item.password = encryptConnection(item).password;
+        });
+        this.datastore.data.push(...json);
+        return json;
+      } catch (err) {
+        console.log('Error loading connections/list ', err.message);
+      }
     }
-    return (await this.datastore.find()).filter(x => connectionHasPermission(x, req));
+    return [];
   },
 
   test_meta: true,
@@ -265,6 +277,12 @@ module.exports = {
 
   save_meta: true,
   async save(connection) {
+    // if (process.env.SAVE_ENABLED == 'false') {
+    //   throw new Error('Saving connections is disabled');
+    // }
+    if (true) {
+      throw new Error('Saving connections is disabled');
+    }
     if (portalConnections) return;
     let res;
     const encrypted = encryptConnection(connection);

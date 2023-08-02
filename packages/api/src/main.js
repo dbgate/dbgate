@@ -34,6 +34,7 @@ const getExpressPath = require('./utility/getExpressPath');
 const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
+const interceptor = require('./interceptor');
 
 const logger = getLogger('main');
 
@@ -92,6 +93,8 @@ function start() {
       socket.removeSseResponse(res);
     });
   });
+
+  app.use(interceptor);
 
   app.use(bodyParser.json({ limit: '50mb' }));
 
