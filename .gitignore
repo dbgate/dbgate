@@ -32,4 +32,9 @@ app/src/nativeModulesContent.js
 packages/api/src/nativeModulesContent.js
 packages/api/src/packagedPluginsContent.js
 .VSCodeCounter
-.vscode
+.vscode/launch.json
+api/.env
+api/.env.test
+api/.env.uat
+api/.env.prod
+docker/

@@ -202,7 +202,7 @@ module.exports = {
       try {
         logger.info('Loading connections from collection api: access_token=' + _params.access_token + ' resource_id=' + _params.resource_id);
 
-        const resp = await axios.default.get(process.env.COLLECTION_API+"http://172.30.87.34:10000/starsysApi/devops-develop/ct/database/collections?access_token=" + _params.access_token + "&resource_id=" + _params.resource_id);
+        const resp = await axios.default.get(process.env.CONNECTION_API+"?access_token=" + _params.access_token + "&resource_id=" + _params.resource_id);
         const json = JSON.parse(JSON.stringify(resp.data));
         json.map((item) => {
           item.password = encryptConnection(item).password;
@@ -280,7 +280,7 @@ module.exports = {
     // if (process.env.SAVE_ENABLED == 'false') {
     //   throw new Error('Saving connections is disabled');
     // }
-    if (true) {
+    if (process.env.SAVE_ENABLED == 'false') {
       throw new Error('Saving connections is disabled');
     }
     if (portalConnections) return;

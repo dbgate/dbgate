@@ -69,7 +69,10 @@
     "start:filedb": "env-cmd node src/index.js /home/jena/test/chinook/Chinook.db --listen-api",
     "start:singleconn": "env-cmd node src/index.js --server localhost --user root --port 3307 --engine mysql@dbgate-plugin-mysql --password test --listen-api",
     "ts": "tsc",
-    "build": "webpack"
+    "build": "webpack",
+    "build:test": "cross-env NODE_ENV=test webpack --config ./webpack.config.js",
+    "build:uat": "cross-env NODE_ENV=uat webpack --config ./webpack.config.js",
+    "build:prod": "cross-env NODE_ENV=prod webpack --config ./webpack.config.js"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.11",

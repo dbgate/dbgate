@@ -1,5 +1,21 @@
 var webpack = require('webpack');
 var path = require('path');
+var fs = require('fs');
+
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+var envPath = path.resolve(__dirname, `.env.${process.env.NODE_ENV}`);
+var dotenvConfig = require('dotenv').config({
+  path: fs.existsSync(envPath)
+    ? envPath
+    : path.resolve(path.resolve(__dirname, '.env')),
+});
+const newConfig = {}
+for(let key in dotenvConfig.parsed){
+  newConfig['process.env.'+key] = JSON.stringify(dotenvConfig.parsed[key]);
+}
+console.log('newConfig', newConfig);
+
+console.log('dotenvConfig', dotenvConfig);
 
 var config = {
   context: __dirname + '/src',
@@ -43,6 +59,9 @@ var config = {
         }
         return false;
       },
+    }),
+    new webpack.DefinePlugin({
+      ...newConfig
     }),
   ],
   externals: {
