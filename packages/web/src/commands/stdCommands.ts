@@ -105,11 +105,11 @@ registerCommand({
   name: 'Connection',
   testEnabled: () => !getCurrentConfig()?.runAsPortal,
   onClick: () => {
-    openNewTab({
-      title: 'New Connection',
-      icon: 'img connection',
-      tabComponent: 'ConnectionTab',
-    });
+    // openNewTab({
+    //   title: 'New Connection',
+    //   icon: 'img connection',
+    //   tabComponent: 'ConnectionTab',
+    // });
   },
 });
 

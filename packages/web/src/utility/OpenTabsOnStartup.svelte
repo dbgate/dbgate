@@ -50,11 +50,11 @@
     }
 
     if (!$openedTabs.find(x => x.closedTime == null) && !(await getConnectionList()).find(x => !x.unsaved)) {
-      openNewTab({
-        title: 'New Connection',
-        icon: 'img connection',
-        tabComponent: 'ConnectionTab',
-      });
+      // openNewTab({
+      //   title: 'New Connection',
+      //   icon: 'img connection',
+      //   tabComponent: 'ConnectionTab',
+      // });
     }
 
     const config = await getConfig();

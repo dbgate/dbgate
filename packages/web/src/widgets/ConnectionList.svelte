@@ -112,12 +112,12 @@
   <SearchInput placeholder="Search connection or database" bind:value={filter} />
   <CloseSearchButton bind:filter />
   {#if $commandsCustomized['new.connection']?.enabled}
-    <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
+    <!-- <InlineButton on:click={() => runCommand('new.connection')} title="Add new connection">
       <FontIcon icon="icon plus-thick" />
     </InlineButton>
     <InlineButton on:click={() => runCommand('new.connection.folder')} title="Add new connection folder">
       <FontIcon icon="icon add-folder" />
-    </InlineButton>
+    </InlineButton> -->
   {/if}
   <InlineButton on:click={handleRefreshConnections} title="Refresh connection list">
     <FontIcon icon="icon refresh" />
@@ -169,9 +169,9 @@
     }}
   />
   {#if $connections && !$connections.find(x => !x.unsaved) && $openedConnections.length == 0 && $commandsCustomized['new.connection']?.enabled && !$openedTabs.find(x => !x.closedTime && x.tabComponent == 'ConnectionTab' && !x.props?.conid)}
-    <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
+    <!-- <LargeButton icon="icon new-connection" on:click={() => runCommand('new.connection')} fillHorizontal
       >Add new connection</LargeButton
-    >
+    > -->
     <!-- <ToolbarButton icon="icon new-connection" on:click={() => runCommand('new.connection')}>
       Add new connection
     </ToolbarButton> -->
