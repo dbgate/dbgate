@@ -18,7 +18,9 @@ function findFreeNumber(numbers: number[]) {
 export default async function openNewTab(newTab, initialData = undefined, options = undefined) {
   const oldTabs = getOpenedTabs();
   const activeTab = getActiveTab();
-
+  if (newTab.tabComponent === 'ConnectionTab') {
+    return null;
+  }
   let existing = null;
 
   const { savedFile, savedFolder, savedFilePath } = newTab.props || {};

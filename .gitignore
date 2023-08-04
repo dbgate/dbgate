@@ -33,6 +33,7 @@ packages/api/src/nativeModulesContent.js
 packages/api/src/packagedPluginsContent.js
 .VSCodeCounter
 .vscode/launch.json
+packages/api/.env
 packages/api/.env.test
 packages/api/.env.uat
 packages/api/.env.prod
