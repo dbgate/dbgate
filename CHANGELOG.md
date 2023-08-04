@@ -8,6 +8,13 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.6
+- FIXED: DbGate creates a lot of .tmp.node files in the temp directory #561
+- FIXED: Typo in datetimeoffset dataType #556
+- FIXED: SQL export is using the wrong hour formatting #537
+- FIXED: Missing toolstrip and adds up to 200% zoom to diagram view #524
+- FIXED: MongoDB password could contain special characters #560
+
 ### 5.2.5
 - ADDED: Split Windows #394
 - FIXED: Postgres index asc/desc #514
