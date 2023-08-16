@@ -14,6 +14,9 @@ const page = params.get('page');
 
 localStorageGarbageCollector();
 
+localStorage.clear();
+indexedDB.deleteDatabase('localforage')
+
 function createApp() {
   if (isOauthCallback) {
     return null;
