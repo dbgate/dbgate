@@ -53,7 +53,7 @@ jobs:
             type=match,pattern=\d+.\d+.\d+,suffix=-alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
             type=raw,value=alpine,enable=${{ !contains(github.ref_name, '-docker.') && !contains(github.ref_name, '-beta.') }}
 
-      - name: Use Node.js 14.x
+      - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
           node-version: 14.x
