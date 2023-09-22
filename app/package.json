@@ -119,7 +119,7 @@
     "electron-builder-notarize": "^1.5.1"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.6.2",
+    "better-sqlite3": "8.6.0",
     "msnodesqlv8": "^2.6.0",
     "oracledb": "^5.5.0"
   }
