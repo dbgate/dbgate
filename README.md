@@ -94,7 +94,7 @@ There are many database managers now, so why DbGate?
 * Many data browsing functions based using foreign keys - master/detail, expand columns, expandable form view
 
 ## Design goals
-* Application simplicity - DbGate takes the best and only the best from old DbGate, DatAdmin and DbMouse created by jenasoft
+* Application simplicity - DbGate takes the best and only the best from old DbGate, [DatAdmin](https://www.softpedia.com/get/Internet/Servers/Database-Utils/DatAdmin-Personal.shtml), [DbMouse](https://www.softpedia.com/get/Internet/Servers/Database-Utils/DbMouse.shtml) and [SQL Database Studio](https://en.wikipedia.org/wiki/SQL_Database_Studio)
 * Minimal dependencies
     * Frontend - Svelte
     * Backend - NodeJs, ExpressJs, database connection drivers
