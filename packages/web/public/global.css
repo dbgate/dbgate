@@ -6,8 +6,9 @@ body {
 	  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
 	  sans-serif; 
 	  */
-  -webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 .horizontal-split-handle {
