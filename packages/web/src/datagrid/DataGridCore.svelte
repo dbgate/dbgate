@@ -393,7 +393,7 @@
   import { apiCall } from '../utility/api';
   import getElectron from '../utility/getElectron';
   import { isCtrlOrCommandKey, isMac } from '../utility/common';
-  import { selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
+  import { createGeoJsonFromSelection, selectionCouldBeShownOnMap } from '../elements/SelectionMapView.svelte';
   import ErrorMessageModal from '../modals/ErrorMessageModal.svelte';
   import EditCellDataModal, { shouldOpenMultilineDialog } from '../modals/EditCellDataModal.svelte';
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
@@ -682,13 +682,21 @@
       showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
       return;
     }
+
+    const geoJson = createGeoJsonFromSelection(selection);
+    if (!geoJson) {
+      showModal(ErrorMessageModal, { message: 'There is nothing to be shown on map' });
+      return;
+    }
+
+
     openNewTab(
       {
         title: 'Map',
         icon: 'img map',
         tabComponent: 'MapTab',
       },
-      { editor: selection.map(x => _.omit(x, ['engine'])) }
+      { editor: geoJson }
     );
     return;
   }
