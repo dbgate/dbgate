@@ -164,7 +164,7 @@ module.exports = {
         try {
           opened.subprocess.send({ msgtype: 'ping' });
         } catch (err) {
-          logger.error({ err }, 'Error calling ping');
+          logger.error({ err }, 'Error pinging server connection');
           this.close(conid);
         }
       })
