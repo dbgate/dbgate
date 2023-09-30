@@ -19,3 +19,5 @@ export * from './PerspectiveDataPattern';
 export * from './PerspectiveDataLoader';
 export * from './perspectiveTools';
 export * from './DataDuplicator';
+export * from './FreeTableGridDisplay';
+export * from './FreeTableModel';
