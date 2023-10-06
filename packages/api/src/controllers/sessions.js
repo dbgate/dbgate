@@ -219,7 +219,16 @@ module.exports = {
     if (!session) {
       throw new Error('Invalid session');
     }
-    session.subprocess.send({ msgtype: 'ping' });
+    try {
+      session.subprocess.send({ msgtype: 'ping' });
+    } catch (err) {
+      logger.error({ err }, 'Error pinging session');
+
+      return {
+        status: 'error',
+        message: 'Ping failed',
+      };
+    }
 
     return { state: 'ok' };
   },

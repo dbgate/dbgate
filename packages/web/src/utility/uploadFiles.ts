@@ -2,7 +2,7 @@ import { extensions } from '../stores';
 import { get } from 'svelte/store';
 import { canOpenByElectron, openElectronFileCore } from './openElectronFile';
 import getElectron from './getElectron';
-import resolveApi from './resolveApi';
+import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { findFileFormat } from '../plugins/fileformats';
 import { showModal } from '../modals/modalTools';
 import ImportExportModal from '../modals/ImportExportModal.svelte';
@@ -46,6 +46,7 @@ export default function uploadFiles(files) {
     const fetchOptions = {
       method: 'POST',
       body: formData,
+      headers: resolveApiHeaders(),
     };
 
     const apiBase = resolveApi();

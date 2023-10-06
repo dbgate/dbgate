@@ -25,9 +25,6 @@
       newTop = offset.top - height;
 
       if (newTop < 0) newTop = 0;
-      if (newTop + height > window.innerHeight) {
-        element.style.height = `${window.innerHeight - newTop}px`;
-      }
     }
 
     if (newLeft != null) element.style.left = `${newLeft}px`;
@@ -169,6 +166,7 @@
     cursor: default;
     white-space: nowrap;
     overflow-y: auto;
+    max-height: calc(100% - 20px)
   }
 
   .keyText {

@@ -17,6 +17,7 @@
 
   function addObjectToMap() {
     if (!map) return;
+    if (!geoJson) return;
 
     for (const layer of layers) {
       layer.remove();
