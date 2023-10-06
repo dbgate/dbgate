@@ -8,6 +8,16 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.7
+- FIXED: fix body overflow when context menu height great than viewport #592
+- FIXED: Pass signals in entrypoint.sh #596
+- FIXED: Remove missing links to jenasoft #625
+- FIXED: add API headers on upload call #627
+- FIXED: Disabled shell scripting for NPM distribution by default
+- FIXED: Fixed data import from files #633
+- FIXED: Fixed showing GPS positions #575
+- CHANGED: Improved stability of electron client on Windows and Mac (fewer EPIPE errors)
+
 ### 5.2.6
 - FIXED: DbGate creates a lot of .tmp.node files in the temp directory #561
 - FIXED: Typo in datetimeoffset dataType #556
