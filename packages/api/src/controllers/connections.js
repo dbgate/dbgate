@@ -17,6 +17,7 @@ const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
 const axios = require('axios');
+const https = require('https');
 
 const logger = getLogger('connections');
 
@@ -200,9 +201,14 @@ module.exports = {
   async list(_params, req) {
     if (_params && Object.keys(_params).length !== 0 && _params.access_token !== 'null' && _params.access_token !== undefined) {
       try {
-        logger.info('Loading connections from collection api: access_token=' + _params.access_token + ' resource_id=' + _params.resource_id);
+        logger.info('Loading connections from collection api=' + process.env.CONNECTION_API + ' access_token=' + _params.access_token + ' resource_id=' + _params.resource_id);
 
-        const resp = await axios.default.get(process.env.CONNECTION_API+"?access_token=" + _params.access_token + "&resource_id=" + _params.resource_id);
+        const ignoreSSL = axios.default.create({
+          httpsAgent: new https.Agent({
+              rejectUnauthorized: false
+          })
+        });  
+        const resp = await ignoreSSL.get(process.env.CONNECTION_API+"?access_token=" + _params.access_token + "&resource_id=" + _params.resource_id);
         const json = JSON.parse(JSON.stringify(resp.data));
         json.map((item) => {
           item.password = encryptConnection(item).password;
@@ -210,7 +216,7 @@ module.exports = {
         this.datastore.data.push(...json);
         return json;
       } catch (err) {
-        console.log('Error loading connections/list ', err.message);
+        logger.info('Error loading connections/list ', err.message);
       }
     }
     return [];
@@ -369,6 +375,7 @@ module.exports = {
   newSqliteDatabase_meta: true,
   async newSqliteDatabase({ file }) {
     const sqliteDir = path.join(filesdir(), 'sqlite');
+    // @ts-ignore
     if (!(await fs.exists(sqliteDir))) {
       await fs.mkdir(sqliteDir);
     }

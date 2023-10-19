@@ -292,7 +292,17 @@ module.exports = {
     let existing = this.opened.find(x => x.conid == conid && x.database == database);
 
     if (existing) {
-      existing.subprocess.send({ msgtype: 'ping' });
+      try {
+        existing.subprocess.send({ msgtype: 'ping' });
+      } catch (err) {
+        logger.error({ err }, 'Error pinging DB connection');
+        this.close(conid, database);
+
+        return {
+          status: 'error',
+          message: 'Ping failed',
+        };
+      }
     } else {
       // @ts-ignore
       existing = await this.ensureOpened(conid, database);
