@@ -1,8 +1,9 @@
-FROM node:14
+FROM node:14-bullseye
 
 RUN apt-get update && apt-get install -y \
     iputils-ping \
     iproute2 \
+    unixodbc \
  && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /home/dbgate-docker
