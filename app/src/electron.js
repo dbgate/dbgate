@@ -186,13 +186,7 @@ ipcMain.on('window-action', async (event, arg) => {
       mainWindow.minimize();
       break;
     case 'maximize':
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-        mainWindow.webContents.send('setIsMaximized', false);
-      } else {
-        mainWindow.maximize();
-        mainWindow.webContents.send('setIsMaximized', true);
-      }
+      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
       break;
     case 'close':
       mainWindow.close();
@@ -332,6 +326,14 @@ function createWindow() {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
     // mainWindow.webContents.toggleDevTools();
+
+    mainWindow.on('maximize', () => {
+      mainWindow.webContents.send('setIsMaximized', true);
+    });
+
+    mainWindow.on('unmaximize', () => {
+      mainWindow.webContents.send('setIsMaximized', false);
+    });
   }
 
   if (!apiLoaded) {

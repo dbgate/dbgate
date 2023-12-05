@@ -694,6 +694,14 @@ registerCommand({
 });
 
 registerCommand({
+  id: 'app.maximize',
+  category: 'Application',
+  name: 'Maximize',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'maximize'),
+});
+
+registerCommand({
   id: 'app.toggleFullScreen',
   category: 'Application',
   name: 'Toggle full screen',
