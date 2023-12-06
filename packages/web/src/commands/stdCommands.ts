@@ -835,6 +835,16 @@ registerCommand({
   onClick: () => getElectron().send('window-action', 'paste'),
 });
 
+registerCommand({
+  id: 'edit.selectAll',
+  category: 'Edit',
+  name: 'Select All',
+  keyText: 'CtrlOrCommand+A',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'selectAll'),
+});
+
 const electron = getElectron();
 if (electron) {
   electron.addEventListener('run-command', (e, commandId) => runCommand(commandId));
