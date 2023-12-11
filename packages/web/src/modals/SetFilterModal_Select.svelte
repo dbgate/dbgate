@@ -8,7 +8,7 @@
     switch (filterType) {
       case 'number':
         return [
-          { value: '=', label: 'eqals' },
+          { value: '=', label: 'equals' },
           { value: '<>', label: 'does not equal' },
           { value: '<', label: 'is smaller' },
           { value: '>', label: 'is greater' },
@@ -40,7 +40,7 @@
         ];
       case 'datetime':
         return [
-          { value: '=', label: 'eqals' },
+          { value: '=', label: 'equals' },
           { value: '<>', label: 'does not equal' },
           { value: '<', label: 'is before' },
           { value: '>', label: 'is after' },
@@ -53,7 +53,7 @@
         ];
       case 'mongo':
         return [
-          { value: '=', label: 'eqals' },
+          { value: '=', label: 'equals' },
           { value: '<>', label: 'does not equal' },
           { value: '<', label: 'is smaller' },
           { value: '>', label: 'is greater' },
@@ -70,7 +70,7 @@
         ];
       case 'eval':
         return [
-          { value: '=', label: 'eqals' },
+          { value: '=', label: 'equals' },
           { value: '<>', label: 'does not equal' },
           { value: '<', label: 'is smaller' },
           { value: '>', label: 'is greater' },
