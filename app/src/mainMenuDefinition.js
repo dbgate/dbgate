@@ -48,6 +48,7 @@ module.exports = ({ editMenu }) => [
           { command: 'edit.cut' },
           { command: 'edit.copy' },
           { command: 'edit.paste' },
+          { command: 'edit.selectAll' },
         ],
       }
     : null,

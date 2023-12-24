@@ -229,6 +229,9 @@ ipcMain.on('window-action', async (event, arg) => {
     case 'paste':
       mainWindow.webContents.paste();
       break;
+    case 'selectAll':
+      mainWindow.webContents.selectAll();
+      break;
   }
 });
 
