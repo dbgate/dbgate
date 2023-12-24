@@ -36,7 +36,7 @@
     "dbgate-query-splitter": "^4.9.3",
     "dbgate-tools": "^5.0.0-alpha.1",
     "mysql2": "^3.6.5",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
   }
 }
