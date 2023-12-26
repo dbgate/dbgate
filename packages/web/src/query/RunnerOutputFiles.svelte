@@ -5,7 +5,7 @@
 
   import formatFileSize from '../utility/formatFileSize';
   import getElectron from '../utility/getElectron';
-  import resolveApi from '../utility/resolveApi';
+  import { downloadFromApi } from '../utility/exportFileTools';
   import useEffect from '../utility/useEffect';
 
   export let runnerId;
@@ -66,9 +66,10 @@
     <a
       slot="0"
       let:row
-      href={`${resolveApi()}/runners/data/${runnerId}/${row.name}`}
-      target="_blank"
-      rel="noopener noreferrer"
+      href="#"
+      on:click={() => {
+        downloadFromApi(`runners/data/${runnerId}/${row.name}`, row.name);
+      }}
     >
       download
     </a>
