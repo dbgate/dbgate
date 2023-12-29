@@ -77,6 +77,6 @@ jobs:
           ACCEPT_EULA: Y
           SA_PASSWORD: Pwd2020Db
           MSSQL_PID: Express
-          
+
       # cockroachdb:
       #   image: cockroachdb/cockroach
