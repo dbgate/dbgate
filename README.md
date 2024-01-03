@@ -113,6 +113,20 @@ Currently following extensions can be implemented using plugins:
 
 Basic set of plugins is part of DbGate git repository and is installed with app. Additional plugins pust be downloaded from NPM (this task is handled by DbGate) -->
 
+## Deployment on Third-Party Platforms
+
+<strong>Deploy on Sealos</strong>
+
+<div>
+
+> Sealos supports high concurrency, dynamic scaling, and stable operations for millions of users.
+
+> Click the button below to deploy with one click.👇
+
+[![](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://cloud.sealos.io/?openapp=system-fastdeploy?templateName=dbgate)
+
+</div>
+
 ## How to run development environment
 
 Simple variant - runs WEB application:
