@@ -1,7 +1,7 @@
 import { ScriptWriter, ScriptWriterJson } from 'dbgate-tools';
 import getElectron from './getElectron';
 import { showSnackbar, showSnackbarInfo, showSnackbarError, closeSnackbar } from '../utility/snackbar';
-import resolveApi from './resolveApi';
+import resolveApi, { resolveApiHeaders } from './resolveApi';
 import { apiCall, apiOff, apiOn } from './api';
 import { normalizeExportColumnMap } from '../impexp/createImpExpScript';
 import { getCurrentConfig } from '../stores';
@@ -42,8 +42,8 @@ export async function exportSqlDump(outputFile, connection, databaseName, pureFi
     onOpenResult:
       pureFileName && !getElectron()
         ? () => {
-            window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
-          }
+          downloadFromApi(`uploads/get?file=${pureFileName}`, 'file.sql');
+        }
         : null,
     openResultLabel: 'Download SQL file',
   });
@@ -112,7 +112,7 @@ export async function saveExportedFile(filters, defaultPath, extension, dataName
     finishedMessage: `Export ${dataName} finished`,
     afterFinish: () => {
       if (!electron) {
-        window.open(`${resolveApi()}/uploads/get?file=${pureFileName}`, '_blank');
+        downloadFromApi(`uploads/get?file=${pureFileName}`, defaultPath);
       }
     },
   });
@@ -207,7 +207,7 @@ export async function saveFileToDisk(
   } else {
     const resp = await apiCall('files/generate-uploads-file');
     await filePathFunc(resp.filePath);
-    window.open(`${resolveApi()}/uploads/get?file=${resp.fileName}`, '_blank');
+    await downloadFromApi(`uploads/get?file=${resp.fileName}`, `file.${formatExtension}`);
   }
 }
 
@@ -219,4 +219,24 @@ export function openWebLink(href) {
   } else {
     window.open(href, '_blank');
   }
+}
+
+export async function downloadFromApi(route: string, donloadName: string) {
+  fetch(`${resolveApi()}/${route}`, {
+    method: 'GET',
+    headers: resolveApiHeaders(),
+  })
+    .then((res) => res.blob())
+    .then((blob) => {
+      const objUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      document.body.appendChild(a);
+      a.download = donloadName;
+      a.href = objUrl;
+      a.click();
+      a.remove();
+      setTimeout(() => {
+        URL.revokeObjectURL(objUrl)
+      })
+    })
 }
