@@ -17,11 +17,12 @@
 
   import ModalBase from '../modals/ModalBase.svelte';
   import { closeCurrentModal } from '../modals/modalTools';
-  import { EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
+  import { EDITOR_KEYBINDINGS_MODES, EDITOR_THEMES, FONT_SIZES } from '../query/AceEditor.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
   import {
     currentEditorFontSize,
     currentEditorTheme,
+    currentEditorKeybindigMode,
     extensions,
     selectedWidget,
     lockedDatabaseMode,
@@ -216,6 +217,20 @@ ORDER BY
 
             <div class="col-3">
               <FormTextField name="editor.fontFamily" label="Editor font family" />
+            </div>
+          </div>
+
+          <div class="flex">
+            <div class="col-3">
+              <FormFieldTemplateLarge label="Mode" type="combo">
+                <SelectField
+                  isNative
+                  notSelected="(use Default)"
+                  options={EDITOR_KEYBINDINGS_MODES.map(mode => ({ label: mode.label, value: mode.value }))}
+                  value={$currentEditorKeybindigMode}
+                  on:change={e => ($currentEditorKeybindigMode = e.detail)}
+                />
+              </FormFieldTemplateLarge>
             </div>
           </div>
 

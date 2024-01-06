@@ -96,6 +96,9 @@ export const currentTheme = getElectron()
 export const currentEditorTheme = getElectron()
   ? writableSettingsValue(null, 'currentEditorTheme')
   : writableWithStorage(null, 'currentEditorTheme');
+export const currentEditorKeybindigMode = getElectron()
+  ? writableSettingsValue(null, 'currentEditorKeybindigMode')
+  : writableWithStorage(null, 'currentEditorKeybindigMode');
 export const currentEditorFontSize = getElectron()
   ? writableSettingsValue(null, 'currentEditorFontSize')
   : writableWithStorage(null, 'currentEditorFontSize');
