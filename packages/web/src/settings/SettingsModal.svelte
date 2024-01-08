@@ -111,16 +111,32 @@ ORDER BY
           />
 
           <div class="heading">SQL editor</div>
-          <FormSelectField
-            label="SQL commands case"
-            name="sqlEditor.sqlCommandsCase"
-            isNative
-            defaultValue="upperCase"
-            options={[
-              { value: 'upperCase', label: 'UPPER CASE' },
-              { value: 'lowerCase', label: 'lower case' },
-            ]}
-          />
+
+          <div class="flex">
+            <div class="col-3">
+              <FormSelectField
+                label="SQL commands case"
+                name="sqlEditor.sqlCommandsCase"
+                isNative
+                defaultValue="upperCase"
+                options={[
+                  { value: 'upperCase', label: 'UPPER CASE' },
+                  { value: 'lowerCase', label: 'lower case' },
+                ]}
+              />
+            </div>
+            <div class="col-3">
+              <FormFieldTemplateLarge label="Editor keybinds" type="combo">
+                <SelectField
+                  isNative
+                  defaultValue="default"
+                  options={EDITOR_KEYBINDINGS_MODES.map(mode => ({ label: mode.label, value: mode.value }))}
+                  value={$currentEditorKeybindigMode}
+                  on:change={e => ($currentEditorKeybindigMode = e.detail)}
+                />
+              </FormFieldTemplateLarge>
+            </div>
+          </div>
         </svelte:fragment>
         <svelte:fragment slot="2">
           <div class="heading">Connection</div>
@@ -217,20 +233,6 @@ ORDER BY
 
             <div class="col-3">
               <FormTextField name="editor.fontFamily" label="Editor font family" />
-            </div>
-          </div>
-
-          <div class="flex">
-            <div class="col-3">
-              <FormFieldTemplateLarge label="Mode" type="combo">
-                <SelectField
-                  isNative
-                  notSelected="(use Default)"
-                  options={EDITOR_KEYBINDINGS_MODES.map(mode => ({ label: mode.label, value: mode.value }))}
-                  value={$currentEditorKeybindigMode}
-                  on:change={e => ($currentEditorKeybindigMode = e.detail)}
-                />
-              </FormFieldTemplateLarge>
             </div>
           </div>
 
