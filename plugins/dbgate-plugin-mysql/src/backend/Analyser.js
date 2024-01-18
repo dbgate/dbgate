@@ -35,8 +35,11 @@ function getColumnInfo(
   const columnTypeTokens = _.isString(columnType) ? columnType.split(' ').map(x => x.trim().toLowerCase()) : [];
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
-  if (numericPrecision && numericScale && isTypeNumeric(dataType))
+  else if (numericPrecision && numericScale && isTypeNumeric(dataType))
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
+  else if (/^(enum|set)/i.test(dataType))
+    fullDataType = columnType;
+
   return {
     notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
     autoIncrement: !!(extra && extra.toLowerCase().includes('auto_increment')),
