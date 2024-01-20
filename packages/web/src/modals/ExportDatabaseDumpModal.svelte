@@ -63,16 +63,17 @@
 
   const handleBrowse = async () => {
     const electron = getElectron();
-    const files = await electron.showSaveDialog({
+    const file = await electron.showSaveDialog({
       properties: ['showOverwriteConfirmation'],
       filters: [
         { name: 'SQL Files', extensions: ['sql'] },
         { name: 'All Files', extensions: ['*'] },
       ],
+      defaultPath: outputFile,
     });
-    if (files && files[0]) {
+    if (file) {
       const path = window.require('path');
-      outputFile = files[0];
+      outputFile = file;
       outputLabel = path.parse(outputFile).name;
       pureFileName = null;
     }
