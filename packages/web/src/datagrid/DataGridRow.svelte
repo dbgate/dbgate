@@ -54,15 +54,15 @@
   <RowHeaderCell {rowIndex} onShowForm={onSetFormView ? () => onSetFormView(rowData, null) : null} />
   {#each visibleRealColumns as col (col.uniqueName)}
     {#if inplaceEditorState.cell && rowIndex == inplaceEditorState.cell[0] && col.colIndex == inplaceEditorState.cell[1]}
-      <td class='editor'>
-        <InplaceEditor
-          width={col.width}
-          {inplaceEditorState}
-          {dispatchInsplaceEditor}
-          cellValue={rowData[col.uniqueName]}
-          onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
-        />
-      </td>
+      <InplaceEditor
+        width={col.width}
+        {inplaceEditorState}
+        {dispatchInsplaceEditor}
+        cellValue={rowData[col.uniqueName]}
+        options="{col.options}"
+        canSelectMultipleOptions="{col.canSelectMultipleOptions}"
+        onSetValue={value => grider.setCellValue(rowIndex, col.uniqueName, value)}
+      />
     {:else}
       <DataGridCell
         {rowIndex}
@@ -98,10 +98,6 @@
 <style>
   tr {
     background-color: var(--theme-bg-0);
-  }
-
-  td.editor {
-    position: relative;
   }
 
   tr:nth-child(6n + 3) {

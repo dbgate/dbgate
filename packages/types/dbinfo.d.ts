@@ -60,6 +60,8 @@ export interface ColumnInfo extends NamedObjectInfo {
   columnComment?: string;
   isUnsigned?: boolean;
   isZerofill?: boolean;
+  options?: [];
+  canSelectMultipleOptions?: boolean,
 }
 
 export interface DatabaseObjectInfo extends NamedObjectInfo {
