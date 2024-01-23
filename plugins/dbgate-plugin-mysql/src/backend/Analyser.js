@@ -31,12 +31,22 @@ function getColumnInfo(
   driver
 ) {
   const { quoteDefaultValues } = driver.__analyserInternals;
+  let optionsInfo = {};
 
   const columnTypeTokens = _.isString(columnType) ? columnType.split(' ').map(x => x.trim().toLowerCase()) : [];
   let fullDataType = dataType;
   if (charMaxLength && isTypeString(dataType)) fullDataType = `${dataType}(${charMaxLength})`;
-  if (numericPrecision && numericScale && isTypeNumeric(dataType))
+  else if (numericPrecision && numericScale && isTypeNumeric(dataType))
     fullDataType = `${dataType}(${numericPrecision},${numericScale})`;
+  else {
+    const optionsTypeParts = columnType.match(/^(enum|set)\((.+)\)/i);
+    if (optionsTypeParts?.length) {
+      fullDataType = columnType;
+      optionsInfo.options = optionsTypeParts[2].split(',').map(option => option.substring(1, option.length - 1));
+      optionsInfo.canSelectMultipleOptions = optionsTypeParts[1] == 'set';
+    }
+  }
+
   return {
     notNull: !isNullable || isNullable == 'NO' || isNullable == 'no',
     autoIncrement: !!(extra && extra.toLowerCase().includes('auto_increment')),
@@ -46,6 +56,7 @@ function getColumnInfo(
     defaultValue: quoteDefaultValues ? quoteDefaultValue(defaultValue) : defaultValue,
     isUnsigned: columnTypeTokens.includes('unsigned'),
     isZerofill: columnTypeTokens.includes('zerofill'),
+    ...optionsInfo,
   };
 }
 

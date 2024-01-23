@@ -321,7 +321,7 @@
   const handleTableMouseDown = event => {
     if (event.target.closest('.buttonLike')) return;
     if (event.target.closest('.resizeHandleControl')) return;
-    if (event.target.closest('input')) return;
+    if (event.target.closest('.inplaceeditor-container')) return;
     if (event.target.closest('.showFormButtonMarker')) return;
 
     event.preventDefault();
@@ -628,38 +628,39 @@
                 <ColumnLabel {...col} headerText={col.columnName} showDataType {conid} {database} />
               </div>
             </td>
-            <DataGridCell
-              maxWidth={(wrapperWidth * 2) / 3}
-              minWidth={200}
-              {rowIndex}
-              {col}
-              {rowData}
-              colIndex={chunkIndex * 2 + 1}
-              isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
-              isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
-              allowHintField={!(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName))}
-              bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
-              onSetFormView={handleSetFormView}
-              showSlot={!rowData ||
+            {#if rowData && $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
+              <InplaceEditor
+                width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
+                inplaceEditorState={$inplaceEditorState}
+                {dispatchInsplaceEditor}
+                cellValue={rowData[col.uniqueName]}
+                options="{col.options}"
+                canSelectMultipleOptions="{col.canSelectMultipleOptions}"
+                onSetValue={value => {
+                  grider.setCellValue(0, col.uniqueName, value);
+                }}
+              />
+            {:else}
+              <DataGridCell
+                maxWidth={(wrapperWidth * 2) / 3}
+                minWidth={200}
+                {rowIndex}
+                {col}
+                {rowData}
+                colIndex={chunkIndex * 2 + 1}
+                isSelected={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+                isModifiedCell={rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName)}
+                allowHintField={!(rowStatus.modifiedFields && rowStatus.modifiedFields.has(col.uniqueName))}
+                bind:domCell={domCells[`${rowIndex},${chunkIndex * 2 + 1}`]}
+                onSetFormView={handleSetFormView}
+                showSlot={!rowData ||
                 ($inplaceEditorState.cell &&
                   rowIndex == $inplaceEditorState.cell[0] &&
                   chunkIndex * 2 + 1 == $inplaceEditorState.cell[1])}
-              isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
-              onDictionaryLookup={() => handleLookup(col)}
-            >
-              {#if rowData && $inplaceEditorState.cell && rowIndex == $inplaceEditorState.cell[0] && chunkIndex * 2 + 1 == $inplaceEditorState.cell[1]}
-                <InplaceEditor
-                  fillParent
-                  width={getCellWidth(rowIndex, chunkIndex * 2 + 1)}
-                  inplaceEditorState={$inplaceEditorState}
-                  {dispatchInsplaceEditor}
-                  cellValue={rowData[col.uniqueName]}
-                  onSetValue={value => {
-                    grider.setCellValue(0, col.uniqueName, value);
-                  }}
-                />
-              {/if}
-            </DataGridCell>
+                isCurrentCell={currentCell[0] == rowIndex && currentCell[1] == chunkIndex * 2 + 1}
+                onDictionaryLookup={() => handleLookup(col)}
+              />
+            {/if}
           </tr>
         {/each}
       </table>

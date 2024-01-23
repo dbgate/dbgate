@@ -1162,7 +1162,7 @@
     if (event.target.closest('.resizeHandleControl')) return;
     if (event.target.closest('.collapseButtonMarker')) return;
     if (event.target.closest('.showFormButtonMarker')) return;
-    if (event.target.closest('input')) return;
+    if (event.target.closest('.inplaceeditor-container')) return;
 
     shiftDragStartCell = null;
     // event.target.closest('table').focus();

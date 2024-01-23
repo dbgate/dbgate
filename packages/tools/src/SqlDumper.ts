@@ -205,7 +205,18 @@ export class SqlDumper implements AlterProcessor {
       if (column.isPersisted) this.put(' ^persisted');
       return;
     }
-    this.put('%k', column.dataType || this.dialect.fallbackDataType);
+
+    const type = column.dataType || this.dialect.fallbackDataType;
+    const typeWithValues = type.match(/([^(]+)(\(.+[^)]\))/);
+
+    if (typeWithValues?.length) {
+      typeWithValues.shift();
+      this.putRaw(SqlDumper.convertKeywordCase(typeWithValues.shift()));
+      this.putRaw(typeWithValues);
+    } else {
+      this.putRaw(SqlDumper.convertKeywordCase(type));
+    }
+
     if (column.autoIncrement) {
       this.autoIncrement();
     }
