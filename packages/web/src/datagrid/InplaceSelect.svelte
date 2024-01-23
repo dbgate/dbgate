@@ -29,13 +29,6 @@
           isSelected: optionsSelected.includes(option)
         };
       });
-
-    if (!canSelectMultipleOptions) {
-      optionsData.unshift({
-        value: '',
-        isSelected: false,
-      });
-    }
   });
 
   function handleCheckboxChanged(e, option) {
