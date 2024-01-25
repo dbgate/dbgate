@@ -3,12 +3,12 @@ import localforage from 'localforage';
 
 export default async function localStorageGarbageCollector() {
   const openedTabsJson = await localforage.getItem('openedTabs');
-  let openedTabs = openedTabsJson ? JSON.parse(openedTabsJson) : [];
+  let openedTabs = openedTabsJson ?? [];
 
   const closeLimit = moment().add(-7, 'day').valueOf();
 
   openedTabs = openedTabs.filter(x => !x.closedTime || x.closedTime > closeLimit);
-  await localforage.setItem('openedTabs', JSON.stringify(openedTabs));
+  await localforage.setItem('openedTabs', openedTabs);
 
   const toRemove = [];
   for (const key in localStorage) {
