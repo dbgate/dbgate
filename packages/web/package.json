@@ -31,6 +31,7 @@
     "diff": "^5.0.0",
     "diff2html": "^3.4.13",
     "file-selector": "^0.2.4",
+    "iconv-lite": "^0.6.3",
     "js-yaml": "^4.1.0",
     "json-stable-stringify": "^1.0.1",
     "localforage": "^1.9.0",

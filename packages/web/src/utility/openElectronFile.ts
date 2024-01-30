@@ -55,9 +55,14 @@ function getFileEncoding(filePath, fs) {
   if (!e && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) e = 'utf8';
   if (!e && buf[0] === 0xfe && buf[1] === 0xff) e = 'utf16be';
   if (!e && buf[0] === 0xff && buf[1] === 0xfe) e = 'utf16le';
-  if (!e) e = 'ascii';
+  if (!e) e = 'utf8';
 
   return e;
+}
+
+function decodeFile(buf: Uint8Array, enc: string) {
+  const iconv = window.require('iconv-lite');
+  return iconv.decode(buf, enc);
 }
 
 function openElectronJsonLinesFile(filePath, parsed) {
@@ -115,7 +120,8 @@ export function openElectronFileCore(filePath, extensions) {
 
   if (nameLower.endsWith('.sql')) {
     const encoding = getFileEncoding(filePath, fs);
-    const data = fs.readFileSync(filePath, { encoding });
+    const buf = fs.readFileSync(filePath);
+    const data = decodeFile(buf, encoding);
 
     newQuery({
       title: parsed.name,
