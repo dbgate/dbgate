@@ -10,24 +10,9 @@ class Analyser extends DatabaseAnalyser {
     const collections = collectionsAndViews.filter((x) => x.type == 'collection');
     const views = collectionsAndViews.filter((x) => x.type == 'view');
 
-    let stats;
-    try {
-      stats = await Promise.all(
-        collections
-          .filter((x) => x.type == 'collection')
-          .map((x) =>
-            this.pool
-              .__getDatabase()
-              .collection(x.name)
-              .aggregate([{ $collStats: { count: {} } }])
-              .toArray()
-              .then((resp) => ({ name: x.name, count: resp[0].count }))
-          )
-      );
-    } catch (e) {
-      // $collStats not supported
-      stats = {};
-    }
+    const stats = await Promise.all(
+      collections.filter((x) => x.type == 'collection').map((x) => this.pool.__getDatabase().collection(x.name).stats())
+    );
 
     const res = this.mergeAnalyseResult({
       collections: [
