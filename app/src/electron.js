@@ -20,12 +20,38 @@ const { settings } = require('cluster');
 
 // require('@electron/remote/main').initialize();
 
-const configRootPath = path.join(app.getPath('userData'), 'config-root.json');
+const datadir = path.join(app.getPath('appData'), app.getName());
+const electrondir = path.join(datadir, 'electron');
+migrateDataDir();
+const configRootPath = path.join(datadir, 'config-root.json');
 let initialConfig = {};
 let apiLoaded = false;
 let mainModule;
 // let getLogger;
 // let loadLogsContent;
+
+// Put electron data in sub-folder
+app.setPath('userData', path.join(datadir, 'electron'));
+
+function migrateDataDir() {
+  const settingsPath = path.join(datadir, 'settings.json');
+  const oldDatadir = path.join(os.homedir(), '.dbgate');
+  const oldSettingsPath = path.join(oldDatadir, 'settings.json');
+  if (fs.existsSync(oldSettingsPath) && !fs.existsSync(settingsPath)) {
+    // Move Electron files to subdir
+    for (const file of fs.readdirSync(datadir)) {
+      if (file === 'config-root.json') {
+        continue;
+      }
+      fs.renameSync(path.join(datadir, file), path.join(electrondir, file));
+    }
+    // Move appdata
+    for (const file of fs.readdirSync(oldDatadir)) {
+      fs.renameSync(path.join(oldDatadir, file), path.join(datadir, file));
+    }
+    fs.rmSync(oldDatadir);
+  }
+}
 
 const isMac = () => os.platform() == 'darwin';
 
@@ -264,7 +290,6 @@ function fillMissingSettings(value) {
 function createWindow() {
   let settingsJson = {};
   try {
-    const datadir = path.join(os.homedir(), '.dbgate');
     settingsJson = fillMissingSettings(
       JSON.parse(fs.readFileSync(path.join(datadir, 'settings.json'), { encoding: 'utf-8' }))
     );
