@@ -1272,7 +1272,11 @@
 
   function handleGridWheel(event) {
     if (event.shiftKey) {
-      scrollHorizontal(event.deltaY, event.deltaX);
+      // Convert vertical scrolling to horizontal if shift key is held down.
+      // This is handled at a higher level on MacOS.
+      const shiftConvert = !isMac();
+      const [dx, dy] = shiftConvert ? [event.deltaY, event.deltaX] : [event.deltaX, event.deltaY];
+      scrollHorizontal(dx, dy);
     } else {
       scrollHorizontal(event.deltaX, event.deltaY);
       scrollVertical(event.deltaX, event.deltaY);
