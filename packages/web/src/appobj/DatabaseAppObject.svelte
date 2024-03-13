@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import {copyTextToClipboard} from "../utility/clipboard";
+
   export const extractKey = props => props.name;
 
   export function disconnectDatabaseConnection(conid, database, showConfirmation = true) {
@@ -169,6 +171,10 @@
       );
     };
 
+    const handleCopyName = async () => {
+      copyTextToClipboard(name);
+    }
+
     const handleDisconnect = () => {
       disconnectDatabaseConnection(connection._id, name);
     };
@@ -295,6 +301,7 @@
         !connection.isReadOnly &&
         !connection.singleDatabase && { onClick: handleDropDatabase, text: 'Drop database' },
       { divider: true },
+      driver?.databaseEngineTypes?.includes('sql') && { onClick: handleCopyName, text: 'Copy database name' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleShowDiagram, text: 'Show diagram' },
       driver?.databaseEngineTypes?.includes('sql') && { onClick: handleSqlGenerator, text: 'SQL Generator' },
       driver?.supportsDatabaseProfiler && { onClick: handleDatabaseProfiler, text: 'Database profiler' },

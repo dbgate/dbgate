@@ -575,6 +575,7 @@ export function registerFileCommands({
   findReplace = false,
   undoRedo = false,
   executeAdditionalCondition = null,
+  copyPaste = false,
 }) {
   if (save) {
     registerCommand({
@@ -643,6 +644,25 @@ export function registerFileCommands({
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().toggleComment(),
     });
+  }
+
+  if(copyPaste) {
+    registerCommand({
+      id: idPrefix + '.copy',
+      category,
+      name: 'Copy',
+      keyText: 'CtrlOrCommand+C',
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().copy(),
+    });
+    registerCommand({
+      id: idPrefix + '.paste',
+      category,
+      name: 'Paste',
+      keyText: 'CtrlOrCommand+V',
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().paste(),
+    })
   }
 
   if (findReplace) {
