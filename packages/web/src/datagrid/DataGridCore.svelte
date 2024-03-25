@@ -1163,6 +1163,8 @@
     if (event.target.closest('.collapseButtonMarker')) return;
     if (event.target.closest('.showFormButtonMarker')) return;
     if (event.target.closest('.inplaceeditor-container')) return;
+    if (event.target.closest('input')) return;
+
 
     shiftDragStartCell = null;
     // event.target.closest('table').focus();
