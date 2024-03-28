@@ -62,6 +62,7 @@
   .main {
     display: flex;
     flex-direction: column;
+    overflow: auto;
   }
 
   .main.flex1 {
