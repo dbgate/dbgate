@@ -116,7 +116,7 @@
     "cross-env": "^6.0.3",
     "electron": "17.4.10",
     "electron-builder": "23.1.0",
-    "electron-builder-notarize": "^1.5.1"
+    "electron-builder-notarize": "^1.5.2"
   },
   "optionalDependencies": {
     "better-sqlite3": "7.6.2",
