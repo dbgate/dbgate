@@ -4,7 +4,7 @@ select
 	table_name as "pure_name", 
 	column_name as "column_name",
 	is_nullable as "is_nullable",
-    	case
+	case
 		when (data_type = 'USER-DEFINED' OR data_type = 'ARRAY') then udt_name::regtype::text
 		else data_type
 	end
