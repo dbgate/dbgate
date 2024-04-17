@@ -1,4 +1,6 @@
 <script lang="ts" context="module">
+  import {copyTextToClipboard} from "../utility/clipboard";
+
   export const extractKey = ({ schemaName, pureName }) => (schemaName ? `${schemaName}.${pureName}` : pureName);
   export const createMatcher =
     ({ schemaName, pureName, columns }) =>
@@ -79,6 +81,11 @@
         label: 'Truncate table',
         isTruncate: true,
         requiresWriteAccess: true,
+      },
+      {
+        label: 'Copy table name',
+        isCopyTableName: true,
+        requiresWriteAccess: false
       },
       {
         label: 'Create table backup',
@@ -511,6 +518,8 @@
           saveScriptToDatabase(dbid, `db.dropCollection('${data.pureName}')`);
         },
       });
+    } else if (menu.isCopyTableName) {
+      copyTextToClipboard(data.pureName);
     } else if (menu.isRenameCollection) {
       showModal(InputTextModal, {
         label: 'New collection name',
