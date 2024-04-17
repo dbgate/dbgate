@@ -31,6 +31,7 @@
     return [
       { text: 'Rename column', onClick: handleRenameColumn },
       { text: 'Drop column', onClick: handleDropColumn },
+      { text: 'Copy name', onClick: () => navigator.clipboard.writeText(data.columnName)},
     ];
   }
 
