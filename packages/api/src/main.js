@@ -48,7 +48,7 @@ function start() {
   if (logins && process.env.BASIC_AUTH) {
     app.use(
       basicAuth({
-        users: _.fromPairs(logins.map(x => [x.login, x.password])),
+        users: _.fromPairs(logins.filter(x => x.password).map(x => [x.login, x.password])),
         challenge: true,
         realm: 'DbGate Web App',
       })
