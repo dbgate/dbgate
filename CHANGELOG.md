@@ -8,6 +8,24 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### Not released (5.2.8)
+- FIXED: file menu save and save as not working
+- FIXED: query editor on import/export screen overlaps with selector
+- FIXED: Fixed inconsistencies in max/unmaximize window buttons
+- FIXED: shortcut for select all 
+- FIXED: download with auth header
+- CHANGED: Upgraded database drivers for mysql, postgres, sqlite, mssql, mongo
+- CHANGED: Upgraded electron version (now using v30)
+- ADDED: Vim keyboard bindings for editor
+- FIXED: Correctly select the save folder for dump
+- ADDED: enum + set for mysql (#693)
+- FIXED: localStorageGabageCollector not working
+- FIXED: Encoding error when opening Unicode query files
+- ADDED: Add copy/paste to query tab and database list
+- ADDED: Add copy name to table list
+- FIXED: Make TabControl scrollable (#730)
+- ADDED: Add copy to column list
+
 ### 5.2.7
 - FIXED: fix body overflow when context menu height great than viewport #592
 - FIXED: Pass signals in entrypoint.sh #596
