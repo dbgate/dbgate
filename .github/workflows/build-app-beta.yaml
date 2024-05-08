@@ -63,6 +63,7 @@ jobs:
           CSC_KEY_PASSWORD: ${{ secrets.APPLECERT_PASSWORD }}
 
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: publishSnap
