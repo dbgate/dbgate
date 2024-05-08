@@ -1,4 +1,7 @@
 <script lang="ts" context="module">
+  import registerCommand from "../commands/registerCommand";
+  import {copyTextToClipboard} from "../utility/clipboard";
+
   const getCurrentEditor = () => getActiveComponent('QueryTab');
 
   registerCommand({
@@ -37,6 +40,7 @@
     toggleComment: true,
     findReplace: true,
     executeAdditionalCondition: () => getCurrentEditor()?.hasConnection(),
+    copyPaste: true
   });
   registerCommand({
     id: 'query.executeCurrent',
@@ -52,8 +56,6 @@
 <script lang="ts">
   import { getContext, onDestroy, onMount } from 'svelte';
   import sqlFormatter from 'sql-formatter';
-
-  import registerCommand from '../commands/registerCommand';
 
   import VerticalSplitter from '../elements/VerticalSplitter.svelte';
   import SqlEditor from '../query/SqlEditor.svelte';
@@ -81,6 +83,7 @@
   import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
   import ToolStripSaveButton from '../buttons/ToolStripSaveButton.svelte';
   import ToolStripCommandSplitButton from '../buttons/ToolStripCommandSplitButton.svelte';
+  import {getClipboardText} from "../utility/clipboard";
 
   export let tabid;
   export let conid;
@@ -241,6 +244,17 @@
     domEditor.getEditor().execCommand('togglecomment');
   }
 
+  export function copy() {
+    const selectedText = domEditor.getEditor().getSelectedText();
+    copyTextToClipboard(selectedText);
+  }
+
+  export function paste() {
+    getClipboardText().then((text) => {
+      domEditor.getEditor().execCommand('paste', text);
+    });
+  }
+
   export function find() {
     domEditor.getEditor().execCommand('find');
   }
@@ -311,6 +325,8 @@
       { command: 'query.save' },
       { command: 'query.saveAs' },
       { divider: true },
+      { command: 'query.copy' },
+      { command: 'query.paste' },
       { command: 'query.find' },
       { command: 'query.replace' },
       { divider: true },
