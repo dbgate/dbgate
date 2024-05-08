@@ -114,13 +114,13 @@
   "devDependencies": {
     "copyfiles": "^2.2.0",
     "cross-env": "^6.0.3",
-    "electron": "17.4.10",
+    "electron": "30.0.2",
     "electron-builder": "23.1.0",
     "electron-builder-notarize": "^1.5.2"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.6.2",
-    "msnodesqlv8": "^2.6.0",
+    "better-sqlite3": "9.6.0",
+    "msnodesqlv8": "^4.2.1",
     "oracledb": "^5.5.0"
   }
 }

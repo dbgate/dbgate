@@ -83,8 +83,8 @@
     "webpack-cli": "^3.3.11"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.6.2",
-    "msnodesqlv8": "^2.6.0",
+    "better-sqlite3": "9.6.0",
+    "msnodesqlv8": "^4.2.1",
     "oracledb": "^5.5.0"
   }
 }
