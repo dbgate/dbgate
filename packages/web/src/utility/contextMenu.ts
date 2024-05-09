@@ -97,7 +97,7 @@ function mapItem(item, commands) {
     if (command) {
       return {
         text: item.text || command.menuName || command.toolbarName || command.name,
-        keyText: command.keyText || command.keyTextFromGroup,
+        keyText: command.keyText || command.keyTextFromGroup || command.disableHandleKeyText,
         onClick: () => {
           if (command.isGroupCommand) {
             runGroupCommand(command.group);

@@ -646,12 +646,12 @@ export function registerFileCommands({
     });
   }
 
-  if(copyPaste) {
+  if (copyPaste) {
     registerCommand({
       id: idPrefix + '.copy',
       category,
       name: 'Copy',
-      keyText: 'CtrlOrCommand+C',
+      disableHandleKeyText: 'CtrlOrCommand+C',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().copy(),
     });
@@ -659,10 +659,10 @@ export function registerFileCommands({
       id: idPrefix + '.paste',
       category,
       name: 'Paste',
-      keyText: 'CtrlOrCommand+V',
+      disableHandleKeyText: 'CtrlOrCommand+V',
       testEnabled: () => getCurrentEditor() != null,
       onClick: () => getCurrentEditor().paste(),
-    })
+    });
   }
 
   if (findReplace) {
