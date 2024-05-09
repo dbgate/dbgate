@@ -88,6 +88,7 @@ function getPortalCollections() {
       sslCertFilePassword: process.env[`SSL_CERT_FILE_PASSWORD_${id}`],
       sslKeyFile: process.env[`SSL_KEY_FILE_${id}`],
       sslRejectUnauthorized: process.env[`SSL_REJECT_UNAUTHORIZED_${id}`],
+      trustServerCertificate: process.env[`SSL_TRUST_CERTIFICATE_${id}`],
     }));
 
     logger.info({ connections: connections.map(pickSafeConnectionInfo) }, 'Using connections from ENV variables');
