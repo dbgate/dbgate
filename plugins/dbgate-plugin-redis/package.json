@@ -36,7 +36,7 @@
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",
     "async": "^3.2.3",
-    "ioredis": "^4.28.5",
+    "ioredis": "^5.4.1",
     "node-redis-dump2": "^0.5.0"
   }
 }
