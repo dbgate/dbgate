@@ -137,7 +137,7 @@ module.exports = {
       return { error: 'Logins not configured' };
     }
     const foundLogin = logins.find(x => x.login == login);
-    if (foundLogin && foundLogin.password == password) {
+    if (foundLogin && foundLogin.password && foundLogin.password == password) {
       return {
         accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),
       };

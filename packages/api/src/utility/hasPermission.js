@@ -39,7 +39,7 @@ function getLogins() {
       permissions: process.env.PERMISSIONS,
     });
   }
-  if (process.env.LOGINS) {
+  if (process.env.LOGINS || process.env.OAUTH_PERMISSIONS) {
     const logins = _.compact(process.env.LOGINS.split(',').map(x => x.trim()));
     for (const login of logins) {
       const password = process.env[`LOGIN_PASSWORD_${login}`];
@@ -50,6 +50,13 @@ function getLogins() {
           password,
           permissions,
         });
+      }
+      if (process.env.OAUTH_PERMISSIONS) {
+        res.push({
+          login,
+          password: null,
+          permissions,
+        })
       }
     }
   }
