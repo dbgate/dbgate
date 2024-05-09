@@ -14,7 +14,7 @@ Builds:
 - FIXED: Fixed inconsistencies in max/unmaximize window buttons
 - FIXED: shortcut for select all 
 - FIXED: download with auth header
-- CHANGED: Upgraded database drivers for mysql, postgres, sqlite, mssql, mongo
+- CHANGED: Upgraded database drivers for mysql, postgres, sqlite, mssql, mongo, redis
 - CHANGED: Upgraded electron version (now using v30)
 - ADDED: Vim keyboard bindings for editor
 - FIXED: Correctly select the save folder for dump
