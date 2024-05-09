@@ -4,7 +4,11 @@ select
 	table_name as "pure_name", 
 	column_name as "column_name",
 	is_nullable as "is_nullable",
-	data_type as "data_type",
+	case
+		when (data_type = 'USER-DEFINED' OR data_type = 'ARRAY') then udt_name::regtype::text
+		else data_type
+	end
+	as "data_type",
 	character_maximum_length as "char_max_length",
 	numeric_precision as "numeric_precision",
 	numeric_scale as "numeric_scale",
