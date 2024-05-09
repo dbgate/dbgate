@@ -193,6 +193,7 @@
     <ToolStripCommandButton command="dataGrid.refresh" hideDisabled />
     <ToolStripCommandButton command="dataForm.refresh" hideDisabled />
     <ToolStripCommandButton command="collectionTable.save" />
+    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToJson" hideDisabled />

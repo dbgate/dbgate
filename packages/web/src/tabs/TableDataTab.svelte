@@ -277,6 +277,7 @@
     <ToolStripCommandButton command="dataForm.goToLast" hideDisabled />
 
     <ToolStripCommandButton command="tableData.save" />
+    <ToolStripCommandButton command="dataGrid.revertAllChanges" hideDisabled />
     <ToolStripCommandButton command="dataGrid.insertNewRow" hideDisabled />
     <ToolStripCommandButton command="dataGrid.deleteSelectedRows" hideDisabled />
     <ToolStripCommandButton command="dataGrid.switchToForm" hideDisabled />

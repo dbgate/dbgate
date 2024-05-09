@@ -38,6 +38,8 @@
     id: 'dataGrid.revertAllChanges',
     category: 'Data grid',
     name: 'Revert all changes',
+    toolbarName: 'Revert all',
+    icon: 'icon undo',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertAllChanges(),
   });
