@@ -48,7 +48,8 @@
             "armv7l",
             "arm64"
           ]
-        }
+        },
+        "tar.gz"
       ],
       "icon": "icons/",
       "category": "Development",
