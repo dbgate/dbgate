@@ -99,6 +99,7 @@ jobs:
 
           mv app/dist/*.exe artifacts/ || true
           mv app/dist/*.zip artifacts/ || true
+          mv app/dist/*.tar.gz artifacts/ || true
           mv app/dist/*.AppImage artifacts/ || true
           mv app/dist/*.deb artifacts/ || true
           mv app/dist/*.dmg artifacts/ || true
