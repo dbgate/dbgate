@@ -27,6 +27,10 @@ let mainModule;
 // let getLogger;
 // let loadLogsContent;
 
+process.on('uncaughtException', function (error) {
+  console.error('uncaughtException', error);
+});
+
 const isMac = () => os.platform() == 'darwin';
 
 // unhandled({
