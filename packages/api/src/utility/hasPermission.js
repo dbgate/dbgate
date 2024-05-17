@@ -9,7 +9,8 @@ function hasPermission(tested, req) {
     return true;
   }
   const { user } = (req && req.auth) || {};
-  const key = user || '';
+  const { login } = (process.env.OAUTH_PERMISSIONS && req && req.user) || {};
+  const key = user || login || '';
   const logins = getLogins();
 
   if (!userPermissions[key]) {
@@ -58,11 +59,7 @@ function getLogins() {
     for (const permissions_key of login_permission_keys) {
       const login = permissions_key.replace('LOGIN_PERMISSIONS_', '');
       const permissions = process.env[permissions_key];
-      res.push({
-        login,
-        password: null,
-        permissions,
-      })
+      userPermissions[login] = compilePermissions(permissions);
     }
   }
 
