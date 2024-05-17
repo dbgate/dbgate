@@ -8,7 +8,7 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
-### Not released (5.2.8)
+### 5.2.8
 - FIXED: file menu save and save as not working
 - FIXED: query editor on import/export screen overlaps with selector
 - FIXED: Fixed inconsistencies in max/unmaximize window buttons
@@ -25,6 +25,10 @@ Builds:
 - ADDED: Add copy name to table list
 - FIXED: Make TabControl scrollable (#730)
 - ADDED: Add copy to column list
+- FIXED: Problems with SQLite + glibc in docker containers
+- ADDED: Button for discard/reset changes (#759)
+- FIXED: Don't show error dialog when subprocess fails, as DbGate handles this correctly (#751, #746, #542, #272)
+
 
 ### 5.2.7
 - FIXED: fix body overflow when context menu height great than viewport #592
