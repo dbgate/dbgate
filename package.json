@@ -64,8 +64,11 @@
     "pino-pretty": "^9.1.1"
   },
   "devDependencies": {
+    "ast-types": "^0.14.2",
     "copyfiles": "^2.2.0",
+    "jscodeshift": "^0.15.2",
     "prettier": "^2.2.1",
+    "recast": "^0.23.7",
     "workspaces-run": "^1.0.1"
   }
 }
