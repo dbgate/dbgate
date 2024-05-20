@@ -189,6 +189,7 @@
     padding: 0px 10px;
     display: flex;
     align-items: center;
+    white-space: nowrap;
   }
 
   .version {
