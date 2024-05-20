@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 // const pacote = require('pacote');
 const axios = require('axios');
 // const tarballExtract = require('tarball-extract');

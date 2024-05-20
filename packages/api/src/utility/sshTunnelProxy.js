@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { getLogger } = require('dbgate-tools');
 const { getSshTunnel } = require('./sshTunnel');
 const logger = getLogger('sshTunnelProxy');

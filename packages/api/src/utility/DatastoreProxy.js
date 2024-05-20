@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const { fork } = require('child_process');
 const { handleProcessCommunication } = require('./processComm');
 const processArgs = require('../utility/processArgs');

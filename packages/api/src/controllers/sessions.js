@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const _ = require('lodash');
 const connections = require('./connections');
 const socket = require('../utility/socket');

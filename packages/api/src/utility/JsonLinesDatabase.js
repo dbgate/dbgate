@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const AsyncLock = require('async-lock');
 const fs = require('fs-extra');
 

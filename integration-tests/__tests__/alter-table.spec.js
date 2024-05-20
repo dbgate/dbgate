@@ -3,6 +3,7 @@ const _ = require('lodash');
 const fp = require('lodash/fp');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
+const crypto = require('crypto');
 const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
 
 function pickImportantTableInfo(table) {

@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
 const readline = require('readline');
+const crypto = require('crypto');
 const path = require('path');
 const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
 const socket = require('../utility/socket');

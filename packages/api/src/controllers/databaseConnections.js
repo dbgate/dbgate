@@ -29,6 +29,7 @@ const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const crypto = require('crypto');
 
 const logger = getLogger('databaseConnections');
 

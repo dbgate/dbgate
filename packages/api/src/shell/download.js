@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const path = require('path');
 const { uploadsdir } = require('../utility/directories');
 const { downloadFile } = require('../utility/downloader');
