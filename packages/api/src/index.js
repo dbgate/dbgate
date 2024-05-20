@@ -90,7 +90,7 @@ if (processArgs.listenApi) {
   configureLogger();
 }
 
-const shell = require('./shell');
+const shell = require('./shell/index');
 const dbgateTools = require('dbgate-tools');
 
 global['DBGATE_TOOLS'] = dbgateTools;

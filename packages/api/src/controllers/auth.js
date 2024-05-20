@@ -1,14 +1,14 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const getExpressPath = require('../utility/getExpressPath');
-const uuidv1 = require('uuid/v1');
 const { getLogins } = require('../utility/hasPermission');
 const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
+const crypto = require('crypto');
 
 const logger = getLogger('auth');
 
-const tokenSecret = uuidv1();
+const tokenSecret = crypto.randomUUID();
 
 function shouldAuthorizeApi() {
   const logins = getLogins();
@@ -90,6 +90,24 @@ module.exports = {
     ) {
       return { error: `Username ${login} not allowed to log in` };
     }
+
+    const groups = 
+      process.env.OAUTH_GROUP_FIELD && payload && payload[process.env.OAUTH_GROUP_FIELD]
+        ? payload[process.env.OAUTH_GROUP_FIELD]
+        : [];
+
+    const allowedGroups = 
+      process.env.OAUTH_ALLOWED_GROUPS
+        ? process.env.OAUTH_ALLOWED_GROUPS.split(',').map(group => group.toLowerCase().trim())
+        : [];
+    
+    if (
+      process.env.OAUTH_ALLOWED_GROUPS && 
+      !groups.some(group => allowedGroups.includes(group.toLowerCase().trim()))
+    ) {
+      return { error: `Username ${login} does not belong to an allowed group` };
+    }
+
     if (access_token) {
       return {
         accessToken: jwt.sign({ login }, tokenSecret, { expiresIn: getTokenLifetime() }),

@@ -1,12 +1,12 @@
 const fs = require('fs-extra');
 const readline = require('readline');
+const crypto = require('crypto');
 const path = require('path');
 const { archivedir, clearArchiveLinksCache, resolveArchiveFolder } = require('../utility/directories');
 const socket = require('../utility/socket');
 const loadFilesRecursive = require('../utility/loadFilesRecursive');
 const getJslFileName = require('../utility/getJslFileName');
 const { getLogger } = require('dbgate-tools');
-const uuidv1 = require('uuid/v1');
 const dbgateApi = require('../shell');
 const jsldata = require('./jsldata');
 const platformInfo = require('../utility/platformInfo');
@@ -127,7 +127,7 @@ module.exports = {
       return true;
     }
 
-    const tmpchangedFilePath = path.join(resolveArchiveFolder(folder), `${file}-${uuidv1()}.jsonl`);
+    const tmpchangedFilePath = path.join(resolveArchiveFolder(folder), `${file}-${crypto.randomUUID()}.jsonl`);
     const reader = await dbgateApi.modifyJsonLinesReader({
       fileName: changedFilePath,
       changeSet,

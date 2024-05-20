@@ -1,5 +1,5 @@
+const crypto = require('crypto');
 const { fork } = require('child_process');
-const uuidv1 = require('uuid/v1');
 const { handleProcessCommunication } = require('./processComm');
 const processArgs = require('../utility/processArgs');
 const pipeForkLogs = require('./pipeForkLogs');
@@ -67,7 +67,7 @@ class DatastoreProxy {
 
   async getRows(offset, limit) {
     await this.ensureSubprocess();
-    const msgid = uuidv1();
+    const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
       try {
@@ -81,7 +81,7 @@ class DatastoreProxy {
   }
 
   async notifyChangedCore() {
-    const msgid = uuidv1();
+    const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
       try {

@@ -1,4 +1,4 @@
-const uuidv1 = require('uuid/v1');
+const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
@@ -31,7 +31,7 @@ class TableWriter {
   }
 
   initializeFromQuery(structure, resultIndex) {
-    this.jslid = uuidv1();
+    this.jslid = crypto.randomUUID();
     this.currentFile = path.join(jsldir(), `${this.jslid}.jsonl`);
     fs.writeFileSync(
       this.currentFile,
