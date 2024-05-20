@@ -14,8 +14,8 @@ module.exports = {
   },
   addSseResponse(value, strmid) {
     sseResponses[strmid] = {
+      ...sseResponses[strmid],
       response: value,
-      filter: {},
     };
     this.ensurePing();
   },
@@ -32,11 +32,13 @@ module.exports = {
     }
     for (const strmid in sseResponses) {
       let skipThisStream = false;
-      for (const key in sseResponses[strmid].filter) {
-        if (data && data[key]) {
-          if (!sseResponses[strmid].filter[key].includes(data[key])) {
-            skipThisStream = true;
-            break;
+      if (sseResponses[strmid].filter) {
+        for (const key in sseResponses[strmid].filter) {
+          if (data && data[key]) {
+            if (!sseResponses[strmid].filter[key].includes(data[key])) {
+              skipThisStream = true;
+              break;
+            }
           }
         }
       }
@@ -55,6 +57,9 @@ module.exports = {
     // this.emit(key);
   },
   setStreamIdFilter(strmid, filter) {
-    sseResponses[strmid].filter = filter;
+    sseResponses[strmid] = {
+      ...sseResponses[strmid],
+      filter,
+    };
   },
 };
