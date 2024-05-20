@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { openedConnections, currentDatabase } from '../stores';
-import { apiCall } from './api';
+import { apiCall, strmid } from './api';
 import { getConnectionList } from './metadataLoaders';
 
 // const doServerPing = async value => {
@@ -10,7 +10,7 @@ import { getConnectionList } from './metadataLoaders';
 // };
 
 const doServerPing = value => {
-  apiCall('server-connections/ping', { conidArray: value });
+  apiCall('server-connections/ping', { conidArray: value, strmid });
 };
 
 const doDatabasePing = value => {
