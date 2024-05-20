@@ -9,6 +9,7 @@
   },
   "author": "Jan Prochazka",
   "license": "MIT",
+  "type": "module",
   "keywords": [
     "sql",
     "json",
