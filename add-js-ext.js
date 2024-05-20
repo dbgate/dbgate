@@ -7,7 +7,7 @@ module.exports = function (fileInfo, api) {
     const importPath = path.node.source.value;
 
     // If the import path doesn't end with .js, add it
-    if (!importPath.endsWith('.js') && !importPath.startsWith('.')) {
+    if (!importPath.endsWith('.js') && importPath.startsWith('.')) {
       path.node.source = j.literal(importPath + '.js');
     }
   });
