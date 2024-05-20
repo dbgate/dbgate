@@ -55,7 +55,8 @@
     "ts:web": "yarn workspace dbgate-web ts",
     "ts": "yarn ts:api && yarn ts:web",
     "postinstall": "yarn resetPackagedPlugins && yarn build:lib && patch-package && yarn fillNativeModules && yarn build:plugins:frontend",
-    "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js"
+    "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js",
+    "convert:api": "jscodeshift -t ./commonjs-to-es6.js packages/api/src"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
