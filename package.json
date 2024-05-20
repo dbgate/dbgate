@@ -56,7 +56,7 @@
     "ts": "yarn ts:api && yarn ts:web",
     "postinstall": "yarn resetPackagedPlugins && yarn build:lib && patch-package && yarn fillNativeModules && yarn build:plugins:frontend",
     "dbgate-serve": "node packages/dbgate/bin/dbgate-serve.js",
-    "convert:api": "jscodeshift -t ./commonjs-to-es6.js packages/api/src"
+    "convert:api": "jscodeshift -t node_modules/5to6-codemod/transforms/cjs.js packages/api/src && jscodeshift -t node_modules/5to6-codemod/transforms/exports.js packages/api/src"
   },
   "dependencies": {
     "concurrently": "^5.1.0",
@@ -64,6 +64,7 @@
     "pino-pretty": "^9.1.1"
   },
   "devDependencies": {
+    "5to6-codemod": "^1.8.0",
     "ast-types": "^0.14.2",
     "copyfiles": "^2.2.0",
     "jscodeshift": "^0.15.2",
