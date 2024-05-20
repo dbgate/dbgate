@@ -1,4 +1,3 @@
-const uuidv1 = require('uuid/v1');
 const fs = require('fs-extra');
 const path = require('path');
 const { filesdir, archivedir, resolveArchiveFolder, uploadsdir, appdir } = require('../utility/directories');
@@ -164,7 +163,7 @@ module.exports = {
 
   generateUploadsFile_meta: true,
   async generateUploadsFile({ extension }) {
-    const fileName = `${uuidv1()}.${extension || 'html'}`;
+    const fileName = `${crypto.randomUUID()}.${extension || 'html'}`;
     return {
       fileName,
       filePath: path.join(uploadsdir(), fileName),

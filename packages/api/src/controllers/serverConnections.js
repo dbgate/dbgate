@@ -1,7 +1,6 @@
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
-const uuidv1 = require('uuid/v1');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
 const { handleProcessCommunication } = require('../utility/processComm');
@@ -201,7 +200,7 @@ module.exports = {
   },
 
   sendRequest(conn, message) {
-    const msgid = uuidv1();
+    const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
       try {

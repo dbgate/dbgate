@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const socket = require('../utility/socket');
 const { fork } = require('child_process');
@@ -85,7 +84,7 @@ module.exports = {
 
   create_meta: true,
   async create({ conid, database }) {
-    const sesid = uuidv1();
+    const sesid = crypto.randomUUID();
     const connection = await connections.getCore({ conid });
     const subprocess = fork(
       global['API_PACKAGE'] || process.argv[1],

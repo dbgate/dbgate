@@ -1,14 +1,13 @@
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const getExpressPath = require('../utility/getExpressPath');
-const uuidv1 = require('uuid/v1');
 const { getLogins } = require('../utility/hasPermission');
 const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 
 const logger = getLogger('auth');
 
-const tokenSecret = uuidv1();
+const tokenSecret = crypto.randomUUID();
 
 function shouldAuthorizeApi() {
   const logins = getLogins();

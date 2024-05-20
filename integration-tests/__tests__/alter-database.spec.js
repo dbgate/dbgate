@@ -1,7 +1,6 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
 const fp = require('lodash/fp');
-const uuidv1 = require('uuid/v1');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { getAlterDatabaseScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');

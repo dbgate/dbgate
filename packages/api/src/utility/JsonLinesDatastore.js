@@ -8,7 +8,6 @@ const stableStringify = require('json-stable-stringify');
 const { evaluateCondition } = require('dbgate-sqltree');
 const requirePluginFunction = require('./requirePluginFunction');
 const esort = require('external-sorting');
-const uuidv1 = require('uuid/v1');
 const { jsldir } = require('./directories');
 const LineReader = require('./LineReader');
 
@@ -28,7 +27,7 @@ class JsonLinesDatastore {
   }
 
   static async sortFile(infile, outfile, sort) {
-    const tempDir = path.join(os.tmpdir(), uuidv1());
+    const tempDir = path.join(os.tmpdir(), crypto.randomUUID());
     fs.mkdirSync(tempDir);
 
     await esort

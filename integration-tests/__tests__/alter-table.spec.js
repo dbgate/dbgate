@@ -1,7 +1,6 @@
 const stableStringify = require('json-stable-stringify');
 const _ = require('lodash');
 const fp = require('lodash/fp');
-const uuidv1 = require('uuid/v1');
 const { testWrapper } = require('../tools');
 const engines = require('../engines');
 const { getAlterTableScript, extendDatabaseInfo, generateDbPairingId } = require('dbgate-tools');
@@ -76,7 +75,7 @@ describe('Alter table', () => {
         tbl.columns.push({
           columnName: 'added',
           dataType: 'int',
-          pairingId: uuidv1(),
+          pairingId: crypto.randomUUID(),
           notNull: false,
           autoIncrement: false,
         });
