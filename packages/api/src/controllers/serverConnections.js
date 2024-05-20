@@ -152,7 +152,7 @@ module.exports = {
   },
 
   ping_meta: true,
-  async ping({ conidArray }) {
+  async ping({ conidArray, strmid }) {
     await Promise.all(
       _.uniq(conidArray).map(async conid => {
         const last = this.lastPinged[conid];
@@ -169,6 +169,7 @@ module.exports = {
         }
       })
     );
+    socket.setStreamIdFilter(strmid, { conid: conidArray });
     return { status: 'ok' };
   },
 
