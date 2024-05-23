@@ -38,6 +38,8 @@
     id: 'dataGrid.revertAllChanges',
     category: 'Data grid',
     name: 'Revert all changes',
+    toolbarName: 'Revert all',
+    icon: 'icon undo',
     testEnabled: () => getCurrentDataGrid()?.getGrider()?.containsChanges,
     onClick: () => getCurrentDataGrid().revertAllChanges(),
   });
@@ -1162,7 +1164,9 @@
     if (event.target.closest('.resizeHandleControl')) return;
     if (event.target.closest('.collapseButtonMarker')) return;
     if (event.target.closest('.showFormButtonMarker')) return;
+    if (event.target.closest('.inplaceeditor-container')) return;
     if (event.target.closest('input')) return;
+
 
     shiftDragStartCell = null;
     // event.target.closest('table').focus();

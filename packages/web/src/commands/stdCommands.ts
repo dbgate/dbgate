@@ -575,6 +575,7 @@ export function registerFileCommands({
   findReplace = false,
   undoRedo = false,
   executeAdditionalCondition = null,
+  copyPaste = false,
 }) {
   if (save) {
     registerCommand({
@@ -645,6 +646,25 @@ export function registerFileCommands({
     });
   }
 
+  if (copyPaste) {
+    registerCommand({
+      id: idPrefix + '.copy',
+      category,
+      name: 'Copy',
+      disableHandleKeyText: 'CtrlOrCommand+C',
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().copy(),
+    });
+    registerCommand({
+      id: idPrefix + '.paste',
+      category,
+      name: 'Paste',
+      disableHandleKeyText: 'CtrlOrCommand+V',
+      testEnabled: () => getCurrentEditor() != null,
+      onClick: () => getCurrentEditor().paste(),
+    });
+  }
+
   if (findReplace) {
     registerCommand({
       id: idPrefix + '.find',
@@ -691,6 +711,14 @@ registerCommand({
   name: 'Minimize',
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'minimize'),
+});
+
+registerCommand({
+  id: 'app.maximize',
+  category: 'Application',
+  name: 'Maximize',
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'maximize'),
 });
 
 registerCommand({
@@ -825,6 +853,16 @@ registerCommand({
   systemCommand: true,
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'paste'),
+});
+
+registerCommand({
+  id: 'edit.selectAll',
+  category: 'Edit',
+  name: 'Select All',
+  keyText: 'CtrlOrCommand+A',
+  systemCommand: true,
+  testEnabled: () => getElectron() != null,
+  onClick: () => getElectron().send('window-action', 'selectAll'),
 });
 
 const electron = getElectron();

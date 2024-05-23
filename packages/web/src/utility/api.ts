@@ -8,6 +8,9 @@ import { isOauthCallback, redirectToLogin } from '../clientAuth';
 import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
+import uuidv1 from 'uuid/v1';
+
+export const strmid = uuidv1();
 
 let eventSource;
 let apiLogging = false;
@@ -49,7 +52,7 @@ export function removeVolatileMapping(conid) {
 
 function wantEventSource() {
   if (!eventSource) {
-    eventSource = new EventSource(`${resolveApi()}/stream`);
+    eventSource = new EventSource(`${resolveApi()}/stream?strmid=${strmid}`);
     // eventSource.addEventListener('clean-cache', e => cacheClean(JSON.parse(e.data)));
   }
 }

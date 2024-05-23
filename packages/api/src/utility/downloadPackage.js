@@ -1,7 +1,7 @@
+const crypto = require('crypto');
 // const pacote = require('pacote');
 const axios = require('axios');
 // const tarballExtract = require('tarball-extract');
-const uuidv1 = require('uuid/v1');
 const path = require('path');
 const fs = require('fs');
 const zlib = require('zlib');
@@ -38,9 +38,9 @@ async function downloadPackage(packageName, directory) {
 
   const tarball = infoResp.data.versions[latest].dist.tarball;
 
-  const tmpFile = path.join(uploadsdir(), uuidv1() + '.tgz');
+  const tmpFile = path.join(uploadsdir(), crypto.randomUUID() + '.tgz');
   await downloadFile(tarball, tmpFile);
-  const tmpDir = path.join(uploadsdir(), uuidv1());
+  const tmpDir = path.join(uploadsdir(), crypto.randomUUID());
   fs.mkdirSync(tmpDir);
   await extractTarball(tmpFile, tmpDir);
   await copyDirectory(path.join(tmpDir, 'package'), directory);

@@ -66,6 +66,11 @@ export function copyTextToClipboard(text) {
   }
 }
 
+/* Currently this doesn't work in firefox stable, but works in nightly */
+export async function getClipboardText() {
+  return await navigator.clipboard.readText();
+}
+
 export function extractRowCopiedValue(row, col) {
   let value = row[col];
   if (value === undefined) value = _.get(row, col);

@@ -38,6 +38,11 @@
     'twilight',
   ];
 
+  export const EDITOR_KEYBINDINGS_MODES = [
+    { label: 'Default', value: 'default' },
+    { label: 'Vim', value: 'vim' },
+  ];
+
   export const FONT_SIZES = [
     { label: '8', value: '8' },
     { label: '9', value: '9' },
@@ -116,6 +121,7 @@
   import 'ace-builds/src-noconflict/theme-tomorrow_night_eighties';
   import 'ace-builds/src-noconflict/theme-tomorrow_night';
   import 'ace-builds/src-noconflict/theme-twilight';
+  import 'ace-builds/src-noconflict/keybinding-vim';
 
   import {
     currentDropDownMenu,
@@ -123,11 +129,13 @@
     currentEditorFont,
     currentEditorTheme,
     currentThemeDefinition,
+    currentEditorKeybindigMode,
   } from '../stores';
   import _ from 'lodash';
   import { handleCommandKeyDown } from '../commands/CommandListener.svelte';
   import resizeObserver from '../utility/resizeObserver';
   import queryParserWorkerFallback from './queryParserWorkerFallback';
+  import { key } from 'localforage';
 
   const EDITOR_ID = `svelte-ace-editor-div:${Math.floor(Math.random() * 10000000000)}`;
   const dispatch = createEventDispatcher<{
@@ -182,6 +190,7 @@
   };
 
   $: theme = $currentEditorTheme || ($currentThemeDefinition?.themeType == 'dark' ? 'merbivore' : 'github');
+  $: keyBindingMode = $currentEditorKeybindigMode || null;
   $: watchEditorFontSize($currentEditorFontSize);
 
   export function getEditor(): ace.Editor {
@@ -236,6 +245,17 @@
   function watchTheme(newTheme: string) {
     if (editor) {
       editor.setTheme('ace/theme/' + newTheme);
+    }
+  }
+
+  $: watchKeyBindingMode(keyBindingMode);
+  function watchKeyBindingMode(newMode: string) {
+    if (editor) {
+      if (newMode == 'default') {
+        editor.setKeyboardHandler(null);
+      } else {
+        editor.setKeyboardHandler('ace/keyboard/' + newMode);
+      }
     }
   }
 
@@ -449,6 +469,7 @@
 
     editor.container.addEventListener('contextmenu', handleContextMenu);
     editor.keyBinding.addKeyboardHandler(handleKeyDown);
+    editor.setKeyboardHandler(keyBindingMode == 'default' ? null : 'ace/keyboard/' + keyBindingMode);
     editor.renderer.setScrollMargin(2, 0);
     changedQueryParts();
 

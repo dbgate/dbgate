@@ -1,6 +1,6 @@
+const crypto = require('crypto');
 const path = require('path');
 const { uploadsdir } = require('../utility/directories');
-const uuidv1 = require('uuid/v1');
 const { getLogger } = require('dbgate-tools');
 const logger = getLogger('uploads');
 
@@ -15,7 +15,7 @@ module.exports = {
       res.json(null);
       return;
     }
-    const uploadName = uuidv1();
+    const uploadName = crypto.randomUUID();
     const filePath = path.join(uploadsdir(), uploadName);
     logger.info(`Uploading file ${data.name}, size=${data.size}`);
 

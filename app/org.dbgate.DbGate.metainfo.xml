@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.dbgate.DbGate</id>
+
+    <name>DbGate</name>
+    <summary>(no)SQL database client</summary>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+    <developer_name>Jan Prochazka</developer_name>
+
+    <description>
+        <p>DbGate is cross-platform database manager. It's designed to be simple to use and effective, when working with more databases simultaneously. But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.</p>
+    </description>
+
+    <url type="homepage">https://dbgate.org/</url>
+    <url type="vcs-browser">https://github.com/dbgate/dbgate</url>
+    <url type="contact">https://dbgate.org/about/</url>
+    <url type="donation">https://github.com/sponsors/dbgate</url>
+    <url type="bugtracker">https://github.com/dbgate/dbgate/issues</url>
+
+    <launchable type="desktop-id">org.dbgate.DbGate.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <image>
+                https://github.com/dbgate/dbgate/raw/c2abc83f994a56945c27fccea3df84b48005961f/img/screenshot1.png</image>
+        </screenshot>
+        <screenshot>
+            <image>
+                https://github.com/dbgate/dbgate/raw/c2abc83f994a56945c27fccea3df84b48005961f/img/screenshot2.png</image>
+        </screenshot>
+    </screenshots>
+
+    <content_rating type="oars-1.1"/>
+
+    <releases>
+        <release version="5.2.7" date="2024-05-13"/>
+    </releases>
+</component>

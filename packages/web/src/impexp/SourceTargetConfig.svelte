@@ -191,6 +191,7 @@
 
   .sqlwrap {
     position: relative;
+    z-index: 0;
     height: 100px;
     width: 20vw;
     margin-left: var(--dim-large-form-margin);

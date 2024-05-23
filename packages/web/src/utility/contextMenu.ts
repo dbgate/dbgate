@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { getContext, setContext } from 'svelte';
 import invalidateCommands from '../commands/invalidateCommands';
+import { runGroupCommand } from '../commands/runCommand';
 import { currentDropDownMenu, visibleCommandPalette } from '../stores';
 import getAsArray from './getAsArray';
 
@@ -96,10 +97,14 @@ function mapItem(item, commands) {
     if (command) {
       return {
         text: item.text || command.menuName || command.toolbarName || command.name,
-        keyText: command.keyText || command.keyTextFromGroup,
+        keyText: command.keyText || command.keyTextFromGroup || command.disableHandleKeyText,
         onClick: () => {
-          if (command.getSubCommands) visibleCommandPalette.set(command);
-          else if (command.onClick) command.onClick();
+          if (command.isGroupCommand) {
+            runGroupCommand(command.group);
+          } else {
+            if (command.getSubCommands) visibleCommandPalette.set(command);
+            else if (command.onClick) command.onClick();
+          }
         },
         disabled: !command.enabled,
         hideDisabled: item.hideDisabled,

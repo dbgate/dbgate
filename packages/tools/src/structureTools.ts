@@ -2,6 +2,10 @@ import type { DatabaseInfo, TableInfo, ApplicationDefinition, ViewInfo, Collecti
 import _flatten from 'lodash/flatten';
 
 export function addTableDependencies(db: DatabaseInfo): DatabaseInfo {
+  if (!db.tables) {
+    return db;
+  }
+  
   const allForeignKeys = _flatten(db.tables.map(x => x.foreignKeys || []));
   return {
     ...db,

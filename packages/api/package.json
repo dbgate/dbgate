@@ -57,8 +57,7 @@
     "rimraf": "^3.0.0",
     "simple-encryptor": "^4.0.0",
     "ssh2": "^1.11.0",
-    "tar": "^6.0.5",
-    "uuid": "^3.4.0"
+    "tar": "^6.0.5"
   },
   "scripts": {
     "start": "env-cmd node src/index.js --listen-api",
@@ -79,12 +78,12 @@
     "node-loader": "^1.0.2",
     "nodemon": "^2.0.2",
     "typescript": "^4.4.3",
-    "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11"
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
   },
   "optionalDependencies": {
-    "better-sqlite3": "7.6.2",
-    "msnodesqlv8": "^2.6.0",
+    "better-sqlite3": "9.6.0",
+    "msnodesqlv8": "^4.2.1",
     "oracledb": "^5.5.0"
   }
 }

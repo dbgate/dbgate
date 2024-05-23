@@ -52,7 +52,7 @@ async function connectUtility(driver, storedConnection, connectionMode, addition
       throw new Error(tunnel.message);
     }
 
-    connection.server = '127.0.0.1';
+    connection.server = 'localhost';
     connection.port = tunnel.localPort;
   }
 

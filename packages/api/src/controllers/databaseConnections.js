@@ -1,4 +1,3 @@
-const uuidv1 = require('uuid/v1');
 const connections = require('./connections');
 const archive = require('./archive');
 const socket = require('../utility/socket');
@@ -30,6 +29,7 @@ const processArgs = require('../utility/processArgs');
 const { testConnectionPermission } = require('../utility/hasPermission');
 const { MissingCredentialsError } = require('../utility/exceptions');
 const pipeForkLogs = require('../utility/pipeForkLogs');
+const crypto = require('crypto');
 
 const logger = getLogger('databaseConnections');
 
@@ -137,7 +137,7 @@ module.exports = {
 
   /** @param {import('dbgate-types').OpenedDatabaseConnection} conn */
   sendRequest(conn, message) {
-    const msgid = uuidv1();
+    const msgid = crypto.randomUUID();
     const promise = new Promise((resolve, reject) => {
       this.requests[msgid] = [resolve, reject];
       try {

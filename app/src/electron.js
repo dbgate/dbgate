@@ -17,6 +17,7 @@ const path = require('path');
 const url = require('url');
 const mainMenuDefinition = require('./mainMenuDefinition');
 const { settings } = require('cluster');
+let disableAutoUpgrade = false;
 
 // require('@electron/remote/main').initialize();
 
@@ -26,6 +27,10 @@ let apiLoaded = false;
 let mainModule;
 // let getLogger;
 // let loadLogsContent;
+
+process.on('uncaughtException', function (error) {
+  console.error('uncaughtException', error);
+});
 
 const isMac = () => os.platform() == 'darwin';
 
@@ -45,9 +50,19 @@ const isMac = () => os.platform() == 'darwin';
 
 try {
   initialConfig = JSON.parse(fs.readFileSync(configRootPath, { encoding: 'utf-8' }));
+  disableAutoUpgrade = initialConfig['disableAutoUpgrade'] || false;
 } catch (err) {
   console.log('Error loading config-root:', err.message);
   initialConfig = {};
+}
+
+if (process.argv.includes('--disable-auto-upgrade')) {
+  console.log('Disabling auto-upgrade');
+  disableAutoUpgrade = true;
+}
+if (process.argv.includes('--enable-auto-upgrade')) {
+  console.log('Enabling auto-upgrade');
+  disableAutoUpgrade = false;
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -186,13 +201,7 @@ ipcMain.on('window-action', async (event, arg) => {
       mainWindow.minimize();
       break;
     case 'maximize':
-      if (mainWindow.isMaximized()) {
-        mainWindow.unmaximize();
-        mainWindow.webContents.send('setIsMaximized', false);
-      } else {
-        mainWindow.maximize();
-        mainWindow.webContents.send('setIsMaximized', true);
-      }
+      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize();
       break;
     case 'close':
       mainWindow.close();
@@ -234,6 +243,9 @@ ipcMain.on('window-action', async (event, arg) => {
       break;
     case 'paste':
       mainWindow.webContents.paste();
+      break;
+    case 'selectAll':
+      mainWindow.webContents.selectAll();
       break;
   }
 });
@@ -320,6 +332,7 @@ function createWindow() {
           JSON.stringify({
             winBounds: mainWindow.getBounds(),
             winIsMaximized: mainWindow.isMaximized(),
+            disableAutoUpgrade,
           }),
           'utf-8'
         );
@@ -332,6 +345,14 @@ function createWindow() {
       mainWindow.setIcon(path.resolve(__dirname, '../icon.png'));
     }
     // mainWindow.webContents.toggleDevTools();
+
+    mainWindow.on('maximize', () => {
+      mainWindow.webContents.send('setIsMaximized', true);
+    });
+
+    mainWindow.on('unmaximize', () => {
+      mainWindow.webContents.send('setIsMaximized', false);
+    });
   }
 
   if (!apiLoaded) {
@@ -374,7 +395,10 @@ function createWindow() {
 }
 
 function onAppReady() {
-  if (!process.env.DEVMODE) {
+  if (disableAutoUpgrade) {
+    console.log('Auto-upgrade is disabled, run dbgate --enable-auto-upgrade to enable');
+  }
+  if (!process.env.DEVMODE && !disableAutoUpgrade) {
     autoUpdater.checkForUpdatesAndNotify();
   }
   createWindow();
