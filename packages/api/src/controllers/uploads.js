@@ -10,6 +10,7 @@ const { read } = require('./queryHistory');
 const platformInfo = require('../utility/platformInfo');
 const _ = require('lodash');
 const serverConnections = require('./serverConnections');
+const gistSecret = require('../gistSecret');
 
 module.exports = {
   upload_meta: {
@@ -45,6 +46,7 @@ module.exports = {
 
   uploadErrorToGist_meta: true,
   async uploadErrorToGist() {
+    console.log('&&&SECRET', gistSecret);
     const logs = await fs.readFile(getLogsFilePath(), { encoding: 'utf-8' });
     const connections = await serverConnections.getOpenedConnectionReport();
     try {
@@ -89,7 +91,7 @@ module.exports = {
         },
         {
           headers: {
-            Authorization: `token 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`,
+            Authorization: `token ${gistSecret}`,
             'Content-Type': 'application/json',
             Accept: 'application/vnd.github.v3+json',
           },
@@ -111,7 +113,7 @@ module.exports = {
   async deleteGist({ url }) {
     const response = await axios.default.delete(url, {
       headers: {
-        Authorization: `token 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`,
+        Authorization: `token ${gistSecret}`,
         'Content-Type': 'application/json',
         Accept: 'application/vnd.github.v3+json',
       },
