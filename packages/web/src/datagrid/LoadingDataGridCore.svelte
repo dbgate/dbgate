@@ -16,10 +16,11 @@
   export let rowCountLoaded = null;
 
   export let preprocessLoadedRow = null;
+  export let setLoadedRows = null;
 
   // export let griderFactory;
 
-  export let loadedRows = [];
+  let loadedRows = [];
   let isLoading = false;
   let isLoadedAll = false;
   let loadedTime = new Date().getTime();
@@ -49,7 +50,6 @@
     // await new Promise(resolve => setTimeout(resolve, 5000));
 
     loadedTimeRef.set(loadStart);
-    // console.log('LOAD NEXT ROWS', loadedRows);
 
     const nextRows = await loadDataPage(
       $$props,
@@ -121,6 +121,8 @@
       display.reload();
     }
   }
+
+  $: if (setLoadedRows) setLoadedRows(loadedRows);
 </script>
 
 <DataGridCore

@@ -136,10 +136,11 @@
   export let macroPreview;
   export let macroValues;
   export let selectedCellsPublished;
+  export let setLoadedRows = null;
 
   // export let onChangeGrider = undefined;
 
-  export let loadedRows = [];
+  let loadedRows = [];
 
   export const activator = createActivator('CollectionDataGridCore', false);
 
@@ -225,6 +226,11 @@
     ...createQuickExportMenu(quickExportHandler, { command: 'collectionDataGrid.export' }),
     tag: 'export',
   }));
+
+  function handleSetLoadedRows(rows) {
+    loadedRows = rows;
+    if (setLoadedRows) setLoadedRows(rows);
+  }
 </script>
 
 <LoadingDataGridCore
@@ -232,7 +238,7 @@
   loadDataPage={loadCollectionDataPage}
   {dataPageAvailable}
   {loadRowCount}
-  bind:loadedRows
+  setLoadedRows={handleSetLoadedRows}
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}
   onOpenQuery={openQuery}

@@ -70,6 +70,10 @@
     supportsReload,
     !!changeSetState
   );
+
+  function handleSetLoadedRows(rows) {
+    loadedRows = rows;
+  }
 </script>
 
 {#key jslid}
@@ -81,7 +85,7 @@
     setConfig={config.update}
     gridCoreComponent={JslDataGridCore}
     formViewComponent={JslFormView}
-    bind:loadedRows
+    setLoadedRows={handleSetLoadedRows}
     isDynamicStructure={!!infoUsed?.__isDynamicStructure}
     useEvalFilters
     showMacros={!!dispatchChangeSet}

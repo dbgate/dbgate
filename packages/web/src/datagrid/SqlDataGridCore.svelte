@@ -212,6 +212,10 @@
       tag: 'export',
     })
   );
+
+  function handleSetLoadedRows(rows) {
+    loadedRows = rows;
+  }
 </script>
 
 <LoadingDataGridCore
@@ -219,7 +223,7 @@
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
-  bind:loadedRows
+  setLoadedRows={handleSetLoadedRows}
   bind:selectedCellsPublished
   frameSelection={!!macroPreview}
   {grider}
