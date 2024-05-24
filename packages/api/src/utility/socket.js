@@ -46,7 +46,7 @@ module.exports = {
         continue;
       }
 
-      sseResponses[strmid].response.write(
+      sseResponses[strmid].response?.write(
         `event: ${message}\ndata: ${stableStringify(data == null ? null : data)}\n\n`
       );
     }
