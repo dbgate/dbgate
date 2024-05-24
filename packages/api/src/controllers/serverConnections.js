@@ -240,4 +240,20 @@ module.exports = {
     if (opened.connection.isReadOnly) return false;
     return this.loadDataCore('summaryCommand', { conid, command, row });
   },
+
+  getOpenedConnectionReport() {
+    return this.opened.map(con => ({
+      status: con.status,
+      versionText: con.version?.versionText,
+      databaseCount: con.databases.length,
+      connection: _.pick(con.connection, [
+        'engine',
+        'useSshTunnel',
+        'authType',
+        'trustServerCertificate',
+        'useSsl',
+        'sshMode',
+      ]),
+    }));
+  },
 };

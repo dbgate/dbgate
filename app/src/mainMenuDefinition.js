@@ -90,6 +90,7 @@ module.exports = ({ editMenu }) => [
       { divider: true },
       { command: 'folder.showLogs', hideDisabled: true },
       { command: 'folder.showData', hideDisabled: true },
+      { command: 'new.gist', hideDisabled: true },
     ],
   },
   {
