@@ -36,7 +36,7 @@
     "debug": "^4.3.4",
     "json-stable-stringify": "^1.0.1",
     "lodash": "^4.17.21",
-    "pinomin": "^1.0.1",
+    "pinomin": "^1.0.4",
     "uuid": "^3.4.0"
   }
 }

@@ -1,4 +1,4 @@
-const { setLogger, getLogger, setLoggerName } = require('dbgate-tools');
+const { setLogConfig, getLogger, setLoggerName } = require('dbgate-tools');
 const processArgs = require('./utility/processArgs');
 const fs = require('fs');
 const moment = require('moment');
@@ -33,7 +33,7 @@ function configureLogger() {
   const consoleLogLevel = process.env.CONSOLE_LOG_LEVEL || process.env.LOG_LEVEL || 'info';
   const fileLogLevel = process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'debug';
 
-  const logger = createLogger({
+  const logConfig = {
     base: { pid: process.pid },
     targets: [
       {
@@ -48,9 +48,9 @@ function configureLogger() {
         stream: fs.createWriteStream(logsFilePath, { flags: 'a' }),
       },
     ],
-  });
+  };
 
-  logger.info(`Initialized logging, console log level: ${consoleLogLevel}, file log level: ${fileLogLevel}`);
+  // logger.info(`Initialized logging, console log level: ${consoleLogLevel}, file log level: ${fileLogLevel}`);
 
   // const streams = [];
   // if (!platformInfo.isElectron) {
@@ -88,7 +88,8 @@ function configureLogger() {
   //   },
   // });
 
-  setLogger(logger);
+  // @ts-ignore
+  setLogConfig(logConfig);
 }
 
 if (processArgs.listenApi) {

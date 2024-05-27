@@ -1,27 +1,40 @@
-import pinomin, { Logger } from 'pinomin';
+import pinomin, { Logger, type LogConfig } from 'pinomin';
 
-let _logger: Logger;
+let _logConfig: LogConfig;
 let _name: string = null;
-const defaultLogger: Logger = pinomin({
+
+const defaultLogConfig: LogConfig = {
   base: { pid: global?.process?.pid },
   targets: [{ type: 'console', level: 'info' }],
-});
+};
 
-export function setLogger(value: Logger) {
-  _logger = value;
+export function setLogConfig(value: LogConfig) {
+  _logConfig = value;
 }
 export function setLoggerName(value) {
   _name = value;
 }
 
 export function getLogger(caller?: string): Logger {
-  let res = _logger || defaultLogger;
-  if (caller) {
-    const props = { caller };
-    if (_name) {
-      props['name'] = _name;
-    }
-    res = res.child(props);
-  }
-  return res;
+  return pinomin({
+    getConfig: () => {
+      const config = _logConfig || defaultLogConfig;
+
+      if (caller) {
+        const props = { caller };
+        if (_name) {
+          props['name'] = _name;
+        }
+        return {
+          ...config,
+          base: {
+            ...config.base,
+            ...props,
+          },
+        };
+      }
+
+      return config;
+    },
+  });
 }
