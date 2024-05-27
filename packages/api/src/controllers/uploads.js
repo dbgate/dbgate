@@ -10,6 +10,7 @@ const { read } = require('./queryHistory');
 const platformInfo = require('../utility/platformInfo');
 const _ = require('lodash');
 const serverConnections = require('./serverConnections');
+const config = require('./config');
 const gistSecret = require('../gistSecret');
 
 module.exports = {
@@ -44,9 +45,14 @@ module.exports = {
     res.sendFile(path.join(uploadsdir(), req.query.file));
   },
 
+  async getGistToken() {
+    const settings = await config.getSettings();
+
+    return settings['other.gistCreateToken'] || gistSecret;
+  },
+
   uploadErrorToGist_meta: true,
   async uploadErrorToGist() {
-    console.log('&&&SECRET', gistSecret);
     const logs = await fs.readFile(getLogsFilePath(), { encoding: 'utf-8' });
     const connections = await serverConnections.getOpenedConnectionReport();
     try {
@@ -91,7 +97,7 @@ module.exports = {
         },
         {
           headers: {
-            Authorization: `token ${gistSecret}`,
+            Authorization: `token ${await this.getGistToken()}`,
             'Content-Type': 'application/json',
             Accept: 'application/vnd.github.v3+json',
           },
@@ -113,7 +119,7 @@ module.exports = {
   async deleteGist({ url }) {
     const response = await axios.default.delete(url, {
       headers: {
-        Authorization: `token ${gistSecret}`,
+        Authorization: `token ${await this.getGistToken()}`,
         'Content-Type': 'application/json',
         Accept: 'application/vnd.github.v3+json',
       },

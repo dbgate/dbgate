@@ -12,15 +12,18 @@
   import Link from '../elements/Link.svelte';
   import LoadingInfo from '../elements/LoadingInfo.svelte';
   import { showSnackbarSuccess } from '../utility/snackbar';
+  import ErrorInfo from '../elements/ErrorInfo.svelte';
 
   export let error = null;
   let htmlUrl;
   let url;
+  let errorMessage;
 
   async function upload() {
     const resp = await apiCall('uploads/upload-error-to-gist');
     url = resp.url;
     htmlUrl = resp.html_url;
+    errorMessage = resp.errorMessage;
   }
 
   onMount(() => {
@@ -49,6 +52,8 @@
       </p>
       <p><Link href={htmlUrl}>Open uploaded data</Link></p>
     </div>
+  {:else if errorMessage}
+    <ErrorInfo message={errorMessage} />
   {:else}
     <LoadingInfo message="Uploading error to gist..." />
   {/if}
