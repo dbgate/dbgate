@@ -41,7 +41,7 @@ function configureLogger() {
       {
         type: 'stream',
         // @ts-ignore
-        level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'info',
+        level: process.env.FILE_LOG_LEVEL || process.env.LOG_LEVEL || 'debug',
         stream: fs.createWriteStream(logsFilePath, { flags: 'a' }),
       },
     ],

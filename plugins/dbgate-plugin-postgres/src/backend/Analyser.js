@@ -70,20 +70,29 @@ class Analyser extends DatabaseAnalyser {
     const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableModifications' : 'tableList', [
       'tables',
     ]);
+    this.logger.debug({ count: tables.rows.length }, 'Tables loaded');
+
     this.feedback({ analysingMessage: 'Loading columns' });
     const columns = await this.analyserQuery('columns', ['tables', 'views']);
+    this.logger.debug({ count: columns.rows.length }, 'Columns loaded');
+
     this.feedback({ analysingMessage: 'Loading primary keys' });
     const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
+    this.logger.debug({ count: pkColumns.rows.length }, 'Primary keys loaded');
 
     let fkColumns = null;
 
     this.feedback({ analysingMessage: 'Loading foreign key constraints' });
     const fk_tableConstraints = await this.analyserQuery('fk_tableConstraints', ['tables']);
+    this.logger.debug({ count: fk_tableConstraints.rows.length }, 'Foreign keys loaded');
 
     this.feedback({ analysingMessage: 'Loading foreign key refs' });
     const fk_referentialConstraints = await this.analyserQuery('fk_referentialConstraints', ['tables']);
+    this.logger.debug({ count: fk_referentialConstraints.rows.length }, 'Foreign key refs loaded');
+
     this.feedback({ analysingMessage: 'Loading foreign key columns' });
     const fk_keyColumnUsage = await this.analyserQuery('fk_keyColumnUsage', ['tables']);
+    this.logger.debug({ count: fk_keyColumnUsage.rows.length }, 'Foreign key columns loaded');
 
     const cntKey = x => `${x.constraint_name}|${x.constraint_schema}`;
     const fkRows = [];
@@ -125,34 +134,50 @@ class Analyser extends DatabaseAnalyser {
 
     this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.analyserQuery('views', ['views']);
+    this.logger.debug({ count: views.rows.length }, 'Views loaded');
+
     this.feedback({ analysingMessage: 'Loading materialized views' });
     const matviews = this.driver.dialect.materializedViews ? await this.analyserQuery('matviews', ['matviews']) : null;
+    this.logger.debug({ count: matviews.rows.length }, 'Materialized views loaded');
+
     this.feedback({ analysingMessage: 'Loading materialized view columns' });
     const matviewColumns = this.driver.dialect.materializedViews
       ? await this.analyserQuery('matviewColumns', ['matviews'])
       : null;
+    this.logger.debug({ count: matviewColumns.rows.length }, 'Materialized view columns loaded');
+
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
+    this.logger.debug({ count: routines.rows.length }, 'Routines loaded');
+
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
       : await this.analyserQuery('indexes', ['tables']);
+    this.logger.debug({ count: indexes.rows.length }, 'Indexes loaded');
+
     this.feedback({ analysingMessage: 'Loading index columns' });
     const indexcols = this.driver.__analyserInternals.skipIndexes
       ? { rows: [] }
       : await this.analyserQuery('indexcols', ['tables']);
+    this.logger.debug({ count: indexcols.rows.length }, 'Indexes columns loaded');
+
     this.feedback({ analysingMessage: 'Loading unique names' });
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
+    this.logger.debug({ count: uniqueNames.rows.length }, 'Uniques loaded');
 
     let geometryColumns = { rows: [] };
     if (views.rows.find(x => x.pure_name == 'geometry_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geometry columns' });
       geometryColumns = await this.analyserQuery('geometryColumns', ['tables']);
+      this.logger.debug({ count: geometryColumns.rows.length }, 'Geometry columns loaded');
     }
+
     let geographyColumns = { rows: [] };
     if (views.rows.find(x => x.pure_name == 'geography_columns' && x.schema_name == 'public')) {
       this.feedback({ analysingMessage: 'Loading geography columns' });
       geographyColumns = await this.analyserQuery('geographyColumns', ['tables']);
+      this.logger.debug({ count: geographyColumns.rows.length }, 'Geography columns loaded');
     }
 
     this.feedback({ analysingMessage: 'Finalizing DB structure' });

@@ -4,6 +4,7 @@ import _groupBy from 'lodash/groupBy';
 import _pick from 'lodash/pick';
 import _compact from 'lodash/compact';
 import { getLogger } from './getLogger';
+import { type Logger } from 'pinomin';
 
 const logger = getLogger('dbAnalyser');
 
@@ -37,9 +38,11 @@ export class DatabaseAnalyser {
   singleObjectFilter: any;
   singleObjectId: string = null;
   dialect: SqlDialect;
+  logger: Logger;
 
   constructor(public pool, public driver: EngineDriver, version) {
     this.dialect = (driver?.dialectByVersion && driver?.dialectByVersion(version)) || driver?.dialect;
+    this.logger = logger;
   }
 
   async _runAnalysis() {
