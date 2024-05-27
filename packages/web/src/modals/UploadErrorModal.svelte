@@ -43,7 +43,10 @@
 
   {#if htmlUrl}
     <div>
-      <p>Upload error to gist was successful. You could check uploaded data, if don't want to make them public, use Delete button to remove them from gist.</p>
+      <p>
+        Upload error to gist was successful. Please copy gist URL abnd paste it to related github issue. You could check
+        uploaded data, if don't want to make them public, use Delete button to remove them from gist.
+      </p>
       <p><Link href={htmlUrl}>Open uploaded data</Link></p>
     </div>
   {:else}
