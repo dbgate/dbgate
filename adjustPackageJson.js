@@ -5,9 +5,6 @@ function adjustFile(file) {
   if (process.platform != 'win32') {
     delete json.optionalDependencies.msnodesqlv8;
   }
-  if (process.arch == 'arm64') {
-    delete json.optionalDependencies.oracledb;
-  }
   fs.writeFileSync(file, JSON.stringify(json, null, 2), 'utf-8');
 }
 

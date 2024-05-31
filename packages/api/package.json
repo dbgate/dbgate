@@ -26,10 +26,10 @@
     "compare-versions": "^3.6.0",
     "cors": "^2.8.5",
     "cross-env": "^6.0.3",
+    "dbgate-datalib": "^5.0.0-alpha.1",
     "dbgate-query-splitter": "^4.9.3",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "dbgate-tools": "^5.0.0-alpha.1",
-    "dbgate-datalib": "^5.0.0-alpha.1",
     "debug": "^4.3.4",
     "diff": "^5.0.0",
     "diff2html": "^3.4.13",
@@ -83,7 +83,6 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "9.6.0",
-    "msnodesqlv8": "^4.2.1",
-    "oracledb": "^5.5.0"
+    "msnodesqlv8": "^4.2.1"
   }
 }

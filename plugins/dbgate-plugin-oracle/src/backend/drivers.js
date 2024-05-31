@@ -4,19 +4,9 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 //--const pg = require('pg');
-//const oracledb = require('oracledb');
+const oracledb = require('oracledb');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
-
-let requireOracledb; // native module
-
-let oracledbValue;
-function getOracledb() {
-  if (!oracledbValue) {
-    oracledbValue = requireOracledb();
-  }
-  return oracledbValue;
-}
 
 /*
 pg.types.setTypeParser(1082, 'text', val => val); // date
@@ -62,7 +52,7 @@ const drivers = driverBases.map(driverBase => ({
     authType,
     socketPath,
   }) {
-    client = await getOracledb().getConnection({
+    client = await oracledb.getConnection({
       user,
       password,
       connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}` : server,
@@ -282,11 +272,5 @@ const drivers = driverBases.map(driverBase => ({
     ];
   },
 }));
-
-drivers.initialize = dbgateEnv => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.oracledb) {
-    requireOracledb = dbgateEnv.nativeModules.oracledb;
-  }
-};
 
 module.exports = drivers;
