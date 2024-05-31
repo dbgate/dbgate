@@ -67,7 +67,7 @@ const driver = {
   getCollectionUpdateScript(changeSet) {
     let res = '';
     for (const insert of changeSet.inserts) {
-      res += `db.${insert.pureName}.insert(${jsonStringifyWithObjectId({
+      res += `db.${insert.pureName}.insertOne(${jsonStringifyWithObjectId({
         ...insert.document,
         ...insert.fields,
       })});\n`;

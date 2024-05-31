@@ -52,7 +52,7 @@
     "ncp": "^2.0.0",
     "node-cron": "^2.0.3",
     "on-finished": "^2.4.1",
-    "pinomin": "^1.0.1",
+    "pinomin": "^1.0.4",
     "portfinder": "^1.0.28",
     "rimraf": "^3.0.0",
     "simple-encryptor": "^4.0.0",
@@ -60,7 +60,7 @@
     "tar": "^6.0.5"
   },
   "scripts": {
-    "start": "env-cmd node src/index.js --listen-api",
+    "start": "env-cmd -f .env node src/index.js --listen-api",
     "start:portal": "env-cmd -f env/portal/.env node src/index.js --listen-api",
     "start:singledb": "env-cmd -f env/singledb/.env node src/index.js --listen-api",
     "start:auth": "env-cmd -f env/auth/.env node src/index.js --listen-api",

@@ -167,11 +167,15 @@
   $: setLocalStorage('collection_collapsedLeftColumn', $collapsedLeftColumnStore);
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
+
+  function handleSetLoadedRows(rows) {
+    loadedRows = rows;
+  }
 </script>
 
 <ToolStripContainer>
   <DataGrid
-    bind:loadedRows
+    setLoadedRows={handleSetLoadedRows}
     {...$$props}
     config={$config}
     setConfig={config.update}

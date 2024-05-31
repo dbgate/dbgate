@@ -23,7 +23,9 @@ async function readCursor(cursor, options) {
 
 function convertObjectId(condition) {
   return _.cloneDeepWith(condition, (x) => {
-    if (x && x.$oid) return ObjectId(x.$oid);
+    if (x && x.$oid) {
+      return ObjectId.createFromHexString(x.$oid);
+    }
   });
 }
 
@@ -60,7 +62,9 @@ const driver = {
         mongoUrl = databaseUrl;
       }
     } else {
-      mongoUrl = user ? `mongodb://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${server}:${port}` : `mongodb://${server}:${port}`;
+      mongoUrl = user
+        ? `mongodb://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${server}:${port}`
+        : `mongodb://${server}:${port}`;
     }
 
     const options = {
@@ -93,7 +97,7 @@ const driver = {
     let func;
     func = eval(`(db,ObjectId) => ${sql}`);
     const db = await getScriptableDb(pool);
-    const res = func(db, ObjectId);
+    const res = func(db, ObjectId.createFromHexString);
     if (isPromise(res)) await res;
   },
   async stream(pool, sql, options) {
@@ -113,7 +117,7 @@ const driver = {
 
     let exprValue;
     try {
-      exprValue = func(db, ObjectId);
+      exprValue = func(db, ObjectId.createFromHexString);
     } catch (err) {
       options.info({
         message: 'Error evaluating expression: ' + err.message,
@@ -227,7 +231,7 @@ const driver = {
 
     func = eval(`(db,ObjectId) => ${sql}`);
     const db = await getScriptableDb(pool);
-    exprValue = func(db, ObjectId);
+    exprValue = func(db, ObjectId.createFromHexString);
 
     // return directly stream without header row
     return exprValue.stream();
@@ -290,7 +294,7 @@ const driver = {
           ...insert.document,
           ...insert.fields,
         };
-        const resdoc = await collection.insert(convertObjectId(document));
+        const resdoc = await collection.insertOne(convertObjectId(document));
         res.inserted.push(resdoc._id);
       }
       for (const update of changeSet.updates) {

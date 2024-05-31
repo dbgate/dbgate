@@ -45,6 +45,11 @@ jobs:
       - name: setCurrentVersion
         run: |
           yarn setCurrentVersion
+      - name: printSecrets
+        run: |
+            yarn printSecrets
+        env:
+          GIST_UPLOAD_SECRET : ${{secrets.GIST_UPLOAD_SECRET}}
       - name: fillNativeModulesElectron
         run: |
           yarn fillNativeModulesElectron

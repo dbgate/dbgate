@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.2.9
+- FIXED: PostgresSQL doesn't show tables when connected #793 #805
+- FIXED: MongoDB write operations fail #798 #802
+- FIXED: Elecrron app logging losed most of log messages
+- FIXED: Connection error with SSH tunnel 
+- ADDED: option to disable autoupgrades (with --disable-auto-upgrade)
+- ADDED: Send error context to github gist
+
 ### 5.2.8
 - FIXED: file menu save and save as not working
 - FIXED: query editor on import/export screen overlaps with selector

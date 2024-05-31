@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "5.2.9-beta.2",
+  "version": "5.2.10-beta.1",
   "name": "dbgate-all",
   "workspaces": [
     "packages/*",
@@ -39,6 +39,7 @@
     "build:app:local": "yarn plugins:copydist && cd app && yarn build:local",
     "start:app:local": "cd app && yarn start:local",
     "setCurrentVersion": "node setCurrentVersion",
+    "printSecrets": "node printSecrets",
     "generatePadFile": "node generatePadFile",
     "adjustPackageJson": "node adjustPackageJson",
     "fillNativeModules": "node fillNativeModules",

@@ -25,13 +25,14 @@
 
   export let changeSetState;
   export let dispatchChangeSet;
+  export let setLoadedRows;
 
   export const activator = createActivator('CollectionJsonView', true);
 
   let isLoading = false;
   let loadedTime = null;
 
-  export let loadedRows = [];
+  let loadedRows = [];
   let skip = 0;
   let limit = 50;
 
@@ -39,6 +40,7 @@
     isLoading = true;
     // @ts-ignore
     loadedRows = await loadCollectionDataPage($$props, parseInt(skip) || 0, parseInt(limit) || 50);
+    if (setLoadedRows) setLoadedRows(loadedRows);
     isLoading = false;
     loadedTime = new Date().getTime();
   }

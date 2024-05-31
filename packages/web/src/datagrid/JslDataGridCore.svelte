@@ -72,7 +72,7 @@
   export let selectedCellsPublished = () => [];
   export const activator = createActivator('JslDataGridCore', false);
 
-  export let loadedRows = [];
+  let loadedRows = [];
   let domGrid;
 
   let changeIndex = 0;
@@ -186,12 +186,16 @@
     ...createQuickExportMenu(quickExportHandler, { command: 'jslTableGrid.export' }),
     tag: 'export',
   }));
+
+  function handleSetLoadedRows(rows) {
+    loadedRows = rows;
+  }
 </script>
 
 <LoadingDataGridCore
   bind:this={domGrid}
   {...$$props}
-  bind:loadedRows
+  setLoadedRows={handleSetLoadedRows}
   bind:selectedCellsPublished
   {loadDataPage}
   {dataPageAvailable}

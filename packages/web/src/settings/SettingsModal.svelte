@@ -74,6 +74,7 @@ ORDER BY
           { label: 'Themes', slot: 3 },
           { label: 'Default Actions', slot: 4 },
           { label: 'Confirmations', slot: 5 },
+          { label: 'Other', slot: 6 },
         ]}
       >
         <svelte:fragment slot="1">
@@ -311,6 +312,15 @@ ORDER BY
           <FormCheckboxField
             name="skipConfirm.collectionDataSave"
             label="Skip confirmation when saving collection data (NoSQL)"
+          />
+        </svelte:fragment>
+        <svelte:fragment slot="6">
+          <div class="heading">Other</div>
+
+          <FormTextField
+            name="other.gistCreateToken"
+            label="API token for creating error gists"
+            defaultValue=""
           />
         </svelte:fragment>
       </TabControl>

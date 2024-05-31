@@ -38,6 +38,7 @@ import { getSettings } from '../utility/metadataLoaders';
 import { isMac } from '../utility/common';
 import { doLogout, internalRedirectTo } from '../clientAuth';
 import { disconnectServerConnection } from '../appobj/ConnectionAppObject.svelte';
+import UploadErrorModal from '../modals/UploadErrorModal.svelte';
 
 // function themeCommand(theme: ThemeDefinition) {
 //   return {
@@ -864,6 +865,14 @@ registerCommand({
   testEnabled: () => getElectron() != null,
   onClick: () => getElectron().send('window-action', 'selectAll'),
 });
+
+registerCommand({
+  id: 'new.gist',
+  category: 'New',
+  name: 'Upload error to gist',
+  onClick: () => showModal(UploadErrorModal),
+});
+
 
 const electron = getElectron();
 if (electron) {

@@ -88,8 +88,9 @@
   export let macroCondition;
   export let onRunMacro;
   export let hasMultiColumnFilter = false;
+  export let setLoadedRows = null;
 
-  export let loadedRows;
+  let loadedRows;
 
   export const activator = createActivator('DataGrid', false);
 
@@ -208,7 +209,7 @@
         {#if isFormView}
           <svelte:component this={formViewComponent} {...$$props} />
         {:else if isJsonView}
-          <svelte:component this={jsonViewComponent} {...$$props} bind:loadedRows />
+          <svelte:component this={jsonViewComponent} {...$$props} {setLoadedRows} />
         {:else}
           <svelte:component
             this={gridCoreComponent}
@@ -217,7 +218,7 @@
             formViewAvailable={!!formViewComponent}
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
-            bind:loadedRows
+            {setLoadedRows}
             bind:selectedCellsPublished
             onChangeSelectedColumns={cols => {
               if (domColumnManager) domColumnManager.setSelectedColumns(cols);
