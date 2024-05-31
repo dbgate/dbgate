@@ -60,7 +60,7 @@
     "tar": "^6.0.5"
   },
   "scripts": {
-    "start": "env-cmd -f .env.local node src/index.js --listen-api",
+    "start": "env-cmd -f .env node src/index.js --listen-api",
     "start:portal": "env-cmd -f env/portal/.env node src/index.js --listen-api",
     "start:singledb": "env-cmd -f env/singledb/.env node src/index.js --listen-api",
     "start:auth": "env-cmd -f env/auth/.env node src/index.js --listen-api",
