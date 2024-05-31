@@ -5,7 +5,6 @@ select  i.table_name as "tableName",
         i.index_type as "indexType",
         i.uniqueness as "Unique",
         ic.column_name as "columnName",
-        ic.column_position as "postion",
         ic.descend as "descending"
 from all_ind_columns ic, all_indexes i
 where INDEX_OWNER = '$owner' AND ic.index_owner = i.owner

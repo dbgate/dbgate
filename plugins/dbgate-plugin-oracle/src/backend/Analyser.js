@@ -139,7 +139,7 @@ class Analyser extends DatabaseAnalyser {
           indexes: _.uniqBy(
             indexes.rows.filter(
               idx =>
-                idx.tableName == table.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+                idx.tableName == newTable.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
             ),
             'constraintName'
           ).map(idx => ({
@@ -149,12 +149,13 @@ class Analyser extends DatabaseAnalyser {
               .filter(col => col.tableName == idx.tableName && col.constraintName == idx.constraintName)
               .map(col => ({
                 ..._.pick(col, ['columnName']),
+                isDescending: col.descending == 'DESC',
               })),
           })),
           uniques: _.uniqBy(
             indexes.rows.filter(
               idx =>
-                idx.tableName == table.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+                idx.tableName == newTable.pureName && uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
             ),
             'constraintName'
           ).map(idx => ({
