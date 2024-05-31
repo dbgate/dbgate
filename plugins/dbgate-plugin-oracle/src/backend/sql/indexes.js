@@ -8,7 +8,7 @@ select  i.table_name as "tableName",
         ic.column_position as "postion",
         ic.descend as "descending"
 from all_ind_columns ic, all_indexes i
-where ic.index_owner = i.owner
+where INDEX_OWNER = '$owner' AND ic.index_owner = i.owner
 and ic.index_name = i.index_name
 and i.index_name =OBJECT_ID_CONDITION
 order by i.table_owner,

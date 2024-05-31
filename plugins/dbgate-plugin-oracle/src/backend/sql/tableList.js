@@ -4,6 +4,6 @@ select
     table_name                              "pure_name"
   from
     all_tables
-  where TABLE_NAME =OBJECT_ID_CONDITION
+  where OWNER='$owner' AND TABLE_NAME =OBJECT_ID_CONDITION
 `;
 

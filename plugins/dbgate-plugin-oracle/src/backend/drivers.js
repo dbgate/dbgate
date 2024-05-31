@@ -7,7 +7,6 @@ const Analyser = require('./Analyser');
 const oracledb = require('oracledb');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
 
-
 /*
 pg.types.setTypeParser(1082, 'text', val => val); // date
 pg.types.setTypeParser(1114, 'text', val => val); // timestamp without timezone
@@ -47,6 +46,7 @@ const drivers = driverBases.map(driverBase => ({
     database,
     databaseUrl,
     useDatabaseUrl,
+    serviceName,
     ssl,
     isReadOnly,
     authType,
@@ -55,8 +55,9 @@ const drivers = driverBases.map(driverBase => ({
     client = await oracledb.getConnection({
       user,
       password,
-      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}` : server,
+      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}/${serviceName}` : server,
     });
+    client._schema_name = database;
     return client;
   },
   async close(pool) {
@@ -64,7 +65,7 @@ const drivers = driverBases.map(driverBase => ({
   },
   async query(client, sql) {
     //console.log('query sql', sql);
-    if (sql == null) {
+    if (sql == null) {a
       return {
         rows: [],
         columns: [],
@@ -250,12 +251,12 @@ const drivers = driverBases.map(driverBase => ({
 
     return pass;
   },
-  async writeTable(pool, name, options) {
+  async writeTable(pootl, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
   async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT instance_name AS "name" FROM v$instance');
+    const { rows } = await this.query(client, 'SELECT username as "name" from all_users order by username');
     return rows;
   },
 

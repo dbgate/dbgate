@@ -19,7 +19,6 @@ const dialect = {
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
-  stringAgg: true,
 
   createColumn: true,
   dropColumn: true,
@@ -110,32 +109,15 @@ const oracleDriverBase = {
   getQuerySplitterOptions: () => oracleSplitterOptions,
   readOnlySessions: true,
 
-  databaseUrlPlaceholder: 'e.g. oracledb://user:password@localhost:1521',
+  databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
     if (values.useDatabaseUrl) {
-      return ['databaseUrl', 'isReadOnly'].includes(field);
+      return ['databaseUrl', 'user', 'password'].includes(field);
     }
 
-    return ['user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'server', 'port'].includes(field);
-  },
-
-  beforeConnectionSave: connection => {
-    const { databaseUrl } = connection;
-    if (databaseUrl) {
-      const m = databaseUrl.match(/\/([^/]+)($|\?)/);
-      return {
-        ...connection,
-        singleDatabase: !!m,
-        defaultDatabase: m ? m[1] : null,
-      };
-    }
-    return connection;
-  },
-
-  __analyserInternals: {
-    refTableCond: '',
+    return ['user', 'password', 'server', 'port', 'serviceName'].includes(field);
   },
 
   getNewObjectTemplates() {
@@ -189,7 +171,7 @@ const oracleDriver = {
     return dialect;
   },
 
-  showConnectionTab: (field) => field == 'sshTunnel',
+  showConnectionTab: field => field == 'sshTunnel',
 };
 
 module.exports = [oracleDriver];

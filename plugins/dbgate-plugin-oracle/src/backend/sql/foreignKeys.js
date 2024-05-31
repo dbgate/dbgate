@@ -10,7 +10,7 @@ select  fk.constraint_name as "constraint_name",
   basecol.column_name as "column_name",
   refcol.column_name as "ref_column_name"
 from all_cons_columns refcol, all_cons_columns basecol, all_constraints ref, all_constraints fk
-where fk.constraint_type = 'R'
+where fk.OWNER = '$owner' AND fk.constraint_type = 'R'
 and ref.owner = fk.r_owner
 and ref.constraint_name = fk.r_constraint_name
 and basecol.owner = fk.owner

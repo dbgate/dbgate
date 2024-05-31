@@ -55,8 +55,8 @@ class Analyser extends DatabaseAnalyser {
     super(pool, driver, version);
   }
 
-  createQuery(resFileName, typeFields) {
-    const query = super.createQuery(sql[resFileName], typeFields);
+  createQuery(resFileName, typeFields, replacements = {}) {
+    const query = super.createQuery(sql[resFileName], typeFields, replacements);
     //if (query) return query.replace('#REFTABLECOND#', this.driver.__analyserInternals.refTableCond);
     return query;
   }
@@ -68,40 +68,39 @@ class Analyser extends DatabaseAnalyser {
 
   async _runAnalysis() {
     this.feedback({ analysingMessage: 'Loading tables' });
-    const tables = await this.analyserQuery(this.driver.dialect.stringAgg ? 'tableList' : 'tableList', ['tables']);
+    const tables = await this.analyserQuery('tableList', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Loading columns' });
-    const columns = await this.analyserQuery('columns', ['tables', 'views']);
+    const columns = await this.analyserQuery('columns', ['tables', 'views'], { $owner: this.pool._schema_name });
 
     this.feedback({ analysingMessage: 'Loading primary keys' });
-    const pkColumns = await this.analyserQuery('primaryKeys', ['tables']);
+    const pkColumns = await this.analyserQuery('primaryKeys', ['tables'], { $owner: this.pool._schema_name });
 
     //let fkColumns = null;
 
     this.feedback({ analysingMessage: 'Loading foreign keys' });
-    const fkColumns = await this.analyserQuery('foreignKeys', ['tables']);
+    const fkColumns = await this.analyserQuery('foreignKeys', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Loading views' });
-    const views = await this.analyserQuery('views', ['views']);
+    const views = await this.analyserQuery('views', ['views'], { $owner: this.pool._schema_name });
     let geometryColumns = { rows: [] };
     let geographyColumns = { rows: [] };
 
     this.feedback({ analysingMessage: 'Loading materialized views' });
-    const matviews = this.driver.dialect.materializedViews ? await this.analyserQuery('matviews', ['matviews']) : null;
+    const matviews = this.driver.dialect.materializedViews
+      ? await this.analyserQuery('matviews', ['matviews'], { $owner: this.pool._schema_name })
+      : null;
     this.feedback({ analysingMessage: 'Loading materialized view columns' });
     const matviewColumns = this.driver.dialect.materializedViews
-      ? await this.analyserQuery('matviewColumns', ['matviews'])
+      ? await this.analyserQuery('matviewColumns', ['matviews'], { $owner: this.pool._schema_name })
       : null;
     this.feedback({ analysingMessage: 'Loading routines' });
-    const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
+    const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
+      $owner: this.pool._schema_name,
+    });
     this.feedback({ analysingMessage: 'Loading indexes' });
-    const indexes = this.driver.__analyserInternals.skipIndexes
-      ? { rows: [] }
-      : await this.analyserQuery('indexes', ['tables']);
+    const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Loading index columns' });
-    //    const indexcols = this.driver.__analyserInternals.skipIndexes
-    //      ? { rows: [] }
-    //      : await this.driver.query(this.pool, this.createQuery('indexcols', ['tables']));
     this.feedback({ analysingMessage: 'Loading unique names' });
-    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables']);
+    const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
 
     const fkColumnsMapped = fkColumns.rows.map(x => ({

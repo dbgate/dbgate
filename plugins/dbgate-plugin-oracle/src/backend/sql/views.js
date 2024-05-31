@@ -6,7 +6,7 @@ from (select
   owner as "schema_name",
   SUBSTR(text_vc, 1, 3900) AS "create_sql"
   from all_views av
-  where text_vc is not null
+  where owner = '$owner' and text_vc is not null
   ) avv
   where "pure_name" =OBJECT_ID_CONDITION
 `;

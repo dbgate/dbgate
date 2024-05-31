@@ -4,6 +4,6 @@ SELECT owner "schema_name"
     , column_name "column_name"
     , data_type "data_type"
   FROM all_tab_columns av
-  where table_name =OBJECT_ID_CONDITION
+  where OWNER = '$owner' AND table_name =OBJECT_ID_CONDITION
 order by column_id
 `;
