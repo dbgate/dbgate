@@ -22,25 +22,7 @@ function getColumnInfo(
   if (char_max_length && isTypeString(normDataType)) fullDataType = `${normDataType}(${char_max_length})`;
   if (numeric_precision && numeric_ccale && isTypeNumeric(normDataType))
     fullDataType = `${normDataType}(${numeric_precision},${numeric_ccale})`;
-  const autoIncrement = !!(default_value && default_value.startsWith('nextval('));
-  if (
-    table &&
-    geometryColumns &&
-    geometryColumns.rows.find(
-      x => x.schema_name == table.schemaName && x.pure_name == table.pureName && x.column_name == column_name
-    )
-  ) {
-    fullDataType = 'geometry';
-  }
-  if (
-    table &&
-    geographyColumns &&
-    geographyColumns.rows.find(
-      x => x.schema_name == table.schemaName && x.pure_name == table.pureName && x.column_name == column_name
-    )
-  ) {
-    fullDataType = 'geography';
-  }
+  const autoIncrement = !!(default_value && default_value.endsWith('.nextval'));
   return {
     columnName: column_name,
     dataType: fullDataType,
