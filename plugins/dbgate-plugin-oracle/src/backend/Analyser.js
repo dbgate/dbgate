@@ -88,17 +88,12 @@ class Analyser extends DatabaseAnalyser {
     const matviews = this.driver.dialect.materializedViews
       ? await this.analyserQuery('matviews', ['matviews'], { $owner: this.pool._schema_name })
       : null;
-    this.feedback({ analysingMessage: 'Loading materialized view columns' });
-    const matviewColumns = this.driver.dialect.materializedViews
-      ? await this.analyserQuery('matviewColumns', ['matviews'], { $owner: this.pool._schema_name })
-      : null;
     this.feedback({ analysingMessage: 'Loading routines' });
     const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
       $owner: this.pool._schema_name,
     });
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = await this.analyserQuery('indexes', ['tables'], { $owner: this.pool._schema_name });
-    this.feedback({ analysingMessage: 'Loading index columns' });
     this.feedback({ analysingMessage: 'Loading unique names' });
     const uniqueNames = await this.analyserQuery('uniqueNames', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Finalizing DB structure' });
@@ -187,9 +182,7 @@ class Analyser extends DatabaseAnalyser {
             schemaName: matview.schema_name,
             contentHash: matview.hash_code,
             createSql: `CREATE MATERIALIZED VIEW "${matview.schema_name}"."${matview.pure_name}"\nAS\n${matview.definition}`,
-            columns: matviewColumns.rows
-              .filter(col => col.pure_name == matview.pure_name && col.schema_name == matview.schema_name)
-              .map(col => getColumnInfo(col)),
+            columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
           }))
         : undefined,
       procedures: routines.rows
