@@ -1,6 +1,6 @@
 module.exports = `
 select  i.table_name as "tableName",
-        i.table_owner as "schemaName",
+        -- i.table_owner as "schemaName",
         i.index_name as "constraintName",
         i.index_type as "indexType",
         i.uniqueness as "Unique",

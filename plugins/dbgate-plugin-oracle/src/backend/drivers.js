@@ -57,6 +57,9 @@ const drivers = driverBases.map(driverBase => ({
       password,
       connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}/${serviceName}` : server,
     });
+    if (database) {
+      await client.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${database}`);
+    }
     client._schema_name = database;
     return client;
   },

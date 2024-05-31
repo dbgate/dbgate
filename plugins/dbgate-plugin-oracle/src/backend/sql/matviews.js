@@ -1,5 +1,5 @@
 module.exports = `
-SELECT owner as schema_name,
+SELECT -- owner as schema_name,
        mview_name pure_name,
        container_name,
        '' || trim(

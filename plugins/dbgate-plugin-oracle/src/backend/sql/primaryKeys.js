@@ -1,6 +1,6 @@
 module.exports = `
 select
-  pk.owner as "constraint_schema",
+  -- pk.owner as "constraint_schema",
   pk.constraint_name as "constraint_name",
   pk.owner as "schema_name",
   pk.table_name as "pure_name",

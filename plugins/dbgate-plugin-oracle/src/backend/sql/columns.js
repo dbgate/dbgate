@@ -1,6 +1,6 @@
 module.exports = `
 select
-  owner as "schema_name",
+  -- owner as "schema_name",
   table_name as "pure_name",
   column_name as "column_name",
   nullable as "is_nullable",

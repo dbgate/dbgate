@@ -1,6 +1,15 @@
 const { SqlDumper, arrayToHexString, testEqualTypes } = global.DBGATE_TOOLS;
 
 class Dumper extends SqlDumper {
+  createDatabase(name) {
+    this.putCmd(`CREATE USER c##${name}
+    IDENTIFIED BY ${name}
+    DEFAULT TABLESPACE users
+    TEMPORARY TABLESPACE temp
+    QUOTA 10M ON users;`, name);
+  }
+
+
   /** @param type {import('dbgate-types').TransformType} */
   transform(type, dumpExpr) {
     switch (type) {

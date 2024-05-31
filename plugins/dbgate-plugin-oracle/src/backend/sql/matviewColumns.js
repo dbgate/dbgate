@@ -1,6 +1,6 @@
 module.exports = `
-SELECT owner "schema_name"
-    , table_name "pure_name"
+SELECT -- owner "schema_name"
+     table_name "pure_name"
     , column_name "column_name"
     , data_type "data_type"
   FROM all_tab_columns av
