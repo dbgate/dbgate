@@ -13,9 +13,7 @@ function normalizeTypeName(dataType) {
 
 function getColumnInfo(
   { is_nullable, column_name, data_type, char_max_length, numeric_precision, numeric_ccale, default_value },
-  table = undefined,
-  geometryColumns = undefined,
-  geographyColumns = undefined
+  table = undefined
 ) {
   const normDataType = normalizeTypeName(data_type);
   let fullDataType = normDataType;
@@ -26,7 +24,7 @@ function getColumnInfo(
   return {
     columnName: column_name,
     dataType: fullDataType,
-    notNull: !is_nullable || is_nullable == 'NO' || is_nullable == 'no',
+    notNull: is_nullable == 'N',
     defaultValue: autoIncrement ? undefined : default_value,
     autoIncrement,
   };
@@ -63,8 +61,6 @@ class Analyser extends DatabaseAnalyser {
     const fkColumns = await this.analyserQuery('foreignKeys', ['tables'], { $owner: this.pool._schema_name });
     this.feedback({ analysingMessage: 'Loading views' });
     const views = await this.analyserQuery('views', ['views'], { $owner: this.pool._schema_name });
-    let geometryColumns = { rows: [] };
-    let geographyColumns = { rows: [] };
 
     this.feedback({ analysingMessage: 'Loading materialized views' });
     const matviews = this.driver.dialect.materializedViews
@@ -113,15 +109,14 @@ class Analyser extends DatabaseAnalyser {
         };
         return {
           ...newTable,
-          columns: (columnsGrouped[columnGroup(table)] || []).map(col =>
-            getColumnInfo(col, newTable, geometryColumns, geographyColumns)
-          ),
+          columns: (columnsGrouped[columnGroup(table)] || []).map(col => getColumnInfo(col, newTable)),
           primaryKey: DatabaseAnalyser.extractPrimaryKeys(newTable, pkColumnsMapped),
           foreignKeys: DatabaseAnalyser.extractForeignKeys(newTable, fkColumnsMapped),
           indexes: _.uniqBy(
             indexes.rows.filter(
               idx =>
-                idx.tableName == newTable.pureName && !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
+                idx.tableName == newTable.pureName &&
+                !uniqueNames.rows.find(x => x.constraintName == idx.constraintName)
             ),
             'constraintName'
           ).map(idx => ({
@@ -188,68 +183,9 @@ class Analyser extends DatabaseAnalyser {
         })),
     };
 
-    // this.feedback({ analysingMessage: 'Debug sleep' });
-    // await new Promise(resolve => setTimeout(resolve, 90 * 1000));
-
     this.feedback({ analysingMessage: null });
 
     return res;
-  }
-
-  async _getFastSnapshot() {
-    return null;
-
-    const tableModificationsQueryData = this.driver.dialect.stringAgg
-      ? await this.analyserQuery('tableModifications')
-      : null;
-    const viewModificationsQueryData = await this.analyserQuery('viewModifications');
-    const matviewModificationsQueryData = this.driver.dialect.materializedViews
-      ? await this.analyserQuery('matviewModifications')
-      : null;
-    const routineModificationsQueryData = await this.analyserQuery('routineModifications');
-
-    return {
-      tables: tableModificationsQueryData
-        ? tableModificationsQueryData.rows.map(x => ({
-            objectId: `tables:${x.schema_name}.${x.pure_name}`,
-            pureName: x.pure_name,
-            schemaName: x.schema_name,
-            contentHash: `${x.hash_code_columns}-${x.hash_code_constraints}`,
-          }))
-        : null,
-      views: viewModificationsQueryData
-        ? viewModificationsQueryData.rows.map(x => ({
-            objectId: `views:${x.schema_name}.${x.pure_name}`,
-            pureName: x.pure_name,
-            schemaName: x.schema_name,
-            contentHash: x.hash_code,
-          }))
-        : undefined,
-      matviews: matviewModificationsQueryData
-        ? matviewModificationsQueryData.rows.map(x => ({
-            objectId: `matviews:${x.schema_name}.${x.pure_name}`,
-            pureName: x.pure_name,
-            schemaName: x.schema_name,
-            contentHash: x.hash_code,
-          }))
-        : undefined,
-      procedures: routineModificationsQueryData.rows
-        .filter(x => x.object_type == 'PROCEDURE')
-        .map(x => ({
-          objectId: `procedures:${x.schema_name}.${x.pure_name}`,
-          pureName: x.pure_name,
-          schemaName: x.schema_name,
-          contentHash: x.hash_code,
-        })),
-      functions: routineModificationsQueryData.rows
-        .filter(x => x.object_type == 'FUNCTION')
-        .map(x => ({
-          objectId: `functions:${x.schema_name}.${x.pure_name}`,
-          pureName: x.pure_name,
-          schemaName: x.schema_name,
-          contentHash: x.hash_code,
-        })),
-    };
   }
 }
 
