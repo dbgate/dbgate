@@ -61,6 +61,7 @@ function getFileEncoding(filePath, fs) {
 }
 
 function decodeFile(buf: Uint8Array, enc: string) {
+  // TODO: use import instead of window.require. Requires doesn't work in built electron app
   const iconv = window.require('iconv-lite');
   return iconv.decode(buf, enc);
 }
@@ -120,8 +121,9 @@ export function openElectronFileCore(filePath, extensions) {
 
   if (nameLower.endsWith('.sql')) {
     const encoding = getFileEncoding(filePath, fs);
-    const buf = fs.readFileSync(filePath);
-    const data = decodeFile(buf, encoding);
+    const data = fs.readFileSync(filePath, { encoding });
+    // const buf = fs.readFileSync(filePath);
+    // const data = decodeFile(buf, encoding);
 
     newQuery({
       title: parsed.name,
