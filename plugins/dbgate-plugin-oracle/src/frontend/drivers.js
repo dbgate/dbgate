@@ -131,7 +131,7 @@ $$ LANGUAGE plpgsql;`,
 const oracleDriver = {
   ...oracleDriverBase,
   engine: 'oracle@dbgate-plugin-oracle',
-  title: 'OracleDB (Experimental)',
+  title: 'OracleDB',
   defaultPort: 1521,
   dialect: {
     ...dialect,

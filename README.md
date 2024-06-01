@@ -22,7 +22,7 @@ DbGate is licensed under MIT license and is completely free.
 * MySQL
 * PostgreSQL
 * SQL Server
-* Oracle (experimental)
+* Oracle
 * MongoDB
 * Redis
 * SQLite
