@@ -67,8 +67,11 @@ const drivers = driverBases.map(driverBase => ({
     return pool.end();
   },
   async query(client, sql) {
-    //console.log('query sql', sql);
-    if (sql == null) {a
+    if (sql.trim() == 'COMMIT;') {
+      sql = 'COMMIT';
+    }
+
+    if (sql == null) {
       return {
         rows: [],
         columns: [],
