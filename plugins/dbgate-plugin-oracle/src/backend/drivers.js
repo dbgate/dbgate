@@ -6,6 +6,7 @@ const Analyser = require('./Analyser');
 //--const pg = require('pg');
 const oracledb = require('oracledb');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
+const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
 
 /*
 pg.types.setTypeParser(1082, 'text', val => val); // date
@@ -288,8 +289,7 @@ const drivers = driverBases.map(driverBase => ({
     return pass;
   },
   async writeTable(pool, name, options) {
-    // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, { ...options, commitAfterInsert: true });
+    return createOracleBulkInsertStream(this, stream, pool, name, options);
   },
   async listDatabases(client) {
     const { rows } = await this.query(client, 'SELECT username as "name" from all_users order by username');
