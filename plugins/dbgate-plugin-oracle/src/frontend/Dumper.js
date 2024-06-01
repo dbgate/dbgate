@@ -15,6 +15,15 @@ class Dumper extends SqlDumper {
   // oracle uses implicit transactions
   beginTransaction() {}
 
+  columnDefinition(col, options) {
+    if (col.autoIncrement) {
+      super.columnType(col.dataType);
+      this.put(' ^generated ^by ^default ^on ^null ^as ^identity');
+      return;
+    }
+    super.columnDefinition(col, options);
+  }
+
   // /** @param type {import('dbgate-types').TransformType} */
   // transform(type, dumpExpr) {
   //   switch (type) {
