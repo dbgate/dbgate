@@ -9,7 +9,7 @@ select  i.table_name as "tableName",
 from all_ind_columns ic, all_indexes i
 where INDEX_OWNER = '$owner' AND ic.index_owner = i.owner
 and ic.index_name = i.index_name
-and i.index_name =OBJECT_ID_CONDITION
+and 'tables:' || i.table_name =OBJECT_ID_CONDITION
 order by i.table_owner,
          i.table_name,
          i.index_name,

@@ -8,5 +8,5 @@ from (select
   from all_views av
   where owner = '$owner' and text_vc is not null
   ) avv
-  where "pure_name" =OBJECT_ID_CONDITION
+  where 'views:' || "pure_name" =OBJECT_ID_CONDITION
 `;

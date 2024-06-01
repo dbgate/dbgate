@@ -42,8 +42,8 @@ class Analyser extends DatabaseAnalyser {
   }
 
   async _computeSingleObjectId() {
-    const { typeField, schemaName, pureName } = this.singleObjectFilter;
-    this.singleObjectId = `${typeField}:${schemaName || 'public'}.${pureName}`;
+    const { typeField,  pureName } = this.singleObjectFilter;
+    this.singleObjectId = `${typeField}:${pureName}`;
   }
 
   async _runAnalysis() {
@@ -78,7 +78,7 @@ class Analyser extends DatabaseAnalyser {
 
     const fkColumnsMapped = fkColumns.rows.map(x => ({
       pureName: x.pure_name,
-      schemaName: x.schema_name,
+      // schemaName: x.schema_name,
       constraintSchema: x.constraint_schema,
       constraintName: x.constraint_name,
       columnName: x.column_name,
@@ -86,11 +86,11 @@ class Analyser extends DatabaseAnalyser {
       updateAction: x.update_action,
       deleteAction: x.delete_action,
       refTableName: x.ref_table_name,
-      refSchemaName: x.ref_schema_name,
+      // refSchemaName: x.ref_schema_name,
     }));
     const pkColumnsMapped = pkColumns.rows.map(x => ({
       pureName: x.pure_name,
-      schemaName: x.schema_name,
+      // schemaName: x.schema_name,
       constraintSchema: x.constraint_schema,
       constraintName: x.constraint_name,
       columnName: x.column_name,
@@ -103,8 +103,8 @@ class Analyser extends DatabaseAnalyser {
       tables: tables.rows.map(table => {
         const newTable = {
           pureName: table.pure_name,
-          schemaName: table.schema_name,
-          objectId: `tables:${table.schema_name}.${table.pure_name}`,
+          // schemaName: table.schema_name,
+          objectId: `tables:${table.pure_name}`,
           contentHash: table.hash_code_columns ? `${table.hash_code_columns}-${table.hash_code_constraints}` : null,
         };
         return {
@@ -146,39 +146,39 @@ class Analyser extends DatabaseAnalyser {
         };
       }),
       views: views.rows.map(view => ({
-        objectId: `views:${view.schema_name}.${view.pure_name}`,
+        objectId: `views:${view.pure_name}`,
         pureName: view.pure_name,
-        schemaName: view.schema_name,
+        // schemaName: view.schema_name,
         contentHash: view.hash_code,
-        createSql: `CREATE VIEW "${view.schema_name}"."${view.pure_name}"\nAS\n${view.create_sql}`,
+        createSql: `CREATE VIEW "${view.pure_name}"\nAS\n${view.create_sql}`,
         columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
       })),
       matviews: matviews
         ? matviews.rows.map(matview => ({
-            objectId: `matviews:${matview.schema_name}.${matview.pure_name}`,
+            objectId: `matviews:${matview.pure_name}`,
             pureName: matview.pure_name,
-            schemaName: matview.schema_name,
+            // schemaName: matview.schema_name,
             contentHash: matview.hash_code,
-            createSql: `CREATE MATERIALIZED VIEW "${matview.schema_name}"."${matview.pure_name}"\nAS\n${matview.definition}`,
+            createSql: `CREATE MATERIALIZED VIEW "${matview.pure_name}"\nAS\n${matview.definition}`,
             columns: (columnsGrouped[columnGroup(view)] || []).map(col => getColumnInfo(col)),
           }))
         : undefined,
       procedures: routines.rows
         .filter(x => x.object_type == 'PROCEDURE')
         .map(proc => ({
-          objectId: `procedures:${proc.schema_name}.${proc.pure_name}`,
+          objectId: `procedures:${proc.pure_name}`,
           pureName: proc.pure_name,
-          schemaName: proc.schema_name,
-          createSql: `CREATE PROCEDURE "${proc.schema_name}"."${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
+          // schemaName: proc.schema_name,
+          createSql: `CREATE PROCEDURE "${proc.pure_name}"() LANGUAGE ${proc.language}\nAS\n$$\n${proc.definition}\n$$`,
           contentHash: proc.hash_code,
         })),
       functions: routines.rows
         .filter(x => x.object_type == 'FUNCTION')
         .map(func => ({
-          objectId: `functions:${func.schema_name}.${func.pure_name}`,
-          createSql: `CREATE FUNCTION "${func.schema_name}"."${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
+          objectId: `functions:${func.pure_name}`,
+          createSql: `CREATE FUNCTION "${func.pure_name}"() RETURNS ${func.data_type} LANGUAGE ${func.language}\nAS\n$$\n${func.definition}\n$$`,
           pureName: func.pure_name,
-          schemaName: func.schema_name,
+          // schemaName: func.schema_name,
           contentHash: func.hash_code,
         })),
     };

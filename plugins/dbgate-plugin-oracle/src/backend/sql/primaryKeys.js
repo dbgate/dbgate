@@ -11,7 +11,7 @@ where constraint_type = 'P'
 and basecol.owner = pk.owner
 and basecol.constraint_name = pk.constraint_name
 and basecol.table_name = pk.table_name
-and pk.constraint_name =OBJECT_ID_CONDITION
+and 'tables:' || basecol.table_name =OBJECT_ID_CONDITION
 and pk.owner = '$owner'
 order by basecol.position
 `;

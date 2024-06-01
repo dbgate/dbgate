@@ -289,7 +289,7 @@ const drivers = driverBases.map(driverBase => ({
   },
   async writeTable(pool, name, options) {
     // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+    return createBulkInsertStreamBase(this, stream, pool, name, { ...options, commitAfterInsert: true });
   },
   async listDatabases(client) {
     const { rows } = await this.query(client, 'SELECT username as "name" from all_users order by username');

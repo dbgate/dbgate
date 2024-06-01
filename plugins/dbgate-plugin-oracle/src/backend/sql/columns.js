@@ -10,6 +10,6 @@ select
   data_scale as "numeric_scale",
   data_default as "default_value"
   FROM all_tab_columns av
-  where OWNER='$owner' AND TABLE_NAME =OBJECT_ID_CONDITION
+  where OWNER='$owner' AND 'tables:' || TABLE_NAME =OBJECT_ID_CONDITION
 order by column_id
 `;

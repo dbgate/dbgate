@@ -19,6 +19,6 @@ and basecol.table_name = fk.table_name
 and refcol.owner = ref.owner
 and refcol.constraint_name = ref.constraint_name
 and refcol.table_name = ref.table_name
-AND fk.constraint_name =OBJECT_ID_CONDITION
+AND 'tables:' || fk.table_name =OBJECT_ID_CONDITION
 order by basecol.position
 `;

@@ -14,6 +14,6 @@ SELECT -- owner as schema_name,
                   '//text()'
                 )) definition
 FROM all_mviews
-where OWNER = '$owner' AND mview_name=OBJECT_ID_CONDITION
+where OWNER = '$owner' AND 'matviews:' || mview_name=OBJECT_ID_CONDITION
 order by owner, mview_name
 `;
