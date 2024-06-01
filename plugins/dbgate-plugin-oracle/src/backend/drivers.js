@@ -287,7 +287,7 @@ const drivers = driverBases.map(driverBase => ({
 
     return pass;
   },
-  async writeTable(pootl, name, options) {
+  async writeTable(pool, name, options) {
     // @ts-ignore
     return createBulkInsertStreamBase(this, stream, pool, name, options);
   },
