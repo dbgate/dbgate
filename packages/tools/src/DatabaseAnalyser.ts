@@ -180,8 +180,15 @@ export class DatabaseAnalyser {
   //   return this.createQueryCore('=OBJECT_ID_CONDITION', typeFields) != ' is not null';
   // }
 
-  createQuery(template, typeFields) {
-    return this.createQueryCore(template, typeFields);
+  createQuery(template, typeFields, replacements = {}) {
+    return this.createQueryCore(this.processQueryReplacements(template, replacements), typeFields);
+  }
+
+  processQueryReplacements(query, replacements) {
+    for (const repl in replacements) {
+      query = query.replaceAll(repl, replacements[repl]);
+    }
+    return query;
   }
 
   createQueryCore(template, typeFields) {
@@ -302,8 +309,8 @@ export class DatabaseAnalyser {
     return [..._compact(res), ...this.getDeletedObjects(snapshot)];
   }
 
-  async analyserQuery(template, typeFields) {
-    const sql = this.createQuery(template, typeFields);
+  async analyserQuery(template, typeFields, replacements = {}) {
+    const sql = this.createQuery(template, typeFields, replacements);
 
     if (!sql) {
       return {
@@ -311,7 +318,9 @@ export class DatabaseAnalyser {
       };
     }
     try {
-      return await this.driver.query(this.pool, sql);
+      const res = await this.driver.query(this.pool, sql);
+      this.logger.debug({ rows: res.rows.length, template }, `Loaded analyser query`);
+      return res;
     } catch (err) {
       logger.error({ err }, 'Error running analyser query');
       return {

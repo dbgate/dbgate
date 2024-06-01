@@ -12,6 +12,7 @@ export interface SqlDialect {
   defaultSchemaName?: string;
   enableConstraintsPerTable?: boolean;
   requireStandaloneSelectForScopeIdentity?: boolean;
+  allowMultipleValuesInsert?: boolean;
 
   dropColumnDependencies?: string[];
   changeColumnDependencies?: string[];

@@ -24,6 +24,7 @@ export interface WriteTableOptions {
   dropIfExists?: boolean;
   truncate?: boolean;
   createIfNotExists?: boolean;
+  commitAfterInsert?: boolean;
 }
 
 export interface EngineAuthType {

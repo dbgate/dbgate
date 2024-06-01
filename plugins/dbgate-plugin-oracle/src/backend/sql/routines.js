@@ -1,7 +1,7 @@
 module.exports = `
 select
   routine_name as "pure_name",
-  routine_schema as "schema_name",
+  -- routine_schema as "schema_name",
   routine_definition as "definition",
   standard_hash(routine_definition, 'MD5') as "hash_code",
   routine_type as "object_type",
@@ -32,6 +32,7 @@ from (select
     all_procedures ap,
     all_objects    ao
   where
+    ap.owner = '$owner' and
     ap.owner       = ao.owner       and
     ap.object_name = ao.object_name and
     ao.object_type in ('PACKAGE', 'PROCEDURE', 'FUNCTION')

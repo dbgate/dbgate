@@ -24,7 +24,7 @@
     "chartjs-adapter-moment": "^1.0.0",
     "cross-env": "^7.0.3",
     "dbgate-datalib": "^5.0.0-alpha.1",
-    "dbgate-query-splitter": "^4.9.3",
+    "dbgate-query-splitter": "^4.10.1",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "dbgate-tools": "^5.0.0-alpha.1",
     "dbgate-types": "^5.0.0-alpha.1",

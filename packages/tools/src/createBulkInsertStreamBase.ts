@@ -56,24 +56,42 @@ export function createBulkInsertStreamBase(driver: EngineDriver, stream, pool, n
     const rows = writable.buffer;
     writable.buffer = [];
 
-    const dmp = driver.createDumper();
+    if (driver.dialect.allowMultipleValuesInsert) {
+      const dmp = driver.createDumper();
+      dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
+      dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col as string)));
+      dmp.putRaw(')\n VALUES\n');
 
-    dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
-    dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col as string)));
-    dmp.putRaw(')\n VALUES\n');
+      let wasRow = false;
+      for (const row of rows) {
+        if (wasRow) dmp.putRaw(',\n');
+        dmp.putRaw('(');
+        dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
+        dmp.putRaw(')');
+        wasRow = true;
+      }
+      dmp.putRaw(';');
+      // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
+      // console.log(dmp.s);
+      await driver.query(pool, dmp.s, { discardResult: true });
+    } else {
+      for (const row of rows) {
+        const dmp = driver.createDumper();
+        dmp.putRaw(`INSERT INTO ${fullNameQuoted} (`);
+        dmp.putCollection(',', writable.columnNames, col => dmp.putRaw(driver.dialect.quoteIdentifier(col as string)));
+        dmp.putRaw(')\n VALUES\n');
 
-    let wasRow = false;
-    for (const row of rows) {
-      if (wasRow) dmp.putRaw(',\n');
-      dmp.putRaw('(');
-      dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
-      dmp.putRaw(')');
-      wasRow = true;
+        dmp.putRaw('(');
+        dmp.putCollection(',', writable.columnNames, col => dmp.putValue(row[col as string]));
+        dmp.putRaw(')');
+        await driver.query(pool, dmp.s, { discardResult: true });
+      }
     }
-    dmp.putRaw(';');
-    // require('fs').writeFileSync('/home/jena/test.sql', dmp.s);
-    // console.log(dmp.s);
-    await driver.query(pool, dmp.s, { discardResult: true });
+    if (options.commitAfterInsert) {
+      const dmp = driver.createDumper();
+      dmp.commitTransaction();
+      await driver.query(pool, dmp.s, { discardResult: true });
+    }
   };
 
   writable.sendIfFull = async () => {

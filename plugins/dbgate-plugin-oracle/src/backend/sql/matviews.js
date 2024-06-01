@@ -1,5 +1,5 @@
 module.exports = `
-SELECT owner as schema_name,
+SELECT -- owner as schema_name,
        mview_name pure_name,
        container_name,
        '' || trim(
@@ -14,6 +14,6 @@ SELECT owner as schema_name,
                   '//text()'
                 )) definition
 FROM all_mviews
-where mview_name=OBJECT_ID_CONDITION
+where OWNER = '$owner' AND 'matviews:' || mview_name=OBJECT_ID_CONDITION
 order by owner, mview_name
 `;

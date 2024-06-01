@@ -31,7 +31,7 @@
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "dbgate-query-splitter": "^4.9.3",
+    "dbgate-query-splitter": "^4.10.1",
     "dbgate-sqltree": "^5.0.0-alpha.1",
     "debug": "^4.3.4",
     "json-stable-stringify": "^1.0.1",

@@ -5,9 +5,6 @@ let fillContent = '';
 if (process.platform == 'win32') {
   fillContent += `content.msnodesqlv8 = () => require('msnodesqlv8');`;
 }
-if (process.arch != 'arm64') {
-  fillContent += `content.oracledb = () => require('oracledb');`;
-}
 fillContent += `content['better-sqlite3'] = () => require('better-sqlite3');`;
 
 const getContent = empty => `

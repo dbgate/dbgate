@@ -121,7 +121,6 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "9.6.0",
-    "msnodesqlv8": "^4.2.1",
-    "oracledb": "^5.5.0"
+    "msnodesqlv8": "^4.2.1"
   }
 }
