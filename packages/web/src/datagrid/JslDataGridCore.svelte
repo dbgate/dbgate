@@ -72,6 +72,8 @@
   export let selectedCellsPublished = () => [];
   export const activator = createActivator('JslDataGridCore', false);
 
+  export let setLoadedRows;
+
   let loadedRows = [];
   let domGrid;
 
@@ -189,6 +191,7 @@
 
   function handleSetLoadedRows(rows) {
     loadedRows = rows;
+    setLoadedRows?.(rows);
   }
 </script>
 
