@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { openedConnections, currentDatabase } from '../stores';
+import { openedConnections, currentDatabase, openedConnectionsWithTemporary } from '../stores';
 import { apiCall, strmid } from './api';
 import { getConnectionList } from './metadataLoaders';
 
@@ -26,7 +26,7 @@ let openedConnectionsHandle = null;
 let currentDatabaseHandle = null;
 
 export function subscribeConnectionPingers() {
-  openedConnections.subscribe(value => {
+  openedConnectionsWithTemporary.subscribe(value => {
     doServerPing(value);
     if (openedConnectionsHandle) window.clearInterval(openedConnectionsHandle);
     openedConnectionsHandle = window.setInterval(() => doServerPing(value), 20 * 1000);
