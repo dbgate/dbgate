@@ -209,11 +209,11 @@ const drivers = driverBases.map(driverBase => ({
     try {
       const { rows } = await this.query(
         client,
-        'SELECT version_full as "version" FROM product_component_version WHERE product LIKE \'Oracle%Database%\''
+        "SELECT product || ' ' || version_full as \"version\" FROM product_component_version WHERE product LIKE 'Oracle%Database%'"
       );
-      return rows[0].version;
+      return rows[0].version.replace('  ', ' ');
     } catch (e) {
-      const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
+      const { rows } = await this.query(client, 'SELECT banner as "version" FROM v$version');
       return rows[0].version;
     }
   },
@@ -223,16 +223,15 @@ const drivers = driverBases.map(driverBase => ({
       // const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
       const version = await this.getVersionCore(client);
 
-      const m = version.match(/([\d\.]+)/);
+      const m = version.match(/(\d+[a-z])\s+(\w+).*(\d+)\.(\d+)/);
       //console.log('M', m);
       let versionText = null;
       let versionMajor = null;
       let versionMinor = null;
       if (m) {
-        versionText = `Oracle ${m[1]}`;
-        const numbers = m[1].split('.');
-        if (numbers[0]) versionMajor = parseInt(numbers[0]);
-        if (numbers[1]) versionMinor = parseInt(numbers[1]);
+        versionText = `Oracle ${m[1]} ${m[2]}`;
+        if (m[3]) versionMajor = parseInt(m[3]);
+        if (m[4]) versionMinor = parseInt(m[4]);
       }
 
       return {
@@ -245,8 +244,8 @@ const drivers = driverBases.map(driverBase => ({
       return {
         version: '???',
         versionText: 'Oracle ???',
-        versionMajor: 0,
-        versionMinor: 0,
+        versionMajor: null,
+        versionMinor: null,
       };
     }
   },
