@@ -691,7 +691,6 @@
       return;
     }
 
-
     openNewTab(
       {
         title: 'Map',
@@ -1010,6 +1009,8 @@
 
   $: selectedCellsInfo = getSelectedCellsInfo(selectedCells, grider, realColumnUniqueNames, getSelectedRowData());
 
+  $: databaseStatus = useDatabaseStatus({ conid, database });
+
   // $: console.log('visibleRealColumns', visibleRealColumns);
   // $: console.log('visibleRowCountUpperBound', visibleRowCountUpperBound);
   // $: console.log('rowHeight', rowHeight);
@@ -1166,7 +1167,6 @@
     if (event.target.closest('.showFormButtonMarker')) return;
     if (event.target.closest('.inplaceeditor-container')) return;
     if (event.target.closest('input')) return;
-
 
     shiftDragStartCell = null;
     // event.target.closest('table').focus();
@@ -1741,7 +1741,11 @@
 </script>
 
 {#if !display || (!isDynamicStructure && (!columns || columns.length == 0))}
-  <LoadingInfo wrapper message="Waiting for structure" />
+  {#if $databaseStatus?.name == 'pending' || $databaseStatus?.name == 'checkStructure' || $databaseStatus?.name == 'loadStructure'}
+    <LoadingInfo wrapper message="Waiting for structure" />
+  {:else}
+    <ErrorInfo alignTop message="No structure was loaded, probably table doesn't exist in current database" />
+  {/if}
 {:else if errorMessage}
   <div>
     <ErrorInfo message={errorMessage} alignTop />
