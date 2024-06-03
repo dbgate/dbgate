@@ -205,36 +205,50 @@ const drivers = driverBases.map(driverBase => ({
     //console.log('Rows selected: ' + numrows);
     //client.query(query);
   },
-  async getVersion(client) {
-    //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
-    const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
-    const { version } = rows[0];
-
-    const isCockroach = false; //version.toLowerCase().includes('cockroachdb');
-    const isRedshift = false; // version.toLowerCase().includes('redshift');
-    const isOracle = true;
-
-    const m = version.match(/([\d\.]+)/);
-    //console.log('M', m);
-    let versionText = null;
-    let versionMajor = null;
-    let versionMinor = null;
-    if (m) {
-      if (isOracle) versionText = `Oracle ${m[1]}`;
-      const numbers = m[1].split('.');
-      if (numbers[0]) versionMajor = parseInt(numbers[0]);
-      if (numbers[1]) versionMinor = parseInt(numbers[1]);
+  async getVersionCore(client) {
+    try {
+      const { rows } = await this.query(
+        client,
+        'SELECT version_full as "version" FROM product_component_version WHERE product LIKE \'Oracle%Database%\''
+      );
+      return rows[0].version;
+    } catch (e) {
+      const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
+      return rows[0].version;
     }
+  },
+  async getVersion(client) {
+    try {
+      //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
+      // const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
+      const version = await this.getVersionCore(client);
 
-    return {
-      version,
-      versionText,
-      isOracle,
-      isCockroach,
-      isRedshift,
-      versionMajor,
-      versionMinor,
-    };
+      const m = version.match(/([\d\.]+)/);
+      //console.log('M', m);
+      let versionText = null;
+      let versionMajor = null;
+      let versionMinor = null;
+      if (m) {
+        versionText = `Oracle ${m[1]}`;
+        const numbers = m[1].split('.');
+        if (numbers[0]) versionMajor = parseInt(numbers[0]);
+        if (numbers[1]) versionMinor = parseInt(numbers[1]);
+      }
+
+      return {
+        version,
+        versionText,
+        versionMajor,
+        versionMinor,
+      };
+    } catch (e) {
+      return {
+        version: '???',
+        versionText: 'Oracle ???',
+        versionMajor: 0,
+        versionMinor: 0,
+      };
+    }
   },
   async readQuery(client, sql, structure) {
     /*
