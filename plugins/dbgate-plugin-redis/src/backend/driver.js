@@ -81,7 +81,7 @@ function splitCommandLine(str) {
 const driver = {
   ...driverBase,
   analyserClass: Analyser,
-  async connect({ server, port, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
+  async connect({ server, port, user, password, database, useDatabaseUrl, databaseUrl, treeKeySeparator }) {
     let db = 0;
     let pool;
     if (useDatabaseUrl) {
@@ -92,6 +92,7 @@ const driver = {
       pool = new Redis({
         host: server,
         port,
+        username: user,
         password,
         db,
       });
