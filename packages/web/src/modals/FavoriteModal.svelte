@@ -15,7 +15,7 @@
   import FormSelectField from '../forms/FormSelectField.svelte';
   import FormSubmit from '../forms/FormSubmit.svelte';
   import FormButton from '../forms/FormButton.svelte';
-import { apiCall } from '../utility/api';
+  import { apiCall } from '../utility/api';
 
   export let editingData;
   export let savingTab;
@@ -29,8 +29,8 @@ import { apiCall } from '../utility/api';
         urlPath: _.kebabCase(_.deburr(savingTab.title)),
       }
     : editingData
-    ? _.pick(editingData, savedProperties)
-    : {};
+      ? _.pick(editingData, savedProperties)
+      : {};
 
   $: savedFile = savingTab && savingTab.props && savingTab.props.savedFile;
 

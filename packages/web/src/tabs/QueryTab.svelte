@@ -51,6 +51,8 @@
       getCurrentEditor() != null && !getCurrentEditor()?.isBusy() && getCurrentEditor()?.hasConnection(),
     onClick: () => getCurrentEditor().executeCurrent(),
   });
+
+  export const allowSwitchDatabase = props => true;
 </script>
 
 <script lang="ts">
@@ -335,6 +337,15 @@
   }
 
   const quickExportHandlerRef = createQuickExportHandlerRef();
+
+  $: {
+    conid;
+    database;
+    if (canKill()) {
+      kill();
+    }
+    errorMessages = [];
+  }
 
   let isInitialized = false;
 </script>

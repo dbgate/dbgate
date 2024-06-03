@@ -1,6 +1,7 @@
 <script lang="ts" context="module">
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
+  export const allowSwitchDatabase = props => true;
 </script>
 
 <script lang="ts">
@@ -8,9 +9,9 @@
   import { findEngineDriver } from 'dbgate-tools';
   import { setContext } from 'svelte';
   import { writable } from 'svelte/store';
-import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
-import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
-import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
+  import ToolStripCommandButton from '../buttons/ToolStripCommandButton.svelte';
+  import ToolStripContainer from '../buttons/ToolStripContainer.svelte';
+  import ToolStripExportButton, { createQuickExportHandlerRef } from '../buttons/ToolStripExportButton.svelte';
 
   import DataGrid from '../datagrid/DataGrid.svelte';
   import SqlDataGridCore from '../datagrid/SqlDataGridCore.svelte';

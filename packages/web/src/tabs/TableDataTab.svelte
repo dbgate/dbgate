@@ -57,6 +57,7 @@
 
   export const matchingProps = ['conid', 'database', 'schemaName', 'pureName'];
   export const allowAddToFavorites = props => true;
+  export const allowSwitchDatabase = props => true;
 </script>
 
 <script lang="ts">
