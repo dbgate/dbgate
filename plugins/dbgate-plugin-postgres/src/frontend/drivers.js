@@ -33,6 +33,7 @@ const dialect = {
   dropUnique: true,
   createCheck: true,
   dropCheck: true,
+  allowMultipleValuesInsert: true,
 
   dropReferencesWhenDropTable: true,
   requireStandaloneSelectForScopeIdentity: true,

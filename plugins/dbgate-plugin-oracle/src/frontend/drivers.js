@@ -6,7 +6,7 @@ const spatialTypes = ['GEOGRAPHY'];
 
 /** @type {import('dbgate-types').SqlDialect} */
 const dialect = {
-  rangeSelect: false,
+  rangeSelect: true,
   limitSelect: false,
   offsetFetchRangeSyntax: true,
   ilike: true,
@@ -19,7 +19,6 @@ const dialect = {
   quoteIdentifier(s) {
     return '"' + s + '"';
   },
-  stringAgg: true,
 
   createColumn: true,
   dropColumn: true,
@@ -38,49 +37,30 @@ const dialect = {
   dropReferencesWhenDropTable: true,
 
   predefinedDataTypes: [
-    'bigint',
-    'bigserial',
-    'bit',
-    'varbit',
-    'boolean',
-    'box',
-    'bytea',
-    'char(20)',
-    'varchar(250)',
-    'cidr',
-    'circle',
-    'date',
-    'double precision',
-    'inet',
-    'int',
-    'interval',
-    'json',
-    'jsonb',
-    'line',
-    'lseg',
-    'macaddr',
-    'macaddr8',
-    'money',
-    'numeric(10,2)',
-    'path',
-    'pg_lsn',
-    'pg_snapshot',
-    'point',
-    'polygon',
-    'real',
-    'smallint',
-    'smallserial',
-    'serial',
-    'text',
-    'time',
-    'timetz',
-    'timestamp',
-    'timestamptz',
-    'tsquery',
-    'tsvector',
-    'txid_snapshot',
-    'uuid',
-    'xml',
+    'VARCHAR2',
+    'NUMBER',
+    'DATE',
+    'CLOB',
+    'BLOB',
+    'INTEGER',
+
+    'BFILE',
+    'BINARY_DOUBLE',
+    'BINARY_FLOAT',
+    'CHAR',
+    'FLOAT',
+    'INTERVAL DAY',
+    'INTERVAL YEAR',
+    'LONG',
+    'LONG RAW',
+    'NCHAR',
+    'NCLOB',
+    'NVARCHAR2',
+    'RAW',
+    'ROWID',
+    'TIMESTAMP',
+    'UROWID',
+    // 'XMLTYPE',
   ],
 
   createColumnViewExpression(columnName, dataType, source, alias) {
@@ -110,32 +90,15 @@ const oracleDriverBase = {
   getQuerySplitterOptions: () => oracleSplitterOptions,
   readOnlySessions: true,
 
-  databaseUrlPlaceholder: 'e.g. oracledb://user:password@localhost:1521',
+  databaseUrlPlaceholder: 'e.g. localhost:1521/orcl',
 
   showConnectionField: (field, values) => {
     if (field == 'useDatabaseUrl') return true;
     if (values.useDatabaseUrl) {
-      return ['databaseUrl', 'isReadOnly'].includes(field);
+      return ['databaseUrl', 'user', 'password'].includes(field);
     }
 
-    return ['user', 'password', 'defaultDatabase', 'singleDatabase', 'isReadOnly', 'server', 'port'].includes(field);
-  },
-
-  beforeConnectionSave: connection => {
-    const { databaseUrl } = connection;
-    if (databaseUrl) {
-      const m = databaseUrl.match(/\/([^/]+)($|\?)/);
-      return {
-        ...connection,
-        singleDatabase: !!m,
-        defaultDatabase: m ? m[1] : null,
-      };
-    }
-    return connection;
-  },
-
-  __analyserInternals: {
-    refTableCond: '',
+    return ['user', 'password', 'server', 'port', 'serviceName'].includes(field);
   },
 
   getNewObjectTemplates() {
@@ -168,7 +131,7 @@ $$ LANGUAGE plpgsql;`,
 const oracleDriver = {
   ...oracleDriverBase,
   engine: 'oracle@dbgate-plugin-oracle',
-  title: 'OracleDB (Experimental)',
+  title: 'OracleDB',
   defaultPort: 1521,
   dialect: {
     ...dialect,
@@ -189,7 +152,7 @@ const oracleDriver = {
     return dialect;
   },
 
-  showConnectionTab: (field) => field == 'sshTunnel',
+  showConnectionTab: field => field == 'sshTunnel',
 };
 
 module.exports = [oracleDriver];

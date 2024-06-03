@@ -199,14 +199,8 @@ export class SqlDumper implements AlterProcessor {
 
   selectScopeIdentity(table: TableInfo) {}
 
-  columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
-    if (column.computedExpression) {
-      this.put('^as %s', column.computedExpression);
-      if (column.isPersisted) this.put(' ^persisted');
-      return;
-    }
-
-    const type = column.dataType || this.dialect.fallbackDataType;
+  columnType(dataType: string) {
+    const type = dataType || this.dialect.fallbackDataType;
     const typeWithValues = type.match(/([^(]+)(\(.+[^)]\))/);
 
     if (typeWithValues?.length) {
@@ -216,6 +210,17 @@ export class SqlDumper implements AlterProcessor {
     } else {
       this.putRaw(SqlDumper.convertKeywordCase(type));
     }
+
+  }
+
+  columnDefinition(column: ColumnInfo, { includeDefault = true, includeNullable = true, includeCollate = true } = {}) {
+    if (column.computedExpression) {
+      this.put('^as %s', column.computedExpression);
+      if (column.isPersisted) this.put(' ^persisted');
+      return;
+    }
+
+    this.columnType(column.dataType);
 
     if (column.autoIncrement) {
       this.autoIncrement();

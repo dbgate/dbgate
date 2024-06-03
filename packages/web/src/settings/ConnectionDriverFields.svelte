@@ -123,6 +123,10 @@
   {/if}
 {/if}
 
+{#if driver?.showConnectionField('serviceName', $values)}
+  <FormTextField label="Service name" name="serviceName" disabled={isConnected} />
+{/if}
+
 {#if driver?.showConnectionField('socketPath', $values)}
   <FormTextField
     label="Socket path"

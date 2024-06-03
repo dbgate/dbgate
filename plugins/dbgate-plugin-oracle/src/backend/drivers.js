@@ -4,19 +4,9 @@ const stream = require('stream');
 const driverBases = require('../frontend/drivers');
 const Analyser = require('./Analyser');
 //--const pg = require('pg');
-//const oracledb = require('oracledb');
+const oracledb = require('oracledb');
 const { createBulkInsertStreamBase, makeUniqueColumnNames } = require('dbgate-tools');
-
-
-let requireOracledb; // native module
-
-let oracledbValue;
-function getOracledb() {
-  if (!oracledbValue) {
-    oracledbValue = requireOracledb();
-  }
-  return oracledbValue;
-}
+const createOracleBulkInsertStream = require('./createOracleBulkInsertStream');
 
 /*
 pg.types.setTypeParser(1082, 'text', val => val); // date
@@ -57,23 +47,31 @@ const drivers = driverBases.map(driverBase => ({
     database,
     databaseUrl,
     useDatabaseUrl,
+    serviceName,
     ssl,
     isReadOnly,
     authType,
     socketPath,
   }) {
-    client = await getOracledb().getConnection({
+    client = await oracledb.getConnection({
       user,
       password,
-      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}` : server,
+      connectString: useDatabaseUrl ? databaseUrl : port ? `${server}:${port}/${serviceName}` : server,
     });
+    if (database) {
+      await client.execute(`ALTER SESSION SET CURRENT_SCHEMA = ${database}`);
+    }
+    client._schema_name = database;
     return client;
   },
   async close(pool) {
     return pool.end();
   },
   async query(client, sql) {
-    //console.log('query sql', sql);
+    if (sql.trim() == 'COMMIT;') {
+      sql = 'COMMIT';
+    }
+
     if (sql == null) {
       return {
         rows: [],
@@ -101,112 +99,155 @@ const drivers = driverBases.map(driverBase => ({
     });
 */
     // console.log('queryStream', sql);
-    const query = client.queryStream(sql);
-    // const consumeStream = new Promise((resolve, reject) => {
-    let rowcount = 0;
-    let wasHeader = false;
 
-    query.on('metadata', row => {
-      // console.log('metadata', row);
-      if (!wasHeader) {
-        columns = extractOracleColumns(row);
-        if (columns && columns.length > 0) {
-          options.recordset(columns);
+    if (sql.trim().toLowerCase().startsWith('select')) {
+      const query = client.queryStream(sql);
+      // const consumeStream = new Promise((resolve, reject) => {
+      let rowcount = 0;
+      let wasHeader = false;
+
+      query.on('metadata', row => {
+        // console.log('metadata', row);
+        if (!wasHeader) {
+          columns = extractOracleColumns(row);
+          if (columns && columns.length > 0) {
+            options.recordset(columns);
+          }
+          wasHeader = true;
         }
-        wasHeader = true;
-      }
 
-      // options.row(zipDataRow(row, columns));
-    });
-
-    query.on('data', row => {
-      // console.log('stream DATA');
-      if (!wasHeader) {
-        columns = extractOracleColumns(row);
-        if (columns && columns.length > 0) {
-          options.recordset(columns);
-        }
-        wasHeader = true;
-      }
-      options.row(zipDataRow(row, columns));
-    });
-
-    query.on('end', () => {
-      const { command, rowCount } = query._result || {};
-
-      if (command != 'SELECT' && _.isNumber(rowCount)) {
-        options.info({
-          message: `${rowCount} rows affected`,
-          time: new Date(),
-          severity: 'info',
-        });
-      }
-
-      if (!wasHeader) {
-        columns = extractOracleColumns(query._result);
-        if (columns && columns.length > 0) {
-          options.recordset(columns);
-        }
-        wasHeader = true;
-      }
-
-      options.done();
-    });
-
-    query.on('error', error => {
-      console.log('ERROR', error);
-      const { message, lineNumber, procName } = error;
-      options.info({
-        message,
-        line: lineNumber,
-        procedure: procName,
-        time: new Date(),
-        severity: 'error',
+        // options.row(zipDataRow(row, columns));
       });
-      options.done();
-    });
-    query.on('close', function () {
-      //console.log("stream 'close' event");
-      // The underlying ResultSet has been closed, so the connection can now
-      // be closed, if desired.  Note: do not close connections on 'end'.
-      //resolve(rowcount);
-    });
-    //});
 
+      query.on('data', row => {
+        // console.log('stream DATA');
+        if (!wasHeader) {
+          columns = extractOracleColumns(row);
+          if (columns && columns.length > 0) {
+            options.recordset(columns);
+          }
+          wasHeader = true;
+        }
+        options.row(zipDataRow(row, columns));
+      });
+
+      query.on('end', () => {
+        const { command, rowCount } = query._result || {};
+
+        if (command != 'SELECT' && _.isNumber(rowCount)) {
+          options.info({
+            message: `${rowCount} rows affected`,
+            time: new Date(),
+            severity: 'info',
+          });
+        }
+
+        if (!wasHeader) {
+          columns = extractOracleColumns(query._result);
+          if (columns && columns.length > 0) {
+            options.recordset(columns);
+          }
+          wasHeader = true;
+        }
+
+        options.done();
+      });
+
+      query.on('error', error => {
+        console.log('ERROR', error);
+        const { message, lineNumber, procName } = error;
+        options.info({
+          message,
+          line: lineNumber,
+          procedure: procName,
+          time: new Date(),
+          severity: 'error',
+        });
+        options.done();
+      });
+      query.on('close', function () {
+        //console.log("stream 'close' event");
+        // The underlying ResultSet has been closed, so the connection can now
+        // be closed, if desired.  Note: do not close connections on 'end'.
+        //resolve(rowcount);
+      });
+      //});
+    } else {
+      client.execute(sql, (err, res) => {
+        if (err) {
+          console.log('Error query', err, sql);
+          options.info({
+            message: err.message,
+            time: new Date(),
+            severity: 'error',
+          });
+        } else {
+          const { rowsAffected, metaData, rows } = res || {};
+
+          if (rows && metaData) {
+            const columns = extractOracleColumns(metaData);
+            options.recordset(columns);
+            for (const row of rows) {
+              options.row(zipDataRow(row, columns));
+            }
+          } else if (rowsAffected) {
+            options.info({
+              message: `${rowsAffected} rows affected`,
+              time: new Date(),
+              severity: 'info',
+            });
+          }
+        }
+        options.done();
+      });
+    }
     //const numrows = await consumeStream;
     //console.log('Rows selected: ' + numrows);
     //client.query(query);
   },
-  async getVersion(client) {
-    //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
-    const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
-    const { version } = rows[0];
-
-    const isCockroach = false; //version.toLowerCase().includes('cockroachdb');
-    const isRedshift = false; // version.toLowerCase().includes('redshift');
-    const isOracle = true;
-
-    const m = version.match(/([\d\.]+)/);
-    //console.log('M', m);
-    let versionText = null;
-    let versionMajor = null;
-    let versionMinor = null;
-    if (m) {
-      if (isOracle) versionText = `Oracle ${m[1]}`;
-      const numbers = m[1].split('.');
-      if (numbers[0]) versionMajor = parseInt(numbers[0]);
-      if (numbers[1]) versionMinor = parseInt(numbers[1]);
+  async getVersionCore(client) {
+    try {
+      const { rows } = await this.query(
+        client,
+        "SELECT product || ' ' || version_full as \"version\" FROM product_component_version WHERE product LIKE 'Oracle%Database%'"
+      );
+      return rows[0].version.replace('  ', ' ');
+    } catch (e) {
+      const { rows } = await this.query(client, 'SELECT banner as "version" FROM v$version');
+      return rows[0].version;
     }
+  },
+  async getVersion(client) {
+    try {
+      //const { rows } = await this.query(client, "SELECT banner as version FROM v$version WHERE banner LIKE 'Oracle%'");
+      // const { rows } = await this.query(client, 'SELECT version as "version" FROM v$instance');
+      const version = await this.getVersionCore(client);
 
-    return {
-      version,
-      versionText,
-      isOracle,
-      isCockroach,
-      isRedshift,
-      versionMajor,
-      versionMinor,
-    };
+      const m = version.match(/(\d+[a-z])\s+(\w+).*(\d+)\.(\d+)/);
+      //console.log('M', m);
+      let versionText = null;
+      let versionMajor = null;
+      let versionMinor = null;
+      if (m) {
+        versionText = `Oracle ${m[1]} ${m[2]}`;
+        if (m[3]) versionMajor = parseInt(m[3]);
+        if (m[4]) versionMinor = parseInt(m[4]);
+      }
+
+      return {
+        version,
+        versionText,
+        versionMajor,
+        versionMinor,
+      };
+    } catch (e) {
+      return {
+        version: '???',
+        versionText: 'Oracle ???',
+        versionMajor: null,
+        versionMinor: null,
+      };
+    }
   },
   async readQuery(client, sql, structure) {
     /*
@@ -261,11 +302,10 @@ const drivers = driverBases.map(driverBase => ({
     return pass;
   },
   async writeTable(pool, name, options) {
-    // @ts-ignore
-    return createBulkInsertStreamBase(this, stream, pool, name, options);
+    return createOracleBulkInsertStream(this, stream, pool, name, options);
   },
   async listDatabases(client) {
-    const { rows } = await this.query(client, 'SELECT instance_name AS "name" FROM v$instance');
+    const { rows } = await this.query(client, 'SELECT username as "name" from all_users order by username');
     return rows;
   },
 
@@ -282,11 +322,5 @@ const drivers = driverBases.map(driverBase => ({
     ];
   },
 }));
-
-drivers.initialize = dbgateEnv => {
-  if (dbgateEnv.nativeModules && dbgateEnv.nativeModules.oracledb) {
-    requireOracledb = dbgateEnv.nativeModules.oracledb;
-  }
-};
 
 module.exports = drivers;

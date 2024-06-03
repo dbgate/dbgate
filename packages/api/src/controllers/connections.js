@@ -61,6 +61,7 @@ function getPortalCollections() {
       useDatabaseUrl: !!process.env[`URL_${id}`],
       databaseFile: process.env[`FILE_${id}`],
       socketPath: process.env[`SOCKET_PATH_${id}`],
+      serviceName: process.env[`SERVICE_NAME_${id}`],
       authType: process.env[`AUTH_TYPE_${id}`] || (process.env[`SOCKET_PATH_${id}`] ? 'socket' : undefined),
       defaultDatabase:
         process.env[`DATABASE_${id}`] ||

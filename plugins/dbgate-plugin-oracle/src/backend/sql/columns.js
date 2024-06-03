@@ -1,6 +1,6 @@
 module.exports = `
 select
-  owner as "schema_name",
+  -- owner as "schema_name",
   table_name as "pure_name",
   column_name as "column_name",
   nullable as "is_nullable",
@@ -10,6 +10,6 @@ select
   data_scale as "numeric_scale",
   data_default as "default_value"
   FROM all_tab_columns av
-  where TABLE_NAME =OBJECT_ID_CONDITION
+  where OWNER='$owner' AND 'tables:' || TABLE_NAME =OBJECT_ID_CONDITION
 order by column_id
 `;
