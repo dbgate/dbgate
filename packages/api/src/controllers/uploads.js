@@ -12,6 +12,7 @@ const _ = require('lodash');
 const serverConnections = require('./serverConnections');
 const config = require('./config');
 const gistSecret = require('../gistSecret');
+const currentVersion = require('../currentVersion');
 
 module.exports = {
   upload_meta: {
@@ -59,7 +60,7 @@ module.exports = {
       const response = await axios.default.post(
         'https://api.github.com/gists',
         {
-          description: 'DbGate error report',
+          description: `DbGate ${currentVersion.version} error report`,
           public: false,
           files: {
             'logs.jsonl': {
@@ -92,6 +93,9 @@ module.exports = {
             },
             'connections.json': {
               content: JSON.stringify(connections, null, 2),
+            },
+            'version.json': {
+              content: JSON.stringify(currentVersion, null, 2),
             },
           },
         },
