@@ -293,16 +293,16 @@ class Analyser extends DatabaseAnalyser {
 
     this.logger.debug(
       {
-        tables: res.tables.length,
-        columns: _.sum(res.tables.map(x => x.columns.length)),
-        primaryKeys: res.tables.filter(x => x.primaryKey).length,
-        foreignKeys: _.sum(res.tables.map(x => x.foreignKeys.length)),
-        indexes: _.sum(res.tables.map(x => x.indexes.length)),
-        uniques: _.sum(res.tables.map(x => x.uniques.length)),
-        views: res.views.length,
-        matviews: res.matviews.length,
-        procedures: res.procedures.length,
-        functions: res.functions.length,
+        tables: res.tables?.length,
+        columns: _.sum(res.tables?.map(x => x.columns?.length)),
+        primaryKeys: res.tables?.filter(x => x.primaryKey)?.length,
+        foreignKeys: _.sum(res.tables?.map(x => x.foreignKeys?.length)),
+        indexes: _.sum(res.tables?.map(x => x.indexes?.length)),
+        uniques: _.sum(res.tables?.map(x => x.uniques?.length)),
+        views: res.views?.length,
+        matviews: res.matviews?.length,
+        procedures: res.procedures?.length,
+        functions: res.functions?.length,
       },
       'Database structured finalized'
     );
