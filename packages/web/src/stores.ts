@@ -146,9 +146,13 @@ export const currentThemeDefinition = derived([currentTheme, extensions], ([$cur
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
 );
 export const openedConnectionsWithTemporary = derived(
-  [openedConnections, temporaryOpenedConnections],
-  ([$openedConnections, $temporaryOpenedConnections]) =>
-    _.uniq([...$openedConnections, ...$temporaryOpenedConnections.map(x => x.conid)])
+  [openedConnections, temporaryOpenedConnections, openedSingleDatabaseConnections],
+  ([$openedConnections, $temporaryOpenedConnections, $openedSingleDatabaseConnections]) =>
+    _.uniq([
+      ...$openedConnections,
+      ...$temporaryOpenedConnections.map(x => x.conid),
+      ...$openedSingleDatabaseConnections,
+    ])
 );
 
 let nativeMenuOnStartup = null;
