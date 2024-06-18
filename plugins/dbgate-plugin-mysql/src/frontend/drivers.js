@@ -22,6 +22,7 @@ const dialect = {
   enableConstraintsPerTable: false,
   anonymousPrimaryKey: true,
   explicitDropConstraint: true,
+  allowMultipleValuesInsert: true,
   quoteIdentifier(s) {
     return '`' + s + '`';
   },

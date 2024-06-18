@@ -8,6 +8,14 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.3.0
+- CHANGED: New Oracle driver, much better Oracle support. Works now also in docker distribution
+- FIXED: Connection to oracle with service name #809
+- ADDED: Connect to redis using a custom username #807
+- FIXED: Unable to open SQL files #797
+- FIXED: MongoDB query without columns #811
+- ADDED: Switch connection for opened file #814
+
 ### 5.2.9
 - FIXED: PostgresSQL doesn't show tables when connected #793 #805
 - FIXED: MongoDB write operations fail #798 #802

@@ -292,6 +292,7 @@
   import { useConnectionColorFactory } from '../utility/useConnectionColor';
   import TabCloseButton from '../elements/TabCloseButton.svelte';
   import CloseTabModal from '../modals/CloseTabModal.svelte';
+  import SwitchDatabaseModal from '../modals/SwitchDatabaseModal.svelte';
 
   export let multiTabIndex;
   export let shownTab;
@@ -304,8 +305,8 @@
     $currentDatabase && $currentDatabase.name && $currentDatabase.connection
       ? `database://${$currentDatabase.name}-${$currentDatabase.connection._id}`
       : $currentDatabase && $currentDatabase.connection
-      ? `server://${$currentDatabase.connection._id}`
-      : '_no';
+        ? `server://${$currentDatabase.connection._id}`
+        : '_no';
 
   $: tabsWithDb = $openedTabs.filter(showTabFilterFunc).map(tab => ({
     ...tab,
@@ -370,6 +371,16 @@
           {
             text: 'Add to favorites',
             onClick: () => showModal(FavoriteModal, { savingTab: tab }),
+          },
+        ],
+      tabComponent &&
+        tabs[tabComponent] &&
+        tabs[tabComponent].allowSwitchDatabase &&
+        tabs[tabComponent].allowSwitchDatabase(props) && [
+          { divider: true },
+          {
+            text: 'Switch database',
+            onClick: () => showModal(SwitchDatabaseModal, { callingTab: tab }),
           },
         ],
       { divider: true },

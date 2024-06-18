@@ -82,6 +82,7 @@ export const visibleSelectedWidget = derived(
 export const emptyConnectionGroupNames = writableWithStorage([], 'emptyConnectionGroupNames');
 export const collapsedConnectionGroupNames = writableWithStorage([], 'collapsedConnectionGroupNames');
 export const openedConnections = writable([]);
+export const temporaryOpenedConnections = writable([]);
 export const openedSingleDatabaseConnections = writable([]);
 export const expandedConnections = writable([]);
 export const currentDatabase = writable(null);
@@ -143,6 +144,15 @@ export const activeDbKeysStore = writableWithStorage({}, 'activeDbKeysStore');
 
 export const currentThemeDefinition = derived([currentTheme, extensions], ([$currentTheme, $extensions]) =>
   $extensions.themes.find(x => x.themeClassName == $currentTheme)
+);
+export const openedConnectionsWithTemporary = derived(
+  [openedConnections, temporaryOpenedConnections, openedSingleDatabaseConnections],
+  ([$openedConnections, $temporaryOpenedConnections, $openedSingleDatabaseConnections]) =>
+    _.uniq([
+      ...$openedConnections,
+      ...$temporaryOpenedConnections.map(x => x.conid),
+      ...$openedSingleDatabaseConnections,
+    ])
 );
 
 let nativeMenuOnStartup = null;

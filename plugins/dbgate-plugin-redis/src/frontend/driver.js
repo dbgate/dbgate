@@ -80,7 +80,7 @@ const driver = {
     if (values.useDatabaseUrl) {
       return ['databaseUrl', 'isReadOnly', 'treeKeySeparator'].includes(field);
     }
-    return ['server', 'port', 'password', 'isReadOnly', 'treeKeySeparator'].includes(field);
+    return ['server', 'port', 'user', 'password', 'isReadOnly', 'treeKeySeparator'].includes(field);
   },
 
   showConnectionTab: (field) => field == 'sshTunnel',

@@ -38,7 +38,7 @@ function getLogins() {
       permissions: process.env.PERMISSIONS,
     });
   }
-  if (process.env.LOGINS || process.env.OAUTH_PERMISSIONS) {
+  if (process.env.LOGINS) {
     const logins = _.compact(process.env.LOGINS.split(',').map(x => x.trim()));
     for (const login of logins) {
       const password = process.env[`LOGIN_PASSWORD_${login}`];
@@ -50,13 +50,14 @@ function getLogins() {
           permissions,
         });
       }
-      if (process.env.OAUTH_PERMISSIONS) {
-        res.push({
-          login,
-          password: null,
-          permissions,
-        })
-      }
+    }
+  }
+  else if (process.env.OAUTH_PERMISSIONS) {
+    const login_permission_keys = Object.keys(process.env).filter((key) => _.startsWith(key, 'LOGIN_PERMISSIONS_'))
+    for (const permissions_key of login_permission_keys) {
+      const login = permissions_key.replace('LOGIN_PERMISSIONS_', '');
+      const permissions = process.env[permissions_key];
+      userPermissions[login] = compilePermissions(permissions);
     }
   }
 
