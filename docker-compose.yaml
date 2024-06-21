@@ -16,16 +16,22 @@ services:
     volumes:
       - dbgate-data:/root/.dbgate
     
-    # environment:
-    #   WEB_ROOT: /dbgate
+#    environment:
+#      WEB_ROOT: /dbgate
 
-      # CONNECTIONS: mssql
-      # LABEL_mssql: MS Sql
-      # SERVER_mssql: mssql
-      # USER_mssql: sa
-      # PORT_mssql: 1433
-      # PASSWORD_mssql: Pwd2020Db
-      # ENGINE_mssql: mssql@dbgate-plugin-mssql
+#      CONNECTIONS: mssql
+#      LABEL_mssql: MS Sql
+#      SERVER_mssql: mssql
+#      USER_mssql: sa
+#      PORT_mssql: 1433
+#      PASSWORD_mssql: Pwd2020Db
+#      ENGINE_mssql: mssql@dbgate-plugin-mssql
+
+#      CONNECTIONS: pg
+#
+#      LABEL_pg: Postgres
+#      URL_pg: postgres://postgres:postgres@postgres:5432/dbgate-test?sslmode=disable
+#      ENGINE_pg: postgres@dbgate-plugin-postgres
   # proxy:
   #   # image: nginx
   #   build: test/nginx
@@ -48,6 +54,17 @@ services:
   #     - ACCEPT_EULA=Y
   #     - SA_PASSWORD=Pwd2020Db
   #     - MSSQL_PID=Express
+
+#  postgres:
+#    environment:
+#      POSTGRES_DB: "dbgate-test"
+#      POSTGRES_PASSWORD: "postgres"
+#      POSTGRES_USER: "postgres"
+#      POSTGRES_HOST_AUTH_METHOD: "trust"
+#    image: postgres:13.1-alpine
+#    ports:
+#      - "5432:5432"
+#    restart: on-failure
 
 volumes:
   dbgate-data:
