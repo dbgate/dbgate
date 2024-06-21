@@ -8,14 +8,12 @@ function hasPermission(tested, req) {
     // request object not available, allow all
     return true;
   }
-  const { user } = (req && req.auth) || {};
-  const { login } = (process.env.OAUTH_PERMISSIONS && req && req.user) || {};
-  const key = user || login || '';
+  const key = req.user ? req.user.login : req.auth && req.auth.login ? req.auth.user.login : '';
   const logins = getLogins();
 
   if (!userPermissions[key]) {
     if (logins) {
-      const login = logins.find(x => x.login == user);
+      const login = logins.find(x => x.login == key);
       userPermissions[key] = compilePermissions(login ? login.permissions : null);
     } else {
       userPermissions[key] = compilePermissions(process.env.PERMISSIONS);
