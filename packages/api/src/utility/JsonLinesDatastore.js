@@ -210,7 +210,7 @@ class JsonLinesDatastore {
   async getRows(offset, limit, filter, sort) {
     const res = [];
     if (sort && !this.sortedFiles[stableStringify(sort)]) {
-      const jslid = uuidv1();
+      const jslid = crypto.randomUUID();
       const sortedFile = path.join(jsldir(), `${jslid}.jsonl`);
       await JsonLinesDatastore.sortFile(this.file, sortedFile, sort);
       this.sortedFiles[stableStringify(sort)] = sortedFile;

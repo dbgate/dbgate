@@ -149,7 +149,7 @@ module.exports = {
     const { sesid } = await this.create({ conid, database });
     const session = this.opened.find(x => x.sesid == sesid);
     session.killOnDone = true;
-    const jslid = uuidv1();
+    const jslid = crypto.randomUUID();
     session.loadingReader_jslid = jslid;
     const fileName = queryName && appFolder ? path.join(appdir(), appFolder, `${queryName}.query.sql`) : null;
 
@@ -169,7 +169,7 @@ module.exports = {
 
   startProfiler_meta: true,
   async startProfiler({ sesid }) {
-    const jslid = uuidv1();
+    const jslid = crypto.randomUUID();
     const session = this.opened.find(x => x.sesid == sesid);
     if (!session) {
       throw new Error('Invalid session');
