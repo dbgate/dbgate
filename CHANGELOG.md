@@ -8,6 +8,12 @@ Builds:
  - linux - application for linux
  - win - application for Windows
 
+### 5.3.1
+- FIXED: Column sorting on query tab not working #819
+- FIXED: Postgres Connection stays in "Loading database structure" until reloading the page #826
+- FIXED: Cannot read properties of undefined (reading 'length') on Tables #824
+- FIXED: Redshift doesn't show tables when connected #816
+
 ### 5.3.0
 - CHANGED: New Oracle driver, much better Oracle support. Works now also in docker distribution
 - FIXED: Connection to oracle with service name #809
