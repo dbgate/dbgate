@@ -98,6 +98,7 @@ if (processArgs.listenApi) {
 
 const shell = require('./shell/index');
 const dbgateTools = require('dbgate-tools');
+const currentVersion = require('./currentVersion');
 
 global['DBGATE_TOOLS'] = dbgateTools;
 
@@ -116,6 +117,7 @@ module.exports = {
   ...shell,
   getLogger,
   configureLogger,
+  currentVersion,
   // loadLogsContent,
   getMainModule: () => require('./main'),
 };

@@ -26,6 +26,8 @@ async function runAndExit(promise) {
   }
 }
 
+program.version(dbgateApi.currentVersion.version);
+
 program
   .option('-s, --server <server>', 'server host')
   .option('-u, --user <user>', 'user name')
