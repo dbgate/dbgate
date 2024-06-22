@@ -20,6 +20,8 @@
     "start:api:singledb": "yarn workspace dbgate-api start:singledb | pino-pretty",
     "start:api:auth": "yarn workspace dbgate-api start:auth | pino-pretty",
     "start:api:dblogin": "yarn workspace dbgate-api start:dblogin | pino-pretty",
+    "start:api:storage": "yarn workspace dbgate-api start:storage | pino-pretty",
+    "sync:pro": "cd sync && yarn start",
     "start:web": "yarn workspace dbgate-web dev",
     "start:sqltree": "yarn workspace dbgate-sqltree start",
     "start:tools": "yarn workspace dbgate-tools start",

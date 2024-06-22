@@ -16,7 +16,6 @@ const { safeJsonParse, getLogger } = require('dbgate-tools');
 const platformInfo = require('../utility/platformInfo');
 const { connectionHasPermission, testConnectionPermission } = require('../utility/hasPermission');
 const pipeForkLogs = require('../utility/pipeForkLogs');
-const storage = require('./storage');
 
 const logger = getLogger('connections');
 
@@ -200,6 +199,8 @@ module.exports = {
 
   list_meta: true,
   async list(_params, req) {
+    const storage = require('./storage');
+
     const storageConnectionst = await storage.connections();
     if (storageConnectionst) {
       return storageConnectionst;

@@ -18,6 +18,7 @@ const sessions = require('./controllers/sessions');
 const runners = require('./controllers/runners');
 const jsldata = require('./controllers/jsldata');
 const config = require('./controllers/config');
+const storage = require('./controllers/storage');
 const archive = require('./controllers/archive');
 const apps = require('./controllers/apps');
 const auth = require('./controllers/auth');
@@ -162,6 +163,7 @@ function useAllControllers(app, electron) {
   useController(app, electron, '/runners', runners);
   useController(app, electron, '/jsldata', jsldata);
   useController(app, electron, '/config', config);
+  useController(app, electron, '/storage', storage);
   useController(app, electron, '/archive', archive);
   useController(app, electron, '/uploads', uploads);
   useController(app, electron, '/plugins', plugins);
