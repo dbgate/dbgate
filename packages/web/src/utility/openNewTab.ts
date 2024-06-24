@@ -152,6 +152,9 @@ export function getTabDbKey(tab) {
   if (tab.tabComponent == 'ConnectionTab') {
     return 'connections.';
   }
+  if (tab.tabComponent?.startsWith('Admin')) {
+    return 'admin.';
+  }
   if (tab.props && tab.props.conid && tab.props.database) {
     return `database://${tab.props.database}-${tab.props.conid}`;
   }
