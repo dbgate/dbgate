@@ -7,6 +7,7 @@
   import CellDataWidget from './CellDataWidget.svelte';
   import HistoryWidget from './HistoryWidget.svelte';
   import AppWidget from './AppWidget.svelte';
+  import AdminMenuWidget from './AdminMenuWidget.svelte';
 </script>
 
 <DatabaseWidget hidden={$visibleSelectedWidget != 'database'} />
@@ -28,4 +29,7 @@
 {/if}
 {#if $visibleSelectedWidget == 'app'}
   <AppWidget />
+{/if}
+{#if $visibleSelectedWidget == 'admin'}
+  <AdminMenuWidget />
 {/if}

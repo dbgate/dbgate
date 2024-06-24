@@ -17,6 +17,11 @@
 
   const widgets = [
     {
+      icon: 'icon admin',
+      name: 'admin',
+      title: 'Administration',
+    },
+    {
       icon: 'icon database',
       name: 'database',
       title: 'Database connections',
