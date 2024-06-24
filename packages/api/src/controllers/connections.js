@@ -201,9 +201,9 @@ module.exports = {
   async list(_params, req) {
     const storage = require('./storage');
 
-    const storageConnectionst = await storage.connections();
-    if (storageConnectionst) {
-      return storageConnectionst;
+    const storageConnections = await storage.connections();
+    if (storageConnections) {
+      return storageConnections;
     }
     if (portalConnections) {
       if (platformInfo.allowShellConnection) return portalConnections;
@@ -342,6 +342,14 @@ module.exports = {
     if (volatile) {
       return volatile;
     }
+
+    const storage = require('./storage');
+
+    const storageConnection = await storage.getConnection({conid});
+    if (storageConnection) {
+      return storageConnection;
+    }
+
     if (portalConnections) {
       const res = portalConnections.find(x => x._id == conid) || null;
       return mask && !platformInfo.allowShellConnection ? maskConnection(res) : res;
