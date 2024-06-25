@@ -12,7 +12,7 @@ DbGate is cross-platform database manager.
 It's designed to be simple to use and effective, when working with more databases simultaneously.
 But there are also many advanced features like schema compare, visual query designer, chart visualisation or batch export and import.
 
-DbGate is licensed under MIT license and is completely free.
+DbGate is licensed under GPL-3.0 license and is free.
 
 * Try it online - [demo.dbgate.org](https://demo.dbgate.org) - online demo application
 * **Download** application for Windows, Linux or Mac from [dbgate.org](https://dbgate.org/download/)
