@@ -2,7 +2,7 @@
   "name": "dbgate-plugin-redis",
   "main": "dist/backend.js",
   "version": "1.0.0",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "description": "Redis connector plugin for DbGate",
   "homepage": "https://dbgate.org",
   "repository": {

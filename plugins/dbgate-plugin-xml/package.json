@@ -9,7 +9,7 @@
     "url": "https://github.com/dbgate/dbgate"
   },
   "author": "Jan Prochazka",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "keywords": [
     "xml",
     "import",

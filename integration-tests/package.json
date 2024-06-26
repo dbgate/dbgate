@@ -7,7 +7,7 @@
     "url": "https://github.com/dbgate/dbgate.git"
   },
   "author": "Jan Prochazka",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "scripts": {
     "wait:local": "cross-env DEVMODE=1 LOCALTEST=1 node wait.js",
     "wait:ci": "cross-env DEVMODE=1 CITEST=1 node wait.js",

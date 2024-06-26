@@ -2,7 +2,7 @@
   "name": "dbgate-plugin-postgres",
   "main": "dist/backend.js",
   "version": "5.0.0-alpha.1",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "description": "PostgreSQL connector plugin for DbGate",
   "homepage": "https://dbgate.org",
   "repository": {

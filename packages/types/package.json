@@ -7,7 +7,7 @@
     "url": "https://github.com/dbgate/dbgate.git"
   },
   "author": "Jan Prochazka",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "keywords": [
     "dbgate"
   ],
