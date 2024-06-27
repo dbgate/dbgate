@@ -77,6 +77,10 @@ export function extractRowCopiedValue(row, col) {
   return stringifyCellValue(value);
 }
 
+const clipboardHeadersFormatter = (delimiter) => (columns) => {
+  return columns.join(delimiter);
+};
+
 const clipboardTextFormatter = (delimiter, headers) => (columns, rows) => {
   const lines = [];
   if (headers) lines.push(columns.join(delimiter));
@@ -160,6 +164,11 @@ export const copyRowsFormatDefs = {
     label: 'Copy without headers',
     name: 'Without headers',
     formatter: clipboardTextFormatter('\t', false),
+  },
+  headers: {
+    label: 'Copy only headers',
+    name: 'Only Headers',
+    formatter: clipboardHeadersFormatter('\t'),
   },
   csv: {
     label: 'Copy as CSV',
