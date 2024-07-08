@@ -1119,6 +1119,8 @@
           column,
           value: rowData && rowData[column],
           engine: display?.driver,
+          condition: display?.getChangeSetCondition(rowData),
+          insertedRowIndex: grider?.getInsertedRowIndex(row),
         };
       })
       .filter(x => x.column);

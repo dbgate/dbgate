@@ -36,16 +36,19 @@
   export let connection;
   export let tabid;
   export let conid;
+  export let connectionStore = undefined;
 
   let isTesting;
   let sqlConnectResult;
 
-  const values = writable(
-    connection || {
-      server: getCurrentConfig().isDocker ? 'dockerhost' : 'localhost',
-      engine: '',
-    }
-  );
+  const values =
+    connectionStore ||
+    writable(
+      connection || {
+        server: getCurrentConfig().isDocker ? 'dockerhost' : 'localhost',
+        engine: '',
+      }
+    );
 
   // $: console.log('ConnectionTab.$values', $values);
   // $: console.log('ConnectionTab.driver', driver);
