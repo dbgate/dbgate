@@ -8,7 +8,7 @@
   },
   "description": "Deploy, load or build script from model of SQL database",
   "author": "Jan Prochazka",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "bin": {
     "dbmodel": "./bin/dbmodel.js"
   },

@@ -8,7 +8,7 @@
   },
   "description": "Opensource database administration tool - web interface",
   "author": "Jan Prochazka",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "keywords": [
     "sql",
     "dbgate",

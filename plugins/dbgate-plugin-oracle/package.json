@@ -2,7 +2,7 @@
   "name": "dbgate-plugin-oracle",
   "main": "dist/backend.js",
   "version": "5.1.7-beta.1",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "description": "Oracle connector plugin for DbGate",
   "homepage": "https://dbgate.org",
   "repository": {

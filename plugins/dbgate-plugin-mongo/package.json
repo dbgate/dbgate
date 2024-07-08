@@ -2,7 +2,7 @@
   "name": "dbgate-plugin-mongo",
   "main": "dist/backend.js",
   "version": "5.0.0-alpha.1",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "author": "Jan Prochazka",
   "homepage": "https://dbgate.org",
   "description": "MongoDB connect plugin for DbGate",
