@@ -94,7 +94,7 @@
 
   export const activator = createActivator('DataGrid', false);
 
-  let selectedCellsPublished = () => [];
+  export let selectedCellsPublished = () => [];
   let domColumnManager;
 
   const selectedMacro = writable(null);
