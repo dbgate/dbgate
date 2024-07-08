@@ -188,6 +188,8 @@
     'img app-query': 'mdi mdi-view-comfy color-icon-magenta',
     'img connection': 'mdi mdi-connection color-icon-blue',
     'img profiler': 'mdi mdi-gauge color-icon-blue',
+    'img role': 'mdi mdi-account-group color-icon-blue',
+    'img admin': 'mdi mdi-security color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',
