@@ -16,6 +16,7 @@ import { Expression, Select, treeToSql, dumpSqlSelect, ColumnRefExpression } fro
 export interface CustomGridColumn {
   columnName: string;
   columnLabel: string;
+  isPrimaryKey?: boolean;
 }
 
 export class CustomGridDisplay extends GridDisplay {
@@ -38,14 +39,22 @@ export class CustomGridDisplay extends GridDisplay {
       headerText: col.columnLabel,
       uniqueName: col.columnName,
       uniquePath: [col.columnName],
-      isPrimaryKey: false,
+      isPrimaryKey: col.isPrimaryKey,
       isForeignKeyUnique: false,
       schemaName: tableName.schemaName,
       pureName: tableName.pureName,
     }));
+
+    this.changeSetKeyFields = columns.filter(x => x.isPrimaryKey).map(x => x.columnName);
+    this.baseTable = {
+      ...tableName,
+      columns: this.columns.map(x => ({ ...tableName, columnName: x.columnName, dataType: 'string' })),
+      foreignKeys: [],
+    };
+
     this.filterable = true;
     this.sortable = true;
-    this.groupable = true;
+    this.groupable = false;
     this.editable = !isReadOnly;
     this.supportsReload = true;
   }
