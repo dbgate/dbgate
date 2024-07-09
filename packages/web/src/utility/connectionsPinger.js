@@ -10,7 +10,7 @@ import { getConnectionList } from './metadataLoaders';
 // };
 
 const doServerPing = value => {
-  apiCall('server-connections/ping', { conidArray: value, strmid });
+  apiCall('server-connections/ping', { conidArray: ['__storage', ...value], strmid });
 };
 
 const doDatabasePing = value => {
