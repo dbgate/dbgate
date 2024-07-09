@@ -11,6 +11,8 @@ export interface ColumnInfoYaml {
   length?: number;
   autoIncrement?: boolean;
   references?: string;
+  refDeleteAction?: string;
+  refUpdateAction?: string;
   primaryKey?: boolean;
   default?: string;
 }
@@ -104,6 +106,8 @@ function convertForeignKeyFromYaml(
     constraintType: 'foreignKey',
     pureName: table.name,
     refTableName: col.references,
+    deleteAction: col.refDeleteAction,
+    updateAction: col.refUpdateAction,
     columns: [
       {
         columnName: col.name,

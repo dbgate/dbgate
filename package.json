@@ -37,7 +37,7 @@
     "build:web:docker": "yarn workspace dbgate-web build",
     "build:plugins:frontend": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn build:frontend",
     "build:plugins:frontend:watch": "workspaces-run --parallel --only=\"dbgate-plugin-*\" -- yarn build:frontend:watch",
-    "storage-json": "dbmodel model-to-json storage-db packages/api/src/storageModel.json",
+    "storage-json": "dbmodel model-to-json storage-db packages/api/src/storageModel.js --commonjs",
     "plugins:copydist": "workspaces-run --only=\"dbgate-plugin-*\" -- yarn copydist",
     "build:app:local": "yarn plugins:copydist && cd app && yarn build:local",
     "start:app:local": "cd app && yarn start:local",
