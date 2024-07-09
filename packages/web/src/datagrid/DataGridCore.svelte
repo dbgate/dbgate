@@ -421,6 +421,7 @@
   export let schemaName = undefined;
   export let allowDefineVirtualReferences = false;
   export let formatterFunction;
+  export let hideGridLeftColumn;
 
   export let isLoadedAll;
   export let loadedTime;
@@ -1816,10 +1817,12 @@
             data-col="header"
             style={`width:${headerColWidth}px; min-width:${headerColWidth}px; max-width:${headerColWidth}px`}
           >
-            <CollapseButton
-              collapsed={$collapsedLeftColumnStore}
-              on:click={() => collapsedLeftColumnStore.update(x => !x)}
-            />
+            {#if !hideGridLeftColumn}
+              <CollapseButton
+                collapsed={$collapsedLeftColumnStore}
+                on:click={() => collapsedLeftColumnStore.update(x => !x)}
+              />
+            {/if}
           </td>
           {#each visibleRealColumns as col (col.uniqueName)}
             <td

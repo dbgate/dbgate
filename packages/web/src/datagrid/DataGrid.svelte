@@ -89,6 +89,7 @@
   export let onRunMacro;
   export let hasMultiColumnFilter = false;
   export let setLoadedRows = null;
+  export let hideGridLeftColumn = false;
 
   let loadedRows;
 
@@ -162,7 +163,7 @@
 <HorizontalSplitter
   initialValue={getInitialManagerSize()}
   bind:size={managerSize}
-  hideFirst={$collapsedLeftColumnStore}
+  hideFirst={hideGridLeftColumn || $collapsedLeftColumnStore}
 >
   <div class="left" slot="1">
     <WidgetColumnBar>
