@@ -498,7 +498,12 @@ export function changeSetInsertNewRow(changeSet: ChangeSet, name?: NamedObjectIn
   };
 }
 
-export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[], name?: NamedObjectInfo): ChangeSet {
+export function changeSetInsertDocuments(
+  changeSet: ChangeSet,
+  documents: any[],
+  name?: NamedObjectInfo,
+  insertIfNotExistsFieldNames?: string[]
+): ChangeSet {
   const insertedRows = getChangeSetInsertedRows(changeSet, name);
   return {
     ...changeSet,
@@ -508,6 +513,7 @@ export function changeSetInsertDocuments(changeSet: ChangeSet, documents: any[],
         ...name,
         insertedRowIndex: insertedRows.length + index,
         fields: doc,
+        insertIfNotExistsFields: insertIfNotExistsFieldNames ? _.pick(doc, insertIfNotExistsFieldNames) : null,
       })),
     ],
   };
