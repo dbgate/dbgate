@@ -72,6 +72,10 @@ export function dumpSqlCondition(dmp: SqlDumper, condition: Condition) {
       dumpSqlExpression(dmp, condition.expr);
       dmp.put(' ^in (%,v)', condition.values);
       break;
+    case 'notIn':
+      dumpSqlExpression(dmp, condition.expr);
+      dmp.put(' ^not ^in (%,v)', condition.values);
+      break;
     case 'rawTemplate':
       let was = false;
       for (const item of condition.templateSql.split('$$')) {
