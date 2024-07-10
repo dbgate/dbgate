@@ -20,6 +20,8 @@ export interface CustomGridColumn {
 }
 
 export class CustomGridDisplay extends GridDisplay {
+  customColumns: CustomGridColumn[];
+
   constructor(
     public tableName: NamedObjectInfo,
     columns: CustomGridColumn[],
@@ -34,6 +36,8 @@ export class CustomGridDisplay extends GridDisplay {
     public additionalcondition: Condition = null
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
+
+    this.customColumns = columns;
 
     this.columns = columns.map(col => ({
       columnName: col.columnName,
@@ -63,12 +67,15 @@ export class CustomGridDisplay extends GridDisplay {
   createSelect(options = {}) {
     const select = this.createSelectBase(
       this.tableName,
+      [],
       // @ts-ignore
-      this.columns.map(col => ({
-        columnName: col.columnName,
-      })),
-      options
+      // this.columns.map(col => ({
+      //   columnName: col.columnName,
+      // })),
+      options,
+      this.customColumns.find(x => x.isPrimaryKey)?.columnName
     );
+    select.selectAll = true;
     if (this.additionalcondition) {
       if (select.where) {
         select.where = {

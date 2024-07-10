@@ -554,9 +554,9 @@ export abstract class GridDisplay {
     };
   }
 
-  createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[], options) {
+  createSelectBase(name: NamedObjectInfo, columns: ColumnInfo[], options, defaultOrderColumnName?: string) {
     if (!columns) return null;
-    const orderColumnName = columns[0].columnName;
+    const orderColumnName = defaultOrderColumnName ?? columns[0]?.columnName;
     const select: Select = {
       commandType: 'select',
       from: {
@@ -732,6 +732,7 @@ export abstract class GridDisplay {
           alias: 'count',
         },
       ];
+      select.selectAll = false;
     }
     return select;
     // const sql = treeToSql(this.driver, select, dumpSqlSelect);

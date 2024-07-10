@@ -15,7 +15,7 @@ export function dumpSqlSelect(dmp: SqlDumper, cmd: Select) {
   if (cmd.selectAll) {
     dmp.put('* ');
   }
-  if (cmd.columns) {
+  if (cmd.columns && cmd.columns.length > 0) {
     if (cmd.selectAll) dmp.put('&n,');
     dmp.put('&>&n');
     dmp.putCollection(',&n', cmd.columns, fld => {
