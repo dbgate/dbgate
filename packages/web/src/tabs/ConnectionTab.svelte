@@ -38,6 +38,8 @@
   export let conid;
   export let connectionStore = undefined;
 
+  export let onlyTestButton;
+
   let isTesting;
   let sqlConnectResult;
 
@@ -207,7 +209,13 @@
     {#if driver}
       <div class="flex">
         <div class="buttons">
-          {#if isConnected}
+          {#if onlyTestButton}
+            {#if isTesting}
+              <FormButton value="Cancel test" on:click={handleCancelTest} />
+            {:else}
+              <FormButton value="Test connection" on:click={handleTest} />
+            {/if}
+          {:else if isConnected}
             <FormButton value="Disconnect" on:click={handleDisconnect} />
           {:else}
             <FormButton value="Connect" on:click={handleConnect} />

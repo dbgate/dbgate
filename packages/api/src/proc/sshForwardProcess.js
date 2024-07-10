@@ -15,10 +15,12 @@ async function getSshConnection(connection) {
     agentForward: connection.sshMode == 'agent',
     passphrase: connection.sshMode == 'keyFile' ? connection.sshKeyfilePassword : undefined,
     username: connection.sshLogin,
-    password: connection.sshMode == 'userPassword' ? connection.sshPassword : undefined,
+    password: (connection.sshMode || 'userPassword') == 'userPassword' ? connection.sshPassword : undefined,
     agentSocket: connection.sshMode == 'agent' ? platformInfo.sshAuthSock : undefined,
     privateKey:
-      connection.sshMode == 'keyFile' && connection.sshKeyfile ? await fs.readFile(connection.sshKeyfile) : undefined,
+      connection.sshMode == 'keyFile' && (connection.sshKeyfile || platformInfo?.defaultKeyfile)
+        ? await fs.readFile(connection.sshKeyfile || platformInfo?.defaultKeyfile)
+        : undefined,
     skipAutoPrivateKey: true,
     noReadline: true,
   };

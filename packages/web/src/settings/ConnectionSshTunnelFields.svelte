@@ -19,11 +19,11 @@
   $: useSshTunnel = $values.useSshTunnel;
   $: platformInfo = usePlatformInfo();
 
-  $: {
-    if (!$values.sshMode) setFieldValue('sshMode', 'userPassword');
-    // if (!$values.sshPort) setFieldValue('sshPort', '22');
-    if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyfile);
-  }
+  // $: {
+  //   if (!$values.sshMode) setFieldValue('sshMode', 'userPassword');
+  //   // if (!$values.sshPort) setFieldValue('sshPort', '22');
+  //   if (!$values.sshKeyfile && $platformInfo) setFieldValue('sshKeyfile', $platformInfo.defaultKeyfile);
+  // }
 
   $: isConnected = $openedConnections.includes($values._id) || $openedSingleDatabaseConnections.includes($values._id);
 </script>
@@ -55,6 +55,7 @@
   label="SSH Authentication"
   name="sshMode"
   isNative
+  defaultSelectValue="userPassword"
   disabled={isConnected || !useSshTunnel}
   options={[
     { value: 'userPassword', label: 'Username & password' },
@@ -63,11 +64,11 @@
   ]}
 />
 
-{#if $values.sshMode != 'userPassword'}
+{#if ($values.sshMode || 'userPassword') != 'userPassword'}
   <FormTextField label="Login" name="sshLogin" disabled={isConnected || !useSshTunnel} />
 {/if}
 
-{#if $values.sshMode == 'userPassword'}
+{#if ($values.sshMode || 'userPassword') == 'userPassword'}
   <div class="row">
     <div class="col-6 mr-1">
       <FormTextField
@@ -96,6 +97,7 @@
         name="sshKeyfile"
         disabled={isConnected || !useSshTunnel}
         templateProps={{ noMargin: true }}
+        defaultFileName={$platformInfo?.defaultKeyfile}
       />
     </div>
     <div class="col-6">
