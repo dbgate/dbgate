@@ -11,7 +11,7 @@ import type {
   ForeignKeyInfo,
 } from 'dbgate-types';
 import { GridConfig, GridCache, createGridCache } from './GridConfig';
-import { Expression, Select, treeToSql, dumpSqlSelect, ColumnRefExpression } from 'dbgate-sqltree';
+import { Expression, Select, treeToSql, dumpSqlSelect, ColumnRefExpression, Condition } from 'dbgate-sqltree';
 
 export interface CustomGridColumn {
   columnName: string;
@@ -30,7 +30,8 @@ export class CustomGridDisplay extends GridDisplay {
     setCache: ChangeCacheFunc,
     dbinfo: DatabaseInfo,
     serverVersion,
-    isReadOnly = false
+    isReadOnly = false,
+    public additionalcondition: Condition = null
   ) {
     super(config, setConfig, cache, setCache, driver, dbinfo, serverVersion);
 
@@ -68,6 +69,16 @@ export class CustomGridDisplay extends GridDisplay {
       })),
       options
     );
+    if (this.additionalcondition) {
+      if (select.where) {
+        select.where = {
+          conditionType: 'and',
+          conditions: [select.where, this.additionalcondition],
+        };
+      } else {
+        select.where = this.additionalcondition;
+      }
+    }
     return select;
   }
 }
