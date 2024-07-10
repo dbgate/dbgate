@@ -72,6 +72,7 @@
   .tabs {
     display: flex;
     height: var(--dim-tabs-height);
+    min-height: var(--dim-tabs-height);
     right: 0;
     background-color: var(--theme-bg-2);
   }
