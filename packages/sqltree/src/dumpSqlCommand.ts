@@ -92,13 +92,28 @@ export function dumpSqlDelete(dmp: SqlDumper, cmd: Delete) {
 }
 
 export function dumpSqlInsert(dmp: SqlDumper, cmd: Insert) {
-  dmp.put(
-    '^insert ^into %f (%,i) ^values (',
-    cmd.targetTable,
-    cmd.fields.map(x => x.targetColumn)
-  );
-  dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
-  dmp.put(')');
+  if (cmd.insertWhereNotExistsCondition) {
+    dmp.put(
+      '^insert ^into %f (%,i) ^select ',
+      cmd.targetTable,
+      cmd.fields.map(x => x.targetColumn)
+    );
+    dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
+    if (dmp.dialect.requireFromDual) {
+      dmp.put(' ^from ^dual ');
+    }
+    dmp.put(' ^where ^not ^exists (^select * ^from %f ^where ', cmd.targetTable);
+    dumpSqlCondition(dmp, cmd.insertWhereNotExistsCondition);
+    dmp.put(')');
+  } else {
+    dmp.put(
+      '^insert ^into %f (%,i) ^values (',
+      cmd.targetTable,
+      cmd.fields.map(x => x.targetColumn)
+    );
+    dmp.putCollection(',', cmd.fields, x => dumpSqlExpression(dmp, x));
+    dmp.put(')');
+  }
 }
 
 export function dumpSqlCommand(dmp: SqlDumper, cmd: Command) {

@@ -38,6 +38,7 @@ export interface Insert {
   commandType: 'insert';
   fields: UpdateField[];
   targetTable: NamedObjectInfo;
+  insertWhereNotExistsCondition?: Condition;
 }
 
 export interface AllowIdentityInsert {

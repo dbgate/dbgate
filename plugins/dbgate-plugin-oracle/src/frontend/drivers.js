@@ -35,6 +35,7 @@ const dialect = {
   dropCheck: true,
 
   dropReferencesWhenDropTable: true,
+  requireFromDual: true,
 
   predefinedDataTypes: [
     'VARCHAR2',

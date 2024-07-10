@@ -20,6 +20,7 @@ export interface ChangeSetItem {
   document?: any;
   condition?: { [column: string]: string };
   fields?: { [column: string]: string };
+  insertIfNotExistsFields?: { [column: string]: string };
 }
 
 export interface ChangeSetItemFields {
@@ -284,6 +285,9 @@ function changeSetInsertToSql(
       targetTable,
       commandType: 'insert',
       fields,
+      insertWhereNotExistsCondition: item.insertIfNotExistsFields
+        ? compileSimpleChangeSetCondition(item.insertIfNotExistsFields)
+        : null,
     },
     autoInc
       ? {
@@ -329,6 +333,36 @@ export function extractChangeSetCondition(item: ChangeSetItem, alias?: string): 
   return {
     conditionType: 'and',
     conditions: _.keys(item.condition).map(columnName => getColumnCondition(columnName)),
+  };
+}
+
+function compileSimpleChangeSetCondition(fields: { [column: string]: string }): Condition {
+  function getColumnCondition(columnName: string): Condition {
+    const value = fields[columnName];
+    const expr: Expression = {
+      exprType: 'column',
+      columnName,
+    };
+    if (value == null) {
+      return {
+        conditionType: 'isNull',
+        expr,
+      };
+    } else {
+      return {
+        conditionType: 'binary',
+        operator: '=',
+        left: expr,
+        right: {
+          exprType: 'value',
+          value,
+        },
+      };
+    }
+  }
+  return {
+    conditionType: 'and',
+    conditions: _.keys(fields).map(columnName => getColumnCondition(columnName)),
   };
 }
 
