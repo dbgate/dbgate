@@ -135,12 +135,13 @@
 
   export let macroPreview;
   export let macroValues;
-  export let selectedCellsPublished;
   export let setLoadedRows = null;
+  export let onPublishedCellsChanged;
 
   // export let onChangeGrider = undefined;
 
   let loadedRows = [];
+  let publishedCells = [];
 
   export const activator = createActivator('CollectionDataGridCore', false);
 
@@ -152,7 +153,7 @@
     display,
     macroPreview,
     macroValues,
-    selectedCellsPublished()
+    publishedCells
   );
   // $: console.log('GRIDER', grider);
   // $: if (onChangeGrider) onChangeGrider(grider);
@@ -239,7 +240,12 @@
   {dataPageAvailable}
   {loadRowCount}
   setLoadedRows={handleSetLoadedRows}
-  bind:selectedCellsPublished
+  onPublishedCellsChanged={value => {
+    publishedCells = value;
+    if (onPublishedCellsChanged) {
+      onPublishedCellsChanged(value);
+    }
+  }}
   frameSelection={!!macroPreview}
   onOpenQuery={openQuery}
   {grider}

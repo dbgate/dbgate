@@ -12,7 +12,6 @@
   export let grider;
   export let display;
   export let masterLoadedTime = undefined;
-  export let selectedCellsPublished;
   export let rowCountLoaded = null;
 
   export let preprocessLoadedRow = null;
@@ -128,7 +127,6 @@
 <DataGridCore
   {...$$props}
   bind:this={domGrid}
-  bind:selectedCellsPublished
   onLoadNextData={handleLoadNextData}
   {errorMessage}
   {isLoading}

@@ -95,7 +95,9 @@
 
   export let macroPreview;
   export let macroValues;
-  export let selectedCellsPublished = () => [];
+  export let onPublishedCellsChanged;
+
+  let publishedCells = [];
 
   // export let onChangeGrider = undefined;
 
@@ -116,7 +118,7 @@
         display,
         macroPreview,
         macroValues,
-        selectedCellsPublished()
+        publishedCells
       );
     }
   }
@@ -224,7 +226,12 @@
   {dataPageAvailable}
   {loadRowCount}
   setLoadedRows={handleSetLoadedRows}
-  bind:selectedCellsPublished
+  onPublishedCellsChanged={value => {
+    publishedCells = value;
+    if (onPublishedCellsChanged) {
+      onPublishedCellsChanged(value);
+    }
+  }}
   frameSelection={!!macroPreview}
   {grider}
   {display}

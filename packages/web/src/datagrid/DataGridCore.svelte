@@ -411,6 +411,7 @@
   export let isLoading = false;
   export let allRowCount = undefined;
   export let onReferenceSourceChanged = undefined;
+  export let onPublishedCellsChanged = undefined;
   export let onReferenceClick = undefined;
   export let onChangeSelectedColumns = undefined;
   // export let onSelectedCellsPublishedChanged = undefined;
@@ -427,7 +428,7 @@
   export let loadedTime;
   export let changeSetStore;
   export let isDynamicStructure = false;
-  export let selectedCellsPublished = () => [];
+  // export let selectedCellsPublished = () => [];
   export let collapsedLeftColumnStore;
   export let multipleGridsOnTab = false;
   export let tabControlHiddenTab = false;
@@ -1077,15 +1078,31 @@
   }
 
   const lastPublishledSelectedCellsRef = createRef('');
+  const changeSetValueRef = createRef(null);
   $: {
     const stringified = stableStringify(selectedCells);
-    if (lastPublishledSelectedCellsRef.get() != stringified) {
-      lastPublishledSelectedCellsRef.set(stringified);
-      const cellsValue = () => getCellsPublished(selectedCells);
-      selectedCellsPublished = cellsValue;
-      $selectedCellsCallback = cellsValue;
+    if (
+      (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore.value) &&
+      realColumnUniqueNames?.length > 0
+    ) {
+      const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
+      if (rowIndexes.every(x => grider.getRowData(x))) {
+        tick().then(() => {
+          lastPublishledSelectedCellsRef.set(stringified);
+          const cellsValue = () => getCellsPublished(selectedCells);
+          changeSetValueRef.set($changeSetStore.value);
+          // selectedCellsPublished = cellsValue;
+          $selectedCellsCallback = cellsValue;
 
-      if (onChangeSelectedColumns) onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
+          if (onChangeSelectedColumns) {
+            onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
+          }
+
+          if (onPublishedCellsChanged) {
+            onPublishedCellsChanged(getCellsPublished(selectedCells));
+          }
+        });
+      }
       // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
     }
   }
