@@ -7,4 +7,5 @@ and infoTables.table_schema <> 'pg_catalog'
 and infoTables.table_schema <> 'information_schema'
 and infoTables.table_schema <> 'pg_internal'
 and infoTables.table_schema !~ '^pg_toast'
+and infoTables.table_schema !~ '^_timescaledb_' 
 `;

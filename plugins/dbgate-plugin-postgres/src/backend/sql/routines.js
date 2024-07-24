@@ -2,16 +2,17 @@ module.exports = `
 select 
   routine_name as "pure_name",
   routine_schema as "schema_name",
-  routine_definition as "definition",
-  md5(routine_definition) as "hash_code",
+  max(routine_definition) as "definition",
+  max(md5(routine_definition)) as "hash_code",
   routine_type as "object_type",
-  data_type as "data_type",
-  external_language as "language"
+  string_agg(data_type, '|') as "data_type",
+  max(external_language) as "language"
 from
-  information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' 
+  information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' and routine_schema !~ '^_timescaledb_' 
   and (
    (routine_type = 'PROCEDURE' and ('procedures:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
    or
    (routine_type = 'FUNCTION' and ('functions:' || routine_schema || '.' ||  routine_name) =OBJECT_ID_CONDITION)
   )
+ group by routine_name, routine_schema, routine_type
 `;
