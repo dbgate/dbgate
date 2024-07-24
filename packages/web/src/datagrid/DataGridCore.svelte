@@ -1085,14 +1085,12 @@
       (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore.value) &&
       realColumnUniqueNames?.length > 0
     ) {
-      const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
-      if (rowIndexes.every(x => grider.getRowData(x))) {
-        tick().then(() => {
+      tick().then(() => {
+        const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
+        if (rowIndexes.every(x => grider.getRowData(x))) {
           lastPublishledSelectedCellsRef.set(stringified);
-          const cellsValue = () => getCellsPublished(selectedCells);
           changeSetValueRef.set($changeSetStore.value);
-          // selectedCellsPublished = cellsValue;
-          $selectedCellsCallback = cellsValue;
+          $selectedCellsCallback = () => getCellsPublished(selectedCells);
 
           if (onChangeSelectedColumns) {
             onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
@@ -1101,9 +1099,8 @@
           if (onPublishedCellsChanged) {
             onPublishedCellsChanged(getCellsPublished(selectedCells));
           }
-        });
-      }
-      // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
+        }
+      });
     }
   }
 
