@@ -214,14 +214,14 @@ export abstract class GridDisplay {
     }
 
     if (this.baseTableOrView && this.config.multiColumnFilter) {
-      try {
-        const condition = parseFilter(this.config.multiColumnFilter, 'string');
-        if (condition) {
-          const orCondition: CompoudCondition = {
-            conditionType: 'or',
-            conditions: [],
-          };
-          for (const column of this.baseTableOrView.columns) {
+      const orCondition: CompoudCondition = {
+        conditionType: 'or',
+        conditions: [],
+      };
+      for (const column of this.baseTableOrView.columns) {
+        try {
+          const condition = parseFilter(this.config.multiColumnFilter, getFilterType(column.dataType));
+          if (condition) {
             orCondition.conditions.push(
               _.cloneDeepWith(condition, (expr: Expression) => {
                 if (expr.exprType == 'placeholder') {
@@ -230,12 +230,13 @@ export abstract class GridDisplay {
               })
             );
           }
-          if (orCondition.conditions.length > 0) {
-            conditions.push(orCondition);
-          }
+        } catch (err) {
+          // skip for this column
+          continue;
         }
-      } catch (err) {
-        console.warn(err.message);
+      }
+      if (orCondition.conditions.length > 0) {
+        conditions.push(orCondition);
       }
     }
 
@@ -482,6 +483,7 @@ export abstract class GridDisplay {
     this.setConfig(cfg => ({
       ...cfg,
       filters: {},
+      multiColumnFilter: null,
     }));
     this.reload();
   }
