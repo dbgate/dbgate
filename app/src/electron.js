@@ -276,6 +276,28 @@ function fillMissingSettings(value) {
   return res;
 }
 
+function ensureBoundsVisible(bounds) {
+  const area = electron.screen.getDisplayMatching(bounds).workArea;
+
+  let { x, y, width, height } = bounds;
+
+  const isWithinDisplay =
+    x >= area.x && x + width <= area.x + area.width && y >= area.y && y + height <= area.y + area.height;
+
+  if (!isWithinDisplay) {
+    width = Math.min(width, area.width);
+    height = Math.min(height, area.height);
+
+    if (width < 400) width = 400;
+    if (height < 300) height = 300;
+
+    x = area.x; // + Math.round(area.width - width / 2);
+    y = area.y; // + Math.round(area.height - height / 2);
+  }
+
+  return { x, y, width, height };
+}
+
 function createWindow() {
   let settingsJson = {};
   try {
@@ -288,7 +310,8 @@ function createWindow() {
     settingsJson = fillMissingSettings({});
   }
 
-  const bounds = initialConfig['winBounds'];
+  let bounds = initialConfig['winBounds'];
+  bounds = ensureBoundsVisible(bounds);
   useNativeMenu = settingsJson['app.useNativeMenu'];
 
   mainWindow = new BrowserWindow({
@@ -353,6 +376,11 @@ function createWindow() {
     mainWindow.on('unmaximize', () => {
       mainWindow.webContents.send('setIsMaximized', false);
     });
+
+    // app.on('browser-window-focus', () => {
+    //   const bounds = ensureBoundsVisible(mainWindow.getBounds());
+    //   mainWindow.setBounds(bounds);
+    // });
   }
 
   if (!apiLoaded) {
