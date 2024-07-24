@@ -1082,14 +1082,14 @@
   $: {
     const stringified = stableStringify(selectedCells);
     if (
-      (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore.value) &&
+      (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore?.value) &&
       realColumnUniqueNames?.length > 0
     ) {
       tick().then(() => {
         const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
         if (rowIndexes.every(x => grider.getRowData(x))) {
           lastPublishledSelectedCellsRef.set(stringified);
-          changeSetValueRef.set($changeSetStore.value);
+          changeSetValueRef.set($changeSetStore?.value);
           $selectedCellsCallback = () => getCellsPublished(selectedCells);
 
           if (onChangeSelectedColumns) {
