@@ -14,6 +14,7 @@ where
 		table_schema <> 'information_schema' 
 		and table_schema <> 'pg_catalog' 
 		and table_schema !~ '^pg_toast' 
+		and table_schema !~ '^_timescaledb_' 
 		and (
 			('tables:' || table_schema || '.' || table_name) =OBJECT_ID_CONDITION
 			or
