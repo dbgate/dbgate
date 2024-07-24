@@ -91,11 +91,13 @@
   export let setLoadedRows = null;
   export let hideGridLeftColumn = false;
 
+  export let onPublishedCellsChanged;
+
   let loadedRows;
+  let publishedCells = [];
 
   export const activator = createActivator('DataGrid', false);
 
-  export let selectedCellsPublished = () => [];
   let domColumnManager;
 
   const selectedMacro = writable(null);
@@ -111,7 +113,7 @@
   $: isJsonView = !!config?.isJsonView;
 
   const handleExecuteMacro = () => {
-    onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), selectedCellsPublished());
+    onRunMacro($selectedMacro, extractMacroValuesForMacro($macroValues, $selectedMacro), publishedCells);
     $selectedMacro = null;
   };
 
@@ -123,7 +125,7 @@
 
   export function switchToView(view) {
     if (view == 'form') {
-      display.switchToFormView(selectedCellsPublished()[0]?.row);
+      display.switchToFormView(publishedCells[0]?.row);
     }
     if (view == 'table') {
       setConfig(cfg => ({
@@ -220,7 +222,12 @@
             macroValues={extractMacroValuesForMacro($macroValues, $selectedMacro)}
             macroPreview={$selectedMacro}
             {setLoadedRows}
-            bind:selectedCellsPublished
+            onPublishedCellsChanged={value => {
+              publishedCells = value;
+              if (onPublishedCellsChanged) {
+                onPublishedCellsChanged(value);
+              }
+            }}
             onChangeSelectedColumns={cols => {
               if (domColumnManager) domColumnManager.setSelectedColumns(cols);
             }}

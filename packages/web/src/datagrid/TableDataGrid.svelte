@@ -44,7 +44,6 @@
   export let cache;
   export let setCache;
   export let multipleGridsOnTab = false;
-  export let selectedCellsPublished = () => [];
 
   $: connection = useConnectionInfo({ conid });
   $: dbinfo = useDatabaseInfo({ conid, database });
@@ -173,7 +172,6 @@
         }
         setChildConfig(createGridConfig(), value);
       }}
-      bind:selectedCellsPublished
     />
   </svelte:fragment>
   <div slot="2" class="reference-container">

@@ -69,10 +69,12 @@
 
   export let macroPreview;
   export let macroValues;
-  export let selectedCellsPublished = () => [];
+  export let onPublishedCellsChanged
   export const activator = createActivator('JslDataGridCore', false);
 
   export let setLoadedRows;
+
+  let publishedCells = [];
 
   let loadedRows = [];
   let domGrid;
@@ -113,7 +115,7 @@
         display,
         macroPreview,
         macroValues,
-        selectedCellsPublished(),
+        publishedCells,
         true
       );
     }
@@ -199,7 +201,12 @@
   bind:this={domGrid}
   {...$$props}
   setLoadedRows={handleSetLoadedRows}
-  bind:selectedCellsPublished
+    onPublishedCellsChanged={value => {
+    publishedCells = value;
+    if (onPublishedCellsChanged) {
+      onPublishedCellsChanged(value);
+    }
+  }}
   {loadDataPage}
   {dataPageAvailable}
   {loadRowCount}
