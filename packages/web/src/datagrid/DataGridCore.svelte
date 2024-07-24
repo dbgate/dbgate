@@ -1078,26 +1078,31 @@
   }
 
   const lastPublishledSelectedCellsRef = createRef('');
+  const changeSetValueRef = createRef(null);
   $: {
     const stringified = stableStringify(selectedCells);
-    console.log('GRID CORE SELECTED CELLS', selectedCells);
-    console.log('grider', grider);
-    if (lastPublishledSelectedCellsRef.get() != stringified && realColumnUniqueNames?.length > 0) {
-      lastPublishledSelectedCellsRef.set(stringified);
-      const cellsValue = () => getCellsPublished(selectedCells);
-      // selectedCellsPublished = cellsValue;
-      $selectedCellsCallback = cellsValue;
+    if (
+      (lastPublishledSelectedCellsRef.get() != stringified || changeSetValueRef.get() != $changeSetStore.value) &&
+      realColumnUniqueNames?.length > 0
+    ) {
+      const rowIndexes = _.uniq(selectedCells.map(x => x[0]));
+      if (rowIndexes.every(x => grider.getRowData(x))) {
+        tick().then(() => {
+          lastPublishledSelectedCellsRef.set(stringified);
+          const cellsValue = () => getCellsPublished(selectedCells);
+          changeSetValueRef.set($changeSetStore.value);
+          // selectedCellsPublished = cellsValue;
+          $selectedCellsCallback = cellsValue;
 
-      console.log('PUBLISH GRID CORE', selectedCells, cellsValue());
+          if (onChangeSelectedColumns) {
+            onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
+          }
 
-      if (onChangeSelectedColumns) {
-        onChangeSelectedColumns(getSelectedColumns().map(x => x.columnName));
+          if (onPublishedCellsChanged) {
+            onPublishedCellsChanged(getCellsPublished(selectedCells));
+          }
+        });
       }
-
-      if (onPublishedCellsChanged) {
-        onPublishedCellsChanged(getCellsPublished(selectedCells));
-      }
-
       // if (onSelectedCellsPublishedChanged) onSelectedCellsPublishedChanged(getCellsPublished(selectedCells));
     }
   }
@@ -1121,12 +1126,10 @@
 
   function getCellsPublished(cells) {
     const regular = cellsToRegularCells(cells);
-    console.log('REGULAR CELLS', cells);
     const res = regular
       .map(cell => {
         const row = cell[0];
         const rowData = grider.getRowData(row);
-        console.log('REAL COLUMN UNIQUE NAMES', realColumnUniqueNames);
         const column = realColumnUniqueNames[cell[1]];
         return {
           row,
