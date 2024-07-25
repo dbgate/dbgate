@@ -55,8 +55,8 @@ class Analyser extends DatabaseAnalyser {
     super(pool, driver, version);
   }
 
-  createQuery(resFileName, typeFields) {
-    const query = super.createQuery(sql[resFileName], typeFields);
+  createQuery(resFileName, typeFields, replacements = {}) {
+    const query = super.createQuery(sql[resFileName], typeFields, replacements);
     return query;
   }
 
@@ -138,7 +138,10 @@ class Analyser extends DatabaseAnalyser {
       : null;
 
     this.feedback({ analysingMessage: 'Loading routines' });
-    const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
+    const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
+      $typeAggFunc: this.driver.dialect.stringAgg ? 'string_agg' : 'max',
+      $typeAggParam: this.driver.dialect.stringAgg ? ", '|'" : '',
+    });
 
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes

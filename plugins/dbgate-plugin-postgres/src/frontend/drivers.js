@@ -99,6 +99,19 @@ const dialect = {
         ],
       };
     }
+
+    if (dataType?.toLowerCase() == 'uuid') {
+      return {
+        exprType: 'unaryRaw',
+        expr: {
+          exprType: 'column',
+          alias: alias || columnName,
+          source,
+          columnName,
+        },
+        afterSql: '::text',
+      };
+    }
   },
 };
 
