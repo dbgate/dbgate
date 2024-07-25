@@ -24,49 +24,48 @@ function hasPermission(tested, req) {
   return testPermission(tested, userPermissions[key]);
 }
 
-let loginsCache = null;
-let loginsLoaded = false;
+// let loginsCache = null;
+// let loginsLoaded = false;
 
-function getLogins() {
-  if (loginsLoaded) {
-    return loginsCache;
-  }
+// function getLogins() {
+//   if (loginsLoaded) {
+//     return loginsCache;
+//   }
 
-  const res = [];
-  if (process.env.LOGIN && process.env.PASSWORD) {
-    res.push({
-      login: process.env.LOGIN,
-      password: process.env.PASSWORD,
-      permissions: process.env.PERMISSIONS,
-    });
-  }
-  if (process.env.LOGINS) {
-    const logins = _.compact(process.env.LOGINS.split(',').map(x => x.trim()));
-    for (const login of logins) {
-      const password = process.env[`LOGIN_PASSWORD_${login}`];
-      const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
-      if (password) {
-        res.push({
-          login,
-          password,
-          permissions,
-        });
-      }
-    }
-  }
-  else if (process.env.OAUTH_PERMISSIONS) {
-    const login_permission_keys = Object.keys(process.env).filter((key) => _.startsWith(key, 'LOGIN_PERMISSIONS_'))
-    for (const permissions_key of login_permission_keys) {
-      const login = permissions_key.replace('LOGIN_PERMISSIONS_', '');
-      const permissions = process.env[permissions_key];
-      userPermissions[login] = compilePermissions(permissions);
-    }
-  }
+//   const res = [];
+//   if (process.env.LOGIN && process.env.PASSWORD) {
+//     res.push({
+//       login: process.env.LOGIN,
+//       password: process.env.PASSWORD,
+//       permissions: process.env.PERMISSIONS,
+//     });
+//   }
+//   if (process.env.LOGINS) {
+//     const logins = _.compact(process.env.LOGINS.split(',').map(x => x.trim()));
+//     for (const login of logins) {
+//       const password = process.env[`LOGIN_PASSWORD_${login}`];
+//       const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
+//       if (password) {
+//         res.push({
+//           login,
+//           password,
+//           permissions,
+//         });
+//       }
+//     }
+//   } else if (process.env.OAUTH_PERMISSIONS) {
+//     const login_permission_keys = Object.keys(process.env).filter(key => _.startsWith(key, 'LOGIN_PERMISSIONS_'));
+//     for (const permissions_key of login_permission_keys) {
+//       const login = permissions_key.replace('LOGIN_PERMISSIONS_', '');
+//       const permissions = process.env[permissions_key];
+//       userPermissions[login] = compilePermissions(permissions);
+//     }
+//   }
 
-  loginsCache = res.length > 0 ? res : null;
-  loginsLoaded = true;
-  return loginsCache;
-}
+//   loginsCache = res.length > 0 ? res : null;
+//   loginsLoaded = true;
+//   return loginsCache;
+// }
 
 function connectionHasPermission(connection, req) {
   if (!connection) {

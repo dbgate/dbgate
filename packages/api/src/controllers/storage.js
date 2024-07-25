@@ -3,4 +3,8 @@ module.exports = {
   async connections() {
     return null;
   },
+
+  async getConnection({ conid }) {
+    return null;
+  },
 };

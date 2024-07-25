@@ -35,6 +35,7 @@ const getExpressPath = require('./utility/getExpressPath');
 const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
+const { createAuthProvider } = require('./auth/authProvider');
 
 const logger = getLogger('main');
 
@@ -45,11 +46,11 @@ function start() {
 
   const server = http.createServer(app);
 
-  const logins = getLogins();
-  if (logins && process.env.BASIC_AUTH) {
+  const basicAuthLogins = createAuthProvider().getBasicAuthLogins();
+  if (basicAuthLogins) {
     app.use(
       basicAuth({
-        users: _.fromPairs(logins.filter(x => x.password).map(x => [x.login, x.password])),
+        users: basicAuthLogins,
         challenge: true,
         realm: 'DbGate Web App',
       })

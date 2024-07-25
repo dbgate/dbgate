@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { openedConnections, currentDatabase, openedConnectionsWithTemporary } from '../stores';
+import { openedConnections, currentDatabase, openedConnectionsWithTemporary, getCurrentConfig } from '../stores';
 import { apiCall, strmid } from './api';
 import { getConnectionList } from './metadataLoaders';
 
@@ -10,7 +10,10 @@ import { getConnectionList } from './metadataLoaders';
 // };
 
 const doServerPing = value => {
-  apiCall('server-connections/ping', { conidArray: ['__storage', ...value], strmid });
+  apiCall('server-connections/ping', {
+    conidArray: getCurrentConfig().storageDatabase ? ['__storage', ...value] : value,
+    strmid,
+  });
 };
 
 const doDatabasePing = value => {
