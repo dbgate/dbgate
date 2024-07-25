@@ -28,6 +28,12 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
       dmp.put('%s', expr.sql);
       break;
 
+    case 'unaryRaw':
+      if (expr.beforeSql) dmp.putRaw(expr.beforeSql);
+      dumpSqlExpression(dmp, expr.expr);
+      if (expr.afterSql) dmp.putRaw(expr.afterSql);
+      break;
+
     case 'call':
       dmp.put('%s(', expr.func);
       if (expr.argsPrefix) dmp.put('%s ', expr.argsPrefix);
@@ -36,7 +42,7 @@ export function dumpSqlExpression(dmp: SqlDumper, expr: Expression) {
       break;
 
     case 'methodCall':
-      dumpSqlExpression(dmp, expr.thisObject)
+      dumpSqlExpression(dmp, expr.thisObject);
       dmp.put('.%s(', expr.method);
       dmp.putCollection(',', expr.args, x => dumpSqlExpression(dmp, x));
       dmp.put(')');

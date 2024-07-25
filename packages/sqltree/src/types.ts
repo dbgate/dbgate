@@ -168,6 +168,13 @@ export interface RawExpression {
   sql: string;
 }
 
+export interface UnaryRawExpression {
+  exprType: 'unaryRaw';
+  expr: Expression;
+  beforeSql?: string;
+  afterSql?: string;
+}
+
 export interface CallExpression {
   exprType: 'call';
   func: string;
@@ -198,6 +205,7 @@ export type Expression =
   | ValueExpression
   | PlaceholderExpression
   | RawExpression
+  | UnaryRawExpression
   | CallExpression
   | MethodCallExpression
   | TranformExpression
