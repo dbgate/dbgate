@@ -5,7 +5,7 @@ select
   max(routine_definition) as "definition",
   max(md5(routine_definition)) as "hash_code",
   routine_type as "object_type",
-  string_agg(data_type, '|') as "data_type",
+  $typeAgg(data_type, '|') as "data_type",
   max(external_language) as "language"
 from
   information_schema.routines where routine_schema != 'information_schema' and routine_schema != 'pg_catalog' and routine_schema !~ '^_timescaledb_' 

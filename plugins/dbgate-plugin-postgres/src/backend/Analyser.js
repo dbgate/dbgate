@@ -138,7 +138,9 @@ class Analyser extends DatabaseAnalyser {
       : null;
 
     this.feedback({ analysingMessage: 'Loading routines' });
-    const routines = await this.analyserQuery('routines', ['procedures', 'functions']);
+    const routines = await this.analyserQuery('routines', ['procedures', 'functions'], {
+      $typeAgg: this.driver.dialect.stringAgg ? 'string_agg' : 'max',
+    });
 
     this.feedback({ analysingMessage: 'Loading indexes' });
     const indexes = this.driver.__analyserInternals.skipIndexes
