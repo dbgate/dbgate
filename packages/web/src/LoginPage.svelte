@@ -35,7 +35,10 @@
             value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
             on:click={async e => {
               enableApi();
-              const resp = await apiCall('auth/login', e.detail);
+              const resp = await apiCall('auth/login', {
+                isAdminPage,
+                ...e.detail,
+              });
               if (resp.error) {
                 internalRedirectTo(`/?page=not-logged&error=${encodeURIComponent(resp.error)}`);
                 return;

@@ -58,7 +58,17 @@ module.exports = {
   },
   login_meta: true,
   async login(params) {
-    const { login, password } = params;
+    const { login, password, isAdminPage } = params;
+
+    if (isAdminPage) {
+      if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD == password) {
+        return {
+          accessToken: jwt.sign({ login: 'admin' }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+        };
+      }
+
+      return { error: 'Login failed' };
+    }
 
     return getAuthProvider().login(login, password);
   },
