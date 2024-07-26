@@ -49,10 +49,6 @@ class AuthProviderBase {
     return {};
   }
 
-  getBasicAuthLogins() {
-    return null;
-  }
-
   shouldAuthorizeApi() {
     return false;
   }
@@ -163,11 +159,11 @@ class ADProvider extends AuthProviderBase {
   }
 
   shouldAuthorizeApi() {
-    return true;
+    return !process.env.BASIC_AUTH;
   }
 
   isLoginForm() {
-    return true;
+    return !process.env.BASIC_AUTH;
   }
 }
 
@@ -184,13 +180,6 @@ class LoginsProvider extends AuthProviderBase {
       };
     }
     return { error: 'Invalid credentials' };
-  }
-
-  getBasicAuthLogins() {
-    const logins = getEnvLogins();
-    if (logins && process.env.BASIC_AUTH) {
-      return _.fromPairs(logins.filter(x => x.password).map(x => [x.login, x.password]));
-    }
   }
 
   shouldAuthorizeApi() {

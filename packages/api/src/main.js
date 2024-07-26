@@ -45,11 +45,23 @@ function start() {
 
   const server = http.createServer(app);
 
-  const basicAuthLogins = createAuthProvider().getBasicAuthLogins();
-  if (basicAuthLogins) {
+  if (process.env.BASIC_AUTH) {
+    async function authorizer(username, password, cb) {
+      try {
+        const resp = await createAuthProvider().login(username, password);
+        if (resp.accessToken) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      } catch (err) {
+        cb(err, false);
+      }
+    }
     app.use(
       basicAuth({
-        users: basicAuthLogins,
+        authorizer,
+        authorizeAsync: true,
         challenge: true,
         realm: 'DbGate Web App',
       })
