@@ -27,6 +27,7 @@
     'icon users': 'mdi mdi-account-multiple',
     'icon role': 'mdi mdi-account-group',
     'icon admin': 'mdi mdi-security',
+    'icon auth': 'mdi mdi-account-key',
     'icon version': 'mdi mdi-ticket-confirmation',
     'icon pin': 'mdi mdi-pin',
     'icon arrange': 'mdi mdi-arrange-send-to-back',
@@ -191,6 +192,7 @@
     'img users': 'mdi mdi-account-multiple color-icon-blue',
     'img role': 'mdi mdi-account-group color-icon-blue',
     'img admin': 'mdi mdi-security color-icon-blue',
+    'img auth': 'mdi mdi-account-key color-icon-blue',
 
     'img add': 'mdi mdi-plus-circle color-icon-green',
     'img minus': 'mdi mdi-minus-circle color-icon-red',

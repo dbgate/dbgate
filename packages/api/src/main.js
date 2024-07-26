@@ -32,9 +32,9 @@ const onFinished = require('on-finished');
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
-const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
+const { createAuthProvider } = require('./auth/authProvider');
 
 const logger = getLogger('main');
 
@@ -45,11 +45,23 @@ function start() {
 
   const server = http.createServer(app);
 
-  const logins = getLogins();
-  if (logins && process.env.BASIC_AUTH) {
+  if (process.env.BASIC_AUTH) {
+    async function authorizer(username, password, cb) {
+      try {
+        const resp = await createAuthProvider().login(username, password);
+        if (resp.accessToken) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      } catch (err) {
+        cb(err, false);
+      }
+    }
     app.use(
       basicAuth({
-        users: _.fromPairs(logins.filter(x => x.password).map(x => [x.login, x.password])),
+        authorizer,
+        authorizeAsync: true,
         challenge: true,
         realm: 'DbGate Web App',
       })
