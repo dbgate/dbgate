@@ -62,8 +62,8 @@ class AuthProviderBase {
   }
 
   getCurrentLogin(req) {
-    const { user } = (req && req.auth) || {};
-    return user;
+    const login = req?.user?.login ?? req?.auth?.user ?? null;
+    return login;
   }
 
   getCurrentPermissions(req) {
@@ -132,11 +132,6 @@ class OAuthProvider extends AuthProviderBase {
 
     return { error: 'Token not found' };
   }
-
-  getCurrentLogin(req) {
-    const { login } = (req && req.user) || {};
-    return login;
-  }
 }
 
 class ADProvider extends AuthProviderBase {
@@ -200,14 +195,6 @@ class LoginsProvider extends AuthProviderBase {
 
   shouldAuthorizeApi() {
     return !process.env.BASIC_AUTH;
-  }
-
-  getCurrentPermissions(req) {
-    const logins = getEnvLogins();
-    const loginName =
-      req && req.user && req.user.login ? req.user.login : req && req.auth && req.auth.user ? req.auth.user : null;
-    const login = logins && loginName ? logins.find(x => x.login == loginName) : null;
-    return login ? login.permissions : process.env.PERMISSIONS;
   }
 
   isLoginForm() {
