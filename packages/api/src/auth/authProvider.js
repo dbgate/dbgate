@@ -178,7 +178,7 @@ function detectEnvAuthProvider() {
   return 'none';
 }
 
-function createAuthProvider() {
+function createEnvAuthProvider() {
   const authProvider = detectEnvAuthProvider();
   switch (authProvider) {
     case 'oauth':
@@ -192,7 +192,18 @@ function createAuthProvider() {
   }
 }
 
+let authProvider = createEnvAuthProvider();
+
+function getAuthProvider() {
+  return authProvider;
+}
+
+function setAuthProvider(value) {
+  authProvider = value;
+}
+
 module.exports = {
   detectEnvAuthProvider,
-  createAuthProvider,
+  getAuthProvider,
+  setAuthProvider,
 };

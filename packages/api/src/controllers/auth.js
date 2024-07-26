@@ -5,7 +5,7 @@ const { getLogger } = require('dbgate-tools');
 const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
-const { createAuthProvider } = require('../auth/authProvider');
+const { getAuthProvider } = require('../auth/authProvider');
 const { create } = require('lodash');
 
 const logger = getLogger('auth');
@@ -23,7 +23,7 @@ function unauthorizedResponse(req, res, text) {
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/auth/login', '/stream'];
 
-  if (!createAuthProvider().shouldAuthorizeApi()) {
+  if (!getAuthProvider().shouldAuthorizeApi()) {
     return next();
   }
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
@@ -54,13 +54,13 @@ function authMiddleware(req, res, next) {
 module.exports = {
   oauthToken_meta: true,
   async oauthToken(params) {
-    return createAuthProvider().oauthToken(params);
+    return getAuthProvider().oauthToken(params);
   },
   login_meta: true,
   async login(params) {
     const { login, password } = params;
 
-    return createAuthProvider().login(login, password);
+    return getAuthProvider().login(login, password);
   },
 
   authMiddleware,

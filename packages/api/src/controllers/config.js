@@ -11,7 +11,7 @@ const AsyncLock = require('async-lock');
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
-const { createAuthProvider } = require('../auth/authProvider');
+const { getAuthProvider } = require('../auth/authProvider');
 
 const lock = new AsyncLock();
 
@@ -28,7 +28,7 @@ module.exports = {
 
   get_meta: true,
   async get(_params, req) {
-    const authProvider = createAuthProvider();
+    const authProvider = getAuthProvider();
     const login = authProvider.getCurrentLogin(req);
     const permissions = authProvider.getCurrentPermissions(req);
     const isLoginForm = authProvider.isLoginForm();
