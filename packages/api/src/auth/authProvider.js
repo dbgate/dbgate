@@ -8,42 +8,6 @@ const jwt = require('jsonwebtoken');
 
 const logger = getLogger('authProvider');
 
-let envLoginsCache = null;
-let envLoginsLoaded = false;
-
-function getEnvLogins() {
-  if (envLoginsLoaded) {
-    return envLoginsCache;
-  }
-
-  const res = [];
-  if (process.env.LOGIN && process.env.PASSWORD) {
-    res.push({
-      login: process.env.LOGIN,
-      password: process.env.PASSWORD,
-      permissions: process.env.PERMISSIONS,
-    });
-  }
-  if (process.env.LOGINS) {
-    const logins = _.compact(process.env.LOGINS.split(',').map(x => x.trim()));
-    for (const login of logins) {
-      const password = process.env[`LOGIN_PASSWORD_${login}`];
-      const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
-      if (password) {
-        res.push({
-          login,
-          password,
-          permissions,
-        });
-      }
-    }
-  }
-
-  envLoginsCache = res.length > 0 ? res : null;
-  envLoginsLoaded = true;
-  return envLoginsCache;
-}
-
 class AuthProviderBase {
   async login(login, password) {
     return {};
@@ -169,12 +133,7 @@ class ADProvider extends AuthProviderBase {
 
 class LoginsProvider extends AuthProviderBase {
   async login(login, password) {
-    const logins = getEnvLogins();
-    if (!logins) {
-      return { error: 'Logins not configured' };
-    }
-    const foundLogin = logins.find(x => x.login == login);
-    if (foundLogin && foundLogin.password && foundLogin.password == password) {
+    if (password == process.env[`LOGIN_PASSWORD_${login}`]) {
       return {
         accessToken: jwt.sign({ login }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
       };
@@ -191,6 +150,18 @@ class LoginsProvider extends AuthProviderBase {
   }
 }
 
+function hasEnvLogins() {
+  if (process.env.LOGIN && process.env.PASSWORD) {
+    return true;
+  }
+  for (const key in process.env) {
+    if (key.startsWith('LOGIN_PASSWORD_')) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function detectEnvAuthProvider() {
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
@@ -201,7 +172,7 @@ function detectEnvAuthProvider() {
   if (process.env.AD_URL) {
     return 'ad';
   }
-  if (getEnvLogins()) {
+  if (hasEnvLogins()) {
     return 'logins';
   }
   return 'none';
