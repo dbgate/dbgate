@@ -173,11 +173,12 @@ function hasEnvLogins() {
 }
 
 function detectEnvAuthProvider() {
-  if (process.env.STORAGE_DATABASE) {
-    return 'denyall';
-  }
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
+  }
+  
+  if (process.env.STORAGE_DATABASE) {
+    return 'denyall';
   }
   if (process.env.OAUTH_AUTH) {
     return 'oauth';
@@ -218,6 +219,7 @@ function setAuthProvider(value) {
 }
 
 module.exports = {
+  AuthProviderBase,
   detectEnvAuthProvider,
   getAuthProvider,
   setAuthProvider,
