@@ -10,10 +10,6 @@ const { create } = require('lodash');
 
 const logger = getLogger('auth');
 
-function shouldAuthorizeApi() {
-  return createAuthProvider().shouldAuthorizeApi();
-}
-
 function unauthorizedResponse(req, res, text) {
   // if (req.path == getExpressPath('/config/get-settings')) {
   //   return res.json({});
@@ -27,7 +23,7 @@ function unauthorizedResponse(req, res, text) {
 function authMiddleware(req, res, next) {
   const SKIP_AUTH_PATHS = ['/config/get', '/auth/oauth-token', '/auth/login', '/stream'];
 
-  if (!shouldAuthorizeApi()) {
+  if (!createAuthProvider().shouldAuthorizeApi()) {
     return next();
   }
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
@@ -68,5 +64,4 @@ module.exports = {
   },
 
   authMiddleware,
-  shouldAuthorizeApi,
 };

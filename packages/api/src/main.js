@@ -85,9 +85,7 @@ function start() {
     });
   }
 
-  if (auth.shouldAuthorizeApi()) {
-    app.use(auth.authMiddleware);
-  }
+  app.use(auth.authMiddleware);
 
   app.get(getExpressPath('/stream'), async function (req, res) {
     const strmid = req.query.strmid;
