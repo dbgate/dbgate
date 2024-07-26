@@ -150,6 +150,16 @@ class LoginsProvider extends AuthProviderBase {
   }
 }
 
+class DenyAllProvider extends AuthProviderBase {
+  shouldAuthorizeApi() {
+    return true;
+  }
+
+  async login(login, password) {
+    return { error: 'Login not allowed' };
+  }
+}
+
 function hasEnvLogins() {
   if (process.env.LOGIN && process.env.PASSWORD) {
     return true;
@@ -163,6 +173,9 @@ function hasEnvLogins() {
 }
 
 function detectEnvAuthProvider() {
+  if (process.env.STORAGE_DATABASE) {
+    return 'denyall';
+  }
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
   }
@@ -187,6 +200,8 @@ function createEnvAuthProvider() {
       return new ADProvider();
     case 'logins':
       return new LoginsProvider();
+    case 'denyall':
+      return new DenyAllProvider();
     default:
       return new AuthProviderBase();
   }
