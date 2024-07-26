@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const axios = require('axios');
 const { datadir, getLogsFilePath } = require('../utility/directories');
-const { hasPermission, getLogins } = require('../utility/hasPermission');
+const { hasPermission } = require('../utility/hasPermission');
 const socket = require('../utility/socket');
 const _ = require('lodash');
 const AsyncLock = require('async-lock');
@@ -11,6 +11,7 @@ const AsyncLock = require('async-lock');
 const currentVersion = require('../currentVersion');
 const platformInfo = require('../utility/platformInfo');
 const connections = require('../controllers/connections');
+const { createAuthProvider } = require('../auth/authProvider');
 
 const lock = new AsyncLock();
 
@@ -27,11 +28,10 @@ module.exports = {
 
   get_meta: true,
   async get(_params, req) {
-    const logins = getLogins();
-    const loginName =
-      req && req.user && req.user.login ? req.user.login : req && req.auth && req.auth.user ? req.auth.user : null;
-    const login = logins && loginName ? logins.find(x => x.login == loginName) : null;
-    const permissions = login ? login.permissions : process.env.PERMISSIONS;
+    const authProvider = createAuthProvider();
+    const login = authProvider.getCurrentLogin(req);
+    const permissions = authProvider.getCurrentPermissions(req);
+    const isLoginForm = authProvider.isLoginForm();
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -47,7 +47,7 @@ module.exports = {
       oauthClient: process.env.OAUTH_CLIENT_ID,
       oauthScope: process.env.OAUTH_SCOPE,
       oauthLogout: process.env.OAUTH_LOGOUT,
-      isLoginForm: !!process.env.AD_URL || (!!logins && !process.env.BASIC_AUTH),
+      isLoginForm,
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),

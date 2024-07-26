@@ -32,7 +32,6 @@ const onFinished = require('on-finished');
 const { rundir } = require('./utility/directories');
 const platformInfo = require('./utility/platformInfo');
 const getExpressPath = require('./utility/getExpressPath');
-const { getLogins } = require('./utility/hasPermission');
 const _ = require('lodash');
 const { getLogger } = require('dbgate-tools');
 const { createAuthProvider } = require('./auth/authProvider');

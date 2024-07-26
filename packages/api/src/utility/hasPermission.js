@@ -1,27 +1,37 @@
 const { compilePermissions, testPermission } = require('dbgate-tools');
 const _ = require('lodash');
+const { createAuthProvider } = require('../auth/authProvider');
 
-const userPermissions = {};
+const cachedPermissions = {};
 
 function hasPermission(tested, req) {
   if (!req) {
     // request object not available, allow all
     return true;
   }
-  const { user } = (req && req.auth) || {};
-  const { login } = (process.env.OAUTH_PERMISSIONS && req && req.user) || {};
-  const key = user || login || '';
-  const logins = getLogins();
 
-  if (!userPermissions[key]) {
-    if (logins) {
-      const login = logins.find(x => x.login == user);
-      userPermissions[key] = compilePermissions(login ? login.permissions : null);
-    } else {
-      userPermissions[key] = compilePermissions(process.env.PERMISSIONS);
-    }
+  const permissions = createAuthProvider().getCurrentPermissions(req);
+
+  if (!cachedPermissions[permissions]) {
+    cachedPermissions[permissions] = compilePermissions(permissions);
   }
-  return testPermission(tested, userPermissions[key]);
+
+  return testPermission(tested, cachedPermissions[permissions]);
+
+  // const { user } = (req && req.auth) || {};
+  // const { login } = (process.env.OAUTH_PERMISSIONS && req && req.user) || {};
+  // const key = user || login || '';
+  // const logins = getLogins();
+
+  // if (!userPermissions[key]) {
+  //   if (logins) {
+  //     const login = logins.find(x => x.login == user);
+  //     userPermissions[key] = compilePermissions(login ? login.permissions : null);
+  //   } else {
+  //     userPermissions[key] = compilePermissions(process.env.PERMISSIONS);
+  //   }
+  // }
+  // return testPermission(tested, userPermissions[key]);
 }
 
 // let loginsCache = null;
@@ -86,7 +96,6 @@ function testConnectionPermission(connection, req) {
 
 module.exports = {
   hasPermission,
-  getLogins,
   connectionHasPermission,
   testConnectionPermission,
 };

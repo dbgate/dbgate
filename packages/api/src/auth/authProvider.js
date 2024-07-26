@@ -61,10 +61,19 @@ class AuthProviderBase {
     return {};
   }
 
-  getCurrentLogin(req) {}
+  getCurrentLogin(req) {
+    const { user } = (req && req.auth) || {};
+    return user;
+  }
 
   getCurrentPermissions(req) {
-    return process.env.PERMISSIONS;
+    const login = this.getCurrentLogin(req);
+    const permissions = process.env[`LOGIN_PERMISSIONS_${login}`];
+    return permissions || process.env.PERMISSIONS;
+  }
+
+  isLoginForm() {
+    return false;
   }
 }
 
@@ -123,6 +132,11 @@ class OAuthProvider extends AuthProviderBase {
 
     return { error: 'Token not found' };
   }
+
+  getCurrentLogin(req) {
+    const { login } = (req && req.user) || {};
+    return login;
+  }
 }
 
 class ADProvider extends AuthProviderBase {
@@ -156,6 +170,10 @@ class ADProvider extends AuthProviderBase {
   shouldAuthorizeApi() {
     return true;
   }
+
+  isLoginForm() {
+    return true;
+  }
 }
 
 class LoginsProvider extends AuthProviderBase {
@@ -183,9 +201,21 @@ class LoginsProvider extends AuthProviderBase {
   shouldAuthorizeApi() {
     return !process.env.BASIC_AUTH;
   }
+
+  getCurrentPermissions(req) {
+    const logins = getEnvLogins();
+    const loginName =
+      req && req.user && req.user.login ? req.user.login : req && req.auth && req.auth.user ? req.auth.user : null;
+    const login = logins && loginName ? logins.find(x => x.login == loginName) : null;
+    return login ? login.permissions : process.env.PERMISSIONS;
+  }
+
+  isLoginForm() {
+    return !process.env.BASIC_AUTH;
+  }
 }
 
-export function detectEnvAuthProvider() {
+function detectEnvAuthProvider() {
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
   }
@@ -201,7 +231,7 @@ export function detectEnvAuthProvider() {
   return 'none';
 }
 
-export function createAuthProvider() {
+function createAuthProvider() {
   const authProvider = detectEnvAuthProvider();
   switch (authProvider) {
     case 'oauth':
@@ -214,3 +244,8 @@ export function createAuthProvider() {
       return new AuthProviderBase();
   }
 }
+
+module.exports = {
+  detectEnvAuthProvider,
+  createAuthProvider,
+};

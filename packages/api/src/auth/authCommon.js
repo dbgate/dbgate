@@ -2,10 +2,15 @@ const crypto = require('crypto');
 
 const tokenSecret = crypto.randomUUID();
 
-export function getTokenLifetime() {
+function getTokenLifetime() {
   return process.env.TOKEN_LIFETIME || '1d';
 }
 
-export function getTokenSecret() {
+function getTokenSecret() {
   return tokenSecret;
 }
+
+module.exports = {
+  getTokenLifetime,
+  getTokenSecret,
+};
