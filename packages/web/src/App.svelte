@@ -22,6 +22,8 @@
   import SettingsListener from './utility/SettingsListener.svelte';
   import { handleAuthOnStartup, handleOauthCallback } from './clientAuth';
 
+  export let isAdminPage = false;
+
   let loadedApi = false;
   let loadedPlugins = false;
 
@@ -35,7 +37,7 @@
       // console.log('************** LOADING API');
 
       const config = await getConfig();
-      await handleAuthOnStartup(config);
+      await handleAuthOnStartup(config, isAdminPage);
 
       const connections = await apiCall('connections/list');
       const settings = await getSettings();

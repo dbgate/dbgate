@@ -39,7 +39,16 @@ export function handleOauthCallback() {
   return false;
 }
 
-export async function handleAuthOnStartup(config) {
+export async function handleAuthOnStartup(config, isAdminPage = false) {
+  if (config.isAdminLoginForm && isAdminPage) {
+    if (localStorage.getItem('adminAccessToken')) {
+      return;
+    }
+
+    redirectToAdminLogin();
+    return;
+  }
+
   if (config.oauth) {
     console.log('OAUTH callback URL:', location.origin + location.pathname);
   }
@@ -52,6 +61,11 @@ export async function handleAuthOnStartup(config) {
   }
 }
 
+export async function redirectToAdminLogin() {
+  internalRedirectTo('/?page=admin-login');
+  return;
+}
+
 export async function redirectToLogin(config = null, force = false) {
   if (!config) {
     enableApi();
@@ -61,7 +75,7 @@ export async function redirectToLogin(config = null, force = false) {
   if (config.isLoginForm) {
     if (!force) {
       const params = new URLSearchParams(location.search);
-      if (params.get('page') == 'login' || params.get('page') == 'not-logged') {
+      if (params.get('page') == 'login' || params.get('page') == 'admin-login' || params.get('page') == 'not-logged') {
         return;
       }
     }

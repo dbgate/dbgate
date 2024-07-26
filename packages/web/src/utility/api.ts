@@ -4,7 +4,7 @@ import { writable } from 'svelte/store';
 import getElectron from './getElectron';
 // import socket from './socket';
 import { showSnackbarError } from '../utility/snackbar';
-import { isOauthCallback, redirectToLogin } from '../clientAuth';
+import { isOauthCallback, redirectToAdminLogin, redirectToLogin } from '../clientAuth';
 import { showModal } from '../modals/modalTools';
 import DatabaseLoginModal, { isDatabaseLoginVisible } from '../modals/DatabaseLoginModal.svelte';
 import _ from 'lodash';
@@ -132,9 +132,13 @@ export async function apiCall(route: string, args: {} = undefined) {
 
       disableApi();
       console.log('Disabling API', route);
-      if (params.get('page') != 'login' && params.get('page') != 'not-logged') {
+      if (params.get('page') != 'login' && params.get('page') != 'admin-login' && params.get('page') != 'not-logged') {
         // unauthorized
-        redirectToLogin();
+        if (params.get('page') == 'admin') {
+          redirectToAdminLogin();
+        } else {
+          redirectToLogin();
+        }
       }
       return;
     }

@@ -25,10 +25,24 @@ function createApp() {
         target: document.body,
         props: {},
       });
+    case 'admin-login':
+      return new LoginPage({
+        target: document.body,
+        props: {
+          isAdminPage: true,
+        },
+      });
     case 'not-logged':
       return new NotLoggedPage({
         target: document.body,
         props: {},
+      });
+    case 'admin':
+      return new App({
+        target: document.body,
+        props: {
+          isAdminPage: true,
+        },
       });
   }
 

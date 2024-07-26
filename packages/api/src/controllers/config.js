@@ -48,6 +48,7 @@ module.exports = {
       oauthScope: process.env.OAUTH_SCOPE,
       oauthLogout: process.env.OAUTH_LOGOUT,
       isLoginForm,
+      isAdminLoginForm: !!(process.env.STORAGE_DATABASE && process.env.ADMIN_PASSWORD && !process.env.BASIC_AUTH),
       storageDatabase: process.env.STORAGE_DATABASE,
       logsFilePath: getLogsFilePath(),
       connectionsFilePath: path.join(datadir(), 'connections.jsonl'),

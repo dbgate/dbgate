@@ -8,6 +8,8 @@
   import FormTextField from './forms/FormTextField.svelte';
   import { apiCall, enableApi } from './utility/api';
 
+  export let isAdminPage;
+
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
     if (removed) removed.remove();
@@ -23,12 +25,14 @@
     <div class="box">
       <div class="heading">Log In</div>
       <FormProvider>
-        <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        {#if !isAdminPage}
+          <FormTextField label="Username" name="login" autocomplete="username" saveOnInput />
+        {/if}
         <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
 
         <div class="submit">
           <FormSubmit
-            value="Log In"
+            value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
             on:click={async e => {
               enableApi();
               const resp = await apiCall('auth/login', e.detail);
