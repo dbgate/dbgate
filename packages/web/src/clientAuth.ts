@@ -41,7 +41,7 @@ export function handleOauthCallback() {
 
 export async function handleAuthOnStartup(config, isAdminPage = false) {
   if (config.isAdminLoginForm && isAdminPage) {
-    if (localStorage.getItem('adminAccessToken')) {
+    if (localStorage.getItem('accessToken')) {
       return;
     }
 

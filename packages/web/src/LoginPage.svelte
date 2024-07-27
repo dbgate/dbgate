@@ -7,8 +7,12 @@
   import FormSubmit from './forms/FormSubmit.svelte';
   import FormTextField from './forms/FormTextField.svelte';
   import { apiCall, enableApi } from './utility/api';
+  import { useConfig } from './utility/metadataLoaders';
+  import ErrorInfo from './elements/ErrorInfo.svelte';
 
   export let isAdminPage;
+
+  const config = useConfig();
 
   onMount(() => {
     const removed = document.getElementById('starting_dbgate_zero');
@@ -30,6 +34,10 @@
         {/if}
         <FormPasswordField label="Password" name="password" autocomplete="current-password" saveOnInput />
 
+        {#if isAdminPage && $config && !$config.isAdminLoginForm}
+          <ErrorInfo message="Admin login is not configured. Please set ADMIN_PASSWORD environment variable" />
+        {/if}
+
         <div class="submit">
           <FormSubmit
             value={isAdminPage ? 'Log In as Administrator' : 'Log In'}
@@ -40,13 +48,19 @@
                 ...e.detail,
               });
               if (resp.error) {
-                internalRedirectTo(`/?page=not-logged&error=${encodeURIComponent(resp.error)}`);
+                internalRedirectTo(
+                  `/?page=not-logged&error=${encodeURIComponent(resp.error)}&is-admin=${isAdminPage ? 'true' : ''}`
+                );
                 return;
               }
               const { accessToken } = resp;
               if (accessToken) {
                 localStorage.setItem('accessToken', accessToken);
-                internalRedirectTo('/');
+                if (isAdminPage) {
+                  internalRedirectTo('/?page=admin');
+                } else {
+                  internalRedirectTo('/');
+                }
                 return;
               }
               internalRedirectTo(`/?page=not-logged`);
