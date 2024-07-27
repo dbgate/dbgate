@@ -1,6 +1,5 @@
 import { getOpenedTabs, openedTabs } from '../stores';
 import _ from 'lodash';
-import getElectron from './getElectron';
 
 export class LoadingToken {
   isCanceled = false;

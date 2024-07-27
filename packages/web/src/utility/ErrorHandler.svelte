@@ -3,6 +3,7 @@
   import _ from 'lodash';
   import { TabDefinition } from '../stores';
   import getElectron from './getElectron';
+  import { getOpenedTabsStorageName } from './pageDefs';
 
   let counter = 0;
   $: counterCopy = counter;
@@ -26,15 +27,15 @@
             )
           ) {
             try {
-              let openedTabs = (await localforage.getItem<TabDefinition[]>('openedTabs')) || [];
+              let openedTabs = (await localforage.getItem<TabDefinition[]>(getOpenedTabsStorageName())) || [];
               if (!_.isArray(openedTabs)) openedTabs = [];
               openedTabs = openedTabs
                 .map(tab => (tab.closedTime ? tab : { ...tab, closedTime: new Date().getTime() }))
                 .map(tab => ({ ...tab, selected: false }));
-              await localforage.setItem('openedTabs', openedTabs);
+              await localforage.setItem(getOpenedTabsStorageName(), openedTabs);
               await localStorage.setItem('selectedWidget', 'history');
             } catch (err) {
-              localforage.removeItem('openedTabs');
+              localforage.removeItem(getOpenedTabsStorageName());
             }
             // try {
             //   await localforage.clear();

@@ -1,5 +1,6 @@
 import { apiCall, enableApi } from './utility/api';
 import { getConfig } from './utility/metadataLoaders';
+import { isAdminPage } from './utility/pageDefs';
 
 export function isOauthCallback() {
   const params = new URLSearchParams(location.search);
@@ -41,7 +42,7 @@ export function handleOauthCallback() {
 
 export async function handleAuthOnStartup(config, isAdminPage = false) {
   if (config.isAdminLoginForm && isAdminPage) {
-    if (localStorage.getItem('accessToken')) {
+    if (localStorage.getItem('adminAccessToken')) {
       return;
     }
 
@@ -107,15 +108,15 @@ export async function doLogout() {
   enableApi();
   const config = await getConfig();
   if (config.oauth) {
-    localStorage.removeItem('accessToken');
+    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
     if (config.oauthLogout) {
       window.location.href = config.oauthLogout;
     } else {
       internalRedirectTo('/?page=not-logged');
     }
   } else if (config.isLoginForm) {
-    localStorage.removeItem('accessToken');
-    internalRedirectTo('/?page=not-logged');
+    localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
+    internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
   } else {
     window.location.href = 'config/logout';
   }

@@ -1,14 +1,15 @@
 import moment from 'moment';
 import localforage from 'localforage';
+import { getOpenedTabsStorageName } from './pageDefs';
 
 export default async function localStorageGarbageCollector() {
-  const openedTabsJson = await localforage.getItem('openedTabs');
+  const openedTabsJson = await localforage.getItem(getOpenedTabsStorageName());
   let openedTabs = openedTabsJson ?? [];
 
   const closeLimit = moment().add(-7, 'day').valueOf();
 
   openedTabs = openedTabs.filter(x => !x.closedTime || x.closedTime > closeLimit);
-  await localforage.setItem('openedTabs', openedTabs);
+  await localforage.setItem(getOpenedTabsStorageName(), openedTabs);
 
   const toRemove = [];
   for (const key in localStorage) {

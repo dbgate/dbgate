@@ -55,7 +55,7 @@
               }
               const { accessToken } = resp;
               if (accessToken) {
-                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem(isAdminPage ? 'adminAccessToken' : 'accessToken', accessToken);
                 if (isAdminPage) {
                   internalRedirectTo('/?page=admin');
                 } else {
