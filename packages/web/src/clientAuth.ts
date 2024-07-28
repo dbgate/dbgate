@@ -30,7 +30,7 @@ export function handleOauthCallback() {
         internalRedirectTo('/');
       } else {
         console.log('Error when processing OAUTH callback', error || errorMessage);
-        internalRedirectTo(`/?page=not-logged&error=${error || errorMessage}`);
+        internalRedirectTo(`?page=not-logged&error=${error || errorMessage}`);
       }
     });
 
@@ -63,7 +63,7 @@ export async function handleAuthOnStartup(config, isAdminPage = false) {
 }
 
 export async function redirectToAdminLogin() {
-  internalRedirectTo('/?page=admin-login');
+  internalRedirectTo('?page=admin-login');
   return;
 }
 
@@ -80,7 +80,7 @@ export async function redirectToLogin(config = null, force = false) {
         return;
       }
     }
-    internalRedirectTo('/?page=login');
+    internalRedirectTo('?page=login');
     return;
   }
 
@@ -112,11 +112,11 @@ export async function doLogout() {
     if (config.oauthLogout) {
       window.location.href = config.oauthLogout;
     } else {
-      internalRedirectTo('/?page=not-logged');
+      internalRedirectTo('?page=not-logged');
     }
   } else if (config.isLoginForm) {
     localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
-    internalRedirectTo(`/?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
+    internalRedirectTo(`?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
   } else {
     window.location.href = 'config/logout';
   }
