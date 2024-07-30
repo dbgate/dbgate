@@ -101,7 +101,7 @@ export function testSubPermission(
 export function getPredefinedPermissions(predefinedRoleName: string) {
   switch (predefinedRoleName) {
     case 'superadmin':
-      return ['*', '~*widgets/*', 'widgets/admin'];
+      return ['*', '~widgets/*', 'widgets/admin'];
     case 'logged-user':
       return ['*', '~widgets/admin', '~admin/*'];
     case 'anonymouse-user':
