@@ -21,5 +21,8 @@ export function resolveApiHeaders() {
   if (accessToken) {
     res['Authorization'] = `Bearer ${accessToken}`;
   }
+  if (isAdminPage()) {
+    res['x-is-admin-page'] = 'true';
+  }
   return res;
 }

@@ -25,7 +25,9 @@ function authMiddleware(req, res, next) {
 
   // console.log('********************* getAuthProvider()', getAuthProvider());
 
-  if (!getAuthProvider().shouldAuthorizeApi()) {
+  const isAdminPage = req.headers['x-is-admin-page'] == 'true';
+
+  if (!isAdminPage && !getAuthProvider().shouldAuthorizeApi()) {
     return next();
   }
   let skipAuth = !!SKIP_AUTH_PATHS.find(x => req.path == getExpressPath(x));
