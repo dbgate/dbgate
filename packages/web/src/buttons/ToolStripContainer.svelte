@@ -1,11 +1,24 @@
+<script lang="ts">
+  import { get_current_component } from 'svelte/internal';
+  import createActivator, { isComponentActiveStore } from '../utility/createActivator';
+
+  const thisInstance = get_current_component();
+
+  export const activator = createActivator('ToolStripContainer', false);
+
+  $: isComponentActive = $isComponentActiveStore('ToolStripContainer', thisInstance);
+</script>
+
 <div class="wrapper">
   <div class="content">
     <slot />
   </div>
 
-  <div class="toolstrip">
-    <slot name="toolstrip" />
-  </div>
+  {#if isComponentActive}
+    <div class="toolstrip">
+      <slot name="toolstrip" />
+    </div>
+  {/if}
 </div>
 
 <style>
