@@ -6,7 +6,7 @@ const AD = require('activedirectory2').promiseWrapper;
 const crypto = require('crypto');
 const { getTokenSecret, getTokenLifetime } = require('../auth/authCommon');
 const { getAuthProvider } = require('../auth/authProvider');
-const { create } = require('lodash');
+const storage = require('./storage');
 
 const logger = getLogger('auth');
 
@@ -65,7 +65,16 @@ module.exports = {
     if (isAdminPage) {
       if (process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD == password) {
         return {
-          accessToken: jwt.sign({ login: 'admin' }, getTokenSecret(), { expiresIn: getTokenLifetime() }),
+          accessToken: jwt.sign(
+            {
+              login: 'superadmin',
+              permissions: await storage.loadSuperadminPermissions(),
+            },
+            getTokenSecret(),
+            {
+              expiresIn: getTokenLifetime(),
+            }
+          ),
         };
       }
 

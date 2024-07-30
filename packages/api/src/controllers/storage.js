@@ -7,4 +7,8 @@ module.exports = {
   async getConnection({ conid }) {
     return null;
   },
+
+  async loadSuperadminPermissions() {
+    return [];
+  }
 };

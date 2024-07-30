@@ -12,12 +12,9 @@
   } from '../stores';
   import mainMenuDefinition from '../../../../app/src/mainMenuDefinition';
   import hasPermission from '../utility/hasPermission';
-  import { isAdminPage } from '../utility/pageDefs';
 
   let domSettings;
   let domMainMenu;
-
-  const isAdmin = isAdminPage();
 
   const widgets = [
     getCurrentConfig().storageDatabase && {
@@ -25,7 +22,7 @@
       name: 'admin',
       title: 'Administration',
     },
-    !isAdmin && {
+    {
       icon: 'icon database',
       name: 'database',
       title: 'Database connections',
@@ -34,32 +31,32 @@
     //   icon: 'fa-table',
     //   name: 'table',
     // },
-    !isAdmin && {
+    {
       icon: 'icon file',
       name: 'file',
       title: 'Favorites & Saved files',
     },
-    !isAdmin && {
+    {
       icon: 'icon history',
       name: 'history',
       title: 'Query history & Closed tabs',
     },
-    !isAdmin && {
+    {
       icon: 'icon archive',
       name: 'archive',
       title: 'Archive (saved tabular data)',
     },
-    !isAdmin && {
+    {
       icon: 'icon plugin',
       name: 'plugins',
       title: 'Extensions & Plugins',
     },
-    !isAdmin && {
+    {
       icon: 'icon cell-data',
       name: 'cell-data',
       title: 'Selected cell data detail view',
     },
-    !isAdmin && {
+    {
       icon: 'icon app',
       name: 'app',
       title: 'Application layers',
@@ -119,17 +116,16 @@
 
   <div class="flex1">&nbsp;</div>
 
-  {#if !isAdmin}
-    <div
-      class="wrapper"
-      title={`Toggle whether tabs from all databases are visible. Currently - ${$lockedDatabaseMode ? 'NO' : 'YES'}`}
-      on:click={() => {
-        $lockedDatabaseMode = !$lockedDatabaseMode;
-      }}
-    >
-      <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
-    </div>
-  {/if}
+  <div
+    class="wrapper"
+    title={`Toggle whether tabs from all databases are visible. Currently - ${$lockedDatabaseMode ? 'NO' : 'YES'}`}
+    on:click={() => {
+      $lockedDatabaseMode = !$lockedDatabaseMode;
+    }}
+  >
+    <FontIcon icon={$lockedDatabaseMode ? 'icon locked-database-mode' : 'icon unlocked-database-mode'} />
+  </div>
+  
   <div class="wrapper" on:click={handleSettingsMenu} bind:this={domSettings}>
     <FontIcon icon="icon settings" />
   </div>

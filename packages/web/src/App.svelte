@@ -42,13 +42,15 @@
       const connections = await apiCall('connections/list');
       const settings = await getSettings();
       const apps = await getUsedApps();
-      loadedApi = settings && connections && config && apps;
+      const loadedApiValue = !!(settings && connections && config && apps);
 
-      if (loadedApi) {
+      if (loadedApiValue) {
         subscribeApiDependendStores();
         subscribeConnectionPingers();
         subscribePermissionCompiler();
       }
+
+      loadedApi = loadedApiValue;
 
       if (!loadedApi) {
         console.log('API not initialized correctly, trying again in 1s');
