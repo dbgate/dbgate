@@ -104,7 +104,7 @@ export function getPredefinedPermissions(predefinedRoleName: string) {
       return ['*', '~widgets/*', 'widgets/admin'];
     case 'logged-user':
       return ['*', '~widgets/admin', '~admin/*'];
-    case 'anonymouse-user':
+    case 'anonymous-user':
       return ['*', '~widgets/admin', '~admin/*'];
     default:
       return null;
