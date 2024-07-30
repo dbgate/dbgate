@@ -32,6 +32,7 @@ module.exports = {
     const login = authProvider.getCurrentLogin(req);
     const permissions = authProvider.getCurrentPermissions(req);
     const isLoginForm = authProvider.isLoginForm();
+    const additionalConfigProps = authProvider.getAdditionalConfigProps();
 
     return {
       runAsPortal: !!connections.portalConnections,
@@ -43,10 +44,7 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       permissions,
       login,
-      oauth: process.env.OAUTH_AUTH,
-      oauthClient: process.env.OAUTH_CLIENT_ID,
-      oauthScope: process.env.OAUTH_SCOPE,
-      oauthLogout: process.env.OAUTH_LOGOUT,
+      ...additionalConfigProps,
       isLoginForm,
       isAdminLoginForm: !!(process.env.STORAGE_DATABASE && process.env.ADMIN_PASSWORD && !process.env.BASIC_AUTH),
       storageDatabase: process.env.STORAGE_DATABASE,

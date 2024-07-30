@@ -35,6 +35,10 @@ class AuthProviderBase {
   isLoginForm() {
     return false;
   }
+
+  getAdditionalConfigProps() {
+    return {};
+  }
 }
 
 class OAuthProvider extends AuthProviderBase {
@@ -91,6 +95,15 @@ class OAuthProvider extends AuthProviderBase {
     }
 
     return { error: 'Token not found' };
+  }
+
+  getAdditionalConfigProps() {
+    return {
+      oauth: process.env.OAUTH_AUTH,
+      oauthClient: process.env.OAUTH_CLIENT_ID,
+      oauthScope: process.env.OAUTH_SCOPE,
+      oauthLogout: process.env.OAUTH_LOGOUT,
+    };
   }
 }
 
@@ -176,7 +189,7 @@ function detectEnvAuthProvider() {
   if (process.env.AUTH_PROVIDER) {
     return process.env.AUTH_PROVIDER;
   }
-  
+
   if (process.env.STORAGE_DATABASE) {
     return 'denyall';
   }

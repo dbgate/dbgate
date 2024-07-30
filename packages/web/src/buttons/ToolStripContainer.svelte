@@ -32,6 +32,7 @@
     display: flex;
     flex: 1;
     position: relative;
+    max-height: 100%;
   }
 
   .toolstrip {
