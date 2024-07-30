@@ -62,11 +62,11 @@
   .main {
     display: flex;
     flex-direction: column;
-    overflow: auto;
   }
 
   .main.flex1 {
     flex: 1;
+    max-width: 100%;
   }
 
   .tabs {
@@ -75,6 +75,12 @@
     min-height: var(--dim-tabs-height);
     right: 0;
     background-color: var(--theme-bg-2);
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .tabs::-webkit-scrollbar {
+    height: 7px;
   }
 
   .tab-item {
