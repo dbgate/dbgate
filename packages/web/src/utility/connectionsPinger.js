@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { openedConnections, currentDatabase, openedConnectionsWithTemporary, getCurrentConfig } from '../stores';
 import { apiCall, strmid } from './api';
 import { getConnectionList } from './metadataLoaders';
+import hasPermission from '../utility/hasPermission';
 
 // const doServerPing = async value => {
 //   const connectionList = getConnectionList();
@@ -11,7 +12,8 @@ import { getConnectionList } from './metadataLoaders';
 
 const doServerPing = value => {
   apiCall('server-connections/ping', {
-    conidArray: getCurrentConfig().storageDatabase ? ['__storage', ...value] : value,
+    conidArray:
+      getCurrentConfig().storageDatabase && hasPermission('internal-storage') ? ['__storage', ...value] : value,
     strmid,
   });
 };

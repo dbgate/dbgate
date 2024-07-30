@@ -71,6 +71,7 @@ module.exports = {
             {
               login: 'superadmin',
               permissions: await storage.loadSuperadminPermissions(),
+              roleId: -3,
             },
             getTokenSecret(),
             {

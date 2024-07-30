@@ -104,7 +104,7 @@ registerCommand({
   category: 'New',
   toolbarOrder: 1,
   name: 'Connection',
-  testEnabled: () => !getCurrentConfig()?.runAsPortal,
+  testEnabled: () => !getCurrentConfig()?.runAsPortal && !getCurrentConfig()?.storageDatabase,
   onClick: () => {
     openNewTab({
       title: 'New Connection',

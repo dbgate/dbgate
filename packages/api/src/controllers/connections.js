@@ -201,7 +201,7 @@ module.exports = {
   async list(_params, req) {
     const storage = require('./storage');
 
-    const storageConnections = await storage.connections();
+    const storageConnections = await storage.connections(req);
     if (storageConnections) {
       return storageConnections;
     }
