@@ -401,6 +401,7 @@
   import { getDatabaseInfo, useDatabaseStatus } from '../utility/metadataLoaders';
   import { showSnackbarSuccess } from '../utility/snackbar';
   import { openJsonLinesData } from '../utility/openJsonLinesData';
+  import contextMenuActivator from '../utility/contextMenuActivator';
 
   export let onLoadNextData = undefined;
   export let grider = undefined;
@@ -1802,6 +1803,7 @@
     bind:clientWidth={containerWidth}
     bind:clientHeight={containerHeight}
     use:contextMenu={buildMenu}
+    use:contextMenuActivator={activator}
     on:wheel={handleGridWheel}
   >
     <input

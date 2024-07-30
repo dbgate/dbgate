@@ -1,8 +1,11 @@
 import { getContext } from 'svelte';
 import { get_current_component, onMount, setContext } from 'svelte/internal';
 import invalidateCommands from '../commands/invalidateCommands';
+import { writable } from 'svelte/store';
 
 const lastActiveDictionary = {};
+
+export const isComponentActiveStore = writable((key: string, component) => false as boolean);
 
 function isParent(parent, child) {
   while (child && child.activator) {
@@ -54,7 +57,7 @@ export default function createActivator(
     }
 
     // console.log('toDelete', toDelete);
-    
+
     for (const del of toDelete) {
       delete lastActiveDictionary[del];
     }
@@ -63,6 +66,10 @@ export default function createActivator(
       parentActivatorInstance.activator.activate();
     }
     // console.log('Active components', lastActiveDictionary);
+
+    isComponentActiveStore.set((key, component) => {
+      return lastActiveDictionary[key] == component;
+    });
   };
 
   const getTabVisible = () => tabVisibleValue;
