@@ -73,7 +73,10 @@ function subscribeCssVariable(store, transform, cssVariable) {
   store.subscribe(value => document.documentElement.style.setProperty(cssVariable, transform(value)));
 }
 
-export const selectedWidget = writableWithStorage('database', isAdminPage() ? 'selectedAdminWidget' : 'selectedWidget');
+export const selectedWidget = writableWithStorage(
+  isAdminPage() ? 'admin' : 'database',
+  isAdminPage() ? 'selectedAdminWidget' : 'selectedWidget'
+);
 export const lockedDatabaseMode = writableWithStorage<boolean>(false, 'lockedDatabaseMode');
 export const visibleWidgetSideBar = writableWithStorage(true, 'visibleWidgetSideBar');
 export const visibleSelectedWidget = derived(

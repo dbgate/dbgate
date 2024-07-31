@@ -117,6 +117,9 @@ export async function doLogout() {
   } else if (config.isLoginForm) {
     localStorage.removeItem(isAdminPage() ? 'adminAccessToken' : 'accessToken');
     internalRedirectTo(`?page=not-logged&is-admin=${isAdminPage() ? 'true' : ''}`);
+  } else if (config.isAdminLoginForm && isAdminPage()) {
+    localStorage.removeItem('adminAccessToken');
+    internalRedirectTo('?page=admin-login&is-admin=true');
   } else {
     window.location.href = 'config/logout';
   }
