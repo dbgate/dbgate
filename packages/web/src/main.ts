@@ -6,6 +6,7 @@ import localStorageGarbageCollector from './utility/localStorageGarbageCollector
 import { handleOauthCallback } from './clientAuth';
 import LoginPage from './LoginPage.svelte';
 import NotLoggedPage from './NotLoggedPage.svelte';
+import ErrorPage from './ErrorPage.svelte';
 
 const isOauthCallback = handleOauthCallback();
 
@@ -22,6 +23,13 @@ function createApp() {
   switch (page) {
     case 'login':
       return new LoginPage({
+        target: document.body,
+        props: {
+          isAdminPage: false,
+        },
+      });
+    case 'error':
+      return new ErrorPage({
         target: document.body,
         props: {},
       });

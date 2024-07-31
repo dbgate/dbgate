@@ -43,6 +43,7 @@ module.exports = {
       allowShellScripting: platformInfo.allowShellScripting,
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
+      isLicenseValid: platformInfo.isLicenseValid,
       permissions,
       login,
       ...additionalConfigProps,

@@ -41,6 +41,10 @@ export function handleOauthCallback() {
 }
 
 export async function handleAuthOnStartup(config, isAdminPage = false) {
+  if (!config.isLicenseValid) {
+    internalRedirectTo(`?page=error`);
+  }
+
   if (config.isAdminLoginForm && isAdminPage) {
     if (localStorage.getItem('adminAccessToken')) {
       return;
