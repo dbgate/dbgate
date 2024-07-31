@@ -44,6 +44,7 @@ module.exports = {
       isDocker: platformInfo.isDocker,
       isElectron: platformInfo.isElectron,
       isLicenseValid: platformInfo.isLicenseValid,
+      licenseError: platformInfo.licenseError,
       permissions,
       login,
       ...additionalConfigProps,

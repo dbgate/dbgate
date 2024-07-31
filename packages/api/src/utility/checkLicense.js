@@ -1,5 +1,5 @@
 function checkLicense() {
-  return true;
+  return null;
 }
 
 module.exports = {

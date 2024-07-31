@@ -43,6 +43,7 @@ export function handleOauthCallback() {
 export async function handleAuthOnStartup(config, isAdminPage = false) {
   if (!config.isLicenseValid) {
     internalRedirectTo(`?page=error`);
+    return;
   }
 
   if (config.isAdminLoginForm && isAdminPage) {

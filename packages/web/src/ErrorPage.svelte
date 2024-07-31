@@ -21,10 +21,12 @@
     <div class="box">
       <div class="heading">Configuration error</div>
       {#if !$config?.isLicenseValid}
-        <ErrorInfo message="Invalid license, please set DBGATE_LICENSE environment variable" />
+        <ErrorInfo message={`Invalid license. Please contact sales@dbgate.eu for more details. ${$config?.licenseError}`} />
       {:else}
         <ErrorInfo message="No error found, try to open app again" />
-        <Link href="?">Back to app</Link>
+        <div class="m-2">
+          <Link href="?">Back to app</Link>
+        </div>
       {/if}
     </div>
   </div>
