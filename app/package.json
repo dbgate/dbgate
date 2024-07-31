@@ -8,7 +8,6 @@
     "electron-log": "^4.4.1",
     "electron-updater": "^4.6.1",
     "lodash.clonedeepwith": "^4.5.0",
-    "oracledb": "^6.6.0",
     "patch-package": "^6.4.7"
   },
   "repository": {
@@ -122,6 +121,7 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "9.6.0",
-    "msnodesqlv8": "^4.2.1"
+    "msnodesqlv8": "^4.2.1",
+    "oracledb": "^6.6.0"
   }
 }

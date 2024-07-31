@@ -52,7 +52,6 @@
     "ncp": "^2.0.0",
     "node-cron": "^2.0.3",
     "on-finished": "^2.4.1",
-    "oracledb": "^6.6.0",
     "pinomin": "^1.0.4",
     "portfinder": "^1.0.28",
     "rimraf": "^3.0.0",
@@ -85,6 +84,7 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "9.6.0",
-    "msnodesqlv8": "^4.2.1"
+    "msnodesqlv8": "^4.2.1",
+    "oracledb": "^6.6.0"
   }
 }

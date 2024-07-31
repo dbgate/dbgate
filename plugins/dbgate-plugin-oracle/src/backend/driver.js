@@ -68,7 +68,7 @@ const driver = {
   }) {
     const oracledb = getOracledb();
     if (authType == 'thick' && !oracleClientInitialized) {
-      oracledb.initOracleClient({ libDir: clientLibraryPath });
+      oracledb.initOracleClient({ libDir: clientLibraryPath || process.env.ORACLE_INSTANT_CLIENT });
       oracleClientInitialized = true;
     }
     client = await oracledb.getConnection({
