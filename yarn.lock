@@ -7978,10 +7978,10 @@ optionator@^0.8.1, optionator@^0.8.3:
   resolved "https://registry.yarnpkg.com/opts/-/opts-2.0.2.tgz#a17e189fbbfee171da559edd8a42423bc5993ce1"
   integrity sha512-k41FwbcLnlgnFh69f4qdUfvDQ+5vaSDnVPFI/y5XuhKRq97EnVVneO9F1ESVCdiVu4fCS2L8usX3mU331hB7pg==
 
-oracledb@^6.5.1:
-  version "6.5.1"
-  resolved "https://registry.yarnpkg.com/oracledb/-/oracledb-6.5.1.tgz#814d985035acdb1a6470b1152af0ca3767569ede"
-  integrity sha512-JzoSGei1wnvmqgKnAZK1W650mzHTZXx+7hClV4mwsbY/ZjUtrpnojNJMYJ2jkOhj7XG5oJPfXc4GqDKaNzkxqg==
+oracledb@^6.6.0:
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/oracledb/-/oracledb-6.6.0.tgz#bb40adbe81a84a1e544c48af9f120c61f030e936"
+  integrity sha512-T3dx+o3j+tVN53wQyr4yGTmoPHLy+a2V8yb1T2PmWrsj3ZlSt2Yu1BgV2yTDqnmBZYpRi/I3yJXRCOHHD7PiyA==
 
 os-tmpdir@~1.0.2:
   version "1.0.2"

@@ -93,6 +93,14 @@
   />
 {/if}
 
+{#if driver?.showConnectionField('clientLibraryPath', $values)}
+  <FormTextField
+    label="Client library path"
+    name="clientLibraryPath"
+    disabled={isConnected}
+  />
+{/if}
+
 {#if driver?.showConnectionField('server', $values)}
   <div class="row">
     <div class="col-9 mr-1">
