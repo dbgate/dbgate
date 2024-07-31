@@ -46,7 +46,9 @@ var config = {
     }),
   ],
   externals: {
-    'better-sqlite3': 'commonjs better-sqlite3 oracledb msnodesqlv8',
+    'better-sqlite3': 'commonjs better-sqlite3',
+    'oracledb': 'commonjs oracledb',
+    'msnodesqlv8': 'commonjs msnodesqlv8',
   },
 };
 
